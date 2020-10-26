@@ -561,15 +561,20 @@ namespace R1Engine
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
         public static Dictionary<GBAIsometric_Pointer, Pointer> GBAIsometric_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
-            switch (gameMode) {
+            switch (gameMode) 
+            {
                 case GameModeSelection.RaymanHoodlumsRevengeEU:
                     return new Dictionary<GBAIsometric_Pointer, uint>() {
                         [GBAIsometric_Pointer.MusyxFile] = 0x080447AC,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.RaymanHoodlumsRevengeUS:
                     return new Dictionary<GBAIsometric_Pointer, uint>() {
                         [GBAIsometric_Pointer.MusyxFile] = 0x08044708,
+                        [GBAIsometric_Pointer.Levels] = 0x080E92E8,
+                        [GBAIsometric_Pointer.Localization] = 0x087F48CC,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

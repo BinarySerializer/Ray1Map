@@ -5,6 +5,8 @@
     /// </summary>
     public enum GBAIsometric_Pointer
     {
-        MusyxFile
+        MusyxFile,
+        Levels,
+        Localization
     }
 }

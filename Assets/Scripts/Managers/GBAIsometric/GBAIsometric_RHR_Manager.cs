@@ -12,7 +12,7 @@ namespace R1Engine
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-
+            new GameInfo_World(0, Enumerable.Range(0, 20).ToArray()), 
         });
 
         public virtual string GetROMFilePath => $"ROM.gba";
@@ -106,6 +106,9 @@ namespace R1Engine
 
         public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
+            // Read the rom
+            var rom = FileFactory.Read<GBAIsometric_ROM>(GetROMFilePath, context);
+
             throw new NotImplementedException();
         }
 
