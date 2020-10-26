@@ -205,7 +205,7 @@ namespace R1Engine
             }
 
             // Initialize link groups
-            currentId = LevelEditorData.ObjManager.InitR1LinkGroups(objList.Select(x => x.ObjData).ToArray());
+            currentId = LevelEditorData.ObjManager.InitLinkGroups(objList.Select(x => x.ObjData).ToArray());
 
             // Set link positions
             foreach (var linkedEvents in objList.Where(x => x.ObjData.EditorLinkGroup != 0 && x.ObjData.CanBeLinkedToGroup).GroupBy(x => x.ObjData.EditorLinkGroup))

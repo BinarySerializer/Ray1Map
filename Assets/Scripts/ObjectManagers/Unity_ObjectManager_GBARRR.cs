@@ -15,7 +15,7 @@ namespace R1Engine
                 GraphicsDataLookup[GraphicsDatas[i]?.GraphicsOffset ?? 0] = i;
         }
 
-        public override int InitR1LinkGroups(IList<Unity_Object> objects)
+        public override int InitLinkGroups(IList<Unity_Object> objects)
         {
             var links = new Dictionary<int, List<Unity_Object_GBARRR>>();
 
@@ -34,7 +34,7 @@ namespace R1Engine
                 foreach (var obj in l.Value)
                     obj.EditorLinkGroup = l.Key;
 
-            return objects.Max(x => x.EditorLinkGroup) + 1;
+            return objects.Any() ? objects.Max(x => x.EditorLinkGroup) + 1 : 1;
         }
 
         public GraphicsData[] GraphicsDatas { get; }
