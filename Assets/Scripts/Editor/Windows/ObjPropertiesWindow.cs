@@ -78,6 +78,8 @@ public class ObjPropertiesWindow : UnityWindow
                         gba.Actor.SerializeImpl(Serializer);
                     else if (selectedObjData is Unity_Object_GBARRR gbaRRR)
                         gbaRRR.Actor.SerializeImpl(Serializer);
+                    else if (selectedObjData is Unity_Object_GBAIsometric gbaIsometric)
+                        gbaIsometric.Object.SerializeImpl(Serializer);
 
                     if (EditorGUI.EndChangeCheck())
                         selectedObjData.HasPendingEdits = true;
