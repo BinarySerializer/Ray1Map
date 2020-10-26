@@ -197,9 +197,11 @@ namespace R1Engine {
         public void DecodeBlock_Sum_Short(byte[] coded, int pos, int length) {
             uint sum = 0;
             for (int i = 0; i < length / 2; i++) {
-                sum = (sum + (uint)(coded[pos + i*2] | (coded[pos + i*2 + 1] << 8))) % 0x10000;
+                uint val = coded[pos + i * 2];
+                if(pos + i * 2 + 1 < coded.Length) val += (uint)(coded[pos + i * 2 + 1] << 8);
+                sum = (sum + val) % 0x10000;
                 coded[pos + i*2] = (byte)(sum & 0xFF);
-                coded[pos + i*2 + 1] = (byte)(sum >> 8);
+                if (pos + i * 2 + 1 < coded.Length) coded[pos + i*2 + 1] = (byte)(sum >> 8);
             }
         }
         public void DecodeBlock_Copy(byte[] coded, int pos, int length) {
