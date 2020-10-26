@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -164,22 +165,22 @@ namespace R1Engine {
                     buffer[location] = (ushort)((msb << 8) | lsb);
                 }
                 int curSz = 0;
-                int puVar6 = 0;
+                Stack<byte> puVar6 = new Stack<byte>();
+                //UnityEngine.Debug.Log($"1: td{toDecompress}: ip{inPos}, op{outPos}");
                 while (curSz != blockSz) {
                     uint unk = compressed[inPos++];
+                    //UnityEngine.Debug.Log($"2: td{toDecompress}: ip{inPos}, op{outPos}, unk{unk}");
                     while (true) {
                         while (buffer[unk] != unk) {
                             ushort buf = buffer[unk];
                             unk = (uint)BitHelpers.ExtractBits(buf, 8, 0);
-                            puVar6 -= 1;
-                            buffer[puVar6 * 2] = (ushort)BitHelpers.ExtractBits(buf, 8, 8);
-                            buffer[puVar6 * 2 + 1] = 0;
+                            puVar6.Push((byte)BitHelpers.ExtractBits(buf, 8, 8));
                         }
                         decompressed[outPos++] = (byte)unk;
+                        //UnityEngine.Debug.Log($"3: td{toDecompress}: ip{inPos}, op{outPos}, unk{unk}");
                         curSz++;
-                        if(puVar6 == 0) break;
-                        unk = (uint)(buffer[puVar6 * 2] | (buffer[puVar6 * 2 + 1] << 16));
-                        puVar6 += 1;
+                        if(puVar6.Count == 0) break;
+                        unk = puVar6.Pop();
                     }
                 }
                 toDecompress -= blockSz;
@@ -310,9 +311,9 @@ namespace R1Engine {
                         throw new NotImplementedException();
                         //break;
                 }
-            } catch (Exception) {
+            } catch (Exception ex) {
                 //Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + "crashedBlock.bin", decompressed);
-                throw;
+                throw new Exception($"{cmd}:{byte2LowerNibble}:{byte2UpperNibble} - {ex.Message}");
             }
 
             return decompressed;

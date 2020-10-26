@@ -49,6 +49,7 @@ namespace R1Engine
             catch (Exception ex)
             {
                 Debug.LogWarning($"Failed to decompress: {ex.Message}");
+                s.Log($"{MapDataPointer}: Failed to decompress: {ex.Message}");
             }
         }
 
