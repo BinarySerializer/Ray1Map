@@ -126,7 +126,7 @@ namespace R1Engine
 
             var objManager = new Unity_ObjectManager(context);
 
-            var objects = rom.LevelInfos[context.Settings.Level].LevelDataPointer.Value.ObjectsPointer.Value.Value.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)).ToList();
+            var objects = rom.LevelInfos[context.Settings.Level].LevelDataPointer.Value.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)).ToList();
 
             return UniTask.FromResult(new Unity_Level(
                 maps: maps, 

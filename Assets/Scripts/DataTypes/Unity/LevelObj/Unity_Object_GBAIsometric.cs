@@ -33,6 +33,16 @@ namespace R1Engine
         public override string PrimaryName => $"Object ({XPosition}, {YPosition})";
         public override string SecondaryName => $"Object ({XPosition}, {YPosition})";
 
+        public override bool CanBeLinked => true;
+        public override IEnumerable<int> Links
+        {
+            get
+            {
+                if (Object.LinkIndex != 0xFF)
+                    yield return Object.LinkIndex;
+            }
+        }
+
         public override Unity_ObjAnimation CurrentAnimation => null;
         public override int AnimSpeed => 0;
         public override int? GetAnimIndex => 0;

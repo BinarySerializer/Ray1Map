@@ -573,6 +573,7 @@ namespace R1Engine
                         [GBAIsometric_Pointer.MusyxFile] = 0x08044708,
                         [GBAIsometric_Pointer.Levels] = 0x080E92E8,
                         [GBAIsometric_Pointer.Localization] = 0x087F48CC,
+                        [GBAIsometric_Pointer.ObjTypes] = 0x080f9770,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

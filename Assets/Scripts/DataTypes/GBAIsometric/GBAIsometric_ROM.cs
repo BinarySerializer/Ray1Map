@@ -4,6 +4,7 @@
     {
         public GBAIsometric_LevelInfo[] LevelInfos { get; set; }
         public GBAIsometric_LocalizationTable Localization { get; set; }
+        public GBAIsometric_ObjectType[] ObjectTypes { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -21,6 +22,9 @@
 
             // Serialize localization
             Localization = s.DoAt(pointerTable[GBAIsometric_Pointer.Localization], () => s.SerializeObject<GBAIsometric_LocalizationTable>(Localization, name: nameof(Localization)));
+
+            // Serialize object types
+            ObjectTypes = s.DoAt(pointerTable[GBAIsometric_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
         }
     }
 }

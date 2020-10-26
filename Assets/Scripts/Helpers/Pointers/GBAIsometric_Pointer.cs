@@ -7,6 +7,7 @@
     {
         MusyxFile,
         Levels,
-        Localization
+        Localization,
+        ObjTypes
     }
 }
