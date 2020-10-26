@@ -8,12 +8,12 @@
         public GBAIsometric_LevelDataLayer BG3 { get; set; }
 
         public uint ObjectsCount { get; set; }
-        public uint Unk1 { get; set; }
+        public uint UnkDataCount { get; set; } // Waypoints?
         public uint Unk2 { get; set; }
         public uint Unk3 { get; set; }
 
         public Pointer<ObjectArray<GBAIsometric_Object>> ObjectsPointer { get; set; }
-        public Pointer Pointer1 { get; set; } // Structs of size 0x0C
+        public Pointer<ObjectArray<GBAIsometric_UnkData>> UnkDataPointer { get; set; } // Waypoints?
         public Pointer Pointer2 { get; set; } // Compressed data?
 
         // TODO: There appears to be more data here
@@ -26,12 +26,12 @@
             BG3 = s.SerializeObject<GBAIsometric_LevelDataLayer>(BG3, name: nameof(BG3));
 
             ObjectsCount = s.Serialize<uint>(ObjectsCount, name: nameof(ObjectsCount));
-            Unk1 = s.Serialize<uint>(Unk1, name: nameof(Unk1));
+            UnkDataCount = s.Serialize<uint>(UnkDataCount, name: nameof(UnkDataCount));
             Unk2 = s.Serialize<uint>(Unk2, name: nameof(Unk2));
             Unk3 = s.Serialize<uint>(Unk3, name: nameof(Unk3));
 
             ObjectsPointer = s.SerializePointer<ObjectArray<GBAIsometric_Object>>(ObjectsPointer, resolve: true, onPreSerialize: x => x.Length = ObjectsCount, name: nameof(ObjectsPointer));
-            Pointer1 = s.SerializePointer(Pointer1, name: nameof(Pointer1));
+            UnkDataPointer = s.SerializePointer<ObjectArray<GBAIsometric_UnkData>>(UnkDataPointer, resolve: true, onPreSerialize: x => x.Length = UnkDataCount, name: nameof(UnkDataPointer));
             Pointer2 = s.SerializePointer(Pointer2, name: nameof(Pointer2));
         }
     }
