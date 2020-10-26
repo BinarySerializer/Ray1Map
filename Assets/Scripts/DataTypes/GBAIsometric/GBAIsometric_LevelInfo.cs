@@ -2,28 +2,37 @@
 {
     public class GBAIsometric_LevelInfo : R1Serializable
     {
-        public Pointer LevelDataPointer { get; set; } // Leads to 4 layer structs, followed by more data
+        public Pointer<GBAIsometric_LevelData> LevelDataPointer { get; set; }
 
-        public ushort MurfyStampScore1 { get; set; }
-        public ushort MurfyStampScore2 { get; set; }
-        public ushort MurfyStampScore3 { get; set; }
+        public short MurfyStampScore1 { get; set; }
+        public short MurfyStampScore2 { get; set; }
+        public short MurfyStampScore3 { get; set; }
 
-        public ushort Ushort_0A { get; set; }
-        public ushort Ushort_0C { get; set; }
+        public short Short_0A { get; set; }
+        public short Short_0C { get; set; }
 
-        public byte[] Bytes_0E { get; set; }
+        public short Short_0E { get; set; }
+        public short Short_10 { get; set; }
+        public short Short_12 { get; set; }
+        public short Short_14 { get; set; }
+
+        public byte[] Bytes_16 { get; set; }
 
         public Pointer UnkPointer { get; set; } // Only set in some levels
 
         public override void SerializeImpl(SerializerObject s)
         {
-            LevelDataPointer = s.SerializePointer(LevelDataPointer, name: nameof(LevelDataPointer));
-            MurfyStampScore1 = s.Serialize<ushort>(MurfyStampScore1, name: nameof(MurfyStampScore1));
-            MurfyStampScore2 = s.Serialize<ushort>(MurfyStampScore2, name: nameof(MurfyStampScore2));
-            MurfyStampScore3 = s.Serialize<ushort>(MurfyStampScore3, name: nameof(MurfyStampScore3));
-            Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
-            Ushort_0C = s.Serialize<ushort>(Ushort_0C, name: nameof(Ushort_0C));
-            Bytes_0E = s.SerializeArray<byte>(Bytes_0E, 22, name: nameof(Bytes_0E));
+            LevelDataPointer = s.SerializePointer<GBAIsometric_LevelData>(LevelDataPointer, resolve: true, name: nameof(LevelDataPointer));
+            MurfyStampScore1 = s.Serialize<short>(MurfyStampScore1, name: nameof(MurfyStampScore1));
+            MurfyStampScore2 = s.Serialize<short>(MurfyStampScore2, name: nameof(MurfyStampScore2));
+            MurfyStampScore3 = s.Serialize<short>(MurfyStampScore3, name: nameof(MurfyStampScore3));
+            Short_0A = s.Serialize<short>(Short_0A, name: nameof(Short_0A));
+            Short_0C = s.Serialize<short>(Short_0C, name: nameof(Short_0C));
+            Short_0E = s.Serialize<short>(Short_0E, name: nameof(Short_0E));
+            Short_10 = s.Serialize<short>(Short_10, name: nameof(Short_10));
+            Short_12 = s.Serialize<short>(Short_12, name: nameof(Short_12));
+            Short_14 = s.Serialize<short>(Short_14, name: nameof(Short_14));
+            Bytes_16 = s.SerializeArray<byte>(Bytes_16, 14, name: nameof(Bytes_16));
             UnkPointer = s.SerializePointer(UnkPointer, name: nameof(UnkPointer));
         }
     }

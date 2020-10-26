@@ -109,7 +109,30 @@ namespace R1Engine
             // Read the rom
             var rom = FileFactory.Read<GBAIsometric_ROM>(GetROMFilePath, context);
 
-            throw new NotImplementedException();
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map
+                {
+                    Width = 120,
+                    Height = 120,
+                    TileSetWidth = 1,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        new Unity_MapTileMap(CellSize),
+                    },
+                    MapTiles = Enumerable.Repeat(new Unity_Tile(new MapTile()), 120 * 120).ToArray(),
+                }
+            };
+
+            var objManager = new Unity_ObjectManager(context);
+
+            var objects = rom.LevelInfos[context.Settings.Level].LevelDataPointer.Value.ObjectsPointer.Value.Value.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)).ToList();
+
+            return UniTask.FromResult(new Unity_Level(
+                maps: maps, 
+                objManager: objManager,
+                eventData: objects,
+                cellSize: CellSize));
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
