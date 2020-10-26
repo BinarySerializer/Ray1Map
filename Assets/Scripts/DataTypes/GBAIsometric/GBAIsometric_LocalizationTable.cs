@@ -24,6 +24,9 @@ namespace R1Engine
                                     Localization[i][j] = s.SerializeString(Localization[i][j], encoding: Encoding.GetEncoding(1252), name: $"{nameof(Localization)}[{i}][{j}]");
                                 });
                             }
+
+                            // Go to end
+                            s.Goto(s.CurrentPointer + s.CurrentLength);
                         });
                     });
                 }

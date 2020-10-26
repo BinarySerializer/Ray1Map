@@ -18,7 +18,7 @@
 
         public byte[] Bytes_16 { get; set; }
 
-        public Pointer UnkPointer { get; set; } // Only set in some levels
+        public Pointer<GBAIsometric_MapLayer> MapPointer { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -33,7 +33,7 @@
             Short_12 = s.Serialize<short>(Short_12, name: nameof(Short_12));
             Short_14 = s.Serialize<short>(Short_14, name: nameof(Short_14));
             Bytes_16 = s.SerializeArray<byte>(Bytes_16, 14, name: nameof(Bytes_16));
-            UnkPointer = s.SerializePointer(UnkPointer, name: nameof(UnkPointer));
+            MapPointer = s.SerializePointer(MapPointer, resolve: true, name: nameof(MapPointer));
         }
     }
 }
