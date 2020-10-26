@@ -60,7 +60,7 @@ namespace R1Engine
                 {
                     for (int x = 0; x < scale; x++)
                     {
-                        tex.SetPixel(mainX * scale + x, mainY * scale + y, col);
+                        tex.SetPixel(mainX * scale + x, tex.height - (mainY * scale + y) - 1, col);
                     }
                 }
             }
