@@ -128,7 +128,7 @@ namespace R1Engine
                 };
             }).ToArray();
 
-            var objManager = new Unity_ObjectManager(context);
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes);
 
             var objects = rom.LevelInfos[context.Settings.Level].LevelDataPointer.Value.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)).ToList();
 

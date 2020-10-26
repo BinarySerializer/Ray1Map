@@ -6,14 +6,14 @@ namespace R1Engine
 {
     public class Unity_Object_GBAIsometric : Unity_Object
     {
-        public Unity_Object_GBAIsometric(GBAIsometric_Object obj, Unity_ObjectManager objManager)
+        public Unity_Object_GBAIsometric(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometric objManager)
         {
             Object = obj;
             ObjManager = objManager;
         }
 
         public GBAIsometric_Object Object { get; }
-        public Unity_ObjectManager ObjManager { get; }
+        public Unity_ObjectManager_GBAIsometric ObjManager { get; }
 
         public override short XPosition
         {
@@ -26,12 +26,14 @@ namespace R1Engine
             set => Object.YPosition = value;
         }
 
-        public override string DebugText => String.Empty;
+        public override string DebugText => $"AnimSet: {AnimGroupName}{Environment.NewLine}";
+
+        public string AnimGroupName => ObjManager.Types[Object.ObjectType].DataPointer?.Value?.AnimSetPointer?.Value?.Name;
 
         public override ILegacyEditorWrapper LegacyWrapper { get; }
 
-        public override string PrimaryName => $"Object ({XPosition}, {YPosition})";
-        public override string SecondaryName => $"Object ({XPosition}, {YPosition})";
+        public override string PrimaryName => $"{AnimGroupName?.Replace("AnimSet", String.Empty) ?? $"Type_{Object.ObjectType}"}";
+        public override string SecondaryName => null;
 
         public override bool CanBeLinked => true;
         public override IEnumerable<int> Links
