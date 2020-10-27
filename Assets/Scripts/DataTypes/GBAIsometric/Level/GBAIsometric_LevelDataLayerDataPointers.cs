@@ -60,7 +60,7 @@ namespace R1Engine
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"Failed to decompress: {ex.Message}");
+                Debug.LogWarning($"Failed to decompress {Pointer5}: {ex.Message}\n{ex.InnerException?.StackTrace}");
             }
             try
             {

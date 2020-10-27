@@ -26,9 +26,11 @@ namespace R1Engine {
                 for (int i = 0; i < compressedCount; i++) {
                     decompressed[outPos + i] = repeatByte;
                 }
+                outPos += compressedCount;
                 for (int i = 0; i < uncompressedCount; i++) {
                     decompressed[outPos + i] = compressed[inPos++];
                 }
+                outPos += uncompressedCount;
                 toDecompress -= compressedCount + uncompressedCount;
             }
         }
@@ -52,7 +54,6 @@ namespace R1Engine {
                         } else {
                             if (!flag14) {
                                 byte count = reader.ReadByte();
-                                reader.ReadByte(); // Maybe this shouldn't be done?
                                 for (int i = 0; i < count; i++) {
                                     writer.Write(toWrite);
                                 }
@@ -75,40 +76,38 @@ namespace R1Engine {
         }
 
         public void DecompressBlock_Bits(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
-            uint commandOffset = 0;
+            uint commandOffset = (uint)(compressed[inPos] | (compressed[inPos+1] << 8));
+            uint endOffset = (uint)(compressed[inPos+2] | (compressed[inPos+3] << 8));
+            inPos += 4;
             int curCommandOffset = 0;
-            uint curCommand = 0;
-            uint startOffset = (uint)inPos + 4;
+            byte curCommand = 0;
+            uint startOffset = (uint)inPos;
             uint curOffset = 0;
-            int curCommandBits = 8;
-            using (Reader reader = new Reader(new MemoryStream(compressed))) {
-                reader.BaseStream.Position = inPos;
-                commandOffset = reader.ReadUInt32();
-                inPos += 4;
+            int curCommandBit = 0;
+            void GetNewCommandBit(int bytesLeft) {
+                if (curCommandBit == 0) {
+                    curCommandBit = 7;
+                    if (bytesLeft > 0) {
+                        curCommand = compressed[startOffset + commandOffset + curCommandOffset++];
+                    }
+                } else {
+                    curCommandBit--;
+                }
             }
-            if (toDecompress > 0) {
-                curCommand = compressed[startOffset + commandOffset + curCommandOffset];
-            }
+            GetNewCommandBit(toDecompress);
             while (toDecompress > 0) {
-                if ((curCommand & 0x80) != 0) {
+                if (BitHelpers.ExtractBits(curCommand,1,curCommandBit) == 1) {
                     curOffset += 2;
                 }
                 byte bVar1 = compressed[startOffset + curOffset + 1];
                 if (bVar1 == 0) {
                     decompressed[outPos++] = compressed[startOffset + curOffset];
                     toDecompress--;
+                    curOffset = 0;
                 } else {
                     curOffset += (uint)bVar1 * 2;
                 }
-                curCommand = curCommand << 1;
-                curCommandBits--;
-                if (curCommandBits == 0) {
-                    curCommandBits = 8;
-                    curCommandOffset++;
-                    if (toDecompress > 0) {
-                        curCommand = compressed[startOffset + commandOffset + curCommandOffset];
-                    }
-                }
+                GetNewCommandBit(toDecompress);
             }
             inPos = compressed.Length;
         }
@@ -216,7 +215,7 @@ namespace R1Engine {
             int curByte = 0;
             for (int i = 0; i < length; i++) {
                 byte inByte = coded[pos + i];
-                int index = inByte + curByte;
+                int index = (inByte + curByte) & 0xFF;
                 byte bufByte = buffer[index];
                 coded[pos + i] = bufByte;
                 if (inByte != 0) {
@@ -230,11 +229,15 @@ namespace R1Engine {
 
         public byte[] ReadBlock(Reader reader, int decompressedBlockSize) {
             reader.Align(4);
+            bool log = false;
+            //bool log = true;
+            string logOffset = $"{reader.BaseStream.Position:X8}";
             ushort head = reader.ReadUInt16();
             byte unk0 = reader.ReadByte();
             byte unk1 = reader.ReadByte();
             int compressedSize = reader.ReadInt32();
 
+            byte cmd = (byte)BitHelpers.ExtractBits(head, 7, 0);
             int byte2UpperNibble = BitHelpers.ExtractBits(head, 4, 12);
             int byte2LowerNibble = BitHelpers.ExtractBits(head, 4, 8);
             uint local_2c = 0;
@@ -252,7 +255,9 @@ namespace R1Engine {
 
             byte[] decompressed = new byte[decompressedBlockSize];
 
-            byte cmd = (byte)BitHelpers.ExtractBits(head,7,0);
+            if (log) {
+                Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + $"blocks/{logOffset}_{cmd}-{byte2LowerNibble}-{byte2UpperNibble}_compressed.bin", compressed);
+            }
             try {
                 switch (cmd) {
                     case 0:
@@ -280,6 +285,9 @@ namespace R1Engine {
                         DecompressBlock_Buffer(compressed, decompressed, ref inPos, ref outPos, ref toDecompress);
                         break;
                 }
+                if (log) {
+                    Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + $"blocks/{logOffset}_{cmd}-{byte2LowerNibble}-{byte2UpperNibble}_after_1.bin", decompressed);
+                }
                 switch (byte2LowerNibble) {
                     case 1:
                         DecodeBlock_Sum_Byte(decompressed, 0, decompressed.Length);
@@ -293,6 +301,9 @@ namespace R1Engine {
                     case 4:
                         DecodeBlock_Buffer(decompressed, 0, decompressed.Length);
                         break;
+                }
+                if (log) {
+                    Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + $"blocks/{logOffset}_{cmd}-{byte2LowerNibble}-{byte2UpperNibble}_after_2.bin", decompressed);
                 }
                 switch (byte2UpperNibble) {
                     case 1:
@@ -313,9 +324,14 @@ namespace R1Engine {
                         throw new NotImplementedException();
                         //break;
                 }
+                if (log) {
+                    Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + $"blocks/{logOffset}_{cmd}-{byte2LowerNibble}-{byte2UpperNibble}_after_3.bin", decompressed);
+                }
             } catch (Exception ex) {
-                //Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + "crashedBlock.bin", decompressed);
-                throw new Exception($"{cmd}:{byte2LowerNibble}:{byte2UpperNibble} - {ex.Message}");
+                if (log) {
+                    Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + $"blocks/{logOffset}_{cmd}-{byte2LowerNibble}-{byte2UpperNibble}_crashedBlock.bin", decompressed);
+                }
+                throw new Exception($"{cmd}:{byte2LowerNibble}:{byte2UpperNibble} - {ex.Message}", ex);
             }
 
             return decompressed;
