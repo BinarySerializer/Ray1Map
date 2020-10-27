@@ -297,8 +297,8 @@ namespace R1Engine {
 
         private byte[] ReadBlock(Reader reader, int decompressedBlockSize) {
             reader.Align(4);
-            //bool log = false;
-            bool log = true;
+            bool log = false;
+            //bool log = true;
             string logOffset = $"{reader.BaseStream.Position:X8}";
             ushort head = reader.ReadUInt16();
             byte unk0 = reader.ReadByte();
