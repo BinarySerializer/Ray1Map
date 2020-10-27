@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEditor.UI;
 using UnityEngine;
 
 namespace R1Engine {
@@ -10,15 +11,37 @@ namespace R1Engine {
     /// </summary>
     public class RHREncoder : IStreamEncoder
     {
+        private byte[] PreviousBuffer { get; set; }
+        private byte[] GetPreviousBuffer(int size) {
+            if (PreviousBuffer == null || PreviousBuffer.Length < size) {
+                return new byte[size];
+            } else {
+                return PreviousBuffer;
+            }
+        }
+        private void SavePreviousBuffer(byte[] buffer) {
+            if(buffer != null) PreviousBuffer = buffer;
+        }
+        private ushort[] PreviousShortBuffer { get; set; }
+        private ushort[] GetPreviousShortBuffer(int size) {
+            if (PreviousShortBuffer == null || PreviousShortBuffer.Length < size) {
+                return new ushort[size];
+            } else {
+                return PreviousShortBuffer;
+            }
+        }
+        private void SavePreviousShortBuffer(ushort[] buffer) {
+            if (buffer != null) PreviousShortBuffer = buffer;
+        }
 
-        public void DecompressBlock_Copy(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+        private void DecompressBlock_Copy(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
             Array.Copy(compressed, inPos, decompressed, outPos, toDecompress);
             inPos += toDecompress;
             outPos += toDecompress;
             toDecompress = 0;
         }
 
-        public void DecompressBlock_RLE(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+        private void DecompressBlock_RLE(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
             while (toDecompress > 0) {
                 byte compressedCount = compressed[inPos++];
                 byte uncompressedCount = compressed[inPos++];
@@ -35,7 +58,7 @@ namespace R1Engine {
             }
         }
 
-        public void DecompressBlock_Shorts(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+        private void DecompressBlock_Shorts(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
             using (Reader reader = new Reader(new MemoryStream(compressed))) {
                 reader.BaseStream.Position = inPos;
                 using (Writer writer = new Writer(new MemoryStream())) {
@@ -75,7 +98,7 @@ namespace R1Engine {
             }
         }
 
-        public void DecompressBlock_Bits(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+        private void DecompressBlock_Bits(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
             uint commandOffset = (uint)(compressed[inPos] | (compressed[inPos+1] << 8));
             uint endOffset = (uint)(compressed[inPos+2] | (compressed[inPos+3] << 8));
             inPos += 4;
@@ -112,7 +135,7 @@ namespace R1Engine {
             inPos = compressed.Length;
         }
 
-        public void DecompressBlock_Window(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+        private void DecompressBlock_Window(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
             while (toDecompress > 0) {
                 byte cmd = compressed[inPos++];
                 if (BitHelpers.ExtractBits(cmd, 1, 7) == 0) {
@@ -148,7 +171,7 @@ namespace R1Engine {
             }
         }
 
-        public void DecompressBlock_Buffer(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+        private void DecompressBlock_Buffer(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
             while (toDecompress > 0) {
                 int blockSz = Math.Min(0x800, toDecompress);
                 // Fill temp buffer
@@ -186,14 +209,14 @@ namespace R1Engine {
             }
         }
 
-        public void DecodeBlock_Sum_Byte(byte[] coded, int pos, int length) {
+        private void DecodeBlock_Sum_Byte(byte[] coded, int pos, int length) {
             uint sum = 0;
             for (int i = 0; i < length; i++) {
                 sum = (sum + coded[pos + i]) % 0x100;
                 coded[pos + i] = (byte)sum;
             }
         }
-        public void DecodeBlock_Sum_Short(byte[] coded, int pos, int length) {
+        private void DecodeBlock_Sum_Short(byte[] coded, int pos, int length) {
             uint sum = 0;
             for (int i = 0; i < length / 2; i++) {
                 uint val = coded[pos + i * 2];
@@ -203,10 +226,10 @@ namespace R1Engine {
                 if (pos + i * 2 + 1 < coded.Length) coded[pos + i*2 + 1] = (byte)(sum >> 8);
             }
         }
-        public void DecodeBlock_Copy(byte[] coded, int pos, int length) {
+        private void DecodeBlock_Copy(byte[] coded, int pos, int length) {
             // Do nothing
         }
-        public void DecodeBlock_Buffer(byte[] coded, int pos, int length) {
+        private void DecodeBlock_Buffer(byte[] coded, int pos, int length) {
             // Fill temp buffer
             byte[] buffer = new byte[0x100];
             for (int i = 0; i < buffer.Length; i++) {
@@ -226,11 +249,56 @@ namespace R1Engine {
             }
         }
 
+        private void DecodeBlock_PreviousBuffer_Short(byte[] coded, int pos, int length, uint startBufferIndex, byte[] previousBuffer, ushort[] previousShortBuffer) {
+            // Fill temp buffer
+            short[] buffer = new short[0x100];
+            ushort[] countBuffer = new ushort[0x100];
+            for (int i = 0; i < buffer.Length; i++) {
+                buffer[i] = (short)i;
+            }
+            for (int i = length - 1; i >= 0; i--) {
+                short buf = buffer[previousBuffer[i]];
+                // Loop around
+                if (buf == short.MaxValue) {
+                    buffer[previousBuffer[i]] = short.MinValue;
+                } else {
+                    buffer[previousBuffer[i]] = (short)(buffer[previousBuffer[i]] + 1);
+                }
+            }
+            short curShort = 0;
+            for (int i = 0; i < buffer.Length; i++) {
+                short shortDelta = buffer[i];
+                buffer[i] = curShort;
+                int newShort = curShort + shortDelta;
+                // Loop around
+                if (newShort > short.MaxValue) {
+                    newShort -= 0x10000;
+                } else if (newShort < short.MinValue) {
+                    newShort += 0x10000;
+                }
+                curShort = (short)newShort;
+                //BitConverter.ToUInt16(BitConverter.GetBytes(buf), 0);
 
-        public byte[] ReadBlock(Reader reader, int decompressedBlockSize) {
+                buffer[i] = (short)i;
+            }
+            for (int i = 0; i < length; i++) {
+                byte b = previousBuffer[i];
+                ushort count = countBuffer[b];
+                short s = buffer[b];
+                countBuffer[b] = countBuffer[b] == 0xFFFF ? (ushort)0 : (ushort)(countBuffer[b] + 1);
+                previousShortBuffer[count + s] = (ushort)i; // might need to convert s to a ushort
+            }
+            uint bufferIndex = startBufferIndex;
+            for (int i = 0; i < length; i++) {
+                coded[i] = previousBuffer[bufferIndex];
+                bufferIndex = previousShortBuffer[bufferIndex];
+            }
+        }
+
+        private byte[] ReadBlock(Reader reader, int decompressedBlockSize) {
             reader.Align(4);
-            bool log = false;
-            //bool log = true;
+            //bool log = false;
+            bool log = true;
             string logOffset = $"{reader.BaseStream.Position:X8}";
             ushort head = reader.ReadUInt16();
             byte unk0 = reader.ReadByte();
@@ -240,12 +308,12 @@ namespace R1Engine {
             byte cmd = (byte)BitHelpers.ExtractBits(head, 7, 0);
             int byte2UpperNibble = BitHelpers.ExtractBits(head, 4, 12);
             int byte2LowerNibble = BitHelpers.ExtractBits(head, 4, 8);
-            uint local_2c = 0;
-            if (byte2UpperNibble > 4) {
+            uint startBufferIndex = 0;
+            /*if (byte2UpperNibble > 4) {
                 throw new NotImplementedException();
-            }
+            }*/
             if (byte2UpperNibble == 5) {
-                local_2c = reader.ReadUInt32();
+                startBufferIndex = reader.ReadUInt32();
                 compressedSize -= 4;
             }
             byte[] compressed = reader.ReadBytes(compressedSize);
@@ -305,6 +373,7 @@ namespace R1Engine {
                 if (log) {
                     Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + $"blocks/{logOffset}_{cmd}-{byte2LowerNibble}-{byte2UpperNibble}_after_2.bin", decompressed);
                 }
+                byte[] previousBuffer = byte2UpperNibble > 4 ? GetPreviousBuffer(decompressed.Length) : null;
                 switch (byte2UpperNibble) {
                     case 1:
                         DecodeBlock_Sum_Byte(decompressed, 0, decompressed.Length);
@@ -319,11 +388,18 @@ namespace R1Engine {
                         DecodeBlock_Buffer(decompressed, 0, decompressed.Length);
                         break;
                     case 5:
+                        ushort[] previousBuffer2 = GetPreviousShortBuffer(decompressed.Length);
+                        DecodeBlock_PreviousBuffer_Short(decompressed, 0, decompressed.Length, startBufferIndex, previousBuffer, previousBuffer2);
+                        SavePreviousShortBuffer(previousBuffer2);
+                        break;
                     case 6:
+                        throw new NotImplementedException();
+                        //break;
                     case 7:
                         throw new NotImplementedException();
                         //break;
                 }
+                SavePreviousBuffer(previousBuffer);
                 if (log) {
                     Util.ByteArrayToFile(LevelEditorData.MainContext.BasePath + $"blocks/{logOffset}_{cmd}-{byte2LowerNibble}-{byte2UpperNibble}_after_3.bin", decompressed);
                 }
@@ -349,11 +425,13 @@ namespace R1Engine {
             ushort unk = reader.ReadUInt16();
             ushort blockSize = reader.ReadUInt16();
             uint bytesRead = 0;
+            int curBlock = 0;
             while (bytesRead < totalSize) {
                 int toRead = (int)Math.Min(blockSize, totalSize - bytesRead);
                 byte[] decompressedBlock = ReadBlock(reader, toRead);
                 Array.Copy(decompressedBlock, 0, decompressed, bytesRead, decompressedBlock.Length);
                 bytesRead += (uint)decompressedBlock.Length;
+                curBlock++;
             }
             
             var decompressedStream = new MemoryStream(decompressed);

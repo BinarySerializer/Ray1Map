@@ -75,9 +75,8 @@ namespace R1Engine
                     });
                 });
             }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Failed to decompress: {ex.Message}");
+            catch (Exception ex) {
+                Debug.LogWarning($"Failed to decompress {Pointer7}: {ex.Message}\n{ex.InnerException?.StackTrace}");
             }
             try
             {
@@ -90,9 +89,8 @@ namespace R1Engine
                     });
                 });
             }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Failed to decompress: {ex.Message}");
+            catch (Exception ex) {
+                Debug.LogWarning($"Failed to decompress {Pointer9}: {ex.Message}\n{ex.InnerException?.StackTrace}");
             }
             try
             {
@@ -105,9 +103,8 @@ namespace R1Engine
                     });
                 });
             }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Failed to decompress: {ex.Message}");
+            catch (Exception ex) {
+                Debug.LogWarning($"Failed to decompress {Pointer11}: {ex.Message}\n{ex.InnerException?.StackTrace}");
             }
 
             //AnimatedPalettes = s.DoAt(PalettesPointer, () => s.SerializeObjectArray<ARGB1555Color>(AnimatedPalettes, 16 * 45, name: nameof(AnimatedPalettes)));
