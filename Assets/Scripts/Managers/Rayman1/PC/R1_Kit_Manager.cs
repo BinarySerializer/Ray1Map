@@ -288,46 +288,13 @@ namespace R1Engine
                         var desNames = wld.DESFileNames.ToArray();
                         var etaNames = wld.ETAFileNames.ToArray();
 
-                        // Use Events.csv to get mappings from the other game onto this one.
+                        // Use the tables to get mappings from the other game onto this one.
                         var desMappings = new Dictionary<int, string>();
                         var etaMappings = new Dictionary<int, string>();
                         var r1wld = otherContext.Settings.R1_World;
 
                         var desNameTable = otherGame.GetDESNameTable(otherContext);
                         var etaNameTable = otherGame.GetETANameTable(otherContext);
-
-                        /*foreach (var eve in LevelEditorData.EventInfoData)
-                        {
-                            // Don't bother doing anything if there's a DES listed for stock Kit.
-                            if (!eve.Engines.Contains(GeneralEventInfoData.Engine.KIT)) {
-                                var desName = eve.DES;
-                                // First see if there's a DES specified for our source game.
-                                var otherDes = desNameTable.FindItemIndex(x => x == desName);
-                                if (otherDes != -1) {
-                                    if (!desNames.Contains($"{desName}.DES")) {
-                                        // The DES is specified in Events.csv, but doesn't exist in the WLD file.
-                                        // Add it to the copy list.
-                                        desMappings[otherDes] = $"{desName}.DES";
-
-                                        Debug.Log($"Mapping DES {otherDes} to {desName} based on {eve.Name}");
-                                    }
-                                }
-                            }
-
-                            // Do the same thing for the ETA.
-                            if (!eve.Engines.Contains(GeneralEventInfoData.Engine.KIT)) {
-                                var etaName = eve.ETA;
-                                var otherEta = etaNameTable.FindItemIndex(x => x == etaName);
-                                if (otherEta != -1) {
-                                    if (!etaNames.Contains($"{etaName}.ETA")) {
-                                        // The ETA is specified in Events.csv, but doesn't exist in the WLD file.
-                                        // Add it to the copy list.
-                                        etaMappings[otherEta] = $"{etaName}.ETA";
-                                        Debug.Log($"Mapping ETA {otherEta} to {etaName} based on {eve.Name}");
-                                    }
-                                }
-                            }
-                        }*/
 
                         // Go through the other game's DES and ETA name tables, and see if any one
                         // is missing from Designer.
