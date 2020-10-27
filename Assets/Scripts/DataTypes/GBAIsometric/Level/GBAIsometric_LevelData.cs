@@ -4,13 +4,13 @@
     {
         public GBAIsometric_LevelDataLayer[] MapLayers { get; set; }
 
-        public uint ObjectsCount { get; set; }
-        public uint UnkDataCount { get; set; } // Waypoints?
-        public uint Unk2 { get; set; }
-        public uint Unk3 { get; set; }
+        public int ObjectsCount { get; set; }
+        public int WaypointsCount { get; set; }
+        public int Unk2 { get; set; }
+        public int Unk3 { get; set; }
 
         public Pointer ObjectsPointer { get; set; }
-        public Pointer UnkDataPointer { get; set; }
+        public Pointer WaypointsPointer { get; set; }
         public Pointer Pointer2 { get; set; } // Compressed data?
 
         public byte Byte_6C { get; set; }
@@ -23,19 +23,19 @@
         // Parsed from pointers
 
         public GBAIsometric_Object[] Objects { get; set; }
-        public GBAIsometric_UnkData[] UnkData { get; set; } // Waypoints?
+        public GBAIsometric_Waypoint[] Waypoints { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             MapLayers = s.SerializeObjectArray<GBAIsometric_LevelDataLayer>(MapLayers, 4, name: nameof(MapLayers));
 
-            ObjectsCount = s.Serialize<uint>(ObjectsCount, name: nameof(ObjectsCount));
-            UnkDataCount = s.Serialize<uint>(UnkDataCount, name: nameof(UnkDataCount));
-            Unk2 = s.Serialize<uint>(Unk2, name: nameof(Unk2));
-            Unk3 = s.Serialize<uint>(Unk3, name: nameof(Unk3));
+            ObjectsCount = s.Serialize<int>(ObjectsCount, name: nameof(ObjectsCount));
+            WaypointsCount = s.Serialize<int>(WaypointsCount, name: nameof(WaypointsCount));
+            Unk2 = s.Serialize<int>(Unk2, name: nameof(Unk2));
+            Unk3 = s.Serialize<int>(Unk3, name: nameof(Unk3));
 
             ObjectsPointer = s.SerializePointer(ObjectsPointer, name: nameof(ObjectsPointer));
-            UnkDataPointer = s.SerializePointer(UnkDataPointer, name: nameof(UnkDataPointer));
+            WaypointsPointer = s.SerializePointer(WaypointsPointer, name: nameof(WaypointsPointer));
             Pointer2 = s.SerializePointer(Pointer2, name: nameof(Pointer2));
 
             Byte_6C = s.Serialize<byte>(Byte_6C, name: nameof(Byte_6C));
@@ -47,7 +47,7 @@
 
             // Parse from pointers
             Objects = s.DoAt(ObjectsPointer, () => s.SerializeObjectArray<GBAIsometric_Object>(Objects, ObjectsCount, name: nameof(Objects)));
-            UnkData = s.DoAt(ObjectsPointer, () => s.SerializeObjectArray<GBAIsometric_UnkData>(UnkData, UnkDataCount, name: nameof(UnkData)));
+            Waypoints = s.DoAt(WaypointsPointer, () => s.SerializeObjectArray<GBAIsometric_Waypoint>(Waypoints, WaypointsCount, name: nameof(Waypoints)));
         }
     }
 }

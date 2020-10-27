@@ -150,6 +150,8 @@ namespace R1Engine
 
         public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.Settings);
 
+        public override R1Serializable SerializableData => EventData;
+
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
         public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == R1_EventType.TYPE_DARK2_PINK_FLY);

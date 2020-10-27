@@ -6,9 +6,10 @@
         public short XPosition { get; set; }
         public short YPosition { get; set; }
         public short Short_06 { get; set; }
-        public short Short_08 { get; set; }
+        
+        public short WaypointIndex { get; set; }
+        public byte WaypointCount { get; set; }
 
-        public byte Byte_0A { get; set; }
         public byte LinkIndex { get; set; } // 0xFF if not linked
 
         public byte[] Data { get; set; }
@@ -19,8 +20,8 @@
             XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
             Short_06 = s.Serialize<short>(Short_06, name: nameof(Short_06));
-            Short_08 = s.Serialize<short>(Short_08, name: nameof(Short_08));
-            Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
+            WaypointIndex = s.Serialize<short>(WaypointIndex, name: nameof(WaypointIndex));
+            WaypointCount = s.Serialize<byte>(WaypointCount, name: nameof(WaypointCount));
             LinkIndex = s.Serialize<byte>(LinkIndex, name: nameof(LinkIndex));
             Data = s.SerializeArray<byte>(Data, 4, name: nameof(Data));
         }

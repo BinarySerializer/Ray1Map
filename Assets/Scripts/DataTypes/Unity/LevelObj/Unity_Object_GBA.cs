@@ -201,6 +201,8 @@ namespace R1Engine
             }
         }
 
+        public override R1Serializable SerializableData => Actor;
+
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
