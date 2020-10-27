@@ -5,13 +5,13 @@ namespace R1Engine
 {
     public class GBA_R3Digiblast_Manager : GBA_R3_Manager
     {
-        public override string GetROMFilePath => $"Rayman";
+        public override string GetROMFilePath(Context context) => $"Rayman";
 
         public override int DLCLevelCount => 0;
 
-        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context);
+        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
         public override GBA_LocLanguageTable LoadLocalization(Context context) => null;
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath(context));
     }
 }

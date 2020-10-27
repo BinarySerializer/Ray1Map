@@ -28,6 +28,9 @@ namespace R1Engine
                 case Game.GBARRR_RavingRabbids:
                     return RavingRabbidsNames;
 
+                case Game.GBAIsometric_RHR:
+                    return HoodlumsRevengeNames;
+
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
                 case Game.R1_60Levels:
@@ -90,6 +93,20 @@ namespace R1Engine
                         [12] = "Unused Mode7",
                         [13] = "Menu",
                     };
+
+                case Game.GBA_Rayman3_MadTrax:
+                    return new Dictionary<int, string>()
+                    {
+                        [0] = "client_pad_english",
+                        [1] = "client_pad_french",
+                        [2] = "client_pad_german",
+                        [3] = "client_pad_italian",
+                        [4] = "client_pad_spanish",
+                        [5] = "client_pad145",
+                        [6] = "client_pad2",
+                        [7] = "client_pad3",
+                    };
+
                 case Game.GBA_PrinceOfPersiaTheSandsOfTime:
                 case Game.GBA_SabrinaTheTeenageWitchPotionCommotion:
                 case Game.GBA_SplinterCell:
@@ -474,6 +491,31 @@ namespace R1Engine
                 [10] = "Health and Safety (Spanish)",
                 [11] = "Language Selection",
                 [12] = "Health and Safety",
+            },
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> HoodlumsRevengeNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [0] = "Fairy Council",
+                [1] = "Clearleaf Forest",
+                [2] = "Clearleaf Falls",
+                [3] = "Infernal Machine",
+                [4] = "Dungeon of Murk",
+                [5] = "Bog of Murk",
+                [6] = "Begoniax Bayou",
+                [7] = "Rivers of Murk",
+                [8] = "Hoodlum Moor",
+                [9] = "Land of the Livid Dead",
+                [10] = "Menhirs of Power",
+                [11] = "Pit of Endless Fire",
+                [12] = "Clouds of Peril",
+                [13] = "Heart of the World",
+                [14] = "Reflux's Lair",
+                [15] = "Vertiginous Riddle",
+                [16] = "Cloudy Cache",
+                [17] = "Mélée Mayhem",
+                [18] = "Scalding Cascade",
+                [19] = "Sulphurous Sea",
             },
         };
     }

@@ -292,7 +292,7 @@ namespace R1Engine
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializePointer(buffer[i], allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
+                SerializePointer(buffer[i], anchor: anchor, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
@@ -304,7 +304,7 @@ namespace R1Engine
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializePointer<T>(buffer[i], resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
+                SerializePointer<T>(buffer[i], anchor: anchor, resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }

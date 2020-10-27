@@ -9,7 +9,7 @@ namespace R1Engine
 {
     public class GBA_R3NGage_Manager : GBA_R3_Manager
     {
-        public override string GetROMFilePath => $"rayman3.dat";
+        public override string GetROMFilePath(Context context) => $"rayman3.dat";
 
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
@@ -93,10 +93,10 @@ namespace R1Engine
             }
         }
 
-        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context);
+        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
         public override GBA_LocLanguageTable LoadLocalization(Context context) => null;
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath(context));
 
         // NOTE: In order to use this the FileSystem class needs to be updated to allow file stream sharing for read/write streams. Also note that this method will overwrite the GBA rom file, so keep a backup! All N-Gage data is appended rather than replaced, so the data can be swapped out by changing the offsets. Only the level offsets are automatically changed to use the N-Gage versions, thus keeping the menu etc.
         public async UniTask AddNGageToGBAAsync(GameModeSelection gbaGameModeSelection)
@@ -124,7 +124,7 @@ namespace R1Engine
 
                     // Get offsets
                     var gbaBase = gbaData.UiOffsetTable.Offset;
-                    var ngageNewBase = ((MemoryMappedFile)gbaContext.GetFile(gbaManager.GetROMFilePath)).StartPointer + ((MemoryMappedFile)gbaContext.GetFile(gbaManager.GetROMFilePath)).Length;
+                    var ngageNewBase = ((MemoryMappedFile)gbaContext.GetFile(gbaManager.GetROMFilePath(gbaContext))).StartPointer + ((MemoryMappedFile)gbaContext.GetFile(gbaManager.GetROMFilePath(gbaContext))).Length;
                     var ngageOffset = (ngageNewBase - gbaBase) / 4;
 
                     // Read all N-Gage blocks

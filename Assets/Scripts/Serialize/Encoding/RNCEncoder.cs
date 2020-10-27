@@ -10,7 +10,7 @@ namespace R1Engine {
         public bool HasHeader { get; }
 
         public RNCEncoder(bool hasHeader = true) {
-            HasHeader = HasHeader;
+            HasHeader = hasHeader;
         }
 
         // Huffman decoding

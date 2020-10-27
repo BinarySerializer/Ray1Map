@@ -51,5 +51,7 @@
 
         ExtFontImgBuffers,
         MultiplayerImgBuffers,
+
+        MusyxFile
     }
 }

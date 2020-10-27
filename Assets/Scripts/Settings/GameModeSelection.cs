@@ -143,6 +143,18 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanVengeance, Game.GBA_BatmanVengeance, "Batman Vengeance (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
         BatmanVengeanceGBAUS,
 
+        //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanVengeance, Game.GBA_DonaldDuckAdvance, "Donald Duck Advance (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
+        //DonaldDuckAdvanceGBAEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanVengeance, Game.GBA_DonaldDuckAdvance, "Donald Duck Advance (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
+        DonaldDuckAdvanceGBAUS,
+
+        //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanVengeance, Game.GBA_CrouchingTigerHiddenDragon, "Crouching Tiger Hidden Dragon (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
+        //CrouchingTigerHiddenDragonGBAEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanVengeance, Game.GBA_CrouchingTigerHiddenDragon, "Crouching Tiger Hidden Dragon (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
+        CrouchingTigerHiddenDragonGBAUS,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_Sabrina, Game.GBA_SabrinaTheTeenageWitchPotionCommotion, "Sabrina the Teenage Witch - Potion Commotion (GBA - EU)", typeof(GBA_Sabrina_Manager))]
         SabrinaTheTeenageWitchPotionCommotionGBAEU,
 
@@ -160,6 +172,12 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_Proto, Game.GBA_Rayman3, "Rayman 3 (GBA - US Prototype)", typeof(GBA_R3Proto_Manager))]
         Rayman3GBAUSPrototype,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_MadTrax, Game.GBA_Rayman3_MadTrax, "Rayman 3 Mad Trax (EU)", typeof(GBA_R3MadTrax_Manager))]
+        Rayman3GBAMadTraxEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_MadTrax, Game.GBA_Rayman3_MadTrax, "Rayman 3 Mad Trax (US)", typeof(GBA_R3MadTrax_Manager))]
+        Rayman3GBAMadTraxUS,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_NGage, Game.GBA_Rayman3, "Rayman 3 (N-Gage)", typeof(GBA_R3NGage_Manager))]
         Rayman3NGage,
@@ -243,5 +261,13 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBARRR, EngineVersion.GBARRR, Game.GBARRR_RavingRabbids, "Rayman Raving Rabbids (GBA - US)", typeof(GBA_RRR_Manager))]
         RaymanRavingRabbidsGBAUS,
+
+        // GBA Isometric
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - EU)", typeof(GBAIsometric_RHR_Manager))]
+        RaymanHoodlumsRevengeEU,
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
+        RaymanHoodlumsRevengeUS,
     }
 }

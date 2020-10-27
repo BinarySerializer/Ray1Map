@@ -86,6 +86,8 @@ namespace R1Engine
                                             $"ZDC.ZDCIndex: {EventData.CollisionData?.ZDC.ZDCIndex}{Environment.NewLine}" +
                                             $"ZDC.ZDCCount: {EventData.CollisionData?.ZDC.ZDCCount}{Environment.NewLine}";
 
+        public override R1Serializable SerializableData => EventData;
+
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 

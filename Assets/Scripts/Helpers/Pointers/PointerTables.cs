@@ -68,6 +68,8 @@ namespace R1Engine
 
                     [R1_GBA_ROMPointer.ExtFontImgBuffers] = 0x086DCEE8,
                     [R1_GBA_ROMPointer.MultiplayerImgBuffers] = 0x086DCF98,
+
+                    [R1_GBA_ROMPointer.MusyxFile] = 0x086EFADC,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
             }
             else if (gameMode == GameModeSelection.RaymanAdvanceGBAEU || gameMode == GameModeSelection.RaymanAdvanceGBAEUBeta)
@@ -122,6 +124,8 @@ namespace R1Engine
 
                     [R1_GBA_ROMPointer.ExtFontImgBuffers] = 0x086dce14,
                     [R1_GBA_ROMPointer.MultiplayerImgBuffers] = 0x086dcec4,
+
+                    [R1_GBA_ROMPointer.MusyxFile] = 0x086EF6D4,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile) - offset);
             }
             else
@@ -215,12 +219,12 @@ namespace R1Engine
         /// <summary>
         /// Gets the pointer table for the specified GBA version
         /// </summary>
-        /// <param name="gameMode">The GBA game mode</param>
+        /// <param name="context">The context</param>
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<GBA_Pointer, Pointer> GBA_PointerTable(GameModeSelection gameMode, BinaryFile romFile)
+        public static Dictionary<GBA_Pointer, Pointer> GBA_PointerTable(Context context, BinaryFile romFile)
         {
-            switch (gameMode)
+            switch (context.Settings.GameModeSelection)
             {
                 case GameModeSelection.Rayman3GBAEU:
                     return new Dictionary<GBA_Pointer, uint>() {
@@ -251,6 +255,37 @@ namespace R1Engine
                         [GBA_Pointer.Vignette] = 0x0845FE3C,
                         [GBA_Pointer.VignettePalettes] = 0x080DC46A,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.Rayman3GBAMadTraxEU:
+                case GameModeSelection.Rayman3GBAMadTraxUS:
+                    switch ((GBA_R3MadTrax_Manager.Files)context.Settings.World)
+                    {
+                        case GBA_R3MadTrax_Manager.Files.client_pad_english:
+                        case GBA_R3MadTrax_Manager.Files.client_pad_french:
+                        case GBA_R3MadTrax_Manager.Files.client_pad_german:
+                        case GBA_R3MadTrax_Manager.Files.client_pad_italian:
+                        case GBA_R3MadTrax_Manager.Files.client_pad_spanish:
+                            return new Dictionary<GBA_Pointer, uint>()
+                            {
+                                [GBA_Pointer.UiOffsetTable] = 0x0802F5EC
+                            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                        case GBA_R3MadTrax_Manager.Files.client_pad145:
+                            return new Dictionary<GBA_Pointer, uint>()
+                            {
+                                [GBA_Pointer.UiOffsetTable] = 0x0802e34c
+                            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                        case GBA_R3MadTrax_Manager.Files.client_pad2:
+                        case GBA_R3MadTrax_Manager.Files.client_pad3:
+                            return new Dictionary<GBA_Pointer, uint>()
+                            {
+                                [GBA_Pointer.UiOffsetTable] = 0x08025970
+                            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
 
                 case GameModeSelection.Rayman3NGage:
                     return new Dictionary<GBA_Pointer, uint>() {
@@ -354,6 +389,16 @@ namespace R1Engine
                 case GameModeSelection.BatmanVengeanceGBAUS:
                     return new Dictionary<GBA_Pointer, uint>() {
                         [GBA_Pointer.UiOffsetTable] = 0x084FD44C,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.DonaldDuckAdvanceGBAUS:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x081DEFD4,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.CrouchingTigerHiddenDragonGBAUS:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x0829e810,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.BatmanRiseOfSinTzuGBAUS:
@@ -502,6 +547,33 @@ namespace R1Engine
                         [GBARRR_Pointer.MusicTable] = 0x08607f10,
                         [GBARRR_Pointer.MusicSampleTable] = 0x083c3a9c,
                         [GBARRR_Pointer.SoundEffectSampleTable] = 0x08606ae8,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the pointer table for the specified GBA Isometric version
+        /// </summary>
+        /// <param name="gameMode">The GBA game mode</param>
+        /// <param name="romFile">The rom file</param>
+        /// <returns>The pointer table</returns>
+        public static Dictionary<GBAIsometric_Pointer, Pointer> GBAIsometric_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
+            switch (gameMode) 
+            {
+                case GameModeSelection.RaymanHoodlumsRevengeEU:
+                    return new Dictionary<GBAIsometric_Pointer, uint>() {
+                        [GBAIsometric_Pointer.MusyxFile] = 0x080447AC,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.RaymanHoodlumsRevengeUS:
+                    return new Dictionary<GBAIsometric_Pointer, uint>() {
+                        [GBAIsometric_Pointer.MusyxFile] = 0x08044708,
+                        [GBAIsometric_Pointer.Levels] = 0x080E92E8,
+                        [GBAIsometric_Pointer.Localization] = 0x087F48CC,
+                        [GBAIsometric_Pointer.ObjTypes] = 0x080f9770,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

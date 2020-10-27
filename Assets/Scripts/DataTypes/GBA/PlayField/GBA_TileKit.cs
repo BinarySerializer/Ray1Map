@@ -29,7 +29,7 @@ namespace R1Engine
         #endregion
 
         public override void SerializeBlock(SerializerObject s) {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax) {
                 Is8bpp = s.Serialize<bool>(Is8bpp, name: nameof(Is8bpp));
                 IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
                 if (Is8bpp) {
@@ -62,7 +62,7 @@ namespace R1Engine
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
+            if (s.GameSettings.EngineVersion > EngineVersion.GBA_R3_MadTrax) {
                 // Serialize tile palette
                 if (Palettes == null) Palettes = new GBA_Palette[PaletteCount];
                 for (int p = 0; p < Palettes.Length; p++) {

@@ -38,6 +38,7 @@ namespace R1Engine
         // GBA
 
         GBA_BatmanVengeance,             // 2001
+        GBA_R3_MadTrax,                  // 2003 - released with R3, but uses earlier engine
         GBA_Sabrina,                     // 2002
         GBA_R3_Proto,                    // 2003
         GBA_R3,                          // 2003
@@ -56,6 +57,10 @@ namespace R1Engine
 
         // GBA RRR
 
-        GBARRR
+        GBARRR,
+
+        // GBA Isometric
+
+        GBAIsometric_RHR
     }
 }

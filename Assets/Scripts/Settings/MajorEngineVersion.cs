@@ -10,6 +10,7 @@
         SNES,
         //GBC,
         GBA,
-        GBARRR
+        GBARRR,
+        GBAIsometric
     }
 }

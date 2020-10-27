@@ -176,21 +176,10 @@ namespace R1Engine
                 s.DoAt(pointerTable[GBARRR_Pointer.MusicSampleTable], () => {
                     var sampleTable = s.SerializeObject<GAX2_SampleTable>(default, onPreSerialize: st => st.Length = 141, name: "SampleTable1");
                     string outPath = outputPath + "/MusicSamples/";
-                    int GetMidiPitch(int freq, float tuning = 15769f) {
-                        // See https://anotherproducer.com/online-tools-for-musicians/frequency-to-pitch-calculator/
-                        // default pitch = F5, so 699
-                        return Mathf.RoundToInt(69 + 12 * Mathf.Log(freq / tuning, 2f));
-                    }
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
                         var instr = instruments.FirstOrDefault(ins => ins.Value != null && ins.Value.Sample == i+1);
-                        /*if (instr != null) {
-                            int pitchAdj = Mathf.RoundToInt(instr.Value.PitchAdjustment / 1024f * 15769);
-                            Debug.Log(i + " - " + instr.Value.PitchAdjustment + " - " + pitchAdj + " - " + GetMidiPitch(15769 + pitchAdj));
-                            ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, (uint)(15769+pitchAdj), 2);
-                        } else {*/
-                            ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15769, 2);
-                        //}
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15769, 2);
                     }
                 });
                 s.DoAt(pointerTable[GBARRR_Pointer.SoundEffectSampleTable], () => {

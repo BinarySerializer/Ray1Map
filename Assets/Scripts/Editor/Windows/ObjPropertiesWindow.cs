@@ -67,17 +67,9 @@ public class ObjPropertiesWindow : UnityWindow
                                 // TODO: Better way to get height?
                                 EditorGUI.TextArea(GetNextRect(ref YPos, height: cmdLines.Length * 15 + 2), String.Join(Environment.NewLine, cmdLines));
                         }
-
-                        r1.EventData.SerializeImpl(Serializer);
                     }
-                    else if (selectedObjData is Unity_Object_R2 r2)
-                        r2.EventData.SerializeImpl(Serializer);
-                    else if (selectedObjData is Unity_Object_R1Jaguar jag)
-                        jag.Instance.SerializeImpl(Serializer);
-                    else if (selectedObjData is Unity_Object_GBA gba)
-                        gba.Actor.SerializeImpl(Serializer);
-                    else if (selectedObjData is Unity_Object_GBARRR gbaRRR)
-                        gbaRRR.Actor.SerializeImpl(Serializer);
+                    
+                    selectedObj?.ObjData?.SerializableData?.SerializeImpl(Serializer);
 
                     if (EditorGUI.EndChangeCheck())
                         selectedObjData.HasPendingEdits = true;

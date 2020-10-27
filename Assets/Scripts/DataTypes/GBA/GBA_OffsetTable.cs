@@ -22,7 +22,7 @@ namespace R1Engine
         public Pointer GetPointer(int index, bool isRelativeOffset = false)
         {
             UsedOffsets[index] = true;
-            var pointerTable = PointerTables.GBA_PointerTable(Offset.Context.Settings.GameModeSelection, Context.GetFile(((GBA_Manager)Offset.Context.Settings.GetGameManager).GetROMFilePath));
+            var pointerTable = PointerTables.GBA_PointerTable(Offset.Context, Context.GetFile(((GBA_Manager)Offset.Context.Settings.GetGameManager).GetROMFilePath(Context)));
             if (Context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                 if (Block == null) {
                     return pointerTable[GBA_Pointer.UiOffsetTable] + Offsets[index];

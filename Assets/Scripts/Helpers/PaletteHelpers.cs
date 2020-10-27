@@ -53,11 +53,14 @@ namespace R1Engine
                 
                 Color col = palette[offset + i].GetColor();
                 
+                // Remove transparency
+                col = new Color(col.r, col.g, col.b);
+                
                 for (int y = 0; y < scale; y++)
                 {
                     for (int x = 0; x < scale; x++)
                     {
-                        tex.SetPixel(mainX * scale + x, mainY * scale + y, col);
+                        tex.SetPixel(mainX * scale + x, tex.height - (mainY * scale + y) - 1, col);
                     }
                 }
             }
