@@ -1611,6 +1611,7 @@ namespace R1Engine
                             memAddressDict[0x0300245C] = LoadGraphicsBlock(0x000002A5, 1, 0x40);
                             memAddressDict[0x030030C8] = LoadGraphicsBlock(0x2a0, 0x16, 0x20);
                             memAddressDict[0x03002E58] = LoadGraphicsBlock(0x0000029F, 0x15, 0x20);
+
                             break;
                         case 3:
                             if (level != 0x1d && level != 0x1f) {
@@ -1760,6 +1761,9 @@ namespace R1Engine
                                 memAddressDict[0x03003FC4] = LoadGraphicsBlock(0x0000029B, 8, 0x40);
                                 memAddressDict[0x03005044] = LoadGraphicsBlock(0x29c, 9, 0x40);
                                 memAddressDict[0x03002DFC] = LoadGraphicsBlock(0x0000029D, 8, 0x40);
+
+                                //Hardcoded
+                                LoadGraphicsBlockUnknown(812);
                             }
                             break;
                         case 5:
@@ -1803,6 +1807,9 @@ namespace R1Engine
                 memAddressDict[0x0300258C] = LoadGraphicsBlock(0x0000019F, 10, 0x40);
                 memAddressDict[0x03004378] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
                 memAddressDict[0x03002F0C] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
+
+                // Hardcoded
+                LoadGraphicsBlockUnknown(828);
             }
 
             // Load extra blocks
@@ -1875,6 +1882,8 @@ namespace R1Engine
                         actor.P_PaletteIndex = 0x13c;
                     }
                     if (actor.P_GraphicsIndex == 0x18) {
+                        // Boss
+                        actor.P_GraphicsOffset = 828; // Hardcoded
                         actor.P_PaletteIndex = 0x0000033B;
                         actor.P_Field0E = 0;
                         actor.P_Field08 = 0;
@@ -2104,6 +2113,8 @@ namespace R1Engine
                         actor.P_PaletteIndex = 0x264;
                     }
                     if (actor.P_GraphicsIndex == 0x18) {
+                        // Boss
+                        actor.P_GraphicsOffset = 828; // Hardcoded
                         actor.P_PaletteIndex = 0x0000033B;
                         actor.P_Field0E = 0;
                         actor.P_Field34 = actor.P_Field34 | 0x200;
@@ -2204,6 +2215,10 @@ namespace R1Engine
                         actor.P_GraphicsOffset = 0x03002300;
                         actor.P_PaletteIndex = 0x000002A6;
                     }
+                    if (actor.P_GraphicsIndex == 0x3f) {
+                        actor.P_GraphicsOffset = 0x03002E58;
+                        actor.P_PaletteIndex = 0x0000029E;
+                    }
                     #endregion
                     break;
                 case 2:
@@ -2211,10 +2226,10 @@ namespace R1Engine
                     #region World 2
 
                     if (actor.P_GraphicsIndex == 3) {
-                        actor.P_FunctionPointer = 0x08037B9D;
+                        actor.P_FunctionPointer = 0x08037B9D; // Trigger (level completed)
                     }
                     if (actor.P_GraphicsIndex == 4) {
-                        actor.P_FunctionPointer = 0x08037CA1;
+                        actor.P_FunctionPointer = 0x08037CA1; // Trigger (back to map)
                     }
                     if (actor.P_GraphicsIndex == 5) {
                         actor.P_GraphicsOffset = 0x03005158;
@@ -2225,6 +2240,8 @@ namespace R1Engine
                         actor.P_Field34 = actor.P_Field34 | 0x200;
                     }
                     if (actor.P_GraphicsIndex == 0x18) {
+                        // Boss
+                        actor.P_GraphicsOffset = 828; // Hardcoded
                         actor.P_PaletteIndex = 0x0000033B;
                         actor.P_Field0E = 0;
                         actor.P_Field34 = actor.P_Field34 | 0x200;
@@ -2334,6 +2351,10 @@ namespace R1Engine
                         actor.P_GraphicsOffset = 0x030030C8;
                         actor.P_PaletteIndex = 0x000002A1;
                     }
+                    if (actor.P_GraphicsIndex == 0x44) {
+                        actor.P_GraphicsOffset = 0x03002e58;
+                        actor.P_PaletteIndex = 0x0000029E;
+                    }
                     #endregion
                     break;
                 case 3:
@@ -2371,6 +2392,8 @@ namespace R1Engine
                         actor.P_PaletteIndex = 0x13c;
                     }
                     if (actor.P_GraphicsIndex == 0x18) {
+                        // Boss
+                        actor.P_GraphicsOffset = 828; // Hardcoded
                         actor.P_PaletteIndex = 0x0000033B;
                         actor.P_Field34 = actor.P_Field34 | 0x200;
                         actor.P_SpriteHeight = 0;
@@ -2526,6 +2549,8 @@ namespace R1Engine
                         actor.P_PaletteIndex = 0x13c;
                     }
                     if (actor.P_GraphicsIndex == 0x18) {
+                        // Boss
+                        actor.P_GraphicsOffset = 828; // Hardcoded
                         actor.P_PaletteIndex = 0x0000033B;
                         actor.P_Field0E = 0;
                         actor.P_Field34 = actor.P_Field34 | 0x200;
@@ -2715,6 +2740,8 @@ namespace R1Engine
                         actor.P_PaletteIndex = 0x00000262;
                     }
                     if (actor.P_GraphicsIndex == 0x27) {
+                        // Boss Prison
+                        actor.P_GraphicsOffset = 812; // Hardcoded
                         actor.P_Field34 = actor.P_Field34 | 0x200;
                         actor.P_FrameCount = 5;
                         actor.P_Field2E = 0x32c;
