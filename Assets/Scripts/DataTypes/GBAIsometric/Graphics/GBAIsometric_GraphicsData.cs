@@ -3,28 +3,26 @@
     public class GBAIsometric_GraphicsData : R1Serializable
     {
         public int Int_00 { get; set; }
-        public int UnkDataLength { get; set; }
-        public short Short_08 { get; set; }
-        public short Short_0A { get; set; }
+        public int CompressionLookupBufferLength { get; set; }
+        public int Int_0C { get; set; }
 
-        public Pointer Pointer_0C { get; set; }
-        public Pointer UnkDataPointer { get; set; }
+        public Pointer CompressionLookupPointer { get; set; }
+        public Pointer CompressedDataPointer { get; set; }
 
         // Parsed
-        public byte[] UnkData { get; set; } // Graphics data? Compressed?
+        public byte[] CompressionLookUpBuffer { get; set; } // Graphics data? Compressed?
 
         public override void SerializeImpl(SerializerObject s)
         {
             Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
-            UnkDataLength = s.Serialize<int>(UnkDataLength, name: nameof(UnkDataLength));
-            Short_08 = s.Serialize<short>(Short_08, name: nameof(Short_08));
-            Short_0A = s.Serialize<short>(Short_0A, name: nameof(Short_0A));
+            CompressionLookupBufferLength = s.Serialize<int>(CompressionLookupBufferLength, name: nameof(CompressionLookupBufferLength));
+            Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
 
-            Pointer_0C = s.SerializePointer(Pointer_0C, name: nameof(Pointer_0C));
-            UnkDataPointer = s.SerializePointer(UnkDataPointer, name: nameof(UnkDataPointer));
+            CompressionLookupPointer = s.SerializePointer(CompressionLookupPointer, name: nameof(CompressionLookupPointer));
+            CompressedDataPointer = s.SerializePointer(CompressedDataPointer, name: nameof(CompressedDataPointer));
 
             // Serialize data from pointers
-            UnkData = s.DoAt(UnkDataPointer, () => s.SerializeArray<byte>(UnkData, UnkDataLength, name: nameof(UnkData)));
+            CompressionLookUpBuffer = s.DoAt(CompressionLookupPointer, () => s.SerializeArray<byte>(CompressionLookUpBuffer, CompressionLookupBufferLength, name: nameof(CompressionLookUpBuffer)));
         }
     }
 }

@@ -388,6 +388,7 @@ namespace R1Engine {
                         DecodeBlock_Buffer(decompressed, 0, decompressed.Length);
                         break;
                     case 5:
+                        throw new NotImplementedException(); // for now
                         ushort[] previousBuffer2 = GetPreviousShortBuffer(decompressed.Length);
                         DecodeBlock_PreviousBuffer_Short(decompressed, 0, decompressed.Length, startBufferIndex, previousBuffer, previousBuffer2);
                         SavePreviousShortBuffer(previousBuffer2);
