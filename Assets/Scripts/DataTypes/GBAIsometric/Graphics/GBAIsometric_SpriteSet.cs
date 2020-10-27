@@ -4,7 +4,7 @@
     public class GBAIsometric_SpriteSet : R1Serializable
     {
         public uint Uint_00 { get; set; }
-        public Pointer Pointer_04 { get; set; }
+        public Pointer<GBAIsometric_GraphicsData> GraphicsDataPointer { get; set; }
         public Pointer PalettePointer { get; set; }
         public Pointer NamePointer { get; set; }
 
@@ -14,7 +14,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             Uint_00 = s.Serialize<uint>(Uint_00, name: nameof(Uint_00));
-            Pointer_04 = s.SerializePointer(Pointer_04, name: nameof(Pointer_04));
+            GraphicsDataPointer = s.SerializePointer<GBAIsometric_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
             PalettePointer = s.SerializePointer(PalettePointer, name: nameof(PalettePointer));
             NamePointer = s.SerializePointer(NamePointer, name: nameof(NamePointer));
 

@@ -6,7 +6,7 @@ namespace R1Engine
 {
     public class GBAIsometric_LevelDataLayerDataPointers : R1Serializable
     {
-        public Pointer Pointer0 { get; set; } // int, int, 4 bytes, pointer, pointer
+        public Pointer<GBAIsometric_GraphicsData> GraphicsDataPointer { get; set; }
         public Pointer Pointer1 { get; set; } // pointer, pointer, pointer
         public Pointer Pointer2 { get; set; } // ushort
         public Pointer Pointer3 { get; set; } // ushorts
@@ -34,7 +34,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Pointer0 = s.SerializePointer(Pointer0, name: nameof(Pointer0));
+            GraphicsDataPointer = s.SerializePointer<GBAIsometric_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
             Pointer1 = s.SerializePointer(Pointer1, name: nameof(Pointer1));
             Pointer2 = s.SerializePointer(Pointer2, name: nameof(Pointer2));
             Pointer3 = s.SerializePointer(Pointer3, name: nameof(Pointer3));
