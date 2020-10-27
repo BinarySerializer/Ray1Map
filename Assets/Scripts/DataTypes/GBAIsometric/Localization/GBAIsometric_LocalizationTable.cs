@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 
 namespace R1Engine
 {
@@ -30,6 +31,8 @@ namespace R1Engine
                         });
                     });
                 }
+
+                s.Context.StoreObject("Loc", Localization?.ElementAtOrDefault(0));
             }
         }
     }

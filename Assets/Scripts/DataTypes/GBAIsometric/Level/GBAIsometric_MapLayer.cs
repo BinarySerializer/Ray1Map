@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -11,9 +12,11 @@ namespace R1Engine
         public ushort Height { get; set; } // 20 or 12 - 4 for maps
         public ushort Ushort_0A { get; set; } // Always 0
         public Pointer MapDataPointer { get; set; }
-        public Pointer Pointer_20 { get; set; } // Only valid for maps
 
-        public ARGB1555Color[] Palette { get; set; }
+        // Maps only
+        public Pointer MapPalettePointer { get; set; }
+        public ARGB1555Color[] MapPalette { get; set; }
+        public ARGB1555Color[] UnkMapPalette { get; set; } // Maybe not part of the same struct?
         public byte[] RemainingData { get; set; }
 
         // Parsed
@@ -27,12 +30,14 @@ namespace R1Engine
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
             Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
             MapDataPointer = s.SerializePointer(MapDataPointer, name: nameof(MapDataPointer));
-            Pointer_20 = s.SerializePointer(Pointer_20, name: nameof(Pointer_20));
+            MapPalettePointer = s.SerializePointer(MapPalettePointer, name: nameof(MapPalettePointer));
 
             if (StructType == MapLayerType.Map)
             {
-                Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, 256, name: nameof(Palette));
+                UnkMapPalette = s.SerializeObjectArray<ARGB1555Color>(UnkMapPalette, 256, name: nameof(UnkMapPalette));
                 RemainingData = s.SerializeArray<byte>(RemainingData, 44, name: nameof(RemainingData));
+
+                MapPalette = s.DoAt(MapPalettePointer, () => s.SerializeObjectArray<ARGB1555Color>(MapPalette, 256, name: nameof(MapPalette)));
             }
 
             // TODO: Remove try/catch
@@ -43,6 +48,7 @@ namespace R1Engine
                     s.DoEncoded(new RHREncoder(), () =>
                     {
                         MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData));
+                        s.Log($"Max: {MapData.Max(x => BitHelpers.ExtractBits(x, 10, 0))}");
                     });
                 });
             }

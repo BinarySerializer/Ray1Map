@@ -5,7 +5,7 @@
         public short ObjectType { get; set; }
         public short XPosition { get; set; }
         public short YPosition { get; set; }
-        public short Short_06 { get; set; }
+        public short Height { get; set; }
         
         public short WaypointIndex { get; set; }
         public byte WaypointCount { get; set; }
@@ -19,7 +19,7 @@
             ObjectType = s.Serialize<short>(ObjectType, name: nameof(ObjectType));
             XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
-            Short_06 = s.Serialize<short>(Short_06, name: nameof(Short_06));
+            Height = s.Serialize<short>(Height, name: nameof(Height));
             WaypointIndex = s.Serialize<short>(WaypointIndex, name: nameof(WaypointIndex));
             WaypointCount = s.Serialize<byte>(WaypointCount, name: nameof(WaypointCount));
             LinkIndex = s.Serialize<byte>(LinkIndex, name: nameof(LinkIndex));
