@@ -807,7 +807,7 @@ namespace R1Engine
             
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_GBARRR(context, LoadGraphicsData(context, rom.LevelScene, rom, lvl, world));
+            var objManager = new Unity_ObjectManager_GBARRR(context, await LoadGraphicsDataAsync(context, rom.LevelScene, rom, lvl, world));
 
             await Controller.WaitIfNecessary();
 
@@ -863,7 +863,7 @@ namespace R1Engine
         }
 
 
-        protected Unity_ObjectManager_GBARRR.GraphicsData[][] LoadGraphicsData(Context context, GBARRR_Scene scene, GBARRR_ROM rom, int level, int world)
+        protected async UniTask<Unity_ObjectManager_GBARRR.GraphicsData[][]> LoadGraphicsDataAsync(Context context, GBARRR_Scene scene, GBARRR_ROM rom, int level, int world)
         {
             SerializerObject s = context.Deserializer;
             var animTable = GBARRR_Tables.GetAnimBlocks;
@@ -871,6 +871,9 @@ namespace R1Engine
 
             for (int animGroup = 0; animGroup < animTable.Length; animGroup++)
             {
+                Controller.DetailedState = $"Loading animation group {animGroup + 1}/{animTable.Length}";
+                await Controller.WaitIfNecessary();
+
                 graphicsData[animGroup] = new Unity_ObjectManager_GBARRR.GraphicsData[animTable[animGroup].Length];
 
                 for (int animIndex = 0; animIndex < animTable[animGroup].Length; animIndex++)
