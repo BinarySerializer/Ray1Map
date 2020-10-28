@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAIsometric_UnkStruct : R1Serializable
+    public class GBAIsometric_TileCollision : R1Serializable
     {
         public byte[] Data { get; set; }
 

@@ -10,12 +10,12 @@ namespace R1Engine
         public int ObjectsCount { get; set; }
         public int WaypointsCount { get; set; }
 
-        public int UnkStructsWidth { get; set; }
-        public int UnkStructsHeight { get; set; }
+        public int CollisionWidth { get; set; }
+        public int CollisionHeight { get; set; }
 
         public Pointer ObjectsPointer { get; set; }
         public Pointer WaypointsPointer { get; set; }
-        public Pointer UnkStructsPointer { get; set; }
+        public Pointer CollisionPointer { get; set; }
 
         public byte Byte_6C { get; set; }
         public byte Byte_6D { get; set; }
@@ -28,7 +28,7 @@ namespace R1Engine
 
         public GBAIsometric_Object[] Objects { get; set; }
         public GBAIsometric_Waypoint[] Waypoints { get; set; }
-        public GBAIsometric_UnkStruct[] UnkStructs { get; set; }
+        public GBAIsometric_TileCollision[] CollisionData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -36,12 +36,12 @@ namespace R1Engine
 
             ObjectsCount = s.Serialize<int>(ObjectsCount, name: nameof(ObjectsCount));
             WaypointsCount = s.Serialize<int>(WaypointsCount, name: nameof(WaypointsCount));
-            UnkStructsWidth = s.Serialize<int>(UnkStructsWidth, name: nameof(UnkStructsWidth));
-            UnkStructsHeight = s.Serialize<int>(UnkStructsHeight, name: nameof(UnkStructsHeight));
+            CollisionWidth = s.Serialize<int>(CollisionWidth, name: nameof(CollisionWidth));
+            CollisionHeight = s.Serialize<int>(CollisionHeight, name: nameof(CollisionHeight));
 
             ObjectsPointer = s.SerializePointer(ObjectsPointer, name: nameof(ObjectsPointer));
             WaypointsPointer = s.SerializePointer(WaypointsPointer, name: nameof(WaypointsPointer));
-            UnkStructsPointer = s.SerializePointer(UnkStructsPointer, name: nameof(UnkStructsPointer));
+            CollisionPointer = s.SerializePointer(CollisionPointer, name: nameof(CollisionPointer));
 
             Byte_6C = s.Serialize<byte>(Byte_6C, name: nameof(Byte_6C));
             Byte_6D = s.Serialize<byte>(Byte_6D, name: nameof(Byte_6D));
@@ -57,17 +57,17 @@ namespace R1Engine
             // TODO: Remove try/catch
             try
             {
-                s.DoAt(UnkStructsPointer, () =>
+                s.DoAt(CollisionPointer, () =>
                 {
                     s.DoEncoded(new RHREncoder(), () =>
                     {
-                        UnkStructs = s.SerializeObjectArray<GBAIsometric_UnkStruct>(UnkStructs, UnkStructsWidth * UnkStructsHeight, name: nameof(UnkStructs));
+                        CollisionData = s.SerializeObjectArray<GBAIsometric_TileCollision>(CollisionData, CollisionWidth * CollisionHeight, name: nameof(CollisionData));
                     });
                 });
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"Failed to decompress {UnkStructsPointer}: {ex.Message}\n{ex.InnerException?.StackTrace}");
+                Debug.LogWarning($"Failed to decompress {CollisionPointer}: {ex.Message}\n{ex.InnerException?.StackTrace}");
             }
         }
     }

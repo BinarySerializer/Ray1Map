@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -55,6 +56,11 @@ namespace R1Engine
             Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 
             MapPointer = s.SerializePointer(MapPointer, resolve: true, name: nameof(MapPointer));
+
+            //Debug.Log($"{LevelDataPointer.Value.LevelNameLocIndex.GetString()}: " +
+            //          $"Col: {LevelDataPointer.Value.CollisionWidth}x{LevelDataPointer.Value.CollisionHeight}, " +
+            //          $"BG: {LevelDataPointer.Value.MapLayers[0].DataPointer.Value.Width}x{LevelDataPointer.Value.MapLayers[0].DataPointer.Value.Height}, " +
+            //          $"Map: {MapPointer?.Value?.Width}x{MapPointer?.Value?.Height}");
         }
 
         [Flags]
