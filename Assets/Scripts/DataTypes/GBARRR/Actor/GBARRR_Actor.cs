@@ -11,7 +11,7 @@ namespace R1Engine
         public ushort Runtime_Ushort_08 { get; set; }
         public ushort Ushort_0A { get; set; }
         public ushort Ushort_0C { get; set; } // 2 bytes?
-        public ushort ObjRotation { get; set; }
+        public ushort Ushort_0E { get; set; }
         public ushort LinkGroup { get; set; }
         public ushort RuntimeStateIndex { get; set; } // Is this correct? Changing this changes the animation.
         public ushort Runtime_UShort_14 { get; set; }
@@ -64,7 +64,7 @@ namespace R1Engine
             Runtime_Ushort_08 = s.Serialize<ushort>(Runtime_Ushort_08, name: nameof(Runtime_Ushort_08));
             Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
             Ushort_0C = s.Serialize<ushort>(Ushort_0C, name: nameof(Ushort_0C));
-            ObjRotation = s.Serialize<ushort>(ObjRotation, name: nameof(ObjRotation));
+            Ushort_0E = s.Serialize<ushort>(Ushort_0E, name: nameof(Ushort_0E));
             LinkGroup = s.Serialize<ushort>(LinkGroup, name: nameof(LinkGroup));
             RuntimeStateIndex = s.Serialize<ushort>(RuntimeStateIndex, name: nameof(RuntimeStateIndex));
             Runtime_UShort_14 = s.Serialize<ushort>(Runtime_UShort_14, name: nameof(Runtime_UShort_14));
@@ -89,9 +89,10 @@ namespace R1Engine
 
             if (!Enum.IsDefined(typeof(GBARRR_ActorType), ObjectType))
                 Debug.LogWarning($"Actor type {ObjectType} is not defined");
-
-            if (ObjRotation > 3)
-                Debug.LogWarning($"Actor of type {ObjectType} at ({XPosition}, {YPosition}) has an invalid rotation value of {ObjRotation}");
+            /*if (ObjectType == GBARRR_ActorType.Scenery2) {
+                if (ObjRotation > 5)
+                    Debug.LogWarning($"Actor of type {ObjectType} at ({XPosition}, {YPosition}) has an invalid rotation value of {ObjRotation}");
+            }*/
 
         }
     }

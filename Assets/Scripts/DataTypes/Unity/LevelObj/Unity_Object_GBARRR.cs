@@ -12,8 +12,9 @@ namespace R1Engine
             Actor = actor;
             ObjManager = objManager;
 
-            if (actor.ObjectType == GBARRR_ActorType.Special && Actor.P_GraphicsOffset == 0 && !Enum.IsDefined(typeof(SpecialType), (SpecialType)actor.P_FunctionPointer))
-                Debug.LogWarning($"Special type with function pointer 0x{actor.P_FunctionPointer:X8} is not defined at ({Actor.XPosition}, {Actor.YPosition})");
+            // P_FunctionPointer is filled in later, can't do this check here
+            /*if (actor.ObjectType == GBARRR_ActorType.Special && Actor.P_GraphicsOffset == 0 && !Enum.IsDefined(typeof(SpecialType_Function), (SpecialType_Function)actor.P_FunctionPointer))
+                Debug.LogWarning($"Special type with function pointer 0x{actor.P_FunctionPointer:X8} is not defined at ({Actor.XPosition}, {Actor.YPosition})");*/
         }
 
         public GBARRR_Actor Actor { get; }
@@ -41,32 +42,14 @@ namespace R1Engine
               $"P_FunctionPointer: 0x{Actor.P_FunctionPointer:X8}{Environment.NewLine}" +
               $"P_PaletteIndex: {Actor.P_PaletteIndex}{Environment.NewLine}" +
               $"P_SpriteSize: {Actor.P_SpriteSize}{Environment.NewLine}" +
-              $"P_FrameCount: {Actor.P_FrameCount}{Environment.NewLine}";
+              $"P_FrameCount: {Actor.P_FrameCount}{Environment.NewLine}" +
+              $"Rotation: {Actor.Ushort_0E}{Environment.NewLine}";
 
         public override R1Serializable SerializableData => Actor;
-        public override ILegacyEditorWrapper LegacyWrapper { get; }
 
         public override bool IsEditor => CurrentAnimation == null;
 
         public override bool FlipHorizontally => BitHelpers.ExtractBits(Actor.Data1[3], 1, 4) == 1;
-        public override float? Rotation
-        {
-            get
-            {
-                switch (Actor.ObjRotation)
-                {
-                    case 1:
-                        return 90;
-                    case 2:
-                        return 270;
-                    case 3:
-                        return 180;
-                    default:
-                        return null;
-
-                }
-            }
-        }
 
         public override Vector2 Pivot
         {
@@ -75,14 +58,32 @@ namespace R1Engine
                 var sprite = Sprites?.ElementAtOrDefault(CurrentAnimation?.Frames.ElementAtOrDefault(AnimationFrame)?.SpriteLayers.FirstOrDefault()?.ImageIndex ?? 0);
 
                 // Set the pivot to the center of the sprite
-                return new Vector2((sprite?.rect.width ?? 0) / 2, (sprite?.rect.height ?? 0) / 2);
+                if (sprite != null) {
+                    return new Vector2(sprite.rect.width / 2 - sprite.pivot.x, sprite.rect.height / 2 - sprite.pivot.y);
+                } else {
+                    return Vector2.zero;
+                }
             }
         }
 
         public override bool CanBeLinkedToGroup => true;
 
         public override string PrimaryName => $"Type_{(byte)Actor.ObjectType}";
-        public override string SecondaryName => Actor.ObjectType == GBARRR_ActorType.Special ? ((SpecialType)Actor.P_FunctionPointer).ToString() : Actor.ObjectType.ToString();
+        public override string SecondaryName {
+            get {
+                if (Actor.ObjectType == GBARRR_ActorType.Special) {
+                    if (Enum.IsDefined(typeof(SpecialType_Function), (SpecialType_Function)Actor.P_FunctionPointer)) {
+                        return ((SpecialType_Function)Actor.P_FunctionPointer).ToString();
+                    } else if (Enum.IsDefined(typeof(SpecialType_GraphicsIndex), (SpecialType_GraphicsIndex)Actor.P_GraphicsIndex)) {
+                        return ((SpecialType_GraphicsIndex)Actor.P_GraphicsIndex).ToString();
+                    } else {
+                        return Actor.ObjectType.ToString();
+                    }
+                } else {
+                    return Actor.ObjectType.ToString();
+                }
+            }
+        }
 
         public Unity_ObjectManager_GBARRR.GraphicsData GraphicsData => IsTriggerType ? null : ObjManager.GraphicsDatas.ElementAtOrDefault(AnimationGroupIndex)?.ElementAtOrDefault(AnimIndex);
 
@@ -103,11 +104,11 @@ namespace R1Engine
                         return Unity_ObjAnimationCollisionPart.CollisionType.SizeChange;
 
                     case GBARRR_ActorType.Special:
-                        switch ((SpecialType)Actor.P_FunctionPointer)
+                        switch ((SpecialType_Function)Actor.P_FunctionPointer)
                         {
-                            case SpecialType.LevelEndTrigger:
-                            case SpecialType.LevelEntranceTrigger:
-                            case SpecialType.MinigameTrigger:
+                            case SpecialType_Function.LevelEndTrigger:
+                            case SpecialType_Function.LevelEntranceTrigger:
+                            case SpecialType_Function.MinigameTrigger:
                                 return Unity_ObjAnimationCollisionPart.CollisionType.ExitLevel;
                         }
                         break;
@@ -115,11 +116,16 @@ namespace R1Engine
                 return Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
             }
         }
-        public enum SpecialType
+        public enum SpecialType_Function
         {
             LevelEndTrigger = 0x08037B9D,
             LevelEntranceTrigger = 0x08037CA1,
             MinigameTrigger = 0x0804DC65
+        }
+        public enum SpecialType_GraphicsIndex {
+            Rayman = 2,
+            LevelExit = 3,
+            LevelEntrance = 4
         }
 
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => IsTriggerType ? new Unity_ObjAnimationCollisionPart[]
@@ -140,9 +146,11 @@ namespace R1Engine
         protected override int GetSpriteID => AnimationGroupIndex;
         public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
 
+        #region UI States
         protected int UIStates_AnimGroupIndex { get; set; } = -2;
         protected override bool IsUIStateArrayUpToDate => AnimationGroupIndex == UIStates_AnimGroupIndex;
-        protected override void RecalculateUIStates()
+
+		protected override void RecalculateUIStates()
         {
             UIStates_AnimGroupIndex = AnimationGroupIndex;
 
@@ -161,5 +169,56 @@ namespace R1Engine
 
             public override bool IsCurrentState(Unity_Object obj) => AnimIndex == ((Unity_Object_GBARRR)obj).AnimIndex;
         }
-    }
+		#endregion
+
+		#region LegacyEditorWrapper
+		public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
+        private class LegacyEditorWrapper : ILegacyEditorWrapper {
+            public LegacyEditorWrapper(Unity_Object_GBARRR obj) {
+                Obj = obj;
+            }
+
+            private Unity_Object_GBARRR Obj { get; }
+
+            public ushort Type {
+                get => (ushort)Obj.Actor.ObjectType;
+                set => Obj.Actor.ObjectType = (GBARRR_ActorType)(byte)value;
+            }
+
+            public int DES {
+                get => Obj.AnimationGroupIndex;
+                set => Obj.AnimationGroupIndex = value;
+            }
+
+            public int ETA {
+                get => Obj.AnimationGroupIndex;
+                set => Obj.AnimationGroupIndex = value;
+            }
+
+            public byte Etat { get; set; }
+
+            public byte SubEtat {
+                get => (byte)Obj.AnimIndex;
+                set => Obj.AnimIndex = value;
+            }
+
+            public int EtatLength => 0;
+            public int SubEtatLength => Obj.IsTriggerType ? 0 : Obj.ObjManager?.GraphicsDatas?.ElementAtOrDefault(Obj.AnimationGroupIndex)?.Length ?? 0;
+
+            public byte OffsetBX { get; set; }
+
+            public byte OffsetBY { get; set; }
+
+            public byte OffsetHY { get; set; }
+
+            public byte FollowSprite { get; set; }
+
+            public uint HitPoints { get; set; }
+
+            public byte HitSprite { get; set; }
+
+            public bool FollowEnabled { get; set; }
+        }
+		#endregion
+	}
 }

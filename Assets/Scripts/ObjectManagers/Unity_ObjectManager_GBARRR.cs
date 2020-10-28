@@ -60,5 +60,8 @@ namespace R1Engine
             public byte AnimSpeed { get; }
             public int BlockIndex { get; }
         }
+
+        public override string[] LegacyDESNames => GraphicsDatas.Select((x,i) => i.ToString()).ToArray();
+        public override string[] LegacyETANames => LegacyDESNames;
     }
 }

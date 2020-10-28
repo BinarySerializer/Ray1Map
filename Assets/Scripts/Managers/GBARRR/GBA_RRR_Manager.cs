@@ -2604,13 +2604,14 @@ namespace R1Engine
                         actor.P_PaletteIndex = 0x00000175;
                     }
                     if (actor.P_GraphicsIndex == 0x31) {
-                        switch (actor.P_Field0E) {
-                            case 0: actor.P_GraphicsOffset = 0x03005114; break;
+                        switch (actor.Ushort_0E) {
                             case 1: actor.P_GraphicsOffset = 0x03005090; break;
                             case 2: actor.P_GraphicsOffset = 0x030042f4; break;
                             case 3: actor.P_GraphicsOffset = 0x03004034; break;
                             case 4: actor.P_GraphicsOffset = 0x030023a4; break;
                             case 5: actor.P_GraphicsOffset = 0x03002500; break;
+                            case 0:
+                            default: actor.P_GraphicsOffset = 0x03005114; break;
                         }
                         actor.P_PaletteIndex = 0x00000279;
                     }
