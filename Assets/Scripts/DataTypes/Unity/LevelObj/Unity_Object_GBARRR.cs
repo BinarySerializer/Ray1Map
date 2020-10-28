@@ -12,8 +12,8 @@ namespace R1Engine
             Actor = actor;
             ObjManager = objManager;
 
-            if (actor.ObjectType == GBARRR_ActorType.Special && !Enum.IsDefined(typeof(SpecialType), (SpecialType)actor.P_FunctionPointer))
-                Debug.LogWarning($"Special type with function pointer 0x{actor.P_FunctionPointer:X8} is not defined");
+            if (actor.ObjectType == GBARRR_ActorType.Special && Actor.P_GraphicsOffset == 0 && !Enum.IsDefined(typeof(SpecialType), (SpecialType)actor.P_FunctionPointer))
+                Debug.LogWarning($"Special type with function pointer 0x{actor.P_FunctionPointer:X8} is not defined at ({Actor.XPosition}, {Actor.YPosition})");
         }
 
         public GBARRR_Actor Actor { get; }
@@ -33,7 +33,8 @@ namespace R1Engine
         public override string DebugText =>
               $"UShort_0C: {Actor.Ushort_0C}{Environment.NewLine}" +
               $"P_GraphicsIndex: {Actor.P_GraphicsIndex}{Environment.NewLine}" +
-              $"P_GraphicsOffset: {Actor.P_GraphicsOffset:X8}{Environment.NewLine}" +
+              $"P_GraphicsOffset: 0x{Actor.P_GraphicsOffset:X8}{Environment.NewLine}" +
+              $"P_FunctionPointer: 0x{Actor.P_FunctionPointer:X8}{Environment.NewLine}" +
               $"P_SpriteSize: {Actor.P_SpriteSize}{Environment.NewLine}" +
               $"P_FrameCount: {Actor.P_FrameCount}{Environment.NewLine}";
 
@@ -94,6 +95,7 @@ namespace R1Engine
                         {
                             case SpecialType.LevelEndTrigger:
                             case SpecialType.LevelEntranceTrigger:
+                            case SpecialType.MinigameTrigger:
                                 return Unity_ObjAnimationCollisionPart.CollisionType.ExitLevel;
                         }
                         break;
@@ -104,7 +106,8 @@ namespace R1Engine
         public enum SpecialType
         {
             LevelEndTrigger = 0x08037B9D,
-            LevelEntranceTrigger = 0x08037CA1
+            LevelEntranceTrigger = 0x08037CA1,
+            MinigameTrigger = 0x0804DC65
         }
 
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => IsTriggerType ? new Unity_ObjAnimationCollisionPart[]
