@@ -449,7 +449,7 @@ namespace R1Engine
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_BG0Map], nameof(GBARRR_Pointer.Mode7_BG0Map), 3);
                 }
 
-                uint lastPalIndex = 0;
+                var animTable = GBARRR_Tables.GetAnimBlocks.SelectMany(x => x).ToArray();
 
                 // Enumerate every block in the offset table
                 for (uint i = 0; i < rom.OffsetTable.OffsetTableCount; i++)
@@ -499,18 +499,22 @@ namespace R1Engine
                         }
 
                         // Graphics
-                        if (!exported && flags.HasFlag(ExportFlags.Graphics)) {
+                        if (!exported && flags.HasFlag(ExportFlags.Graphics) && animTable.Any(x => x.AnimBlockIndex == i)) {
                             s.Goto(blockOff);
                             try {
+                                var a = animTable.First(x => x.AnimBlockIndex == i);
                                 var gb = s.SerializeObject<GBARRR_GraphicsBlock>(default, name: $"GraphicsBlock[{i}]");
                                 if (FixedSpriteSizes.ContainsKey((int)i)) {
                                     gb.AnimationAssemble = FixedSpriteSizes[(int)i];
                                 }
-                                if (gb.Count != 0) {
+                                if (gb.Count != 0) 
+                                {
+                                    ARGB1555Color[] p = null;
+                                    rom.OffsetTable.DoAtBlock(context, a.PalBlockIndex, blockSize => p = s.SerializeObjectArray<ARGB1555Color>(default, 256));
                                     int tileDataSize = gb.TileData[0].Length;
                                     if (gb.TileData.All(td => td.Length == tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
                                         //gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
-                                        ExportSpriteFrames(gb, pal, 0, Path.Combine(outPath, $"ActorGraphics/{i}{append}/"), includeAbsolutePointer);
+                                        ExportSpriteFrames(gb, p, a.SubPalette, Path.Combine(outPath, $"ActorGraphics/{i}{append}/"), includeAbsolutePointer, 3);
                                         exported = true;
                                     }/* else {
                                         UnityEngine.Debug.Log($"Possible Graphics block {i}: {Math.Sqrt(tileDataSize * 2)} - {tileDataSize}");
@@ -545,10 +549,7 @@ namespace R1Engine
                                 PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette/{i}{append}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
                                 exported = true;
                                 if (p != null)
-                                {
                                     pal = p.Palette;
-                                    lastPalIndex = i;
-                                }
                             }
                         }
 
@@ -964,7 +965,7 @@ namespace R1Engine
             }
         }
 
-        protected void ExportSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex, string outputDir, bool includeAbsolutePointer) {
+        protected void ExportSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex, string outputDir, bool includeAbsolutePointer, int speed) {
             try 
             {
                 var index = 0;
@@ -972,9 +973,8 @@ namespace R1Engine
                 // For each frame
                 foreach (var tex in GetSpriteFrames(spr, palette, paletteIndex))
                 {
-                    var speed = 4; // TODO: Correct speed
                     var append = includeAbsolutePointer ? $"_{spr.Offset.AbsoluteOffset:X8}" : String.Empty;
-                    var fileName = $"Sprites{append}_Pal{paletteIndex}-{speed}/{index}.png";
+                    var fileName = $"Frames{append}-{speed}/{index}.png";
                     Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                     index++;
                 }
