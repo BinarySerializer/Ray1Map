@@ -559,7 +559,6 @@ namespace R1Engine
                                         //gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
                                         ExportSpriteFrames(gb, pal, 0, Path.Combine(outPath, $"ActorGraphics/{i}{append}/"), includeAbsolutePointer);
                                         exported = true;
-                                        File.AppendAllText(@"C:\Users\RayCarrot\Downloads\anim.txt", $"new AnimBlock({i}, {lastPalIndex}),{Environment.NewLine}");
                                     }/* else {
                                         UnityEngine.Debug.Log($"Possible Graphics block {i}: {Math.Sqrt(tileDataSize * 2)} - {tileDataSize}");
                                     }*/

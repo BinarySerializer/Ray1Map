@@ -49,6 +49,25 @@ namespace R1Engine
         public override bool IsEditor => CurrentAnimation == null;
 
         public override bool FlipHorizontally => BitHelpers.ExtractBits(Actor.Data1[3], 1, 4) == 1;
+        public override float? Rotation
+        {
+            get
+            {
+                switch (Actor.ObjRotation)
+                {
+                    case 1:
+                        return 90;
+                    case 2:
+                        return 270;
+                    case 3:
+                        return 180;
+                    default:
+                        return null;
+
+                }
+            }
+        }
+
         public override Vector2 Pivot
         {
             get

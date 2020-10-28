@@ -36,6 +36,7 @@ namespace R1Engine
         public virtual float Scale => 1f;
         public virtual bool FlipHorizontally => false;
         public virtual bool FlipVertically => false;
+        public virtual float? Rotation => null;
         public virtual bool IsVisible
         {
             get
