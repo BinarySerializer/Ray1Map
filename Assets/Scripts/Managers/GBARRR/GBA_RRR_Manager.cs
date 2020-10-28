@@ -826,7 +826,9 @@ namespace R1Engine
 
                 if (!dict.ContainsKey(obj.Actor.P_GraphicsOffset))
                 {
-                    Debug.LogWarning($"Graphics with offset {obj.Actor.P_GraphicsOffset:X8} wasn't loaded!");
+                    if (obj.Actor.P_GraphicsOffset != 0) {
+                        Debug.LogWarning($"Graphics with offset {obj.Actor.P_GraphicsOffset:X8} wasn't loaded!");
+                    }
                     obj.AnimationGroupIndex = -1;
                     continue;
                 }
@@ -913,6 +915,13 @@ namespace R1Engine
         protected IEnumerable<Texture2D> GetSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex)
         {
             // For each frame
+            Color[] paletteColors = new Color[16];
+            for (int i = 0; i < paletteColors.Length; i++) {
+                Color c = palette[paletteIndex * 16 + i].GetColor();
+
+                c = i != 0 ? new Color(c.r, c.g, c.b, 1f) : new Color(c.r, c.g, c.b, 0f);
+                paletteColors[i] = c;
+            }
             int width = (int)spr.TileSize;
             int height = (int)spr.TileSize;
             int frameCount = (int)spr.Count;
@@ -929,8 +938,8 @@ namespace R1Engine
 
             for (int frame = 0; frame < frameCount; frame++)
             {
-                var tex = TextureHelpers.CreateTexture2D(width * blockWidth, height * blockHeight, true);
-                for(int bx = 0; bx < blockWidth; bx++) {
+                var tex = TextureHelpers.CreateTexture2D(width * blockWidth, height * blockHeight, false);
+                for (int bx = 0; bx < blockWidth; bx++) {
                     for (int by = 0; by < blockHeight; by++) {
                         int i = frame * blockWidth * blockHeight;
                         if (order == AnimationAssemble.AssembleOrder.Column) {
@@ -939,22 +948,20 @@ namespace R1Engine
                             i += blockWidth * by + bx;
                         }
                         for (int y = 0; y < height; y++) {
+                            int tileY = y / 8;
+                            int inTileY = y % 8;
+                            int tileIndexY = tileY * width / 8;
+                            int pixelY = (blockHeight * height) - (by * height) - y - 1;
                             for (int x = 0; x < width; x++) {
                                 int tileX = x / 8;
-                                int tileY = y / 8;
                                 int inTileX = x % 8;
-                                int inTileY = y % 8;
-                                int tileIndex = tileX + (tileY * width / 8);
+                                int tileIndex = tileX + tileIndexY;
                                 int index = tileIndex * (8 * 4) + (inTileY * 8 + inTileX) / 2;
 
                                 if (index < spr.TileData[i].Length) {
                                     var v = BitHelpers.ExtractBits(spr.TileData[i][index], 4, x % 2 == 0 ? 0 : 4);
 
-                                    Color c = palette[paletteIndex * 16 + v].GetColor();
-
-                                    c = v != 0 ? new Color(c.r, c.g, c.b, 1f) : new Color(c.r, c.g, c.b, 0f);
-
-                                    tex.SetPixel(x + bx * width, (blockHeight * height) - (by * height) - y - 1, c);
+                                    tex.SetPixel(x + bx * width, pixelY, paletteColors[v]);
                                 } else {
                                     Debug.Log($"{spr.Offset.AbsoluteOffset:X8} - " + spr.TileData[i].Length + " - " + width + " - " + index);
                                 }
