@@ -7,12 +7,9 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBARRR : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBARRR(Context context, GraphicsData[] graphicsDatas) : base(context)
+        public Unity_ObjectManager_GBARRR(Context context, GraphicsData[][] graphicsDatas) : base(context)
         {
             GraphicsDatas = graphicsDatas;
-
-            for (int i = 0; i < GraphicsDatas.Length; i++)
-                GraphicsDataLookup[GraphicsDatas[i]?.GraphicsOffset ?? 0] = i;
         }
 
         public override int InitLinkGroups(IList<Unity_Object> objects)
@@ -37,15 +34,15 @@ namespace R1Engine
             return objects.Any() ? objects.Max(x => x.EditorLinkGroup) + 1 : 1;
         }
 
-        public GraphicsData[] GraphicsDatas { get; }
-        public Dictionary<uint, int> GraphicsDataLookup { get; } = new Dictionary<uint, int>();
+        public GraphicsData[][] GraphicsDatas { get; }
 
         public class GraphicsData
         {
-            public GraphicsData(uint graphicsOffset, Sprite[] animFrames)
+            public GraphicsData(Sprite[] animFrames, byte animSpeed, int blockIndex)
             {
-                GraphicsOffset = graphicsOffset;
                 AnimFrames = animFrames;
+                AnimSpeed = animSpeed;
+                BlockIndex = blockIndex;
                 Animation = new Unity_ObjAnimation()
                 {
                     Frames = Enumerable.Range(0, animFrames.Length).Select(x => new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
@@ -58,9 +55,10 @@ namespace R1Engine
                 };
             }
 
-            public uint GraphicsOffset { get; }
             public Sprite[] AnimFrames { get; }
             public Unity_ObjAnimation Animation { get; }
+            public byte AnimSpeed { get; }
+            public int BlockIndex { get; }
         }
     }
 }

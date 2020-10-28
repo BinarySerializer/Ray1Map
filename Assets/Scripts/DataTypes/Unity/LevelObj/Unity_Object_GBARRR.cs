@@ -30,11 +30,16 @@ namespace R1Engine
             set => Actor.YPosition = value;
         }
 
+        // We group animations so we can switch between them easier
+        public int AnimationGroupIndex { get; set; }
+        public int AnimIndex { get; set; }
+
         public override string DebugText =>
               $"UShort_0C: {Actor.Ushort_0C}{Environment.NewLine}" +
               $"P_GraphicsIndex: {Actor.P_GraphicsIndex}{Environment.NewLine}" +
               $"P_GraphicsOffset: 0x{Actor.P_GraphicsOffset:X8}{Environment.NewLine}" +
               $"P_FunctionPointer: 0x{Actor.P_FunctionPointer:X8}{Environment.NewLine}" +
+              $"P_PaletteIndex: {Actor.P_PaletteIndex}{Environment.NewLine}" +
               $"P_SpriteSize: {Actor.P_SpriteSize}{Environment.NewLine}" +
               $"P_FrameCount: {Actor.P_FrameCount}{Environment.NewLine}";
 
@@ -60,19 +65,7 @@ namespace R1Engine
         public override string PrimaryName => $"Type_{(byte)Actor.ObjectType}";
         public override string SecondaryName => Actor.ObjectType == GBARRR_ActorType.Special ? ((SpecialType)Actor.P_FunctionPointer).ToString() : Actor.ObjectType.ToString();
 
-        public Unity_ObjectManager_GBARRR.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault(GraphicsDataIndex);
-        public int GraphicsDataIndex
-        {
-            get => IsTriggerType ? -1 : ObjManager.GraphicsDataLookup.TryGetItem(Actor.P_GraphicsOffset, -1);
-            set
-            {
-                if (value != GraphicsDataIndex)
-                {
-                    OverrideAnimIndex = null;
-                    Actor.P_GraphicsOffset = (byte)ObjManager.GraphicsDatas[value].GraphicsOffset;
-                }
-            }
-        }
+        public Unity_ObjectManager_GBARRR.GraphicsData GraphicsData => IsTriggerType ? null : ObjManager.GraphicsDatas.ElementAtOrDefault(AnimationGroupIndex)?.ElementAtOrDefault(AnimIndex);
 
         public bool IsTriggerType => Actor.ObjectType == GBARRR_ActorType.DoorTrigger ||
                                      Actor.ObjectType == GBARRR_ActorType.MurfyTrigger ||
@@ -123,11 +116,31 @@ namespace R1Engine
         } : new Unity_ObjAnimationCollisionPart[0];
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
-        public override int AnimSpeed => 5; // TODO: Fix
-        public override int? GetAnimIndex => 0;
-        protected override int GetSpriteID => GraphicsDataIndex;
+        public override int AnimSpeed => GraphicsData?.AnimSpeed ?? 0;
+        public override int? GetAnimIndex => AnimIndex;
+        protected override int GetSpriteID => AnimationGroupIndex;
         public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
-        protected override bool IsUIStateArrayUpToDate => false;
-        protected override void RecalculateUIStates() => UIStates = new UIState[0];
+
+        protected int UIStates_AnimGroupIndex { get; set; } = -2;
+        protected override bool IsUIStateArrayUpToDate => AnimationGroupIndex == UIStates_AnimGroupIndex;
+        protected override void RecalculateUIStates()
+        {
+            UIStates_AnimGroupIndex = AnimationGroupIndex;
+
+            UIStates = ObjManager?.GraphicsDatas.ElementAtOrDefault(AnimationGroupIndex)?.Select((x, i) => (UIState)new RRR_UIState($"Animation {x.BlockIndex}", i)).ToArray() ?? new UIState[0];
+        }
+
+        protected class RRR_UIState : UIState
+        {
+            public RRR_UIState(string displayName, int animIndex) : base(displayName, animIndex) { }
+
+            public override void Apply(Unity_Object obj)
+            {
+                var rrrObj = (Unity_Object_GBARRR)obj;
+                rrrObj.AnimIndex = AnimIndex;
+            }
+
+            public override bool IsCurrentState(Unity_Object obj) => AnimIndex == ((Unity_Object_GBARRR)obj).AnimIndex;
+        }
     }
 }
