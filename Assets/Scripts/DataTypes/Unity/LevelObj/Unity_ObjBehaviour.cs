@@ -321,7 +321,8 @@ namespace R1Engine
                         prefabRenderers[i].transform.localScale = Vector3.one * ObjData.Scale;
 
                         prefabRenderers[i].transform.localRotation = Quaternion.Euler(0, 0, 0);
-                        if ((layer.Rotation.HasValue && layer.Rotation.Value != 0) || (layer.Scale.HasValue && layer.Scale.Value != Vector2.one)) {
+                        var rotation = (layer.Rotation ?? 0) + (ObjData.Rotation ?? 0);
+                        if (rotation != 0 || (layer.Scale.HasValue && layer.Scale.Value != Vector2.one)) {
 
                             Vector3 transformOrigin = new Vector3(
                                 (((layer.TransformOriginX - pivot.x) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x) / (float)LevelEditorData.Level.PixelsPerUnit),
@@ -336,11 +337,11 @@ namespace R1Engine
                                 prefabRenderers[i].transform.localPosition = transformOrigin + scaledPos;
                             }
                             // Then rotate
-                            if (layer.Rotation.HasValue && layer.Rotation.Value != 0) {
+                            if (rotation != 0) {
                                 /*Quaternion rotation = Quaternion.Euler(0, 0, layer.Rotation * 180f);*/
                                 //Vector3 rotationOrigin = Vector3.zero;
 
-                                prefabRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), layer.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
+                                prefabRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), rotation * ((mirroredX ^ mirroredY) ? -1f : 1f));
                                 /*    Vector2 relativePos = pos - rotationOrigin;
                                 Vector2 rotatedPos = rotation * relativePos;
                                 prefabRenderers[i].transform.localRotation = rotation;
