@@ -357,9 +357,7 @@ namespace R1Engine
             }
         }
 
-        [Obsolete]
         public override string[] LegacyDESNames => DES.Select(x => x.DisplayName).ToArray();
-        [Obsolete]
         public override string[] LegacyETANames => ETA.Select(x => x.DisplayName).ToArray();
 
         public string GetEventFlagsDebugInfo()

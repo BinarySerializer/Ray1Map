@@ -1,8 +1,5 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
-    [Obsolete]
     public interface ILegacyEditorWrapper
     {
         ushort Type { get; set; }

@@ -18,8 +18,6 @@ namespace R1Engine
         public bool HasPendingEdits { get; set; }
         public abstract R1Serializable SerializableData { get; }
 
-        // TODO: Remove this once we rework the editor
-        [Obsolete]
         public abstract ILegacyEditorWrapper LegacyWrapper { get; }
 
         // Attributes

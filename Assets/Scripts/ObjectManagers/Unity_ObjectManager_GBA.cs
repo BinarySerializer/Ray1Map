@@ -23,9 +23,7 @@ namespace R1Engine
 
         public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_GBA>().FindItem(x => x.Actor.ActorID == 0);
 
-        [Obsolete]
         public override string[] LegacyDESNames => GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
-        [Obsolete]
         public override string[] LegacyETANames => LegacyDESNames;
 
         public class GraphicsData

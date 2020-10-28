@@ -203,7 +203,6 @@ namespace R1Engine
 
         public override R1Serializable SerializableData => Actor;
 
-        [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override bool IsAlways => Actor.Type == GBA_Actor.ActorType.Always || Actor.Type == GBA_Actor.ActorType.Main;
@@ -260,7 +259,6 @@ namespace R1Engine
         protected override int GetSpriteID => GraphicsDataIndex;
         public override IList<Sprite> Sprites => GraphicsData?.Graphics.Sprites;
 
-        [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_GBA obj)

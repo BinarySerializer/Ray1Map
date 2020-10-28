@@ -152,7 +152,6 @@ namespace R1Engine
 
         public override R1Serializable SerializableData => EventData;
 
-        [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
         public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == R1_EventType.TYPE_DARK2_PINK_FLY);
         public override bool IsEditor => TypeInfo?.Flag == ObjTypeFlag.Editor;
@@ -437,7 +436,6 @@ namespace R1Engine
                 };
         }
 
-        [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_R1 obj)

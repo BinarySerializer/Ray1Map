@@ -88,7 +88,6 @@ namespace R1Engine
 
         public override R1Serializable SerializableData => EventData;
 
-        [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public bool IsAlwaysEvent { get; set; }
@@ -246,7 +245,6 @@ namespace R1Engine
             }
         }
 
-        [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_R2 obj)

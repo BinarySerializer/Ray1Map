@@ -49,7 +49,6 @@ namespace R1Engine
             return currentId;
         }
 
-        [Obsolete]
         public override string[] LegacyDESNames => EventDefinitions.Select(x => x.DisplayName).ToArray();
 
         public class State

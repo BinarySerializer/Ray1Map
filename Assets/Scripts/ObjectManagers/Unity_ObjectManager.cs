@@ -106,9 +106,7 @@ namespace R1Engine
         public virtual Unity_Object GetMainObject(IList<Unity_Object> objects) => null;
         public virtual void SaveObjects(IList<Unity_Object> objects) { }
 
-        [Obsolete]
         public virtual string[] LegacyDESNames => new string[0];
-        [Obsolete]
         public virtual string[] LegacyETANames => new string[0];
 
         public bool UpdateFromMemory(ref Context gameMemoryContext)

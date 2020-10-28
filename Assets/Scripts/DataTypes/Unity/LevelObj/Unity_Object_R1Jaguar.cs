@@ -67,7 +67,6 @@ namespace R1Engine
 
         public override R1Serializable SerializableData => Instance;
 
-        [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => ObjManager.EventDefinitions[EventDefinitionIndex].DisplayName;
@@ -90,7 +89,6 @@ namespace R1Engine
             return true;
         }
 
-		[Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_R1Jaguar obj)
