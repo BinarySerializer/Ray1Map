@@ -14,7 +14,7 @@ namespace R1Engine
     {
         #region Constructor
 
-        public GeneralEventInfoData(string name, 
+        public GeneralEventInfoData(string name, string[] codeNames, 
             ushort type, string typeName, 
             byte etat, byte subEtat, 
             string des, string eta,
@@ -25,6 +25,7 @@ namespace R1Engine
             ushort[] labelOffsets, byte[] commands)
         {
             Name = name;
+            CodeNames = codeNames;
             Type = type;
             TypeName = typeName;
             Etat = etat;
@@ -50,6 +51,7 @@ namespace R1Engine
         #region Public Properties
 
         public string Name { get; }
+        public string[] CodeNames { get; }
 
         public ushort Type { get; }
         public string TypeName { get; }
@@ -148,7 +150,7 @@ namespace R1Engine
                         }
 
                         // Add the item to the output
-                        output.Add(new GeneralEventInfoData(name: nextValue(), 
+                        output.Add(new GeneralEventInfoData(name: nextValue(), codeNames: nextStringArrayValue(), 
                             type: nextUShortValue(), typeName: nextValue(), 
                             etat: nextByteValue(), subEtat: nextByteValue(), 
                             des: nextValue(), eta: nextValue(),
@@ -223,7 +225,7 @@ namespace R1Engine
                 }
 
                 // Write header
-                WriteLine("Name", 
+                WriteLine("Name", "CodeName", 
                     "Type", "TypeName", 
                     "Etat", "SubEtat", 
                     "DES", "ETA", 
@@ -239,7 +241,7 @@ namespace R1Engine
                 // Write every item on a new line
                 foreach (var e in collection)
                 {
-                    WriteLine(e.Name, 
+                    WriteLine(e.Name, e.CodeNames, 
                         e.Type, e.TypeName, 
                         e.Etat, e.SubEtat, 
                         e.DES, e.ETA, 
