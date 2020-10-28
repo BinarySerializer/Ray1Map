@@ -806,7 +806,7 @@ namespace R1Engine
             
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_GBARRR(context, await LoadGraphicsDataAsync(context, rom.LevelScene, rom, lvl, world));
+            var objManager = new Unity_ObjectManager_GBARRR(context, LoadGraphicsData(context, rom.LevelScene, rom, lvl, world));
 
             await Controller.WaitIfNecessary();
 
@@ -814,6 +814,29 @@ namespace R1Engine
 
             if (gameMode == GameMode.Village && context.Settings.Level == 2)
                 objects = objects.Where(x => ((Unity_Object_GBARRR)x).Actor.ObjectType != GBARRR_ActorType.Scenery2); // Disable rain
+
+            var objList = objects.ToList();
+
+            // Assign correct animations to objects
+            var dict = GetActorGraphicsData(lvl, world);
+            foreach (var obj in objList.Cast<Unity_Object_GBARRR>())
+            {
+                AssignActorValues(obj.Actor, rom, lvl, world);
+
+                if (!dict.ContainsKey(obj.Actor.P_GraphicsOffset))
+                {
+                    Debug.LogWarning($"Graphics with offset {obj.Actor.P_GraphicsOffset:X8} wasn't loaded!");
+                    obj.AnimationGroupIndex = -1;
+                    continue;
+                }
+
+                var animBlock = dict[obj.Actor.P_GraphicsOffset];
+                var animGroup = objManager.GraphicsDatas.FindItemIndex(x => x.Any(y => y.BlockIndex == animBlock));
+                var animIndex = objManager.GraphicsDatas[animGroup].FindItemIndex(x => x.BlockIndex == animBlock);
+
+                obj.AnimationGroupIndex = animGroup;
+                obj.AnimIndex = animIndex;
+            }
 
             return new Unity_Level(
                 maps: hasFGMap ? new Unity_Map[]
@@ -829,7 +852,7 @@ namespace R1Engine
                     levelMap,
                 }, 
                 objManager: objManager,
-                eventData: objects.ToList(),
+                eventData: objList,
                 getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                 cellSize: CellSize,
                 localization: loc,
@@ -839,10 +862,9 @@ namespace R1Engine
         }
 
 
-        protected async UniTask<Unity_ObjectManager_GBARRR.GraphicsData[][]> LoadGraphicsDataAsync(Context context, GBARRR_Scene scene, GBARRR_ROM rom, int level, int world)
+        protected Unity_ObjectManager_GBARRR.GraphicsData[][] LoadGraphicsData(Context context, GBARRR_Scene scene, GBARRR_ROM rom, int level, int world)
         {
             SerializerObject s = context.Deserializer;
-            var dict = LoadActorGraphics(s, rom, level, world);
             var animTable = GBARRR_Tables.GetAnimBlocks;
             var graphicsData = new Unity_ObjectManager_GBARRR.GraphicsData[animTable.Length][];
 
@@ -852,7 +874,6 @@ namespace R1Engine
 
                 for (int animIndex = 0; animIndex < animTable[animGroup].Length; animIndex++)
                 {
-
                     int index = animTable[animGroup][animIndex].AnimBlockIndex;
 
                     GBARRR_GraphicsBlock graphicsBlock = null;
@@ -869,9 +890,9 @@ namespace R1Engine
                             palette = s.SerializeObject<GBARRR_Palette>(palette, name: nameof(palette));
                         });
                         Vector2? pivot = null;
-                        if (animGroup == 1) { // Rayman has a different pivot
+                        if (animGroup == 1) // Rayman has a different pivot
                             pivot = new Vector2(0.5f, 0f);
-                        }
+
                         graphicsData[animGroup][animIndex] = new Unity_ObjectManager_GBARRR.GraphicsData(
                             GetSpriteFrames(graphicsBlock, palette.Palette, animTable[animGroup][animIndex].SubPalette)
                                 .Select(x => x.CreateSprite(pivot: pivot)).ToArray(),
@@ -879,81 +900,10 @@ namespace R1Engine
                             index);
 
                     }
-                    //        {
-                    //            if (act.P_PaletteIndex < 16)
-                    //            {
-                    //                graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
-                    //                    GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex)
-                    //                        .Select(x => x.CreateSprite(pivot: pivot)).ToArray()));
-                    //            }
-                    //            else
-                    //            {
-                    //                rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex,
-                    //                    size => act.Palette =
-                    //                        s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
-
-                    //                graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
-                    //                    GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite(pivot: pivot))
-                    //                        .ToArray()));
-                    //            }
-                    //        }
-                    //GetSpriteFrames(obj, palette, paletteIndex);
-                    //graphicsData[animGroup][animIndex] = new Unity_ObjectManager_GBARRR.GraphicsData();
                 }
             }
 
             return graphicsData;
-
-            // Old code:
-
-            //var actorIndex = 0;
-
-            //// Enumerate every actor
-            //foreach (var act in scene.Actors)
-            //{
-            //    Controller.DetailedState = $"Loading actor {actorIndex + 1}/{scene.Actors.Length}";
-            //    await Controller.WaitIfNecessary();
-
-            //    AssignActorValues(act, rom, level, world);
-
-            //    if (act.P_GraphicsOffset != 0 || act.GraphicsBlock != null)
-            //    {
-            //        if (act.GraphicsBlock == null) {
-            //            if (!dict.ContainsKey(act.P_GraphicsOffset))
-            //                Debug.LogWarning($"Graphics with offset {act.P_GraphicsOffset:X8} wasn't loaded!");
-            //            else
-            //                act.GraphicsBlock = dict[act.P_GraphicsOffset];
-            //        }
-            //        Vector2? pivot = null;
-            //        if (act.P_GraphicsIndex == 2) { // Rayman has a different pivot
-            //            pivot = new Vector2(0.5f, 0f);
-            //        }
-
-            //        if (act.GraphicsBlock != null)
-            //        {
-            //            if (act.P_PaletteIndex < 16)
-            //            {
-            //                graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
-            //                    GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex)
-            //                        .Select(x => x.CreateSprite(pivot: pivot)).ToArray()));
-            //            }
-            //            else
-            //            {
-            //                rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex,
-            //                    size => act.Palette =
-            //                        s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
-
-            //                graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
-            //                    GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite(pivot: pivot))
-            //                        .ToArray()));
-            //            }
-            //        }
-            //    }
-
-            //    actorIndex++;
-            //}
-
-            //return graphicsData.ToArray();
         }
 
         protected IEnumerable<Texture2D> GetSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex)
@@ -1234,7 +1184,7 @@ namespace R1Engine
 
         public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
 
-        public Dictionary<uint, uint> LoadActorGraphics(SerializerObject s, GBARRR_ROM rom, int level, int world) {
+        public Dictionary<uint, uint> GetActorGraphicsData(int level, int world) {
 
             //Dictionary<uint, uint> indexDict = new Dictionary<uint, uint>();
             Dictionary<uint, uint> memAddressDict = new Dictionary<uint, uint>();

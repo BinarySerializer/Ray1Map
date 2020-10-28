@@ -56,9 +56,6 @@ namespace R1Engine
         public uint P_SpriteHeight { get; set; }
         public uint P_SpriteWidth { get; set; }
         
-        public GBARRR_GraphicsBlock GraphicsBlock { get; set; }
-        public GBARRR_Palette Palette { get; set; }
-
         public override void SerializeImpl(SerializerObject s)
         {
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
@@ -94,7 +91,7 @@ namespace R1Engine
                 Debug.LogWarning($"Actor type {ObjectType} is not defined");
 
             if (ObjRotation > 3)
-                Debug.LogWarning($"Actor of type {ObjectType} at ({XPosition}, {YPosition}) has an invalid rotation value");
+                Debug.LogWarning($"Actor of type {ObjectType} at ({XPosition}, {YPosition}) has an invalid rotation value of {ObjRotation}");
 
         }
     }
