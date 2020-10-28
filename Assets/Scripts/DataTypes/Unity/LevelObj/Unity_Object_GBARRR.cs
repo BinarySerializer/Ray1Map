@@ -11,6 +11,9 @@ namespace R1Engine
         {
             Actor = actor;
             ObjManager = objManager;
+
+            if (actor.ObjectType == GBARRR_ActorType.Special && !Enum.IsDefined(typeof(SpecialType), (SpecialType)actor.P_FunctionPointer))
+                Debug.LogWarning($"Special type with function pointer 0x{actor.P_FunctionPointer:X8} is not defined");
         }
 
         public GBARRR_Actor Actor { get; }
@@ -54,12 +57,12 @@ namespace R1Engine
         public override bool CanBeLinkedToGroup => true;
 
         public override string PrimaryName => $"Type_{(byte)Actor.ObjectType}";
-        public override string SecondaryName => $"{Actor.ObjectType}";
+        public override string SecondaryName => Actor.ObjectType == GBARRR_ActorType.Special ? ((SpecialType)Actor.P_FunctionPointer).ToString() : Actor.ObjectType.ToString();
 
         public Unity_ObjectManager_GBARRR.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault(GraphicsDataIndex);
         public int GraphicsDataIndex
         {
-            get => ObjManager.GraphicsDataLookup.TryGetItem(Actor.P_GraphicsOffset, -1);
+            get => IsTriggerType ? -1 : ObjManager.GraphicsDataLookup.TryGetItem(Actor.P_GraphicsOffset, -1);
             set
             {
                 if (value != GraphicsDataIndex)
@@ -69,6 +72,52 @@ namespace R1Engine
                 }
             }
         }
+
+        public bool IsTriggerType => Actor.ObjectType == GBARRR_ActorType.DoorTrigger ||
+                                     Actor.ObjectType == GBARRR_ActorType.MurfyTrigger ||
+                                     Actor.ObjectType == GBARRR_ActorType.SizeTrigger ||
+                                     (Actor.ObjectType == GBARRR_ActorType.Special && Actor.P_GraphicsOffset == 0);
+        public Unity_ObjAnimationCollisionPart.CollisionType GetCollisionType
+        {
+            get
+            {
+                switch (Actor.ObjectType)
+                {
+                    case GBARRR_ActorType.MurfyTrigger:
+                        return Unity_ObjAnimationCollisionPart.CollisionType.Gendoor;
+
+                    case GBARRR_ActorType.SizeTrigger:
+                        return Unity_ObjAnimationCollisionPart.CollisionType.SizeChange;
+
+                    case GBARRR_ActorType.Special:
+                        switch ((SpecialType)Actor.P_FunctionPointer)
+                        {
+                            case SpecialType.LevelEndTrigger:
+                            case SpecialType.LevelEntranceTrigger:
+                                return Unity_ObjAnimationCollisionPart.CollisionType.ExitLevel;
+                        }
+                        break;
+                }
+                return Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
+            }
+        }
+        public enum SpecialType
+        {
+            LevelEndTrigger = 0x08037B9D,
+            LevelEntranceTrigger = 0x08037CA1
+        }
+
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision => IsTriggerType ? new Unity_ObjAnimationCollisionPart[]
+        {
+            new Unity_ObjAnimationCollisionPart()
+            {
+                XPosition = 0,
+                YPosition = 0,
+                Width = (int)Actor.P_SpriteSize,
+                Height = (int)Actor.P_SpriteSize,
+                Type = GetCollisionType
+            }
+        } : new Unity_ObjAnimationCollisionPart[0];
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
         public override int AnimSpeed => 5; // TODO: Fix

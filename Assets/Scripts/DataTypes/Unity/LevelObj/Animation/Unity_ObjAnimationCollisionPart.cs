@@ -17,7 +17,11 @@
             HitTriggerBox,
             TriggerBox,
 
-            Gendoor
+            Gendoor,
+
+            // RRR
+            SizeChange,
+            ExitLevel
         }
     }
 }
