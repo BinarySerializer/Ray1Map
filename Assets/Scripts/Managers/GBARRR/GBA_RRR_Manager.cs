@@ -61,55 +61,8 @@ namespace R1Engine
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Normal)), 
             new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Vignette)),
             new GameAction("Export Categorized & Converted Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.All)),
-            new GameAction("Export Actor Graphics", false, true, (input, output) => ExportGraphicsAsync(settings, output)),
             new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output)),
         };
-
-        public async UniTask ExportGraphicsAsync(GameSettings settings, string outputPath) {
-
-            using (var context = new Context(settings)) {
-                var s = context.Deserializer;
-
-                await LoadFilesAsync(context);
-                
-                // Load the rom
-                var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
-
-                for (int w = 0; w < 6; w++) {
-                    for (int l = 0; l < 0x1d; l++) {
-                        var dict = LoadActorGraphics(s, rom, l, w);
-                        for (int i = 0; i < rom.GraphicsTable0[w].Length; i++) {
-                            var act = new GBARRR_Actor() {
-                                Ushort_0C = (ushort)(rom.GraphicsTable0[w][i].Key * 2)
-                            };
-                            AssignActorValues(act, rom, l, w);
-                            if (act.P_GraphicsOffset != 0 || act.GraphicsBlock != null) {
-                                if (act.GraphicsBlock == null) {
-                                    if (!dict.ContainsKey(act.P_GraphicsOffset)) continue;
-                                    act.GraphicsBlock = dict[act.P_GraphicsOffset];
-                                }
-                                /*    UnityEngine.Debug.Log("Graphics with offset " + string.Format("{0:X8}", act.P_GraphicsOffset) + " weren't loaded!");
-                                } else {
-                                    act.GraphicsBlock = dict[act.P_GraphicsOffset];
-                                }*/
-                                if (act.P_PaletteIndex < 16) {
-                                    // UnityEngine.Debug.Log(act.P_PaletteIndex);
-                                    // Use rom.spritepalette to test for now
-                                    ExportSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex, outputPath + $"/{w}/{l}/rompalette/", true);
-                                } else {
-                                    rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex, (size) => {
-                                        act.Palette = s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette));
-                                        ExportSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0, outputPath + $"/{w}/{l}/blockpalette/", true);
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-
 
         public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
             using (var context = new Context(settings)) {
@@ -559,7 +512,6 @@ namespace R1Engine
                                         //gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
                                         ExportSpriteFrames(gb, pal, 0, Path.Combine(outPath, $"ActorGraphics/{i}{append}/"), includeAbsolutePointer);
                                         exported = true;
-                                        File.AppendAllText(@"C:\Users\RayCarrot\Downloads\anim.txt", $"new AnimBlock({i}, {lastPalIndex}),{Environment.NewLine}");
                                     }/* else {
                                         UnityEngine.Debug.Log($"Possible Graphics block {i}: {Math.Sqrt(tileDataSize * 2)} - {tileDataSize}");
                                     }*/
@@ -900,7 +852,52 @@ namespace R1Engine
 
                 for (int animIndex = 0; animIndex < animTable[animGroup].Length; animIndex++)
                 {
-                    //GetSpriteFrames()
+
+                    int index = animTable[animGroup][animIndex].AnimBlockIndex;
+
+                    GBARRR_GraphicsBlock graphicsBlock = null;
+                    rom.OffsetTable.DoAtBlock(s.Context, index, size => {
+                        graphicsBlock = s.SerializeObject<GBARRR_GraphicsBlock>(null, pb => pb.BlockIndex = index, name: "Graphics");
+                        if (FixedSpriteSizes.ContainsKey(index)) {
+                            graphicsBlock.AnimationAssemble = FixedSpriteSizes[index];
+                        }
+                    });
+                    if (graphicsBlock != null) {
+                        int paletteIndex = animTable[animGroup][animIndex].PalBlockIndex;
+                        GBARRR_Palette palette = null;
+                        rom.OffsetTable.DoAtBlock(context, paletteIndex, size => {
+                            palette = s.SerializeObject<GBARRR_Palette>(palette, name: nameof(palette));
+                        });
+                        Vector2? pivot = null;
+                        if (animGroup == 1) { // Rayman has a different pivot
+                            pivot = new Vector2(0.5f, 0f);
+                        }
+                        graphicsData[animGroup][animIndex] = new Unity_ObjectManager_GBARRR.GraphicsData(
+                            GetSpriteFrames(graphicsBlock, palette.Palette, animTable[animGroup][animIndex].SubPalette)
+                                .Select(x => x.CreateSprite(pivot: pivot)).ToArray(),
+                            animTable[animGroup][animIndex].AnimSpeed,
+                            index);
+
+                    }
+                    //        {
+                    //            if (act.P_PaletteIndex < 16)
+                    //            {
+                    //                graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
+                    //                    GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex)
+                    //                        .Select(x => x.CreateSprite(pivot: pivot)).ToArray()));
+                    //            }
+                    //            else
+                    //            {
+                    //                rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex,
+                    //                    size => act.Palette =
+                    //                        s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
+
+                    //                graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
+                    //                    GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite(pivot: pivot))
+                    //                        .ToArray()));
+                    //            }
+                    //        }
+                    //GetSpriteFrames(obj, palette, paletteIndex);
                     //graphicsData[animGroup][animIndex] = new Unity_ObjectManager_GBARRR.GraphicsData();
                 }
             }
@@ -1237,12 +1234,12 @@ namespace R1Engine
 
         public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
 
-        public Dictionary<uint, GBARRR_GraphicsBlock> LoadActorGraphics(SerializerObject s, GBARRR_ROM rom, int level, int world) {
+        public Dictionary<uint, uint> LoadActorGraphics(SerializerObject s, GBARRR_ROM rom, int level, int world) {
 
-            Dictionary<uint, GBARRR_GraphicsBlock> indexDict = new Dictionary<uint, GBARRR_GraphicsBlock>();
-            Dictionary<uint, GBARRR_GraphicsBlock> memAddressDict = new Dictionary<uint, GBARRR_GraphicsBlock>();
-            GBARRR_GraphicsBlock LoadGraphicsBlock(uint index, uint count, uint tileSize) {
-                GBARRR_GraphicsBlock obj = null;
+            //Dictionary<uint, uint> indexDict = new Dictionary<uint, uint>();
+            Dictionary<uint, uint> memAddressDict = new Dictionary<uint, uint>();
+            uint LoadGraphicsBlock(uint index, uint count, uint tileSize) {
+                /*GBARRR_GraphicsBlock obj = null;
                 if(indexDict.ContainsKey(index)) return indexDict[index];
                 rom.OffsetTable.DoAtBlock(s.Context, index, size => {
                     obj = s.SerializeObject<GBARRR_GraphicsBlock>(null, onPreSerialize: gb => {
@@ -1253,23 +1250,15 @@ namespace R1Engine
                     if (FixedSpriteSizes.ContainsKey((int)index)) {
                         obj.AnimationAssemble = FixedSpriteSizes[(int)index];
                     }
-                });
-                indexDict[index] = obj;
-                memAddressDict[index] = obj;
-                return obj;
+                });*/
+                //indexDict[index] = index;
+                memAddressDict[index] = index;
+                return index;
             }
-            GBARRR_GraphicsBlock LoadGraphicsBlockUnknown(uint index) {
-                GBARRR_GraphicsBlock obj = null;
-                if (indexDict.ContainsKey(index)) return indexDict[index];
-                rom.OffsetTable.DoAtBlock(s.Context, index, size => {
-                    obj = s.SerializeObject<GBARRR_GraphicsBlock>(null, pb => pb.BlockIndex = (int)index, name: "Graphics");
-                    if (FixedSpriteSizes.ContainsKey((int)index)) {
-                        obj.AnimationAssemble = FixedSpriteSizes[(int)index];
-                    }
-                });
-                indexDict[index] = obj;
-                memAddressDict[index] = obj;
-                return obj;
+            uint LoadGraphicsBlockUnknown(uint index) {
+                //indexDict[index] = index;
+                memAddressDict[index] = index;
+                return index;
             }
 
             memAddressDict[0x03003F6C] = LoadGraphicsBlock(0x12, 3, 0x10);
