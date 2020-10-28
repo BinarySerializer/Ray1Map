@@ -48,6 +48,7 @@ namespace R1Engine
         public Pointer[] Mode7_MapPalettePointers { get; set; }
         public Pointer[] Mode7_BG1PalettePointers { get; set; }
         public Pointer[] Mode7_BG0PalettePointers { get; set; }
+        public Pointer[] Mode7_ObjectsPointers { get; set; }
         public byte[] Mode7_BG0Tiles { get; set; }
         public byte[] Mode7_BG1Tiles { get; set; }
         public byte[] Mode7_MapTiles { get; set; }
@@ -58,6 +59,7 @@ namespace R1Engine
         public ARGB1555Color[] Mode7_BG1Palette { get; set; }
         public ARGB1555Color[] Mode7_BG0Palette { get; set; }
         public ARGB1555Color[] Mode7_TilemapPalette { get; set; }
+        public GBARRR_Mode7Object[] Mode7_Objects { get; set; }
 
         // Menu
         public Pointer[] Menu_Pointers { get; set; }
@@ -185,6 +187,7 @@ namespace R1Engine
                 Mode7_MapPalettePointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_TilePalette], () => s.SerializePointerArray(Mode7_MapPalettePointers, 3, name: nameof(Mode7_MapPalettePointers)));
                 Mode7_BG1PalettePointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG1Palette], () => s.SerializePointerArray(Mode7_BG1PalettePointers, 3, name: nameof(Mode7_BG1PalettePointers)));
                 Mode7_BG0PalettePointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG0Palette], () => s.SerializePointerArray(Mode7_BG0PalettePointers, 3, name: nameof(Mode7_BG0PalettePointers)));
+                Mode7_ObjectsPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Objects], () => s.SerializePointerArray(Mode7_ObjectsPointers, 3, name: nameof(Mode7_ObjectsPointers)));
 
                 // Serialize compressed tile data
                 s.DoAt(Mode7_MapTilesPointers[s.GameSettings.Level], () => {
@@ -220,6 +223,10 @@ namespace R1Engine
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG1MapData = s.SerializeObjectArray<MapTile>(Mode7_BG1MapData, 32 * 32,
                         onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Foreground,
                         name: nameof(Mode7_BG1MapData)));
+                });
+                s.DoAt(Mode7_ObjectsPointers[s.GameSettings.Level], () =>
+                {
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_Objects = s.SerializeObjectArray<GBARRR_Mode7Object>(Mode7_Objects, s.CurrentLength / 32, name: nameof(Mode7_Objects)));
                 });
 
                 // Serialize palettes

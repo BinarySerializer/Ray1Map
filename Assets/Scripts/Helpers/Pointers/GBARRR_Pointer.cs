@@ -19,6 +19,7 @@
         Mode7_TilePalette, // 0x5000000
         Mode7_BG1Palette, // 0x050001C0
         Mode7_BG0Palette, // 0x05000180
+        Mode7_Objects, // 0x020127B0 (32-byte structs)
 
         // Unknown non-compressed Mode7 pointer arrays
         Mode7_Array1, // 0x02000240 (length 0x7D0)
@@ -30,7 +31,6 @@
         // Unknown compressed Mode7 pointer arrays
         Mode7_ComprArray1, // 0x06015000 world-specific sprites
         Mode7_ComprArray2, // 0x020150D0 (1024 bytes)
-        Mode7_ComprArray3, // 0x020127B0 (32-byte structs)
         Mode7_ComprArray4, // 0x06010A00 hud sprites
 
         // Unknown compressed data 

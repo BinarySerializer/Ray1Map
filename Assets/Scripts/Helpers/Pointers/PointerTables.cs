@@ -495,7 +495,7 @@ namespace R1Engine
 
                         [GBARRR_Pointer.Mode7_ComprArray1] = 0x08708144,
                         [GBARRR_Pointer.Mode7_ComprArray2] = 0x087081C4,
-                        [GBARRR_Pointer.Mode7_ComprArray3] = 0x087081ac,
+                        [GBARRR_Pointer.Mode7_Objects] = 0x087081ac,
                         [GBARRR_Pointer.Mode7_ComprArray4] = 0x0870815c,
 
                         [GBARRR_Pointer.MenuArray] = 0x087087D4,
@@ -539,7 +539,7 @@ namespace R1Engine
 
                         [GBARRR_Pointer.Mode7_ComprArray1] = 0x087218b4,
                         [GBARRR_Pointer.Mode7_ComprArray2] = 0x08721934,
-                        [GBARRR_Pointer.Mode7_ComprArray3] = 0x0872191c,
+                        [GBARRR_Pointer.Mode7_Objects] = 0x0872191c,
                         [GBARRR_Pointer.Mode7_ComprArray4] = 0x087218cc,
 
                         [GBARRR_Pointer.MenuArray] = 0x08721f44,

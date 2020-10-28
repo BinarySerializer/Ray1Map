@@ -476,7 +476,7 @@ namespace R1Engine
 
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray1], nameof(GBARRR_Pointer.Mode7_ComprArray1), 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray2], nameof(GBARRR_Pointer.Mode7_ComprArray2), 3);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray3], nameof(GBARRR_Pointer.Mode7_ComprArray3), 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Objects], nameof(GBARRR_Pointer.Mode7_Objects), 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray4], nameof(GBARRR_Pointer.Mode7_ComprArray4), 3);
 
                     ExportMode7Block(pointerTable[GBARRR_Pointer.Mode7UnknownPal], nameof(GBARRR_Pointer.Mode7UnknownPal), compressed: false);
@@ -673,7 +673,9 @@ namespace R1Engine
                     MapTiles = rom.Mode7_BG1MapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
                 };
 
-                var objmanager = new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]);
+                var objmanager = new Unity_ObjectManager(context);
+
+                var mode7Objects = rom.Mode7_Objects.Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager)).ToList();
 
                 return new Unity_Level(
                     maps: new Unity_Map[]
@@ -686,10 +688,7 @@ namespace R1Engine
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
                     localization: loc,
-                    eventData: new List<Unity_Object>()
-                    {
-                        new Unity_Object_GBARRR(new GBARRR_Actor(), objmanager)
-                    },
+                    eventData: mode7Objects,
                     defaultMap: 0
                 );
             }
