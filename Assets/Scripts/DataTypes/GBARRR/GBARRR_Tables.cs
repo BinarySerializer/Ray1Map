@@ -10,20 +10,20 @@
             {
                 new AnimBlock(7, 23), // Font
                 new AnimBlock(18, 17), // Timer bar
-                new AnimBlock(25, 27), // Cage icon
+                new AnimBlock(25, 320), // Cage icon
                 new AnimBlock(26, 23),
                 new AnimBlock(28, 27),
                 new AnimBlock(29, 23),
-                new AnimBlock(30, 35),
-                new AnimBlock(31, 35),
-                new AnimBlock(32, 35),
-                new AnimBlock(33, 35),
-                new AnimBlock(34, 35),
+                new AnimBlock(30, 905, subPalette: 3),
+                new AnimBlock(31, 905, subPalette: 3),
+                new AnimBlock(32, 905, subPalette: 5),
+                new AnimBlock(33, 905, subPalette: 5),
+                new AnimBlock(34, 906, subPalette: 5),
                 new AnimBlock(36, 35),
                 new AnimBlock(38, 37),
-                new AnimBlock(39, 35),
-                new AnimBlock(40, 35),
-                new AnimBlock(41, 35),
+                new AnimBlock(39, 905, subPalette: 5),
+                new AnimBlock(40, 905, subPalette: 5),
+                new AnimBlock(41, 905, subPalette: 5),
                 new AnimBlock(43, 42),
                 new AnimBlock(44, 42),
                 new AnimBlock(46, 45),

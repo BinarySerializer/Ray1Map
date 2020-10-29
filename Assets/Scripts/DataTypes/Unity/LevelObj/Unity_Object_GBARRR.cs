@@ -154,6 +154,7 @@ namespace R1Engine
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => AnimationGroupIndex;
         public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
+        public override int? GetLayer(int index) => -index;
 
         #region UI States
         protected int UIStates_AnimGroupIndex { get; set; } = -2;
