@@ -54,21 +54,10 @@ namespace R1Engine
             Objects = s.DoAt(ObjectsPointer, () => s.SerializeObjectArray<GBAIsometric_Object>(Objects, ObjectsCount, name: nameof(Objects)));
             Waypoints = s.DoAt(WaypointsPointer, () => s.SerializeObjectArray<GBAIsometric_Waypoint>(Waypoints, WaypointsCount, name: nameof(Waypoints)));
 
-            // TODO: Remove try/catch
-            try
+            s.DoAt(CollisionPointer, () =>
             {
-                s.DoAt(CollisionPointer, () =>
-                {
-                    s.DoEncoded(new RHREncoder(), () =>
-                    {
-                        CollisionData = s.SerializeObjectArray<GBAIsometric_TileCollision>(CollisionData, CollisionWidth * CollisionHeight, name: nameof(CollisionData));
-                    });
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Failed to decompress {CollisionPointer}: {ex.Message}\n{ex.InnerException?.StackTrace}");
-            }
+                s.DoEncoded(new RHREncoder(), () => CollisionData = s.SerializeObjectArray<GBAIsometric_TileCollision>(CollisionData, CollisionWidth * CollisionHeight, name: nameof(CollisionData)));
+            });
         }
     }
 }

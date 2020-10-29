@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -20,7 +19,7 @@ namespace R1Engine
         public byte[] RemainingData { get; set; }
 
         // Parsed
-        public ushort[] MapData { get; set; }
+        public MapTile[] MapData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -40,22 +39,10 @@ namespace R1Engine
                 MapPalette = s.DoAt(MapPalettePointer, () => s.SerializeObjectArray<ARGB1555Color>(MapPalette, 256, name: nameof(MapPalette)));
             }
 
-            // TODO: Remove try/catch
-            try
+            s.DoAt(MapDataPointer, () =>
             {
-                s.DoAt(MapDataPointer, () =>
-                {
-                    s.DoEncoded(new RHREncoder(), () =>
-                    {
-                        MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData));
-                        s.Log($"Max: {MapData.Max(x => BitHelpers.ExtractBits(x, 10, 0))}");
-                    });
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Failed to decompress {MapDataPointer}: {ex.Message}\n{ex.InnerException?.StackTrace}");
-            }
+                s.DoEncoded(new RHREncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData)));
+            });
         }
 
         public enum MapLayerType : ushort

@@ -48,64 +48,22 @@ namespace R1Engine
             Pointer11 = s.SerializePointer(Pointer11, name: nameof(Pointer11));
             AnimatedPalettesPointer = s.SerializePointer(AnimatedPalettesPointer, name: nameof(AnimatedPalettesPointer));
 
-            // TODO: Remove try/catch
-            try
+            s.DoAt(Pointer5, () =>
             {
-                s.DoAt(Pointer5, () =>
-                {
-                    s.DoEncoded(new RHREncoder(), () =>
-                    {
-                        Pointer5_Data = s.SerializeArray<ushort>(Pointer5_Data, s.CurrentLength / 2, name: nameof(Pointer5_Data));
-                        s.Log($"Max: {Pointer5_Data.Max()}");
-                    });
-                });
-            }
-            catch (Exception ex)
+                s.DoEncoded(new RHREncoder(), () => Pointer5_Data = s.SerializeArray<ushort>(Pointer5_Data, s.CurrentLength / 2, name: nameof(Pointer5_Data)));
+            });
+            s.DoAt(Pointer7, () =>
             {
-                Debug.LogWarning($"Failed to decompress {Pointer5}: {ex.Message}\n{ex.InnerException?.StackTrace}");
-            }
-            try
+                s.DoEncoded(new RHREncoder(), () => Pointer7_Data = s.SerializeArray<ushort>(Pointer7_Data, s.CurrentLength / 2, name: nameof(Pointer7_Data)));
+            });
+            s.DoAt(Pointer9, () =>
             {
-                s.DoAt(Pointer7, () =>
-                {
-                    s.DoEncoded(new RHREncoder(), () =>
-                    {
-                        Pointer7_Data = s.SerializeArray<ushort>(Pointer7_Data, s.CurrentLength / 2, name: nameof(Pointer7_Data));
-                        s.Log($"Max: {Pointer7_Data.Max()}");
-                    });
-                });
-            }
-            catch (Exception ex) {
-                Debug.LogWarning($"Failed to decompress {Pointer7}: {ex.Message}\n{ex.InnerException?.StackTrace}");
-            }
-            try
+                s.DoEncoded(new RHREncoder(), () => Pointer9_Data = s.SerializeArray<ushort>(Pointer9_Data, s.CurrentLength / 2, name: nameof(Pointer9_Data)));
+            });
+            s.DoAt(Pointer11, () =>
             {
-                s.DoAt(Pointer9, () =>
-                {
-                    s.DoEncoded(new RHREncoder(), () =>
-                    {
-                        Pointer9_Data = s.SerializeArray<ushort>(Pointer9_Data, s.CurrentLength / 2, name: nameof(Pointer9_Data));
-                        s.Log($"Max: {Pointer9_Data.Max()}");
-                    });
-                });
-            }
-            catch (Exception ex) {
-                Debug.LogWarning($"Failed to decompress {Pointer9}: {ex.Message}\n{ex.InnerException?.StackTrace}");
-            }
-            try
-            {
-                s.DoAt(Pointer11, () =>
-                {
-                    s.DoEncoded(new RHREncoder(), () =>
-                    {
-                        Pointer11_Data = s.SerializeArray<ushort>(Pointer11_Data, s.CurrentLength / 2, name: nameof(Pointer11_Data));
-                        s.Log($"Max: {Pointer11_Data.Max()}");
-                    });
-                });
-            }
-            catch (Exception ex) {
-                Debug.LogWarning($"Failed to decompress {Pointer11}: {ex.Message}\n{ex.InnerException?.StackTrace}");
-            }
+                s.DoEncoded(new RHREncoder(), () => Pointer11_Data = s.SerializeArray<ushort>(Pointer11_Data, s.CurrentLength / 2, name: nameof(Pointer11_Data)));
+            });
 
             //AnimatedPalettes = s.DoAt(PalettesPointer, () => s.SerializeObjectArray<ARGB1555Color>(AnimatedPalettes, 16 * 45, name: nameof(AnimatedPalettes)));
         }
