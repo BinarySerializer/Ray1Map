@@ -4,7 +4,7 @@
     {
         public int Int_00 { get; set; }
         public int CompressionLookupBufferLength { get; set; }
-        public int Int_0C { get; set; }
+        public int Int_08 { get; set; }
 
         public Pointer CompressionLookupPointer { get; set; }
         public Pointer CompressedDataPointer { get; set; }
@@ -16,7 +16,7 @@
         {
             Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
             CompressionLookupBufferLength = s.Serialize<int>(CompressionLookupBufferLength, name: nameof(CompressionLookupBufferLength));
-            Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
+            Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
 
             CompressionLookupPointer = s.SerializePointer(CompressionLookupPointer, name: nameof(CompressionLookupPointer));
             CompressedDataPointer = s.SerializePointer(CompressedDataPointer, name: nameof(CompressedDataPointer));
