@@ -1,7 +1,7 @@
 ﻿namespace R1Engine
 {
     // For the flags, buttons etc.
-    public class GBAIsometric_SpriteSet : R1Serializable
+    public class GBAIsometric_Sprite : R1Serializable
     {
         public int Width { get; set; } // In 8x8 tiles
         public int Height { get; set; }
@@ -22,8 +22,8 @@
         public override void SerializeImpl(SerializerObject s)
         {
             s.SerializeBitValues<byte>((bitFunc) => {
-                Height = bitFunc(Height, 4, name: nameof(Height));
                 Width = bitFunc(Width, 4, name: nameof(Width));
+                Height = bitFunc(Height, 4, name: nameof(Height));
             });
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
