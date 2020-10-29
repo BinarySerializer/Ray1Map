@@ -899,11 +899,15 @@ namespace R1Engine
                         if (animGroup == 1) // Rayman has a different pivot
                             pivot = new Vector2(0.5f, 0f);
 
+                        // Copy variables to prevent them from being modified before used in the func
+                        var f_animGroup = animGroup;
+                        var f_animIndex = animIndex;
+
                         graphicsData[animGroup][animIndex] = new Unity_ObjectManager_GBARRR.GraphicsData(
-                            GetSpriteFrames(graphicsBlock, palette.Palette, animTable[animGroup][animIndex].SubPalette)
-                                .Select(x => x.CreateSprite(pivot: pivot)).ToArray(),
-                            animTable[animGroup][animIndex].AnimSpeed,
-                            index);
+                            animFrameFunc: () => GetSpriteFrames(graphicsBlock, palette.Palette, animTable[f_animGroup][f_animIndex].SubPalette)
+                                .Select(x => x.CreateSprite(pivot: pivot)).ToArray(), 
+                            animSpeed: animTable[animGroup][animIndex].AnimSpeed,
+                            blockIndex: index);
 
                     }
                 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using R1Engine.Serialize;
 using UnityEngine;
@@ -38,25 +39,29 @@ namespace R1Engine
 
         public class GraphicsData
         {
-            public GraphicsData(Sprite[] animFrames, byte animSpeed, int blockIndex)
+            public GraphicsData(Func<Sprite[]> animFrameFunc, byte animSpeed, int blockIndex)
             {
-                AnimFrames = animFrames;
+                AnimFrameFunc = animFrameFunc;
                 AnimSpeed = animSpeed;
                 BlockIndex = blockIndex;
-                Animation = new Unity_ObjAnimation()
-                {
-                    Frames = Enumerable.Range(0, animFrames.Length).Select(x => new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
-                    {
-                        new Unity_ObjAnimationPart()
-                        {
-                            ImageIndex = x
-                        }
-                    })).ToArray()
-                };
             }
 
-            public Sprite[] AnimFrames { get; }
-            public Unity_ObjAnimation Animation { get; }
+            private Sprite[] Frames;
+            private Unity_ObjAnimation Anim;
+            protected Func<Sprite[]> AnimFrameFunc { get; }
+
+            public Sprite[] AnimFrames => Frames ?? (Frames = AnimFrameFunc());
+
+            public Unity_ObjAnimation Animation => Anim ?? (Anim = new Unity_ObjAnimation()
+            {
+                Frames = Enumerable.Range(0, AnimFrames.Length).Select(x => new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
+                {
+                    new Unity_ObjAnimationPart()
+                    {
+                        ImageIndex = x
+                    }
+                })).ToArray()
+            });
             public byte AnimSpeed { get; }
             public int BlockIndex { get; }
         }
