@@ -566,6 +566,9 @@ namespace R1Engine
                 case GameModeSelection.RaymanHoodlumsRevengeEU:
                     return new Dictionary<GBAIsometric_Pointer, uint>() {
                         [GBAIsometric_Pointer.MusyxFile] = 0x080447AC,
+                        [GBAIsometric_Pointer.Levels] = 0x080E938C,
+                        [GBAIsometric_Pointer.Localization] = 0x087F5E04,
+                        [GBAIsometric_Pointer.ObjTypes] = 0x080F9814,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.RaymanHoodlumsRevengeUS:
