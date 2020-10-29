@@ -152,7 +152,7 @@ public class SettingsWindow : UnityWindow
         // Directories
         DrawHeader("Directories" + (fileMode == FileSystem.Mode.Web ? " (Web)" : ""));
 
-        Settings.HideDirSettings = EditorField("Hide directory fields", Settings.HideDirSettings);
+        Settings.HideDirSettings = !EditorGUI.Foldout(GetNextRect(ref YPos), !Settings.HideDirSettings, "Directories", true);
 
         if (!Settings.HideDirSettings) {
             var modes = EnumHelpers.GetValues<GameModeSelection>();
