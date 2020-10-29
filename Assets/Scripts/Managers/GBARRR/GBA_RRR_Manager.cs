@@ -635,7 +635,8 @@ namespace R1Engine
 
                 var objmanager = new Unity_ObjectManager(context);
 
-                var mode7Objects = rom.Mode7_Objects.Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager)).ToList();
+                var objLength = rom.Mode7_Objects.FindItemIndex(x => x.ObjectType == GBARRR_Mode7Object.Mode7Type.Invalid);
+                var mode7Objects = rom.Mode7_Objects.Take(objLength).Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager)).ToList();
 
                 return new Unity_Level(
                     maps: new Unity_Map[]
