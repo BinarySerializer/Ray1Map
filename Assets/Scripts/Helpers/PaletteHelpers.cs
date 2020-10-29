@@ -40,7 +40,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="outputPath">The path to export to</param>
         /// <param name="palette">The palette</param>
-        public static void ExportPalette(string outputPath, IList<ARGBColor> palette, int scale = 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null)
+        public static void ExportPalette(string outputPath, IList<ARGBColor> palette, int scale = 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null, bool reverseY = false)
         {
             int length = optionalLength ?? palette.Count;
             int wrap = optionalWrap ?? length;
@@ -60,7 +60,13 @@ namespace R1Engine
                 {
                     for (int x = 0; x < scale; x++)
                     {
-                        tex.SetPixel(mainX * scale + x, tex.height - (mainY * scale + y) - 1, col);
+                        var xx = mainX * scale + x;
+                        var yy = mainY * scale + y;
+
+                        if (reverseY)
+                            yy = tex.height - yy - 1;
+
+                        tex.SetPixel(xx, yy, col);
                     }
                 }
             }
