@@ -16,14 +16,14 @@
                 new AnimBlock(29, 23),
                 new AnimBlock(30, 905, subPalette: 3),
                 new AnimBlock(31, 905, subPalette: 3),
-                new AnimBlock(32, 905, subPalette: 5),
-                new AnimBlock(33, 905, subPalette: 5),
-                new AnimBlock(34, 906, subPalette: 5),
+                new AnimBlock(32, 589),
+                new AnimBlock(33, 405),
+                new AnimBlock(34, 412),
                 new AnimBlock(36, 35),
                 new AnimBlock(38, 37),
-                new AnimBlock(39, 905, subPalette: 5),
-                new AnimBlock(40, 905, subPalette: 5),
-                new AnimBlock(41, 905, subPalette: 5),
+                new AnimBlock(39, 642),
+                new AnimBlock(40, 648),
+                new AnimBlock(41, 644),
                 new AnimBlock(43, 42),
                 new AnimBlock(44, 42),
                 new AnimBlock(46, 45),
@@ -625,7 +625,7 @@
                 new AnimBlock(594, 589),
             }, 
 
-            // Rabbid guard
+            // Rabbid robot
             new AnimBlock[]
             {
                 new AnimBlock(596, 595),
