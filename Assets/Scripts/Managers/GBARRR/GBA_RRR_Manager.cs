@@ -3159,6 +3159,7 @@ namespace R1Engine
             [712] = new AnimationAssemble(1, 3),
             [714] = new AnimationAssemble(1, 3),
             [716] = new AnimationAssemble(1, 3),
+            [749] = new AnimationAssemble(2, 1),
             [753] = new AnimationAssemble(2, 1),
 
             // Boss Prison

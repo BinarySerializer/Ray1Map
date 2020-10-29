@@ -213,8 +213,8 @@
                 new AnimBlock(800, 799),
                 new AnimBlock(802, 801),
                 new AnimBlock(804, 803),
-                new AnimBlock(805, 803),
-                new AnimBlock(806, 803),
+                new AnimBlock(805, 797),
+                new AnimBlock(806, 799),
                 new AnimBlock(807, 803),
             },
 
