@@ -32,7 +32,16 @@ namespace R1Engine
         }
 
         // We group animations so we can switch between them easier
-        public int AnimationGroupIndex { get; set; }
+        private int _AnimationGroupIndex { get; set; }
+        public int AnimationGroupIndex {
+            get => _AnimationGroupIndex;
+            set {
+                if (value != _AnimationGroupIndex) {
+                    _AnimationGroupIndex = value;
+                    AnimIndex = 0;
+                }
+            }
+        }
         public int AnimIndex { get; set; }
 
         public override string DebugText =>
