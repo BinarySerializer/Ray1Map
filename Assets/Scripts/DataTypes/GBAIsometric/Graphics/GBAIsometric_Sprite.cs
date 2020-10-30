@@ -38,7 +38,11 @@
 
             s.DoEncoded(new RHR_SpriteEncoder(this), () => {
                 Sprite = s.SerializeArray<byte>(Sprite, s.CurrentLength, name: nameof(Sprite));
-                //Util.ByteArrayToFile(Context.BasePath + "sprites/" + Name + ".bin", Sprite);
+                //Util.ByteArrayToFile(Context.BasePath + $"sprites/{Name}_{Offset.StringAbsoluteOffset}.bin", Sprite);
+            });
+            s.DoEncoded(new RHR_SpriteEncoder(Is8Bit, GraphicsDataPointer.Value.CompressionLookupBuffer, GraphicsDataPointer.Value.CompressedDataPointer), () => {
+                byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
+                //Util.ByteArrayToFile(Context.BasePath + $"sprites/Full_{Offset.StringAbsoluteOffset}.bin", fullSheet);
             });
         }
     }

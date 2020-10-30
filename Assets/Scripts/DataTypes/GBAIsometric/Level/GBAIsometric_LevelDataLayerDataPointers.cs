@@ -23,14 +23,14 @@ namespace R1Engine
         public Pointer Pointer10 { get; set; }
         public Pointer Pointer11 { get; set; } // Compressed
 
-        public Pointer AnimatedPalettesPointer { get; set; }
+        public Pointer PalettesPointer { get; set; }
 
         // Parsed
         public ushort[] Pointer5_Data { get; set; }
         public ushort[] Pointer7_Data { get; set; }
         public ushort[] Pointer9_Data { get; set; }
         public ushort[] Pointer11_Data { get; set; }
-        public ARGB1555Color[] AnimatedPalettes { get; set; }
+        public ARGB1555Color[] Palettes { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -46,7 +46,7 @@ namespace R1Engine
             Pointer9 = s.SerializePointer(Pointer9, name: nameof(Pointer9));
             Pointer10 = s.SerializePointer(Pointer10, name: nameof(Pointer10));
             Pointer11 = s.SerializePointer(Pointer11, name: nameof(Pointer11));
-            AnimatedPalettesPointer = s.SerializePointer(AnimatedPalettesPointer, name: nameof(AnimatedPalettesPointer));
+            PalettesPointer = s.SerializePointer(PalettesPointer, name: nameof(PalettesPointer));
 
             s.DoAt(Pointer5, () =>
             {
@@ -64,8 +64,13 @@ namespace R1Engine
             {
                 s.DoEncoded(new RHREncoder(), () => Pointer11_Data = s.SerializeArray<ushort>(Pointer11_Data, s.CurrentLength / 2, name: nameof(Pointer11_Data)));
             });
+            Palettes = s.DoAt(PalettesPointer, () => s.SerializeObjectArray<ARGB1555Color>(Palettes, 16 * 45, name: nameof(Palettes)));
 
-            //AnimatedPalettes = s.DoAt(PalettesPointer, () => s.SerializeObjectArray<ARGB1555Color>(AnimatedPalettes, 16 * 45, name: nameof(AnimatedPalettes)));
+            s.DoEncoded(new RHR_SpriteEncoder(false, GraphicsDataPointer.Value.CompressionLookupBuffer, GraphicsDataPointer.Value.CompressedDataPointer), () => {
+                byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
+                //Color[] cols = AnimatedPalettes.Select(c => c.GetColor());
+                //Util.ByteArrayToFile(Context.BasePath + $"tiles/Full_4Bit_{Offset.StringAbsoluteOffset}.bin", fullSheet);
+            });
         }
     }
 }

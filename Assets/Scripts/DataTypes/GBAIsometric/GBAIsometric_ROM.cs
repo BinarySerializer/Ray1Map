@@ -26,6 +26,14 @@
 
             // Serialize object types
             ObjectTypes = s.DoAt(pointerTable[GBAIsometric_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
+
+            s.DoAt(new Pointer(0x080efd28, Offset.file), () => {
+                var sprite = s.SerializeObject<GBAIsometric_Sprite>(default, name: "Sprite");
+
+            });
+            s.DoAt(new Pointer(0x080ef918, Offset.file), () => {
+                var sprite = s.SerializeObject<GBAIsometric_Sprite>(default, name: "Sprite");
+            });
         }
     }
 }

@@ -11,16 +11,31 @@ namespace R1Engine {
     /// </summary>
     public class RHR_SpriteEncoder : IStreamEncoder
     {
+        public enum CombineMode {
+            UseSprite,
+            UseLookupBufferDirectly,
+        }
+        public CombineMode Mode { get; }
         public GBAIsometric_Sprite Sprite { get; }
+        public bool Is8Bit { get; }
+        public byte[] LookupBuffer { get; }
+        public Pointer CompressedDataPointer { get; }
         public RHR_SpriteEncoder(GBAIsometric_Sprite sprite) {
             Sprite = sprite;
+            Mode = CombineMode.UseSprite;
+        }
+        public RHR_SpriteEncoder(bool is8bit, byte[] lookupBuffer, Pointer compressedData) {
+            LookupBuffer = lookupBuffer;
+            Is8Bit = is8bit;
+            Mode = CombineMode.UseLookupBufferDirectly;
+            CompressedDataPointer = compressedData;
         }
         private uint Rotate(uint bits, int places) {
             while(places < 0) places += 32;
             places %= 32;
             return bits >> places | (bits << (32-places));
         }
-        public void ReadTileLine(Reader reader, byte[] outArray, int outPos, ref uint carryParam) {
+        public void ReadTileLine_4Bit_4Bytes(Reader reader, byte[] outArray, int outPos, ref uint carryParam) {
             void Write(uint toWrite) {
                 outArray[outPos] = (byte)(toWrite & 0xFF);
                 outArray[outPos + 1] = (byte)((toWrite >> 8) & 0xFF);
@@ -122,8 +137,51 @@ namespace R1Engine {
             reader.BaseStream.Position = position;
             uint carryParam = 0;
             for (int i = 0; i < 8; i++) {
-                ReadTileLine(reader, outArray, outPos, ref carryParam);
+                ReadTileLine_4Bit_4Bytes(reader, outArray, outPos, ref carryParam);
                 outPos += 4;
+            }
+
+        }
+
+        public void ReadTileLine_8Bit(Reader reader, byte[] outArray, int outPos, ref uint carryParam, ref uint carryParam2) {
+            void Write(uint toWrite) {
+                outArray[outPos] = (byte)(toWrite & 0xFF);
+                outArray[outPos + 1] = (byte)((toWrite >> 8) & 0xFF);
+                outArray[outPos + 2] = (byte)((toWrite >> 16) & 0xFF);
+                outArray[outPos + 3] = (byte)((toWrite >> 24) & 0xFF);
+            }
+            bool IsNegative(uint uintToCheck) {
+                return (uintToCheck & 0x80000000) != 0;
+            }
+
+            uint R12 = 0;
+            carryParam2 = Rotate(carryParam2, -1);
+            if (!IsNegative(carryParam2)) carryParam = reader.ReadByte();
+
+            carryParam2 = Rotate(carryParam2, -1);
+            R12 = R12 | carryParam;
+            if (!IsNegative(carryParam2)) carryParam = reader.ReadByte();
+
+            carryParam2 = Rotate(carryParam2, -1);
+            R12 = R12 | (carryParam << 8);
+            if (!IsNegative(carryParam2)) carryParam = reader.ReadByte();
+
+            carryParam2 = Rotate(carryParam2, -1);
+            R12 = R12 | (carryParam << 16);
+            if (!IsNegative(carryParam2)) carryParam = reader.ReadByte();
+            R12 = R12 | (carryParam << 24);
+            Write(R12);
+        }
+
+        public void ReadTile8it(Reader reader, long position, byte[] outArray, int outPos) {
+            reader.BaseStream.Position = position;
+            uint carryParam = 0;
+            for (int i = 0; i < 8; i++) {
+                uint R3 = reader.ReadByte();
+                R3 = Rotate(R3, 9);
+                ReadTileLine_8Bit(reader, outArray, outPos, ref carryParam, ref R3);
+                ReadTileLine_8Bit(reader, outArray, outPos + 4, ref carryParam, ref R3);
+                outPos += 8;
             }
             UnityEngine.Debug.Log(reader.BaseStream.Position);
 
@@ -136,26 +194,45 @@ namespace R1Engine {
         /// <returns>The stream with the decoded data</returns>
         public Stream DecodeStream(Stream s) {
             long streamPos = s.Position;
+            byte[] decompressed = null;
             Reader reader = new Reader(s, isLittleEndian: true);
+            if (Mode == CombineMode.UseSprite) {
+                int tileSize = Sprite.Is8Bit ? 0x40 : 0x20;
+                decompressed = new byte[tileSize * Sprite.LookupBufferPositions.Length];
+                uint h = Sprite.CanvasHeight;
+                uint w = Sprite.CanvasWidth;
+                long compressedDataOffset = Sprite.GraphicsDataPointer?.Value?.CompressedDataPointer?.FileOffset ?? 0;
+                for (int y = 0; y < h; y++) {
+                    for (int x = 0; x < w; x++) {
+                        ushort pos = Sprite.LookupBufferPositions[y * w + x];
 
-            int tileSize = Sprite.Is8Bit ? 0x40 : 0x20;
-            byte[] sprite = new byte[tileSize * Sprite.LookupBufferPositions.Length];
-            uint h = Sprite.CanvasHeight;
-            uint w = Sprite.CanvasWidth;
-            long compressedDataOffset = Sprite.GraphicsDataPointer?.Value?.CompressedDataPointer?.FileOffset ?? 0;
-            byte[] tile = new byte[tileSize];
-            for (int y = 0; y < h; y++) {
-                for (int x = 0; x < w; x++) {
-                    ushort pos = Sprite.LookupBufferPositions[y * w + x];
-
+                        if (pos == 0) {
+                            // Empty tile
+                        } else {
+                            byte[] lookupBuffer = Sprite.GraphicsDataPointer.Value.CompressionLookupBuffer;
+                            int tilePos = lookupBuffer[pos] + pos * 0x10;
+                            if (Sprite.Is8Bit) {
+                                ReadTile8it(reader, compressedDataOffset + tilePos, decompressed, (int)(y * w + x) * tileSize);
+                            } else {
+                                ReadTile4Bit(reader, compressedDataOffset + tilePos, decompressed, (int)(y * w + x) * tileSize);
+                            }
+                        }
+                    }
+                }
+            } else if(Mode == CombineMode.UseLookupBufferDirectly) {
+                int tileSize = Is8Bit ? 0x40 : 0x20;
+                decompressed = new byte[tileSize * LookupBuffer.Length];
+                long compressedDataOffset = CompressedDataPointer?.FileOffset ?? 0;
+                for (int i = 0; i < LookupBuffer.Length; i++) {
+                    int pos = i;
                     if (pos == 0) {
                         // Empty tile
                     } else {
-                        byte[] lookupBuffer = Sprite.GraphicsDataPointer.Value.CompressionLookupBuffer;
-                        int tilePos = lookupBuffer[pos] + pos * 0x10;
-                        if (Sprite.Is8Bit) {
+                        int tilePos = LookupBuffer[pos] + pos * 0x10;
+                        if (Is8Bit) {
+                            ReadTile8it(reader, compressedDataOffset + tilePos, decompressed, i * tileSize);
                         } else {
-                            ReadTile4Bit(reader, compressedDataOffset + tilePos, sprite, (int)(y * w + x) * tileSize);
+                            ReadTile4Bit(reader, compressedDataOffset + tilePos, decompressed, i * tileSize);
                         }
                     }
                 }
@@ -163,7 +240,7 @@ namespace R1Engine {
             // Reset stream position
             reader.BaseStream.Position = streamPos;
             
-            var decompressedStream = new MemoryStream(sprite);
+            var decompressedStream = new MemoryStream(decompressed);
 
             // Set position back to 0
             decompressedStream.Position = 0;
