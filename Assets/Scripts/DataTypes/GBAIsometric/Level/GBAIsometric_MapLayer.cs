@@ -1,11 +1,8 @@
-﻿using System;
-using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public class GBAIsometric_MapLayer : R1Serializable
     {
-        public Pointer<GBAIsometric_TileMapData> PointersPointer { get; set; }
+        public Pointer<GBAIsometric_TileMapData> TileMapPointer { get; set; }
         public MapLayerType StructType { get; set; }
         public ushort Width { get; set; } // 40, 24 or 12 - 4 for maps
         public ushort Height { get; set; } // 20 or 12 - 4 for maps
@@ -23,7 +20,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            PointersPointer = s.SerializePointer<GBAIsometric_TileMapData>(PointersPointer, resolve: true, name: nameof(PointersPointer));
+            TileMapPointer = s.SerializePointer<GBAIsometric_TileMapData>(TileMapPointer, resolve: true, name: nameof(TileMapPointer));
             StructType = s.Serialize<MapLayerType>(StructType, name: nameof(StructType));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));

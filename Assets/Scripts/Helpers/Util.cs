@@ -464,5 +464,65 @@ namespace R1Engine {
 
             File.WriteAllLines(Path.Combine(outputDir, "blocks_log.txt"), log);
         }
+
+        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, bool is8bpp, int tileWidth, bool flipY)
+        {
+            int tileSize = (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2);
+            int tilesetLength = (imgData.Length / (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2)) + 1;
+
+            var wrap = (32 * tileWidth) / tileWidth;
+
+            int tilesX = Math.Min(tilesetLength, wrap);
+            int tilesY = Mathf.CeilToInt(tilesetLength / (float)wrap);
+
+            var tex = TextureHelpers.CreateTexture2D(tilesX * tileWidth, tilesY * tileWidth);
+
+            for (int i = 1; i < tilesetLength; i++)
+            {
+                int tileY = ((i / wrap)) * tileWidth;
+                int tileX = (i % wrap) * tileWidth;
+
+                // Fill in tile pixels
+                for (int y = 0; y < tileWidth; y++)
+                {
+                    for (int x = 0; x < tileWidth; x++)
+                    {
+                        Color c;
+
+                        int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
+
+                        if (is8bpp)
+                        {
+                            var b = imgData[index];
+                            c = pal[b];
+
+                            var yy = tileY + y;
+
+                            if (flipY)
+                                yy = tex.height - yy - 1;
+
+                            tex.SetPixel(tileX + x, yy, c);
+                        }
+                        else
+                        {
+                            var b = imgData[index];
+                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                            c = pal[v];
+
+                            var yy = tileY + y;
+
+                            if (flipY)
+                                yy = tex.height - yy - 1;
+
+                            tex.SetPixel(tileX + x, yy, c);
+                        }
+                    }
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
+        }
     }
 }

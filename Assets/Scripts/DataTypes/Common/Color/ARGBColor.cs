@@ -27,21 +27,79 @@ namespace R1Engine
 
         #endregion
 
+        #region Private Fields
+
+        private byte _alpha;
+        private byte _red;
+        private byte _green;
+        private byte _blue;
+
+        #endregion
+
+        #region Protected Properties
+
+        protected Color CachedColor { get; set; }
+        protected bool Modified { get; set; } = true;
+
+        #endregion
+
         #region Public Properties
 
-        public byte Alpha { get; set; }
+        public byte Alpha
+        {
+            get => _alpha;
+            set
+            {
+                _alpha = value;
+                Modified = true;
+            }
+        }
 
-        public byte Red { get; set; }
+        public byte Red
+        {
+            get => _red;
+            set
+            {
+                _red = value;
+                Modified = true;
+            }
+        }
 
-        public byte Green { get; set; }
+        public byte Green
+        {
+            get => _green;
+            set
+            {
+                _green = value;
+                Modified = true;
+            }
+        }
 
-        public byte Blue { get; set; }
+        public byte Blue
+        {
+            get => _blue;
+            set
+            {
+                _blue = value;
+                Modified = true;
+            }
+        }
 
         #endregion
 
         #region Public Methods
 
-        public Color GetColor() => new Color((float)Red / Byte.MaxValue, (float)Green / Byte.MaxValue, (float)Blue / Byte.MaxValue, (float)Alpha / Byte.MaxValue);
+        public Color GetColor()
+        {
+            if (Modified)
+            {
+                Modified = false;
+                CachedColor = new Color((float)Red / Byte.MaxValue, (float)Green / Byte.MaxValue,
+                    (float)Blue / Byte.MaxValue, (float)Alpha / Byte.MaxValue);
+            }
+
+            return CachedColor;
+        }
 
         public override void SerializeImpl(SerializerObject s)
         {

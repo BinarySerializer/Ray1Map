@@ -1,4 +1,9 @@
-﻿namespace R1Engine
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace R1Engine
 {
     public class GBAIsometric_AnimSet : R1Serializable
     {
@@ -29,6 +34,19 @@
 
             Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<ARGB1555Color>(Palette, 16, name: nameof(Palette)));
             Name = s.DoAt(NamePointer, () => s.SerializeString(Name, name: nameof(Name)));
+
+            //s.DoEncoded(new RHR_SpriteEncoder(false, GraphicsDataPointer.Value.CompressionLookupBuffer, GraphicsDataPointer.Value.CompressedDataPointer), () => {
+            //    byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
+
+            //    var tex = Util.ToTileSetTexture(fullSheet, Palette.Select((x, i) =>
+            //    {
+            //        if (i != 0)
+            //            x.Alpha = 255;
+            //        return x.GetColor();
+            //    }).ToArray(), false, 8, true);
+
+            //    Util.ByteArrayToFile(Context.BasePath + $"animGroups/Full_0x{Offset.AbsoluteOffset:X8}_{Name}.png", tex.EncodeToPNG());
+            //});
         }
     }
 }
