@@ -10,7 +10,7 @@
         public Pointer CompressedDataPointer { get; set; }
 
         // Parsed
-        public byte[] CompressionLookUpBuffer { get; set; } // Graphics data? Compressed?
+        public byte[] CompressionLookupBuffer { get; set; } // Graphics data? Compressed?
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -22,7 +22,7 @@
             CompressedDataPointer = s.SerializePointer(CompressedDataPointer, name: nameof(CompressedDataPointer));
 
             // Serialize data from pointers
-            CompressionLookUpBuffer = s.DoAt(CompressionLookupPointer, () => s.SerializeArray<byte>(CompressionLookUpBuffer, CompressionLookupBufferLength, name: nameof(CompressionLookUpBuffer)));
+            CompressionLookupBuffer = s.DoAt(CompressionLookupPointer, () => s.SerializeArray<byte>(CompressionLookupBuffer, CompressionLookupBufferLength, name: nameof(CompressionLookupBuffer)));
         }
     }
 }

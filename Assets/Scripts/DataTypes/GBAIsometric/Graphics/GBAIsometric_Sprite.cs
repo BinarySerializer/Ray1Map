@@ -18,6 +18,7 @@
         public uint CanvasHeight => Util.NextPowerOfTwo((uint)Height);
         public ushort[] LookupBufferPositions { get; set; }
         public string Name { get; set; }
+        public byte[] Sprite { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -34,6 +35,11 @@
 
             LookupBufferPositions = s.DoAt(LookupBufferPositionsPointer, () => s.SerializeArray<ushort>(LookupBufferPositions, CanvasWidth * CanvasHeight, name: nameof(LookupBufferPositions)));
             Name = s.DoAt(NamePointer, () => s.SerializeString(Name, name: nameof(Name)));
+
+            s.DoEncoded(new RHR_SpriteEncoder(this), () => {
+                Sprite = s.SerializeArray<byte>(Sprite, s.CurrentLength, name: nameof(Sprite));
+                //Util.ByteArrayToFile(Context.BasePath + "sprites/" + Name + ".bin", Sprite);
+            });
         }
     }
 }
