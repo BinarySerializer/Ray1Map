@@ -34,6 +34,10 @@ namespace R1Engine
         public ushort[] Pointer10_CompressedDataOffsets { get; set; }
         public ARGB1555Color[] Palettes { get; set; }
 
+
+        public byte[][] Pointer4_Data { get; set; }
+        public byte[][] Pointer6_Data { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             GraphicsDataPointer = s.SerializePointer<GBAIsometric_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
@@ -76,6 +80,26 @@ namespace R1Engine
                 //Color[] cols = AnimatedPalettes.Select(c => c.GetColor());
                 //Util.ByteArrayToFile(Context.BasePath + $"tiles/Full_4Bit_{Offset.StringAbsoluteOffset}.bin", fullSheet);
             });
+
+
+            if (Pointer4_Data == null) {
+                Pointer4_Data = new byte[Pointer4_DataOffsets.Length][];
+                for (int i = 0; i < Pointer4_DataOffsets.Length; i++) {
+                    Pointer nextOff = i < Pointer4_DataOffsets.Length - 1 ? (Pointer4 + Pointer4_DataOffsets[i + 1] * 4) : Pointer4_DataOffsetsPointer;
+                    s.DoAt(Pointer4 + Pointer4_DataOffsets[i] * 4, () => {
+                        Pointer4_Data[i] = s.SerializeArray<byte>(Pointer4_Data[i], nextOff - s.CurrentPointer, name: $"{nameof(Pointer4_Data)}[{i}]");
+                    });
+                }
+            }
+            if (Pointer6_Data == null) {
+                Pointer6_Data = new byte[Pointer6_DataOffsets.Length][];
+                for (int i = 0; i < Pointer6_DataOffsets.Length; i++) {
+                    Pointer nextOff = i < Pointer6_DataOffsets.Length - 1 ? (Pointer6 + Pointer6_DataOffsets[i + 1] * 4) : Pointer6_DataOffsetsPointer;
+                    s.DoAt(Pointer6 + Pointer6_DataOffsets[i] * 4, () => {
+                        Pointer6_Data[i] = s.SerializeArray<byte>(Pointer6_Data[i], nextOff - s.CurrentPointer, name: $"{nameof(Pointer6_Data)}[{i}]");
+                    });
+                }
+            }
         }
     }
 }
