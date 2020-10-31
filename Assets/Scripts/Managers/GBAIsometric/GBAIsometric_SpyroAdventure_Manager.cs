@@ -12,7 +12,7 @@ namespace R1Engine
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            new GameInfo_World(0, Enumerable.Range(0, 38).ToArray()), 
+            new GameInfo_World(0, Enumerable.Range(0, 80).ToArray()), 
         });
 
         public virtual string GetROMFilePath => $"ROM.gba";
@@ -27,19 +27,20 @@ namespace R1Engine
                 var s = context.Deserializer;
                 await LoadFilesAsync(context);
 
-                // TODO: Don't hard-code pointer
-                var dataTable = s.DoAt(context.FilePointer(GetROMFilePath) + 0x1c0b60, () => s.SerializeObject<GBAIsometric_Spyro_DataTable>(default, name: "DataTable"));
+                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-                for (int i = 0; i < dataTable.DataEntries.Length; i++)
+                for (int i = 0; i < rom.DataTable.DataEntries.Length; i++)
                 {
-                    var data = dataTable.DoAtBlock(context, i, size => s.SerializeArray<byte>(default, size, name: $"Block[{i}]"));
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{dataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.dat"), data);
+                    var data = rom.DataTable.DoAtBlock(context, i, size => s.SerializeArray<byte>(default, size, name: $"Block[{i}]"));
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.dat"), data);
                 }
             }
         }
 
         public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
+            var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+
             throw new NotImplementedException();
         }
 
