@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace R1Engine
         public Pointer Pointer3 { get; set; } // ushorts. max ushort in this array = pointer2.length. not length-1, so probably either 0 or length has some special meaning
 
         public GBAIsometric_TileAssemble[] AssembleData { get; set; } = new GBAIsometric_TileAssemble[4];
+        private Dictionary<ushort, ushort[]> AssembleCache { get; set; } = new Dictionary<ushort, ushort[]>();
 
         public Pointer PalettesPointer { get; set; }
 
@@ -41,6 +43,36 @@ namespace R1Engine
                 //Color[] cols = AnimatedPalettes.Select(c => c.GetColor());
                 //Util.ByteArrayToFile(Context.BasePath + $"tiles/Full_4Bit_{Offset.StringAbsoluteOffset}.bin", fullSheet);
             });
+        }
+
+        public ushort[] Get8x8Map(ushort mapEntry) {
+            if (!AssembleCache.ContainsKey(mapEntry)) {
+                int algo = BitHelpers.ExtractBits(mapEntry, 2, 14);
+                int arrayIndex = BitHelpers.ExtractBits(mapEntry, 14, 0);
+                GBAIsometric_TileAssemble.TileData data = AssembleData[algo].Data[arrayIndex];
+                switch (data.TileCompression) {
+                    case GBAIsometric_TileAssemble.Compression.BlockDiff:
+                        ushort[] baseMap = null;
+                        ushort[] filledMap = new ushort[data.TileIndices.Length];
+                        Array.Copy(data.TileIndices, filledMap, data.TileIndices.Length);
+                        for (int i = 0; i < data.TileIndices.Length; i++) {
+                            if (data.TileIndices[i] == 0xFFFF) {
+                                if (baseMap == null) {
+                                    baseMap = Get8x8Map(data.BaseMapEntry);
+                                }
+                                filledMap[i] = baseMap[i];
+                            } else {
+                                filledMap[i] = data.TileIndices[i];
+                            }
+                        }
+                        AssembleCache[mapEntry] = filledMap;
+                        break;
+                    default:
+                        AssembleCache[mapEntry] = data.TileIndices;
+                        break;
+                }
+            }
+            return AssembleCache[mapEntry];
         }
     }
 }

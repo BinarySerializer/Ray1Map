@@ -1,4 +1,7 @@
-﻿namespace R1Engine
+﻿using System;
+using System.Linq;
+
+namespace R1Engine
 {
     public class GBAIsometric_MapLayer : R1Serializable
     {
@@ -16,7 +19,7 @@
         public byte[] RemainingData { get; set; }
 
         // Parsed
-        public MapTile[] MapData { get; set; }
+        public ushort[] MapData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -38,14 +41,32 @@
 
             s.DoAt(MapDataPointer, () =>
             {
-                s.DoEncoded(new RHREncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData)));
+                s.DoEncoded(new RHREncoder(), () => MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData)));
             });
+
+            // Debug tilemaps
+            ushort[] fullMap = CreateFullMap(MapData);
+            string logString = $"{Offset}: Max Tilemap Value - {fullMap.Max()}";
+            UnityEngine.Debug.Log(logString);
+            s.Log(logString);
+            byte[] result = new byte[fullMap.Length * sizeof(ushort)];
+            Buffer.BlockCopy(fullMap, 0, result, 0, result.Length);
+            Util.ByteArrayToFile(s.Context.BasePath + "full_tilemap/" + Offset.StringAbsoluteOffset + ".bin", result);
         }
 
         public enum MapLayerType : ushort
         {
             Normal = 1,
             Map = 2
+        }
+
+        public ushort[] CreateFullMap(ushort[] mapData) {
+            ushort[] fullMap = new ushort[mapData.Length * 64];
+            for (int i = 0; i < mapData.Length; i++) {
+                ushort[] tempMap = TileMapPointer.Value.Get8x8Map(mapData[i]);
+                Array.Copy(tempMap, 0, fullMap, i * 64, tempMap.Length);
+            }
+            return fullMap;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace R1Engine
         public enum Compression {
             RLE1 = 0,
             RLE2 = 1,
-            BlockAdditive = 2,
+            BlockDiff = 2,
             Block = 3,
         }
 
@@ -40,8 +40,8 @@ namespace R1Engine
             }
         }
         public class TileData : R1Serializable {
-            public ushort MapTileValue { get; set; }
-            public ushort UShort_02 { get; set; }
+            public ushort BaseMapEntry { get; set; }
+            public ushort Padding { get; set; }
             public ushort[] TileIndices { get; set; }
             public Compression TileCompression { get; set; }
 
@@ -57,9 +57,9 @@ namespace R1Engine
                             TileIndices = s.SerializeArray<ushort>(TileIndices, 64, name: nameof(TileIndices));
                         });
                         break;
-                    case Compression.BlockAdditive:
-                        MapTileValue = s.Serialize<ushort>(MapTileValue, name: nameof(MapTileValue));
-                        UShort_02 = s.Serialize<ushort>(UShort_02, name: nameof(UShort_02));
+                    case Compression.BlockDiff:
+                        BaseMapEntry = s.Serialize<ushort>(BaseMapEntry, name: nameof(BaseMapEntry));
+                        Padding = s.Serialize<ushort>(Padding, name: nameof(Padding));
                         s.DoEncoded(new RHREncoder(RHREncoder.EncoderMode.TileData), () => {
                             TileIndices = s.SerializeArray<ushort>(TileIndices, 64, name: nameof(TileIndices));
                         });
