@@ -113,10 +113,10 @@ namespace R1Engine
             var levelInfo = rom.LevelInfos[context.Settings.Level];
             var levelData = levelInfo.LevelDataPointer.Value;
 
-            var maps = levelData.MapLayers.Select(x =>
+            var maps = levelData.MapLayers.Select(x => x.DataPointer.Value).Append(levelInfo.MapPointer.Value).Select(x =>
             {
-                var width = (ushort)(x.DataPointer.Value.Width * (64 / CellSize));
-                var height = (ushort)(x.DataPointer.Value.Height * (64 / CellSize));
+                var width = (ushort)(x.Width * (64 / CellSize));
+                var height = (ushort)(x.Height * (64 / CellSize));
 
                 return new Unity_Map
                 {
@@ -125,9 +125,9 @@ namespace R1Engine
                     TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
-                        new Unity_MapTileMap(CellSize),
+                        LoadTileMap(context, x.TileMapPointer.Value)
                     },
-                    MapTiles = Enumerable.Repeat(new Unity_Tile(new MapTile()), width * height).ToArray(),
+                    MapTiles = GetMapTiles(x).Select(t => new Unity_Tile(t)).ToArray(),
                 };
             }).ToArray();
 
@@ -154,6 +154,57 @@ namespace R1Engine
                 eventData: allObjects,
                 cellSize: CellSize,
                 localization: loc));
+        }
+
+        public MapTile[] GetMapTiles(GBAIsometric_MapLayer mapLayer)
+        {
+            var width = mapLayer.Width * 8;
+            var height = mapLayer.Height * 8;
+            var tiles = new MapTile[width * height];
+
+            for (int blockY = 0; blockY < mapLayer.Height; blockY++)
+            {
+                for (int blockX = 0; blockX < mapLayer.Width; blockX++)
+                {
+                    ushort[] tileBlock = mapLayer.TileMapPointer.Value.Get8x8Map(mapLayer.MapData[blockY * mapLayer.Width + blockX]); // 64x64
+
+                    var actualX = blockX * 8;
+                    var actualY = blockY * 8;
+
+                    for (int y = 0; y < 8; y++)
+                    {
+                        for (int x = 0; x < 8; x++)
+                        {
+                            var tileValue = tileBlock[y * 8 + x];
+                            var tile = new MapTile()
+                            {
+                                TileMapY = (ushort)BitHelpers.ExtractBits(tileValue, 14, 2)
+                            };
+
+                            tiles[(actualY + y) * width + (actualX + x)] = tile;
+                        }
+                    }
+                }
+            }
+
+            return tiles;
+        }
+
+        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_TileMapData tileMap)
+        {
+            var s = context.Deserializer;
+            Unity_MapTileMap t = null;
+
+            s.DoEncoded(new RHR_SpriteEncoder(false, tileMap.GraphicsDataPointer.Value.CompressionLookupBuffer, tileMap.GraphicsDataPointer.Value.CompressedDataPointer), () =>
+            {
+                byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
+
+                var tex = Util.ToTileSetTexture(fullSheet, Util.CreateDummyPalette(256, wrap: 16).Select((x, i) => x.GetColor()).ToArray(), false, 8, true, wrap: 16);
+
+                t = new Unity_MapTileMap(tex, CellSize);
+            });
+
+            return t;
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

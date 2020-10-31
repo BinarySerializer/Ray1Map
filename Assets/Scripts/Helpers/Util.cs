@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Cysharp.Threading.Tasks;
+using ImageMagick;
 using R1Engine.Serialize;
 using UnityEngine;
 
@@ -465,12 +466,10 @@ namespace R1Engine {
             File.WriteAllLines(Path.Combine(outputDir, "blocks_log.txt"), log);
         }
 
-        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, bool is8bpp, int tileWidth, bool flipY)
+        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, bool is8bpp, int tileWidth, bool flipY, int wrap = 32)
         {
             int tileSize = (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2);
             int tilesetLength = (imgData.Length / (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2)) + 1;
-
-            var wrap = (32 * tileWidth) / tileWidth;
 
             int tilesX = Math.Min(tilesetLength, wrap);
             int tilesY = Mathf.CeilToInt(tilesetLength / (float)wrap);

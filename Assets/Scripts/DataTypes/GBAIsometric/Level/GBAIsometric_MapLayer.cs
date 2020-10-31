@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace R1Engine
 {
@@ -7,8 +6,8 @@ namespace R1Engine
     {
         public Pointer<GBAIsometric_TileMapData> TileMapPointer { get; set; }
         public MapLayerType StructType { get; set; }
-        public ushort Width { get; set; } // 40, 24 or 12 - 4 for maps
-        public ushort Height { get; set; } // 20 or 12 - 4 for maps
+        public ushort Width { get; set; }
+        public ushort Height { get; set; }
         public ushort Ushort_0A { get; set; } // Always 0
         public Pointer MapDataPointer { get; set; }
 
@@ -45,13 +44,13 @@ namespace R1Engine
             });
 
             // Debug tilemaps
-            ushort[] fullMap = CreateFullMap(MapData);
-            string logString = $"{Offset}: Max Tilemap Value - {fullMap.Max()}";
-            UnityEngine.Debug.Log(logString);
-            s.Log(logString);
-            byte[] result = new byte[fullMap.Length * sizeof(ushort)];
-            Buffer.BlockCopy(fullMap, 0, result, 0, result.Length);
-            Util.ByteArrayToFile(s.Context.BasePath + "full_tilemap/" + Offset.StringAbsoluteOffset + ".bin", result);
+            //ushort[] fullMap = CreateFullMap(MapData);
+            //string logString = $"{Offset}: Max Tilemap Value - {fullMap.Max()}";
+            //UnityEngine.Debug.Log(logString);
+            //s.Log(logString);
+            //byte[] result = new byte[fullMap.Length * sizeof(ushort)];
+            //Buffer.BlockCopy(fullMap, 0, result, 0, result.Length);
+            //Util.ByteArrayToFile(s.Context.BasePath + "full_tilemap/" + Offset.StringAbsoluteOffset + ".bin", result);
         }
 
         public enum MapLayerType : ushort
