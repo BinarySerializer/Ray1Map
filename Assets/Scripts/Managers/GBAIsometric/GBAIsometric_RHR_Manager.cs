@@ -113,10 +113,22 @@ namespace R1Engine
             var levelInfo = rom.LevelInfos[context.Settings.Level];
             var levelData = levelInfo.LevelDataPointer.Value;
 
-            var maps = levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse().Append(levelInfo.MapPointer.Value).Select(x =>
+            var availableMaps = levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse();
+
+            // Not all levels have maps
+            if (levelInfo.MapPointer?.Value != null)
+                availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
+
+            var tileSets = new Dictionary<GBAIsometric_TileMapData, Unity_MapTileMap>();
+
+            var maps = availableMaps.Select(x =>
             {
-                var width = (ushort)(x.Width * (64 / CellSize));
-                var height = (ushort)(x.Height * (64 / CellSize));
+                var width = (ushort)(x.Width * 8);
+                var height = (ushort)(x.Height * 8);
+                var tileSetData = x.TileMapPointer.Value;
+
+                if (!tileSets.ContainsKey(tileSetData))
+                    tileSets.Add(tileSetData, LoadTileMap(context, tileSetData));
 
                 return new Unity_Map
                 {
@@ -125,7 +137,7 @@ namespace R1Engine
                     TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
-                        LoadTileMap(context, x.TileMapPointer.Value)
+                        tileSets[tileSetData]
                     },
                     MapTiles = GetMapTiles(x).Select(t => new Unity_Tile(t)).ToArray(),
                 };
