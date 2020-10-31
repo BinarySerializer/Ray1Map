@@ -34,6 +34,9 @@
             s.DoAt(new Pointer(0x080ef918, Offset.file), () => {
                 var sprite = s.SerializeObject<GBAIsometric_Sprite>(default, name: "Sprite");
             });
+            s.DoAt(new Pointer(0x08481930, Offset.file), () => {
+                var mapLayerPause = s.SerializeObject<GBAIsometric_MapLayer>(default, name: "MapLayerPause");
+            });
         }
     }
 }

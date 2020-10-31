@@ -11,6 +11,21 @@ namespace R1Engine {
     /// </summary>
     public class RHREncoder : IStreamEncoder
     {
+        public enum EncoderMode {
+            Full,
+            TileData
+        }
+        public EncoderMode Mode { get; set; } = EncoderMode.Full;
+        public ushort TileCompressedSize { get; set; } = 0x80;
+        public ushort TileDecompressedSize { get; set; } = 0x80;
+        public ushort TileStep { get; set; } = 0x10; //00800010h
+        public RHREncoder() {}
+
+        public RHREncoder(EncoderMode mode, ushort comprSize = 0x80, ushort decomprSize = 0x80) {
+            Mode = mode;
+            TileCompressedSize = comprSize;
+            TileDecompressedSize = decomprSize;
+        }
         private byte[] TempBuffer { get; set; }
         private byte[] GetTempBuffer(int size) {
             if (TempBuffer == null || TempBuffer.Length < size) {
@@ -322,7 +337,12 @@ namespace R1Engine {
             ushort head = reader.ReadUInt16();
             byte unk0 = reader.ReadByte();
             byte unk1 = reader.ReadByte();
-            int compressedSize = reader.ReadInt32();
+            int compressedSize = 0;
+            if (Mode == EncoderMode.Full) {
+                compressedSize = reader.ReadInt32();
+            } else if (Mode == EncoderMode.TileData) {
+                compressedSize = TileCompressedSize;
+            }
 
             byte cmd = (byte)BitHelpers.ExtractBits(head, 7, 0);
             int byte2UpperNibble = BitHelpers.ExtractBits(head, 4, 12);
@@ -440,18 +460,23 @@ namespace R1Engine {
         /// <returns>The stream with the decoded data</returns>
         public Stream DecodeStream(Stream s) {
             Reader reader = new Reader(s, isLittleEndian: true);
-            uint totalSize = reader.ReadUInt32();
-            byte[] decompressed = new byte[totalSize];
-            ushort step = reader.ReadUInt16();
-            ushort blockSize = reader.ReadUInt16();
-            uint bytesRead = 0;
-            int curBlock = 0;
-            while (bytesRead < totalSize) {
-                int toRead = (int)Math.Min(blockSize, totalSize - bytesRead);
-                byte[] decompressedBlock = ReadBlock(reader, toRead, step);
-                Array.Copy(decompressedBlock, 0, decompressed, bytesRead, decompressedBlock.Length);
-                bytesRead += (uint)decompressedBlock.Length;
-                curBlock++;
+            byte[] decompressed = null;
+            if (Mode == EncoderMode.Full) {
+                uint totalSize = reader.ReadUInt32();
+                decompressed = new byte[totalSize];
+                ushort step = reader.ReadUInt16();
+                ushort blockSize = reader.ReadUInt16();
+                uint bytesRead = 0;
+                int curBlock = 0;
+                while (bytesRead < totalSize) {
+                    int toRead = (int)Math.Min(blockSize, totalSize - bytesRead);
+                    byte[] decompressedBlock = ReadBlock(reader, toRead, step);
+                    Array.Copy(decompressedBlock, 0, decompressed, bytesRead, decompressedBlock.Length);
+                    bytesRead += (uint)decompressedBlock.Length;
+                    curBlock++;
+                }
+            } else if (Mode == EncoderMode.TileData) {
+                decompressed = ReadBlock(reader, TileDecompressedSize, TileStep);
             }
             
             var decompressedStream = new MemoryStream(decompressed);

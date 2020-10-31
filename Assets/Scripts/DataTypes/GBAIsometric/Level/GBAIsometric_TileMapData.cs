@@ -18,10 +18,10 @@ namespace R1Engine
         public Pointer Pointer6_DataOffsetsPointer { get; set; } // Compressed
 
         public Pointer Pointer8 { get; set; }
-        public Pointer Pointer8_CompressedDataOffsetsPointer { get; set; } // Compressed
+        public Pointer Pointer8_DataOffsetsPointer { get; set; } // Compressed
 
         public Pointer Pointer10 { get; set; }
-        public Pointer Pointer10_CompressedDataOffsetsPointer { get; set; } // Compressed
+        public Pointer Pointer10_DataOffsetsPointer { get; set; } // Compressed
 
         public Pointer PalettesPointer { get; set; }
 
@@ -30,13 +30,15 @@ namespace R1Engine
         public Pointer[] Pointer1_Pointers { get; set; }
         public ushort[] Pointer4_DataOffsets { get; set; } // All offsets should be multiplied by 4 to get the byte offset
         public ushort[] Pointer6_DataOffsets { get; set; }
-        public ushort[] Pointer8_CompressedDataOffsets { get; set; }
-        public ushort[] Pointer10_CompressedDataOffsets { get; set; }
+        public ushort[] Pointer8_DataOffsets { get; set; }
+        public ushort[] Pointer10_DataOffsets { get; set; }
         public ARGB1555Color[] Palettes { get; set; }
 
 
         public byte[][] Pointer4_Data { get; set; }
         public byte[][] Pointer6_Data { get; set; }
+        public GBAIsometric_TileMapData_TileData8[] Pointer8_Data { get; set; }
+        public GBAIsometric_TileMapData_TileData10[] Pointer10_Data { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -49,9 +51,9 @@ namespace R1Engine
             Pointer6 = s.SerializePointer(Pointer6, name: nameof(Pointer6));
             Pointer6_DataOffsetsPointer = s.SerializePointer(Pointer6_DataOffsetsPointer, name: nameof(Pointer6_DataOffsetsPointer));
             Pointer8 = s.SerializePointer(Pointer8, name: nameof(Pointer8));
-            Pointer8_CompressedDataOffsetsPointer = s.SerializePointer(Pointer8_CompressedDataOffsetsPointer, name: nameof(Pointer8_CompressedDataOffsetsPointer));
+            Pointer8_DataOffsetsPointer = s.SerializePointer(Pointer8_DataOffsetsPointer, name: nameof(Pointer8_DataOffsetsPointer));
             Pointer10 = s.SerializePointer(Pointer10, name: nameof(Pointer10));
-            Pointer10_CompressedDataOffsetsPointer = s.SerializePointer(Pointer10_CompressedDataOffsetsPointer, name: nameof(Pointer10_CompressedDataOffsetsPointer));
+            Pointer10_DataOffsetsPointer = s.SerializePointer(Pointer10_DataOffsetsPointer, name: nameof(Pointer10_DataOffsetsPointer));
             PalettesPointer = s.SerializePointer(PalettesPointer, name: nameof(PalettesPointer));
 
             s.DoAt(Pointer1, () => {
@@ -65,13 +67,13 @@ namespace R1Engine
             {
                 s.DoEncoded(new RHREncoder(), () => Pointer6_DataOffsets = s.SerializeArray<ushort>(Pointer6_DataOffsets, s.CurrentLength / 2, name: nameof(Pointer6_DataOffsets)));
             });
-            s.DoAt(Pointer8_CompressedDataOffsetsPointer, () =>
+            s.DoAt(Pointer8_DataOffsetsPointer, () =>
             {
-                s.DoEncoded(new RHREncoder(), () => Pointer8_CompressedDataOffsets = s.SerializeArray<ushort>(Pointer8_CompressedDataOffsets, s.CurrentLength / 2, name: nameof(Pointer8_CompressedDataOffsets)));
+                s.DoEncoded(new RHREncoder(), () => Pointer8_DataOffsets = s.SerializeArray<ushort>(Pointer8_DataOffsets, s.CurrentLength / 2, name: nameof(Pointer8_DataOffsets)));
             });
-            s.DoAt(Pointer10_CompressedDataOffsetsPointer, () =>
+            s.DoAt(Pointer10_DataOffsetsPointer, () =>
             {
-                s.DoEncoded(new RHREncoder(), () => Pointer10_CompressedDataOffsets = s.SerializeArray<ushort>(Pointer10_CompressedDataOffsets, s.CurrentLength / 2, name: nameof(Pointer10_CompressedDataOffsets)));
+                s.DoEncoded(new RHREncoder(), () => Pointer10_DataOffsets = s.SerializeArray<ushort>(Pointer10_DataOffsets, s.CurrentLength / 2, name: nameof(Pointer10_DataOffsets)));
             });
             Palettes = s.DoAt(PalettesPointer, () => s.SerializeObjectArray<ARGB1555Color>(Palettes, 16 * 45, name: nameof(Palettes)));
 
@@ -97,6 +99,24 @@ namespace R1Engine
                     Pointer nextOff = i < Pointer6_DataOffsets.Length - 1 ? (Pointer6 + Pointer6_DataOffsets[i + 1] * 4) : Pointer6_DataOffsetsPointer;
                     s.DoAt(Pointer6 + Pointer6_DataOffsets[i] * 4, () => {
                         Pointer6_Data[i] = s.SerializeArray<byte>(Pointer6_Data[i], nextOff - s.CurrentPointer, name: $"{nameof(Pointer6_Data)}[{i}]");
+                    });
+                }
+            }
+            if (Pointer8_Data == null) {
+                Pointer8_Data = new GBAIsometric_TileMapData_TileData8[Pointer8_DataOffsets.Length];
+                for (int i = 0; i < Pointer8_DataOffsets.Length; i++) {
+                    //Pointer nextOff = i < Pointer8_DataOffsets.Length - 1 ? (Pointer8 + Pointer8_DataOffsets[i + 1] * 4) : Pointer8_DataOffsetsPointer;
+                    s.DoAt(Pointer8 + Pointer8_DataOffsets[i] * 4, () => {
+                        Pointer8_Data[i] = s.SerializeObject<GBAIsometric_TileMapData_TileData8>(Pointer8_Data[i], name: $"{nameof(Pointer8_Data)}[{i}]");
+                    });
+                }
+            }
+            if (Pointer10_Data == null) {
+                Pointer10_Data = new GBAIsometric_TileMapData_TileData10[Pointer10_DataOffsets.Length];
+                for (int i = 0; i < Pointer10_DataOffsets.Length; i++) {
+                    //Pointer nextOff = i < Pointer10_DataOffsets.Length - 1 ? (Pointer10 + Pointer10_DataOffsets[i + 1] * 4) : Pointer10_DataOffsetsPointer;
+                    s.DoAt(Pointer10 + Pointer10_DataOffsets[i] * 4, () => {
+                        Pointer10_Data[i] = s.SerializeObject<GBAIsometric_TileMapData_TileData10>(Pointer10_Data[i], name: $"{nameof(Pointer10_Data)}[{i}]");
                     });
                 }
             }
