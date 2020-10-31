@@ -34,6 +34,7 @@
             // Serialize object types
             ObjectTypes = s.DoAt(pointerTable[GBAIsometric_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
 
+            /*
             s.DoAt(new Pointer(0x080efd28, Offset.file), () => {
                 var sprite = s.SerializeObject<GBAIsometric_Sprite>(default, name: "Sprite");
 
@@ -42,8 +43,29 @@
                 var sprite = s.SerializeObject<GBAIsometric_Sprite>(default, name: "Sprite");
             });
             s.DoAt(new Pointer(0x08481930, Offset.file), () => {
-                var mapLayerPause = s.SerializeObject<GBAIsometric_MapLayer>(default, name: "MapLayerPause");
+                s.SerializeObject<GBAIsometric_MapLayer>(default, name: "MapLayerPause");
             });
+            s.DoAt(new Pointer(0x084818f0, Offset.file), () => {
+                s.SerializeObject<GBAIsometric_MapLayer>(default, name: "MapLayerMenu");
+            });
+            s.DoAt(new Pointer(0x084817f4, Offset.file), () => {
+                s.SerializeObject<GBAIsometric_MapLayer>(default, name: "MapLayerMenu");
+            });
+            s.DoAt(new Pointer(0x08481838, Offset.file), () => {
+                s.SerializeObject<GBAIsometric_MapLayer>(default, name: "MapMenuChains");
+            });
+            s.DoAt(new Pointer(0x08481888, Offset.file), () => {
+                s.SerializeObject<GBAIsometric_MapLayer>(default, name: "MapLayerMenu");
+            });
+            s.DoAt(new Pointer(0x08481bf0, Offset.file), () => {
+                s.SerializeObject<GBAIsometric_MapLayer>(default, name: "WorldMap");
+            });
+            s.DoAt(new Pointer(0x08481970, Offset.file), () => {
+                s.SerializeObject<GBAIsometric_MapLayer>(default, name: "???");
+            });
+            s.DoAt(new Pointer(0x08481970, Offset.file), () => {
+                s.SerializeObject<GBAIsometric_MapLayer>(default, name: "WorldMap");
+            });*/
         }
     }
 }

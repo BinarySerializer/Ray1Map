@@ -120,10 +120,7 @@ namespace R1Engine
 
             // Not all levels have maps
             if (levelInfo.MapPointer?.Value != null)
-            {
                 availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
-                tileSets.Add(levelInfo.MapPointer.Value.TileMapPointer.Value, LoadTileMap(context, levelInfo.MapPointer.Value.TileMapPointer.Value, true, levelInfo.MapPointer.Value.MapPalette));
-            }
 
             var maps = availableMaps.Select(x =>
             {
@@ -132,7 +129,7 @@ namespace R1Engine
                 var tileSetData = x.TileMapPointer.Value;
 
                 if (!tileSets.ContainsKey(tileSetData))
-                    tileSets.Add(tileSetData, LoadTileMap(context, tileSetData, false));
+                    tileSets.Add(tileSetData, LoadTileMap(context, x));
 
                 return new Unity_Map
                 {
@@ -208,17 +205,18 @@ namespace R1Engine
             return tiles;
         }
 
-        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_TileMapData tileMap, bool is8bit, ARGB1555Color[] pal = null)
+        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_MapLayer mapLayer)
         {
             var s = context.Deserializer;
             Unity_MapTileMap t = null;
-
+            var tileMap = mapLayer.TileMapPointer.Value;
+            var is8bit = mapLayer.StructType == GBAIsometric_MapLayer.MapLayerType.Map;
             Color[][] palettes = null;
-            Color[] defaultPalette = null;
+            Color[] defaultPalette;
 
-            if (pal != null)
+            if (mapLayer.MapPalette != null)
             {
-                defaultPalette = pal.Select((c, i) =>
+                defaultPalette = mapLayer.MapPalette.Select((c, i) =>
                 {
                     if (i != 0)
                         c.Alpha = 255;
