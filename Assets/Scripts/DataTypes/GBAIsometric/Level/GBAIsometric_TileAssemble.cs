@@ -47,6 +47,16 @@ namespace R1Engine
 
             public override void SerializeImpl(SerializerObject s) {
                 switch (TileCompression) {
+                    case Compression.RLE1:
+                        s.DoEncoded(new RHR_RLETileEncoder(RHR_RLETileEncoder.RLEMode.RLE1), () => {
+                            TileIndices = s.SerializeArray<ushort>(TileIndices, 64, name: nameof(TileIndices));
+                        });
+                        break;
+                    case Compression.RLE2:
+                        s.DoEncoded(new RHR_RLETileEncoder(RHR_RLETileEncoder.RLEMode.RLE2), () => {
+                            TileIndices = s.SerializeArray<ushort>(TileIndices, 64, name: nameof(TileIndices));
+                        });
+                        break;
                     case Compression.BlockAdditive:
                         MapTileValue = s.Serialize<ushort>(MapTileValue, name: nameof(MapTileValue));
                         UShort_02 = s.Serialize<ushort>(UShort_02, name: nameof(UShort_02));
