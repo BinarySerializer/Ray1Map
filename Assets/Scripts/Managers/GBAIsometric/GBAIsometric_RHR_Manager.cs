@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -115,11 +116,14 @@ namespace R1Engine
 
             var availableMaps = levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse();
 
+            var tileSets = new Dictionary<GBAIsometric_TileMapData, Unity_MapTileMap>();
+
             // Not all levels have maps
             if (levelInfo.MapPointer?.Value != null)
+            {
                 availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
-
-            var tileSets = new Dictionary<GBAIsometric_TileMapData, Unity_MapTileMap>();
+                tileSets.Add(levelInfo.MapPointer.Value.TileMapPointer.Value, LoadTileMap(context, levelInfo.MapPointer.Value.TileMapPointer.Value, true, levelInfo.MapPointer.Value.MapPalette));
+            }
 
             var maps = availableMaps.Select(x =>
             {
@@ -128,7 +132,7 @@ namespace R1Engine
                 var tileSetData = x.TileMapPointer.Value;
 
                 if (!tileSets.ContainsKey(tileSetData))
-                    tileSets.Add(tileSetData, LoadTileMap(context, tileSetData));
+                    tileSets.Add(tileSetData, LoadTileMap(context, tileSetData, false));
 
                 return new Unity_Map
                 {
@@ -204,23 +208,39 @@ namespace R1Engine
             return tiles;
         }
 
-        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_TileMapData tileMap)
+        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_TileMapData tileMap, bool is8bit, ARGB1555Color[] pal = null)
         {
             var s = context.Deserializer;
             Unity_MapTileMap t = null;
 
-            var palettes = tileMap.Palettes?.Select(x => x.Select((c, i) =>
-            {
-                if (i != 0)
-                    c.Alpha = 255;
-                return c.GetColor();
-            }).ToArray()).ToArray();
+            Color[][] palettes = null;
+            Color[] defaultPalette = null;
 
-            s.DoEncoded(new RHR_SpriteEncoder(false, tileMap.GraphicsDataPointer.Value.CompressionLookupBuffer, tileMap.GraphicsDataPointer.Value.CompressedDataPointer), () =>
+            if (pal != null)
+            {
+                defaultPalette = pal.Select((c, i) =>
+                {
+                    if (i != 0)
+                        c.Alpha = 255;
+                    return c.GetColor();
+                }).ToArray();
+            }
+            else
+            {
+                defaultPalette = Util.CreateDummyPalette(256, wrap: 16).Select((x, i) => x.GetColor()).ToArray();
+                palettes = tileMap.Palettes?.Select(x => x.Select((c, i) =>
+                {
+                    if (i != 0)
+                        c.Alpha = 255;
+                    return c.GetColor();
+                }).ToArray()).ToArray();
+            }
+
+            s.DoEncoded(new RHR_SpriteEncoder(is8bit, tileMap.GraphicsDataPointer.Value.CompressionLookupBuffer, tileMap.GraphicsDataPointer.Value.CompressedDataPointer), () =>
             {
                 byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
 
-                var tex = Util.ToTileSetTexture(fullSheet, Util.CreateDummyPalette(256, wrap: 16).Select((x, i) => x.GetColor()).ToArray(), false, 8, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(tileMap.PaletteIndexTable[i]));
+                var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(tileMap.PaletteIndexTable[i]));
 
                 t = new Unity_MapTileMap(tex, CellSize);
             });
