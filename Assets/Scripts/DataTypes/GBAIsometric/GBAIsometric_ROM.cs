@@ -22,7 +22,14 @@
             Localization = s.DoAt(pointerTable[GBAIsometric_Pointer.Localization], () => s.SerializeObject<GBAIsometric_LocalizationTable>(Localization, name: nameof(Localization)));
 
             // Serialize level infos
-            LevelInfos = s.DoAt(pointerTable[GBAIsometric_Pointer.Levels], () => s.SerializeObjectArray<GBAIsometric_LevelInfo>(LevelInfos, 20, name: nameof(LevelInfos)));
+            s.DoAt(pointerTable[GBAIsometric_Pointer.Levels], () =>
+            {
+                if (LevelInfos == null)
+                    LevelInfos = new GBAIsometric_LevelInfo[20];
+
+                for (int i = 0; i < LevelInfos.Length; i++)
+                    LevelInfos[i] = s.SerializeObject(LevelInfos[i], x => x.SerializeData = i == s.GameSettings.Level, name: $"{nameof(LevelInfos)}[{i}]");
+            });
 
             // Serialize object types
             ObjectTypes = s.DoAt(pointerTable[GBAIsometric_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));

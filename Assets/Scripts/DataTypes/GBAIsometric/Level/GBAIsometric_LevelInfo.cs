@@ -1,10 +1,11 @@
 ﻿using System;
-using UnityEngine;
 
 namespace R1Engine
 {
     public class GBAIsometric_LevelInfo : R1Serializable
     {
+        public bool SerializeData { get; set; }
+
         public Pointer<GBAIsometric_LevelData> LevelDataPointer { get; set; }
 
         public short MurfyStampScore1 { get; set; }
@@ -33,7 +34,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            LevelDataPointer = s.SerializePointer<GBAIsometric_LevelData>(LevelDataPointer, resolve: true, name: nameof(LevelDataPointer));
+            LevelDataPointer = s.SerializePointer<GBAIsometric_LevelData>(LevelDataPointer, resolve: SerializeData, name: nameof(LevelDataPointer));
 
             MurfyStampScore1 = s.Serialize<short>(MurfyStampScore1, name: nameof(MurfyStampScore1));
             MurfyStampScore2 = s.Serialize<short>(MurfyStampScore2, name: nameof(MurfyStampScore2));
@@ -55,12 +56,7 @@ namespace R1Engine
             Byte_22 = s.Serialize<byte>(Byte_22, name: nameof(Byte_22));
             Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 
-            MapPointer = s.SerializePointer(MapPointer, resolve: true, name: nameof(MapPointer));
-
-            //Debug.Log($"{LevelDataPointer.Value.LevelNameLocIndex.GetString()}: " +
-            //          $"Col: {LevelDataPointer.Value.CollisionWidth}x{LevelDataPointer.Value.CollisionHeight}, " +
-            //          $"BG: {LevelDataPointer.Value.MapLayers[0].DataPointer.Value.Width}x{LevelDataPointer.Value.MapLayers[0].DataPointer.Value.Height}, " +
-            //          $"Map: {MapPointer?.Value?.Width}x{MapPointer?.Value?.Height}");
+            MapPointer = s.SerializePointer(MapPointer, resolve: SerializeData, name: nameof(MapPointer));
         }
 
         [Flags]

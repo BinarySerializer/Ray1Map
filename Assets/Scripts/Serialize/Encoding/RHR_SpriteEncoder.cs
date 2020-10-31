@@ -183,8 +183,7 @@ namespace R1Engine {
                 ReadTileLine_8Bit(reader, outArray, outPos + 4, ref carryParam, ref R3);
                 outPos += 8;
             }
-            UnityEngine.Debug.Log(reader.BaseStream.Position);
-
+            //UnityEngine.Debug.Log(reader.BaseStream.Position);
         }
 
         /// <summary>
