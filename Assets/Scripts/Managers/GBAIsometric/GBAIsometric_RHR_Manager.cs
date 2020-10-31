@@ -113,7 +113,7 @@ namespace R1Engine
             var levelInfo = rom.LevelInfos[context.Settings.Level];
             var levelData = levelInfo.LevelDataPointer.Value;
 
-            var maps = levelData.MapLayers.Select(x => x.DataPointer.Value).Append(levelInfo.MapPointer.Value).Select(x =>
+            var maps = levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse().Append(levelInfo.MapPointer.Value).Select(x =>
             {
                 var width = (ushort)(x.Width * (64 / CellSize));
                 var height = (ushort)(x.Height * (64 / CellSize));
@@ -178,7 +178,9 @@ namespace R1Engine
                             var tileValue = tileBlock[y * 8 + x];
                             var tile = new MapTile()
                             {
-                                TileMapY = (ushort)BitHelpers.ExtractBits(tileValue, 14, 2)
+                                TileMapY = (ushort)(BitHelpers.ExtractBits(tileValue, 14, 2)),
+                                VerticalFlip = BitHelpers.ExtractBits(tileValue, 1, 1) == 1,
+                                HorizontalFlip = BitHelpers.ExtractBits(tileValue, 1, 0) == 1
                             };
 
                             tiles[(actualY + y) * width + (actualX + x)] = tile;
@@ -195,11 +197,18 @@ namespace R1Engine
             var s = context.Deserializer;
             Unity_MapTileMap t = null;
 
+            var palettes = tileMap.Palettes?.Select(x => x.Select((c, i) =>
+            {
+                if (i != 0)
+                    c.Alpha = 255;
+                return c.GetColor();
+            }).ToArray()).ToArray();
+
             s.DoEncoded(new RHR_SpriteEncoder(false, tileMap.GraphicsDataPointer.Value.CompressionLookupBuffer, tileMap.GraphicsDataPointer.Value.CompressedDataPointer), () =>
             {
                 byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
 
-                var tex = Util.ToTileSetTexture(fullSheet, Util.CreateDummyPalette(256, wrap: 16).Select((x, i) => x.GetColor()).ToArray(), false, 8, true, wrap: 16);
+                var tex = Util.ToTileSetTexture(fullSheet, Util.CreateDummyPalette(256, wrap: 16).Select((x, i) => x.GetColor()).ToArray(), false, 8, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(tileMap.PaletteIndexTable[i]));
 
                 t = new Unity_MapTileMap(tex, CellSize);
             });

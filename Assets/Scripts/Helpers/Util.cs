@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using Cysharp.Threading.Tasks;
-using ImageMagick;
-using R1Engine.Serialize;
 using UnityEngine;
 
-namespace R1Engine {
+namespace R1Engine
+{
     public static class Util {
         public static bool ByteArrayToFile(string fileName, byte[] byteArray) {
 			if (byteArray == null) return false;
@@ -466,17 +465,19 @@ namespace R1Engine {
             File.WriteAllLines(Path.Combine(outputDir, "blocks_log.txt"), log);
         }
 
-        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, bool is8bpp, int tileWidth, bool flipY, int wrap = 32)
+        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, bool is8bpp, int tileWidth, bool flipY, int wrap = 32, Func<int, Color[]> getPalFunc = null)
         {
             int tileSize = (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2);
-            int tilesetLength = (imgData.Length / (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2)) + 1;
+            int tilesetLength = (imgData.Length / (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2));
 
             int tilesX = Math.Min(tilesetLength, wrap);
             int tilesY = Mathf.CeilToInt(tilesetLength / (float)wrap);
 
             var tex = TextureHelpers.CreateTexture2D(tilesX * tileWidth, tilesY * tileWidth);
 
-            for (int i = 1; i < tilesetLength; i++)
+            Color getColor(int tileIndex, int color) => (getPalFunc?.Invoke(tileIndex) ?? pal)[color];
+
+            for (int i = 0; i < tilesetLength; i++)
             {
                 int tileY = ((i / wrap)) * tileWidth;
                 int tileX = (i % wrap) * tileWidth;
@@ -488,12 +489,12 @@ namespace R1Engine {
                     {
                         Color c;
 
-                        int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
+                        int index = ((i) * tileSize) + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
 
                         if (is8bpp)
                         {
                             var b = imgData[index];
-                            c = pal[b];
+                            c = getColor(i, b);
 
                             var yy = tileY + y;
 
@@ -506,7 +507,7 @@ namespace R1Engine {
                         {
                             var b = imgData[index];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
-                            c = pal[v];
+                            c = getColor(i, v);
 
                             var yy = tileY + y;
 

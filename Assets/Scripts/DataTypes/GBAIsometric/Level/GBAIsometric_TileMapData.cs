@@ -22,7 +22,7 @@ namespace R1Engine
         public Pointer PaletteIndexTablePointer { get; set; }
         public Pointer[] Pointer1_Pointers { get; set; }
         public byte[] PaletteIndexTable { get; set; }
-        public ARGB1555Color[] Palettes { get; set; }
+        public ARGB1555Color[][] Palettes { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -39,15 +39,24 @@ namespace R1Engine
                 PaletteIndexTablePointer = s.SerializePointer(PaletteIndexTablePointer, name: nameof(PaletteIndexTablePointer));
                 Pointer1_Pointers = s.SerializePointerArray(Pointer1_Pointers, 2, name: nameof(Pointer1_Pointers));
             });
-            Palettes = s.DoAt(PalettesPointer, () => s.SerializeObjectArray<ARGB1555Color>(Palettes, 16 * 45, name: nameof(Palettes)));
+
+            s.DoAt(PaletteIndexTablePointer, () => {
+                PaletteIndexTable = s.SerializeArray<byte>(PaletteIndexTable, GraphicsDataPointer.Value.CompressionLookupBufferLength, name: nameof(PaletteIndexTable));
+            });
+
+            s.DoAt(PalettesPointer, () =>
+            {
+                if (Palettes == null)
+                    Palettes = new ARGB1555Color[PaletteIndexTable.Where(x => x != 0xFF).Max() + 1][];
+
+                for (int i = 0; i < Palettes.Length; i++)
+                    Palettes[i] = s.SerializeObjectArray<ARGB1555Color>(Palettes[i], 16, name: $"{nameof(Palettes)}[i]");
+            });
 
             s.DoEncoded(new RHR_SpriteEncoder(false, GraphicsDataPointer.Value.CompressionLookupBuffer, GraphicsDataPointer.Value.CompressedDataPointer), () => {
                 byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
                 //Color[] cols = AnimatedPalettes.Select(c => c.GetColor());
                 //Util.ByteArrayToFile(Context.BasePath + $"tiles/Full_4Bit_{Offset.StringAbsoluteOffset}.bin", fullSheet);
-            });
-            s.DoAt(PaletteIndexTablePointer, () => {
-                PaletteIndexTable = s.SerializeArray<byte>(PaletteIndexTable, GraphicsDataPointer.Value.CompressionLookupBufferLength, name: nameof(PaletteIndexTable));
             });
         }
 
