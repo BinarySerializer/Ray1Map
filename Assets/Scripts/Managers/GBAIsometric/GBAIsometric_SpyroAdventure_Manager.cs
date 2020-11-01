@@ -13,7 +13,7 @@ namespace R1Engine
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            new GameInfo_World(0, Enumerable.Range(0, 80).ToArray()), 
+            new GameInfo_World(0, Enumerable.Range(0, 82).ToArray()), // Levels 0 and 1 are not in the normal array!
         });
 
         public virtual string GetROMFilePath => $"ROM.gba";
@@ -42,7 +42,7 @@ namespace R1Engine
         {
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-            var levelInfo = rom.LevelInfos[context.Settings.Level].Value;
+            var levelInfo = rom.LevelInfos.First(x => x.Value.ID == context.Settings.Level).Value;
 
             var maps = levelInfo.MapLayers.Select(x => x.Value).Select(map =>
             {
