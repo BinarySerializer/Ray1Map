@@ -270,7 +270,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
         RaymanHoodlumsRevengeUS,
 
-        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Spyro: Attack of the Rhynocs (GBA - US)", typeof(GBAIsometric_SpyroAdventure_Manager))]
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_SpyroAdventure, Game.GBAIsometric_SpyroAdventure, "Spyro: Attack of the Rhynocs (GBA - US)", typeof(GBAIsometric_SpyroAdventure_Manager))]
         SpyroAdventureUS,
     }
 }

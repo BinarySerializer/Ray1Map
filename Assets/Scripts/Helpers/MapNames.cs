@@ -31,6 +31,9 @@ namespace R1Engine
                 case Game.GBAIsometric_RHR:
                     return HoodlumsRevengeNames;
 
+                case Game.GBAIsometric_SpyroAdventure:
+                    return SpyroAdventureNames;
+
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
                 case Game.R1_60Levels:
@@ -524,6 +527,39 @@ namespace R1Engine
                 [2] = "Pause Screen",
                 [3] = "Score Screen",
                 [4] = "Splash Screens",
+            },
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> SpyroAdventureNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [0] = "",
+                [1] = "",
+                [2] = "Virtual Playground - Virtual Training Area",
+                [3] = "",
+                [4] = "",
+                [5] = "",
+                [6] = "",
+                [7] = "",
+                [8] = "Dragon Shores - Dragonfly Oasis Region",
+                [9] = "",
+                [10] = "",
+                [11] = "",
+                [12] = "",
+                [13] = "",
+                [14] = "",
+                [15] = "Fairy Library - Main Hall",
+                [16] = "",
+                [17] = "",
+                [18] = "",
+                [19] = "",
+                [20] = "",
+                [21] = "",
+                [22] = "",
+                [23] = "",
+                [24] = "",
+                [25] = "",
+
+                [47] = "Banana Savannah - Primate Plantation",
             },
         };
     }

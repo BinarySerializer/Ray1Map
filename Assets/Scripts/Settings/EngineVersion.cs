@@ -61,6 +61,7 @@ namespace R1Engine
 
         // GBA Isometric
 
-        GBAIsometric_RHR
+        GBAIsometric_SpyroAdventure,
+        GBAIsometric_RHR,
     }
 }
