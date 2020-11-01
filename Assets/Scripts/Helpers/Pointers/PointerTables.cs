@@ -580,6 +580,10 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Localization] = 0x087F48CC,
                         [GBAIsometric_RHR_Pointer.ObjTypes] = 0x080f9770,
 
+                        [GBAIsometric_RHR_Pointer.Font0] = 0x080ea15c,
+                        [GBAIsometric_RHR_Pointer.Font1] = 0x080eaa10,
+                        [GBAIsometric_RHR_Pointer.Font2] = 0x080ea2f8,
+
                         [GBAIsometric_RHR_Pointer.Map_PauseFrame] = 0x08481930,
                         [GBAIsometric_RHR_Pointer.Map_Menu0] = 0x084817f4,
                         [GBAIsometric_RHR_Pointer.Map_Menu1] = 0x084818f0,
@@ -587,6 +591,11 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Map_Menu3] = 0x08481888,
                         [GBAIsometric_RHR_Pointer.Map_WorldMap] = 0x08481bf0,
                         [GBAIsometric_RHR_Pointer.Map_ScoreScreen] = 0x08481970,
+                        [GBAIsometric_RHR_Pointer.Map_Unk0] = 0x084817c0,
+                        [GBAIsometric_RHR_Pointer.Map_Unk1] = 0x08481348,
+                        [GBAIsometric_RHR_Pointer.Map_Unk2] = 0x08480ec4,
+                        [GBAIsometric_RHR_Pointer.Map_Unk3] = 0x08480c84,
+                        [GBAIsometric_RHR_Pointer.Map_Unk4] = 0x084e42b0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

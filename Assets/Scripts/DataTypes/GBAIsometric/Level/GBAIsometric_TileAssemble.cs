@@ -31,11 +31,15 @@ namespace R1Engine
                 s.DoEncoded(new RHREncoder(), () => DataOffsets = s.SerializeArray<ushort>(DataOffsets, s.CurrentLength / 2, name: nameof(DataOffsets)));
             });
             if (Data == null) {
-                Data = new TileData[DataOffsets.Length];
-                for (int i = 0; i < DataOffsets.Length; i++) {
-                    s.DoAt(DataPointer + DataOffsets[i] * 4, () => {
-                        Data[i] = s.SerializeObject<TileData>(Data[i], onPreSerialize: td => td.TileCompression = TileCompression, name: $"{nameof(Data)}[{i}]");
-                    });
+                if (DataOffsets != null) {
+                    Data = new TileData[DataOffsets.Length];
+                    for (int i = 0; i < DataOffsets.Length; i++) {
+                        s.DoAt(DataPointer + DataOffsets[i] * 4, () => {
+                            Data[i] = s.SerializeObject<TileData>(Data[i], onPreSerialize: td => td.TileCompression = TileCompression, name: $"{nameof(Data)}[{i}]");
+                        });
+                    }
+                } else {
+                    Data = new TileData[0];
                 }
             }
         }
