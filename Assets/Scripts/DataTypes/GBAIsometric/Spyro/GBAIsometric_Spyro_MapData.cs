@@ -14,12 +14,12 @@ namespace R1Engine
         public ushort[] MapData { get; set; }
         
         public override void SerializeImpl(SerializerObject s)
-        {
+        {            
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
             Uint_04 = s.Serialize<uint>(Uint_04, name: nameof(Uint_04));
 
-            if (BlockSize == (Width * Height * 2) + 8)
+            if ((Uint_04 & 0x4000) == 0x4000) 
                 MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData));
             else
                 MapData = s.SerializeArray<byte>(MapData?.Select(x => (byte)x).ToArray(), Width * Height, name: nameof(MapData)).Select(x => (ushort)x).ToArray();

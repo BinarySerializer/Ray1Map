@@ -89,7 +89,13 @@ namespace R1Engine
                     {
                         for (int x = 0; x < mapLayer.TileAssemble.GroupWidth; x++)
                         {
-                            tiles[(actualY + y) * width + (actualX + x)] = tileBlock[y * mapLayer.TileAssemble.GroupWidth + x];
+                            MapTile mt = tileBlock[y * mapLayer.TileAssemble.GroupWidth + x];
+                            tiles[(actualY + y) * width + (actualX + x)] = new MapTile() {
+                                TileMapY = (ushort)(mt.TileMapY - (mapLayer.TileSet.Uint_00 & 0x3fff)),
+                                VerticalFlip = mt.VerticalFlip,
+                                HorizontalFlip = mt.HorizontalFlip,
+                                PaletteIndex = mt.PaletteIndex
+                            };
                         }
                     }
                 }
