@@ -13,7 +13,7 @@ namespace R1Engine
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            new GameInfo_World(0, Enumerable.Range(0, 82).ToArray()), // Levels 0 and 1 are not in the normal array!
+            new GameInfo_World(0, Enumerable.Range(0, 83).ToArray()), // Levels 0 and 1 are not in the normal array!
         });
 
         public virtual string GetROMFilePath => $"ROM.gba";
