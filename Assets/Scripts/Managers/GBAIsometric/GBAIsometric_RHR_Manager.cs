@@ -15,7 +15,7 @@ namespace R1Engine
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(0, Enumerable.Range(0, 20).ToArray()),
-            new GameInfo_World(1, Enumerable.Range(0, 4).ToArray()),
+            new GameInfo_World(1, Enumerable.Range(0, 5).ToArray()),
         });
 
         public GBAIsometric_RHR_Pointer[] GetMenuMaps(int level)
@@ -44,6 +44,15 @@ namespace R1Engine
                     return new GBAIsometric_RHR_Pointer[]
                     {
                         GBAIsometric_RHR_Pointer.Map_ScoreScreen
+                    };
+                case 4:
+                    return new GBAIsometric_RHR_Pointer[]
+                    {
+                        GBAIsometric_RHR_Pointer.Map_Blank,
+                        GBAIsometric_RHR_Pointer.Map_LicenseScreen,
+                        GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo1,
+                        GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo2,
+                        GBAIsometric_RHR_Pointer.Map_GameLogo,
                     };
 
                 default:
@@ -179,7 +188,7 @@ namespace R1Engine
                     MapTiles = GetMapTiles(x, tileSets[tileSetData].GBAIsometric_BaseLength).Select(t => new Unity_Tile(t)
                     {
                         DebugText = $"Combined tiles: {t.CombinedTiles?.Length}"
-                    }).ToArray(),
+                    }).ToArray()
                 };
             }).ToArray();
 

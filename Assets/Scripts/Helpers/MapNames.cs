@@ -523,6 +523,7 @@ namespace R1Engine
                 [1] = "Main Menu",
                 [2] = "Pause Screen",
                 [3] = "Score Screen",
+                [4] = "Splash Screens",
             },
         };
     }

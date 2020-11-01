@@ -20,10 +20,10 @@
         Map_Menu3,
         Map_WorldMap,
         Map_ScoreScreen,
-        Map_Unk0,
-        Map_Unk1,
-        Map_Unk2,
-        Map_Unk3,
-        Map_Unk4,
+        Map_Blank,
+        Map_LicenseScreen,
+        Map_DigitalEclipseLogo1,
+        Map_DigitalEclipseLogo2,
+        Map_GameLogo,
     }
 }
