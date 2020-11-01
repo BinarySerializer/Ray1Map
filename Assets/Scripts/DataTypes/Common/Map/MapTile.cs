@@ -7,48 +7,53 @@ namespace R1Engine
     /// </summary>
     public class MapTile : R1Serializable, ICloneable
     {
-        /// <summary>
-        /// The tile map x position
-        /// </summary>
-        public ushort TileMapX { get; set; }
+        #region Tile Properties (used in ray1map)
 
-        /// <summary>
-        /// The tile map y position
-        /// </summary>
+        // The tile x and y position on the tileset. If the tileset is 1-dimension, use TileMapY.
+        public ushort TileMapX { get; set; }
         public ushort TileMapY { get; set; }
 
-        /// <summary>
-        /// The tile collision type
-        /// </summary>
+        // The tile collision type
         public byte CollisionType { get; set; }
 
-        public byte PC_Unk1 { get; set; }
-
-        /// <summary>
-        /// The transparency mode for this cell
-        /// </summary>
-        public R1_PC_MapTileTransparencyMode PC_TransparencyMode { get; set; }
-
-        public byte PC_Unk2 { get; set; }
-
+        // Flip flags
         public bool HorizontalFlip { get; set; }
         public bool VerticalFlip { get; set; }
 
+        // Tiles to combine this tile with
+        public MapTile[] CombinedTiles { get; set; }
+
+        #endregion
+
+        #region Game Properties
+
+        public byte PC_Unk1 { get; set; }
+        public R1_PC_MapTileTransparencyMode PC_TransparencyMode { get; set; }
+        public byte PC_Unk2 { get; set; }
+
         public byte PaletteIndex { get; set; }
+
+        public byte GBARRR_MenuUnk { get; set; }
+
+        #endregion
+
+        #region PreSerialize Properties
 
         public GBA_TileType GBATileType { get; set; } = GBA_TileType.Normal;
         public bool Is8Bpp { get; set; }
         public bool IsFirstBlock { get; set; }
 
         public GBARRR_MapBlock.MapType GBARRRType { get; set; }
-        public byte GBARRR_MenuUnk { get; set; }
 
-        public enum GBA_TileType {
+        public enum GBA_TileType
+        {
             BGTile,
             Normal,
             FGTile,
             Mode7Tile
         }
+
+        #endregion
 
         /// <summary>
         /// Handles the data serialization

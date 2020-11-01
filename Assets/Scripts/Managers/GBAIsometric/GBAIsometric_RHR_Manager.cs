@@ -140,7 +140,10 @@ namespace R1Engine
                     {
                         tileSets[tileSetData]
                     },
-                    MapTiles = GetMapTiles(x).Select(t => new Unity_Tile(t)).ToArray(),
+                    MapTiles = GetMapTiles(x).Select(t => new Unity_Tile(t)
+                    {
+                        DebugText = $"Combined tiles: {t.CombinedTiles?.Length}"
+                    }).ToArray(),
                 };
             }).ToArray();
 
@@ -203,6 +206,7 @@ namespace R1Engine
                                 ushort offset = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index];
                                 int numTilesToCombine = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index] - offset;
                                 if(numTilesToCombine <= 1) numTilesToCombine = 1;
+                                numTilesToCombine = 2; // TODO: Fix this
                                 for (int i = 0; i < numTilesToCombine; i++) {
                                     ushort data = mapLayer.TileSetPointer.Value.CombinedTileData[offset+i];
                                     var tile = new MapTile() {
@@ -210,8 +214,16 @@ namespace R1Engine
                                         VerticalFlip = BitHelpers.ExtractBits(data, 1, 1) == 1,
                                         HorizontalFlip = BitHelpers.ExtractBits(data, 1, 0) == 1
                                     };
-                                    tiles[(actualY + y) * width + (actualX + x)] = tile;
-                                    break; // TODO: We need to write something to combine these tiles
+
+                                    if (i > 0)
+                                    {
+                                        tiles[(actualY + y) * width + (actualX + x)].CombinedTiles[i - 1] = tile;
+                                    }
+                                    else
+                                    {
+                                        tiles[(actualY + y) * width + (actualX + x)] = tile;
+                                        tiles[(actualY + y) * width + (actualX + x)].CombinedTiles = new MapTile[numTilesToCombine - 1];
+                                    }
                                 }
                             } else {
                                 var tile = new MapTile() {
