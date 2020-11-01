@@ -14,8 +14,42 @@ namespace R1Engine
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            new GameInfo_World(0, Enumerable.Range(0, 20).ToArray()), 
+            new GameInfo_World(0, Enumerable.Range(0, 20).ToArray()),
+            new GameInfo_World(1, Enumerable.Range(0, 4).ToArray()),
         });
+
+        public GBAIsometric_RHR_Pointer[] GetMenuMaps(int level)
+        {
+            switch (level)
+            {
+                case 0:
+                    return new GBAIsometric_RHR_Pointer[]
+                    {
+                        GBAIsometric_RHR_Pointer.Map_WorldMap
+                    };
+                case 1:
+                    return new GBAIsometric_RHR_Pointer[]
+                    {
+                        GBAIsometric_RHR_Pointer.Map_Menu0,
+                        GBAIsometric_RHR_Pointer.Map_Menu1,
+                        GBAIsometric_RHR_Pointer.Map_Menu2,
+                        GBAIsometric_RHR_Pointer.Map_Menu3,
+                    };
+                case 2:
+                    return new GBAIsometric_RHR_Pointer[]
+                    {
+                        GBAIsometric_RHR_Pointer.Map_PauseFrame
+                    };
+                case 3:
+                    return new GBAIsometric_RHR_Pointer[]
+                    {
+                        GBAIsometric_RHR_Pointer.Map_ScoreScreen
+                    };
+
+                default:
+                    return new GBAIsometric_RHR_Pointer[0];
+            }
+        }
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
@@ -84,7 +118,7 @@ namespace R1Engine
                 Pointer ptr = context.FilePointer(GetROMFilePath);
                 var pointerTable = PointerTables.GBAIsometric_PointerTable(s.GameSettings.GameModeSelection, ptr.file);
                 MusyX_File musyxFile = null;
-                s.DoAt(pointerTable[GBAIsometric_Pointer.MusyxFile], () => {
+                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.MusyxFile], () => {
                     musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
                 });
                 string outPath = outputPath + "/Sounds/";
@@ -111,16 +145,18 @@ namespace R1Engine
             // Read the rom
             var rom = FileFactory.Read<GBAIsometric_ROM>(GetROMFilePath, context);
 
-            var levelInfo = rom.LevelInfos[context.Settings.Level];
-            var levelData = levelInfo.LevelDataPointer.Value;
+            var isMenu = context.Settings.World == 1;
 
-            var availableMaps = levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse();
+            var levelInfo = !isMenu ? rom.LevelInfos[context.Settings.Level] : null;
+            var levelData = levelInfo?.LevelDataPointer.Value;
 
-            var tileSets = new Dictionary<GBAIsometric_TileSet, Unity_MapTileMap>();
+            var availableMaps = !isMenu ? levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse() : rom.MenuMaps;
 
             // Not all levels have maps
-            if (levelInfo.MapPointer?.Value != null)
+            if (levelInfo?.MapPointer?.Value != null)
                 availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
+
+            var tileSets = new Dictionary<GBAIsometric_TileSet, Unity_MapTileMap>();
 
             var maps = availableMaps.Select(x =>
             {
@@ -147,15 +183,18 @@ namespace R1Engine
                 };
             }).ToArray();
 
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, levelData.ObjectsCount);
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, levelData?.ObjectsCount ?? 0);
 
             var allObjects = new List<Unity_Object>();
 
-            // Add normal objects
-            allObjects.AddRange(levelData.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)));
+            if (levelData != null)
+            {
+                // Add normal objects
+                allObjects.AddRange(levelData.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)));
 
-            // Add waypoints
-            allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_Object)new Unity_Object_GBAIsometricWaypoint(x, objManager)));
+                // Add waypoints
+                allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_Object)new Unity_Object_GBAIsometricWaypoint(x, objManager)));
+            }
 
             // Add localization
             var loc = rom.Localization.Localization.Select((x, i) => new

@@ -560,23 +560,33 @@ namespace R1Engine
         /// <param name="gameMode">The GBA game mode</param>
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<GBAIsometric_Pointer, Pointer> GBAIsometric_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
+        public static Dictionary<GBAIsometric_RHR_Pointer, Pointer> GBAIsometric_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
             switch (gameMode) 
             {
                 case GameModeSelection.RaymanHoodlumsRevengeEU:
-                    return new Dictionary<GBAIsometric_Pointer, uint>() {
-                        [GBAIsometric_Pointer.MusyxFile] = 0x080447AC,
-                        [GBAIsometric_Pointer.Levels] = 0x080E938C,
-                        [GBAIsometric_Pointer.Localization] = 0x087F5E04,
-                        [GBAIsometric_Pointer.ObjTypes] = 0x080F9814,
+                    return new Dictionary<GBAIsometric_RHR_Pointer, uint>() {
+                        [GBAIsometric_RHR_Pointer.MusyxFile] = 0x080447AC,
+                        [GBAIsometric_RHR_Pointer.Levels] = 0x080E938C,
+                        [GBAIsometric_RHR_Pointer.Localization] = 0x087F5E04,
+                        [GBAIsometric_RHR_Pointer.ObjTypes] = 0x080F9814,
+
+                        // TODO: Add menu pointers
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.RaymanHoodlumsRevengeUS:
-                    return new Dictionary<GBAIsometric_Pointer, uint>() {
-                        [GBAIsometric_Pointer.MusyxFile] = 0x08044708,
-                        [GBAIsometric_Pointer.Levels] = 0x080E92E8,
-                        [GBAIsometric_Pointer.Localization] = 0x087F48CC,
-                        [GBAIsometric_Pointer.ObjTypes] = 0x080f9770,
+                    return new Dictionary<GBAIsometric_RHR_Pointer, uint>() {
+                        [GBAIsometric_RHR_Pointer.MusyxFile] = 0x08044708,
+                        [GBAIsometric_RHR_Pointer.Levels] = 0x080E92E8,
+                        [GBAIsometric_RHR_Pointer.Localization] = 0x087F48CC,
+                        [GBAIsometric_RHR_Pointer.ObjTypes] = 0x080f9770,
+
+                        [GBAIsometric_RHR_Pointer.Map_PauseFrame] = 0x08481930,
+                        [GBAIsometric_RHR_Pointer.Map_Menu0] = 0x084817f4,
+                        [GBAIsometric_RHR_Pointer.Map_Menu1] = 0x084818f0,
+                        [GBAIsometric_RHR_Pointer.Map_Menu2] = 0x08481838,
+                        [GBAIsometric_RHR_Pointer.Map_Menu3] = 0x08481888,
+                        [GBAIsometric_RHR_Pointer.Map_WorldMap] = 0x08481bf0,
+                        [GBAIsometric_RHR_Pointer.Map_ScoreScreen] = 0x08481970,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

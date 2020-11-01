@@ -1,0 +1,19 @@
+﻿namespace R1Engine
+{
+    public enum GBAIsometric_RHR_Pointer
+    {
+        MusyxFile,
+        Levels,
+        Localization,
+        ObjTypes,
+
+        // Map layers
+        Map_PauseFrame,
+        Map_Menu0,
+        Map_Menu1,
+        Map_Menu2,
+        Map_Menu3,
+        Map_WorldMap,
+        Map_ScoreScreen
+    }
+}

@@ -119,6 +119,7 @@ namespace R1Engine
                 case Game.GBA_BatmanRiseOfSinTzu:
                 case Game.GBA_OpenSeason:
                 case Game.GBA_SurfsUp:
+                case Game.GBAIsometric_RHR:
                     return new Dictionary<int, string>()
                     {
                         [0] = "Game",
@@ -516,6 +517,12 @@ namespace R1Engine
                 [17] = "Mélée Mayhem",
                 [18] = "Scalding Cascade",
                 [19] = "Sulphurous Sea",
+            },
+            [1] = new Dictionary<int, string>() {
+                [0] = "Worldmap",
+                [1] = "Main Menu",
+                [2] = "Pause Screen",
+                [3] = "Score Screen",
             },
         };
     }
