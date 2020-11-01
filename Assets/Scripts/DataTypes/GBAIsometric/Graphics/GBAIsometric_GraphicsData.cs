@@ -2,9 +2,9 @@
 {
     public class GBAIsometric_GraphicsData : R1Serializable
     {
-        public int Int_00 { get; set; }
-        public int CompressionLookupBufferLength { get; set; }
-        public int Int_08 { get; set; }
+        public uint UInt_00 { get; set; }
+        public uint CompressionLookupBufferLength { get; set; }
+        public uint TotalLength { get; set; }
 
         public Pointer CompressionLookupPointer { get; set; }
         public Pointer CompressedDataPointer { get; set; }
@@ -14,9 +14,9 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
-            CompressionLookupBufferLength = s.Serialize<int>(CompressionLookupBufferLength, name: nameof(CompressionLookupBufferLength));
-            Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+            UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+            CompressionLookupBufferLength = s.Serialize<uint>(CompressionLookupBufferLength, name: nameof(CompressionLookupBufferLength));
+            TotalLength = s.Serialize<uint>(TotalLength, name: nameof(TotalLength));
 
             CompressionLookupPointer = s.SerializePointer(CompressionLookupPointer, name: nameof(CompressionLookupPointer));
             CompressedDataPointer = s.SerializePointer(CompressedDataPointer, name: nameof(CompressedDataPointer));

@@ -4,7 +4,7 @@ namespace R1Engine
 {
     public class GBAIsometric_MapLayer : R1Serializable
     {
-        public Pointer<GBAIsometric_TileMapData> TileMapPointer { get; set; }
+        public Pointer<GBAIsometric_TileSet> TileSetPointer { get; set; }
         public MapLayerType StructType { get; set; }
         public ushort Width { get; set; }
         public ushort Height { get; set; }
@@ -20,7 +20,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            TileMapPointer = s.SerializePointer<GBAIsometric_TileMapData>(TileMapPointer, resolve: true, name: nameof(TileMapPointer));
+            TileSetPointer = s.SerializePointer<GBAIsometric_TileSet>(TileSetPointer, resolve: true, name: nameof(TileSetPointer));
             StructType = s.Serialize<MapLayerType>(StructType, name: nameof(StructType));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
@@ -54,7 +54,7 @@ namespace R1Engine
         public ushort[] CreateFullMap(ushort[] mapData) {
             ushort[] fullMap = new ushort[mapData.Length * 64];
             for (int i = 0; i < mapData.Length; i++) {
-                ushort[] tempMap = TileMapPointer.Value.Get8x8Map(mapData[i]);
+                ushort[] tempMap = TileSetPointer.Value.Get8x8Map(mapData[i]);
                 Array.Copy(tempMap, 0, fullMap, i * 64, tempMap.Length);
             }
             return fullMap;

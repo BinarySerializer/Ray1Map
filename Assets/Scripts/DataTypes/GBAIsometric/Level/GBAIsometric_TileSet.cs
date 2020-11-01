@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAIsometric_TileMapData : R1Serializable
+    public class GBAIsometric_TileSet : R1Serializable
     {
         public Pointer<GBAIsometric_GraphicsData> GraphicsDataPointer { get; set; }
-        public Pointer Pointer1 { get; set; } // level 0: pointer to byte array with length = lookup buffer  (0xfd5), pointer to 0x55F bytes, pointer to 0x55F ushorts
-        public Pointer Pointer2 { get; set; } // ushorts
-        public Pointer Pointer3 { get; set; } // ushorts. max ushort in this array = pointer2.length. not length-1, so probably either 0 or length has some special meaning
+        public Pointer<GBAIsometric_PaletteIndexTable> PaletteIndexTablePointer { get; set; } // level 0: pointer to byte array with length = lookup buffer  (0xfd5), pointer to 0x55F bytes, pointer to 0x55F ushorts
+        public Pointer CombinedTileDataPointer { get; set; } // ushorts
+        public Pointer CombinedTileOffsetsPointer { get; set; } // ushorts. max ushort in this array = pointer2.length. not length-1, so probably either 0 or length has some special meaning
 
         public GBAIsometric_TileAssemble[] AssembleData { get; set; } = new GBAIsometric_TileAssemble[4];
         private Dictionary<ushort, ushort[]> AssembleCache { get; set; } = new Dictionary<ushort, ushort[]>();
@@ -18,36 +18,45 @@ namespace R1Engine
         public Pointer PalettesPointer { get; set; }
 
         // Parsed
-
-        public Pointer PaletteIndexTablePointer { get; set; }
-        public Pointer[] Pointer1_Pointers { get; set; }
-        public byte[] PaletteIndexTable { get; set; }
+        public ushort[] CombinedTileData { get; set; }
+        public ushort[] CombinedTileOffsets { get; set; }
         public ARGB1555Color[][] Palettes { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             GraphicsDataPointer = s.SerializePointer<GBAIsometric_GraphicsData>(GraphicsDataPointer, resolve: true, name: nameof(GraphicsDataPointer));
-            Pointer1 = s.SerializePointer(Pointer1, name: nameof(Pointer1));
-            Pointer2 = s.SerializePointer(Pointer2, name: nameof(Pointer2));
-            Pointer3 = s.SerializePointer(Pointer3, name: nameof(Pointer3));
+            PaletteIndexTablePointer = s.SerializePointer<GBAIsometric_PaletteIndexTable>(PaletteIndexTablePointer, resolve: true, onPreSerialize: pit => pit.Length = GraphicsDataPointer.Value.CompressionLookupBufferLength, name: nameof(PaletteIndexTablePointer));
+            CombinedTileDataPointer = s.SerializePointer(CombinedTileDataPointer, name: nameof(CombinedTileDataPointer));
+            CombinedTileOffsetsPointer = s.SerializePointer(CombinedTileOffsetsPointer, name: nameof(CombinedTileOffsetsPointer));
             for (int i = 0; i < 4; i++) {
                 AssembleData[i] = s.SerializeObject<GBAIsometric_TileAssemble>(AssembleData[i], onPreSerialize: ad => ad.TileCompression = (GBAIsometric_TileAssemble.Compression)i, name: $"{nameof(AssembleData)}[{i}]");
             }
             PalettesPointer = s.SerializePointer(PalettesPointer, name: nameof(PalettesPointer));
 
-            s.DoAt(Pointer1, () => {
-                PaletteIndexTablePointer = s.SerializePointer(PaletteIndexTablePointer, name: nameof(PaletteIndexTablePointer));
-                Pointer1_Pointers = s.SerializePointerArray(Pointer1_Pointers, 2, name: nameof(Pointer1_Pointers));
+            // Todo: Read these in a less hacky way
+            s.DoAt(CombinedTileDataPointer, () => {
+                CombinedTileData = s.SerializeArray<ushort>(CombinedTileData, (CombinedTileOffsetsPointer - CombinedTileDataPointer) / 2, name: nameof(CombinedTileData));
             });
-
-            s.DoAt(PaletteIndexTablePointer, () => {
-                PaletteIndexTable = s.SerializeArray<byte>(PaletteIndexTable, GraphicsDataPointer.Value.CompressionLookupBufferLength, name: nameof(PaletteIndexTable));
+            s.DoAt(CombinedTileOffsetsPointer, () => {
+                if (CombinedTileDataPointer == CombinedTileOffsetsPointer) {
+                    CombinedTileOffsets = new ushort[0];
+                } else {
+                    uint length = 0;
+                    s.DoAt(CombinedTileOffsetsPointer, () => {
+                        ushort CombinedTileOffsetsLengthHack = 0;
+                        while (CombinedTileOffsetsLengthHack < CombinedTileData.Length) {
+                            CombinedTileOffsetsLengthHack = s.Serialize<ushort>(CombinedTileOffsetsLengthHack, name: nameof(CombinedTileOffsetsLengthHack));
+                        }
+                        length = (uint)((s.CurrentPointer - CombinedTileOffsetsPointer) / 2);
+                    });
+                    CombinedTileOffsets = s.SerializeArray<ushort>(CombinedTileOffsets, length, name: nameof(CombinedTileOffsets));
+                }
             });
 
             s.DoAt(PalettesPointer, () =>
             {
                 if (Palettes == null)
-                    Palettes = new ARGB1555Color[PaletteIndexTable.Where(x => x != 0xFF).Max() + 1][];
+                    Palettes = new ARGB1555Color[PaletteIndexTablePointer.Value.GetMaxPaletteIndex() + 1][];
 
                 for (int i = 0; i < Palettes.Length; i++)
                     Palettes[i] = s.SerializeObjectArray<ARGB1555Color>(Palettes[i], 16, name: $"{nameof(Palettes)}[i]");
@@ -88,6 +97,22 @@ namespace R1Engine
                 }
             }
             return AssembleCache[mapEntry];
+        }
+
+        public int GetTileIndex(int tileIndex) {
+            while (tileIndex >= GraphicsDataPointer.Value.CompressionLookupBufferLength) {
+                int indexInSecondaryArray = (int)(GraphicsDataPointer.Value.TotalLength - 1 - tileIndex);
+                tileIndex = PaletteIndexTablePointer.Value.SecondaryTileIndices[indexInSecondaryArray];
+            }
+            return tileIndex;
+        }
+
+        public int GetPaletteIndex(int tileIndex) {
+            if (tileIndex >= GraphicsDataPointer.Value.CompressionLookupBufferLength) {
+                int indexInSecondaryArray = (int)(GraphicsDataPointer.Value.TotalLength - 1 - tileIndex);
+                return PaletteIndexTablePointer.Value.SecondaryPaletteIndices[indexInSecondaryArray];
+            }
+            return PaletteIndexTablePointer.Value.PaletteIndices[tileIndex];
         }
     }
 }

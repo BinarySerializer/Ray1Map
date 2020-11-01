@@ -116,7 +116,7 @@ namespace R1Engine
 
             var availableMaps = levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse();
 
-            var tileSets = new Dictionary<GBAIsometric_TileMapData, Unity_MapTileMap>();
+            var tileSets = new Dictionary<GBAIsometric_TileSet, Unity_MapTileMap>();
 
             // Not all levels have maps
             if (levelInfo.MapPointer?.Value != null)
@@ -126,7 +126,7 @@ namespace R1Engine
             {
                 var width = (ushort)(x.Width * 8);
                 var height = (ushort)(x.Height * 8);
-                var tileSetData = x.TileMapPointer.Value;
+                var tileSetData = x.TileSetPointer.Value;
 
                 if (!tileSets.ContainsKey(tileSetData))
                     tileSets.Add(tileSetData, LoadTileMap(context, x));
@@ -179,7 +179,7 @@ namespace R1Engine
             {
                 for (int blockX = 0; blockX < mapLayer.Width; blockX++)
                 {
-                    ushort[] tileBlock = mapLayer.TileMapPointer.Value.Get8x8Map(mapLayer.MapData[blockY * mapLayer.Width + blockX]); // 64x64
+                    ushort[] tileBlock = mapLayer.TileSetPointer.Value.Get8x8Map(mapLayer.MapData[blockY * mapLayer.Width + blockX]); // 64x64
 
                     var actualX = blockX * 8;
                     var actualY = blockY * 8;
@@ -189,14 +189,39 @@ namespace R1Engine
                         for (int x = 0; x < 8; x++)
                         {
                             var tileValue = tileBlock[y * 8 + x];
-                            var tile = new MapTile()
-                            {
-                                TileMapY = (ushort)(BitHelpers.ExtractBits(tileValue, 14, 2)),
-                                VerticalFlip = BitHelpers.ExtractBits(tileValue, 1, 1) == 1,
-                                HorizontalFlip = BitHelpers.ExtractBits(tileValue, 1, 0) == 1
-                            };
 
-                            tiles[(actualY + y) * width + (actualX + x)] = tile;
+                            // TODO:
+                            /* 
+                             *  while(MapTileY >= graphicsData->CompressionLookupLength) {
+                                    tileIndex = (uint)pointer1->TileIndices[(graphicsData->TotalLength - MapTileY) + -1];
+                                }
+                             */
+
+                            if (BitHelpers.ExtractBits(tileValue, 2, 14) == 3) {
+                                // Combined tile
+                                int index = BitHelpers.ExtractBits(tileValue, 14, 0);
+                                ushort offset = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index];
+                                int numTilesToCombine = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index] - offset;
+                                if(numTilesToCombine <= 1) numTilesToCombine = 1;
+                                for (int i = 0; i < numTilesToCombine; i++) {
+                                    ushort data = mapLayer.TileSetPointer.Value.CombinedTileData[offset+i];
+                                    var tile = new MapTile() {
+                                        TileMapY = (ushort)mapLayer.TileSetPointer.Value.GetTileIndex((BitHelpers.ExtractBits(data, 14, 2))),
+                                        VerticalFlip = BitHelpers.ExtractBits(data, 1, 1) == 1,
+                                        HorizontalFlip = BitHelpers.ExtractBits(data, 1, 0) == 1
+                                    };
+                                    tiles[(actualY + y) * width + (actualX + x)] = tile;
+                                    break; // TODO: We need to write something to combine these tiles
+                                }
+                            } else {
+                                var tile = new MapTile() {
+                                    TileMapY = (ushort)mapLayer.TileSetPointer.Value.GetTileIndex((BitHelpers.ExtractBits(tileValue, 14, 2))),
+                                    VerticalFlip = BitHelpers.ExtractBits(tileValue, 1, 1) == 1,
+                                    HorizontalFlip = BitHelpers.ExtractBits(tileValue, 1, 0) == 1
+                                };
+
+                                tiles[(actualY + y) * width + (actualX + x)] = tile;
+                            }
                         }
                     }
                 }
@@ -209,7 +234,7 @@ namespace R1Engine
         {
             var s = context.Deserializer;
             Unity_MapTileMap t = null;
-            var tileMap = mapLayer.TileMapPointer.Value;
+            var tileMap = mapLayer.TileSetPointer.Value;
             var is8bit = mapLayer.StructType == GBAIsometric_MapLayer.MapLayerType.Map;
             Color[][] palettes = null;
             Color[] defaultPalette;
@@ -238,7 +263,8 @@ namespace R1Engine
             {
                 byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
 
-                var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(tileMap.PaletteIndexTable[i]));
+                var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(tileMap.PaletteIndexTablePointer.Value.PaletteIndices[i]));
+                //Util.ByteArrayToFile(context.BasePath + "/tileset_tex/" + tileMap.GraphicsDataPointer.Value.Offset.StringAbsoluteOffset + ".png", tex.EncodeToPNG());
 
                 t = new Unity_MapTileMap(tex, CellSize);
             });
