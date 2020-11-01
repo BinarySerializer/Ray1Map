@@ -233,21 +233,13 @@ namespace R1Engine
                         {
                             var tileValue = tileBlock[y * 8 + x];
 
-                            // TODO:
-                            /* 
-                             *  while(MapTileY >= graphicsData->CompressionLookupLength) {
-                                    tileIndex = (uint)pointer1->TileIndices[(graphicsData->TotalLength - MapTileY) + -1];
-                                }
-                             */
-
                             MapTile getMapTile(ushort value)
                             {
-                                var index = tileSet.GetTileIndex((BitHelpers.ExtractBits(value, 14, 2)));
+                                var index = BitHelpers.ExtractBits(value, 14, 2);
 
-                                if (false) // TODO: For tiles which use multiple palettes, set the index to one of the additional tiles
-                                {
-                                    var additionalTileIndex = 0;
-                                    index = tileSetBaseLength + additionalTileIndex;
+                                if (index >= tileSet.GraphicsDataPointer.Value.CompressionLookupBufferLength) {
+                                    var additionalTileIndex = tileSet.GraphicsDataPointer.Value.TotalLength - 1 - index;
+                                    index = (int)(tileSetBaseLength + additionalTileIndex);
                                 }
 
                                 return new MapTile()
