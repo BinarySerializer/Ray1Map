@@ -243,9 +243,8 @@ namespace R1Engine
                                 // Combined tile
                                 int index = BitHelpers.ExtractBits(tileValue, 14, 0);
                                 ushort offset = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index];
-                                int numTilesToCombine = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index] - offset;
+                                int numTilesToCombine = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index+1] - offset;
                                 if(numTilesToCombine <= 1) numTilesToCombine = 1;
-                                numTilesToCombine = 2; // TODO: Fix this
                                 for (int i = 0; i < numTilesToCombine; i++) {
                                     ushort data = mapLayer.TileSetPointer.Value.CombinedTileData[offset+i];
                                     var tile = new MapTile() {
