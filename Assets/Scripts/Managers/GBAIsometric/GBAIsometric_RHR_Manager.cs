@@ -176,7 +176,7 @@ namespace R1Engine
                     {
                         tileSets[tileSetData]
                     },
-                    MapTiles = GetMapTiles(x).Select(t => new Unity_Tile(t)
+                    MapTiles = GetMapTiles(x, tileSets[tileSetData].GBAIsometric_BaseLength).Select(t => new Unity_Tile(t)
                     {
                         DebugText = $"Combined tiles: {t.CombinedTiles?.Length}"
                     }).ToArray(),
@@ -211,17 +211,18 @@ namespace R1Engine
                 localization: loc));
         }
 
-        public MapTile[] GetMapTiles(GBAIsometric_MapLayer mapLayer)
+        public MapTile[] GetMapTiles(GBAIsometric_MapLayer mapLayer, int tileSetBaseLength)
         {
             var width = mapLayer.Width * 8;
             var height = mapLayer.Height * 8;
             var tiles = new MapTile[width * height];
+            var tileSet = mapLayer.TileSetPointer.Value;
 
             for (int blockY = 0; blockY < mapLayer.Height; blockY++)
             {
                 for (int blockX = 0; blockX < mapLayer.Width; blockX++)
                 {
-                    ushort[] tileBlock = mapLayer.TileSetPointer.Value.Get8x8Map(mapLayer.MapData[blockY * mapLayer.Width + blockX]); // 64x64
+                    ushort[] tileBlock = tileSet.Get8x8Map(mapLayer.MapData[blockY * mapLayer.Width + blockX]); // 64x64
 
                     var actualX = blockX * 8;
                     var actualY = blockY * 8;
@@ -239,19 +240,33 @@ namespace R1Engine
                                 }
                              */
 
+                            MapTile getMapTile(ushort value)
+                            {
+                                var index = tileSet.GetTileIndex((BitHelpers.ExtractBits(value, 14, 2)));
+
+                                if (false) // TODO: For tiles which use multiple palettes, set the index to one of the additional tiles
+                                {
+                                    var additionalTileIndex = 0;
+                                    index = tileSetBaseLength + additionalTileIndex;
+                                }
+
+                                return new MapTile()
+                                {
+                                    TileMapY = (ushort)index,
+                                    VerticalFlip = BitHelpers.ExtractBits(value, 1, 1) == 1,
+                                    HorizontalFlip = BitHelpers.ExtractBits(value, 1, 0) == 1
+                                };
+                            }
+
                             if (BitHelpers.ExtractBits(tileValue, 2, 14) == 3) {
                                 // Combined tile
                                 int index = BitHelpers.ExtractBits(tileValue, 14, 0);
-                                ushort offset = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index];
-                                int numTilesToCombine = mapLayer.TileSetPointer.Value.CombinedTileOffsets[index+1] - offset;
+                                ushort offset = tileSet.CombinedTileOffsets[index];
+                                int numTilesToCombine = tileSet.CombinedTileOffsets[index+1] - offset;
                                 if(numTilesToCombine <= 1) numTilesToCombine = 1;
                                 for (int i = 0; i < numTilesToCombine; i++) {
-                                    ushort data = mapLayer.TileSetPointer.Value.CombinedTileData[offset+i];
-                                    var tile = new MapTile() {
-                                        TileMapY = (ushort)mapLayer.TileSetPointer.Value.GetTileIndex((BitHelpers.ExtractBits(data, 14, 2))),
-                                        VerticalFlip = BitHelpers.ExtractBits(data, 1, 1) == 1,
-                                        HorizontalFlip = BitHelpers.ExtractBits(data, 1, 0) == 1
-                                    };
+                                    ushort data = tileSet.CombinedTileData[offset+i];
+                                    var tile = getMapTile(data);
 
                                     if (i > 0)
                                     {
@@ -264,11 +279,7 @@ namespace R1Engine
                                     }
                                 }
                             } else {
-                                var tile = new MapTile() {
-                                    TileMapY = (ushort)mapLayer.TileSetPointer.Value.GetTileIndex((BitHelpers.ExtractBits(tileValue, 14, 2))),
-                                    VerticalFlip = BitHelpers.ExtractBits(tileValue, 1, 1) == 1,
-                                    HorizontalFlip = BitHelpers.ExtractBits(tileValue, 1, 0) == 1
-                                };
+                                var tile = getMapTile(tileValue);
 
                                 tiles[(actualY + y) * width + (actualX + x)] = tile;
                             }
@@ -285,6 +296,7 @@ namespace R1Engine
             var s = context.Deserializer;
             Unity_MapTileMap t = null;
             var tileMap = mapLayer.TileSetPointer.Value;
+            var palTable = tileMap.PaletteIndexTablePointer?.Value;
             var is8bit = mapLayer.StructType == GBAIsometric_MapLayer.MapLayerType.Map;
             Color[][] palettes = null;
             Color[] defaultPalette;
@@ -316,7 +328,46 @@ namespace R1Engine
                 var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(tileMap.PaletteIndexTablePointer.Value.PaletteIndices[i]));
                 //Util.ByteArrayToFile(context.BasePath + "/tileset_tex/" + tileMap.GraphicsDataPointer.Value.Offset.StringAbsoluteOffset + ".png", tex.EncodeToPNG());
 
-                t = new Unity_MapTileMap(tex, CellSize);
+                // Create the tile array
+                var baseLength = (tex.width / CellSize) * (tex.height / CellSize);
+                var additionalLength = palTable?.SecondaryPaletteIndices.Length ?? 0;
+                var tiles = new Unity_TileTexture[baseLength + additionalLength];
+
+                // Keep track of the index
+                var index = 0;
+
+                // Extract every tile
+                for (int y = 0; y < tex.height; y += CellSize)
+                {
+                    for (int x = 0; x < tex.width; x += CellSize)
+                    {
+                        // Create a tile
+                        tiles[index] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
+
+                        index++;
+                    }
+                }
+
+                if (palTable != null)
+                {
+                    int tileSize = is8bit ? (CellSize * CellSize) : (CellSize * CellSize) / 2;
+
+                    for (int i = 0; i < palTable.SecondaryPaletteIndices.Length; i++)
+                    {
+                        var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+
+                        tileTex.FillInTile(fullSheet, tileSize * palTable.SecondaryTileIndices[i], palettes[palTable.SecondaryPaletteIndices[i]], is8bit, CellSize, false, 0, 0);
+
+                        tileTex.Apply();
+
+                        tiles[baseLength + i] = tileTex.CreateTile();
+                    }
+                }
+
+                t = new Unity_MapTileMap(tiles)
+                {
+                    GBAIsometric_BaseLength = baseLength
+                };
             });
 
             return t;

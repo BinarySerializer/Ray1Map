@@ -475,54 +475,57 @@ namespace R1Engine
 
             var tex = TextureHelpers.CreateTexture2D(tilesX * tileWidth, tilesY * tileWidth);
 
-            Color getColor(int tileIndex, int color) => (getPalFunc?.Invoke(tileIndex) ?? pal)[color];
-
             for (int i = 0; i < tilesetLength; i++)
             {
                 int tileY = ((i / wrap)) * tileWidth;
                 int tileX = (i % wrap) * tileWidth;
 
-                // Fill in tile pixels
-                for (int y = 0; y < tileWidth; y++)
-                {
-                    for (int x = 0; x < tileWidth; x++)
-                    {
-                        Color c;
-
-                        int index = ((i) * tileSize) + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
-
-                        if (is8bpp)
-                        {
-                            var b = imgData[index];
-                            c = getColor(i, b);
-
-                            var yy = tileY + y;
-
-                            if (flipY)
-                                yy = tex.height - yy - 1;
-
-                            tex.SetPixel(tileX + x, yy, c);
-                        }
-                        else
-                        {
-                            var b = imgData[index];
-                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
-                            c = getColor(i, v);
-
-                            var yy = tileY + y;
-
-                            if (flipY)
-                                yy = tex.height - yy - 1;
-
-                            tex.SetPixel(tileX + x, yy, c);
-                        }
-                    }
-                }
+                tex.FillInTile(imgData, i * tileSize, getPalFunc?.Invoke(i) ?? pal, is8bpp, tileWidth, flipY, tileX, tileY);
             }
 
             tex.Apply();
 
             return tex;
+        }
+
+        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, bool is8bpp, int tileWidth, bool flipY, int tileX, int tileY)
+        {
+            // Fill in tile pixels
+            for (int y = 0; y < tileWidth; y++)
+            {
+                for (int x = 0; x < tileWidth; x++)
+                {
+                    Color c;
+
+                    int index = imgDataOffset + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
+
+                    if (is8bpp)
+                    {
+                        var b = imgData[index];
+                        c = pal[b];
+
+                        var yy = tileY + y;
+
+                        if (flipY)
+                            yy = tex.height - yy - 1;
+
+                        tex.SetPixel(tileX + x, yy, c);
+                    }
+                    else
+                    {
+                        var b = imgData[index];
+                        var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                        c = pal[v];
+
+                        var yy = tileY + y;
+
+                        if (flipY)
+                            yy = tex.height - yy - 1;
+
+                        tex.SetPixel(tileX + x, yy, c);
+                    }
+                }
+            }
         }
     }
 }

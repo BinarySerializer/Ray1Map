@@ -94,5 +94,6 @@ namespace R1Engine
         public Unity_AnimatedTile[] AnimatedTiles { get; set; }
 
         public int[] GBARRR_PalOffsets { get; set; }
+        public int GBAIsometric_BaseLength { get; set; }
     }
 }
