@@ -135,7 +135,8 @@ namespace R1Engine
                     return new Dictionary<int, string>()
                     {
                         [0] = "3D",
-                        [1] = "2D",
+                        [1] = "Agent 9",
+                        [2] = "Sgt. Byrd",
                     };
 
                 case Game.SNES_Prototype:

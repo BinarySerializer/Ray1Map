@@ -5,7 +5,7 @@
         public bool Is2D { get; set; }
         public bool SerializeData { get; set; } = true;
 
-        public Pointer<GBAIsometric_Spyro_MapLayer>[] MapLayers { get; set; }
+        public Pointer[] MapLayerPointers { get; set; }
 
         public GBAIsometric_Spyro_DataBlockIndex TilePaletteIndex { get; set; }
         public GBAIsometric_Spyro_DataBlockIndex CollisionIndex { get; set; } // 2D map of 4 byte structs
@@ -15,12 +15,13 @@
         public uint ID { get; set; } // Levels are referenced by ID instead of index
 
         // Parsed
+        public GBAIsometric_Spyro_MapLayer[] MapLayers { get; set; }
         public ARGB1555Color[] TilePalette { get; set; }
         public ARGB1555Color[] ObjPalette { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            MapLayers = s.SerializePointerArray<GBAIsometric_Spyro_MapLayer>(MapLayers, 4, resolve: SerializeData, name: nameof(MapLayers));
+            MapLayerPointers = s.SerializePointerArray(MapLayerPointers, 4, name: nameof(MapLayerPointers));
 
             if (Is2D)
             {
@@ -45,8 +46,14 @@
                 ID = s.Serialize<uint>(ID, name: nameof(ID));
             }
 
-            if (SerializeData)
+            if (SerializeData && ID == s.GameSettings.Level)
             {
+                if (MapLayers == null)
+                    MapLayers = new GBAIsometric_Spyro_MapLayer[MapLayerPointers.Length];
+
+                for (int i = 0; i < MapLayers.Length; i++)
+                    MapLayers[i] = s.DoAt(MapLayerPointers[i], () => s.SerializeObject<GBAIsometric_Spyro_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
+
                 TilePalette = TilePaletteIndex.DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(TilePalette, 256, name: nameof(TilePalette)));
                 ObjPalette = ObjPaletteIndex.DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(ObjPalette, 256, name: nameof(ObjPalette)));
             }
