@@ -44,11 +44,20 @@ namespace R1Engine
 
             var levelInfo = rom.LevelInfos.First(x => x.Value.ID == context.Settings.Level).Value;
 
-            var maps = levelInfo.MapLayers.Select(x => x.Value).Select(map =>
+            // Maps 1 and 3 combine their tilesets
+            var mapTiles = levelInfo.MapLayers.Select((x, i) => GetMapTiles(x.Value, i == 3 ? 0 : (x.Value.TileSet.Uint_00 & 0x3fff))).ToArray();
+
+            var tileSets = new Unity_MapTileMap[]
+            {
+                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[0].Value.TileSet.TileData, mapTiles[0]),
+                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[1].Value.TileSet.TileData.Concat(levelInfo.MapLayers[3].Value.TileSet.TileData).ToArray(), mapTiles[1].Concat(mapTiles[3]).ToArray()),
+                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[2].Value.TileSet.TileData, mapTiles[2]),
+            };
+
+            var maps = levelInfo.MapLayers.Select(x => x.Value).Select((map, i) =>
             {
                 var width = map.Map.Width * map.TileAssemble.GroupWidth;
                 var height = map.Map.Height * map.TileAssemble.GroupHeight;
-                var tiles = GetMapTiles(map);
 
                 return new Unity_Map()
                 {
@@ -57,9 +66,9 @@ namespace R1Engine
                     TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
-                        LoadTileSet(levelInfo.TilePalette, map.TileSet.TileData, tiles),
+                        tileSets[i == 3 ? 1 : i]
                     },
-                    MapTiles = tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = mapTiles[i].Select(x => new Unity_Tile(x)).ToArray(),
                 };
             }).ToArray();
 
@@ -67,10 +76,11 @@ namespace R1Engine
                 maps: maps,
                 objManager: new Unity_ObjectManager(context),
                 eventData: new List<Unity_Object>(),
-                cellSize: CellSize));
+                cellSize: CellSize,
+                defaultMap: 1));
         }
 
-        public MapTile[] GetMapTiles(GBAIsometric_Spyro_MapLayer mapLayer)
+        public MapTile[] GetMapTiles(GBAIsometric_Spyro_MapLayer mapLayer, uint tileOffset)
         {
             var width = mapLayer.Map.Width * mapLayer.TileAssemble.GroupWidth;
             var height = mapLayer.Map.Height * mapLayer.TileAssemble.GroupHeight;
@@ -91,7 +101,7 @@ namespace R1Engine
                         {
                             MapTile mt = tileBlock[y * mapLayer.TileAssemble.GroupWidth + x];
                             tiles[(actualY + y) * width + (actualX + x)] = new MapTile() {
-                                TileMapY = (ushort)(mt.TileMapY - (mapLayer.TileSet.Uint_00 & 0x3fff)),
+                                TileMapY = (ushort)(mt.TileMapY - tileOffset),
                                 VerticalFlip = mt.VerticalFlip,
                                 HorizontalFlip = mt.HorizontalFlip,
                                 PaletteIndex = mt.PaletteIndex

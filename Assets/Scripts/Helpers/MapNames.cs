@@ -559,6 +559,8 @@ namespace R1Engine
                 [24] = "",
                 [25] = "",
 
+                [36] = "Thieves' Guild - Main Guild Hall",
+
                 [47] = "Banana Savannah - Primate Plantation",
             },
         };

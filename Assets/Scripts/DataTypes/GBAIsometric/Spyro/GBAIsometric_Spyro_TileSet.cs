@@ -11,6 +11,7 @@
         {
             Uint_00 = s.Serialize<uint>(Uint_00, name: nameof(Uint_00));
             TileData = s.SerializeArray<byte>(TileData, BlockSize - 4, name: nameof(TileData));
+            //s.Log($"Offset: {Uint_00 & 0x3fff}, Length: {TileData.Length / 32}");
         }
     }
 }
