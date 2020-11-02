@@ -13,7 +13,7 @@
         Font2,
 
         // Map layers
-        Map_PauseFrame,
+        Map_PauseFrame1,
         Map_Menu0,
         Map_Menu1,
         Map_Menu2,
@@ -27,5 +27,6 @@
         Map_DigitalEclipseLogo1,
         Map_DigitalEclipseLogo2,
         Map_GameLogo,
+        Map_PauseFrame2
     }
 }

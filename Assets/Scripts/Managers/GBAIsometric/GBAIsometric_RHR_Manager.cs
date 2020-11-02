@@ -38,7 +38,8 @@ namespace R1Engine
                 case 2:
                     return new GBAIsometric_RHR_Pointer[]
                     {
-                        GBAIsometric_RHR_Pointer.Map_PauseFrame
+                        GBAIsometric_RHR_Pointer.Map_PauseFrame1,
+                        GBAIsometric_RHR_Pointer.Map_PauseFrame2,
                     };
                 case 3:
                     return new GBAIsometric_RHR_Pointer[]

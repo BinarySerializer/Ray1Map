@@ -584,7 +584,7 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Font1] = 0x080eaa10,
                         [GBAIsometric_RHR_Pointer.Font2] = 0x080ea2f8,
 
-                        [GBAIsometric_RHR_Pointer.Map_PauseFrame] = 0x08481930,
+                        [GBAIsometric_RHR_Pointer.Map_PauseFrame1] = 0x08481930,
                         [GBAIsometric_RHR_Pointer.Map_Menu0] = 0x084817f4,
                         [GBAIsometric_RHR_Pointer.Map_Menu1] = 0x084818f0,
                         [GBAIsometric_RHR_Pointer.Map_Menu2] = 0x08481838,
@@ -598,6 +598,7 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo2] = 0x08480c84,
                         [GBAIsometric_RHR_Pointer.Map_LicenseScreen2] = 0x08481588,
                         [GBAIsometric_RHR_Pointer.Map_GameLogo] = 0x084e42b0,
+                        [GBAIsometric_RHR_Pointer.Map_PauseFrame2] = 0x08481c34,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:
