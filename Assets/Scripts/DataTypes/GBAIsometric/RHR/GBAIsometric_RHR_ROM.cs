@@ -4,6 +4,7 @@
     {
         public GBAIsometric_RHR_LocalizationTable Localization { get; set; }
 
+        public GBAIsometric_RHR_PaletteAnimationTable[] PaletteAnimations { get; set; }
         public GBAIsometric_RHR_LevelInfo[] LevelInfos { get; set; }
         public GBAIsometric_RHR_ObjectType[] ObjectTypes { get; set; }
 
@@ -35,6 +36,17 @@
                         LevelInfos[i] = s.SerializeObject(LevelInfos[i], x => x.SerializeData = i == s.GameSettings.Level, name: $"{nameof(LevelInfos)}[{i}]");
                 });
 
+                PaletteAnimations = new GBAIsometric_RHR_PaletteAnimationTable[3];
+                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.PaletteAnimations0], () => {
+                    PaletteAnimations[0] = s.SerializeObject<GBAIsometric_RHR_PaletteAnimationTable>(PaletteAnimations[0], name: $"{nameof(PaletteAnimations)}[0]");
+                });
+                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.PaletteAnimations1], () => {
+                    PaletteAnimations[1] = s.SerializeObject<GBAIsometric_RHR_PaletteAnimationTable>(PaletteAnimations[1], name: $"{nameof(PaletteAnimations)}[1]");
+                });
+                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.PaletteAnimations2], () => {
+                    PaletteAnimations[2] = s.SerializeObject<GBAIsometric_RHR_PaletteAnimationTable>(PaletteAnimations[2], name: $"{nameof(PaletteAnimations)}[2]");
+                });
+
                 // Serialize object types
                 ObjectTypes = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_RHR_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
             }
@@ -45,6 +57,15 @@
 
                 for (int i = 0; i < MenuMaps.Length; i++)
                     MenuMaps[i] = s.DoAt(pointerTable[maps[i]], () => s.SerializeObject<GBAIsometric_RHR_MapLayer>(default, name: $"{maps[i]}"));
+
+                /*
+                 * Palette shift for Digital Eclipse logo (StartIndex,EndIndex,speed)
+                 *  ShiftPaletteDigitalEclipse(0x12,0x20,1);
+                    ShiftPaletteDigitalEclipse(0x22,0x30,1);
+                    ShiftPaletteDigitalEclipse(0x32,0x40,1);
+                    ShiftPaletteDigitalEclipse(0x42,0xd0,1);
+                    ShiftPaletteDigitalEclipse(0xd1,0xf0,1);
+                 * */
             }
 
             /*

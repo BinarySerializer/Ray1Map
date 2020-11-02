@@ -21,7 +21,8 @@ namespace R1Engine
 
         public short Short_12 { get; set; }
         public short Short_14 { get; set; }
-        public short Short_16 { get; set; } // Either 0, 1 or 2
+        public byte PaletteShiftIndex { get; set; } // Either 0, 1 or 2
+        public byte Byte_17 { get; set; }
         public int Int_18 { get; set; }
         public int Int_1C { get; set; }
 
@@ -46,7 +47,8 @@ namespace R1Engine
             Short_10 = s.Serialize<ushort>(Short_10, name: nameof(Short_10));
             Short_12 = s.Serialize<short>(Short_12, name: nameof(Short_12));
             Short_14 = s.Serialize<short>(Short_14, name: nameof(Short_14));
-            Short_16 = s.Serialize<short>(Short_16, name: nameof(Short_16));
+            PaletteShiftIndex = s.Serialize<byte>(PaletteShiftIndex, name: nameof(PaletteShiftIndex));
+            Byte_17 = s.Serialize<byte>(Byte_17, name: nameof(Byte_17));
 
             Int_18 = s.Serialize<int>(Int_18, name: nameof(Int_18));
             Int_1C = s.Serialize<int>(Int_1C, name: nameof(Int_1C));

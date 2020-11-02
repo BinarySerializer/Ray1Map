@@ -27,6 +27,10 @@
         Map_DigitalEclipseLogo1,
         Map_DigitalEclipseLogo2,
         Map_GameLogo,
-        Map_PauseFrame2
+        Map_PauseFrame2,
+
+        PaletteAnimations0,
+        PaletteAnimations1,
+        PaletteAnimations2,
     }
 }

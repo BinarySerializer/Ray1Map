@@ -584,6 +584,10 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Font1] = 0x080eaa10,
                         [GBAIsometric_RHR_Pointer.Font2] = 0x080ea2f8,
 
+                        [GBAIsometric_RHR_Pointer.PaletteAnimations0] = 0x080E9938,
+                        [GBAIsometric_RHR_Pointer.PaletteAnimations1] = 0x087F4510,
+                        [GBAIsometric_RHR_Pointer.PaletteAnimations2] = 0x087F4540,
+
                         [GBAIsometric_RHR_Pointer.Map_PauseFrame1] = 0x08481930,
                         [GBAIsometric_RHR_Pointer.Map_Menu0] = 0x084817f4,
                         [GBAIsometric_RHR_Pointer.Map_Menu1] = 0x084818f0,
