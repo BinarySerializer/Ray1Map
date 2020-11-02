@@ -161,6 +161,7 @@ namespace R1Engine
 
             var levelInfo = !isMenu ? rom.LevelInfos[context.Settings.Level] : null;
             var levelData = levelInfo?.LevelDataPointer.Value;
+            var animPal = rom.PaletteAnimations.ElementAtOrDefault(levelInfo?.PaletteShiftIndex ?? -1);
 
             var availableMaps = !isMenu ? levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse() : rom.MenuMaps;
 
@@ -177,7 +178,7 @@ namespace R1Engine
                 var tileSetData = x.TileSetPointer.Value;
 
                 if (!tileSets.ContainsKey(tileSetData))
-                    tileSets.Add(tileSetData, LoadTileMap(context, x));
+                    tileSets.Add(tileSetData, LoadTileMap(context, x, animPal));
 
                 return new Unity_Map
                 {
@@ -295,7 +296,7 @@ namespace R1Engine
             return tiles;
         }
 
-        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_RHR_MapLayer mapLayer)
+        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_RHR_MapLayer mapLayer, GBAIsometric_RHR_PaletteAnimationTable palAnimTable)
         {
             var s = context.Deserializer;
             Unity_MapTileMap t = null;
@@ -329,18 +330,87 @@ namespace R1Engine
             {
                 byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
 
-                var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(tileMap.PaletteIndexTablePointer.Value.PaletteIndices[i]));
+                var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(palTable.PaletteIndices[i]));
                 //Util.ByteArrayToFile(context.BasePath + "/tileset_tex/" + tileMap.GraphicsDataPointer.Value.Offset.StringAbsoluteOffset + ".png", tex.EncodeToPNG());
+
+                // Group animated tile info by the palette
+                var palAnimGroups = palettes == null ? null : palAnimTable?.Entries.GroupBy(x => x.PaletteIndex).Select(x =>
+                {
+                    // Get the data
+                    var entries = x.ToArray();
+                    var palIndex = x.Key;
+
+                    // Get the lowest common multiple
+                    var length = Util.LCM(entries.Select(y => y.EndIndex - y.StartIndex).ToArray()); // TODO: We need to take the speed into account as well! It can be different for the same palette.
+
+                    // Create an array of new palettes, skipping the first one (the default one)
+                    var newPals = new Color[length - 1][];
+
+                    // Get the original palette to use as a template
+                    var prevPal = palettes[palIndex];
+
+                    // Shift colors and create new palettes for every frame
+                    for (int i = 0; i < length - 1; i++)
+                    {
+                        newPals[i] = prevPal; // TODO: Shift palette
+                    }
+
+                    return new
+                    {
+                        PalIndex = palIndex,
+                        Entries = entries,
+                        Palettes = newPals
+                    };
+                }).ToArray();
 
                 // Create the tile array
                 var baseLength = (tex.width / CellSize) * (tex.height / CellSize);
                 var additionalLength = palTable?.SecondaryPaletteIndices.Length ?? 0;
                 var tiles = new Unity_TileTexture[baseLength + additionalLength];
+                var animPalTiles = new List<Unity_TileTexture>();
+                var unityAnimTiles = new List<Unity_AnimatedTile>();
+                int tileSize = is8bit ? (CellSize * CellSize) : (CellSize * CellSize) / 2;
+
+                // Helper for adding palette animations to a tile
+                void addTileAnimation(int tileIndex, int palIndex, int tileOffset)
+                {
+                    // Get the animation group for the current palette
+                    var animGroup = palAnimGroups?.FirstOrDefault(x => x.PalIndex == palIndex);
+
+                    // Make sure the palette is animated, otherwise return
+                    if (animGroup == null)
+                        return;
+
+                    // Get the base index in the tileset to add the animated variants to
+                    var baseIndex = tiles.Length + animPalTiles.Count;
+
+                    // Add animation data
+                    unityAnimTiles.Add(new Unity_AnimatedTile()
+                    {
+                        AnimationSpeed = 1f, // TODO: Correct,
+                        TileIndices = new int[]
+                        {
+                            tileIndex // First index must always be the original tile
+                        }.Concat(Enumerable.Range(baseIndex, animGroup.Palettes.Length)).ToArray()
+                    });
+
+                    // Add new tiles for every frame using new palettes
+                    foreach (var pal in animGroup.Palettes)
+                    {
+                        var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+
+                        tileTex.FillInTile(fullSheet, tileOffset, pal, is8bit, CellSize, false, 0, 0);
+
+                        tileTex.Apply();
+
+                        animPalTiles.Add(tileTex.CreateTile());
+                    }
+                }
 
                 // Keep track of the index
                 var index = 0;
 
-                // Extract every tile
+                // Extract every tile from the primary tileset texture
                 for (int y = 0; y < tex.height; y += CellSize)
                 {
                     for (int x = 0; x < tex.width; x += CellSize)
@@ -348,29 +418,34 @@ namespace R1Engine
                         // Create a tile
                         tiles[index] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
 
+                        if (palTable?.PaletteIndices.Length > index)
+                            addTileAnimation(index, palTable.PaletteIndices[index], tileSize * index);
+
                         index++;
                     }
                 }
 
                 if (palTable != null)
                 {
-                    int tileSize = is8bit ? (CellSize * CellSize) : (CellSize * CellSize) / 2;
-
                     for (int i = 0; i < palTable.SecondaryPaletteIndices.Length; i++)
                     {
                         var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+                        var offset = tileSize * palTable.SecondaryTileIndices[i];
 
-                        tileTex.FillInTile(fullSheet, tileSize * palTable.SecondaryTileIndices[i], palettes[palTable.SecondaryPaletteIndices[i]], is8bit, CellSize, false, 0, 0);
+                        tileTex.FillInTile(fullSheet, offset, palettes[palTable.SecondaryPaletteIndices[i]], is8bit, CellSize, false, 0, 0);
 
                         tileTex.Apply();
+
+                        addTileAnimation(baseLength + i, palTable.SecondaryPaletteIndices[i], offset);
 
                         tiles[baseLength + i] = tileTex.CreateTile();
                     }
                 }
 
-                t = new Unity_MapTileMap(tiles)
+                t = new Unity_MapTileMap(tiles.Concat(animPalTiles).ToArray())
                 {
-                    GBAIsometric_BaseLength = baseLength
+                    AnimatedTiles = unityAnimTiles.ToArray(),
+                    GBAIsometric_BaseLength = baseLength,
                 };
             });
 

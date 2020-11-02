@@ -9,15 +9,15 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             if (Entries == null) {
-                List<Entry> entries =  new List<Entry>();
-                Entry e = null;
-                while (true) {
-                    e = s.SerializeObject<Entry>(default, name: $"{nameof(Entries)}[{entries.Count}]");
-                    if (e.StartIndex != e.EndIndex) {
+                List<Entry> entries = new List<Entry>();
+                while (true)
+                {
+                    var e = s.SerializeObject<Entry>(default, name: $"{nameof(Entries)}[{entries.Count}]");
+
+                    if (e.StartIndex != e.EndIndex)
                         entries.Add(e);
-                    } else {
+                    else
                         break;
-                    }
                 }
                 Entries = entries.ToArray();
             } else {

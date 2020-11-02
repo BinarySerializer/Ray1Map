@@ -527,5 +527,29 @@ namespace R1Engine
                 }
             }
         }
+
+        public static int GCF(int a, int b)
+        {
+            while (b != 0)
+            {
+                int temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        public static int LCM(int a, int b)
+        {
+            return (a / GCF(a, b)) * b;
+        }
+
+        public static int LCM(IList<int> numbers, int i = 0)
+        {
+            if (i + 2 == numbers.Count)
+                return LCM(numbers[i], numbers[i + 1]);
+            else
+                return LCM(numbers[i], LCM(numbers, i + 1));
+        }
     }
 }
