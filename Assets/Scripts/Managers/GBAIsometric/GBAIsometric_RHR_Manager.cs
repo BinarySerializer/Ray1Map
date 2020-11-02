@@ -128,7 +128,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 Pointer ptr = context.FilePointer(GetROMFilePath);
-                var pointerTable = PointerTables.GBAIsometric_PointerTable(s.GameSettings.GameModeSelection, ptr.file);
+                var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GameSettings.GameModeSelection, ptr.file);
                 MusyX_File musyxFile = null;
                 s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.MusyxFile], () => {
                     musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
@@ -155,7 +155,7 @@ namespace R1Engine
         public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Read the rom
-            var rom = FileFactory.Read<GBAIsometric_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
 
             var isMenu = context.Settings.World == 1;
 
@@ -168,7 +168,7 @@ namespace R1Engine
             if (levelInfo?.MapPointer?.Value != null)
                 availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
 
-            var tileSets = new Dictionary<GBAIsometric_TileSet, Unity_MapTileMap>();
+            var tileSets = new Dictionary<GBAIsometric_RHR_TileSet, Unity_MapTileMap>();
 
             var maps = availableMaps.Select(x =>
             {
@@ -223,7 +223,7 @@ namespace R1Engine
                 localization: loc));
         }
 
-        public MapTile[] GetMapTiles(GBAIsometric_MapLayer mapLayer, int tileSetBaseLength)
+        public MapTile[] GetMapTiles(GBAIsometric_RHR_MapLayer mapLayer, int tileSetBaseLength)
         {
             var width = mapLayer.Width * 8;
             var height = mapLayer.Height * 8;
@@ -295,13 +295,13 @@ namespace R1Engine
             return tiles;
         }
 
-        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_MapLayer mapLayer)
+        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_RHR_MapLayer mapLayer)
         {
             var s = context.Deserializer;
             Unity_MapTileMap t = null;
             var tileMap = mapLayer.TileSetPointer.Value;
             var palTable = tileMap.PaletteIndexTablePointer?.Value;
-            var is8bit = mapLayer.StructType == GBAIsometric_MapLayer.MapLayerType.Map;
+            var is8bit = mapLayer.StructType == GBAIsometric_RHR_MapLayer.MapLayerType.Map;
             Color[][] palettes = null;
             Color[] defaultPalette;
 

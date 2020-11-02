@@ -270,7 +270,18 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
         RaymanHoodlumsRevengeUS,
 
-        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_SpyroAdventure, Game.GBAIsometric_SpyroAdventure, "Spyro: Attack of the Rhynocs (GBA - US)", typeof(GBAIsometric_SpyroAdventure_Manager))]
+        // TODO: Season of Ice
+
+        //[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro2, Game.GBAIsometric_Spyro2, "Spyro 2: Season of Flame (GBA - EU)", typeof(GBAIsometric_Spyro2_Manager))]
+        //SpyroSeasonFlameEU,
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro2, Game.GBAIsometric_Spyro2, "Spyro 2: Season of Flame (GBA - US)", typeof(GBAIsometric_Spyro2_Manager))]
+        SpyroSeasonFlameUS,
+
+        //[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro3, Game.GBAIsometric_Spyro3, "Spyro's Adventure (GBA - EU)", typeof(GBAIsometric_Spyro3_Manager))]
+        //SpyroAdventureEU,
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro3, Game.GBAIsometric_Spyro3, "Spyro: Attack of the Rhynocs (GBA - US)", typeof(GBAIsometric_Spyro3_Manager))]
         SpyroAdventureUS,
     }
 }

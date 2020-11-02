@@ -555,12 +555,12 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the pointer table for the specified GBA Isometric version
+        /// Gets the pointer table for the specified GBA Isometric RHR version
         /// </summary>
         /// <param name="gameMode">The GBA game mode</param>
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<GBAIsometric_RHR_Pointer, Pointer> GBAIsometric_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
+        public static Dictionary<GBAIsometric_RHR_Pointer, Pointer> GBAIsometric_RHR_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
             switch (gameMode) 
             {
                 case GameModeSelection.RaymanHoodlumsRevengeEU:
@@ -599,6 +599,34 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Map_LicenseScreen2] = 0x08481588,
                         [GBAIsometric_RHR_Pointer.Map_GameLogo] = 0x084e42b0,
                         [GBAIsometric_RHR_Pointer.Map_PauseFrame2] = 0x08481c34,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the pointer table for the specified GBA Isometric Spyro version
+        /// </summary>
+        /// <param name="gameMode">The GBA game mode</param>
+        /// <param name="romFile">The rom file</param>
+        /// <returns>The pointer table</returns>
+        public static Dictionary<GBAIsometric_Spyro_Pointer, Pointer> GBAIsometric_Spyro_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
+            switch (gameMode) 
+            {
+                case GameModeSelection.SpyroSeasonFlameUS:
+                    return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
+                        [GBAIsometric_Spyro_Pointer.DataTable] = 0x0817B728,
+                        [GBAIsometric_Spyro_Pointer.LevelInfo] = 0x0817a878,
+                        [GBAIsometric_Spyro_Pointer.LevelInfo2D] = 0x08178ef8,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SpyroAdventureUS:
+                    return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
+                        [GBAIsometric_Spyro_Pointer.DataTable] = 0x081C0B60,
+                        [GBAIsometric_Spyro_Pointer.LevelInfo] = 0x081CFE38,
+                        [GBAIsometric_Spyro_Pointer.LevelInfo2D] = 0x081d15b0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

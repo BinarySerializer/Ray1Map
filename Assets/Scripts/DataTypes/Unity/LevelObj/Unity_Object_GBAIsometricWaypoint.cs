@@ -6,13 +6,13 @@ namespace R1Engine
 {
     public class Unity_Object_GBAIsometricWaypoint : Unity_Object
     {
-        public Unity_Object_GBAIsometricWaypoint(GBAIsometric_Waypoint waypoint, Unity_ObjectManager_GBAIsometric objManager)
+        public Unity_Object_GBAIsometricWaypoint(GBAIsometric_RHR_Waypoint waypoint, Unity_ObjectManager_GBAIsometric objManager)
         {
             Waypoint = waypoint;
             ObjManager = objManager;
         }
 
-        public GBAIsometric_Waypoint Waypoint { get; }
+        public GBAIsometric_RHR_Waypoint Waypoint { get; }
         public Unity_ObjectManager_GBAIsometric ObjManager { get; }
 
         public override short XPosition

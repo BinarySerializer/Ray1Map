@@ -61,7 +61,9 @@ namespace R1Engine
 
         // GBA Isometric
 
-        GBAIsometric_SpyroAdventure,
+        GBAIsometric_Spyro1, // Season of Ice
+        GBAIsometric_Spyro2, // Season of Flame
+        GBAIsometric_Spyro3, // Spyro's Adventure/Attack of the Rhynocs
         GBAIsometric_RHR,
     }
 }

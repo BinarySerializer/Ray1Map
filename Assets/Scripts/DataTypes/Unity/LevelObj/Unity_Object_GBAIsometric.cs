@@ -6,13 +6,13 @@ namespace R1Engine
 {
     public class Unity_Object_GBAIsometric : Unity_Object
     {
-        public Unity_Object_GBAIsometric(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometric objManager)
+        public Unity_Object_GBAIsometric(GBAIsometric_RHR_Object obj, Unity_ObjectManager_GBAIsometric objManager)
         {
             Object = obj;
             ObjManager = objManager;
         }
 
-        public GBAIsometric_Object Object { get; }
+        public GBAIsometric_RHR_Object Object { get; }
         public Unity_ObjectManager_GBAIsometric ObjManager { get; }
 
         public override short XPosition

@@ -31,7 +31,7 @@ namespace R1Engine
                 case Game.GBAIsometric_RHR:
                     return HoodlumsRevengeNames;
 
-                case Game.GBAIsometric_SpyroAdventure:
+                case Game.GBAIsometric_Spyro3:
                     return SpyroAdventureNames;
 
                 case Game.R1_Mapper:
@@ -127,6 +127,15 @@ namespace R1Engine
                     {
                         [0] = "Game",
                         [1] = "Menu",
+                    };
+
+                case Game.GBAIsometric_Spyro1:
+                case Game.GBAIsometric_Spyro2:
+                case Game.GBAIsometric_Spyro3:
+                    return new Dictionary<int, string>()
+                    {
+                        [0] = "3D",
+                        [1] = "2D",
                     };
 
                 case Game.SNES_Prototype:
@@ -535,8 +544,8 @@ namespace R1Engine
                 [0] = "",
                 [1] = "",
                 [2] = "Virtual Playground - Virtual Training Area",
-                [3] = "",
-                [4] = "",
+                [3] = "Professor's Secret Lab - Professor's Zoo",
+                [4] = "Dragon Shores - Dragon Nests Region",
                 [5] = "",
                 [6] = "",
                 [7] = "",

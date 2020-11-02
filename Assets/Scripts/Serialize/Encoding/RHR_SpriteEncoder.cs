@@ -16,11 +16,11 @@ namespace R1Engine {
             UseLookupBufferDirectly,
         }
         public CombineMode Mode { get; }
-        public GBAIsometric_Sprite Sprite { get; }
+        public GBAIsometric_RHR_Sprite Sprite { get; }
         public bool Is8Bit { get; }
         public byte[] LookupBuffer { get; }
         public Pointer CompressedDataPointer { get; }
-        public RHR_SpriteEncoder(GBAIsometric_Sprite sprite) {
+        public RHR_SpriteEncoder(GBAIsometric_RHR_Sprite sprite) {
             Sprite = sprite;
             Mode = CombineMode.UseSprite;
         }

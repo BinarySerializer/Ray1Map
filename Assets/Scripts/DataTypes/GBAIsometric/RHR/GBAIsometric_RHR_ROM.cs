@@ -1,0 +1,60 @@
+﻿namespace R1Engine
+{
+    public class GBAIsometric_RHR_ROM : GBA_ROMBase
+    {
+        public GBAIsometric_RHR_LocalizationTable Localization { get; set; }
+
+        public GBAIsometric_RHR_LevelInfo[] LevelInfos { get; set; }
+        public GBAIsometric_RHR_ObjectType[] ObjectTypes { get; set; }
+
+        public GBAIsometric_RHR_MapLayer[] MenuMaps { get; set; }
+
+        /// <summary>
+        /// Handles the data serialization
+        /// </summary>
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s)
+        {
+            // Serialize ROM header
+            base.SerializeImpl(s);
+
+            var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+
+            // Serialize localization
+            Localization = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Localization], () => s.SerializeObject<GBAIsometric_RHR_LocalizationTable>(Localization, name: nameof(Localization)));
+
+            if (s.GameSettings.World == 0)
+            {
+                // Serialize level infos
+                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Levels], () =>
+                {
+                    if (LevelInfos == null)
+                        LevelInfos = new GBAIsometric_RHR_LevelInfo[20];
+
+                    for (int i = 0; i < LevelInfos.Length; i++)
+                        LevelInfos[i] = s.SerializeObject(LevelInfos[i], x => x.SerializeData = i == s.GameSettings.Level, name: $"{nameof(LevelInfos)}[{i}]");
+                });
+
+                // Serialize object types
+                ObjectTypes = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_RHR_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
+            }
+            else
+            {
+                var maps = ((GBAIsometric_RHR_Manager)s.GameSettings.GetGameManager).GetMenuMaps(s.GameSettings.Level);
+                MenuMaps = new GBAIsometric_RHR_MapLayer[maps.Length];
+
+                for (int i = 0; i < MenuMaps.Length; i++)
+                    MenuMaps[i] = s.DoAt(pointerTable[maps[i]], () => s.SerializeObject<GBAIsometric_RHR_MapLayer>(default, name: $"{maps[i]}"));
+            }
+
+            /*
+            s.DoAt(new Pointer(0x080efd28, Offset.file), () => {
+                var sprite = s.SerializeObject<GBAIsometric_Sprite>(default, name: "Sprite");
+
+            });
+            s.DoAt(new Pointer(0x080ef918, Offset.file), () => {
+                var sprite = s.SerializeObject<GBAIsometric_Sprite>(default, name: "Sprite");
+            }); */
+        }
+    }
+}

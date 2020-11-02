@@ -46,7 +46,9 @@
 
         // GBA Isometric
 
+        GBAIsometric_Spyro1,
+        GBAIsometric_Spyro2,
+        GBAIsometric_Spyro3,
         GBAIsometric_RHR,
-        GBAIsometric_SpyroAdventure
     }
 }
