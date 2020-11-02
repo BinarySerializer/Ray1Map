@@ -43,20 +43,23 @@ namespace R1Engine
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
             var is2D = LevelInfos[context.Settings.World].Is2D;
-            var levelInfo = rom.LevelInfos[context.Settings.World].First(x => x.ID == context.Settings.Level);
+            var levelInfo = rom.LevelData[context.Settings.World].First(x => x.ID == context.Settings.Level);
 
             // Maps 1 and 3 combine their tilesets for 3D maps
-            var mapTiles = levelInfo.MapLayers.Select((x, i) => GetMapTiles(x, i == 3 && !is2D ? 0 : (x.TileSet.Uint_00 & 0x3fff))).ToArray();
+            var mapTiles = levelInfo.MapLayers.Select((x, i) => x != null ? GetMapTiles(x, i == 3 && !is2D ? 0 : (x.TileSet.Uint_00 & 0x3fff)) : null).ToArray();
 
             var tileSets = !is2D ? new Unity_MapTileMap[]
             {
-                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[0].TileSet.TileData, mapTiles[0]),
-                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[1].TileSet.TileData.Concat(levelInfo.MapLayers[3].TileSet.TileData).ToArray(), mapTiles[1].Concat(mapTiles[3]).ToArray()),
-                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[2].TileSet.TileData, mapTiles[2]),
+                levelInfo.MapLayers[0] != null ? LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[0].TileSet.TileData, mapTiles[0]) : null,
+                levelInfo.MapLayers[1] != null ? LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[1].TileSet.TileData.Concat(levelInfo.MapLayers[3].TileSet.TileData).ToArray(), mapTiles[1].Concat(mapTiles[3]).ToArray()) : null,
+                levelInfo.MapLayers[2] != null ? LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[2].TileSet.TileData, mapTiles[2]) : null,
             } : levelInfo.MapLayers.Select((x, i) => LoadTileSet(levelInfo.TilePalette, x.TileSet.TileData, mapTiles[i])).ToArray();
 
             var maps = levelInfo.MapLayers.Select(x => x).Select((map, i) =>
             {
+                if (map == null)
+                    return null;
+
                 var width = map.Map.Width * map.TileAssemble.GroupWidth;
                 var height = map.Map.Height * map.TileAssemble.GroupHeight;
 
@@ -77,7 +80,7 @@ namespace R1Engine
                 maps = maps.Reverse();
 
             return UniTask.FromResult(new Unity_Level(
-                maps: maps.ToArray(),
+                maps: maps.Where(x => x != null).ToArray(),
                 objManager: new Unity_ObjectManager(context),
                 eventData: new List<Unity_Object>(),
                 cellSize: CellSize,

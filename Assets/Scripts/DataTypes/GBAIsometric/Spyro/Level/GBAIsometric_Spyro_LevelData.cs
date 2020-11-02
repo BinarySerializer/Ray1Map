@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAIsometric_Spyro_LevelInfo : R1Serializable
+    public class GBAIsometric_Spyro_LevelData : R1Serializable
     {
         public bool Is2D { get; set; }
         public bool SerializeData { get; set; } = true;
@@ -47,7 +47,7 @@
                 ID = s.Serialize<uint>(ID, name: nameof(ID));
             }
 
-            if (SerializeData && ID == s.GameSettings.Level)
+            if (SerializeData && ID == s.GameSettings.Level || true)
             {
                 if (MapLayers == null)
                     MapLayers = new GBAIsometric_Spyro_MapLayer[MapLayerPointers.Length];

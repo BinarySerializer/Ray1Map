@@ -31,8 +31,11 @@ namespace R1Engine
                 case Game.GBAIsometric_RHR:
                     return HoodlumsRevengeNames;
 
+                case Game.GBAIsometric_Spyro2:
+                    return Spyro2Names;
+
                 case Game.GBAIsometric_Spyro3:
-                    return SpyroAdventureNames;
+                    return Spyro3Names;
 
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
@@ -540,7 +543,59 @@ namespace R1Engine
             },
         };
 
-        private static Dictionary<int, Dictionary<int, string>> SpyroAdventureNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+        private static Dictionary<int, Dictionary<int, string>> Spyro2Names { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [0] = "Sunny Plains - Hub",
+                [1] = "Country Farms",
+                [2] = "Country Farms - Side Area",
+                [3] = "Shamrock Isle",
+                [4] = "Shamrock Isle - Side Area 1",
+                [5] = "Shamrock Isle - Side Area 2",
+                [6] = "Temple of Dune",
+                [7] = "Temple of Dune - Side Area 1",
+                [8] = "Temple of Dune - Side Area 2",
+                [9] = "Tiki Tropics",
+                [10] = "Crush - Boss",
+                [11] = "Celestial Plains - Hub",
+                [12] = "Candy Lane",
+                [13] = "Candy Lane - Side Area",
+                [14] = "Haunted Hills",
+                [15] = "Haunted Hills - Side Area 1",
+                [16] = "Haunted Hills - Side Area 2",
+                [17] = "Winter Mesa",
+                [18] = "Winter Mesa - Side Area 1",
+                [19] = "Winter Mesa - Side Area 2",
+                [20] = "Dreamy Castle",
+                [21] = "Dreamy Castle - Side Area 1",
+                [22] = "Dreamy Castle - Side Area 2",
+                [23] = "Gulp - Boss",
+                [24] = "Starry Plains - Hub",
+                [25] = "Moon Fondue",
+                [26] = "Moon Fondue - Side Area 1",
+                [27] = "Moon Fondue - Side Area 2",
+                [28] = "Gypsy Road",
+                [29] = "Gypsy Road - Side Area 1",
+                [30] = "Gypsy Road - Side Area 2",
+                [31] = "Watertopia",
+                [32] = "Watertopia - Side Area 1",
+                [33] = "Watertopia - Side Area 2",
+                [34] = "Ripto's Volcano - Boss",
+
+                [39] = "Canyon Hop - Sheila",
+                [40] = "Arctic Outback - Sheila",
+                [41] = "Lunar Ledges - Sheila",
+                [42] = "Ripto's Mondo Volcano - Sheila",
+            },
+            [1] = new Dictionary<int, string>()
+            {
+                [0] = "Rumble Jungle - Agent 9",
+                [1] = "Minty Mines - Agent 9",
+                [2] = "Alpine Adobe - Agent 9",
+                [3] = "Volcano Vaults - Agent 9",
+            }
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> Spyro3Names { get; } = new Dictionary<int, Dictionary<int, string>>() {
             [0] = new Dictionary<int, string>() {
                 [0] = "",
                 [1] = "",

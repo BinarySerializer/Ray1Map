@@ -4,7 +4,7 @@
     {
         public GBAIsometric_Spyro_DataTable DataTable { get; set; }
         
-        public GBAIsometric_Spyro_LevelInfo[][] LevelInfos { get; set; }
+        public GBAIsometric_Spyro_LevelData[][] LevelData { get; set; }
 
         public GBAIsometric_Spyro_UnkStruct1[] UnkStructs1 { get; set; }
         public GBAIsometric_Spyro_UnkStruct2[] UnkStructs2 { get; set; }
@@ -30,43 +30,43 @@
 
             var levelInfo = manager.LevelInfos;
 
-            if (LevelInfos == null)
-                LevelInfos = new GBAIsometric_Spyro_LevelInfo[levelInfo.Length][];
+            if (LevelData == null)
+                LevelData = new GBAIsometric_Spyro_LevelData[levelInfo.Length][];
 
-            for (int world = 0; world < LevelInfos.Length; world++)
+            for (int world = 0; world < LevelData.Length; world++)
             {
                 if (levelInfo[world].UsesPointerArray)
                 {
-                    var pointers = s.DoAt(new Pointer(levelInfo[world].Offsets[s.GameSettings.GameModeSelection], Offset.file), () => s.SerializePointerArray(default, levelInfo[world].Length, name: $"{nameof(LevelInfos)}Pointers[{world}]"));
+                    var pointers = s.DoAt(new Pointer(levelInfo[world].Offsets[s.GameSettings.GameModeSelection], Offset.file), () => s.SerializePointerArray(default, levelInfo[world].Length, name: $"{nameof(LevelData)}Pointers[{world}]"));
 
-                    if (LevelInfos[world] == null)
-                        LevelInfos[world] = new GBAIsometric_Spyro_LevelInfo[levelInfo[world].Length];
+                    if (LevelData[world] == null)
+                        LevelData[world] = new GBAIsometric_Spyro_LevelData[levelInfo[world].Length];
 
-                    for (int levelIndex = 0; levelIndex < LevelInfos[world].Length; levelIndex++)
+                    for (int levelIndex = 0; levelIndex < LevelData[world].Length; levelIndex++)
                     {
-                        LevelInfos[world][levelIndex] = s.DoAt(pointers[levelIndex], () => s.SerializeObject<GBAIsometric_Spyro_LevelInfo>(LevelInfos[world][levelIndex], x =>
+                        LevelData[world][levelIndex] = s.DoAt(pointers[levelIndex], () => s.SerializeObject<GBAIsometric_Spyro_LevelData>(LevelData[world][levelIndex], x =>
                         {
                             x.Is2D = levelInfo[world].Is2D;
                             x.SerializeData = s.GameSettings.World == world;
                             x.ID = (uint)levelIndex; // Default to use the index of the entry - this will get replaced with an actual index if it exists
-                        }, name: $"{nameof(LevelInfos)}[{world}][{levelIndex}]"));
+                        }, name: $"{nameof(LevelData)}[{world}][{levelIndex}]"));
                     }
                 }
                 else
                 {
                     s.DoAt(new Pointer(levelInfo[world].Offsets[s.GameSettings.GameModeSelection], Offset.file), () =>
                     {
-                        if (LevelInfos[world] == null)
-                            LevelInfos[world] = new GBAIsometric_Spyro_LevelInfo[levelInfo[world].Length];
+                        if (LevelData[world] == null)
+                            LevelData[world] = new GBAIsometric_Spyro_LevelData[levelInfo[world].Length];
 
-                        for (int levelIndex = 0; levelIndex < LevelInfos[world].Length; levelIndex++)
+                        for (int levelIndex = 0; levelIndex < LevelData[world].Length; levelIndex++)
                         {
-                            LevelInfos[world][levelIndex] = s.SerializeObject<GBAIsometric_Spyro_LevelInfo>(LevelInfos[world][levelIndex], x =>
+                            LevelData[world][levelIndex] = s.SerializeObject<GBAIsometric_Spyro_LevelData>(LevelData[world][levelIndex], x =>
                             {
                                 x.Is2D = levelInfo[world].Is2D;
                                 x.SerializeData = s.GameSettings.World == world;
                                 x.ID = (uint)levelIndex; // Default to use the index of the entry - this will get replaced with an actual index if it exists
-                            }, name: $"{nameof(LevelInfos)}[{world}][{levelIndex}]");
+                            }, name: $"{nameof(LevelData)}[{world}][{levelIndex}]");
                         }
                     });
                 }

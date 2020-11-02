@@ -25,6 +25,7 @@
             Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
             s.Serialize<ushort>(default, name: "Padding"); // Always 0 and not referenced by the code
             Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
+            s.Log($"Layer: {BitHelpers.ExtractBits(Int_10, 2, 0)}");
             Int_14 = s.Serialize<int>(Int_14, name: nameof(Int_14));
 
             // Parse data
