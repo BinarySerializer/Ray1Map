@@ -592,9 +592,11 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Map_WorldMap] = 0x08481bf0,
                         [GBAIsometric_RHR_Pointer.Map_ScoreScreen] = 0x08481970,
                         [GBAIsometric_RHR_Pointer.Map_Blank] = 0x084817c0,
-                        [GBAIsometric_RHR_Pointer.Map_LicenseScreen] = 0x08481348,
+                        [GBAIsometric_RHR_Pointer.Map_LicenseScreen1] = 0x08481348,
+                        [GBAIsometric_RHR_Pointer.Map_UbisoftScreen] = 0x08480a44,
                         [GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo1] = 0x08480ec4,
                         [GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo2] = 0x08480c84,
+                        [GBAIsometric_RHR_Pointer.Map_LicenseScreen2] = 0x08481588,
                         [GBAIsometric_RHR_Pointer.Map_GameLogo] = 0x084e42b0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 

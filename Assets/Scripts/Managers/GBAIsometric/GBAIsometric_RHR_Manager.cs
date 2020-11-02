@@ -49,9 +49,11 @@ namespace R1Engine
                     return new GBAIsometric_RHR_Pointer[]
                     {
                         GBAIsometric_RHR_Pointer.Map_Blank,
-                        GBAIsometric_RHR_Pointer.Map_LicenseScreen,
+                        GBAIsometric_RHR_Pointer.Map_LicenseScreen1,
+                        GBAIsometric_RHR_Pointer.Map_UbisoftScreen,
                         GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo1,
                         GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo2,
+                        GBAIsometric_RHR_Pointer.Map_LicenseScreen2,
                         GBAIsometric_RHR_Pointer.Map_GameLogo,
                     };
 
