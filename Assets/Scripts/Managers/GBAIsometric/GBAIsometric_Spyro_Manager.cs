@@ -42,9 +42,6 @@ namespace R1Engine
         {
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-            File.WriteAllText(@"C:\Users\RayCarrot\Downloads\0.txt", String.Join(Environment.NewLine, rom.LevelInfos[0].Select(x => x?.ID ?? 0).OrderBy(x => x)));
-            File.WriteAllText(@"C:\Users\RayCarrot\Downloads\1.txt", String.Join(Environment.NewLine, rom.LevelInfos[1].Select(x => x?.ID ?? 0).OrderBy(x => x)));
-
             var is2D = LevelInfos[context.Settings.World].Is2D;
             var levelInfo = rom.LevelInfos[context.Settings.World].First(x => x.ID == context.Settings.Level);
 
