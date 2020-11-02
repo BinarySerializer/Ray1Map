@@ -29,13 +29,14 @@
                     Index3 = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Index3, x => x.HasPadding = true, name: nameof(Index3));
 
                 TilePaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilePaletteIndex, x => x.HasPadding = true, name: nameof(TilePaletteIndex));
+
+                if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+                    Index3 = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Index3, x => x.HasPadding = true, name: nameof(Index3)); // Collision?
+
                 ObjPaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(ObjPaletteIndex, x => x.HasPadding = true, name: nameof(ObjPaletteIndex));
 
                 if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
-                {
-                    Index3 = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Index3, x => x.HasPadding = true, name: nameof(Index3));
                     ID = s.Serialize<uint>(ID, name: nameof(ID));
-                }
             }
             else
             {
