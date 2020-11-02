@@ -270,7 +270,11 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
         RaymanHoodlumsRevengeUS,
 
-        // TODO: Season of Ice
+        //[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro1, Game.GBAIsometric_Spyro1, "Spyro: Season of Ice (GBA - EU)", typeof(GBAIsometric_Spyro2_Manager))]
+        //SpyroSeasonIceEU,
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro1, Game.GBAIsometric_Spyro1, "Spyro: Season of Ice (GBA - US)", typeof(GBAIsometric_Spyro1_Manager))]
+        SpyroSeasonIceUS,
 
         //[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro2, Game.GBAIsometric_Spyro2, "Spyro 2: Season of Flame (GBA - EU)", typeof(GBAIsometric_Spyro2_Manager))]
         //SpyroSeasonFlameEU,

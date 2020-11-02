@@ -619,18 +619,19 @@ namespace R1Engine
         public static Dictionary<GBAIsometric_Spyro_Pointer, Pointer> GBAIsometric_Spyro_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
             switch (gameMode) 
             {
+                case GameModeSelection.SpyroSeasonIceUS:
+                    return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
+                        [GBAIsometric_Spyro_Pointer.DataTable] = 0x081ADCE0,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.SpyroSeasonFlameUS:
                     return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x0817B728,
-                        [GBAIsometric_Spyro_Pointer.LevelInfo] = 0x0817a878,
-                        [GBAIsometric_Spyro_Pointer.LevelInfo2D] = 0x08178ef8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroAdventureUS:
                     return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x081C0B60,
-                        [GBAIsometric_Spyro_Pointer.LevelInfo] = 0x081CFE38,
-                        [GBAIsometric_Spyro_Pointer.LevelInfo2D] = 0x081d15b0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

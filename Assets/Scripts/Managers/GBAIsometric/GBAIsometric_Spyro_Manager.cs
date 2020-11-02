@@ -11,18 +11,12 @@ namespace R1Engine
     {
         public const int CellSize = 8;
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
-        {
-            new GameInfo_World(0, Enumerable.Range(0, LevelCount).ToArray()),
-            new GameInfo_World(1, Enumerable.Range(0, LevelInfo2DCount).ToArray()),
-        });
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(LevelInfos.Select((x, i) => new GameInfo_World(i, x.LevelIDs)).ToArray());
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
-        protected abstract int LevelCount { get; }
         public abstract int DataTableCount { get; }
-        public abstract int LevelInfoCount { get; }
-        public abstract int LevelInfo2DCount { get; }
+        public abstract LevelInfo[] LevelInfos { get; }
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
@@ -48,26 +42,20 @@ namespace R1Engine
         {
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-            var is2D = context.Settings.World == 1;
-            var levelInfoArray = !is2D ? rom.LevelInfos : rom.LevelInfos2D;
-            int levelInfoIndex = context.Settings.Level;
-
-            if (!is2D) // NOTE: Spyro 3 still uses IDs for 2D maps
-                levelInfoIndex = levelInfoArray.FindItemIndex(x => x.ID == context.Settings.Level);
-
-            var levelInfo = levelInfoArray[levelInfoIndex];
+            var is2D = LevelInfos[context.Settings.World].Is2D;
+            var levelInfo = rom.LevelInfos[context.Settings.World].First(x => x.ID == context.Settings.Level);
 
             // Maps 1 and 3 combine their tilesets for 3D maps
-            var mapTiles = levelInfo.MapLayers.Select((x, i) => GetMapTiles(x.Value, i == 3 && !is2D ? 0 : (x.Value.TileSet.Uint_00 & 0x3fff))).ToArray();
+            var mapTiles = levelInfo.MapLayers.Select((x, i) => GetMapTiles(x, i == 3 && !is2D ? 0 : (x.TileSet.Uint_00 & 0x3fff))).ToArray();
 
             var tileSets = !is2D ? new Unity_MapTileMap[]
             {
-                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[0].Value.TileSet.TileData, mapTiles[0]),
-                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[1].Value.TileSet.TileData.Concat(levelInfo.MapLayers[3].Value.TileSet.TileData).ToArray(), mapTiles[1].Concat(mapTiles[3]).ToArray()),
-                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[2].Value.TileSet.TileData, mapTiles[2]),
-            } : levelInfo.MapLayers.Select((x, i) => LoadTileSet(levelInfo.TilePalette, x.Value.TileSet.TileData, mapTiles[i])).ToArray();
+                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[0].TileSet.TileData, mapTiles[0]),
+                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[1].TileSet.TileData.Concat(levelInfo.MapLayers[3].TileSet.TileData).ToArray(), mapTiles[1].Concat(mapTiles[3]).ToArray()),
+                LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[2].TileSet.TileData, mapTiles[2]),
+            } : levelInfo.MapLayers.Select((x, i) => LoadTileSet(levelInfo.TilePalette, x.TileSet.TileData, mapTiles[i])).ToArray();
 
-            var maps = levelInfo.MapLayers.Select(x => x.Value).Select((map, i) =>
+            var maps = levelInfo.MapLayers.Select(x => x).Select((map, i) =>
             {
                 var width = map.Map.Width * map.TileAssemble.GroupWidth;
                 var height = map.Map.Height * map.TileAssemble.GroupHeight;
@@ -83,10 +71,13 @@ namespace R1Engine
                     },
                     MapTiles = mapTiles[i].Select(x => new Unity_Tile(x)).ToArray(),
                 };
-            }).ToArray();
+            });
+
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && is2D)
+                maps = maps.Reverse();
 
             return UniTask.FromResult(new Unity_Level(
-                maps: maps,
+                maps: maps.ToArray(),
                 objManager: new Unity_ObjectManager(context),
                 eventData: new List<Unity_Object>(),
                 cellSize: CellSize,
@@ -144,5 +135,22 @@ namespace R1Engine
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
+
+        public class LevelInfo
+        {
+            public LevelInfo(int[] levelIDs, bool usesPointerArray, bool is2D, Dictionary<GameModeSelection, uint> offsets)
+            {
+                LevelIDs = levelIDs;
+                UsesPointerArray = usesPointerArray;
+                Is2D = is2D;
+                Offsets = offsets;
+            }
+
+            public int[] LevelIDs { get; }
+            public int Length => LevelIDs.Length;
+            public bool UsesPointerArray { get; }
+            public bool Is2D { get; }
+            public Dictionary<GameModeSelection, uint> Offsets { get; }
+        }
     }
 }
