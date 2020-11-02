@@ -326,40 +326,78 @@ namespace R1Engine
                 }).ToArray()).ToArray();
             }
 
-            s.DoEncoded(new RHR_SpriteEncoder(is8bit, tileMap.GraphicsDataPointer.Value.CompressionLookupBuffer, tileMap.GraphicsDataPointer.Value.CompressedDataPointer), () =>
-            {
+            s.DoEncoded(new RHR_SpriteEncoder(is8bit, tileMap.GraphicsDataPointer.Value.CompressionLookupBuffer, tileMap.GraphicsDataPointer.Value.CompressedDataPointer), () => {
                 byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
 
                 var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(palTable.PaletteIndices[i]));
                 //Util.ByteArrayToFile(context.BasePath + "/tileset_tex/" + tileMap.GraphicsDataPointer.Value.Offset.StringAbsoluteOffset + ".png", tex.EncodeToPNG());
 
                 // Group animated tile info by the palette
-                var palAnimGroups = palettes == null ? null : palAnimTable?.Entries.GroupBy(x => x.PaletteIndex).Select(x =>
-                {
+                var palAnimGroups = palettes == null ? null : palAnimTable?.Entries.GroupBy(x => x.PaletteIndex).Select(x => {
                     // Get the data
                     var entries = x.ToArray();
                     var palIndex = x.Key;
 
                     // Get the lowest common multiple
-                    var length = Util.LCM(entries.Select(y => y.EndIndex - y.StartIndex).ToArray()); // TODO: We need to take the speed into account as well! It can be different for the same palette.
-
+                    var lengths = entries.Select(y => Math.Abs(y.EndIndex - y.StartIndex) * Math.Abs(y.Speed)).ToArray();
+                    int length = 0;
+                    if (lengths.Length < 2) {
+                        length = lengths[0];
+                    } else {
+                        length = Util.LCM(lengths);
+                    }
                     // Create an array of new palettes, skipping the first one (the default one)
-                    var newPals = new Color[length - 1][];
+                    var framePals = new List<Color[]>();
+                    var frameIndices = new int[length - 1];
 
                     // Get the original palette to use as a template
                     var prevPal = palettes[palIndex];
 
                     // Shift colors and create new palettes for every frame
-                    for (int i = 0; i < length - 1; i++)
-                    {
-                        newPals[i] = prevPal; // TODO: Shift palette
+                    for (int i = 0; i < length - 1; i++) {
+                        int frame = i + 1;
+                        Color[] newPal = new Color[16];
+                        // Set to original palette
+                        for (int j = 0; j < newPal.Length; j++) {
+                            newPal[j] = palettes[palIndex][j];
+                        }
+                        for (int j = 0; j < entries.Length; j++) {
+                            int len = Math.Abs(entries[j].EndIndex - entries[j].StartIndex);
+                            int speed = Math.Abs(entries[j].Speed);
+                            if(speed == 0 || len < 2) continue;
+                            int sign = Math.Sign(entries[j].Speed);
+                            int shift = (frame / speed) % len;
+                            if (shift > 0) {
+                                for (int k = 0; k < len; k++) {
+                                    int targetK = (sign > 0 ? (k + shift) : (k + len - shift)) % len;
+                                    newPal[targetK + entries[j].StartIndex] = palettes[palIndex][k + entries[j].StartIndex];
+                                }
+                            }
+                        }
+                        if (Enumerable.SequenceEqual(newPal, palettes[palIndex])) {
+                            frameIndices[i] = 0;
+                        } else {
+                            bool frameIndexFound = false;
+                            for (int j = 0; j < framePals.Count; j++) {
+                                if (Enumerable.SequenceEqual(newPal, framePals[j])) {
+                                    frameIndexFound = true;
+                                    frameIndices[i] = j+1;
+                                    break;
+                                }
+                            }
+                            if (!frameIndexFound) {
+                                framePals.Add(newPal);
+                                frameIndices[i] = framePals.Count;
+                            }
+                        }
                     }
 
                     return new
                     {
                         PalIndex = palIndex,
                         Entries = entries,
-                        Palettes = newPals
+                        Palettes = framePals,
+                        FramePaletteIndices = frameIndices
                     };
                 }).ToArray();
 
@@ -391,7 +429,7 @@ namespace R1Engine
                         TileIndices = new int[]
                         {
                             tileIndex // First index must always be the original tile
-                        }.Concat(Enumerable.Range(baseIndex, animGroup.Palettes.Length)).ToArray()
+                        }.Concat(animGroup.FramePaletteIndices.Select(fpi => fpi > 0 ? (fpi - 1 + baseIndex) : tileIndex)).ToArray()
                     });
 
                     // Add new tiles for every frame using new palettes
