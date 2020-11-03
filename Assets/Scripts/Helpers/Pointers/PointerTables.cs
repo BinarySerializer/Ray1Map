@@ -577,8 +577,9 @@ namespace R1Engine
                     return new Dictionary<GBAIsometric_RHR_Pointer, uint>() {
                         [GBAIsometric_RHR_Pointer.MusyxFile] = 0x08044708,
                         [GBAIsometric_RHR_Pointer.Levels] = 0x080E92E8,
-                        [GBAIsometric_RHR_Pointer.Localization] = 0x087F48CC,
+                        [GBAIsometric_RHR_Pointer.Localization] = 0x087F45C4,
                         [GBAIsometric_RHR_Pointer.ObjTypes] = 0x080f9770,
+                        [GBAIsometric_RHR_Pointer.Portraits] = 0x087F4410,
 
                         [GBAIsometric_RHR_Pointer.Font0] = 0x080ea15c,
                         [GBAIsometric_RHR_Pointer.Font1] = 0x080eaa10,

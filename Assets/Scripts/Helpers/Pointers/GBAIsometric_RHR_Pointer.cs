@@ -6,11 +6,12 @@
         Levels,
         Localization,
         ObjTypes,
+        Portraits, // TODO: Parse
 
         // Font
-        Font0,
-        Font1,
-        Font2,
+        Font0, // TODO: Parse
+        Font1, // TODO: Parse
+        Font2, // TODO: Parse
 
         // Map layers
         Map_PauseFrame1,
@@ -29,8 +30,18 @@
         Map_GameLogo,
         Map_PauseFrame2,
 
+        // Palette animations
         PaletteAnimations0,
         PaletteAnimations1,
         PaletteAnimations2,
+
+        // Sprites
+        // TODO: Parse
+
+        // SpriteSets
+        // TODO: Parse
+
+        // AnimSets
+        // TODO: Parse
     }
 }

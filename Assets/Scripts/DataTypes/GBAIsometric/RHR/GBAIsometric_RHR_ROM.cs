@@ -2,7 +2,7 @@
 {
     public class GBAIsometric_RHR_ROM : GBA_ROMBase
     {
-        public GBAIsometric_RHR_LocalizationTable Localization { get; set; }
+        public GBAIsometric_RHR_Localization Localization { get; set; }
 
         public GBAIsometric_RHR_PaletteAnimationTable[] PaletteAnimations { get; set; }
         public GBAIsometric_RHR_LevelInfo[] LevelInfos { get; set; }
@@ -22,7 +22,7 @@
             var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
             // Serialize localization
-            Localization = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Localization], () => s.SerializeObject<GBAIsometric_RHR_LocalizationTable>(Localization, name: nameof(Localization)));
+            Localization = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Localization], () => s.SerializeObject<GBAIsometric_RHR_Localization>(Localization, name: nameof(Localization)));
 
             if (s.GameSettings.World == 0)
             {
