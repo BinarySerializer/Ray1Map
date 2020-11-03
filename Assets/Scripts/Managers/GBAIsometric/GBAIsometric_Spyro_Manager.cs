@@ -66,15 +66,11 @@ namespace R1Engine
             var is2D = LevelInfos[context.Settings.World].Is2D;
             var levelInfo = rom.LevelData[context.Settings.World].First(x => x.ID == context.Settings.Level);
 
-            // Maps 1 and 3 combine their tilesets for 3D maps
-            var mapTiles = levelInfo.MapLayers.Select((x, i) => x != null ? GetMapTiles(x, i == 3 && !is2D ? 0 : (x.TileSet.Uint_00 & 0x3fff)) : null).ToArray();
+            // Convert map arrays to map tiles
+            Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles = levelInfo.MapLayers.Where(x => x != null).ToDictionary(x => x, GetMapTiles);
 
-            var tileSets = !is2D ? new Unity_MapTileMap[]
-            {
-                levelInfo.MapLayers[0] != null ? LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[0].TileSet.TileData, mapTiles[0]) : null,
-                levelInfo.MapLayers[1] != null ? LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[1].TileSet.TileData.Concat(levelInfo.MapLayers[3].TileSet.TileData).ToArray(), mapTiles[1].Concat(mapTiles[3]).ToArray()) : null,
-                levelInfo.MapLayers[2] != null ? LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers[2].TileSet.TileData, mapTiles[2]) : null,
-            } : levelInfo.MapLayers.Select((x, i) => LoadTileSet(levelInfo.TilePalette, x.TileSet.TileData, mapTiles[i])).ToArray();
+            // Load tileset
+            var tileSet = LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers.Select(x => x.TileSet).ToArray(), mapTiles);
 
             var maps = levelInfo.MapLayers.Select(x => x).Select((map, i) =>
             {
@@ -91,9 +87,9 @@ namespace R1Engine
                     TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
-                        tileSets[i == 3 && !is2D ? 1 : i]
+                        tileSet
                     },
-                    MapTiles = mapTiles[i].Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = mapTiles[map].Select(x => new Unity_Tile(x)).ToArray(),
                 };
             });
 
@@ -108,7 +104,7 @@ namespace R1Engine
                 defaultMap: 1));
         }
 
-        public MapTile[] GetMapTiles(GBAIsometric_Spyro_MapLayer mapLayer, uint tileOffset)
+        public MapTile[] GetMapTiles(GBAIsometric_Spyro_MapLayer mapLayer)
         {
             var width = mapLayer.Map.Width * mapLayer.TileAssemble.GroupWidth;
             var height = mapLayer.Map.Height * mapLayer.TileAssemble.GroupHeight;
@@ -129,7 +125,7 @@ namespace R1Engine
                         {
                             MapTile mt = tileBlock[y * mapLayer.TileAssemble.GroupWidth + x];
                             tiles[(actualY + y) * width + (actualX + x)] = new MapTile() {
-                                TileMapY = (ushort)(mt.TileMapY - tileOffset),
+                                TileMapY = (ushort)(mt.TileMapY + (mapLayer.TileSet.Region * 512)),
                                 VerticalFlip = mt.VerticalFlip,
                                 HorizontalFlip = mt.HorizontalFlip,
                                 PaletteIndex = mt.PaletteIndex
@@ -142,7 +138,7 @@ namespace R1Engine
             return tiles;
         }
 
-        public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, byte[] tileSet, MapTile[] tiles)
+        public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
         {
             var palettes = Enumerable.Range(0, 16).Select(x => tilePal.Skip(16 * x).Take(16).Select((c, i) =>
             {
@@ -151,7 +147,16 @@ namespace R1Engine
                 return c.GetColor();
             }).ToArray()).ToArray();
 
-            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), false, CellSize, false, getPalFunc: i => palettes[tiles.FirstOrDefault(x => x.TileMapY == i)?.PaletteIndex ?? 0]);
+            const int tileSize = 32;
+            const int regionSize = tileSize * 512;
+            
+            var tileSet = new byte[tileSets.Select(t => t.RegionOffset * tileSize + t.Region * regionSize + t.TileData.Length).Max()];
+
+            // Fill regions with tile data
+            foreach (var t in tileSets)
+                Buffer.BlockCopy(t.TileData, 0, tileSet, t.RegionOffset * tileSize + t.Region * regionSize, t.TileData.Length);
+
+            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), false, CellSize, false, getPalFunc: i => palettes[mapTiles.SelectMany(x => x.Value).FirstOrDefault(x => x.TileMapY == i)?.PaletteIndex ?? 0]);
 
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }

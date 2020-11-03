@@ -4,14 +4,18 @@
     {
         public long BlockSize { get; set; }
 
-        public uint Uint_00 { get; set; }
+        public int Region { get; set; } // Each region has 512 tiles
+        public int RegionOffset { get; set; }
         public byte[] TileData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Uint_00 = s.Serialize<uint>(Uint_00, name: nameof(Uint_00));
+            s.SerializeBitValues<uint>(bitFunc =>
+            {
+                RegionOffset = bitFunc(RegionOffset, 14, name: nameof(RegionOffset));
+                Region = bitFunc(Region, 2, name: nameof(Region));
+            });
             TileData = s.SerializeArray<byte>(TileData, BlockSize - 4, name: nameof(TileData));
-            //s.Log($"Offset: {Uint_00 & 0x3fff}, Length: {TileData.Length / 32}");
         }
     }
 }
