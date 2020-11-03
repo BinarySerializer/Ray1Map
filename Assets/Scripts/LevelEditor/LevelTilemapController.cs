@@ -62,6 +62,8 @@ namespace R1Engine
         public float CellSizeInUnits { get; set; } = 1f;
 
         private Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[] animatedTiles;
+        private int?[][,][] TileIndexOverrides { get; set; }
+        private HashSet<Vector2Int> changedTiles = new HashSet<Vector2Int>();
 
         public bool HasAutoPaletteOption => LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC || 
                                             LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PocketPC ||
@@ -186,6 +188,7 @@ namespace R1Engine
                 lvl.AutoApplyPalette();
 
             // Refresh tiles for every map
+            TileIndexOverrides = new int?[LevelEditorData.Level.Maps.Length][,][];
             if (GraphicsTilemaps.Length != LevelEditorData.Level.Maps.Length) {
                 Array.Resize(ref GraphicsTilemaps, LevelEditorData.Level.Maps.Length);
                 for (int i = 1; i < GraphicsTilemaps.Length; i++) {
@@ -213,6 +216,7 @@ namespace R1Engine
                 int cellSize = LevelEditorData.Level.CellSize;
                 Texture2D tex = TextureHelpers.CreateTexture2D(map.Width * cellSize, map.Height * cellSize);
 
+                TileIndexOverrides[mapIndex] = new int?[map.Width, map.Height][];
                 for (int y = 0; y < map.Height; y++) {
                     for (int x = 0; x < map.Width; x++) {
                         var t = map.MapTiles[y * map.Width + x];
@@ -223,18 +227,14 @@ namespace R1Engine
                         if (t.PaletteIndex - 1 >= map.TileSet.Length)
                             t.PaletteIndex = 1;
 
-                        Unity_TileTexture tile = map.GetTile(t, LevelEditorData.CurrentSettings);
-                        var atInstance = map.GetAnimatedTile(t, LevelEditorData.CurrentSettings);
-                        if (atInstance != null) {
-                            atInstance.x = x;
-                            atInstance.y = y;
-                            var at = atInstance.animatedTile;
-                            if (!animatedTiles[mapIndex].ContainsKey(at)) {
-                                animatedTiles[mapIndex][at] = new List<Unity_AnimatedTile.Instance>();
+                        TileIndexOverrides[mapIndex][x,y] = new int?[1 + (t.CombinedTiles?.Length ?? 0)];
+                        AddAnimatedTile(map, mapIndex, t, x, y);
+                        if (t.CombinedTiles != null) {
+                            for (int i = 0; i < t.CombinedTiles.Length; i++) {
+                                AddAnimatedTile(map, mapIndex, t.CombinedTiles[i], x,y,combinedTileIndex: i);
                             }
-                            animatedTiles[mapIndex][at].Add(atInstance);
                         }
-                        FillInTilePixels(tex, tile, t, map, x, y, cellSize);
+                        FillInTilePixels(tex, t, map, mapIndex, x, y, cellSize);
 
                         /*GraphicsTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
                         GraphicsTilemaps[mapIndex].SetTransformMatrix(new Vector3Int(x, y, 0), GraphicsTilemaps[mapIndex].GetTransformMatrix(new Vector3Int(x, y, 0)) * Matrix4x4.Scale(new Vector3(t.Data.HorizontalFlip ? -1 : 1, t.Data.VerticalFlip ? -1 : 1, 1)));*/
@@ -247,6 +247,21 @@ namespace R1Engine
             }
 
             CreateTilemapFull();
+        }
+
+        private void AddAnimatedTile(Unity_Map map, int mapIndex, Unity_Tile t, int x, int y, int? combinedTileIndex = null) {
+            Unity_TileTexture tile = map.GetTile(t, LevelEditorData.CurrentSettings);
+            var atInstance = map.GetAnimatedTile(t, LevelEditorData.CurrentSettings);
+            if (atInstance != null) {
+                atInstance.x = x;
+                atInstance.y = y;
+                atInstance.combinedTileIndex = combinedTileIndex;
+                var at = atInstance.animatedTile;
+                if (!animatedTiles[mapIndex].ContainsKey(at)) {
+                    animatedTiles[mapIndex][at] = new List<Unity_AnimatedTile.Instance>();
+                }
+                animatedTiles[mapIndex][at].Add(atInstance);
+            }
         }
 
         private void CreateTilemapFull() {
@@ -264,7 +279,7 @@ namespace R1Engine
             var map = lvl.Maps[LevelEditorData.CurrentMap];
 
             foreach (Unity_TileTexture t in map.TileSet[0].Tiles) {
-                FillInTilePixels(tex, t, null, map, xx, yy, cellSize);
+                FillInTilePixels_Single(tex, t, xx, yy, false, false, cellSize);
                 xx++;
                 if (xx == mapWidth) {
                     xx = 0;
@@ -343,8 +358,7 @@ namespace R1Engine
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     Unity_Tile newTile = newTiles[x, y];
-                    Unity_TileTexture tile = map.GetTile(newTile, LevelEditorData.CurrentSettings);
-                    FillInTilePixels(tex, tile, newTile, map, x, y, cellSize, applyTexture: false);
+                    FillInTilePixels(tex, newTile, map, -1, x, y, cellSize, applyTexture: false);
                 }
             }
             tex.filterMode = FilterMode.Point;
@@ -413,17 +427,18 @@ namespace R1Engine
             }
         }
 
-        private void FillInTilePixels(Texture2D tex, Unity_TileTexture tile, Unity_Tile t, Unity_Map map, int x, int y, int cellSize, bool applyTexture = false, bool combined = false) {
+        private void FillInTilePixels(Texture2D tex, Unity_Tile t, Unity_Map map, int mapIndex, int x, int y, int cellSize, bool applyTexture = false, bool combined = false) {
             bool flipY = (t?.Data.VerticalFlip ?? false);
             bool flipX = (t?.Data.HorizontalFlip ?? false);
+            var tile = map.GetTile(t, LevelEditorData.CurrentSettings, tileIndexOverride: mapIndex >= 0 ? TileIndexOverrides[mapIndex][x,y][0] : null);
             FillInTilePixels_Single(tex, tile, x, y, flipX, flipY, cellSize, applyTexture: false, overlay: false);
 
             // Write combined tiles
-            if (t?.Data.CombinedTiles?.Length > 0) {
-                for(int i = 0; i < t.Data.CombinedTiles.Length; i++) {
-                    var ct = t.Data.CombinedTiles[i];
-                    var tileTex = map.TileSet[0].Tiles[ct.TileMapY];
-                    FillInTilePixels_Single(tex, tileTex, x, y, ct.HorizontalFlip, ct.VerticalFlip, cellSize, applyTexture: false, overlay: true);
+            if (t?.CombinedTiles?.Length > 0) {
+                for(int i = 0; i < t.CombinedTiles.Length; i++) {
+                    var ct = t.CombinedTiles[i];
+                    var tileTex = map.GetTile(ct, LevelEditorData.CurrentSettings, tileIndexOverride: mapIndex >= 0 ? TileIndexOverrides[mapIndex][x, y][1 + i] : null);
+                    FillInTilePixels_Single(tex, tileTex, x, y, ct.Data.HorizontalFlip, ct.Data.VerticalFlip, cellSize, applyTexture: false, overlay: true);
                 }
             }
             if (applyTexture) tex.Apply();
@@ -471,10 +486,9 @@ namespace R1Engine
             }
             for (int i = 0; i < GraphicsTilemaps.Length; i++) {
                 Texture2D tex = GraphicsTilemaps[i].sprite.texture;
-                Unity_TileTexture tile = map.GetTile(newTile, LevelEditorData.CurrentSettings);
 
                 int cellSize = LevelEditorData.Level.CellSize;
-                FillInTilePixels(tex, tile, newTile, map, x, y, cellSize, applyTexture: applyTexture);
+                FillInTilePixels(tex, newTile, map, i, x, y, cellSize, applyTexture: applyTexture);
             }
 
             // Get the tile to set
@@ -529,6 +543,7 @@ namespace R1Engine
 
             for (int mapIndex = 0; mapIndex < animatedTiles.Length; mapIndex++) {
                 bool changedTile = false;
+                changedTiles.Clear();
                 var map = LevelEditorData.Level.Maps[mapIndex];
                 Texture2D tex = GraphicsTilemaps[mapIndex].sprite.texture;
                 foreach (var animatedTile in animatedTiles[mapIndex].Keys) {
@@ -549,14 +564,17 @@ namespace R1Engine
                         if (oldIndexInTileset != newIndexInTileset) 
                         {
                             changedTile = true;
-                            var newTile = map.MapTiles[at.y * map.Width + at.x];
-                            Unity_TileTexture tile = map.GetTile(newTile, LevelEditorData.CurrentSettings, tileIndexOverride: newIndexInTileset);
-
-                            int cellSize = LevelEditorData.Level.CellSize;
-                            FillInTilePixels(tex, tile, newTile, map, at.x, at.y, cellSize, applyTexture: false);
+                            Vector2Int v = new Vector2Int(at.x,at.y);
+                            if(!changedTiles.Contains(v)) changedTiles.Add(v);
+                            TileIndexOverrides[mapIndex][at.x, at.y][at.combinedTileIndex.HasValue ? at.combinedTileIndex.Value + 1 : 0] = newIndexInTileset;
                         }
                         at.currentTimer -= frames * animSpeed;
                     }
+                }
+                int cellSize = LevelEditorData.Level.CellSize;
+                foreach (var ct in changedTiles) {
+                    var newTile = map.MapTiles[ct.y * map.Width + ct.x];
+                    FillInTilePixels(tex, newTile, map, mapIndex, ct.x, ct.y, cellSize, applyTexture: false);
                 }
                 if (changedTile)
                     tex.Apply();

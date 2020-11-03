@@ -15,6 +15,7 @@ namespace R1Engine
             public int y;
             public int tileIndex;
             public float currentTimer;
+            public int? combinedTileIndex;
 
             public Instance(Unity_AnimatedTile animatedTile, int tileIndex) {
                 this.animatedTile = animatedTile;

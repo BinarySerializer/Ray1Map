@@ -8,6 +8,7 @@
         /// The palette index, between 1 and 3
         /// </summary>
         public int PaletteIndex { get; set; } = 1;
+        public Unity_Tile[] CombinedTiles { get; set; }
 
         public Unity_Tile CloneObj() => new Unity_Tile(Data.CloneObj())
         {

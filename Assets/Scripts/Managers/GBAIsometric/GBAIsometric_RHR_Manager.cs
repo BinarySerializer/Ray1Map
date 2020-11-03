@@ -191,7 +191,8 @@ namespace R1Engine
                     },
                     MapTiles = GetMapTiles(x, tileSets[tileSetData].GBAIsometric_BaseLength).Select(t => new Unity_Tile(t)
                     {
-                        DebugText = $"Combined tiles: {t.CombinedTiles?.Length}"
+                        DebugText = $"Combined tiles: {t.CombinedTiles?.Length}",
+                        CombinedTiles = t.CombinedTiles?.Select(ct => new Unity_Tile(ct)).ToArray()
                     }).ToArray()
                 };
             }).ToArray();
