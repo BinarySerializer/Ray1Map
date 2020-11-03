@@ -153,10 +153,17 @@ namespace R1Engine
             var tileSet = new byte[tileSets.Select(t => t.RegionOffset * tileSize + t.Region * regionSize + t.TileData.Length).Max()];
 
             // Fill regions with tile data
-            foreach (var t in tileSets)
-                Buffer.BlockCopy(t.TileData, 0, tileSet, t.RegionOffset * tileSize + t.Region * regionSize, t.TileData.Length);
+            foreach (var t in tileSets) {
+                Array.Copy(t.TileData, 0, tileSet, t.RegionOffset * tileSize + t.Region * regionSize, t.TileData.Length);
+            }
+            int[] paletteIndices = new int[tileSet.Length];
+            foreach (var mta in mapTiles) {
+                foreach (var mt in mta.Value) {
+                    paletteIndices[mt.TileMapY] = mt.PaletteIndex;
+                }
+            }
 
-            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), false, CellSize, false, getPalFunc: i => palettes[mapTiles.SelectMany(x => x.Value).FirstOrDefault(x => x.TileMapY == i)?.PaletteIndex ?? 0]);
+            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), false, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
 
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }

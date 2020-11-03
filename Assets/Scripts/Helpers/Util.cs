@@ -491,8 +491,13 @@ namespace R1Engine
         public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, bool is8bpp, int tileWidth, bool flipY, int tileX, int tileY)
         {
             // Fill in tile pixels
-            for (int y = 0; y < tileWidth; y++)
-            {
+            for (int y = 0; y < tileWidth; y++) {
+
+                var yy = tileY + y;
+
+                if (flipY)
+                    yy = tex.height - yy - 1;
+
                 for (int x = 0; x < tileWidth; x++)
                 {
                     Color c;
@@ -504,11 +509,6 @@ namespace R1Engine
                         var b = imgData[index];
                         c = pal[b];
 
-                        var yy = tileY + y;
-
-                        if (flipY)
-                            yy = tex.height - yy - 1;
-
                         tex.SetPixel(tileX + x, yy, c);
                     }
                     else
@@ -516,11 +516,6 @@ namespace R1Engine
                         var b = imgData[index];
                         var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
                         c = pal[v];
-
-                        var yy = tileY + y;
-
-                        if (flipY)
-                            yy = tex.height - yy - 1;
 
                         tex.SetPixel(tileX + x, yy, c);
                     }
