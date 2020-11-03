@@ -935,8 +935,7 @@ namespace R1Engine
                     {
                         tileset
                     },
-                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                    TileSetWidth = 1
+                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray()
                 }
             };
 

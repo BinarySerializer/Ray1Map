@@ -411,5 +411,35 @@
                     return Unity_MapCollisionTypeGraphic.Unknown0;
             }
         }
+
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBAIsometric_Spyro_TileCollisionType2D collisionType)
+        {
+            switch (collisionType)
+            {
+                case GBAIsometric_Spyro_TileCollisionType2D.Empty:
+                    return Unity_MapCollisionTypeGraphic.None;
+
+                case GBAIsometric_Spyro_TileCollisionType2D.Solid:
+                    return Unity_MapCollisionTypeGraphic.Solid;
+
+                case GBAIsometric_Spyro_TileCollisionType2D.Hidden: // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Exit;
+
+                case GBAIsometric_Spyro_TileCollisionType2D.Hook:
+                    return Unity_MapCollisionTypeGraphic.Climb_Full;
+
+                case GBAIsometric_Spyro_TileCollisionType2D.Damage:
+                    return Unity_MapCollisionTypeGraphic.Damage;
+
+                case GBAIsometric_Spyro_TileCollisionType2D.SolidAngle1: // TODO: New graphic
+                case GBAIsometric_Spyro_TileCollisionType2D.SolidAngle2: // TODO: New graphic
+                case GBAIsometric_Spyro_TileCollisionType2D.SolidAngle3: // TODO: New graphic
+                case GBAIsometric_Spyro_TileCollisionType2D.SolidAngle4: // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Unknown0;
+
+                default:
+                    return Unity_MapCollisionTypeGraphic.Unknown0;
+            }
+        }
     }
 }

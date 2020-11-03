@@ -25,7 +25,7 @@ namespace R1Engine
         /// <summary>
         /// The width of the tileset in tiles
         /// </summary>
-        public int TileSetWidth { get; set; }
+        public int TileSetWidth { get; set; } = 1;
 
         /// <summary>
         /// The tile-sets, one for each palette

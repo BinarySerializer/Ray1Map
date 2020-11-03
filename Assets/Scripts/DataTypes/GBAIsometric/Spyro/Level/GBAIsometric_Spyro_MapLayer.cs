@@ -29,7 +29,7 @@
             Int_14 = s.Serialize<int>(Int_14, name: nameof(Int_14));
 
             // Parse data
-            Map = MapIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_MapData>(Map, x => { x.BlockSize = size; }, name: nameof(Map)));
+            Map = MapIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_MapData>(Map, name: nameof(Map)));
             TileAssemble = TileAssembleIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_TileAssemble>(TileAssemble, x => x.BlockSize = size, name: nameof(TileAssemble)));
             TileSet = TilesetIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_TileSet>(TileSet, x => x.BlockSize = size, name: nameof(TileSet)));
         }

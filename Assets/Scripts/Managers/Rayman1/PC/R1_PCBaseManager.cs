@@ -1380,7 +1380,6 @@ namespace R1Engine
                     // Create the tile arrays
                     TileSet = new Unity_MapTileMap[palettes.Length],
                     MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                    TileSetWidth = 1,
 
                     TileSetTransparencyModes = tileTextureData?.TexturesOffsetTable.Select(x => tileTextureData.NonTransparentTextures.Concat(tileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
                     {

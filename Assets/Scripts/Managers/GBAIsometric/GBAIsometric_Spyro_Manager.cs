@@ -41,19 +41,30 @@ namespace R1Engine
 
                 for (int i = 0; i < rom.DataTable.DataEntries.Length; i++)
                 {
-                    var data = rom.DataTable.DoAtBlock(context, i, size => s.SerializeArray<byte>(default, size, name: $"Block[{i}]"));
+                    var length = rom.DataTable.DataEntries[i].DataLength;
 
-                    if (categorize && data.Length % 32 == 0)
+                    if (categorize && length == 512)
                     {
-                        for (int j = 0; j < 16; j++)
-                        {
-                            var tex = Util.ToTileSetTexture(data, palettes[j], false, CellSize, true, wrap: 32);
-                            Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSet", $"{i:000}_Pal{j}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
-                        }
+                        var pal = rom.DataTable.DoAtBlock(context, i, size => s.SerializeObjectArray<ARGB1555Color>(default, 256, name: $"Pal[{i}]"));
+
+                        PaletteHelpers.ExportPalette(Path.Combine(outputPath, "Palettes", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), pal, optionalWrap: 16);
                     }
                     else
                     {
-                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.dat"), data);
+                        var data = rom.DataTable.DoAtBlock(context, i, size => s.SerializeArray<byte>(default, size, name: $"Block[{i}]"));
+
+                        if (categorize && length % 32 == 0)
+                        {
+                            for (int j = 0; j < 16; j++)
+                            {
+                                var tex = Util.ToTileSetTexture(data, palettes[j], false, CellSize, true, wrap: 32);
+                                Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_Pal{j}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
+                            }
+                        }
+                        else
+                        {
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.dat"), data);
+                        }
                     }
                 }
             }
@@ -64,15 +75,15 @@ namespace R1Engine
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
             var is2D = LevelInfos[context.Settings.World].Is2D;
-            var levelInfo = rom.LevelData[context.Settings.World].First(x => x.ID == context.Settings.Level);
+            var levelData = rom.LevelData[context.Settings.World].First(x => x.ID == context.Settings.Level);
 
             // Convert map arrays to map tiles
-            Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles = levelInfo.MapLayers.Where(x => x != null).ToDictionary(x => x, GetMapTiles);
+            Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles = levelData.MapLayers.Where(x => x != null).ToDictionary(x => x, GetMapTiles);
 
             // Load tileset
-            var tileSet = LoadTileSet(levelInfo.TilePalette, levelInfo.MapLayers.Select(x => x.TileSet).ToArray(), mapTiles);
+            var tileSet = LoadTileSet(levelData.TilePalette, levelData.MapLayers.Select(x => x.TileSet).ToArray(), mapTiles);
 
-            var maps = levelInfo.MapLayers.Select(x => x).Select((map, i) =>
+            var maps = levelData.MapLayers.Select(x => x).Select((map, i) =>
             {
                 if (map == null)
                     return null;
@@ -84,7 +95,6 @@ namespace R1Engine
                 {
                     Width = (ushort)width,
                     Height = (ushort)height,
-                    TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         tileSet
@@ -96,12 +106,31 @@ namespace R1Engine
             if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && is2D)
                 maps = maps.Reverse();
 
+            // Create a collision map for 2D levels
+            if (levelData.Collision2D != null)
+            {
+                maps = maps.Append(new Unity_Map()
+                {
+                    Width = (ushort)(levelData.Collision2D.Width / CellSize),
+                    Height = (ushort)(levelData.Collision2D.Height / CellSize),
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        tileSet
+                    },
+                    MapTiles = GetCollision2DMapTiles(levelData.Collision2D).Select(x => new Unity_Tile(x)).ToArray()
+                });
+            }
+
+            var validMaps = maps.Where(x => x != null).ToArray();
+
             return UniTask.FromResult(new Unity_Level(
-                maps: maps.Where(x => x != null).ToArray(),
+                maps: validMaps,
                 objManager: new Unity_ObjectManager(context),
                 eventData: new List<Unity_Object>(),
                 cellSize: CellSize,
-                defaultMap: 1));
+                getCollisionTypeGraphicFunc: x => ((GBAIsometric_Spyro_TileCollisionType2D)x).GetCollisionTypeGraphic(),
+                defaultMap: 1,
+                defaultCollisionMap: validMaps.Length - 1));
         }
 
         public MapTile[] GetMapTiles(GBAIsometric_Spyro_MapLayer mapLayer)
@@ -129,6 +158,39 @@ namespace R1Engine
                                 VerticalFlip = mt.VerticalFlip,
                                 HorizontalFlip = mt.HorizontalFlip,
                                 PaletteIndex = mt.PaletteIndex
+                            };
+                        }
+                    }
+                }
+            }
+
+            return tiles;
+        }
+        public MapTile[] GetCollision2DMapTiles(GBAIsometric_Spyro_Collision2DMapData collisionData)
+        {
+            var blockWidth = collisionData.Width / collisionData.TileWidth;
+            var blockHeight = collisionData.Height / collisionData.TileHeight;
+            var groupWidth = collisionData.TileWidth / CellSize;
+            var groupHeight = collisionData.TileHeight / CellSize;
+            var width = collisionData.Width / CellSize;
+            var height = collisionData.Height / CellSize;
+            var tiles = new MapTile[width * height];
+
+            for (int blockY = 0; blockY < blockHeight; blockY++)
+            {
+                for (int blockX = 0; blockX < blockWidth; blockX++)
+                {
+                    var c = collisionData.Collision[blockY * blockWidth + blockX];
+                    var actualX = blockX * groupWidth;
+                    var actualY = blockY * groupHeight;
+
+                    for (int y = 0; y < groupHeight; y++)
+                    {
+                        for (int x = 0; x < groupWidth; x++)
+                        {
+                            tiles[(actualY + y) * width + (actualX + x)] = new MapTile() 
+                            {
+                                CollisionType = c
                             };
                         }
                     }

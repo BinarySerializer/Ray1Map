@@ -599,7 +599,6 @@ namespace R1Engine
                 {
                     Width = 256,
                     Height = 256,
-                    TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         LoadTileSet(rom.Mode7_MapTiles, false, rom.Mode7_TilemapPalette), 
@@ -614,7 +613,6 @@ namespace R1Engine
                 {
                     Width = 32,
                     Height = 12, // Height is actually 32, but the remaining tiles are always transparent, but with a solid color
-                    TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         LoadTileSet(rom.Mode7_BG0Tiles, false, rom.Mode7_TilemapPalette), 
@@ -625,7 +623,6 @@ namespace R1Engine
                 {
                     Width = 32,
                     Height = 32,
-                    TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         LoadTileSet(rom.Mode7_BG1Tiles, false, rom.Mode7_TilemapPalette), 
@@ -669,7 +666,6 @@ namespace R1Engine
                     {
                         Width = size.Width,
                         Height = size.Height,
-                        TileSetWidth = 1,
                         TileSet = new Unity_MapTileMap[]
                         {
                             LoadTileSet(rom.Menu_Tiles[i], palIndex != null, rom.Menu_Palette[i], palIndex ?? 0),
@@ -704,7 +700,6 @@ namespace R1Engine
                 {
                     Width = 256,
                     Height = 256,
-                    TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         LoadTileSet(rom.LevelTileset.Data, false, rom.LevelTileset.Palette),
@@ -721,7 +716,6 @@ namespace R1Engine
                 {
                     Width = 32,
                     Height = 8,
-                    TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         LoadTileSet(rom.BG0TileSet.Data, false, rom.BG0TileSet.Palette),
@@ -735,7 +729,6 @@ namespace R1Engine
                 {
                     Width = 32,
                     Height = 7,
-                    TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         LoadTileSet(rom.BG1TileSet.Data, false, rom.BG1TileSet.Palette),
@@ -781,7 +774,6 @@ namespace R1Engine
             {
                 Width = 32,
                 Height = 32,
-                TileSetWidth = 1,
                 TileSet = new Unity_MapTileMap[] { bg0Tileset },
                 MapTiles = rom.BG0Map.MapTiles.Select(x =>
                 {
@@ -794,7 +786,6 @@ namespace R1Engine
             {
                 Width = 32,
                 Height = 32,
-                TileSetWidth = 1,
                 TileSet = new Unity_MapTileMap[] { bg1Tileset },
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
@@ -1004,7 +995,6 @@ namespace R1Engine
             {
                 Width = (ushort)(width * 4), // The game uses 32x32 tiles, made out of 8x8 tiles
                 Height = (ushort)(height * 4),
-                TileSetWidth = 1,
                 TileSet = new Unity_MapTileMap[]
                 {
                     tileset

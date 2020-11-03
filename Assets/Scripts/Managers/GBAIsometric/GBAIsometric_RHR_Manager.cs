@@ -206,7 +206,6 @@ namespace R1Engine
                 {
                     Width = width,
                     Height = height,
-                    TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         tileSets[tileSetData]

@@ -43,7 +43,6 @@ namespace R1Engine
                     // Create the tile arrays
                     TileSet = new Unity_MapTileMap[1],
                     MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                    TileSetWidth = 1
                 }
             };
 

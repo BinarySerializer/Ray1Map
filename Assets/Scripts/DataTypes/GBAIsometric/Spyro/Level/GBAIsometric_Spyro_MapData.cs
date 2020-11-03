@@ -4,8 +4,6 @@ namespace R1Engine
 {
     public class GBAIsometric_Spyro_MapData : R1Serializable
     {
-        public long BlockSize { get; set; }
-
         public ushort Width { get; set; }
         public ushort Height { get; set; }
 

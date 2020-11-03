@@ -755,7 +755,6 @@ namespace R1Engine
                     {
                         Width = map.Width,
                         Height = map.Height,
-                        TileSetWidth = 1,
                         MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
                         {
                             CollisionType = (byte)x
@@ -842,7 +841,6 @@ namespace R1Engine
                     {
                         Width = map.Width,
                         Height = map.Height,
-                        TileSetWidth = 1,
                         MapTiles = mapData.Select(x => new Unity_Tile(x)).ToArray(),
                         IsForeground = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7)
                     };
