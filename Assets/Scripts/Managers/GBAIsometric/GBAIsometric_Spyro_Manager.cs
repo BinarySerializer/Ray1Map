@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -20,20 +21,40 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
-            new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocks(settings, output))
+            new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocks(settings, output, false)),
+            new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocks(settings, output, true)),
         };
 
-        public async UniTask ExportDataBlocks(GameSettings settings, string outputPath) {
+        public async UniTask ExportDataBlocks(GameSettings settings, string outputPath, bool categorize) {
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
                 await LoadFilesAsync(context);
 
                 var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
+                var palettes = categorize ? Enumerable.Range(0, 16).Select(x => rom.LevelData[context.Settings.World].First(lev => lev.ID == context.Settings.Level).ObjPalette.Skip(16 * x).Take(16).Select((c, i) =>
+                {
+                    if (i != 0)
+                        c.Alpha = 255;
+                    return c.GetColor();
+                }).ToArray()).ToArray() : null;
+
                 for (int i = 0; i < rom.DataTable.DataEntries.Length; i++)
                 {
                     var data = rom.DataTable.DoAtBlock(context, i, size => s.SerializeArray<byte>(default, size, name: $"Block[{i}]"));
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.dat"), data);
+
+                    if (categorize && data.Length % 32 == 0)
+                    {
+                        for (int j = 0; j < 16; j++)
+                        {
+                            var tex = Util.ToTileSetTexture(data, palettes[j], false, CellSize, true, wrap: 32);
+                            Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSet", $"{i:000}_Pal{j}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
+                        }
+                    }
+                    else
+                    {
+                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.dat"), data);
+                    }
                 }
             }
         }
