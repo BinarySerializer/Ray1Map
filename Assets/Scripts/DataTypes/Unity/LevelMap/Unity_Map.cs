@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -54,6 +52,7 @@ namespace R1Engine
 
         public float? Alpha { get; set; }
         public bool IsAdditive { get; set; }
+        public bool IsCollisionMap { get; set; }
 
         #endregion
 

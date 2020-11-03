@@ -301,7 +301,11 @@ public class WebCommunicator : MonoBehaviour {
 			}
 
 			if (Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
-				for (int i = 0; i < lvl.Maps.Length; i++) {
+				for (int i = 0; i < lvl.Maps.Length; i++) 
+                {
+                    if (LevelEditorData.Level.Maps[i].IsCollisionMap)
+                        continue;
+
 					var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
 					layers.Add(new WebJSON.Layer() {
 						Index = i,

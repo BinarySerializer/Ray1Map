@@ -759,6 +759,7 @@ namespace R1Engine
                         {
                             CollisionType = (byte)x
                         })).ToArray(),
+                        IsCollisionMap = true
                     };
                 }
                 else

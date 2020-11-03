@@ -271,7 +271,11 @@ public class SettingsWindow : UnityWindow
                 }
 
                 if (Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
-                    for (int i = 0; i < lvl.Maps.Length; i++) {
+                    for (int i = 0; i < lvl.Maps.Length; i++) 
+                    {
+                        if (LevelEditorData.Level.Maps[i].IsCollisionMap)
+                            continue; ;
+
                         var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
 
                         var isActive = EditorField($"Show layer {i}", tilemaps[i].gameObject.activeSelf);

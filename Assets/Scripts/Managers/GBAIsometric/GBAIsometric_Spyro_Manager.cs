@@ -117,7 +117,8 @@ namespace R1Engine
                     {
                         tileSet
                     },
-                    MapTiles = GetCollision2DMapTiles(levelData.Collision2D).Select(x => new Unity_Tile(x)).ToArray()
+                    MapTiles = GetCollision2DMapTiles(levelData.Collision2D).Select(x => new Unity_Tile(x)).ToArray(),
+                    IsCollisionMap = true
                 });
             }
 
