@@ -152,6 +152,27 @@ namespace R1Engine
             }
         }
 
+        public void CreateCollisionModel(Context context, GBAIsometric_RHR_LevelData levelData) {
+            GameObject parent = new GameObject("Collision parent");
+            for (int y = 0; y < levelData.CollisionHeight; y++) {
+                for (int x = 0; x < levelData.CollisionWidth; x++) {
+                    int ind = y * levelData.CollisionWidth + x;
+                    int startPos = -1;
+                    int endPos = levelData.CollisionData[ind].Data[0];
+                    int type = levelData.CollisionData[ind].Data[1];
+                    float height = endPos - startPos / 2f;
+                    GameObject gao = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    gao.name = $"{levelData.CollisionData[ind].Data[0]:X2} {levelData.CollisionData[ind].Data[1]:X2} {levelData.CollisionData[ind].Data[2]:X2} {levelData.CollisionData[ind].Data[3]:X2}";
+                    gao.transform.SetParent(parent.transform);
+                    gao.transform.localScale = new Vector3(1f,height,1f);
+                    gao.transform.localPosition = new Vector3(x,startPos + height/2f,-y);
+                    UnityEngine.Random.InitState(type);
+                    Color color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.4f, 1.0f);
+                    gao.GetComponent<Renderer>().material.color = color;
+                }
+            }
+        }
+
         public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Read the rom
@@ -170,6 +191,7 @@ namespace R1Engine
                 availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
 
             var tileSets = new Dictionary<GBAIsometric_RHR_TileSet, Unity_MapTileMap>();
+            CreateCollisionModel(context, levelData);
 
             var maps = availableMaps.Select(x =>
             {
