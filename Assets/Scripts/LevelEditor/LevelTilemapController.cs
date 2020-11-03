@@ -413,30 +413,37 @@ namespace R1Engine
             }
         }
 
-        private void FillInTilePixels(Texture2D tex, Unity_TileTexture tile, Unity_Tile t, Unity_Map map, int x, int y, int cellSize, bool applyTexture = false) {
-            int texX = x * cellSize;
-            int texY = y * cellSize;
+        private void FillInTilePixels(Texture2D tex, Unity_TileTexture tile, Unity_Tile t, Unity_Map map, int x, int y, int cellSize, bool applyTexture = false, bool combined = false) {
             bool flipY = (t?.Data.VerticalFlip ?? false);
             bool flipX = (t?.Data.HorizontalFlip ?? false);
-            if (tile?.texture == null) {
-                tex.SetPixels(texX, texY, cellSize, cellSize, new Color[cellSize * cellSize]);
-            } else {
-                tex.SetPixels(texX, texY, cellSize, cellSize, tile.GetPixels(flipX, flipY));
-            }
+            FillInTilePixels_Single(tex, tile, x, y, flipX, flipY, cellSize, applyTexture: false, overlay: false);
 
             // Write combined tiles
-            if (t?.Data.CombinedTiles?.Any() == true)
-            {
-                foreach (var ct in t.Data.CombinedTiles)
-                {
+            if (t?.Data.CombinedTiles?.Length > 0) {
+                for(int i = 0; i < t.Data.CombinedTiles.Length; i++) {
+                    var ct = t.Data.CombinedTiles[i];
                     var tileTex = map.TileSet[0].Tiles[ct.TileMapY];
-                    var p = tileTex.GetPixels(ct.HorizontalFlip, ct.VerticalFlip);
+                    FillInTilePixels_Single(tex, tileTex, x, y, ct.HorizontalFlip, ct.VerticalFlip, cellSize, applyTexture: false, overlay: true);
+                }
+            }
+            if (applyTexture) tex.Apply();
+        }
 
-                    for (int yy = 0; yy < tileTex.rect.height; yy++)
-                    {
-                        for (int xx = 0; xx < tileTex.rect.width; xx++)
-                        {
-                            var c = p[(int)(yy * tileTex.rect.width + xx)];
+        private void FillInTilePixels_Single(Texture2D tex, Unity_TileTexture tile, int x, int y, bool flipX, bool flipY, int cellSize, bool applyTexture = false, bool overlay = false) {
+            int texX = x * cellSize;
+            int texY = y * cellSize;
+            if (!overlay) {
+                if (tile?.texture == null) {
+                    tex.SetPixels(texX, texY, cellSize, cellSize, new Color[cellSize * cellSize]);
+                } else {
+                    tex.SetPixels(texX, texY, cellSize, cellSize, tile.GetPixels(flipX, flipY));
+                }
+            } else {
+                if (tile?.texture != null) {
+                    Color[] px = tile.GetPixels(flipX, flipY);
+                    for (int yy = 0; yy < cellSize; yy++) {
+                        for (int xx = 0; xx < cellSize; xx++) {
+                            var c = px[(int)(yy * cellSize + xx)];
 
                             if (c != Color.clear)
                                 tex.SetPixel(texX + xx, texY + yy, c);

@@ -425,7 +425,7 @@ namespace R1Engine
                     // Add animation data
                     unityAnimTiles.Add(new Unity_AnimatedTile()
                     {
-                        AnimationSpeed = 0.5f, // TODO: Correct,
+                        AnimationSpeed = 0.75f, // TODO: Correct,
                         TileIndices = new int[]
                         {
                             tileIndex // First index must always be the original tile
