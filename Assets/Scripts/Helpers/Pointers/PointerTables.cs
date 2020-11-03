@@ -567,7 +567,7 @@ namespace R1Engine
                     return new Dictionary<GBAIsometric_RHR_Pointer, uint>() {
                         [GBAIsometric_RHR_Pointer.MusyxFile] = 0x080447AC,
                         [GBAIsometric_RHR_Pointer.Levels] = 0x080E938C,
-                        [GBAIsometric_RHR_Pointer.Localization] = 0x087F5E04,
+                        [GBAIsometric_RHR_Pointer.Localization] = 0x087F5AFC,
                         [GBAIsometric_RHR_Pointer.ObjTypes] = 0x080F9814,
 
                         // TODO: Add menu pointers
