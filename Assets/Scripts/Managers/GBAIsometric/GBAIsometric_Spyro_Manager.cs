@@ -81,7 +81,7 @@ namespace R1Engine
             Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles = levelData.MapLayers.Where(x => x != null).ToDictionary(x => x, GetMapTiles);
 
             // Load tileset
-            var tileSet = LoadTileSet(levelData.TilePalette, levelData.MapLayers.Select(x => x.TileSet).ToArray(), mapTiles);
+            var tileSet = LoadTileSet(levelData.TilePalette, levelData.MapLayers.Where(x => x != null).Select(x => x.TileSet).ToArray(), mapTiles);
 
             var maps = levelData.MapLayers.Select(x => x).Select((map, i) =>
             {
