@@ -35,7 +35,7 @@ namespace R1Engine
                     Layer3 = (byte)serializeFunc(Layer3, 4, name: nameof(Layer3));
                     Shape = (ShapeType_RHR)serializeFunc((int)Shape, 4, name: nameof(Shape));
                 });
-            } else if(s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3) {
+            } else if(s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 || s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
                 Height = s.Serialize<byte>(Height, name: nameof(Height));
                 Depth = s.Serialize<byte>(Depth, name: nameof(Depth));
                 s.SerializeBitValues<byte>(serializeFunc => {
@@ -94,18 +94,18 @@ namespace R1Engine
             Solid = 0,
             Water = 1,
             Unk2 = 2,
-            Unk3 = 3,
+            FreezableWater = 3,
             Unk4 = 4,
             Unk5 = 5,
             Unk6 = 6,
             Unk7 = 7,
             Unk8 = 8,
-            Unk9 = 9, // Found before exit triggers in LotLD & in Menhirs of Power. If the other character is standing on this, game won't say "I shouldn't leave my good friend Globox behind!"
+            Unk9 = 9,
             Wall = 10,
             Unk11 = 11,
             Unk12 = 12,
             Unk13 = 13,
-            Unk14 = 14, // Found in the pits next to the exit sign in Scalding Cascade, in Fairy Council & Clearleaf Forest
+            Unk14 = 14,
             Unk15 = 15
         }
 
