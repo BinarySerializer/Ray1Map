@@ -163,7 +163,7 @@ namespace R1Engine
                     int endPos = levelData.CollisionData[ind].Height;
                     float height = endPos - startPos;
                     GameObject gao = new GameObject();
-                    gao.name = $"Unk:{levelData.CollisionData[ind].Unk:X3} Shape:{levelData.CollisionData[ind].Shape} Type:{levelData.CollisionData[ind].Type} Add:{levelData.CollisionData[ind].AddType}";
+                    gao.name = $"LayerInfo:{levelData.CollisionData[ind].Layer1:X1}{levelData.CollisionData[ind].Layer2:X1}{levelData.CollisionData[ind].Layer3:X1} Shape:{levelData.CollisionData[ind].Shape} Type:{levelData.CollisionData[ind].Type} Add:{levelData.CollisionData[ind].AddType}";
                     gao.transform.SetParent(parent.transform);
                     gao.transform.localScale = new Vector3(1f,0.5f,1f);
                     gao.transform.localPosition = new Vector3(x,startPos,-y);
