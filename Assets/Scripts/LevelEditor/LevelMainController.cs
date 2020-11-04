@@ -196,6 +196,11 @@ namespace R1Engine
 
             if (Settings.ScreenshotEnumeration)
             {
+                foreach (var o in Objects)
+                    Destroy(o);
+                Objects.Clear();
+                Destroy(this);
+                LevelEditorData.Level = null;
                 SceneManager.LoadScene("Dummy");
             }
         }
