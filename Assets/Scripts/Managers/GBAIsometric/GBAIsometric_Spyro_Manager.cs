@@ -110,13 +110,13 @@ namespace R1Engine
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
                     switch (block.Shape_Spyro) {
                         case GBAIsometric_TileCollision.ShapeType_Spyro.SlopeUpRight:
-                            mf.mesh = GeometryHelpers.CreateBox(1, height + 1, height + 1, height, height);
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height + 1, height + 1, height, height);
                             break;
                         case GBAIsometric_TileCollision.ShapeType_Spyro.SlopeUpLeft:
-                            mf.mesh = GeometryHelpers.CreateBox(1, height + 1, height, height, height + 1);
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height + 1, height, height, height + 1);
                             break;
                         default:
-                            mf.mesh = GeometryHelpers.CreateBox(1, height, height, height, height);
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height, height, height, height);
                             break;
                     }
                     MeshRenderer mr = gao.AddComponent<MeshRenderer>();
