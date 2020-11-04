@@ -70,6 +70,50 @@ namespace R1Engine
             }
         }
 
+        public void CreateCollisionModel(Context context, GBAIsometric_Spyro_Collision3DMapData levelData) {
+            GameObject parent = new GameObject("Collision parent");
+            Shader sh = Shader.Find("Standard");
+            Material mat = new Material(sh);
+            for (int y = 0; y < levelData.Height; y++) {
+                for (int x = 0; x < levelData.Width; x++) {
+                    int ind = y * levelData.Width + x;
+                    var block = levelData.Collision[ind];
+                    int startPos = 0;
+                    int endPos = block.Height;
+                    float height = endPos - startPos;
+                    GameObject gao = new GameObject();
+                    gao.name = $"Type:{block.Type_Spyro} Shape:{block.Shape_Spyro} Unk:{block.Unk_Spyro}";
+                    //gao.name = $"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1}  Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}";
+                    gao.transform.SetParent(parent.transform);
+                    gao.transform.localScale = new Vector3(1f, 0.5f, 1f);
+                    gao.transform.localPosition = new Vector3(x, startPos, -y);
+                    MeshFilter mf = gao.AddComponent<MeshFilter>();
+                    switch (block.Shape_Spyro) {
+                        case GBAIsometric_TileCollision.ShapeType_Spyro.SlopeUpRight:
+                            mf.mesh = GeometryHelpers.CreateBox(1, height + 1, height + 1, height, height);
+                            break;
+                        case GBAIsometric_TileCollision.ShapeType_Spyro.SlopeUpLeft:
+                            mf.mesh = GeometryHelpers.CreateBox(1, height + 1, height, height, height + 1);
+                            break;
+                        default:
+                            mf.mesh = GeometryHelpers.CreateBox(1, height, height, height, height);
+                            break;
+                    }
+                    MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                    mr.material = mat;
+                    UnityEngine.Random.InitState((int)block.Type_Spyro);
+                    Color color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
+                    if ((x + y) % 2 == 1) {
+                        float h, s, v;
+                        Color.RGBToHSV(color, out h, out s, out v);
+                        v -= 0.1f;
+                        color = Color.HSVToRGB(h, s, v);
+                    }
+                    mr.material.color = color;
+                }
+            }
+        }
+
         public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
@@ -82,7 +126,7 @@ namespace R1Engine
 
             // Load tileset
             var tileSet = LoadTileSet(levelData.TilePalette, levelData.MapLayers.Where(x => x != null).Select(x => x.TileSet).ToArray(), mapTiles);
-
+            CreateCollisionModel(context, levelData.Collision3D);
             var maps = levelData.MapLayers.Select(x => x).Select((map, i) =>
             {
                 if (map == null)

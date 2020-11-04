@@ -159,20 +159,21 @@ namespace R1Engine
             for (int y = 0; y < levelData.CollisionHeight; y++) {
                 for (int x = 0; x < levelData.CollisionWidth; x++) {
                     int ind = y * levelData.CollisionWidth + x;
+                    var block = levelData.CollisionData[ind];
                     int startPos = 0;
-                    int endPos = levelData.CollisionData[ind].Height;
+                    int endPos = block.Height;
                     float height = endPos - startPos;
                     GameObject gao = new GameObject();
-                    gao.name = $"LayerInfo:{levelData.CollisionData[ind].Layer1:X1}{levelData.CollisionData[ind].Layer2:X1}{levelData.CollisionData[ind].Layer3:X1} Shape:{levelData.CollisionData[ind].Shape} Type:{levelData.CollisionData[ind].Type} Add:{levelData.CollisionData[ind].AddType}";
+                    gao.name = $"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}";
                     gao.transform.SetParent(parent.transform);
                     gao.transform.localScale = new Vector3(1f,0.5f,1f);
                     gao.transform.localPosition = new Vector3(x,startPos,-y);
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
-                    switch (levelData.CollisionData[ind].Shape) {
-                        case GBAIsometric_TileCollision.ShapeType.SlopeUpRight:
+                    switch (block.Shape) {
+                        case GBAIsometric_TileCollision.ShapeType_RHR.SlopeUpRight:
                             mf.mesh = GeometryHelpers.CreateBox(1, height + 1, height + 1, height, height);
                             break;
-                        case GBAIsometric_TileCollision.ShapeType.SlopeUpLeft:
+                        case GBAIsometric_TileCollision.ShapeType_RHR.SlopeUpLeft:
                             mf.mesh = GeometryHelpers.CreateBox(1, height + 1, height, height, height + 1);
                             break;
                         default:
@@ -181,7 +182,7 @@ namespace R1Engine
                     }
                     MeshRenderer mr = gao.AddComponent<MeshRenderer>();
                     mr.material = mat;
-                    UnityEngine.Random.InitState((int)levelData.CollisionData[ind].Type);
+                    UnityEngine.Random.InitState((int)block.Type);
                     Color color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
                     if ((x + y) % 2 == 1) {
                         float h, s, v;
