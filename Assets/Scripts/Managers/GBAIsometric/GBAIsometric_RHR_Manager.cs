@@ -156,6 +156,32 @@ namespace R1Engine
             GameObject parent = new GameObject("Collision parent");
             Shader sh = Shader.Find("Standard");
             Material mat = new Material(sh);
+
+
+            void AddFence(GameObject gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR type, Color color, float height) {
+                int numBars = 3;
+                float fenceHeight = 4f;
+                for (int i = 0; i < numBars; i++) {
+                    GameObject sgao = new GameObject($"Fence {i}");
+                    sgao.transform.SetParent(gao.transform);
+                    sgao.transform.localScale = Vector3.one;
+                    switch (type) {
+                        case GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpLeft:
+                            sgao.transform.localPosition = new Vector3(-(0.5f-0.05f), height, ((float)(i + 0.5f)) / (numBars) - 0.5f);
+                            break;
+                        case GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpRight:
+                            sgao.transform.localPosition = new Vector3(((float)(i + 0.5f)) / (numBars) - 0.5f, height, 0.5f-0.05f);
+                            break;
+                    }
+                    MeshFilter smf = sgao.AddComponent<MeshFilter>();
+                    smf.mesh = GeometryHelpers.CreateBox(0.1f, fenceHeight, fenceHeight, fenceHeight, fenceHeight);
+                    MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
+                    smr.material = mat;
+                    //smr.material.color = color;
+                }
+            }
+
+
             for (int y = 0; y < levelData.CollisionHeight; y++) {
                 for (int x = 0; x < levelData.CollisionWidth; x++) {
                     int ind = y * levelData.CollisionWidth + x;
@@ -191,6 +217,17 @@ namespace R1Engine
                         color = Color.HSVToRGB(h,s,v);
                     }
                     mr.material.color = color;
+
+                    if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpLeft)) {
+                        var neighborBlock = x > 0 ? levelData.CollisionData[y * levelData.CollisionWidth + (x-1)] : null;
+                        byte maxHeight = Math.Max(block.Height, neighborBlock?.Height ?? 0);
+                        AddFence(gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpLeft, color, maxHeight);
+                    }
+                    if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpRight)) {
+                        var neighborBlock = y > 0 ? levelData.CollisionData[(y-1) * levelData.CollisionWidth + x] : null;
+                        byte maxHeight = Math.Max(block.Height, neighborBlock?.Height ?? 0);
+                        AddFence(gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpRight, color, maxHeight);
+                    }
                 }
             }
         }
