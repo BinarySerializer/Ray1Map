@@ -32,12 +32,18 @@ namespace R1Engine
 
                 var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-                var palettes = categorize ? Enumerable.Range(0, 16).Select(x => rom.LevelData[context.Settings.World].First(lev => lev.ID == context.Settings.Level).ObjPalette.Skip(16 * x).Take(16).Select((c, i) =>
+                var palettes = categorize && rom.LevelData.Any() ? Enumerable.Range(0, 16).Select(x => rom.LevelData[context.Settings.World].First(lev => lev.ID == context.Settings.Level).ObjPalette.Skip(16 * x).Take(16).Select((c, i) =>
                 {
                     if (i != 0)
                         c.Alpha = 255;
                     return c.GetColor();
                 }).ToArray()).ToArray() : null;
+
+                if (palettes == null && categorize)
+                    palettes = new Color[][]
+                    {
+                        Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray()
+                    };
 
                 for (int i = 0; i < rom.DataTable.DataEntries.Length; i++)
                 {
@@ -55,7 +61,7 @@ namespace R1Engine
 
                         if (categorize && length % 32 == 0)
                         {
-                            for (int j = 0; j < 16; j++)
+                            for (int j = 0; j < palettes.Length; j++)
                             {
                                 var tex = Util.ToTileSetTexture(data, palettes[j], false, CellSize, true, wrap: 32);
                                 Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_Pal{j}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());

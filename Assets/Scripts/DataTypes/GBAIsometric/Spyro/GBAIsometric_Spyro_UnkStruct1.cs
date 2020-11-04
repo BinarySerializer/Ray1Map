@@ -3,9 +3,9 @@
     public class GBAIsometric_Spyro_UnkStruct1 : R1Serializable
     {
         public Pointer Pointer_00 { get; set; } // Leads to an array of byte structs consisting of 2 ushorts
-        public GBAIsometric_Spyro_DataBlockIndex Index1 { get; set; }
-        public GBAIsometric_Spyro_DataBlockIndex Index2 { get; set; }
-        public GBAIsometric_Spyro_DataBlockIndex Index3 { get; set; }
+        public GBAIsometric_Spyro_DataBlockIndex Index1 { get; set; } // Image data
+        public GBAIsometric_Spyro_DataBlockIndex Index2 { get; set; } // 12 bytes + 4 byte-structs
+        public GBAIsometric_Spyro_DataBlockIndex Index3 { get; set; } // 16-byte structs, same length as previous structs
 
         public override void SerializeImpl(SerializerObject s)
         {
