@@ -35,7 +35,7 @@ namespace R1Engine
                     Layer3 = (byte)serializeFunc(Layer3, 4, name: nameof(Layer3));
                     Shape = (ShapeType_RHR)serializeFunc((int)Shape, 4, name: nameof(Shape));
                 });
-            } else if(s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3) {
+            } else if(s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 || s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
                 Height = s.Serialize<byte>(Height, name: nameof(Height));
                 Depth = s.Serialize<byte>(Depth, name: nameof(Depth));
                 s.SerializeBitValues<byte>(serializeFunc => {
