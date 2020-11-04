@@ -6,8 +6,9 @@
         
         public GBAIsometric_Spyro_LevelData[][] LevelData { get; set; }
 
+        public GBAIsometric_Spyro_PortraitSprite[] PortraitSprites { get; set; }
+
         public GBAIsometric_Spyro_UnkStruct1[] UnkStructs1 { get; set; }
-        public GBAIsometric_Spyro_UnkStruct2[] UnkStructs2 { get; set; }
         public GBAIsometric_Spyro_UnkStruct3[] UnkStructs3 { get; set; }
         public GBAIsometric_Spyro_UnkStruct4[] UnkStructs4 { get; set; } // One for every level
         public byte[] UnkIndices { get; set; } // Indexes with the level ID
@@ -74,9 +75,11 @@
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
+                // TODO: Don't hard-code pointer - find for Spyro 2
+                PortraitSprites = s.DoAt(Offset + 0x1bf644, () => s.SerializeObjectArray<GBAIsometric_Spyro_PortraitSprite>(PortraitSprites, 38, name: nameof(PortraitSprites)));
+
                 // Serialize unknown structs
                 UnkStructs1 = s.DoAt(Offset + 0x1c8024, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct1>(UnkStructs1, 196, name: nameof(UnkStructs1)));
-                UnkStructs2 = s.DoAt(Offset + 0x1bf644, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct2>(UnkStructs2, 38, name: nameof(UnkStructs2)));
                 UnkStructs3 = s.DoAt(Offset + 0x1bea54, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct3>(UnkStructs3, 344, name: nameof(UnkStructs3)));
                 UnkStructs4 = s.DoAt(Offset + 0x1d1f44, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct4>(UnkStructs4, 90, name: nameof(UnkStructs4)));
                 UnkIndices = s.DoAt(Offset + 0x1c0030, () => s.SerializeArray<byte>(UnkIndices, 108, name: nameof(UnkIndices)));

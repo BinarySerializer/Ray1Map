@@ -21,11 +21,12 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
-            new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocks(settings, output, false)),
-            new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocks(settings, output, true)),
+            new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false)),
+            new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, true)),
+            new GameAction("Export Portraits", false, true, (input, output) => ExportPortraitsAsync(settings, output)),
         };
 
-        public async UniTask ExportDataBlocks(GameSettings settings, string outputPath, bool categorize) {
+        public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize) {
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
                 await LoadFilesAsync(context);
@@ -73,6 +74,19 @@ namespace R1Engine
                         }
                     }
                 }
+            }
+        }
+
+        public async UniTask ExportPortraitsAsync(GameSettings settings, string outputPath)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+
+                foreach (var portrait in rom.PortraitSprites)
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{portrait.ID}.png"), portrait.ToTexture2D().EncodeToPNG());
             }
         }
 
