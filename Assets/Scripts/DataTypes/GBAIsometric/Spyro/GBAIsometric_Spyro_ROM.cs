@@ -1,19 +1,21 @@
-﻿using System.Linq;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public class GBAIsometric_Spyro_ROM : GBA_ROMBase
     {
         public GBAIsometric_Spyro_DataTable DataTable { get; set; }
         
         public GBAIsometric_Spyro_LevelData[][] LevelData { get; set; }
+        public GBAIsometric_Spyro_LevelMap[] LevelMaps { get; set; }
+        public GBAIsometric_Spyro_LevelObjects[] LevelObjects { get; set; }
 
         public GBAIsometric_Spyro_PortraitSprite[] PortraitSprites { get; set; }
         public GBAIsometric_Spyro_Dialog[] DialogEntries { get; set; }
 
         public GBAIsometric_Spyro_UnkStruct1[] UnkStructs1 { get; set; }
         public GBAIsometric_Spyro_UnkStruct2[] UnkStructs2 { get; set; } // One for every level
-        public byte[] UnkIndices { get; set; } // Indexes with the level ID
+        public GBAIsometric_Spyro_UnkStruct3[] UnkStructs3 { get; set; }
+        public byte[] LevelIndices { get; set; } // Level index for every map
+        public ushort[] GemCounts { get; set; } // The gem count for every level
 
         /// <summary>
         /// Handles the data serialization
@@ -80,11 +82,15 @@ namespace R1Engine
                 // TODO: Don't hard-code pointer - find for Spyro 2
                 PortraitSprites = s.DoAt(Offset + 0x1bf644, () => s.SerializeObjectArray<GBAIsometric_Spyro_PortraitSprite>(PortraitSprites, 38, name: nameof(PortraitSprites)));
                 DialogEntries = s.DoAt(Offset + 0x1bea54, () => s.SerializeObjectArray<GBAIsometric_Spyro_Dialog>(DialogEntries, 344, name: nameof(DialogEntries)));
+                GemCounts = s.DoAt(Offset + 0x1c0006, () => s.SerializeArray<ushort>(GemCounts, 14, name: nameof(GemCounts)));
+                LevelMaps = s.DoAt(Offset + 0x1d0058, () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelMap>(LevelMaps, 21, name: nameof(LevelMaps)));
+                LevelObjects = s.DoAt(Offset + 0x1d06e4, () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, 80, name: nameof(LevelObjects)));
+                LevelIndices = s.DoAt(Offset + 0x1c0030, () => s.SerializeArray<byte>(LevelIndices, 108, name: nameof(LevelIndices)));
 
                 // Serialize unknown structs
                 UnkStructs1 = s.DoAt(Offset + 0x1c8024, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct1>(UnkStructs1, 196, name: nameof(UnkStructs1)));
-                UnkStructs2 = s.DoAt(Offset + 0x1d1f44, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct2>(UnkStructs2, 90, name: nameof(UnkStructs2)));
-                UnkIndices = s.DoAt(Offset + 0x1c0030, () => s.SerializeArray<byte>(UnkIndices, 108, name: nameof(UnkIndices)));
+                UnkStructs2 = s.DoAt(Offset + 0x1d1f44, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct2>(UnkStructs2, 91, name: nameof(UnkStructs2)));
+                UnkStructs3 = s.DoAt(Offset + 0x1c009c, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct3>(UnkStructs3, 104, name: nameof(UnkStructs3)));
             }
         }
     }

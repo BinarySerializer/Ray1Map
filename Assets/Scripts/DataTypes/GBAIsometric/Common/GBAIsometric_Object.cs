@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAIsometric_RHR_Object : R1Serializable
+    public class GBAIsometric_Object : R1Serializable
     {
         public short ObjectType { get; set; }
         public short XPosition { get; set; }
@@ -20,10 +20,18 @@
             XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
             Height = s.Serialize<short>(Height, name: nameof(Height));
-            WaypointIndex = s.Serialize<short>(WaypointIndex, name: nameof(WaypointIndex));
-            WaypointCount = s.Serialize<byte>(WaypointCount, name: nameof(WaypointCount));
-            LinkIndex = s.Serialize<byte>(LinkIndex, name: nameof(LinkIndex));
-            Data = s.SerializeArray<byte>(Data, 4, name: nameof(Data));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
+            {
+                WaypointIndex = s.Serialize<short>(WaypointIndex, name: nameof(WaypointIndex));
+                WaypointCount = s.Serialize<byte>(WaypointCount, name: nameof(WaypointCount));
+                LinkIndex = s.Serialize<byte>(LinkIndex, name: nameof(LinkIndex));
+                Data = s.SerializeArray<byte>(Data, 4, name: nameof(Data));
+            }
+            else
+            {
+                LinkIndex = 0xFF;
+            }
         }
     }
 }

@@ -488,21 +488,21 @@ namespace R1Engine
             return tex;
         }
 
-        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, bool is8bpp, int tileWidth, bool flipY, int tileX, int tileY)
+        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, bool is8bpp, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false)
         {
             // Fill in tile pixels
             for (int y = 0; y < tileWidth; y++) {
 
                 var yy = tileY + y;
 
-                if (flipY)
+                if (flipTextureY)
                     yy = tex.height - yy - 1;
 
                 for (int x = 0; x < tileWidth; x++)
                 {
                     Color c;
 
-                    int index = imgDataOffset + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
+                    int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)) / (is8bpp ? 1 : 2));
 
                     if (is8bpp)
                     {
@@ -546,5 +546,15 @@ namespace R1Engine
             else
                 return LCM(numbers[i], LCM(numbers, i + 1));
         }
+
+        public static Color[] ConvertGBAPalette(IEnumerable<ARGB1555Color> palette) => palette.Select((x, i) =>
+        {
+            if (i != 0)
+                x.Alpha = 255;
+            return x.GetColor();
+        }).ToArray();
+        public static Color[][] ConvertAndSplitGBAPalette(ARGB1555Color[] palette) => palette.Split(16, 16).Select(ConvertGBAPalette).ToArray();
+
+        public static IEnumerable<T[]> Split<T>(this T[] array, int length, int size) => Enumerable.Range(0, length).Select(x => array.Skip(size * x).Take(size).ToArray());
     }
 }
