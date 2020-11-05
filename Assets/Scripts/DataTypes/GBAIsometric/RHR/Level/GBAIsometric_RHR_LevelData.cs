@@ -23,7 +23,7 @@
 
         // Parsed from pointers
 
-        public GBAIsometric_RHR_Object[] Objects { get; set; }
+        public GBAIsometric_Object[] Objects { get; set; }
         public GBAIsometric_RHR_Waypoint[] Waypoints { get; set; }
         public GBAIsometric_TileCollision[] CollisionData { get; set; }
 
@@ -48,7 +48,7 @@
             LevelNameLocIndex = s.SerializeObject<GBAIsometric_RHR_LocIndex>(LevelNameLocIndex, name: nameof(LevelNameLocIndex));
 
             // Parse from pointers
-            Objects = s.DoAt(ObjectsPointer, () => s.SerializeObjectArray<GBAIsometric_RHR_Object>(Objects, ObjectsCount, name: nameof(Objects)));
+            Objects = s.DoAt(ObjectsPointer, () => s.SerializeObjectArray<GBAIsometric_Object>(Objects, ObjectsCount, name: nameof(Objects)));
             Waypoints = s.DoAt(WaypointsPointer, () => s.SerializeObjectArray<GBAIsometric_RHR_Waypoint>(Waypoints, WaypointsCount, name: nameof(Waypoints)));
 
             s.DoAt(CollisionPointer, () =>

@@ -23,7 +23,7 @@ namespace R1Engine
         {
             new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false)),
             new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, true)),
-            new GameAction("Export Portraits", false, true, (input, output) => ExportPortraitsAsync(settings, output)),
+            new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
         };
 
         public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize) {
@@ -77,7 +77,7 @@ namespace R1Engine
             }
         }
 
-        public async UniTask ExportPortraitsAsync(GameSettings settings, string outputPath)
+        public async UniTask ExportAssetsAsync(GameSettings settings, string outputPath)
         {
             using (var context = new Context(settings))
             {
@@ -86,7 +86,10 @@ namespace R1Engine
                 var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
                 foreach (var portrait in rom.PortraitSprites)
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{portrait.ID}.png"), portrait.ToTexture2D().EncodeToPNG());
+                    Util.ByteArrayToFile(Path.Combine(outputPath, "Portraits", $"{portrait.ID}.png"), portrait.ToTexture2D().EncodeToPNG());
+
+                foreach (var map in rom.LevelMaps)
+                    Util.ByteArrayToFile(Path.Combine(outputPath, "Maps", $"{map.LevelID}.png"), map.ToTexture2D().EncodeToPNG());
             }
         }
 
@@ -186,12 +189,35 @@ namespace R1Engine
                 });
             }
 
+            // Add the map if available
+            var lvlMap = rom.LevelMaps?.FirstOrDefault(x => x.LevelID == context.Settings.Level);
+            if (context.Settings.World == 0 && lvlMap != null)
+            {
+                maps = maps.Append(new Unity_Map()
+                {
+                    Width = lvlMap.Map.Width,
+                    Height = lvlMap.Map.Height,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        LoadTileSet(lvlMap.Palette, lvlMap.TileSet, lvlMap.Map.MapData)
+                    },
+                    MapTiles = lvlMap.Map.MapData.Select(x => new Unity_Tile(x)).ToArray()
+                });
+            }
+
             var validMaps = maps.Where(x => x != null).ToArray();
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, new GBAIsometric_RHR_ObjectType[0], 0);
+            var objects = new List<Unity_Object>();
+
+            var objTable = rom.LevelObjects?.FirstOrDefault(x => x.LevelID == context.Settings.Level)?.ObjectTable;
+
+            if (context.Settings.World == 0 && objTable != null)
+                objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometric(x, objManager)));
 
             return UniTask.FromResult(new Unity_Level(
                 maps: validMaps,
-                objManager: new Unity_ObjectManager(context),
-                eventData: new List<Unity_Object>(),
+                objManager: objManager,
+                eventData: objects,
                 cellSize: CellSize,
                 getCollisionTypeGraphicFunc: x => ((GBAIsometric_Spyro_TileCollisionType2D)x).GetCollisionTypeGraphic(),
                 defaultMap: 1,
@@ -267,12 +293,7 @@ namespace R1Engine
 
         public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
         {
-            var palettes = Enumerable.Range(0, 16).Select(x => tilePal.Skip(16 * x).Take(16).Select((c, i) =>
-            {
-                if (i != 0)
-                    c.Alpha = 255;
-                return c.GetColor();
-            }).ToArray()).ToArray();
+            var palettes = Util.ConvertAndSplitGBAPalette(tilePal);
 
             const int tileSize = 32;
             const int regionSize = tileSize * 512;
@@ -280,15 +301,25 @@ namespace R1Engine
             var tileSet = new byte[tileSets.Select(t => t.RegionOffset * tileSize + t.Region * regionSize + t.TileData.Length).Max()];
 
             // Fill regions with tile data
-            foreach (var t in tileSets) {
+            foreach (var t in tileSets)
                 Array.Copy(t.TileData, 0, tileSet, t.RegionOffset * tileSize + t.Region * regionSize, t.TileData.Length);
-            }
+
             int[] paletteIndices = new int[tileSet.Length];
-            foreach (var mta in mapTiles) {
-                foreach (var mt in mta.Value) {
-                    paletteIndices[mt.TileMapY] = mt.PaletteIndex;
-                }
-            }
+            foreach (MapTile mt in mapTiles.SelectMany(mta => mta.Value))
+                paletteIndices[mt.TileMapY] = mt.PaletteIndex;
+
+            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), false, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
+
+            return new Unity_MapTileMap(tileSetTex, CellSize);
+        }
+
+        public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, byte[] tileSet, MapTile[] mapTiles)
+        {
+            var palettes = Util.ConvertGBAPalette(tilePal).Split(16, 16).ToArray();
+
+            int[] paletteIndices = new int[tileSet.Length];
+            foreach (MapTile mt in mapTiles)
+                paletteIndices[mt.TileMapY] = mt.PaletteIndex;
 
             var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), false, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
 
