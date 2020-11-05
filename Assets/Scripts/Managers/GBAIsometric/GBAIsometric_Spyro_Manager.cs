@@ -206,13 +206,19 @@ namespace R1Engine
             }
 
             var validMaps = maps.Where(x => x != null).ToArray();
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, new GBAIsometric_RHR_ObjectType[0], 0);
-            var objects = new List<Unity_Object>();
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, 0);
 
+            // Load objects
+            var objects = new List<Unity_Object>();
             var objTable = rom.LevelObjects?.FirstOrDefault(x => x.LevelID == context.Settings.Level)?.ObjectTable;
 
             if (context.Settings.World == 0 && objTable != null)
+            {
+                // Init the objects
+                InitObjects(objTable.Objects);
+                
                 objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometric(x, objManager)));
+            }
 
             return UniTask.FromResult(new Unity_Level(
                 maps: validMaps,
@@ -222,6 +228,64 @@ namespace R1Engine
                 getCollisionTypeGraphicFunc: x => ((GBAIsometric_Spyro_TileCollisionType2D)x).GetCollisionTypeGraphic(),
                 defaultMap: 1,
                 defaultCollisionMap: validMaps.Length - 1));
+        }
+
+        // Recreated from function at 0x08050200 (US rom for Spyro3)
+        public void InitObjects(GBAIsometric_Object[] objects)
+        {
+            var readingWaypoints = false;
+            var readingObjIndex = 0;
+            int currentWayPointCount = 0;
+
+            for (int index = 0; index < objects.Length; index++)
+            {
+                //var obj = objects[index];
+
+                if (!readingWaypoints)
+                {
+                    // If the next object is a waypoint we read them until we reach the next normal object
+                    if (index < objects.Length - 1 && !objects[index + 1].IsNormalObj)
+                    {
+                        // Save current object as it's the parent of the waypoints
+                        readingObjIndex = index;
+
+                        // Keep track of the amount of waypoints we read
+                        currentWayPointCount = 0;
+
+                        // Indicate that we're reading waypoints now
+                        readingWaypoints = true;
+                    }
+                    else
+                    {
+                        // Init a normal object without waypoints
+                        //FUN_0801534c(objects[index + 1].ObjectType, objects[index + 1].Value1, obj.XPosition);
+                    }
+                }
+                else
+                {
+                    // Increment the waypoint count
+                    currentWayPointCount += 1;
+
+                    // If the next object is not a waypoint we stop reading them
+                    if (index == objects.Length - 1 || objects[index + 1].IsNormalObj)
+                    {
+                        // Get the waypoints parent
+                        var readingObj = objects[readingObjIndex];
+
+                        // Init an object with waypoints
+                        //FUN_08015408(readingObj.ObjectType, readingObj, currentWayPointCount);
+                        
+                        // Indicate that we're no longer reading waypoints
+                        readingWaypoints = false;
+
+                        // Save waypoint info
+                        readingObj.WaypointIndex = (short)(readingObjIndex + 1);
+                        readingObj.WaypointCount = (byte)currentWayPointCount;
+                    }
+                }
+
+                //FUN_08003bbc();
+            }
         }
 
         public MapTile[] GetMapTiles(GBAIsometric_Spyro_MapLayer mapLayer)

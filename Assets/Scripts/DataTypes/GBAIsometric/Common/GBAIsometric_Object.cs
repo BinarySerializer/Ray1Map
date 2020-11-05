@@ -2,21 +2,39 @@
 {
     public class GBAIsometric_Object : R1Serializable
     {
-        public short ObjectType { get; set; }
         public short XPosition { get; set; }
         public short YPosition { get; set; }
         public short Height { get; set; }
-        
+
+        // Spyro
+        public int Value1 { get; set; }
+        public int Value2 { get; set; }
+        public bool IsNormalObj { get; set; } // False if it's a waypoint
+
+        // RHR
+        public ushort ObjectType { get; set; }
         public short WaypointIndex { get; set; }
         public byte WaypointCount { get; set; }
-
         public byte LinkIndex { get; set; } // 0xFF if not linked
-
         public byte[] Data { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            ObjectType = s.Serialize<short>(ObjectType, name: nameof(ObjectType));
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
+            {
+                ObjectType = s.Serialize<ushort>(ObjectType, name: nameof(ObjectType));
+            }
+            else
+            {
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    ObjectType = (ushort)bitFunc(ObjectType, 10, name: nameof(ObjectType));
+                    Value1 = bitFunc(Value1, 3, name: nameof(Value1));
+                    Value2 = bitFunc(Value2, 2, name: nameof(Value2));
+                    IsNormalObj = bitFunc(IsNormalObj ? 1 : 0, 1, name: nameof(IsNormalObj)) == 1;
+                });
+            }
+
             XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
             Height = s.Serialize<short>(Height, name: nameof(Height));

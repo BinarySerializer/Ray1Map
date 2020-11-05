@@ -6,7 +6,7 @@
 
         public GBAIsometric_RHR_PaletteAnimationTable[] PaletteAnimations { get; set; }
         public GBAIsometric_RHR_LevelInfo[] LevelInfos { get; set; }
-        public GBAIsometric_RHR_ObjectType[] ObjectTypes { get; set; }
+        public GBAIsometric_ObjectType[] ObjectTypes { get; set; }
 
         public GBAIsometric_RHR_MapLayer[] MenuMaps { get; set; }
 
@@ -48,7 +48,7 @@
                 });
 
                 // Serialize object types
-                ObjectTypes = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_RHR_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
+                ObjectTypes = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
             }
             else
             {

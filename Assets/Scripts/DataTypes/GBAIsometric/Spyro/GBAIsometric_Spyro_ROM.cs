@@ -8,6 +8,8 @@
         public GBAIsometric_Spyro_LevelMap[] LevelMaps { get; set; }
         public GBAIsometric_Spyro_LevelObjects[] LevelObjects { get; set; }
 
+        public GBAIsometric_ObjectType[] ObjectTypes { get; set; }
+
         public GBAIsometric_Spyro_PortraitSprite[] PortraitSprites { get; set; }
         public GBAIsometric_Spyro_Dialog[] DialogEntries { get; set; }
 
@@ -86,6 +88,7 @@
                 LevelMaps = s.DoAt(Offset + 0x1d0058, () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelMap>(LevelMaps, 21, name: nameof(LevelMaps)));
                 LevelObjects = s.DoAt(Offset + 0x1d06e4, () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, 80, name: nameof(LevelObjects)));
                 LevelIndices = s.DoAt(Offset + 0x1c0030, () => s.SerializeArray<byte>(LevelIndices, 108, name: nameof(LevelIndices)));
+                ObjectTypes = s.DoAt(Offset + 0x1c8954, () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 772, name: nameof(ObjectTypes)));
 
                 // Serialize unknown structs
                 UnkStructs1 = s.DoAt(Offset + 0x1c8024, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct1>(UnkStructs1, 196, name: nameof(UnkStructs1)));
