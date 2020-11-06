@@ -9,11 +9,11 @@
         public GBAIsometric_Spyro_LevelObjects[] LevelObjects { get; set; }
 
         public GBAIsometric_ObjectType[] ObjectTypes { get; set; }
+        public GBAIsometric_Spyro_AnimSet[] AnimSets { get; set; }
 
         public GBAIsometric_Spyro_PortraitSprite[] PortraitSprites { get; set; }
         public GBAIsometric_Spyro_Dialog[] DialogEntries { get; set; }
 
-        public GBAIsometric_Spyro_UnkStruct1[] UnkStructs1 { get; set; }
         public GBAIsometric_Spyro_UnkStruct2[] UnkStructs2 { get; set; } // One for every level
         public GBAIsometric_Spyro_UnkStruct3[] UnkStructs3 { get; set; }
         public byte[] LevelIndices { get; set; } // Level index for every map
@@ -89,9 +89,9 @@
                 LevelObjects = s.DoAt(Offset + 0x1d06e4, () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, 80, name: nameof(LevelObjects)));
                 LevelIndices = s.DoAt(Offset + 0x1c0030, () => s.SerializeArray<byte>(LevelIndices, 108, name: nameof(LevelIndices)));
                 ObjectTypes = s.DoAt(Offset + 0x1c8954, () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 772, name: nameof(ObjectTypes)));
+                AnimSets = s.DoAt(Offset + 0x1c8024, () => s.SerializeObjectArray<GBAIsometric_Spyro_AnimSet>(AnimSets, 196, name: nameof(AnimSets)));
 
                 // Serialize unknown structs
-                UnkStructs1 = s.DoAt(Offset + 0x1c8024, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct1>(UnkStructs1, 196, name: nameof(UnkStructs1)));
                 UnkStructs2 = s.DoAt(Offset + 0x1d1f44, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct2>(UnkStructs2, 91, name: nameof(UnkStructs2)));
                 UnkStructs3 = s.DoAt(Offset + 0x1c009c, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct3>(UnkStructs3, 104, name: nameof(UnkStructs3)));
             }
