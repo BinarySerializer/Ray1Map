@@ -516,7 +516,8 @@ namespace R1Engine
                 Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
                 yield return new Unity_ObjectManager_GBAIsometric.AnimSet(animSet.Offset, animSet.Animations.Select(x =>
                 {
-                    return new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => GetAnimationFrames(rom.Context, animSet, x, decompressedDictionary).Select(f => f.CreateSprite(pivot: new Vector2(animSet.PivotX / (float)f.width, animSet.PivotY / (float)f.height))).ToArray(), x.Speed);
+                    return new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => GetAnimationFrames(rom.Context, animSet, x, decompressedDictionary).Select(f => f.CreateSprite()).ToArray(),
+                        x.Speed, -animSet.PivotX, -animSet.PivotY);
                 }).ToArray(), animSet.Name);
             }
         }
