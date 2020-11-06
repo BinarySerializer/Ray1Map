@@ -206,7 +206,7 @@ namespace R1Engine
             }
 
             var validMaps = maps.Where(x => x != null).ToArray();
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, 0);
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, new Unity_ObjectManager_GBAIsometric.AnimSet[0]);
 
             // Load objects
             var objects = new List<Unity_Object>();

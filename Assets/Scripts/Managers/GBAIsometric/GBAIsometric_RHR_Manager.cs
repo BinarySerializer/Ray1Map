@@ -70,54 +70,90 @@ namespace R1Engine
                 new GameAction("Export AnimSets", false, true, (input, output) => ExportAnimSetsAsync(settings, output)),
                 new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output))
         };
-        public async UniTask ExportAnimSetAsync(Context context, string outputPath, GBAIsometric_RHR_AnimSet animSet) {
-            if (animSet == null) return;
+        public async UniTask ExportAnimSetAsync(Context context, string outputPath, GBAIsometric_RHR_AnimSet animSet) 
+        {
+            if (animSet == null) 
+                return;
+
             string outPath = Path.Combine(outputPath, animSet.Name);
+
             Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
-            SerializerObject s = context.Deserializer;
-            for (int a = 0; a < animSet.Animations.Length; a++) {
-                if(a % 10 == 0) await Controller.WaitIfNecessary();
+
+            for (int a = 0; a < animSet.Animations.Length; a++) 
+            {
+                if(a % 10 == 0) 
+                    await Controller.WaitIfNecessary();
+
                 var anim = animSet.Animations[a];
-                var startFrame = anim.StartFrameIndex;
-                var frameCount = anim.FrameCount;
-                for (int f = 0; f < frameCount; f++) {
-                    var frame = animSet.Frames[startFrame + f];
-                    Texture2D tex = TextureHelpers.CreateTexture2D(animSet.Width * CellSize, animSet.Height * CellSize, clear: true);
 
-                    if (frame.PatternIndex == 0xFFFF || frame.TileIndicesIndex == 0xFFFF) {
-                        // Empty frame
-                    } else {
-                        var patIndex = frame.PatternIndex;
+                var f = 0;
 
-                        Color[] pal = Util.ConvertGBAPalette(animSet.Palette);
+                foreach (var tex in GetAnimationFrames(context, animSet, anim, decompressedDictionary))
+                    Util.ByteArrayToFile(Path.Combine(outPath, $"{a}-{anim.Speed}", $"{f++}.png"), tex.EncodeToPNG());
+            }
+        }
+        public IEnumerable<Texture2D> GetAnimationFrames(Context context, GBAIsometric_RHR_AnimSet animSet, GBAIsometric_RHR_Animation anim, Dictionary<ushort, byte[]> decompressedDictionary)
+        {
+            SerializerObject s = context.Deserializer;
 
-                        int curTile = frame.TileIndicesIndex;
-                        for (int p = 0; p < animSet.Patterns[patIndex].Length; p++) {
-                            var pattern = animSet.Patterns[patIndex][p];
-                            for (int y = 0; y < pattern.Height; y++) {
-                                for (int x = 0; x < pattern.Width; x++) {
-                                    int actualX = x + pattern.XPosition;
-                                    int actualY = y + pattern.YPosition;
-                                    ushort tileIndex = animSet.TileIndices[curTile];
-                                    if (!decompressedDictionary.ContainsKey(tileIndex)) {
-                                        s.DoEncoded(new RHR_SpriteEncoder(animSet.Is8Bit,
-                                            animSet.GraphicsDataPointer.Value.CompressionLookupBuffer,
-                                            animSet.GraphicsDataPointer.Value.CompressedDataPointer,
-                                            tileIndex), () => {
-                                                decompressedDictionary[tileIndex] = s.SerializeArray<byte>(default, s.CurrentLength, name: $"{animSet.Name}:Tiles[{curTile}]:{tileIndex}");
-                                            });
-                                    }
-                                    tex.FillInTile(decompressedDictionary[tileIndex], 0, pal, animSet.Is8Bit, CellSize, true, (anim.FlipX ? (animSet.Width - 1 - actualX) : actualX) * CellSize, actualY * CellSize, flipTileX: anim.FlipX);
-                                    curTile++;
+            var startFrame = anim.StartFrameIndex;
+            var frameCount = anim.FrameCount;
+
+            for (int f = 0; f < frameCount; f++)
+            {
+                var frame = animSet.Frames[startFrame + f];
+
+                Texture2D tex = TextureHelpers.CreateTexture2D(animSet.Width * CellSize, animSet.Height * CellSize, clear: true);
+
+                if (frame.PatternIndex == 0xFFFF || frame.TileIndicesIndex == 0xFFFF)
+                {
+                    // Empty frame
+                }
+                else
+                {
+                    var patIndex = frame.PatternIndex;
+
+                    Color[] pal = Util.ConvertGBAPalette(animSet.Palette);
+
+                    int curTile = frame.TileIndicesIndex;
+
+                    for (int p = 0; p < animSet.Patterns[patIndex].Length; p++)
+                    {
+                        var pattern = animSet.Patterns[patIndex][p];
+                        for (int y = 0; y < pattern.Height; y++)
+                        {
+                            for (int x = 0; x < pattern.Width; x++)
+                            {
+                                int actualX = x + pattern.XPosition;
+                                int actualY = y + pattern.YPosition;
+                                ushort tileIndex = animSet.TileIndices[curTile];
+
+                                if (!decompressedDictionary.ContainsKey(tileIndex))
+                                {
+                                    s.Goto(animSet.GraphicsDataPointer.Value.CompressedDataPointer);
+
+                                    s.DoEncoded(new RHR_SpriteEncoder(animSet.Is8Bit,
+                                        animSet.GraphicsDataPointer.Value.CompressionLookupBuffer,
+                                        animSet.GraphicsDataPointer.Value.CompressedDataPointer,
+                                        tileIndex), () => {
+                                            decompressedDictionary[tileIndex] = s.SerializeArray<byte>(default, s.CurrentLength, name: $"{animSet.Name}:Tiles[{curTile}]:{tileIndex}");
+                                        });
                                 }
+
+                                tex.FillInTile(decompressedDictionary[tileIndex], 0, pal, animSet.Is8Bit, CellSize, true, (anim.FlipX ? (animSet.Width - 1 - actualX) : actualX) * CellSize, actualY * CellSize, flipTileX: anim.FlipX);
+
+                                curTile++;
                             }
                         }
                     }
-                    tex.Apply();
-                    Util.ByteArrayToFile(Path.Combine(outPath, $"{a}-{anim.Speed}", $"{f}.png"), tex.EncodeToPNG());
                 }
+
+                tex.Apply();
+
+                yield return tex;
             }
         }
+
         public async UniTask ExportAnimSetsAsync(GameSettings settings, string outputPath) {
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
@@ -445,7 +481,7 @@ namespace R1Engine
                 };
             }).ToArray();
 
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, levelData?.ObjectsCount ?? 0);
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, GetAnimSets(rom).ToArray(), levelData?.ObjectsCount ?? 0);
 
             var allObjects = new List<Unity_Object>();
 
@@ -471,6 +507,18 @@ namespace R1Engine
                 eventData: allObjects,
                 cellSize: CellSize,
                 localization: loc));
+        }
+
+        public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(GBAIsometric_RHR_ROM rom)
+        {
+            foreach (var animSet in rom.ObjectTypes.Select(x => x?.DataPointer?.Value?.AnimSetPointer?.Value).Where(x => x != null).Distinct())
+            {
+                Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
+                yield return new Unity_ObjectManager_GBAIsometric.AnimSet(animSet.Offset, animSet.Animations.Select(x =>
+                {
+                    return new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => GetAnimationFrames(rom.Context, animSet, x, decompressedDictionary).Select(f => f.CreateSprite(pivot: new Vector2(animSet.PivotX / (float)f.width, animSet.PivotY / (float)f.height))).ToArray(), x.Speed);
+                }).ToArray(), animSet.Name);
+            }
         }
 
         public MapTile[] GetMapTiles(GBAIsometric_RHR_MapLayer mapLayer, int tileSetBaseLength)

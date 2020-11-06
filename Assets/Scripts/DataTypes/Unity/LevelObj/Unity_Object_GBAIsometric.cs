@@ -11,6 +11,10 @@ namespace R1Engine
         {
             Object = obj;
             ObjManager = objManager;
+
+            var type = ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
+            AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.DataPointer?.Value?.AnimSetPointer?.pointer);
+            AnimationIndex = 0; // TODO: Set to correct value
         }
 
         public GBAIsometric_Object Object { get; }
@@ -29,10 +33,26 @@ namespace R1Engine
 
         public override string DebugText => $"AnimSet: {AnimGroupName}{Environment.NewLine}";
 
-        public string AnimGroupName => ObjManager.Types?.ElementAtOrDefault(Object.ObjectType)?.DataPointer?.Value?.AnimSetPointer?.Value?.Name;
+        public string AnimGroupName => ObjType?.DataPointer?.Value?.AnimSetPointer?.Value?.Name;
+        public GBAIsometric_ObjectType ObjType => ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
+
+        private int _animSetIndex;
+        public int AnimSetIndex
+        {
+            get => _animSetIndex;
+            set
+            {
+                _animSetIndex = value;
+                AnimationIndex = 0;
+            }
+        }
+
+        public byte AnimIndex { get; set; }
+
+        public Unity_ObjectManager_GBAIsometric.AnimSet AnimSet => ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
 
         public override R1Serializable SerializableData => Object;
-        public override ILegacyEditorWrapper LegacyWrapper { get; }
+        public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"{AnimGroupName?.Replace("AnimSet", String.Empty) ?? $"Type_{Object.ObjectType}"}";
         public override string SecondaryName => null;
@@ -52,12 +72,96 @@ namespace R1Engine
             }
         }
 
-        public override Unity_ObjAnimation CurrentAnimation => null;
-        public override int AnimSpeed => 0;
-        public override int? GetAnimIndex => 0;
-        protected override int GetSpriteID => 0;
-        public override IList<Sprite> Sprites => null;
-        protected override bool IsUIStateArrayUpToDate => false;
-        protected override void RecalculateUIStates() => UIStates = new UIState[0];
+        public Unity_ObjectManager_GBAIsometric.AnimSet.Animation Anim => AnimSet?.Animations?.ElementAtOrDefault(AnimIndex);
+        public override Unity_ObjAnimation CurrentAnimation => Anim?.ObjAnimation;
+        public override int AnimSpeed => Anim?.AnimSpeed ?? 0;
+        public override int? GetAnimIndex => AnimIndex;
+        protected override int GetSpriteID => AnimSetIndex;
+        public override IList<Sprite> Sprites => Anim?.AnimFrames;
+        private class LegacyEditorWrapper : ILegacyEditorWrapper
+        {
+            public LegacyEditorWrapper(Unity_Object_GBAIsometric obj)
+            {
+                Obj = obj;
+            }
+
+            private Unity_Object_GBAIsometric Obj { get; }
+
+            public ushort Type
+            {
+                get => Obj.Object.ObjectType;
+                set => Obj.Object.ObjectType = value;
+            }
+
+            public int DES
+            {
+                get => Obj.AnimSetIndex;
+                set => Obj.AnimSetIndex = value;
+            }
+
+            public int ETA
+            {
+                get => Obj.AnimSetIndex;
+                set => Obj.AnimSetIndex = value;
+            }
+
+            public byte Etat { get; set; }
+
+            public byte SubEtat
+            {
+                get => Obj.AnimIndex;
+                set => Obj.AnimIndex = value;
+            }
+
+            public int EtatLength => 0;
+            public int SubEtatLength => Obj.AnimSet?.Animations?.Length ?? 0;
+
+            public byte OffsetBX { get; set; }
+
+            public byte OffsetBY { get; set; }
+
+            public byte OffsetHY { get; set; }
+
+            public byte FollowSprite { get; set; }
+
+            public uint HitPoints { get; set; }
+
+            public byte HitSprite { get; set; }
+
+            public bool FollowEnabled { get; set; }
+        }
+
+
+        #region UI States
+        protected int UIStates_AnimSetIndex { get; set; } = -2;
+        protected override bool IsUIStateArrayUpToDate => AnimSetIndex == UIStates_AnimSetIndex;
+
+        protected class GBAIsometric_UIState : UIState
+        {
+            public GBAIsometric_UIState(string displayName, byte animIndex) : base(displayName, animIndex) { }
+
+            public override void Apply(Unity_Object obj)
+            {
+                ((Unity_Object_GBAIsometric)obj).AnimIndex = (byte)AnimIndex;
+            }
+
+            public override bool IsCurrentState(Unity_Object obj)
+            {
+                return AnimIndex == ((Unity_Object_GBAIsometric)obj).AnimIndex;
+            }
+        }
+
+        protected override void RecalculateUIStates()
+        {
+            UIStates_AnimSetIndex = AnimSetIndex;
+
+            List<UIState> uiStates = new List<UIState>();
+
+            for (byte i = 0; i < (AnimSet?.Animations?.Length ?? 0); i++)
+                uiStates.Add(new GBAIsometric_UIState($"Animation {i}", animIndex: i));
+
+            UIStates = uiStates.ToArray();
+        }
+        #endregion
     }
 }

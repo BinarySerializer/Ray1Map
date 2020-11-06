@@ -26,6 +26,7 @@ namespace R1Engine
             set => Waypoint.YPosValue = value;
         }
 
+        public override bool IsEditor => true;
         public override string DebugText => String.Empty;
 
         public override R1Serializable SerializableData => Waypoint;
