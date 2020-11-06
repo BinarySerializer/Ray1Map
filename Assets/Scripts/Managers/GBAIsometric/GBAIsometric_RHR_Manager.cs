@@ -72,7 +72,7 @@ namespace R1Engine
         };
         public async UniTask ExportAnimSetAsync(Context context, string outputPath, GBAIsometric_RHR_AnimSet animSet) {
             if (animSet == null) return;
-            string outPath = $"{outputPath}/{animSet.Name}/";
+            string outPath = Path.Combine(outputPath, animSet.Name);
             Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
             SerializerObject s = context.Deserializer;
             for (int a = 0; a < animSet.Animations.Length; a++) {
@@ -85,19 +85,12 @@ namespace R1Engine
                     Texture2D tex = TextureHelpers.CreateTexture2D(animSet.Width * CellSize, animSet.Height * CellSize, clear: true);
 
                     if (frame.PatternIndex == 0xFFFF || frame.TileIndicesIndex == 0xFFFF) {
-                        // Empty frmae
+                        // Empty frame
                     } else {
                         var patIndex = frame.PatternIndex;
-                        var tileIndicesIndex = frame.TileIndicesIndex;
 
-                        Color[] pal = animSet.Palette.Select((x, palInd) => {
-                            Color col = x.GetColor();
-                            if (palInd != 0) {
-                                return new Color(col.r, col.g, col.b, 1f);
-                            } else {
-                                return new Color(col.r, col.g, col.b, 0f);
-                            }
-                        }).ToArray();
+                        Color[] pal = Util.ConvertGBAPalette(animSet.Palette);
+
                         int curTile = frame.TileIndicesIndex;
                         for (int p = 0; p < animSet.Patterns[patIndex].Length; p++) {
                             var pattern = animSet.Patterns[patIndex][p];
@@ -114,14 +107,14 @@ namespace R1Engine
                                                 decompressedDictionary[tileIndex] = s.SerializeArray<byte>(default, s.CurrentLength, name: $"{animSet.Name}:Tiles[{curTile}]:{tileIndex}");
                                             });
                                     }
-                                    Util.FillInTile(tex, decompressedDictionary[tileIndex], 0, pal, animSet.Is8Bit, CellSize, true, (anim.FlipX ? (animSet.Width - 1 - actualX) : actualX) * CellSize, actualY * CellSize, flipTileX: anim.FlipX);
+                                    tex.FillInTile(decompressedDictionary[tileIndex], 0, pal, animSet.Is8Bit, CellSize, true, (anim.FlipX ? (animSet.Width - 1 - actualX) : actualX) * CellSize, actualY * CellSize, flipTileX: anim.FlipX);
                                     curTile++;
                                 }
                             }
                         }
                     }
                     tex.Apply();
-                    Util.ByteArrayToFile(outPath + $"Anim{a}_Speed{anim.Speed}{(anim.FlipX ? "_Flip" : "")}/{f}.png", tex.EncodeToPNG());
+                    Util.ByteArrayToFile(Path.Combine(outPath, $"{a}-{anim.Speed}", $"{f}.png"), tex.EncodeToPNG());
                 }
             }
         }
@@ -164,23 +157,13 @@ namespace R1Engine
                     0x0810f1d8, // Unused & unreferenced raymanPafAnimSet
                 };
                 foreach (var animSetPtr in hardcodedAnimSets) {
-                    var animSet = s.DoAt(new Pointer(animSetPtr, ptr.file), () => {
-                        return s.SerializeObject<GBAIsometric_RHR_AnimSet>(default, name: "AnimSet");
-                    });
+                    var animSet = s.DoAt(new Pointer(animSetPtr, ptr.file), () => s.SerializeObject<GBAIsometric_RHR_AnimSet>(default, name: "AnimSet"));
                     if (animSet != null && exported.Contains(animSet.Name)) continue;
                     await ExportAnimSetAsync(context, outputPath, animSet);
                     if (animSet != null) exported.Add(animSet.Name);
                 }
                 var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
-                /*foreach(var levelInfo in rom.LevelInfos) {
-                    if (levelInfo.LevelDataPointer.Value == null) {
-                        levelInfo.LevelDataPointer.Resolve(context.Deserializer);
-                        if (levelInfo.LevelDataPointer.Value == null) continue;
-                        foreach (var obj in levelInfo.LevelDataPointer.Value.) {
-                            obj.
-                        }
-                    }
-                }*/
+
                 foreach (var objType in rom.ObjectTypes) {
                     var animSet = objType.DataPointer?.Value?.AnimSetPointer?.Value;
                     if (animSet != null && exported.Contains(animSet.Name)) continue;
@@ -212,9 +195,7 @@ namespace R1Engine
                     0x087f428c, // crab
                 };
                 foreach (var objTypePtr in hardcodedObjTypes) {
-                    var objType = s.DoAt(new Pointer(objTypePtr, ptr.file), () => {
-                        return s.SerializeObject<GBAIsometric_ObjectTypeData>(default, name: "ObjTypeData");
-                    });
+                    var objType = s.DoAt(new Pointer(objTypePtr, ptr.file), () => s.SerializeObject<GBAIsometric_ObjectTypeData>(default, name: "ObjTypeData"));
                     var animSet = objType?.AnimSetPointer?.Value;
                     if (animSet != null && exported.Contains(animSet.Name)) continue;
                     await ExportAnimSetAsync(context, outputPath, animSet);
@@ -618,9 +599,6 @@ namespace R1Engine
                     var framePals = new List<Color[]>();
                     var frameIndices = new int[length - 1];
 
-                    // Get the original palette to use as a template
-                    var prevPal = palettes[palIndex];
-
                     // Shift colors and create new palettes for every frame
                     for (int i = 0; i < length - 1; i++) {
                         int frame = i + 1;
@@ -642,12 +620,12 @@ namespace R1Engine
                                 }
                             }
                         }
-                        if (Enumerable.SequenceEqual(newPal, palettes[palIndex])) {
+                        if (newPal.SequenceEqual(palettes[palIndex])) {
                             frameIndices[i] = 0;
                         } else {
                             bool frameIndexFound = false;
                             for (int j = 0; j < framePals.Count; j++) {
-                                if (Enumerable.SequenceEqual(newPal, framePals[j])) {
+                                if (newPal.SequenceEqual(framePals[j])) {
                                     frameIndexFound = true;
                                     frameIndices[i] = j+1;
                                     break;
