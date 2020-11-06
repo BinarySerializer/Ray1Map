@@ -159,6 +159,9 @@ namespace R1Engine
                     0x080effd4,
                     0x08417c58,
                     0x081e49bc,
+                    0x081fc28c, // Unused & unreferenced greenPowerupAnimSet
+                    0x081e6f7c, // Unused & unreferenced spikeAnimSet
+                    0x0810f1d8, // Unused & unreferenced raymanPafAnimSet
                 };
                 foreach (var animSetPtr in hardcodedAnimSets) {
                     var animSet = s.DoAt(new Pointer(animSetPtr, ptr.file), () => {
@@ -180,6 +183,39 @@ namespace R1Engine
                 }*/
                 foreach (var objType in rom.ObjectTypes) {
                     var animSet = objType.DataPointer?.Value?.AnimSetPointer?.Value;
+                    if (animSet != null && exported.Contains(animSet.Name)) continue;
+                    await ExportAnimSetAsync(context, outputPath, animSet);
+                    if (animSet != null) exported.Add(animSet.Name);
+                }
+                uint[] hardcodedObjTypes = new uint[] {
+                    0x080e6af8,
+                    0x080e6b14,
+                    0x080e6b30,
+                    0x080e6b4c,
+                    0x080e6b68,
+                    0x080e6b84,
+                    0x080e6abc,
+                    0x080e7734,
+                    0x080e7750,
+                    0x080e83cc,
+                    0x080e83b0,
+                    0x080e84e4,
+                    0x080e851c,
+                    0x080e84c8,
+                    0x080e8500,
+                    0x080e8640,
+                    0x080e865c,
+                    0x080e8740,
+                    0x080e887c,
+                    0x080e8898,
+                    0x080e88b4,
+                    0x087f428c, // crab
+                };
+                foreach (var objTypePtr in hardcodedObjTypes) {
+                    var objType = s.DoAt(new Pointer(objTypePtr, ptr.file), () => {
+                        return s.SerializeObject<GBAIsometric_ObjectTypeData>(default, name: "ObjTypeData");
+                    });
+                    var animSet = objType?.AnimSetPointer?.Value;
                     if (animSet != null && exported.Contains(animSet.Name)) continue;
                     await ExportAnimSetAsync(context, outputPath, animSet);
                     if (animSet != null) exported.Add(animSet.Name);

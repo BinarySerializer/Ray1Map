@@ -68,9 +68,6 @@
                  * */
             }
 
-            s.DoAt(new Pointer(0x080f0154, Offset.file), () => {
-                var sprite = s.SerializeObject<GBAIsometric_RHR_AnimSet>(default, name: "portraitRayman");
-            });
             /*
             s.DoAt(new Pointer(0x080efd28, Offset.file), () => {
                 var sprite = s.SerializeObject<GBAIsometric_Sprite>(default, name: "Sprite");
