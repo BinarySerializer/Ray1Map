@@ -152,6 +152,16 @@
 					]
 				},
 				{
+					"title": "Rayman Hoodlums' Revenge",
+					"viewer": "ray1map",
+					"json": "gba_isometric\/rhr",
+					"image": ".\/img\/logo\/rhr.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_isometric/rhr_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_isometric/rhr_us" }
+					]
+				},
+				{
 					"title": "Rayman Raving Rabbids",
 					"viewer": "ray1map",
 					"json": "gba_rrr\/rrr",
@@ -159,6 +169,31 @@
 					"versions": [
 						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_rrr/rrr_eu" },
 						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_rrr/rrr_us" }
+					]
+				}
+			]
+		},
+		{
+			"name": "Spyro games",
+			"games": [
+				{
+					"title": "Spyro 2: Season of Flame",
+					"viewer": "ray1map",
+					"json": "gba_isometric\/spyro2",
+					"image": ".\/img\/logo\/spyro2.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_isometric/spyro2_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_isometric/spyro2_us" }
+					]
+				},
+				{
+					"title": "Spyro: Attack of the Rhynocs",
+					"viewer": "ray1map",
+					"json": "gba_isometric\/spyro3",
+					"image": ".\/img\/logo\/spyro3.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_isometric/spyro3_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_isometric/spyro3_us" }
 					]
 				}
 			]

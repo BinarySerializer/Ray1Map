@@ -1,0 +1,33 @@
+{
+  "name": "Rayman Hoodlums' Revenge (GBA - US)",
+  "mode": "RaymanHoodlumsRevengeUS",
+  "folder": "gba_isometric/rhr_us",
+  "levels": [
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "Fairy Council" },
+    { "world": 0, "level": 1, "nameInternal": "1", "name": "Clearleaf Forest" },
+    { "world": 0, "level": 2, "nameInternal": "2", "name": "Clearleaf Falls" },
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Infernal Machine" },
+    { "world": 0, "level": 4, "nameInternal": "4", "name": "Dungeon of Murk" },
+    { "world": 0, "level": 5, "nameInternal": "5", "name": "Bog of Murk" },
+    { "world": 0, "level": 6, "nameInternal": "6", "name": "Begoniax Bayou" },
+    { "world": 0, "level": 7, "nameInternal": "7", "name": "Rivers of Murk" },
+    { "world": 0, "level": 8, "nameInternal": "8", "name": "Hoodlum Moor" },
+    { "world": 0, "level": 9, "nameInternal": "9", "name": "Land of the Livid Dead" },
+    { "world": 0, "level": 10, "nameInternal": "10", "name": "Menhirs of Power" },
+    { "world": 0, "level": 11, "nameInternal": "11", "name": "Pit of Endless Fire" },
+    { "world": 0, "level": 12, "nameInternal": "12", "name": "Clouds of Peril" },
+    { "world": 0, "level": 13, "nameInternal": "13", "name": "Heart of the World" },
+    { "world": 0, "level": 14, "nameInternal": "14", "name": "Reflux's Lair" },
+    { "world": 0, "level": 15, "nameInternal": "15", "name": "(Bonus) Vertiginous Riddle" },
+    { "world": 0, "level": 16, "nameInternal": "16", "name": "(Bonus) Cloudy Cache" },
+    { "world": 0, "level": 17, "nameInternal": "17", "name": "(Bonus) Mélée Mayhem" },
+    { "world": 0, "level": 18, "nameInternal": "18", "name": "(Bonus) Scalding Cascade" },
+    { "world": 0, "level": 19, "nameInternal": "19", "name": "(Bonus) Sulphurous Sea" },
+
+    { "world": 1, "level": 0, "nameInternal": "", "name": "(Menu) Worldmap" },
+    { "world": 1, "level": 1, "nameInternal": "", "name": "(Menu) Main Menu" },
+    { "world": 1, "level": 2, "nameInternal": "", "name": "(Menu) Pause Screen" },
+    { "world": 1, "level": 3, "nameInternal": "", "name": "(Menu) Score Screen" },
+    { "world": 1, "level": 4, "nameInternal": "", "name": "(Menu) Splash Screens" }
+  ]
+}
