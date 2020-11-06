@@ -14,12 +14,14 @@ namespace R1Engine {
         public enum CombineMode {
             UseSprite,
             UseLookupBufferDirectly,
+            UseLookupBufferDirectly_SingleTile
         }
         public CombineMode Mode { get; }
         public GBAIsometric_RHR_Sprite Sprite { get; }
         public bool Is8Bit { get; }
         public byte[] LookupBuffer { get; }
         public Pointer CompressedDataPointer { get; }
+        public int? TileIndex { get; set; }
         public RHR_SpriteEncoder(GBAIsometric_RHR_Sprite sprite) {
             Sprite = sprite;
             Mode = CombineMode.UseSprite;
@@ -29,6 +31,13 @@ namespace R1Engine {
             Is8Bit = is8bit;
             Mode = CombineMode.UseLookupBufferDirectly;
             CompressedDataPointer = compressedData;
+        }
+        public RHR_SpriteEncoder(bool is8bit, byte[] lookupBuffer, Pointer compressedData, int tileIndex) {
+            LookupBuffer = lookupBuffer;
+            Is8Bit = is8bit;
+            Mode = CombineMode.UseLookupBufferDirectly_SingleTile;
+            CompressedDataPointer = compressedData;
+            TileIndex = tileIndex;
         }
         private uint Rotate(uint bits, int places) {
             while(places < 0) places += 32;
@@ -233,6 +242,21 @@ namespace R1Engine {
                         } else {
                             ReadTile4Bit(reader, compressedDataOffset + tilePos, decompressed, i * tileSize);
                         }
+                    }
+                }
+            } else if (Mode == CombineMode.UseLookupBufferDirectly_SingleTile) {
+                int tileSize = Is8Bit ? 0x40 : 0x20;
+                decompressed = new byte[tileSize];
+                long compressedDataOffset = CompressedDataPointer?.FileOffset ?? 0;
+                int pos = TileIndex.Value;
+                if (pos == 0) {
+                    // Empty tile
+                } else {
+                    int tilePos = LookupBuffer[pos] + pos * 0x10;
+                    if (Is8Bit) {
+                        ReadTile8it(reader, compressedDataOffset + tilePos, decompressed, 0);
+                    } else {
+                        ReadTile4Bit(reader, compressedDataOffset + tilePos, decompressed, 0);
                     }
                 }
             }

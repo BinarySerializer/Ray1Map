@@ -8,9 +8,13 @@ namespace R1Engine
     public class GBAIsometric_RHR_AnimSet : R1Serializable {
         public byte Width { get; set; }
         public byte Height { get; set; }
-        public byte[] Bytes_00 { get; set; }
+        public byte PivotX { get; set; }
+        public byte PivotY { get; set; }
+        public byte Byte_04 { get; set; }
         public byte AnimationCount { get; set; }
         public byte[] Bytes_06 { get; set; }
+        public byte Flags { get; set; }
+        public byte[] Bytes_09 { get; set; }
         public Pointer PalettePointer { get; set; }
         public Pointer AnimationsPointer { get; set; }
         public Pointer FramesPointer { get; set; }
@@ -26,14 +30,19 @@ namespace R1Engine
         public GBAIsometric_RHR_AnimFrame[] Frames { get; set; }
         public Dictionary<int, GBAIsometric_RHR_AnimSet_Pattern[]> Patterns { get; set; }
         public ushort[] TileIndices { get; set; }
+        public bool Is8Bit => BitHelpers.ExtractBits(Flags, 1, 1) == 1;
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Width = s.Serialize<byte>(Width, name: nameof(Width));
             Height = s.Serialize<byte>(Height, name: nameof(Height));
-            Bytes_00 = s.SerializeArray<byte>(Bytes_00, 3, name: nameof(Bytes_00));
+            Width = s.Serialize<byte>(Width, name: nameof(Width));
+            PivotX = s.Serialize<byte>(PivotX, name: nameof(PivotX));
+            PivotY = s.Serialize<byte>(PivotY, name: nameof(PivotY));
+            Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
             AnimationCount = s.Serialize<byte>(AnimationCount, name: nameof(AnimationCount));
-            Bytes_06 = s.SerializeArray<byte>(Bytes_06, 10, name: nameof(Bytes_06));
+            Bytes_06 = s.SerializeArray<byte>(Bytes_06, 2, name: nameof(Bytes_06));
+            Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
+            Bytes_09 = s.SerializeArray<byte>(Bytes_09, 7, name: nameof(Bytes_09));
             PalettePointer = s.SerializePointer(PalettePointer, name: nameof(PalettePointer));
             AnimationsPointer = s.SerializePointer(AnimationsPointer, name: nameof(AnimationsPointer));
             FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
@@ -43,7 +52,7 @@ namespace R1Engine
             Bytes_28 = s.SerializeArray<byte>(Bytes_28, 8, name: nameof(Bytes_28));
             NamePointer = s.SerializePointer(NamePointer, name: nameof(NamePointer));
 
-            Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<ARGB1555Color>(Palette, 256, name: nameof(Palette)));
+            Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<ARGB1555Color>(Palette, Is8Bit ? 256 : 16, name: nameof(Palette)));
             Name = s.DoAt(NamePointer, () => s.SerializeString(Name, name: nameof(Name)));
 
             Animations = s.DoAt(AnimationsPointer, () => s.SerializeObjectArray<GBAIsometric_RHR_Animation>(Animations, AnimationCount, name: nameof(Animations)));

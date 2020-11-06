@@ -67,8 +67,126 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
+                new GameAction("Export AnimSets", false, true, (input, output) => ExportAnimSetsAsync(settings, output)),
                 new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output))
         };
+        public async UniTask ExportAnimSetAsync(Context context, string outputPath, GBAIsometric_RHR_AnimSet animSet) {
+            if (animSet == null) return;
+            string outPath = $"{outputPath}/{animSet.Name}/";
+            Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
+            SerializerObject s = context.Deserializer;
+            for (int a = 0; a < animSet.Animations.Length; a++) {
+                if(a % 10 == 0) await Controller.WaitIfNecessary();
+                var anim = animSet.Animations[a];
+                var startFrame = anim.StartFrameIndex;
+                var frameCount = anim.FrameCount;
+                for (int f = 0; f < frameCount; f++) {
+                    var frame = animSet.Frames[startFrame + f];
+                    Texture2D tex = TextureHelpers.CreateTexture2D(animSet.Width * CellSize, animSet.Height * CellSize, clear: true);
+
+                    if (frame.PatternIndex == 0xFFFF || frame.TileIndicesIndex == 0xFFFF) {
+                        // Empty frmae
+                    } else {
+                        var patIndex = frame.PatternIndex;
+                        var tileIndicesIndex = frame.TileIndicesIndex;
+
+                        Color[] pal = animSet.Palette.Select((x, palInd) => {
+                            Color col = x.GetColor();
+                            if (palInd != 0) {
+                                return new Color(col.r, col.g, col.b, 1f);
+                            } else {
+                                return new Color(col.r, col.g, col.b, 0f);
+                            }
+                        }).ToArray();
+                        int curTile = frame.TileIndicesIndex;
+                        for (int p = 0; p < animSet.Patterns[patIndex].Length; p++) {
+                            var pattern = animSet.Patterns[patIndex][p];
+                            for (int y = 0; y < pattern.Height; y++) {
+                                for (int x = 0; x < pattern.Width; x++) {
+                                    int actualX = x + pattern.XPosition;
+                                    int actualY = y + pattern.YPosition;
+                                    ushort tileIndex = animSet.TileIndices[curTile];
+                                    if (!decompressedDictionary.ContainsKey(tileIndex)) {
+                                        s.DoEncoded(new RHR_SpriteEncoder(animSet.Is8Bit,
+                                            animSet.GraphicsDataPointer.Value.CompressionLookupBuffer,
+                                            animSet.GraphicsDataPointer.Value.CompressedDataPointer,
+                                            tileIndex), () => {
+                                                decompressedDictionary[tileIndex] = s.SerializeArray<byte>(default, s.CurrentLength, name: $"{animSet.Name}:Tiles[{curTile}]:{tileIndex}");
+                                            });
+                                    }
+                                    Util.FillInTile(tex, decompressedDictionary[tileIndex], 0, pal, animSet.Is8Bit, CellSize, true, (anim.FlipX ? (animSet.Width - 1 - actualX) : actualX) * CellSize, actualY * CellSize, flipTileX: anim.FlipX);
+                                    curTile++;
+                                }
+                            }
+                        }
+                    }
+                    tex.Apply();
+                    Util.ByteArrayToFile(outPath + $"Anim{a}_Speed{anim.Speed}{(anim.FlipX ? "_Flip" : "")}/{f}.png", tex.EncodeToPNG());
+                }
+            }
+        }
+        public async UniTask ExportAnimSetsAsync(GameSettings settings, string outputPath) {
+            using (var context = new Context(settings)) {
+                var s = context.Deserializer;
+
+                await LoadFilesAsync(context);
+                // Read the rom
+                //var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
+                HashSet<string> exported = new HashSet<string>();
+                Pointer ptr = context.FilePointer(GetROMFilePath);
+                var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GameSettings.GameModeSelection, ptr.file);
+                Pointer<GBAIsometric_RHR_AnimSet>[] portraits = null;
+                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Portraits], () => {
+                    portraits = s.SerializePointerArray<GBAIsometric_RHR_AnimSet>(portraits, 10, resolve: true, name: nameof(portraits));
+                });
+                foreach (var animSetPtr in portraits) {
+                    var animSet = animSetPtr.Value;
+                    if(animSet != null && exported.Contains(animSet.Name)) continue;
+                    await ExportAnimSetAsync(context, outputPath, animSet);
+                    if(animSet != null) exported.Add(animSet.Name);
+                }
+                uint[] hardcodedAnimSets = new uint[] {
+                    0x080f0968,
+                    0x080f0a2c,
+                    0x08549ed0,
+                    0x084214f4,
+                    0x08449598,
+                    0x081e4ce0,
+                    0x0810f110,
+                    0x08481e58,
+                    0x08482234,
+                    0x08481f04,
+                    0x080effd4,
+                    0x08417c58,
+                    0x081e49bc,
+                };
+                foreach (var animSetPtr in hardcodedAnimSets) {
+                    var animSet = s.DoAt(new Pointer(animSetPtr, ptr.file), () => {
+                        return s.SerializeObject<GBAIsometric_RHR_AnimSet>(default, name: "AnimSet");
+                    });
+                    if (animSet != null && exported.Contains(animSet.Name)) continue;
+                    await ExportAnimSetAsync(context, outputPath, animSet);
+                    if (animSet != null) exported.Add(animSet.Name);
+                }
+                var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
+                /*foreach(var levelInfo in rom.LevelInfos) {
+                    if (levelInfo.LevelDataPointer.Value == null) {
+                        levelInfo.LevelDataPointer.Resolve(context.Deserializer);
+                        if (levelInfo.LevelDataPointer.Value == null) continue;
+                        foreach (var obj in levelInfo.LevelDataPointer.Value.) {
+                            obj.
+                        }
+                    }
+                }*/
+                foreach (var objType in rom.ObjectTypes) {
+                    var animSet = objType.DataPointer?.Value?.AnimSetPointer?.Value;
+                    if (animSet != null && exported.Contains(animSet.Name)) continue;
+                    await ExportAnimSetAsync(context, outputPath, animSet);
+                    if (animSet != null) exported.Add(animSet.Name);
+                }
+                Debug.Log("Finished extracting AnimSets.");
+            }
+        }
 
         public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
             using (var context = new Context(settings)) {

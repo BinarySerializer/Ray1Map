@@ -514,7 +514,12 @@ namespace R1Engine
                     else
                     {
                         var b = imgData[index];
-                        var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                        int v;
+                        if (flipTileX) {
+                            v = BitHelpers.ExtractBits(b, 4, x % 2 == 1 ? 0 : 4);
+                        } else {
+                            v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                        }
                         c = pal[v];
 
                         tex.SetPixel(tileX + x, yy, c);
