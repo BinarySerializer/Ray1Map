@@ -8,18 +8,26 @@
 
         public ushort[] StringOffsets { get; set; }
         public byte[][] StringTileIndices { get; set; }
+        public string[] Strings { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             StringOffsets = s.SerializeArray<ushort>(StringOffsets, Length, name: nameof(StringOffsets));
-            if (StringTileIndices == null) {
+            if (StringTileIndices == null) 
+            {
                 StringTileIndices = new byte[StringOffsets.Length][];
+                Strings = new string[StringOffsets.Length];
+
+                var encoding = new SpyroEncoding();
+
                 for (int i = 0; i < StringOffsets.Length; i++) {
                     s.DoAt(Offset + StringOffsets[i], () => {
                         s.DoEncoded(new Spyro_StringEncoder(DecompressHelpers), () => {
-                            //s.SerializeString(default, length: s.CurrentLength, name: "String");
                             StringTileIndices[i] = s.SerializeArray<byte>(StringTileIndices[i], s.CurrentLength, name: $"{nameof(StringTileIndices)}[{i}]");
-                            // Add 46 to each byte to get good lowercase characters
+
+                            var str = encoding.GetString(StringTileIndices[i]);
+                            Strings[i] = str;
+                            s.Log($"String: {str}");
                         });
                     });
                 }

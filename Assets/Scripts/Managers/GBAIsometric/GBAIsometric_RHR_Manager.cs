@@ -436,8 +436,11 @@ namespace R1Engine
             }
         }
 
-        public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
+            Controller.DetailedState = $"Loading data";
+            await Controller.WaitIfNecessary();
+
             // Read the rom
             var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
 
@@ -454,7 +457,11 @@ namespace R1Engine
                 availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
 
             var tileSets = new Dictionary<GBAIsometric_RHR_TileSet, Unity_MapTileMap>();
+
             CreateCollisionModel(context, levelData);
+
+            Controller.DetailedState = $"Loading maps";
+            await Controller.WaitIfNecessary();
 
             var maps = availableMaps.Select(x =>
             {
@@ -494,6 +501,9 @@ namespace R1Engine
                 allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_Object)new Unity_Object_GBAIsometricWaypoint(x, objManager)));
             }
 
+            Controller.DetailedState = $"Loading localization";
+            await Controller.WaitIfNecessary();
+
             // Add localization
             var loc = rom.Localization.Localization.Select((x, i) => new
             {
@@ -501,12 +511,12 @@ namespace R1Engine
                 strings = x
             }).ToDictionary(x => x.key, x => x.strings);
 
-            return UniTask.FromResult(new Unity_Level(
+            return new Unity_Level(
                 maps: maps, 
                 objManager: objManager,
                 eventData: allObjects,
                 cellSize: CellSize,
-                localization: loc));
+                localization: loc);
         }
 
         public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(GBAIsometric_RHR_ROM rom)

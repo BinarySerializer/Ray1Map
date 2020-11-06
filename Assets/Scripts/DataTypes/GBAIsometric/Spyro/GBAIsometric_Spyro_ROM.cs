@@ -107,10 +107,8 @@ namespace R1Engine
                 LocTables = s.DoAt(Offset + 0x1c0488, () => s.SerializeObjectArray<GBAIsometric_Spyro_LocTable>(LocTables, 38, name: nameof(LocTables)));
                 LocalizationDecompressionBlockIndex = s.DoAt(Offset + 0x01c05bc, () => s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(LocalizationDecompressionBlockIndex, name: nameof(LocalizationDecompressionBlockIndex)));
                 LocalizationBlockIndex = s.DoAt(Offset + 0x01c05b8, () => s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndex, name: nameof(LocalizationBlockIndex)));
-                LocDecompressHelpers = LocalizationDecompressionBlockIndex.DoAtBlock((size) => {
-                    return s.SerializeObjectArray<GBAIsometric_Spyro_LocDecompress>(LocDecompressHelpers, size / 3, name: nameof(LocDecompressHelpers));
-                });
-                LocBlock = LocalizationBlockIndex.DoAtBlock((size) => {
+                LocDecompressHelpers = LocalizationDecompressionBlockIndex.DoAtBlock(size => s.SerializeObjectArray<GBAIsometric_Spyro_LocDecompress>(LocDecompressHelpers, size / 3, name: nameof(LocDecompressHelpers)));
+                LocBlock = LocalizationBlockIndex.DoAtBlock(size => {
                     return s.SerializeObject<GBAIsometric_Spyro_LocBlock>(LocBlock, onPreSerialize: lb => {
                         lb.Length = LocTables.Max(lt => lt.StartIndex + lt.NumEntries);
                         lb.DecompressHelpers = LocDecompressHelpers;

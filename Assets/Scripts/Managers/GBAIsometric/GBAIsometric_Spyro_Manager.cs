@@ -137,8 +137,11 @@ namespace R1Engine
             }
         }
 
-        public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
+            Controller.DetailedState = $"Loading data";
+            await Controller.WaitIfNecessary();
+
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
             var is2D = LevelInfos[context.Settings.World].Is2D;
@@ -147,9 +150,17 @@ namespace R1Engine
             // Convert map arrays to map tiles
             Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles = levelData.MapLayers.Where(x => x != null).ToDictionary(x => x, GetMapTiles);
 
+            Controller.DetailedState = $"Loading tileset";
+            await Controller.WaitIfNecessary();
+
             // Load tileset
             var tileSet = LoadTileSet(levelData.TilePalette, levelData.MapLayers.Where(x => x != null).Select(x => x.TileSet).ToArray(), mapTiles);
+
             CreateCollisionModel(context, levelData.Collision3D);
+
+            Controller.DetailedState = $"Loading maps";
+            await Controller.WaitIfNecessary();
+
             var maps = levelData.MapLayers.Select(x => x).Select((map, i) =>
             {
                 if (map == null)
@@ -220,14 +231,41 @@ namespace R1Engine
                 objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometric(x, objManager)));
             }
 
-            return UniTask.FromResult(new Unity_Level(
+            Controller.DetailedState = $"Loading localization";
+            await Controller.WaitIfNecessary();
+
+            return new Unity_Level(
                 maps: validMaps,
                 objManager: objManager,
                 eventData: objects,
                 cellSize: CellSize,
                 getCollisionTypeGraphicFunc: x => ((GBAIsometric_Spyro_TileCollisionType2D)x).GetCollisionTypeGraphic(),
                 defaultMap: 1,
-                defaultCollisionMap: validMaps.Length - 1));
+                localization: LoadLocalization(context, rom),
+                defaultCollisionMap: validMaps.Length - 1);
+        }
+
+        public Dictionary<string, string[]> LoadLocalization(Context context, GBAIsometric_Spyro_ROM rom)
+        {
+            string[] languages = null;
+
+            switch (context.Settings.GameModeSelection)
+            {
+                case GameModeSelection.SpyroAdventureUS:
+                    languages = new string[]
+                    {
+                        "English"
+                    };
+                    break;
+
+                default:
+                    return null;
+            }
+
+            return new Dictionary<string, string[]>()
+            {
+                [languages[0]] = rom.LocBlock.Strings
+            };
         }
 
         // Recreated from function at 0x08050200 (US rom for Spyro3)
