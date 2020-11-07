@@ -17,7 +17,15 @@ namespace R1Engine
         public virtual string GetROMFilePath => $"ROM.gba";
 
         public abstract int DataTableCount { get; }
-        public abstract IEnumerable<string> GetLanguages(GameModeSelection gameModeSelection);
+        public abstract int PortraitsCount { get; }
+        public abstract int DialogCount { get; }
+        public abstract int PrimaryLevelCount { get; }
+        public abstract int LevelMapsCount { get; }
+        public abstract int TotalLevelsCount { get; }
+        public abstract int ObjectTypesCount { get; }
+        public abstract int AnimSetsCount { get; }
+
+        public abstract IEnumerable<string> GetLanguages { get; }
         public abstract LevelInfo[] LevelInfos { get; }
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
@@ -89,7 +97,7 @@ namespace R1Engine
 
                 var langIndex = 0;
 
-                foreach (var lang in GetLanguages(settings.GameModeSelection))
+                foreach (var lang in GetLanguages)
                 {
                     using (var w = new StreamWriter(Path.Combine(outputPath, $"Cutscenes_{lang}.txt")))
                     {
@@ -303,7 +311,7 @@ namespace R1Engine
 
         public Dictionary<string, string[]> LoadLocalization(Context context, GBAIsometric_Spyro_ROM rom)
         {
-            var langages = GetLanguages(context.Settings.GameModeSelection).ToArray();
+            var langages = GetLanguages.ToArray();
 
             return rom.Localization.LocBlocks.Select((x, i) => new
             {

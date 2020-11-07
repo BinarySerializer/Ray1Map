@@ -282,10 +282,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro2, Game.GBAIsometric_Spyro2, "Spyro 2: Season of Flame (GBA - US)", typeof(GBAIsometric_Spyro2_Manager))]
         SpyroSeasonFlameUS,
 
-        //[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro3, Game.GBAIsometric_Spyro3, "Spyro's Adventure (GBA - EU)", typeof(GBAIsometric_Spyro3_Manager))]
-        //SpyroAdventureEU,
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro3, Game.GBAIsometric_Spyro3, "Spyro's Adventure (GBA - EU)", typeof(GBAIsometric_Spyro3EU_Manager))]
+        SpyroAdventureEU,
 
-        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro3, Game.GBAIsometric_Spyro3, "Spyro: Attack of the Rhynocs (GBA - US)", typeof(GBAIsometric_Spyro3_Manager))]
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro3, Game.GBAIsometric_Spyro3, "Spyro: Attack of the Rhynocs (GBA - US)", typeof(GBAIsometric_Spyro3US_Manager))]
         SpyroAdventureUS,
     }
 }

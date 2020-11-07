@@ -16,7 +16,7 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Get the language count for the current game
-            var langCount = ((GBAIsometric_Spyro_Manager)s.GameSettings.GetGameManager).GetLanguages(s.GameSettings.GameModeSelection).Count();
+            var langCount = ((GBAIsometric_Spyro_Manager)s.GameSettings.GetGameManager).GetLanguages.Count();
             var pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
             // Parse loc tables

@@ -630,6 +630,28 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x0817B728,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.SpyroAdventureEU:
+                    return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
+                        [GBAIsometric_Spyro_Pointer.DataTable] = 0x081c1470,
+
+                        [GBAIsometric_Spyro_Pointer.LocalizationBlockIndices] = 0x081c0d9c,
+                        [GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices] = 0x081c0db4,
+                        [GBAIsometric_Spyro_Pointer.LocTables] = 0x081C0C6C,
+
+                        [GBAIsometric_Spyro_Pointer.ObjectTypes] = 0x081c9670,
+                        [GBAIsometric_Spyro_Pointer.AnimSets] = 0x081c8d58,
+
+                        [GBAIsometric_Spyro_Pointer.PortraitSprites] = 0x081bfe28,
+                        [GBAIsometric_Spyro_Pointer.DialogEntries] = 0x081bf238,
+
+                        [GBAIsometric_Spyro_Pointer.GemCounts] = 0x081C07EA,
+                        [GBAIsometric_Spyro_Pointer.LevelIndices] = 0x081C0814,
+                        [GBAIsometric_Spyro_Pointer.LevelNameInfos] = 0x081D2C5C,
+
+                        [GBAIsometric_Spyro_Pointer.LevelMaps] = 0x081d0d64,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x081d13f0,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.SpyroAdventureUS:
                     return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x081C0B60,
@@ -637,6 +659,19 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.LocalizationBlockIndices] = 0x081c05b8,
                         [GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices] = 0x081c05bc,
                         [GBAIsometric_Spyro_Pointer.LocTables] = 0x081c0488,
+
+                        [GBAIsometric_Spyro_Pointer.ObjectTypes] = 0x081c8954,
+                        [GBAIsometric_Spyro_Pointer.AnimSets] = 0x081c8024,
+
+                        [GBAIsometric_Spyro_Pointer.PortraitSprites] = 0x081bf644,
+                        [GBAIsometric_Spyro_Pointer.DialogEntries] = 0x081bea54,
+
+                        [GBAIsometric_Spyro_Pointer.GemCounts] = 0x081c0006,
+                        [GBAIsometric_Spyro_Pointer.LevelIndices] = 0x081c0030,
+                        [GBAIsometric_Spyro_Pointer.LevelNameInfos] = 0x081d1f44,
+
+                        [GBAIsometric_Spyro_Pointer.LevelMaps] = 0x081d0058,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x081d06e4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

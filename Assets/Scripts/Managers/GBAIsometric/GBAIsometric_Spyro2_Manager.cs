@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace R1Engine
@@ -6,15 +7,20 @@ namespace R1Engine
     public class GBAIsometric_Spyro2_Manager : GBAIsometric_Spyro_Manager
     {
         public override int DataTableCount => 1509;
+        public override int PortraitsCount => throw new NotImplementedException();
+        public override int DialogCount => throw new NotImplementedException();
+        public override int PrimaryLevelCount => throw new NotImplementedException();
+        public override int LevelMapsCount => throw new NotImplementedException();
+        public override int TotalLevelsCount => throw new NotImplementedException();
+        public override int ObjectTypesCount => throw new NotImplementedException();
+        public override int AnimSetsCount => throw new NotImplementedException();
 
-        public override IEnumerable<string> GetLanguages(GameModeSelection gameModeSelection)
+        public override IEnumerable<string> GetLanguages
         {
-            yield return "English";
-
-            //if (gameModeSelection == GameModeSelection.)
-            //{
-            //    // TODO: Other languages
-            //}
+            get
+            {
+                yield return "English";
+            }
         }
 
         public override LevelInfo[] LevelInfos => new LevelInfo[]

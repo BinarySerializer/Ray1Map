@@ -6,6 +6,13 @@ namespace R1Engine
 {
     public class SpyroEncoding : Encoding
     {
+        public SpyroEncoding(GameModeSelection gameModeSelection)
+        {
+            GameModeSelection = gameModeSelection;
+        }
+
+        public GameModeSelection GameModeSelection { get; }
+
         public override int GetByteCount(char[] chars, int index, int count) => count;
 
         public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex) => throw new System.NotImplementedException();

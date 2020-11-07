@@ -18,7 +18,7 @@
                 StringTileIndices = new byte[StringOffsets.Length][];
                 Strings = new string[StringOffsets.Length];
 
-                var encoding = new SpyroEncoding();
+                var encoding = new SpyroEncoding(s.GameSettings.GameModeSelection);
 
                 for (int i = 0; i < StringOffsets.Length; i++) {
                     s.DoAt(Offset + StringOffsets[i], () => {
