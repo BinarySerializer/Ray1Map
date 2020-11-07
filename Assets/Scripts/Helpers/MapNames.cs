@@ -140,6 +140,7 @@ namespace R1Engine
                         [0] = "3D",
                         [1] = "Agent 9",
                         [2] = "Sgt. Byrd",
+                        [3] = "Byrd Rescue",
                     };
 
                 case Game.SNES_Prototype:
@@ -556,6 +557,7 @@ namespace R1Engine
                 [8] = "Temple of Dune - Side Area 2",
                 [9] = "Tiki Tropics",
                 [10] = "Crush - Boss",
+                
                 [11] = "Celestial Plains - Hub",
                 [12] = "Candy Lane",
                 [13] = "Candy Lane - Side Area",
@@ -569,6 +571,7 @@ namespace R1Engine
                 [21] = "Dreamy Castle - Side Area 1",
                 [22] = "Dreamy Castle - Side Area 2",
                 [23] = "Gulp - Boss",
+
                 [24] = "Starry Plains - Hub",
                 [25] = "Moon Fondue",
                 [26] = "Moon Fondue - Side Area 1",
@@ -705,6 +708,24 @@ namespace R1Engine
                 [88] = "Byrd Barracks - Rescue Mission",
                 [89] = "Rhynocs n' Clocks - Rescue Mission",
                 [90] = "Chateau Ripto - Rescue Mission",
+            },
+            [4] = new Dictionary<int, string>()
+            {
+                [0] = "Byrd Rescue 1",
+                [1] = "Byrd Rescue 2",
+                [2] = "Byrd Rescue 3",
+                [3] = "Byrd Rescue 4",
+                [4] = "Byrd Rescue 5",
+                [5] = "Byrd Rescue 6",
+                [6] = "Byrd Rescue 7",
+                [7] = "Byrd Rescue 8",
+                [8] = "Byrd Rescue 9",
+
+                // These are duplicates of the rescue missions, so we ignore them
+                //[9] = "Glacial Grotto",
+                //[10] = "Hazardous Hollow",
+                //[11] = "Cuckoo Caverns",
+                //[12] = "Ripto Razzle",
             }
         };
     }

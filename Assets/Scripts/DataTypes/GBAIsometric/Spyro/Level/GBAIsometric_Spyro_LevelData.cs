@@ -3,7 +3,7 @@
     public class GBAIsometric_Spyro_LevelData : R1Serializable
     {
         public bool Is2D { get; set; }
-        public bool SerializeData { get; set; } = true;
+        public int SerializeDataForID { get; set; }
 
         public Pointer[] MapLayerPointers { get; set; }
 
@@ -50,7 +50,7 @@
                 ID = s.Serialize<uint>(ID, name: nameof(ID));
             }
 
-            if (SerializeData && ID == s.GameSettings.Level)
+            if (SerializeDataForID == ID)
             {
                 if (MapLayers == null)
                     MapLayers = new GBAIsometric_Spyro_MapLayer[MapLayerPointers.Length];

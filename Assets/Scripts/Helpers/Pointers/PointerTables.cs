@@ -628,6 +628,26 @@ namespace R1Engine
                 case GameModeSelection.SpyroSeasonFlameUS:
                     return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x0817B728,
+
+                        //[GBAIsometric_Spyro_Pointer.LocalizationBlockIndices] = ,
+                        //[GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices] = ,
+                        //[GBAIsometric_Spyro_Pointer.LocTables] = ,
+
+                        //[GBAIsometric_Spyro_Pointer.ObjectTypes] = ,
+                        [GBAIsometric_Spyro_Pointer.AnimSets] = 0x081730f8,
+
+                        //[GBAIsometric_Spyro_Pointer.PortraitSprites] = ,
+                        //[GBAIsometric_Spyro_Pointer.DialogEntries] = ,
+
+                        //[GBAIsometric_Spyro_Pointer.GemCounts] = ,
+                        //[GBAIsometric_Spyro_Pointer.LevelIndices] = ,
+                        //[GBAIsometric_Spyro_Pointer.LevelNameInfos] = ,
+
+                        //[GBAIsometric_Spyro_Pointer.LevelMaps] = ,
+                        //[GBAIsometric_Spyro_Pointer.LevelObjects] = ,
+
+                        [GBAIsometric_Spyro_Pointer.LevelData] = 0x0817a878,
+                        [GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9] = 0x08178ef8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroAdventureEU:
@@ -647,9 +667,17 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.GemCounts] = 0x081C07EA,
                         [GBAIsometric_Spyro_Pointer.LevelIndices] = 0x081C0814,
                         [GBAIsometric_Spyro_Pointer.LevelNameInfos] = 0x081D2C5C,
+                        [GBAIsometric_Spyro_Pointer.MenuPages] = 0x081c1234,
 
                         [GBAIsometric_Spyro_Pointer.LevelMaps] = 0x081d0d64,
                         [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x081d13f0,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_Agent9] = 0x081d1ff4,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_SgtByrd] = 0x081d1550,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_ByrdRescue] = 0x081d1580,
+
+                        [GBAIsometric_Spyro_Pointer.LevelData] = 0x081d0b44,
+                        [GBAIsometric_Spyro_Pointer.LevelData_Spyro3_Agent9] = 0x081d22bc,
+                        [GBAIsometric_Spyro_Pointer.LevelData_Spyro3_SgtByrd] = 0x081d1d34,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroAdventureUS:
@@ -669,9 +697,17 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.GemCounts] = 0x081c0006,
                         [GBAIsometric_Spyro_Pointer.LevelIndices] = 0x081c0030,
                         [GBAIsometric_Spyro_Pointer.LevelNameInfos] = 0x081d1f44,
+                        [GBAIsometric_Spyro_Pointer.MenuPages] = 0x081c09b0,
 
                         [GBAIsometric_Spyro_Pointer.LevelMaps] = 0x081d0058,
                         [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x081d06e4,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_Agent9] = 0x081d12e8,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_SgtByrd] = 0x081d0844,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_ByrdRescue] = 0x081d0874,
+
+                        [GBAIsometric_Spyro_Pointer.LevelData] = 0x081CFE38,
+                        [GBAIsometric_Spyro_Pointer.LevelData_Spyro3_Agent9] = 0x081D15B0,
+                        [GBAIsometric_Spyro_Pointer.LevelData_Spyro3_SgtByrd] = 0x081D1028,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:
