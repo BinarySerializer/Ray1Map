@@ -1,11 +1,12 @@
-﻿using System.Linq;
+﻿using System.IO;
 
 namespace R1Engine
 {
     public class GBAIsometric_Spyro_ROM : GBA_ROMBase
     {
         public GBAIsometric_Spyro_DataTable DataTable { get; set; }
-        
+        public GBAIsometric_Spyro_Localization Localization { get; set; }
+
         public GBAIsometric_Spyro_LevelData[][] LevelData { get; set; }
         public GBAIsometric_Spyro_LevelMap[] LevelMaps { get; set; }
         public GBAIsometric_Spyro_LevelObjects[] LevelObjects { get; set; }
@@ -16,16 +17,11 @@ namespace R1Engine
         public GBAIsometric_Spyro_PortraitSprite[] PortraitSprites { get; set; }
         public GBAIsometric_Spyro_Dialog[] DialogEntries { get; set; }
 
-        public GBAIsometric_Spyro_UnkStruct2[] UnkStructs2 { get; set; } // One for every level
+        public GBAIsometric_Spyro_LevelNameInfo[] LevelNameInfos { get; set; } // One for every level
         public GBAIsometric_Spyro_UnkStruct3[] UnkStructs3 { get; set; }
         public byte[] LevelIndices { get; set; } // Level index for every map
         public ushort[] GemCounts { get; set; } // The gem count for every level
 
-        public GBAIsometric_Spyro_DataBlockIndex LocalizationBlockIndex { get; set; } // this is in an array.
-        public GBAIsometric_Spyro_DataBlockIndex LocalizationDecompressionBlockIndex { get; set; } // this too
-        public GBAIsometric_Spyro_LocTable[] LocTables { get; set; }
-        public GBAIsometric_Spyro_LocBlock LocBlock { get; set; }
-        public GBAIsometric_Spyro_LocDecompress[] LocDecompressHelpers { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -42,6 +38,9 @@ namespace R1Engine
             // Serialize primary data table and store it so we can get the data blocks
             DataTable = s.DoAt(pointerTabe[GBAIsometric_Spyro_Pointer.DataTable], () => s.SerializeObject<GBAIsometric_Spyro_DataTable>(DataTable, name: nameof(DataTable)));
             s.Context.StoreObject(nameof(DataTable), DataTable);
+
+            // Serialize the localization data
+            Localization = s.SerializeObject<GBAIsometric_Spyro_Localization>(Localization, name: nameof(Localization));
 
             var levelInfo = manager.LevelInfos;
 
@@ -95,26 +94,14 @@ namespace R1Engine
                 GemCounts = s.DoAt(Offset + 0x1c0006, () => s.SerializeArray<ushort>(GemCounts, 14, name: nameof(GemCounts)));
                 LevelMaps = s.DoAt(Offset + 0x1d0058, () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelMap>(LevelMaps, 21, name: nameof(LevelMaps)));
                 LevelObjects = s.DoAt(Offset + 0x1d06e4, () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, 80, name: nameof(LevelObjects)));
-                LevelIndices = s.DoAt(Offset + 0x1c0030, () => s.SerializeArray<byte>(LevelIndices, 108, name: nameof(LevelIndices)));
+                LevelIndices = s.DoAt(Offset + 0x1c0030, () => s.SerializeArray<byte>(LevelIndices, 91, name: nameof(LevelIndices)));
                 ObjectTypes = s.DoAt(Offset + 0x1c8954, () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 772, name: nameof(ObjectTypes)));
                 AnimSets = s.DoAt(Offset + 0x1c8024, () => s.SerializeObjectArray<GBAIsometric_Spyro_AnimSet>(AnimSets, 196, name: nameof(AnimSets)));
 
                 // Serialize unknown structs
-                UnkStructs2 = s.DoAt(Offset + 0x1d1f44, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct2>(UnkStructs2, 91, name: nameof(UnkStructs2)));
+                LevelNameInfos = s.DoAt(Offset + 0x1d1f44, () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelNameInfo>(LevelNameInfos, 91, name: nameof(LevelNameInfos)));
                 UnkStructs3 = s.DoAt(Offset + 0x1c009c, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct3>(UnkStructs3, 104, name: nameof(UnkStructs3)));
                 // 0x1bfa10, same as UnkStruct3
-
-                LocTables = s.DoAt(Offset + 0x1c0488, () => s.SerializeObjectArray<GBAIsometric_Spyro_LocTable>(LocTables, 38, name: nameof(LocTables)));
-                LocalizationDecompressionBlockIndex = s.DoAt(Offset + 0x01c05bc, () => s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(LocalizationDecompressionBlockIndex, name: nameof(LocalizationDecompressionBlockIndex)));
-                LocalizationBlockIndex = s.DoAt(Offset + 0x01c05b8, () => s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndex, name: nameof(LocalizationBlockIndex)));
-                LocDecompressHelpers = LocalizationDecompressionBlockIndex.DoAtBlock(size => s.SerializeObjectArray<GBAIsometric_Spyro_LocDecompress>(LocDecompressHelpers, size / 3, name: nameof(LocDecompressHelpers)));
-                LocBlock = LocalizationBlockIndex.DoAtBlock(size => {
-                    return s.SerializeObject<GBAIsometric_Spyro_LocBlock>(LocBlock, onPreSerialize: lb => {
-                        lb.Length = LocTables.Max(lt => lt.StartIndex + lt.NumEntries);
-                        lb.DecompressHelpers = LocDecompressHelpers;
-                    }, name: nameof(LocBlock));
-
-                });
             }
         }
     }

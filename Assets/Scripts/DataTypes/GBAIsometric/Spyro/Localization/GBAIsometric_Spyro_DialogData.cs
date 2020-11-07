@@ -33,7 +33,8 @@ namespace R1Engine
 
             // Parsed data
             public ushort PortraitIndex { get; set; }
-            public ushort[] Ushorts { get; set; }
+            public GBAIsometric_LocIndex[] LocIndices { get; set; }
+            public GBAIsometric_LocIndex[] MultiChoiceLocIndices { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
@@ -47,47 +48,50 @@ namespace R1Engine
                         PortraitIndex = s.Serialize<ushort>(PortraitIndex, name: nameof(PortraitIndex));
                         break;
 
-                    case Instruction.HandleUshorts:
-                    case Instruction.HandleUshorts2:
-                        if (Ushorts == null)
+                    case Instruction.DrawText:
+                    case Instruction.DrawMultiChoiceText:
+                        if (LocIndices == null)
                         {
-                            var blocks = new List<ushort>();
+                            var blocks = new List<GBAIsometric_LocIndex>();
 
                             var index = 0;
 
                             while (true)
                             {
-                                var v = s.Serialize<ushort>(default, name: $"{nameof(Ushorts)}[{index++}]");
+                                var v = s.SerializeObject<GBAIsometric_LocIndex>(default, x => x.ParseIndexFunc = i => i & 0x7FFF, name: $"{nameof(LocIndices)}[{index++}]");
 
                                 blocks.Add(v);
 
-                                if ((v & 0x8000) != 0)
+                                if ((v.LocIndex & 0x8000) != 0)
                                     break;
                             }
 
-                            Ushorts = blocks.ToArray();
+                            LocIndices = blocks.ToArray();
                         }
                         else
                         {
-                            s.SerializeArray<ushort>(Ushorts, Ushorts.Length, name: nameof(Ushorts));
+                            s.SerializeObjectArray<GBAIsometric_LocIndex>(LocIndices, LocIndices.Length, name: nameof(LocIndices));
                         }
                         break;
 
-                    case Instruction.Unk3:
-                        // No data gets parsed here, instead function 0x08060C10 is called (US rom)
+                    case Instruction.MoveCamera:
+                        // No data gets parsed here, instead it jumps to r3
                         break;
 
                     default:
                         throw new ArgumentOutOfRangeException(nameof(InstructionByte), InstructionByte, null);
                 }
+
+                if (InstructionFlags.HasFlag(Flags.HasMultiChoiceIndices))
+                    MultiChoiceLocIndices = s.SerializeObjectArray<GBAIsometric_LocIndex>(MultiChoiceLocIndices, 4, x => x.ParseIndexFunc = i => i == 0 ? -1 : i, name: nameof(MultiChoiceLocIndices));
             }
 
             public enum Instruction : byte
             {
                 DrawPortrait = 0,
-                HandleUshorts = 1,
-                HandleUshorts2 = 2, // Some values are set first if this instruction is used - for multiple choices? Seems to always be used in combination with Flag_2.
-                Unk3 = 3
+                DrawText = 1,
+                DrawMultiChoiceText = 2,
+                MoveCamera = 3
             }
 
             [Flags]
@@ -96,7 +100,7 @@ namespace R1Engine
                 None = 0,
                 Flag_0 = 1 << 0,
                 Flag_1 = 1 << 1,
-                Flag_2 = 1 << 2, // Seems to indicate some additional data after the block
+                HasMultiChoiceIndices = 1 << 2, // Seems to indicate some additional data after the block
                 LastEntry = 1 << 3,
                 Flag_4 = 1 << 4,
                 Flag_5 = 1 << 5,

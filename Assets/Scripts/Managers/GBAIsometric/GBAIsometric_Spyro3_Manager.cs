@@ -6,6 +6,17 @@ namespace R1Engine
     public class GBAIsometric_Spyro3_Manager : GBAIsometric_Spyro_Manager
     {
         public override int DataTableCount => 2180;
+
+        public override IEnumerable<string> GetLanguages(GameModeSelection gameModeSelection)
+        {
+            yield return "English";
+
+            //if (gameModeSelection == GameModeSelection.SpyroAdventureEU)
+            //{
+            //    // TODO: Other languages
+            //}
+        }
+
         public override LevelInfo[] LevelInfos => new LevelInfo[]
         {
             // 3D maps

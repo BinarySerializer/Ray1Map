@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace R1Engine
@@ -9,12 +10,15 @@ namespace R1Engine
 
         public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex) => throw new System.NotImplementedException();
 
-        public override int GetCharCount(byte[] bytes, int index, int count) => count;
+        public override int GetCharCount(byte[] bytes, int index, int count) => bytes.Count(x => x != 0xFF);
 
         public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
         {
             for (int i = byteIndex; i < byteCount; i++)
             {
+                if (bytes[i] == 0xFF)
+                    continue;
+
                 chars[charIndex] = CharTable.TryGetItem(bytes[i]);
                 charIndex++;
             }
@@ -26,14 +30,17 @@ namespace R1Engine
         {
             [0] = ' ',
             [1] = '!',
-
+            [2] = '#',
+            // TODO: 3
             [4] = '\'',
-
+            [5] = '[',
+            [6] = ']',
+            [7] = '*',
             [8] = '+', // ?
             [9] = ',',
             [10] = '-',
             [11] = '.',
-            
+            // TODO: 12
             [13] = '0',
             [14] = '1',
             [15] = '2',

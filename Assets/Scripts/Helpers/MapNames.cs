@@ -702,7 +702,7 @@ namespace R1Engine
             [2] = new Dictionary<int, string>()
             {
                 // TODO: Add names - get correct IDs
-                // Level array: 01 04 0C 0D 00 04 0E 13 1E 24 2A 2F 34 3B 40 44 49 4D 00 00 00
+                // Level array: 01 04 0C 0D
             }
         };
     }

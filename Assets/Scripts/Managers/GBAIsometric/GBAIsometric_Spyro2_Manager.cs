@@ -7,6 +7,16 @@ namespace R1Engine
     {
         public override int DataTableCount => 1509;
 
+        public override IEnumerable<string> GetLanguages(GameModeSelection gameModeSelection)
+        {
+            yield return "English";
+
+            //if (gameModeSelection == GameModeSelection.)
+            //{
+            //    // TODO: Other languages
+            //}
+        }
+
         public override LevelInfo[] LevelInfos => new LevelInfo[]
         {
             // 3D maps

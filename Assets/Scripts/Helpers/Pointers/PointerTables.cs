@@ -633,6 +633,10 @@ namespace R1Engine
                 case GameModeSelection.SpyroAdventureUS:
                     return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x081C0B60,
+
+                        [GBAIsometric_Spyro_Pointer.LocalizationBlockIndices] = 0x081c05b8,
+                        [GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices] = 0x081c05bc,
+                        [GBAIsometric_Spyro_Pointer.LocTables] = 0x081c0488,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

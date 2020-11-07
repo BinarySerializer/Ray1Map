@@ -17,6 +17,7 @@ namespace R1Engine
         public virtual string GetROMFilePath => $"ROM.gba";
 
         public abstract int DataTableCount { get; }
+        public abstract IEnumerable<string> GetLanguages(GameModeSelection gameModeSelection);
         public abstract LevelInfo[] LevelInfos { get; }
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
@@ -24,6 +25,7 @@ namespace R1Engine
             new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false)),
             new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, true)),
             new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
+            new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenes(settings, output)),
         };
 
         public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize) {
@@ -73,6 +75,60 @@ namespace R1Engine
                             Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.dat"), data);
                         }
                     }
+                }
+            }
+        }
+
+        public async UniTask ExportCutscenes(GameSettings settings, string outputPath)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+
+                var langIndex = 0;
+
+                foreach (var lang in GetLanguages(settings.GameModeSelection))
+                {
+                    using (var w = new StreamWriter(Path.Combine(outputPath, $"Cutscenes_{lang}.txt")))
+                    {
+                        foreach (var d in rom.DialogEntries.OrderBy(x => x.ID))
+                        {
+                            var data = d.DialogData;
+
+                            w.WriteLine($"Cutscene {d.ID} (0x{d.Offset.AbsoluteOffset:X8})");
+
+                            foreach (var e in data.Entries)
+                            {
+                                switch (e.InstructionByte)
+                                {
+                                    case GBAIsometric_Spyro_DialogData.Entry.Instruction.DrawPortrait:
+                                        w.WriteLine($"[Draw portrait {e.PortraitIndex}]");
+                                        break;
+
+                                    case GBAIsometric_Spyro_DialogData.Entry.Instruction.DrawText:
+                                    case GBAIsometric_Spyro_DialogData.Entry.Instruction.DrawMultiChoiceText:
+                                        w.WriteLine($"{String.Join(" ", e.LocIndices.Select(x => x.GetString(langIndex)))}");
+                                        break;
+
+                                    case GBAIsometric_Spyro_DialogData.Entry.Instruction.MoveCamera:
+                                        w.WriteLine("[Move camera]");
+                                        break;
+                                }
+
+                                if (e.InstructionByte == GBAIsometric_Spyro_DialogData.Entry.Instruction.DrawMultiChoiceText)
+                                {
+                                    w.WriteLine($"  > {e.MultiChoiceLocIndices[0].GetString(langIndex)} > {e.MultiChoiceLocIndices[2].GetString(langIndex)}");
+                                    w.WriteLine($"  > {e.MultiChoiceLocIndices[1].GetString(langIndex)} > {e.MultiChoiceLocIndices[3].GetString(langIndex)}");
+                                }
+                            }
+
+                            w.WriteLine();
+                        }
+                    }
+
+                    langIndex++;
                 }
             }
         }
@@ -247,25 +303,13 @@ namespace R1Engine
 
         public Dictionary<string, string[]> LoadLocalization(Context context, GBAIsometric_Spyro_ROM rom)
         {
-            string[] languages = null;
+            var langages = GetLanguages(context.Settings.GameModeSelection).ToArray();
 
-            switch (context.Settings.GameModeSelection)
+            return rom.Localization.LocBlocks.Select((x, i) => new
             {
-                case GameModeSelection.SpyroAdventureUS:
-                    languages = new string[]
-                    {
-                        "English"
-                    };
-                    break;
-
-                default:
-                    return null;
-            }
-
-            return new Dictionary<string, string[]>()
-            {
-                [languages[0]] = rom.LocBlock.Strings
-            };
+                Lang = langages[i],
+                Strings = x.Strings
+            }).ToDictionary(x => x.Lang, x => x.Strings);
         }
 
         // Recreated from function at 0x08050200 (US rom for Spyro3)

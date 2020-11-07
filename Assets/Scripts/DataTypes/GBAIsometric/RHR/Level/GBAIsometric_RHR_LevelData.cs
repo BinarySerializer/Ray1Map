@@ -19,7 +19,7 @@
         public byte Byte_6E { get; set; }
         public byte Byte_6F { get; set; }
 
-        public GBAIsometric_RHR_LocIndex LevelNameLocIndex { get; set; }
+        public GBAIsometric_LocIndex LevelNameLocIndex { get; set; }
 
         // Parsed from pointers
 
@@ -45,7 +45,7 @@
             Byte_6E = s.Serialize<byte>(Byte_6E, name: nameof(Byte_6E));
             Byte_6F = s.Serialize<byte>(Byte_6F, name: nameof(Byte_6F));
 
-            LevelNameLocIndex = s.SerializeObject<GBAIsometric_RHR_LocIndex>(LevelNameLocIndex, name: nameof(LevelNameLocIndex));
+            LevelNameLocIndex = s.SerializeObject<GBAIsometric_LocIndex>(LevelNameLocIndex, name: nameof(LevelNameLocIndex));
 
             // Parse from pointers
             Objects = s.DoAt(ObjectsPointer, () => s.SerializeObjectArray<GBAIsometric_Object>(Objects, ObjectsCount, name: nameof(Objects)));

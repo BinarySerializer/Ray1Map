@@ -2,6 +2,9 @@
 {
     public enum GBAIsometric_Spyro_Pointer
     {
-        DataTable
+        DataTable,
+        LocalizationBlockIndices,
+        LocalizationDecompressionBlockIndices,
+        LocTables
     }
 }
