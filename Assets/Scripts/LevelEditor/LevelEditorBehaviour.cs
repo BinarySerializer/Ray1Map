@@ -169,6 +169,11 @@ namespace R1Engine
                 layerTypes.SetActive(!layerTypes.activeSelf);
                 ChangeVisibButton(1);
             }
+            if (lvlTilemapController?.IsometricCollision != null) {
+                if (Settings.ShowCollision != lvlTilemapController.IsometricCollision.activeSelf) {
+                    lvlTilemapController.IsometricCollision.SetActive(Settings.ShowCollision);
+                }
+            }
             if (Settings.ShowObjects != layerEvents.activeSelf) {
                 layerEvents.SetActive(!layerEvents.activeSelf);
                 ChangeVisibButton(2);

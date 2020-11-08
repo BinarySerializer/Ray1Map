@@ -112,6 +112,9 @@ namespace R1Engine {
                     float h = LevelEditorData.Level.IsometricData.TilesHeight * levelTilemapController.CellSizeInUnits;
                     camera3D.transform.position = v * 300 + rot3D * ((pos - new Vector3(w / 2f, h / 2f, 0f)) / scl); // Move back 300 units
                     camera3D.orthographicSize = Camera.main.orthographicSize / scl;
+
+                    // Activate
+                    if (!camera3D.gameObject.activeSelf) camera3D.gameObject.SetActive(true);
                 }
             }
         }

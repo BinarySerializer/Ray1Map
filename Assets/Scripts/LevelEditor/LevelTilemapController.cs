@@ -56,8 +56,6 @@ namespace R1Engine
 
         public int camMaxX = 1;
         public int camMaxY = 1;
-        public int IsoCamWidth { get; private set; } = 1;
-        public int IsoCamHeight { get; private set; } = 1;
 
         public Material additiveMaterial;
 
@@ -71,6 +69,8 @@ namespace R1Engine
                                             LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PocketPC ||
                                             LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PS1_Edu ||
                                             LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC_Edu;
+
+        public GameObject IsometricCollision { get; set; }
 
         public void InitializeTilemaps() {
             var level = LevelEditorData.Level;
@@ -166,9 +166,10 @@ namespace R1Engine
             // Set max cam sizes
             camMaxX = maxWidth;
             camMaxY = maxHeight;
-            if (LevelEditorData.Level.Maps.Length > 0) {
-                IsoCamWidth = LevelEditorData.Level.Maps[0].Width;
-                IsoCamHeight = LevelEditorData.Level.Maps[0].Height;
+
+            if (IsometricCollision == null && level.IsometricData != null) {
+                IsometricCollision = level.IsometricData.GetCollisionGameObject();
+                IsometricCollision.SetActive(Settings.ShowCollision);
             }
         }
 
