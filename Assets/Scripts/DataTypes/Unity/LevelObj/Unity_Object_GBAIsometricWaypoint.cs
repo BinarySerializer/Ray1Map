@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBAIsometricWaypoint : Unity_Object
+    public class Unity_Object_GBAIsometricWaypoint : Unity_Object_3D
     {
         public Unity_Object_GBAIsometricWaypoint(GBAIsometric_RHR_Waypoint waypoint, Unity_ObjectManager_GBAIsometric objManager)
         {
@@ -25,8 +25,17 @@ namespace R1Engine
             get => (short)Waypoint.YPosValue;
             set => Waypoint.YPosValue = value;
         }
+		public override Vector3 Position {
+            get => new Vector3(Waypoint.XPosValue, Waypoint.YPosValue, Waypoint.HeightValue);
+            set {
+                Waypoint.XPosValue = value.x;
+                Waypoint.YPosValue = value.y;
+                Waypoint.HeightValue = value.z;
 
-        public override bool IsEditor => true;
+            }
+        }
+
+		public override bool IsEditor => true;
         public override string DebugText => String.Empty;
 
         public override R1Serializable SerializableData => Waypoint;

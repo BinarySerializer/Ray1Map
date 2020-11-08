@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBAIsometric : Unity_Object
+    public class Unity_Object_GBAIsometric : Unity_Object_3D
     {
         public Unity_Object_GBAIsometric(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometric objManager)
         {
@@ -29,6 +29,15 @@ namespace R1Engine
         {
             get => Object.YPosition;
             set => Object.YPosition = value;
+        }
+        public override Vector3 Position {
+            get => new Vector3(Object.XPosition, Object.YPosition, Object.Height);
+            set {
+                Object.XPosition = (short)Mathf.RoundToInt(value.x);
+                Object.YPosition = (short)Mathf.RoundToInt(value.y);
+                Object.Height = (short)Mathf.RoundToInt(value.z);
+
+            }
         }
 
         public override string DebugText => $"AnimSet: {AnimGroupName}{Environment.NewLine}";

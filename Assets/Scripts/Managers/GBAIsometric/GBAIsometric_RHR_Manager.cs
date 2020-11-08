@@ -325,6 +325,10 @@ namespace R1Engine
 
         public void CreateCollisionModel(Context context, GBAIsometric_RHR_LevelData levelData) {
             GameObject parent = new GameObject("Collision parent");
+            // Diagonal length: 8 tiles
+            // Height: 1 tile
+            float tileSize = Mathf.Sqrt(8f);
+            parent.transform.localScale = new Vector3(tileSize, 1.15f, tileSize);
             Shader sh = Shader.Find("Standard");
             Material mat = new Material(sh);
 
@@ -334,6 +338,7 @@ namespace R1Engine
                 float fenceHeight = 4f;
                 for (int i = 0; i < numBars; i++) {
                     GameObject sgao = new GameObject($"Fence {i}");
+                    sgao.layer = LayerMask.NameToLayer("3D Collision");
                     sgao.transform.SetParent(gao.transform);
                     sgao.transform.localScale = Vector3.one;
                     switch (type) {
@@ -356,6 +361,7 @@ namespace R1Engine
                 int numBars = Mathf.RoundToInt(height - baseHeight);
                 for (int i = 0; i < numBars; i++) {
                     GameObject sgao = new GameObject($"Fence {i}");
+                    sgao.layer = LayerMask.NameToLayer("3D Collision");
                     sgao.transform.SetParent(gao.transform);
                     sgao.transform.localScale = Vector3.one;
                     MeshFilter smf = sgao.AddComponent<MeshFilter>();
@@ -381,12 +387,14 @@ namespace R1Engine
                     var block = levelData.CollisionData[ind];
                     int startPos = 0;
                     int endPos = block.Height;
-                    float height = endPos - startPos;
+                    float height = (endPos - startPos);
                     GameObject gao = new GameObject();
-                    gao.name = $"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}";
+                    gao.name = $"{block.Height} - LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}";
+
+                    gao.layer = LayerMask.NameToLayer("3D Collision");
                     gao.transform.SetParent(parent.transform);
-                    gao.transform.localScale = new Vector3(1f,0.5f,1f);
-                    gao.transform.localPosition = new Vector3(x,startPos,-y);
+                    gao.transform.localScale = Vector3.one;
+                    gao.transform.localPosition = new Vector3(x + 0.5f,startPos,-y - 0.5f);
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
                     switch (block.Shape) {
                         case GBAIsometric_TileCollision.ShapeType_RHR.SlopeUpRight:

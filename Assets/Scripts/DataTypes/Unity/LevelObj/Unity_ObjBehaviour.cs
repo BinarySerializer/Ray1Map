@@ -130,6 +130,11 @@ namespace R1Engine
 
         private void UpdatePosition()
         {
+            
+            if (ObjData is Unity_Object_3D) {
+                UpdatePosition3D();
+                return;
+            }
             // Update x and y, and clamp them to not have objects appear too far away from the map
             const int border = 250;
 
@@ -155,6 +160,26 @@ namespace R1Engine
                 y = minY;
 
             transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
+        }
+
+        private void UpdatePosition3D() {
+            gameObject.layer = LayerMask.NameToLayer("3D Object");
+            Unity_Object_3D obj = (Unity_Object_3D)ObjData; 
+            Vector3 pos = obj.Position;
+
+            // Convert position to unity space
+            //transform.position = new Vector3(pos.x / 16f - 0.5f, pos.z / 32f, -pos.y / 16f + 0.5f);
+            Vector3 isometricScale = new Vector3(Mathf.Sqrt(8), 1.15f, Mathf.Sqrt(8));
+            transform.position = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y) / 16f, isometricScale);
+
+            // Billboard
+            Camera cam = Controller.obj.levelEventController.editor.cam.camera3D;
+            Quaternion inverseParent = transform.parent != null ? Quaternion.Inverse(transform.parent.rotation) : Quaternion.identity;
+            Quaternion parentRot = transform.parent != null ? transform.parent.rotation * Quaternion.Euler(0, -90, 0) : Quaternion.Euler(0, -90, 0);
+            Quaternion lookRot = (inverseParent * Quaternion.LookRotation(
+                cam.transform.rotation * Vector3.back,
+                cam.transform.rotation * Vector3.up)) * Quaternion.Euler(0, 180, 0);
+            transform.localRotation = lookRot;
         }
 
         void Update()
@@ -213,14 +238,17 @@ namespace R1Engine
                     prefabRenderers = new SpriteRenderer[spritesLength];
                     prefabRenderersCollision = new SpriteRenderer[collisionLength];
 
+                    bool is3D = ObjData is Unity_Object_3D;
+
                     // Populate sprites
                     for (int i = 0; i < spritesLength; i++)
                     {
                         // Instantiate prefab
                         SpriteRenderer newRenderer = Instantiate(prefabSpritepart, transform).GetComponent<SpriteRenderer>();
-                        newRenderer.sortingOrder = Layer + i;
+                        newRenderer.sortingOrder = is3D ? 0 : (Layer + i);
+                        if (is3D) newRenderer.gameObject.layer = LayerMask.NameToLayer("3D Object");
 
-                        newRenderer.transform.localPosition = new Vector3(0, 0, spritesLength - i);
+                        newRenderer.transform.localPosition = new Vector3(0, 0, is3D ? 0 : (spritesLength - i));
                         newRenderer.transform.localRotation = Quaternion.identity;
                         newRenderer.transform.localScale = Vector3.one * ObjData.Scale;
 
@@ -233,7 +261,8 @@ namespace R1Engine
                     {
                         // Instantiate prefab
                         var newRenderer = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
-                        newRenderer.sortingOrder = Layer + spritesLength + i;
+                        newRenderer.sortingOrder = is3D ? 0 : (Layer + spritesLength + i);
+                        if (is3D) newRenderer.gameObject.layer = LayerMask.NameToLayer("3D Object");
 
                         newRenderer.transform.localRotation = Quaternion.identity;
 

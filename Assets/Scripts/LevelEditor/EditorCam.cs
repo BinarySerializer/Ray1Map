@@ -19,6 +19,7 @@ namespace R1Engine {
         LevelEditorBehaviour editor;
 
         public LevelTilemapController levelTilemapController;
+        public Camera camera3D;
 
         void Start() {
             Camera.main.orthographicSize = fov;
@@ -100,6 +101,17 @@ namespace R1Engine {
                     transform.position = pos;
                 }
                 Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, fov, Time.deltaTime * 8);
+
+                // Update 3D camera
+                float scl = 1f;//66025f;
+                Quaternion rot3D = Quaternion.Euler(30f,-45,0);
+                camera3D.transform.rotation = rot3D;
+                Vector3 v = rot3D * Vector3.back;
+                //camera3D.transform.position = new Vector3(100,-60,-100);
+                float w = levelTilemapController.IsoCamWidth * levelTilemapController.CellSizeInUnits;
+                float h = levelTilemapController.IsoCamHeight * levelTilemapController.CellSizeInUnits;
+                camera3D.transform.position = v * 300 + rot3D * ((pos - new Vector3(w/2f, h/2f, 0f))/scl); // Move back 300 units
+                camera3D.orthographicSize = Camera.main.orthographicSize/scl;
             }
         }
     }

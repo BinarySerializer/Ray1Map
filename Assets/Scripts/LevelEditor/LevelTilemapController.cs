@@ -56,6 +56,8 @@ namespace R1Engine
 
         public int camMaxX = 1;
         public int camMaxY = 1;
+        public int IsoCamWidth { get; private set; } = 1;
+        public int IsoCamHeight { get; private set; } = 1;
 
         public Material additiveMaterial;
 
@@ -164,6 +166,10 @@ namespace R1Engine
             // Set max cam sizes
             camMaxX = maxWidth;
             camMaxY = maxHeight;
+            if (LevelEditorData.Level.Maps.Length > 0) {
+                IsoCamWidth = LevelEditorData.Level.Maps[0].Width;
+                IsoCamHeight = LevelEditorData.Level.Maps[0].Height;
+            }
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
