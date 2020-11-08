@@ -323,125 +323,99 @@ namespace R1Engine
             }
         }
 
-        public void CreateCollisionModel(Context context, GBAIsometric_RHR_LevelData levelData) {
-            GameObject parent = new GameObject("Collision parent");
-            // Diagonal length: 8 tiles
-            // Height: 1 tile
-            float tileSize = Mathf.Sqrt(8f);
-            parent.transform.localScale = new Vector3(tileSize, 1.15f, tileSize);
-            Shader sh = Shader.Find("Standard");
-            Material mat = new Material(sh);
-
-
-            void AddFence(GameObject gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR type, Color color, float height) {
-                int numBars = 3;
-                float fenceHeight = 4f;
-                for (int i = 0; i < numBars; i++) {
-                    GameObject sgao = new GameObject($"Fence {i}");
-                    sgao.layer = LayerMask.NameToLayer("3D Collision");
-                    sgao.transform.SetParent(gao.transform);
-                    sgao.transform.localScale = Vector3.one;
-                    switch (type) {
-                        case GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpLeft:
-                            sgao.transform.localPosition = new Vector3(-(0.5f-0.05f), height, ((float)(i + 0.5f)) / (numBars) - 0.5f);
-                            break;
-                        case GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpRight:
-                            sgao.transform.localPosition = new Vector3(((float)(i + 0.5f)) / (numBars) - 0.5f, height, 0.5f-0.05f);
-                            break;
-                    }
-                    MeshFilter smf = sgao.AddComponent<MeshFilter>();
-                    smf.mesh = GeometryHelpers.CreateBoxDifferentHeights(0.1f, fenceHeight, fenceHeight, fenceHeight, fenceHeight);
-                    MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
-                    smr.material = mat;
-                    //smr.material.color = color;
+        private Unity_IsometricCollisionTile GetCollisionTile(Context context, GBAIsometric_TileCollision block) {
+            Unity_IsometricCollisionTile.AdditionalTypeFlags GetAddType() {
+                Unity_IsometricCollisionTile.AdditionalTypeFlags addType = Unity_IsometricCollisionTile.AdditionalTypeFlags.None;
+                if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpLeft)) {
+                    addType |= Unity_IsometricCollisionTile.AdditionalTypeFlags.FenceUpLeft_RHR;
+                }
+                if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpRight)) {
+                    addType |= Unity_IsometricCollisionTile.AdditionalTypeFlags.FenceUpRight_RHR;
+                }
+                if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.ClimbUpLeft)) {
+                    addType |= Unity_IsometricCollisionTile.AdditionalTypeFlags.ClimbUpLeft;
+                }
+                if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.ClimbUpRight)) {
+                    addType |= Unity_IsometricCollisionTile.AdditionalTypeFlags.ClimbUpRight;
+                }
+                return addType;
+            }
+            Unity_IsometricCollisionTile.ShapeType GetShapeType() {
+                switch (block.Shape) {
+                    case GBAIsometric_TileCollision.ShapeType_RHR.None:
+                        return Unity_IsometricCollisionTile.ShapeType.None;
+                    case GBAIsometric_TileCollision.ShapeType_RHR.Normal:
+                        return Unity_IsometricCollisionTile.ShapeType.Normal;
+                    case GBAIsometric_TileCollision.ShapeType_RHR.SlopeUpLeft:
+                        return Unity_IsometricCollisionTile.ShapeType.SlopeUpLeft;
+                    case GBAIsometric_TileCollision.ShapeType_RHR.SlopeUpRight:
+                        return Unity_IsometricCollisionTile.ShapeType.SlopeUpRight;
+                    case GBAIsometric_TileCollision.ShapeType_RHR.Pit:
+                        return Unity_IsometricCollisionTile.ShapeType.Pit;
+                    case GBAIsometric_TileCollision.ShapeType_RHR.LevelEdgeTop:
+                        return Unity_IsometricCollisionTile.ShapeType.LevelEdgeTop;
+                    case GBAIsometric_TileCollision.ShapeType_RHR.LevelEdgeBottom:
+                        return Unity_IsometricCollisionTile.ShapeType.LevelEdgeBottom;
+                    case GBAIsometric_TileCollision.ShapeType_RHR.LevelEdgeLeft:
+                        return Unity_IsometricCollisionTile.ShapeType.LevelEdgeLeft;
+                    case GBAIsometric_TileCollision.ShapeType_RHR.LevelEdgeRight:
+                        return Unity_IsometricCollisionTile.ShapeType.LevelEdgeRight;
+                    default:
+                        return Unity_IsometricCollisionTile.ShapeType.Unknown;
                 }
             }
-
-            void AddClimb(GameObject gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR type, Color color, float height, float baseHeight) {
-                int numBars = Mathf.RoundToInt(height - baseHeight);
-                for (int i = 0; i < numBars; i++) {
-                    GameObject sgao = new GameObject($"Fence {i}");
-                    sgao.layer = LayerMask.NameToLayer("3D Collision");
-                    sgao.transform.SetParent(gao.transform);
-                    sgao.transform.localScale = Vector3.one;
-                    MeshFilter smf = sgao.AddComponent<MeshFilter>();
-                    switch (type) {
-                        case GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.ClimbUpRight:
-                            sgao.transform.localPosition = new Vector3(0, baseHeight + i + 0.5f, -0.55f);
-                            smf.mesh = GeometryHelpers.CreateBox(1f, 0.2f, 0.1f);
-                            break;
-                        case GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.ClimbUpLeft:
-                            sgao.transform.localPosition = new Vector3(0.55f, baseHeight + i + 0.5f, 0);
-                            smf.mesh = GeometryHelpers.CreateBox(0.1f, 0.2f, 1f);
-                            break;
-                    }
-                    MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
-                    smr.material = mat;
-                    //smr.material.color = color;
+            Unity_IsometricCollisionTile.CollisionType GetCollisionType() {
+                switch (block.Type) {
+                    case GBAIsometric_TileCollision.CollisionType_RHR.Solid:
+                        return Unity_IsometricCollisionTile.CollisionType.Solid;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.Water:
+                        return Unity_IsometricCollisionTile.CollisionType.Water;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.WaterFlowBottomLeft:
+                        return Unity_IsometricCollisionTile.CollisionType.WaterFlowBottomLeft;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.WaterFlowBottomRight:
+                        return Unity_IsometricCollisionTile.CollisionType.WaterFlowBottomRight;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.Wall:
+                        return Unity_IsometricCollisionTile.CollisionType.Wall;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.ObstacleHurt:
+                        return Unity_IsometricCollisionTile.CollisionType.ObstacleHurt;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.Lava:
+                        return Unity_IsometricCollisionTile.CollisionType.Lava;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.Pit:
+                        return Unity_IsometricCollisionTile.CollisionType.Pit;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.ExitTrigger:
+                        return Unity_IsometricCollisionTile.CollisionType.ExitTrigger;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.NearExitTrigger:
+                        return Unity_IsometricCollisionTile.CollisionType.NearExitTrigger;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.DialogueTrigger1:
+                        return Unity_IsometricCollisionTile.CollisionType.DialogueTrigger1;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.DialogueTrigger2:
+                        return Unity_IsometricCollisionTile.CollisionType.DialogueTrigger2;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.DialogueTrigger3:
+                        return Unity_IsometricCollisionTile.CollisionType.DialogueTrigger3;
+                    case GBAIsometric_TileCollision.CollisionType_RHR.DialogueTrigger4:
+                        return Unity_IsometricCollisionTile.CollisionType.DialogueTrigger4;
+                    default:
+                        return Unity_IsometricCollisionTile.CollisionType.Unknown;
                 }
             }
+            return new Unity_IsometricCollisionTile() {
+                Height = block.Height,
+                AddType = GetAddType(),
+                Shape = GetShapeType(),
+                Type = GetCollisionType(),
+                DebugText = $"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}"
+            };
+        }
 
-            for (int y = 0; y < levelData.CollisionHeight; y++) {
-                for (int x = 0; x < levelData.CollisionWidth; x++) {
-                    int ind = y * levelData.CollisionWidth + x;
-                    var block = levelData.CollisionData[ind];
-                    int startPos = 0;
-                    int endPos = block.Height;
-                    float height = (endPos - startPos);
-                    GameObject gao = new GameObject();
-                    gao.name = $"{block.Height} - LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}";
-
-                    gao.layer = LayerMask.NameToLayer("3D Collision");
-                    gao.transform.SetParent(parent.transform);
-                    gao.transform.localScale = Vector3.one;
-                    gao.transform.localPosition = new Vector3(x + 0.5f,startPos,-y - 0.5f);
-                    MeshFilter mf = gao.AddComponent<MeshFilter>();
-                    switch (block.Shape) {
-                        case GBAIsometric_TileCollision.ShapeType_RHR.SlopeUpRight:
-                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height + 1, height + 1, height, height);
-                            break;
-                        case GBAIsometric_TileCollision.ShapeType_RHR.SlopeUpLeft:
-                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height + 1, height, height, height + 1);
-                            break;
-                        default:
-                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height, height, height, height);
-                            break;
-                    }
-                    MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-                    mr.material = mat;
-                    UnityEngine.Random.InitState((int)block.Type);
-                    Color color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
-                    if ((x + y) % 2 == 1) {
-                        float h, s, v;
-                        Color.RGBToHSV(color, out h, out s, out v);
-                        v-= 0.1f;
-                        color = Color.HSVToRGB(h,s,v);
-                    }
-                    mr.material.color = color;
-
-                    if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpLeft)) {
-                        var neighborBlock = x > 0 ? levelData.CollisionData[y * levelData.CollisionWidth + (x-1)] : null;
-                        byte maxHeight = Math.Max(block.Height, neighborBlock?.Height ?? 0);
-                        AddFence(gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpLeft, color, maxHeight);
-                    }
-                    if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpRight)) {
-                        var neighborBlock = y > 0 ? levelData.CollisionData[(y-1) * levelData.CollisionWidth + x] : null;
-                        byte maxHeight = Math.Max(block.Height, neighborBlock?.Height ?? 0);
-                        AddFence(gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.FenceUpRight, color, maxHeight);
-                    }
-
-                    if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.ClimbUpLeft)) {
-                        var neighborBlock = x+1 < levelData.CollisionWidth ? levelData.CollisionData[y * levelData.CollisionWidth + (x + 1)] : null;
-                        byte baseHeight = neighborBlock?.Height ?? 0;
-                        AddClimb(gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.ClimbUpLeft, color, height, baseHeight);
-                    }
-                    if (block.AddType.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.ClimbUpRight)) {
-                        var neighborBlock = y + 1 < levelData.CollisionHeight ? levelData.CollisionData[(y + 1) * levelData.CollisionWidth + x] : null;
-                        byte baseHeight = neighborBlock?.Height ?? 0;
-                        AddClimb(gao, GBAIsometric_TileCollision.AdditionalTypeFlags_RHR.ClimbUpRight, color, height, baseHeight);
-                    }
-                }
-            }
+        public Unity_IsometricData GetIsometricData(Context context, GBAIsometric_RHR_LevelData levelData) {
+            return new Unity_IsometricData() {
+                CollisionWidth = levelData.CollisionWidth,
+                CollisionHeight = levelData.CollisionHeight,
+                TilesWidth = levelData.MapLayers[0].DataPointer.Value.Width * 8,
+                TilesHeight = levelData.MapLayers[0].DataPointer.Value.Height * 8,
+                Collision = levelData.CollisionData.Select(c => GetCollisionTile(context, c)).ToArray(),
+                Scale = new Vector3(Mathf.Sqrt(8), 1.15f, Mathf.Sqrt(8)) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
+            };
         }
 
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
@@ -466,7 +440,8 @@ namespace R1Engine
 
             var tileSets = new Dictionary<GBAIsometric_RHR_TileSet, Unity_MapTileMap>();
 
-            CreateCollisionModel(context, levelData);
+            Unity_IsometricData isometricData = null;
+            if (!isMenu) isometricData = GetIsometricData(context, levelData);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
@@ -524,7 +499,8 @@ namespace R1Engine
                 objManager: objManager,
                 eventData: allObjects,
                 cellSize: CellSize,
-                localization: loc);
+                localization: loc,
+                isometricData: isometricData);
         }
 
         public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(GBAIsometric_RHR_ROM rom)

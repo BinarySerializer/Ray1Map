@@ -23,7 +23,8 @@ namespace R1Engine
             Func<byte, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null, 
             Texture2D background = null, 
             Texture2D parallaxBackground = null,
-            Unity_Sector[] sectors = null)
+            Unity_Sector[] sectors = null,
+            Unity_IsometricData isometricData = null)
         {
             Maps = maps;
             ObjManager = objManager;
@@ -38,6 +39,7 @@ namespace R1Engine
             Background = background;
             ParallaxBackground = parallaxBackground;
             Sectors = sectors;
+            IsometricData = isometricData;
         }
 
         #endregion
@@ -66,6 +68,8 @@ namespace R1Engine
         public Texture2D ParallaxBackground { get; }
 
         public Unity_Sector[] Sectors { get; }
+
+        public Unity_IsometricData IsometricData { get; }
 
         #endregion
 

@@ -131,7 +131,7 @@ namespace R1Engine
         private void UpdatePosition()
         {
             
-            if (ObjData is Unity_Object_3D) {
+            if (ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
                 UpdatePosition3D();
                 return;
             }
@@ -169,7 +169,7 @@ namespace R1Engine
 
             // Convert position to unity space
             //transform.position = new Vector3(pos.x / 16f - 0.5f, pos.z / 32f, -pos.y / 16f + 0.5f);
-            Vector3 isometricScale = new Vector3(Mathf.Sqrt(8), 1.15f, Mathf.Sqrt(8));
+            Vector3 isometricScale = LevelEditorData.Level.IsometricData.Scale;
             transform.position = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y) / 16f, isometricScale);
 
             // Billboard
