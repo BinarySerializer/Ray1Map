@@ -109,8 +109,15 @@ namespace R1Engine {
                     camera3D.transform.rotation = rot3D;
                     Vector3 v = rot3D * Vector3.back;
                     float w = LevelEditorData.Level.IsometricData.TilesWidth * levelTilemapController.CellSizeInUnits;
-                    float h = LevelEditorData.Level.IsometricData.TilesHeight * levelTilemapController.CellSizeInUnits;
-                    camera3D.transform.position = v * 300 + rot3D * ((pos - new Vector3(w / 2f, h / 2f, 0f)) / scl); // Move back 300 units
+                    float h = (LevelEditorData.Level.IsometricData.TilesHeight) * levelTilemapController.CellSizeInUnits;
+                    float colH = (LevelEditorData.Level.IsometricData.CollisionWidth + LevelEditorData.Level.IsometricData.CollisionHeight);
+                    /*if (!camera3D.gameObject.activeSelf) {
+                        Debug.Log(LevelEditorData.Level.IsometricData.TilesWidth
+                            + "x" + LevelEditorData.Level.IsometricData.TilesHeight
+                            + " - " + LevelEditorData.Level.IsometricData.CollisionWidth
+                            + "x" + LevelEditorData.Level.IsometricData.CollisionHeight);
+                    }*/
+                    camera3D.transform.position = v * 300 + rot3D * ((pos - new Vector3(w / 2f, colH / 2f - h / 2f, 0f)) / scl); // Move back 300 units
                     camera3D.orthographicSize = Camera.main.orthographicSize / scl;
 
                     // Activate

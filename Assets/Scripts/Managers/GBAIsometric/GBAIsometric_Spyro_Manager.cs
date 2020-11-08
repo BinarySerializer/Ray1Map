@@ -236,18 +236,18 @@ namespace R1Engine
                 AddType = GetAddType(),
                 Shape = GetShapeType(),
                 Type = GetCollisionType(),
-                DebugText = $"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}"
+                DebugText = $"Depth:{block.Depth} UnkSpyro:{block.Unk_Spyro:X1} Shape:{block.Shape_Spyro} Type:{block.Type_Spyro} Add:{block.AddType_Spyro}"
             };
         }
 
-        public Unity_IsometricData GetIsometricData(Context context, GBAIsometric_Spyro_Collision3DMapData collisionData, int width, int heigth, int groupWidth, int groupHeight)
+        public Unity_IsometricData GetIsometricData(Context context, GBAIsometric_Spyro_Collision3DMapData collisionData, int width, int height, int groupWidth, int groupHeight)
         {
             return new Unity_IsometricData()
             {
                 CollisionWidth = collisionData.Width,
                 CollisionHeight = collisionData.Height,
                 TilesWidth = width * groupWidth,
-                TilesHeight = heigth * groupHeight,
+                TilesHeight = height * groupHeight,
                 Collision = collisionData.Collision.Select(c => GetCollisionTile(context, c)).ToArray(),
                 Scale = new Vector3(Mathf.Sqrt(8), 1.15f, Mathf.Sqrt(8)) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
             };

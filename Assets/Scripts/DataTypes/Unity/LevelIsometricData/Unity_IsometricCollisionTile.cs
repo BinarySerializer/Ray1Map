@@ -92,8 +92,15 @@ namespace R1Engine
             }
             MeshRenderer mr = gao.AddComponent<MeshRenderer>();
             mr.material = mat;
-
-            var color = CollisionColors[Type];
+            /*UnityEngine.Random.InitState((int)Type);
+            Color color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);*/
+            var color = new Color(CollisionColors[Type].r, CollisionColors[Type].g, CollisionColors[Type].b);
+            if ((x + y) % 2 == 1) {
+                float h, s, v;
+                Color.RGBToHSV(color, out h, out s, out v);
+                v -= 0.025f;
+                color = Color.HSVToRGB(h, s, v);
+            }
             mr.material.color = color;
 
             if (AddType.HasFlag(AdditionalTypeFlags.FenceUpLeft_RHR)) {
@@ -185,7 +192,7 @@ namespace R1Engine
             [CollisionType.Unknown] = Color.white,
 
             [CollisionType.Solid] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
-            [CollisionType.Wall] = new Color(68 / 255f, 75 / 255f, 87 / 255f),
+            [CollisionType.Wall] = new Color(50 / 255f, 55 / 255f, 64 / 255f),
 
             [CollisionType.Water] = new Color(51 / 255f, 126 / 255f, 255 / 255f),
             [CollisionType.WaterFlowBottomLeft] = new Color(49 / 255f, 100 / 255f, 189 / 255f),
