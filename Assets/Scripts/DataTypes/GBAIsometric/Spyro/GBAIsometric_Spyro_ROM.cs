@@ -1,13 +1,22 @@
-﻿namespace R1Engine
+﻿using System;
+using System.Linq;
+
+namespace R1Engine
 {
     public class GBAIsometric_Spyro_ROM : GBA_ROMBase
     {
         public GBAIsometric_Spyro_DataTable DataTable { get; set; }
         public GBAIsometric_Spyro_Localization Localization { get; set; }
 
-        public GBAIsometric_Spyro_LevelData[][] LevelData { get; set; }
-        public GBAIsometric_Spyro_LevelMap[] LevelMaps { get; set; }
+        public GBAIsometric_Spyro_LevelDataArray LevelData { get; set; }
+        public GBAIsometric_Spyro_LevelDataArray LevelData_Spyro2_Agent9 { get; set; }
+        public GBAIsometric_Spyro_LevelDataArray LevelData_Spyro3_Agent9 { get; set; }
+        public GBAIsometric_Spyro_LevelDataArray LevelData_Spyro3_SgtByrd { get; set; }
         public GBAIsometric_Spyro_LevelObjects[] LevelObjects { get; set; }
+        public GBAIsometric_Spyro_LevelObjects[] LevelObjects_Spyro3_Agent9 { get; set; }
+        public GBAIsometric_Spyro_SgtByrdInfo[] LevelObjects_Spyro3_SgtByrd { get; set; }
+        public GBAIsometric_Spyro_ByrdRescueInfo[] LevelObjects_Spyro3_ByrdRescue { get; set; }
+        public GBAIsometric_Spyro_LevelMap[] LevelMaps { get; set; }
 
         public GBAIsometric_ObjectType[] ObjectTypes { get; set; }
         public GBAIsometric_Spyro_AnimSet[] AnimSets { get; set; }
@@ -19,6 +28,7 @@
         public GBAIsometric_Spyro_UnkStruct[] UnkStructs { get; set; }
         public byte[] LevelIndices { get; set; } // Level index for every map
         public ushort[] GemCounts { get; set; } // The gem count for every level
+        public GBAIsometric_Spyro_MenuPage[] MenuPages { get; set; }
 
 
         /// <summary>
@@ -40,52 +50,58 @@
             // Serialize the localization data
             Localization = s.SerializeObject<GBAIsometric_Spyro_Localization>(Localization, name: nameof(Localization));
 
+            var id = GetLevelDataID(s.GameSettings);
+
             // Serialize level data
-            var levelInfo = manager.LevelInfos;
-
-            if (LevelData == null)
-                LevelData = new GBAIsometric_Spyro_LevelData[levelInfo.Length][];
-
-            for (int world = 0; world < LevelData.Length; world++)
+            LevelData = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData], () => s.SerializeObject(LevelData, x =>
             {
-                if (levelInfo[world].UsesPointerArray)
+                x.Length = manager.LevelDataCount;
+                x.UesPointerArray = true;
+                x.Is2D = false;
+                x.SerializeDataForID = s.GameSettings.World != 0 ? -1 : id;
+            }, name: nameof(LevelData)));
+            LevelObjects = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, LevelData.Length, name: nameof(LevelObjects)));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+            {
+                // Agent 9
+                LevelData_Spyro2_Agent9 = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9], () => s.SerializeObject(LevelData_Spyro2_Agent9, x =>
                 {
-                    var pointers = s.DoAt(new Pointer(levelInfo[world].Offsets[s.GameSettings.GameModeSelection], Offset.file), () => s.SerializePointerArray(default, levelInfo[world].Length, name: $"{nameof(LevelData)}Pointers[{world}]"));
-
-                    if (LevelData[world] == null)
-                        LevelData[world] = new GBAIsometric_Spyro_LevelData[levelInfo[world].Length];
-
-                    for (int levelIndex = 0; levelIndex < LevelData[world].Length; levelIndex++)
-                    {
-                        LevelData[world][levelIndex] = s.DoAt(pointers[levelIndex], () => s.SerializeObject<GBAIsometric_Spyro_LevelData>(LevelData[world][levelIndex], x =>
-                        {
-                            x.Is2D = levelInfo[world].Is2D;
-                            x.SerializeData = s.GameSettings.World == world;
-                            x.ID = (uint)levelIndex; // Default to use the index of the entry - this will get replaced with an actual index if it exists
-                        }, name: $"{nameof(LevelData)}[{world}][{levelIndex}]"));
-                    }
-                }
-                else
-                {
-                    s.DoAt(new Pointer(levelInfo[world].Offsets[s.GameSettings.GameModeSelection], Offset.file), () =>
-                    {
-                        if (LevelData[world] == null)
-                            LevelData[world] = new GBAIsometric_Spyro_LevelData[levelInfo[world].Length];
-
-                        for (int levelIndex = 0; levelIndex < LevelData[world].Length; levelIndex++)
-                        {
-                            LevelData[world][levelIndex] = s.SerializeObject<GBAIsometric_Spyro_LevelData>(LevelData[world][levelIndex], x =>
-                            {
-                                x.Is2D = levelInfo[world].Is2D;
-                                x.SerializeData = s.GameSettings.World == world;
-                                x.ID = (uint)levelIndex; // Default to use the index of the entry - this will get replaced with an actual index if it exists
-                            }, name: $"{nameof(LevelData)}[{world}][{levelIndex}]");
-                        }
-                    });
-                }
+                    x.Length = 4;
+                    x.UesPointerArray = false;
+                    x.Is2D = true;
+                    x.SerializeDataForID = s.GameSettings.World != 1 ? -1 : id;
+                }, name: nameof(LevelData_Spyro2_Agent9)));
             }
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+            {
+                // Agent 9
+
+                LevelData_Spyro3_Agent9 = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData_Spyro3_Agent9], () => s.SerializeObject(LevelData_Spyro3_Agent9, x =>
+                {
+                    x.Length = 4;
+                    x.UesPointerArray = true;
+                    x.Is2D = true;
+                    x.SerializeDataForID = s.GameSettings.World != 1 ? -1 : id;
+                }, name: nameof(LevelData_Spyro3_Agent9)));
+                LevelObjects_Spyro3_Agent9 = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_Agent9], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects_Spyro3_Agent9, LevelData_Spyro3_Agent9.Length, name: nameof(LevelObjects_Spyro3_Agent9)));
+
+                // Sgt. Byrd
+                LevelObjects_Spyro3_SgtByrd = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_SgtByrd], () => s.SerializeObjectArray<GBAIsometric_Spyro_SgtByrdInfo>(LevelObjects_Spyro3_SgtByrd, 4, name: nameof(LevelObjects_Spyro3_SgtByrd)));
+                LevelObjects_Spyro3_ByrdRescue = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_ByrdRescue], () => s.SerializeObjectArray<GBAIsometric_Spyro_ByrdRescueInfo>(LevelObjects_Spyro3_ByrdRescue, 22, name: nameof(LevelObjects_Spyro3_ByrdRescue)));
+
+                id = GetLevelDataID(s.GameSettings);
+
+                LevelData_Spyro3_SgtByrd = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData_Spyro3_SgtByrd], () => s.SerializeObject(LevelData_Spyro3_SgtByrd, x =>
+                {
+                    x.Length = 13;
+                    x.UesPointerArray = true;
+                    x.Is2D = true;
+                    x.SerializeDataForID = s.GameSettings.World != 2 && s.GameSettings.World != 3 ? -1 : id;
+                }, name: nameof(LevelData_Spyro3_SgtByrd)));
+            }
+
             LevelMaps = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelMaps], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelMap>(LevelMaps, manager.LevelMapsCount, name: nameof(LevelMaps)));
-            LevelObjects = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, levelInfo[0].Length, name: nameof(LevelObjects)));
 
             // Serialize object data
             ObjectTypes = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.ObjectTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, manager.ObjectTypesCount, name: nameof(ObjectTypes)));
@@ -101,6 +117,7 @@
             GemCounts = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.GemCounts], () => s.SerializeArray<ushort>(GemCounts, manager.PrimaryLevelCount, name: nameof(GemCounts)));
             LevelIndices = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelIndices], () => s.SerializeArray<byte>(LevelIndices, manager.TotalLevelsCount, name: nameof(LevelIndices)));
             LevelNameInfos = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelNameInfos], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelNameInfo>(LevelNameInfos, manager.TotalLevelsCount, name: nameof(LevelNameInfos)));
+            MenuPages = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.MenuPages], () => s.SerializeObjectArray<GBAIsometric_Spyro_MenuPage>(MenuPages, manager.MenuPageCount, name: nameof(MenuPages)));
 
 
             // Serialize unknown struct
@@ -109,6 +126,80 @@
                 UnkStructs = s.DoAt(Offset + 0x1c009c, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct>(UnkStructs, 104, name: nameof(UnkStructs)));
                 // 0x1bfa10, same as UnkStruct
             }
+        }
+
+        public GBAIsometric_Spyro_LevelData GetLevelData(GameSettings settings)
+        {
+            GBAIsometric_Spyro_LevelDataArray array = null;
+
+            if (settings.World == 0)
+            {
+                array = LevelData;
+            }
+            else
+            {
+                if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                {
+                    if (settings.World == 1)
+                        array = LevelData_Spyro2_Agent9;
+                }
+                else if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+                {
+                    if (settings.World == 1)
+                        array = LevelData_Spyro3_Agent9;
+                    else if (settings.World == 2 || settings.World == 3)
+                        array = LevelData_Spyro3_SgtByrd;
+                }
+            }
+
+            if (array == null)
+                throw new Exception("Invalid game settings");
+
+            var id = GetLevelDataID(settings);
+
+            return array.LevelData.First(x => x.ID == id);
+        }
+        public GBAIsometric_Spyro_ObjectTable GetObjectTable(GameSettings settings)
+        {
+            GBAIsometric_Spyro_LevelObjects[] array = null;
+
+            if (settings.World == 0)
+            {
+                array = LevelObjects;
+            }
+            else
+            {
+                if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                {
+                    if (settings.World == 1)
+                        throw new NotImplementedException();
+                }
+                else if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+                {
+                    if (settings.World == 1)
+                        array = LevelObjects_Spyro3_Agent9;
+                    else if (settings.World == 2)
+                        return LevelObjects_Spyro3_SgtByrd.First(x => x.LevelID == settings.Level).ObjectTable;
+                    else if (settings.World == 3)
+                        return LevelObjects_Spyro3_ByrdRescue.First(x => x.ID == settings.Level).ObjectTable;
+                }
+            }
+
+            if (array == null)
+                throw new Exception("Invalid game settings");
+
+            var id = GetLevelDataID(settings);
+
+            return array.First(x => x.LevelID == id).ObjectTable;
+        }
+        public int GetLevelDataID(GameSettings settings)
+        {
+            if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 && settings.World == 2)
+                return LevelObjects_Spyro3_SgtByrd?.First(x => x.LevelID == settings.Level).LevelDataID ?? -1;
+            else if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 && settings.World == 3)
+                return LevelObjects_Spyro3_ByrdRescue?.First(x => x.ID == settings.Level).LevelDataID ?? -1;
+            else
+                return settings.Level;
         }
     }
 }

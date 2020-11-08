@@ -12,7 +12,7 @@ namespace R1Engine
     {
         public const int CellSize = 8;
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(LevelInfos.Select((x, i) => new GameInfo_World(i, x.LevelIDs)).ToArray());
+        public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
@@ -24,9 +24,10 @@ namespace R1Engine
         public abstract int TotalLevelsCount { get; }
         public abstract int ObjectTypesCount { get; }
         public abstract int AnimSetsCount { get; }
+        public abstract int LevelDataCount { get; }
+        public abstract int MenuPageCount { get; }
 
         public abstract IEnumerable<string> GetLanguages { get; }
-        public abstract LevelInfo[] LevelInfos { get; }
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
@@ -43,18 +44,7 @@ namespace R1Engine
 
                 var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-                var palettes = categorize && rom.LevelData.Any() ? Enumerable.Range(0, 16).Select(x => rom.LevelData[context.Settings.World].First(lev => lev.ID == context.Settings.Level).ObjPalette.Skip(16 * x).Take(16).Select((c, i) =>
-                {
-                    if (i != 0)
-                        c.Alpha = 255;
-                    return c.GetColor();
-                }).ToArray()).ToArray() : null;
-
-                if (palettes == null && categorize)
-                    palettes = new Color[][]
-                    {
-                        Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray()
-                    };
+                var palette = Util.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
 
                 for (int i = 0; i < rom.DataTable.DataEntries.Length; i++)
                 {
@@ -72,11 +62,8 @@ namespace R1Engine
 
                         if (categorize && length % 32 == 0)
                         {
-                            for (int j = 0; j < palettes.Length; j++)
-                            {
-                                var tex = Util.ToTileSetTexture(data, palettes[j], false, CellSize, true, wrap: 32);
-                                Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_Pal{j}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
-                            }
+                            var tex = Util.ToTileSetTexture(data, palette, false, CellSize, true, wrap: 32);
+                            Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
                         }
                         else
                         {
@@ -208,8 +195,7 @@ namespace R1Engine
 
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-            var is2D = LevelInfos[context.Settings.World].Is2D;
-            var levelData = rom.LevelData[context.Settings.World].First(x => x.ID == context.Settings.Level);
+            var levelData = rom.GetLevelData(context.Settings);
 
             // Convert map arrays to map tiles
             Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles = levelData.MapLayers.Where(x => x != null).ToDictionary(x => x, GetMapTiles);
@@ -220,7 +206,8 @@ namespace R1Engine
             // Load tileset
             var tileSet = LoadTileSet(levelData.TilePalette, levelData.MapLayers.Where(x => x != null).Select(x => x.TileSet).ToArray(), mapTiles);
 
-            CreateCollisionModel(context, levelData.Collision3D);
+            if (levelData.Collision3D != null)
+                CreateCollisionModel(context, levelData.Collision3D);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
@@ -245,7 +232,7 @@ namespace R1Engine
                 };
             });
 
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && is2D)
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 1)
                 maps = maps.Reverse();
 
             // Create a collision map for 2D levels
@@ -285,15 +272,12 @@ namespace R1Engine
 
             // Load objects
             var objects = new List<Unity_Object>();
-            var objTable = rom.LevelObjects?.FirstOrDefault(x => x.LevelID == context.Settings.Level)?.ObjectTable;
+            var objTable = rom.GetObjectTable(context.Settings);
 
-            if (context.Settings.World == 0 && objTable != null)
-            {
-                // Init the objects
-                InitObjects(objTable.Objects);
-                
-                objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometric(x, objManager)));
-            }
+            // Init the objects
+            InitObjects(objTable.Objects);
+
+            objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometric(x, objManager)));
 
             Controller.DetailedState = $"Loading localization";
             await Controller.WaitIfNecessary();
@@ -483,22 +467,5 @@ namespace R1Engine
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
-
-        public class LevelInfo
-        {
-            public LevelInfo(int[] levelIDs, bool usesPointerArray, bool is2D, Dictionary<GameModeSelection, uint> offsets)
-            {
-                LevelIDs = levelIDs;
-                UsesPointerArray = usesPointerArray;
-                Is2D = is2D;
-                Offsets = offsets;
-            }
-
-            public int[] LevelIDs { get; }
-            public int Length => LevelIDs.Length;
-            public bool UsesPointerArray { get; }
-            public bool Is2D { get; }
-            public Dictionary<GameModeSelection, uint> Offsets { get; }
-        }
     }
 }

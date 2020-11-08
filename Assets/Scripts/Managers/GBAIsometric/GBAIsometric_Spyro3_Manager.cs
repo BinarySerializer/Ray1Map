@@ -5,34 +5,22 @@ namespace R1Engine
 {
     public abstract class GBAIsometric_Spyro3_Manager : GBAIsometric_Spyro_Manager
     {
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        {
+            new GameInfo_World(0, ValueRange.EnumerateRanges(new ValueRange(2, 22), new ValueRange(24, 82)).ToArray()), // 3D
+            new GameInfo_World(1, ValueRange.EnumerateRanges(new ValueRange(83, 86)).ToArray()), // Agent 9
+            new GameInfo_World(2, ValueRange.EnumerateRanges(new ValueRange(87, 90)).ToArray()), // Sgt Byrd
+            new GameInfo_World(3, ValueRange.EnumerateRanges(new ValueRange(0, 8)).ToArray()), // Byrd Rescue
+        });
+
         public override int PortraitsCount => 38;
         public override int DialogCount => 344;
         public override int PrimaryLevelCount => 14;
         public override int LevelMapsCount => 21;
         public override int TotalLevelsCount => 91;
         public override int ObjectTypesCount => 772;
-
-        public override LevelInfo[] LevelInfos => new LevelInfo[]
-        {
-            // 3D maps
-            new LevelInfo(ValueRange.EnumerateRanges(new ValueRange(2, 22), new ValueRange(24, 82)).ToArray(), true, false, new Dictionary<GameModeSelection, uint>()
-            {
-                [GameModeSelection.SpyroAdventureEU] = 0x081d0b44,
-                [GameModeSelection.SpyroAdventureUS] = 0x081CFE38,
-            }),
-            // Agent 9
-            new LevelInfo(ValueRange.EnumerateRanges(new ValueRange(83, 86)).ToArray(), true, true, new Dictionary<GameModeSelection, uint>()
-            {
-                [GameModeSelection.SpyroAdventureEU] = 0x081d22bc,
-                [GameModeSelection.SpyroAdventureUS] = 0x081D15B0
-            }),
-            // Sgt. Byrd 
-            new LevelInfo(ValueRange.EnumerateRanges(new ValueRange(0, 12)).ToArray(), true, true, new Dictionary<GameModeSelection, uint>()
-            {
-                [GameModeSelection.SpyroAdventureEU] = 0x081d1d34,
-                [GameModeSelection.SpyroAdventureUS] = 0x081D1028
-            }),
-        };
+        public override int LevelDataCount => 80;
+        public override int MenuPageCount => 18;
     }
     public class GBAIsometric_Spyro3US_Manager : GBAIsometric_Spyro3_Manager
     {
@@ -56,13 +44,12 @@ namespace R1Engine
         {
             get
             {
-                // TODO: Get correct language names
                 yield return "English";
-                yield return "English1";
-                yield return "English2";
-                yield return "English3";
-                yield return "English4";
-                yield return "English5";
+                yield return "Dutch";
+                yield return "Spanish";
+                yield return "Italian";
+                yield return "German";
+                yield return "French";
             }
         }
     }
