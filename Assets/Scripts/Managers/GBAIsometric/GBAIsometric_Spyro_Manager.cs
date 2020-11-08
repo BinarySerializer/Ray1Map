@@ -253,7 +253,7 @@ namespace R1Engine
                 TilesWidth = width * groupWidth,
                 TilesHeight = height * groupHeight,
                 Collision = collisionData.Collision.Select(c => GetCollisionTile(context, c)).ToArray(),
-                Scale = new Vector3(Mathf.Sqrt(8), 1.15f, Mathf.Sqrt(8)) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
+                Scale = new Vector3(Mathf.Sqrt(8), 1f/Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(8)) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
             };
         }
 

@@ -414,7 +414,7 @@ namespace R1Engine
                 TilesWidth = levelData.MapLayers[0].DataPointer.Value.Width * 8,
                 TilesHeight = levelData.MapLayers[0].DataPointer.Value.Height * 8,
                 Collision = levelData.CollisionData.Select(c => GetCollisionTile(context, c)).ToArray(),
-                Scale = new Vector3(Mathf.Sqrt(8), 1.15f, Mathf.Sqrt(8)) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
+                Scale = new Vector3(Mathf.Sqrt(8), 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(8)) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
             };
         }
 
