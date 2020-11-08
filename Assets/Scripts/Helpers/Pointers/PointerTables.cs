@@ -634,10 +634,11 @@ namespace R1Engine
                         //[GBAIsometric_Spyro_Pointer.LocTables] = ,
 
                         //[GBAIsometric_Spyro_Pointer.ObjectTypes] = ,
-                        [GBAIsometric_Spyro_Pointer.AnimSets] = 0x081730f8,
+                        //[GBAIsometric_Spyro_Pointer.AnimSets] = 0x081730f8,
 
-                        //[GBAIsometric_Spyro_Pointer.PortraitSprites] = ,
+                        [GBAIsometric_Spyro_Pointer.PortraitSprites] = 0x08175434,
                         //[GBAIsometric_Spyro_Pointer.DialogEntries] = ,
+                        [GBAIsometric_Spyro_Pointer.CutsceneMaps] = 0x0817add4,
 
                         //[GBAIsometric_Spyro_Pointer.GemCounts] = ,
                         //[GBAIsometric_Spyro_Pointer.LevelIndices] = ,

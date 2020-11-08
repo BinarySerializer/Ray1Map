@@ -20,10 +20,10 @@ namespace R1Engine
             var pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
             // Parse loc tables
-            LocalizationBlockIndices = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LocalizationBlockIndices], () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationBlockIndices)));
-            LocalizationDecompressionBlockIndices = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices], () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationDecompressionBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationDecompressionBlockIndices)));
+            LocalizationBlockIndices = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LocalizationBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationBlockIndices)));
+            LocalizationDecompressionBlockIndices = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationDecompressionBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationDecompressionBlockIndices)));
 
-            LocTables = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LocTables], () => s.SerializeObjectArray<GBAIsometric_Spyro_LocTable>(LocTables, 38, name: nameof(LocTables)));
+            LocTables = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LocTables), () => s.SerializeObjectArray<GBAIsometric_Spyro_LocTable>(LocTables, 38, name: nameof(LocTables)));
 
             if (LocTables == null)
                 return;

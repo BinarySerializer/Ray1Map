@@ -141,6 +141,7 @@ namespace R1Engine
                         [1] = "Agent 9",
                         [2] = "Sgt. Byrd",
                         [3] = "Byrd Rescue",
+                        [4] = "Cutscenes",
                     };
 
                 case Game.SNES_Prototype:
@@ -595,6 +596,20 @@ namespace R1Engine
                 [1] = "Minty Mines - Agent 9",
                 [2] = "Alpine Adobe - Agent 9",
                 [3] = "Volcano Vaults - Agent 9",
+            },
+            [2] = new Dictionary<int, string>()
+            {
+                [0] = "Cutscene 0",
+                [1] = "Cutscene 1",
+                [2] = "Cutscene 2",
+                [3] = "Cutscene 3",
+                [4] = "Cutscene 4",
+                [5] = "Cutscene 5",
+                [6] = "Cutscene 6",
+                [7] = "Cutscene 7",
+                [8] = "Cutscene 8",
+                [9] = "Cutscene 9",
+                [10] = "Cutscene 10",
             }
         };
 
@@ -709,7 +724,7 @@ namespace R1Engine
                 [89] = "Rhynocs n' Clocks - Rescue Mission",
                 [90] = "Chateau Ripto - Rescue Mission",
             },
-            [4] = new Dictionary<int, string>()
+            [3] = new Dictionary<int, string>()
             {
                 [0] = "Byrd Rescue 1",
                 [1] = "Byrd Rescue 2",

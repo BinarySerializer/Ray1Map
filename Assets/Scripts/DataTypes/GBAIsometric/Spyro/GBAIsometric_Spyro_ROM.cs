@@ -25,11 +25,12 @@ namespace R1Engine
         public GBAIsometric_Spyro_Dialog[] DialogEntries { get; set; }
 
         public GBAIsometric_Spyro_LevelNameInfo[] LevelNameInfos { get; set; }
-        public GBAIsometric_Spyro_UnkStruct[] UnkStructs { get; set; }
         public byte[] LevelIndices { get; set; } // Level index for every map
         public ushort[] GemCounts { get; set; } // The gem count for every level
         public GBAIsometric_Spyro_MenuPage[] MenuPages { get; set; }
 
+        public GBAIsometric_Spyro_UnkStruct[] UnkStructs { get; set; }
+        public GBAIsometric_Spyro_CutsceneMap[] CutsceneMaps { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -53,14 +54,14 @@ namespace R1Engine
             var id = GetLevelDataID(s.GameSettings);
 
             // Serialize level data
-            LevelData = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData], () => s.SerializeObject(LevelData, x =>
+            LevelData = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelData), () => s.SerializeObject(LevelData, x =>
             {
                 x.Length = manager.LevelDataCount;
                 x.UesPointerArray = true;
                 x.Is2D = false;
                 x.SerializeDataForID = s.GameSettings.World != 0 ? -1 : id;
             }, name: nameof(LevelData)));
-            LevelObjects = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, LevelData.Length, name: nameof(LevelObjects)));
+            LevelObjects = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelObjects), () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, LevelData.Length, name: nameof(LevelObjects)));
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
             {
@@ -101,23 +102,26 @@ namespace R1Engine
                 }, name: nameof(LevelData_Spyro3_SgtByrd)));
             }
 
-            LevelMaps = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelMaps], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelMap>(LevelMaps, manager.LevelMapsCount, name: nameof(LevelMaps)));
+            LevelMaps = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelMaps), () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelMap>(LevelMaps, manager.LevelMapsCount, name: nameof(LevelMaps)));
 
             // Serialize object data
-            ObjectTypes = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.ObjectTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, manager.ObjectTypesCount, name: nameof(ObjectTypes)));
-            AnimSets = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.AnimSets], () => s.SerializeObjectArray<GBAIsometric_Spyro_AnimSet>(AnimSets, manager.AnimSetsCount, name: nameof(AnimSets)));
+            ObjectTypes = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.ObjectTypes), () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, manager.ObjectTypesCount, name: nameof(ObjectTypes)));
+            AnimSets = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.AnimSets), () => s.SerializeObjectArray<GBAIsometric_Spyro_AnimSet>(AnimSets, manager.AnimSetsCount, name: nameof(AnimSets)));
 
             // Serialize portraits
-            PortraitSprites = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.PortraitSprites], () => s.SerializeObjectArray<GBAIsometric_Spyro_PortraitSprite>(PortraitSprites, manager.PortraitsCount, name: nameof(PortraitSprites)));
+            PortraitSprites = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.PortraitSprites), () => s.SerializeObjectArray<GBAIsometric_Spyro_PortraitSprite>(PortraitSprites, manager.PortraitsCount, name: nameof(PortraitSprites)));
 
             // Serialize dialog entries
-            DialogEntries = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.DialogEntries], () => s.SerializeObjectArray<GBAIsometric_Spyro_Dialog>(DialogEntries, manager.DialogCount, name: nameof(DialogEntries)));
+            DialogEntries = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.DialogEntries), () => s.SerializeObjectArray<GBAIsometric_Spyro_Dialog>(DialogEntries, manager.DialogCount, name: nameof(DialogEntries)));
+
+            // Serialize cutscene maps
+            CutsceneMaps = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.CutsceneMaps), () => s.SerializeObjectArray<GBAIsometric_Spyro_CutsceneMap>(CutsceneMaps, 11, name: nameof(CutsceneMaps)));
 
             // Serialize level properties
-            GemCounts = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.GemCounts], () => s.SerializeArray<ushort>(GemCounts, manager.PrimaryLevelCount, name: nameof(GemCounts)));
-            LevelIndices = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelIndices], () => s.SerializeArray<byte>(LevelIndices, manager.TotalLevelsCount, name: nameof(LevelIndices)));
-            LevelNameInfos = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelNameInfos], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelNameInfo>(LevelNameInfos, manager.TotalLevelsCount, name: nameof(LevelNameInfos)));
-            MenuPages = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.MenuPages], () => s.SerializeObjectArray<GBAIsometric_Spyro_MenuPage>(MenuPages, manager.MenuPageCount, name: nameof(MenuPages)));
+            GemCounts = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.GemCounts), () => s.SerializeArray<ushort>(GemCounts, manager.PrimaryLevelCount, name: nameof(GemCounts)));
+            LevelIndices = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelIndices), () => s.SerializeArray<byte>(LevelIndices, manager.TotalLevelsCount, name: nameof(LevelIndices)));
+            LevelNameInfos = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelNameInfos), () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelNameInfo>(LevelNameInfos, manager.TotalLevelsCount, name: nameof(LevelNameInfos)));
+            MenuPages = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.MenuPages), () => s.SerializeObjectArray<GBAIsometric_Spyro_MenuPage>(MenuPages, manager.MenuPageCount, name: nameof(MenuPages)));
 
 
             // Serialize unknown struct
@@ -185,12 +189,9 @@ namespace R1Engine
                 }
             }
 
-            if (array == null)
-                throw new Exception("Invalid game settings");
-
             var id = GetLevelDataID(settings);
 
-            return array.First(x => x.LevelID == id).ObjectTable;
+            return array?.First(x => x.LevelID == id).ObjectTable;
         }
         public int GetLevelDataID(GameSettings settings)
         {

@@ -10,10 +10,11 @@ namespace R1Engine
         {
             new GameInfo_World(0, ValueRange.EnumerateRanges(new ValueRange(0, 34), new ValueRange(39, 42)).ToArray()), // 3D
             new GameInfo_World(1, ValueRange.EnumerateRanges(new ValueRange(0, 3)).ToArray()), // Agent 9
+            new GameInfo_World(4, ValueRange.EnumerateRanges(new ValueRange(0, 10)).ToArray()), // Cutscenes
         });
 
         public override int DataTableCount => 1509;
-        public override int PortraitsCount => throw new NotImplementedException();
+        public override int PortraitsCount => 31;
         public override int DialogCount => throw new NotImplementedException();
         public override int PrimaryLevelCount => throw new NotImplementedException();
         public override int LevelMapsCount => throw new NotImplementedException();
@@ -27,6 +28,7 @@ namespace R1Engine
         {
             get
             {
+                yield break;
                 yield return "English";
             }
         }

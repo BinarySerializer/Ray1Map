@@ -160,10 +160,14 @@ namespace R1Engine
 
                 var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
-                foreach (var portrait in rom.PortraitSprites)
+                foreach (var portrait in rom.PortraitSprites ?? new GBAIsometric_Spyro_PortraitSprite[0])
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Portraits", $"{portrait.ID}.png"), portrait.ToTexture2D().EncodeToPNG());
 
-                foreach (var map in rom.LevelMaps)
+                var index = 0;
+                foreach (var cutscene in rom.CutsceneMaps ?? new GBAIsometric_Spyro_CutsceneMap[0])
+                    Util.ByteArrayToFile(Path.Combine(outputPath, "Cutscenes", $"{index++}.png"), cutscene.ToTexture2D().EncodeToPNG());
+
+                foreach (var map in rom.LevelMaps ?? new GBAIsometric_Spyro_LevelMap[0])
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Maps", $"{map.LevelID}.png"), map.ToTexture2D().EncodeToPNG());
             }
         }
@@ -260,6 +264,46 @@ namespace R1Engine
 
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
+            // Spyro 2 cutscenes
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 4)
+            {
+                var cutsceneMap = rom.CutsceneMaps[context.Settings.Level];
+
+                Controller.DetailedState = $"Loading tileset";
+                await Controller.WaitIfNecessary();
+
+                var fullTileSet = cutsceneMap.TileSets.SelectMany(x => x).ToArray();
+                var cutsceneTileSet = LoadTileSet(cutsceneMap.Palette, fullTileSet);
+
+                Controller.DetailedState = $"Loading maps";
+                await Controller.WaitIfNecessary();
+
+                var map = new Unity_Map()
+                {
+                    Width = cutsceneMap.Map.Width,
+                    Height = cutsceneMap.Map.Height,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        cutsceneTileSet
+                    },
+                    MapTiles = cutsceneMap.Map.MapData.Select(x => new Unity_Tile(x)).ToArray(),
+                };
+
+                Controller.DetailedState = $"Loading localization";
+                await Controller.WaitIfNecessary();
+
+                return new Unity_Level(
+                    maps: new Unity_Map[]
+                    {
+                        map
+                    }, 
+                    objManager: new Unity_ObjectManager(context),
+                    eventData: new List<Unity_Object>(),
+                    cellSize: CellSize,
+                    getCollisionTypeGraphicFunc: x => ((GBAIsometric_Spyro_TileCollisionType2D)x).GetCollisionTypeGraphic(),
+                    localization: LoadLocalization(context, rom));
+            }
+
             var levelData = rom.GetLevelData(context.Settings);
 
             // Convert map arrays to map tiles
@@ -320,7 +364,7 @@ namespace R1Engine
             }
 
             // Add the map if available
-            var lvlMap = rom.LevelMaps?.FirstOrDefault(x => x.LevelID == context.Settings.Level);
+            var lvlMap = rom.LevelMaps?.FirstOrDefault(x => x.LevelID == rom.GetLevelDataID(context.Settings));
             if (context.Settings.World == 0 && lvlMap != null)
             {
                 maps = maps.Append(new Unity_Map()
@@ -343,9 +387,11 @@ namespace R1Engine
             var objTable = rom.GetObjectTable(context.Settings);
 
             // Init the objects
-            InitObjects(objTable.Objects);
-
-            objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometric(x, objManager)));
+            if (objTable != null)
+            {
+                InitObjects(objTable.Objects);
+                objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometric(x, objManager)));
+            }
 
             Controller.DetailedState = $"Loading localization";
             await Controller.WaitIfNecessary();
@@ -366,7 +412,7 @@ namespace R1Engine
         {
             var langages = GetLanguages.ToArray();
 
-            return rom.Localization.LocBlocks.Select((x, i) => new
+            return rom.Localization.LocBlocks?.Select((x, i) => new
             {
                 Lang = langages[i],
                 Strings = x.Strings
@@ -529,6 +575,15 @@ namespace R1Engine
                 paletteIndices[mt.TileMapY] = mt.PaletteIndex;
 
             var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), false, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
+
+            return new Unity_MapTileMap(tileSetTex, CellSize);
+        }
+
+        public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, byte[] tileSet)
+        {
+            var pal = Util.ConvertGBAPalette(tilePal);
+
+            var tileSetTex = Util.ToTileSetTexture(tileSet, pal, true, CellSize, false);
 
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }

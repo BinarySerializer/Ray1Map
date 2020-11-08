@@ -13,6 +13,7 @@
 
         PortraitSprites,
         DialogEntries,
+        CutsceneMaps,
 
         GemCounts,
         LevelIndices,
