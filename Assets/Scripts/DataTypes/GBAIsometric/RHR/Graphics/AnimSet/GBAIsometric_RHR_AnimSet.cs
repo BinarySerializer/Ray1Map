@@ -26,9 +26,9 @@ namespace R1Engine
 
         public ARGB1555Color[] Palette { get; set; }
         public string Name { get; set; }
-        public GBAIsometric_RHR_Animation[] Animations { get; set; }
-        public GBAIsometric_RHR_AnimFrame[] Frames { get; set; }
-        public Dictionary<int, GBAIsometric_RHR_AnimSet_Pattern[]> Patterns { get; set; }
+        public GBAIsometric_Animation[] Animations { get; set; }
+        public GBAIsometric_AnimFrame[] Frames { get; set; }
+        public Dictionary<int, GBAIsometric_AnimPattern[]> Patterns { get; set; }
         public ushort[] TileIndices { get; set; }
         public bool Is8Bit => BitHelpers.ExtractBits(Flags, 1, 1) == 1;
 
@@ -55,19 +55,19 @@ namespace R1Engine
             Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<ARGB1555Color>(Palette, Is8Bit ? 256 : 16, name: nameof(Palette)));
             Name = s.DoAt(NamePointer, () => s.SerializeString(Name, name: nameof(Name)));
 
-            Animations = s.DoAt(AnimationsPointer, () => s.SerializeObjectArray<GBAIsometric_RHR_Animation>(Animations, AnimationCount, name: nameof(Animations)));
-            Frames = s.DoAt(FramesPointer, () => s.SerializeObjectArray<GBAIsometric_RHR_AnimFrame>(Frames, Animations?.Max(a => a.StartFrameIndex + a.FrameCount) ?? 0, name: nameof(Frames)));
+            Animations = s.DoAt(AnimationsPointer, () => s.SerializeObjectArray<GBAIsometric_Animation>(Animations, AnimationCount, name: nameof(Animations)));
+            Frames = s.DoAt(FramesPointer, () => s.SerializeObjectArray<GBAIsometric_AnimFrame>(Frames, Animations?.Max(a => a.StartFrameIndex + a.FrameCount) ?? 0, name: nameof(Frames)));
             if (Patterns == null) {
-                Patterns = new Dictionary<int, GBAIsometric_RHR_AnimSet_Pattern[]>();
+                Patterns = new Dictionary<int, GBAIsometric_AnimPattern[]>();
                 foreach (var frame in Frames) {
                     if(frame.PatternIndex == 0xFFFF) continue;
                     if (!Patterns.ContainsKey(frame.PatternIndex)) {
                         var key = frame.PatternIndex;
-                        List<GBAIsometric_RHR_AnimSet_Pattern> tempList = new List<GBAIsometric_RHR_AnimSet_Pattern>();
+                        List<GBAIsometric_AnimPattern> tempList = new List<GBAIsometric_AnimPattern>();
                         s.DoAt(PatternsPointer + 2 * key, () => {
-                            GBAIsometric_RHR_AnimSet_Pattern curUnk = null;
+                            GBAIsometric_AnimPattern curUnk = null;
                             while (curUnk == null || !curUnk.IsLastPattern) {
-                                curUnk = s.SerializeObject<GBAIsometric_RHR_AnimSet_Pattern>(default, name: $"Patterns[{key}][{tempList.Count}]");
+                                curUnk = s.SerializeObject<GBAIsometric_AnimPattern>(default, name: $"Patterns[{key}][{tempList.Count}]");
                                 tempList.Add(curUnk);
                             }
                         });

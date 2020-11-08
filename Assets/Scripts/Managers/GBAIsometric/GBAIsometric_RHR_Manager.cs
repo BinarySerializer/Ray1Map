@@ -92,7 +92,7 @@ namespace R1Engine
                     Util.ByteArrayToFile(Path.Combine(outPath, $"{a}-{anim.Speed}", $"{f++}.png"), tex.EncodeToPNG());
             }
         }
-        public IEnumerable<Texture2D> GetAnimationFrames(Context context, GBAIsometric_RHR_AnimSet animSet, GBAIsometric_RHR_Animation anim, Dictionary<ushort, byte[]> decompressedDictionary)
+        public IEnumerable<Texture2D> GetAnimationFrames(Context context, GBAIsometric_RHR_AnimSet animSet, GBAIsometric_Animation anim, Dictionary<ushort, byte[]> decompressedDictionary)
         {
             SerializerObject s = context.Deserializer;
 
