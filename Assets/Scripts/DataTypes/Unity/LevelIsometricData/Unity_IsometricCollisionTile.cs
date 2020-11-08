@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -91,14 +92,8 @@ namespace R1Engine
             }
             MeshRenderer mr = gao.AddComponent<MeshRenderer>();
             mr.material = mat;
-            UnityEngine.Random.InitState((int)Type);
-            Color color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
-            if ((x + y) % 2 == 1) {
-                float h, s, v;
-                Color.RGBToHSV(color, out h, out s, out v);
-                v -= 0.1f;
-                color = Color.HSVToRGB(h, s, v);
-            }
+
+            var color = CollisionColors[Type];
             mr.material.color = color;
 
             if (AddType.HasFlag(AdditionalTypeFlags.FenceUpLeft_RHR)) {
@@ -184,5 +179,29 @@ namespace R1Engine
             OutOfBounds,
             Unknown
         }
+
+        public Dictionary<CollisionType, Color> CollisionColors { get; } = new Dictionary<CollisionType, Color>()
+        {
+            [CollisionType.Unknown] = Color.white,
+
+            [CollisionType.Solid] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.Wall] = new Color(68 / 255f, 75 / 255f, 87 / 255f),
+
+            [CollisionType.Water] = new Color(51 / 255f, 126 / 255f, 255 / 255f),
+            [CollisionType.WaterFlowBottomLeft] = new Color(49 / 255f, 100 / 255f, 189 / 255f),
+            [CollisionType.WaterFlowBottomRight] = new Color(55 / 255f, 93 / 255f, 161) / 255f,
+            [CollisionType.FreezableWater] = new Color(103 / 255f, 99 / 255f, 235 / 255f),
+
+            [CollisionType.Lava] = new Color(222 / 255f, 67 / 255f, 24 / 255f),
+            [CollisionType.ObstacleHurt] = new Color(212 / 255f, 32 / 255f, 32 / 255f),
+            [CollisionType.Pit] = new Color(158 / 255f, 121 / 255f, 0 / 255f),
+
+            [CollisionType.ExitTrigger] = new Color(194 / 255f, 191 / 255f, 25 / 255f),
+            [CollisionType.NearExitTrigger] = new Color(155 / 255f, 194 / 255f, 25 / 255f),
+            [CollisionType.DialogueTrigger1] = new Color(23 / 255f, 145 / 255f, 38 / 255f),
+            [CollisionType.DialogueTrigger2] = new Color(23 / 255f, 145 / 255f, 38 / 255f),
+            [CollisionType.DialogueTrigger3] = new Color(23 / 255f, 145 / 255f, 38 / 255f),
+            [CollisionType.DialogueTrigger4] = new Color(23 / 255f, 145 / 255f, 38 / 255f),
+        };
     }
 }

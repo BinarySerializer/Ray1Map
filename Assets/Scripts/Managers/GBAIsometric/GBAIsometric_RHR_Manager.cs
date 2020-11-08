@@ -440,8 +440,10 @@ namespace R1Engine
 
             var tileSets = new Dictionary<GBAIsometric_RHR_TileSet, Unity_MapTileMap>();
 
-            Unity_IsometricData isometricData = null;
-            if (!isMenu) isometricData = GetIsometricData(context, levelData);
+            Controller.DetailedState = $"Loading collision";
+            await Controller.WaitIfNecessary();
+
+            Unity_IsometricData isometricData = isMenu ? null : GetIsometricData(context, levelData);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();

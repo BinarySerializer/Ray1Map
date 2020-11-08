@@ -92,7 +92,7 @@ namespace R1Engine
                         {
                             var data = d.DialogData;
 
-                            w.WriteLine($"Cutscene {d.ID} (0x{d.Offset.AbsoluteOffset:X8})");
+                            w.WriteLine($"# Cutscene {d.ID} (0x{d.Offset.AbsoluteOffset:X8})");
 
                             foreach (var e in data.Entries)
                             {
@@ -122,6 +122,30 @@ namespace R1Engine
                             w.WriteLine();
                         }
                     }
+                    using (var w = new StreamWriter(Path.Combine(outputPath, $"Menus_{lang}.txt")))
+                    {
+                        var menuIndex = 0;
+
+                        foreach (var d in rom.MenuPages)
+                        {
+                            w.WriteLine($"# Menu {menuIndex} (0x{d.Offset.AbsoluteOffset:X8})");
+
+                            var header = d.Header.GetString(langIndex);
+                            var subHeader = d.SubHeader.GetString(langIndex);
+
+                            if (header != null)
+                                w.WriteLine($"{header}");
+                            if (subHeader != null)
+                                w.WriteLine($"{subHeader}");
+
+                            foreach (var o in d.Options ?? new GBAIsometric_Spyro_MenuOption[0])
+                                w.WriteLine($"> {o.LocIndex.GetString(langIndex)}");
+
+                            w.WriteLine();
+
+                            menuIndex++;
+                        }
+                    }
 
                     langIndex++;
                 }
@@ -144,48 +168,89 @@ namespace R1Engine
             }
         }
 
-        public void CreateCollisionModel(Context context, GBAIsometric_Spyro_Collision3DMapData levelData) {
-            GameObject parent = new GameObject("Collision parent");
-            Shader sh = Shader.Find("Standard");
-            Material mat = new Material(sh);
-            for (int y = 0; y < levelData.Height; y++) {
-                for (int x = 0; x < levelData.Width; x++) {
-                    int ind = y * levelData.Width + x;
-                    var block = levelData.Collision[ind];
-                    int startPos = 0;
-                    int endPos = block.Height;
-                    float height = endPos - startPos;
-                    GameObject gao = new GameObject();
-                    gao.name = $"Type:{block.Type_Spyro} Shape:{block.Shape_Spyro} Unk:{block.Unk_Spyro}";
-                    //gao.name = $"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1}  Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}";
-                    gao.transform.SetParent(parent.transform);
-                    gao.transform.localScale = new Vector3(1f, 0.5f, 1f);
-                    gao.transform.localPosition = new Vector3(x, startPos, -y);
-                    MeshFilter mf = gao.AddComponent<MeshFilter>();
-                    switch (block.Shape_Spyro) {
-                        case GBAIsometric_TileCollision.ShapeType_Spyro.SlopeUpRight:
-                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height + 1, height + 1, height, height);
-                            break;
-                        case GBAIsometric_TileCollision.ShapeType_Spyro.SlopeUpLeft:
-                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height + 1, height, height, height + 1);
-                            break;
-                        default:
-                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, height, height, height, height);
-                            break;
-                    }
-                    MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-                    mr.material = mat;
-                    UnityEngine.Random.InitState((int)block.Type_Spyro);
-                    Color color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
-                    if ((x + y) % 2 == 1) {
-                        float h, s, v;
-                        Color.RGBToHSV(color, out h, out s, out v);
-                        v -= 0.1f;
-                        color = Color.HSVToRGB(h, s, v);
-                    }
-                    mr.material.color = color;
+        private Unity_IsometricCollisionTile GetCollisionTile(Context context, GBAIsometric_TileCollision block)
+        {
+            Unity_IsometricCollisionTile.AdditionalTypeFlags GetAddType()
+            {
+                Unity_IsometricCollisionTile.AdditionalTypeFlags addType = Unity_IsometricCollisionTile.AdditionalTypeFlags.None;
+
+                if (block.AddType_Spyro.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_Spyro.FenceUpLeft))
+                    addType |= Unity_IsometricCollisionTile.AdditionalTypeFlags.FenceUpLeft;
+
+                if (block.AddType_Spyro.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_Spyro.FenceUpRight))
+                    addType |= Unity_IsometricCollisionTile.AdditionalTypeFlags.FenceUpRight;
+
+                if (block.AddType_Spyro.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_Spyro.FenceDownLeft))
+                    addType |= Unity_IsometricCollisionTile.AdditionalTypeFlags.FenceDownLeft;
+
+                if (block.AddType_Spyro.HasFlag(GBAIsometric_TileCollision.AdditionalTypeFlags_Spyro.FenceDownRight))
+                    addType |= Unity_IsometricCollisionTile.AdditionalTypeFlags.FenceDownRight;
+
+                return addType;
+            }
+            Unity_IsometricCollisionTile.ShapeType GetShapeType()
+            {
+                switch (block.Shape_Spyro)
+                {
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.None:
+                        return Unity_IsometricCollisionTile.ShapeType.None;
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.Normal:
+                        return Unity_IsometricCollisionTile.ShapeType.Normal;
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.SlopeUpLeft:
+                        return Unity_IsometricCollisionTile.ShapeType.SlopeUpLeft;
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.SlopeUpRight:
+                        return Unity_IsometricCollisionTile.ShapeType.SlopeUpRight;
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.LevelEdgeTop:
+                        return Unity_IsometricCollisionTile.ShapeType.LevelEdgeTop;
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.LevelEdgeBottom:
+                        return Unity_IsometricCollisionTile.ShapeType.LevelEdgeBottom;
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.LevelEdgeLeft:
+                        return Unity_IsometricCollisionTile.ShapeType.LevelEdgeLeft;
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.LevelEdgeRight:
+                        return Unity_IsometricCollisionTile.ShapeType.LevelEdgeRight;
+                    case GBAIsometric_TileCollision.ShapeType_Spyro.OutOfBounds:
+                        return Unity_IsometricCollisionTile.ShapeType.OutOfBounds;
+                    default:
+                        return Unity_IsometricCollisionTile.ShapeType.Unknown;
                 }
             }
+            Unity_IsometricCollisionTile.CollisionType GetCollisionType()
+            {
+                switch (block.Type_Spyro)
+                {
+                    case GBAIsometric_TileCollision.CollisionType_Spyro.Solid:
+                        return Unity_IsometricCollisionTile.CollisionType.Solid;
+                    case GBAIsometric_TileCollision.CollisionType_Spyro.Water:
+                        return Unity_IsometricCollisionTile.CollisionType.Water;
+                    case GBAIsometric_TileCollision.CollisionType_Spyro.FreezableWater:
+                        return Unity_IsometricCollisionTile.CollisionType.FreezableWater;
+                    case GBAIsometric_TileCollision.CollisionType_Spyro.Wall:
+                        return Unity_IsometricCollisionTile.CollisionType.Wall;
+                    default:
+                        return Unity_IsometricCollisionTile.CollisionType.Unknown;
+                }
+            }
+            return new Unity_IsometricCollisionTile()
+            {
+                Height = block.Height,
+                AddType = GetAddType(),
+                Shape = GetShapeType(),
+                Type = GetCollisionType(),
+                DebugText = $"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}"
+            };
+        }
+
+        public Unity_IsometricData GetIsometricData(Context context, GBAIsometric_Spyro_Collision3DMapData collisionData, int width, int heigth, int groupWidth, int groupHeight)
+        {
+            return new Unity_IsometricData()
+            {
+                CollisionWidth = collisionData.Width,
+                CollisionHeight = collisionData.Height,
+                TilesWidth = width * groupWidth,
+                TilesHeight = heigth * groupHeight,
+                Collision = collisionData.Collision.Select(c => GetCollisionTile(context, c)).ToArray(),
+                Scale = new Vector3(Mathf.Sqrt(8), 1.15f, Mathf.Sqrt(8)) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
+            };
         }
 
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
@@ -206,8 +271,11 @@ namespace R1Engine
             // Load tileset
             var tileSet = LoadTileSet(levelData.TilePalette, levelData.MapLayers.Where(x => x != null).Select(x => x.TileSet).ToArray(), mapTiles);
 
-            if (levelData.Collision3D != null)
-                CreateCollisionModel(context, levelData.Collision3D);
+            Controller.DetailedState = $"Loading collision";
+            await Controller.WaitIfNecessary();
+
+            var firstValidMap = levelData.MapLayers.First(x => x != null);
+            Unity_IsometricData isometricData = levelData.Collision3D == null ? null : GetIsometricData(context, levelData.Collision3D, firstValidMap.Map.Width, firstValidMap.Map.Height, firstValidMap.TileAssemble.GroupWidth, firstValidMap.TileAssemble.GroupHeight);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
@@ -289,6 +357,7 @@ namespace R1Engine
                 cellSize: CellSize,
                 getCollisionTypeGraphicFunc: x => ((GBAIsometric_Spyro_TileCollisionType2D)x).GetCollisionTypeGraphic(),
                 defaultMap: 1,
+                isometricData: isometricData,
                 localization: LoadLocalization(context, rom),
                 defaultCollisionMap: validMaps.Length - 1);
         }
