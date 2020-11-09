@@ -51,6 +51,7 @@ public class OutlineManager : MonoBehaviour {
 		if (Active != null) {
 			if(!outlineActive.gameObject.activeSelf) outlineActive.gameObject.SetActive(true);
 			if (Active.boxCollider != null) {
+				//outlineActive.gameObject.layer = LayerMask.NameToLayer("Default");
 				outlineActive.SetPosition(0, new Vector2(Active.midpoint.x - Active.boxCollider.size.x / 2f, Active.midpoint.y - Active.boxCollider.size.y / 2f));
 				outlineActive.SetPosition(1, new Vector2(Active.midpoint.x + Active.boxCollider.size.x / 2f, Active.midpoint.y - Active.boxCollider.size.y / 2f));
 				outlineActive.SetPosition(2, new Vector2(Active.midpoint.x + Active.boxCollider.size.x / 2f, Active.midpoint.y + Active.boxCollider.size.y / 2f));
@@ -59,6 +60,7 @@ public class OutlineManager : MonoBehaviour {
 				Camera mainCam = Camera.main;
 				Camera cam3D = Controller.obj?.levelEventController?.editor?.cam?.camera3D ?? mainCam;
 				Vector2 objPos = Convert3DTo2DPoint(cam3D, mainCam, Active.midpoint);
+				//outlineActive.gameObject.layer = LayerMask.NameToLayer("3D Links");
 				outlineActive.SetPosition(0, new Vector2(objPos.x - Active.boxCollider3D.size.x / 2f, objPos.y - Active.boxCollider3D.size.y / 2f));
 				outlineActive.SetPosition(1, new Vector2(objPos.x + Active.boxCollider3D.size.x / 2f, objPos.y - Active.boxCollider3D.size.y / 2f));
 				outlineActive.SetPosition(2, new Vector2(objPos.x + Active.boxCollider3D.size.x / 2f, objPos.y + Active.boxCollider3D.size.y / 2f));
@@ -71,6 +73,7 @@ public class OutlineManager : MonoBehaviour {
 		if (Highlight != null && Highlight != Active) {
 			if (!outlineHighlight.gameObject.activeSelf) outlineHighlight.gameObject.SetActive(true);
 			if (Highlight.boxCollider != null) {
+				//outlineHighlight.gameObject.layer = LayerMask.NameToLayer("Default");
 				outlineHighlight.SetPosition(0, new Vector2(Highlight.midpoint.x - Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y - Highlight.boxCollider.size.y / 2f));
 				outlineHighlight.SetPosition(1, new Vector2(Highlight.midpoint.x + Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y - Highlight.boxCollider.size.y / 2f));
 				outlineHighlight.SetPosition(2, new Vector2(Highlight.midpoint.x + Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y + Highlight.boxCollider.size.y / 2f));
@@ -79,6 +82,7 @@ public class OutlineManager : MonoBehaviour {
 				Camera mainCam = Camera.main;
 				Camera cam3D = Controller.obj?.levelEventController?.editor?.cam?.camera3D ?? mainCam;
 				Vector2 objPos = Convert3DTo2DPoint(cam3D, mainCam, Highlight.midpoint);
+				//outlineHighlight.gameObject.layer = LayerMask.NameToLayer("3D Links");
 				outlineHighlight.SetPosition(0, new Vector2(objPos.x - Highlight.boxCollider3D.size.x / 2f, objPos.y - Highlight.boxCollider3D.size.y / 2f));
 				outlineHighlight.SetPosition(1, new Vector2(objPos.x + Highlight.boxCollider3D.size.x / 2f, objPos.y - Highlight.boxCollider3D.size.y / 2f));
 				outlineHighlight.SetPosition(2, new Vector2(objPos.x + Highlight.boxCollider3D.size.x / 2f, objPos.y + Highlight.boxCollider3D.size.y / 2f));

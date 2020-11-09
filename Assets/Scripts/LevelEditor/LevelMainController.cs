@@ -237,7 +237,7 @@ namespace R1Engine
                 }
 
                 // Always hide events with no graphics
-                if (e.defautRenderer.enabled)
+                if (e.defaultRenderer.enabled)
                     e.gameObject.SetActive(false);
 
                 // TODO: Change this option

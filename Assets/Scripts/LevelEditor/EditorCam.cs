@@ -20,6 +20,8 @@ namespace R1Engine {
 
         public LevelTilemapController levelTilemapController;
         public Camera camera3D;
+        public Camera camera2DOverlay;
+        public Camera camera3DOverlay;
 
         void Start() {
             Camera.main.orthographicSize = fov;
@@ -101,11 +103,12 @@ namespace R1Engine {
                     transform.position = pos;
                 }
                 Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, fov, Time.deltaTime * 8);
+                camera2DOverlay.orthographicSize = Camera.main.orthographicSize;
 
                 if (LevelEditorData.Level?.IsometricData != null) {
                     // Update 3D camera
                     float scl = 1f;
-                    Quaternion rot3D = Quaternion.Euler(30f,-45,0);
+                    Quaternion rot3D = Quaternion.Euler(30f, -45, 0);
                     camera3D.transform.rotation = rot3D;
                     Vector3 v = rot3D * Vector3.back;
                     float w = LevelEditorData.Level.IsometricData.TilesWidth * levelTilemapController.CellSizeInUnits;
@@ -122,6 +125,8 @@ namespace R1Engine {
 
                     // Activate
                     if (!camera3D.gameObject.activeSelf) camera3D.gameObject.SetActive(true);
+                    camera3DOverlay.orthographicSize = camera3D.orthographicSize;
+                    camera2DOverlay.cullingMask &= ~(1 << LayerMask.NameToLayer("3D Overlay"));
                 }
             }
         }

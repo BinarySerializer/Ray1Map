@@ -42,7 +42,7 @@ namespace R1Engine
 
         public LineRenderer[] oneWayLinkLines;
         // Default sprite
-        public SpriteRenderer defautRenderer;
+        public SpriteRenderer defaultRenderer;
         // Reference to spritepart prefab
         public GameObject prefabSpritepart;
         // Reference to the box prefab
@@ -165,6 +165,7 @@ namespace R1Engine
 
         private void UpdatePosition3D() {
             gameObject.layer = LayerMask.NameToLayer("3D Object");
+            defaultRenderer.gameObject.layer = gameObject.layer;
             Unity_Object_3D obj = (Unity_Object_3D)ObjData; 
             Vector3 pos = obj.Position;
 
@@ -186,14 +187,10 @@ namespace R1Engine
 
             if (boxCollider3D == null) {
                 if (boxCollider != null) Destroy(boxCollider);
-                if (boxCollider == null) boxCollider3D = gameObject.AddComponent<BoxCollider>();
-
-                lineRend.gameObject.layer = gameObject.layer;
-                linkCube.gameObject.layer = gameObject.layer;
-                offsetOrigin.gameObject.layer = gameObject.layer;
-                offsetCrossBX.gameObject.layer = gameObject.layer;
-                offsetCrossHY.gameObject.layer = gameObject.layer;
-                followSpriteLine.gameObject.layer = gameObject.layer;
+                if (boxCollider == null) { // Check if object is destroyed
+                    boxCollider = null; // Remove the reference. Despite the null check earlier the reference still exists.
+                    boxCollider3D = gameObject.AddComponent<BoxCollider>();
+                }
             }
         }
 
@@ -215,7 +212,7 @@ namespace R1Engine
 
             UpdateTimer = 0.0f;
 
-            defautRenderer.enabled = true;
+            defaultRenderer.enabled = true;
 
             bool frameUpdated = false;
             bool collisionUpdated = false;
@@ -290,7 +287,11 @@ namespace R1Engine
             // Get the current animation
             var anim = ObjData.CurrentAnimation;
 
-            defautRenderer.enabled = ShowDefaultRenderer;
+            // 
+            bool defaultRendererEnabled = ShowDefaultRenderer;
+            if (defaultRenderer.gameObject.activeSelf != defaultRendererEnabled) {
+                defaultRenderer.gameObject.SetActive(defaultRendererEnabled);
+            }
 
             UpdatePosition();
 
