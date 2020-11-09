@@ -430,7 +430,7 @@ namespace R1Engine
 
             var levelInfo = !isMenu ? rom.LevelInfos[context.Settings.Level] : null;
             var levelData = levelInfo?.LevelDataPointer.Value;
-            var animPal = rom.PaletteAnimations.ElementAtOrDefault(levelInfo?.PaletteShiftIndex ?? -1);
+            var animPal = !isMenu ? rom.PaletteAnimations.ElementAtOrDefault(levelInfo?.PaletteShiftIndex ?? -1) : null;
 
             var availableMaps = !isMenu ? levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse() : rom.MenuMaps;
 
@@ -473,7 +473,7 @@ namespace R1Engine
                 };
             }).ToArray();
 
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, GetAnimSets(rom).ToArray(), levelData?.ObjectsCount ?? 0);
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, !isMenu ? GetAnimSets(rom).ToArray() : new Unity_ObjectManager_GBAIsometric.AnimSet[0], levelData?.ObjectsCount ?? 0);
 
             var allObjects = new List<Unity_Object>();
 
