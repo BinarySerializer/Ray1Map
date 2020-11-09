@@ -199,7 +199,7 @@ namespace R1Engine
             [CollisionType.WaterFlowBottomRight] = new Color(55 / 255f, 93 / 255f, 161) / 255f,
             [CollisionType.FreezableWater] = new Color(103 / 255f, 99 / 255f, 235 / 255f),
 
-            [CollisionType.Lava] = new Color(222 / 255f, 67 / 255f, 24 / 255f),
+            [CollisionType.Lava] = new Color(255 / 255f, 119 / 255f, 0 / 255f),
             [CollisionType.ObstacleHurt] = new Color(212 / 255f, 32 / 255f, 32 / 255f),
             [CollisionType.Pit] = new Color(158 / 255f, 121 / 255f, 0 / 255f),
 
