@@ -50,23 +50,47 @@ public class OutlineManager : MonoBehaviour {
 		// Update selection square lines
 		if (Active != null) {
 			if(!outlineActive.gameObject.activeSelf) outlineActive.gameObject.SetActive(true);
-			outlineActive.SetPosition(0, new Vector2(Active.midpoint.x - Active.boxCollider.size.x / 2f, Active.midpoint.y - Active.boxCollider.size.y / 2f));
-			outlineActive.SetPosition(1, new Vector2(Active.midpoint.x + Active.boxCollider.size.x / 2f, Active.midpoint.y - Active.boxCollider.size.y / 2f));
-			outlineActive.SetPosition(2, new Vector2(Active.midpoint.x + Active.boxCollider.size.x / 2f, Active.midpoint.y + Active.boxCollider.size.y / 2f));
-			outlineActive.SetPosition(3, new Vector2(Active.midpoint.x - Active.boxCollider.size.x / 2f, Active.midpoint.y + Active.boxCollider.size.y / 2f));
+			if (Active.boxCollider != null) {
+				outlineActive.SetPosition(0, new Vector2(Active.midpoint.x - Active.boxCollider.size.x / 2f, Active.midpoint.y - Active.boxCollider.size.y / 2f));
+				outlineActive.SetPosition(1, new Vector2(Active.midpoint.x + Active.boxCollider.size.x / 2f, Active.midpoint.y - Active.boxCollider.size.y / 2f));
+				outlineActive.SetPosition(2, new Vector2(Active.midpoint.x + Active.boxCollider.size.x / 2f, Active.midpoint.y + Active.boxCollider.size.y / 2f));
+				outlineActive.SetPosition(3, new Vector2(Active.midpoint.x - Active.boxCollider.size.x / 2f, Active.midpoint.y + Active.boxCollider.size.y / 2f));
+			} else if (Active.boxCollider3D != null) {
+				Camera mainCam = Camera.main;
+				Camera cam3D = Controller.obj?.levelEventController?.editor?.cam?.camera3D ?? mainCam;
+				Vector2 objPos = Convert3DTo2DPoint(cam3D, mainCam, Active.midpoint);
+				outlineActive.SetPosition(0, new Vector2(objPos.x - Active.boxCollider3D.size.x / 2f, objPos.y - Active.boxCollider3D.size.y / 2f));
+				outlineActive.SetPosition(1, new Vector2(objPos.x + Active.boxCollider3D.size.x / 2f, objPos.y - Active.boxCollider3D.size.y / 2f));
+				outlineActive.SetPosition(2, new Vector2(objPos.x + Active.boxCollider3D.size.x / 2f, objPos.y + Active.boxCollider3D.size.y / 2f));
+				outlineActive.SetPosition(3, new Vector2(objPos.x - Active.boxCollider3D.size.x / 2f, objPos.y + Active.boxCollider3D.size.y / 2f));
+			}
 			//outlineActive.SetPosition(4, new Vector2(Active.midpoint.x - Active.boxCollider.size.x / 2f, Active.midpoint.y - Active.boxCollider.size.y / 2f));
 		} else {
 			if (outlineActive.gameObject.activeSelf) outlineActive.gameObject.SetActive(false);
 		}
 		if (Highlight != null && Highlight != Active) {
 			if (!outlineHighlight.gameObject.activeSelf) outlineHighlight.gameObject.SetActive(true);
-			outlineHighlight.SetPosition(0, new Vector2(Highlight.midpoint.x - Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y - Highlight.boxCollider.size.y / 2f));
-			outlineHighlight.SetPosition(1, new Vector2(Highlight.midpoint.x + Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y - Highlight.boxCollider.size.y / 2f));
-			outlineHighlight.SetPosition(2, new Vector2(Highlight.midpoint.x + Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y + Highlight.boxCollider.size.y / 2f));
-			outlineHighlight.SetPosition(3, new Vector2(Highlight.midpoint.x - Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y + Highlight.boxCollider.size.y / 2f));
+			if (Highlight.boxCollider != null) {
+				outlineHighlight.SetPosition(0, new Vector2(Highlight.midpoint.x - Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y - Highlight.boxCollider.size.y / 2f));
+				outlineHighlight.SetPosition(1, new Vector2(Highlight.midpoint.x + Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y - Highlight.boxCollider.size.y / 2f));
+				outlineHighlight.SetPosition(2, new Vector2(Highlight.midpoint.x + Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y + Highlight.boxCollider.size.y / 2f));
+				outlineHighlight.SetPosition(3, new Vector2(Highlight.midpoint.x - Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y + Highlight.boxCollider.size.y / 2f));
+			} else if (Highlight.boxCollider3D != null) {
+				Camera mainCam = Camera.main;
+				Camera cam3D = Controller.obj?.levelEventController?.editor?.cam?.camera3D ?? mainCam;
+				Vector2 objPos = Convert3DTo2DPoint(cam3D, mainCam, Highlight.midpoint);
+				outlineHighlight.SetPosition(0, new Vector2(objPos.x - Highlight.boxCollider3D.size.x / 2f, objPos.y - Highlight.boxCollider3D.size.y / 2f));
+				outlineHighlight.SetPosition(1, new Vector2(objPos.x + Highlight.boxCollider3D.size.x / 2f, objPos.y - Highlight.boxCollider3D.size.y / 2f));
+				outlineHighlight.SetPosition(2, new Vector2(objPos.x + Highlight.boxCollider3D.size.x / 2f, objPos.y + Highlight.boxCollider3D.size.y / 2f));
+				outlineHighlight.SetPosition(3, new Vector2(objPos.x - Highlight.boxCollider3D.size.x / 2f, objPos.y + Highlight.boxCollider3D.size.y / 2f));
+			}
 			//outlineHighlight.SetPosition(4, new Vector2(Highlight.midpoint.x - Highlight.boxCollider.size.x / 2f, Highlight.midpoint.y - Highlight.boxCollider.size.y / 2f));
 		} else {
 			if (outlineHighlight.gameObject.activeSelf) outlineHighlight.gameObject.SetActive(false);
 		}
     }
+
+	private Vector2 Convert3DTo2DPoint(Camera cam3D, Camera mainCam, Vector3 point) {
+		return mainCam.ScreenToWorldPoint(cam3D.WorldToScreenPoint(point));
+	}
 }

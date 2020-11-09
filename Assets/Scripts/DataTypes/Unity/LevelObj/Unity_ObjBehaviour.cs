@@ -53,6 +53,7 @@ namespace R1Engine
         public SpriteRenderer[] prefabRendersObjCollision;
         // Reference to box collider
         public BoxCollider2D boxCollider;
+        public BoxCollider boxCollider3D;
         // Reference to line renderer
         public LineRenderer lineRend;
         // Reference to link cube
@@ -68,7 +69,7 @@ namespace R1Engine
         //public Transform partParent;
         // Midpoint of this event when taking all the spriteparts into account
         [HideInInspector]
-        public Vector2 midpoint;
+        public Vector3 midpoint;
 
         public AudioClip currentSoundEffect;
 
@@ -180,6 +181,13 @@ namespace R1Engine
                 cam.transform.rotation * Vector3.back,
                 cam.transform.rotation * Vector3.up)) * Quaternion.Euler(0, 180, 0);
             transform.localRotation = lookRot;
+
+            // Create boxCollider
+
+            if (boxCollider3D == null) {
+                if(boxCollider != null) Destroy(boxCollider);
+                if(boxCollider == null) boxCollider3D = gameObject.AddComponent<BoxCollider>();
+            }
         }
 
         void Update()
@@ -493,14 +501,35 @@ namespace R1Engine
                     }
 
                     if (!first) {
-                        var w = (rightX - leftX) / LevelEditorData.Level.PixelsPerUnit;
-                        var h = (topY - bottomY) / LevelEditorData.Level.PixelsPerUnit;
-                        boxCollider.size = new Vector2(w, h);
-                        boxCollider.offset = new Vector2(leftX / LevelEditorData.Level.PixelsPerUnit + w / 2f, (topY / LevelEditorData.Level.PixelsPerUnit - h / 2f));
+                        if (boxCollider != null) {
+                            var w = (rightX - leftX) / LevelEditorData.Level.PixelsPerUnit;
+                            var h = (topY - bottomY) / LevelEditorData.Level.PixelsPerUnit;
+                            boxCollider.size = new Vector2(w, h);
+                            boxCollider.offset = new Vector2(leftX / LevelEditorData.Level.PixelsPerUnit + w / 2f, (topY / LevelEditorData.Level.PixelsPerUnit - h / 2f));
+                        } else if (boxCollider3D != null) {
+                            float w = 1f;
+                            float h = 1f;
+                            float centerX = 0f;
+                            float centerY = 0f;
+                            if (sprites != null && sprites.Length > 0) {
+                                w = sprites[0].sprite.texture.width / sprites[0].sprite.pixelsPerUnit;
+                                h = sprites[0].sprite.texture.height / sprites[0].sprite.pixelsPerUnit;
+                                centerX = sprites[0].transform.localPosition.x + (w / 2 - (sprites[0].sprite.pivot.x / sprites[0].sprite.pixelsPerUnit));
+                                centerY = sprites[0].transform.localPosition.y + (h / 2 - (sprites[0].sprite.pivot.y / sprites[0].sprite.pixelsPerUnit));
+                            }
+                            boxCollider3D.size = new Vector3(w, h,0.1f);
+                            boxCollider3D.center = new Vector2(centerX, centerY);
+
+                        }
                     }
                 } else {
-                    boxCollider.size = new Vector2(1, 1);
-                    boxCollider.offset = new Vector2();
+                    if (boxCollider != null) {
+                        boxCollider.size = Vector2.one;
+                        boxCollider.offset = Vector2.zero;
+                    } else if (boxCollider3D != null) {
+                        boxCollider3D.size = new Vector3(1,1,0.1f);
+                        boxCollider3D.center = Vector3.zero;
+                    }
                 }
             }
 
@@ -528,12 +557,19 @@ namespace R1Engine
                 }
             }
 
-            // Update visibility
-            boxCollider.enabled = EnableBoxCollider;
+            if (boxCollider != null) {
+                // Update visibility
+                boxCollider.enabled = EnableBoxCollider;
 
-            // Set new midpoint
-            midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
+                // Set new midpoint
+                midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
+            } else if (boxCollider3D != null) {
+                // Update visibility
+                boxCollider3D.enabled = EnableBoxCollider;
 
+                // Set new midpoint
+                midpoint = transform.TransformPoint(boxCollider3D.center);
+            }
             // Set link line to cube
             lineRend.SetPosition(0, midpoint);
             lineRend.SetPosition(1, linkCube.position);

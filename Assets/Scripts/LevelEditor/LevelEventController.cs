@@ -515,7 +515,7 @@ namespace R1Engine
             {
                 outlineManager.Active = SelectedEvent;
                 // Add events with ctrl+lmb
-                if (lctrl && Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject() && modeEvents && FileSystem.mode != FileSystem.Mode.Web) 
+                if (lctrl && Input.GetMouseButtonDown(0) && LevelEditorData.Level.IsometricData == null && !EventSystem.current.IsPointerOverGameObject() && modeEvents && FileSystem.mode != FileSystem.Mode.Web) 
                 {
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     var mox = mousepo.x * LevelEditorData.Level.PixelsPerUnit;
@@ -572,7 +572,7 @@ namespace R1Engine
                 }
 
                 // Drag and move the event
-                if (!lctrl && Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
+                if (!lctrl && LevelEditorData.Level.IsometricData == null && Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
                 {
                     if (SelectedEvent != null && SelectedEvent == ClickedEvent) 
                     {

@@ -10,18 +10,40 @@ public class ObjectHighlight : MonoBehaviour {
 
     private void HandleCollision() {
         int layerMask = 0;
-        layerMask |= 1 << LayerMask.NameToLayer("Object");
+        Camera cam = Camera.main;
+        //layerMask |= 1 << LayerMask.NameToLayer("Object");
+        if (LevelEditorData.Level?.IsometricData != null) {
+            cam = Controller.obj?.levelEventController?.editor?.cam?.camera3D ?? cam;
+            layerMask |= 1 << LayerMask.NameToLayer("3D Object");
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, layerMask, QueryTriggerInteraction.Ignore);
+            if (hits != null && hits.Length > 0) {
+                System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
+                if (Settings.ShowObjects) {
+                    for (int i = 0; i < hits.Length; i++) {
+                        // the object identified by hit.transform was clicked
+                        Unity_ObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_ObjBehaviour>();
+                        if (ob != null) {
+                            highlightedObject = ob;
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            layerMask |= 1 << LayerMask.NameToLayer("Object");
 
-        RaycastHit2D[] hits = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero, Mathf.Infinity, layerMask);
-        if (hits != null && hits.Length > 0) {
-            System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
-            if (Settings.ShowObjects) {
-                for (int i = 0; i < hits.Length; i++) {
-                    // the object identified by hit.transform was clicked
-                    Unity_ObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_ObjBehaviour>();
-                    if (ob != null) {
-                        highlightedObject = ob;
-                        break;
+            RaycastHit2D[] hits = Physics2D.RaycastAll(cam.ScreenToWorldPoint(Input.mousePosition), Vector2.zero, Mathf.Infinity, layerMask);
+            if (hits != null && hits.Length > 0) {
+                System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
+                if (Settings.ShowObjects) {
+                    for (int i = 0; i < hits.Length; i++) {
+                        // the object identified by hit.transform was clicked
+                        Unity_ObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_ObjBehaviour>();
+                        if (ob != null) {
+                            highlightedObject = ob;
+                            break;
+                        }
                     }
                 }
             }

@@ -39,7 +39,7 @@ namespace R1Engine
         public override string DebugText => String.Empty;
 
         public override R1Serializable SerializableData => Waypoint;
-        public override ILegacyEditorWrapper LegacyWrapper { get; }
+        public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"waypoint";
         public override string SecondaryName => null;
@@ -51,5 +51,41 @@ namespace R1Engine
         public override IList<Sprite> Sprites => null;
         protected override bool IsUIStateArrayUpToDate => false;
         protected override void RecalculateUIStates() => UIStates = new UIState[0];
+
+
+        private class LegacyEditorWrapper : ILegacyEditorWrapper {
+            public LegacyEditorWrapper(Unity_Object_GBAIsometricWaypoint obj) {
+                Obj = obj;
+            }
+
+            private Unity_Object_GBAIsometricWaypoint Obj { get; }
+
+            public ushort Type { get; set; }
+
+            public int DES { get; set; }
+
+            public int ETA { get; set; }
+
+            public byte Etat { get; set; }
+
+            public byte SubEtat { get; set; }
+
+            public int EtatLength => 0;
+            public int SubEtatLength => 0;
+
+            public byte OffsetBX { get; set; }
+
+            public byte OffsetBY { get; set; }
+
+            public byte OffsetHY { get; set; }
+
+            public byte FollowSprite { get; set; }
+
+            public uint HitPoints { get; set; }
+
+            public byte HitSprite { get; set; }
+
+            public bool FollowEnabled { get; set; }
+        }
     }
 }
