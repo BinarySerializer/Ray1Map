@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3871773287192486119}
   - component: {fileID: 4092331089739621256}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: LinkCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,13 +375,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d57ab8207747d143a6d0dcb94c095d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  oneWayLinkLines: []
   defautRenderer: {fileID: 5110095365168562726}
   prefabSpritepart: {fileID: 1118894001621329459, guid: 5bbcc489a4969e548950ae9aeb64bb4f,
     type: 3}
   prefabBox: {fileID: 1118894001621329459, guid: 4d53572132f11a548ae6c556e54ebb7c,
     type: 3}
   prefabRenderers: []
+  prefabRenderersCollision: []
+  prefabRendersObjCollision: []
   boxCollider: {fileID: 8388059050577267216}
+  boxCollider3D: {fileID: 0}
   lineRend: {fileID: 8273637944863852906}
   linkCube: {fileID: 3871773287192486119}
   linkCubeLockPosition: {x: 0, y: 0}
@@ -389,7 +393,7 @@ MonoBehaviour:
   offsetCrossBX: {fileID: 3102864165816558869}
   offsetCrossHY: {fileID: 547317133392056369}
   followSpriteLine: {fileID: 1461871569743029422}
-  midpoint: {x: 0, y: 0}
+  midpoint: {x: 0, y: 0, z: 0}
   currentSoundEffect: {fileID: 0}
 --- !u!61 &8388059050577267216
 BoxCollider2D:

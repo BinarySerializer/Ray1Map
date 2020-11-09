@@ -185,8 +185,15 @@ namespace R1Engine
             // Create boxCollider
 
             if (boxCollider3D == null) {
-                if(boxCollider != null) Destroy(boxCollider);
-                if(boxCollider == null) boxCollider3D = gameObject.AddComponent<BoxCollider>();
+                if (boxCollider != null) Destroy(boxCollider);
+                if (boxCollider == null) boxCollider3D = gameObject.AddComponent<BoxCollider>();
+
+                lineRend.gameObject.layer = gameObject.layer;
+                linkCube.gameObject.layer = gameObject.layer;
+                offsetOrigin.gameObject.layer = gameObject.layer;
+                offsetCrossBX.gameObject.layer = gameObject.layer;
+                offsetCrossHY.gameObject.layer = gameObject.layer;
+                followSpriteLine.gameObject.layer = gameObject.layer;
             }
         }
 

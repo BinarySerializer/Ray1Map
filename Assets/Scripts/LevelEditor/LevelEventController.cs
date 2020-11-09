@@ -182,6 +182,7 @@ namespace R1Engine
                 {
                     LineRenderer lr = new GameObject("OneWayLinkLine").AddComponent<LineRenderer>();
                     //lr.transform.SetParent(transform);
+                    lr.gameObject.layer = LevelEditorData.Level?.IsometricData != null ? LayerMask.NameToLayer("3D Links") : LayerMask.NameToLayer("Links");
                     lr.sortingLayerName = "Links";
                     lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
                     lr.material = linkLineMaterial;
