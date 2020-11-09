@@ -629,23 +629,22 @@ namespace R1Engine
                     return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x0817B728,
 
-                        //[GBAIsometric_Spyro_Pointer.LocalizationBlockIndices] = ,
-                        //[GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices] = ,
-                        //[GBAIsometric_Spyro_Pointer.LocTables] = ,
+                        [GBAIsometric_Spyro_Pointer.LocalizationPointers] = 0x08002450,
 
-                        //[GBAIsometric_Spyro_Pointer.ObjectTypes] = ,
+                        [GBAIsometric_Spyro_Pointer.ObjectTypes] = 0x08175708,
                         //[GBAIsometric_Spyro_Pointer.AnimSets] = 0x081730f8,
 
                         [GBAIsometric_Spyro_Pointer.PortraitSprites] = 0x08175434,
-                        //[GBAIsometric_Spyro_Pointer.DialogEntries] = ,
+                        [GBAIsometric_Spyro_Pointer.DialogEntries] = 0x0817493c,
                         [GBAIsometric_Spyro_Pointer.CutsceneMaps] = 0x0817add4,
 
                         //[GBAIsometric_Spyro_Pointer.GemCounts] = ,
                         //[GBAIsometric_Spyro_Pointer.LevelIndices] = ,
-                        //[GBAIsometric_Spyro_Pointer.LevelNameInfos] = ,
+                        [GBAIsometric_Spyro_Pointer.LevelNames] = 0x08178a38,
+                        //[GBAIsometric_Spyro_Pointer.MenuPages] = ,
 
-                        //[GBAIsometric_Spyro_Pointer.LevelMaps] = ,
-                        //[GBAIsometric_Spyro_Pointer.LevelObjects] = ,
+                        [GBAIsometric_Spyro_Pointer.LevelMaps] = 0x0817ac58,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x081792ac,
 
                         [GBAIsometric_Spyro_Pointer.LevelData] = 0x0817a878,
                         [GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9] = 0x08178ef8,

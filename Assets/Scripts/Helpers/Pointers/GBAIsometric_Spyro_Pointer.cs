@@ -4,6 +4,7 @@
     {
         DataTable,
         
+        LocalizationPointers,
         LocalizationBlockIndices,
         LocalizationDecompressionBlockIndices,
         LocTables,
@@ -18,6 +19,7 @@
         GemCounts,
         LevelIndices,
         LevelNameInfos,
+        LevelNames,
         MenuPages,
 
         LevelMaps,

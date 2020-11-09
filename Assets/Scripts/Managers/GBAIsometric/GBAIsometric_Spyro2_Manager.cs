@@ -15,11 +15,11 @@ namespace R1Engine
 
         public override int DataTableCount => 1509;
         public override int PortraitsCount => 31;
-        public override int DialogCount => throw new NotImplementedException();
+        public override int DialogCount => 300;
         public override int PrimaryLevelCount => throw new NotImplementedException();
-        public override int LevelMapsCount => throw new NotImplementedException();
-        public override int TotalLevelsCount => throw new NotImplementedException();
-        public override int ObjectTypesCount => throw new NotImplementedException();
+        public override int LevelMapsCount => 14;
+        public override int TotalLevelsCount => 25;
+        public override int ObjectTypesCount => 509;
         public override int AnimSetsCount => 162;
         public override int LevelDataCount => 39;
         public override int MenuPageCount => throw new NotImplementedException();
@@ -28,7 +28,6 @@ namespace R1Engine
         {
             get
             {
-                yield break;
                 yield return "English";
             }
         }

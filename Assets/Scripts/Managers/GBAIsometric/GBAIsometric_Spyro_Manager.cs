@@ -96,23 +96,23 @@ namespace R1Engine
 
                             foreach (var e in data.Entries)
                             {
-                                switch (e.InstructionByte)
+                                switch (e.Values.First().Instruction)
                                 {
-                                    case GBAIsometric_Spyro_DialogData.Entry.Instruction.DrawPortrait:
+                                    case GBAIsometric_Spyro_DialogData.Instruction.DrawPortrait:
                                         w.WriteLine($"[Draw portrait {e.PortraitIndex}]");
                                         break;
 
-                                    case GBAIsometric_Spyro_DialogData.Entry.Instruction.DrawText:
-                                    case GBAIsometric_Spyro_DialogData.Entry.Instruction.DrawMultiChoiceText:
+                                    case GBAIsometric_Spyro_DialogData.Instruction.DrawText:
+                                    case GBAIsometric_Spyro_DialogData.Instruction.DrawMultiChoiceText:
                                         w.WriteLine($"{String.Join(" ", e.LocIndices.Select(x => x.GetString(langIndex)))}");
                                         break;
 
-                                    case GBAIsometric_Spyro_DialogData.Entry.Instruction.MoveCamera:
+                                    case GBAIsometric_Spyro_DialogData.Instruction.MoveCamera:
                                         w.WriteLine("[Move camera]");
                                         break;
                                 }
 
-                                if (e.InstructionByte == GBAIsometric_Spyro_DialogData.Entry.Instruction.DrawMultiChoiceText)
+                                if (e.Values.First().Instruction == GBAIsometric_Spyro_DialogData.Instruction.DrawMultiChoiceText)
                                 {
                                     w.WriteLine($"  > {e.MultiChoiceLocIndices[0].GetString(langIndex)} > {e.MultiChoiceLocIndices[2].GetString(langIndex)}");
                                     w.WriteLine($"  > {e.MultiChoiceLocIndices[1].GetString(langIndex)} > {e.MultiChoiceLocIndices[3].GetString(langIndex)}");
