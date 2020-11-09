@@ -11,7 +11,9 @@
         public Pointer FunctionPointer3 { get; set; }
         public Pointer FunctionPointer4 { get; set; }
 
-        public byte[] UnkData { get; set; }
+        public byte AnimationIndex { get; set; }
+        public byte Byte_19 { get; set; }
+        public ushort UShort_1A { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -26,8 +28,11 @@
             FunctionPointer3 = s.SerializePointer(FunctionPointer3, name: nameof(FunctionPointer3));
             FunctionPointer4 = s.SerializePointer(FunctionPointer4, name: nameof(FunctionPointer4));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
-                UnkData = s.SerializeArray<byte>(UnkData, 4, name: nameof(UnkData));
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR) {
+                AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
+                Byte_19 = s.Serialize<byte>(Byte_19, name: nameof(Byte_19));
+                UShort_1A = s.Serialize<ushort>(UShort_1A, name: nameof(UShort_1A));
+            }
         }
     }
 }

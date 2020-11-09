@@ -178,8 +178,8 @@ namespace R1Engine
             Quaternion inverseParent = transform.parent != null ? Quaternion.Inverse(transform.parent.rotation) : Quaternion.identity;
             Quaternion parentRot = transform.parent != null ? transform.parent.rotation * Quaternion.Euler(0, -90, 0) : Quaternion.Euler(0, -90, 0);
             Quaternion lookRot = (inverseParent * Quaternion.LookRotation(
-                cam.transform.rotation * Vector3.back,
-                cam.transform.rotation * Vector3.up)) * Quaternion.Euler(0, 180, 0);
+                cam.transform.rotation * Vector3.forward,
+                cam.transform.rotation * Vector3.up));
             transform.localRotation = lookRot;
 
             // Create boxCollider

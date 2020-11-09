@@ -14,7 +14,7 @@ namespace R1Engine
 
             var type = ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
             AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.DataPointer?.Value?.AnimSetPointer?.pointer);
-            AnimationIndex = 0; // TODO: Set to correct value
+            AnimIndex = type?.DataPointer?.Value?.AnimationIndex ?? 0; // TODO: Set to correct value
         }
 
         public GBAIsometric_Object Object { get; }
@@ -52,7 +52,7 @@ namespace R1Engine
             set
             {
                 _animSetIndex = value;
-                AnimationIndex = 0;
+                AnimIndex = 0;
             }
         }
 
