@@ -4,6 +4,7 @@
     {
         DataTable,
         
+        LocalizationPointers,
         LocalizationBlockIndices,
         LocalizationDecompressionBlockIndices,
         LocTables,

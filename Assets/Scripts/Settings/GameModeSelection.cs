@@ -264,12 +264,6 @@ namespace R1Engine
 
         // GBA Isometric
 
-        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - EU)", typeof(GBAIsometric_RHR_Manager))]
-        RaymanHoodlumsRevengeEU,
-
-        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
-        RaymanHoodlumsRevengeUS,
-
         //[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro1, Game.GBAIsometric_Spyro1, "Spyro: Season of Ice (GBA - EU)", typeof(GBAIsometric_Spyro2_Manager))]
         //SpyroSeasonIceEU,
 
@@ -287,5 +281,11 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro3, Game.GBAIsometric_Spyro3, "Spyro: Attack of the Rhynocs (GBA - US)", typeof(GBAIsometric_Spyro3US_Manager))]
         SpyroAdventureUS,
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - EU)", typeof(GBAIsometric_RHR_Manager))]
+        RaymanHoodlumsRevengeEU,
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
+        RaymanHoodlumsRevengeUS,
     }
 }

@@ -12,7 +12,8 @@
             ID = s.Serialize<uint>(ID, name: nameof(ID));
             DialogDataPointer = s.SerializePointer(DialogDataPointer, name: nameof(DialogDataPointer));
 
-            DialogData = s.DoAt(DialogDataPointer, () => s.SerializeObject<GBAIsometric_Spyro_DialogData>(DialogData, name: nameof(DialogData)));
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+                DialogData = s.DoAt(DialogDataPointer, () => s.SerializeObject<GBAIsometric_Spyro_DialogData>(DialogData, name: nameof(DialogData)));
         }
     }
 }
