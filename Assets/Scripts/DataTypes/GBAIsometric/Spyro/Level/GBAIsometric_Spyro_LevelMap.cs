@@ -7,6 +7,8 @@ namespace R1Engine
         public GBAIsometric_Spyro_DataBlockIndex TileSetIndex { get; set; }
         public GBAIsometric_Spyro_DataBlockIndex MapIndex { get; set; }
         public GBAIsometric_Spyro_DataBlockIndex PaletteIndex { get; set; }
+        public GBAIsometric_Spyro_DataBlockIndex Index3 { get; set; }
+        public GBAIsometric_Spyro_DataBlockIndex Index4 { get; set; } // Map data
         public ushort LevelID { get; set; }
 
         // Parsed
@@ -19,7 +21,17 @@ namespace R1Engine
             TileSetIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TileSetIndex, name: nameof(TileSetIndex));
             MapIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(MapIndex, name: nameof(MapIndex));
             PaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(PaletteIndex, name: nameof(PaletteIndex));
-            s.Serialize<uint>(default, "Padding");
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+            {
+                Index3 = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Index3, name: nameof(Index3));
+                Index4 = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Index4, name: nameof(Index4));
+            }
+            else
+            {
+                s.Serialize<uint>(default, "Padding");
+            }
+
             LevelID = s.Serialize<ushort>(LevelID, name: nameof(LevelID));
 
             TileSet = TileSetIndex.DoAtBlock(size => s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));

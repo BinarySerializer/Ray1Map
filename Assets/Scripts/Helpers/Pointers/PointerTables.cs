@@ -643,7 +643,7 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.LevelNames] = 0x08178a38,
                         //[GBAIsometric_Spyro_Pointer.MenuPages] = ,
 
-                        //[GBAIsometric_Spyro_Pointer.LevelMaps] = ,
+                        [GBAIsometric_Spyro_Pointer.LevelMaps] = 0x0817ac58,
                         [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x081792ac,
 
                         [GBAIsometric_Spyro_Pointer.LevelData] = 0x0817a878,
