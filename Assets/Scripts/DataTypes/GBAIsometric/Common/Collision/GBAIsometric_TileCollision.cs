@@ -96,10 +96,10 @@ namespace R1Engine
             Unk2 = 2,
             FreezableWater = 3,
             Unk4 = 4, // Solid
-            Unk5 = 5,
-            Unk6 = 6,
+            Lava = 5,
+            Pit = 6,
             Unk7 = 7,
-            Unk8 = 8,
+            HubworldPit = 8,
             Unk9 = 9,
             Wall = 10,
             Unk11 = 11,

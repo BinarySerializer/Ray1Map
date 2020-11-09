@@ -161,6 +161,7 @@ namespace R1Engine
             Lava,
             Wall,
             ObstacleHurt,
+            HubworldPit,
             Pit,
             WaterFlowBottomLeft,
             WaterFlowBottomRight,
@@ -202,6 +203,7 @@ namespace R1Engine
             [CollisionType.Lava] = new Color(255 / 255f, 119 / 255f, 0 / 255f),
             [CollisionType.ObstacleHurt] = new Color(212 / 255f, 32 / 255f, 32 / 255f),
             [CollisionType.Pit] = new Color(158 / 255f, 121 / 255f, 0 / 255f),
+            [CollisionType.HubworldPit] = new Color(212 / 255f, 175 / 255f, 57 / 255f),
 
             [CollisionType.ExitTrigger] = new Color(194 / 255f, 191 / 255f, 25 / 255f),
             [CollisionType.NearExitTrigger] = new Color(155 / 255f, 194 / 255f, 25 / 255f),

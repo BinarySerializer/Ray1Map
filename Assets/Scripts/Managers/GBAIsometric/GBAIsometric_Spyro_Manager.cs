@@ -230,6 +230,12 @@ namespace R1Engine
                         return Unity_IsometricCollisionTile.CollisionType.FreezableWater;
                     case GBAIsometric_TileCollision.CollisionType_Spyro.Wall:
                         return Unity_IsometricCollisionTile.CollisionType.Wall;
+                    case GBAIsometric_TileCollision.CollisionType_Spyro.Lava:
+                        return Unity_IsometricCollisionTile.CollisionType.Lava;
+                    case GBAIsometric_TileCollision.CollisionType_Spyro.Pit:
+                        return Unity_IsometricCollisionTile.CollisionType.Pit;
+                    case GBAIsometric_TileCollision.CollisionType_Spyro.HubworldPit:
+                        return Unity_IsometricCollisionTile.CollisionType.HubworldPit;
                     default:
                         return Unity_IsometricCollisionTile.CollisionType.Unknown;
                 }
