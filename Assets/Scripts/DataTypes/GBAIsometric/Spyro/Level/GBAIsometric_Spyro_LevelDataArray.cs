@@ -7,6 +7,7 @@
         public bool Is2D { get; set; }
         public int Length { get; set; }
         public int SerializeDataForID { get; set; }
+        public bool AssignIDAsIndex { get; set; }
 
         public GBAIsometric_Spyro_LevelData[] LevelData { get; set; }
 
@@ -19,10 +20,12 @@
                 if (LevelData== null)
                     LevelData= new GBAIsometric_Spyro_LevelData[Length];
 
-                for (int levelIndex = 0; levelIndex < LevelData.Length; levelIndex++)
+                for (ushort levelIndex = 0; levelIndex < LevelData.Length; levelIndex++)
                 {
                     LevelData[levelIndex] = s.DoAt(pointers[levelIndex], () => s.SerializeObject<GBAIsometric_Spyro_LevelData>(LevelData[levelIndex], x =>
                     {
+                        if (AssignIDAsIndex)
+                            x.ID = levelIndex;
                         x.Is2D = Is2D;
                         x.SerializeDataForID = SerializeDataForID;
                     }, name: $"{nameof(LevelData)}[{levelIndex}]"));
@@ -33,10 +36,12 @@
                 if (LevelData == null)
                     LevelData = new GBAIsometric_Spyro_LevelData[Length];
 
-                for (int levelIndex = 0; levelIndex < LevelData.Length; levelIndex++)
+                for (ushort levelIndex = 0; levelIndex < LevelData.Length; levelIndex++)
                 {
                     LevelData[levelIndex] = s.SerializeObject<GBAIsometric_Spyro_LevelData>(LevelData[levelIndex], x =>
                     {
+                        if (AssignIDAsIndex)
+                            x.ID = levelIndex;
                         x.Is2D = Is2D;
                         x.SerializeDataForID = SerializeDataForID;
                     }, name: $"{nameof(LevelData)}[{levelIndex}]");

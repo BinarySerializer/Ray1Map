@@ -13,6 +13,8 @@ namespace R1Engine
         public GBAIsometric_Spyro_LevelDataArray LevelData_Spyro3_Agent9 { get; set; }
         public GBAIsometric_Spyro_LevelDataArray LevelData_Spyro3_SgtByrd { get; set; }
         public GBAIsometric_Spyro_LevelObjects[] LevelObjects { get; set; }
+        public GBAIsometric_Spyro_DataBlockIndex[] LevelObjectIndices_Spyro2_Agent9 { get; set; }
+        public GBAIsometric_Spyro2_LevelObjects2D[] LevelObjects_Spyro2_Agent9 { get; set; }
         public GBAIsometric_Spyro_LevelObjects[] LevelObjects_Spyro3_Agent9 { get; set; }
         public GBAIsometric_Spyro_SgtByrdInfo[] LevelObjects_Spyro3_SgtByrd { get; set; }
         public GBAIsometric_Spyro_ByrdRescueInfo[] LevelObjects_Spyro3_ByrdRescue { get; set; }
@@ -73,7 +75,27 @@ namespace R1Engine
                     x.UesPointerArray = false;
                     x.Is2D = true;
                     x.SerializeDataForID = s.GameSettings.World != 1 ? -1 : id;
+                    x.AssignIDAsIndex = true;
                 }, name: nameof(LevelData_Spyro2_Agent9)));
+
+                // The game hard-codes these indices
+                LevelObjectIndices_Spyro2_Agent9 = new ushort[] { 0x4DE, 0x4ED, 0x4CF, 0x4FD }.Select(x =>
+                {
+                    var i = new GBAIsometric_Spyro_DataBlockIndex()
+                    {
+                        Index = x
+                    };
+
+                    i.Init(s.CurrentPointer);
+
+                    return i;
+                }).ToArray();
+
+                if (LevelObjects_Spyro2_Agent9 == null)
+                    LevelObjects_Spyro2_Agent9 = new GBAIsometric_Spyro2_LevelObjects2D[LevelObjectIndices_Spyro2_Agent9.Length];
+
+                for (int i = 0; i < LevelObjects_Spyro2_Agent9.Length; i++)
+                    LevelObjects_Spyro2_Agent9[i] = LevelObjectIndices_Spyro2_Agent9[i].DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro2_LevelObjects2D>(LevelObjects_Spyro2_Agent9[i], name: $"{nameof(LevelObjects_Spyro2_Agent9)}[{i}]"));
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
@@ -178,7 +200,7 @@ namespace R1Engine
                 if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
                 {
                     if (settings.World == 1)
-                        throw new NotImplementedException();
+                        return null;
                 }
                 else if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
                 {
