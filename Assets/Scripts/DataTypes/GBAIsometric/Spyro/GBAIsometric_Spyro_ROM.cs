@@ -25,6 +25,7 @@ namespace R1Engine
         public GBAIsometric_Spyro_Dialog[] DialogEntries { get; set; }
 
         public GBAIsometric_Spyro_LevelNameInfo[] LevelNameInfos { get; set; }
+        public GBAIsometric_LocIndex[] LevelNames { get; set; }
         public byte[] LevelIndices { get; set; } // Level index for every map
         public ushort[] GemCounts { get; set; } // The gem count for every level
         public GBAIsometric_Spyro_MenuPage[] MenuPages { get; set; }
@@ -121,6 +122,7 @@ namespace R1Engine
             GemCounts = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.GemCounts), () => s.SerializeArray<ushort>(GemCounts, manager.PrimaryLevelCount, name: nameof(GemCounts)));
             LevelIndices = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelIndices), () => s.SerializeArray<byte>(LevelIndices, manager.TotalLevelsCount, name: nameof(LevelIndices)));
             LevelNameInfos = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelNameInfos), () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelNameInfo>(LevelNameInfos, manager.TotalLevelsCount, name: nameof(LevelNameInfos)));
+            LevelNames = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelNames), () => s.SerializeObjectArray<GBAIsometric_LocIndex>(LevelNames, manager.TotalLevelsCount, name: nameof(LevelNames)));
             MenuPages = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.MenuPages), () => s.SerializeObjectArray<GBAIsometric_Spyro_MenuPage>(MenuPages, manager.MenuPageCount, name: nameof(MenuPages)));
 
 

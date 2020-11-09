@@ -18,7 +18,7 @@ namespace R1Engine
         public override int DialogCount => 300;
         public override int PrimaryLevelCount => throw new NotImplementedException();
         public override int LevelMapsCount => throw new NotImplementedException();
-        public override int TotalLevelsCount => throw new NotImplementedException();
+        public override int TotalLevelsCount => 25;
         public override int ObjectTypesCount => 509;
         public override int AnimSetsCount => 162;
         public override int LevelDataCount => 39;

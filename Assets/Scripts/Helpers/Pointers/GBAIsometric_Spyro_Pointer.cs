@@ -19,6 +19,7 @@
         GemCounts,
         LevelIndices,
         LevelNameInfos,
+        LevelNames,
         MenuPages,
 
         LevelMaps,

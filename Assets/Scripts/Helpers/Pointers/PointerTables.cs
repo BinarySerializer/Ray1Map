@@ -640,11 +640,11 @@ namespace R1Engine
 
                         //[GBAIsometric_Spyro_Pointer.GemCounts] = ,
                         //[GBAIsometric_Spyro_Pointer.LevelIndices] = ,
-                        //[GBAIsometric_Spyro_Pointer.LevelNameInfos] = ,
+                        [GBAIsometric_Spyro_Pointer.LevelNames] = 0x08178a38,
                         //[GBAIsometric_Spyro_Pointer.MenuPages] = ,
 
                         //[GBAIsometric_Spyro_Pointer.LevelMaps] = ,
-                        //[GBAIsometric_Spyro_Pointer.LevelObjects] = ,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x081792ac,
 
                         [GBAIsometric_Spyro_Pointer.LevelData] = 0x0817a878,
                         [GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9] = 0x08178ef8,
