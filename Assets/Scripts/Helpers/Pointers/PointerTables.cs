@@ -625,6 +625,28 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x081ADCE0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.SpyroSeasonFlameEU:
+                    return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
+                        [GBAIsometric_Spyro_Pointer.DataTable] = 0x0817ba38,
+
+                        [GBAIsometric_Spyro_Pointer.LocalizationPointers] = 0x08002470,
+
+                        [GBAIsometric_Spyro_Pointer.ObjectTypes] = 0x08175a18,
+                        //[GBAIsometric_Spyro_Pointer.AnimSets] = 0x081733e4,
+
+                        [GBAIsometric_Spyro_Pointer.PortraitSprites] = 0x08175744,
+                        [GBAIsometric_Spyro_Pointer.DialogEntries] = 0x08174c4c,
+                        [GBAIsometric_Spyro_Pointer.CutsceneMaps] = 0x0817b0e4,
+
+                        [GBAIsometric_Spyro_Pointer.LevelNames] = 0x08178d48,
+
+                        [GBAIsometric_Spyro_Pointer.LevelMaps] = 0x0817af68,
+                        [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x081795bc,
+
+                        [GBAIsometric_Spyro_Pointer.LevelData] = 0x0817ab88,
+                        [GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9] = 0x08179208,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.SpyroSeasonFlameUS:
                     return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
                         [GBAIsometric_Spyro_Pointer.DataTable] = 0x0817B728,

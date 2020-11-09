@@ -78,8 +78,15 @@ namespace R1Engine
                     x.AssignIDAsIndex = true;
                 }, name: nameof(LevelData_Spyro2_Agent9)));
 
+                ushort[] objIndices;
+
+                if (s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU)
+                    objIndices = new ushort[] { 0x4E3, 0x4F2, 0x4D4, 0x502 };
+                else
+                    objIndices = new ushort[] { 0x4DE, 0x4ED, 0x4CF, 0x4FD };
+
                 // The game hard-codes these indices
-                LevelObjectIndices_Spyro2_Agent9 = new ushort[] { 0x4DE, 0x4ED, 0x4CF, 0x4FD }.Select(x =>
+                LevelObjectIndices_Spyro2_Agent9 = objIndices.Select(x =>
                 {
                     var i = new GBAIsometric_Spyro_DataBlockIndex()
                     {
