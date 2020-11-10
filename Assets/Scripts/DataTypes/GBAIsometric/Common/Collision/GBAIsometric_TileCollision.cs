@@ -15,6 +15,7 @@ namespace R1Engine
 
 
         // Spyro
+        public byte HeightFlags { get; set; }
         public byte Depth { get; set; } // Higher value = closer to bottom of level
         public CollisionType_Spyro Type_Spyro { get; set; }
         public AdditionalTypeFlags_Spyro AddType_Spyro { get; set; }
@@ -36,7 +37,14 @@ namespace R1Engine
                     Shape = (ShapeType_RHR)serializeFunc((int)Shape, 4, name: nameof(Shape));
                 });
             } else if(s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 || s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
-                Height = s.Serialize<byte>(Height, name: nameof(Height));
+                if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
+                    s.SerializeBitValues<byte>(bitFunc => {
+                        Height = (byte)bitFunc(Height,6,name: nameof(Height));
+                        HeightFlags = (byte)bitFunc(HeightFlags, 2, nameof(HeightFlags));
+                    });
+                } else {
+                    Height = s.Serialize<byte>(Height, name: nameof(Height));
+                }
                 Depth = s.Serialize<byte>(Depth, name: nameof(Depth));
                 s.SerializeBitValues<byte>(serializeFunc => {
                     Shape_Spyro = (ShapeType_Spyro)serializeFunc((int)Shape_Spyro, 4, name: nameof(Shape_Spyro));

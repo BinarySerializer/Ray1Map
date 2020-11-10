@@ -246,7 +246,7 @@ namespace R1Engine
                 AddType = GetAddType(),
                 Shape = GetShapeType(),
                 Type = GetCollisionType(),
-                DebugText = $"Depth:{block.Depth} UnkSpyro:{block.Unk_Spyro:X1} Shape:{block.Shape_Spyro} Type:{block.Type_Spyro} Add:{block.AddType_Spyro}"
+                DebugText = $"Depth:{block.Depth} HeightFlags:{block.HeightFlags} UnkSpyro:{block.Unk_Spyro:X1} Shape:{block.Shape_Spyro} Type:{block.Type_Spyro} Add:{block.AddType_Spyro}"
             };
         }
 
