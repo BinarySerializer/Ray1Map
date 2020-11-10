@@ -10,7 +10,7 @@
         public Pointer CompressedDataPointer { get; set; }
 
         // Parsed
-        public byte[] CompressionLookupBuffer { get; set; } // Graphics data? Compressed?
+        public byte[] CompressionLookupBuffer { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
