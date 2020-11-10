@@ -103,7 +103,7 @@ namespace R1Engine
             Water = 1,
             Unk2 = 2,
             FreezableWater = 3,
-            Unk4 = 4, // Solid
+            Trigger = 4,
             Lava = 5,
             Pit = 6,
             Unk7 = 7,

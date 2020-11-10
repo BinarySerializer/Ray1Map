@@ -236,6 +236,8 @@ namespace R1Engine
                         return Unity_IsometricCollisionTile.CollisionType.Pit;
                     case GBAIsometric_TileCollision.CollisionType_Spyro.HubworldPit:
                         return Unity_IsometricCollisionTile.CollisionType.HubworldPit;
+                    case GBAIsometric_TileCollision.CollisionType_Spyro.Trigger:
+                        return Unity_IsometricCollisionTile.CollisionType.Trigger;
                     default:
                         return Unity_IsometricCollisionTile.CollisionType.Unknown;
                 }

@@ -165,6 +165,7 @@ namespace R1Engine
             Pit,
             WaterFlowBottomLeft,
             WaterFlowBottomRight,
+            Trigger,
             ExitTrigger,
             NearExitTrigger,
             DialogueTrigger1,
@@ -205,6 +206,7 @@ namespace R1Engine
             [CollisionType.Pit] = new Color(158 / 255f, 121 / 255f, 0 / 255f),
             [CollisionType.HubworldPit] = new Color(212 / 255f, 175 / 255f, 57 / 255f),
 
+            [CollisionType.Trigger] = new Color(194 / 255f, 191 / 255f, 25 / 255f),
             [CollisionType.ExitTrigger] = new Color(194 / 255f, 191 / 255f, 25 / 255f),
             [CollisionType.NearExitTrigger] = new Color(155 / 255f, 194 / 255f, 25 / 255f),
             [CollisionType.DialogueTrigger1] = new Color(23 / 255f, 145 / 255f, 38 / 255f),
