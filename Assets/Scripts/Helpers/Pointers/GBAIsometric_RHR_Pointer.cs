@@ -7,7 +7,8 @@
         Localization,
         ObjTypes,
         CrabObjType,
-        Portraits, // TODO: Parse
+        Portraits,
+        SpriteIcons,
 
         // Font
         Font0, // TODO: Parse

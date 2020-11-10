@@ -67,7 +67,7 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
-                new GameAction("Export AnimSets", false, true, (input, output) => ExportAnimSetsAsync(settings, output)),
+                new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
                 new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output))
         };
         public async UniTask ExportAnimSetAsync(Context context, string outputPath, GBAIsometric_RHR_AnimSet animSet) 
@@ -154,90 +154,21 @@ namespace R1Engine
             }
         }
 
-        public async UniTask ExportAnimSetsAsync(GameSettings settings, string outputPath) {
-            using (var context = new Context(settings)) {
-                var s = context.Deserializer;
-
+        public async UniTask ExportAssetsAsync(GameSettings settings, string outputPath)
+        {
+            using (var context = new Context(settings)) 
+            {
                 await LoadFilesAsync(context);
+
                 // Read the rom
-                //var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
-                HashSet<string> exported = new HashSet<string>();
-                Pointer ptr = context.FilePointer(GetROMFilePath);
-                var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GameSettings.GameModeSelection, ptr.file);
-                Pointer<GBAIsometric_RHR_AnimSet>[] portraits = null;
-                s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Portraits], () => {
-                    portraits = s.SerializePointerArray<GBAIsometric_RHR_AnimSet>(portraits, 10, resolve: true, name: nameof(portraits));
-                });
-                foreach (var animSetPtr in portraits) {
-                    var animSet = animSetPtr.Value;
-                    if(animSet != null && exported.Contains(animSet.Name)) continue;
-                    await ExportAnimSetAsync(context, outputPath, animSet);
-                    if(animSet != null) exported.Add(animSet.Name);
-                }
-                uint[] hardcodedAnimSets = new uint[] {
-                    0x080f0968,
-                    0x080f0a2c,
-                    0x08549ed0,
-                    0x084214f4,
-                    0x08449598,
-                    0x081e4ce0,
-                    0x0810f110,
-                    0x08481e58,
-                    0x08482234,
-                    0x08481f04,
-                    0x080effd4,
-                    0x08417c58,
-                    0x081e49bc,
-                    0x081fc28c, // Unused & unreferenced greenPowerupAnimSet
-                    0x081e6f7c, // Unused & unreferenced spikeAnimSet
-                    0x0810f1d8, // Unused & unreferenced raymanPafAnimSet
-                };
-                foreach (var animSetPtr in hardcodedAnimSets) {
-                    var animSet = s.DoAt(new Pointer(animSetPtr, ptr.file), () => s.SerializeObject<GBAIsometric_RHR_AnimSet>(default, name: "AnimSet"));
-                    if (animSet != null && exported.Contains(animSet.Name)) continue;
-                    await ExportAnimSetAsync(context, outputPath, animSet);
-                    if (animSet != null) exported.Add(animSet.Name);
-                }
                 var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
 
-                foreach (var objType in rom.ObjectTypes) {
-                    var animSet = objType.Data?.AnimSetPointer?.Value;
-                    if (animSet != null && exported.Contains(animSet.Name)) continue;
-                    await ExportAnimSetAsync(context, outputPath, animSet);
-                    if (animSet != null) exported.Add(animSet.Name);
-                }
-                uint[] hardcodedObjTypes = new uint[] {
-                    0x080e6af8,
-                    0x080e6b14,
-                    0x080e6b30,
-                    0x080e6b4c,
-                    0x080e6b68,
-                    0x080e6b84,
-                    0x080e6abc,
-                    0x080e7734,
-                    0x080e7750,
-                    0x080e83cc,
-                    0x080e83b0,
-                    0x080e84e4,
-                    0x080e851c,
-                    0x080e84c8,
-                    0x080e8500,
-                    0x080e8640,
-                    0x080e865c,
-                    0x080e8740,
-                    0x080e887c,
-                    0x080e8898,
-                    0x080e88b4,
-                    0x087f428c, // crab
-                };
-                foreach (var objTypePtr in hardcodedObjTypes) {
-                    var objType = s.DoAt(new Pointer(objTypePtr, ptr.file), () => s.SerializeObject<GBAIsometric_ObjectTypeData>(default, name: "ObjTypeData"));
-                    var animSet = objType?.AnimSetPointer?.Value;
-                    if (animSet != null && exported.Contains(animSet.Name)) continue;
-                    await ExportAnimSetAsync(context, outputPath, animSet);
-                    if (animSet != null) exported.Add(animSet.Name);
-                }
-                Debug.Log("Finished extracting AnimSets.");
+                foreach (var animSet in rom.GetAllAnimSets())
+                    await ExportAnimSetAsync(context, Path.Combine(outputPath, "AnimSets"), animSet);
+
+                // TODO: Sprites, SpriteIcons & SpriteSets (and font?)
+
+                Debug.Log("Finished extracting assets");
             }
         }
 
@@ -507,7 +438,7 @@ namespace R1Engine
 
         public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(GBAIsometric_RHR_ROM rom)
         {
-            foreach (var animSet in rom.ObjectTypes.Select(x => x?.Data?.AnimSetPointer?.Value).Where(x => x != null).Distinct())
+            foreach (var animSet in rom.GetAllAnimSets())
             {
                 Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
                 yield return new Unity_ObjectManager_GBAIsometric.AnimSet(animSet.Offset, animSet.Animations.Select(x =>

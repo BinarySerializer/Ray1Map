@@ -581,6 +581,7 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.ObjTypes] = 0x080f9770,
                         [GBAIsometric_RHR_Pointer.CrabObjType] = 0x087f428c,
                         [GBAIsometric_RHR_Pointer.Portraits] = 0x087F4410,
+                        [GBAIsometric_RHR_Pointer.SpriteIcons] = 0x080e9684,
 
                         [GBAIsometric_RHR_Pointer.Font0] = 0x080ea15c,
                         [GBAIsometric_RHR_Pointer.Font1] = 0x080eaa10,
