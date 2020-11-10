@@ -30,6 +30,7 @@ namespace R1Engine
 
         private Vector2 selectedPosition;
         private float selectedHeight;
+        private float addSelectedHeight;
         public OutlineManager outlineManager;
 
         public Dropdown eventDropdown;
@@ -346,11 +347,15 @@ namespace R1Engine
                     Vector3 clickedPos = ray.GetPoint(dist);
                     Vector3 localPos = e.transform.InverseTransformPoint(clickedPos);
                     selectedPosition = new Vector2(localPos.x, localPos.y);
+                    selectedHeight = e.transform.position.y;
+                    addSelectedHeight = 0f;
                 }
 
             } else {
                 var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
+                selectedHeight = e.transform.position.y;
+                addSelectedHeight = 0f;
             }
         }
 
@@ -593,18 +598,24 @@ namespace R1Engine
                 }
 
                 // Drag and move the event
-                if (!lctrl && Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
-                {
-                    if (SelectedEvent != null && SelectedEvent == ClickedEvent) 
-                    {
+                if (!lctrl && Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) {
+                    if (SelectedEvent != null && SelectedEvent == ClickedEvent) {
                         if (SelectedEvent.ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null) {
                             if (modeEvents) {
                                 Unity_Object_3D obj = (Unity_Object_3D)SelectedEvent.ObjData;
 
                                 Vector3 pos = obj.Position;
                                 Vector3 isometricScale = LevelEditorData.Level.IsometricData.Scale;
+                                if (Input.GetKey(KeyCode.U)) {
+                                    addSelectedHeight += isometricScale.y / 4f;
+                                } else if (Input.GetKey(KeyCode.J)) {
+                                    addSelectedHeight -= isometricScale.y / 4f;
+                                }
                                 Vector3 scaledPos = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y) / 16f, isometricScale);
-                                Vector3 transformedSelectedPos = SelectedEvent.transform.TransformPoint(selectedPosition);
+                                Vector3 transformOrigin = SelectedEvent.transform.position;
+                                transformOrigin.y = selectedHeight;
+                                //Debug.Log(transformOrigin);
+                                Vector3 transformedSelectedPos = SelectedEvent.transform.rotation * selectedPosition + transformOrigin;
 
                                 // Move event on the plane at the selected position height
                                 Plane plane = new Plane(Vector3.up, transformedSelectedPos);
@@ -612,17 +623,11 @@ namespace R1Engine
                                 float dist;
                                 if (plane.Raycast(ray, out dist)) {
                                     Vector3 mouseWorldPos = ray.GetPoint(dist);
-                                    Vector3 diff = transformedSelectedPos - SelectedEvent.transform.position;
+                                    Vector3 diff = transformedSelectedPos - transformOrigin;
                                     Vector3 scaledObjectPos = mouseWorldPos - diff;
-                                    Vector3 unscaledPos = Vector3.Scale(scaledObjectPos + selectedHeight * Vector3.up, 16*new Vector3(1f/isometricScale.x, 1f / isometricScale.y, 1f / isometricScale.z));
+                                    scaledObjectPos.y = selectedHeight + addSelectedHeight;
+                                    Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, 16 * new Vector3(1f / isometricScale.x, 1f / isometricScale.y, 1f / isometricScale.z));
                                     Vector3 newPos = new Vector3(unscaledPos.x, -unscaledPos.z, unscaledPos.y);
-                                    if (Input.GetKey(KeyCode.U)) {
-                                        newPos.z += 2f;
-                                        selectedPosition.y -= 2/16f;
-                                    } else if (Input.GetKey(KeyCode.J)) {
-                                        newPos.z -= 2f;
-                                        selectedPosition.y += 2/16f;
-                                    }
                                     obj.Position = newPos;
                                     //Debug.Log(mouseWorldPos + " - " + newPos);
                                 }
@@ -642,6 +647,25 @@ namespace R1Engine
                             if (modeR1Links && SelectedEvent != Controller.obj.levelController.RaymanObject) {
                                 var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                                 SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
+                            }
+                        }
+                    }
+                } else if(!Input.GetMouseButton(0) && (Input.GetKey(KeyCode.U) || Input.GetKey(KeyCode.J))) {
+                    // For 3D objects, allow adjusting height outside selection
+                    if (SelectedEvent != null) {
+                        if (SelectedEvent.ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null) {
+                            if (modeEvents) {
+                                Unity_Object_3D obj = (Unity_Object_3D)SelectedEvent.ObjData;
+                                Vector3 isometricScale = LevelEditorData.Level.IsometricData.Scale;
+                                Vector3 scaledObjectPos = SelectedEvent.transform.position;
+                                if (Input.GetKey(KeyCode.U)) {
+                                    scaledObjectPos.y += isometricScale.y / 4f;
+                                } else if (Input.GetKey(KeyCode.J)) {
+                                    scaledObjectPos.y -= isometricScale.y / 4f;
+                                }
+                                Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, 16 * new Vector3(1f / isometricScale.x, 1f / isometricScale.y, 1f / isometricScale.z));
+                                Vector3 newPos = new Vector3(unscaledPos.x, -unscaledPos.z, unscaledPos.y);
+                                obj.Position = newPos;
                             }
                         }
                     }
