@@ -163,7 +163,7 @@ namespace R1Engine
             transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
         }
 
-        private void UpdatePosition3D() {
+        public void UpdatePosition3D() {
             gameObject.layer = LayerMask.NameToLayer("3D Object");
             defaultRenderer.gameObject.layer = gameObject.layer;
             Unity_Object_3D obj = (Unity_Object_3D)ObjData; 

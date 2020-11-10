@@ -2233,7 +2233,6 @@ MonoBehaviour:
   prefabCommandLine: {fileID: 1705437700543924348, guid: cc1b4c0ae9d99e84e950798a7c8badd6,
     type: 3}
   editor: {fileID: 1956467904}
-  selectedPosition: {x: 0, y: 0}
   outlineManager: {fileID: 1243543565}
   eventDropdown: {fileID: 1333982090}
   infoName: {fileID: 1574840278}
@@ -23791,7 +23790,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!20 &1846516455
 Camera:
   m_ObjectHideFlags: 0

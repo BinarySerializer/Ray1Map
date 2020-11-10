@@ -101,7 +101,7 @@ namespace R1Engine
                 });
 
                 if (Settings.ScreenshotEnumeration)
-                    ConvertLevelToPNG();
+                    await ConvertLevelToPNG();
             }
         }
 
@@ -179,20 +179,17 @@ namespace R1Engine
             }
         }
 
-        public void ConvertLevelToPNG() 
+        public async UniTask ConvertLevelToPNG() 
         {
             // Get the path to save to
             var destPath = $@"Screenshots\{LevelEditorData.CurrentSettings.GameModeSelection}\{LevelEditorData.CurrentSettings.GameModeSelection} - {LevelEditorData.CurrentSettings.World} {LevelEditorData.CurrentSettings.Level:00}.png";
 
             // Create the directory
-            Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+            //Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
-            CreateLevelScreenshot();
+            var bytes = await CreateLevelScreenshot();
+            Util.ByteArrayToFile(destPath, bytes);
 
-            var bytes = tex.EncodeToPNG();
-            File.WriteAllBytes(destPath, bytes);
-
-            Destroy(tex);
 
             if (Settings.ScreenshotEnumeration)
             {
@@ -205,7 +202,7 @@ namespace R1Engine
             }
         }
 
-        public Texture2D CreateLevelScreenshot()
+        public async UniTask<byte[]> CreateLevelScreenshot()
         {
             // Hide unused links and show gendoors
             foreach (var e in Objects)
@@ -237,8 +234,7 @@ namespace R1Engine
                 }
 
                 // Always hide events with no graphics
-                if (e.defaultRenderer.enabled)
-                    e.gameObject.SetActive(false);
+                if (e.defaultRenderer.gameObject.activeSelf) e.gameObject.SetActive(false);
 
                 // TODO: Change this option
                 // Helper method
@@ -286,25 +282,10 @@ namespace R1Engine
                 }
             }
 
-            RenderTexture renderTex = new RenderTexture(LevelEditorData.MaxWidth * LevelEditorData.Level.CellSize / 1, LevelEditorData.MaxHeight * LevelEditorData.Level.CellSize / 1, 24);
-            renderCamera.targetTexture = renderTex;
-            var cellSizeInUnits = LevelEditorData.Level.CellSize / (float)LevelEditorData.Level.PixelsPerUnit;
-            renderCamera.transform.position = new Vector3((LevelEditorData.MaxWidth) * cellSizeInUnits / 2f, -(LevelEditorData.MaxHeight) * cellSizeInUnits / 2f, renderCamera.transform.position.z);
-            renderCamera.orthographicSize = (LevelEditorData.MaxHeight * cellSizeInUnits / 2f);
-            renderCamera.rect = new Rect(0, 0, 1, 1);
-            renderCamera.Render();
+            TransparencyCaptureBehaviour tcb = Camera.main.GetComponent<TransparencyCaptureBehaviour>();
+            byte[] result = await tcb.CaptureFulllevel(false);
 
-            // Save to picture
-            RenderTexture.active = renderTex;
-
-            tex = TextureHelpers.CreateTexture2D(renderTex.width, renderTex.height);
-            tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
-            tex.Apply();
-
-            RenderTexture.active = null;
-            renderCamera.rect = new Rect(0, 0, 0, 0);
-
-            return tex;
+            return result;
         }
 
         public void TabClicked(int tabIndex) {
