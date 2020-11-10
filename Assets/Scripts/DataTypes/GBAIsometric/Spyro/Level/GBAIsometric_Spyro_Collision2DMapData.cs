@@ -14,9 +14,18 @@
         {            
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
-            TileWidth = s.Serialize<byte>(TileWidth, name: nameof(TileWidth));
-            TileHeight = s.Serialize<byte>(TileHeight, name: nameof(TileHeight));
-            Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+            {
+                TileWidth = s.Serialize<byte>(TileWidth, name: nameof(TileWidth));
+                TileHeight = s.Serialize<byte>(TileHeight, name: nameof(TileHeight));
+                Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
+            }
+            else
+            {
+                TileWidth = 1;
+                TileHeight = 1;
+            }
 
             Collision = s.SerializeArray<byte>(Collision, (Width / TileWidth) * (Height / TileHeight), name: nameof(Collision));
         }

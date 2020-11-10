@@ -21,6 +21,7 @@
         public ARGB1555Color[] ObjPalette { get; set; }
         public GBAIsometric_Spyro_Collision2DMapData Collision2D { get; set; }
         public GBAIsometric_Spyro_Collision3DMapData Collision3D { get; set; }
+        public GBAIsometric_Spyro_SpriteMap Index3Map { get; set; } // TODO: What is this?
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -29,7 +30,7 @@
             if (Is2D)
             {
                 if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
-                    Index3 = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Index3, x => x.HasPadding = true, name: nameof(Index3));
+                    Collision2DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision2DIndex, x => x.HasPadding = true, name: nameof(Collision2DIndex));
 
                 TilePaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilePaletteIndex, x => x.HasPadding = true, name: nameof(TilePaletteIndex));
 
@@ -62,6 +63,7 @@
                 ObjPalette = ObjPaletteIndex.DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(ObjPalette, 256, name: nameof(ObjPalette)));
                 Collision3D = Collision3DIndex?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_Collision3DMapData>(Collision3D, name: nameof(Collision3D)));
                 Collision2D = Collision2DIndex?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_Collision2DMapData>(Collision2D, name: nameof(Collision2D)));
+                Index3Map = Index3?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Index3Map, name: nameof(Index3Map)));
             }
         }
     }
