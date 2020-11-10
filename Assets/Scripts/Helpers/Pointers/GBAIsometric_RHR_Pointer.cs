@@ -6,6 +6,7 @@
         Levels,
         Localization,
         ObjTypes,
+        CrabObjType,
         Portraits, // TODO: Parse
 
         // Font
@@ -34,14 +35,5 @@
         PaletteAnimations0,
         PaletteAnimations1,
         PaletteAnimations2,
-
-        // Sprites
-        // TODO: Parse
-
-        // SpriteSets
-        // TODO: Parse
-
-        // AnimSets
-        // TODO: Parse
     }
 }

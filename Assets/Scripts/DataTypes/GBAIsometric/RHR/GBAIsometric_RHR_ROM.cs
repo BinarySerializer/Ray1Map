@@ -8,6 +8,9 @@
         public GBAIsometric_RHR_LevelInfo[] LevelInfos { get; set; }
         public GBAIsometric_ObjectType[] ObjectTypes { get; set; }
 
+        public Pointer[] PortraitPointers { get; set; }
+        public GBAIsometric_RHR_AnimSet[] Portraits { get; set; }
+
         public GBAIsometric_RHR_MapLayer[] MenuMaps { get; set; }
 
         /// <summary>
@@ -49,6 +52,17 @@
 
                 // Serialize object types
                 ObjectTypes = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.ObjTypes], () => s.SerializeObjectArray<GBAIsometric_ObjectType>(ObjectTypes, 105, name: nameof(ObjectTypes)));
+
+                // Serialize the crab type and add to the array (the crab entry points to memory)
+                ObjectTypes[13].Data = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.CrabObjType], () => s.SerializeObject<GBAIsometric_ObjectTypeData>(ObjectTypes[13].Data, name: $"CrabObjectTypeData"));
+
+                PortraitPointers = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Portraits], () => s.SerializePointerArray(PortraitPointers, 10, name: nameof(PortraitPointers)));
+
+                if (Portraits == null)
+                    Portraits = new GBAIsometric_RHR_AnimSet[PortraitPointers.Length];
+
+                for (int i = 0; i < Portraits.Length; i++)
+                    Portraits[i] = s.DoAt(PortraitPointers[i], () => s.SerializeObject<GBAIsometric_RHR_AnimSet>(Portraits[i], name: $"{nameof(Portraits)}[{i}]"));
             }
             else
             {

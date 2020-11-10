@@ -3,12 +3,16 @@
     public class GBAIsometric_ObjectType : R1Serializable
     {
         public uint ObjFlags { get; set; }
-        public Pointer<GBAIsometric_ObjectTypeData> DataPointer { get; set; }
+        public Pointer DataPointer { get; set; }
+
+        public GBAIsometric_ObjectTypeData Data { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             ObjFlags = s.Serialize<uint>(ObjFlags, name: nameof(ObjFlags));
-            DataPointer = s.SerializePointer<GBAIsometric_ObjectTypeData>(DataPointer, resolve: true, name: nameof(DataPointer));
+            DataPointer = s.SerializePointer(DataPointer, name: nameof(DataPointer));
+
+            Data = s.DoAt(DataPointer, () => s.SerializeObject<GBAIsometric_ObjectTypeData>(Data, name: nameof(Data)));
         }
     }
 }

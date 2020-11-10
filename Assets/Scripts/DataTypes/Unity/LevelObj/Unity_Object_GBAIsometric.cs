@@ -13,8 +13,8 @@ namespace R1Engine
             ObjManager = objManager;
 
             var type = ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
-            AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.DataPointer?.Value?.AnimSetPointer?.pointer);
-            AnimIndex = type?.DataPointer?.Value?.AnimationIndex ?? 0; // TODO: Set to correct value
+            AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.Data?.AnimSetPointer?.pointer);
+            AnimIndex = type?.Data?.AnimationIndex ?? 0; // TODO: Set to correct value
         }
 
         public GBAIsometric_Object Object { get; }
@@ -42,7 +42,7 @@ namespace R1Engine
 
         public override string DebugText => $"AnimSet: {AnimGroupName}{Environment.NewLine}";
 
-        public string AnimGroupName => ObjType?.DataPointer?.Value?.AnimSetPointer?.Value?.Name;
+        public string AnimGroupName => ObjType?.Data?.AnimSetPointer?.Value?.Name;
         public GBAIsometric_ObjectType ObjType => ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
 
         private int _animSetIndex;

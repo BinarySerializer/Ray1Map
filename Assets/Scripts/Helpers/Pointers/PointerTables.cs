@@ -579,6 +579,7 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Levels] = 0x080E92E8,
                         [GBAIsometric_RHR_Pointer.Localization] = 0x087F45C4,
                         [GBAIsometric_RHR_Pointer.ObjTypes] = 0x080f9770,
+                        [GBAIsometric_RHR_Pointer.CrabObjType] = 0x087f428c,
                         [GBAIsometric_RHR_Pointer.Portraits] = 0x087F4410,
 
                         [GBAIsometric_RHR_Pointer.Font0] = 0x080ea15c,

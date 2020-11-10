@@ -201,7 +201,7 @@ namespace R1Engine
                 var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
 
                 foreach (var objType in rom.ObjectTypes) {
-                    var animSet = objType.DataPointer?.Value?.AnimSetPointer?.Value;
+                    var animSet = objType.Data?.AnimSetPointer?.Value;
                     if (animSet != null && exported.Contains(animSet.Name)) continue;
                     await ExportAnimSetAsync(context, outputPath, animSet);
                     if (animSet != null) exported.Add(animSet.Name);
@@ -507,7 +507,7 @@ namespace R1Engine
 
         public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(GBAIsometric_RHR_ROM rom)
         {
-            foreach (var animSet in rom.ObjectTypes.Select(x => x?.DataPointer?.Value?.AnimSetPointer?.Value).Where(x => x != null).Distinct())
+            foreach (var animSet in rom.ObjectTypes.Select(x => x?.Data?.AnimSetPointer?.Value).Where(x => x != null).Distinct())
             {
                 Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
                 yield return new Unity_ObjectManager_GBAIsometric.AnimSet(animSet.Offset, animSet.Animations.Select(x =>
