@@ -14,10 +14,7 @@
         public byte Byte_09 { get; set; }
         public byte Byte_0A { get; set; }
         public byte Byte_0B { get; set; }
-        public byte Byte_0C { get; set; }
-        public bool IsGoldFist { get; set; }
-        public byte FistSpeed { get; set; }
-        public bool IsNormalFist { get; set; }
+        public byte PoingSubEtat { get; set; }
         public byte Byte_0D { get; set; }
         public byte Byte_0E { get; set; }
         public byte Byte_0F { get; set; }
@@ -40,13 +37,7 @@
             Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
             Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
             Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
-            s.SerializeBitValues<byte>(bitFunc =>
-            {
-                IsNormalFist = bitFunc(IsNormalFist ? 1 : 0, 1, name: nameof(IsNormalFist)) == 1;
-                FistSpeed = (byte)bitFunc(FistSpeed, 2, name: nameof(FistSpeed));
-                IsGoldFist = bitFunc(IsGoldFist ? 1 : 0, 1, name: nameof(IsGoldFist)) == 1;
-                Byte_0C = (byte)bitFunc(Byte_0C, 4, name: nameof(Byte_0C));
-            });
+            PoingSubEtat = s.Serialize<byte>(PoingSubEtat, name: nameof(PoingSubEtat));
             Byte_0D = s.Serialize<byte>(Byte_0D, name: nameof(Byte_0D));
             Byte_0E = s.Serialize<byte>(Byte_0E, name: nameof(Byte_0E));
             Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));
