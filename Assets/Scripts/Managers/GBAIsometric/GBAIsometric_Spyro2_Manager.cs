@@ -45,11 +45,11 @@ namespace R1Engine
             get
             {
                 yield return "English";
-                yield return "Lang1";
-                yield return "Lang2";
-                yield return "Lang3";
-                yield return "Lang4";
-                yield return "Lang5";
+                yield return "French";
+                yield return "Spanish";
+                yield return "German";
+                yield return "Italian";
+                //yield return "Dutch";
             }
         }
     }
