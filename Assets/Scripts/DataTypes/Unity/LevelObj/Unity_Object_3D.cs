@@ -9,6 +9,5 @@ namespace R1Engine
     {
         // Position
         public abstract Vector3 Position { get; set; }
-        public override float Scale => 1f;//1f/2.85f;
     }
 }

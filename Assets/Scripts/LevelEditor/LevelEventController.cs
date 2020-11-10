@@ -28,7 +28,8 @@ namespace R1Engine
 
         public LevelEditorBehaviour editor;
 
-        public Vector2 selectedPosition;
+        private Vector2 selectedPosition;
+        private float selectedHeight;
         public OutlineManager outlineManager;
 
         public Dropdown eventDropdown;
@@ -332,6 +333,27 @@ namespace R1Engine
             PrevSelectedEvent = SelectedEvent;
         }
 
+        private void SetSelectedPosition(Unity_ObjBehaviour e) {
+            if (e.ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null) {
+                var mousePos = editor.cam.camera3D.ScreenToWorldPoint(Input.mousePosition);
+                Unity_Object_3D obj = (Unity_Object_3D)e.ObjData;
+
+                Vector3 pos = e.transform.position;
+                Plane plane = new Plane(transform.rotation * Vector3.forward, pos); // Object is facing the camera
+                Ray ray = editor.cam.camera3D.ScreenPointToRay(Input.mousePosition);
+                float dist;
+                if (plane.Raycast(ray, out dist)) {
+                    Vector3 clickedPos = ray.GetPoint(dist);
+                    Vector3 localPos = e.transform.InverseTransformPoint(clickedPos);
+                    selectedPosition = new Vector2(localPos.x, localPos.y);
+                }
+
+            } else {
+                var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
+            }
+        }
+
         private void ClickEvent(Unity_ObjBehaviour e) {
             bool modeEvents = editor.currentMode == LevelEditorBehaviour.EditMode.Events;
             bool modeLinks = editor.currentMode == LevelEditorBehaviour.EditMode.Links;
@@ -343,8 +365,7 @@ namespace R1Engine
 
 
                 // Record selected position
-                var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
+                SetSelectedPosition(e);
 
                 // Change the link
                 if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null && SelectedEvent.ObjData.CanBeLinkedToGroup) {
@@ -556,8 +577,7 @@ namespace R1Engine
                     } else {
                         if (e != null) {
                             // Record selected position
-                            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                            selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
+                            SetSelectedPosition(e);
                         } else {
                             ClickEvent(e);
                         }
@@ -573,24 +593,56 @@ namespace R1Engine
                 }
 
                 // Drag and move the event
-                if (!lctrl && LevelEditorData.Level.IsometricData == null && Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
+                if (!lctrl && Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
                 {
                     if (SelectedEvent != null && SelectedEvent == ClickedEvent) 
                     {
-                        // Move event if in event mode
-                        if (modeEvents) {
-                            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        if (SelectedEvent.ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null) {
+                            if (modeEvents) {
+                                Unity_Object_3D obj = (Unity_Object_3D)SelectedEvent.ObjData;
 
-                            FieldUpdated(x => SelectedEvent.ObjData.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.XPosition, "XPos");
-                            FieldUpdated(x => SelectedEvent.ObjData.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.YPosition, "YPos");
+                                Vector3 pos = obj.Position;
+                                Vector3 isometricScale = LevelEditorData.Level.IsometricData.Scale;
+                                Vector3 scaledPos = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y) / 16f, isometricScale);
+                                Vector3 transformedSelectedPos = SelectedEvent.transform.TransformPoint(selectedPosition);
 
-                            updateLinkPos = true;
-                        }
+                                // Move event on the plane at the selected position height
+                                Plane plane = new Plane(Vector3.up, transformedSelectedPos);
+                                Ray ray = editor.cam.camera3D.ScreenPointToRay(Input.mousePosition);
+                                float dist;
+                                if (plane.Raycast(ray, out dist)) {
+                                    Vector3 mouseWorldPos = ray.GetPoint(dist);
+                                    Vector3 diff = transformedSelectedPos - SelectedEvent.transform.position;
+                                    Vector3 scaledObjectPos = mouseWorldPos - diff;
+                                    Vector3 unscaledPos = Vector3.Scale(scaledObjectPos + selectedHeight * Vector3.up, 16*new Vector3(1f/isometricScale.x, 1f / isometricScale.y, 1f / isometricScale.z));
+                                    Vector3 newPos = new Vector3(unscaledPos.x, -unscaledPos.z, unscaledPos.y);
+                                    if (Input.GetKey(KeyCode.U)) {
+                                        newPos.z += 2f;
+                                        selectedPosition.y -= 2/16f;
+                                    } else if (Input.GetKey(KeyCode.J)) {
+                                        newPos.z -= 2f;
+                                        selectedPosition.y += 2/16f;
+                                    }
+                                    obj.Position = newPos;
+                                    //Debug.Log(mouseWorldPos + " - " + newPos);
+                                }
+                            }
+                        } else {
+                            // Move event if in event mode
+                            if (modeEvents) {
+                                var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                        // Else move links
-                        if (modeR1Links && SelectedEvent != Controller.obj.levelController.RaymanObject) {
-                            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                            SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
+                                FieldUpdated(x => SelectedEvent.ObjData.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.XPosition, "XPos");
+                                FieldUpdated(x => SelectedEvent.ObjData.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.YPosition, "YPos");
+
+                                updateLinkPos = true;
+                            }
+
+                            // Else move links
+                            if (modeR1Links && SelectedEvent != Controller.obj.levelController.RaymanObject) {
+                                var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                                SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
+                            }
                         }
                     }
                 }
