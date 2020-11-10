@@ -1,0 +1,82 @@
+{
+  "name": "Spyro 2: Season of Flame (GBA - US)",
+  "mode": "SpyroSeasonFlameUS",
+  "folder": "gba_isometric/spyro2_us",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/Spyro2\/World1.png",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/Spyro2\/World2.png",
+			"level": 14
+		},
+		{
+			"image": ".\/img\/icon\/Spyro2\/World3.png",
+			"level": 30
+		},
+		{
+			"image": ".\/img\/icon\/Spyro2\/Extra.png",
+			"level": 43
+		}
+	],
+  "levels": [
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "Sunny Plains - Hub" },
+    { "world": 0, "level": 1, "nameInternal": "1", "name": "Country Farms" },
+    { "world": 0, "level": 2, "nameInternal": "2", "name": "Country Farms - Side Area" },
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Shamrock Isle" },
+    { "world": 0, "level": 4, "nameInternal": "4", "name": "Shamrock Isle - Side Area 1" },
+    { "world": 0, "level": 5, "nameInternal": "5", "name": "Shamrock Isle - Side Area 2" },
+    { "world": 0, "level": 6, "nameInternal": "6", "name": "Temple of Dune" },
+    { "world": 0, "level": 7, "nameInternal": "7", "name": "Temple of Dune - Side Area 1" },
+    { "world": 0, "level": 8, "nameInternal": "8", "name": "Temple of Dune - Side Area 2" },
+    { "world": 0, "level": 9, "nameInternal": "9", "name": "Tiki Tropics" },
+    { "world": 1, "level": 1, "nameInternal": "37", "name": "Minty Mines - Agent 9" },
+    { "world": 0, "level": 39, "nameInternal": "39", "name": "Canyon Hop - Sheila" },
+    { "world": 1, "level": 2, "nameInternal": "36", "name": "Alpine Adobe - Agent 9" },
+    { "world": 0, "level": 10, "nameInternal": "10", "name": "Crush - Boss" },
+	
+    { "world": 0, "level": 11, "nameInternal": "11", "name": "Celestial Plains - Hub" },
+    { "world": 0, "level": 12, "nameInternal": "12", "name": "Candy Lane" },
+    { "world": 0, "level": 13, "nameInternal": "13", "name": "Candy Lane - Side Area" },
+    { "world": 0, "level": 14, "nameInternal": "14", "name": "Haunted Hills" },
+    { "world": 0, "level": 15, "nameInternal": "15", "name": "Haunted Hills - Side Area 1" },
+    { "world": 0, "level": 16, "nameInternal": "16", "name": "Haunted Hills - Side Area 2" },
+    { "world": 0, "level": 17, "nameInternal": "17", "name": "Winter Mesa" },
+    { "world": 0, "level": 18, "nameInternal": "18", "name": "Winter Mesa - Side Area 1" },
+    { "world": 0, "level": 19, "nameInternal": "19", "name": "Winter Mesa - Side Area 2" },
+    { "world": 0, "level": 31, "nameInternal": "31", "name": "Watertopia" },
+    { "world": 0, "level": 32, "nameInternal": "32", "name": "Watertopia - Side Area 1" },
+    { "world": 0, "level": 33, "nameInternal": "33", "name": "Watertopia - Side Area 2" },
+	  { "world": 1, "level": 0, "nameInternal": "35", "name": "Rumble Jungle - Agent 9" },
+    { "world": 0, "level": 41, "nameInternal": "41", "name": "Lunar Ledges - Sheila" },
+    { "world": 0, "level": 40, "nameInternal": "40", "name": "Arctic Outback - Sheila" },
+    { "world": 0, "level": 23, "nameInternal": "23", "name": "Gulp - Boss" },
+
+    { "world": 0, "level": 24, "nameInternal": "24", "name": "Starry Plains - Hub" },
+    { "world": 0, "level": 25, "nameInternal": "25", "name": "Moon Fondue" },
+    { "world": 0, "level": 26, "nameInternal": "26", "name": "Moon Fondue - Side Area 1" },
+    { "world": 0, "level": 27, "nameInternal": "27", "name": "Moon Fondue - Side Area 2" },
+    { "world": 0, "level": 28, "nameInternal": "28", "name": "Gypsy Road" },
+    { "world": 0, "level": 29, "nameInternal": "29", "name": "Gypsy Road - Side Area 1" },
+    { "world": 0, "level": 30, "nameInternal": "30", "name": "Gypsy Road - Side Area 2" },
+    { "world": 0, "level": 20, "nameInternal": "20", "name": "Dreamy Castle" },
+    { "world": 0, "level": 21, "nameInternal": "21", "name": "Dreamy Castle - Side Area 1" },
+    { "world": 0, "level": 22, "nameInternal": "22", "name": "Dreamy Castle - Side Area 2" },
+    { "world": 1, "level": 3, "nameInternal": "38", "name": "Volcano Vaults - Agent 9" },
+    { "world": 0, "level": 42, "nameInternal": "42", "name": "Ripto's Mondo Volcano - Sheila" },
+    { "world": 0, "level": 34, "nameInternal": "34", "name": "Ripto's Volcano - Boss" },
+    
+    { "world": 4, "level": 0, "nameInternal": "", "name": "Cutscene 1" },
+    { "world": 4, "level": 1, "nameInternal": "", "name": "Cutscene 2" },
+    { "world": 4, "level": 2, "nameInternal": "", "name": "Cutscene 3" },
+    { "world": 4, "level": 3, "nameInternal": "", "name": "Cutscene 4" },
+    { "world": 4, "level": 4, "nameInternal": "", "name": "Cutscene 5" },
+    { "world": 4, "level": 5, "nameInternal": "", "name": "Cutscene 6" },
+    { "world": 4, "level": 6, "nameInternal": "", "name": "Cutscene 7" },
+    { "world": 4, "level": 7, "nameInternal": "", "name": "Cutscene 8" },
+    { "world": 4, "level": 8, "nameInternal": "", "name": "Cutscene 9" },
+    { "world": 4, "level": 9, "nameInternal": "", "name": "Cutscene 10" },
+    { "world": 4, "level": 10, "nameInternal": "", "name": "Cutscene 11" }
+  ]
+}

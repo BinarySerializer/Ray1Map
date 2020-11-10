@@ -438,7 +438,40 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
 
 ### Supported Games (Isometric GBA)
 
-...
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Spyro 2: Season of Flame (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Spyro: Attack of the Rhynocs (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman Hoodlums' Revenge (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+</table>
 
 ### Supported Games (RRR GBA)
 
@@ -475,7 +508,7 @@ Editor tutorial (Rayman 1): https://github.com/Adsolution/Ray1Map/wiki/Editor-(t
 
 ## Screenshots
 
-<div align="center">
+<div>
 
 <img alt="Screenshot1" src="https://raw.githubusercontent.com/Adsolution/Ray1Map/master/GitHubAssets/Screenshot1.png">
 

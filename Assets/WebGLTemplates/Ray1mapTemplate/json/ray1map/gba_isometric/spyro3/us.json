@@ -1,0 +1,181 @@
+{
+  "name": "Spyro: Attack of the Rhynocs (GBA - US)",
+  "mode": "SpyroAdventureUS",
+  "folder": "gba_isometric/spyro3_us",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 2
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 13
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 18
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 29
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 35
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 42
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 47
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 53
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 59
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 66
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 72
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 76
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 82
+		},
+		{
+			"image": ".\/img\/icon\/Spyro3\/.png",
+			"level": 89
+		}
+	],
+  "levels": [
+    { "world": 0, "level": 2, "nameInternal": "2", "name": "Virtual Playground - Virtual Training Area" },
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Professor's Secret Lab - Professor's Zoo" },
+
+    { "world": 0, "level": 4, "nameInternal": "4", "name": "Dragon Shores - Dragon Nests Region" },
+    { "world": 0, "level": 5, "nameInternal": "5", "name": "Dragon Shores - Moneybags' Vault" },
+    { "world": 0, "level": 6, "nameInternal": "6", "name": "Dragon Shores - Dragon Coast Region" },
+    { "world": 0, "level": 7, "nameInternal": "7", "name": "Dragon Shores - Dragon Coast Region" },
+    { "world": 0, "level": 8, "nameInternal": "8", "name": "Dragon Shores - Dragonfly Oasis Region" },
+    { "world": 0, "level": 9, "nameInternal": "9", "name": "Dragon Shores - Dragonfly Oasis Region" },
+    { "world": 0, "level": 10, "nameInternal": "10", "name": "Dragon Shores - Dragonfly Oasis Region" },
+    { "world": 0, "level": 11, "nameInternal": "11", "name": "Dragon Shores - Stormy Passage" },
+    { "world": 0, "level": 12, "nameInternal": "12", "name": "Dragon Shores - Underground Pass" },
+    { "world": 0, "level": 13, "nameInternal": "13", "name": "Dragon Shores - Virtual Hideaway" },
+    { "world": 2, "level": 87, "nameInternal": "87", "name": "Dragon Shores - Rescue Mission" },
+
+    { "world": 0, "level": 14, "nameInternal": "14", "name": "Fairy Library - Foyer" },
+    { "world": 0, "level": 15, "nameInternal": "15", "name": "Fairy Library - Main Hall" },
+    { "world": 0, "level": 16, "nameInternal": "16", "name": "Fairy Library - XYZ Section" },
+    { "world": 0, "level": 17, "nameInternal": "17", "name": "Fairy Library - Virtual Hideaway" },
+    { "world": 0, "level": 18, "nameInternal": "18", "name": "Fairy Library - Moneybags' Vault" },
+
+    { "world": 0, "level": 19, "nameInternal": "19", "name": "Yeti Serengeti - Frozen Hills Region" },
+    { "world": 0, "level": 20, "nameInternal": "20", "name": "Yeti Serengeti - Frontier Region" },
+    { "world": 0, "level": 21, "nameInternal": "21", "name": "Yeti Serengeti - Frontier Region" },
+    { "world": 0, "level": 22, "nameInternal": "22", "name": "Yeti Serengeti - Frozen Hills Region" },
+    { "world": 0, "level": 23, "nameInternal": "23", "name": "Yeti Serengeti - Frontier Region" },
+    { "world": 0, "level": 24, "nameInternal": "24", "name": "Yeti Serengeti - Whistling Caves" },
+    { "world": 0, "level": 25, "nameInternal": "25", "name": "Yeti Serengeti - Whistling Caves" },
+    { "world": 0, "level": 26, "nameInternal": "26", "name": "Yeti Serengeti - Whistling Caves" },
+    { "world": 0, "level": 27, "nameInternal": "27", "name": "Yeti Serengeti - Whistling Caves" },
+    { "world": 0, "level": 28, "nameInternal": "28", "name": "Yeti Serengeti - Virtual Hideaway" },
+    { "world": 0, "level": 29, "nameInternal": "29", "name": "Yeti Serengeti - Moneybags' Vault" },
+
+    { "world": 0, "level": 30, "nameInternal": "30", "name": "Byrd Barracks - H.Q. Perimeter" },
+    { "world": 0, "level": 31, "nameInternal": "31", "name": "Byrd Barracks - Camp Headquarters" },
+    { "world": 0, "level": 32, "nameInternal": "32", "name": "Byrd Barracks - Virtual Hideaway" },
+    { "world": 0, "level": 33, "nameInternal": "33", "name": "Byrd Barracks - Moneybags' Vault" },
+    { "world": 0, "level": 34, "nameInternal": "34", "name": "Byrd Barracks - Camp Headquarters" },
+    { "world": 2, "level": 88, "nameInternal": "88", "name": "Byrd Barracks - Rescue Mission" },
+
+    { "world": 0, "level": 35, "nameInternal": "35", "name": "Thieves' Guild - Secret Cave" },
+    { "world": 0, "level": 36, "nameInternal": "36", "name": "Thieves' Guild - Main Guild Hall" },
+    { "world": 0, "level": 37, "nameInternal": "37", "name": "Thieves' Guild - Fast Eddie's Turf" },
+    { "world": 0, "level": 38, "nameInternal": "38", "name": "Thieves' Guild - Virtual Hideaway" },
+    { "world": 0, "level": 39, "nameInternal": "39", "name": "Thieves' Guild - Moneybags' Vault" },
+    { "world": 0, "level": 40, "nameInternal": "40", "name": "Thieves' Guild - Main Guild Hall" },
+    { "world": 1, "level": 83, "nameInternal": "83", "name": "Thieves' Guild - Stealth Mission" },
+
+    { "world": 0, "level": 41, "nameInternal": "41", "name": "Rabbit Habitat - Rabbit Hole" },
+    { "world": 0, "level": 42, "nameInternal": "42", "name": "Rabbit Habitat - Land of Wonder and Amazement" },
+    { "world": 0, "level": 43, "nameInternal": "43", "name": "Rabbit Habitat - Virtual Hideaway" },
+    { "world": 0, "level": 44, "nameInternal": "44", "name": "Rabbit Habitat - Moneybags' Vault" },
+    { "world": 0, "level": 45, "nameInternal": "45", "name": "Rabbit Habitat - Rhynoc Infestation" },
+
+    { "world": 0, "level": 46, "nameInternal": "46", "name": "Banana Savannah - Jungle's Edge" },
+    { "world": 0, "level": 47, "nameInternal": "47", "name": "Banana Savannah - Primate Plantation" },
+    { "world": 0, "level": 48, "nameInternal": "48", "name": "Banana Savannah - Primate Plantation" },
+    { "world": 0, "level": 49, "nameInternal": "49", "name": "Banana Savannah - Virtual Hideaway" },
+    { "world": 0, "level": 50, "nameInternal": "50", "name": "Banana Savannah - Moneybags' Vault" },
+    { "world": 1, "level": 84, "nameInternal": "84", "name": "Banana Savannah - Stealth Mission" },
+
+    { "world": 0, "level": 51, "nameInternal": "51", "name": "Kangaroo Hoodoos - Outlook Region" },
+    { "world": 0, "level": 52, "nameInternal": "52", "name": "Kangaroo Hoodoos - The Outback" },
+    { "world": 0, "level": 53, "nameInternal": "53", "name": "Kangaroo Hoodoos - The Outback" },
+    { "world": 0, "level": 54, "nameInternal": "54", "name": "Kangaroo Hoodoos - Virtual Hideaway" },
+    { "world": 0, "level": 55, "nameInternal": "55", "name": "Kangaroo Hoodoos - The Outback" },
+    { "world": 0, "level": 56, "nameInternal": "56", "name": "Kangaroo Hoodoos - Moneybags' Vault" },
+
+    { "world": 0, "level": 57, "nameInternal": "57", "name": "Moneybags' Mansion - Foyer" },
+    { "world": 0, "level": 58, "nameInternal": "58", "name": "Moneybags' Mansion - Foyer" },
+    { "world": 0, "level": 59, "nameInternal": "59", "name": "Moneybags' Mansion - Hall of Majesty" },
+    { "world": 0, "level": 60, "nameInternal": "60", "name": "Moneybags' Mansion - Generator Room" },
+    { "world": 0, "level": 61, "nameInternal": "61", "name": "Moneybags' Mansion - Moneybags' Vault" },
+    { "world": 0, "level": 62, "nameInternal": "62", "name": "Moneybags' Mansion - Virtual Hideaway" },
+    { "world": 1, "level": 85, "nameInternal": "85", "name": "Moneybags' Mansion - Stealth Mission" },
+
+    { "world": 0, "level": 63, "nameInternal": "63", "name": "Cheetah Spot Spa - Lobby" },
+    { "world": 0, "level": 64, "nameInternal": "64", "name": "Cheetah Spot Spa - Fitness Center" },
+    { "world": 0, "level": 65, "nameInternal": "65", "name": "Cheetah Spot Spa - Moneybags' Vault" },
+    { "world": 0, "level": 66, "nameInternal": "66", "name": "Cheetah Spot Spa - Virtual Hideaway" },
+    { "world": 0, "level": 67, "nameInternal": "67", "name": "Cheetah Spot Spa - Fitness Center" },
+    { "world": 1, "level": 86, "nameInternal": "86", "name": "Cheetah Spot Spa - Stealth Mission" },
+
+    { "world": 0, "level": 68, "nameInternal": "68", "name": "Professor's Secret Lab - Research Section" },
+    { "world": 0, "level": 69, "nameInternal": "69", "name": "Professor's Secret Lab - Moneybags' Vault" },
+    { "world": 0, "level": 70, "nameInternal": "70", "name": "Professor's Secret Lab - Prototyping Section" },
+    { "world": 0, "level": 71, "nameInternal": "71", "name": "Professor's Secret Lab - Virtual Hideaway" },
+
+    { "world": 0, "level": 72, "nameInternal": "72", "name": "Rhynocs n' Clocks - Rallying Point" },
+    { "world": 0, "level": 73, "nameInternal": "73", "name": "Rhynocs n' Clocks - Rhynoc Retreat" },
+    { "world": 0, "level": 74, "nameInternal": "74", "name": "Rhynocs n' Clocks - Rhynoc Retreat" },
+    { "world": 0, "level": 75, "nameInternal": "75", "name": "Rhynocs n' Clocks - Rhynoc Retreat" },
+    { "world": 0, "level": 76, "nameInternal": "76", "name": "Rhynocs n' Clocks - Moneybags' Vault" },
+    { "world": 2, "level": 89, "nameInternal": "89", "name": "Rhynocs n' Clocks - Rescue Mission" },
+
+    { "world": 0, "level": 77, "nameInternal": "77", "name": "Chateau Ripto - Ripto's Grand Expanse" },
+    { "world": 0, "level": 78, "nameInternal": "78", "name": "Chateau Ripto - Ripto's Main Gate" },
+    { "world": 0, "level": 79, "nameInternal": "79", "name": "Chateau Ripto - Ripto's Grand Expanse" },
+    { "world": 0, "level": 80, "nameInternal": "80", "name": "Chateau Ripto - Virtual Hideaway" },
+    { "world": 0, "level": 81, "nameInternal": "81", "name": "Chateau Ripto - Moneybags' Vault" },
+    { "world": 0, "level": 82, "nameInternal": "82", "name": "Chateau Ripto - Ripto's Throne Room" },
+    { "world": 2, "level": 90, "nameInternal": "90", "name": "Chateau Ripto - Rescue Mission" },
+
+    { "world": 3, "level": 0, "nameInternal": "", "name": "Byrd Rescue 1" },
+    { "world": 3, "level": 1, "nameInternal": "", "name": "Byrd Rescue 2" },
+    { "world": 3, "level": 2, "nameInternal": "", "name": "Byrd Rescue 3" },
+    { "world": 3, "level": 3, "nameInternal": "", "name": "Byrd Rescue 4" },
+    { "world": 3, "level": 4, "nameInternal": "", "name": "Byrd Rescue 5" },
+    { "world": 3, "level": 5, "nameInternal": "", "name": "Byrd Rescue 6" },
+    { "world": 3, "level": 6, "nameInternal": "", "name": "Byrd Rescue 7" },
+    { "world": 3, "level": 7, "nameInternal": "", "name": "Byrd Rescue 8" },
+    { "world": 3, "level": 8, "nameInternal": "", "name": "Byrd Rescue 9" }
+  ]
+}
