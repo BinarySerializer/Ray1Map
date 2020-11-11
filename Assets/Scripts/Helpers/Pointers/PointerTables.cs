@@ -569,8 +569,33 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Levels] = 0x080E938C,
                         [GBAIsometric_RHR_Pointer.Localization] = 0x087F5AFC,
                         [GBAIsometric_RHR_Pointer.ObjTypes] = 0x080F9814,
+                        [GBAIsometric_RHR_Pointer.CrabObjType] = 0x087f57c4,
+                        [GBAIsometric_RHR_Pointer.Portraits] = 0x087f5948,
+                        [GBAIsometric_RHR_Pointer.SpriteIcons] = 0x080e9728,
 
-                        // TODO: Add menu pointers
+                        [GBAIsometric_RHR_Pointer.Font0] = 0x080ea200,
+                        [GBAIsometric_RHR_Pointer.Font1] = 0x080eaab4,
+                        [GBAIsometric_RHR_Pointer.Font2] = 0x080ea39c,
+
+                        [GBAIsometric_RHR_Pointer.PaletteAnimations0] = 0x080e99dc,
+                        [GBAIsometric_RHR_Pointer.PaletteAnimations1] = 0x087f5a48,
+                        [GBAIsometric_RHR_Pointer.PaletteAnimations2] = 0x087f5a78,
+
+                        [GBAIsometric_RHR_Pointer.Map_PauseFrame1] = 0x084819d4,
+                        [GBAIsometric_RHR_Pointer.Map_Menu0] = 0x08481898,
+                        [GBAIsometric_RHR_Pointer.Map_Menu1] = 0x08481994,
+                        [GBAIsometric_RHR_Pointer.Map_Menu2] = 0x084818dc,
+                        [GBAIsometric_RHR_Pointer.Map_Menu3] = 0x0848192c,
+                        [GBAIsometric_RHR_Pointer.Map_WorldMap] = 0x08481c94,
+                        [GBAIsometric_RHR_Pointer.Map_ScoreScreen] = 0x08481a14,
+                        //[GBAIsometric_RHR_Pointer.Map_Blank] = ,
+                        //[GBAIsometric_RHR_Pointer.Map_LicenseScreen1] = ,
+                        //[GBAIsometric_RHR_Pointer.Map_UbisoftScreen] = ,
+                        //[GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo1] = ,
+                        //[GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo2] = ,
+                        //[GBAIsometric_RHR_Pointer.Map_LicenseScreen2] = ,
+                        //[GBAIsometric_RHR_Pointer.Map_GameLogo] = ,
+                        //[GBAIsometric_RHR_Pointer.Map_PauseFrame2] = ,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.RaymanHoodlumsRevengeUS:
