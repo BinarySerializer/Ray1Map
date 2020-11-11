@@ -17,6 +17,10 @@ namespace R1Engine
         public Pointer[] SpriteIconPointers { get; set; }
         public GBAIsometric_RHR_Sprite[] SpriteIcons { get; set; }
 
+        public GBAIsometric_RHR_Font Font0 { get; set; }
+        public GBAIsometric_RHR_Font Font1 { get; set; }
+        public GBAIsometric_RHR_Font Font2 { get; set; }
+
         public Pointer[] PortraitPointers { get; set; }
         public GBAIsometric_RHR_AnimSet[] Portraits { get; set; }
 
@@ -105,6 +109,11 @@ namespace R1Engine
 
                 for (int i = 0; i < SpriteIcons.Length; i++)
                     SpriteIcons[i] = s.DoAt(SpriteIconPointers[i], () => s.SerializeObject<GBAIsometric_RHR_Sprite>(SpriteIcons[i], name: $"{nameof(SpriteIcons)}[{i}]"));
+
+                // Serialize font
+                Font0 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font0], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font0, name: nameof(Font0)));
+                Font1 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font1], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font1, name: nameof(Font1)));
+                Font2 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font2], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font2, name: nameof(Font2)));
 
                 // Serialize portraits
                 PortraitPointers = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Portraits], () => s.SerializePointerArray(PortraitPointers, 10, name: nameof(PortraitPointers)));
