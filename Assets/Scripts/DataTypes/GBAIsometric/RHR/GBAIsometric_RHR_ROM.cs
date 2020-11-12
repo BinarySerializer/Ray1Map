@@ -10,12 +10,16 @@ namespace R1Engine
         public GBAIsometric_RHR_PaletteAnimationTable[] PaletteAnimations { get; set; }
         public GBAIsometric_RHR_LevelInfo[] LevelInfos { get; set; }
         public GBAIsometric_ObjectType[] ObjectTypes { get; set; }
-        public GBAIsometric_ObjectType[] AdditionalObjectTypes { get; set; }
+        public GBAIsometric_ObjectTypeData[] AdditionalObjectTypes { get; set; }
         public GBAIsometric_RHR_AnimSet[] AdditionalAnimSets { get; set; }
         public GBAIsometric_RHR_SpriteSet[] SpriteSets { get; set; }
         public GBAIsometric_RHR_Sprite[] Sprites { get; set; }
         public Pointer[] SpriteIconPointers { get; set; }
         public GBAIsometric_RHR_Sprite[] SpriteIcons { get; set; }
+
+        public GBAIsometric_RHR_Font Font0 { get; set; }
+        public GBAIsometric_RHR_Font Font1 { get; set; }
+        public GBAIsometric_RHR_Font Font2 { get; set; }
 
         public Pointer[] PortraitPointers { get; set; }
         public GBAIsometric_RHR_AnimSet[] Portraits { get; set; }
@@ -68,10 +72,10 @@ namespace R1Engine
                 // Serialize additional object types
                 var additionalObjTypePointers = ObjTypePointers[s.GameSettings.GameModeSelection];
                 if (AdditionalObjectTypes == null)
-                    AdditionalObjectTypes = new GBAIsometric_ObjectType[additionalObjTypePointers.Length];
+                    AdditionalObjectTypes = new GBAIsometric_ObjectTypeData[additionalObjTypePointers.Length];
 
                 for (int i = 0; i < AdditionalObjectTypes.Length; i++)
-                    AdditionalObjectTypes[i] = s.DoAt(new Pointer(additionalObjTypePointers[i], Offset.file), () => s.SerializeObject<GBAIsometric_ObjectType>(AdditionalObjectTypes[i], name: $"{nameof(AdditionalObjectTypes)}[{i}]"));
+                    AdditionalObjectTypes[i] = s.DoAt(new Pointer(additionalObjTypePointers[i], Offset.file), () => s.SerializeObject<GBAIsometric_ObjectTypeData>(AdditionalObjectTypes[i], name: $"{nameof(AdditionalObjectTypes)}[{i}]"));
 
                 // Serialize additional animation sets
                 var additionalAnimSetPointers = AnimSetPointers[s.GameSettings.GameModeSelection];
@@ -106,6 +110,11 @@ namespace R1Engine
                 for (int i = 0; i < SpriteIcons.Length; i++)
                     SpriteIcons[i] = s.DoAt(SpriteIconPointers[i], () => s.SerializeObject<GBAIsometric_RHR_Sprite>(SpriteIcons[i], name: $"{nameof(SpriteIcons)}[{i}]"));
 
+                // Serialize font
+                Font0 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font0], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font0, name: nameof(Font0)));
+                Font1 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font1], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font1, name: nameof(Font1)));
+                Font2 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font2], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font2, name: nameof(Font2)));
+
                 // Serialize portraits
                 PortraitPointers = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Portraits], () => s.SerializePointerArray(PortraitPointers, 10, name: nameof(PortraitPointers)));
 
@@ -134,10 +143,34 @@ namespace R1Engine
             }
         }
 
-        public IEnumerable<GBAIsometric_RHR_AnimSet> GetAllAnimSets() => ObjectTypes.Concat(AdditionalObjectTypes).Select(x => x.Data?.AnimSetPointer.Value).Concat(AdditionalAnimSets).Concat(Portraits).Where(x => x != null).Distinct();
+        public IEnumerable<GBAIsometric_RHR_AnimSet> GetAllAnimSets() => ObjectTypes.Select(x => x?.Data).Concat(AdditionalObjectTypes).Select(x => x?.AnimSetPointer.Value).Concat(AdditionalAnimSets).Concat(Portraits).Where(x => x != null).Distinct();
 
         public Dictionary<GameModeSelection, uint[]> ObjTypePointers => new Dictionary<GameModeSelection, uint[]>()
         {
+            [GameModeSelection.RaymanHoodlumsRevengeEU] = new uint[]
+            {
+                0x080e6c0c, // waterSplashAnimSet
+                0x080e6b9c, // cutsceneTeensieAnimSet
+                0x080e6bb8, // murfyAnimSet
+                0x080e6bd4, // sheftAnimSet
+                0x080e6bf0, // lavaSteamAnimSet
+                0x080e6c28, // begoniaxSmokeAnimSet
+                0x080e6b60, // crabStarAnimSet
+                0x080e77d8, // plumTumblingAnimSet
+                0x080e77f4, // barrel1AnimSet
+                0x080e8454, // raymanFistAnimSet
+                0x080e8470, // raymanFistAnimSet
+                0x080e8588, // refluxOrbAnimSet
+                //0x, // {null}
+                0x080e856c, // cloneBarrelAnimSet
+                0x080e85a4, // refluxOrbAnimSet
+                0x080e86e4, // sparkAnimSet
+                0x080e8700, // gemSparkAnimSet
+                0x080e8854, // teensieCageAnimSet
+                0x080e8920, // raymanToadAnimSet
+                0x080e893c, // globoxToadAnimSet
+                0x080e8958, // begoToadAnimSet
+            },
             [GameModeSelection.RaymanHoodlumsRevengeUS] = new uint[]
             {
                 0x080e6b68, // waterSplashAnimSet
@@ -165,6 +198,26 @@ namespace R1Engine
         };
         public Dictionary<GameModeSelection, uint[]> AnimSetPointers => new Dictionary<GameModeSelection, uint[]>()
         {
+            [GameModeSelection.RaymanHoodlumsRevengeEU] = new uint[]
+            {
+                0x081e4a60, // shadowAnimSet
+                0x081e4d84, // targetAnimSet
+                0x080f0a0c, // portraitTeensie_3low
+                0x080f0ad0, // portraitTeensie_4low
+                0x0854b408, // fireMonsterFlamesAnimSet
+                0x08421598, // gearBlockAnimSet
+                0x0844963c, // raftShadowAnimSet
+                0x08481efc, // dialogFrame
+                0x084822d8, // eyes
+                0x08481fa8, // piston
+                0x080f0078, // bezel
+                0x08482780, // mapIcon
+
+                // Unused
+                0x0810f27c, // raymanPafAnimSet
+                0x081fc330, // greenPowerupAnimSet
+                0x081e7020, // spikeAnimSet
+            },
             [GameModeSelection.RaymanHoodlumsRevengeUS] = new uint[]
             {
                 0x081e49bc, // shadowAnimSet
@@ -188,6 +241,7 @@ namespace R1Engine
         };
         public Dictionary<GameModeSelection, uint[]> SpriteSetPointers => new Dictionary<GameModeSelection, uint[]>()
         {
+            [GameModeSelection.RaymanHoodlumsRevengeEU] = new uint[] {}, // TODO: Implement
             [GameModeSelection.RaymanHoodlumsRevengeUS] = new uint[]
             {
                 0x080f004c, // meterSpriteSet
@@ -198,6 +252,7 @@ namespace R1Engine
         };
         public Dictionary<GameModeSelection, uint[]> SpritePointers => new Dictionary<GameModeSelection, uint[]>()
         {
+            [GameModeSelection.RaymanHoodlumsRevengeEU] = new uint[] {}, // TODO: Implement
             [GameModeSelection.RaymanHoodlumsRevengeUS] = new uint[]
             {
                 0x080eb3d0, // aButton

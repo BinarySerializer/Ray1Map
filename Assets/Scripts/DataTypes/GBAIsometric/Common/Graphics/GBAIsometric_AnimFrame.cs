@@ -5,7 +5,7 @@
         public ushort PatternIndex { get; set; }
         public ushort TileIndicesIndex { get; set; }
 
-        public ushort Spyro_UnkIndex { get; set; }
+        public int Spyro_UnkBitFieldValue { get; set; }
         public byte Spyro_Byte02 { get; set; }
         public byte Spyro_Byte03 { get; set; }
 
@@ -18,7 +18,11 @@
             }
             else
             {
-                Spyro_UnkIndex = s.Serialize<ushort>(Spyro_UnkIndex, name: nameof(Spyro_UnkIndex));
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    PatternIndex = (ushort)bitFunc(PatternIndex, 11, name: nameof(PatternIndex));
+                    Spyro_UnkBitFieldValue = bitFunc(Spyro_UnkBitFieldValue, 5, name: nameof(Spyro_UnkBitFieldValue));
+                });
                 Spyro_Byte02 = s.Serialize<byte>(Spyro_Byte02, name: nameof(Spyro_Byte02));
                 Spyro_Byte03 = s.Serialize<byte>(Spyro_Byte03, name: nameof(Spyro_Byte03));
             }

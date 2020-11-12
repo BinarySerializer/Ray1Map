@@ -23,7 +23,7 @@
             else
             {
                 StartFrameIndex = s.Serialize<ushort>(StartFrameIndex, name: nameof(StartFrameIndex));
-                Spyro_Byte_02 = s.Serialize<byte>(Spyro_Byte_02, name: nameof(Spyro_Byte_02));
+                Spyro_Byte_02 = s.Serialize<byte>(Spyro_Byte_02, name: nameof(Spyro_Byte_02)); // & 0x1f
                 FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
             }
         }

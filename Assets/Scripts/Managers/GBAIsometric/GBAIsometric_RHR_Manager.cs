@@ -163,10 +163,40 @@ namespace R1Engine
                 // Read the rom
                 var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
 
+                var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
+                var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
+
+                // Export sprites
+                foreach (var sprite in rom.Sprites.Concat(rom.SpriteIcons))
+                {
+                    var tex = Util.ToTileSetTexture(sprite.Sprite, sprite.Is8Bit ? pal_8 : pal_4, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
+
+                    Util.ByteArrayToFile(Path.Combine(outputPath, "Sprites", $"{sprite.Name}.png"), tex.EncodeToPNG());
+                }
+
+                // Export sprite sets
+                foreach (var spriteSet in rom.SpriteSets)
+                {
+                    for (int i = 0; i < spriteSet.SpriteCount; i++)
+                    {
+                        var tex = Util.ToTileSetTexture(spriteSet.Sprites[i], spriteSet.Is8Bit ? pal_8 : pal_4, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth);
+
+                        Util.ByteArrayToFile(Path.Combine(outputPath, "SpriteSets", $"{spriteSet.Name}_{i}.png"), tex.EncodeToPNG());
+                    }
+                }
+
+                // Export font
+                void exportFont(GBAIsometric_RHR_Font font)
+                {
+                    // TODO: Implement
+                }
+                exportFont(rom.Font0);
+                exportFont(rom.Font1);
+                exportFont(rom.Font2);
+
+                // Export animation sets
                 foreach (var animSet in rom.GetAllAnimSets())
                     await ExportAnimSetAsync(context, Path.Combine(outputPath, "AnimSets"), animSet);
-
-                // TODO: Sprites, SpriteIcons & SpriteSets (and font?)
 
                 Debug.Log("Finished extracting assets");
             }

@@ -1,30 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using UnityEditor.UI;
-using UnityEngine;
 
-namespace R1Engine {
+namespace R1Engine
+{
     /// <summary>
     /// Compresses/decompresses data with RHR's sprite compression algorithm
     /// </summary>
     public class RHR_SpriteEncoder : IStreamEncoder
     {
         public enum CombineMode {
-            UseSprite,
+            UseSpriteData,
             UseLookupBufferDirectly,
             UseLookupBufferDirectly_SingleTile
         }
         public CombineMode Mode { get; }
-        public GBAIsometric_RHR_Sprite Sprite { get; }
         public bool Is8Bit { get; }
+
+        // Sprite
+        public GBAIsometric_RHR_SpriteInfo SpriteInfo { get; }
+        public ushort[] LookupBufferPositions { get; }
+        public GBAIsometric_RHR_GraphicsData GraphicsData { get; }
+
+        // LookupBuffer
         public byte[] LookupBuffer { get; }
         public Pointer CompressedDataPointer { get; }
         public int? TileIndex { get; set; }
-        public RHR_SpriteEncoder(GBAIsometric_RHR_Sprite sprite) {
-            Sprite = sprite;
-            Mode = CombineMode.UseSprite;
+
+        public RHR_SpriteEncoder(bool is8bit, GBAIsometric_RHR_SpriteInfo spriteInfo, ushort[] lookupBufferPositions, GBAIsometric_RHR_GraphicsData graphicsData) {
+            Is8Bit = is8bit;
+            SpriteInfo = spriteInfo;
+            LookupBufferPositions = lookupBufferPositions;
+            GraphicsData = graphicsData;
+            Mode = CombineMode.UseSpriteData;
         }
         public RHR_SpriteEncoder(bool is8bit, byte[] lookupBuffer, Pointer compressedData) {
             LookupBuffer = lookupBuffer;
@@ -204,31 +211,30 @@ namespace R1Engine {
             long streamPos = s.Position;
             byte[] decompressed = null;
             Reader reader = new Reader(s, isLittleEndian: true);
-            if (Mode == CombineMode.UseSprite) {
-                int tileSize = Sprite.Is8Bit ? 0x40 : 0x20;
-                decompressed = new byte[tileSize * Sprite.LookupBufferPositions.Length];
-                uint h = Sprite.CanvasHeight;
-                uint w = Sprite.CanvasWidth;
-                long compressedDataOffset = Sprite.GraphicsDataPointer?.Value?.CompressedDataPointer?.FileOffset ?? 0;
+            int tileSize = Is8Bit ? 0x40 : 0x20;
+
+            if (Mode == CombineMode.UseSpriteData) {
+                decompressed = new byte[tileSize * LookupBufferPositions.Length];
+                uint h = SpriteInfo.CanvasHeight;
+                uint w = SpriteInfo.CanvasWidth;
+                long compressedDataOffset = GraphicsData.CompressedDataPointer?.FileOffset ?? 0;
                 for (int y = 0; y < h; y++) {
                     for (int x = 0; x < w; x++) {
-                        ushort pos = Sprite.LookupBufferPositions[y * w + x];
+                        ushort pos = LookupBufferPositions[y * w + x];
 
                         if (pos == 0) {
                             // Empty tile
                         } else {
-                            byte[] lookupBuffer = Sprite.GraphicsDataPointer.Value.CompressionLookupBuffer;
+                            byte[] lookupBuffer = GraphicsData.CompressionLookupBuffer;
                             int tilePos = lookupBuffer[pos] + pos * 0x10;
-                            if (Sprite.Is8Bit) {
+                            if (Is8Bit)
                                 ReadTile8it(reader, compressedDataOffset + tilePos, decompressed, (int)(y * w + x) * tileSize);
-                            } else {
+                            else
                                 ReadTile4Bit(reader, compressedDataOffset + tilePos, decompressed, (int)(y * w + x) * tileSize);
-                            }
                         }
                     }
                 }
-            } else if(Mode == CombineMode.UseLookupBufferDirectly) {
-                int tileSize = Is8Bit ? 0x40 : 0x20;
+            } else if (Mode == CombineMode.UseLookupBufferDirectly) {
                 decompressed = new byte[tileSize * LookupBuffer.Length];
                 long compressedDataOffset = CompressedDataPointer?.FileOffset ?? 0;
                 for (int i = 0; i < LookupBuffer.Length; i++) {
@@ -245,7 +251,6 @@ namespace R1Engine {
                     }
                 }
             } else if (Mode == CombineMode.UseLookupBufferDirectly_SingleTile) {
-                int tileSize = Is8Bit ? 0x40 : 0x20;
                 decompressed = new byte[tileSize];
                 long compressedDataOffset = CompressedDataPointer?.FileOffset ?? 0;
                 int pos = TileIndex.Value;

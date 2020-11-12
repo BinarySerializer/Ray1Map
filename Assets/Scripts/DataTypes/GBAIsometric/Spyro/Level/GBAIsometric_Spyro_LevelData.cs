@@ -21,7 +21,7 @@
         public ARGB1555Color[] ObjPalette { get; set; }
         public GBAIsometric_Spyro_Collision2DMapData Collision2D { get; set; }
         public GBAIsometric_Spyro_Collision3DMapData Collision3D { get; set; }
-        public GBAIsometric_Spyro_SpriteMap Index3Map { get; set; } // TODO: What is this?
+        //public GBAIsometric_Spyro_SpriteMap Index3Map { get; set; } // TODO: What is this?
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -63,7 +63,7 @@
                 ObjPalette = ObjPaletteIndex.DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(ObjPalette, 256, name: nameof(ObjPalette)));
                 Collision3D = Collision3DIndex?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_Collision3DMapData>(Collision3D, name: nameof(Collision3D)));
                 Collision2D = Collision2DIndex?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_Collision2DMapData>(Collision2D, name: nameof(Collision2D)));
-                Index3Map = Index3?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Index3Map, name: nameof(Index3Map)));
+                //Index3Map = Index3?.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Index3Map, name: nameof(Index3Map)));
             }
         }
     }
