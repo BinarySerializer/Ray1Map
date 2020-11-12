@@ -588,14 +588,14 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.Map_Menu3] = 0x0848192c,
                         [GBAIsometric_RHR_Pointer.Map_WorldMap] = 0x08481c94,
                         [GBAIsometric_RHR_Pointer.Map_ScoreScreen] = 0x08481a14,
-                        //[GBAIsometric_RHR_Pointer.Map_Blank] = ,
-                        //[GBAIsometric_RHR_Pointer.Map_LicenseScreen1] = ,
-                        //[GBAIsometric_RHR_Pointer.Map_UbisoftScreen] = ,
-                        //[GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo1] = ,
-                        //[GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo2] = ,
-                        //[GBAIsometric_RHR_Pointer.Map_LicenseScreen2] = ,
-                        //[GBAIsometric_RHR_Pointer.Map_GameLogo] = ,
-                        //[GBAIsometric_RHR_Pointer.Map_PauseFrame2] = ,
+                        [GBAIsometric_RHR_Pointer.Map_Blank] = 0x08481864,
+                        [GBAIsometric_RHR_Pointer.Map_LicenseScreen1] = 0x084811a8,
+                        [GBAIsometric_RHR_Pointer.Map_UbisoftScreen] = 0x08480ae8,
+                        [GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo1] = 0x08480f68,
+                        [GBAIsometric_RHR_Pointer.Map_DigitalEclipseLogo2] = 0x08480d28,
+                        [GBAIsometric_RHR_Pointer.Map_LicenseScreen2] = 0x0848162c,
+                        [GBAIsometric_RHR_Pointer.Map_GameLogo] = 0x084e4354,
+                        [GBAIsometric_RHR_Pointer.Map_PauseFrame2] = 0x08481cd8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.RaymanHoodlumsRevengeUS:

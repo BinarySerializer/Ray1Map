@@ -217,6 +217,9 @@ namespace R1Engine
                 0x0810f27c, // raymanPafAnimSet
                 0x081fc330, // greenPowerupAnimSet
                 0x081e7020, // spikeAnimSet
+
+                // New for menu
+                0x084e460c, // tagLine
             },
             [GameModeSelection.RaymanHoodlumsRevengeUS] = new uint[]
             {
@@ -241,7 +244,12 @@ namespace R1Engine
         };
         public Dictionary<GameModeSelection, uint[]> SpriteSetPointers => new Dictionary<GameModeSelection, uint[]>()
         {
-            [GameModeSelection.RaymanHoodlumsRevengeEU] = new uint[] {}, // TODO: Implement
+            [GameModeSelection.RaymanHoodlumsRevengeEU] = new uint[] {
+                0x080f00f0, // meterSpriteSet
+                0x080F013C, // bossMeterSpriteSet
+                0x084e8470, // soundMeterTopSpriteSet
+                0x084e84b8, // soundMeterBottomSpriteSet
+            },
             [GameModeSelection.RaymanHoodlumsRevengeUS] = new uint[]
             {
                 0x080f004c, // meterSpriteSet
@@ -252,7 +260,80 @@ namespace R1Engine
         };
         public Dictionary<GameModeSelection, uint[]> SpritePointers => new Dictionary<GameModeSelection, uint[]>()
         {
-            [GameModeSelection.RaymanHoodlumsRevengeEU] = new uint[] {}, // TODO: Implement
+            [GameModeSelection.RaymanHoodlumsRevengeEU] = new uint[] {  // TODO: Check if there are any new Sprites for EU
+                0x080EB474, // aButton
+                0x080EB494, // bButton
+                0x080EB4B4, // dPadUp
+                0x080EB4D4, // dPadDown
+                0x080EB4F8, // dPadLeft
+                0x080EB51C, // dPadRight
+                0x080EB540, // selector
+                0x080EB56C, // selector_yn
+                0x080EB590, // cursor
+                0x080EB5B0, // dlgAButton
+                0x080EB5D4, // dlgBButton
+                0x080EB5F8, // dlgRButton
+                0x080EB61C, // dlgLButton
+                0x080EB640, // dlgStart
+                0x080EB664, // dlgSelect
+                0x080EB688, // dlgDpadUp
+                0x080EB6AC, // dlgDpadDown
+                0x080EB6D0, // dlgDpadLeft
+                0x080EB6F4, // dlgDpadRight
+                0x080EB71C, // dlgDpad
+                0x080EF8C0, // scoreCounterFrame
+                0x080EF924, // scoreComboFrame
+                0x080EF954, // comboText1
+                0x080EF974, // comboText2
+                0x080EF998, // teensyIcon
+                0x080EF9BC, // lumIcon
+                0x080EF9DC, // singleCounterFrame
+                0x080EFA10, // doubleCounterFrame
+                0x080EFA3C, // runeIcon1
+                0x080EFA60, // runeIcon2
+                0x080EFA84, // runeIcon3
+                0x080EFAA8, // runeIcon4
+                0x080EFACC, // runeIcon5
+                0x080EFAF0, // currentIconNE
+                0x080EFB18, // currentIconNW
+                0x080EFB40, // currentIconSE
+                0x080EFB68, // currentIconSW
+                0x080EFBA8, // fireResistanceIcon
+                0x080EFBEC, // copterIcon
+                0x080EFC28, // metalFistIcon
+                0x080EFC68, // plumIcon
+                0x080EFCA4, // frogIcon
+                0x080EFCC8, // frameOverrunIcon
+                0x080EFCF4, // murfyIconSmall
+                0x080EFD34, // murfyStamp
+                0x080EFD90, // stampFrame1
+                0x080EFDCC, // stampFrame2
+                0x080F00B8, // meterLeftCap
+                0x080F0B5C, // parchmentLeft
+                0x080F0B9C, // parchmentRight
+                0x080F0BDC, // parchmentCenter
+                0x080F0C9C, // ingameDialogFrame
+
+                0x08482064, // bottleHighlight0
+                0x08482108, // bottleHighlight1
+                0x084821AC, // bottleHighlight2
+                0x08482334, // englishFlag
+                0x08482370, // ukFlag
+                0x084823A8, // frenchFlag
+                0x084823E4, // germanFlag
+                0x08482420, // spanishFlag
+                0x0848245C, // italianFlag
+                0x08482498, // dutchFlag
+                0x084826DC, // mapIconComplete
+                0x08482700, // mapIconBetween
+                // Until here, all offsets match US offset + 0xA4
+                
+                0x084e83a0, // RLArrow
+                0x084e83c0, // leftButton
+                0x084e83e4, // rightButton
+                0x084e851c, // mapIconRayman
+                0x084e854c, // cartouche
+            },
             [GameModeSelection.RaymanHoodlumsRevengeUS] = new uint[]
             {
                 0x080eb3d0, // aButton
