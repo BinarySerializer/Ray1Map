@@ -144,6 +144,7 @@ namespace R1Engine
         }
 
         public IEnumerable<GBAIsometric_RHR_AnimSet> GetAllAnimSets() => ObjectTypes.Select(x => x?.Data).Concat(AdditionalObjectTypes).Select(x => x?.AnimSetPointer.Value).Concat(AdditionalAnimSets).Concat(Portraits).Where(x => x != null).Distinct();
+        public IEnumerable<GBAIsometric_RHR_Sprite> GetAllSprites() => Sprites.Concat(SpriteIcons).Distinct().ToArray();
 
         public Dictionary<GameModeSelection, uint[]> ObjTypePointers => new Dictionary<GameModeSelection, uint[]>()
         {

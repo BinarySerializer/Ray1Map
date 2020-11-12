@@ -167,7 +167,7 @@ namespace R1Engine
                 var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
 
                 // Export sprites
-                foreach (var sprite in rom.Sprites.Concat(rom.SpriteIcons))
+                foreach (var sprite in rom.GetAllSprites())
                 {
                     var tex = Util.ToTileSetTexture(sprite.Sprite, sprite.Is8Bit ? pal_8 : pal_4, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
 
@@ -468,7 +468,8 @@ namespace R1Engine
 
         public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(GBAIsometric_RHR_ROM rom)
         {
-            foreach (var animSet in rom.GetAllAnimSets())
+            // Add animation sets
+            foreach (var animSet in rom.GetAllAnimSets().OrderBy(x => x.Offset))
             {
                 Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
                 yield return new Unity_ObjectManager_GBAIsometric.AnimSet(animSet.Offset, animSet.Animations.Select(x =>
@@ -476,6 +477,37 @@ namespace R1Engine
                     return new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => GetAnimationFrames(rom.Context, animSet, x, decompressedDictionary).Select(f => f.CreateSprite()).ToArray(),
                         x.Speed, -animSet.PivotX, -animSet.PivotY);
                 }).ToArray(), animSet.Name);
+            }
+
+            var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
+            var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
+
+            // Add sprites
+            foreach (var sprite in rom.GetAllSprites())
+            {
+                yield return new Unity_ObjectManager_GBAIsometric.AnimSet(sprite.Offset, new Unity_ObjectManager_GBAIsometric.AnimSet.Animation[]
+                {
+                    new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                    {
+                        Util.ToTileSetTexture(sprite.Sprite, sprite.Is8Bit ? pal_8 : pal_4, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth).CreateSprite()
+                    }, 0, 0, 0) 
+                }, sprite.Name);
+            }
+
+            // Add sprite sets
+            foreach (var spriteSet in rom.SpriteSets)
+            {
+                for (int i = 0; i < spriteSet.SpriteCount; i++)
+                {
+                    var ii = i; // Save index
+                    yield return new Unity_ObjectManager_GBAIsometric.AnimSet(spriteSet.Offset, new Unity_ObjectManager_GBAIsometric.AnimSet.Animation[]
+                    {
+                        new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                        {
+                            Util.ToTileSetTexture(spriteSet.Sprites[ii], spriteSet.Is8Bit ? pal_8 : pal_4, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[ii].CanvasWidth).CreateSprite()
+                        }, 0, 0, 0)
+                    }, $"{spriteSet.Name}_{i}");
+                }
             }
         }
 
