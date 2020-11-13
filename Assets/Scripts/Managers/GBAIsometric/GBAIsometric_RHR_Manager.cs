@@ -161,15 +161,35 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Read the rom
+                var s = context.Deserializer;
                 var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
 
                 var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
                 var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
 
+                var spritePalettesUInt = rom.SpritePalettes[settings.GameModeSelection];
+                var spritePalettes = new Dictionary<uint, Color[]>();
+                if (spritePalettesUInt.ContainsKey("_SpriteIcons")) {
+                    // Fill spritePalettesUInt
+                    foreach (var sprIcon in rom.SpriteIcons) {
+                        spritePalettesUInt[sprIcon.Name] = spritePalettesUInt["_SpriteIcons"];
+                    }
+                }
                 // Export sprites
                 foreach (var sprite in rom.GetAllSprites())
                 {
-                    var tex = Util.ToTileSetTexture(sprite.Sprite, sprite.Is8Bit ? pal_8 : pal_4, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
+                    var pal = sprite.Is8Bit ? pal_8 : pal_4;
+                    if (spritePalettesUInt.ContainsKey(sprite.Name)) {
+                        var palPos = spritePalettesUInt[sprite.Name];
+                        if(!spritePalettes.ContainsKey(palPos)) {
+                            s.DoAt(new Pointer(palPos, rom.Offset.file), () => {
+                                var cols = s.SerializeObjectArray<ARGB1555Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
+                                spritePalettes[palPos] = Util.ConvertGBAPalette(cols);
+                            });
+                        }
+                        pal = spritePalettes[palPos];
+                    }
+                    var tex = Util.ToTileSetTexture(sprite.Sprite, pal, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
 
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Sprites", $"{sprite.Name}.png"), tex.EncodeToPNG());
                 }

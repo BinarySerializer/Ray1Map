@@ -408,5 +408,31 @@ namespace R1Engine
                 0x084e7014, // cartouche
             }
         };
+
+        public Dictionary<GameModeSelection, Dictionary<string, uint>> SpritePalettes => new Dictionary<GameModeSelection, Dictionary<string, uint>>() {
+            [GameModeSelection.RaymanHoodlumsRevengeEU] = new Dictionary<string, uint>(),
+            [GameModeSelection.RaymanHoodlumsRevengeUS] = new Dictionary<string, uint>() {
+                ["bottleHighlight0" ] = 0x0848212c, // FUN_0801e178, 2
+                ["bottleHighlight1" ] = 0x0848212c, // FUN_0801e178, 2
+                ["bottleHighlight2" ] = 0x0848212c, // FUN_0801e178, 2
+                ["RLArrow"          ] = 0x084e6ec8, // FUN_08027328 (PauseGame), 2
+                ["selector_yn"      ] = 0x084e6ec8, // FUN_08027328, 2
+                ["leftButton"       ] = 0x084e6f08, // FUN_08027328, 6
+                ["rightButton"      ] = 0x084e6f08, // FUN_08027328, 6
+                ["parchmentCenter"  ] = 0x080f0a78, // FUN_080209b0, 7
+                ["parchmentRight"   ] = 0x080f0a78, // FUN_080209b0, 7
+                ["parchmentLeft"    ] = 0x080f0a78, // FUN_080209b0, 7
+                ["teensyIcon"       ] = 0x080ef77c, // FUN_080209b0, 9
+                ["lumIcon"          ] = 0x080ef77c, // FUN_080209b0, 9
+
+                ["_SpriteIcons"     ] = 0x080e99d8, // FUN_0802d63c, 2
+                ["murfyStamp"       ] = 0x080ef79c, // FUN_0802d63c, 3
+                ["stampFrame1"      ] = 0x080ef7bc, // FUN_0802d63c, 4
+                ["stampFrame2"      ] = 0x080ef7bc, // FUN_0802d63c, 4
+
+                ["mapIconBetween"   ] = 0x080ef77c, // FUN_0802fb9c, 2
+                ["mapIconComplete"  ] = 0x08482610, // FUN_0802fb9c, 5
+            }
+        };
     }
 }
