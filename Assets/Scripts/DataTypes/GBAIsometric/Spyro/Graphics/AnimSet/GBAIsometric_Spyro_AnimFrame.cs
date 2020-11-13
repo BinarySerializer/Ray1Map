@@ -4,8 +4,8 @@
     {
         public ushort FrameImageIndex { get; set; }
         public int UnkBitFieldValue { get; set; }
-        public byte Byte02 { get; set; }
-        public byte Byte03 { get; set; }
+        public sbyte XPosition { get; set; }
+        public sbyte YPosition { get; set; }
 
         public bool HasExtraData { get; set; } // Set in onPreSerialize
         public ushort ExtraData_04 { get; set; }
@@ -18,8 +18,8 @@
                 FrameImageIndex = (ushort)bitFunc(FrameImageIndex, 11, name: nameof(FrameImageIndex));
                 UnkBitFieldValue = bitFunc(UnkBitFieldValue, 5, name: nameof(UnkBitFieldValue));
             });
-            Byte02 = s.Serialize<byte>(Byte02, name: nameof(Byte02));
-            Byte03 = s.Serialize<byte>(Byte03, name: nameof(Byte03));
+            XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));
 
             if (HasExtraData) {
                 ExtraData_04 = s.Serialize<ushort>(ExtraData_04, name: nameof(ExtraData_04));

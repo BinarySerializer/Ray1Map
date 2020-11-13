@@ -643,11 +643,18 @@ namespace R1Engine
 
         public IEnumerable<Texture2D> GetAnimationFrames(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim, Color[][] pal)
         {
+            int minX = 0, minY = 0, maxW = 0, maxH = 0;
+            if (anim.Frames.Length > 0) {
+                minX = anim.Frames.Min(f => f.XPosition);
+                minY = anim.Frames.Min(f => f.YPosition);
+                maxW = anim.Frames.Max(f => f.XPosition + animSet.AnimFrameImages[f.FrameImageIndex].Width);
+                maxH = anim.Frames.Max(f => f.YPosition + animSet.AnimFrameImages[f.FrameImageIndex].Height);
+            }
             foreach (var frame in anim.Frames)
             {
                 var frameImg = animSet.AnimFrameImages[frame.FrameImageIndex];
 
-                Texture2D tex = TextureHelpers.CreateTexture2D(frameImg.Width, frameImg.Height, clear: true);
+                Texture2D tex = TextureHelpers.CreateTexture2D(maxW - minX, maxH - minY, clear: true);
 
                 void addObjToFrame(byte spriteSize, GBAIsometric_Spyro_AnimPattern.Shape spriteShape, int xpos, int ypos, int relativeTile, byte palIndex)
                 {
@@ -687,8 +694,8 @@ namespace R1Engine
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            int actualX = (x * CellSize) + xpos;
-                            int actualY = (y * CellSize) + ypos;
+                            int actualX = (x * CellSize) + xpos + frame.XPosition - minX;
+                            int actualY = (y * CellSize) + ypos + frame.YPosition - minY;
 
                             tex.FillInTile(animSet.TileSet, tileIndex * 32, pal[palIndex], false, CellSize, true, actualX, actualY);
 
@@ -699,7 +706,7 @@ namespace R1Engine
 
                 if (!frameImg.HasPatterns)
                 {
-                    addObjToFrame(frameImg.SpriteSize, frameImg.SpriteShape, 0, 0, frameImg.TileIndex, frameImg.PalIndex); // TODO: Pal index?
+                    addObjToFrame(frameImg.SpriteSize, frameImg.SpriteShape, 0, 0, frameImg.TileIndex, frameImg.PalIndex);
                 }
                 else
                 {
