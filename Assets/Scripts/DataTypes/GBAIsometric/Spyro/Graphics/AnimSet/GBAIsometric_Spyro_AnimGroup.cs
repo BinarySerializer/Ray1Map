@@ -1,13 +1,13 @@
 ﻿namespace R1Engine
 {
-    public class GBAIsometric_Spyro_AnimDescriptor : R1Serializable
+    public class GBAIsometric_Spyro_AnimGroup : R1Serializable
     {
-        public ushort AnimSpeed { get; set; }
+        public ushort AnimCount { get; set; }
         public ushort AnimIndex { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            AnimSpeed = s.Serialize<ushort>(AnimSpeed, name: nameof(AnimSpeed));
+            AnimCount = s.Serialize<ushort>(AnimCount, name: nameof(AnimCount));
             AnimIndex = s.Serialize<ushort>(AnimIndex, name: nameof(AnimIndex));
         }
     }

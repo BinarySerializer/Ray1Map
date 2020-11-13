@@ -194,7 +194,7 @@ namespace R1Engine
 
                 var f = 0;
 
-                var speed = animSet.AnimDescriptors.FirstOrDefault(x => x.AnimIndex == a)?.AnimSpeed ?? 1; // TODO: Is this correct?
+                var speed = animSet.AnimGroups.FirstOrDefault(x => x.AnimIndex == a)?.AnimCount ?? 1; // TODO: Is this correct?
 
                 foreach (var tex in GetAnimationFrames(animSet, animSet.AnimBlock.Animations[a], pal))
                     Util.ByteArrayToFile(Path.Combine(outputPath, $"{a}-{speed}", $"{f++}.png"), tex.EncodeToPNG());
