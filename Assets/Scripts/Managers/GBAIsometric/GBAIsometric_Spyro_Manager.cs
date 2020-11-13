@@ -169,6 +169,35 @@ namespace R1Engine
 
                 foreach (var map in rom.LevelMaps ?? new GBAIsometric_Spyro_LevelMap[0])
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Maps", $"{map.LevelID}.png"), map.ToTexture2D().EncodeToPNG());
+
+                // Export animation sets
+                for (var i = 0; i < rom.AnimSets.Length; i++)
+                {
+                    var animSet = rom.AnimSets[i];
+                    var outPath = Path.Combine(outputPath, "AnimSets", $"{i}");
+                    var pal = Util.ConvertAndSplitGBAPalette(rom.GetLevelData(settings).ObjPalette); // TODO: Correct palette - search for first level which uses this anim
+
+                    await ExportAnimSetAsync(outPath, animSet, pal);
+                }
+            }
+        }
+
+        public async UniTask ExportAnimSetAsync(string outputPath, GBAIsometric_Spyro_AnimSet animSet, Color[][] pal)
+        {
+            if (animSet == null)
+                return;
+
+            for (int a = 0; a < animSet.AnimBlock.Animations.Length; a++)
+            {
+                if (a % 10 == 0)
+                    await Controller.WaitIfNecessary();
+
+                var f = 0;
+
+                var speed = animSet.AnimDescriptors.FirstOrDefault(x => x.AnimIndex == a)?.AnimSpeed ?? 1; // TODO: Is this correct?
+
+                foreach (var tex in GetAnimationFrames(animSet, animSet.AnimBlock.Animations[a], pal))
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{a}-{speed}", $"{f++}.png"), tex.EncodeToPNG());
             }
         }
 
@@ -610,6 +639,78 @@ namespace R1Engine
             var tileSetTex = Util.ToTileSetTexture(tileSet, pal, true, CellSize, false);
 
             return new Unity_MapTileMap(tileSetTex, CellSize);
+        }
+
+        public IEnumerable<Texture2D> GetAnimationFrames(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim, Color[][] pal)
+        {
+            foreach (var frame in anim.Frames)
+            {
+                var frameImg = animSet.AnimFrameImages[frame.FrameImageIndex];
+
+                Texture2D tex = TextureHelpers.CreateTexture2D(frameImg.Width, frameImg.Height, clear: true);
+
+                void addObjToFrame(byte spriteSize, GBAIsometric_Spyro_AnimPattern.Shape spriteShape, int xpos, int ypos, int relativeTile, byte palIndex)
+                {
+                    // Calculate size
+                    var width = 1;
+                    var height = 1;
+
+                    switch (spriteShape)
+                    {
+                        case GBAIsometric_Spyro_AnimPattern.Shape.Square:
+                            width = 1 << spriteSize;
+                            height = width;
+                            break;
+                        case GBAIsometric_Spyro_AnimPattern.Shape.Wide:
+                            switch (spriteSize)
+                            {
+                                case 0: width = 2; height = 1; break;
+                                case 1: width = 4; height = 1; break;
+                                case 2: width = 4; height = 2; break;
+                                case 3: width = 8; height = 4; break;
+                            }
+                            break;
+                        case GBAIsometric_Spyro_AnimPattern.Shape.Tall:
+                            switch (spriteSize)
+                            {
+                                case 0: width = 1; height = 2; break;
+                                case 1: width = 1; height = 4; break;
+                                case 2: width = 2; height = 4; break;
+                                case 3: width = 4; height = 8; break;
+                            }
+                            break;
+                    }
+
+                    var tileIndex = relativeTile;
+
+                    for (int y = 0; y < height; y++)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            int actualX = (x * CellSize) + xpos;
+                            int actualY = (y * CellSize) + ypos;
+
+                            tex.FillInTile(animSet.TileSet, tileIndex * 32, pal[palIndex], false, CellSize, true, actualX, actualY);
+
+                            tileIndex++;
+                        }
+                    }
+                }
+
+                if (!frameImg.HasPatterns)
+                {
+                    addObjToFrame(frameImg.SpriteSize, frameImg.SpriteShape, 0, 0, frameImg.TileIndex, 0);
+                }
+                else
+                {
+                    foreach (var pattern in frameImg.Patterns)
+                        addObjToFrame(pattern.SpriteSize, pattern.SpriteShape, pattern.X, pattern.Y, pattern.RelativeTileIndex + frameImg.TileIndex, pattern.UnknownBitValue);
+                }
+
+                tex.Apply();
+
+                yield return tex;
+            }
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

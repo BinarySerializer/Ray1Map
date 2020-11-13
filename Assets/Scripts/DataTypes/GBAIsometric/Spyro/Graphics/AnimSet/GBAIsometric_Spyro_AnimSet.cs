@@ -25,7 +25,7 @@ namespace R1Engine
 
             TileSet = TileSetIndex.DoAtBlock(size => s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
             AnimBlock = AnimBlockIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_AnimationBlock>(AnimBlock, name: nameof(AnimBlock)));
-            AnimFrameImages = FrameImagesIndex.DoAtBlock(size => s.SerializeObjectArray<GBAIsometric_Spyro_AnimFrameImage>(AnimFrameImages, AnimBlock.Animations.Max(a => a.Frames.Max(f => f.FrameImageIndex)), name: nameof(AnimFrameImages)));
+            AnimFrameImages = FrameImagesIndex.DoAtBlock(size => s.SerializeObjectArray<GBAIsometric_Spyro_AnimFrameImage>(AnimFrameImages, AnimBlock.Animations.Max(a => a.Frames.Max(f => f.FrameImageIndex)) + 1, name: nameof(AnimFrameImages)));
 
             // TODO: Get correct length
             AnimDescriptors = s.DoAt(AnimDescriptorsPointer, () => s.SerializeObjectArray<GBAIsometric_Spyro_AnimDescriptor>(AnimDescriptors, AnimBlock.Animations.Length, name: nameof(AnimDescriptors)));
