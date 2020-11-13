@@ -4,70 +4,63 @@
   "folder": "gba_isometric/spyro3_eu",
 	"icons": [
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
+			"image": ".\/img\/icon\/Spyro3\/Dragon.gif",
 			"level": 0
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 2
+			"image": ".\/img\/icon\/Spyro3\/Fairy.gif",
+			"level": 11
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 13
+			"image": ".\/img\/icon\/Spyro3\/Bentley.gif",
+			"level": 16
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 18
+			"image": ".\/img\/icon\/Spyro3\/Byrd.gif",
+			"level": 27
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 29
+			"image": ".\/img\/icon\/Spyro3\/Thief.gif",
+			"level": 33
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 35
+			"image": ".\/img\/icon\/Spyro3\/Bianca.gif",
+			"level": 40
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 42
+			"image": ".\/img\/icon\/Spyro3\/BananaPod.gif",
+			"level": 45
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 47
+			"image": ".\/img\/icon\/Spyro3\/Sheila.gif",
+			"level": 51
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 53
+			"image": ".\/img\/icon\/Spyro3\/Moneybags.gif",
+			"level": 57
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 59
+			"image": ".\/img\/icon\/Spyro3\/Hunter.gif",
+			"level": 64
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 66
+			"image": ".\/img\/icon\/Spyro3\/Professor.gif",
+			"level": 70
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
-			"level": 72
-		},
-		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
+			"image": ".\/img\/icon\/Spyro3\/Rhynoc.gif",
 			"level": 76
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
+			"image": ".\/img\/icon\/Spyro3\/Ripto.gif",
 			"level": 82
 		},
 		{
-			"image": ".\/img\/icon\/Spyro3\/.png",
+			"image": ".\/img\/icon\/Spyro3\/ByrdRescue.gif",
 			"level": 89
 		}
 	],
   "levels": [
-    { "world": 0, "level": 2, "nameInternal": "2", "name": "Virtual Playground - Virtual Training Area" },
-    { "world": 0, "level": 3, "nameInternal": "3", "name": "Professor's Secret Lab - Professor's Zoo" },
-
     { "world": 0, "level": 4, "nameInternal": "4", "name": "Dragon Shores - Dragon Nests Region" },
     { "world": 0, "level": 5, "nameInternal": "5", "name": "Dragon Shores - Moneybags' Vault" },
     { "world": 0, "level": 6, "nameInternal": "6", "name": "Dragon Shores - Dragon Coast Region" },
@@ -148,6 +141,8 @@
     { "world": 0, "level": 67, "nameInternal": "67", "name": "Cheetah Spot Spa - Fitness Center" },
     { "world": 1, "level": 86, "nameInternal": "86", "name": "Cheetah Spot Spa - Stealth Mission" },
 
+    { "world": 0, "level": 2, "nameInternal": "2", "name": "Virtual Playground - Virtual Training Area" },
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Professor's Secret Lab - Professor's Zoo" },
     { "world": 0, "level": 68, "nameInternal": "68", "name": "Professor's Secret Lab - Research Section" },
     { "world": 0, "level": 69, "nameInternal": "69", "name": "Professor's Secret Lab - Moneybags' Vault" },
     { "world": 0, "level": 70, "nameInternal": "70", "name": "Professor's Secret Lab - Prototyping Section" },
