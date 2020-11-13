@@ -699,7 +699,7 @@ namespace R1Engine
 
                 if (!frameImg.HasPatterns)
                 {
-                    addObjToFrame(frameImg.SpriteSize, frameImg.SpriteShape, 0, 0, frameImg.TileIndex, 0); // TODO: Pal index?
+                    addObjToFrame(frameImg.SpriteSize, frameImg.SpriteShape, 0, 0, frameImg.TileIndex, frameImg.PalIndex); // TODO: Pal index?
                 }
                 else
                 {

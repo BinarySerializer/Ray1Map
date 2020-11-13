@@ -13,7 +13,7 @@
         public byte[] Bytes_09 { get; set; }
         // Pattern
         public byte UnkPatternValue { get; set; }
-        public byte UnknownBitValue { get; set; }
+        public byte PalIndex { get; set; }
         public byte SpriteSize { get; set; }
         public GBAIsometric_Spyro_AnimPattern.Shape SpriteShape { get; set; }
 
@@ -35,7 +35,7 @@
                 s.SerializeBitValues<ushort>(bitFunc => {
                     SpriteSize = (byte)bitFunc(SpriteSize, 2, name: nameof(SpriteSize));
                     SpriteShape = (GBAIsometric_Spyro_AnimPattern.Shape)bitFunc((int)SpriteShape, 2, name: nameof(SpriteShape));
-                    UnknownBitValue = (byte)bitFunc(UnknownBitValue, 4, name: nameof(UnknownBitValue));
+                    PalIndex = (byte)bitFunc(PalIndex, 4, name: nameof(PalIndex));
                     UnkPatternValue = (byte)bitFunc(UnkPatternValue, 8, name: nameof(UnkPatternValue));
                 });
             }
