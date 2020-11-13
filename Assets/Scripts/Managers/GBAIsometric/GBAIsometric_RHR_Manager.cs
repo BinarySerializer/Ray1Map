@@ -154,6 +154,27 @@ namespace R1Engine
             }
         }
 
+        public Texture2D GetSpriteTexture(Context context, GBAIsometric_RHR_Sprite sprite, Color[] pal_4, Color[] pal_8, Dictionary<string, uint> spritePalettesUInt, Dictionary<uint, Color[]> spritePalettes)
+        {
+            var pal = sprite.Is8Bit ? pal_8 : pal_4;
+            var s = context.Deserializer;
+
+            if (spritePalettesUInt.ContainsKey(sprite.Name))
+            {
+                var palPos = spritePalettesUInt[sprite.Name];
+                if (!spritePalettes.ContainsKey(palPos))
+                {
+                    s.DoAt(new Pointer(palPos, sprite.Offset.file), () => {
+                        var cols = s.SerializeObjectArray<ARGB1555Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
+                        spritePalettes[palPos] = Util.ConvertGBAPalette(cols);
+                    });
+                }
+                pal = spritePalettes[palPos];
+            }
+
+            return Util.ToTileSetTexture(sprite.Sprite, pal, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
+        }
+
         public async UniTask ExportAssetsAsync(GameSettings settings, string outputPath)
         {
             using (var context = new Context(settings)) 
@@ -169,28 +190,11 @@ namespace R1Engine
 
                 var spritePalettesUInt = rom.SpritePalettes[settings.GameModeSelection];
                 var spritePalettes = new Dictionary<uint, Color[]>();
-                if (spritePalettesUInt.ContainsKey("_SpriteIcons")) {
-                    // Fill spritePalettesUInt
-                    foreach (var sprIcon in rom.SpriteIcons) {
-                        spritePalettesUInt[sprIcon.Name] = spritePalettesUInt["_SpriteIcons"];
-                    }
-                }
+
                 // Export sprites
                 foreach (var sprite in rom.GetAllSprites())
                 {
-                    var pal = sprite.Is8Bit ? pal_8 : pal_4;
-                    if (spritePalettesUInt.ContainsKey(sprite.Name)) {
-                        var palPos = spritePalettesUInt[sprite.Name];
-                        if(!spritePalettes.ContainsKey(palPos)) {
-                            s.DoAt(new Pointer(palPos, rom.Offset.file), () => {
-                                var cols = s.SerializeObjectArray<ARGB1555Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
-                                spritePalettes[palPos] = Util.ConvertGBAPalette(cols);
-                            });
-                        }
-                        pal = spritePalettes[palPos];
-                    }
-                    var tex = Util.ToTileSetTexture(sprite.Sprite, pal, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
-
+                    var tex = GetSpriteTexture(context, sprite, pal_4, pal_8, spritePalettesUInt, spritePalettes);
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Sprites", $"{sprite.Name}.png"), tex.EncodeToPNG());
                 }
 
@@ -454,7 +458,7 @@ namespace R1Engine
                 };
             }).ToArray();
 
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, !isMenu ? GetAnimSets(rom).ToArray() : new Unity_ObjectManager_GBAIsometric.AnimSet[0], levelData?.ObjectsCount ?? 0);
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, !isMenu ? GetAnimSets(context, rom).ToArray() : new Unity_ObjectManager_GBAIsometric.AnimSet[0], levelData?.ObjectsCount ?? 0);
 
             var allObjects = new List<Unity_Object>();
 
@@ -486,7 +490,7 @@ namespace R1Engine
                 isometricData: isometricData);
         }
 
-        public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(GBAIsometric_RHR_ROM rom)
+        public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(Context context, GBAIsometric_RHR_ROM rom)
         {
             // Add animation sets
             foreach (var animSet in rom.GetAllAnimSets().OrderBy(x => x.Offset))
@@ -502,6 +506,9 @@ namespace R1Engine
             var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
             var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
 
+            var spritePalettesUInt = rom.SpritePalettes[context.Settings.GameModeSelection];
+            var spritePalettes = new Dictionary<uint, Color[]>();
+
             // Add sprites
             foreach (var sprite in rom.GetAllSprites())
             {
@@ -509,7 +516,7 @@ namespace R1Engine
                 {
                     new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
                     {
-                        Util.ToTileSetTexture(sprite.Sprite, sprite.Is8Bit ? pal_8 : pal_4, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth).CreateSprite()
+                        GetSpriteTexture(context, sprite, pal_4, pal_8, spritePalettesUInt, spritePalettes).CreateSprite()
                     }, 0, 0, 0) 
                 }, sprite.Name);
             }
