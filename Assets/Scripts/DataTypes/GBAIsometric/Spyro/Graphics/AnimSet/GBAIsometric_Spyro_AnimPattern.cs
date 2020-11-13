@@ -5,7 +5,7 @@
         public byte X { get; set; }
         public byte Y { get; set; } // In pixels
         public byte RelativeTileIndex { get; set; }
-        public byte UnknownBitValue { get; set; }
+        public byte PalIndex { get; set; }
         public byte SpriteSize { get; set; }
         public Shape SpriteShape { get; set; }
 
@@ -18,7 +18,7 @@
             s.SerializeBitValues<byte>(bitFunc => {
                 SpriteSize = (byte)bitFunc(SpriteSize, 2, name: nameof(SpriteSize));
                 SpriteShape = (Shape)bitFunc((int)SpriteShape, 2, name: nameof(SpriteShape));
-                UnknownBitValue = (byte)bitFunc(UnknownBitValue, 4, name: nameof(UnknownBitValue));
+                PalIndex = (byte)bitFunc(PalIndex, 4, name: nameof(PalIndex));
             });
         }
         public enum Shape {

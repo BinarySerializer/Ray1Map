@@ -699,12 +699,12 @@ namespace R1Engine
 
                 if (!frameImg.HasPatterns)
                 {
-                    addObjToFrame(frameImg.SpriteSize, frameImg.SpriteShape, 0, 0, frameImg.TileIndex, 0);
+                    addObjToFrame(frameImg.SpriteSize, frameImg.SpriteShape, 0, 0, frameImg.TileIndex, 0); // TODO: Pal index?
                 }
                 else
                 {
                     foreach (var pattern in frameImg.Patterns)
-                        addObjToFrame(pattern.SpriteSize, pattern.SpriteShape, pattern.X, pattern.Y, pattern.RelativeTileIndex + frameImg.TileIndex, pattern.UnknownBitValue);
+                        addObjToFrame(pattern.SpriteSize, pattern.SpriteShape, pattern.X, pattern.Y, pattern.RelativeTileIndex + frameImg.TileIndex, pattern.PalIndex);
                 }
 
                 tex.Apply();
