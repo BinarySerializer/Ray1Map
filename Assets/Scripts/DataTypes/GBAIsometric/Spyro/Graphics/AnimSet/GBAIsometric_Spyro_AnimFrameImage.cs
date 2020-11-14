@@ -39,8 +39,10 @@
                     UnkPatternValue = (byte)bitFunc(UnkPatternValue, 8, name: nameof(UnkPatternValue));
                 });
             }
-            NumTiles = s.Serialize<byte>(NumTiles, name: nameof(NumTiles));
-            Bytes_09 = s.SerializeArray<byte>(Bytes_09, 7, name: nameof(Bytes_09));
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAIsometric_Spyro3) {
+                NumTiles = s.Serialize<byte>(NumTiles, name: nameof(NumTiles));
+                Bytes_09 = s.SerializeArray<byte>(Bytes_09, 7, name: nameof(Bytes_09));
+            }
 
             if (HasPatterns) {
                 s.DoAt(Offset + 4 * PatternsOffset, () => {
