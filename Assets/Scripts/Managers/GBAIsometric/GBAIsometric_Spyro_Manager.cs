@@ -194,7 +194,7 @@ namespace R1Engine
 
                 var f = 0;
 
-                var speed = animSet.AnimGroups.FirstOrDefault(x => x.AnimIndex == a)?.AnimCount ?? 1; // TODO: Is this correct?
+                var speed = 5; // TODO: Find speed somewhere
 
                 foreach (var tex in GetAnimationFrames(animSet, animSet.AnimBlock.Animations[a], pal))
                     Util.ByteArrayToFile(Path.Combine(outputPath, $"{a}-{speed}", $"{f++}.png"), tex.EncodeToPNG());
@@ -655,6 +655,7 @@ namespace R1Engine
                 var frameImg = animSet.AnimFrameImages[frame.FrameImageIndex];
 
                 Texture2D tex = TextureHelpers.CreateTexture2D(maxW - minX, maxH - minY, clear: true);
+                int totalTileInd = 0;
 
                 void addObjToFrame(byte spriteSize, GBAIsometric_Spyro_AnimPattern.Shape spriteShape, int xpos, int ypos, int relativeTile, byte palIndex)
                 {
@@ -688,7 +689,9 @@ namespace R1Engine
                             break;
                     }
 
-                    var tileIndex = relativeTile;
+                    //var tileIndex = relativeTile;
+                    var tileIndex = frameImg.TileIndex + totalTileInd;
+                    totalTileInd += width * height;
 
                     for (int y = 0; y < height; y++)
                     {
