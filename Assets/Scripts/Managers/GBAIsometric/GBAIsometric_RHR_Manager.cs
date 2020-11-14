@@ -228,8 +228,8 @@ namespace R1Engine
                 exportFont(rom.Font2);
                 
                 // Export animation sets
-                //foreach (var animSet in rom.GetAllAnimSets())
-                    //await ExportAnimSetAsync(context, Path.Combine(outputPath, "AnimSets"), animSet);
+                foreach (var animSet in rom.GetAllAnimSets())
+                    await ExportAnimSetAsync(context, Path.Combine(outputPath, "AnimSets"), animSet);
 
                 Debug.Log("Finished extracting assets");
             }
