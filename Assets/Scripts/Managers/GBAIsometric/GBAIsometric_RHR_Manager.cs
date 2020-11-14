@@ -208,11 +208,24 @@ namespace R1Engine
                 }
 
                 // Export sprite sets
-                foreach (var spriteSet in rom.SpriteSets)
-                {
+                foreach (var spriteSet in rom.SpriteSets) {
+                    var pal = spriteSet.Is8Bit ? pal_8 : pal_4;
+
+                    if (spritePalettesUInt.ContainsKey(spriteSet.Name)) {
+                        var palPos = spritePalettesUInt[spriteSet.Name];
+                        if (!spritePalettes.ContainsKey(palPos)) {
+                            s.DoAt(new Pointer(palPos, spriteSet.Offset.file), () => {
+                                var cols = s.SerializeObjectArray<ARGB1555Color>(default, spriteSet.Is8Bit ? 256 : 16, name: "Palette");
+                                spritePalettes[palPos] = Util.ConvertGBAPalette(cols);
+                            });
+                        }
+                        pal = spritePalettes[palPos];
+                    }
+
                     for (int i = 0; i < spriteSet.SpriteCount; i++)
                     {
-                        var tex = Util.ToTileSetTexture(spriteSet.Sprites[i], spriteSet.Is8Bit ? pal_8 : pal_4, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth);
+
+                        var tex = Util.ToTileSetTexture(spriteSet.Sprites[i], pal, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth);
 
                         Util.ByteArrayToFile(Path.Combine(outputPath, "SpriteSets", $"{spriteSet.Name}_{i}.png"), tex.EncodeToPNG());
                     }
@@ -226,7 +239,7 @@ namespace R1Engine
                 exportFont(rom.Font0);
                 exportFont(rom.Font1);
                 exportFont(rom.Font2);
-                
+                return;
                 // Export animation sets
                 foreach (var animSet in rom.GetAllAnimSets())
                     await ExportAnimSetAsync(context, Path.Combine(outputPath, "AnimSets"), animSet);

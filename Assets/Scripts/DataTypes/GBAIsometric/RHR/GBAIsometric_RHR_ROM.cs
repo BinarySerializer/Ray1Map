@@ -483,6 +483,11 @@ namespace R1Engine
                         //["plumIcon"] = 0x,
                         //["frogIcon"] = 0x,
                         //["meterLeftCap"] = 0x,
+
+                        ["meterSpriteSet"] = 0x080EF75C,
+                        ["bossMeterSpriteSet"] = 0x080EF75C,
+                        ["soundMeterTopSpriteSet"] = 0x084e6ee8,
+                        ["soundMeterBottomSpriteSet"] = 0x084e6ec8,
                     }
                 };
 
