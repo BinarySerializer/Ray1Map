@@ -208,10 +208,10 @@ namespace R1Engine
 
                 var f = 0;
 
-                var speed = 5; // TODO: Find speed somewhere
+                var anim = animSet.AnimBlock.Animations[a];
 
-                foreach (var tex in GetAnimationFrames(animSet, animSet.AnimBlock.Animations[a], pal))
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{a}-{speed}", $"{f++}.png"), tex.EncodeToPNG());
+                foreach (var tex in GetAnimationFrames(animSet, anim, pal))
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{a}-{anim.AnimSpeed}", $"{f++}.png"), tex.EncodeToPNG());
             }
         }
 
@@ -657,6 +657,7 @@ namespace R1Engine
 
         public IEnumerable<Texture2D> GetAnimationFrames(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim, Color[][] pal)
         {
+            // TODO: Fix frame size
             int minX = 0, minY = 0, maxW = 0, maxH = 0;
             if (anim.Frames.Length > 0) {
                 minX = anim.Frames.Min(f => f.XPosition);
@@ -673,35 +674,8 @@ namespace R1Engine
 
                 void addObjToFrame(byte spriteSize, GBAIsometric_Spyro_AnimPattern.Shape spriteShape, int xpos, int ypos, int relativeTile, byte palIndex)
                 {
-                    // Calculate size
-                    var width = 1;
-                    var height = 1;
-
-                    switch (spriteShape)
-                    {
-                        case GBAIsometric_Spyro_AnimPattern.Shape.Square:
-                            width = 1 << spriteSize;
-                            height = width;
-                            break;
-                        case GBAIsometric_Spyro_AnimPattern.Shape.Wide:
-                            switch (spriteSize)
-                            {
-                                case 0: width = 2; height = 1; break;
-                                case 1: width = 4; height = 1; break;
-                                case 2: width = 4; height = 2; break;
-                                case 3: width = 8; height = 4; break;
-                            }
-                            break;
-                        case GBAIsometric_Spyro_AnimPattern.Shape.Tall:
-                            switch (spriteSize)
-                            {
-                                case 0: width = 1; height = 2; break;
-                                case 1: width = 1; height = 4; break;
-                                case 2: width = 2; height = 4; break;
-                                case 3: width = 4; height = 8; break;
-                            }
-                            break;
-                    }
+                    // Get size
+                    Util.GetGBASize((byte)spriteShape, spriteSize, out int width, out int height);
 
                     //var tileIndex = relativeTile;
                     var tileIndex = frameImg.TileIndex + totalTileInd;

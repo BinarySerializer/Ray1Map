@@ -561,5 +561,39 @@ namespace R1Engine
         public static Color[][] ConvertAndSplitGBAPalette(ARGB1555Color[] palette) => palette.Split(16, 16).Select(ConvertGBAPalette).ToArray();
 
         public static IEnumerable<T[]> Split<T>(this T[] array, int length, int size) => Enumerable.Range(0, length).Select(x => array.Skip(size * x).Take(size).ToArray());
+
+        public static void GetGBASize(byte shape, byte size, out int width, out int height)
+        {
+            width = 1;
+            height = 1;
+
+            switch (shape)
+            {
+                case 0: // Square
+                    width = 1 << size;
+                    height = width;
+                    break;
+
+                case 1: // Wide
+                    switch (size)
+                    {
+                        case 0: width = 2; height = 1; break;
+                        case 1: width = 4; height = 1; break;
+                        case 2: width = 4; height = 2; break;
+                        case 3: width = 8; height = 4; break;
+                    }
+                    break;
+
+                case 2: // Tall
+                    switch (size)
+                    {
+                        case 0: width = 1; height = 2; break;
+                        case 1: width = 1; height = 4; break;
+                        case 2: width = 2; height = 4; break;
+                        case 3: width = 4; height = 8; break;
+                    }
+                    break;
+            }
+        }
     }
 }
