@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using UnityEditor.UI;
-using UnityEngine;
 
-namespace R1Engine {
+namespace R1Engine
+{
     /// <summary>
     /// Compresses/decompresses data with RHR's sprite compression algorithm
     /// </summary>
