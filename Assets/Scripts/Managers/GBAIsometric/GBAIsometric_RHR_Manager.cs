@@ -198,6 +198,15 @@ namespace R1Engine
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Sprites", $"{sprite.Name}.png"), tex.EncodeToPNG());
                 }
 
+                // Export flag icons
+                foreach (var flag in rom.FlagSpritesUS.Concat(rom.FlagSpritesEU))
+                {
+                    var tex_0 = Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette0), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth);
+                    var tex_1 = Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette1), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth);
+                    Util.ByteArrayToFile(Path.Combine(outputPath, "Flags", $"{flag.Sprite.Name}_0.png"), tex_0.EncodeToPNG());
+                    Util.ByteArrayToFile(Path.Combine(outputPath, "Flags", $"{flag.Sprite.Name}_1.png"), tex_1.EncodeToPNG());
+                }
+
                 // Export sprite sets
                 foreach (var spriteSet in rom.SpriteSets)
                 {
@@ -217,10 +226,10 @@ namespace R1Engine
                 exportFont(rom.Font0);
                 exportFont(rom.Font1);
                 exportFont(rom.Font2);
-
+                
                 // Export animation sets
-                foreach (var animSet in rom.GetAllAnimSets())
-                    await ExportAnimSetAsync(context, Path.Combine(outputPath, "AnimSets"), animSet);
+                //foreach (var animSet in rom.GetAllAnimSets())
+                    //await ExportAnimSetAsync(context, Path.Combine(outputPath, "AnimSets"), animSet);
 
                 Debug.Log("Finished extracting assets");
             }
@@ -519,6 +528,22 @@ namespace R1Engine
                         GetSpriteTexture(context, sprite, pal_4, pal_8, spritePalettesUInt, spritePalettes).CreateSprite()
                     }, 0, 0, 0) 
                 }, sprite.Name);
+            }
+
+            // Add flag sprites
+            foreach (var flag in rom.FlagSpritesUS.Concat(rom.FlagSpritesEU))
+            {
+                yield return new Unity_ObjectManager_GBAIsometric.AnimSet(flag.Offset, new Unity_ObjectManager_GBAIsometric.AnimSet.Animation[]
+                {
+                    new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                    {
+                        Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette0), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth).CreateSprite()
+                    }, 0, 0, 0),
+                    new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                    {
+                        Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette1), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth).CreateSprite()
+                    }, 0, 0, 0)
+                }, flag.Sprite.Name);
             }
 
             // Add sprite sets

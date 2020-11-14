@@ -572,6 +572,8 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.CrabObjType] = 0x087f57c4,
                         [GBAIsometric_RHR_Pointer.Portraits] = 0x087f5948,
                         [GBAIsometric_RHR_Pointer.SpriteIcons] = 0x080e9728,
+                        [GBAIsometric_RHR_Pointer.SpriteFlagsUS] = 0x080e8974,
+                        [GBAIsometric_RHR_Pointer.SpriteFlagsEU] = 0x080e89d4,
 
                         [GBAIsometric_RHR_Pointer.Font0] = 0x080ea200,
                         [GBAIsometric_RHR_Pointer.Font1] = 0x080eaab4,
@@ -607,6 +609,8 @@ namespace R1Engine
                         [GBAIsometric_RHR_Pointer.CrabObjType] = 0x087f428c,
                         [GBAIsometric_RHR_Pointer.Portraits] = 0x087F4410,
                         [GBAIsometric_RHR_Pointer.SpriteIcons] = 0x080e9684,
+                        [GBAIsometric_RHR_Pointer.SpriteFlagsUS] = 0x080e88d0,
+                        [GBAIsometric_RHR_Pointer.SpriteFlagsEU] = 0x080e8930,
 
                         [GBAIsometric_RHR_Pointer.Font0] = 0x080ea15c,
                         [GBAIsometric_RHR_Pointer.Font1] = 0x080eaa10,

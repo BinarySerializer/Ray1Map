@@ -9,6 +9,8 @@
         CrabObjType,
         Portraits,
         SpriteIcons,
+        SpriteFlagsUS,
+        SpriteFlagsEU,
 
         // Font
         Font0, // TODO: Parse

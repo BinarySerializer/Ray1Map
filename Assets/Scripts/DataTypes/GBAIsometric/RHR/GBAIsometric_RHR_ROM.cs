@@ -16,6 +16,8 @@ namespace R1Engine
         public GBAIsometric_RHR_Sprite[] Sprites { get; set; }
         public Pointer[] SpriteIconPointers { get; set; }
         public GBAIsometric_RHR_Sprite[] SpriteIcons { get; set; }
+        public GBAIsometric_RHR_FlagSprite[] FlagSpritesUS { get; set; }
+        public GBAIsometric_RHR_FlagSprite[] FlagSpritesEU { get; set; }
 
         public GBAIsometric_RHR_Font Font0 { get; set; }
         public GBAIsometric_RHR_Font Font1 { get; set; }
@@ -109,6 +111,10 @@ namespace R1Engine
 
                 for (int i = 0; i < SpriteIcons.Length; i++)
                     SpriteIcons[i] = s.DoAt(SpriteIconPointers[i], () => s.SerializeObject<GBAIsometric_RHR_Sprite>(SpriteIcons[i], name: $"{nameof(SpriteIcons)}[{i}]"));
+
+                // Serialize flag sprites
+                FlagSpritesUS = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.SpriteFlagsUS], () => s.SerializeObjectArray<GBAIsometric_RHR_FlagSprite>(FlagSpritesUS, 3, name: nameof(FlagSpritesUS)));
+                FlagSpritesEU = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.SpriteFlagsEU], () => s.SerializeObjectArray<GBAIsometric_RHR_FlagSprite>(FlagSpritesEU, 6, name: nameof(FlagSpritesEU)));
 
                 // Serialize font
                 Font0 = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Font0], () => s.SerializeObject<GBAIsometric_RHR_Font>(Font0, name: nameof(Font0)));
@@ -318,13 +324,6 @@ namespace R1Engine
                 0x08482064, // bottleHighlight0
                 0x08482108, // bottleHighlight1
                 0x084821AC, // bottleHighlight2
-                0x08482334, // englishFlag
-                0x08482370, // ukFlag
-                0x084823A8, // frenchFlag
-                0x084823E4, // germanFlag
-                0x08482420, // spanishFlag
-                0x0848245C, // italianFlag
-                0x08482498, // dutchFlag
                 0x084826DC, // mapIconComplete
                 0x08482700, // mapIconBetween
                 // Until here, all offsets match US offset + 0xA4
@@ -392,13 +391,6 @@ namespace R1Engine
                 0x08481fc0, // bottleHighlight0
                 0x08482064, // bottleHighlight1
                 0x08482108, // bottleHighlight2
-                0x08482290, // englishFlag
-                0x084822cc, // ukFlag
-                0x08482304, // frenchFlag
-                0x08482340, // germanFlag
-                0x0848237c, // spanishFlag
-                0x084823b8, // italianFlag
-                0x084823f4, // dutchFlag
                 0x08482638, // mapIconComplete
                 0x0848265c, // mapIconBetween
                 0x084e6e68, // RLArrow
@@ -438,6 +430,53 @@ namespace R1Engine
 
                         ["mapIconBetween"] = 0x080ef77c, // FUN_0802fb9c, 2
                         ["mapIconComplete"] = 0x08482610, // FUN_0802fb9c, 5
+
+                        ["aButton"] = 0x080EF75C,
+                        ["bButton"] = 0x080EF75C,
+                        ["comboText1"] = 0x080EF75C,
+                        ["comboText2"] = 0x080EF75C,
+
+                        //["dPadUp"] = 0x,
+                        //["dPadDown"] = 0x,
+                        //["dPadLeft"] = 0x,
+                        //["dPadRight"] = 0x,
+                        //["selector"] = 0x,
+                        //["cursor"] = 0x,
+                        //["dlgAButton"] = 0x,
+                        //["dlgBButton"] = 0x,
+                        //["dlgRButton"] = 0x,
+                        //["dlgLButton"] = 0x,
+                        //["dlgStart"] = 0x,
+                        //["dlgSelect"] = 0x,
+                        //["dlgDpadUp"] = 0x,
+                        //["dlgDpadDown"] = 0x,
+                        //["dlgDpadLeft"] = 0x,
+                        //["dlgDpadRight"] = 0x,
+                        //["dlgDpad"] = 0x,
+                        //["scoreCounterFrame"] = 0x,
+                        //["scoreComboFrame"] = 0x,
+                        //["singleCounterFrame"] = 0x,
+                        //["doubleCounterFrame"] = 0x,
+                        //["runeIcon1"] = 0x,
+                        //["runeIcon2"] = 0x,
+                        //["runeIcon3"] = 0x,
+                        //["runeIcon4"] = 0x,
+                        //["runeIcon5"] = 0x,
+                        //["currentIconNE"] = 0x,
+                        //["currentIconNW"] = 0x,
+                        //["currentIconSE"] = 0x,
+                        //["currentIconSW"] = 0x,
+                        //["fireResistanceIcon"] = 0x,
+                        //["copterIcon"] = 0x,
+                        //["metalFistIcon"] = 0x,
+                        //["plumIcon"] = 0x,
+                        //["frogIcon"] = 0x,
+                        //["frameOverrunIcon"] = 0x,
+                        //["murfyIconSmall"] = 0x,
+                        //["meterLeftCap"] = 0x,
+                        //["ingameDialogFrame"] = 0x,
+                        //["mapIconRayman"] = 0x,
+                        //["cartouche"] = 0x,
                     }
                 };
 
