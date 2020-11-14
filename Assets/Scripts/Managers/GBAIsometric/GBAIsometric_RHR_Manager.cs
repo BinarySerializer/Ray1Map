@@ -549,17 +549,12 @@ namespace R1Engine
             // Add sprite sets
             foreach (var spriteSet in rom.SpriteSets)
             {
-                for (int i = 0; i < spriteSet.SpriteCount; i++)
-                {
-                    var ii = i; // Save index
-                    yield return new Unity_ObjectManager_GBAIsometric.AnimSet(spriteSet.Offset, new Unity_ObjectManager_GBAIsometric.AnimSet.Animation[]
+                yield return new Unity_ObjectManager_GBAIsometric.AnimSet(spriteSet.Offset, Enumerable.Range(0, spriteSet.SpriteCount).Select(i => 
+                    new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
                     {
-                        new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
-                        {
-                            Util.ToTileSetTexture(spriteSet.Sprites[ii], spriteSet.Is8Bit ? pal_8 : pal_4, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[ii].CanvasWidth).CreateSprite()
-                        }, 0, 0, 0)
-                    }, $"{spriteSet.Name}_{i}");
-                }
+                        Util.ToTileSetTexture(spriteSet.Sprites[i], spriteSet.Is8Bit ? pal_8 : pal_4, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth).CreateSprite()
+                    }, 0, 0, 0)
+                ).ToArray(), $"{spriteSet.Name}");
             }
         }
 
