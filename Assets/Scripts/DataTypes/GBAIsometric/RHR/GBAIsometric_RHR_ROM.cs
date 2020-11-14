@@ -481,13 +481,15 @@ namespace R1Engine
                         ["currentIconSE"] = 0x080EF77C,
                         ["currentIconSW"] = 0x080EF77C,
                         ["plumIcon"] = 0x080EF77C,
-                        //["frogIcon"] = 0x,
+                        ["frogIcon"] = 0x080EF75C,
                         ["meterLeftCap"] = 0x080EF75C,
 
                         ["meterSpriteSet"] = 0x080EF75C,
                         ["bossMeterSpriteSet"] = 0x080EF75C,
-                        ["soundMeterTopSpriteSet"] = 0x084e6ee8,
-                        ["soundMeterBottomSpriteSet"] = 0x084e6ec8,
+                        ["soundMeterTopSpriteSet_0"] = 0x084e6ee8,
+                        ["soundMeterTopSpriteSet_1"] = 0x084e6ec8,
+                        ["soundMeterBottomSpriteSet_0"] = 0x084e6ee8,
+                        ["soundMeterBottomSpriteSet_1"] = 0x084e6ec8,
                     }
                 };
 

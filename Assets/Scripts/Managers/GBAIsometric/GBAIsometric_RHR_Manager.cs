@@ -2,8 +2,8 @@
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -154,25 +154,52 @@ namespace R1Engine
             }
         }
 
-        public Texture2D GetSpriteTexture(Context context, GBAIsometric_RHR_Sprite sprite, Color[] pal_4, Color[] pal_8, Dictionary<string, uint> spritePalettesUInt, Dictionary<uint, Color[]> spritePalettes)
+        public Texture2D GetSpriteTexture(Context context, GBAIsometric_RHR_Sprite sprite, Color[] pal_4, Color[] pal_8, Dictionary<string, uint> spritePaletteOffsets)
         {
             var pal = sprite.Is8Bit ? pal_8 : pal_4;
             var s = context.Deserializer;
 
-            if (spritePalettesUInt.ContainsKey(sprite.Name))
+            if (spritePaletteOffsets.ContainsKey(sprite.Name))
             {
-                var palPos = spritePalettesUInt[sprite.Name];
-                if (!spritePalettes.ContainsKey(palPos))
-                {
-                    s.DoAt(new Pointer(palPos, sprite.Offset.file), () => {
-                        var cols = s.SerializeObjectArray<ARGB1555Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
-                        spritePalettes[palPos] = Util.ConvertGBAPalette(cols);
-                    });
-                }
-                pal = spritePalettes[palPos];
+                var palPos = spritePaletteOffsets[sprite.Name];
+                s.DoAt(new Pointer(palPos, sprite.Offset.file), () => {
+                    var cols = s.SerializeObjectArray<ARGB1555Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
+                    pal = Util.ConvertGBAPalette(cols);
+                });
             }
 
             return Util.ToTileSetTexture(sprite.Sprite, pal, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
+        }
+
+        public IEnumerable<IEnumerable<Texture2D>> GetSpriteSetTextures(Context context, GBAIsometric_RHR_SpriteSet spriteSet, Color[] pal_4, Color[] pal_8, Dictionary<string, uint> spritePaletteOffsets)
+        {
+            var pal = spriteSet.Is8Bit ? pal_8 : pal_4;
+            var s = context.Deserializer;
+
+            if (spriteSet.Name.Contains("soundMeter"))
+            {
+                yield return getSpriteSet($"{spriteSet.Name}_0");
+                yield return getSpriteSet($"{spriteSet.Name}_1");
+            }
+            else
+            {
+                yield return getSpriteSet(spriteSet.Name);
+            }
+
+            IEnumerable<Texture2D> getSpriteSet(string name)
+            {
+                if (spritePaletteOffsets.ContainsKey(name))
+                {
+                    var palPos = spritePaletteOffsets[name];
+                    s.DoAt(new Pointer(palPos, spriteSet.Offset.file), () => {
+                        var cols = s.SerializeObjectArray<ARGB1555Color>(default, spriteSet.Is8Bit ? 256 : 16, name: "Palette");
+                        pal = Util.ConvertGBAPalette(cols);
+                    });
+                }
+
+                for (int i = 0; i < spriteSet.SpriteCount; i++)
+                    yield return Util.ToTileSetTexture(spriteSet.Sprites[i], pal, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth);
+            }
         }
 
         public async UniTask ExportAssetsAsync(GameSettings settings, string outputPath)
@@ -188,13 +215,12 @@ namespace R1Engine
                 var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
                 var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
 
-                var spritePalettesUInt = rom.SpritePalettes[settings.GameModeSelection];
-                var spritePalettes = new Dictionary<uint, Color[]>();
+                var spritePaletteOffsets = rom.SpritePalettes[settings.GameModeSelection];
 
                 // Export sprites
                 foreach (var sprite in rom.GetAllSprites())
                 {
-                    var tex = GetSpriteTexture(context, sprite, pal_4, pal_8, spritePalettesUInt, spritePalettes);
+                    var tex = GetSpriteTexture(context, sprite, pal_4, pal_8, spritePaletteOffsets);
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Sprites", $"{sprite.Name}.png"), tex.EncodeToPNG());
                 }
 
@@ -208,26 +234,21 @@ namespace R1Engine
                 }
 
                 // Export sprite sets
-                foreach (var spriteSet in rom.SpriteSets) {
-                    var pal = spriteSet.Is8Bit ? pal_8 : pal_4;
+                foreach (var spriteSet in rom.SpriteSets) 
+                {
+                    var groupIndex = 0;
 
-                    if (spritePalettesUInt.ContainsKey(spriteSet.Name)) {
-                        var palPos = spritePalettesUInt[spriteSet.Name];
-                        if (!spritePalettes.ContainsKey(palPos)) {
-                            s.DoAt(new Pointer(palPos, spriteSet.Offset.file), () => {
-                                var cols = s.SerializeObjectArray<ARGB1555Color>(default, spriteSet.Is8Bit ? 256 : 16, name: "Palette");
-                                spritePalettes[palPos] = Util.ConvertGBAPalette(cols);
-                            });
-                        }
-                        pal = spritePalettes[palPos];
-                    }
-
-                    for (int i = 0; i < spriteSet.SpriteCount; i++)
+                    foreach (var group in GetSpriteSetTextures(context, spriteSet, pal_4, pal_8, spritePaletteOffsets))
                     {
+                        var spriteIndex = 0;
 
-                        var tex = Util.ToTileSetTexture(spriteSet.Sprites[i], pal, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth);
+                        foreach (var sprite in group)
+                        {
+                            Util.ByteArrayToFile(Path.Combine(outputPath, "SpriteSets", $"{spriteSet.Name}_{groupIndex}_{spriteIndex}.png"), sprite.EncodeToPNG());
+                            spriteIndex++;
+                        }
 
-                        Util.ByteArrayToFile(Path.Combine(outputPath, "SpriteSets", $"{spriteSet.Name}_{i}.png"), tex.EncodeToPNG());
+                        groupIndex++;
                     }
                 }
 
@@ -239,7 +260,7 @@ namespace R1Engine
                 exportFont(rom.Font0);
                 exportFont(rom.Font1);
                 exportFont(rom.Font2);
-                return;
+
                 // Export animation sets
                 foreach (var animSet in rom.GetAllAnimSets())
                     await ExportAnimSetAsync(context, Path.Combine(outputPath, "AnimSets"), animSet);
@@ -529,7 +550,6 @@ namespace R1Engine
             var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
 
             var spritePalettesUInt = rom.SpritePalettes[context.Settings.GameModeSelection];
-            var spritePalettes = new Dictionary<uint, Color[]>();
 
             // Add sprites
             foreach (var sprite in rom.GetAllSprites())
@@ -538,7 +558,7 @@ namespace R1Engine
                 {
                     new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
                     {
-                        GetSpriteTexture(context, sprite, pal_4, pal_8, spritePalettesUInt, spritePalettes).CreateSprite()
+                        GetSpriteTexture(context, sprite, pal_4, pal_8, spritePalettesUInt).CreateSprite()
                     }, 0, 0, 0) 
                 }, sprite.Name);
             }
@@ -562,12 +582,19 @@ namespace R1Engine
             // Add sprite sets
             foreach (var spriteSet in rom.SpriteSets)
             {
-                yield return new Unity_ObjectManager_GBAIsometric.AnimSet(spriteSet.Offset, Enumerable.Range(0, spriteSet.SpriteCount).Select(i => 
-                    new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
-                    {
-                        Util.ToTileSetTexture(spriteSet.Sprites[i], spriteSet.Is8Bit ? pal_8 : pal_4, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth).CreateSprite()
-                    }, 0, 0, 0)
-                ).ToArray(), $"{spriteSet.Name}");
+                var groupIndex = 0;
+
+                foreach (var group in GetSpriteSetTextures(context, spriteSet, pal_4, pal_8, spritePalettesUInt))
+                {
+                    yield return new Unity_ObjectManager_GBAIsometric.AnimSet(spriteSet.Offset, group.Select(tex =>
+                        new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                        {
+                            tex.CreateSprite()
+                        }, 0, 0, 0)
+                    ).ToArray(), $"{spriteSet.Name}_{groupIndex}");
+
+                    groupIndex++;
+                }
             }
         }
 
