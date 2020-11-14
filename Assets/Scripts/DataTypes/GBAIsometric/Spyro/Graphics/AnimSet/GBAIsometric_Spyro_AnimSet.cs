@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -27,8 +28,23 @@ namespace R1Engine
             AnimBlock = AnimBlockIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_AnimationBlock>(AnimBlock, name: nameof(AnimBlock)));
             AnimFrameImages = FrameImagesIndex.DoAtBlock(size => s.SerializeObjectArray<GBAIsometric_Spyro_AnimFrameImage>(AnimFrameImages, AnimBlock.Animations.Max(a => a.Frames.Max(f => f.FrameImageIndex)) + 1, name: nameof(AnimFrameImages)));
 
-            // TODO: Get correct length by reading until group.Index + group.Count >= animBlock.anims.Count
-            AnimGroups = s.DoAt(AnimGroupsPointer, () => s.SerializeObjectArray<GBAIsometric_Spyro_AnimGroup>(AnimGroups, AnimBlock.Animations.Length, name: nameof(AnimGroups)));
+            if (AnimGroups == null && AnimGroupsPointer != null && AnimBlock?.Animations.Length > 0) {
+                s.DoAt(AnimGroupsPointer, () => {
+                    List<GBAIsometric_Spyro_AnimGroup> groups = new List<GBAIsometric_Spyro_AnimGroup>();
+                    int numAnims = AnimBlock.Animations.Length;
+                    GBAIsometric_Spyro_AnimGroup curGroup = null;
+                    while (curGroup == null || curGroup.AnimIndex + curGroup.AnimCount < numAnims) {
+                        curGroup = s.SerializeObject<GBAIsometric_Spyro_AnimGroup>(default, name: $"{nameof(AnimGroups)}[{groups.Count}]");
+                        if (curGroup.AnimIndex + curGroup.AnimCount <= numAnims) {
+                            groups.Add(curGroup);
+                        }
+                    }
+                    AnimGroups = groups.ToArray();
+
+                });
+            } else {
+                AnimGroups = s.DoAt(AnimGroupsPointer, () => s.SerializeObjectArray<GBAIsometric_Spyro_AnimGroup>(AnimGroups, AnimGroups.Length, name: nameof(AnimGroups)));
+            }
         }
     }
 }
