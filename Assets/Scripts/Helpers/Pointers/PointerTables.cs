@@ -659,7 +659,7 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.LocalizationPointers] = 0x08002470,
 
                         [GBAIsometric_Spyro_Pointer.ObjectTypes] = 0x08175a18,
-                        //[GBAIsometric_Spyro_Pointer.AnimSets] = 0x081733e4,
+                        [GBAIsometric_Spyro_Pointer.AnimSets] = 0x081733e4,
 
                         [GBAIsometric_Spyro_Pointer.PortraitSprites] = 0x08175744,
                         [GBAIsometric_Spyro_Pointer.DialogEntries] = 0x08174c4c,
