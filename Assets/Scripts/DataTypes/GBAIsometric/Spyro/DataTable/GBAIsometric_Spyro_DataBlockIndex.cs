@@ -1,4 +1,5 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 
 namespace R1Engine
 {
@@ -20,6 +21,18 @@ namespace R1Engine
 
             if (HasPadding)
                 s.Serialize<ushort>(default, name: "Padding");
+        }
+
+        public static GBAIsometric_Spyro_DataBlockIndex FromIndex(SerializerObject s, ushort index)
+        {
+            var i = new GBAIsometric_Spyro_DataBlockIndex()
+            {
+                Index = index
+            };
+
+            i.Init(s.CurrentPointer);
+
+            return i;
         }
     }
 }

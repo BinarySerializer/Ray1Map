@@ -35,6 +35,8 @@ namespace R1Engine
         public GBAIsometric_Spyro_UnkStruct[] UnkStructs { get; set; }
         public GBAIsometric_Spyro_CutsceneMap[] CutsceneMaps { get; set; }
 
+        public ARGB1555Color[] CommonPalette { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -86,17 +88,7 @@ namespace R1Engine
                     objIndices = new ushort[] { 0x4DE, 0x4ED, 0x4CF, 0x4FD };
 
                 // The game hard-codes these indices
-                LevelObjectIndices_Spyro2_Agent9 = objIndices.Select(x =>
-                {
-                    var i = new GBAIsometric_Spyro_DataBlockIndex()
-                    {
-                        Index = x
-                    };
-
-                    i.Init(s.CurrentPointer);
-
-                    return i;
-                }).ToArray();
+                LevelObjectIndices_Spyro2_Agent9 = objIndices.Select(x => GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, x)).ToArray();
 
                 if (LevelObjects_Spyro2_Agent9 == null)
                     LevelObjects_Spyro2_Agent9 = new GBAIsometric_Spyro2_LevelObjects2D[LevelObjectIndices_Spyro2_Agent9.Length];
@@ -154,6 +146,9 @@ namespace R1Engine
             LevelNames = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelNames), () => s.SerializeObjectArray<GBAIsometric_LocIndex>(LevelNames, manager.TotalLevelsCount, name: nameof(LevelNames)));
             MenuPages = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.MenuPages), () => s.SerializeObjectArray<GBAIsometric_Spyro_MenuPage>(MenuPages, manager.MenuPageCount, name: nameof(MenuPages)));
 
+            // Serialize common palette for Spyro 2
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(CommonPalette, 256, name: nameof(CommonPalette)));
 
             // Serialize unknown struct
             if (s.GameSettings.GameModeSelection == GameModeSelection.SpyroAdventureUS)

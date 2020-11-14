@@ -170,12 +170,26 @@ namespace R1Engine
                 foreach (var map in rom.LevelMaps ?? new GBAIsometric_Spyro_LevelMap[0])
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Maps", $"{map.LevelID}.png"), map.ToTexture2D().EncodeToPNG());
 
+                var objPal = rom.GetLevelData(settings).ObjPalette;
+
+                if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                {
+                    var lvlPal = objPal;
+                    objPal = rom.CommonPalette;
+
+                    for (int i = 0; i < 256; i++)
+                    {
+                        if (lvlPal[i].Color1555 != 0)
+                            objPal[i] = lvlPal[i];
+                    }
+                }
+
                 // Export animation sets
                 for (var i = 0; i < rom.AnimSets.Length; i++)
                 {
                     var animSet = rom.AnimSets[i];
                     var outPath = Path.Combine(outputPath, "AnimSets", $"{i}");
-                    var pal = Util.ConvertAndSplitGBAPalette(rom.GetLevelData(settings).ObjPalette); // TODO: Correct palette - search for first level which uses this anim
+                    var pal = Util.ConvertAndSplitGBAPalette(objPal);
 
                     await ExportAnimSetAsync(outPath, animSet, pal);
                 }
