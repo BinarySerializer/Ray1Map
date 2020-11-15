@@ -26,7 +26,9 @@ namespace R1Engine
 
         public GBA_ActorState State => GraphicsData?.States.ElementAtOrDefault(Actor.StateIndex);
         public Unity_ObjectManager_GBA.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault(GraphicsDataIndex);
-        
+
+        public override ObjectType Type => Actor.Type == GBA_Actor.ActorType.Trigger || Actor.Type == GBA_Actor.ActorType.BoxTrigger ? ObjectType.Trigger : ObjectType.Object;
+
         public int GraphicsDataIndex
         {
             get => Actor.GraphicData == null ? -1 : ObjManager.GraphicsDataLookup.TryGetItem(Actor.GraphicsDataIndex, -1);

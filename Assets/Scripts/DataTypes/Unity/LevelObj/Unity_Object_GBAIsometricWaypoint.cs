@@ -12,6 +12,7 @@ namespace R1Engine
             ObjManager = objManager;
         }
 
+        public override ObjectType Type => ObjectType.Waypoint;
         public GBAIsometric_RHR_Waypoint Waypoint { get; }
         public Unity_ObjectManager_GBAIsometric ObjManager { get; }
 

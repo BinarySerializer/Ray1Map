@@ -73,6 +73,8 @@ namespace R1Engine
 
         private bool updateLinkPos = false;
 
+        public Gizmo[] gizmos;
+
         #endregion
 
         #region Field Changed Methods
@@ -173,10 +175,17 @@ namespace R1Engine
         {
             var objList = Controller.obj.levelController.Objects;
 
+            Color GetColorForObject(Unity_ObjBehaviour obj) {
+                Gizmo gizmo = gizmos.FirstOrDefault(g => g.name == obj.ObjData.Type.ToString());
+                if (gizmo == null) gizmo = gizmos[0];
+                return new Color(gizmo.color.r, gizmo.color.g, gizmo.color.b, 200/255f);
+            }
+            // foreach (var linkedActorIndex in obj.ObjData.Links)
             // Initialize one-way links
             foreach (var obj in objList.Where(x => x.ObjData.CanBeLinked))
             {
-                var linkCount = obj.ObjData.Links.Count();
+                var links = obj.ObjData.Links.ToArray();
+                var linkCount = links.Length;
 
                 obj.oneWayLinkLines = new LineRenderer[linkCount];
 
@@ -188,7 +197,9 @@ namespace R1Engine
                     lr.sortingLayerName = "Links";
                     lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
                     lr.material = linkLineMaterial;
-                    lr.material.color = linkColorActive;
+                    var linkedObj = Controller.obj.levelController.Objects[links[i]];
+                    lr.material.color = GetColorForObject(linkedObj);
+                    //lr.material.color = linkColorActive;
                     lr.positionCount = 2;
                     lr.widthMultiplier = 1f;
                     obj.oneWayLinkLines[i] = lr;
@@ -789,6 +800,14 @@ namespace R1Engine
             
             // Add to list
             return newEvent;
+        }
+
+        [Serializable]
+        public class Gizmo {
+            public string name;
+            public Sprite sprite;
+            public Sprite sprite3D;
+            public Color color;
         }
     }
 }

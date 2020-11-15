@@ -122,6 +122,13 @@ namespace R1Engine
             }
         }
 
+        public enum ObjectType {
+            Object,
+            Trigger,
+            Waypoint
+        }
+        public virtual ObjectType Type => Unity_Object.ObjectType.Object;
+
 		#region UI States
 		public string[] UIStateNames {
             get {

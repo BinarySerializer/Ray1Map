@@ -73,7 +73,10 @@ namespace R1Engine
 
         public AudioClip currentSoundEffect;
 
-        public void Init() => UpdatePosition();
+        public void Init() {
+            UpdatePosition();
+            InitGizmo();
+        }
 
         private void Start() 
         {
@@ -161,6 +164,19 @@ namespace R1Engine
                 y = minY;
 
             transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
+        }
+
+        public void InitGizmo() {
+            var gizmos = Controller.obj.levelEventController.gizmos;
+            LevelEventController.Gizmo gizmo = gizmos.FirstOrDefault(g => g.name == ObjData.Type.ToString());
+            if(gizmo == null) gizmo = gizmos[0];
+            if (ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
+                Sprite spr = gizmo.sprite3D;
+                defaultRenderer.sprite = spr;
+            } else {
+                Sprite spr = gizmo.sprite;
+                defaultRenderer.sprite = spr;
+            }
         }
 
         public void UpdatePosition3D() {
@@ -532,11 +548,11 @@ namespace R1Engine
                     }
                 } else {
                     if (boxCollider != null) {
-                        boxCollider.size = Vector2.one;
+                        boxCollider.size = Vector2.one * 1.45f;
                         boxCollider.offset = Vector2.zero;
                     } else if (boxCollider3D != null) {
-                        boxCollider3D.size = new Vector3(1,1,0.1f);
-                        boxCollider3D.center = Vector3.zero;
+                        boxCollider3D.size = new Vector3(1.45f,1.925f,0.1f);
+                        boxCollider3D.center = new Vector3(0,1.925f/2,0f);
                     }
                 }
             }
