@@ -407,7 +407,89 @@ namespace R1Engine
             {
                 var d = new Dictionary<GameModeSelection, Dictionary<string, uint>>()
                 {
-                    [GameModeSelection.RaymanHoodlumsRevengeEU] = new Dictionary<string, uint>(),
+                    [GameModeSelection.RaymanHoodlumsRevengeEU] = new Dictionary<string, uint>()
+                    {
+                        ["bottleHighlight0"] = 0x084821D0,
+                        ["bottleHighlight1"] = 0x084821D0,
+                        ["bottleHighlight2"] = 0x084821D0,
+                        ["RLArrow"] = 0x084E8400,
+                        ["selector_yn"] = 0x084E8400,
+                        ["leftButton"] = 0x084E8440,
+                        ["rightButton"] = 0x084E8440,
+                        ["parchmentCenter"] = 0x080F0B1C,
+                        ["parchmentRight"] = 0x080F0B1C,
+                        ["parchmentLeft"] = 0x080F0B1C,
+                        ["teensyIcon"] = 0x080EF820,
+                        ["lumIcon"] = 0x080EF820,
+
+                        ["_SpriteIcons"] = 0x080E9A7C,
+                        ["murfyStamp"] = 0x080EF840,
+                        ["stampFrame1"] = 0x080EF860,
+                        ["stampFrame2"] = 0x080EF860,
+
+                        ["mapIconBetween"] = 0x080EF820,
+                        ["mapIconComplete"] = 0x084826B4,
+
+                        ["aButton"] = 0x080EF800,
+                        ["bButton"] = 0x080EF800,
+                        ["comboText1"] = 0x080EF800,
+                        ["comboText2"] = 0x080EF800,
+                        ["scoreCounterFrame"] = 0x080EF800,
+                        ["scoreComboFrame"] = 0x080EF800,
+                        ["singleCounterFrame"] = 0x080EF800,
+                        ["doubleCounterFrame"] = 0x080EF800,
+
+                        ["ingameDialogFrame"] = 0x080F0BFC,
+
+                        ["dlgDpad"] = 0x080EF820,
+                        ["dlgAButton"] = 0x080EF820,
+                        ["dlgBButton"] = 0x080EF820,
+                        ["dlgRButton"] = 0x080EF820,
+                        ["dlgLButton"] = 0x080EF820,
+                        ["dlgStart"] = 0x080EF820,
+                        ["dlgSelect"] = 0x080EF820,
+                        ["dlgDpadUp"] = 0x080EF820,
+                        ["dlgDpadDown"] = 0x080EF820,
+                        ["dlgDpadLeft"] = 0x080EF820,
+                        ["dlgDpadRight"] = 0x080EF820,
+                        ["metalFistIcon"] = 0x080EF820,
+                        ["fireResistanceIcon"] = 0x080EF820,
+                        ["copterIcon"] = 0x080EF820,
+                        ["frameOverrunIcon"] = 0x080EF820,
+
+                        ["murfyIconSmall"] = 0x080EF840,
+
+                        ["cartouche"] = 0x084E8400,
+                        ["mapIconRayman"] = 0x084E84F4,
+
+                        ["selector"] = 0x080E9B1C,
+                        ["cursor"] = 0x080E9B1C,
+
+                        ["dPadUp"] = 0x080EF820,
+                        ["dPadDown"] = 0x080EF820,
+                        ["dPadLeft"] = 0x080EF820,
+                        ["dPadRight"] = 0x080EF820,
+
+                        ["runeIcon1"] = 0x080EF820,
+                        ["runeIcon2"] = 0x080EF820,
+                        ["runeIcon3"] = 0x080EF820,
+                        ["runeIcon4"] = 0x080EF820,
+                        ["runeIcon5"] = 0x080EF820,
+                        ["currentIconNE"] = 0x080EF820,
+                        ["currentIconNW"] = 0x080EF820,
+                        ["currentIconSE"] = 0x080EF820,
+                        ["currentIconSW"] = 0x080EF820,
+                        ["plumIcon"] = 0x080EF820,
+                        ["frogIcon"] = 0x080EF800,
+                        ["meterLeftCap"] = 0x080EF800,
+
+                        ["meterSpriteSet"] = 0x080EF800,
+                        ["bossMeterSpriteSet"] = 0x080EF800,
+                        ["soundMeterTopSpriteSet_0"] = 0x084E8420,
+                        ["soundMeterTopSpriteSet_1"] = 0x084E8400,
+                        ["soundMeterBottomSpriteSet_0"] = 0x084E8420,
+                        ["soundMeterBottomSpriteSet_1"] = 0x084E8400,
+                    },
                     [GameModeSelection.RaymanHoodlumsRevengeUS] = new Dictionary<string, uint>()
                     {
                         ["bottleHighlight0"] = 0x0848212c, // FUN_0801e178, 2
