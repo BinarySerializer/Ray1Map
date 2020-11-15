@@ -42,7 +42,7 @@ namespace R1Engine
         public override R1Serializable SerializableData => Waypoint;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"waypoint";
+        public override string PrimaryName => $"Waypoint";
         public override string SecondaryName => null;
 
         public override Unity_ObjAnimation CurrentAnimation => null;

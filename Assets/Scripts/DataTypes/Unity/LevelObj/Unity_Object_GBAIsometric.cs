@@ -14,7 +14,7 @@ namespace R1Engine
 
             var type = ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
             AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.Data?.AnimSetPointer?.pointer);
-            AnimIndex = type?.Data?.AnimationIndex ?? 0; // TODO: Set to correct value
+            AnimIndex = type?.Data?.AnimationIndex ?? 0;
         }
 
         public GBAIsometric_Object Object { get; }
@@ -60,11 +60,16 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBAIsometric.AnimSet AnimSet => ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
 
+        public bool IsWaypoint => ObjManager.Context.Settings.EngineVersion != EngineVersion.GBAIsometric_RHR && Object.ObjectType == 0;
+
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"{AnimGroupName?.Replace("AnimSet", String.Empty) ?? $"Type_{Object.ObjectType}"}";
+        public override string PrimaryName => IsWaypoint ? "Waypoint" : $"{AnimGroupName?.Replace("AnimSet", String.Empty) ?? $"Type_{Object.ObjectType}"}";
         public override string SecondaryName => null;
+
+        public override bool IsEditor => IsWaypoint;
+        public override ObjectType Type => IsWaypoint ? ObjectType.Waypoint : ObjectType.Object;
 
         public override bool CanBeLinked => true;
         public override IEnumerable<int> Links
