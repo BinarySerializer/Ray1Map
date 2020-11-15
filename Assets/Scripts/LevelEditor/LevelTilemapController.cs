@@ -71,6 +71,7 @@ namespace R1Engine
                                             LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC_Edu;
 
         public GameObject IsometricCollision { get; set; }
+        public Material isometricCollisionMaterial;
 
         public void InitializeTilemaps() {
             var level = LevelEditorData.Level;
@@ -168,7 +169,7 @@ namespace R1Engine
             camMaxY = maxHeight;
 
             if (IsometricCollision == null && level.IsometricData != null) {
-                IsometricCollision = level.IsometricData.GetCollisionGameObject();
+                IsometricCollision = level.IsometricData.GetCollisionGameObject(isometricCollisionMaterial);
                 IsometricCollision.SetActive(Settings.ShowCollision);
             }
         }

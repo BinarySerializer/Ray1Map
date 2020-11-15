@@ -27,11 +27,9 @@ namespace R1Engine
         #endregion
 
         #region Helper Methods
-        public GameObject GetCollisionGameObject() {
+        public GameObject GetCollisionGameObject(Material mat) {
             GameObject parent = new GameObject("Collision parent");
             parent.transform.localScale = Scale;
-            Shader sh = Shader.Find("Standard");
-            Material mat = new Material(sh);
 
             for (int y = 0; y < CollisionHeight; y++) {
                 for (int x = 0; x < CollisionWidth; x++) {
