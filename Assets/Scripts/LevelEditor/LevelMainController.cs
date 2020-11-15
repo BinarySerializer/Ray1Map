@@ -31,10 +31,6 @@ namespace R1Engine
         public LevelTilemapController controllerTilemap;
         public LevelEventController controllerEvents;
 
-        // Render camera things
-        public Camera renderCamera;
-        private Texture2D tex;
-
         //Ui tabs for showing/hiding them
         public UiTab[] tabs;
 

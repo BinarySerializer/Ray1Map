@@ -22,6 +22,7 @@ namespace R1Engine {
         public Camera camera3D;
         public Camera camera2DOverlay;
         public Camera camera3DOverlay;
+        public bool FreeLookMode { get; set; } = false;
 
         void Start() {
             Camera.main.orthographicSize = fov;
@@ -30,6 +31,10 @@ namespace R1Engine {
         }
 
         void Update() {
+            if (FreeLookMode) {
+                UpdateFreeLook();
+                return;
+            }
 
             //Allow RMB panning only in certain modes, otherwise force wasd movement
             bool canPan = (editor.currentMode == LevelEditorBehaviour.EditMode.Events || editor.currentMode == LevelEditorBehaviour.EditMode.Links);
@@ -120,6 +125,7 @@ namespace R1Engine {
                             + " - " + LevelEditorData.Level.IsometricData.CollisionWidth
                             + "x" + LevelEditorData.Level.IsometricData.CollisionHeight);
                     }*/
+                    camera3D.orthographic = true;
                     camera3D.transform.position = v * 300 + rot3D * ((pos - new Vector3(w / 2f, colH / 2f - h / 2f, 0f)) / scl); // Move back 300 units
                     camera3D.orthographicSize = Camera.main.orthographicSize / scl;
 
@@ -127,7 +133,154 @@ namespace R1Engine {
                     if (!camera3D.gameObject.activeSelf) camera3D.gameObject.SetActive(true);
                     camera3DOverlay.orthographicSize = camera3D.orthographicSize;
                     camera2DOverlay.cullingMask &= ~(1 << LayerMask.NameToLayer("3D Overlay"));
+
+
+                    if (Input.GetKeyDown(KeyCode.F)) {
+                        FreeLookMode = true;
+                        cullingMask = Camera.main.cullingMask;
+                        cullingMask2DOverlay = camera2DOverlay.cullingMask;
+                    }
                 }
+            }
+        }
+
+        void UpdateFreeLook() {
+            if (!targetDirection.HasValue) {
+                // Set target direction to the camera's initial orientation.
+                targetDirection = camera3D.transform.localRotation;
+            }
+            if (Input.GetKeyDown(KeyCode.F)) {
+                FreeLookMode = false;
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                camera3D.orthographic = true;
+                Camera.main.cullingMask = cullingMask;
+                camera2DOverlay.cullingMask = cullingMask2DOverlay;
+            } else {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                camera3D.orthographic = false;
+                Camera.main.cullingMask = 0;
+                camera2DOverlay.cullingMask = 0;
+            }
+
+            CalculateMouseLook(false, true);
+
+            //movement
+            CameraControlsPerspective();
+            CameraControlsSpeed();
+        }
+
+        #region Camera Controls
+
+        public float flySpeed = 20f;
+        public float flySpeedShiftMultiplier = 2.0f;
+        private float flySpeedFactor = 30f;
+        private float _flySpeedShiftMultiplier = 1.0f;
+        Vector2 _mouseAbsolute;
+        Vector2 _smoothMouse;
+
+        public Vector2 clampInDegrees = new Vector2(360, 180);
+        public Vector2 sensitivity = new Vector2(2, 2);
+        public Vector2 sensitivityRMB = new Vector2(1.6f, 1.6f);
+        public Vector2 smoothing = new Vector2(3, 3);
+        public Quaternion? targetDirection;
+        public float lerpFactor = 1f;
+        private int cullingMask;
+        private int cullingMask2DOverlay;
+
+
+        void CameraControlsPerspective() {
+            Camera cam = camera3D;
+            if (Input.GetAxis("Mouse ScrollWheel") != 0) {
+                flySpeed = Mathf.Max(0, flySpeed + Time.deltaTime * Input.GetAxis("Mouse ScrollWheel") * 100f * flySpeedFactor);
+            }
+            if (Input.GetAxis("Vertical") != 0) {
+                cam.transform.Translate(cam.transform.forward * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("Vertical"), Space.World);
+            }
+            if (Input.GetAxis("Horizontal") != 0) {
+                cam.transform.Translate(cam.transform.right * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("Horizontal"), Space.World);
+            }
+            if (Input.GetAxis("HeightAndZoom") != 0) {
+                cam.transform.Translate(Vector3.up * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("HeightAndZoom"), Space.World);
+            }
+            if (Input.GetKey(KeyCode.Keypad8)) {
+                cam.transform.Translate(Vector3.up * flySpeed * Time.deltaTime * 0.5f, Space.World);
+            } else if (Input.GetKey(KeyCode.Keypad2)) {
+                cam.transform.Translate(-Vector3.up * flySpeed * Time.deltaTime * 0.5f, Space.World);
+            }
+        }
+        void CameraControlsSpeed() {
+            if (Input.GetKey(KeyCode.Plus) || Input.GetKey(KeyCode.KeypadPlus)) {
+                flySpeed += Time.deltaTime * flySpeedFactor;
+            } else if (Input.GetKey(KeyCode.Minus) || Input.GetKey(KeyCode.KeypadMinus)) {
+                flySpeed = Mathf.Max(0, flySpeed - Time.deltaTime * flySpeedFactor);
+            }
+        }
+        #endregion
+
+        void CalculateMouseLook(bool orthographic, bool smooth) {
+            Camera cam = camera3D;
+            // Allow the script to clamp based on a desired target value.
+            Vector3 eulerTargetDir = targetDirection.Value.eulerAngles;
+            /*bool eulerDirChanged = false;
+            if (eulerTargetDir.z != 0) {
+                if (Mathf.Abs(eulerTargetDir.z) < 0.04f) {
+                    eulerTargetDir = new Vector3(eulerTargetDir.x, eulerTargetDir.y, 0f);
+                } else {
+                    eulerTargetDir = new Vector3(eulerTargetDir.x, eulerTargetDir.y, Mathf.Lerp(eulerTargetDir.z, 0f, Time.deltaTime * lerpFactor));
+                }
+                eulerDirChanged = true;
+            } else if (eulerTargetDir.x != 0) {
+                //eulerTargetDir = new Vector3(0f, eulerTargetDir.y, eulerTargetDir.z);
+                if (Mathf.Abs(eulerTargetDir.x) < 0.04f) {
+                    eulerTargetDir = new Vector3(0f, eulerTargetDir.y, eulerTargetDir.z);
+                } else {
+                    eulerTargetDir = new Vector3(Mathf.Lerp(eulerTargetDir.x, 0f, Time.deltaTime * lerpFactor), eulerTargetDir.y, eulerTargetDir.z);
+                }
+                eulerDirChanged = true;
+            }*/
+            if (eulerTargetDir.x != 0 || eulerTargetDir.z != 0) {
+                if (Mathf.Abs(eulerTargetDir.x) < 0.04f && Mathf.Abs(eulerTargetDir.z) < 0.04f) {
+                    targetDirection = Quaternion.Euler(0f, eulerTargetDir.y, 0f);
+                } else {
+                    targetDirection = Quaternion.Lerp(targetDirection.Value, Quaternion.Euler(0, eulerTargetDir.y, 0), Time.deltaTime * lerpFactor);
+                }
+            }
+            var targetOrientation = targetDirection.Value;
+
+            // Get raw mouse input for a cleaner reading on more sensitive mice.
+            var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+
+            // Scale input against the sensitivity setting and multiply that against the smoothing value.
+            var sensitivity = smooth ? this.sensitivity : sensitivityRMB;
+            mouseDelta = Vector2.Scale(mouseDelta, new Vector2(sensitivity.x * smoothing.x, sensitivity.y * smoothing.y));
+
+            if (smooth) {
+                // Interpolate mouse movement over time to apply smoothing delta.
+                _smoothMouse.x = Mathf.Lerp(_smoothMouse.x, mouseDelta.x, 1f / smoothing.x);
+                _smoothMouse.y = Mathf.Lerp(_smoothMouse.y, mouseDelta.y, 1f / smoothing.y);
+                // Find the absolute mouse movement value from point zero.
+                _mouseAbsolute += _smoothMouse;
+            } else {
+                _mouseAbsolute += mouseDelta;
+            }
+
+            // Clamp and apply the local x value first, so as not to be affected by world transforms.
+            if (clampInDegrees.x < 360)
+                _mouseAbsolute.x = Mathf.Clamp(_mouseAbsolute.x, -clampInDegrees.x * 0.5f, clampInDegrees.x * 0.5f);
+
+            // Then clamp and apply the global y value.
+            if (clampInDegrees.y < 360)
+                _mouseAbsolute.y = Mathf.Clamp(_mouseAbsolute.y, -clampInDegrees.y * 0.5f, clampInDegrees.y * 0.5f);
+
+            if (!orthographic) {
+                var xRotation = Quaternion.AngleAxis(-_mouseAbsolute.y, targetOrientation * Vector3.right);
+                cam.transform.localRotation = xRotation * targetOrientation;
+
+                // If there's a character body that acts as a parent to the camera
+                var yRotation = Quaternion.AngleAxis(_mouseAbsolute.x, cam.transform.InverseTransformDirection(Vector3.up));
+                cam.transform.localRotation *= yRotation;
             }
         }
     }

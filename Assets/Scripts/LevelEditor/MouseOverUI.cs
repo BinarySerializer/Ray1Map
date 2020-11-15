@@ -8,12 +8,19 @@ namespace R1Engine
 {
     public class MouseOverUI : MonoBehaviour {
         public Text textGraphic, textCollision;
+        public GameObject panel;
 
         void Update() {
             if (Controller.LoadState != Controller.State.Finished) return;
             transform.position = Input.mousePosition;
 
             var selector = Controller.obj.levelController.editor.objectHighlight;
+            bool freeLook = Controller.obj.levelController.editor.cam.FreeLookMode;
+            if (freeLook) {
+                if(panel.activeSelf) panel.SetActive(false);
+            } else {
+                if (!panel.activeSelf) panel.SetActive(true);
+            }
             var e = selector?.highlightedObject;
             var t = selector?.highlightedTile;
             var c = selector?.highlightedCollision;

@@ -420,9 +420,6 @@ public class WebCommunicator : MonoBehaviour {
 		}
 		if (msg.BackgroundTintDark.HasValue) {
 			Camera.main.backgroundColor = msg.BackgroundTintDark.Value;
-			if (Controller.obj?.levelController?.renderCamera != null) {
-				Controller.obj.levelController.renderCamera.backgroundColor = msg.BackgroundTintDark.Value;
-			}
 		}
 	}
 	private void ParseSelectionJSON(WebJSON.Selection msg) {
