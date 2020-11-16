@@ -37,6 +37,8 @@ namespace R1Engine
 
         public ARGB1555Color[] CommonPalette { get; set; }
 
+        public GBAIsometric_Spyro_State_NPC[] States_NPC { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -149,6 +151,9 @@ namespace R1Engine
             // Serialize common palette for Spyro 2
             if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
                 CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(CommonPalette, 256, name: nameof(CommonPalette)));
+
+            // Serialize object states
+            States_NPC = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_NPC), () => s.SerializeObjectArray<GBAIsometric_Spyro_State_NPC>(States_NPC, 49, name: nameof(States_NPC)));
 
             // Serialize unknown struct
             if (s.GameSettings.GameModeSelection == GameModeSelection.SpyroAdventureUS)

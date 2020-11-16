@@ -3,7 +3,7 @@
     public class GBAIsometric_ObjectTypeData : R1Serializable
     {
         public Pointer<GBAIsometric_RHR_AnimSet> AnimSetPointer { get; set; }
-        public uint Spyro_Uint00 { get; set; }
+        public uint ObjectMemorySize { get; set; } // The size of the object struct in memory (the first few properties are always the same, but then it varies between object types how it's filled out)
 
         public Pointer InitFunctionPointer { get; set; }
         public Pointer FunctionPointer1 { get; set; }
@@ -20,7 +20,7 @@
             if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
                 AnimSetPointer = s.SerializePointer<GBAIsometric_RHR_AnimSet>(AnimSetPointer, resolve: true, name: nameof(AnimSetPointer));
             else
-                Spyro_Uint00 = s.Serialize<uint>(Spyro_Uint00, name: nameof(Spyro_Uint00));
+                ObjectMemorySize = s.Serialize<uint>(ObjectMemorySize, name: nameof(ObjectMemorySize));
 
             InitFunctionPointer = s.SerializePointer(InitFunctionPointer, name: nameof(InitFunctionPointer));
             FunctionPointer1 = s.SerializePointer(FunctionPointer1, name: nameof(FunctionPointer1));

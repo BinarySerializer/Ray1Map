@@ -761,6 +761,8 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.LevelData] = 0x081CFE38,
                         [GBAIsometric_Spyro_Pointer.LevelData_Spyro3_Agent9] = 0x081D15B0,
                         [GBAIsometric_Spyro_Pointer.LevelData_Spyro3_SgtByrd] = 0x081D1028,
+
+                        [GBAIsometric_Spyro_Pointer.States_NPC] = 0x081cac00,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

@@ -32,5 +32,7 @@
         LevelData_Spyro2_Agent9,
         LevelData_Spyro3_Agent9,
         LevelData_Spyro3_SgtByrd,
+
+        States_NPC
     }
 }
