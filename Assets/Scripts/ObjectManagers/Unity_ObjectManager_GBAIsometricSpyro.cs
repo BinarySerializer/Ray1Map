@@ -16,6 +16,12 @@ namespace R1Engine
         public GBAIsometric_ObjectType[] Types { get; }
         public AnimSet[] AnimSets { get; }
 
+        public override void InitObjects(Unity_Level level)
+        {
+            foreach (var obj in level.EventData.Cast<Unity_Object_GBAIsometricSpyro>())
+                GBAIsometricSpyro_ObjInit.GetInitFunc(Context.Settings, obj.ObjType?.Data?.InitFunctionPointer?.AbsoluteOffset ?? 0)?.Invoke(obj);
+        }
+
         public override string[] LegacyDESNames => Enumerable.Range(0, AnimSets.Length).Select(x => x.ToString()).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
 
