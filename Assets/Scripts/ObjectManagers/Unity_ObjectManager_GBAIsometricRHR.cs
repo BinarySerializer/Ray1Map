@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_ObjectManager_GBAIsometric : Unity_ObjectManager
+    public class Unity_ObjectManager_GBAIsometricRHR : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAIsometric(Context context, GBAIsometric_ObjectType[] types, AnimSet[] animSets, int waypointsStartIndex = 0) : base(context)
+        public Unity_ObjectManager_GBAIsometricRHR(Context context, GBAIsometric_ObjectType[] types, AnimSet[] animSets, int waypointsStartIndex = 0) : base(context)
         {
             Types = types;
             AnimSets = animSets;

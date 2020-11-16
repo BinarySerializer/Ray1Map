@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBAIsometricWaypoint : Unity_Object_3D
+    public class Unity_Object_GBAIsometricRHRWaypoint : Unity_Object_3D
     {
-        public Unity_Object_GBAIsometricWaypoint(GBAIsometric_RHR_Waypoint waypoint, Unity_ObjectManager_GBAIsometric objManager)
+        public Unity_Object_GBAIsometricRHRWaypoint(GBAIsometric_RHR_Waypoint waypoint, Unity_ObjectManager_GBAIsometricRHR objManager)
         {
             Waypoint = waypoint;
             ObjManager = objManager;
@@ -14,7 +14,7 @@ namespace R1Engine
 
         public override ObjectType Type => ObjectType.Waypoint;
         public GBAIsometric_RHR_Waypoint Waypoint { get; }
-        public Unity_ObjectManager_GBAIsometric ObjManager { get; }
+        public Unity_ObjectManager_GBAIsometricRHR ObjManager { get; }
 
         public override short XPosition
         {
@@ -55,11 +55,11 @@ namespace R1Engine
 
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper {
-            public LegacyEditorWrapper(Unity_Object_GBAIsometricWaypoint obj) {
+            public LegacyEditorWrapper(Unity_Object_GBAIsometricRHRWaypoint obj) {
                 Obj = obj;
             }
 
-            private Unity_Object_GBAIsometricWaypoint Obj { get; }
+            private Unity_Object_GBAIsometricRHRWaypoint Obj { get; }
 
             public ushort Type { get; set; }
 

@@ -5,20 +5,21 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBAIsometric : Unity_Object_3D
+    public class Unity_Object_GBAIsometricSpyro : Unity_Object_3D
     {
-        public Unity_Object_GBAIsometric(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometric objManager)
+        public Unity_Object_GBAIsometricSpyro(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometricSpyro objManager)
         {
             Object = obj;
             ObjManager = objManager;
 
-            var type = ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
-            AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.Data?.AnimSetPointer?.pointer);
-            AnimIndex = type?.Data?.AnimationIndex ?? 0;
+            if (IsWaypoint)
+                AnimSetIndex = -1;
+
+            // TODO: Init obj
         }
 
         public GBAIsometric_Object Object { get; }
-        public Unity_ObjectManager_GBAIsometric ObjManager { get; }
+        public Unity_ObjectManager_GBAIsometricSpyro ObjManager { get; }
 
         public override short XPosition
         {
@@ -36,36 +37,48 @@ namespace R1Engine
                 Object.XPosition = (short)Mathf.RoundToInt(value.x);
                 Object.YPosition = (short)Mathf.RoundToInt(value.y);
                 Object.Height = (short)Mathf.RoundToInt(value.z);
-
             }
         }
 
-        public override string DebugText => $"AnimSet: {AnimGroupName}{Environment.NewLine}";
+        public override string DebugText => String.Empty;
 
-        public string AnimGroupName => ObjType?.Data?.AnimSetPointer?.Value?.Name;
         public GBAIsometric_ObjectType ObjType => ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
 
         private int _animSetIndex;
+        private byte _animationGroupIndex;
+
         public int AnimSetIndex
         {
             get => _animSetIndex;
             set
             {
                 _animSetIndex = value;
+                AnimationGroupIndex = 0;
+            }
+        }
+
+        public byte AnimationGroupIndex
+        {
+            get => _animationGroupIndex;
+            set
+            {
+                _animationGroupIndex = value;
                 AnimIndex = 0;
             }
         }
 
-        public byte AnimIndex { get; set; }
+        public byte AnimIndex { get; set; } // Relative to the group
 
-        public Unity_ObjectManager_GBAIsometric.AnimSet AnimSet => ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
+        public Unity_ObjectManager_GBAIsometricSpyro.AnimSet AnimSet => ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
+        public GBAIsometric_Spyro_AnimGroup AnimGroup => AnimSet?.AnimSetObj?.AnimGroups?.ElementAtOrDefault(AnimationGroupIndex);
+        public Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation Anim => AnimSet?.Animations?.ElementAtOrDefault(AnimGroup?.AnimIndex + AnimIndex ?? -1);
 
-        public bool IsWaypoint => ObjManager.Context.Settings.EngineVersion != EngineVersion.GBAIsometric_RHR && Object.ObjectType == 0;
+        public bool IsWaypoint => Object.ObjectType == 0;
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => IsWaypoint ? "Waypoint" : $"{AnimGroupName?.Replace("AnimSet", String.Empty) ?? $"Type_{Object.ObjectType}"}";
+        public override string PrimaryName => IsWaypoint ? "Waypoint" : $"Type_{Object.ObjectType}";
         public override string SecondaryName => null;
 
         public override bool IsEditor => IsWaypoint;
@@ -76,30 +89,25 @@ namespace R1Engine
         {
             get
             {
-                // Normal link
-                if (Object.LinkIndex != 0xFF)
-                    yield return Object.LinkIndex;
-
                 // Waypoint links
                 for (int i = 0; i < Object.WaypointCount; i++)
-                    yield return ObjManager.WaypointsStartIndex + Object.WaypointIndex + i;
+                    yield return Object.WaypointIndex + i;
             }
         }
 
-        public Unity_ObjectManager_GBAIsometric.AnimSet.Animation Anim => AnimSet?.Animations?.ElementAtOrDefault(AnimIndex);
         public override Unity_ObjAnimation CurrentAnimation => Anim?.ObjAnimation;
         public override int AnimSpeed => Anim?.AnimSpeed ?? 0;
-        public override int? GetAnimIndex => AnimIndex;
+        public override int? GetAnimIndex => AnimGroup?.AnimIndex + AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Anim?.AnimFrames;
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
-            public LegacyEditorWrapper(Unity_Object_GBAIsometric obj)
+            public LegacyEditorWrapper(Unity_Object_GBAIsometricSpyro obj)
             {
                 Obj = obj;
             }
 
-            private Unity_Object_GBAIsometric Obj { get; }
+            private Unity_Object_GBAIsometricSpyro Obj { get; }
 
             public ushort Type
             {
@@ -119,7 +127,11 @@ namespace R1Engine
                 set => Obj.AnimSetIndex = value;
             }
 
-            public byte Etat { get; set; }
+            public byte Etat
+            {
+                get => Obj.AnimationGroupIndex;
+                set => Obj.AnimationGroupIndex = value;
+            }
 
             public byte SubEtat
             {
@@ -127,8 +139,8 @@ namespace R1Engine
                 set => Obj.AnimIndex = value;
             }
 
-            public int EtatLength => 0;
-            public int SubEtatLength => Obj.AnimSet?.Animations?.Length ?? 0;
+            public int EtatLength => Obj.AnimSet?.AnimSetObj?.AnimGroups?.Length ?? 0;
+            public int SubEtatLength => Obj.AnimGroup?.AnimCount ?? 0;
 
             public byte OffsetBX { get; set; }
 
@@ -145,23 +157,25 @@ namespace R1Engine
             public bool FollowEnabled { get; set; }
         }
 
-
         #region UI States
         protected int UIStates_AnimSetIndex { get; set; } = -2;
         protected override bool IsUIStateArrayUpToDate => AnimSetIndex == UIStates_AnimSetIndex;
 
-        protected class GBAIsometric_UIState : UIState
+        protected class GBAIsometricSpyro_UIState : UIState
         {
-            public GBAIsometric_UIState(string displayName, byte animIndex) : base(displayName, animIndex) { }
+            public GBAIsometricSpyro_UIState(string displayName, byte animGroupIndex, byte animIndex) : base(displayName, animIndex) => AnimGroupIndex = animGroupIndex;
+
+            public byte AnimGroupIndex { get; }
 
             public override void Apply(Unity_Object obj)
             {
-                ((Unity_Object_GBAIsometric)obj).AnimIndex = (byte)AnimIndex;
+                ((Unity_Object_GBAIsometricSpyro)obj).AnimationGroupIndex = AnimGroupIndex;
+                ((Unity_Object_GBAIsometricSpyro)obj).AnimIndex = (byte)AnimIndex;
             }
 
             public override bool IsCurrentState(Unity_Object obj)
             {
-                return AnimIndex == ((Unity_Object_GBAIsometric)obj).AnimIndex;
+                return AnimIndex == ((Unity_Object_GBAIsometricSpyro)obj).AnimIndex && AnimGroupIndex == ((Unity_Object_GBAIsometricSpyro)obj).AnimationGroupIndex;
             }
         }
 
@@ -171,8 +185,15 @@ namespace R1Engine
 
             List<UIState> uiStates = new List<UIState>();
 
-            for (byte i = 0; i < (AnimSet?.Animations?.Length ?? 0); i++)
-                uiStates.Add(new GBAIsometric_UIState($"Animation {i}", animIndex: i));
+            byte groupIndex = 0;
+
+            foreach (var group in AnimSet?.AnimSetObj?.AnimGroups ?? new GBAIsometric_Spyro_AnimGroup[0])
+            {
+                for (byte i = 0; i < group.AnimCount; i++)
+                    uiStates.Add(new GBAIsometricSpyro_UIState($"Animation {groupIndex}-{i}", animIndex: i, animGroupIndex: groupIndex));
+
+                groupIndex++;
+            }
 
             UIStates = uiStates.ToArray();
         }

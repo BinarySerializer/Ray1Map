@@ -501,17 +501,17 @@ namespace R1Engine
                 };
             }).ToArray();
 
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, !isMenu ? GetAnimSets(context, rom).ToArray() : new Unity_ObjectManager_GBAIsometric.AnimSet[0], levelData?.ObjectsCount ?? 0);
+            var objManager = new Unity_ObjectManager_GBAIsometricRHR(context, rom.ObjectTypes, !isMenu ? GetAnimSets(context, rom).ToArray() : new Unity_ObjectManager_GBAIsometricRHR.AnimSet[0], levelData?.ObjectsCount ?? 0);
 
             var allObjects = new List<Unity_Object>();
 
             if (levelData != null)
             {
                 // Add normal objects
-                allObjects.AddRange(levelData.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)));
+                allObjects.AddRange(levelData.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometricRHR(x, objManager)));
 
                 // Add waypoints
-                allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_Object)new Unity_Object_GBAIsometricWaypoint(x, objManager)));
+                allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_Object)new Unity_Object_GBAIsometricRHRWaypoint(x, objManager)));
             }
 
             Controller.DetailedState = $"Loading localization";
@@ -533,15 +533,15 @@ namespace R1Engine
                 isometricData: isometricData);
         }
 
-        public IEnumerable<Unity_ObjectManager_GBAIsometric.AnimSet> GetAnimSets(Context context, GBAIsometric_RHR_ROM rom)
+        public IEnumerable<Unity_ObjectManager_GBAIsometricRHR.AnimSet> GetAnimSets(Context context, GBAIsometric_RHR_ROM rom)
         {
             // Add animation sets
             foreach (var animSet in rom.GetAllAnimSets().OrderBy(x => x.Offset))
             {
                 Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
-                yield return new Unity_ObjectManager_GBAIsometric.AnimSet(animSet.Offset, animSet.Animations.Select(x =>
+                yield return new Unity_ObjectManager_GBAIsometricRHR.AnimSet(animSet.Offset, animSet.Animations.Select(x =>
                 {
-                    return new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => GetAnimationFrames(rom.Context, animSet, x, decompressedDictionary).Select(f => f.CreateSprite()).ToArray(),
+                    return new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => GetAnimationFrames(rom.Context, animSet, x, decompressedDictionary).Select(f => f.CreateSprite()).ToArray(),
                         x.Speed, -animSet.PivotX, -animSet.PivotY);
                 }).ToArray(), animSet.Name);
             }
@@ -554,9 +554,9 @@ namespace R1Engine
             // Add sprites
             foreach (var sprite in rom.GetAllSprites())
             {
-                yield return new Unity_ObjectManager_GBAIsometric.AnimSet(sprite.Offset, new Unity_ObjectManager_GBAIsometric.AnimSet.Animation[]
+                yield return new Unity_ObjectManager_GBAIsometricRHR.AnimSet(sprite.Offset, new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation[]
                 {
-                    new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                    new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => new Sprite[]
                     {
                         GetSpriteTexture(context, sprite, pal_4, pal_8, spritePalettesUInt).CreateSprite()
                     }, 0, 0, 0) 
@@ -566,13 +566,13 @@ namespace R1Engine
             // Add flag sprites
             foreach (var flag in rom.FlagSpritesUS.Concat(rom.FlagSpritesEU))
             {
-                yield return new Unity_ObjectManager_GBAIsometric.AnimSet(flag.Offset, new Unity_ObjectManager_GBAIsometric.AnimSet.Animation[]
+                yield return new Unity_ObjectManager_GBAIsometricRHR.AnimSet(flag.Offset, new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation[]
                 {
-                    new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                    new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => new Sprite[]
                     {
                         Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette0), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth).CreateSprite()
                     }, 0, 0, 0),
-                    new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                    new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => new Sprite[]
                     {
                         Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette1), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth).CreateSprite()
                     }, 0, 0, 0)
@@ -586,8 +586,8 @@ namespace R1Engine
 
                 foreach (var group in GetSpriteSetTextures(context, spriteSet, pal_4, pal_8, spritePalettesUInt))
                 {
-                    yield return new Unity_ObjectManager_GBAIsometric.AnimSet(spriteSet.Offset, group.Select(tex =>
-                        new Unity_ObjectManager_GBAIsometric.AnimSet.Animation(() => new Sprite[]
+                    yield return new Unity_ObjectManager_GBAIsometricRHR.AnimSet(spriteSet.Offset, group.Select(tex =>
+                        new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => new Sprite[]
                         {
                             tex.CreateSprite()
                         }, 0, 0, 0)

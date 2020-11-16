@@ -451,7 +451,7 @@ namespace R1Engine
             }
 
             var validMaps = maps.Where(x => x != null).ToArray();
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, new Unity_ObjectManager_GBAIsometric.AnimSet[0]);
+            var objManager = new Unity_ObjectManager_GBAIsometricSpyro(context, rom.ObjectTypes, GetAnimSets(context, rom).ToArray());
 
             // Load objects
             var objects = new List<Unity_Object>();
@@ -461,7 +461,7 @@ namespace R1Engine
             if (objTable != null)
             {
                 InitObjects(objTable.Objects);
-                objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometric(x, objManager)));
+                objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometricSpyro(x, objManager)));
             }
 
             Controller.DetailedState = $"Loading localization";
@@ -488,6 +488,34 @@ namespace R1Engine
                 Lang = langages[i],
                 Strings = x.Strings
             }).ToDictionary(x => x.Lang, x => x.Strings);
+        }
+
+        public IEnumerable<Unity_ObjectManager_GBAIsometricSpyro.AnimSet> GetAnimSets(Context context, GBAIsometric_Spyro_ROM rom)
+        {
+            var objPal = rom.GetLevelData(context.Settings).ObjPalette;
+
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+            {
+                var lvlPal = objPal;
+                objPal = rom.CommonPalette;
+
+                for (int i = 0; i < 256; i++)
+                {
+                    if (lvlPal[i].Color1555 != 0)
+                        objPal[i] = lvlPal[i];
+                }
+            }
+
+            var pal = Util.ConvertAndSplitGBAPalette(objPal);
+
+            // Add animation sets
+            foreach (var animSet in rom.AnimSets)
+            {
+                yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock.Animations.Select(x =>
+                {
+                    return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(() => GetAnimationFrames(animSet, x, pal).Select(f => f.CreateSprite()).ToArray(), x.AnimSpeed);
+                }).ToArray());
+            }
         }
 
         // Recreated from function at 0x08050200 (US rom for Spyro3)
