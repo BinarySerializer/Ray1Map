@@ -335,8 +335,10 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
             Controller.DetailedState = $"Loading tiles";
 
-            var levelMaps = maps.Select((x, i) => new Unity_Map()
-            {
+            var levelMaps = maps.Select((x, i) => new Unity_Map() {
+                Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
+                Layer = i < 3 ? Unity_Map.MapLayer.Back : Unity_Map.MapLayer.Middle,
+
                 // Set the dimensions
                 Width = x.Width,
                 Height = x.Height,

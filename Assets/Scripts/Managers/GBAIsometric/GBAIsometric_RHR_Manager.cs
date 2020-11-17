@@ -485,8 +485,8 @@ namespace R1Engine
                 if (!tileSets.ContainsKey(tileSetData))
                     tileSets.Add(tileSetData, LoadTileMap(context, x, animPal));
 
-                return new Unity_Map
-                {
+                return new Unity_Map {
+                    Type = Unity_Map.MapType.Graphics,
                     Width = width,
                     Height = height,
                     TileSet = new Unity_MapTileMap[]

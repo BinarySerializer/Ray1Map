@@ -300,16 +300,15 @@ public class WebCommunicator : MonoBehaviour {
 				});
 			}
 
-			if (Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
-				for (int i = 0; i < lvl.Maps.Length; i++) 
+			var visibility = Controller.obj?.levelController?.controllerTilemap?.IsLayerVisible;
+			if (visibility != null) {
+				for (int i = 0; i < visibility.Length; i++) 
                 {
-                    if (LevelEditorData.Level.Maps[i].IsCollisionMap)
-                        continue;
-
-					var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
+                    /*if (!LevelEditorData.Level.Maps[i].Type.HasFlag(Unity_Map.MapType.Graphics))
+                        continue;*/
 					layers.Add(new WebJSON.Layer() {
 						Index = i,
-						IsVisible = tilemaps[i].gameObject.activeSelf
+						IsVisible = visibility[i]
 					});
 				}
 			}
@@ -392,11 +391,8 @@ public class WebCommunicator : MonoBehaviour {
 							}
 							break;
 						default:
-							if (layer.Index < lvl.Maps.Length && tilemapController.GraphicsTilemaps != null) {
-								var tilemap = tilemapController.GraphicsTilemaps[layer.Index];
-								if (layer.IsVisible.HasValue && layer.IsVisible.Value != tilemap.gameObject.activeSelf) {
-									tilemap.gameObject.SetActive(layer.IsVisible.Value);
-								}
+							if (layer.Index < lvl.Maps.Length && tilemapController.IsLayerVisible != null) {
+								tilemapController.IsLayerVisible[layer.Index] = layer.IsVisible.Value;
 							}
 							break;
 					}

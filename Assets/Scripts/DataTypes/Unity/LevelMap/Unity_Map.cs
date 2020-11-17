@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -45,14 +46,22 @@ namespace R1Engine
         /// </summary>
         public Unity_Tile[] MapTiles { get; set; }
 
-        /// <summary>
-        /// Indicates if the layer should be in front of objects
-        /// </summary>
-        public bool IsForeground { get; set; }
-
         public float? Alpha { get; set; }
         public bool IsAdditive { get; set; }
-        public bool IsCollisionMap { get; set; }
+        public MapType Type { get; set; }
+        public MapLayer Layer { get; set; } = MapLayer.Middle;
+
+        [Flags]
+        public enum MapType {
+            None = 0,
+            Graphics = 1 << 0,
+            Collision = 1 << 1
+        }
+        public enum MapLayer {
+            Middle,
+            Back,
+            Front
+        }
 
         #endregion
 

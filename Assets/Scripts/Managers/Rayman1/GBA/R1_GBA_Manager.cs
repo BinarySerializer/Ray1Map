@@ -926,6 +926,7 @@ namespace R1Engine
             {
                 new Unity_Map()
                 {
+                    Type = context.Settings.R1_World != R1_World.Menu ? (Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision) : Unity_Map.MapType.Graphics,
                     // Set the dimensions
                     Width = mapData.Width,
                     Height = mapData.Height,

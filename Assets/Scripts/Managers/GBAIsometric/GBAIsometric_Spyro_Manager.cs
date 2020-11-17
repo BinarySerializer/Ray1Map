@@ -331,6 +331,7 @@ namespace R1Engine
 
                 var map = new Unity_Map()
                 {
+                    Type = Unity_Map.MapType.Graphics,
                     Width = cutsceneMap.Map.Width,
                     Height = cutsceneMap.Map.Height,
                     TileSet = new Unity_MapTileMap[]
@@ -383,8 +384,8 @@ namespace R1Engine
                 var width = map.Map.Width * map.TileAssemble.GroupWidth;
                 var height = map.Map.Height * map.TileAssemble.GroupHeight;
 
-                return new Unity_Map()
-                {
+                return new Unity_Map() {
+                    Type = Unity_Map.MapType.Graphics,
                     Width = (ushort)width,
                     Height = (ushort)height,
                     TileSet = new Unity_MapTileMap[]
@@ -421,8 +422,8 @@ namespace R1Engine
                     groupHeight = levelData.Collision2D.TileHeight / CellSize; // 16
                 }
 
-                maps = maps.Append(new Unity_Map()
-                {
+                maps = maps.Append(new Unity_Map() {
+                    Type = Unity_Map.MapType.Collision,
                     Width = (ushort)(width),
                     Height = (ushort)(height),
                     TileSet = new Unity_MapTileMap[]
@@ -430,7 +431,6 @@ namespace R1Engine
                         tileSet
                     },
                     MapTiles = GetCollision2DMapTiles(levelData.Collision2D.Collision, width, height, groupWidth, groupHeight).Select(x => new Unity_Tile(x)).ToArray(),
-                    IsCollisionMap = true
                 });
             }
 
@@ -438,8 +438,8 @@ namespace R1Engine
             var lvlMap = rom.LevelMaps?.FirstOrDefault(x => x.LevelID == rom.GetLevelDataID(context.Settings));
             if (context.Settings.World == 0 && lvlMap != null)
             {
-                maps = maps.Append(new Unity_Map()
-                {
+                maps = maps.Append(new Unity_Map() {
+                    Type = Unity_Map.MapType.Graphics,
                     Width = lvlMap.Map.Width,
                     Height = lvlMap.Map.Height,
                     TileSet = new Unity_MapTileMap[]

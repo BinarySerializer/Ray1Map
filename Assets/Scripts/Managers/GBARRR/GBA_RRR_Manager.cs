@@ -595,8 +595,8 @@ namespace R1Engine
 
             if (gameMode == GameMode.Mode7)
             {
-                var map = new Unity_Map
-                {
+                var map = new Unity_Map {
+                    Type = Unity_Map.MapType.Graphics,// | Unity_Map.MapType.Collision,
                     Width = 256,
                     Height = 256,
                     TileSet = new Unity_MapTileMap[]
@@ -609,8 +609,8 @@ namespace R1Engine
                         return new Unity_Tile(x);
                     }).ToArray(),
                 };
-                var bg0 = new Unity_Map
-                {
+                var bg0 = new Unity_Map {
+                    Type = Unity_Map.MapType.Graphics,
                     Width = 32,
                     Height = 12, // Height is actually 32, but the remaining tiles are always transparent, but with a solid color
                     TileSet = new Unity_MapTileMap[]
@@ -619,8 +619,8 @@ namespace R1Engine
                     },
                     MapTiles = rom.Mode7_BG0MapData.Take(12 * 32).Select((x, i) => new Unity_Tile(x)).ToArray(),
                 };
-                var bg1 = new Unity_Map
-                {
+                var bg1 = new Unity_Map {
+                    Type = Unity_Map.MapType.Graphics,
                     Width = 32,
                     Height = 32,
                     TileSet = new Unity_MapTileMap[]
@@ -662,8 +662,8 @@ namespace R1Engine
                     var palIndex = GetMenuPalIndex(menulevel);
                     var size = GetMenuSize(menulevel);
 
-                    maps[i] = new Unity_Map
-                    {
+                    maps[i] = new Unity_Map {
+                        Type = Unity_Map.MapType.Graphics,
                         Width = size.Width,
                         Height = size.Height,
                         TileSet = new Unity_MapTileMap[]
@@ -696,8 +696,8 @@ namespace R1Engine
                 var cmap = LoadMap(rom.CollisionMap.MapWidth, rom.CollisionMap.MapHeight, null, rom.CollisionMap, null, 0, false, 0);
 
                 // Create the map
-                var map = new Unity_Map
-                {
+                var map = new Unity_Map {
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                     Width = 256,
                     Height = 256,
                     TileSet = new Unity_MapTileMap[]
@@ -712,8 +712,8 @@ namespace R1Engine
                 };
 
                 // Map data appears to be missing for these
-                var bg0 = new Unity_Map
-                {
+                var bg0 = new Unity_Map {
+                    Type = Unity_Map.MapType.Graphics,
                     Width = 32,
                     Height = 8,
                     TileSet = new Unity_MapTileMap[]
@@ -725,8 +725,8 @@ namespace R1Engine
                         TileMapY = (ushort)x
                     })).ToArray(),
                 };
-                var bg1 = new Unity_Map
-                {
+                var bg1 = new Unity_Map {
+                    Type = Unity_Map.MapType.Graphics,
                     Width = 32,
                     Height = 7,
                     TileSet = new Unity_MapTileMap[]
@@ -770,8 +770,8 @@ namespace R1Engine
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
 
-            var bg0Map = new Unity_Map()
-            {
+            var bg0Map = new Unity_Map() {
+                Type = Unity_Map.MapType.Graphics,
                 Width = 32,
                 Height = 32,
                 TileSet = new Unity_MapTileMap[] { bg0Tileset },
@@ -782,8 +782,8 @@ namespace R1Engine
                     return new Unity_Tile(x);
                 }).ToArray()
             };
-            var bg1Map = new Unity_Map()
-            {
+            var bg1Map = new Unity_Map() {
+                Type = Unity_Map.MapType.Graphics,
                 Width = 32,
                 Height = 32,
                 TileSet = new Unity_MapTileMap[] { bg1Tileset },
@@ -991,8 +991,8 @@ namespace R1Engine
 
         public Unity_Map LoadMap(uint width, uint height, GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, byte alphaBlending, bool foreground, int palIndex)
         {
-            var map = new Unity_Map
-            {
+            var map = new Unity_Map {
+                Type = Unity_Map.MapType.Graphics,
                 Width = (ushort)(width * 4), // The game uses 32x32 tiles, made out of 8x8 tiles
                 Height = (ushort)(height * 4),
                 TileSet = new Unity_MapTileMap[]
@@ -1000,8 +1000,11 @@ namespace R1Engine
                     tileset
                 },
                 MapTiles = new Unity_Tile[width * 4 * height * 4],
-                IsForeground = foreground
+                Layer = foreground ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
             };
+            if (collisionBlock != null) {
+                map.Type |= Unity_Map.MapType.Collision;
+            }
 
             if (alphaBlending != 0) {
                 map.IsAdditive = true;

@@ -13,6 +13,7 @@ namespace R1Engine
         /// </summary>
         public Tilemap[] CollisionTilemaps;
         public SpriteRenderer[] GraphicsTilemaps;
+        public bool[] IsLayerVisible { get; set; }
 
         public SpriteRenderer tilemapFull;
         public SpriteRenderer tilemapPreview;
@@ -102,8 +103,12 @@ namespace R1Engine
                 paletteButtons[3].gameObject.SetActive(false);
             }
 
-            // Get the current collision map
-            var collisionMap = level.Maps[LevelEditorData.CurrentCollisionMap];
+            // Init layer visibility
+            IsLayerVisible = new bool[LevelEditorData.Level.Maps.Length];
+            for (int i = 0; i < IsLayerVisible.Length; i++) {
+                IsLayerVisible[i] = true;
+            }
+
 
             // Set collision tiles
             var collisionTileSet = Settings.UseHDCollisionSheet ? CollisionTilesHD : CollisionTiles;
@@ -133,29 +138,7 @@ namespace R1Engine
                 }
             }
 
-            var unsupportedTiles = new HashSet<int>();
-
-            // Fill out types first
-            for (int y = 0; y < collisionMap.Height; y++) {
-                for (int x = 0; x < collisionMap.Width; x++) {
-                    var collisionIndex = collisionMap.MapTiles[y * collisionMap.Width + x].Data.CollisionType;
-
-                    // Get the collision index
-                    var collisionType = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionIndex);
-
-                    // Make sure it's not out of bounds
-                    if(collisionType != Unity_MapCollisionTypeGraphic.None &&
-                        ((CurrentCollisionIcons[collisionType].sprite?.name.Contains("Unknown") ?? false) || collisionType.ToString().Contains("Unknown")))
-                        unsupportedTiles.Add(collisionIndex);
-
-                    // Set the collision tile
-                    foreach (var t in CollisionTilemaps)
-                        t.SetTile(new Vector3Int(x, y, LevelEditorData.CurrentCollisionMap), CurrentCollisionIcons.TryGetItem(collisionType));
-                }
-            }
-
-            if (unsupportedTiles.Count > 0)
-                Debug.LogWarning($"The following collision types are not supported: {String.Join(", ", unsupportedTiles)}");
+            RefreshCollisionTiles();
 
             // Fill out tiles
             currentPalette = HasAutoPaletteOption ? 0 : 1;
@@ -172,6 +155,62 @@ namespace R1Engine
                 IsometricCollision = level.IsometricData.GetCollisionGameObject(isometricCollisionMaterial);
                 IsometricCollision.SetActive(Settings.ShowCollision);
             }
+        }
+
+        public void RefreshCollisionTiles() {
+
+            var lvl = LevelEditorData.Level;
+            var unsupportedTiles = new HashSet<int>();
+
+            // Resize collision map array
+            if (CollisionTilemaps.Length != lvl.Maps.Length) {
+                Array.Resize(ref CollisionTilemaps, lvl.Maps.Length);
+                for (int i = 1; i < CollisionTilemaps.Length; i++) {
+                    var map = lvl.Maps[i];
+                    if (map.Type.HasFlag(Unity_Map.MapType.Collision)) {
+                        CollisionTilemaps[i] = Instantiate<Tilemap>(CollisionTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, CollisionTilemaps[0].transform.parent);
+                        CollisionTilemaps[i].gameObject.name = "Tilemap Collision " + i;
+                        if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
+                            Debug.Log($"Collision map {i} is in front");
+                            Tilemap tr = CollisionTilemaps[i];
+                            tr.GetComponent<TilemapRenderer>().sortingLayerName = "Types Front";
+                        } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
+                            Debug.Log($"Collision map {i} is in the back");
+                            Tilemap tr = CollisionTilemaps[i];
+                            tr.GetComponent<TilemapRenderer>().sortingLayerName = "Types Back";
+                        }
+                    }
+                }
+                if (!LevelEditorData.Level.Maps[0].Type.HasFlag(Unity_Map.MapType.Collision)) {
+                    Destroy(CollisionTilemaps[0].gameObject);
+                    CollisionTilemaps[0] = null;
+                }
+            }
+
+            // Fill out types first
+            for (int i = 0; i < CollisionTilemaps.Length; i++) {
+                var map = lvl.Maps[i];
+                if(!map.Type.HasFlag(Unity_Map.MapType.Collision)) continue;
+                for (int y = 0; y < map.Height; y++) {
+                    for (int x = 0; x < map.Width; x++) {
+                        var collisionIndex = map.MapTiles[y * map.Width + x].Data.CollisionType;
+
+                        // Get the collision index
+                        var collisionType = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionIndex);
+
+                        // Make sure it's not out of bounds
+                        if (collisionType != Unity_MapCollisionTypeGraphic.None &&
+                            ((CurrentCollisionIcons[collisionType].sprite?.name.Contains("Unknown") ?? false) || collisionType.ToString().Contains("Unknown")))
+                            unsupportedTiles.Add(collisionIndex);
+
+                        // Set the collision tile
+                        CollisionTilemaps[i].SetTile(new Vector3Int(x, y, LevelEditorData.CurrentCollisionMap), CurrentCollisionIcons.TryGetItem(collisionType));
+                    }
+                }
+            }
+
+            if (unsupportedTiles.Count > 0)
+                Debug.LogWarning($"The following collision types are not supported: {String.Join(", ", unsupportedTiles)}");
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
@@ -196,24 +235,32 @@ namespace R1Engine
                 lvl.AutoApplyPalette();
 
             // Refresh tiles for every map
-            TileIndexOverrides = new int?[LevelEditorData.Level.Maps.Length][,][];
-            if (GraphicsTilemaps.Length != LevelEditorData.Level.Maps.Length) {
-                Array.Resize(ref GraphicsTilemaps, LevelEditorData.Level.Maps.Length);
+            TileIndexOverrides = new int?[lvl.Maps.Length][,][];
+            if (GraphicsTilemaps.Length != lvl.Maps.Length) {
+                Array.Resize(ref GraphicsTilemaps, lvl.Maps.Length);
                 for (int i = 1; i < GraphicsTilemaps.Length; i++) {
+                    if(!lvl.Maps[i].Type.HasFlag(Unity_Map.MapType.Graphics)) continue;
                     GraphicsTilemaps[i] = Instantiate<SpriteRenderer>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
                     GraphicsTilemaps[i].gameObject.name = "Tilemap Graphics " + i;
-                    if (lvl.Maps[i].IsForeground)
-                    {
-                        Debug.Log($"{i} is in front");
-                        //TilemapRenderer tr = GraphicsTilemaps[i].GetComponent<TilemapRenderer>();
+                    if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
+                        Debug.Log($"Graphics map {i} is in front");
                         SpriteRenderer tr = GraphicsTilemaps[i];
                         tr.sortingLayerName = "Tiles Front";
+                    } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
+                        Debug.Log($"Graphics map {i} is in the back");
+                        SpriteRenderer tr = GraphicsTilemaps[i];
+                        tr.sortingLayerName = "Tiles Back";
                     }
                 }
             }
+            if (!lvl.Maps[0].Type.HasFlag(Unity_Map.MapType.Graphics)) {
+                Destroy(GraphicsTilemaps[0].gameObject);
+                GraphicsTilemaps[0] = null;
+            }
             animatedTiles = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[GraphicsTilemaps.Length];
-            for (int mapIndex = 0; mapIndex < LevelEditorData.Level.Maps.Length; mapIndex++) {
+            for (int mapIndex = 0; mapIndex < lvl.Maps.Length; mapIndex++) {
                 var map = lvl.Maps[mapIndex];
+                if(!map.Type.HasFlag(Unity_Map.MapType.Graphics)) continue;
                 animatedTiles[mapIndex] = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>();
                 if (map.IsAdditive) {
                     GraphicsTilemaps[mapIndex].material = additiveMaterial;
@@ -310,7 +357,7 @@ namespace R1Engine
         public void ShowHideTemplate() {
             focusedOnTemplate = !focusedOnTemplate;
             for (int i = 0; i < GraphicsTilemaps.Length; i++) {
-                GraphicsTilemaps[i].gameObject.SetActive(!focusedOnTemplate);
+                if(GraphicsTilemaps[i] != null) GraphicsTilemaps[i].gameObject.SetActive(!focusedOnTemplate);
             }
             tilemapFull.gameObject.SetActive(focusedOnTemplate);
 
@@ -419,7 +466,7 @@ namespace R1Engine
                 }
             }
             for (int i = 0; i < GraphicsTilemaps.Length; i++) {
-                GraphicsTilemaps[i].sprite.texture.Apply();
+                if (GraphicsTilemaps[i] != null) GraphicsTilemaps[i].sprite.texture.Apply();
             }
         }
         public void SetTileBlockAtPos(int startX, int startY, int w, int h, Unity_Tile[,] newTiles) {
@@ -429,6 +476,7 @@ namespace R1Engine
                 }
             }
             for (int i = 0; i < GraphicsTilemaps.Length; i++) {
+                if (GraphicsTilemaps[i] == null) continue;
                 Texture2D tex = GraphicsTilemaps[i].sprite.texture;
                 tex.Apply();
                 //GraphicsTilemaps[i].sprite = Sprite.Create(tex, new Rect(0,0,tex.width, tex.height), new Vector2(0, 0), LevelEditorData.EditorManager.PixelsPerUnit, 0, SpriteMeshType.FullRect);
@@ -486,6 +534,7 @@ namespace R1Engine
 
             // Update tile graphics
             for (int i = 0; i < CollisionTilemaps.Length; i++) {
+                if(CollisionTilemaps[i] == null) continue;
                 CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), null);
                 var type = LevelEditorData.Level.GetCollisionTypeGraphicFunc(newTile.Data.CollisionType);
                 if (CurrentCollisionIcons.ContainsKey(type)) {
@@ -493,6 +542,7 @@ namespace R1Engine
                 }
             }
             for (int i = 0; i < GraphicsTilemaps.Length; i++) {
+                if (GraphicsTilemaps[i] == null) continue;
                 Texture2D tex = GraphicsTilemaps[i].sprite.texture;
 
                 int cellSize = LevelEditorData.Level.CellSize;
@@ -521,6 +571,7 @@ namespace R1Engine
 
             // Update tile graphics
             for (int i = 0; i < CollisionTilemaps.Length; i++) {
+                if(CollisionTilemaps[i] == null) continue;
                 CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), null);
                 var type = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionType);
                 if (CurrentCollisionIcons.ContainsKey(type)) {
@@ -545,11 +596,28 @@ namespace R1Engine
         {
             if (Controller.LoadState != Controller.State.Finished) return;
 
+            // Enforce layer visibility
+            if (IsLayerVisible != null) {
+                for (int i = 0; i < IsLayerVisible.Length; i++) {
+                    if (GraphicsTilemaps != null && GraphicsTilemaps[i] != null) {
+                        if (GraphicsTilemaps[i].gameObject.activeSelf != IsLayerVisible[i]) {
+                            GraphicsTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
+                        }
+                    }
+                    if (CollisionTilemaps != null && CollisionTilemaps[i] != null) {
+                        if (CollisionTilemaps[i].gameObject.activeSelf != IsLayerVisible[i]) {
+                            CollisionTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
+                        }
+                    }
+                }
+            }
+
             CheckPaletteChange();
 
             if (animatedTiles == null || !Settings.AnimateTiles) return;
 
             for (int mapIndex = 0; mapIndex < animatedTiles.Length; mapIndex++) {
+                if (GraphicsTilemaps[mapIndex] == null) continue;
                 bool changedTile = false;
                 changedTiles.Clear();
                 var map = LevelEditorData.Level.Maps[mapIndex];

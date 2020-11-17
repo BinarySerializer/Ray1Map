@@ -269,19 +269,11 @@ public class SettingsWindow : UnityWindow
                     if (isActive != bg.gameObject.activeSelf)
                         bg.gameObject.SetActive(isActive);
                 }
-
-                if (Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
-                    for (int i = 0; i < lvl.Maps.Length; i++) 
+                var layerVisibilities = Controller.obj?.levelController?.controllerTilemap?.IsLayerVisible;
+                if (layerVisibilities != null) {
+                    for (int i = 0; i < layerVisibilities.Length; i++) 
                     {
-                        if (LevelEditorData.Level.Maps[i].IsCollisionMap)
-                            continue; ;
-
-                        var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
-
-                        var isActive = EditorField($"Show layer {i}", tilemaps[i].gameObject.activeSelf);
-
-                        if (isActive != tilemaps[i].gameObject.activeSelf)
-                            tilemaps[i].gameObject.SetActive(isActive);
+                        layerVisibilities[i] = EditorField($"Show layer {i} ({LevelEditorData.Level.Maps[i].Type})", layerVisibilities[i]);
                     }
                 }
 

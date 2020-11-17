@@ -751,15 +751,14 @@ namespace R1Engine
 
                 if (map.StructType == GBA_TileLayer.Type.Collision)
                 {
-                    level.Maps[layer] = new Unity_Map
-                    {
+                    level.Maps[layer] = new Unity_Map {
+                        Type = Unity_Map.MapType.Collision,
                         Width = map.Width,
                         Height = map.Height,
                         MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
                         {
                             CollisionType = (byte)x
                         })).ToArray(),
-                        IsCollisionMap = true
                     };
                 }
                 else
@@ -838,12 +837,12 @@ namespace R1Engine
 
                     mapDatas[layer] = mapData;
 
-                    level.Maps[layer] = new Unity_Map
-                    {
+                    level.Maps[layer] = new Unity_Map {
+                        Type = Unity_Map.MapType.Graphics,
                         Width = map.Width,
                         Height = map.Height,
                         MapTiles = mapData.Select(x => new Unity_Tile(x)).ToArray(),
-                        IsForeground = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7)
+                        Layer = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
                     };
                     if (map.ShouldSetBGAlphaBlending) {
                         level.Maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;

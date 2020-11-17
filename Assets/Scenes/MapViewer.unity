@@ -25489,7 +25489,7 @@ MonoBehaviour:
   - {fileID: 1523706152}
   - {fileID: 668974237}
   layerTiles: {fileID: 2106128766}
-  layerTypes: {fileID: 92047762}
+  layerTypes: {fileID: 561593983}
   layerEvents: {fileID: 114616739}
   scrolling: 0
   cam: {fileID: 0}

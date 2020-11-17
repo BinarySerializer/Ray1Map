@@ -1373,6 +1373,8 @@ namespace R1Engine
             {
                 new Unity_Map()
                 {
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
+
                     // Set the dimensions
                     Width = mapData.Width,
                     Height = mapData.Height,
