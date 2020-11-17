@@ -40,7 +40,9 @@ namespace R1Engine
             }
         }
 
-        public override string DebugText => String.Empty;
+        public override string DebugText => $"Init function: {ObjType?.Data?.InitFunctionPointer}{Environment.NewLine}";
+
+        public override bool FlipHorizontally => Object.HorizontalFlip;
 
         public GBAIsometric_ObjectType ObjType => ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
 
@@ -73,7 +75,7 @@ namespace R1Engine
         public GBAIsometric_Spyro_AnimGroup AnimGroup => AnimSet?.AnimSetObj?.AnimGroups?.ElementAtOrDefault(AnimationGroupIndex);
         public Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation Anim => AnimSet?.Animations?.ElementAtOrDefault(AnimGroup?.AnimIndex + AnimIndex ?? -1);
 
-        public bool IsWaypoint => Object.ObjectType == 0;
+        public bool IsWaypoint => !Object.IsNormalObj;
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
