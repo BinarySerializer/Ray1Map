@@ -7,6 +7,7 @@
         public byte TileWidth { get; set; }
         public byte TileHeight { get; set; }
         public ushort Ushort_06 { get; set; } // Always 8?
+        public uint UInt_04 { get; set; } // Spyro 2, padding?
 
         public byte[] Collision { get; set; }
         
@@ -21,8 +22,8 @@
                 TileHeight = s.Serialize<byte>(TileHeight, name: nameof(TileHeight));
                 Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
             }
-            else
-            {
+            else {
+                UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
                 TileWidth = 1;
                 TileHeight = 1;
             }
