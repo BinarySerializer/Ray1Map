@@ -205,7 +205,7 @@ namespace R1Engine
                             unsupportedTiles.Add(collisionIndex);
 
                         // Set the collision tile
-                        CollisionTilemaps[i].SetTile(new Vector3Int(x, y, LevelEditorData.CurrentCollisionMap), CurrentCollisionIcons.TryGetItem(collisionType));
+                        CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons.TryGetItem(collisionType));
                     }
                 }
             }

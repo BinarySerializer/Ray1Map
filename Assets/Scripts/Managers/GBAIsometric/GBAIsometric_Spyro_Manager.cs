@@ -402,26 +402,14 @@ namespace R1Engine
             // Create a collision map for 2D levels
             if (levelData.Collision2D != null)
             {
-                int width;
-                int height;
-                int groupWidth;
-                int groupHeight;
-
-                if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
-                {
-                    width = levelData.Collision2D.Width * 4;
-                    height = levelData.Collision2D.Height;
-                    groupWidth = 4;
-                    groupHeight = 1;
-                }
-                else
-                {
+                int width, height;
+                if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3) {
                     width = levelData.Collision2D.Width / CellSize;
                     height = levelData.Collision2D.Height / CellSize;
-                    groupWidth = levelData.Collision2D.TileWidth / CellSize; // 16
-                    groupHeight = levelData.Collision2D.TileHeight / CellSize; // 16
+                } else {
+                    width = levelData.Collision2D.Width * 4;
+                    height = levelData.Collision2D.Height;
                 }
-
                 maps = maps.Append(new Unity_Map() {
                     Type = Unity_Map.MapType.Collision,
                     Width = (ushort)(width),
@@ -430,7 +418,7 @@ namespace R1Engine
                     {
                         tileSet
                     },
-                    MapTiles = GetCollision2DMapTiles(levelData.Collision2D.Collision, width, height, groupWidth, groupHeight).Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = GetCollision2DMapTiles(context, levelData.Collision2D).Select(x => new Unity_Tile(x)).ToArray(),
                 });
             }
 
@@ -612,34 +600,52 @@ namespace R1Engine
 
             return tiles;
         }
-        public MapTile[] GetCollision2DMapTiles(byte[] collisionData, int width, int height, int groupWidth, int groupHeight)
+        public MapTile[] GetCollision2DMapTiles(Context context, GBAIsometric_Spyro_Collision2DMapData collision2D)
         {
-            var blockWidth = width / groupWidth;
-            var blockHeight = height / groupHeight;
-            var tiles = new MapTile[width * height];
 
-            for (int blockY = 0; blockY < blockHeight; blockY++)
-            {
-                for (int blockX = 0; blockX < blockWidth; blockX++)
-                {
-                    var c = collisionData[blockY * blockWidth + blockX];
-                    var actualX = blockX * groupWidth;
-                    var actualY = blockY * groupHeight;
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
+                int width = collision2D.Width;
+                int height = collision2D.Height;
+                MapTile[] tiles = new MapTile[width * height * 4];
 
-                    for (int y = 0; y < groupHeight; y++)
-                    {
-                        for (int x = 0; x < groupWidth; x++)
-                        {
-                            tiles[(actualY + y) * width + (actualX + x)] = new MapTile() 
-                            {
-                                CollisionType = c
-                            };
+                for (int y = 0; y < collision2D.Height; y++) {
+                    for (int x = 0; x < collision2D.Width; x++) {
+                        int ind = y * width + x;
+                        var c = collision2D.Collision[ind];
+                        for (int i = 0; i < 4; i++) {
+                            tiles[ind * 4 + i] = new MapTile() { CollisionType = (byte)BitHelpers.ExtractBits(c, 2, (4-i-1) * 2) };
                         }
                     }
                 }
-            }
+                return tiles;
+            } else {
+                int width = collision2D.Width / CellSize;
+                int height = collision2D.Height / CellSize;
+                int groupWidth = collision2D.TileWidth / CellSize; // 16
+                int groupHeight = collision2D.TileHeight / CellSize; // 16
 
-            return tiles;
+
+                var blockWidth = width / groupWidth;
+                var blockHeight = height / groupHeight;
+                var tiles = new MapTile[width * height];
+
+                for (int blockY = 0; blockY < blockHeight; blockY++) {
+                    for (int blockX = 0; blockX < blockWidth; blockX++) {
+                        var c = collision2D.Collision[blockY * blockWidth + blockX];
+                        var actualX = blockX * groupWidth;
+                        var actualY = blockY * groupHeight;
+
+                        for (int y = 0; y < groupHeight; y++) {
+                            for (int x = 0; x < groupWidth; x++) {
+                                tiles[(actualY + y) * width + (actualX + x)] = new MapTile() {
+                                    CollisionType = c
+                                };
+                            }
+                        }
+                    }
+                }
+                return tiles;
+            }
         }
 
         public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
