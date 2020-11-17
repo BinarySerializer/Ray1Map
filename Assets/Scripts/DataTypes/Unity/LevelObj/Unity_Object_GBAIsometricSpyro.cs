@@ -63,7 +63,7 @@ namespace R1Engine
             set
             {
                 _animationGroupIndex = value;
-                AnimIndex = 0;
+                AnimIndex = (byte)((AnimGroup?.AnimCount ?? 1) - 1); // Default to the last animation in group to get the one where the character faces the camera
             }
         }
 
