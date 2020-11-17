@@ -38,6 +38,8 @@ namespace R1Engine
         public ARGB1555Color[] CommonPalette { get; set; }
 
         public GBAIsometric_Spyro_State_NPC[] States_NPC { get; set; }
+        public GBAIsometric_Spyro_State_DoorTypes[] States_DoorTypes { get; set; }
+        public GBAIsometric_Spyro_State_DoorGraphics[] States_DoorGraphics { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -154,6 +156,8 @@ namespace R1Engine
 
             // Serialize object states
             States_NPC = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_NPC), () => s.SerializeObjectArray<GBAIsometric_Spyro_State_NPC>(States_NPC, 49, name: nameof(States_NPC)));
+            States_DoorTypes = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_DoorTypes), () => s.SerializeObjectArray<GBAIsometric_Spyro_State_DoorTypes>(States_DoorTypes, 49, name: nameof(States_DoorTypes)));
+            States_DoorGraphics = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_DoorGraphics), () => s.SerializeObjectArray<GBAIsometric_Spyro_State_DoorGraphics>(States_DoorGraphics, 22, name: nameof(States_DoorGraphics)));
 
             // Serialize unknown struct
             if (s.GameSettings.GameModeSelection == GameModeSelection.SpyroAdventureUS)

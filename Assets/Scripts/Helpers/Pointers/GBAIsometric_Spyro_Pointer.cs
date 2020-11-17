@@ -33,6 +33,8 @@
         LevelData_Spyro3_Agent9,
         LevelData_Spyro3_SgtByrd,
 
-        States_NPC
+        States_NPC,
+        States_DoorTypes,
+        States_DoorGraphics
     }
 }

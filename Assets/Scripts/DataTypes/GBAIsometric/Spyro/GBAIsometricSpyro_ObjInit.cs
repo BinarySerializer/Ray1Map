@@ -14,7 +14,6 @@ namespace R1Engine
                     // TODO: Implement types
                     case 0x0801580D:
                     case 0x080159BD:
-                    case 0x0801B259: // Has graphics
                     case 0x0801B499:
                     case 0x0801B9BD: // Has graphics
                     case 0x0801BB75: // Has graphics
@@ -26,7 +25,6 @@ namespace R1Engine
                     case 0x0801F9FD: // Has graphics (boss which consists of multiple parts?)
                     case 0x08020859: // Has graphics (ui?)
                     case 0x08021509: // Has graphics (0x3A?)
-                    case 0x08022785: // Has graphics
                     case 0x080236B1:
                     case 0x08023B7D: // Has graphics (special effects?)
                     case 0x08024BE5:
@@ -208,6 +206,8 @@ namespace R1Engine
                     case 0x0803602D: return Spyro3_49;
                     case 0x08043A79: return Spyro3_50;
                     case 0x080159E1: return Spyro3_51;
+                    case 0x0801B259: return Spyro3_52;
+                    case 0x08022785: return Spyro3_53;
                 }
             }
 
@@ -560,6 +560,54 @@ namespace R1Engine
             // TODO: Implement
             // Can spawn Spyro, baby dragon etc.
             obj.AnimSetIndex = -1;
+        }
+        private static void Spyro3_52(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Tutorial objects
+        {
+            if (obj.Object.ObjectType == 0x1B)
+            {
+                obj.AnimSetIndex = 0x09;
+                obj.AnimationGroupIndex = 0x01;
+            }
+            else if (obj.Object.ObjectType == 0x1C)
+            {
+                obj.AnimSetIndex = 0x0C;
+                obj.AnimationGroupIndex = 0x00;
+            }
+            else if (obj.Object.ObjectType == 0x1D)
+            {
+                obj.AnimSetIndex = 0x84;
+                obj.AnimationGroupIndex = 0x01;
+            }
+            else if (obj.Object.ObjectType == 0x1E)
+            {
+                obj.AnimSetIndex = 0x0D;
+                obj.AnimationGroupIndex = 0x00;
+            }
+            else if (obj.Object.ObjectType == 0x1F)
+            {
+                obj.AnimSetIndex = 0x04;
+                obj.AnimationGroupIndex = 0x00;
+            }
+        }
+        private static void Spyro3_53(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Door
+        {
+            var rom = obj.ObjManager.Context.GetMainFileObject<GBAIsometric_Spyro_ROM>(((GBAIsometric_Spyro_Manager)obj.ObjManager.Context.Settings.GetGameManager).GetROMFilePath);
+            var levID = obj.ObjManager.Context.Settings.Level;
+            var typeState = rom.States_DoorTypes.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
+
+            long graphicsID;
+            if (typeState?.LevelID == levID)
+                graphicsID = typeState?.GraphicsStateID1 ?? -1;
+            else
+                graphicsID = typeState?.GraphicsStateID2 ?? -1;
+
+            var graphicsState = rom.States_DoorGraphics.FirstOrDefault(x => x.ID == graphicsID);
+
+            if (graphicsState != null)
+            {
+                obj.AnimSetIndex = graphicsState.AnimSetIndex;
+                obj.AnimationGroupIndex = (byte)graphicsState.AnimationGroupIndex;
+            }
         }
     }
 }
