@@ -61,6 +61,7 @@ namespace R1Engine
         public Material additiveMaterial;
 
         public float CellSizeInUnits { get; set; } = 1f;
+        public float CellSizeInUnitsCollision { get; set; } = 1f;
 
         private Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[] animatedTiles;
         private int?[][,][] TileIndexOverrides { get; set; }
@@ -78,8 +79,9 @@ namespace R1Engine
             var level = LevelEditorData.Level;
 
             CellSizeInUnits = level.CellSize / (float)level.PixelsPerUnit;
+            CellSizeInUnitsCollision = (level.CellSizeOverrideCollision ?? level.CellSize) / (float)level.PixelsPerUnit;
             if (CellSizeInUnits != 1f) {
-                grid.cellSize = new Vector3(CellSizeInUnits, CellSizeInUnits, 0);
+                grid.cellSize = new Vector3(CellSizeInUnitsCollision, CellSizeInUnitsCollision, 0);
             }
 
             if (level.Background != null) {
@@ -112,12 +114,12 @@ namespace R1Engine
 
             // Set collision tiles
             var collisionTileSet = Settings.UseHDCollisionSheet ? CollisionTilesHD : CollisionTiles;
-            if (CellSizeInUnits != 1f) {
+            if (CellSizeInUnitsCollision != 1f) {
                 collisionTileSet = collisionTileSet
                     .Select(t => {
                         if (t == null) return null;
                         Tile newT = ScriptableObject.CreateInstance<Tile>();
-                        newT.sprite = Sprite.Create(t.sprite.texture, t.sprite.rect, new Vector2(0.5f, 0.5f), t.sprite.pixelsPerUnit / CellSizeInUnits);
+                        newT.sprite = Sprite.Create(t.sprite.texture, t.sprite.rect, new Vector2(0.5f, 0.5f), t.sprite.pixelsPerUnit / CellSizeInUnitsCollision);
                         newT.sprite.name = t.sprite.name;
                         return newT;
                     }).ToArray();
@@ -393,13 +395,15 @@ namespace R1Engine
         }
 
         // Converts mouse position to worldspace and then tile positions (1 = 16)
-        public Vector3 MouseToTileCoords(Vector3 mousePos) {
+        public Vector3 MouseToTileCoords(Vector3 mousePos, bool collision = false) {
+            var cs = collision ? CellSizeInUnitsCollision : CellSizeInUnits;
             var worldMouse = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 10));
-            return new Vector3(Mathf.Floor(worldMouse.x / CellSizeInUnits) * CellSizeInUnits, (Mathf.Floor(worldMouse.y / CellSizeInUnits) + 1) * CellSizeInUnits, 10);
+            return new Vector3(Mathf.Floor(worldMouse.x / cs) * cs, (Mathf.Floor(worldMouse.y / cs) + 1) * cs, 10);
         }
-        public Vector2Int MouseToTileInt(Vector3 mousePos) {
+        public Vector2Int MouseToTileInt(Vector3 mousePos, bool collision = false) {
+            var cs = collision ? CellSizeInUnitsCollision : CellSizeInUnits;
             var worldMouse = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 10));
-            return new Vector2Int(Mathf.FloorToInt(worldMouse.x / CellSizeInUnits), -(Mathf.FloorToInt(worldMouse.y / CellSizeInUnits) + 1));
+            return new Vector2Int(Mathf.FloorToInt(worldMouse.x / cs), -(Mathf.FloorToInt(worldMouse.y / cs) + 1));
         }
 
         public void SetPreviewTilemap(Unity_Map map, Unity_Tile[,] newTiles) {

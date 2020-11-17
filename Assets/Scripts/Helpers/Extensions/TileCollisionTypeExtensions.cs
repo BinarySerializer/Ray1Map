@@ -431,11 +431,14 @@
                 case GBAIsometric_Spyro3_TileCollisionType2D.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
 
-                case GBAIsometric_Spyro3_TileCollisionType2D.SolidAngle1: // TODO: New graphic
-                case GBAIsometric_Spyro3_TileCollisionType2D.SolidAngle2: // TODO: New graphic
-                case GBAIsometric_Spyro3_TileCollisionType2D.SolidAngle3: // TODO: New graphic
-                case GBAIsometric_Spyro3_TileCollisionType2D.SolidAngle4: // TODO: New graphic
-                    return Unity_MapCollisionTypeGraphic.Unknown0;
+                case GBAIsometric_Spyro3_TileCollisionType2D.SolidAngle1:
+                    return Unity_MapCollisionTypeGraphic.Hill_Steep_Right;
+                case GBAIsometric_Spyro3_TileCollisionType2D.SolidAngle2:
+                    return Unity_MapCollisionTypeGraphic.Hill_Steep_Left;
+                case GBAIsometric_Spyro3_TileCollisionType2D.SolidAngle3:
+                    return Unity_MapCollisionTypeGraphic.Angle_Top_Right;
+                case GBAIsometric_Spyro3_TileCollisionType2D.SolidAngle4:
+                    return Unity_MapCollisionTypeGraphic.Angle_Top_Left;
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;

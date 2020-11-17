@@ -44,6 +44,9 @@
         Direction_DownRight,
         Climb_Full,
         Climb_Hang,
-        LedgeGrab
+        LedgeGrab,
+
+        Angle_Top_Left,
+        Angle_Top_Right,
     }
 }

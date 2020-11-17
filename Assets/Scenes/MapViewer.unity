@@ -2168,6 +2168,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4e2d56163a39b05478b19d785fe7c76f, type: 2}
   - {fileID: 11400000, guid: b0a7c9c10958ddf409e83c5540ff7755, type: 2}
   - {fileID: 11400000, guid: 68b69f2f08eb27543a1c5cd008dafa7d, type: 2}
+  - {fileID: 11400000, guid: 109025e2ba68fd347921bb250852bca8, type: 2}
+  - {fileID: 11400000, guid: 98cd6f577ba46de42ba5e8a6f9dde126, type: 2}
   CollisionTilesHD:
   - {fileID: 11400000, guid: e524dcdc9565a6e458d99a56c3ec3fa3, type: 2}
   - {fileID: 11400000, guid: 59e9cfbb39e57d143b768665fa8f4bf6, type: 2}
@@ -2211,6 +2213,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 11128958c64b15b44a0e00306523ee86, type: 2}
   - {fileID: 11400000, guid: 09886d9cb6686994e972f3aacee18b88, type: 2}
   - {fileID: 11400000, guid: 376e5d4f731376d458ff540942313d24, type: 2}
+  - {fileID: 11400000, guid: 389a0742d900d91459bcc196a9d00de7, type: 2}
+  - {fileID: 11400000, guid: c9072e99daa428e43809ec0e11e8494f, type: 2}
   camMaxX: 1
   camMaxY: 1
   additiveMaterial: {fileID: 2100000, guid: 21adcdf655be5494f98451d29d5667d6, type: 2}

@@ -1,0 +1,128 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Tiles HD
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 2
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: d5efc838a195a4f4ca87a9169cf23ae5, type: 3}
+    totalSpriteSurfaceArea: 2883584
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 58236ae183f0c8e468ed1e2f3274e0b1, type: 3}
+  - {fileID: 21300000, guid: 4bf4c3f7acfddda4095d9c46cd5e1b7a, type: 3}
+  - {fileID: -3581508582439343098, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -8071664622476123821, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 4867547398572345846, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -4950051264190424724, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 4225854964764360949, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -6681085072440473785, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -5231493913089441438, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 9120094050930694099, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -2850282812941230268, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -620962746505152526, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -6077499552314698369, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 8960339739576551559, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -539134451889832190, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -1310214650515933179, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 339362300557655196, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 310214738210302216, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 4447495046787053757, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -4282602873934628237, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 8862315578041385718, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 1236506199471683607, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -4326151304882374141, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -5246615176005666007, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -7753985363473780603, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 8392028804253454171, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -3628550029362988260, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 8289273529015327584, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 4087755089588048638, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -6046994731279335834, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -5838909841812524133, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -2027052081514077686, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -9076283289787716804, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -7035217505932569519, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 3183912970669082115, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 5443298481060491074, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 410735162964766377, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 7635022443321957450, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -5356422488573592705, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -6143942886111296486, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -5715569787581468706, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -2602771086480544207, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: -8916883517313955387, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 7529079607414775979, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Angle_Top_Right
+  - Angle_Top_Left
+  - Spikes
+  - Slippery_Steep_Right
+  - LedgeGrab
+  - Direction_DownRight
+  - Direction_Right
+  - Reactionary
+  - Hill_Steep_Right
+  - Unknown1
+  - Unknown0
+  - Unknown3
+  - Unknown2
+  - Unknown4
+  - Slippery_Slight_Left_1
+  - Slippery_Slight_Left_2
+  - Unknown
+  - Seed
+  - Water
+  - Direction_UpRight
+  - Climb
+  - Direction_Down
+  - Direction_Left
+  - Direction_DownLeft
+  - Cliff
+  - Climb_Full
+  - Hill_Slight_Left_1
+  - Hill_Slight_Left_2
+  - Direction_Up
+  - Slippery_Slight_Right_1
+  - Direction_UpLeft
+  - Slippery_Slight_Right_2
+  - Bounce
+  - Hill_Slight_Right_2
+  - Hill_Slight_Right_1
+  - Damage
+  - Slippery_Steep_Left
+  - Exit
+  - Climb_Hang
+  - Hill_Steep_Left
+  - Passthrough
+  - Solid
+  - Water_NoSplash
+  - Slippery
+  m_Tag: Tiles HD
+  m_IsVariant: 0

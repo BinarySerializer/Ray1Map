@@ -48,6 +48,7 @@ namespace R1Engine
 
         public int PixelsPerUnit { get; }
         public int CellSize { get; }
+        public int? CellSizeOverrideCollision { get; set; }
 
         // TODO: Replace this with toggle in editor
         public int DefaultMap { get; }

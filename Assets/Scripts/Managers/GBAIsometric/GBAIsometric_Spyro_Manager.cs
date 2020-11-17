@@ -358,7 +358,7 @@ namespace R1Engine
                     eventData: new List<Unity_Object>(),
                     cellSize: CellSize,
                     getCollisionTypeGraphicFunc: collGraphicFunc,
-                    localization: LoadLocalization(context, rom));
+                    localization: LoadLocalization(context, rom)) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
             }
 
             var levelData = rom.GetLevelData(context.Settings);
@@ -409,8 +409,8 @@ namespace R1Engine
             {
                 int width, height;
                 if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3) {
-                    width = levelData.Collision2D.Width / CellSize;
-                    height = levelData.Collision2D.Height / CellSize;
+                    width = levelData.Collision2D.Width / levelData.Collision2D.TileWidth;
+                    height = levelData.Collision2D.Height / levelData.Collision2D.TileHeight;
                 } else {
                     width = levelData.Collision2D.Width * 4;
                     height = levelData.Collision2D.Height;
@@ -469,7 +469,7 @@ namespace R1Engine
                 defaultMap: 1,
                 isometricData: isometricData,
                 localization: LoadLocalization(context, rom),
-                defaultCollisionMap: validMaps.Length - 1);
+                defaultCollisionMap: validMaps.Length - 1) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
         }
 
         public Dictionary<string, string[]> LoadLocalization(Context context, GBAIsometric_Spyro_ROM rom)
@@ -624,6 +624,7 @@ namespace R1Engine
                 }
                 return tiles;
             } else {
+                return collision2D.Collision.Select(c => new MapTile() { CollisionType = c }).ToArray();
                 int width = collision2D.Width / CellSize;
                 int height = collision2D.Height / CellSize;
                 int groupWidth = collision2D.TileWidth / CellSize; // 16
