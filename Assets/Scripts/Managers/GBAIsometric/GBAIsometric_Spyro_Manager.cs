@@ -210,7 +210,7 @@ namespace R1Engine
 
                 var anim = animSet.AnimBlock.Animations[a];
 
-                foreach (var tex in GetAnimationFrames(animSet, anim, pal))
+                foreach (var tex in GetAnimationFrames(animSet, anim, pal, isExport: true))
                     Util.ByteArrayToFile(Path.Combine(outputPath, $"{a}-{anim.AnimSpeed}", $"{f++}.png"), tex.EncodeToPNG());
             }
         }
@@ -513,7 +513,10 @@ namespace R1Engine
             {
                 yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock.Animations.Select(x =>
                 {
-                    return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(() => GetAnimationFrames(animSet, x, pal).Select(f => f.CreateSprite()).ToArray(), x.AnimSpeed);
+                    return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(
+                        () => GetAnimationFrames(animSet, x, pal).Select(f => f.CreateSprite()).ToArray(),
+                        x.AnimSpeed,
+                        x.Frames.Select(f => new Vector2Int(f.XPosition, f.YPosition)).ToArray());
                 }).ToArray());
             }
         }
@@ -683,21 +686,24 @@ namespace R1Engine
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }
 
-        public IEnumerable<Texture2D> GetAnimationFrames(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim, Color[][] pal)
+        public IEnumerable<Texture2D> GetAnimationFrames(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim, Color[][] pal, bool isExport = false)
         {
             // TODO: Fix frame size
             int minX = 0, minY = 0, maxW = 0, maxH = 0;
-            if (anim.Frames.Length > 0) {
-                minX = anim.Frames.Min(f => f.XPosition);
-                minY = anim.Frames.Min(f => f.YPosition);
-                maxW = anim.Frames.Max(f => f.XPosition + animSet.AnimFrameImages[f.FrameImageIndex].Width);
-                maxH = anim.Frames.Max(f => f.YPosition + animSet.AnimFrameImages[f.FrameImageIndex].Height);
+            if (isExport) {
+                if (anim.Frames.Length > 0) {
+                    minX = anim.Frames.Min(f => f.XPosition);
+                    minY = anim.Frames.Min(f => f.YPosition);
+                    maxW = anim.Frames.Max(f => f.XPosition + animSet.AnimFrameImages[f.FrameImageIndex].Width);
+                    maxH = anim.Frames.Max(f => f.YPosition + animSet.AnimFrameImages[f.FrameImageIndex].Height);
+                }
             }
             foreach (var frame in anim.Frames)
             {
                 var frameImg = animSet.AnimFrameImages[frame.FrameImageIndex];
-
-                Texture2D tex = TextureHelpers.CreateTexture2D(maxW - minX, maxH - minY, clear: true);
+                var w = isExport ? (maxW - minX) : frameImg.Width;
+                var h = isExport ? (maxH - minY) : frameImg.Height;
+                Texture2D tex = TextureHelpers.CreateTexture2D(w, h, clear: true);
                 int totalTileInd = 0;
 
                 void addObjToFrame(byte spriteSize, GBAIsometric_Spyro_AnimPattern.Shape spriteShape, int xpos, int ypos, int relativeTile, byte palIndex)
@@ -713,8 +719,8 @@ namespace R1Engine
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            int actualX = (x * CellSize) + xpos + frame.XPosition - minX;
-                            int actualY = (y * CellSize) + ypos + frame.YPosition - minY;
+                            int actualX = (x * CellSize) + xpos + (isExport ? (frame.XPosition - minX) : 0);
+                            int actualY = (y * CellSize) + ypos + (isExport ? (frame.YPosition - minY) : 0);
 
                             tex.FillInTile(animSet.TileSet, tileIndex * 32, pal[palIndex], false, CellSize, true, actualX, actualY);
 

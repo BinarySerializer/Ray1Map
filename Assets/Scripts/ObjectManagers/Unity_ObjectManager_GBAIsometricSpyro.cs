@@ -38,15 +38,17 @@ namespace R1Engine
 
             public class Animation
             {
-                public Animation(Func<Sprite[]> animFrameFunc, byte animSpeed)
+                public Animation(Func<Sprite[]> animFrameFunc, byte animSpeed, Vector2Int[] positions)
                 {
                     AnimFrameFunc = animFrameFunc;
                     AnimSpeed = animSpeed;
+                    Positions = positions;
                 }
-
+                 
                 private Sprite[] Frames;
                 private Unity_ObjAnimation Anim;
                 protected Func<Sprite[]> AnimFrameFunc { get; }
+                private Vector2Int[] Positions { get; }
 
                 public Sprite[] AnimFrames => Frames ?? (Frames = AnimFrameFunc());
 
@@ -56,7 +58,9 @@ namespace R1Engine
                     {
                         new Unity_ObjAnimationPart()
                         {
-                            ImageIndex = x
+                            ImageIndex = x,
+                            XPosition = Positions[x].x,
+                            YPosition = Positions[x].y
                         }
                     })).ToArray()
                 });
