@@ -27,8 +27,8 @@ namespace R1Engine
         #endregion
 
         #region Helper Methods
-        public GameObject GetCollisionGameObject(Material mat) {
-            GameObject parent = new GameObject("Collision parent");
+        public GameObject GetCollisionVisualGameObject(Material mat) {
+            GameObject parent = new GameObject("3D Collision - Visual");
             parent.transform.localScale = Scale;
 
             for (int y = 0; y < CollisionHeight; y++) {
@@ -39,6 +39,25 @@ namespace R1Engine
                 }
             }
             return parent;
+        }
+        public GameObject GetCollisionCollidersGameObject() {
+            GameObject parent = new GameObject("3D Collision - Colliders");
+            parent.transform.localScale = Scale;
+
+            for (int y = 0; y < CollisionHeight; y++) {
+                for (int x = 0; x < CollisionWidth; x++) {
+                    int ind = y * CollisionWidth + x;
+                    var block = Collision[ind];
+                    block.GetGameObjectCollider(parent, x, y);
+                }
+            }
+            return parent;
+        }
+
+        public Unity_IsometricCollisionTile GetCollisionTile(int x, int y) {
+            int ind = y * CollisionWidth + x;
+            if(ind >= Collision.Length) return null;
+            return Collision[ind];
         }
         #endregion
     }

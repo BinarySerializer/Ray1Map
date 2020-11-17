@@ -624,12 +624,16 @@ namespace R1Engine
                 ObjData.CanBeLinkedToGroup;
 
             lineRend.enabled = showLinks;
-            linkCube.gameObject.SetActive(showLinks);
+            void SetGameObjectActive(GameObject gao, bool active) {
+                if(gao.activeSelf != active) gao.SetActive(active);
+            }
+            SetGameObjectActive(linkCube.gameObject, showLinks);
 
             // Change the offsets visibility
-            offsetOrigin.gameObject.SetActive(ShowOffsets);
-            offsetCrossBX.gameObject.SetActive(ShowOffsets && offsetCrossBX.transform.position != Vector3.zero);
-            offsetCrossHY.gameObject.SetActive(ShowOffsets && (ObjData is Unity_Object_R1 || ObjData is Unity_Object_R2) && offsetCrossHY.transform.position != Vector3.zero);
+            bool showOffsets = ShowOffsets;
+            SetGameObjectActive(offsetOrigin.gameObject, showOffsets);
+            SetGameObjectActive(offsetCrossBX.gameObject, showOffsets && offsetCrossBX.transform.position != Vector3.zero);
+            SetGameObjectActive(offsetCrossHY.gameObject, showOffsets && (ObjData is Unity_Object_R1 || ObjData is Unity_Object_R2) && offsetCrossHY.transform.position != Vector3.zero);
 
             var engineVersion = LevelEditorData.CurrentSettings.EngineVersion;
             followSpriteLine.gameObject.SetActive(

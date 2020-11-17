@@ -152,8 +152,9 @@ namespace R1Engine
             camMaxY = maxHeight;
 
             if (IsometricCollision == null && level.IsometricData != null) {
-                IsometricCollision = level.IsometricData.GetCollisionGameObject(isometricCollisionMaterial);
+                IsometricCollision = level.IsometricData.GetCollisionVisualGameObject(isometricCollisionMaterial);
                 IsometricCollision.SetActive(Settings.ShowCollision);
+                level.IsometricData.GetCollisionCollidersGameObject();
             }
         }
 

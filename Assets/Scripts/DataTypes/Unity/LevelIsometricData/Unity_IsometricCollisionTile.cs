@@ -138,6 +138,20 @@ namespace R1Engine
             }
             return gao;
         }
+
+        public GameObject GetGameObjectCollider(GameObject parent, int x, int y) {
+            GameObject gao = new GameObject();
+            gao.name = $"{x},{y}";
+
+            gao.layer = LayerMask.NameToLayer("3D Collision");
+            gao.transform.SetParent(parent.transform);
+            gao.transform.localScale = Vector3.one;
+            gao.transform.localPosition = new Vector3(x + 0.5f, 0, -y - 0.5f);
+            BoxCollider bc = gao.AddComponent<BoxCollider>();
+            bc.center = Vector3.up * Height / 2f;
+            bc.size = new Vector3(1f,Height,1f);
+            return gao;
+        }
         #endregion
 
 
