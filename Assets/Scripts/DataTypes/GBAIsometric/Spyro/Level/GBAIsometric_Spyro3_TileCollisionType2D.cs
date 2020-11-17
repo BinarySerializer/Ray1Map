@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public enum GBAIsometric_Spyro_TileCollisionType2D : byte
+    public enum GBAIsometric_Spyro3_TileCollisionType2D : byte
     {
         Empty = 0,
         Solid = 1,

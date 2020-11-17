@@ -315,6 +315,11 @@ namespace R1Engine
 
             var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
+            Func<byte, Unity_MapCollisionTypeGraphic> collGraphicFunc = x => ((GBAIsometric_Spyro3_TileCollisionType2D)x).GetCollisionTypeGraphic();
+            if (context.Settings.EngineVersion < EngineVersion.GBAIsometric_Spyro3) {
+                collGraphicFunc = x => ((GBAIsometric_Spyro2_TileCollisionType2D)x).GetCollisionTypeGraphic();
+            }
+
             // Spyro 2 cutscenes
             if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 4)
             {
@@ -348,11 +353,11 @@ namespace R1Engine
                     maps: new Unity_Map[]
                     {
                         map
-                    }, 
+                    },
                     objManager: new Unity_ObjectManager(context),
                     eventData: new List<Unity_Object>(),
                     cellSize: CellSize,
-                    getCollisionTypeGraphicFunc: x => ((GBAIsometric_Spyro_TileCollisionType2D)x).GetCollisionTypeGraphic(),
+                    getCollisionTypeGraphicFunc: collGraphicFunc,
                     localization: LoadLocalization(context, rom));
             }
 
@@ -460,7 +465,7 @@ namespace R1Engine
                 objManager: objManager,
                 eventData: objects,
                 cellSize: CellSize,
-                getCollisionTypeGraphicFunc: x => ((GBAIsometric_Spyro_TileCollisionType2D)x).GetCollisionTypeGraphic(),
+                getCollisionTypeGraphicFunc: collGraphicFunc,
                 defaultMap: 1,
                 isometricData: isometricData,
                 localization: LoadLocalization(context, rom),
