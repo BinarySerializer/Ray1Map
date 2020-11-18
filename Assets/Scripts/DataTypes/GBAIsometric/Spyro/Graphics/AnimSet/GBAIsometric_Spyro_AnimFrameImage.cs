@@ -21,6 +21,8 @@ namespace R1Engine
 
         public GBAIsometric_Spyro_AnimPattern[] Patterns { get; set; }
 
+        public bool IsNullFrame => HasPatterns && Patterns.Length == 0;
+
         public override void SerializeImpl(SerializerObject s)
         {
             TileIndex = s.Serialize<ushort>(TileIndex, name: nameof(TileIndex));

@@ -678,10 +678,11 @@ namespace R1Engine
             int minX1 = 0, minY1 = 0, maxX2 = int.MinValue, maxY2 = int.MinValue;
             if (isExport) {
                 if (anim.Frames.Length > 0) {
-                    minX1 = anim.Frames.Min(f => f.XPosition);
-                    minY1 = anim.Frames.Min(f => f.YPosition);
-                    maxX2 = anim.Frames.Max(f => f.XPosition + animSet.AnimFrameImages[f.FrameImageIndex].Width);
-                    maxY2 = anim.Frames.Max(f => f.YPosition + animSet.AnimFrameImages[f.FrameImageIndex].Height);
+                    var fs = anim.Frames.Where(f => !animSet.AnimFrameImages[f.FrameImageIndex].IsNullFrame);
+                    minX1 = fs.Min(f => f.XPosition);
+                    minY1 = fs.Min(f => f.YPosition);
+                    maxX2 = fs.Max(f => f.XPosition + animSet.AnimFrameImages[f.FrameImageIndex].Width);
+                    maxY2 = fs.Max(f => f.YPosition + animSet.AnimFrameImages[f.FrameImageIndex].Height);
                 } else {
                     maxX2 = 0;
                     maxY2 = 0;
