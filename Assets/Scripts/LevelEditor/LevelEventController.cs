@@ -136,10 +136,20 @@ namespace R1Engine
             InitializeEventLinks();
 
             // Fill eventinfo dropdown with the event types
-            infoType.options.AddRange(EnumHelpers.GetValues<R1_EventType>().Select(x => new Dropdown.OptionData
+            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Rayman1)
             {
-                text = x.ToString()
-            }));
+                infoType.options.AddRange(EnumHelpers.GetValues<R1_EventType>().Select(x => new Dropdown.OptionData
+                {
+                    text = x.ToString()
+                }));
+            }
+            else
+            {
+                infoType.options.AddRange(Enumerable.Range(0, 1000).Select(x => new Dropdown.OptionData
+                {
+                    text = x.ToString()
+                }));
+            }
 
             // Fill the dropdown menu
             var objs = LevelEditorData.ObjManager.GetAvailableObjects;

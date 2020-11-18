@@ -40,7 +40,8 @@ namespace R1Engine
 
         public override string DebugText => $"Init function: {ObjType?.Data?.InitFunctionPointer}{Environment.NewLine}";
 
-        public override bool FlipHorizontally => Object.HorizontalFlip;
+        public override bool FlipHorizontally => Object.HorizontalFlip1;
+        public override int? GetLayer(int index) => -index;
 
         public GBAIsometric_ObjectType ObjType => ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
 
@@ -68,6 +69,7 @@ namespace R1Engine
         }
 
         public byte AnimIndex { get; set; } // Relative to the group
+        public byte? ForceFrame { get; set; }
 
         public Unity_ObjectManager_GBAIsometricSpyro.AnimSet AnimSet => IsEditorObj ? null : ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
         public GBAIsometric_Spyro_AnimGroup AnimGroup => AnimSet?.AnimSetObj?.AnimGroups?.ElementAtOrDefault(AnimationGroupIndex);
@@ -101,6 +103,19 @@ namespace R1Engine
         public override int? GetAnimIndex => AnimGroup?.AnimIndex + AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Anim?.AnimFrames;
+
+        protected override bool ShouldUpdateFrame()
+        {
+            if (ForceFrame != null)
+            {
+                AnimationFrame = ForceFrame.Value;
+                AnimationFrameFloat = ForceFrame.Value;
+                return false;
+            }
+
+            return true;
+        }
+
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_GBAIsometricSpyro obj)
