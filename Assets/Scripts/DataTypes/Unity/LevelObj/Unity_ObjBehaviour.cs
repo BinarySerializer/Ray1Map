@@ -72,6 +72,7 @@ namespace R1Engine
         public Vector3 midpoint;
 
         public AudioClip currentSoundEffect;
+        public Unity_Object.ObjectType PrevObjType;
 
         public void Init() {
             UpdatePosition();
@@ -579,6 +580,12 @@ namespace R1Engine
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy / (float)LevelEditorData.Level.PixelsPerUnit);
                 }
+            }
+
+            if (PrevObjType != ObjData.Type)
+            {
+                PrevObjType = ObjData.Type;
+                InitGizmo();
             }
 
             if (boxCollider != null) {

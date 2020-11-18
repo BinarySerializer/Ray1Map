@@ -35,6 +35,8 @@
 
         States_NPC,
         States_DoorTypes,
-        States_DoorGraphics
+        States_DoorGraphics,
+
+        QuestItems,
     }
 }

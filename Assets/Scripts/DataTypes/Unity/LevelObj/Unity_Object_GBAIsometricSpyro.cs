@@ -14,8 +14,6 @@ namespace R1Engine
 
             if (IsWaypoint)
                 AnimSetIndex = -1;
-
-            // TODO: Init obj
         }
 
         public GBAIsometric_Object Object { get; }
@@ -71,20 +69,21 @@ namespace R1Engine
 
         public byte AnimIndex { get; set; } // Relative to the group
 
-        public Unity_ObjectManager_GBAIsometricSpyro.AnimSet AnimSet => ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
+        public Unity_ObjectManager_GBAIsometricSpyro.AnimSet AnimSet => IsEditorObj ? null : ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
         public GBAIsometric_Spyro_AnimGroup AnimGroup => AnimSet?.AnimSetObj?.AnimGroups?.ElementAtOrDefault(AnimationGroupIndex);
         public Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation Anim => AnimSet?.Animations?.ElementAtOrDefault(AnimGroup?.AnimIndex + AnimIndex ?? -1);
 
         public bool IsWaypoint => !Object.IsNormalObj;
+        public bool IsEditorObj { get; set; } // True for collision objects, trigger objects etc.
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => IsWaypoint ? "Waypoint" : $"Type_{Object.ObjectType}";
         public override string SecondaryName => null;
-
-        public override bool IsEditor => IsWaypoint;
-        public override ObjectType Type => IsWaypoint ? ObjectType.Waypoint : ObjectType.Object;
+        
+        public override bool IsEditor => IsWaypoint || IsEditorObj;
+        public override ObjectType Type => IsWaypoint ? ObjectType.Waypoint : IsEditorObj ? ObjectType.Trigger : ObjectType.Object;
 
         public override bool CanBeLinked => true;
         public override IEnumerable<int> Links

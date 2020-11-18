@@ -765,6 +765,8 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.States_NPC] = 0x081cac00,
                         [GBAIsometric_Spyro_Pointer.States_DoorTypes] = 0x081cb2fc,
                         [GBAIsometric_Spyro_Pointer.States_DoorGraphics] = 0x081cb19c,
+
+                        [GBAIsometric_Spyro_Pointer.QuestItems] = 0x081c009c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

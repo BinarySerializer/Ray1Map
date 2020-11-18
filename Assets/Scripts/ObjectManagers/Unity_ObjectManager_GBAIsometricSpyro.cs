@@ -21,7 +21,10 @@ namespace R1Engine
             var allObjects = level.EventData.Cast<Unity_Object_GBAIsometricSpyro>().ToArray();
 
             foreach (var obj in allObjects)
-                GBAIsometricSpyro_ObjInit.GetInitFunc(Context.Settings, obj.ObjType?.Data?.InitFunctionPointer?.AbsoluteOffset ?? 0)?.Invoke(obj, allObjects);
+            {
+                if (obj.Object.ObjectType != 0)
+                    GBAIsometricSpyro_ObjInit.GetInitFunc(Context.Settings, obj.ObjType?.Data?.InitFunctionPointer?.AbsoluteOffset ?? 0)?.Invoke(obj, allObjects);
+            }
         }
 
         public override string[] LegacyDESNames => Enumerable.Range(0, AnimSets.Length).Select(x => x.ToString()).ToArray();
