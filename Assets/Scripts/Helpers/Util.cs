@@ -497,9 +497,12 @@ namespace R1Engine
 
                 if (flipTextureY)
                     yy = tex.height - yy - 1;
+                if(yy < 0 || yy >= tex.height) continue;
 
                 for (int x = 0; x < tileWidth; x++)
                 {
+                    var xx = tileX + x;
+                    if (xx < 0 || xx >= tex.width) continue;
                     Color c;
 
                     int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)) / (is8bpp ? 1 : 2));
@@ -509,7 +512,7 @@ namespace R1Engine
                         var b = imgData[index];
                         c = pal[b];
 
-                        tex.SetPixel(tileX + x, yy, c);
+                        tex.SetPixel(xx, yy, c);
                     }
                     else
                     {
@@ -522,7 +525,7 @@ namespace R1Engine
                         }
                         c = pal[v];
 
-                        tex.SetPixel(tileX + x, yy, c);
+                        tex.SetPixel(xx, yy, c);
                     }
                 }
             }

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBAIsometric_Spyro_AnimFrameImage : R1Serializable
     {
@@ -48,6 +50,26 @@
                 s.DoAt(Offset + 4 * PatternsOffset, () => {
                     Patterns = s.SerializeObjectArray<GBAIsometric_Spyro_AnimPattern>(Patterns, NumPatterns, name: nameof(Patterns));
                 });
+            }
+        }
+
+        public void GetActualSize(out int width, out int height) {
+            if (HasPatterns) {
+                int maxW = 0, maxH = 0;
+                foreach (var p in Patterns) {
+                    int w, h;
+                    Util.GetGBASize((byte)p.SpriteShape, p.SpriteSize, out w, out h);
+                    w *= 8;
+                    h *= 8;
+                    if (p.X + w > maxW) maxW = p.X + w;
+                    if (p.Y + h > maxH) maxH = p.Y + h;
+                }
+                width = maxW;
+                height = maxH;
+            } else {
+                Util.GetGBASize((byte)SpriteShape, SpriteSize, out width, out height);
+                width *= 8;
+                height *= 8;
             }
         }
     }

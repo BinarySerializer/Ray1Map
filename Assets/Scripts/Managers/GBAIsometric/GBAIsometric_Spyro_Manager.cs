@@ -625,32 +625,6 @@ namespace R1Engine
                 return tiles;
             } else {
                 return collision2D.Collision.Select(c => new MapTile() { CollisionType = c }).ToArray();
-                int width = collision2D.Width / CellSize;
-                int height = collision2D.Height / CellSize;
-                int groupWidth = collision2D.TileWidth / CellSize; // 16
-                int groupHeight = collision2D.TileHeight / CellSize; // 16
-
-
-                var blockWidth = width / groupWidth;
-                var blockHeight = height / groupHeight;
-                var tiles = new MapTile[width * height];
-
-                for (int blockY = 0; blockY < blockHeight; blockY++) {
-                    for (int blockX = 0; blockX < blockWidth; blockX++) {
-                        var c = collision2D.Collision[blockY * blockWidth + blockX];
-                        var actualX = blockX * groupWidth;
-                        var actualY = blockY * groupHeight;
-
-                        for (int y = 0; y < groupHeight; y++) {
-                            for (int x = 0; x < groupWidth; x++) {
-                                tiles[(actualY + y) * width + (actualX + x)] = new MapTile() {
-                                    CollisionType = c
-                                };
-                            }
-                        }
-                    }
-                }
-                return tiles;
             }
         }
 
@@ -701,20 +675,32 @@ namespace R1Engine
         public IEnumerable<Texture2D> GetAnimationFrames(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim, Color[][] pal, bool isExport = false)
         {
             // TODO: Fix frame size
-            int minX = 0, minY = 0, maxW = 0, maxH = 0;
+            int minX1 = 0, minY1 = 0, maxX2 = int.MinValue, maxY2 = int.MinValue;
             if (isExport) {
                 if (anim.Frames.Length > 0) {
-                    minX = anim.Frames.Min(f => f.XPosition);
-                    minY = anim.Frames.Min(f => f.YPosition);
-                    maxW = anim.Frames.Max(f => f.XPosition + animSet.AnimFrameImages[f.FrameImageIndex].Width);
-                    maxH = anim.Frames.Max(f => f.YPosition + animSet.AnimFrameImages[f.FrameImageIndex].Height);
+                    minX1 = anim.Frames.Min(f => f.XPosition);
+                    minY1 = anim.Frames.Min(f => f.YPosition);
+                    maxX2 = anim.Frames.Max(f => f.XPosition + animSet.AnimFrameImages[f.FrameImageIndex].Width);
+                    maxY2 = anim.Frames.Max(f => f.YPosition + animSet.AnimFrameImages[f.FrameImageIndex].Height);
+                } else {
+                    maxX2 = 0;
+                    maxY2 = 0;
                 }
             }
             foreach (var frame in anim.Frames)
             {
                 var frameImg = animSet.AnimFrameImages[frame.FrameImageIndex];
-                var w = isExport ? (maxW - minX) : frameImg.Width;
-                var h = isExport ? (maxH - minY) : frameImg.Height;
+                int w, h;
+                if (isExport) {
+                    w = (maxX2 - minX1);
+                    h = (maxY2 - minY1);
+                } else {
+                    w = frameImg.Width;
+                    h = frameImg.Height;
+                    //frameImg.GetActualSize(out w, out h);
+                }
+                /*var w = isExport ? (maxW - minX) : frameImg.Width;
+                var h = isExport ? (maxH - minY) : frameImg.Height;*/
                 Texture2D tex = TextureHelpers.CreateTexture2D(w, h, clear: true);
                 int totalTileInd = 0;
 
@@ -731,8 +717,8 @@ namespace R1Engine
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            int actualX = (x * CellSize) + xpos + (isExport ? (frame.XPosition - minX) : 0);
-                            int actualY = (y * CellSize) + ypos + (isExport ? (frame.YPosition - minY) : 0);
+                            int actualX = (x * CellSize) + xpos + (isExport ? (frame.XPosition - minX1) : 0);
+                            int actualY = (y * CellSize) + ypos + (isExport ? (frame.YPosition - minY1) : 0);
 
                             tex.FillInTile(animSet.TileSet, tileIndex * 32, pal[palIndex], false, CellSize, true, actualX, actualY);
 
