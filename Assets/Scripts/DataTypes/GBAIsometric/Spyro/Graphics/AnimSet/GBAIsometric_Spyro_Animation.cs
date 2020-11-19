@@ -4,7 +4,9 @@
     {
         public ushort FrameOffset { get; set; }
         public byte AnimSpeed { get; set; }
-        public byte Spyro_Byte_02 { get; set; }
+        public bool Loop { get; set; }
+        public bool PingPong { get; set; }
+        public bool LastBit { get; set; }
         public byte FrameCount { get; set; }
         public bool FramesHaveExtraData { get; set; }
 
@@ -16,7 +18,9 @@
             s.SerializeBitValues<byte>(bitFunc =>
             {
                 AnimSpeed = (byte)bitFunc(AnimSpeed, 5, name: nameof(AnimSpeed));
-                Spyro_Byte_02 = (byte)bitFunc(Spyro_Byte_02, 3, name: nameof(Spyro_Byte_02));
+                Loop = bitFunc(Loop ? 1 : 0, 1, name: nameof(Loop)) == 1;
+                PingPong = bitFunc(PingPong ? 1 : 0, 1, name: nameof(PingPong)) == 1;
+                LastBit = bitFunc(LastBit ? 1 : 0, 1, name: nameof(LastBit)) == 1;
             });
             s.SerializeBitValues<byte>(bitFunc => {
                 FrameCount = (byte)bitFunc(FrameCount, 7, name: nameof(FrameCount));

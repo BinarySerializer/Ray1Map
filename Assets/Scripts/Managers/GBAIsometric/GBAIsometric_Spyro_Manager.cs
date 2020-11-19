@@ -509,7 +509,7 @@ namespace R1Engine
                     return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(
                         () => GetAnimationFrames(animSet, x, pal).Select(f => f.CreateSprite()).ToArray(),
                         x.AnimSpeed,
-                        x.Frames.Select(f => new Vector2Int(f.XPosition, f.YPosition)).ToArray());
+                        GetFramePositions(animSet, x));
                 }).ToArray());
             }
         }
@@ -672,9 +672,22 @@ namespace R1Engine
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }
 
-        public IEnumerable<Texture2D> GetAnimationFrames(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim, Color[][] pal, bool isExport = false)
+        public Vector2Int[] GetFramePositions(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim) {
+            Vector2Int[] pos = new Vector2Int[anim.Frames.Length + (anim.PingPong ? (anim.Frames.Length - 2) : 0)];
+            for (int i = 0; i < anim.Frames.Length; i++) {
+                var f = anim.Frames[i];
+                pos[i] = new Vector2Int(f.XPosition, f.YPosition);
+            }
+            if (anim.PingPong) {
+                for (int i = anim.Frames.Length; i < pos.Length; i++) {
+                    pos[i] = pos[pos.Length - i];
+                }
+            }
+            return pos;
+        }
+
+        public Texture2D[] GetAnimationFrames(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim, Color[][] pal, bool isExport = false)
         {
-            // TODO: Fix frame size
             int minX1 = 0, minY1 = 0, maxX2 = int.MinValue, maxY2 = int.MinValue;
             if (isExport) {
                 if (anim.Frames.Length > 0) {
@@ -688,8 +701,9 @@ namespace R1Engine
                     maxY2 = 0;
                 }
             }
-            foreach (var frame in anim.Frames)
-            {
+            Texture2D[] texs = new Texture2D[anim.Frames.Length + (anim.PingPong ? (anim.Frames.Length - 2) : 0)];
+            for(int i = 0; i < anim.Frames.Length; i++) {
+                var frame = anim.Frames[i];
                 var frameImg = animSet.AnimFrameImages[frame.FrameImageIndex];
                 int w, h;
                 if (isExport) {
@@ -740,8 +754,14 @@ namespace R1Engine
 
                 tex.Apply();
 
-                yield return tex;
+                texs[i] = tex;
             }
+            if (anim.PingPong) {
+                for (int i = anim.Frames.Length; i < texs.Length; i++) {
+                    texs[i] = texs[texs.Length - i];
+                }
+            }
+            return texs;
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
