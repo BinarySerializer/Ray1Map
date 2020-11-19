@@ -537,10 +537,12 @@ namespace R1Engine
                             float centerX = 0f;
                             float centerY = 0f;
                             if (sprites != null && sprites.Length > 0) {
+                                var mirroredX = ObjData.FlipHorizontally;
+                                var mirroredY = ObjData.FlipVertically;
                                 w = sprites[0].sprite.texture.width / sprites[0].sprite.pixelsPerUnit;
                                 h = sprites[0].sprite.texture.height / sprites[0].sprite.pixelsPerUnit;
-                                centerX = sprites[0].transform.localPosition.x + (w / 2 - (sprites[0].sprite.pivot.x / sprites[0].sprite.pixelsPerUnit));
-                                centerY = sprites[0].transform.localPosition.y + (h / 2 - (sprites[0].sprite.pivot.y / sprites[0].sprite.pixelsPerUnit));
+                                centerX = sprites[0].transform.localPosition.x + (w / 2 - (sprites[0].sprite.pivot.x / sprites[0].sprite.pixelsPerUnit)) * (mirroredX ? -1f : 1f);
+                                centerY = sprites[0].transform.localPosition.y + (h / 2 - (sprites[0].sprite.pivot.y / sprites[0].sprite.pixelsPerUnit)) * (mirroredY ? -1f : 1f);
                             }
                             boxCollider3D.size = new Vector3(w, h,0.1f);
                             boxCollider3D.center = new Vector2(centerX, centerY);
