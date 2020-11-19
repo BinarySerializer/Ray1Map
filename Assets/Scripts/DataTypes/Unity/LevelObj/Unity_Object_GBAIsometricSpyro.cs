@@ -40,7 +40,7 @@ namespace R1Engine
 
         public override string DebugText => $"Init function: {ObjType?.Data?.InitFunctionPointer}{Environment.NewLine}";
 
-        public override bool FlipHorizontally => Object.HorizontalFlip1;
+        public override bool FlipHorizontally => Object.HorizontalFlip;
         public override int? GetLayer(int index) => -index;
 
         public GBAIsometric_ObjectType ObjType => ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
@@ -71,12 +71,13 @@ namespace R1Engine
         public byte AnimIndex { get; set; } // Relative to the group
         public byte? ForceFrame { get; set; }
 
-        public Unity_ObjectManager_GBAIsometricSpyro.AnimSet AnimSet => IsEditorObj ? null : ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
+        public Unity_ObjectManager_GBAIsometricSpyro.AnimSet AnimSet => ForceNoGraphics ? null : ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
         public GBAIsometric_Spyro_AnimGroup AnimGroup => AnimSet?.AnimSetObj?.AnimGroups?.ElementAtOrDefault(AnimationGroupIndex);
         public Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation Anim => AnimSet?.Animations?.ElementAtOrDefault(AnimGroup?.AnimIndex + AnimIndex ?? -1);
 
         public bool IsWaypoint => !Object.IsNormalObj;
         public bool IsEditorObj { get; set; } // True for collision objects, trigger objects etc.
+        public bool ForceNoGraphics => AnimSetIndex == -1 || IsEditorObj || ObjType?.Data?.InitFunctionPointer == null;
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
@@ -133,15 +134,15 @@ namespace R1Engine
 
             public int DES
             {
-                get => Obj.AnimSetIndex;
-                set => Obj.AnimSetIndex = value;
+                get => Obj.ForceNoGraphics ? -1 : Obj.AnimSetIndex;
+                set
+                {
+                    if (!Obj.ForceNoGraphics)
+                        Obj.AnimSetIndex = value;
+                }
             }
 
-            public int ETA
-            {
-                get => Obj.AnimSetIndex;
-                set => Obj.AnimSetIndex = value;
-            }
+            public int ETA { get; set; }
 
             public byte Etat
             {

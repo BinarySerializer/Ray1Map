@@ -23,7 +23,12 @@ namespace R1Engine
             foreach (var obj in allObjects)
             {
                 if (obj.Object.ObjectType != 0)
+                {
                     GBAIsometricSpyro_ObjInit.GetInitFunc(Context.Settings, obj.ObjType?.Data?.InitFunctionPointer?.AbsoluteOffset ?? 0)?.Invoke(obj, allObjects);
+
+                    if (obj.AnimSetIndex == -1 && !obj.IsEditorObj && obj.ObjType?.Data?.InitFunctionPointer != null)
+                        Debug.LogWarning($"Type {obj.Object.ObjectType} is not implemented with init function at 0x{obj.ObjType?.Data?.InitFunctionPointer}");
+                }
             }
         }
 

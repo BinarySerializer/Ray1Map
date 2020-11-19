@@ -8,7 +8,7 @@
 
         // Spyro
         public bool Value1 { get; set; }
-        public bool HorizontalFlip1 { get; set; }
+        public bool HorizontalFlip { get; set; }
         public bool Value2 { get; set; }
         public int Value3 { get; set; }
         public bool IsNormalObj { get; set; } // False if it's a waypoint
@@ -32,7 +32,7 @@
                 {
                     ObjectType = (ushort)bitFunc(ObjectType, 10, name: nameof(ObjectType));
                     Value1 = bitFunc(Value1 ? 1 : 0, 1, name: nameof(Value1)) == 1;
-                    HorizontalFlip1 = bitFunc(HorizontalFlip1 ? 1 : 0, 1, name: nameof(HorizontalFlip1)) == 1;
+                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                     Value2 = bitFunc(Value2 ? 1 : 0, 1, name: nameof(Value2)) == 1;
                     Value3 = bitFunc(Value3, 2, name: nameof(Value3));
                     IsNormalObj = bitFunc(IsNormalObj ? 1 : 0, 1, name: nameof(IsNormalObj)) == 1;
