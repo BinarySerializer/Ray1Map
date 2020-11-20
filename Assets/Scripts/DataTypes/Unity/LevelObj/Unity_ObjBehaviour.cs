@@ -267,7 +267,7 @@ namespace R1Engine
                     prefabRenderers = new SpriteRenderer[spritesLength];
                     prefabRenderersCollision = new SpriteRenderer[collisionLength];
 
-                    bool is3D = ObjData is Unity_Object_3D;
+                    bool is3D = ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null;
 
                     // Populate sprites
                     for (int i = 0; i < spritesLength; i++)
