@@ -35,28 +35,11 @@ namespace R1Engine
                     case 0x08039D51:
                     case 0x0803A02D:
                     case 0x0803BF91:
-                    case 0x0803CB39:
-                    case 0x0803D0F1:
-                    case 0x0803D829:
-                    case 0x0803DC59:
-                    case 0x0803E255:
-                    case 0x0803E559:
-                    case 0x0803E6DD:
-                    case 0x0803F58D:
-                    case 0x080401C1:
                     case 0x080404AD:
-                    case 0x08040571:
-                    case 0x0804063D:
-                    case 0x08040925:
-                    case 0x08040CB5:
-                    case 0x08040DD9:
                     case 0x08041DA5:
                     case 0x08042725:
-                    case 0x080429F1:
                     case 0x080430C5:
-                    case 0x08043EAD:
                     case 0x080448D1:
-                    case 0x080449B9:
                     case 0x0801D1A5:
                     case 0x08044D81:
                     case 0x080450BD:
@@ -85,6 +68,7 @@ namespace R1Engine
                     case 0x08032049: // Race controller (this starts the race and spawns the opponents)
                     case 0x0801B9BD: // ?
                     case 0x0801B499: // ?
+                    case 0x080401C1: // Agent 9 pipe controller
                         return Spyro3_EditorObj;
 
                     case 0x08015BBD: return Spyro3_0;
@@ -210,6 +194,22 @@ namespace R1Engine
 
                     // Agent 9
                     case 0x08044AD5: return Spyro3_121;
+                    case 0x080449B9: return Spyro3_122;
+                    case 0x0804063D: return Spyro3_123;
+                    case 0x0803D829: return Spyro3_124;
+                    case 0x0803E6DD: return Spyro3_125;
+                    case 0x0803DC59: return Spyro3_126;
+                    case 0x08043EAD: return Spyro3_127;
+                    case 0x08040DD9: return Spyro3_128;
+                    case 0x08040925: return Spyro3_129;
+                    case 0x0803E255: return Spyro3_130;
+                    case 0x0803CB39: return Spyro3_131;
+                    case 0x08040CB5: return Spyro3_132;
+                    case 0x0803E559: return Spyro3_133;
+                    case 0x0803F58D: return Spyro3_134;
+                    case 0x08040571: return Spyro3_135;
+                    case 0x080429F1: return Spyro3_136;
+                    case 0x0803D0F1: return Spyro3_137;
                 }
             }
 
@@ -227,6 +227,7 @@ namespace R1Engine
             obj.AnimSetIndex = -1;
             obj.IsEditorObj = true;
         }
+
         private static void Spyro3_0(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Spyro
         {
             obj.AnimSetIndex = 0x7E;
@@ -1092,10 +1093,130 @@ namespace R1Engine
             obj.AnimSetIndex = 0x6E;
             obj.AnimationGroupIndex = 0x00;
         }
-        private static void Spyro3_121(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 Sparx 
+        private static void Spyro3_121(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 air vent 
         {
-            obj.AnimSetIndex = 0x40;
+            // Note: Game also spawns Sparx here
+            obj.AnimSetIndex = 0xB1;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_122(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 sign post 
+        {
+            obj.AnimSetIndex = 0xB2;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_123(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 locked doors
+        {
+            obj.AnimSetIndex = 0xA4;
+
+            var wp = allObjects[obj.Object.WaypointIndex];
+
+            if (obj.Object.ObjectType == 0x24A)
+            {
+                obj.AnimationGroupIndex = 0x03;
+                wp.Object.ObjectType = 0x24B;
+            }
+            else if (obj.Object.ObjectType == 0x24C)
+            {
+                obj.AnimationGroupIndex = 0x01;
+                wp.Object.ObjectType = 0x24D;
+            }
+            else if (obj.Object.ObjectType == 0x24E)
+            {
+                obj.AnimationGroupIndex = 0x00;
+                wp.Object.ObjectType = 0x24F;
+            }
+        }
+        private static void Spyro3_124(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 sleeping guard 
+        {
+            obj.AnimSetIndex = 0xB7;
+            obj.AnimationGroupIndex = 0x05;
+        }
+        private static void Spyro3_125(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 gem
+        {
+            obj.AnimSetIndex = 0xA6;
+
+            if (obj.Object.ObjectType == 0x20A)
+                obj.AnimationGroupIndex = 0x02;
+            else if (obj.Object.ObjectType == 0x20B)
+                obj.AnimationGroupIndex = 0x00;
+            else if (obj.Object.ObjectType == 0x20C)
+                obj.AnimationGroupIndex = 0x01;
+            else if (obj.Object.ObjectType == 0x20D)
+                obj.AnimationGroupIndex = 0x04;
+            else if (obj.Object.ObjectType == 0x20E)
+                obj.AnimationGroupIndex = 0x03;
+        }
+        private static void Spyro3_126(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 patrolling guard 
+        {
+            obj.AnimSetIndex = 0xB7;
+            obj.AnimationGroupIndex = 0x0A;
+        }
+        private static void Spyro3_127(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 guard popping out from pipe 
+        {
+            obj.AnimSetIndex = 0xBA;
             obj.AnimationGroupIndex = 0x03;
+        }
+        private static void Spyro3_128(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 prisoner 
+        {
+            obj.AnimSetIndex = 0xB3;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_129(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 locked door key 
+        {
+            obj.AnimSetIndex = 0xA9;
+
+            if (obj.Object.ObjectType == 0x24B)
+                obj.AnimationGroupIndex = 0x03;
+            else if (obj.Object.ObjectType == 0x24D)
+                obj.AnimationGroupIndex = 0x01;
+            else if (obj.Object.ObjectType == 0x24F)
+                obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_130(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 camera 
+        {
+            obj.AnimSetIndex = 0xB9;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro3_131(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 flying enemy 
+        {
+            obj.AnimSetIndex = 0xB5;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_132(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 checkpoint fairy 
+        {
+            obj.AnimSetIndex = 0x3C;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_133(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 gem container 
+        {
+            if (obj.Object.ObjectType == 0x1F9 || obj.Object.ObjectType == 0x1FA || obj.Object.ObjectType == 0x1FB || obj.Object.ObjectType == 0x1FC || obj.Object.ObjectType == 0x1FD)
+                obj.AnimSetIndex = 0xA3;
+            else if (obj.Object.ObjectType == 0x1FE || obj.Object.ObjectType == 0x1FF || obj.Object.ObjectType == 0x200 || obj.Object.ObjectType == 0x201 || obj.Object.ObjectType == 0x202)
+                obj.AnimSetIndex = 0xAF;
+            else
+                obj.AnimSetIndex = -1;
+
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_134(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 moving platform 
+        {
+            obj.AnimSetIndex = 0xAB;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_135(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 mines 
+        {
+            obj.AnimSetIndex = 0xAA;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_136(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
+        {
+            obj.AnimSetIndex = 0xB8;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_137(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 spying enemy
+        {
+            obj.AnimSetIndex = 0xB7;
+            obj.AnimationGroupIndex = 0x02;
         }
     }
 }
