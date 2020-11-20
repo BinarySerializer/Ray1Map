@@ -167,9 +167,9 @@ public class SettingsWindow : UnityWindow
             }
         }
 
-        // Miscellaneous
+        // Visibility
 
-        DrawHeader("Miscellaneous");
+        DrawHeader("Visibility");
 
         Settings.ShowObjects = EditorField("Show objects", Settings.ShowObjects);
 
@@ -181,14 +181,6 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowObjCollision = EditorField("Show object collision", Settings.ShowObjCollision);
 
-        Settings.StateSwitchingMode = EditorField("State switching", Settings.StateSwitchingMode);
-
-        Settings.UseHDCollisionSheet = EditorField("Use HD collision sheet", Settings.UseHDCollisionSheet);
-
-        Settings.AnimateSprites = EditorField("Animate sprites", Settings.AnimateSprites);
-
-        Settings.AnimateTiles = EditorField("Animate tiles", Settings.AnimateTiles);
-
         Settings.ShowAlwaysObjects = EditorField("Show always objects", Settings.ShowAlwaysObjects);
 
         Settings.ShowEditorObjects = EditorField("Show editor objects", Settings.ShowEditorObjects);
@@ -199,13 +191,45 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowRayman = EditorField("Show Rayman", Settings.ShowRayman);
 
+        Settings.HideUnusedLinks = EditorField("Hide unused links", Settings.HideUnusedLinks);
+
+        // Miscellaneous
+
+        DrawHeader("Miscellaneous");
+
+        Settings.UseHDCollisionSheet = EditorField("Use HD collision sheet", Settings.UseHDCollisionSheet);
+
+        Settings.AnimateSprites = EditorField("Animate sprites", Settings.AnimateSprites);
+
+        Settings.AnimateTiles = EditorField("Animate tiles", Settings.AnimateTiles);
+
         Settings.ShowDebugInfo = EditorField("Show debug info", Settings.ShowDebugInfo);
 
-        Settings.BackupFiles = EditorField("Create .BAK backup files", Settings.BackupFiles);
+        Settings.FollowRaymanInMemoryMode = EditorField("Follow Rayman in memory mode", Settings.FollowRaymanInMemoryMode);
+
+        // Game Settings
+
+        DrawHeader("Game Settings");
+
+        Settings.StateSwitchingMode = EditorField("R1: State switching", Settings.StateSwitchingMode);
+
+        Settings.LoadIsometricMapLayer = EditorField("Isometric: Load map layer", Settings.LoadIsometricMapLayer);
+
+        // Screenshots
+
+        DrawHeader("Screenshots");
 
         Settings.ScreenshotEnumeration = EditorField("Screenshot enumeration", Settings.ScreenshotEnumeration);
 
-        Settings.FollowRaymanInMemoryMode = EditorField("Follow Rayman in memory mode", Settings.FollowRaymanInMemoryMode);
+        Settings.Screenshot_FileName = EditorField("File name", Settings.Screenshot_FileName);
+
+        Settings.Screenshot_ShowDefaultObj = EditorField("Show default object", Settings.Screenshot_ShowDefaultObj);
+
+        // Serialization
+
+        DrawHeader("Serialization");
+
+        Settings.BackupFiles = EditorField("Create .BAK backup files", Settings.BackupFiles);
 
         Rect rect = GetNextRect(ref YPos);
         rect = EditorGUI.PrefixLabel(rect, new GUIContent("Serialization log"));

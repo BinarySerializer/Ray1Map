@@ -108,6 +108,10 @@ namespace R1Engine {
         /// </summary>
         public static bool ShowDebugInfo { get; set; }
 
+        public static ScreenshotName Screenshot_FileName { get; set; }
+        public static bool Screenshot_ShowDefaultObj { get; set; }
+        public static bool HideUnusedLinks { get; set; } = FileSystem.mode == FileSystem.Mode.Web;
+        public static bool LoadIsometricMapLayer { get; set; } = true;
 
         private const string editorPrefsPrefix = "Ray1Map.";
         private const string settingsFile = "Settings.txt";
@@ -226,6 +230,13 @@ namespace R1Engine {
             ScreenshotEnumeration = s.SerializeBool("ScreenshotEnumeration", ScreenshotEnumeration);
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
             ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo, "debug");
+
+            string screenshot_FileNameString = s.SerializeString("Screenshot_FileName", Screenshot_FileName.ToString());
+            Screenshot_FileName = Enum.TryParse(screenshot_FileNameString, out ScreenshotName screenshotFileName) ? screenshotFileName : Screenshot_FileName;
+            Screenshot_ShowDefaultObj = s.SerializeBool("Screenshot_ShowDefaultObj", Screenshot_ShowDefaultObj);
+            HideUnusedLinks = s.SerializeBool("HideUnusedLinks", HideUnusedLinks);
+            LoadIsometricMapLayer = s.SerializeBool("LoadIsometricMapLayer", LoadIsometricMapLayer);
+
             ShowDefaultObjIcons = s.SerializeBool("ShowDefaultObjIcons", ShowDefaultObjIcons);
             ShowObjOffsets = s.SerializeBool("ShowObjOffsets", ShowObjOffsets);
             ShowRayman = s.SerializeBool("ShowRayman", ShowRayman);

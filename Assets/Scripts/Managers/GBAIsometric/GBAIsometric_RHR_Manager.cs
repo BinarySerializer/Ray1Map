@@ -463,7 +463,7 @@ namespace R1Engine
             var availableMaps = !isMenu ? levelData.MapLayers.Select(x => x.DataPointer.Value).Reverse() : rom.MenuMaps;
 
             // Not all levels have maps
-            if (levelInfo?.MapPointer?.Value != null)
+            if (levelInfo?.MapPointer?.Value != null && Settings.LoadIsometricMapLayer)
                 availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
 
             var tileSets = new Dictionary<GBAIsometric_RHR_TileSet, Unity_MapTileMap>();

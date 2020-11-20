@@ -628,7 +628,7 @@ namespace R1Engine
                 // Make sure links are set to show
                 Settings.ShowLinks && 
                 // Only show active links on web
-                !(FileSystem.mode == FileSystem.Mode.Web && ObjData.EditorLinkGroup == 0) && 
+                !(Settings.HideUnusedLinks && ObjData.EditorLinkGroup == 0) && 
                 // Only show if available
                 ObjData.CanBeLinkedToGroup;
 

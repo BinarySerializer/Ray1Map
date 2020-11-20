@@ -429,7 +429,7 @@ namespace R1Engine
 
             // Add the map if available
             var lvlMap = rom.LevelMaps?.FirstOrDefault(x => x.LevelID == rom.GetLevelDataID(context.Settings));
-            if (context.Settings.World == 0 && lvlMap != null)
+            if (context.Settings.World == 0 && lvlMap != null && Settings.LoadIsometricMapLayer)
             {
                 maps = maps.Append(new Unity_Map() {
                     Type = Unity_Map.MapType.Graphics,

@@ -97,7 +97,7 @@ namespace R1Engine
                 });
 
                 if (Settings.ScreenshotEnumeration)
-                    await ConvertLevelToPNG();
+                    await ConvertLevelToPNGAsync();
             }
         }
 
@@ -175,17 +175,34 @@ namespace R1Engine
             }
         }
 
-        public async UniTask ConvertLevelToPNG() 
+        public async void ConvertLevelToPNG() => await ConvertLevelToPNGAsync();
+        public async UniTask ConvertLevelToPNGAsync() 
         {
             // Get the path to save to
-            var destPath = $@"Screenshots\{LevelEditorData.CurrentSettings.GameModeSelection}\{LevelEditorData.CurrentSettings.GameModeSelection} - {LevelEditorData.CurrentSettings.World} {LevelEditorData.CurrentSettings.Level:00}.png";
+            var destPath = Path.Combine("Screenshots", LevelEditorData.CurrentSettings.GameModeSelection.ToString());
 
-            // Create the directory
-            //Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+            switch (Settings.Screenshot_FileName)
+            {
+                default:
+                case ScreenshotName.Mode_World_Level:
+                    destPath = Path.Combine(destPath, $"{LevelEditorData.CurrentSettings.GameModeSelection} - {LevelEditorData.CurrentSettings.World} {LevelEditorData.CurrentSettings.Level:00}.png");
+                    break;
 
-            var bytes = await CreateLevelScreenshot();
-            Util.ByteArrayToFile(destPath, bytes);
+                case ScreenshotName.Mode_Level:
+                    destPath = Path.Combine(destPath, $"{LevelEditorData.CurrentSettings.GameModeSelection} - {LevelEditorData.CurrentSettings.Level:00}.png");
+                    break;
 
+                case ScreenshotName.Engine_World_Level:
+                    destPath = Path.Combine(destPath, $"{LevelEditorData.CurrentSettings.EngineVersion} - {LevelEditorData.CurrentSettings.World} {LevelEditorData.CurrentSettings.Level:00}.png");
+                    break;
+
+                case ScreenshotName.Engine_Level:
+                    destPath = Path.Combine(destPath, $"{LevelEditorData.CurrentSettings.EngineVersion} - {LevelEditorData.CurrentSettings.Level:00}.png");
+                    break;
+            }
+
+            // Create and write screenshot
+            Util.ByteArrayToFile(destPath, await CreateLevelScreenshot());
 
             if (Settings.ScreenshotEnumeration)
             {
@@ -200,6 +217,8 @@ namespace R1Engine
 
         public async UniTask<byte[]> CreateLevelScreenshot()
         {
+            var onFinished = new List<Action>();
+
             // Hide unused links and show gendoors
             foreach (var e in Objects)
             {
@@ -208,8 +227,7 @@ namespace R1Engine
 
                 if (e.ObjData is Unity_Object_R1 r1Obj)
                 {
-                    Enum[] exceptions = new Enum[]
-                    {
+                    Enum[] exceptions = {
                         R1_EventType.TYPE_GENERATING_DOOR,
                         R1_EventType.TYPE_DESTROYING_DOOR,
                         R1_EventType.MS_scintillement,
@@ -221,16 +239,29 @@ namespace R1Engine
                     };
 
                     if (exceptions.Contains(r1Obj.EventData.Type))
+                    {
+                        var wasActive = e.gameObject.activeSelf;
                         e.gameObject.SetActive(true);
+                        onFinished.Add(() => e.gameObject.SetActive(wasActive));
+                    }
                 }
                 else if (e.ObjData is Unity_Object_GBA gbaObj)
                 {
                     if (gbaObj.Actor.ActorID == 0)
+                    {
+                        var wasActive = e.gameObject.activeSelf;
                         e.gameObject.SetActive(true);
+                        onFinished.Add(() => e.gameObject.SetActive(wasActive));
+                    }
                 }
 
-                // Always hide events with no graphics
-                if (e.defaultRenderer.gameObject.activeSelf) e.gameObject.SetActive(false);
+                // Hide events with no graphics
+                if (e.defaultRenderer.gameObject.activeSelf && !Settings.Screenshot_ShowDefaultObj)
+                {
+                    var wasActive = e.gameObject.activeSelf;
+                    e.gameObject.SetActive(false);
+                    onFinished.Add(() => e.gameObject.SetActive(wasActive));
+                }
 
                 // TODO: Change this option
                 // Helper method
@@ -249,8 +280,14 @@ namespace R1Engine
 
                 if (e.ObjData.EditorLinkGroup == 0)
                 {
+                    var wasActive = e.lineRend.enabled;
                     e.lineRend.enabled = false;
                     e.linkCube.gameObject.SetActive(false);
+                    onFinished.Add(() =>
+                    {
+                        e.lineRend.enabled = wasActive;
+                        e.linkCube.gameObject.SetActive(wasActive);
+                    });
                 }
                 else
                 {
@@ -271,8 +308,14 @@ namespace R1Engine
                     {
                         foreach (var a in allofSame)
                         {
+                            var wasActive = a.lineRend.enabled;
                             a.lineRend.enabled = false;
                             a.linkCube.gameObject.SetActive(false);
+                            onFinished.Add(() =>
+                            {
+                                a.lineRend.enabled = wasActive;
+                                a.linkCube.gameObject.SetActive(wasActive);
+                            });
                         }
                     }
                 }
@@ -280,6 +323,9 @@ namespace R1Engine
 
             TransparencyCaptureBehaviour tcb = Camera.main.GetComponent<TransparencyCaptureBehaviour>();
             byte[] result = await tcb.CaptureFulllevel(false);
+
+            foreach (var a in onFinished)
+                a?.Invoke();
 
             return result;
         }
