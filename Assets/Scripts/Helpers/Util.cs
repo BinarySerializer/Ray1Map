@@ -488,7 +488,7 @@ namespace R1Engine
             return tex;
         }
 
-        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, bool is8bpp, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false)
+        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, bool is8bpp, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false)
         {
             // Fill in tile pixels
             for (int y = 0; y < tileWidth; y++) {
@@ -511,8 +511,9 @@ namespace R1Engine
                     {
                         var b = imgData[index];
                         c = pal[b];
-
-                        tex.SetPixel(xx, yy, c);
+                        if (!ignoreTransparent || c.a > 0) {
+                            tex.SetPixel(xx, yy, c);
+                        }
                     }
                     else
                     {
@@ -525,7 +526,9 @@ namespace R1Engine
                         }
                         c = pal[v];
 
-                        tex.SetPixel(xx, yy, c);
+                        if (!ignoreTransparent || c.a > 0) {
+                            tex.SetPixel(xx, yy, c);
+                        }
                     }
                 }
             }

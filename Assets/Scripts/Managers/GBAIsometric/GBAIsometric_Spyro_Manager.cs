@@ -735,7 +735,7 @@ namespace R1Engine
                             int actualX = (x * CellSize) + xpos + (isExport ? (frame.XPosition - minX1) : 0);
                             int actualY = (y * CellSize) + ypos + (isExport ? (frame.YPosition - minY1) : 0);
 
-                            tex.FillInTile(animSet.TileSet, tileIndex * 32, pal[palIndex], false, CellSize, true, actualX, actualY);
+                            tex.FillInTile(animSet.TileSet, tileIndex * 32, pal[palIndex], false, CellSize, true, actualX, actualY, ignoreTransparent: true);
 
                             tileIndex++;
                         }
