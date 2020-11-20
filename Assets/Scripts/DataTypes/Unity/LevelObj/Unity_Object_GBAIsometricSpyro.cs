@@ -77,7 +77,7 @@ namespace R1Engine
 
         public bool IsWaypoint => !Object.IsNormalObj;
         public bool IsEditorObj { get; set; } // True for collision objects, trigger objects etc.
-        public bool ForceNoGraphics => AnimSetIndex == -1 || IsEditorObj || ObjType?.Data?.InitFunctionPointer == null;
+        public bool ForceNoGraphics => AnimSetIndex == -1 || IsEditorObj;
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);

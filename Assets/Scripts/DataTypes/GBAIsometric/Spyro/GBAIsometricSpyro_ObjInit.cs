@@ -24,11 +24,8 @@ namespace R1Engine
                     case 0x0802B271:
                     case 0x0802B779:
                     case 0x08031979:
-                    case 0x080338A5:
                     case 0x08033DE1:
-                    case 0x080363F5:
                     case 0x08037441:
-                    case 0x080376A9:
                     case 0x080383BD:
                     case 0x08038ABD:
                     case 0x08038E11:
@@ -41,15 +38,7 @@ namespace R1Engine
                     case 0x080430C5:
                     case 0x080448D1:
                     case 0x0801D1A5:
-                    case 0x08044D81:
-                    case 0x080450BD:
-                    case 0x080454F5:
-                    case 0x08045659:
-                    case 0x080459B1:
                     case 0x08045D5D:
-                    case 0x08045ED1:
-                    case 0x08046161:
-                    case 0x08046271:
                     case 0x08046945:
                     case 0x08046A15:
                     case 0x08046FC5:
@@ -115,7 +104,6 @@ namespace R1Engine
                     case 0x080303CD: return Spyro3_41;
                     case 0x0803050D: return Spyro3_42;
                     case 0x08030BD1: return Spyro3_43;
-                    case 0x08033541: return Spyro3_44;
                     case 0x08034765: return Spyro3_45;
                     case 0x0803497D: return Spyro3_46;
                     case 0x08035219: return Spyro3_47;
@@ -210,6 +198,20 @@ namespace R1Engine
                     case 0x08040571: return Spyro3_135;
                     case 0x080429F1: return Spyro3_136;
                     case 0x0803D0F1: return Spyro3_137;
+
+                    // Sgt. Byrd
+                    case 0x08045ED1: return Spyro3_138;
+                    case 0x080454F5: return Spyro3_139;
+                    case 0x080376A9: return Spyro3_140;
+                    case 0x08044D81: return Spyro3_141;
+                    case 0x08033541: return Spyro3_44;
+                    case 0x08045659: return Spyro3_142;
+                    case 0x080459B1: return Spyro3_143;
+                    case 0x080338A5: return Spyro3_144;
+                    case 0x08046161: return Spyro3_145;
+                    case 0x08046271: return Spyro3_146;
+                    case 0x080363F5: return Spyro3_147;
+                    case 0x080450BD: return Spyro3_148;
                 }
             }
 
@@ -521,17 +523,6 @@ namespace R1Engine
         {
             obj.AnimSetIndex = 0x02;
             obj.AnimationGroupIndex = 0x00;
-        }
-        private static void Spyro3_44(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
-        {
-            obj.AnimSetIndex = 0xA1;
-
-            if (obj.Object.ObjectType == 0x167)
-                obj.AnimationGroupIndex = 0x05;
-            else if (obj.Object.ObjectType == 0x168)
-                obj.AnimationGroupIndex = 0x04;
-            else if (obj.Object.ObjectType == 0x169)
-                obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_45(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
@@ -1217,6 +1208,136 @@ namespace R1Engine
         {
             obj.AnimSetIndex = 0xB7;
             obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro3_138(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd air vent 
+        {
+            // Note: Game also spawns Sparx here
+            obj.AnimSetIndex = 0x9E;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_139(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd gem 
+        {
+            obj.AnimSetIndex = 0xA6;
+
+            if (obj.Object.ObjectType == 0x2C8)
+                obj.AnimationGroupIndex = 0x02;
+            else if (obj.Object.ObjectType == 0x2C9)
+                obj.AnimationGroupIndex = 0x00;
+            else if (obj.Object.ObjectType == 0x2CA)
+                obj.AnimationGroupIndex = 0x01;
+            else if (obj.Object.ObjectType == 0x2CB)
+                obj.AnimationGroupIndex = 0x04;
+            else if (obj.Object.ObjectType == 0x2CC)
+                obj.AnimationGroupIndex = 0x03;
+        }
+        private static void Spyro3_140(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd imprisoned penguin 
+        {
+            // Note: Game also spawns penguin inside of cage
+            obj.AnimSetIndex = 0x90;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro3_141(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd flying enemy 
+        {
+            obj.AnimSetIndex = 0x91;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro3_44(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd shooting enemy
+        {
+            obj.AnimSetIndex = 0xA1;
+
+            if (obj.Object.ObjectType == 0x167)
+                obj.AnimationGroupIndex = 0x05;
+            else if (obj.Object.ObjectType == 0x168)
+                obj.AnimationGroupIndex = 0x04;
+            else if (obj.Object.ObjectType == 0x169)
+                obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro3_142(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd electric gate 
+        {
+            var states = new[]
+            {
+                new { ObjType = 0x2CD, SwitchType = 0x2D3, AnimGroup = 0x05 },
+                new { ObjType = 0x2CE, SwitchType = 0x2D3, AnimGroup = 0x0B },
+                new { ObjType = 0x2CF, SwitchType = 0x2D4, AnimGroup = 0x03 },
+                new { ObjType = 0x2D0, SwitchType = 0x2D4, AnimGroup = 0x09 },
+                new { ObjType = 0x2D1, SwitchType = 0x2D5, AnimGroup = 0x01 },
+                new { ObjType = 0x2D2, SwitchType = 0x2D5, AnimGroup = 0x07 },
+            };
+
+            obj.AnimSetIndex = 0x96;
+            
+            var state = states.FirstOrDefault(x => x.ObjType == obj.Object.ObjectType);
+
+            if (state != null)
+            {
+                obj.AnimationGroupIndex = (byte)state.AnimGroup;
+
+                for (int i = 0; i < obj.Object.WaypointCount; i++)
+                {
+                    var wp = allObjects[i + obj.Object.WaypointIndex];
+                    wp.Object.ObjectType = (ushort)state.SwitchType;
+                }
+            }
+        }
+        private static void Spyro3_143(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd electric gate switch
+        {
+            obj.AnimSetIndex = 0x9A;
+
+            if (obj.Object.ObjectType == 0x2D3)
+                obj.AnimationGroupIndex = 0x05;
+            else if (obj.Object.ObjectType == 0x2D4)
+                obj.AnimationGroupIndex = 0x03;
+            else if (obj.Object.ObjectType == 0x2D5)
+                obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro3_144(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd enemy
+        {
+            obj.AnimSetIndex = 0xA1;
+
+            if (obj.Object.ObjectType == 0x168)
+                obj.AnimationGroupIndex = 0x04;
+            else if (obj.Object.ObjectType == 0x169)
+                obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro3_145(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd teleporter controller
+        {
+            Spyro3_EditorObj(obj, allObjects);
+
+            for (int i = 0; i < obj.Object.WaypointCount; i++)
+            {
+                var wp = allObjects[i + obj.Object.WaypointIndex];
+
+                if (obj.Object.ObjectType == 0x2D8)
+                    wp.Object.ObjectType = 0x2DB;
+                else if (obj.Object.ObjectType == 0x2D9)
+                    wp.Object.ObjectType = 0x2DC;
+                else if (obj.Object.ObjectType == 0x2DA)
+                    wp.Object.ObjectType = 0x2DD;
+            }
+        }
+        private static void Spyro3_146(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd teleporter
+        {
+            obj.AnimSetIndex = 0x9B;
+
+            if (obj.Object.ObjectType == 0x2DC)
+                obj.AnimationGroupIndex = 0x01;
+            else if (obj.Object.ObjectType == 0x2DD)
+                obj.AnimationGroupIndex = 0x00;
+            else if (obj.Object.ObjectType == 0x2DB)
+                obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro3_147(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd tent
+        {
+            Spyro3_EditorObj(obj, allObjects);
+
+            var wp = allObjects[obj.Object.WaypointIndex];
+            wp.AnimSetIndex = 0x9C;
+            wp.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro3_148(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd enemy 
+        {
+            obj.AnimSetIndex = 0x91;
+            obj.AnimationGroupIndex = 0x00;
         }
     }
 }
