@@ -219,23 +219,16 @@ namespace R1Engine
                 switch (address)
                 {
                     case 0x08010761:
-                    case 0x08010B59:
                     case 0x08010EB5:
                     case 0x08012A51:
                     case 0x08012EA9:
-                    case 0x08013AA1:
                     case 0x08013EC5:
-                    case 0x08014549:
                     case 0x080149F1:
                     case 0x08014EA1:
                     case 0x080151DD:
                     case 0x08015429:
                     case 0x08015D51:
-                    case 0x08016641:
                     case 0x08016C41:
-                    case 0x080177DD:
-                    case 0x08017F31:
-                    case 0x0801811D:
                     case 0x0801841D:
                     case 0x08018639:
                     case 0x0801E5A9:
@@ -243,7 +236,6 @@ namespace R1Engine
                     case 0x0801F40D:
                     case 0x0801F829:
                     case 0x08020145:
-                    case 0x0802099D:
                     case 0x08020BF5:
                     case 0x080211BD:
                     case 0x0801DCB1:
@@ -316,7 +308,6 @@ namespace R1Engine
                     case 0x08037005:
                     case 0x08037725:
                     case 0x08037FB5:
-                    case 0x080383B5:
                     case 0x08038679:
                     case 0x080387E1:
                     case 0x08038929:
@@ -375,6 +366,15 @@ namespace R1Engine
                     case 0x0803CB39: return Spyro2_18;
                     case 0x0803CE45: return Spyro2_19;
                     case 0x08040229: return Spyro2_20;
+                    case 0x08013AA1: return Spyro2_21;
+                    case 0x08016641: return Spyro2_22;
+                    case 0x08017F31: return Spyro2_23;
+                    case 0x080177DD: return Spyro2_24;
+                    case 0x080383B5: return Spyro2_25;
+                    case 0x0801811D: return Spyro2_26;
+                    case 0x08010B59: return Spyro2_27;
+                    case 0x0802099D: return Spyro2_28;
+                    case 0x08014549: return Spyro2_29;
                 }
             }
 
@@ -557,6 +557,51 @@ namespace R1Engine
         private static void Spyro2_20(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Moneybags
         {
             obj.AnimSetIndex = 0x51;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_21(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Henrietta
+        {
+            obj.AnimSetIndex = 0x2F;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_22(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x63;
+            obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro2_23(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Locked chest
+        {
+            obj.AnimSetIndex = 0x18;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_24(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x6E;
+            obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro2_25(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Checkpoint fairy
+        {
+            obj.AnimSetIndex = 0x39;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro2_26(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Key
+        {
+            obj.AnimSetIndex = 0x3E;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_27(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Daisy
+        {
+            obj.AnimSetIndex = 0x2F;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_28(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Challenge portal
+        {
+            obj.AnimSetIndex = 0x57;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro2_29(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Mabel
+        {
+            obj.AnimSetIndex = 0x2F;
             obj.AnimationGroupIndex = 0x00;
         }
 
