@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAIsometric_Spyro_QuestItem : R1Serializable
+    public class GBAIsometric_Spyro3_QuestItem : R1Serializable
     {
         public ushort ObjectType { get; set; }
         public QuestItemType ItemType { get; set; }

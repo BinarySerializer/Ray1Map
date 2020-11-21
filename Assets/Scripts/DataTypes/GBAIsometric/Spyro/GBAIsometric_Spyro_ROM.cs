@@ -37,10 +37,11 @@ namespace R1Engine
 
         public ARGB1555Color[] CommonPalette { get; set; }
 
-        public GBAIsometric_Spyro_State_NPC[] States_NPC { get; set; }
-        public GBAIsometric_Spyro_State_DoorTypes[] States_DoorTypes { get; set; }
-        public GBAIsometric_Spyro_State_DoorGraphics[] States_DoorGraphics { get; set; }
-        public GBAIsometric_Spyro_QuestItem[] QuestItems { get; set; }
+        public GBAIsometric_Spyro3_State_NPC[] States_Spyro3_NPC { get; set; }
+        public GBAIsometric_Spyro3_State_DoorTypes[] States_Spyro3_DoorTypes { get; set; }
+        public GBAIsometric_Spyro3_State_DoorGraphics[] States_Spyro3_DoorGraphics { get; set; }
+        public GBAIsometric_Spyro2_State_LevelObjective[] States_Spyro2_LevelObjectives { get; set; }
+        public GBAIsometric_Spyro3_QuestItem[] QuestItems { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -156,11 +157,12 @@ namespace R1Engine
                 CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(CommonPalette, 256, name: nameof(CommonPalette)));
 
             // Serialize object states
-            States_NPC = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_NPC), () => s.SerializeObjectArray<GBAIsometric_Spyro_State_NPC>(States_NPC, 49, name: nameof(States_NPC)));
-            States_DoorTypes = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_DoorTypes), () => s.SerializeObjectArray<GBAIsometric_Spyro_State_DoorTypes>(States_DoorTypes, 49, name: nameof(States_DoorTypes)));
-            States_DoorGraphics = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_DoorGraphics), () => s.SerializeObjectArray<GBAIsometric_Spyro_State_DoorGraphics>(States_DoorGraphics, 22, name: nameof(States_DoorGraphics)));
+            States_Spyro3_NPC = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro3_NPC), () => s.SerializeObjectArray<GBAIsometric_Spyro3_State_NPC>(States_Spyro3_NPC, 49, name: nameof(States_Spyro3_NPC)));
+            States_Spyro3_DoorTypes = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro3_DoorTypes), () => s.SerializeObjectArray<GBAIsometric_Spyro3_State_DoorTypes>(States_Spyro3_DoorTypes, 49, name: nameof(States_Spyro3_DoorTypes)));
+            States_Spyro3_DoorGraphics = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro3_DoorGraphics), () => s.SerializeObjectArray<GBAIsometric_Spyro3_State_DoorGraphics>(States_Spyro3_DoorGraphics, 22, name: nameof(States_Spyro3_DoorGraphics)));
+            States_Spyro2_LevelObjectives = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro2_LevelObjectives), () => s.SerializeObjectArray<GBAIsometric_Spyro2_State_LevelObjective>(States_Spyro2_LevelObjectives, 14, name: nameof(States_Spyro2_LevelObjectives)));
 
-            QuestItems = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.QuestItems), () => s.SerializeObjectArray<GBAIsometric_Spyro_QuestItem>(QuestItems, 104, name: nameof(QuestItems)));
+            QuestItems = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.QuestItems), () => s.SerializeObjectArray<GBAIsometric_Spyro3_QuestItem>(QuestItems, 104, name: nameof(QuestItems)));
 
             // Serialize unknown struct
             if (s.GameSettings.GameModeSelection == GameModeSelection.SpyroAdventureUS)

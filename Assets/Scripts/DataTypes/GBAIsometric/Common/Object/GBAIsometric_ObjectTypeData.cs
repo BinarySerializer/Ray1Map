@@ -6,9 +6,9 @@
         public uint ObjectMemorySize { get; set; } // The size of the object struct in memory (the first few properties are always the same, but then it varies between object types how it's filled out)
 
         public Pointer InitFunctionPointer { get; set; }
-        public Pointer FunctionPointer1 { get; set; }
-        public Pointer FunctionPointer2 { get; set; } // For Lums this handles you collecting them
-        public Pointer FunctionPointer3 { get; set; }
+        public Pointer FunctionPointer1 { get; set; } // Spyro3: Unloads some anim blocks
+        public Pointer FunctionPointer2 { get; set; } // RHR: For Lums this handles you collecting them
+        public Pointer FunctionPointer3 { get; set; } // Spyro3: Draws the object frames (obj + child objects)
         public Pointer FunctionPointer4 { get; set; }
 
         public byte AnimationIndex { get; set; }
@@ -19,7 +19,7 @@
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
                 AnimSetPointer = s.SerializePointer<GBAIsometric_RHR_AnimSet>(AnimSetPointer, resolve: true, name: nameof(AnimSetPointer));
-            else
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
                 ObjectMemorySize = s.Serialize<uint>(ObjectMemorySize, name: nameof(ObjectMemorySize));
 
             InitFunctionPointer = s.SerializePointer(InitFunctionPointer, name: nameof(InitFunctionPointer));

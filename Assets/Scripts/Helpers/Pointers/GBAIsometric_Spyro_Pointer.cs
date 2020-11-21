@@ -33,9 +33,10 @@
         LevelData_Spyro3_Agent9,
         LevelData_Spyro3_SgtByrd,
 
-        States_NPC,
-        States_DoorTypes,
-        States_DoorGraphics,
+        States_Spyro3_NPC,
+        States_Spyro3_DoorTypes,
+        States_Spyro3_DoorGraphics,
+        States_Spyro2_LevelObjectives,
 
         QuestItems,
     }

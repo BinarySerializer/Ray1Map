@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAIsometric_Spyro_State_DoorTypes : R1Serializable
+    public class GBAIsometric_Spyro3_State_DoorTypes : R1Serializable
     {
         public ushort ObjectType { get; set; }
         public ushort LevelID { get; set; }

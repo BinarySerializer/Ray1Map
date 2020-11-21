@@ -7,7 +7,7 @@ namespace R1Engine
     {
         public static Action<Unity_Object_GBAIsometricSpyro, Unity_Object_GBAIsometricSpyro[]> GetInitFunc(GameSettings settings, uint address)
         {
-            if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 && settings.GameModeSelection == GameModeSelection.SpyroAdventureUS)
+            if (settings.GameModeSelection == GameModeSelection.SpyroAdventureUS)
             {
                 switch (address)
                 {
@@ -46,7 +46,7 @@ namespace R1Engine
                     case 0x08047101:
                     case 0x0804739D:
                     case 0x08047651:
-                        return Spyro3_NotImplemented;
+                        return Spyro_NotImplemented;
 
                     case 0x080159BD: // Vertical collision
                     case 0x080236B1: // Screen change trigger
@@ -58,7 +58,7 @@ namespace R1Engine
                     case 0x0801B9BD: // ?
                     case 0x0801B499: // ?
                     case 0x080401C1: // Agent 9 pipe controller
-                        return Spyro3_EditorObj;
+                        return Spyro_EditorObj;
 
                     case 0x08015BBD: return Spyro3_0;
                     case 0x0801A20D: return Spyro3_1;
@@ -214,21 +214,352 @@ namespace R1Engine
                     case 0x080450BD: return Spyro3_148;
                 }
             }
+            else if (settings.GameModeSelection == GameModeSelection.SpyroSeasonFlameUS)
+            {
+                switch (address)
+                {
+                    case 0x08010761:
+                    case 0x08010B59:
+                    case 0x08010EB5:
+                    case 0x08012A51:
+                    case 0x08012EA9:
+                    case 0x08013AA1:
+                    case 0x08013EC5:
+                    case 0x08014549:
+                    case 0x080149F1:
+                    case 0x08014EA1:
+                    case 0x080151DD:
+                    case 0x08015429:
+                    case 0x08015D51:
+                    case 0x08016641:
+                    case 0x08016C41:
+                    case 0x080177DD:
+                    case 0x08017F31:
+                    case 0x0801811D:
+                    case 0x0801841D:
+                    case 0x08018639:
+                    case 0x0801E5A9:
+                    case 0x0801ED71:
+                    case 0x0801F40D:
+                    case 0x0801F829:
+                    case 0x08020145:
+                    case 0x0802099D:
+                    case 0x08020BF5:
+                    case 0x080211BD:
+                    case 0x0801DCB1:
+                    case 0x0802152D:
+                    case 0x08021769:
+                    case 0x08021969:
+                    case 0x08021D39:
+                    case 0x08021F65:
+                    case 0x080221E9:
+                    case 0x080224B5:
+                    case 0x08022E89:
+                    case 0x08023AA1:
+                    case 0x08023E89:
+                    case 0x0802471D:
+                    case 0x08024F19:
+                    case 0x080251BD:
+                    case 0x08025689:
+                    case 0x08025AFD:
+                    case 0x080267A5:
+                    case 0x080275B1:
+                    case 0x08028025:
+                    case 0x08026B01:
+                    case 0x08028535:
+                    case 0x08028929:
+                    case 0x08028AA5:
+                    case 0x080290B9:
+                    case 0x08029395:
+                    case 0x08029A5D:
+                    case 0x08029FE1:
+                    case 0x0802A8BD:
+                    case 0x0802B039:
+                    case 0x0802B431:
+                    case 0x0802B67D:
+                    case 0x0802B9DD:
+                    case 0x0802BB9D:
+                    case 0x0802BFD5:
+                    case 0x0802C1B5:
+                    case 0x0802C53D:
+                    case 0x0802C6A5:
+                    case 0x0802CC6D:
+                    case 0x0802D2CD:
+                    case 0x0802D901:
+                    case 0x0802E2B5:
+                    case 0x0802E55D:
+                    case 0x0802EA61:
+                    case 0x0802ED69:
+                    case 0x0802EFBD:
+                    case 0x0802F335:
+                    case 0x0802F575:
+                    case 0x0802FAF5:
+                    case 0x080303C5:
+                    case 0x08030B21:
+                    case 0x080312B9:
+                    case 0x080316D5:
+                    case 0x0803197D:
+                    case 0x08031A0D:
+                    case 0x0803240D:
+                    case 0x08032799:
+                    case 0x08032D41:
+                    case 0x080332D1:
+                    case 0x08033A79:
+                    case 0x08034069:
+                    case 0x0803464D:
+                    case 0x08034C7D:
+                    case 0x08034F39:
+                    case 0x0803539D:
+                    case 0x08035E61:
+                    case 0x080368FD:
+                    case 0x08036CB1:
+                    case 0x08037005:
+                    case 0x08037725:
+                    case 0x08037FB5:
+                    case 0x080383B5:
+                    case 0x08038679:
+                    case 0x080387E1:
+                    case 0x08038929:
+                    case 0x080391C5:
+                    case 0x08039BB5:
+                    case 0x0803A58D:
+                    case 0x0803AFD9:
+                    case 0x0803B36D:
+                    case 0x0803BBCD:
+                    case 0x0803BE29:
+                    case 0x0803C9B5:
+                    case 0x08026E75:
+                    case 0x0803D5C1:
+                    case 0x0803D1F5:
+                    case 0x0803DA05:
+                    case 0x0803DE11:
+                    case 0x0803C431:
+                    case 0x0803C259:
+                    case 0x0803C735:
+                    case 0x0803DFB9:
+                    case 0x0803EDB9:
+                    case 0x0803FF6D:
+                    case 0x080404FD:
+                    case 0x08040811:
+                    case 0x08040ACD:
+                    case 0x08040E4D:
+                    case 0x08041145:
+                    case 0x08041465:
+                    case 0x08041705:
+                    case 0x08041D99:
+                        return Spyro_NotImplemented;
+
+                    case 0x08036C8D: // Vertical collision
+                    case 0x0801074D: // Spawner
+                    case 0x0803F941: // Tutorial trigger
+                        return Spyro_EditorObj;
+
+                    case 0x0803E93D: return Spyro2_0;
+                    case 0x0803E539: return Spyro2_1;
+                    case 0x0803E30D: return Spyro2_2;
+                    case 0x08013579: return Spyro2_3;
+                    case 0x080132DD: return Spyro2_4;
+                    case 0x0801551D: return Spyro2_5;
+                    case 0x0803A9A1: return Spyro2_6;
+                    case 0x08011EA5: return Spyro2_7;
+                    case 0x0803F9F5: return Spyro2_8;
+                    case 0x0803EF05: return Spyro2_9;
+                    case 0x08012321: return Spyro2_10;
+                    case 0x0803AC3D: return Spyro2_11;
+                    case 0x0803FCB1: return Spyro2_12;
+                    case 0x08034AC9: return Spyro2_13;
+                    case 0x08042595: return Spyro2_14;
+                    case 0x080102A9: return Spyro2_15;
+                    case 0x080423A1: return Spyro2_16;
+                    case 0x0803B62D: return Spyro2_17;
+                    case 0x0803CB39: return Spyro2_18;
+                    case 0x0803CE45: return Spyro2_19;
+                    case 0x08040229: return Spyro2_20;
+                }
+            }
 
             return (x, y) => x.AnimSetIndex = -1;
         }
 
+
         private static GBAIsometric_Spyro_ROM GetROM(Unity_Object_GBAIsometricSpyro obj) => obj.ObjManager.Context.GetMainFileObject<GBAIsometric_Spyro_ROM>(((GBAIsometric_Spyro_Manager)obj.ObjManager.Context.Settings.GetGameManager).GetROMFilePath);
 
-        private static void Spyro3_NotImplemented(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
+        private static void Spyro_NotImplemented(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
             obj.AnimSetIndex = -1;
         }
-        private static void Spyro3_EditorObj(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
+        private static void Spyro_EditorObj(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
             obj.AnimSetIndex = -1;
             obj.IsEditorObj = true;
         }
+
+
+        private static void Spyro2_0(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Dragon elder (intro)
+        {
+            obj.AnimSetIndex = 0x1A;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_1(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca (intro)
+        {
+            obj.AnimSetIndex = 0x0C;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_2(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter (intro)
+        {
+            obj.AnimSetIndex = 0x32;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_3(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Gem
+        {
+            obj.AnimSetIndex = 0x3B;
+
+            switch (obj.Object.ObjectType - 0x87)
+            {
+                case 0:
+                    obj.AnimationGroupIndex = 0x02;
+                    break;
+
+                case 1:
+                    obj.AnimationGroupIndex = 0x00;
+                    break;
+
+                case 2:
+                    obj.AnimationGroupIndex = 0x01;
+                    break;
+
+                case 3:
+                    obj.AnimationGroupIndex = 0x05;
+                    break;
+
+                case 4:
+                    obj.AnimationGroupIndex = 0x04;
+                    break;
+            }
+        }
+        private static void Spyro2_4(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Gem containers
+        {
+            var relType = obj.Object.ObjectType - 0x7D;
+
+            obj.AnimSetIndex = relType < 5 ? 0x0B : 0x77;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro2_5(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Level portal
+        {
+            obj.AnimSetIndex = 0x56;
+            obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro2_6(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
+        {
+            obj.AnimSetIndex = 0x0C;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_7(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Level objective
+        {
+            var lvlObjective = GetROM(obj).States_Spyro2_LevelObjectives;
+            var state = lvlObjective.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
+
+            if (state != null)
+            {
+                obj.AnimSetIndex = state.AnimSetIndex_0;
+                obj.AnimationGroupIndex = (byte)state.AnimationGroupIndex_0;
+            }
+            else
+            {
+                obj.AnimSetIndex = -1;
+            }
+        }
+        private static void Spyro2_8(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter
+        {
+            obj.AnimSetIndex = 0x32;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_9(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter (jumping tutorial)
+        {
+            obj.AnimSetIndex = 0x32;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_10(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Fodder
+        {
+            if (obj.Object.ObjectType == 0x78)
+            {
+                obj.AnimSetIndex = 0x67;
+                obj.AnimationGroupIndex = 0x02;
+            }
+            else if (obj.Object.ObjectType == 0x77)
+            {
+                obj.AnimSetIndex = 0x53;
+                obj.AnimationGroupIndex = 0x01;
+            }
+            else if (obj.Object.ObjectType == 0x79)
+            {
+                obj.AnimSetIndex = 0x3A;
+                obj.AnimationGroupIndex = 0x00;
+            }
+            else
+            {
+                obj.AnimSetIndex = -1;
+            }
+        }
+        private static void Spyro2_11(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 NPC
+        {
+            obj.AnimSetIndex = 0x37;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_12(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
+        {
+            obj.AnimSetIndex = 0x0C;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_13(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Power-up gate
+        {
+            // Note: Game creates a second obj with same anim at x + 0xC
+
+            obj.AnimSetIndex = 0x13;
+
+            if (obj.Object.ObjectType == 0x17C)
+                obj.AnimationGroupIndex = 0x00;
+            else if (obj.Object.ObjectType == 0x17D)
+                obj.AnimationGroupIndex = 0x01;
+            else if (obj.Object.ObjectType == 0x17E)
+                obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro2_14(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Life
+        {
+            obj.AnimSetIndex = 0x36;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro2_15(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Dragonfly
+        {
+            obj.AnimSetIndex = 0x21;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_16(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sparx Panic portal
+        {
+            obj.AnimSetIndex = 0x56;
+            obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro2_17(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sheila NPC
+        {
+            obj.AnimSetIndex = 0x68;
+            obj.AnimationGroupIndex = 0x05;
+        }
+        private static void Spyro2_18(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Moneybags
+        {
+            obj.AnimSetIndex = 0x51;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_19(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
+        {
+            obj.AnimSetIndex = 0x0C;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_20(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Moneybags
+        {
+            obj.AnimSetIndex = 0x51;
+            obj.AnimationGroupIndex = 0x00;
+        }
+
 
         private static void Spyro3_0(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Spyro
         {
@@ -242,16 +573,10 @@ namespace R1Engine
         }
         private static void Spyro3_2(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Gem containers
         {
-            if (obj.Object.ObjectType == 13)
-            {
-                obj.AnimSetIndex = 0x09;
-                obj.AnimationGroupIndex = 0x01;
-            }
-            else
-            {
-                obj.AnimSetIndex = 0x84;
-                obj.AnimationGroupIndex = 0x01;
-            }
+            var relType = obj.Object.ObjectType - 0x0D;
+
+            obj.AnimSetIndex = relType < 5 ? 0x09 : 0x84;
+            obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_3(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
@@ -310,7 +635,7 @@ namespace R1Engine
         }
         private static void Spyro3_12(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // NPC
         {
-            var npcStates = GetROM(obj).States_NPC;
+            var npcStates = GetROM(obj).States_Spyro3_NPC;
             var state = npcStates.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
 
             if (state != null)
@@ -600,7 +925,7 @@ namespace R1Engine
         {
             var rom = GetROM(obj);
             var levID = obj.ObjManager.Context.Settings.Level;
-            var typeState = rom.States_DoorTypes.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
+            var typeState = rom.States_Spyro3_DoorTypes.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
 
             long graphicsID;
             if (typeState?.LevelID == levID)
@@ -608,7 +933,7 @@ namespace R1Engine
             else
                 graphicsID = typeState?.GraphicsStateID2 ?? -1;
 
-            var graphicsState = rom.States_DoorGraphics.FirstOrDefault(x => x.ID == graphicsID);
+            var graphicsState = rom.States_Spyro3_DoorGraphics.FirstOrDefault(x => x.ID == graphicsID);
 
             if (graphicsState != null)
             {
@@ -687,22 +1012,22 @@ namespace R1Engine
             // NOTE: The game creates an object for the chest and sets it to the chest type if the quest item is in a chest. But to avoid us actually changing the type of the object we hard-code the graphics for the specific chest here.
             switch (questItem?.ItemType)
             {
-                case GBAIsometric_Spyro_QuestItem.QuestItemType.RedChest:
+                case GBAIsometric_Spyro3_QuestItem.QuestItemType.RedChest:
                     obj.AnimSetIndex = 0x17;
                     obj.AnimationGroupIndex = 0x00;
                     break;
 
-                case GBAIsometric_Spyro_QuestItem.QuestItemType.GreenChest:
+                case GBAIsometric_Spyro3_QuestItem.QuestItemType.GreenChest:
                     obj.AnimSetIndex = 0x15;
                     obj.AnimationGroupIndex = 0x00;
                     break;
 
-                case GBAIsometric_Spyro_QuestItem.QuestItemType.PinkChest:
+                case GBAIsometric_Spyro3_QuestItem.QuestItemType.PinkChest:
                     obj.AnimSetIndex = 0x16;
                     obj.AnimationGroupIndex = 0x00;
                     break;
 
-                case GBAIsometric_Spyro_QuestItem.QuestItemType.YellowChest:
+                case GBAIsometric_Spyro3_QuestItem.QuestItemType.YellowChest:
                     obj.AnimSetIndex = 0x18;
                     obj.AnimationGroupIndex = 0x00;
                     break;
@@ -741,7 +1066,7 @@ namespace R1Engine
         }
         private static void Spyro3_64(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            Spyro3_EditorObj(obj, allObjects);
+            Spyro_EditorObj(obj, allObjects);
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
                 allObjects[i + obj.Object.WaypointIndex].Object.ObjectType = 0x181;
@@ -753,7 +1078,7 @@ namespace R1Engine
         }
         private static void Spyro3_66(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Rhynopede
         {
-            Spyro3_EditorObj(obj, allObjects);
+            Spyro_EditorObj(obj, allObjects);
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
             {
@@ -852,7 +1177,7 @@ namespace R1Engine
         }
         private static void Spyro3_80(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Clown from ground controller
         {
-            Spyro3_EditorObj(obj, allObjects);
+            Spyro_EditorObj(obj, allObjects);
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
             {
@@ -934,7 +1259,7 @@ namespace R1Engine
         }
         private static void Spyro3_94(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Boulder controller
         {
-            Spyro3_EditorObj(obj, allObjects);
+            Spyro_EditorObj(obj, allObjects);
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
             {
@@ -1071,7 +1396,7 @@ namespace R1Engine
         }
         private static void Spyro3_119(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Boulder controller
         {
-            Spyro3_EditorObj(obj, allObjects);
+            Spyro_EditorObj(obj, allObjects);
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
             {
@@ -1301,7 +1626,7 @@ namespace R1Engine
         }
         private static void Spyro3_145(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd teleporter controller
         {
-            Spyro3_EditorObj(obj, allObjects);
+            Spyro_EditorObj(obj, allObjects);
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
             {
@@ -1328,7 +1653,7 @@ namespace R1Engine
         }
         private static void Spyro3_147(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd tent
         {
-            Spyro3_EditorObj(obj, allObjects);
+            Spyro_EditorObj(obj, allObjects);
 
             var wp = allObjects[obj.Object.WaypointIndex];
             wp.AnimSetIndex = 0x9C;

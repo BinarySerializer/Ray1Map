@@ -38,7 +38,8 @@ namespace R1Engine
             }
         }
 
-        public override string DebugText => $"Init function: {ObjType?.Data?.InitFunctionPointer}{Environment.NewLine}";
+        public override string DebugText => $"Init function: {ObjType?.Data?.InitFunctionPointer}{Environment.NewLine}" +
+                                            $"Type flags: {ObjType?.ObjFlags}{Environment.NewLine}";
 
         public override bool FlipHorizontally => Object.HorizontalFlip;
         public override int? GetLayer(int index) => -index;

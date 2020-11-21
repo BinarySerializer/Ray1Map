@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAIsometric_Spyro_State_NPC : R1Serializable
+    public class GBAIsometric_Spyro3_State_NPC : R1Serializable
     {
         public ushort ObjectType { get; set; }
         public short Short_02 { get; set; }
