@@ -70,13 +70,15 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			float h = (LevelEditorData.Level.IsometricData.TilesHeight) * cellSizeInUnits;
 			float colH = (LevelEditorData.Level.IsometricData.CollisionWidth + LevelEditorData.Level.IsometricData.CollisionHeight);
 
-			var pos = new Vector3((LevelEditorData.MaxWidth) * cellSizeInUnits / 2f, -(LevelEditorData.MaxHeight) * cellSizeInUnits / 2f, cam.transform.position.z);
+			var pos = new Vector3((LevelEditorData.MaxWidth) * cellSizeInUnits / 2f, -(LevelEditorData.MaxHeight) * cellSizeInUnits / 2f, -10f);
 			cam.transform.position = v * 300 + rot3D * ((pos - new Vector3(w / 2f, colH / 2f - h / 2f, 0f)) / scl); // Move back 300 units
 			cam.orthographicSize = Camera.main.orthographicSize / scl;
 			cam.rect = new Rect(0, 0, 1, 1);
+			cam.orthographic = true;
 			cam.gameObject.SetActive(true);
 			cameras.Add(cam);
 
+			await UniTask.WaitForEndOfFrame();
 			// Update all object positions & rotations according to this new camera pos
 			var objects = Controller.obj.levelController.Objects;
 			foreach (var obj in objects) {
