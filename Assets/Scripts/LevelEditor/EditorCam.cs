@@ -161,6 +161,7 @@ namespace R1Engine {
                     // Activate
                     if (!camera3D.gameObject.activeSelf) camera3D.gameObject.SetActive(true);
                     camera3DOverlay.orthographicSize = camera3D.orthographicSize;
+                    camera3DOverlay.orthographic = true;
                     camera2DOverlay.cullingMask &= ~(1 << LayerMask.NameToLayer("3D Overlay"));
 
 
@@ -184,6 +185,7 @@ namespace R1Engine {
                 MouseLookEnabled = false;
                 MouseLookRMBEnabled = false;
                 camera3D.orthographic = true;
+                camera3DOverlay.orthographic = true;
                 Camera.main.cullingMask = cullingMask;
                 camera2DOverlay.cullingMask = cullingMask2DOverlay;
                 targetDirection = null;
@@ -194,6 +196,8 @@ namespace R1Engine {
                 targetDirection = camera3D.transform.localRotation;
             }
             camera3D.orthographic = false;
+            camera3DOverlay.orthographic = false;
+            camera3DOverlay.fieldOfView = camera3D.fieldOfView;
             Camera.main.cullingMask = 0;
             camera2DOverlay.cullingMask = 0;
             CheckShifted();
@@ -252,10 +256,6 @@ namespace R1Engine {
                 CameraControlsPerspective();
                 CameraControlsSpeed();
             }
-
-            //movement
-            CameraControlsPerspective();
-            CameraControlsSpeed();
         }
 
         #region Camera Controls
