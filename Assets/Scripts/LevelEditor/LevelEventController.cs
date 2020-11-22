@@ -357,11 +357,8 @@ namespace R1Engine
 
         private void SetSelectedPosition(Unity_ObjBehaviour e) {
             if (e.ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null) {
-                var mousePos = editor.cam.camera3D.ScreenToWorldPoint(Input.mousePosition);
-                Unity_Object_3D obj = (Unity_Object_3D)e.ObjData;
-
                 Vector3 pos = e.transform.position;
-                Plane plane = new Plane(transform.rotation * Vector3.forward, pos); // Object is facing the camera
+                Plane plane = new Plane(e.transform.rotation * Vector3.forward, pos); // Object is facing the camera
                 Ray ray = editor.cam.camera3D.ScreenPointToRay(Input.mousePosition);
                 float dist;
                 if (plane.Raycast(ray, out dist)) {
