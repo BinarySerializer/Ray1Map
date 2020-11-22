@@ -333,6 +333,14 @@ public class WebCommunicator : MonoBehaviour {
             }
 		}
 
+		// Add free camera mode
+		if (LevelEditorData.Level?.IsometricData != null) {
+			var cam = Controller.obj?.levelController?.editor?.cam;
+			if (cam != null) {
+				s.FreeCameraMode = cam.FreeCameraMode;
+			}
+		}
+
 		return s;
 	}
 
@@ -396,6 +404,14 @@ public class WebCommunicator : MonoBehaviour {
 							}
 							break;
 					}
+				}
+			}
+		}
+		if (msg.FreeCameraMode.HasValue) {
+			if (LevelEditorData.Level?.IsometricData != null) {
+				var cam = Controller.obj?.levelController?.editor?.cam;
+				if (cam != null) {
+					cam.FreeCameraMode = msg.FreeCameraMode.Value;
 				}
 			}
 		}

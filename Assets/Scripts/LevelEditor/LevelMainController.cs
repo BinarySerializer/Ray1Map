@@ -399,6 +399,13 @@ namespace R1Engine
                 updatedSettings = true;
             }
 
+            if (Controller.obj.levelEventController.hasLoaded && LevelEditorData.Level?.IsometricData != null) {
+                if (Input.GetKeyDown(KeyCode.F)) {
+                    editor.cam.FreeCameraMode = !editor.cam.FreeCameraMode;
+                    updatedSettings = true;
+                }
+            }
+
             if (updatedSettings)
             {
                 Controller.obj.webCommunicator.SendSettings();

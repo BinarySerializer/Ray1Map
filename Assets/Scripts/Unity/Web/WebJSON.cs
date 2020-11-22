@@ -47,6 +47,7 @@ public class WebJSON {
 		public bool? ShowDefaultObjIcons { get; set; }
 		public bool? ShowObjOffsets { get; set; }
         public bool? ShowRayman { get; set; }
+		public bool? FreeCameraMode { get; set; }
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 		
 		public Layer[] Layers { get; set; }

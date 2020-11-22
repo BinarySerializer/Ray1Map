@@ -62,7 +62,7 @@ namespace R1Engine
             // Else Mouse over type
             else {
                 Controller.obj.tempDebugText.text = String.Empty;
-                if (cam.FreeLookMode) {
+                if (cam.FreeCameraMode) {
                     textCollision.text = "";
                     textGraphic.enabled = false;
                 } else {

@@ -23,7 +23,8 @@ namespace R1Engine {
         public Camera camera3D;
         public Camera camera2DOverlay;
         public Camera camera3DOverlay;
-        public bool FreeLookMode { get; set; } = false;
+        public bool FreeCameraMode { get; set; } = false;
+        private bool _freeCameraMode = false;
 
         void Start() {
             Camera.main.orthographicSize = fov;
@@ -32,7 +33,7 @@ namespace R1Engine {
         }
 
         void Update() {
-            if (FreeLookMode) {
+            if (_freeCameraMode) {
                 UpdateFreeLook();
             } else {
                 UpdateOrthographic();
@@ -165,9 +166,9 @@ namespace R1Engine {
                     camera2DOverlay.cullingMask &= ~(1 << LayerMask.NameToLayer("3D Overlay"));
 
 
-                    if (Input.GetKeyDown(KeyCode.F)) {
+                    if (FreeCameraMode) {
                         StopLerp();
-                        FreeLookMode = true;
+                        _freeCameraMode = true;
                         cullingMask = Camera.main.cullingMask;
                         cullingMask2DOverlay = camera2DOverlay.cullingMask;
                     }
@@ -178,8 +179,8 @@ namespace R1Engine {
         void UpdateFreeLook() {
             MouseLookRMBEnabled = false;
 
-            if (Input.GetKeyDown(KeyCode.F)) {
-                FreeLookMode = false;
+            if (!FreeCameraMode) {
+                _freeCameraMode = false;
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
                 MouseLookEnabled = false;
@@ -397,7 +398,7 @@ namespace R1Engine {
             Unity_ObjBehaviour obj = gao.GetComponent<Unity_ObjBehaviour>();
             if (obj != null) {
                 if (obj.ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
-                    bool orthographic = !FreeLookMode;
+                    bool orthographic = !_freeCameraMode;
                     if (orthographic) {
                         Vector3 target = camera3D.transform.InverseTransformPoint(obj.midpoint);
                         center = transform.TransformPoint(new Vector3(target.x, target.y, orthographicZPosition));
@@ -418,7 +419,7 @@ namespace R1Engine {
             }
             if (center.HasValue) {
                 float objectSize = Mathf.Min(5f, Mathf.Max(size.Value.x, size.Value.y, size.Value.z));
-                bool orthographic = !FreeLookMode;
+                bool orthographic = !_freeCameraMode;
                 if (orthographic) {
                     var cam = this;
                     var targetSize = objectSize * 2f * 1.5f;

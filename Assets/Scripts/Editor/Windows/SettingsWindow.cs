@@ -215,6 +215,97 @@ public class SettingsWindow : UnityWindow
 
         Settings.LoadIsometricMapLayer = EditorField("Isometric: Load map layer", Settings.LoadIsometricMapLayer);
 
+        // Editor Tools
+        if (Application.isPlaying && Controller.LoadState == Controller.State.Finished) {
+            var lvl = LevelEditorData.Level;
+
+            if (lvl != null) {
+                DrawHeader("Editor Tools");
+
+                if (EditorButton("Copy localization")) {
+                    if (lvl.Localization != null) {
+                        TextEditor te = new TextEditor {
+                            text = JsonConvert.SerializeObject(lvl.Localization, Formatting.Indented)
+                        };
+                        te.SelectAll();
+                        te.Copy();
+                    }
+                }
+
+                if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null) {
+                    if (EditorButton("Copy event flag info")) {
+                        TextEditor te = new TextEditor {
+                            text = r1.GetEventFlagsDebugInfo()
+                        };
+                        te.SelectAll();
+                        te.Copy();
+                    }
+                }
+
+                if (LevelEditorData.Level?.IsometricData != null) {
+                    var cam = Controller.obj?.levelController?.editor?.cam;
+                    if (cam != null) {
+                        cam.FreeCameraMode = EditorField($"Free camera mode", cam.FreeCameraMode);
+                    }
+                }
+
+                if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
+                    var bg = Controller.obj.levelController.controllerTilemap.background;
+
+                    var isActive = EditorField($"Show background", bg.gameObject.activeSelf);
+
+                    if (isActive != bg.gameObject.activeSelf)
+                        bg.gameObject.SetActive(isActive);
+                }
+
+                if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
+                    var bg = Controller.obj.levelController.controllerTilemap.backgroundParallax;
+
+                    var isActive = EditorField($"Show parallax background", bg.gameObject.activeSelf);
+
+                    if (isActive != bg.gameObject.activeSelf)
+                        bg.gameObject.SetActive(isActive);
+                }
+                var layerVisibilities = Controller.obj?.levelController?.controllerTilemap?.IsLayerVisible;
+                if (layerVisibilities != null) {
+                    for (int i = 0; i < layerVisibilities.Length; i++) {
+                        layerVisibilities[i] = EditorField($"Show layer {i} ({LevelEditorData.Level.Maps[i].Type})", layerVisibilities[i]);
+                    }
+                }
+
+                if (LevelEditorData.ShowEventsForMaps != null)
+                    for (int i = 0; i < LevelEditorData.ShowEventsForMaps.Length; i++)
+                        LevelEditorData.ShowEventsForMaps[i] = EditorField($"Show objects for layer {i}", LevelEditorData.ShowEventsForMaps[i]);
+
+                if (LevelEditorData.Level?.Sectors != null) {
+                    LevelEditorData.ShowOnlyActiveSector = EditorField("Show only active sector", LevelEditorData.ShowOnlyActiveSector);
+
+                    LevelEditorData.ActiveSector = EditorField("Active sector", LevelEditorData.ActiveSector, LevelEditorData.Level.Sectors.Select((x, i) => i.ToString()).ToArray(), isVisible: LevelEditorData.ShowOnlyActiveSector);
+                }
+
+                if (PalOptions == null) {
+                    if (Controller.obj.levelController.controllerTilemap.HasAutoPaletteOption) {
+                        PalOptions = new string[]
+                        {
+                            "Auto"
+                        }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString())).ToArray();
+                    } else {
+                        PalOptions = Enumerable.Range(0, LevelEditorData.Level.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString()).ToArray();
+                    }
+                }
+
+                if (Controller.obj?.levelController?.controllerTilemap != null) {
+                    if (Controller.obj.levelController.controllerTilemap.HasAutoPaletteOption) {
+                        Controller.obj.levelController.controllerTilemap.currentPalette = EditorField("Palette", Controller.obj.levelController.controllerTilemap.currentPalette, PalOptions);
+                    } else {
+                        Controller.obj.levelController.controllerTilemap.currentPalette = EditorField("Palette", Controller.obj.levelController.controllerTilemap.currentPalette - 1, PalOptions) + 1;
+                    }
+                }
+            }
+        } else {
+            PalOptions = null;
+        }
+
         // Screenshots
 
         DrawHeader("Screenshots");
@@ -245,105 +336,6 @@ public class SettingsWindow : UnityWindow
         DrawHeader("External Tools");
 
         Settings.Tool_mkpsxiso_filePath = FileField(GetNextRect(ref YPos), "mkpsxiso path", Settings.Tool_mkpsxiso_filePath, false, "exe");
-
-        // Editor Tools
-        if (Application.isPlaying && Controller.LoadState == Controller.State.Finished) {
-            var lvl = LevelEditorData.Level;
-
-            if (lvl != null) {
-                DrawHeader("Editor Tools");
-
-                if (EditorButton("Copy localization")) {
-                    if (lvl.Localization != null) {
-                        TextEditor te = new TextEditor {
-                            text = JsonConvert.SerializeObject(lvl.Localization, Formatting.Indented)
-                        };
-                        te.SelectAll();
-                        te.Copy();
-                    }
-                }
-
-                if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null)
-                {
-                    if (EditorButton("Copy event flag info"))
-                    {
-                        TextEditor te = new TextEditor
-                        {
-                            text = r1.GetEventFlagsDebugInfo()
-                        };
-                        te.SelectAll();
-                        te.Copy();
-                    }
-                }
-
-                if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
-                    var bg = Controller.obj.levelController.controllerTilemap.background;
-
-                    var isActive = EditorField($"Show background", bg.gameObject.activeSelf);
-
-                    if (isActive != bg.gameObject.activeSelf)
-                        bg.gameObject.SetActive(isActive);
-                }
-
-                if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
-                    var bg = Controller.obj.levelController.controllerTilemap.backgroundParallax;
-
-                    var isActive = EditorField($"Show parallax background", bg.gameObject.activeSelf);
-
-                    if (isActive != bg.gameObject.activeSelf)
-                        bg.gameObject.SetActive(isActive);
-                }
-                var layerVisibilities = Controller.obj?.levelController?.controllerTilemap?.IsLayerVisible;
-                if (layerVisibilities != null) {
-                    for (int i = 0; i < layerVisibilities.Length; i++) 
-                    {
-                        layerVisibilities[i] = EditorField($"Show layer {i} ({LevelEditorData.Level.Maps[i].Type})", layerVisibilities[i]);
-                    }
-                }
-
-                if (LevelEditorData.ShowEventsForMaps != null)
-                    for (int i = 0; i < LevelEditorData.ShowEventsForMaps.Length; i++)
-                        LevelEditorData.ShowEventsForMaps[i] = EditorField($"Show objects for layer {i}", LevelEditorData.ShowEventsForMaps[i]);
-
-                if (LevelEditorData.Level?.Sectors != null)
-                {
-                    LevelEditorData.ShowOnlyActiveSector = EditorField("Show only active sector", LevelEditorData.ShowOnlyActiveSector);
-
-                    LevelEditorData.ActiveSector = EditorField("Active sector", LevelEditorData.ActiveSector, LevelEditorData.Level.Sectors.Select((x, i) => i.ToString()).ToArray(), isVisible: LevelEditorData.ShowOnlyActiveSector);
-                }
-
-                if (PalOptions == null)
-                {
-                    if (Controller.obj.levelController.controllerTilemap.HasAutoPaletteOption)
-                    {
-                        PalOptions = new string[]
-                        {
-                            "Auto"
-                        }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString())).ToArray();
-                    }
-                    else
-                    {
-                        PalOptions = Enumerable.Range(0, LevelEditorData.Level.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString()).ToArray();
-                    }
-                }
-
-                if (Controller.obj?.levelController?.controllerTilemap != null)
-                {
-                    if (Controller.obj.levelController.controllerTilemap.HasAutoPaletteOption)
-                    {
-                        Controller.obj.levelController.controllerTilemap.currentPalette = EditorField("Palette", Controller.obj.levelController.controllerTilemap.currentPalette, PalOptions);
-                    }
-                    else
-                    {
-                        Controller.obj.levelController.controllerTilemap.currentPalette = EditorField("Palette", Controller.obj.levelController.controllerTilemap.currentPalette - 1, PalOptions) + 1;
-                    }
-                }
-            }
-        }
-        else
-        {
-            PalOptions = null;
-        }
 
         // Game Tools
 
