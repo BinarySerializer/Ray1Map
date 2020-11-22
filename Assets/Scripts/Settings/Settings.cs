@@ -67,7 +67,7 @@ namespace R1Engine {
         /// </summary>
         public static bool AnimateSprites { get; set; } = true;
 
-        public static bool AnimateTiles { get; set; } = true;
+        public static bool AnimateTiles { get; set; } = false;
 
         /// <summary>
         /// Indicates if always events should be shown
