@@ -703,6 +703,8 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9] = 0x08178ef8,
 
                         [GBAIsometric_Spyro_Pointer.States_Spyro2_LevelObjectives] = 0x081768e8,
+                        [GBAIsometric_Spyro_Pointer.States_Spyro2_Portals] = 0x08176b50,
+                        [GBAIsometric_Spyro_Pointer.States_Spyro2_ChallengePortals] = 0x0817757c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroAdventureEU:

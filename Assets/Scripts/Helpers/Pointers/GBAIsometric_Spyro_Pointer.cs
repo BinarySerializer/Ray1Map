@@ -37,6 +37,8 @@
         States_Spyro3_DoorTypes,
         States_Spyro3_DoorGraphics,
         States_Spyro2_LevelObjectives,
+        States_Spyro2_Portals,
+        States_Spyro2_ChallengePortals,
 
         QuestItems,
     }

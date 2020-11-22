@@ -220,7 +220,6 @@ namespace R1Engine
                 {
                     case 0x08010761:
                     case 0x08010EB5:
-                    case 0x08012A51:
                     case 0x08012EA9:
                     case 0x08013EC5:
                     case 0x080149F1:
@@ -231,7 +230,6 @@ namespace R1Engine
                     case 0x08016C41:
                     case 0x0801841D:
                     case 0x08018639:
-                    case 0x0801E5A9:
                     case 0x0801ED71:
                     case 0x0801F40D:
                     case 0x0801F829:
@@ -239,17 +237,12 @@ namespace R1Engine
                     case 0x08020BF5:
                     case 0x080211BD:
                     case 0x0801DCB1:
-                    case 0x0802152D:
-                    case 0x08021769:
-                    case 0x08021969:
-                    case 0x08021D39:
                     case 0x08021F65:
                     case 0x080221E9:
                     case 0x080224B5:
                     case 0x08022E89:
                     case 0x08023AA1:
                     case 0x08023E89:
-                    case 0x0802471D:
                     case 0x08024F19:
                     case 0x080251BD:
                     case 0x08025689:
@@ -263,9 +256,7 @@ namespace R1Engine
                     case 0x08028AA5:
                     case 0x080290B9:
                     case 0x08029395:
-                    case 0x08029A5D:
                     case 0x08029FE1:
-                    case 0x0802A8BD:
                     case 0x0802B039:
                     case 0x0802B431:
                     case 0x0802B67D:
@@ -290,7 +281,6 @@ namespace R1Engine
                     case 0x08030B21:
                     case 0x080312B9:
                     case 0x080316D5:
-                    case 0x0803197D:
                     case 0x08031A0D:
                     case 0x0803240D:
                     case 0x08032799:
@@ -312,7 +302,6 @@ namespace R1Engine
                     case 0x080387E1:
                     case 0x08038929:
                     case 0x080391C5:
-                    case 0x08039BB5:
                     case 0x0803A58D:
                     case 0x0803AFD9:
                     case 0x0803B36D:
@@ -333,16 +322,14 @@ namespace R1Engine
                     case 0x080404FD:
                     case 0x08040811:
                     case 0x08040ACD:
-                    case 0x08040E4D:
                     case 0x08041145:
-                    case 0x08041465:
-                    case 0x08041705:
-                    case 0x08041D99:
                         return Spyro_NotImplemented;
 
                     case 0x08036C8D: // Vertical collision
                     case 0x0801074D: // Spawner
                     case 0x0803F941: // Tutorial trigger
+                    case 0x0803197D: // Side map area trigger
+                    case 0x08041705: // Challenge object spawner
                         return Spyro_EditorObj;
 
                     case 0x0803E93D: return Spyro2_0;
@@ -375,6 +362,19 @@ namespace R1Engine
                     case 0x08010B59: return Spyro2_27;
                     case 0x0802099D: return Spyro2_28;
                     case 0x08014549: return Spyro2_29;
+                    case 0x0802152D: return Spyro2_30;
+                    case 0x0802A8BD: return Spyro2_31;
+                    case 0x0802471D: return Spyro2_32;
+                    case 0x0801E5A9: return Spyro2_33;
+                    case 0x08041465: return Spyro2_34;
+                    case 0x08021769: return Spyro2_35;
+                    case 0x08021969: return Spyro2_36;
+                    case 0x08029A5D: return Spyro2_37;
+                    case 0x08021D39: return Spyro2_38;
+                    case 0x08041D99: return Spyro2_39;
+                    case 0x08012A51: return Spyro2_40;
+                    case 0x08039BB5: return Spyro2_41;
+                    case 0x08040E4D: return Spyro2_42;
                 }
             }
 
@@ -392,6 +392,19 @@ namespace R1Engine
         {
             obj.AnimSetIndex = -1;
             obj.IsEditorObj = true;
+        }
+        private static void FaceObj(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects, int objType)
+        {
+            // TODO: Change the animation index as well for animations which support that
+            var objToFace = allObjects.FirstOrDefault(x => x.Object.ObjectType == objType);
+
+            if (objToFace == null)
+                return;
+
+            var diffX = objToFace.XPosition - obj.XPosition;
+            var diffY = objToFace.YPosition - obj.YPosition;
+
+            obj.ForceHorizontalFlip = diffX > diffY;
         }
 
 
@@ -448,6 +461,8 @@ namespace R1Engine
         {
             obj.AnimSetIndex = 0x56;
             obj.AnimationGroupIndex = 0x02;
+
+            FaceObj(obj, allObjects, GetROM(obj).States_Spyro2_Portals?.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType)?.SpawnerObjectType ?? -1);
         }
         private static void Spyro2_6(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
         {
@@ -538,6 +553,8 @@ namespace R1Engine
         {
             obj.AnimSetIndex = 0x56;
             obj.AnimationGroupIndex = 0x02;
+
+            FaceObj(obj, allObjects, 494);
         }
         private static void Spyro2_17(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sheila NPC
         {
@@ -598,10 +615,77 @@ namespace R1Engine
         {
             obj.AnimSetIndex = 0x57;
             obj.AnimationGroupIndex = 0x01;
+
+            FaceObj(obj, allObjects, GetROM(obj).States_Spyro2_ChallengePortals?.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType)?.SpawnerObjectType ?? -1);
         }
         private static void Spyro2_29(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Mabel
         {
             obj.AnimSetIndex = 0x2F;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_30(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Brian
+        {
+            obj.AnimSetIndex = 0x45;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_31(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x44;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro2_32(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x60;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_33(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Boulder
+        {
+            obj.AnimSetIndex = 0x10;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_34(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Darby
+        {
+            obj.AnimSetIndex = 0x45;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_35(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Dancing horseshoe
+        {
+            obj.AnimSetIndex = 0x30;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_36(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Christopher
+        {
+            obj.AnimSetIndex = 0x07;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_37(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x1F;
+            obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro2_38(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bomb
+        {
+            obj.AnimSetIndex = 0x0D;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_39(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x52;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro2_40(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Lizard fodder
+        {
+            obj.AnimSetIndex = 0x46;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro2_41(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Thief
+        {
+            obj.AnimSetIndex = 0x73;
+            obj.AnimationGroupIndex = 0x01;
+        }
+        private static void Spyro2_42(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // NPC
+        {
+            obj.AnimSetIndex = 0x07;
             obj.AnimationGroupIndex = 0x00;
         }
 
@@ -1102,7 +1186,7 @@ namespace R1Engine
             obj.AnimationGroupIndex = 0x01;
 
             // TODO: Find better solution to this
-            obj.Object.HorizontalFlip = obj.Object.Value2;
+            obj.ForceHorizontalFlip = obj.Object.Value2;
         }
         private static void Spyro3_63(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Butler
         {

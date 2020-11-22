@@ -41,6 +41,8 @@ namespace R1Engine
         public GBAIsometric_Spyro3_State_DoorTypes[] States_Spyro3_DoorTypes { get; set; }
         public GBAIsometric_Spyro3_State_DoorGraphics[] States_Spyro3_DoorGraphics { get; set; }
         public GBAIsometric_Spyro2_State_LevelObjective[] States_Spyro2_LevelObjectives { get; set; }
+        public GBAIsometric_Spyro2_State_Portal[] States_Spyro2_Portals { get; set; }
+        public GBAIsometric_Spyro2_State_ChallengePortal[] States_Spyro2_ChallengePortals { get; set; }
         public GBAIsometric_Spyro3_QuestItem[] QuestItems { get; set; }
 
         /// <summary>
@@ -161,6 +163,8 @@ namespace R1Engine
             States_Spyro3_DoorTypes = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro3_DoorTypes), () => s.SerializeObjectArray<GBAIsometric_Spyro3_State_DoorTypes>(States_Spyro3_DoorTypes, 49, name: nameof(States_Spyro3_DoorTypes)));
             States_Spyro3_DoorGraphics = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro3_DoorGraphics), () => s.SerializeObjectArray<GBAIsometric_Spyro3_State_DoorGraphics>(States_Spyro3_DoorGraphics, 22, name: nameof(States_Spyro3_DoorGraphics)));
             States_Spyro2_LevelObjectives = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro2_LevelObjectives), () => s.SerializeObjectArray<GBAIsometric_Spyro2_State_LevelObjective>(States_Spyro2_LevelObjectives, 14, name: nameof(States_Spyro2_LevelObjectives)));
+            States_Spyro2_Portals = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro2_Portals), () => s.SerializeObjectArray<GBAIsometric_Spyro2_State_Portal>(States_Spyro2_Portals, 25, name: nameof(States_Spyro2_Portals)));
+            States_Spyro2_ChallengePortals = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro2_ChallengePortals), () => s.SerializeObjectArray<GBAIsometric_Spyro2_State_ChallengePortal>(States_Spyro2_ChallengePortals, 10, name: nameof(States_Spyro2_ChallengePortals)));
 
             QuestItems = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.QuestItems), () => s.SerializeObjectArray<GBAIsometric_Spyro3_QuestItem>(QuestItems, 104, name: nameof(QuestItems)));
 

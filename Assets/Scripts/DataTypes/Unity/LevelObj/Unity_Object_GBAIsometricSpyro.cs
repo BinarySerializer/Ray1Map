@@ -41,7 +41,8 @@ namespace R1Engine
         public override string DebugText => $"Init function: {ObjType?.Data?.InitFunctionPointer}{Environment.NewLine}" +
                                             $"Type flags: {ObjType?.ObjFlags}{Environment.NewLine}";
 
-        public override bool FlipHorizontally => Object.HorizontalFlip;
+        public bool ForceHorizontalFlip { get; set; }
+        public override bool FlipHorizontally => Object.HorizontalFlip || ForceHorizontalFlip;
         public override int? GetLayer(int index) => -index;
 
         public GBAIsometric_ObjectType ObjType => ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
