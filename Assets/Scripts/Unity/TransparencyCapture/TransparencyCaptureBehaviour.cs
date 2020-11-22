@@ -17,6 +17,15 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		//Or you will get the error:"ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame"
 		//zzTransparencyCapture.captureScreenshot("capture.png");
 		byte[] screenshotBytes = null;
+
+
+		List<Camera> cameras = new List<Camera>();
+		cameras.Add(Camera.main);
+		if (LevelEditorData.Level?.IsometricData != null) {
+			EditorCam ec = Controller.obj?.levelController?.editor?.cam;
+			cameras.Add(ec.camera3D);
+		}
+
 		var lScreenshot = zzTransparencyCapture.CaptureScreenshot(width, height, isTransparent);
 		try {
 			screenshotBytes = lScreenshot.EncodeToPNG();
