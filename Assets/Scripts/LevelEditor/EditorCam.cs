@@ -199,7 +199,7 @@ namespace R1Engine {
             camera3DOverlay.orthographic = false;
             camera3DOverlay.fieldOfView = camera3D.fieldOfView;
             Camera.main.cullingMask = 0;
-            camera2DOverlay.cullingMask = 0;
+            //camera2DOverlay.cullingMask = 0;
             CheckShifted();
 
             if (!MouseLookEnabled) {

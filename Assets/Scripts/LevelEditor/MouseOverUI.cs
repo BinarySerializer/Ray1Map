@@ -16,8 +16,8 @@ namespace R1Engine
 
             var selector = Controller.obj.levelController.editor.objectHighlight;
             var cam = Controller.obj.levelController.editor.cam;
-            bool freeLook = cam.MouseLookEnabled || cam.MouseLookRMBEnabled;
-            if (freeLook) {
+            bool mouselook = cam.MouseLookEnabled || cam.MouseLookRMBEnabled;
+            if (mouselook) {
                 if(panel.activeSelf) panel.SetActive(false);
             } else {
                 if (!panel.activeSelf) panel.SetActive(true);

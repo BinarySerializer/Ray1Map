@@ -10,11 +10,15 @@ public class ObjectHighlight : MonoBehaviour {
     public Unity_Tile[] highlightedTile = null;
 
     private void HandleCollision() {
+        var ec = Controller.obj?.levelEventController?.editor?.cam;
+        bool mouselook = ec != null && (ec.MouseLookEnabled || ec.MouseLookRMBEnabled);
+        if(mouselook) return;
+
         int layerMask = 0;
         Camera cam = Camera.main;
         //layerMask |= 1 << LayerMask.NameToLayer("Object");
         if (LevelEditorData.Level?.IsometricData != null) {
-            cam = Controller.obj?.levelEventController?.editor?.cam?.camera3D ?? cam;
+            cam = ec?.camera3D ?? cam;
 
 
             // Isometric: Raycast objects
