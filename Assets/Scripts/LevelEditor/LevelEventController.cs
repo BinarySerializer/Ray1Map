@@ -464,9 +464,10 @@ namespace R1Engine
                 }
             }
 
-            if (moveCamera)
-                Controller.obj.levelEventController.editor.cam.pos = new Vector3(SelectedEvent.ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(SelectedEvent.ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
-
+            if (moveCamera) {
+                editor.cam.JumpTo(SelectedEvent.gameObject);
+                //Controller.obj.levelEventController.editor.cam.pos = new Vector3(SelectedEvent.ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(SelectedEvent.ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
+            }
             SelectedEvent.IsSelected = true;
             //Debug.Log("GenId is: " + SelectedEvent.ObjData.R1_EditorLinkGroup.ToString());
         }

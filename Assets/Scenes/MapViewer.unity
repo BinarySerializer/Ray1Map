@@ -6631,6 +6631,7 @@ MonoBehaviour:
   inertia: 0.05
   friction: 3
   WASDScrollSpeed: 5
+  orthographicZPosition: -10
   fricStart: 0
   pos: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
@@ -6644,7 +6645,7 @@ MonoBehaviour:
   sensitivity: {x: 2, y: 2}
   sensitivityRMB: {x: 1.6, y: 1.6}
   smoothing: {x: 3, y: 3}
-  lerpFactor: 1
+  lerpFactor: 6
 --- !u!114 &534669907
 MonoBehaviour:
   m_ObjectHideFlags: 0

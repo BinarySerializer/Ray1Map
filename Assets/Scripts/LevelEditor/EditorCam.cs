@@ -9,6 +9,7 @@ namespace R1Engine {
         public float inertia = 0.05f;
         public float friction = 3;
         public float WASDScrollSpeed = 5;
+        public float orthographicZPosition = -10f;
 
         [HideInInspector] public float fricStart;
         [HideInInspector] public Vector3 pos;
@@ -33,14 +34,17 @@ namespace R1Engine {
         void Update() {
             if (FreeLookMode) {
                 UpdateFreeLook();
-                return;
+            } else {
+                UpdateOrthographic();
             }
-
+        }
+        void UpdateOrthographic() {
             //Allow RMB panning only in certain modes, otherwise force wasd movement
             bool canPan = (editor.currentMode == LevelEditorBehaviour.EditMode.Events || editor.currentMode == LevelEditorBehaviour.EditMode.Links);
 
             if (Settings.LoadFromMemory && Controller.obj.levelEventController.hasLoaded && Settings.FollowRaymanInMemoryMode)
             {
+                StopLerp();
                 var rayman = LevelEditorData.Level.Rayman;
 
                 if (rayman != null)
@@ -53,6 +57,7 @@ namespace R1Engine {
             if (LevelEditorData.Level != null) {
                 // RMB scroling
                 if (Input.GetMouseButton(1) && canPan) {
+                    StopLerp();
                     if (!panStart.HasValue) {
                         panStart = Input.mousePosition;
                     }
@@ -76,8 +81,10 @@ namespace R1Engine {
                 }
 
                 // Mouse wheel zooming
-                if (!EventSystem.current.IsPointerOverGameObject())
+                if (!EventSystem.current.IsPointerOverGameObject()) {
+                    if(Input.mouseScrollDelta.y != 0) StopLerp();
                     fov = Mathf.Clamp(fov - 0.25f * Input.mouseScrollDelta.y * fov, 3.75f, 50);
+                }
 
 
                 // WASD scrolling
@@ -86,7 +93,10 @@ namespace R1Engine {
                 bool scrollUp = Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W);
                 bool scrollDown = Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S);
                 bool scrolling = scrollLeft || scrollRight || scrollUp || scrollDown;
-                if (scrolling || editor.scrolling) friction = 30;
+                if (scrolling || editor.scrolling) {
+                    StopLerp();
+                    friction = 30;
+                }
 
                 float scr = friction * Camera.main.orthographicSize * WASDScrollSpeed * Time.deltaTime;
                 if (scrollLeft) vel.x -= scr;
@@ -98,10 +108,29 @@ namespace R1Engine {
                 // Stuff
                 vel /= 1f + (1f * friction) * Time.deltaTime;
                 pos += vel * Time.deltaTime;
+
+                // Lerp
+                var cam = this;
+                if (targetPos.HasValue) {
+                    if (Vector3.Distance(pos, targetPos.Value) < 0.4f) {
+                        targetPos = null;
+                    } else {
+                        pos = Vector3.Lerp(pos, targetPos.Value, Time.deltaTime * lerpFactor);
+                    }
+                }
+                if (targetOrthoSize.HasValue) {
+                    if (Mathf.Abs(targetOrthoSize.Value - cam.fov) < 0.04f) {
+                        targetOrthoSize = null;
+                    } else {
+                        cam.fov = Mathf.Lerp(cam.fov, targetOrthoSize.Value, Time.deltaTime * lerpFactor);
+                    }
+                }
+
+                // Limit position
                 pos.x = Mathf.Clamp(pos.x, 0, levelTilemapController.camMaxX * levelTilemapController.CellSizeInUnits);
                 pos.y = Mathf.Clamp(pos.y, -levelTilemapController.camMaxY * levelTilemapController.CellSizeInUnits, 0);
-
-                pos.z = -10f;
+                pos.z = orthographicZPosition;
+                // Apply position
                 if (pixelSnap) {
                     transform.position = PxlVec.SnapVec(pos);
                 }else {
@@ -136,6 +165,7 @@ namespace R1Engine {
 
 
                     if (Input.GetKeyDown(KeyCode.F)) {
+                        StopLerp();
                         FreeLookMode = true;
                         cullingMask = Camera.main.cullingMask;
                         cullingMask2DOverlay = camera2DOverlay.cullingMask;
@@ -145,26 +175,83 @@ namespace R1Engine {
         }
 
         void UpdateFreeLook() {
-            if (!targetDirection.HasValue) {
-                // Set target direction to the camera's initial orientation.
-                targetDirection = camera3D.transform.localRotation;
-            }
+            MouseLookRMBEnabled = false;
+
             if (Input.GetKeyDown(KeyCode.F)) {
                 FreeLookMode = false;
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+                MouseLookEnabled = false;
+                MouseLookRMBEnabled = false;
                 camera3D.orthographic = true;
                 Camera.main.cullingMask = cullingMask;
                 camera2DOverlay.cullingMask = cullingMask2DOverlay;
+                targetDirection = null;
+                return;
+            }
+            if (!targetDirection.HasValue) {
+                // Set target direction to the camera's initial orientation.
+                targetDirection = camera3D.transform.localRotation;
+            }
+            camera3D.orthographic = false;
+            Camera.main.cullingMask = 0;
+            camera2DOverlay.cullingMask = 0;
+            CheckShifted();
+
+            if (!MouseLookEnabled) {
+                Camera cam = camera3D;
+                if (targetPos.HasValue) {
+                    if (Vector3.Distance(cam.transform.position, targetPos.Value) < 0.4f) {
+                        targetPos = null;
+                    } else {
+                        cam.transform.position = Vector3.Lerp(cam.transform.position, targetPos.Value, Time.deltaTime * lerpFactor);
+                    }
+                }
+                if (targetRot.HasValue) {
+                    if (Mathf.Abs(Quaternion.Angle(cam.transform.rotation, targetRot.Value)) < 10) {
+                        targetRot = null;
+                    } else {
+                        cam.transform.rotation = Quaternion.Lerp(cam.transform.rotation, targetRot.Value, Time.deltaTime * lerpFactor);
+                    }
+                }
+
+                // Right click: drag also works
+                if (Input.GetMouseButton(1)) {
+                    MouseLookRMBEnabled = true;
+                    StopLerp();
+
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+
+                    CalculateMouseLook(false, false);
+
+                    if (Input.GetKey(KeyCode.LeftShift)) {
+                        _flySpeedShiftMultiplier = flySpeedShiftMultiplier;
+                    } else {
+                        _flySpeedShiftMultiplier = 1.0f;
+                    }
+
+                    CameraControlsPerspective();
+                }
+
+                if (Input.GetMouseButtonUp(1)) {
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                    _flySpeedShiftMultiplier = 1.0f;
+                }
+                CameraControlsSpeed();
             } else {
+                StopLerp();
+                //ensure these stay this way
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
-                camera3D.orthographic = false;
-                Camera.main.cullingMask = 0;
-                camera2DOverlay.cullingMask = 0;
-            }
 
-            CalculateMouseLook(false, true);
+                CalculateMouseLook(false, true);
+
+                //movement
+                CameraControlsPerspective();
+                CameraControlsSpeed();
+            }
 
             //movement
             CameraControlsPerspective();
@@ -172,7 +259,9 @@ namespace R1Engine {
         }
 
         #region Camera Controls
-
+        public bool MouseLookEnabled { get; private set; } = false;
+        public bool MouseLookRMBEnabled { get; private set; } = false;
+        private bool _shifted = false;
         public float flySpeed = 20f;
         public float flySpeedShiftMultiplier = 2.0f;
         private float flySpeedFactor = 30f;
@@ -184,8 +273,6 @@ namespace R1Engine {
         public Vector2 sensitivity = new Vector2(2, 2);
         public Vector2 sensitivityRMB = new Vector2(1.6f, 1.6f);
         public Vector2 smoothing = new Vector2(3, 3);
-        public Quaternion? targetDirection;
-        public float lerpFactor = 1f;
         private int cullingMask;
         private int cullingMask2DOverlay;
 
@@ -223,23 +310,6 @@ namespace R1Engine {
             Camera cam = camera3D;
             // Allow the script to clamp based on a desired target value.
             Vector3 eulerTargetDir = targetDirection.Value.eulerAngles;
-            /*bool eulerDirChanged = false;
-            if (eulerTargetDir.z != 0) {
-                if (Mathf.Abs(eulerTargetDir.z) < 0.04f) {
-                    eulerTargetDir = new Vector3(eulerTargetDir.x, eulerTargetDir.y, 0f);
-                } else {
-                    eulerTargetDir = new Vector3(eulerTargetDir.x, eulerTargetDir.y, Mathf.Lerp(eulerTargetDir.z, 0f, Time.deltaTime * lerpFactor));
-                }
-                eulerDirChanged = true;
-            } else if (eulerTargetDir.x != 0) {
-                //eulerTargetDir = new Vector3(0f, eulerTargetDir.y, eulerTargetDir.z);
-                if (Mathf.Abs(eulerTargetDir.x) < 0.04f) {
-                    eulerTargetDir = new Vector3(0f, eulerTargetDir.y, eulerTargetDir.z);
-                } else {
-                    eulerTargetDir = new Vector3(Mathf.Lerp(eulerTargetDir.x, 0f, Time.deltaTime * lerpFactor), eulerTargetDir.y, eulerTargetDir.z);
-                }
-                eulerDirChanged = true;
-            }*/
             if (eulerTargetDir.x != 0 || eulerTargetDir.z != 0) {
                 if (Mathf.Abs(eulerTargetDir.x) < 0.04f && Mathf.Abs(eulerTargetDir.z) < 0.04f) {
                     targetDirection = Quaternion.Euler(0f, eulerTargetDir.y, 0f);
@@ -281,6 +351,95 @@ namespace R1Engine {
                 // If there's a character body that acts as a parent to the camera
                 var yRotation = Quaternion.AngleAxis(_mouseAbsolute.x, cam.transform.InverseTransformDirection(Vector3.up));
                 cam.transform.localRotation *= yRotation;
+            }
+        }
+
+        public void CheckShifted() {
+            if (Input.GetKeyUp(KeyCode.LeftShift) & _shifted)
+                _shifted = false;
+
+            if ((Input.GetKeyDown(KeyCode.LeftShift) & !_shifted && !Input.GetMouseButton(1)) |
+                (Input.GetKeyDown(KeyCode.Escape) & MouseLookEnabled)) {
+                _shifted = true;
+
+                if (!MouseLookEnabled) {
+                    MouseLookEnabled = true;
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                } else {
+                    if (Input.GetKeyDown(KeyCode.Escape))
+                        _shifted = false;
+
+                    MouseLookEnabled = false;
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                }
+            }
+        }
+
+
+        // Lerp
+        public float lerpFactor = 6f;
+        public Quaternion? targetDirection;
+        Vector3? targetPos = null;
+        Quaternion? targetRot = null;
+        float? targetOrthoSize = null;
+
+        public void StopLerp() {
+            targetPos = null;
+            targetRot = null;
+            targetOrthoSize = null;
+        }
+
+
+        public void JumpTo(GameObject gao) {
+            Vector3? center = null, size = null;
+            Unity_ObjBehaviour obj = gao.GetComponent<Unity_ObjBehaviour>();
+            if (obj != null) {
+                if (obj.ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
+                    bool orthographic = !FreeLookMode;
+                    if (orthographic) {
+                        Vector3 target = camera3D.transform.InverseTransformPoint(obj.midpoint);
+                        center = transform.TransformPoint(new Vector3(target.x, target.y, orthographicZPosition));
+                        
+                        //center = obj.midpoint;
+                        size = obj.boxCollider3D?.size ?? Vector3.one;
+                    } else {
+                        center = obj.midpoint;
+                        size = obj.boxCollider3D?.size ?? Vector3.one;
+                    }
+                } else {
+                    center = obj.midpoint;
+                    size = obj.boxCollider?.size ?? Vector3.one;
+                }
+            } else {
+                center = gao.transform.position;
+                size = gao.transform.lossyScale;
+            }
+            if (center.HasValue) {
+                float objectSize = Mathf.Min(5f, Mathf.Max(size.Value.x, size.Value.y, size.Value.z));
+                bool orthographic = !FreeLookMode;
+                if (orthographic) {
+                    var cam = this;
+                    var targetSize = objectSize * 2f * 1.5f;
+                    if (Mathf.Abs(fov - targetSize) > 5f) {
+                        targetOrthoSize = Mathf.Lerp(fov, targetSize, 0.75f);
+                        targetOrthoSize = Mathf.Clamp(targetOrthoSize.Value, 3.75f, 50f);
+                    }
+                    //targetOrthoSize = objectSize * 2f * 1.5f;
+                    Vector3 target = cam.transform.InverseTransformPoint(center.Value);
+                    targetPos = cam.transform.TransformPoint(new Vector3(target.x, target.y, orthographicZPosition));
+                } else {
+                    var cam = camera3D;
+                    float cameraDistance = 4.0f; // Constant factor
+                    float cameraView = 2.0f * Mathf.Tan(0.5f * Mathf.Deg2Rad * cam.fieldOfView); // Visible height 1 meter in front
+                    float distance = cameraDistance * objectSize / cameraView; // Combined wanted distance from the object
+                    distance += objectSize; // Estimated offset from the center to the outside of the object * 2
+                    targetPos = center.Value + Vector3.Normalize(cam.transform.position - center.Value) * distance;
+                    if (center.Value - transform.position != Vector3.zero) {
+                        targetRot = Quaternion.LookRotation(center.Value - cam.transform.position, Vector3.up);
+                    }
+                }
             }
         }
     }
