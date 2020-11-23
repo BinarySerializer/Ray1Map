@@ -765,6 +765,24 @@ a:focus {
 #text-highlight-tooltip.rayman-1 > #text-highlight-content {
 	color: #e786ce !important;
 }
+/* Designer tags */
+.text-highlight-description {
+	color: #b6b7e7 !important;
+}
+.text-highlight-name {
+	color: #f31b05 !important;
+	font-size: 1em;
+	text-align: center;
+	margin: 0;
+}
+.text-highlight-key {
+	color: #89c172 !important;
+	font-size: 0.8em;
+	text-align: center;
+	margin: 0;
+}
+
+
 #text-highlight-tooltip.rayman-2 > #text-highlight-content {
 	background: repeating-linear-gradient(to bottom, white 0em, white 0.25em, transparent 1.25em, transparent 1.5em);
 	background-color: #6EBEFF !important;

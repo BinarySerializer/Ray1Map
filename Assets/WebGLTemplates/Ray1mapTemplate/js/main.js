@@ -586,6 +586,16 @@ function formatTextR1(text) {
 	text = text.replace(/\//gi, "\n"); // New Lines
 	text = text.replace(/\\/gi, "\n"); // New Lines
 	text = $.trim(text);
+
+	// Special tags
+	text = text.replace(/<\nkey>/gi, "</p>");
+	text = text.replace(/<key>/gi, "<p class='text-highlight-key'>");
+	text = text.replace(/<\nname>/gi, "</p>");
+	text = text.replace(/<name>/gi, "<p class='text-highlight-name'>");
+	text = text.replace(/<\ndescription>/gi, "</p>");
+	text = text.replace(/<description>/gi, "<p class='text-highlight-description'>");
+
+
 	text = text.replace(/\n/gi, "<br/>"); // New Lines
 	return text;
 }
@@ -669,7 +679,7 @@ function formatText(text) {
 	if(gameSettings != null){
 		if(gameSettings.MajorEngineVersion === "Rayman1" || gameSettings.MajorEngineVersion === "Rayman1Jaguar") {
 			text = formatTextR1(text);
-		} else if(gameSettings.MajorEngineVersion === "GBA") {
+		} else if(gameSettings.MajorEngineVersion === "GBA" || gameSettings.MajorEngineVersion === "GBARRR" | gameSettings.MajorEngineVersion === "GBAIsometric") {
 			text = formatTextGBA(text);
 		}
 	} else {
@@ -679,11 +689,22 @@ function formatText(text) {
 
 	return text;
 }
+function getUnformattedTextHTML(text) {
+	// Special tags
+	text = text.replace(/<key>/gi, "(");
+	text = text.replace(/<\/key>/gi, ") ");
+	text = text.replace(/<name>/gi, "");
+	text = text.replace(/<\/name>/gi, ": ");
+	text = text.replace(/<description>/gi, "");
+	text = text.replace(/<\/description>/gi, "");
+
+	return escapeHTML(text);
+}
 function getLanguageHTML(lang, langStart) {
 	let fullHTML = [];
 	fullHTML.push("<div class='localization-item category'>" + lang.Name + "</div>");
 	$.each(lang.Entries, function (idx, val) {
-		fullHTML.push("<div class='localization-item localization-item-highlight' data-loc-item='" + (idx + langStart) + "'><div class='localization-item-index'>" + (idx + langStart) + "</div><div class='localization-item-text'>" + escapeHTML(val) + "</div></div>");
+		fullHTML.push("<div class='localization-item localization-item-highlight' data-loc-item='" + (idx + langStart) + "'><div class='localization-item-index'>" + (idx + langStart) + "</div><div class='localization-item-text'>" + getUnformattedTextHTML(val) + "</div></div>");
 	});
 	//fullHTML.push("</div>");
 	return fullHTML.join("");
@@ -1862,13 +1883,20 @@ $(function() {
 		text_highlight_tooltip.css({'left': (event.pageX + 3) + 'px', 'right': ($(window).width() - event.pageX - 3) + 'px', 'top': (event.pageY + 25) + 'px'});
 	});
 	$(document).on('mouseenter', ".localization-item-highlight", function() {
-		let text = $(this).find(".localization-item-text").text();
-		let formatted = formatText(text);
-		if(/\S/.test(formatted)) {
-			// found something other than a space or line break
-			text_highlight_content.html(formatText(text));
-			text_highlight_tooltip.removeClass("hidden-tooltip");
-			text_highlight_tooltip.removeClass("right");
+		let locItemIndex = $(this).data("locItem");
+		
+		let loc = fullData.Localization;
+		let selectedLanguage = languageSelector.prop("selectedIndex");
+		if(loc.hasOwnProperty("Languages") && loc.Languages.length > selectedLanguage) {
+			let lang = loc.Languages[selectedLanguage];
+			let text = lang.Entries[locItemIndex];
+			let formatted = formatText(text);
+			if(/\S/.test(formatted)) {
+				// found something other than a space or line break
+				text_highlight_content.html(formatText(text));
+				text_highlight_tooltip.removeClass("hidden-tooltip");
+				text_highlight_tooltip.removeClass("right");
+			}
 		}
 	});
 	$(document).on('mouseleave', ".localization-item-highlight", function() {
