@@ -237,15 +237,10 @@ namespace R1Engine
                     case 0x08020BF5:
                     case 0x080211BD:
                     case 0x0801DCB1:
-                    case 0x08021F65:
-                    case 0x080221E9:
-                    case 0x080224B5:
                     case 0x08022E89:
                     case 0x08023AA1:
                     case 0x08023E89:
-                    case 0x08024F19:
                     case 0x080251BD:
-                    case 0x08025689:
                     case 0x08025AFD:
                     case 0x080267A5:
                     case 0x080275B1:
@@ -257,14 +252,9 @@ namespace R1Engine
                     case 0x080290B9:
                     case 0x08029395:
                     case 0x08029FE1:
-                    case 0x0802B039:
                     case 0x0802B431:
-                    case 0x0802B67D:
-                    case 0x0802B9DD:
                     case 0x0802BB9D:
                     case 0x0802BFD5:
-                    case 0x0802C1B5:
-                    case 0x0802C53D:
                     case 0x0802C6A5:
                     case 0x0802CC6D:
                     case 0x0802D2CD:
@@ -279,14 +269,11 @@ namespace R1Engine
                     case 0x0802FAF5:
                     case 0x080303C5:
                     case 0x08030B21:
-                    case 0x080312B9:
-                    case 0x080316D5:
                     case 0x08031A0D:
                     case 0x0803240D:
                     case 0x08032799:
                     case 0x08032D41:
                     case 0x080332D1:
-                    case 0x08033A79:
                     case 0x08034069:
                     case 0x0803464D:
                     case 0x08034C7D:
@@ -301,7 +288,6 @@ namespace R1Engine
                     case 0x08038679:
                     case 0x080387E1:
                     case 0x08038929:
-                    case 0x080391C5:
                     case 0x0803A58D:
                     case 0x0803AFD9:
                     case 0x0803B36D:
@@ -318,8 +304,6 @@ namespace R1Engine
                     case 0x0803C735:
                     case 0x0803DFB9:
                     case 0x0803EDB9:
-                    case 0x0803FF6D:
-                    case 0x080404FD:
                     case 0x08040811:
                     case 0x08040ACD:
                     case 0x08041145:
@@ -375,6 +359,22 @@ namespace R1Engine
                     case 0x08012A51: return Spyro2_40;
                     case 0x08039BB5: return Spyro2_41;
                     case 0x08040E4D: return Spyro2_42;
+                    case 0x080221E9: return Spyro2_43;
+                    case 0x08021F65: return Spyro2_44;
+                    case 0x08025689: return Spyro2_45;
+                    case 0x0802C53D: return Spyro2_46;
+                    case 0x0802C1B5: return Spyro2_47;
+                    case 0x080224B5: return Spyro2_48;
+                    case 0x080391C5: return Spyro2_49;
+                    case 0x080404FD: return Spyro2_50;
+                    case 0x0803FF6D: return Spyro2_51;
+                    case 0x0802B039: return Spyro2_52;
+                    case 0x08024F19: return Spyro2_53;
+                    case 0x0802B9DD: return Spyro2_54;
+                    case 0x0802B67D: return Spyro2_55;
+                    case 0x080312B9: return Spyro2_56;
+                    case 0x080316D5: return Spyro2_57;
+                    case 0x08033A79: return Spyro2_58;
                 }
             }
 
@@ -687,6 +687,98 @@ namespace R1Engine
         {
             obj.AnimSetIndex = 0x07;
             obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_43(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ben
+        {
+            obj.AnimSetIndex = 0x1D;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_44(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Vine
+        {
+            obj.AnimSetIndex = 0x74;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_45(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x75;
+            obj.AnimationGroupIndex = 0x03;
+        }
+        private static void Spyro2_46(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
+        {
+            obj.AnimSetIndex = 0x76;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_47(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Tommy
+        {
+            obj.AnimSetIndex = 0x1D;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_48(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Linus
+        {
+            obj.AnimSetIndex = 0x1D;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_49(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Crush
+        {
+            obj.AnimSetIndex = 0x19;
+            obj.AnimationGroupIndex = 0x05;
+        }
+        private static void Spyro2_50(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter
+        {
+            obj.AnimSetIndex = 0x32;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_51(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
+        {
+            obj.AnimSetIndex = 0x0C;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_52(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x3F;
+            obj.AnimationGroupIndex = 0x02;
+        }
+        private static void Spyro2_53(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
+        {
+            obj.AnimSetIndex = 0x64;
+            obj.AnimationGroupIndex = 0x07;
+        }
+        private static void Spyro2_54(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Caged NPC
+        {
+            obj.AnimSetIndex = 0x1E;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_55(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bert
+        {
+            obj.AnimSetIndex = 0x08;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_56(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Robby
+        {
+            obj.AnimSetIndex = 0x08;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_57(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Cake
+        {
+            obj.AnimSetIndex = 0x16;
+            obj.AnimationGroupIndex = 0x00;
+        }
+        private static void Spyro2_58(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Spawning enemies
+        {
+            if (obj.Object.ObjectType == 0x170)
+            {
+                obj.AnimSetIndex = 0x3F;
+                obj.AnimationGroupIndex = 0x02;
+            }
+            else if (obj.Object.ObjectType == 0x175)
+            {
+                obj.AnimSetIndex = 0x5D;
+                obj.AnimationGroupIndex = 0x02;
+            }
+            else
+            {
+                obj.AnimSetIndex = -1;
+            }
         }
 
 
