@@ -166,7 +166,9 @@ public class WebCommunicator : MonoBehaviour {
 			};
 		} else if (highlightedCollision_ != null) {
 			selectionJSON.Highlight.Collision = highlightedCollision_
-				.Select(c => new WebJSON.Collision() { Type = LevelEditorData.Level.GetCollisionTypeNameFunc(c.Data?.CollisionType ?? 0) }).ToArray();
+				.Select(c => new WebJSON.Collision() { Type = LevelEditorData.Level.GetCollisionTypeNameFunc(c.Data?.CollisionType ?? 0) })
+				.Where(c => c.Type != "Empty" && c.Type != "None") // Filter out empty types
+				.ToArray();
 		}
 
 		return selectionJSON;
