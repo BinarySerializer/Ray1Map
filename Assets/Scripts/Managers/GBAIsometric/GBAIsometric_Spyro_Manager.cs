@@ -466,7 +466,7 @@ namespace R1Engine
 
             // Spyro 2: Snap object height to height of collision tile
             if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && isometricData != null) {
-                foreach (var obj in objects) {
+                foreach (var obj in objects.OfType<Unity_Object_GBAIsometricSpyro>().Where(x => !x.IsWaypoint)) {
                     var objX = obj.XPosition / 16f;
                     var objY = obj.YPosition / 16f;
                     if (objX < 0 || objX >= isometricData.CollisionWidth ||

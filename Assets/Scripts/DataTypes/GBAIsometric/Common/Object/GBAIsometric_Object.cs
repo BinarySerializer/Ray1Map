@@ -36,6 +36,9 @@
                     Value2 = bitFunc(Value2 ? 1 : 0, 1, name: nameof(Value2)) == 1;
                     Value3 = bitFunc(Value3, 2, name: nameof(Value3));
                     IsNormalObj = bitFunc(IsNormalObj ? 1 : 0, 1, name: nameof(IsNormalObj)) == 1;
+
+                    if (!IsNormalObj)
+                        ObjectType = 0; // Some waypoints in Spyro 2 have an object type which is wrong, so make sure it's always 0
                 });
             }
 
