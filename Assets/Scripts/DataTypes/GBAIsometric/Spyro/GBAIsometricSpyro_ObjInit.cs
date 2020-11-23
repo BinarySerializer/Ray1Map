@@ -462,7 +462,12 @@ namespace R1Engine
             obj.AnimSetIndex = 0x56;
             obj.AnimationGroupIndex = 0x02;
 
-            FaceObj(obj, allObjects, GetROM(obj).States_Spyro2_Portals?.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType)?.SpawnerObjectType ?? -1);
+            var state = GetROM(obj).States_Spyro2_Portals?.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
+            var lvl = obj.ObjManager.Context.Settings.Level;
+
+            var lookAtObj = state?.LevelID == lvl ? 0xDF : state?.SpawnerObjectType;
+
+            FaceObj(obj, allObjects, lookAtObj ?? -1);
         }
         private static void Spyro2_6(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
         {
@@ -616,7 +621,12 @@ namespace R1Engine
             obj.AnimSetIndex = 0x57;
             obj.AnimationGroupIndex = 0x01;
 
-            FaceObj(obj, allObjects, GetROM(obj).States_Spyro2_ChallengePortals?.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType)?.SpawnerObjectType ?? -1);
+            var state = GetROM(obj).States_Spyro2_ChallengePortals?.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
+            var lvl = obj.ObjManager.Context.Settings.Level;
+
+            var lookAtObj = state?.LevelID_1 == lvl ? 0xDF : state?.SpawnerObjectType;
+
+            FaceObj(obj, allObjects, lookAtObj ?? -1);
         }
         private static void Spyro2_29(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Mabel
         {
