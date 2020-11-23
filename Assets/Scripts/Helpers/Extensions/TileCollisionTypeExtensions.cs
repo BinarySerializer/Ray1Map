@@ -146,62 +146,62 @@
             }
         }
 
-        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this R2_TileCollsionType collisionType)
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this R2_TileCollisionType collisionType)
         {
             switch (collisionType)
             {
-                case R2_TileCollsionType.None:
+                case R2_TileCollisionType.None:
                     return Unity_MapCollisionTypeGraphic.None;
 
-                case R2_TileCollsionType.Reactionary0:
+                case R2_TileCollisionType.Reactionary0:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
-                case R2_TileCollsionType.Reactionary1:
+                case R2_TileCollisionType.Reactionary1:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
-                case R2_TileCollsionType.Reactionary2:
+                case R2_TileCollisionType.Reactionary2:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
-                case R2_TileCollsionType.Reactionary3:
+                case R2_TileCollisionType.Reactionary3:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
-                case R2_TileCollsionType.Reactionary4:
+                case R2_TileCollisionType.Reactionary4:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
-                case R2_TileCollsionType.Cliff:
+                case R2_TileCollisionType.Cliff:
                     return Unity_MapCollisionTypeGraphic.Cliff;
 
-                case R2_TileCollsionType.Water:
+                case R2_TileCollisionType.Water:
                     return Unity_MapCollisionTypeGraphic.Water;
 
-                case R2_TileCollsionType.Solid:
+                case R2_TileCollisionType.Solid:
                     return Unity_MapCollisionTypeGraphic.Solid;
 
-                case R2_TileCollsionType.Passthrough:
+                case R2_TileCollisionType.Passthrough:
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
-                case R2_TileCollsionType.Hill_Slight_Left_1:
+                case R2_TileCollisionType.Hill_Slight_Left_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
 
-                case R2_TileCollsionType.Hill_Slight_Left_2:
+                case R2_TileCollisionType.Hill_Slight_Left_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2;
 
-                case R2_TileCollsionType.Hill_Steep_Left:
+                case R2_TileCollisionType.Hill_Steep_Left:
                     return Unity_MapCollisionTypeGraphic.Hill_Steep_Left;
 
-                case R2_TileCollsionType.Hill_Slight_Right_1:
+                case R2_TileCollisionType.Hill_Slight_Right_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
 
-                case R2_TileCollsionType.Hill_Slight_Right_2:
+                case R2_TileCollisionType.Hill_Slight_Right_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
 
-                case R2_TileCollsionType.Hill_Steep_Right:
+                case R2_TileCollisionType.Hill_Steep_Right:
                     return Unity_MapCollisionTypeGraphic.Hill_Steep_Right;
 
-                case R2_TileCollsionType.ReactionaryEnemy:
+                case R2_TileCollisionType.ReactionaryEnemy:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
-                case R2_TileCollsionType.ReactionaryUnk:
+                case R2_TileCollisionType.ReactionaryUnk:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
                 default:

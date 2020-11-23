@@ -1437,7 +1437,8 @@ namespace R1Engine
                 maps: maps, 
                 objManager: objManager, 
                 eventData: eventDataList, 
-                rayman: rayman, 
+                rayman: rayman,
+                getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(), 
                 background: bg);
 

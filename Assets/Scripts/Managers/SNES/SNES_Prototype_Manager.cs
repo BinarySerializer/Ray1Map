@@ -49,7 +49,9 @@ namespace R1Engine
             };
 
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(maps, new Unity_ObjectManager(context), getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic());
+            Unity_Level level = new Unity_Level(maps, new Unity_ObjectManager(context),
+                getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
+                getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic());
 
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();

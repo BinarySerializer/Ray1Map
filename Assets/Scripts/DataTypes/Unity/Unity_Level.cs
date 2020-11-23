@@ -19,7 +19,8 @@ namespace R1Engine
             IReadOnlyDictionary<string, string[]> localization = null, 
             int defaultMap = 0, int defaultCollisionMap = 0, 
             int pixelsPerUnit = 16, 
-            int cellSize = 16, 
+            int cellSize = 16,
+            Func<byte, string> getCollisionTypeNameFunc = null,
             Func<byte, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null, 
             Texture2D background = null, 
             Texture2D parallaxBackground = null,
@@ -35,6 +36,7 @@ namespace R1Engine
             DefaultCollisionMap = defaultCollisionMap == -1 ? 0 : defaultCollisionMap;
             PixelsPerUnit = pixelsPerUnit;
             CellSize = cellSize;
+            GetCollisionTypeNameFunc = getCollisionTypeNameFunc ?? (x => ((R1_TileCollisionType)x).ToString());
             GetCollisionTypeGraphicFunc = getCollisionTypeGraphicFunc ?? (x => ((R1_TileCollisionType)x).GetCollisionTypeGraphic());
             Background = background;
             ParallaxBackground = parallaxBackground;
@@ -63,6 +65,7 @@ namespace R1Engine
 
         public Unity_ObjectManager ObjManager { get; }
 
+        public Func<byte, string> GetCollisionTypeNameFunc { get; }
         public Func<byte, Unity_MapCollisionTypeGraphic> GetCollisionTypeGraphicFunc { get; }
 
         public Texture2D Background { get; }

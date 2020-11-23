@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public enum R2_TileCollsionType : byte
+    public enum R2_TileCollisionType : byte
     {
         None = 0,
 

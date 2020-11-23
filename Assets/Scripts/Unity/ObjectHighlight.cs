@@ -77,9 +77,9 @@ public class ObjectHighlight : MonoBehaviour {
             }
         }
         Vector2Int mouseTileCollision = Controller.obj.levelController.controllerTilemap.MouseToTileInt(Input.mousePosition, collision: true);
-        highlightedCollision = LevelEditorData.Level?.Maps?.Select(x => x.GetMapTile(mouseTileCollision.x, mouseTileCollision.y)).ToArray();
+        highlightedCollision = LevelEditorData.Level?.Maps?.Where(x => x.Type.HasFlag(Unity_Map.MapType.Collision)).Select(x => x.GetMapTile(mouseTileCollision.x, mouseTileCollision.y)).ToArray();
         Vector2Int mouseTile = Controller.obj.levelController.controllerTilemap.MouseToTileInt(Input.mousePosition);
-        highlightedTile = LevelEditorData.Level?.Maps?.Select(x => x.GetMapTile(mouseTile.x, mouseTile.y)).ToArray();
+        highlightedTile = LevelEditorData.Level?.Maps?.Where(x => x.Type.HasFlag(Unity_Map.MapType.Graphics)).Select(x => x.GetMapTile(mouseTile.x, mouseTile.y)).ToArray();
     }
 
     void Update() {

@@ -69,7 +69,7 @@ namespace R1Engine
                     textGraphic.enabled = true;
                     if (t != null && c != null) {
                         //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);
-                        textCollision.text = $"Collision: {String.Join(", ", c.Select(x => x?.Data?.CollisionType))}";
+                        textCollision.text = $"Collision: {String.Join(", ", c.Select(x => LevelEditorData.Level.GetCollisionTypeNameFunc(x?.Data?.CollisionType ?? 0)))}";
                         textGraphic.text = $"Graphic tile: {String.Join(", ", t.Select(x => $"({x?.Data?.TileMapX}, {x?.Data?.TileMapY})"))}";
 
                         // Set debug text

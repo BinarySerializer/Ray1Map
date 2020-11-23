@@ -80,7 +80,7 @@ namespace R1Engine
 
             CellSizeInUnits = level.CellSize / (float)level.PixelsPerUnit;
             CellSizeInUnitsCollision = (level.CellSizeOverrideCollision ?? level.CellSize) / (float)level.PixelsPerUnit;
-            if (CellSizeInUnits != 1f) {
+            if (CellSizeInUnitsCollision != 1f) {
                 grid.cellSize = new Vector3(CellSizeInUnitsCollision, CellSizeInUnitsCollision, 0);
             }
 
@@ -119,7 +119,7 @@ namespace R1Engine
                     .Select(t => {
                         if (t == null) return null;
                         Tile newT = ScriptableObject.CreateInstance<Tile>();
-                        newT.sprite = Sprite.Create(t.sprite.texture, t.sprite.rect, new Vector2(0.5f, 0.5f), t.sprite.pixelsPerUnit / CellSizeInUnitsCollision);
+                        newT.sprite = Sprite.Create(t.sprite.texture, t.sprite.textureRect, new Vector2(0.5f,0.5f), t.sprite.pixelsPerUnit / CellSizeInUnitsCollision);
                         newT.sprite.name = t.sprite.name;
                         return newT;
                     }).ToArray();
