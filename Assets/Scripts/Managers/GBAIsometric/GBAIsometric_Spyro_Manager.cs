@@ -457,6 +457,19 @@ namespace R1Engine
                 objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometricSpyro(x, objManager)));
             }
 
+            // Spyro 2: Snap object height to height of collision tile
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && isometricData != null) {
+                foreach (var obj in objects) {
+                    var objX = obj.XPosition / 16f;
+                    var objY = obj.YPosition / 16f;
+                    if (objX < 0 || objX >= isometricData.CollisionWidth ||
+                        objY < 0 || objY >= isometricData.CollisionHeight) continue;
+                    var col = isometricData.Collision[Mathf.FloorToInt(objY) * isometricData.CollisionWidth + Mathf.FloorToInt(objX)];
+
+                    ((Unity_Object_GBAIsometricSpyro)obj).Object.Height = (short)(col.Height * 16);
+                }
+            }
+
             Controller.DetailedState = $"Loading localization";
             await Controller.WaitIfNecessary();
 
