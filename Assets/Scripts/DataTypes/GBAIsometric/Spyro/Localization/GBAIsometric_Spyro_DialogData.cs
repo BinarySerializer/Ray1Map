@@ -106,7 +106,7 @@ namespace R1Engine
                     s.SerializeObjectArray<Value>(Values, Values.Length, name: nameof(Values));
                 }
 
-                if (Values.First().HasMultiChoiceIndices)
+                if (Values.First().Instruction == Instruction.DrawMultiChoiceText)
                     MultiChoiceLocIndices = s.SerializeObjectArray<GBAIsometric_LocIndex>(MultiChoiceLocIndices, 4, x => x.ParseIndexFunc = i => i == 0 ? -1 : i, name: nameof(MultiChoiceLocIndices));
             }
 

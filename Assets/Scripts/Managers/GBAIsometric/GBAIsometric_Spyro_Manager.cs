@@ -122,28 +122,32 @@ namespace R1Engine
                             w.WriteLine();
                         }
                     }
-                    using (var w = new StreamWriter(Path.Combine(outputPath, $"Menus_{lang}.txt")))
+
+                    if (rom.MenuPages != null)
                     {
-                        var menuIndex = 0;
-
-                        foreach (var d in rom.MenuPages)
+                        using (var w = new StreamWriter(Path.Combine(outputPath, $"Menus_{lang}.txt")))
                         {
-                            w.WriteLine($"# Menu {menuIndex} (0x{d.Offset.AbsoluteOffset:X8})");
+                            var menuIndex = 0;
 
-                            var header = d.Header.GetString(langIndex);
-                            var subHeader = d.SubHeader.GetString(langIndex);
+                            foreach (var d in rom.MenuPages)
+                            {
+                                w.WriteLine($"# Menu {menuIndex} (0x{d.Offset.AbsoluteOffset:X8})");
 
-                            if (header != null)
-                                w.WriteLine($"{header}");
-                            if (subHeader != null)
-                                w.WriteLine($"{subHeader}");
+                                var header = d.Header.GetString(langIndex);
+                                var subHeader = d.SubHeader.GetString(langIndex);
 
-                            foreach (var o in d.Options ?? new GBAIsometric_Spyro_MenuOption[0])
-                                w.WriteLine($"> {o.LocIndex.GetString(langIndex)}");
+                                if (header != null)
+                                    w.WriteLine($"{header}");
+                                if (subHeader != null)
+                                    w.WriteLine($"{subHeader}");
 
-                            w.WriteLine();
+                                foreach (var o in d.Options ?? new GBAIsometric_Spyro_MenuOption[0])
+                                    w.WriteLine($"> {o.LocIndex.GetString(langIndex)}");
 
-                            menuIndex++;
+                                w.WriteLine();
+
+                                menuIndex++;
+                            }
                         }
                     }
 
