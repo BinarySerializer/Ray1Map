@@ -50,5 +50,9 @@
         GBAIsometric_Spyro2,
         GBAIsometric_Spyro3,
         GBAIsometric_RHR,
+
+        // GBC
+
+        GBC_R1
     }
 }

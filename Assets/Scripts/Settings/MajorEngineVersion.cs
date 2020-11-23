@@ -8,9 +8,9 @@
         Rayman1,
         Rayman1_Jaguar,
         SNES,
-        //GBC,
         GBA,
         GBARRR,
-        GBAIsometric
+        GBAIsometric,
+        GBC,
     }
 }

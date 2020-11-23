@@ -65,5 +65,13 @@ namespace R1Engine
         GBAIsometric_Spyro2, // Season of Flame
         GBAIsometric_Spyro3, // Spyro's Adventure/Attack of the Rhynocs
         GBAIsometric_RHR,
+
+        // GBC
+
+        //GBC_R1,
+        GBC_R1_Palm,
+        //GBC_R1_PalmDemo,
+        //GBC_R2,
+        //GBC_MowglisWildAdventure,
     }
 }

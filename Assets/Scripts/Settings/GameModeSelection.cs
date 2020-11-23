@@ -287,5 +287,10 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
         RaymanHoodlumsRevengeUS,
+
+        // GBC
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_Palm, Game.GBC_R1, "Rayman (PalmOS - Color)", typeof(GBC_R1PalmOS_Manager))]
+        RaymanGBCPalmOSColor,
     }
 }
