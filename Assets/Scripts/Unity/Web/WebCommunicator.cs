@@ -20,6 +20,8 @@ public class WebCommunicator : MonoBehaviour {
     string allJSON = null;
 	public bool debugMessages = false;
 
+	Unity_Tile[] highlightedCollision_;
+	Unity_IsometricCollisionTile highlightedCollision3D_;
 	Unity_ObjBehaviour highlightedObject_;
 	Unity_ObjBehaviour selectedObject_;
 	int x_, y_;
@@ -57,8 +59,14 @@ public class WebCommunicator : MonoBehaviour {
 			// TODO: Handle highlight & selection changes like in raymap:
 			var hl = Controller.obj.levelController.editor.objectHighlight;
 			// TODO: Also check highlighted collision?
-			if (highlightedObject_ != hl.highlightedObject) {
+			if (highlightedObject_ != hl.highlightedObject ||
+				highlightedCollision3D_ != hl.highlightedCollision3D ||
+				(highlightedCollision_ != hl.highlightedCollision &&
+				(highlightedCollision_ == null || hl.highlightedCollision == null ||
+				!highlightedCollision_.SequenceEqual(hl.highlightedCollision)))) {
 				highlightedObject_ = hl.highlightedObject;
+				highlightedCollision_ = hl.highlightedCollision;
+				highlightedCollision3D_ = hl.highlightedCollision3D;
 				Send(GetHighlightMessageJSON());
 			}
 
@@ -144,10 +152,23 @@ public class WebCommunicator : MonoBehaviour {
 		WebJSON.Message selectionJSON = new WebJSON.Message() {
 			Type = WebJSON.MessageType.Highlight,
 			Highlight = new WebJSON.Highlight() {
-				Object = GetObjectJSON(highlightedObject_),
-				// Collision
+				Object = GetObjectJSON(highlightedObject_)
 			}
 		};
+		// Collision
+		if (highlightedCollision3D_ != null) {
+			selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
+				new WebJSON.Collision() {
+					Type = highlightedCollision3D_.Type.ToString(),
+					Shape = highlightedCollision3D_.Shape.ToString(),
+					AdditionalType = highlightedCollision3D_.AddType.ToString()
+				}
+			};
+		} else if (highlightedCollision_ != null) {
+			selectionJSON.Highlight.Collision = highlightedCollision_
+				.Select(c => new WebJSON.Collision() { Type = LevelEditorData.Level.GetCollisionTypeNameFunc(c.Data?.CollisionType ?? 0) }).ToArray();
+		}
+
 		return selectionJSON;
 	}
 	private WebJSON.Object GetObjectJSON(Unity_ObjBehaviour obj, bool includeLists = false, bool includeDetails = false) {

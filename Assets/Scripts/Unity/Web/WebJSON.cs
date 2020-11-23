@@ -28,10 +28,14 @@ public class WebJSON {
 	}
 	public class Highlight {
 		public Object Object { get; set; }
-		public Collision Collision { get; set; }
+		public Collision[] Collision { get; set; }
 	}
 	public class Collision {
 		public string Type { get; set; }
+
+		// 3D
+		public string AdditionalType { get; set; }
+		public string Shape { get; set; }
 	}
 	public class Settings {
 		public bool? ShowObjects { get; set; }
