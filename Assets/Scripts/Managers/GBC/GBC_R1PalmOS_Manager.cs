@@ -2,12 +2,14 @@
 using R1Engine.Serialize;
 using System;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
 {
     public class GBC_R1PalmOS_Manager : IGameManager
     {
+        public const int CellSize = 8;
 
         public static ARGBColor[] GetPalmOS8BitPalette() {
             ARGBColor[] pal = new ARGBColor[256];
@@ -55,9 +57,10 @@ namespace R1Engine
         {
             new GameAction("Export Data", false, true, (input, output) => ExportDataAsync(settings, output, false)),
             new GameAction("Export Data (Categorized)", false, true, (input, output) => ExportDataAsync(settings, output, true)),
+            new GameAction("Export TileSets", false, true, (input, output) => ExportDataAsync(settings, output, false, asTileSet: true)),
         };
 
-        public async UniTask ExportDataAsync(GameSettings settings, string outputDir, bool categorized)
+        public async UniTask ExportDataAsync(GameSettings settings, string outputDir, bool categorized, bool asTileSet = false)
         {
             using (var context = new Context(settings))
             {
@@ -70,7 +73,6 @@ namespace R1Engine
 
                     if (type == null)
                         continue;
-
 
                     var relPath = Path.GetFileName(filePath);
                     await context.AddLinearSerializedFileAsync(relPath, BinaryFile.Endian.Big);
@@ -85,7 +87,8 @@ namespace R1Engine
                         var record = dataBase.Records[i];
                         var name = type == Palm_Database.DatabaseType.PRC ? $"{record.Name}_{record.ID}" : $"{i}";
                         bool exported = false;
-                        if (categorized && filePath.Contains("palmcolormenu")) {
+                        if (categorized && filePath.Contains("palmcolormenu")) 
+                        {
                             if (!exported) {
                                 try {
                                     GBC_PalmOS_CompressedBlock<GBC_PalmOS_Vignette> vignette = null;
@@ -164,7 +167,32 @@ namespace R1Engine
                                 string filename = $"Uncategorized/{name}.bin";
                                 Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
                             }
-                        } else {
+                        } 
+                        else if (asTileSet)
+                        {
+                            if (record.Length <= 12)
+                                continue;
+
+                            var isValid = s.DoAt(record.DataPointer, () =>
+                            {
+                                s.Serialize<uint>(default); // Header
+                                var unk = s.Serialize<uint>(default); // ?
+                                var count = s.Serialize<uint>(default); // Count
+
+                                return count * 0x40 + 12 == record.Length;
+                            });
+
+                            if (!isValid)
+                                continue;
+
+                            var tileSet = s.DoAt(record.DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_TileSet>>(default, name: "TileSet"));
+
+                            var tex = Util.ToTileSetTexture(tileSet.Value.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), true, 8, true, wrap: 16);
+                            
+                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}.png"), tex.EncodeToPNG());
+                        }
+                        else
+                        {
                             string filename = $"{name}.bin";
                             var bytes = s.DoAt(record.DataPointer, () => s.SerializeArray<byte>(default, record.Length, name: $"Record[{i}]"));
                             Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
@@ -174,7 +202,48 @@ namespace R1Engine
             }
         }
 
-        public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) => throw new NotImplementedException();
+        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        {
+            var pal = GetPalmOS8BitPalette().Select(x => x.GetColor()).ToArray();
+
+            var worldFile = "music.pdb";
+            var worldMapFile = "worldmap.pdb";
+
+            await context.AddLinearSerializedFileAsync(worldFile, BinaryFile.Endian.Big);
+            await context.AddLinearSerializedFileAsync(worldMapFile, BinaryFile.Endian.Big);
+
+            var worldDataBase = FileFactory.Read<Palm_Database>(worldFile, context, onPreSerialize: (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
+            var worldMapDataBase = FileFactory.Read<Palm_Database>(worldMapFile, context, onPreSerialize: (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
+
+            var s = context.Deserializer;
+
+            var tileSet = s.DoAt(worldMapDataBase.Records[294].DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_TileSet>>(default, name: "TileSet")).Value;
+            var map = s.DoAt(worldDataBase.Records[106].DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_Map>>(default, name: "Map")).Value;
+
+            var tileSetTex = Util.ToTileSetTexture(tileSet.TileData, pal, true, CellSize, flipY: false);
+
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map
+                {
+                    Width = (ushort)map.Width,
+                    Height = (ushort)map.Height,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        new Unity_MapTileMap(tileSetTex, CellSize), 
+                    },
+                    MapTiles = map.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
+                }
+            };
+
+            return new Unity_Level(
+                maps: maps, 
+                objManager: new Unity_ObjectManager(context),
+                cellSize: CellSize,
+                getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
+                getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString());
+        }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 

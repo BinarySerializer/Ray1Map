@@ -31,7 +31,7 @@
         public uint NextRecordListID { get; set; } // Runtime only
         public ushort RecordsCount { get; set; }
 
-        public Palm_DataBaseRecord[] Records { get; set; }
+        public Palm_DatabaseRecord[] Records { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -54,7 +54,7 @@
             NextRecordListID = s.Serialize<uint>(NextRecordListID, name: nameof(NextRecordListID));
             RecordsCount = s.Serialize<ushort>(RecordsCount, name: nameof(RecordsCount));
 
-            Records = s.SerializeObjectArray<Palm_DataBaseRecord>(Records, RecordsCount, onPreSerialize: x => x.Type = Type, name: nameof(Records));
+            Records = s.SerializeObjectArray<Palm_DatabaseRecord>(Records, RecordsCount, onPreSerialize: x => x.Type = Type, name: nameof(Records));
 
             // Set the length of every record
             for (int i = 0; i < RecordsCount; i++)

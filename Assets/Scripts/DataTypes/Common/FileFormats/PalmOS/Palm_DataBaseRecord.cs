@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class Palm_DataBaseRecord : R1Serializable
+    public class Palm_DatabaseRecord : R1Serializable
     {
         public Palm_Database.DatabaseType Type { get; set; } // Set this before serializing
         public uint Length { get; set; } // Set this after serializing

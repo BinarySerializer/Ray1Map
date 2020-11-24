@@ -286,6 +286,16 @@ namespace R1Engine
                     PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
             }
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBC)
+            {
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    TileMapY = (ushort)bitFunc(TileMapY, 9, name: nameof(TileMapY));
+                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                    CollisionType = (byte)bitFunc(CollisionType, 5, name: nameof(CollisionType));
+                });
+            }
         }
 
         public MapTile CloneObj() => (MapTile)Clone();

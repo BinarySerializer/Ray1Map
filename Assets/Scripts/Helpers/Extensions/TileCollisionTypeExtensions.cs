@@ -463,5 +463,33 @@
                     return Unity_MapCollisionTypeGraphic.Unknown0;
             }
         }
+
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBC_TileCollisionType collisionType) {
+            switch (collisionType) 
+            {
+                case GBC_TileCollisionType.Empty: return Unity_MapCollisionTypeGraphic.None;
+                case GBC_TileCollisionType.Solid: return Unity_MapCollisionTypeGraphic.Solid;
+                case GBC_TileCollisionType.Passthrough: return Unity_MapCollisionTypeGraphic.Passthrough;
+                case GBC_TileCollisionType.Slippery: return Unity_MapCollisionTypeGraphic.Slippery;
+                case GBC_TileCollisionType.Steep_Left: return Unity_MapCollisionTypeGraphic.Hill_Steep_Left;
+                case GBC_TileCollisionType.Steep_Right: return Unity_MapCollisionTypeGraphic.Hill_Steep_Right;
+                case GBC_TileCollisionType.Hill_Left1: return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
+                case GBC_TileCollisionType.Hill_Left2: return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2;
+                case GBC_TileCollisionType.Hill_Right1: return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
+                case GBC_TileCollisionType.Hill_Right2: return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
+                case GBC_TileCollisionType.Slippery_Steep_Left: return Unity_MapCollisionTypeGraphic.Slippery_Steep_Left;
+                case GBC_TileCollisionType.Slippery_Steep_Right: return Unity_MapCollisionTypeGraphic.Slippery_Steep_Right;
+                case GBC_TileCollisionType.Slippery_Hill_Left1: return Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_1;
+                case GBC_TileCollisionType.Slippery_Hill_Left2: return Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_2;
+                case GBC_TileCollisionType.Slippery_Hill_Right1: return Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_1;
+                case GBC_TileCollisionType.Slippery_Hill_Right2: return Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_2;
+                case GBC_TileCollisionType.Damage: return Unity_MapCollisionTypeGraphic.Damage;
+                case GBC_TileCollisionType.Trigger_Right: return Unity_MapCollisionTypeGraphic.Direction_Right;
+                case GBC_TileCollisionType.Trigger_Left: return Unity_MapCollisionTypeGraphic.Direction_Left;
+                case GBC_TileCollisionType.Trigger_Up: return Unity_MapCollisionTypeGraphic.Direction_Up;
+                case GBC_TileCollisionType.Trigger_Down: return Unity_MapCollisionTypeGraphic.Direction_Down;
+                default: return Unity_MapCollisionTypeGraphic.Unknown0;
+            }
+        }
     }
 }
