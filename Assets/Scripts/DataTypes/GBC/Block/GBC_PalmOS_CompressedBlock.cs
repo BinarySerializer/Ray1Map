@@ -3,7 +3,7 @@ using System.Text;
 
 namespace R1Engine
 {
-    public class GBC_PalmOS_CompressedBlock<T> : GBC_PalmOS_Block where T : R1Serializable, new()
+    public class GBC_PalmOS_CompressedBlock<T> : GBC_Block where T : R1Serializable, new()
     {
         public uint BlockSize { get; set; }
         public uint DecompressedSize { get; set; }

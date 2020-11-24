@@ -68,7 +68,7 @@ namespace R1Engine
 
         // GBC
 
-        //GBC_R1,
+        GBC_R1,
         GBC_R1_Palm,
         //GBC_R1_PalmDemo,
         //GBC_R2,

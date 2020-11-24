@@ -3,7 +3,7 @@ using System.Text;
 
 namespace R1Engine
 {
-    public class GBC_PalmOS_Vignette : GBC_PalmOS_Block {
+    public class GBC_PalmOS_Vignette : GBC_Block {
         public uint BlockSize { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }
