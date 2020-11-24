@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -10,6 +11,14 @@ namespace R1Engine
     public class GBC_R1PalmOS_Manager : IGameManager
     {
         public const int CellSize = 8;
+
+        public KeyValuePair<string, int>[] Levels => new KeyValuePair<string, int>[]
+        {
+            new KeyValuePair<string, int>("music", 4),
+            // TODO: Remaining levels
+        };
+
+        public string AllfixFilePath => "worldmap.pdb";
 
         public static ARGBColor[] GetPalmOS8BitPalette() {
             ARGBColor[] pal = new ARGBColor[256];
@@ -51,7 +60,7 @@ namespace R1Engine
             return pal;
         }
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[0]);
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, Enumerable.Range(0, x.Value).ToArray())).ToArray());
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
@@ -206,19 +215,21 @@ namespace R1Engine
         {
             var pal = GetPalmOS8BitPalette().Select(x => x.GetColor()).ToArray();
 
-            var worldFile = "music.pdb";
-            var worldMapFile = "worldmap.pdb";
+            var worldFile = $"{Levels[context.Settings.World].Key}.pdb";
 
             await context.AddLinearSerializedFileAsync(worldFile, BinaryFile.Endian.Big);
-            await context.AddLinearSerializedFileAsync(worldMapFile, BinaryFile.Endian.Big);
+            await context.AddLinearSerializedFileAsync(AllfixFilePath, BinaryFile.Endian.Big);
 
-            var worldDataBase = FileFactory.Read<Palm_Database>(worldFile, context, onPreSerialize: (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
-            var worldMapDataBase = FileFactory.Read<Palm_Database>(worldMapFile, context, onPreSerialize: (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
+            var world = FileFactory.Read<Palm_Database>(worldFile, context, onPreSerialize: (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
+            var allfix = FileFactory.Read<Palm_Database>(AllfixFilePath, context, onPreSerialize: (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
 
             var s = context.Deserializer;
 
-            var tileSet = s.DoAt(worldMapDataBase.Records[294].DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_TileSet>>(default, name: "TileSet")).Value;
-            var map = s.DoAt(worldDataBase.Records[106].DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_Map>>(default, name: "Map")).Value;
+            var tileSet = s.DoAt(allfix.Records[294].DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_TileSet>>(default, name: "TileSet")).Value;
+
+            var playField = s.DoAt(world.Records[context.Settings.Level].DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_PlayField>>(default, name: "PlayField")).Value;
+
+            var map = s.DoAt(world.Records[playField.MapIndex].DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_Map>>(default, name: "Map")).Value;
 
             var tileSetTex = Util.ToTileSetTexture(tileSet.TileData, pal, true, CellSize, flipY: false);
 
