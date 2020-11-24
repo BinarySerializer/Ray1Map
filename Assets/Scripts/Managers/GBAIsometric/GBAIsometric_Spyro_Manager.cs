@@ -453,15 +453,25 @@ namespace R1Engine
             var validMaps = maps.Where(x => x != null).ToArray();
             var objManager = new Unity_ObjectManager_GBAIsometricSpyro(context, rom.ObjectTypes, GetAnimSets(context, rom).ToArray());
 
-            // Load objects
             var objects = new List<Unity_Object>();
-            var objTable = rom.GetObjectTable(context.Settings);
 
-            // Init the objects
-            if (objTable != null)
+            // Load objects
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 1)
             {
-                InitObjects(objTable.Objects);
-                objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometricSpyro(x, objManager)));
+                var objTable = rom.LevelObjects_Spyro2_Agent9[context.Settings.Level];
+
+                objects.AddRange(objTable.DoorObjects.Concat(objTable.CharacterObjects).Concat(objTable.CollectibleObjects).Select(x => new Unity_Object_GBAIsometricSpyro2_2D(x, objManager)));
+            }
+            else
+            {
+                var objTable = rom.GetObjectTable(context.Settings);
+
+                // Init the objects
+                if (objTable != null)
+                {
+                    InitObjects(objTable.Objects);
+                    objects.AddRange(objTable.Objects.Select(x => new Unity_Object_GBAIsometricSpyro(x, objManager)));
+                }
             }
 
             // Spyro 2: Snap object height to height of collision tile
