@@ -480,10 +480,11 @@ namespace R1Engine
             UpdateEventFields();
 
             // Check for changed obj positions for one-way links
-            bool updateLinks = Controller.obj.levelController.Objects.Any(x => x.HasInitialized && x.ObjData.CanBeLinked && x.transform.position != ObjPositions[x]);
+            bool updateLinks = Controller.obj.levelController.Objects.Any(x => x.HasInitialized && x.transform.position != ObjPositions[x]);
             if (updateLinks) {
-                var linkableObjects = Controller.obj.levelController.Objects.Where(x => x.HasInitialized && x.ObjData.CanBeLinked);
-                foreach (var obj in linkableObjects) {
+                var initializedObjects = Controller.obj.levelController.Objects.Where(x => x.HasInitialized);
+                foreach (var obj in initializedObjects) {
+                    if(!obj.ObjData.CanBeLinked) continue;
                     var linkIndex = 0;
 
                     foreach (var linkedActorIndex in obj.ObjData.Links) {
@@ -524,7 +525,7 @@ namespace R1Engine
                     }
                 }
                 // Update position
-                foreach (var obj in linkableObjects) {
+                foreach (var obj in initializedObjects) {
                     ObjPositions[obj] = obj.transform.position;
                 }
             }

@@ -22,11 +22,9 @@ namespace R1Engine
         public override string DebugText => $"Category: {Object.Category}{Environment.NewLine}";
 
         private Unity_ObjAnimationCollisionPart[] objCollision;
-        private short objCollision_x;
-        private short objCollision_y;
         public override Unity_ObjAnimationCollisionPart[] ObjCollision {
             get {
-                if (objCollision == null || XPosition != objCollision_x || YPosition != objCollision_y) {
+                if (objCollision == null) {
                     objCollision = new Unity_ObjAnimationCollisionPart[] {
                         new Unity_ObjAnimationCollisionPart()
                         {
@@ -37,8 +35,6 @@ namespace R1Engine
                             Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
                         }
                     };
-                    objCollision_x = XPosition;
-                    objCollision_y = YPosition;
                 }
                 return objCollision;
             }
