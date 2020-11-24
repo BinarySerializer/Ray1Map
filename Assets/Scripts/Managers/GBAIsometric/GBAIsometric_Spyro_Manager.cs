@@ -543,7 +543,7 @@ namespace R1Engine
                 {
                     return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(
                         () => GetAnimationFrames(animSet, x, pal).Select(f => f.CreateSprite()).ToArray(),
-                        (byte)(x.AnimSpeed + 1),
+                        x.AnimSpeed,
                         GetFramePositions(animSet, x));
                 }).ToArray());
             }
