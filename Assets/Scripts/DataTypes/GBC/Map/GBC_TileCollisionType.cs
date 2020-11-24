@@ -24,10 +24,14 @@
         Slippery_Hill_Right1 = 15,
 
         Damage = 17,
+        InstaKill = 18,
+        Pit = 19,
 
         Trigger_Right = 20,
         Trigger_Left = 21,
         Trigger_Up = 22,
         Trigger_Down = 23,
+
+        Water = 29
     }
 }
