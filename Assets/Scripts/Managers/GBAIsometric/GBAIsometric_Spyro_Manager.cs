@@ -176,7 +176,7 @@ namespace R1Engine
 
                 var objPal = rom.GetLevelData(settings).ObjPalette;
 
-                if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 0)
                 {
                     var lvlPal = objPal;
                     objPal = rom.CommonPalette;
@@ -409,7 +409,11 @@ namespace R1Engine
             });
 
             if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 1)
-                maps = maps.Reverse();
+            {
+                var reversedMaps = maps.Reverse().ToArray();
+                reversedMaps.Last().Layer = Unity_Map.MapLayer.Front;
+                maps = reversedMaps;
+            }
 
             // Create a collision map for 2D levels
             if (levelData.Collision2D != null)
@@ -518,7 +522,7 @@ namespace R1Engine
         {
             var objPal = rom.GetLevelData(context.Settings).ObjPalette;
 
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 0)
             {
                 var lvlPal = objPal;
                 objPal = rom.CommonPalette;

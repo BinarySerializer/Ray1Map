@@ -19,7 +19,7 @@ namespace R1Engine
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }
 
-        public override string DebugText => String.Empty;
+        public override string DebugText => $"Category: {Object.Category}{Environment.NewLine}";
 
         private Unity_ObjAnimationCollisionPart[] objCollision;
         private short objCollision_x;
@@ -76,17 +76,19 @@ namespace R1Engine
         public GBAIsometric_Spyro_AnimGroup AnimGroup => AnimSet?.AnimSetObj?.AnimGroups?.ElementAtOrDefault(AnimationGroupIndex);
         public Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation Anim => AnimSet?.Animations?.ElementAtOrDefault(AnimGroup?.AnimIndex + AnimIndex ?? -1);
 
-        public bool ForceNoGraphics => AnimSetIndex == -1;
+        public bool IsEditorObj { get; set; } // True for collision objects, trigger objects etc.
+        public bool ForceNoGraphics => AnimSetIndex == -1 || IsEditorObj;
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{Object.ObjType}";
         public override string SecondaryName => null;
-        
-        public override ObjectType Type => ObjectType.Object;
 
-        public override bool CanBeLinked => Object.IsCharacterObj;
+        public override bool IsEditor => IsEditorObj;
+        public override ObjectType Type => IsEditorObj ? ObjectType.Trigger : ObjectType.Object;
+
+        public override bool CanBeLinked => Object.Category == GBAIsometric_Spyro2_Object2D.ObjCategory.Character;
         public int LinkIndex { get; set; } = -1;
         public override IEnumerable<int> Links
         {
