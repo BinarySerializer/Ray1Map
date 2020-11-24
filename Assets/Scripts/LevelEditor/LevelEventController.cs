@@ -480,56 +480,54 @@ namespace R1Engine
             UpdateEventFields();
 
             // Check for changed obj positions for one-way links
-            foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.ObjData.CanBeLinked))
-            {
-                var linkIndex = 0;
+            bool updateLinks = Controller.obj.levelController.Objects.Any(x => x.HasInitialized && x.ObjData.CanBeLinked && x.transform.position != ObjPositions[x]);
+            if (updateLinks) {
+                var linkableObjects = Controller.obj.levelController.Objects.Where(x => x.HasInitialized && x.ObjData.CanBeLinked);
+                foreach (var obj in linkableObjects) {
+                    var linkIndex = 0;
 
-                foreach (var linkedActorIndex in obj.ObjData.Links)
-                {
-                    var linkedObj = Controller.obj.levelController.Objects[linkedActorIndex];
-                    var lr = obj.oneWayLinkLines[linkIndex];
+                    foreach (var linkedActorIndex in obj.ObjData.Links) {
+                        var linkedObj = Controller.obj.levelController.Objects[linkedActorIndex];
+                        var lr = obj.oneWayLinkLines[linkIndex];
 
-                    if ((obj.transform.position != ObjPositions[obj] || linkedObj.transform.position != ObjPositions[linkedObj]) && obj.HasInitialized && linkedObj.HasInitialized)
-                    {
-                        Vector3 origin = obj.midpoint;
-                        Vector3 target = linkedObj.midpoint;
+                        if ((obj.transform.position != ObjPositions[obj] || linkedObj.transform.position != ObjPositions[linkedObj]) && obj.HasInitialized && linkedObj.HasInitialized) {
+                            Vector3 origin = obj.midpoint;
+                            Vector3 target = linkedObj.midpoint;
 
-                        //Debug.Log($"Updated link arrow for actor {obj.Index} from {origin} to {target}");
+                            //Debug.Log($"Updated link arrow for actor {obj.Index} from {origin} to {target}");
 
-                        float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
-                        if (AdaptiveSize < 0.25f)
-                        {
-                            lr.widthCurve = new AnimationCurve(
-                                new Keyframe(0, 0f),
-                                new Keyframe(AdaptiveSize / 2, 0.095f),
-                                new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
-                                new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
-                                new Keyframe(1, 0f)); // tip of arrow
-                            lr.positionCount = 5;
-                            lr.SetPositions(new Vector3[] {
+                            float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
+                            if (AdaptiveSize < 0.25f) {
+                                lr.widthCurve = new AnimationCurve(
+                                    new Keyframe(0, 0f),
+                                    new Keyframe(AdaptiveSize / 2, 0.095f),
+                                    new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
+                                    new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
+                                    new Keyframe(1, 0f)); // tip of arrow
+                                lr.positionCount = 5;
+                                lr.SetPositions(new Vector3[] {
                                     origin,
                                     Vector3.Lerp(origin, target, AdaptiveSize / 2),
                                     Vector3.Lerp(origin, target, 0.999f - AdaptiveSize),
                                     Vector3.Lerp(origin, target, 1 - AdaptiveSize),
                                     target });
+                            } else {
+                                lr.widthCurve = new AnimationCurve(
+                                    new Keyframe(0, 0.095f),
+                                    new Keyframe(1, 0.095f)); // tip of arrow
+                                lr.positionCount = 2;
+                                lr.SetPositions(new Vector3[] { origin, target });
+                            }
                         }
-                        else
-                        {
-                            lr.widthCurve = new AnimationCurve(
-                                new Keyframe(0, 0.095f),
-                                new Keyframe(1, 0.095f)); // tip of arrow
-                            lr.positionCount = 2;
-                            lr.SetPositions(new Vector3[] { origin, target });
-                        }
-                    }
 
-                    linkIndex++;
+                        linkIndex++;
+                    }
+                }
+                // Update position
+                foreach (var obj in linkableObjects) {
+                    ObjPositions[obj] = obj.transform.position;
                 }
             }
-
-            // Update all positions
-            foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized && x.ObjData.CanBeLinked))
-                ObjPositions[obj] = obj.transform.position;
 
             bool makingChanges = false;
             if (Settings.LoadFromMemory)

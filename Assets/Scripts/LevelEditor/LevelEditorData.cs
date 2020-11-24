@@ -24,8 +24,8 @@ namespace R1Engine
         public static Unity_Level Level { get; set; }
         public static Unity_ObjectManager ObjManager => Level.ObjManager;
 
-        public static int MaxWidth => Level.Maps.Max(x => x.Width);
-        public static int MaxHeight => Level.Maps.Max(x => x.Height);
+        public static int MaxWidth => Level.MaxWidth;
+        public static int MaxHeight => Level.MaxHeight;
 
         public static int CurrentMap { get; set; }
         public static int CurrentCollisionMap { get; set; }

@@ -21,17 +21,28 @@ namespace R1Engine
 
         public override string DebugText => String.Empty;
 
-        public override Unity_ObjAnimationCollisionPart[] ObjCollision => new Unity_ObjAnimationCollisionPart[]
-        {
-            new Unity_ObjAnimationCollisionPart()
-            {
-                XPosition = Object.MinX - XPosition,
-                YPosition = Object.MinY - YPosition,
-                Width = Object.MaxX - Object.MinX,
-                Height = Object.MaxY - Object.MinY,
-                Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+        private Unity_ObjAnimationCollisionPart[] objCollision;
+        private short objCollision_x;
+        private short objCollision_y;
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision {
+            get {
+                if (objCollision == null || XPosition != objCollision_x || YPosition != objCollision_y) {
+                    objCollision = new Unity_ObjAnimationCollisionPart[] {
+                        new Unity_ObjAnimationCollisionPart()
+                        {
+                            XPosition = Object.MinX - XPosition,
+                            YPosition = Object.MinY - YPosition,
+                            Width = Object.MaxX - Object.MinX,
+                            Height = Object.MaxY - Object.MinY,
+                            Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                        }
+                    };
+                    objCollision_x = XPosition;
+                    objCollision_y = YPosition;
+                }
+                return objCollision;
             }
-        };
+        }
 
         public override int? GetLayer(int index) => -index;
 

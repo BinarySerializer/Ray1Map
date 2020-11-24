@@ -589,16 +589,16 @@ namespace R1Engine
                 PrevObjType = ObjData.Type;
                 InitGizmo();
             }
-
+            bool enableBoxCollider = EnableBoxCollider;
             if (boxCollider != null) {
                 // Update visibility
-                boxCollider.enabled = EnableBoxCollider;
+                boxCollider.enabled = enableBoxCollider;
 
                 // Set new midpoint
                 midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
             } else if (boxCollider3D != null) {
                 // Update visibility
-                boxCollider3D.enabled = EnableBoxCollider;
+                boxCollider3D.enabled = enableBoxCollider;
 
                 // Set new midpoint
                 midpoint = transform.TransformPoint(boxCollider3D.center);
@@ -654,7 +654,7 @@ namespace R1Engine
             // Update one-way link lines
             if (oneWayLinkLines != null)
                 foreach (var lr in oneWayLinkLines)
-                    lr.enabled = EnableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked;
+                    lr.enabled = enableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked;
 
             HasInitialized = true;
         }

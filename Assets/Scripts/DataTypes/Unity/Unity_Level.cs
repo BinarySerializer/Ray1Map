@@ -42,6 +42,9 @@ namespace R1Engine
             ParallaxBackground = parallaxBackground;
             Sectors = sectors;
             IsometricData = isometricData;
+
+            MaxWidth = Maps.Max(x => x.Width);
+            MaxHeight = Maps.Max(x => x.Height);
         }
 
         #endregion
@@ -57,6 +60,8 @@ namespace R1Engine
         public int DefaultCollisionMap { get; }
 
         public Unity_Map[] Maps { get; }
+        public int MaxWidth { get; set; }
+        public int MaxHeight { get; set; }
 
         public List<Unity_Object> EventData { get; }
         public Unity_Object Rayman { get; }
