@@ -29,7 +29,7 @@ public class UnityWindowSerializer : SerializerObject
     public override Pointer CurrentPointer => null;
     public override void Goto(Pointer offset) { }
 
-    public override void DoEncoded(IStreamEncoder encoder, Action action) { }
+    public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null) { }
 
     protected Rect PrefixEditorField(string name)
     {

@@ -438,7 +438,7 @@ namespace R1Engine
                 readers.Remove(file);
             }
         }
-        public override void DoEncoded(IStreamEncoder encoder, Action action) {
+        public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null) {
             // Stream key
             string key = CurrentPointer.ToString() + "_decoded";
             // Decode the data into a stream
@@ -447,7 +447,7 @@ namespace R1Engine
                 // Add the stream
                 StreamFile sf = new StreamFile(key, memStream, Context)
                 {
-                    Endianness = currentFile.Endianness
+                    Endianness = endianness ?? currentFile.Endianness
                 };
                 Context.AddFile(sf);
 

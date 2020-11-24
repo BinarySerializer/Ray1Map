@@ -48,9 +48,9 @@ namespace R1Engine
         public override uint CurrentLength => CurrentSerializer.CurrentLength;
         public override Pointer CurrentPointer => CurrentSerializer.CurrentPointer;
         public override void Goto(Pointer offset) => CurrentSerializer.Goto(offset);
-        public override void DoEncoded(IStreamEncoder encoder, Action action) {
+        public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null) {
             SwitchSerializer(Deserializer);
-            CurrentSerializer.DoEncoded(encoder, action);
+            CurrentSerializer.DoEncoded(encoder, action, endianness);
         }
         public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) {
             SwitchSerializer(Deserializer);

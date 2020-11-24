@@ -355,7 +355,7 @@ namespace R1Engine
                 writers.Remove(file);
             }
         }
-        public override void DoEncoded(IStreamEncoder encoder, Action action) {
+        public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null) {
             // Encode the data into a stream
             Stream encoded = null;
             using(MemoryStream memStream = new MemoryStream()) {
@@ -365,7 +365,7 @@ namespace R1Engine
                 // Add the stream
                 StreamFile sf = new StreamFile(key, memStream, Context)
                 {
-                    Endianness = currentFile.Endianness
+                    Endianness = endianness ?? currentFile.Endianness
                 };
                 Context.AddFile(sf);
 
