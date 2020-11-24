@@ -37,10 +37,10 @@ namespace R1Engine
 
             foreach (var obj in all2DObjects)
             {
-                // Set link (it only links to door obj array, but since it's the first one this will work)
+                // Set link
                 if (obj.CanBeLinked && obj.Object.LinkedObjectID != -1)
                 {
-                    var linkIndex = all2DObjects.FindItemIndex(x => x.Object.ID == obj.Object.LinkedObjectID);
+                    var linkIndex = all2DObjects.FindItemIndex(x => x.Object.ID == obj.Object.LinkedObjectID && x.Object.Category == GBAIsometric_Spyro2_Object2D.ObjCategory.Door);
 
                     if (linkIndex != -1)
                         obj.LinkIndex = linkIndex;
@@ -55,66 +55,174 @@ namespace R1Engine
                 }
                 else
                 {
-                    obj.XPosition = obj.Object.IsCharacterObj ? obj.Object.MaxX : obj.Object.MinX;
-                    obj.YPosition = obj.Object.IsCharacterObj ? obj.Object.MaxY : obj.Object.MinY;
+                    obj.XPosition = obj.Object.MinX;
+                    obj.YPosition = obj.Object.MinY;
                 }
 
                 // Set graphics index based off of type
-                if (obj.Object.IsCharacterObj)
+                switch (obj.Object.Category)
                 {
-                    switch (obj.Object.ObjType)
-                    {
-                        // Enemies
-                        case 0:
-                            obj.AnimSetIndex = 0x92;
-                            obj.AnimationGroupIndex = 0x05;
-                            break;
-                        case 2:
-                            obj.AnimSetIndex = 0x8A;
-                            obj.AnimationGroupIndex = 0x02;
-                            break;
-                        case 3:
-                            obj.AnimSetIndex = 0x84;
-                            obj.AnimationGroupIndex = 0x0B;
-                            break;
+                    case GBAIsometric_Spyro2_Object2D.ObjCategory.Door:
+                        obj.AnimSetIndex = 0x86;
 
-                        // Agent 9
-                        case 13:
-                            obj.AnimSetIndex = 0x80;
-                            obj.AnimationGroupIndex = 0x08;
-                            break;
+                        switch (Context.Settings.Level)
+                        {
+                            case 0:
+                                obj.AnimationGroupIndex = 0x03;
+                                break;
+                            case 1:
+                                obj.AnimationGroupIndex = 0x05;
+                                break;
+                            case 2:
+                                obj.AnimationGroupIndex = 0x01;
+                                break;
+                            case 3:
+                                obj.AnimationGroupIndex = 0x07;
+                                break;
+                        }
+                        break;
 
-                        case 1:
-                        case 4:
-                        case 5:
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 9:
-                        case 10:
-                        case 11:
-                        case 12:
-                        case 14:
-                        default:
-                            obj.AnimSetIndex = -1;
-                            break;
-                    }
+                    case GBAIsometric_Spyro2_Object2D.ObjCategory.Character:
+                        switch (obj.Object.ObjType)
+                        {
+                            // Enemies
+                            case 0:
+                                obj.AnimSetIndex = 0x92;
+                                obj.AnimationGroupIndex = 0x05;
+                                break;
+                            case 1:
+                                obj.AnimSetIndex = 0x91;
+                                obj.AnimationGroupIndex = 0x03;
+                                break;
+                            case 2:
+                                obj.AnimSetIndex = 0x8A;
+                                obj.AnimationGroupIndex = 0x02;
+                                break;
+                            case 3:
+                                obj.AnimSetIndex = 0x84;
+                                obj.AnimationGroupIndex = 0x0B;
+                                break;
+                            case 4:
+                                obj.AnimSetIndex = 0x82;
+                                obj.AnimationGroupIndex = 0x01;
+                                break;
+
+                            // No graphics
+                            case 5: // Exit
+                            case 6:
+                            case 10:
+                            case 12:
+                                obj.IsEditorObj = true;
+                                obj.AnimSetIndex = -1;
+                                break;
+
+                            // Mine
+                            case 7:
+                                obj.AnimSetIndex = 0x8E;
+                                obj.AnimationGroupIndex = 0x00;
+                                break;
+
+                            // Floating platforms
+                            case 8:
+                                obj.AnimSetIndex = 0x90;
+                                obj.AnimationGroupIndex = 0x02;
+                                break;
+                            case 9:
+                                obj.AnimSetIndex = 0x90;
+                                obj.AnimationGroupIndex = 0x00;
+                                break;
+
+                            // Checkpoint fairy
+                            case 11:
+                                obj.AnimSetIndex = 0x88;
+                                obj.AnimationGroupIndex = 0x00;
+                                break;
+
+                            // Agent 9
+                            case 13:
+                                obj.AnimSetIndex = 0x80;
+                                obj.AnimationGroupIndex = 0x08;
+                                break;
+
+                            // Firefly
+                            case 14:
+                                obj.AnimSetIndex = 0x7C;
+                                obj.AnimationGroupIndex = 0x03;
+                                break;
+
+                            // Sign
+                            case 15:
+                                obj.AnimSetIndex = 0x96;
+                                obj.AnimationGroupIndex = 0x00;
+                                break;
+
+                            default:
+                                obj.AnimSetIndex = -1;
+                                break;
+                        }
+                        break;
+
+                    case GBAIsometric_Spyro2_Object2D.ObjCategory.Collectible:
+                        switch (obj.Object.ObjType)
+                        {
+                            // Gem
+                            case 0: // Red
+                                obj.AnimSetIndex = 0x89;
+                                obj.AnimationGroupIndex = 0x03;
+                                break;
+
+                            case 1: // Diamond
+                                obj.AnimSetIndex = 0x89;
+                                obj.AnimationGroupIndex = 0x00;
+                                break;
+
+                            case 2: // Gold
+                                obj.AnimSetIndex = 0x89;
+                                obj.AnimationGroupIndex = 0x05;
+                                break;
+
+                            case 3: // Green
+                                obj.AnimSetIndex = 0x89;
+                                obj.AnimationGroupIndex = 0x01;
+                                break;
+
+                            case 4: // Purple
+                                obj.AnimSetIndex = 0x89;
+                                obj.AnimationGroupIndex = 0x02;
+                                break;
+
+                            // Gem container
+                            case 16:
+                            case 17:
+                            case 18:
+                            case 19:
+                            case 20:
+                                obj.AnimSetIndex = 0x7E;
+                                obj.AnimationGroupIndex = 0x05;
+                                break;
+
+                            case 32:
+                            case 33:
+                            case 34:
+                            case 35:
+                            case 36:
+                                obj.AnimSetIndex = 0x7A;
+                                obj.AnimationGroupIndex = 0x04;
+                                break;
+
+                            default:
+                                obj.AnimSetIndex = -1;
+                                break;
+                        }
+                        break;
+
+                    default:
+                        obj.AnimSetIndex = -1;
+                        break;
                 }
-                else
-                {
-                    switch (obj.Object.ObjType)
-                    {
-                        // Gem container
-                        case 16:
-                            obj.AnimSetIndex = 0x7E;
-                            obj.AnimationGroupIndex = 0x05;
-                            break;
 
-                        default:
-                            obj.AnimSetIndex = -1;
-                            break;
-                    }
-                }
+                if (obj.AnimSetIndex == -1 && !obj.IsEditorObj)
+                    Debug.LogWarning($"Type {obj.Object.ObjType} with category {obj.Object.Category} has no graphics");
             }
         }
 

@@ -18,13 +18,13 @@
             Bytes_00 = s.SerializeArray<byte>(Bytes_00, 4, name: nameof(Bytes_00));
 
             DoorObjectsCount = s.Serialize<uint>(DoorObjectsCount, name: nameof(DoorObjectsCount));
-            DoorObjects = s.SerializeObjectArray<GBAIsometric_Spyro2_Object2D>(DoorObjects, DoorObjectsCount, name: nameof(DoorObjects));
+            DoorObjects = s.SerializeObjectArray<GBAIsometric_Spyro2_Object2D>(DoorObjects, DoorObjectsCount, onPreSerialize: x => x.Category = GBAIsometric_Spyro2_Object2D.ObjCategory.Door, name: nameof(DoorObjects));
 
             CharacterObjectsCount = s.Serialize<uint>(CharacterObjectsCount, name: nameof(CharacterObjectsCount));
-            CharacterObjects = s.SerializeObjectArray<GBAIsometric_Spyro2_Object2D>(CharacterObjects, CharacterObjectsCount, onPreSerialize: x => x.IsCharacterObj = true, name: nameof(CharacterObjects));
+            CharacterObjects = s.SerializeObjectArray<GBAIsometric_Spyro2_Object2D>(CharacterObjects, CharacterObjectsCount, onPreSerialize: x => x.Category = GBAIsometric_Spyro2_Object2D.ObjCategory.Character, name: nameof(CharacterObjects));
 
             CollectibleObjectsCount = s.Serialize<uint>(CollectibleObjectsCount, name: nameof(CollectibleObjectsCount));
-            CollectibleObjects = s.SerializeObjectArray<GBAIsometric_Spyro2_Object2D>(CollectibleObjects, CollectibleObjectsCount, name: nameof(CollectibleObjects));
+            CollectibleObjects = s.SerializeObjectArray<GBAIsometric_Spyro2_Object2D>(CollectibleObjects, CollectibleObjectsCount, onPreSerialize: x => x.Category = GBAIsometric_Spyro2_Object2D.ObjCategory.Collectible, name: nameof(CollectibleObjects));
         }
     }
 }
