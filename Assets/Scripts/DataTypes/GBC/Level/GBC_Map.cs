@@ -14,9 +14,13 @@
             // Serialize header
             base.SerializeImpl(s);
             SerializeOffsetTable(s);
-
-            Width = s.Serialize<uint>(Width, name: nameof(Width));
-            Height = s.Serialize<uint>(Height, name: nameof(Height));
+            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1) {
+                Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
+                Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
+            } else {
+                Width = s.Serialize<uint>(Width, name: nameof(Width));
+                Height = s.Serialize<uint>(Height, name: nameof(Height));
+            }
             MapTiles = s.SerializeObjectArray<MapTile>(MapTiles, Width * Height, name: nameof(MapTiles));
 
             TileKit = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_TileKit>(TileKit, name: nameof(TileKit)));

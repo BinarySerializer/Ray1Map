@@ -386,6 +386,17 @@ namespace R1Engine
                 encoded.Close();
             }
         }
+        public override void DoEndian(BinaryFile.Endian endianness, Action action) {
+            Writer w = writer;
+            bool isLittleEndian = w.isLittleEndian;
+            if (isLittleEndian != (endianness == BinaryFile.Endian.Little)) {
+                w.isLittleEndian = (endianness == BinaryFile.Endian.Little);
+                action();
+                w.isLittleEndian = isLittleEndian;
+            } else {
+                action();
+            }
+        }
 
         public override void Log(string logString) {
             if (Settings.Log) {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace R1Engine {
     public class Writer : BinaryWriter {
-        bool isLittleEndian = true;
+        public bool isLittleEndian = true;
         byte? xorKey;
         IChecksumCalculator checksumCalculator;
         uint bytesSinceAlignStart;

@@ -52,6 +52,9 @@ namespace R1Engine
             SwitchSerializer(Deserializer);
             CurrentSerializer.DoEncoded(encoder, action, endianness);
         }
+        public override void DoEndian(BinaryFile.Endian endianness, Action action) {
+            CurrentSerializer.DoEndian(endianness, action);
+        }
         public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) {
             SwitchSerializer(Deserializer);
             return CurrentSerializer.SerializeChecksum(calculatedChecksum, name);
@@ -147,6 +150,6 @@ namespace R1Engine
             CurrentSerializer.SerializeBitValues<T>(serializeFunc);
         }
 
-        public override bool FullSerialize => CurrentSerializer.FullSerialize;
+		public override bool FullSerialize => CurrentSerializer.FullSerialize;
     }
 }

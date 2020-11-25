@@ -462,8 +462,19 @@ namespace R1Engine
 
             }
         }
+        public override void DoEndian(BinaryFile.Endian endianness, Action action) {
+            Reader r = reader;
+            bool isLittleEndian = r.isLittleEndian;
+            if (isLittleEndian != (endianness == BinaryFile.Endian.Little)) {
+                r.isLittleEndian = (endianness == BinaryFile.Endian.Little);
+                action();
+                r.isLittleEndian = isLittleEndian;
+            } else {
+                action();
+            }
+        }
 
-		public override void Log(string logString) {
+        public override void Log(string logString) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + logString);
             }

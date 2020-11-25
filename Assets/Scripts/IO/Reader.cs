@@ -6,7 +6,7 @@ using System.Text;
 namespace R1Engine {
     public class Reader : BinaryReader {
         public delegate void ReadAction(Reader reader, Pointer offset);
-        bool isLittleEndian = true;
+        public bool isLittleEndian = true;
         uint bytesSinceAlignStart = 0;
         bool autoAlignOn = false;
         byte? xorKey = null;

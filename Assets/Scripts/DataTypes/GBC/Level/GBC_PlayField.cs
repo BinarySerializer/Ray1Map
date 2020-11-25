@@ -23,11 +23,13 @@
 
             var blockOffset = s.CurrentPointer;
 
-            ActorsCount = s.Serialize<ushort>(ActorsCount, name: nameof(ActorsCount));
-            ActorsOffset = s.Serialize<ushort>(ActorsOffset, name: nameof(ActorsOffset));
-            Ushort_04 = s.Serialize<ushort>(Ushort_04, name: nameof(Ushort_04));
-            SectorsOffset = s.Serialize<ushort>(SectorsOffset, name: nameof(SectorsOffset));
-            Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
+            s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Little, () => {
+                ActorsCount = s.Serialize<ushort>(ActorsCount, name: nameof(ActorsCount));
+                ActorsOffset = s.Serialize<ushort>(ActorsOffset, name: nameof(ActorsOffset));
+                Ushort_04 = s.Serialize<ushort>(Ushort_04, name: nameof(Ushort_04));
+                SectorsOffset = s.Serialize<ushort>(SectorsOffset, name: nameof(SectorsOffset));
+                Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
+            });
             // TODO: Parse remaining data
 
             // Parse actors
