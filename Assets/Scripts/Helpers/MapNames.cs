@@ -749,10 +749,10 @@ namespace R1Engine
 
         private static Dictionary<int, Dictionary<int, string>> Rayman1GBCNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
             [0] = new Dictionary<int, string>() {
-                [0] = "Fiery Dephts 2",
-                [1] = "Fiery Dephts 1",
-                [2] = "Fiery Dephts 3",
-                [3] = "Fiery Dephts 4",
+                [0] = "Fiery Depths 2",
+                [1] = "Fiery Depths 1",
+                [2] = "Fiery Depths 3",
+                [3] = "Fiery Depths 4",
 
                 [4] = "Dark Legacy 2",
                 [5] = "Dark Legacy 4",
@@ -762,6 +762,50 @@ namespace R1Engine
                 [8] = "Arcane Forest 5 - Final Boss",
 
                 [9] = "Spellbound Forest 1",
+                [10] = "Spellbound Forest 2",
+                [11] = "Spellbound Forest 3",
+                [12] = "Spellbound Forest 4",
+
+                [13] = "Rainy Forest 1",
+                [14] = "Rainy Forest 2",
+                [15] = "Rainy Forest 3",
+
+                [16] = "Ancient Forest 1",
+                [17] = "Ancient Forest 2",
+                [18] = "Ancient Forest 3",
+
+                [19] = "Arcane Forest 1",
+                [20] = "Arcane Forest 2",
+                [21] = "Arcane Forest 3",
+                [22] = "Arcane Forest 4",
+
+                [23] = "Rocky Peaks 2",
+                [24] = "Rocky Peaks 3",
+                [25] = "Rocky Peaks 4",
+                [26] = "Rocky Peaks 1",
+
+                [27] = "Airy Tunes 1",
+                [28] = "Airy Tunes 2",
+                [29] = "Airy Tunes 3",
+                [30] = "Airy Tunes 4",
+
+                [31] = "World map",
+
+                [32] = "Arcane Forest - Bonus",
+                [33] = "Arcane Forest - Bonus",
+                [34] = "Spellbound Forest - Bonus",
+                [35] = "Ubi Cliff",
+                [36] = "Ancient Forest - Bonus",
+                [37] = "Airy Tunes - Bonus",
+                [38] = "Airy Tunes - Bonus",
+                [39] = "Fiery Depths - Bonus",
+                [40] = "Fiery Depths - Bonus",
+                [41] = "Spellbound Forest - Bonus",
+                [42] = "Rainy Forest - Bonus",
+                [43] = "Ancient Forest - Bonus",
+                [44] = "Rocky Peaks - Bonus",
+                [45] = "Rocky Peaks - Bonus",
+                [46] = "Time attack map",
             },
         };
     }
