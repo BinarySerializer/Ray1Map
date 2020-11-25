@@ -23,6 +23,8 @@
         Slippery_Hill_Right2 = 14,
         Slippery_Hill_Right1 = 15,
 
+        Climb = 16,
+
         Damage = 17,
         InstaKill = 18,
         Pit = 19,

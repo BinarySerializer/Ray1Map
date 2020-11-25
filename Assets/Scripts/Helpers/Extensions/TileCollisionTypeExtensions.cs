@@ -483,6 +483,7 @@
                 case GBC_TileCollisionType.Slippery_Hill_Left2: return Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_2;
                 case GBC_TileCollisionType.Slippery_Hill_Right1: return Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_1;
                 case GBC_TileCollisionType.Slippery_Hill_Right2: return Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_2;
+                case GBC_TileCollisionType.Climb: return Unity_MapCollisionTypeGraphic.Climb;
                 case GBC_TileCollisionType.Damage: return Unity_MapCollisionTypeGraphic.Damage;
                 case GBC_TileCollisionType.InstaKill: return Unity_MapCollisionTypeGraphic.Spikes;
                 case GBC_TileCollisionType.Pit: return Unity_MapCollisionTypeGraphic.Cliff;

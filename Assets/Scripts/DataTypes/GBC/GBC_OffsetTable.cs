@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -29,7 +28,7 @@ namespace R1Engine
             UsedOffsets[index] = true;
 
             if (Context.Settings.EngineVersion == EngineVersion.GBC_R1_Palm) {
-                var offTable = Context.GetStoredObject<GBC_GlobalOffsetTable>("GlobalOffsetTable");
+                var offTable = Context.GetStoredObject<GBC_GlobalOffsetTable>(GBC_R1PalmOS_Manager.GlobalOffsetTableKey);
                 return offTable?.Resolve(Offsets[index]);
             } else {
                 var ptr = Offsets[index];
