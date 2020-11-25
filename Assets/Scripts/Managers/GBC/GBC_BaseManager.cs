@@ -44,7 +44,7 @@ namespace R1Engine
                             if (export && block.Data != null)
                                 Util.ByteArrayToFile(outputDir + "/blocks/" + path + "/" + block.Offset.StringFileOffset + ".bin", block.Data);
 
-                            writer.WriteLine($"{block.Offset,-30}:{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.OffsetTable.OffsetsCount} - BlockSize: {block.Data?.Length}");
+                            writer.WriteLine($"{$"{block.Offset}:",-30}{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.OffsetTable.OffsetsCount} - BlockSize: {block.Data?.Length}");
 
                             // Handle every block offset in the table
                             for (int i = 0; i < block.SubBlocks.Length; i++)

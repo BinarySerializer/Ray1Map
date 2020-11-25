@@ -12,7 +12,7 @@
             SerializeOffsetTable(s);
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
-                Data = s.DoAt(Offset, () => s.SerializeArray<byte>(Data, GBC_BlockLength, name: nameof(Data)));
+                Data = s.SerializeArray<byte>(Data, GBC_BlockLength, name: nameof(Data));
 
             // Serialize sub-blocks
             if (SubBlocks == null)
