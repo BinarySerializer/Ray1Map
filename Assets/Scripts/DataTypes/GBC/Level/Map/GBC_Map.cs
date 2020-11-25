@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBC_Map : GBC_BaseBlock 
     {
@@ -8,10 +10,10 @@
 
         // GBC
         public byte PaletteCount { get; set; }
-        public byte UnkStructCount1 { get; set; }
-        public byte UnkStructCount2 { get; set; }
-        public GBC_MapEntry[] UnkStructs1 { get; set; }
-        public GBC_MapEntry[] UnkStructs2 { get; set; }
+        public byte VRAMMapCount1 { get; set; }
+        public byte VRAMMapCount2 { get; set; }
+        public GBC_TileVRAMMap[] VRAMMap1 { get; set; }
+        public GBC_TileVRAMMap[] VRAMMap2 { get; set; }
         public ARGB1555Color[] Palette { get; set; }
 
         // Parsed from offset table
@@ -29,10 +31,12 @@
                 Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
                 Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
                 PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));
-                UnkStructCount1 = s.Serialize<byte>(UnkStructCount1, name: nameof(UnkStructCount1));
-                UnkStructCount2 = s.Serialize<byte>(UnkStructCount2, name: nameof(UnkStructCount2));
-                UnkStructs1 = s.SerializeObjectArray<GBC_MapEntry>(UnkStructs1, UnkStructCount1, name: nameof(UnkStructs1));
-                UnkStructs2 = s.SerializeObjectArray<GBC_MapEntry>(UnkStructs2, UnkStructCount2, name: nameof(UnkStructs2));
+                VRAMMapCount1 = s.Serialize<byte>(VRAMMapCount1, name: nameof(VRAMMapCount1));
+                VRAMMapCount2 = s.Serialize<byte>(VRAMMapCount2, name: nameof(VRAMMapCount2));
+                VRAMMap1 = s.SerializeObjectArray<GBC_TileVRAMMap>(VRAMMap1, VRAMMapCount1, name: nameof(VRAMMap1));
+                VRAMMap2 = s.SerializeObjectArray<GBC_TileVRAMMap>(VRAMMap2, VRAMMapCount2, name: nameof(VRAMMap2));
+                UnityEngine.Debug.Log(VRAMMap1.Sum(v => v.TileCount));
+                UnityEngine.Debug.Log(VRAMMap2.Sum(v => v.TileCount));
                 Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, PaletteCount * 4, name: nameof(Palette));
 
 
