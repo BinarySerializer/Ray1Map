@@ -10,7 +10,6 @@
         public byte PaletteCount { get; set; }
         public ushort PaletteOffset { get; set; }
         public ushort TileDataOffset { get; set; }
-        public UInt24 TileDataLength { get; set; }
         public ARGB1555Color[] Palette { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -25,12 +24,12 @@
                 PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));
                 PaletteOffset = s.Serialize<ushort>(PaletteOffset, name: nameof(PaletteOffset));
                 TileDataOffset = s.Serialize<ushort>(TileDataOffset, name: nameof(TileDataOffset));
-                TileDataLength = s.Serialize<UInt24>(TileDataLength, name: nameof(TileDataLength));
+                TilesCount = s.Serialize<UInt24>((UInt24)TilesCount, name: nameof(TilesCount));
                 s.DoAt(pointer + PaletteOffset, () => {
                     Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, PaletteCount * 4, name: nameof(Palette));
                 });
                 s.DoAt(pointer + TileDataOffset, () => {
-                    TileData = s.SerializeArray<byte>(TileData, TileDataLength, name: nameof(TileData));
+                    TileData = s.SerializeArray<byte>(TileData, TilesCount * 0x10, name: nameof(TileData));
                 });
             } else {
                 TilesCount = s.Serialize<uint>(TilesCount, name: nameof(TilesCount));
