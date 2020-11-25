@@ -4,7 +4,7 @@
     {
         public byte[] GBC_Bytes_00 { get; set; }
         public ushort GBC_BlockLength { get; set; } // The total size of the block
-        public ushort GBC_DataOffset { get; set; } // Offset to the end of the offset table (using the current memory bank). The game uses this to skip the offset table and start parsing the data.
+        public GBC_Pointer GBC_DataPointer { get; set; } // Offset to the end of the offset table (using the current memory bank). The game uses this to skip the offset table and start parsing the data.
 
         public ushort BlockID { get; set; }
         public ushort Padding { get; set; }
@@ -16,7 +16,7 @@
             {
                 GBC_Bytes_00 = s.SerializeArray<byte>(GBC_Bytes_00, 5, name: nameof(GBC_Bytes_00));
                 GBC_BlockLength = s.Serialize<ushort>(GBC_BlockLength, name: nameof(GBC_BlockLength));
-                GBC_DataOffset = s.Serialize<ushort>(GBC_DataOffset, name: nameof(GBC_DataOffset));
+                GBC_DataPointer = s.SerializeObject<GBC_Pointer>(GBC_DataPointer, onPreSerialize: x => x.HasMemoryBankValue = false, name: nameof(GBC_DataPointer));
             }
             else
             {

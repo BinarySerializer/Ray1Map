@@ -4,7 +4,7 @@ namespace R1Engine
 {
     public class GBC_OffsetTable : R1Serializable {
         public uint OffsetsCount { get; set; }
-        public GBC_Pointer[] Offsets { get; set; }
+        public GBC_Offset[] Offsets { get; set; }
 
 
         public static List<GBC_OffsetTable> OffsetTables { get; } = new List<GBC_OffsetTable>();
@@ -17,7 +17,7 @@ namespace R1Engine
 		        OffsetsCount = s.Serialize<byte>((byte)OffsetsCount, name: nameof(OffsetsCount));
             else
 		        OffsetsCount = s.Serialize<uint>(OffsetsCount, name: nameof(OffsetsCount));
-            Offsets = s.SerializeObjectArray<GBC_Pointer>(Offsets, OffsetsCount, name: nameof(Offsets));
+            Offsets = s.SerializeObjectArray<GBC_Offset>(Offsets, OffsetsCount, name: nameof(Offsets));
 
             // For export
             if (OffsetsCount > 0) {
@@ -36,8 +36,7 @@ namespace R1Engine
                 return offTable?.Resolve(Offsets[index]);
             } else {
                 var ptr = Offsets[index];
-                var offset = Offset.file.StartPointer + (0x4000 * ptr.GBC_Bank) + (ptr.GBC_Offset - 0x4000); // The ROM is split into memory banks, with the size 0x4000 which get loaded at 0x4000 in RAM.
-                return offset;
+                return ptr.GBC_Pointer.GetPointer();
             }
         }
     }
