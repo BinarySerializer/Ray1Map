@@ -74,7 +74,7 @@ namespace R1Engine
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            new GameInfo_World(0, Enumerable.Range(0, 48).ToArray()), 
+            new GameInfo_World(0, Enumerable.Range(0, 47).ToArray()), 
         });
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
@@ -247,16 +247,13 @@ namespace R1Engine
 
             var s = context.Deserializer;
             var allfix = FileFactory.Read<PalmOS_DataFile>(AllfixFilePath, context);
-            
-            var manifest = s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_PlayFieldManifest>(default, name: "PlayFieldManfiest"));
 
-            // TODO: Don't hard-code
-            var tileSet = s.DoAt(allfix.Resolve(201), () => s.SerializeObject<GBC_TileKit>(default, name: "TileSet"));
+            var manifest = s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_SceneManifest>(default, name: "SceneManfiest"));
 
-            var playField = manifest.PlayField;
+            var playField = manifest.SceneList.Scene.PlayField;
             var map = playField.Map;
 
-            var tileSetTex = Util.ToTileSetTexture(tileSet.TileData, pal, true, CellSize, flipY: false);
+            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileData, pal, true, CellSize, flipY: false);
 
             var maps = new Unity_Map[]
             {

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace R1Engine
 {
-    public class GBC_PalmOS_UncompressedBlock<T> : GBC_Block where T : R1Serializable, new()
+    public class GBC_PalmOS_UncompressedBlock<T> : GBC_BaseBlock where T : R1Serializable, new()
     {
         public T Value { get; set; }
 

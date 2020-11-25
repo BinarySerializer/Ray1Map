@@ -12,25 +12,6 @@ namespace R1Engine
         public ushort GBC_Offset { get; set; }
         public ushort GBC_Bank { get; set; }
 
-        public T DoAtBlock<T>(Func<T> action)
-            where T : class
-        {
-            var s = Context.Deserializer;
-
-            if (Context.Settings.EngineVersion == EngineVersion.GBC_R1_Palm)
-            {
-                var offTable = Context.GetStoredObject<GBC_GlobalOffsetTable>("GlobalOffsetTable");
-                var ptr = offTable?.Resolve(this);
-
-                return s.DoAt(ptr, action);
-            }
-            else
-            {
-                var offset = Offset.file.StartPointer + (0x4000 * GBC_Bank) + (GBC_Offset - 0x4000); // The ROM is split into memory banks, with the size 0x4000 which get loaded at 0x4000 in RAM.
-                return s.DoAt(offset, action);
-            }
-        }
-
         public override void SerializeImpl(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm)
