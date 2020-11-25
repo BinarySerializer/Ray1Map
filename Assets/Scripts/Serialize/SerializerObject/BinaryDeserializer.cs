@@ -52,7 +52,6 @@ namespace R1Engine
                 typeCode = TypeCode.Byte;*/
 
             switch (typeCode) {
-
                 case TypeCode.Boolean:
                     var b = reader.ReadByte();
 
@@ -103,6 +102,12 @@ namespace R1Engine
                 case TypeCode.DateTime:
                 case TypeCode.Empty:
                 case TypeCode.DBNull:
+                case TypeCode.Object:
+                    if (type == typeof(UInt24)) {
+                        return reader.ReadUInt24();
+                    } else {
+                        throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
+                    }
                 default:
                     throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
             }

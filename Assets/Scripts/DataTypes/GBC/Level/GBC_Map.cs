@@ -9,6 +9,7 @@
         // Parsed from offset table
         public GBC_TileKit TileKit { get; set; }
 
+
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize header

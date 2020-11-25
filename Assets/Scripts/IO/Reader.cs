@@ -60,6 +60,23 @@ namespace R1Engine {
 			return BitConverter.ToUInt64(data, 0);
 		}
 
+        public UInt24 ReadUInt24() {
+            var b1 = ReadByte();
+            var b2 = ReadByte();
+            var b3 = ReadByte();
+            if (isLittleEndian) {
+                return
+					(UInt24)((((uint)b3) << 16) |
+                    (((uint)b2) << 8) |
+                    ((uint)b1));
+            } else {
+                return
+					(UInt24)((((uint)b1) << 16) |
+                    (((uint)b2) << 8) |
+                    ((uint)b3));
+            }
+        }
+
 		public override byte[] ReadBytes(int count) {
             byte[] bytes = base.ReadBytes(count);
             

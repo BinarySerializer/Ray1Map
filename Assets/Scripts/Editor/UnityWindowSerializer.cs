@@ -119,6 +119,13 @@ public class UnityWindowSerializer : SerializerObject
             case TypeCode.DateTime:
             case TypeCode.Empty:
             case TypeCode.DBNull:
+
+            case TypeCode.Object:
+                if (type == typeof(UInt24)) {
+                    return (T)(object)(UInt32)(uint)Window.EditorField(String.Empty, (uint)(UInt24)(object)obj, rect: rect);
+                } else {
+                    throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
+                }
             default:
                 throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
         }

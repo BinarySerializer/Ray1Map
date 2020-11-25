@@ -53,9 +53,10 @@ namespace R1Engine
             else if (value is Array a)
                 foreach (var item in a)
                     Write(item);
-            else if (value.GetType().IsEnum) {
+            else if (value.GetType().IsEnum)
                 Write(Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType())));
-            } else if (value is bool bo)
+
+            else if (value is bool bo)
                 writer.Write((byte)(bo ? 1 : 0));
 
             else if (value is sbyte sb)
@@ -90,6 +91,9 @@ namespace R1Engine
 
             else if (value is string s)
                 writer.WriteNullDelimitedString(s);
+
+            else if (value is UInt24 u24)
+                writer.Write(u24);
 
             else if (value is null)
                 throw new ArgumentNullException(nameof(value));

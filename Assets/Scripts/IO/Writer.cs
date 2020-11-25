@@ -49,6 +49,19 @@ namespace R1Engine {
             Write(data);
         }
 
+        public void Write(UInt24 value) {
+            uint v = (uint)value;
+            if (isLittleEndian) {
+                Write((byte)(v & 0xFF));
+                Write((byte)((v >> 8) & 0xFF));
+                Write((byte)((v >> 16) & 0xFF));
+            } else {
+                Write((byte)((v >> 16) & 0xFF));
+                Write((byte)((v >> 8) & 0xFF));
+                Write((byte)(v & 0xFF));
+            }
+        }
+
         public override void Write(Single value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
