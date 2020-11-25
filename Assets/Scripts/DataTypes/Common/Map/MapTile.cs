@@ -34,6 +34,10 @@ namespace R1Engine
         public byte PaletteIndex { get; set; }
 
         public byte GBARRR_MenuUnk { get; set; }
+        public byte GBC_BankNumber { get; set; }
+        public byte GBC_Unused { get; set; }
+        public byte GBC_Priority { get; set; }
+
 
         #endregion
 
@@ -56,8 +60,8 @@ namespace R1Engine
 
         public enum GBC_TileType {
             Full,
-            Block1,
-            Block2,
+            BGMapTileNumbers,
+            BGMapAttributes,
             Collision
         }
 
@@ -305,11 +309,18 @@ namespace R1Engine
                             CollisionType = (byte)bitFunc(CollisionType, 5, name: nameof(CollisionType));
                         });
                         break;
-                    case GBC_TileType.Block1:
+                    case GBC_TileType.BGMapTileNumbers:
                         TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
                         break;
-                    case GBC_TileType.Block2:
-                        TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
+                    case GBC_TileType.BGMapAttributes:
+                        s.SerializeBitValues<byte>(bitFunc => {
+                            PaletteIndex = (byte)bitFunc((byte)PaletteIndex, 3, name: nameof(PaletteIndex));
+                            GBC_BankNumber = (byte)bitFunc((byte)GBC_BankNumber, 1, name: nameof(GBC_BankNumber));
+                            GBC_Unused = (byte)bitFunc((byte)GBC_Unused, 1, name: nameof(GBC_Unused));
+                            HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                            VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                            GBC_Priority = (byte)bitFunc((byte)GBC_Priority, 1, name: nameof(GBC_Priority));
+                        });
                         break;
                     case GBC_TileType.Collision:
                         CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
