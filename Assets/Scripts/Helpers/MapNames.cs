@@ -37,6 +37,9 @@ namespace R1Engine
                 case Game.GBAIsometric_Spyro3:
                     return Spyro3Names;
 
+                case Game.GBC_R1:
+                    return Rayman1GBCNames;
+
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
                 case Game.R1_60Levels:
@@ -742,6 +745,24 @@ namespace R1Engine
                 //[11] = "Cuckoo Caverns",
                 //[12] = "Ripto Razzle",
             }
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> Rayman1GBCNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [0] = "Fiery Dephts 2",
+                [1] = "Fiery Dephts 1",
+                [2] = "Fiery Dephts 3",
+                [3] = "Fiery Dephts 4",
+
+                [4] = "Dark Legacy 2",
+                [5] = "Dark Legacy 4",
+                [6] = "Dark Legacy 1",
+                [7] = "Dark Legacy 3",
+
+                [8] = "Arcane Forest 5 - Final Boss",
+
+                [9] = "Spellbound Forest 1",
+            },
         };
     }
 }
