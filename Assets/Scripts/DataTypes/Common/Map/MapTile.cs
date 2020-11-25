@@ -40,6 +40,7 @@ namespace R1Engine
         #region PreSerialize Properties
 
         public GBA_TileType GBATileType { get; set; } = GBA_TileType.Normal;
+        public GBC_TileType GBCTileType { get; set; } = GBC_TileType.Full;
         public bool Is8Bpp { get; set; }
         public bool IsFirstBlock { get; set; }
 
@@ -51,6 +52,13 @@ namespace R1Engine
             Normal,
             FGTile,
             Mode7Tile
+        }
+
+        public enum GBC_TileType {
+            Full,
+            Block1,
+            Block2,
+            Collision
         }
 
         #endregion
@@ -288,13 +296,25 @@ namespace R1Engine
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBC)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
-                {
-                    TileMapY = (ushort)bitFunc(TileMapY, 9, name: nameof(TileMapY));
-                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                    CollisionType = (byte)bitFunc(CollisionType, 5, name: nameof(CollisionType));
-                });
+                switch (GBCTileType) {
+                    case GBC_TileType.Full:
+                        s.SerializeBitValues<ushort>(bitFunc => {
+                            TileMapY = (ushort)bitFunc(TileMapY, 9, name: nameof(TileMapY));
+                            HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                            VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                            CollisionType = (byte)bitFunc(CollisionType, 5, name: nameof(CollisionType));
+                        });
+                        break;
+                    case GBC_TileType.Block1:
+                        TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
+                        break;
+                    case GBC_TileType.Block2:
+                        TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
+                        break;
+                    case GBC_TileType.Collision:
+                        CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
+                        break;
+                }
             }
         }
 
