@@ -11,7 +11,7 @@
         public ushort ID { get; set; }
 
         public byte Attributes { get; set; }
-        public byte[] UniqueID { get; set; } // 24-bit integer
+        public uint UniqueID { get; set; } // 24-bit integer
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -24,8 +24,10 @@
             else
             {
                 DataPointer = s.SerializePointer(DataPointer, name: nameof(DataPointer));
-                Attributes = s.Serialize<byte>(Attributes, name: nameof(Attributes));
-                UniqueID = s.SerializeArray<byte>(UniqueID, 3, name: nameof(UniqueID));
+                s.SerializeBitValues<uint>(bitFunc => {
+                    UniqueID = (uint)bitFunc((int)UniqueID, 24, name: nameof(UniqueID));
+                    Attributes = (byte)bitFunc(Attributes, 8, name: nameof(Attributes));
+                });
             }
         }
     }

@@ -4,10 +4,10 @@ namespace R1Engine
 {
     public class GBC_Pointer : R1Serializable
     {
-        public ushort Palm_Ushort_00 { get; set; }
-        public ushort Palm_FileIndex { get; set; }
-        public ushort Palm_BlockIndex { get; set; }
-        public ushort Palm_Ushort_06 { get; set; } // Padding?
+        public ushort UnkFileIndex { get; set; }
+        public ushort FileIndex { get; set; }
+        public ushort BlockIndex { get; set; }
+        public ushort UShort_06 { get; set; } // Padding?
 
         public ushort GBC_Offset { get; set; }
         public ushort GBC_Bank { get; set; }
@@ -19,16 +19,10 @@ namespace R1Engine
 
             if (Context.Settings.EngineVersion == EngineVersion.GBC_R1_Palm)
             {
-                if (Palm_Ushort_00 == 0)
-                    return null;
+                var offTable = Context.GetStoredObject<GBC_GlobalOffsetTable>("GlobalOffsetTable");
+                var ptr = offTable?.Resolve(this);
 
-                var filePath = @"jungle1.pdb"; // TODO: Get the file path from the file index!
-                
-                // TODO: Make sure the file is added to the context
-                var dataBase = FileFactory.Read<Palm_Database>(filePath, Context, (serializerObject, database) => database.Type = Palm_Database.DatabaseType.PDB);
-                var record = dataBase.Records[Palm_BlockIndex];
-
-                return s.DoAt(record.DataPointer, action);
+                return s.DoAt(ptr, action);
             }
             else
             {
@@ -41,10 +35,10 @@ namespace R1Engine
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm)
             {
-                Palm_Ushort_00 = s.Serialize<ushort>(Palm_Ushort_00, name: nameof(Palm_Ushort_00));
-                Palm_FileIndex = s.Serialize<ushort>(Palm_FileIndex, name: nameof(Palm_FileIndex));
-                Palm_BlockIndex = s.Serialize<ushort>(Palm_BlockIndex, name: nameof(Palm_BlockIndex));
-                Palm_Ushort_06 = s.Serialize<ushort>(Palm_Ushort_06, name: nameof(Palm_Ushort_06));
+                UnkFileIndex = s.Serialize<ushort>(UnkFileIndex, name: nameof(UnkFileIndex));
+                FileIndex = s.Serialize<ushort>(FileIndex, name: nameof(FileIndex));
+                BlockIndex = s.Serialize<ushort>(BlockIndex, name: nameof(BlockIndex));
+                UShort_06 = s.Serialize<ushort>(UShort_06, name: nameof(UShort_06));
             }
             else
             {

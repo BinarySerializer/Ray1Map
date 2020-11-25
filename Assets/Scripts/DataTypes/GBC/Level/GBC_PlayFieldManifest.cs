@@ -17,8 +17,6 @@
             PlayFieldsCount = s.Serialize<uint>(PlayFieldsCount, name: nameof(PlayFieldsCount));
             PlayFieldsPointers = s.SerializeObjectArray<GBC_Pointer>(PlayFieldsPointers, PlayFieldsCount, name: nameof(PlayFieldsPointers));
 
-            PlayFieldsPointers[s.GameSettings.Level].Palm_BlockIndex--; // TODO: Why does it start counting from 1 here instead of 0?
-
             // Parse data from pointers
             PlayField = PlayFieldsPointers[s.GameSettings.Level].DoAtBlock(() => s.SerializeObject<GBC_PlayField>(PlayField, name: nameof(PlayField)));
         }

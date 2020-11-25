@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -12,6 +13,24 @@ namespace R1Engine
         public const int CellSize = 8;
 
         public string AllfixFilePath => "worldmap.pdb";
+        public string[] AllDataPaths = new string[] {
+            "palmcolormenu",
+            "worldmap",
+            "jungle1",
+            "jungle2",
+            "jungle3",
+            "jungle4",
+            "music",
+            "mount",
+            "cave",
+            "dark",
+
+            // Other data files. Don't load automatically if loading is slow
+            "IDRegister",
+            "IDUnlock",
+            "save",
+            "save1"
+        };
 
         public static ARGBColor[] GetPalmOS8BitPalette() {
             ARGBColor[] pal = new ARGBColor[256];
@@ -207,21 +226,32 @@ namespace R1Engine
             }
         }
 
+        public async UniTask InitGlobalOffsetTable(Context context) {
+            GBC_GlobalOffsetTable globalOffsetTable = new GBC_GlobalOffsetTable();
+            List<GBC_BaseDataFile> dataFiles = new List<GBC_BaseDataFile>();
+            foreach (var path in AllDataPaths) {
+                var fullPath = $"{path}.pdb";
+                await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Big);
+                dataFiles.Add(FileFactory.Read<PalmOS_DataFile>(fullPath, context));
+            }
+            globalOffsetTable.Files = dataFiles.ToArray();
+            context.StoreObject<GBC_GlobalOffsetTable>("GlobalOffsetTable", globalOffsetTable);
+        }
+
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var pal = GetPalmOS8BitPalette().Select(x => x.GetColor()).ToArray();
-
-            await context.AddLinearSerializedFileAsync(@"jungle1.pdb", BinaryFile.Endian.Big); // TODO: Don't hard-code this
-            await context.AddLinearSerializedFileAsync(AllfixFilePath, BinaryFile.Endian.Big);
+            
+            // Init global offset table
+            await InitGlobalOffsetTable(context);
 
             var s = context.Deserializer;
-
-            var allfix = FileFactory.Read<Palm_Database>(AllfixFilePath, context, onPreSerialize: (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
-
-            var manifest = s.DoAt(allfix.Records[0].DataPointer, () => s.SerializeObject<GBC_PlayFieldManifest>(default, name: "PlayFieldManfiest"));
+            var allfix = FileFactory.Read<PalmOS_DataFile>(AllfixFilePath, context);
+            
+            var manifest = s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_PlayFieldManifest>(default, name: "PlayFieldManfiest"));
 
             // TODO: Don't hard-code
-            var tileSet = s.DoAt(allfix.Records[200].DataPointer, () => s.SerializeObject<GBC_TileKit>(default, name: "TileSet"));
+            var tileSet = s.DoAt(allfix.Resolve(201), () => s.SerializeObject<GBC_TileKit>(default, name: "TileSet"));
 
             var playField = manifest.PlayField;
             var map = playField.Map;

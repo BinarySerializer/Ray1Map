@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Collections.Generic;
+
+namespace R1Engine
 {
     // Documentation: 
     // https://web.archive.org/web/20090315213538/http://membres.lycos.fr/microfirst/palm/pdb.html
@@ -60,13 +62,27 @@
             for (int i = 0; i < RecordsCount; i++)
                 Records[i].Length = (i == RecordsCount - 1 ? s.CurrentLength : Records[i + 1].DataPointer.FileOffset) - Records[i].DataPointer.FileOffset;
 
-            // TODO: Serialize app info and sort info
+            // TODO: Serialize sort info
         }
 
         public enum DatabaseType
         {
             PRC, // Palm Resource Code,
             PDB, // Pilot Database
+        }
+
+
+        private Dictionary<uint, Palm_DatabaseRecord> _recordsDictionary { get; set; }
+        public Dictionary<uint, Palm_DatabaseRecord> RecordsDictionary {
+            get {
+                if (_recordsDictionary == null) {
+                    _recordsDictionary = new Dictionary<uint, Palm_DatabaseRecord>();
+                    foreach (var e in Records) {
+                        _recordsDictionary[e.UniqueID] = e;
+                    }
+                }
+                return _recordsDictionary;
+            }
         }
     }
 }
