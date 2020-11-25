@@ -794,7 +794,7 @@ namespace R1Engine
                 [32] = "Arcane Forest - Bonus",
                 [33] = "Arcane Forest - Bonus",
                 [34] = "Spellbound Forest - Bonus",
-                [35] = "?",
+                [35] = "Ubi Cliff",
                 [36] = "Ancient Forest - Bonus",
                 [37] = "Airy Tunes - Bonus",
                 [38] = "Airy Tunes - Bonus",
