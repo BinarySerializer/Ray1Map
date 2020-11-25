@@ -11,8 +11,12 @@ namespace R1Engine
         public bool[] UsedOffsets { get; set; }
         public GBC_BaseBlock Block { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
-		    OffsetsCount = s.Serialize<uint>(OffsetsCount, name: nameof(OffsetsCount));
+        public override void SerializeImpl(SerializerObject s) 
+        {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
+		        OffsetsCount = s.Serialize<byte>((byte)OffsetsCount, name: nameof(OffsetsCount));
+            else
+		        OffsetsCount = s.Serialize<uint>(OffsetsCount, name: nameof(OffsetsCount));
             Offsets = s.SerializeObjectArray<GBC_Pointer>(Offsets, OffsetsCount, name: nameof(Offsets));
 
             // For export
