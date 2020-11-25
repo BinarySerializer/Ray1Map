@@ -8,11 +8,8 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBC_R1PalmOS_Manager : IGameManager
+    public class GBC_R1PalmOS_Manager : GBC_BaseManager
     {
-        public const int CellSize = 8;
-        public const string GlobalOffsetTableKey = "GlobalOffsetTable";
-
         public string AllfixFilePath => "worldmap.pdb";
         public string[] AllDataPaths { get; } = new string[] {
             "palmcolormenu",
@@ -33,7 +30,7 @@ namespace R1Engine
             "save1"
         };
 
-        public static ARGBColor[] GetPalmOS8BitPalette() {
+        public ARGBColor[] GetPalmOS8BitPalette() {
             ARGBColor[] pal = new ARGBColor[256];
             int palIndex = 0;
 
@@ -73,21 +70,19 @@ namespace R1Engine
             return pal;
         }
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(0, Enumerable.Range(0, 47).ToArray()), 
         });
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => base.GetGameActions(settings).Concat(new GameAction[]
         {
-            new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
-            //new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
-            new GameAction("Export Data", false, true, (input, output) => ExportDataAsync(settings, output, false)),
-            new GameAction("Export Data (Categorized)", false, true, (input, output) => ExportDataAsync(settings, output, true)),
-            new GameAction("Export TileSets", false, true, (input, output) => ExportDataAsync(settings, output, false, asTileSet: true)),
-        };
+            new GameAction("Export DataBases", false, true, (input, output) => ExportDataBasesAsync(settings, output, false)),
+            new GameAction("Export DataBases (Categorized)", false, true, (input, output) => ExportDataBasesAsync(settings, output, true)),
+            new GameAction("Export TileSets", false, true, (input, output) => ExportDataBasesAsync(settings, output, false, asTileSet: true)),
+        }).ToArray();
 
-        public async UniTask ExportDataAsync(GameSettings settings, string outputDir, bool categorized, bool asTileSet = false)
+        public async UniTask ExportDataBasesAsync(GameSettings settings, string outputDir, bool categorized, bool asTileSet = false)
         {
             using (var context = new Context(settings))
             {
@@ -229,99 +224,6 @@ namespace R1Engine
             }
         }
 
-        public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
-        {
-            using (var context = new Context(settings))
-            {
-                // Init global offset table
-                await InitGlobalOffsetTable(context);
-
-                // Get the deserializer
-                var s = context.Deserializer;
-
-                var references = new Dictionary<Pointer, HashSet<Pointer>>();
-
-                using (var logFile = File.Create(Path.Combine(outputDir, "GBC_Blocks_Log-Map.txt")))
-                {
-                    using (var writer = new StreamWriter(logFile))
-                    {
-                        // Load the ROM
-                        await LoadFilesAsync(context);
-
-                        // Load the data block
-                        var dataFile = FileFactory.Read<PalmOS_DataFile>(AllfixFilePath, context);
-
-                        var indentLevel = 0;
-                        GBC_DummyBlock[] blocks = new GBC_DummyBlock[dataFile.OffsetTable.NumEntries];
-
-                        var blockIndex = 0;
-                        foreach (var fileKey in dataFile.OffsetTable.EntriesDictionary.Keys)
-                        {
-                            try
-                            {
-                                blocks[blockIndex] = s.DoAt(dataFile.Resolve(fileKey), () => s.SerializeObject<GBC_DummyBlock>(blocks[blockIndex], name: $"{nameof(blocks)}[{blockIndex}]"));
-                            }
-                            catch (Exception e)
-                            {
-                                Debug.LogError(e);
-                            }
-                            blockIndex++;
-                        }
-
-                        void ExportBlocks(GBC_DummyBlock block, int index, string path)
-                        {
-                            indentLevel++;
-
-                            if (export)
-                            {
-                                //Util.ByteArrayToFile(outputDir + "/blocks/" + path + "/" + block.Offset.StringFileOffset + ".bin", block.Data);
-                            }
-
-                            //writer.WriteLine($"{block.Offset}:{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.OffsetTable.OffsetsCount} - BlockSize: {block.BlockSize}");
-                            writer.WriteLine($"{block.Offset}:{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.OffsetTable.OffsetsCount}");
-
-                            // Handle every block offset in the table
-                            for (int i = 0; i < block.SubBlocks.Length; i++)
-                            {
-                                if (block.SubBlocks[i] == null)
-                                    continue;
-
-                                if (!references.ContainsKey(block.SubBlocks[i].Offset))
-                                    references[block.SubBlocks[i].Offset] = new HashSet<Pointer>();
-
-                                references[block.SubBlocks[i].Offset].Add(block.Offset);
-
-                                // Export
-                                ExportBlocks(block.SubBlocks[i], i, path + "/" + (i + " - " + block.SubBlocks[i].Offset.StringFileOffset));
-                            }
-
-                            indentLevel--;
-                        }
-
-                        for (int i = 0; i < blocks.Length; i++)
-                        {
-                            await UniTask.WaitForEndOfFrame();
-                            ExportBlocks(blocks[i], i, (i + " - " + blocks[i].Offset.StringFileOffset));
-                        }
-                    }
-                }
-
-                // Log references
-                using (var logFile = File.Create(Path.Combine(outputDir, "GBC_Blocks_Log-References.txt")))
-                {
-                    using (var writer = new StreamWriter(logFile))
-                    {
-                        foreach (var r in references.OrderBy(x => x.Key))
-                        {
-                            writer.WriteLine($"{r.Key,-30}: {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
-                        }
-                    }
-                }
-            }
-
-            Debug.Log("Finished logging blocks");
-        }
-
         public async UniTask InitGlobalOffsetTable(Context context) {
             GBC_GlobalOffsetTable globalOffsetTable = new GBC_GlobalOffsetTable();
             List<GBC_BaseDataFile> dataFiles = new List<GBC_BaseDataFile>();
@@ -334,57 +236,15 @@ namespace R1Engine
             context.StoreObject<GBC_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
         }
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Pointer> GetSceneManifestPointerAsync(Context context)
         {
-            var pal = GetPalmOS8BitPalette().Select(x => x.GetColor()).ToArray();
-            
             // Init global offset table
             await InitGlobalOffsetTable(context);
 
-            var s = context.Deserializer;
             var allfix = FileFactory.Read<PalmOS_DataFile>(AllfixFilePath, context);
 
-            var manifest = s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_SceneManifest>(default, name: "SceneManfiest"));
-
-            // Log unused data blocks in offset tables
-            var notParsedBlocks = GBC_OffsetTable.OffsetTables.Where(x => x.UsedOffsets.Any(y => !y)).ToArray();
-            if (notParsedBlocks.Any())
-                Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, notParsedBlocks.Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedOffsets.Select((o, i) => new
-                {
-                    Obj = o,
-                    Index = i
-                }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
-
-            var playField = manifest.SceneList.Scene.PlayField;
-            var map = playField.Map;
-
-            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileData, pal, true, CellSize, flipY: false);
-
-            var maps = new Unity_Map[]
-            {
-                new Unity_Map
-                {
-                    Width = (ushort)map.Width,
-                    Height = (ushort)map.Height,
-                    TileSet = new Unity_MapTileMap[]
-                    {
-                        new Unity_MapTileMap(tileSetTex, CellSize), 
-                    },
-                    MapTiles = map.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
-                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
-                }
-            };
-
-            return new Unity_Level(
-                maps: maps, 
-                objManager: new Unity_ObjectManager(context),
-                cellSize: CellSize,
-                getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
-                getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString());
+            return allfix.Resolve(1);
         }
-
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
-
-        public UniTask LoadFilesAsync(Context context) => UniTask.CompletedTask;
+        public override ARGBColor[] GetTilePalette(GBC_Scene scene) => GetPalmOS8BitPalette();
     }
 }

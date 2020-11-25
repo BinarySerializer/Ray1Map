@@ -2,29 +2,17 @@
 {
     public class GBC_DummyBlock : GBC_BaseBlock
     {
+        public byte[] Data { get; set; }
         public GBC_DummyBlock[] SubBlocks { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize header
             base.SerializeImpl(s);
-
-            // Check to make sure the offset table count is reasonable
-            var isValid = s.DoAt(s.CurrentPointer, () =>
-            {
-                var count = s.Serialize<uint>(default, name: "OffsetsCount");
-
-                return count < 50;
-            });
-
-            if (!isValid)
-            {
-                OffsetTable = new GBC_OffsetTable();
-                SubBlocks = new GBC_DummyBlock[0];
-                return;
-            }
-
             SerializeOffsetTable(s);
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
+                Data = s.DoAt(Offset, () => s.SerializeArray<byte>(Data, GBC_BlockLength, name: nameof(Data)));
 
             // Serialize sub-blocks
             if (SubBlocks == null)
