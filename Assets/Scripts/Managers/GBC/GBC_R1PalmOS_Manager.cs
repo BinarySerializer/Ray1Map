@@ -236,14 +236,14 @@ namespace R1Engine
             context.StoreObject<GBC_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
         }
 
-        public override async UniTask<Pointer> GetSceneManifestPointerAsync(Context context)
+        public override async UniTask<GBC_SceneList> GetSceneListAsync(Context context)
         {
             // Init global offset table
             await InitGlobalOffsetTable(context);
 
             var allfix = FileFactory.Read<PalmOS_DataFile>(AllfixFilePath, context);
-
-            return allfix.Resolve(1);
+            var s = context.Deserializer;
+            return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_SceneManifest>(default, name: "SceneManfiest")).SceneList;
         }
         public override ARGBColor[] GetTilePalette(GBC_Scene scene) => GetPalmOS8BitPalette();
     }

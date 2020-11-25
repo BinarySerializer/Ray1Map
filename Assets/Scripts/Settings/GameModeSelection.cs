@@ -292,5 +292,8 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_Palm, Game.GBC_R1, "Rayman (PalmOS - Color)", typeof(GBC_R1PalmOS_Manager))]
         RaymanGBCPalmOSColor,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R1, "Rayman (GBC - EU)", typeof(GBC_R1_Manager))]
+        RaymanGBCEU,
     }
 }

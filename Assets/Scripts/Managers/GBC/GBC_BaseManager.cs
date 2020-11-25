@@ -35,7 +35,7 @@ namespace R1Engine
                     using (var writer = new StreamWriter(logFile))
                     {
                         var indentLevel = 0;
-                        GBC_DummyBlock rootBlock = s.DoAt(await GetSceneManifestPointerAsync(context), () => s.SerializeObject<GBC_DummyBlock>(default, name: $"RootBlock"));
+                        GBC_DummyBlock rootBlock = s.DoAt((await GetSceneListAsync(context)).Offset, () => s.SerializeObject<GBC_DummyBlock>(default, name: $"RootBlock"));
 
                         void ExportBlocks(GBC_DummyBlock block, int index, string path)
                         {
@@ -84,13 +84,13 @@ namespace R1Engine
             Debug.Log("Finished logging blocks");
         }
 
-        public abstract UniTask<Pointer> GetSceneManifestPointerAsync(Context context);
+        public abstract UniTask<GBC_SceneList> GetSceneListAsync(Context context);
         public abstract ARGBColor[] GetTilePalette(GBC_Scene scene);
 
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var s = context.Deserializer;
-            var manifest = s.DoAt(await GetSceneManifestPointerAsync(context), () => s.SerializeObject<GBC_SceneManifest>(default, name: "SceneManfiest"));
+            var sceneList = await GetSceneListAsync(context);
 
             // Log unused data blocks in offset tables
             var notParsedBlocks = GBC_OffsetTable.OffsetTables.Where(x => x.UsedOffsets.Any(y => !y)).ToArray();
@@ -101,7 +101,7 @@ namespace R1Engine
                     Index = i
                 }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
 
-            var scene = manifest.SceneList.Scene;
+            var scene = sceneList.Scene;
             var playField = scene.PlayField;
             var pal = GetTilePalette(scene).Select(x => x.GetColor()).ToArray();
             var map = playField.Map;

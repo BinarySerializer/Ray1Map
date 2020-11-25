@@ -777,5 +777,24 @@ namespace R1Engine
                     return null;
             }
         }
+
+        /// <summary>
+        /// Gets the pointer table for the specified GBC version
+        /// </summary>
+        /// <param name="gameMode">The GBC game mode</param>
+        /// <param name="romFile">The rom file</param>
+        /// <returns>The pointer table</returns>
+        public static Dictionary<GBC_R1_Pointer, Pointer> GBC_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
+            switch (gameMode) 
+            {
+                case GameModeSelection.RaymanGBCEU:
+                    return new Dictionary<GBC_R1_Pointer, uint>() {
+                        [GBC_R1_Pointer.SceneList] = 0x30F307,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                default:
+                    return null;
+            }
+        }
     }
 }
