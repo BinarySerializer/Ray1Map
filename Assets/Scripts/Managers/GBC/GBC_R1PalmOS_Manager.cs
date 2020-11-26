@@ -104,14 +104,14 @@ namespace R1Engine
                     var dataBase = FileFactory.Read<Palm_Database>(relPath, context, (so, pd) => pd.Type = type.Value);
 
                     var palette8Bit = GetPalmOS8BitPalette();
-                    var palette4Bit = Util.CreateDummyPalette(16, firstTransparent: false);
+                    var palette4Bit = Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
 
                     for (int i = 0; i < dataBase.RecordsCount; i++)
                     {
                         var record = dataBase.Records[i];
                         var name = type == Palm_Database.DatabaseType.PRC ? $"{record.Name}_{record.ID}" : $"{i}";
                         bool exported = false;
-                        if (categorized && filePath.Contains("palmcolormenu")) 
+                        if (categorized && filePath.Contains("menu")) 
                         {
                             if (!exported) {
                                 try {
@@ -135,9 +135,9 @@ namespace R1Engine
                                             } else {
                                                 int col = vignette.Value.Data[ind / 2];
                                                 if (ind % 2 == 0) {
-                                                    col = BitHelpers.ExtractBits(col, 4, 0);
-                                                } else {
                                                     col = BitHelpers.ExtractBits(col, 4, 4);
+                                                } else {
+                                                    col = BitHelpers.ExtractBits(col, 4, 0);
                                                 }
                                                 tex.SetPixel(x, h - 1 - y, palette4Bit[col].GetColor());
                                             }
