@@ -16,7 +16,6 @@
         {
             // Serialize header
             base.SerializeImpl(s);
-            SerializeOffsetTable(s);
 
             // Serialize data
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1) {

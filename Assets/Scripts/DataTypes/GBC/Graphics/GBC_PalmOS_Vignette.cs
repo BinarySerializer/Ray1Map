@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Text;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
-    public class GBC_PalmOS_Vignette : GBC_BaseBlock {
+    public class GBC_PalmOS_Vignette : R1Serializable 
+    {
         public uint BlockSize { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }

@@ -19,7 +19,6 @@
         {
             // Serialize header
             base.SerializeImpl(s);
-            SerializeOffsetTable(s);
 
             var blockOffset = s.CurrentPointer;
 

@@ -9,10 +9,9 @@
         {
             // Serialize header
             base.SerializeImpl(s);
-            SerializeOffsetTable(s);
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
-                Data = s.SerializeArray<byte>(Data, GBC_BlockLength, name: nameof(Data));
+                Data = s.SerializeArray<byte>(Data, GBC_DataLength, name: nameof(Data));
 
             // Serialize sub-blocks
             if (SubBlocks == null)

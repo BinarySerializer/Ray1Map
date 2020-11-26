@@ -11,7 +11,6 @@
         {
             // Serialize header
             base.SerializeImpl(s);
-            SerializeOffsetTable(s);
 
             UnkData = s.SerializeArray<byte>(UnkData, 68, name: nameof(UnkData));
 

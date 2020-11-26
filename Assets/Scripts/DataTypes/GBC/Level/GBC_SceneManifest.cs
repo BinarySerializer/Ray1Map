@@ -9,10 +9,10 @@
         {
             // Serialize header
             base.SerializeImpl(s);
-            SerializeOffsetTable(s);
 
-            // Parse data from pointers
-            // Read SceneList at 0 or read Unknown1 at (s.GameSettings.Level + 1)
+            // This block has no data
+
+            // Parse data from pointers (first pointer leads to scene list, remaining pointers lead to the level scenes)
             SceneList = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_SceneList>(SceneList, name: nameof(SceneList)));
         }
     }

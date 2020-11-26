@@ -9,7 +9,6 @@ namespace R1Engine
 
         public static List<GBC_OffsetTable> OffsetTables { get; } = new List<GBC_OffsetTable>();
         public bool[] UsedOffsets { get; set; }
-        public GBC_BaseBlock Block { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
@@ -20,11 +19,7 @@ namespace R1Engine
             Offsets = s.SerializeObjectArray<GBC_Offset>(Offsets, OffsetsCount, name: nameof(Offsets));
 
             // For export
-            if (OffsetsCount > 0) {
-                UsedOffsets = new bool[OffsetsCount];
-            } else {
-                UsedOffsets = new bool[0];
-            }
+            UsedOffsets = new bool[OffsetsCount];
             OffsetTables.Add(this);
         }
 

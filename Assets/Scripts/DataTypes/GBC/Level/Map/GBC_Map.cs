@@ -26,7 +26,7 @@ namespace R1Engine
         {
             // Serialize header
             base.SerializeImpl(s);
-            SerializeOffsetTable(s);
+
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1) {
                 Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
                 Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
