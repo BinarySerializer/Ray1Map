@@ -14,11 +14,8 @@
         // Parsed
         public GBC_Scene Scene { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize header
-            base.SerializeImpl(s);
-
             IndexMusic = s.Serialize<byte>(IndexMusic, name: nameof(IndexMusic));
             IndexUnk0 = s.Serialize<byte>(IndexUnk0, name: nameof(IndexUnk0));
             IndexUnk1 = s.Serialize<byte>(IndexUnk1, name: nameof(IndexUnk1));

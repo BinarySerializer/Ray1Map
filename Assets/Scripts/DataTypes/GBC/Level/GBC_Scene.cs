@@ -7,11 +7,8 @@
         // Parsed
         public GBC_PlayField PlayField { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize header
-            base.SerializeImpl(s);
-
             // TODO: Parse data
             UnkData = s.SerializeArray<byte>(UnkData, 68, name: nameof(UnkData));
 

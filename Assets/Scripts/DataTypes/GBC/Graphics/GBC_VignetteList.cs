@@ -4,11 +4,8 @@
     {
         public GBC_Vignette[] Vignettes { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize header
-            base.SerializeImpl(s);
-
             // Serialize vignettes
             if (Vignettes == null)
                 Vignettes = new GBC_Vignette[OffsetTable.OffsetsCount];

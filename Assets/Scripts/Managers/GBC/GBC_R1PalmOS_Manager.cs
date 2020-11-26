@@ -225,15 +225,15 @@ namespace R1Engine
         }
 
         public async UniTask InitGlobalOffsetTable(Context context) {
-            GBC_GlobalOffsetTable globalOffsetTable = new GBC_GlobalOffsetTable();
-            List<GBC_BaseDataFile> dataFiles = new List<GBC_BaseDataFile>();
+            LUDI_GlobalOffsetTable globalOffsetTable = new LUDI_GlobalOffsetTable();
+            List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
             foreach (var path in AllDataPaths) {
                 var fullPath = $"{path}.pdb";
                 await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Big);
                 dataFiles.Add(FileFactory.Read<PalmOS_DataFile>(fullPath, context));
             }
             globalOffsetTable.Files = dataFiles.ToArray();
-            context.StoreObject<GBC_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
+            context.StoreObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
         }
 
         public override GBC_SceneList GetSceneList(Context context)

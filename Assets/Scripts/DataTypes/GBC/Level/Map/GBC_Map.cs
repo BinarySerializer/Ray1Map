@@ -22,11 +22,8 @@ namespace R1Engine
         public GBC_MapBlock BGMapAttributes { get; set; }
         public GBC_MapBlock Collision { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize header
-            base.SerializeImpl(s);
-
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1) {
                 Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
                 Height = s.Serialize<byte>((byte)Height, name: nameof(Height));

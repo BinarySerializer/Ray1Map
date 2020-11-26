@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBC_PalmOS_BlockHeader : R1Serializable
+    public class LUDI_BlockHeader : R1Serializable
     {
         public ushort BlockID { get; set; }
         public ushort Padding { get; set; }

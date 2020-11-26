@@ -7,13 +7,9 @@ namespace R1Engine
         public byte[] Data { get; set; }
         public GBC_DummyBlock[] SubBlocks { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize header
-            base.SerializeImpl(s);
-
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
-                Data = s.SerializeArray<byte>(Data, GBC_DataLength, name: nameof(Data));
+            Data = s.SerializeArray<byte>(Data, BlockSize, name: nameof(Data));
 
             // Serialize sub-blocks
             if (SubBlocks == null)

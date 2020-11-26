@@ -5,11 +5,8 @@
         // Parsed
         public GBC_SceneList SceneList { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize header
-            base.SerializeImpl(s);
-
             // This block has no data
 
             // Parse data from pointers (first pointer leads to scene list, remaining pointers lead to the level scenes)

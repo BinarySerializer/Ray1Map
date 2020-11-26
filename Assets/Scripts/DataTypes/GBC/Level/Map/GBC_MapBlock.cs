@@ -7,11 +7,8 @@
         public MapTile.GBC_TileType Type { get; set; }
         public MapTile[] MapTiles { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize header
-            base.SerializeImpl(s);
-
             MapTiles = s.SerializeObjectArray<MapTile>(MapTiles, Width * Height, onPreSerialize: t => t.GBCTileType = Type, name: nameof(MapTiles));
         }
     }

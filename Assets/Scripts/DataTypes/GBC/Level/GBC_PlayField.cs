@@ -19,11 +19,8 @@
         // Parsed from offset table
         public GBC_Map Map { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize header
-            base.SerializeImpl(s);
-
             var blockOffset = s.CurrentPointer;
 
             // Serialize data (always little endian)

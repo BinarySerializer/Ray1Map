@@ -26,8 +26,9 @@ namespace R1Engine
         public Pointer GetPointer(int index) {
             UsedOffsets[index] = true;
 
-            if (Context.Settings.EngineVersion == EngineVersion.GBC_R1_Palm) {
-                var offTable = Context.GetStoredObject<GBC_GlobalOffsetTable>(GBC_R1PalmOS_Manager.GlobalOffsetTableKey);
+            if (Context.Settings.EngineVersion == EngineVersion.GBC_R1_Palm ||
+                Context.Settings.EngineVersion == EngineVersion.GBC_R1_PocketPC) {
+                var offTable = Context.GetStoredObject<LUDI_GlobalOffsetTable>(GBC_BaseManager.GlobalOffsetTableKey);
                 return offTable?.Resolve(Offsets[index]);
             } else {
                 var ptr = Offsets[index];
