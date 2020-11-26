@@ -23,12 +23,9 @@ namespace R1Engine
             var s = context.Deserializer;
             return s.DoAt(pointerTable[GBC_R1_Pointer.SceneList], () => s.SerializeObject<GBC_SceneList>(default, name: "SceneList"));
         }
-        public override ARGBColor[] GetTilePalette(GBC_Scene scene) => new ARGBColor[0]; // TODO: Implement
-
 
         public override Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene) {
 
-            //var pal = GetTilePalette(scene).Select(x => x.GetColor()).ToArray();
             var pal = Util.ConvertAndSplitGBCPalette(map.Palette, firstTransparent: false);
             var tileSetTex = ToTileSetTextureMultiPalette(map.TileKit.TileData, pal, CellSize, flipY: false);
             int numTiles = map.TileKit.TileData.Length / 16;
@@ -134,7 +131,7 @@ namespace R1Engine
                     int tileY = (tileInd / wrap) * tileWidth;
                     int tileX = (tileInd % wrap) * tileWidth;
 
-                    tex.FillInTile(imgData, i * tileSize, pal[p], 2, tileWidth, flipY, tileX, tileY);
+                    tex.FillInTile(imgData, i * tileSize, pal[p], Util.TileEncoding.Planar_2bpp, tileWidth, flipY, tileX, tileY);
                 }
             }
 

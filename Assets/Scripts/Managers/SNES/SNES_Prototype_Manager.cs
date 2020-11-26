@@ -70,7 +70,9 @@ namespace R1Engine
             uint length = (uint)rom.TileDescriptors.Length * 8 * 8;
 
             // Get the tile-set texture
-            var tex = TextureHelpers.CreateTexture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize);
+            var tex = TextureHelpers.CreateTexture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize, clear: true);
+
+            var pal = Util.ConvertAndSplitGBAPalette(rom.Palettes);
 
             for (int i = 0; i < rom.TileDescriptors.Length; i++)
             {
@@ -81,48 +83,22 @@ namespace R1Engine
 
                 var curOff = block_size * descriptor.TileIndex;
 
-                FillTextureBlock(tex, 0, 0, x, y, rom.TileMap, curOff, rom.Palettes, descriptor.Palette, descriptor.FlipX, descriptor.FlipY);
+                tex.FillInTile(
+                    imgData: rom.TileMap, 
+                    imgDataOffset: curOff, 
+                    pal: pal[descriptor.Palette], 
+                    encoding: Util.TileEncoding.Planar_4bpp, 
+                    tileWidth: 8, 
+                    flipTextureY: false,
+                    tileX: x * 8,
+                    tileY: y * 8,
+                    flipTileX: true,
+                    ignoreTransparent: true);
             }
 
             tex.Apply();
 
             return new Unity_MapTileMap(tex, Settings.CellSize);
-        }
-
-        public void FillTextureBlock(Texture2D tex, int blockX, int blockY, int relX, int relY, byte[] imageBuffer, int imageBufferOffset, IList<ARGB1555Color> pal, int paletteInd, bool flipX, bool flipY)
-        {
-            var offset1 = imageBufferOffset;
-            var offset2 = imageBufferOffset + 16;
-
-            for (int y = 0; y < 8; y++)
-            {
-                for (int x = 0; x < 8; x++)
-                {
-                    int actualX = blockX + relX * 8 + (flipX ? (8 - x - 1) : x);
-                    int actualY = blockY + relY * 8 + (flipY ? (8 - y - 1) : y);
-
-                    int off = y * 8 + (8 - x - 1);
-
-                    var bit0 = BitHelpers.ExtractBits(imageBuffer[offset1 + ((off / 8) * 2)], 1, off % 8);
-                    var bit1 = BitHelpers.ExtractBits(imageBuffer[offset1 + ((off / 8) * 2 + 1)], 1, off % 8);
-                    var bit2 = BitHelpers.ExtractBits(imageBuffer[offset2 + ((off / 8) * 2)], 1, off % 8);
-                    var bit3 = BitHelpers.ExtractBits(imageBuffer[offset2 + ((off / 8) * 2 + 1)], 1, off % 8);
-
-                    int b = 0;
-
-                    b = BitHelpers.SetBits(b, bit0, 1, 0);
-                    b = BitHelpers.SetBits(b, bit1, 1, 1);
-                    b = BitHelpers.SetBits(b, bit2, 1, 2);
-                    b = BitHelpers.SetBits(b, bit3, 1, 3);
-                    
-                    Color c = pal[paletteInd * 0x10 + b].GetColor();
-
-                    if (b != 0)
-                        c = new Color(c.r, c.g, c.b, 1f);
-
-                    tex.SetPixel(actualX, actualY, c);
-                }
-            }
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

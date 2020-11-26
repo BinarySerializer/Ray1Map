@@ -52,7 +52,7 @@ namespace R1Engine
                 for (int x = 0; x < Map.Width; x++)
                 {
                     var tile = Map.MapData[y * Map.Width + x];
-                    tex.FillInTile(TileSet, tile.TileMapY * tileSize, pal, 4, cellSize, true, x * cellSize, y * cellSize, tile.HorizontalFlip, tile.VerticalFlip);
+                    tex.FillInTile(TileSet, tile.TileMapY * tileSize, pal, Util.TileEncoding.Linear_4bpp, cellSize, true, x * cellSize, y * cellSize, tile.HorizontalFlip, tile.VerticalFlip);
                 }
             }
 

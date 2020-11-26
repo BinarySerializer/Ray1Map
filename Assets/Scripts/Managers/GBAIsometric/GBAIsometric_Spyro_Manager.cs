@@ -62,7 +62,7 @@ namespace R1Engine
 
                         if (categorize && length % 32 == 0)
                         {
-                            var tex = Util.ToTileSetTexture(data, palette, 4, CellSize, true, wrap: 32);
+                            var tex = Util.ToTileSetTexture(data, palette, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: 32);
                             Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
                         }
                         else
@@ -680,7 +680,7 @@ namespace R1Engine
             foreach (MapTile mt in mapTiles.SelectMany(mta => mta.Value))
                 paletteIndices[mt.TileMapY] = mt.PaletteIndex;
 
-            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), 4, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
+            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
 
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }
@@ -693,7 +693,7 @@ namespace R1Engine
             foreach (MapTile mt in mapTiles)
                 paletteIndices[mt.TileMapY] = mt.PaletteIndex;
 
-            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), 4, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
+            var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
 
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }
@@ -702,7 +702,7 @@ namespace R1Engine
         {
             var pal = Util.ConvertGBAPalette(tilePal);
 
-            var tileSetTex = Util.ToTileSetTexture(tileSet, pal, 8, CellSize, false);
+            var tileSetTex = Util.ToTileSetTexture(tileSet, pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
 
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }
@@ -770,7 +770,7 @@ namespace R1Engine
                             int actualX = (x * CellSize) + xpos + (isExport ? (frame.XPosition - minX1) : 0);
                             int actualY = (y * CellSize) + ypos + (isExport ? (frame.YPosition - minY1) : 0);
 
-                            tex.FillInTile(animSet.TileSet, tileIndex * 32, pal[palIndex], 4, CellSize, true, actualX, actualY, ignoreTransparent: true);
+                            tex.FillInTile(animSet.TileSet, tileIndex * 32, pal[palIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, actualX, actualY, ignoreTransparent: true);
 
                             tileIndex++;
                         }

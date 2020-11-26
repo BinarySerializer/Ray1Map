@@ -85,7 +85,6 @@ namespace R1Engine
         }
 
         public abstract UniTask<GBC_SceneList> GetSceneListAsync(Context context);
-        public abstract ARGBColor[] GetTilePalette(GBC_Scene scene);
 
         public abstract Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene);
 
