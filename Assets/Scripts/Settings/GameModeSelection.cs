@@ -295,5 +295,8 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R1, "Rayman (GBC - EU)", typeof(GBC_R1_Manager))]
         RaymanGBCEU,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R2, "Rayman 2 (GBC - EU)", typeof(GBC_R2_Manager))]
+        Rayman2GBCEU,
     }
 }

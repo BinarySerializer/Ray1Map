@@ -72,7 +72,6 @@ namespace R1Engine
         GBC_R1_Palm,
         GBC_R1_PocketPC,
         //GBC_R1_PalmDemo,
-        //GBC_R2,
         //GBC_MowglisWildAdventure,
         //GBC_DonaldDuck
     }

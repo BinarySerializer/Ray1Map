@@ -53,6 +53,7 @@
 
         // GBC
 
-        GBC_R1
+        GBC_R1,
+        GBC_R2
     }
 }
