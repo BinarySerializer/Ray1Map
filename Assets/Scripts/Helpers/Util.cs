@@ -475,6 +475,7 @@ namespace R1Engine
                     bpp = 2; break;
                 case TileEncoding.Planar_4bpp:
                 case TileEncoding.Linear_4bpp:
+                case TileEncoding.Linear_4bpp_ReverseOrder:
                     bpp = 4; break;
                 case TileEncoding.Linear_8bpp: 
                     bpp = 8; break;
@@ -505,6 +506,8 @@ namespace R1Engine
 
         public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, TileEncoding encoding, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false)
         {
+            bool reverseOrder = (encoding == TileEncoding.Linear_4bpp_ReverseOrder);
+
             // Fill in tile pixels
             for (int y = 0; y < tileWidth; y++) {
 
@@ -526,12 +529,12 @@ namespace R1Engine
                         var b = imgData[index];
                         c = pal[b];
                     } 
-                    else if (encoding == TileEncoding.Linear_4bpp)
+                    else if (encoding == TileEncoding.Linear_4bpp || encoding == TileEncoding.Linear_4bpp_ReverseOrder)
                     {
                         int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)) / 2);
 
                         var b = imgData[index];
-                        var v = flipTileX ? 
+                        var v = (flipTileX ^ reverseOrder) ? 
                             BitHelpers.ExtractBits(b, 4, x % 2 == 1 ? 0 : 4) : 
                             BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
                         c = pal[v];
@@ -656,6 +659,7 @@ namespace R1Engine
             Planar_2bpp,
             Planar_4bpp,
             Linear_4bpp,
+            Linear_4bpp_ReverseOrder,
             Linear_8bpp,
         }
     }

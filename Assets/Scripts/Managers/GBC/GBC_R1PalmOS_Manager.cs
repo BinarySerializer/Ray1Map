@@ -11,24 +11,26 @@ namespace R1Engine
     public class GBC_R1PalmOS_Manager : GBC_BaseManager
     {
         public string AllfixFilePath => "worldmap.pdb";
-        public string[] AllDataPaths { get; } = new string[] {
-            "palmcolormenu",
-            "worldmap",
-            "jungle1",
-            "jungle2",
-            "jungle3",
-            "jungle4",
-            "music",
-            "mount",
-            "cave",
-            "dark",
+        public string[] GetAllDataPaths(Context c) {
+            return new string[] {
+                ((c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColor) ? "palmcolormenu" : "menu"),
+                "worldmap",
+                "jungle1",
+                "jungle2",
+                "jungle3",
+                "jungle4",
+                "music",
+                "mount",
+                "cave",
+                "dark",
 
-            // Other data files. Don't load automatically if loading is slow
-            "IDRegister",
-            "IDUnlock",
-            "save",
-            "save1"
-        };
+                // Other data files. Don't load automatically if loading is slow
+                "IDRegister",
+                "IDUnlock",
+                "save",
+                "save1"
+            };
+        }
 
         public ARGBColor[] GetPalmOS8BitPalette() {
             ARGBColor[] pal = new ARGBColor[256];
@@ -209,7 +211,9 @@ namespace R1Engine
 
                             var tileSet = s.DoAt(record.DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_TileKit>>(default, name: "TileSet"));
 
-                            var tex = Util.ToTileSetTexture(tileSet.Value.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), Util.TileEncoding.Linear_8bpp, 8, true, wrap: 16);
+                            bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
+                            Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
+                            var tex = Util.ToTileSetTexture(tileSet.Value.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), encoding, 8, true, wrap: 16);
                             
                             Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}.png"), tex.EncodeToPNG());
                         }
@@ -227,7 +231,7 @@ namespace R1Engine
         public async UniTask InitGlobalOffsetTable(Context context) {
             LUDI_GlobalOffsetTable globalOffsetTable = new LUDI_GlobalOffsetTable();
             List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
-            foreach (var path in AllDataPaths) {
+            foreach (var path in GetAllDataPaths(context)) {
                 var fullPath = $"{path}.pdb";
                 await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Big);
                 dataFiles.Add(FileFactory.Read<PalmOS_DataFile>(fullPath, context));
@@ -245,8 +249,10 @@ namespace R1Engine
 
 		public override Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene) {
 
-            var pal = GetPalmOS8BitPalette().Select(x => x.GetColor()).ToArray();
-            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileData, pal, Util.TileEncoding.Linear_8bpp, CellSize, flipY: false);
+            bool greyScale = context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
+            Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
+            Color[] pal = (greyScale ? Util.CreateDummyPalette(16, firstTransparent: false).Reverse() : GetPalmOS8BitPalette()).Select(x => x.GetColor()).ToArray();
+            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileData, pal, encoding, CellSize, flipY: false);
 
             var maps = new Unity_Map[]
             {

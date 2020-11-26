@@ -29,8 +29,9 @@
                 // Go to end of block
                 s.Goto(BlockStartPointer + TileDataOffset + TilesCount * 0x10);
             } else {
+                bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
                 TilesCount = s.Serialize<uint>(TilesCount, name: nameof(TilesCount));
-                TileData = s.SerializeArray<byte>(TileData, TilesCount * 0x40, name: nameof(TileData));
+                TileData = s.SerializeArray<byte>(TileData, TilesCount * (greyScale ? 0x20 : 0x40), name: nameof(TileData));
             }
         }
     }
