@@ -12,7 +12,8 @@
         public byte UnkByte2 { get; set; }
         public byte LinkCount { get; set; }
         public GBC_ActorLink[] Links { get; set; }
-        public byte[] UnkBytes { get; set; }
+        public GBC_UnkActorStruct UnkActorStruct { get; set; }
+        public byte UnkByte { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -26,7 +27,10 @@
             UnkByte2 = s.Serialize<byte>(UnkByte2, name: nameof(UnkByte2));
             LinkCount = s.Serialize<byte>(LinkCount, name: nameof(LinkCount));
             Links = s.SerializeObjectArray<GBC_ActorLink>(Links, LinkCount, name: nameof(Links));
-            UnkBytes = s.SerializeArray<byte>(UnkBytes, 4 - (ActorID == 0xFF ? 1 : 0), name: nameof(UnkBytes));
+            UnkActorStruct = s.SerializeObject<GBC_UnkActorStruct>(UnkActorStruct, name: nameof(UnkActorStruct));
+
+            if (ActorID != 0xFF)
+                UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));
         }
     }
 }
