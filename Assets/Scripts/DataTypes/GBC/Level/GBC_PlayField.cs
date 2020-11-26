@@ -29,13 +29,16 @@
                 SectorsOffset = s.Serialize<ushort>(SectorsOffset, name: nameof(SectorsOffset));
                 Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
             });
+
             // TODO: Parse remaining data
 
             // Parse actors
             s.DoAt(blockOffset + ActorsOffset, () =>
             {
-                // TODO: Parse actors (they have different lengths, usually around 0x10 bytes)
-                //Actors = s.SerializeObjectArray<GBC_Actor>(Actors, ActorsCount, name: nameof(Actors));
+                s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Little, () =>
+                {
+                    Actors = s.SerializeObjectArray<GBC_Actor>(Actors, ActorsCount, name: nameof(Actors));
+                });
             });
 
             // Parse sectors

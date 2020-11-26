@@ -109,9 +109,13 @@ namespace R1Engine
 
             var maps = GetMaps(context, map, scene);
 
+            var objManager = new Unity_ObjectManager(context);
+            var objects = new List<Unity_Object>(playField.Actors.Select(x => new Unity_Object_GBC(x, objManager)));
+
             return new Unity_Level(
                 maps: maps, 
-                objManager: new Unity_ObjectManager(context),
+                objManager: objManager,
+                eventData: objects,
                 cellSize: CellSize,
                 getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString());
