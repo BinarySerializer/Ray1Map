@@ -16,10 +16,9 @@ namespace R1Engine
             new GameInfo_World(0, Enumerable.Range(0, 47).ToArray()), 
         });
 
-        public override async UniTask<GBC_SceneList> GetSceneListAsync(Context context)
+        public override GBC_SceneList GetSceneList(Context context)
         {
-            var file = await context.AddLinearSerializedFileAsync(GetROMFilePath);
-            var pointerTable = PointerTables.GBC_PointerTable(context.Settings.GameModeSelection, file);
+            var pointerTable = PointerTables.GBC_PointerTable(context.Settings.GameModeSelection, context.GetFile(GetROMFilePath));
             var s = context.Deserializer;
             return s.DoAt(pointerTable[GBC_R1_Pointer.SceneList], () => s.SerializeObject<GBC_SceneList>(default, name: "SceneList"));
         }
@@ -140,6 +139,6 @@ namespace R1Engine
             return tex;
         }
 
-
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
     }
 }

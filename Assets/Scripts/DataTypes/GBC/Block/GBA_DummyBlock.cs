@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBC_DummyBlock : GBC_BaseBlock
     {
@@ -16,11 +18,20 @@
             // Serialize sub-blocks
             if (SubBlocks == null)
                 SubBlocks = new GBC_DummyBlock[OffsetTable.OffsetsCount];
+
+            // Get all root pointers
+            var rootBlock = ((GBC_BaseManager)s.GameSettings.GetGameManager).GetSceneList(s.Context);
+            var rootTable = rootBlock.OffsetTable;
+            var rootPointers = Enumerable.Range(0, rootTable.Offsets.Length).Select(x => rootTable.GetPointer(x)).ToArray();
+
             for (int i = 0; i < OffsetTable.Offsets.Length; i++)
             {
-                s.DoAt(OffsetTable.GetPointer(i), () => {
-                    SubBlocks[i] = s.SerializeObject<GBC_DummyBlock>(SubBlocks[i], name: $"{nameof(SubBlocks)}[{i}]");
-                });
+                var p = OffsetTable.GetPointer(i);
+
+                if (rootPointers.Contains(p) && Offset != rootBlock.Offset)
+                    continue;
+
+                SubBlocks[i] = s.DoAt(p, () => s.SerializeObject<GBC_DummyBlock>(SubBlocks[i], name: $"{nameof(SubBlocks)}[{i}]"));
             }
         }
     }

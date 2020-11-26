@@ -236,11 +236,8 @@ namespace R1Engine
             context.StoreObject<GBC_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
         }
 
-        public override async UniTask<GBC_SceneList> GetSceneListAsync(Context context)
+        public override GBC_SceneList GetSceneList(Context context)
         {
-            // Init global offset table
-            await InitGlobalOffsetTable(context);
-
             var allfix = FileFactory.Read<PalmOS_DataFile>(AllfixFilePath, context);
             var s = context.Deserializer;
             return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_SceneManifest>(default, name: "SceneManfiest")).SceneList;
@@ -267,5 +264,7 @@ namespace R1Engine
             };
             return maps;
         }
-	}
+
+        public override async UniTask LoadFilesAsync(Context context) => await InitGlobalOffsetTable(context);
+    }
 }
