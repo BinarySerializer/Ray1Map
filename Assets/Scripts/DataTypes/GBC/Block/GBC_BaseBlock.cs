@@ -15,7 +15,7 @@
                 if (Context.Settings.EngineVersion == EngineVersion.GBC_R1) {
                     return GBC_DataPointer.GetPointer();
                 } else {
-                    return Offset + 4;
+                    return Offset + OffsetTable.Size + 4;
                 }
             }
         }
@@ -29,7 +29,7 @@
                         var offTable = Context.GetStoredObject<LUDI_GlobalOffsetTable>(GBC_BaseManager.GlobalOffsetTableKey);
                         uint? size = offTable?.GetBlockLength(LUDI_Header);
                         if (size.HasValue) {
-                            _cachedBlockLength = size.Value - 4;
+                            _cachedBlockLength = size.Value - OffsetTable.Size - 4;
                         } else {
                             _cachedBlockLength = 0;
                         }
@@ -53,7 +53,7 @@
             }
 
             OffsetTable = s.SerializeObject<GBC_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
-
+            s.Goto(BlockStartPointer);
             SerializeBlock(s);
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm) {
