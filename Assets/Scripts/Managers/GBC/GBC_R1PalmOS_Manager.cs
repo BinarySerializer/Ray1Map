@@ -209,13 +209,13 @@ namespace R1Engine
                             if (!isValid)
                                 continue;
 
-                            var tileSet = s.DoAt(record.DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_TileKit>>(default, name: "TileSet"));
+                            var tileSet = s.DoAt(record.DataPointer, () => s.SerializeObject<GBC_TileKit>(default, name: "TileSet"));
 
                             bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
                             Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
-                            var tex = Util.ToTileSetTexture(tileSet.Value.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), encoding, 8, true, wrap: 16);
+                            var tex = Util.ToTileSetTexture(tileSet.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), encoding, 8, true, wrap: 16);
                             
-                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}.png"), tex.EncodeToPNG());
+                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}_0x{record.DataPointer.FileOffset:X8}.png"), tex.EncodeToPNG());
                         }
                         else
                         {
