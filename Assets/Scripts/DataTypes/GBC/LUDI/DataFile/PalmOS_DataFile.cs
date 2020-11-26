@@ -12,8 +12,7 @@
 		}
 
 		// Implemented properties & methods
-		public override ushort UnkFileID => AppInfo.Header.Unknown;
-		public override ushort FileID => AppInfo.Header.FileIndex;
+		public override LUDI_FileIdentifier FileID => AppInfo.Header.FileID;
 		public override LUDI_OffsetTable OffsetTable => AppInfo.OffsetTable;
 
 		private Palm_DatabaseRecord GetRecord(ushort blockID) {

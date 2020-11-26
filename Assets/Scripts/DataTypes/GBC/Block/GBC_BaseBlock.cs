@@ -6,7 +6,7 @@
         public ushort GBC_DataLength { get; set; } // The size of the data in the block
         public GBC_Pointer GBC_DataPointer { get; set; } // Offset to the end of the offset table (using the current memory bank). The game uses this to skip the offset table and start parsing the data.
 
-        public LUDI_BlockHeader LUDI_Header { get; set; }
+        public LUDI_BlockIdentifier LUDI_Header { get; set; }
 
         public GBC_OffsetTable OffsetTable { get; set; }
 
@@ -49,7 +49,7 @@
             }
             else
             {
-                LUDI_Header = s.SerializeObject<LUDI_BlockHeader>(LUDI_Header, name: nameof(LUDI_Header));
+                LUDI_Header = s.SerializeObject<LUDI_BlockIdentifier>(LUDI_Header, name: nameof(LUDI_Header));
             }
 
             OffsetTable = s.SerializeObject<GBC_OffsetTable>(OffsetTable, name: nameof(OffsetTable));

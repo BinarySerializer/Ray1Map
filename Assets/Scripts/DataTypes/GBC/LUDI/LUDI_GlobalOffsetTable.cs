@@ -12,11 +12,11 @@ namespace R1Engine
 			return file?.Resolve(offset);
 		}
         public Pointer Resolve(ushort unkFileID, ushort fileID, ushort blockID) {
-			LUDI_BaseDataFile file = Files.FirstOrDefault(f => f.UnkFileID == unkFileID && f.FileID == fileID);
+			LUDI_BaseDataFile file = Files.FirstOrDefault(f => f.FileID.FileID == fileID && f.FileID.Unknown == unkFileID);
 			return file?.Resolve(blockID);
 		}
 
-		public uint? GetBlockLength(LUDI_BlockHeader blockHeader) {
+		public uint? GetBlockLength(LUDI_BlockIdentifier blockHeader) {
 			LUDI_BaseDataFile file = Files.FirstOrDefault(f => f.Offset.file == blockHeader.Offset.file);
 			return file?.GetLength(blockHeader.BlockID);
 		}

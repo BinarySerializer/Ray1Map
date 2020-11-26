@@ -2,14 +2,12 @@
 {
     public class LUDI_Header : LUDI_Block {
         public uint LUDI { get; set; }
-        public ushort Unknown { get; set; }
-        public ushort FileIndex { get; set; }
+        public LUDI_FileIdentifier FileID { get; set; }
         public FileType Type { get; set; }
 
 		public override void SerializeBlock(SerializerObject s) {
 		    LUDI = s.Serialize<uint>(LUDI, name: nameof(LUDI));
-            Unknown = s.Serialize<ushort>(Unknown, name: nameof(Unknown));
-            FileIndex = s.Serialize<ushort>(FileIndex, name: nameof(FileIndex));
+            FileID = s.SerializeObject<LUDI_FileIdentifier>(FileID, name: nameof(FileID));
             Type = s.Serialize<FileType>(Type, name: nameof(Type));
         }
 
