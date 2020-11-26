@@ -44,7 +44,7 @@ namespace R1Engine
                             indentLevel++;
 
                             if (export && block.Data != null)
-                                Util.ByteArrayToFile(outputDir + "/blocks/" + path + "/" + block.Offset.StringFileOffset + ".bin", block.Data);
+                                Util.ByteArrayToFile(Path.Combine(outputDir, path, $"{block.Offset.file.filePath}_0x{block.Offset.StringFileOffset}.bin"), block.Data);
 
                             writer.WriteLine($"{$"{block.Offset}:",-30}{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.OffsetTable.OffsetsCount} - BlockSize: {block.Data?.Length}");
 
@@ -60,13 +60,13 @@ namespace R1Engine
                                 references[block.SubBlocks[i].Offset].Add(block.Offset);
 
                                 // Export
-                                ExportBlocks(block.SubBlocks[i], i, path + "/" + (i + " - " + block.SubBlocks[i].Offset.StringFileOffset));
+                                ExportBlocks(block.SubBlocks[i], i, Path.Combine(path, $"{i} - {block.SubBlocks[i].Offset.file.filePath}_0x{block.SubBlocks[i].Offset.StringFileOffset}"));
                             }
 
                             indentLevel--;
                         }
 
-                        ExportBlocks(rootBlock, 0, (0 + " - " + rootBlock.Offset.StringFileOffset));
+                        ExportBlocks(rootBlock, 0, $"{rootBlock.Offset.file.filePath}_0x{rootBlock.Offset.StringFileOffset}");
                     }
                 }
 
@@ -77,7 +77,7 @@ namespace R1Engine
                     {
                         foreach (var r in references.OrderBy(x => x.Key))
                         {
-                            writer.WriteLine($"{r.Key,-30}: {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
+                            writer.WriteLine($"{$"{r.Key}:",-30} {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
                         }
                     }
                 }
