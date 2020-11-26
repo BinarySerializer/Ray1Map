@@ -465,10 +465,10 @@ namespace R1Engine
             File.WriteAllLines(Path.Combine(outputDir, "blocks_log.txt"), log);
         }
 
-        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, bool is8bpp, int tileWidth, bool flipY, int wrap = 32, Func<int, Color[]> getPalFunc = null)
+        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, int bpp, int tileWidth, bool flipY, int wrap = 32, Func<int, Color[]> getPalFunc = null)
         {
-            int tileSize = (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2);
-            int tilesetLength = (imgData.Length / (is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2));
+            int tileSize = tileWidth * tileWidth * bpp / 8;
+            int tilesetLength = imgData.Length / tileSize;
 
             int tilesX = Math.Min(tilesetLength, wrap);
             int tilesY = Mathf.CeilToInt(tilesetLength / (float)wrap);
@@ -480,7 +480,7 @@ namespace R1Engine
                 int tileY = ((i / wrap)) * tileWidth;
                 int tileX = (i % wrap) * tileWidth;
 
-                tex.FillInTile(imgData, i * tileSize, getPalFunc?.Invoke(i) ?? pal, is8bpp, tileWidth, flipY, tileX, tileY);
+                tex.FillInTile(imgData, i * tileSize, getPalFunc?.Invoke(i) ?? pal, bpp, tileWidth, flipY, tileX, tileY);
             }
 
             tex.Apply();
@@ -488,7 +488,7 @@ namespace R1Engine
             return tex;
         }
 
-        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, bool is8bpp, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false)
+        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, int bpp, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false)
         {
             // Fill in tile pixels
             for (int y = 0; y < tileWidth; y++) {
@@ -499,24 +499,19 @@ namespace R1Engine
                     yy = tex.height - yy - 1;
                 if(yy < 0 || yy >= tex.height) continue;
 
-                for (int x = 0; x < tileWidth; x++)
-                {
+                for (int x = 0; x < tileWidth; x++) {
                     var xx = tileX + x;
                     if (xx < 0 || xx >= tex.width) continue;
                     Color c;
 
-                    int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)) / (is8bpp ? 1 : 2));
+                    if (bpp == 8) {
+                        int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)));
 
-                    if (is8bpp)
-                    {
                         var b = imgData[index];
                         c = pal[b];
-                        if (!ignoreTransparent || c.a > 0) {
-                            tex.SetPixel(xx, yy, c);
-                        }
-                    }
-                    else
-                    {
+                    } else if (bpp == 4) {
+                        int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)) / 2);
+
                         var b = imgData[index];
                         int v;
                         if (flipTileX) {
@@ -525,10 +520,19 @@ namespace R1Engine
                             v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
                         }
                         c = pal[v];
+                    } else if (bpp == 2) {
+                        int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)) / 8) * 2;
+                        var b0 = imgData[index];
+                        var b1 = imgData[index + 1];
+                        int actualX = flipTileX ? x : 7 - x;
+                        var v = (BitHelpers.ExtractBits(b1, 1, actualX) << 1) | BitHelpers.ExtractBits(b0, 1, actualX);
+                        c = pal[v];
+                    } else {
+                        c = Color.clear;
+                    }
 
-                        if (!ignoreTransparent || c.a > 0) {
-                            tex.SetPixel(xx, yy, c);
-                        }
+                    if (!ignoreTransparent || c.a > 0) {
+                        tex.SetPixel(xx, yy, c);
                     }
                 }
             }
@@ -558,13 +562,18 @@ namespace R1Engine
                 return LCM(numbers[i], LCM(numbers, i + 1));
         }
 
-        public static Color[] ConvertGBAPalette(IEnumerable<ARGB1555Color> palette) => palette.Select((x, i) =>
-        {
-            if (i != 0)
-                x.Alpha = 255;
-            return x.GetColor();
+        public static Color[] ConvertGBAPalette(IEnumerable<ARGB1555Color> palette, bool firstTransparent = true) => palette.Select((x, i) => {
+            Color c = x.GetColor();
+            if (i != 0 || !firstTransparent) {
+                c.a = 1f;
+            } else {
+                c.a = 0f;
+            }
+            return c;
         }).ToArray();
-        public static Color[][] ConvertAndSplitGBAPalette(ARGB1555Color[] palette) => palette.Split(16, 16).Select(ConvertGBAPalette).ToArray();
+        public static Color[][] ConvertAndSplitGBAPalette(ARGB1555Color[] palette, bool firstTransparent = true) => palette.Split(16, 16).Select(p => ConvertGBAPalette(p, firstTransparent: firstTransparent)).ToArray();
+        public static Color[][] ConvertAndSplitGBCPalette(ARGB1555Color[] palette, bool firstTransparent = true) => palette.Split(palette.Length / 4, 4).Select(p => ConvertGBAPalette(p, firstTransparent: firstTransparent)).ToArray();
+
 
         public static IEnumerable<T[]> Split<T>(this T[] array, int length, int size) => Enumerable.Range(0, length).Select(x => array.Skip(size * x).Take(size).ToArray());
 

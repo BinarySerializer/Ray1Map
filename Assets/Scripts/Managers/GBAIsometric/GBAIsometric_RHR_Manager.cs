@@ -140,7 +140,7 @@ namespace R1Engine
                                         });
                                 }
 
-                                tex.FillInTile(decompressedDictionary[tileIndex], 0, pal, animSet.Is8Bit, CellSize, true, (anim.FlipX ? (animSet.Width - 1 - actualX) : actualX) * CellSize, actualY * CellSize, flipTileX: anim.FlipX);
+                                tex.FillInTile(decompressedDictionary[tileIndex], 0, pal, animSet.Is8Bit ? 8 : 4, CellSize, true, (anim.FlipX ? (animSet.Width - 1 - actualX) : actualX) * CellSize, actualY * CellSize, flipTileX: anim.FlipX);
 
                                 curTile++;
                             }
@@ -168,7 +168,7 @@ namespace R1Engine
                 });
             }
 
-            return Util.ToTileSetTexture(sprite.Sprite, pal, sprite.Is8Bit, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
+            return Util.ToTileSetTexture(sprite.Sprite, pal, sprite.Is8Bit ? 8 : 4, CellSize, true, wrap: (int)sprite.Info.CanvasWidth);
         }
 
         public IEnumerable<IEnumerable<Texture2D>> GetSpriteSetTextures(Context context, GBAIsometric_RHR_SpriteSet spriteSet, Color[] pal_4, Color[] pal_8, Dictionary<string, uint> spritePaletteOffsets)
@@ -198,7 +198,7 @@ namespace R1Engine
                 }
 
                 for (int i = 0; i < spriteSet.SpriteCount; i++)
-                    yield return Util.ToTileSetTexture(spriteSet.Sprites[i], pal, spriteSet.Is8Bit, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth);
+                    yield return Util.ToTileSetTexture(spriteSet.Sprites[i], pal, spriteSet.Is8Bit ? 8 : 4, CellSize, true, wrap: (int)spriteSet.SpriteInfos[i].CanvasWidth);
             }
         }
 
@@ -227,8 +227,8 @@ namespace R1Engine
                 // Export flag icons
                 foreach (var flag in rom.FlagSpritesUS.Concat(rom.FlagSpritesEU))
                 {
-                    var tex_0 = Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette0), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth);
-                    var tex_1 = Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette1), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth);
+                    var tex_0 = Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette0), flag.Sprite.Is8Bit ? 8 : 4, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth);
+                    var tex_1 = Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette1), flag.Sprite.Is8Bit ? 8 : 4, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth);
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Flags", $"{flag.Sprite.Name}_0.png"), tex_0.EncodeToPNG());
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Flags", $"{flag.Sprite.Name}_1.png"), tex_1.EncodeToPNG());
                 }
@@ -570,11 +570,11 @@ namespace R1Engine
                 {
                     new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => new Sprite[]
                     {
-                        Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette0), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth).CreateSprite()
+                        Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette0), flag.Sprite.Is8Bit ? 8 : 4, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth).CreateSprite()
                     }, 0, 0, 0),
                     new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => new Sprite[]
                     {
-                        Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette1), flag.Sprite.Is8Bit, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth).CreateSprite()
+                        Util.ToTileSetTexture(flag.Sprite.Sprite, Util.ConvertGBAPalette(flag.Palette1), flag.Sprite.Is8Bit ? 8 : 4, CellSize, true, wrap: (int)flag.Sprite.Info.CanvasWidth).CreateSprite()
                     }, 0, 0, 0)
                 }, flag.Sprite.Name);
             }
@@ -703,7 +703,7 @@ namespace R1Engine
             s.DoEncoded(new RHR_SpriteEncoder(is8bit, tileMap.GraphicsDataPointer.Value.CompressionLookupBuffer, tileMap.GraphicsDataPointer.Value.CompressedDataPointer), () => {
                 byte[] fullSheet = s.SerializeArray<byte>(default, s.CurrentLength, name: nameof(fullSheet));
 
-                var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(palTable.PaletteIndices[i]));
+                var tex = Util.ToTileSetTexture(fullSheet, defaultPalette, is8bit ? 8 : 4, CellSize, false, wrap: 16, getPalFunc: i => palettes?.ElementAtOrDefault(palTable.PaletteIndices[i]));
                 //Util.ByteArrayToFile(context.BasePath + "/tileset_tex/" + tileMap.GraphicsDataPointer.Value.Offset.StringAbsoluteOffset + ".png", tex.EncodeToPNG());
 
                 // Group animated tile info by the palette
@@ -808,7 +808,7 @@ namespace R1Engine
                     {
                         var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
 
-                        tileTex.FillInTile(fullSheet, tileOffset, pal, is8bit, CellSize, false, 0, 0);
+                        tileTex.FillInTile(fullSheet, tileOffset, pal, is8bit ? 8 : 4, CellSize, false, 0, 0);
 
                         tileTex.Apply();
 
@@ -841,7 +841,7 @@ namespace R1Engine
                         var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
                         var offset = tileSize * palTable.SecondaryTileIndices[i];
 
-                        tileTex.FillInTile(fullSheet, offset, palettes[palTable.SecondaryPaletteIndices[i]], is8bit, CellSize, false, 0, 0);
+                        tileTex.FillInTile(fullSheet, offset, palettes[palTable.SecondaryPaletteIndices[i]], is8bit ? 8 : 4, CellSize, false, 0, 0);
 
                         tileTex.Apply();
 

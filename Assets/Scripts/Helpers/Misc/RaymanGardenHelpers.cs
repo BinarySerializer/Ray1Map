@@ -193,7 +193,7 @@ namespace R1Engine {
                                 int val = bs[6 + (y * w + x) * 2] | (bs[6 + (y * w + x) * 2 + 1] << 8);
                                 int tileInd = BitHelpers.ExtractBits(val, 14, 0);
                                 bool flipX = BitHelpers.ExtractBits(val, 1, 15) == 1;
-                                tex.FillInTile(curTileSet, tileInd * 8 * 8 + 6, cols, true, 8, true, x * 8, y * 8, flipX, false);
+                                tex.FillInTile(curTileSet, tileInd * 8 * 8 + 6, cols, 8, 8, true, x * 8, y * 8, flipX, false);
                                 //tex.SetPixel(x, h - 1 - y, colsGrey[bs[6 + (y * w + x) * 2]]);
                             }
                         }

@@ -87,6 +87,8 @@ namespace R1Engine
         public abstract UniTask<GBC_SceneList> GetSceneListAsync(Context context);
         public abstract ARGBColor[] GetTilePalette(GBC_Scene scene);
 
+        public abstract Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene);
+
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var s = context.Deserializer;
@@ -103,25 +105,10 @@ namespace R1Engine
 
             var scene = sceneList.Scene;
             var playField = scene.PlayField;
-            var pal = GetTilePalette(scene).Select(x => x.GetColor()).ToArray();
+
             var map = playField.Map;
 
-            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileData, pal, true, CellSize, flipY: false);
-
-            var maps = new Unity_Map[]
-            {
-                new Unity_Map
-                {
-                    Width = (ushort)map.Width,
-                    Height = (ushort)map.Height,
-                    TileSet = new Unity_MapTileMap[]
-                    {
-                        new Unity_MapTileMap(tileSetTex, CellSize), 
-                    },
-                    MapTiles = map.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
-                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
-                }
-            };
+            var maps = GetMaps(context, map, scene);
 
             return new Unity_Level(
                 maps: maps, 

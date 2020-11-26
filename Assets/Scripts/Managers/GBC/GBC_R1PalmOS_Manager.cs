@@ -209,7 +209,7 @@ namespace R1Engine
 
                             var tileSet = s.DoAt(record.DataPointer, () => s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_TileKit>>(default, name: "TileSet"));
 
-                            var tex = Util.ToTileSetTexture(tileSet.Value.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), true, 8, true, wrap: 16);
+                            var tex = Util.ToTileSetTexture(tileSet.Value.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), 8, 8, true, wrap: 16);
                             
                             Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}.png"), tex.EncodeToPNG());
                         }
@@ -246,5 +246,27 @@ namespace R1Engine
             return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_SceneManifest>(default, name: "SceneManfiest")).SceneList;
         }
         public override ARGBColor[] GetTilePalette(GBC_Scene scene) => GetPalmOS8BitPalette();
-    }
+
+		public override Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene) {
+
+            var pal = GetTilePalette(scene).Select(x => x.GetColor()).ToArray();
+            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileData, pal, 8, CellSize, flipY: false);
+
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map
+                {
+                    Width = (ushort)map.Width,
+                    Height = (ushort)map.Height,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        new Unity_MapTileMap(tileSetTex, CellSize),
+                    },
+                    MapTiles = map.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
+                }
+            };
+            return maps;
+        }
+	}
 }
