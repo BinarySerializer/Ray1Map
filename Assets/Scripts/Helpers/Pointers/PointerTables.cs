@@ -797,6 +797,16 @@ namespace R1Engine
                         [GBC_R1_Pointer.SceneList] = 0x257F3D,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.DonaldDuckGBCUS:
+                    return new Dictionary<GBC_R1_Pointer, uint>() {
+                        [GBC_R1_Pointer.SceneList] = 0x3E5287,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.MowgliGBCUS:
+                    return new Dictionary<GBC_R1_Pointer, uint>() {
+                        [GBC_R1_Pointer.SceneList] = 0x35BA1D,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

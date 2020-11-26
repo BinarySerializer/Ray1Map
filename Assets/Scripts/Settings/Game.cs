@@ -54,6 +54,8 @@
         // GBC
 
         GBC_R1,
-        GBC_R2
+        GBC_R2,
+        GBC_DD,
+        GBC_Mowgli,
     }
 }

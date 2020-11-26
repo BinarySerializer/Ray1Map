@@ -301,5 +301,11 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R2, "Rayman 2 (GBC - EU)", typeof(GBC_R2_Manager))]
         Rayman2GBCEU,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_DD, "Donald Duck Goin' Quackers (GBC - US)", typeof(GBC_DD_Manager))]
+        DonaldDuckGBCUS,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_Mowgli, "Mowgli's Wild Adventure (GBC - US)", typeof(GBC_Mowgli_Manager))]
+        MowgliGBCUS,
     }
 }
