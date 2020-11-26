@@ -68,7 +68,7 @@
 
         private void CheckBlockSize(SerializerObject s) {
              if (BlockStartPointer + BlockSize != s.CurrentPointer) {
-                UnityEngine.Debug.LogWarning($"{GetType()} @ {Offset}: Serialized size: {(s.CurrentPointer - Offset)} != BlockSize: {BlockSize}");
+                UnityEngine.Debug.LogWarning($"{GetType()} @ {Offset}: Serialized size: {(s.CurrentPointer - BlockStartPointer)} != BlockSize: {BlockSize}");
             }
         }
     }
