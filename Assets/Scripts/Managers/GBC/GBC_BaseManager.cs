@@ -90,7 +90,7 @@ namespace R1Engine
 
         public abstract Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene);
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var s = context.Deserializer;
             var sceneList = GetSceneList(context);
@@ -114,13 +114,13 @@ namespace R1Engine
             var objManager = new Unity_ObjectManager(context);
             var objects = new List<Unity_Object>(playField.Actors.Select(x => new Unity_Object_GBC(x, objManager)));
 
-            return new Unity_Level(
-                maps: maps, 
+            return UniTask.FromResult(new Unity_Level(
+                maps: maps,
                 objManager: objManager,
                 eventData: objects,
                 cellSize: CellSize,
                 getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
-                getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString());
+                getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString()));
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
