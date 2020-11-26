@@ -2,28 +2,28 @@
 {
     public class GBC_SceneList : GBC_BaseBlock
     {
-        public byte IndexMusic { get; set; }
-        public byte IndexUnk0 { get; set; }
-        public byte IndexUnk1 { get; set; }
-        public byte IndexFirstLevel { get; set; }
-        public byte IndexFinalBoss { get; set; }
-        public byte IndexWorldMap { get; set; }
-        public byte IndexUbiCliff { get; set; }
-        public byte Unk { get; set; }
+        public byte Byte_00 { get; set; }
+        public byte Byte_01 { get; set; }
+        public byte Byte_02 { get; set; }
+        public byte Index_FirstLevel { get; set; }
+        public byte Index_FinalBoss { get; set; }
+        public byte Index_WorldMap { get; set; }
+        public byte Index_UbiCliff { get; set; }
+        public byte Index_Unknown { get; set; }
 
         // Parsed
         public GBC_Scene Scene { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
-            IndexMusic = s.Serialize<byte>(IndexMusic, name: nameof(IndexMusic));
-            IndexUnk0 = s.Serialize<byte>(IndexUnk0, name: nameof(IndexUnk0));
-            IndexUnk1 = s.Serialize<byte>(IndexUnk1, name: nameof(IndexUnk1));
-            IndexFirstLevel = s.Serialize<byte>(IndexFirstLevel, name: nameof(IndexFirstLevel));
-            IndexFinalBoss = s.Serialize<byte>(IndexFinalBoss, name: nameof(IndexFinalBoss));
-            IndexWorldMap = s.Serialize<byte>(IndexWorldMap, name: nameof(IndexWorldMap));
-            IndexUbiCliff = s.Serialize<byte>(IndexUbiCliff, name: nameof(IndexUbiCliff));
-            Unk = s.Serialize<byte>(Unk, name: nameof(Unk));
+            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
+            Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+            Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+            Index_FirstLevel = s.Serialize<byte>(Index_FirstLevel, name: nameof(Index_FirstLevel));
+            Index_FinalBoss = s.Serialize<byte>(Index_FinalBoss, name: nameof(Index_FinalBoss));
+            Index_WorldMap = s.Serialize<byte>(Index_WorldMap, name: nameof(Index_WorldMap));
+            Index_UbiCliff = s.Serialize<byte>(Index_UbiCliff, name: nameof(Index_UbiCliff));
+            Index_Unknown = s.Serialize<byte>(Index_Unknown, name: nameof(Index_Unknown));
 
             // Parse data from pointers
             Scene = s.DoAt(OffsetTable.GetPointer(s.GameSettings.Level), () => s.SerializeObject<GBC_Scene>(Scene, name: nameof(Scene)));
