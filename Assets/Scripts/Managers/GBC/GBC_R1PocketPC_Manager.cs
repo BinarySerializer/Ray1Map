@@ -8,12 +8,12 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBC_R1PalmOS_Manager : GBC_BaseManager
+    public class GBC_R1PocketPC_Manager : GBC_BaseManager
     {
-        public string AllfixFilePath => "worldmap.pdb";
+        public string AllfixFilePath => "worldmap.dat";
         public string[] GetAllDataPaths(Context c) {
             return new string[] {
-                ((c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColor) ? "palmcolormenu" : "menu"),
+                ((c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPocketPC_LandscapeIPAQ) ? "ipaqmenu" : "menu"),
                 "worldmap",
                 "jungle1",
                 "jungle2",
@@ -23,6 +23,11 @@ namespace R1Engine
                 "mount",
                 "cave",
                 "dark",
+
+                // PocketPC exclusive
+                "intro",
+                "outro",
+                "sound",
 
                 // Other data files. Don't load automatically if loading is slow
                 "IDRegister",
@@ -98,7 +103,10 @@ namespace R1Engine
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     int ind = y * w + x;
-                    if (vignette.BPP == 8) {
+                    if (vignette.BPP == 16) {
+                        ARGBColor col = vignette.DataPPC[ind];
+                        tex.SetPixel(x, h - 1 - y, col.GetColor());
+                    } else if (vignette.BPP == 8) {
                         int col = vignette.Data[ind];
                         tex.SetPixel(x, h - 1 - y, palette[col].GetColor());
                     } else {
@@ -122,33 +130,29 @@ namespace R1Engine
             {
                 var s = context.Deserializer;
 
-                foreach (var filePath in Directory.GetFiles(context.BasePath, "*", SearchOption.TopDirectoryOnly))
+                foreach (var filePath in Directory.GetFiles(context.BasePath, "*.dat", SearchOption.TopDirectoryOnly))
                 {
-                    var ext = Path.GetExtension(filePath);
-                    var type = ext == ".pdb" ? Palm_Database.DatabaseType.PDB : (ext == ".prc" ? Palm_Database.DatabaseType.PRC : (Palm_Database.DatabaseType?)null);
-
-                    if (type == null)
-                        continue;
-
                     var relPath = Path.GetFileName(filePath);
-                    await context.AddLinearSerializedFileAsync(relPath, BinaryFile.Endian.Big);
-
-                    var dataBase = FileFactory.Read<Palm_Database>(relPath, context, (so, pd) => pd.Type = type.Value);
+                    await context.AddLinearSerializedFileAsync(relPath, BinaryFile.Endian.Little);
+                    var dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(relPath, context);
 
                     var palette8Bit = GetPalmOS8BitPalette();
                     var palette4Bit = Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
 
-                    for (int i = 0; i < dataBase.RecordsCount; i++)
+                    for (int i = 0; i < dataFile.BlockCount; i++)
                     {
-                        var record = dataBase.Records[i];
-                        var name = type == Palm_Database.DatabaseType.PRC ? $"{record.Name}_{record.ID}" : $"{i}";
+                        ushort blockID = (ushort)(i + 1);
+                        Pointer blockPtr = dataFile.Resolve(blockID);
+                        uint blockLength = dataFile.GetLength(blockID) ?? 0;
+
+                        var name = $"{blockID}";
                         bool exported = false;
                         if (categorized && filePath.Contains("menu")) 
                         {
                             if (!exported) {
                                 try {
                                     LUDI_CompressedBlock<GBC_PalmOS_Vignette> vignette = null;
-                                    s.DoAt(record.DataPointer, () => {
+                                    s.DoAt(blockPtr, () => {
                                         vignette = s.SerializeObject<LUDI_CompressedBlock<GBC_PalmOS_Vignette>>(default, name: nameof(vignette));
                                     });
                                     ExportVignette(vignette.Value, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"Vignette/{name}.png"));
@@ -158,7 +162,7 @@ namespace R1Engine
                             if (!exported) {
                                 try {
                                     LUDI_UncompressedBlock<GBC_PalmOS_Vignette> vignette = null;
-                                    s.DoAt(record.DataPointer, () => {
+                                    s.DoAt(blockPtr, () => {
                                         vignette = s.SerializeObject<LUDI_UncompressedBlock<GBC_PalmOS_Vignette>>(default, name: nameof(vignette));
                                     });
                                     ExportVignette(vignette.Value, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"Vignette/{name}.png"));
@@ -166,41 +170,41 @@ namespace R1Engine
                                 } catch (Exception) { }
                             }
                             if (!exported) {
-                                s.Goto(record.DataPointer);
-                                var bytes = s.DoAt(record.DataPointer, () => s.SerializeArray<byte>(default, record.Length, name: $"Record[{i}]"));
+                                s.Goto(blockPtr);
+                                var bytes = s.DoAt(blockPtr, () => s.SerializeArray<byte>(default, blockLength, name: $"Block[{blockID}]"));
                                 string filename = $"Uncategorized/{name}.bin";
                                 Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
                             }
                         } 
                         else if (asTileSet)
                         {
-                            if (record.Length <= 12)
+                            if (blockLength <= 12)
                                 continue;
 
-                            var isValid = s.DoAt(record.DataPointer, () =>
+                            var isValid = s.DoAt(blockPtr, () =>
                             {
                                 s.Serialize<uint>(default); // Header
                                 var unk = s.Serialize<uint>(default); // ?
                                 var count = s.Serialize<uint>(default); // Count
 
-                                return count * 0x40 + 12 == record.Length;
+                                return count * 0x40 + 12 == blockLength;
                             });
 
                             if (!isValid)
                                 continue;
 
-                            var tileSet = s.DoAt(record.DataPointer, () => s.SerializeObject<GBC_TileKit>(default, name: "TileSet"));
+                            var tileSet = s.DoAt(blockPtr, () => s.SerializeObject<GBC_TileKit>(default, name: "TileSet"));
 
                             bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
                             Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
                             var tex = Util.ToTileSetTexture(tileSet.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), encoding, 8, true, wrap: 16);
                             
-                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}_0x{record.DataPointer.FileOffset:X8}.png"), tex.EncodeToPNG());
+                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}_0x{blockPtr.FileOffset:X8}.png"), tex.EncodeToPNG());
                         }
                         else
                         {
                             string filename = $"{name}.bin";
-                            var bytes = s.DoAt(record.DataPointer, () => s.SerializeArray<byte>(default, record.Length, name: $"Record[{i}]"));
+                            var bytes = s.DoAt(blockPtr, () => s.SerializeArray<byte>(default, blockLength, name: $"Record[{blockID}]"));
                             Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
                         }
                     }
@@ -212,9 +216,9 @@ namespace R1Engine
             LUDI_GlobalOffsetTable globalOffsetTable = new LUDI_GlobalOffsetTable();
             List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
             foreach (var path in GetAllDataPaths(context)) {
-                var fullPath = $"{path}.pdb";
-                await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Big);
-                dataFiles.Add(FileFactory.Read<LUDI_PalmOS_DataFile>(fullPath, context));
+                var fullPath = $"{path}.dat";
+                await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Little);
+                dataFiles.Add(FileFactory.Read<LUDI_PocketPC_DataFile>(fullPath, context));
             }
             globalOffsetTable.Files = dataFiles.ToArray();
             context.StoreObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
@@ -222,17 +226,13 @@ namespace R1Engine
 
         public override GBC_SceneList GetSceneList(Context context)
         {
-            var allfix = FileFactory.Read<LUDI_PalmOS_DataFile>(AllfixFilePath, context);
+            var allfix = FileFactory.Read<LUDI_PocketPC_DataFile>(AllfixFilePath, context);
             var s = context.Deserializer;
             return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_SceneManifest>(default, name: "SceneManfiest")).SceneList;
         }
 
 		public override Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene) {
-
-            bool greyScale = context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
-            Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
-            Color[] pal = (greyScale ? Util.CreateDummyPalette(16, firstTransparent: false).Reverse() : GetPalmOS8BitPalette()).Select(x => x.GetColor()).ToArray();
-            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileData, pal, encoding, CellSize, flipY: false);
+            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileDataPocketPC, CellSize, flipY: false);
 
             var maps = new Unity_Map[]
             {

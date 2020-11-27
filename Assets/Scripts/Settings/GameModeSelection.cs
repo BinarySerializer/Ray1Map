@@ -296,6 +296,15 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_Palm, Game.GBC_R1, "Rayman (PalmOS - Greyscale)", typeof(GBC_R1PalmOS_Manager))]
         RaymanGBCPalmOSGreyscale,
 
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - Portrait)", typeof(GBC_R1PocketPC_Manager))]
+        RaymanGBCPocketPC_Portrait,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - Landscape)", typeof(GBC_R1PocketPC_Manager))]
+        RaymanGBCPocketPC_Landscape,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - IPAQ)", typeof(GBC_R1PocketPC_Manager))]
+        RaymanGBCPocketPC_LandscapeIPAQ,
+
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R1, "Rayman (GBC - EU)", typeof(GBC_R1_Manager))]
         RaymanGBCEU,
 

@@ -581,6 +581,56 @@ namespace R1Engine
             }
         }
 
+
+        public static Texture2D ToTileSetTexture(ARGBColor[] imgData, int tileWidth, bool flipY, int wrap = 32) {
+            int tileSize = tileWidth * tileWidth;
+            int tilesetLength = imgData.Length / tileSize;
+
+            int tilesX = Math.Min(tilesetLength, wrap);
+            int tilesY = Mathf.CeilToInt(tilesetLength / (float)wrap);
+
+            var tex = TextureHelpers.CreateTexture2D(tilesX * tileWidth, tilesY * tileWidth);
+
+            for (int i = 0; i < tilesetLength; i++) {
+                int tileY = ((i / wrap)) * tileWidth;
+                int tileX = (i % wrap) * tileWidth;
+
+                tex.FillInTile(imgData, i * tileSize, tileWidth, flipY, tileX, tileY);
+            }
+
+            tex.Apply();
+
+            return tex;
+        }
+
+        public static void FillInTile(this Texture2D tex, ARGBColor[] imgData, int imgDataOffset, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false) {
+            // Fill in tile pixels
+            for (int y = 0; y < tileWidth; y++) {
+
+                var yy = tileY + y;
+
+                if (flipTextureY)
+                    yy = tex.height - yy - 1;
+                if (yy < 0 || yy >= tex.height) continue;
+
+                for (int x = 0; x < tileWidth; x++) {
+                    var xx = tileX + x;
+                    if (xx < 0 || xx >= tex.width) continue;
+                    Color c;
+
+                    int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)));
+                    c = imgData[index].GetColor();
+
+                    if (!ignoreTransparent || c.a > 0) {
+                        tex.SetPixel(xx, yy, c);
+                    }
+                }
+            }
+        }
+
+
+
+
         public static int GCF(int a, int b)
         {
             while (b != 0)

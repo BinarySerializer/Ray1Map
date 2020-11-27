@@ -90,7 +90,7 @@ namespace R1Engine
                             string filename = Path.GetFileNameWithoutExtension(file.Offset.file.AbsolutePath);
                             if (file.OffsetTable != null) {
                                 for (int i = 0; i < file.OffsetTable.NumEntries; i++) {
-                                    var id = (ushort)(1 + i);
+                                    var id = file.OffsetTable.Entries[i].BlockID;
                                     Pointer blockPtr = file.Resolve(id);
                                     if (!references.ContainsKey(blockPtr)) {
                                         uint? blockLength = file.GetLength(id);

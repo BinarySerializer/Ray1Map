@@ -9,7 +9,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm || s.GameSettings.EngineVersion == EngineVersion.GBC_R1_PocketPC)
             {
                 FileID = s.SerializeObject<LUDI_FileIdentifier>(FileID, name: nameof(FileID));
                 BlockID = s.SerializeObject<LUDI_BlockIdentifier>(BlockID, name: nameof(BlockID));

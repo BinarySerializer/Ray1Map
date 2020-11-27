@@ -7,13 +7,13 @@ namespace R1Engine
         public uint NumEntries { get; set; }
         public Entry[] Entries { get; set; }
 
-        private Dictionary<ushort, Entry> _entriesDictionary { get; set; }
-        public Dictionary<ushort, Entry> EntriesDictionary {
+        private Dictionary<ushort, int> _entriesDictionary { get; set; }
+        public Dictionary<ushort, int> EntriesDictionary {
             get {
                 if (_entriesDictionary == null) {
-                    _entriesDictionary = new Dictionary<ushort, Entry>();
-                    foreach (var e in Entries) {
-                        _entriesDictionary[e.BlockID] = e;
+                    _entriesDictionary = new Dictionary<ushort, int>();
+                    for (int i = 0; i < Entries.Length; i++) {
+                        _entriesDictionary[Entries[i].BlockID] = i;
                     }
                 }
                 return _entriesDictionary;

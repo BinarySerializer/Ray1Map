@@ -1,5 +1,5 @@
 ﻿namespace R1Engine {
-	public class PalmOS_DataFile : LUDI_BaseDataFile {
+	public class LUDI_PalmOS_DataFile : LUDI_BaseDataFile {
 		// Serialized properties
 		public Palm_Database Database { get; set; }
 		public LUDI_AppInfo AppInfo { get; set; }
@@ -19,7 +19,8 @@
 		private Palm_DatabaseRecord GetRecord(ushort blockID) {
 			if (OffsetTable != null) {
 				if (!OffsetTable.EntriesDictionary.ContainsKey(blockID)) return null;
-				uint recordID = OffsetTable.EntriesDictionary[blockID].RecordID;
+				var entryIndex = OffsetTable.EntriesDictionary[blockID];
+				uint recordID = OffsetTable.Entries[entryIndex].RecordID;
 				if (!Database.RecordsDictionary.ContainsKey(recordID)) return null;
 				return Database.RecordsDictionary[recordID];
 			} else if (DataInfo != null) {

@@ -1,17 +1,15 @@
 ﻿namespace R1Engine
 {
-    public class GBC_PalmOS_CompressedBlock<T> : R1Serializable 
+    public class LUDI_CompressedBlock<T> : LUDI_BaseBlock
         where T : R1Serializable, new()
     {
-        public LUDI_BlockIdentifier Header { get; set; }
-        public uint BlockSize { get; set; }
+        public uint TotalBlockSize { get; set; }
         public uint DecompressedSize { get; set; }
         public uint CompressedSize { get; set; }
         public T Value { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
-            Header = s.SerializeObject<LUDI_BlockIdentifier>(Header, name: nameof(Header));
-            BlockSize = s.Serialize<uint>(BlockSize, name: nameof(BlockSize));
+        public override void SerializeBlock(SerializerObject s) {
+            TotalBlockSize = s.Serialize<uint>(TotalBlockSize, name: nameof(TotalBlockSize));
             DecompressedSize = s.Serialize<uint>(DecompressedSize, name: nameof(DecompressedSize));
             CompressedSize = s.Serialize<uint>(CompressedSize, name: nameof(CompressedSize));
             s.DoEncoded(new Lzo1xEncoder(CompressedSize, DecompressedSize), () => {
