@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBC_PlayField : GBC_BaseBlock
     {
@@ -6,8 +8,9 @@
         public ushort ActorsOffset { get; set; }
         public ushort Ushort_04 { get; set; }
         public ushort SectorsOffset { get; set; }
-        public ushort Ushort_06 { get; set; }
-        public byte[] Bytes_08 { get; set; }
+        public ushort Ushort_08 { get; set; }
+        public byte[] Bytes_0A { get; set; }
+        public byte Index_Music { get; set; } // Index to the level music
 
         public ARGB1555Color[] GBC_ObjPalette { get; set; }
         public GBC_UnkActorStruct[] UnkActorStructs { get; set; }
@@ -30,8 +33,9 @@
                 ActorsOffset = s.Serialize<ushort>(ActorsOffset, name: nameof(ActorsOffset));
                 Ushort_04 = s.Serialize<ushort>(Ushort_04, name: nameof(Ushort_04));
                 SectorsOffset = s.Serialize<ushort>(SectorsOffset, name: nameof(SectorsOffset));
-                Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
-                Bytes_08 = s.SerializeArray<byte>(Bytes_08, 6, name: nameof(Bytes_08));
+                Ushort_08 = s.Serialize<ushort>(Ushort_08, name: nameof(Ushort_08));
+                Bytes_0A = s.SerializeArray<byte>(Bytes_0A, 5, name: nameof(Bytes_0A));
+                Index_Music = s.Serialize<byte>(Index_Music, name: nameof(Index_Music));
 
                 if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
                 {
@@ -57,7 +61,10 @@
 
             // Parse data from pointers
             Map = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_Map>(Map, name: nameof(Map)));
-        }
 
+            // Parse actor graphics
+            foreach (var actor in Actors.Where(x => x.Index_GraphicsData > 1))
+                actor.GraphicsData = s.DoAt(OffsetTable.GetPointer(actor.Index_GraphicsData - 1), () => s.SerializeObject<GBC_ActorGraphicsData>(actor.GraphicsData, name: $"{nameof(actor.GraphicsData)}[{actor.Index_GraphicsData}]"));
+        }
     }
 }

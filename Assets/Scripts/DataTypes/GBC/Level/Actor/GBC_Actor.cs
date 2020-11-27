@@ -2,7 +2,7 @@
 {
     public class GBC_Actor : R1Serializable
     {
-        public byte GraphicsDataIndex { get; set; } // Invalid if 0
+        public byte Index_GraphicsData { get; set; } // Invalid if 0
         public ushort Index { get; set; }
         public byte State { get; set; }
         public byte ActorID { get; set; } // 0xFF for triggers, 0x00 for Rayman
@@ -15,9 +15,12 @@
         public GBC_UnkActorStruct UnkActorStruct { get; set; }
         public byte UnkByte { get; set; }
 
+        // Parsed
+        public GBC_ActorGraphicsData GraphicsData { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
-            GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
+            Index_GraphicsData = s.Serialize<byte>(Index_GraphicsData, name: nameof(Index_GraphicsData));
             Index = s.Serialize<ushort>(Index, name: nameof(Index));
             State = s.Serialize<byte>(State, name: nameof(State));
             ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
