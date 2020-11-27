@@ -271,7 +271,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (GBC)</td>
-    <td class="tg-yw4l">EU</td>
+    <td class="tg-yw4l">EU/US, JP</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -286,8 +286,16 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
+    <td class="tg-yw4l">Rayman 1 (PocketPC)</td>
+    <td class="tg-yw4l">Portrait, Landscape, IPAQ</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">Rayman 2 (GBC)</td>
-    <td class="tg-yw4l">EU</td>
+    <td class="tg-yw4l">EU/US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -295,7 +303,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   </tr>
   <tr>
     <td class="tg-yw4l">Donald Duck Goin' Quackers (GBC)</td>
-    <td class="tg-yw4l">US</td>
+    <td class="tg-yw4l">EU/US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -303,7 +311,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   </tr>
   <tr>
     <td class="tg-yw4l">Mowgli's Wild Adventure (GBC)</td>
-    <td class="tg-yw4l">US</td>
+    <td class="tg-yw4l">EU/US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>

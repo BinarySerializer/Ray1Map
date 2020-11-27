@@ -40,6 +40,9 @@ namespace R1Engine
                 case Game.GBC_R1:
                     return Rayman1GBCNames;
 
+                case Game.GBC_R2:
+                    return Rayman2GBCNames;
+
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
                 case Game.R1_60Levels:
@@ -806,6 +809,55 @@ namespace R1Engine
                 [44] = "Rocky Peaks - Bonus",
                 [45] = "Rocky Peaks - Bonus",
                 [46] = "Time attack map",
+            },
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> Rayman2GBCNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [0] = "",
+                [1] = "",
+                [2] = "",
+                [3] = "",
+                [4] = "",
+                [5] = "",
+                [6] = "",
+                [7] = "",
+                [8] = "",
+                [9] = "",
+                [10] = "",
+                [11] = "",
+                [12] = "",
+                [13] = "",
+                [14] = "",
+                [15] = "",
+                [16] = "",
+                [17] = "",
+                [18] = "",
+                [19] = "",
+                [20] = "",
+                [21] = "",
+                [22] = "",
+                [23] = "",
+                [24] = "",
+                [25] = "The Canopy 1",
+                [26] = "",
+                [27] = "The Canopy - Bonus",
+                [28] = "",
+                [29] = "",
+                [30] = "",
+                [31] = "",
+                [32] = "",
+                [33] = "",
+                [34] = "",
+                [35] = "",
+                [36] = "",
+                [37] = "",
+                [38] = "",
+                [39] = "",
+                [40] = "",
+                [41] = "",
+                [42] = "",
+                [43] = "",
             },
         };
     }

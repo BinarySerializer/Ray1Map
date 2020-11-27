@@ -787,22 +787,27 @@ namespace R1Engine
         public static Dictionary<GBC_R1_Pointer, Pointer> GBC_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
             switch (gameMode) 
             {
-                case GameModeSelection.RaymanGBCEU:
+                case GameModeSelection.RaymanGBC:
                     return new Dictionary<GBC_R1_Pointer, uint>() {
                         [GBC_R1_Pointer.SceneList] = 0x30F307,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
-                case GameModeSelection.Rayman2GBCEU:
+                case GameModeSelection.RaymanGBCJP:
+                    return new Dictionary<GBC_R1_Pointer, uint>() {
+                        [GBC_R1_Pointer.SceneList] = 0x35B27B,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.Rayman2GBC:
                     return new Dictionary<GBC_R1_Pointer, uint>() {
                         [GBC_R1_Pointer.SceneList] = 0x257F3D,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
-                case GameModeSelection.DonaldDuckGBCUS:
+                case GameModeSelection.DonaldDuckGBC:
                     return new Dictionary<GBC_R1_Pointer, uint>() {
                         [GBC_R1_Pointer.SceneList] = 0x3E5287,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
-                case GameModeSelection.MowgliGBCUS:
+                case GameModeSelection.MowgliGBC:
                     return new Dictionary<GBC_R1_Pointer, uint>() {
                         [GBC_R1_Pointer.SceneList] = 0x35BA1D,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));

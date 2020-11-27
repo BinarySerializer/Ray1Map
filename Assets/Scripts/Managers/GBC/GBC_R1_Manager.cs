@@ -18,9 +18,7 @@ namespace R1Engine
 
         public override GBC_SceneList GetSceneList(Context context)
         {
-            var pointerTable = PointerTables.GBC_PointerTable(context.Settings.GameModeSelection, context.GetFile(GetROMFilePath));
-            var s = context.Deserializer;
-            return s.DoAt(pointerTable[GBC_R1_Pointer.SceneList], () => s.SerializeObject<GBC_SceneList>(default, name: "SceneList"));
+            return FileFactory.Read<GBC_ROM>(GetROMFilePath, context).SceneList;
         }
 
         public override Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene) {

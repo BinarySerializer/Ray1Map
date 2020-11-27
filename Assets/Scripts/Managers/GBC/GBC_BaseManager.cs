@@ -131,11 +131,10 @@ namespace R1Engine
 
         public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
-            var s = context.Deserializer;
             var sceneList = GetSceneList(context);
 
             // Log unused data blocks in offset tables
-            var notParsedBlocks = GBC_OffsetTable.OffsetTables.Where(x => x.UsedOffsets.Any(y => !y)).ToArray();
+            var notParsedBlocks = GBC_OffsetTable.OffsetTables.Where(x => x.UsedOffsets.Any(y => !y) && x != sceneList.OffsetTable).ToArray();
             if (notParsedBlocks.Any())
                 Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, notParsedBlocks.Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedOffsets.Select((o, i) => new
                 {

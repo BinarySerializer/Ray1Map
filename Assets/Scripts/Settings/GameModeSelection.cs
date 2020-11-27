@@ -305,16 +305,19 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - IPAQ)", typeof(GBC_R1PocketPC_Manager))]
         RaymanGBCPocketPC_LandscapeIPAQ,
 
-        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R1, "Rayman (GBC - EU)", typeof(GBC_R1_Manager))]
-        RaymanGBCEU,
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R1, "Rayman (GBC)", typeof(GBC_R1_Manager))]
+        RaymanGBC,
 
-        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R2, "Rayman 2 (GBC - EU)", typeof(GBC_R2_Manager))]
-        Rayman2GBCEU,
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R1, "Rayman (GBC - JP)", typeof(GBC_R1_Manager))]
+        RaymanGBCJP,
 
-        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_DD, "Donald Duck Goin' Quackers (GBC - US)", typeof(GBC_DD_Manager))]
-        DonaldDuckGBCUS,
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R2, "Rayman 2 (GBC)", typeof(GBC_R2_Manager))]
+        Rayman2GBC,
 
-        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_Mowgli, "Mowgli's Wild Adventure (GBC - US)", typeof(GBC_Mowgli_Manager))]
-        MowgliGBCUS,
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_DD, "Donald Duck Goin' Quackers (GBC)", typeof(GBC_DD_Manager))]
+        DonaldDuckGBC,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_Mowgli, "Mowgli's Wild Adventure (GBC)", typeof(GBC_Mowgli_Manager))]
+        MowgliGBC,
     }
 }
