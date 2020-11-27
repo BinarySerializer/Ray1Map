@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace R1Engine
 {
-    public class LUDI_DataInfo : LUDI_Block {
+    public class LUDI_DataInfo : LUDI_AppInfoBlock {
         public uint DataSize { get; set; }
         public uint NumDataBlocks { get; set; }
 

@@ -84,6 +84,38 @@ namespace R1Engine
             new GameAction("Export TileSets", false, true, (input, output) => ExportDataBasesAsync(settings, output, false, asTileSet: true)),
         }).ToArray();
 
+        void ExportVignette(GBC_PalmOS_Vignette vignette, string outputPath) {
+            if (vignette == null) throw new Exception("Not a vignette");
+            if (vignette.Width > 0x1000 || vignette.Height > 0x1000 || vignette.Width == 0 || vignette.Height == 0) {
+                throw new Exception("Not a vignette");
+            }
+            int w = (int)vignette.Width;
+            int h = (int)vignette.Height;
+
+            var palette = vignette.BitDepth == 8 ? GetPalmOS8BitPalette() : Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
+
+            Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    int ind = y * w + x;
+                    if (vignette.BitDepth == 8) {
+                        int col = vignette.Data[ind];
+                        tex.SetPixel(x, h - 1 - y, palette[col].GetColor());
+                    } else {
+                        int col = vignette.Data[ind / 2];
+                        if (ind % 2 == 0) {
+                            col = BitHelpers.ExtractBits(col, 4, 4);
+                        } else {
+                            col = BitHelpers.ExtractBits(col, 4, 0);
+                        }
+                        tex.SetPixel(x, h - 1 - y, palette[col].GetColor());
+                    }
+                }
+            }
+            tex.Apply();
+            Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
+        }
+
         public async UniTask ExportDataBasesAsync(GameSettings settings, string outputDir, bool categorized, bool asTileSet = false)
         {
             using (var context = new Context(settings))
@@ -119,35 +151,9 @@ namespace R1Engine
                                     s.DoAt(record.DataPointer, () => {
                                         vignette = s.SerializeObject<GBC_PalmOS_CompressedBlock<GBC_PalmOS_Vignette>>(default, name: nameof(vignette));
                                     });
-                                    if (vignette == null) throw new Exception("Not a vignette");
-                                    if (vignette.Value.Width > 0x1000 || vignette.Value.Height > 0x1000 || vignette.Value.Width == 0 || vignette.Value.Height == 0) {
-                                        throw new Exception("Not a vignette");
-                                    }
-                                    int w = (int)vignette.Value.Width;
-                                    int h = (int)vignette.Value.Height;
-                                    Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
-                                    for (int y = 0; y < h; y++) {
-                                        for (int x = 0; x < w; x++) {
-                                            int ind = y * w + x;
-                                            if (vignette.Value.BitDepth == 8) {
-                                                int col = vignette.Value.Data[ind];
-                                                tex.SetPixel(x, h - 1 - y, palette8Bit[col].GetColor());
-                                            } else {
-                                                int col = vignette.Value.Data[ind / 2];
-                                                if (ind % 2 == 0) {
-                                                    col = BitHelpers.ExtractBits(col, 4, 4);
-                                                } else {
-                                                    col = BitHelpers.ExtractBits(col, 4, 0);
-                                                }
-                                                tex.SetPixel(x, h - 1 - y, palette4Bit[col].GetColor());
-                                            }
-                                        }
-                                    }
-                                    tex.Apply();
+                                    ExportVignette(vignette.Value, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"Vignette/{name}.png"));
                                     exported = true;
-                                    string filename = $"Vignette/{name}.png";
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), tex.EncodeToPNG());
-                                } catch (Exception ex) { }
+                                } catch (Exception) { }
                             }
                             if (!exported) {
                                 try {
@@ -155,35 +161,9 @@ namespace R1Engine
                                     s.DoAt(record.DataPointer, () => {
                                         vignette = s.SerializeObject<GBC_PalmOS_UncompressedBlock<GBC_PalmOS_Vignette>>(default, name: nameof(vignette));
                                     });
-                                    if (vignette == null) throw new Exception("Not a vignette");
-                                    if (vignette.Value.Width > 0x1000 || vignette.Value.Height > 0x1000 || vignette.Value.Width == 0 || vignette.Value.Height == 0) {
-                                        throw new Exception("Not a vignette");
-                                    }
-                                    int w = (int)vignette.Value.Width;
-                                    int h = (int)vignette.Value.Height;
-                                    Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
-                                    for (int y = 0; y < h; y++) {
-                                        for (int x = 0; x < w; x++) {
-                                            int ind = y * w + x;
-                                            if (vignette.Value.BitDepth == 8) {
-                                                int col = vignette.Value.Data[ind];
-                                                tex.SetPixel(x, h - 1 - y, palette8Bit[col].GetColor());
-                                            } else {
-                                                int col = vignette.Value.Data[ind / 2];
-                                                if (ind % 2 == 0) {
-                                                    col = BitHelpers.ExtractBits(col, 4, 0);
-                                                } else {
-                                                    col = BitHelpers.ExtractBits(col, 4, 4);
-                                                }
-                                                tex.SetPixel(x, h - 1 - y, palette4Bit[col].GetColor());
-                                            }
-                                        }
-                                    }
-                                    tex.Apply();
+                                    ExportVignette(vignette.Value, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"Vignette/{name}.png"));
                                     exported = true;
-                                    string filename = $"Vignette/{name}.png";
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), tex.EncodeToPNG());
-                                } catch (Exception ex) { }
+                                } catch (Exception) { }
                             }
                             if (!exported) {
                                 s.Goto(record.DataPointer);

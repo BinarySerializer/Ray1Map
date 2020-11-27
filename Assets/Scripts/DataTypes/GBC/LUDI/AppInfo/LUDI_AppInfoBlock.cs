@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace R1Engine
 {
-    public abstract class LUDI_Block : R1Serializable {
+    public abstract class LUDI_AppInfoBlock : R1Serializable {
         public uint LengthInBytes { get; set; }
         public byte[] UnknownData { get; set; }
 

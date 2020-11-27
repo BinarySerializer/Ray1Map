@@ -81,6 +81,45 @@ namespace R1Engine
                         }
                     }
                 }
+
+                // If LUDI, export unreferenced blocks
+                if (export) {
+                    var got = context.GetStoredObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey);
+                    if (got != null) {
+                        foreach (var file in got.Files) {
+                            string filename = Path.GetFileNameWithoutExtension(file.Offset.file.AbsolutePath);
+                            if (file.OffsetTable != null) {
+                                for (int i = 0; i < file.OffsetTable.NumEntries; i++) {
+                                    var id = (ushort)(1 + i);
+                                    Pointer blockPtr = file.Resolve(id);
+                                    if (!references.ContainsKey(blockPtr)) {
+                                        uint? blockLength = file.GetLength(id);
+                                        if (blockLength.HasValue) {
+                                            s.DoAt(blockPtr, () => {
+                                                byte[] data = s.SerializeArray<byte>(default, blockLength.Value, name: $"{filename}_{id}");
+                                                Util.ByteArrayToFile(Path.Combine(outputDir, $"Unreferenced/{filename} - ID_{file.FileID.FileID}", $"{id}_{blockPtr.StringFileOffset}.bin"), data);
+                                            });
+                                        }
+                                    }
+                                }
+                            } else if (file.DataInfo != null) {
+                                for (int i = 0; i < file.DataInfo.NumDataBlocks; i++) {
+                                    var id = (ushort)(i + 1);
+                                    Pointer blockPtr = file.Resolve(id);
+                                    if (!references.ContainsKey(blockPtr)) {
+                                        uint? blockLength = file.GetLength(id);
+                                        if (blockLength.HasValue) {
+                                            s.DoAt(blockPtr, () => {
+                                                LUDI_DummyBlock dummyBlock = s.SerializeObject<LUDI_DummyBlock>(default, name: $"{filename}_{id}");
+                                                Util.ByteArrayToFile(Path.Combine(outputDir, $"Unreferenced/{filename} - ID_{file.FileID.FileID}", $"{id}_{blockPtr.StringFileOffset}.bin"), dummyBlock.Data);
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             Debug.Log("Finished logging blocks");

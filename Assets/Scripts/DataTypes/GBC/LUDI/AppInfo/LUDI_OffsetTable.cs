@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace R1Engine
 {
-    public class LUDI_OffsetTable : LUDI_Block {
+    public class LUDI_OffsetTable : LUDI_AppInfoBlock {
         public uint NumEntries { get; set; }
         public Entry[] Entries { get; set; }
 

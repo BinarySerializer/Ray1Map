@@ -14,13 +14,21 @@
 		// Implemented properties & methods
 		public override LUDI_FileIdentifier FileID => AppInfo.Header.FileID;
 		public override LUDI_OffsetTable OffsetTable => AppInfo.OffsetTable;
+		public override LUDI_DataInfo DataInfo => AppInfo.DataInfo;
 
 		private Palm_DatabaseRecord GetRecord(ushort blockID) {
-			if (OffsetTable == null) return null;
-			if (!OffsetTable.EntriesDictionary.ContainsKey(blockID)) return null;
-			uint recordID = OffsetTable.EntriesDictionary[blockID].RecordID;
-			if (!Database.RecordsDictionary.ContainsKey(recordID)) return null;
-			return Database.RecordsDictionary[recordID];
+			if (OffsetTable != null) {
+				if (!OffsetTable.EntriesDictionary.ContainsKey(blockID)) return null;
+				uint recordID = OffsetTable.EntriesDictionary[blockID].RecordID;
+				if (!Database.RecordsDictionary.ContainsKey(recordID)) return null;
+				return Database.RecordsDictionary[recordID];
+			} else if (DataInfo != null) {
+				if(blockID > DataInfo.NumDataBlocks) return null;
+				var recordID = (uint)0x100000 | (uint)(blockID-1);
+				if (!Database.RecordsDictionary.ContainsKey(recordID)) return null;
+				return Database.RecordsDictionary[recordID];
+			}
+			return null;
 		}
 
 		public override Pointer Resolve(ushort blockID) {
@@ -28,6 +36,7 @@
 		}
 
 		public override uint? GetLength(ushort blockID) {
+			if(DataInfo != null) return DataInfo.DataSize + 4;
 			return GetRecord(blockID)?.Length;
 		}
 	}

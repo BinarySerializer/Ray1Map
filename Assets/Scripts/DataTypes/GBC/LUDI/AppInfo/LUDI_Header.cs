@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class LUDI_Header : LUDI_Block {
+    public class LUDI_Header : LUDI_AppInfoBlock {
         public uint LUDI { get; set; }
         public LUDI_FileIdentifier FileID { get; set; }
         public FileType Type { get; set; }
