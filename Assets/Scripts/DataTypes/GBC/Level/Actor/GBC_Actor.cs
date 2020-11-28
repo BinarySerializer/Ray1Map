@@ -2,10 +2,10 @@
 {
     public class GBC_Actor : R1Serializable
     {
-        public byte Index_GraphicsData { get; set; } // Invalid if 0
+        public byte Index_ActorModel { get; set; } // Invalid if 0
         public ushort Index { get; set; }
         public byte State { get; set; }
-        public byte ActorID { get; set; } // 0xFF for triggers, 0x00 for Rayman
+        public sbyte ActorID { get; set; }
         public short YPos { get; set; }
         public short XPos { get; set; }
         public byte UnkByte1 { get; set; }
@@ -15,15 +15,17 @@
         public GBC_UnkActorStruct UnkActorStruct { get; set; }
         public byte UnkByte { get; set; }
 
+        public bool IsCaptor => ActorID == -1;
+
         // Parsed
-        public GBC_ActorGraphicsData GraphicsData { get; set; }
+        public GBC_ActorModel ActorModel { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Index_GraphicsData = s.Serialize<byte>(Index_GraphicsData, name: nameof(Index_GraphicsData));
+            Index_ActorModel = s.Serialize<byte>(Index_ActorModel, name: nameof(Index_ActorModel));
             Index = s.Serialize<ushort>(Index, name: nameof(Index));
             State = s.Serialize<byte>(State, name: nameof(State));
-            ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
+            ActorID = s.Serialize<sbyte>(ActorID, name: nameof(ActorID));
             YPos = s.Serialize<short>(YPos, name: nameof(YPos));
             XPos = s.Serialize<short>(XPos, name: nameof(XPos));
             UnkByte1 = s.Serialize<byte>(UnkByte1, name: nameof(UnkByte1));
@@ -32,7 +34,7 @@
             Links = s.SerializeObjectArray<GBC_ActorLink>(Links, LinkCount, name: nameof(Links));
             UnkActorStruct = s.SerializeObject<GBC_UnkActorStruct>(UnkActorStruct, name: nameof(UnkActorStruct));
 
-            if (ActorID != 0xFF)
+            if (!IsCaptor)
                 UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));
         }
     }

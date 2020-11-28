@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBC_ActorGraphicsData : GBC_BaseBlock
+    public class GBC_ActorModel : GBC_BaseBlock
     {
         public byte[] Data { get; set; }
 

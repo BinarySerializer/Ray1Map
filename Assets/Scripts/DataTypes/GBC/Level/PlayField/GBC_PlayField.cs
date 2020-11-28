@@ -1,8 +1,6 @@
-﻿using System.Linq;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
-    public class GBC_Map : GBC_BaseBlock 
+    public class GBC_PlayField : GBC_BaseBlock 
     {
         public uint Width { get; set; }
         public uint Height { get; set; }

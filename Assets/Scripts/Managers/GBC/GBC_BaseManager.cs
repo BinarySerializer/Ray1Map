@@ -125,9 +125,9 @@ namespace R1Engine
             Debug.Log("Finished logging blocks");
         }
 
-        public abstract GBC_SceneList GetSceneList(Context context);
+        public abstract GBC_LevelList GetSceneList(Context context);
 
-        public abstract Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene);
+        public abstract Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level);
 
         public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
@@ -142,10 +142,10 @@ namespace R1Engine
                     Index = i
                 }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
 
-            var scene = sceneList.Scene;
-            var playField = scene.PlayField;
+            var scene = sceneList.Level;
+            var playField = scene.Scene;
 
-            var map = playField.Map;
+            var map = playField.PlayField;
 
             var maps = GetMaps(context, map, scene);
 

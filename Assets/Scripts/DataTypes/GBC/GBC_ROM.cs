@@ -2,7 +2,7 @@
 {
     public class GBC_ROM : GBC_ROMBase
     {
-        public GBC_SceneList SceneList { get; set; }
+        public GBC_LevelList LevelList { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -10,7 +10,7 @@
             base.SerializeImpl(s);
 
             var pointerTable = PointerTables.GBC_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
-            SceneList = s.DoAt(pointerTable[GBC_R1_Pointer.SceneList], () => s.SerializeObject<GBC_SceneList>(SceneList, name: nameof(SceneList)));
+            LevelList = s.DoAt(pointerTable[GBC_R1_Pointer.SceneList], () => s.SerializeObject<GBC_LevelList>(LevelList, name: nameof(LevelList)));
         }
     }
 }

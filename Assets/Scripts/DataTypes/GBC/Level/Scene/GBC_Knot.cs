@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBC_Sector : R1Serializable
+    public class GBC_Knot : R1Serializable
     {
         public byte ActorsCount { get; set; }
         public ushort[] Actors { get; set; }

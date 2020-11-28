@@ -220,31 +220,31 @@ namespace R1Engine
             context.StoreObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
         }
 
-        public override GBC_SceneList GetSceneList(Context context)
+        public override GBC_LevelList GetSceneList(Context context)
         {
             var allfix = FileFactory.Read<LUDI_PalmOS_DataFile>(AllfixFilePath, context);
             var s = context.Deserializer;
-            return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_SceneManifest>(default, name: "SceneManfiest")).SceneList;
+            return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_LevelManifest>(default, name: "SceneManfiest")).LevelList;
         }
 
-		public override Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene) {
+		public override Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level) {
 
             bool greyScale = context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
             Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
             Color[] pal = (greyScale ? Util.CreateDummyPalette(16, firstTransparent: false).Reverse() : GetPalmOS8BitPalette()).Select(x => x.GetColor()).ToArray();
-            var tileSetTex = Util.ToTileSetTexture(map.TileKit.TileData, pal, encoding, CellSize, flipY: false);
+            var tileSetTex = Util.ToTileSetTexture(playField.TileKit.TileData, pal, encoding, CellSize, flipY: false);
 
             var maps = new Unity_Map[]
             {
                 new Unity_Map
                 {
-                    Width = (ushort)map.Width,
-                    Height = (ushort)map.Height,
+                    Width = (ushort)playField.Width,
+                    Height = (ushort)playField.Height,
                     TileSet = new Unity_MapTileMap[]
                     {
                         new Unity_MapTileMap(tileSetTex, CellSize),
                     },
-                    MapTiles = map.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = playField.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
                     Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                 }
             };

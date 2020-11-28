@@ -57,7 +57,7 @@ namespace R1Engine
 
         public override string SecondaryName => null;
 
-        public bool IsTrigger => Actor.ActorID == 0xFF;
+        public bool IsTrigger => Actor.IsCaptor;
 
         public override bool IsEditor => IsTrigger;
         public override ObjectType Type => IsTrigger ? ObjectType.Trigger : ObjectType.Object;

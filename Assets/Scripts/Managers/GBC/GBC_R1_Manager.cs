@@ -16,40 +16,40 @@ namespace R1Engine
             new GameInfo_World(0, Enumerable.Range(0, 47).ToArray()), 
         });
 
-        public override GBC_SceneList GetSceneList(Context context)
+        public override GBC_LevelList GetSceneList(Context context)
         {
-            return FileFactory.Read<GBC_ROM>(GetROMFilePath, context).SceneList;
+            return FileFactory.Read<GBC_ROM>(GetROMFilePath, context).LevelList;
         }
 
-        public override Unity_Map[] GetMaps(Context context, GBC_Map map, GBC_Scene scene) {
+        public override Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level) {
 
-            var pal = Util.ConvertAndSplitGBCPalette(map.Palette, firstTransparent: false);
-            var tileSetTex = ToTileSetTextureMultiPalette(map.TileKit.TileData, pal, CellSize, flipY: false);
-            int numTiles = map.TileKit.TileData.Length / 16;
+            var pal = Util.ConvertAndSplitGBCPalette(playField.Palette, firstTransparent: false);
+            var tileSetTex = ToTileSetTextureMultiPalette(playField.TileKit.TileData, pal, CellSize, flipY: false);
+            int numTiles = playField.TileKit.TileData.Length / 16;
             //Util.ByteArrayToFile(context.BasePath + "test.png", tileSetTex.EncodeToPNG());
 
-            var mapTiles = new MapTile[map.Width * map.Height];
+            var mapTiles = new MapTile[playField.Width * playField.Height];
             bool hasFGLayer = false;
             Dictionary<int, ushort> vramToTileIndex = new Dictionary<int, ushort>();
             for (int i = 0; i < mapTiles.Length; i++) {
                 MapTile t = new MapTile() {
                     // Attributes
-                    HorizontalFlip = map.BGMapAttributes.MapTiles[i].HorizontalFlip,
-                    VerticalFlip = map.BGMapAttributes.MapTiles[i].VerticalFlip,
-                    GBC_Priority = map.BGMapAttributes.MapTiles[i].GBC_Priority,
+                    HorizontalFlip = playField.BGMapAttributes.MapTiles[i].HorizontalFlip,
+                    VerticalFlip = playField.BGMapAttributes.MapTiles[i].VerticalFlip,
+                    GBC_Priority = playField.BGMapAttributes.MapTiles[i].GBC_Priority,
 
                     // Collision
-                    CollisionType = map.Collision.MapTiles[i].CollisionType,
+                    CollisionType = playField.Collision.MapTiles[i].CollisionType,
                 };
                 if (t.GBC_Priority == 1) hasFGLayer = true;
 
                 // Determine tile index
-                var indexInVRAMSigned = map.BGMapTileNumbers.MapTiles[i].TileMapY;
-                var bank = map.BGMapAttributes.MapTiles[i].GBC_BankNumber;
+                var indexInVRAMSigned = playField.BGMapTileNumbers.MapTiles[i].TileMapY;
+                var bank = playField.BGMapAttributes.MapTiles[i].GBC_BankNumber;
                 var key = indexInVRAMSigned | (bank << 8);
                 if (!vramToTileIndex.ContainsKey(key)) {
                     var vramPointer = 0x9000 + (indexInVRAMSigned > 127 ? (-256 + indexInVRAMSigned) : indexInVRAMSigned) * 16;
-                    var vramMap = bank == 1 ? map.VRAMBank2Map : map.VRAMBank1Map;
+                    var vramMap = bank == 1 ? playField.VRAMBank2Map : playField.VRAMBank1Map;
                     bool found = false;
                     foreach (var vramEntry in vramMap) {
                         var startVRAMPointer = vramEntry.VRAMPointer;
@@ -64,14 +64,14 @@ namespace R1Engine
                         vramToTileIndex[key] = 0;
                     }
                 }
-                var paletteIndex = map.BGMapAttributes.MapTiles[i].PaletteIndex;
+                var paletteIndex = playField.BGMapAttributes.MapTiles[i].PaletteIndex;
                 t.TileMapY = (ushort)(numTiles * paletteIndex + vramToTileIndex[key]);
 
                 mapTiles[i] = t;
             }
             var unityMap = new Unity_Map {
-                Width = (ushort)map.Width,
-                Height = (ushort)map.Height,
+                Width = (ushort)playField.Width,
+                Height = (ushort)playField.Height,
                 TileSet = new Unity_MapTileMap[]
                     {
                         new Unity_MapTileMap(tileSetTex, CellSize),
@@ -80,7 +80,7 @@ namespace R1Engine
                 Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
             };
             if (hasFGLayer) {
-                var mapTilesFG = new MapTile[map.Width * map.Height];
+                var mapTilesFG = new MapTile[playField.Width * playField.Height];
                 for (int i = 0; i < mapTilesFG.Length; i++) {
                     MapTile t = mapTiles[i].GBC_Priority == 1 ? new MapTile() {
                         HorizontalFlip = mapTiles[i].HorizontalFlip,
@@ -91,11 +91,11 @@ namespace R1Engine
                     } : new MapTile();
                     mapTilesFG[i] = t;
                 }
-                var palFG = Util.ConvertAndSplitGBCPalette(map.Palette, firstTransparent: true);
-                var tileSetTexFG = ToTileSetTextureMultiPalette(map.TileKit.TileData, palFG, CellSize, flipY: false, addTransparentTile: true);
+                var palFG = Util.ConvertAndSplitGBCPalette(playField.Palette, firstTransparent: true);
+                var tileSetTexFG = ToTileSetTextureMultiPalette(playField.TileKit.TileData, palFG, CellSize, flipY: false, addTransparentTile: true);
                 var fgMap = new Unity_Map {
-                    Width = (ushort)map.Width,
-                    Height = (ushort)map.Height,
+                    Width = (ushort)playField.Width,
+                    Height = (ushort)playField.Height,
                     TileSet = new Unity_MapTileMap[]
                     {
                         new Unity_MapTileMap(tileSetTexFG, CellSize),

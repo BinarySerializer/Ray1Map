@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBC_SceneList : GBC_BaseBlock
+    public class GBC_LevelList : GBC_BaseBlock
     {
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }
@@ -12,7 +12,7 @@
         public byte Index_Unknown { get; set; }
 
         // Parsed
-        public GBC_Scene Scene { get; set; }
+        public GBC_Level Level { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -26,7 +26,7 @@
             Index_Unknown = s.Serialize<byte>(Index_Unknown, name: nameof(Index_Unknown));
 
             // Parse data from pointers
-            Scene = s.DoAt(OffsetTable.GetPointer(s.GameSettings.Level), () => s.SerializeObject<GBC_Scene>(Scene, name: nameof(Scene)));
+            Level = s.DoAt(OffsetTable.GetPointer(s.GameSettings.Level), () => s.SerializeObject<GBC_Level>(Level, name: nameof(Level)));
         }
     }
 }

@@ -30,12 +30,12 @@ namespace R1Engine
 
             switch (Command)
             {
-                case InstructionCommand.SetLayerInfos:
+                case InstructionCommand.SpriteNew:
                     LayerInfosCount = s.Serialize<byte>(LayerInfosCount, name: nameof(LayerInfosCount));
                     LayerInfos = s.SerializeObjectArray<LayerInfo>(LayerInfos, LayerInfosCount, name: nameof(LayerInfos));
                     break;
 
-                case InstructionCommand.SetTilePosition:
+                case InstructionCommand.SpriteMove:
                     LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
                     XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
                     YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));
@@ -46,7 +46,7 @@ namespace R1Engine
                     TileGraphicsInfos = s.SerializeObjectArray<TileGraphicsInfo>(TileGraphicsInfos, AnimLayerInfos[LayerIndex].Length, name: nameof(TileGraphicsInfos));
                     break;
 
-                case InstructionCommand.SetCollisionBox:
+                case InstructionCommand.SetCollisionBox: // TODO: This might not be collision as width and height are sometimes 0
                     XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
                     YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));
                     Width = s.Serialize<byte>(Width, name: nameof(Width));
@@ -68,7 +68,7 @@ namespace R1Engine
                     // Do nothing
                     break;
 
-                case InstructionCommand.Unknown_02:
+                case InstructionCommand.SpriteDelete:
                 default:
                     throw new ArgumentOutOfRangeException(nameof(Command), Command, null);
             }
@@ -76,10 +76,11 @@ namespace R1Engine
 
         public enum InstructionCommand : byte
         {
-            SetLayerInfos = 0x01,
-            Unknown_02 = 0x02,
+            SpriteNew = 0x01,
+            SpriteDelete = 0x02,
             
-            SetTilePosition = 0x03,
+            SpriteMove = 0x03,
+            //SpriteMoveMultiple = 0x04,
             SetTileGraphics = 0x05,
 
             Unknown_07 = 0x07,
