@@ -9,8 +9,8 @@ namespace R1Engine
         public byte KnotsWidth { get; set; }
         public byte KnotsHeight { get; set; }
         public ushort KnotsOffset { get; set; }
-        public ushort Ushort_08 { get; set; }
-        public ushort Ushort_0A { get; set; }
+        public ushort Ushort_08 { get; set; } // Camera related?
+        public ushort Ushort_0A { get; set; } // Camera related?
         public byte Byte_0C { get; set; } // Bonus related
         public byte Index_PlayField { get; set; }
         public byte IndexMin_ActorModels { get; set; }

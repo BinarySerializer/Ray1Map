@@ -156,7 +156,7 @@ namespace R1Engine
                 objManager: objManager,
                 eventData: objects,
                 cellSize: CellSize,
-                sectors: scene.Knots.Select(x => new Unity_Sector(x.Actors.Select(i => (int)i).ToList())).ToArray(),
+                sectors: scene.Knots.Select(x => new Unity_Sector(x.Actors.Select(i => i - 1).ToList())).ToArray(),
                 getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString()));
         }
