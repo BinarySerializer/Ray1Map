@@ -20,7 +20,7 @@ namespace R1Engine
                 var instructions = new List<GBC_ChannelEventInstruction>();
 
                 var p = s.CurrentPointer;
-                var endPointer = p + EventDataSize;
+                var endPointer = p + DataSize;
                 var index = 0;
 
                 try

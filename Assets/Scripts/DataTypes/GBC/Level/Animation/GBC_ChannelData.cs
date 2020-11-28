@@ -18,7 +18,7 @@ namespace R1Engine
             // Get the layer infos
             AnimLayerInfos = HeaderEvent.Instructions.Where(x => x.Command == GBC_ChannelEventInstruction.InstructionCommand.SetLayerInfos).Select(x => x.LayerInfos).ToArray();
 
-            Events = s.SerializeObjectArray<GBC_ChannelEvent>(Events, CountEvent.EventType - 2, onPreSerialize: x => x.AnimLayerInfos = AnimLayerInfos, name: nameof(Events));
+            Events = s.SerializeObjectArray<GBC_ChannelEvent>(Events, CountEvent.Byte_00 - 2, onPreSerialize: x => x.AnimLayerInfos = AnimLayerInfos, name: nameof(Events));
         }
     }
 }
