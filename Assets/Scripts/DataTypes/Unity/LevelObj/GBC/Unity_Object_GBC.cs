@@ -39,7 +39,22 @@ namespace R1Engine
             Where(link => link.ActorIndex > 0 && link.Byte_02 == 0).
             Select(link => link.ActorIndex - 1);
 
-        public override string PrimaryName => $"ID_{Actor.ActorID}";
+        public override string PrimaryName
+        {
+            get
+            {
+                if (ObjManager.Context.Settings.Game == Game.GBC_R1)
+                {
+                    var actorName = ((GBC_R1_ActorID)Actor.ActorID).ToString();
+
+                    if (!actorName.Contains("NULL") && Enum.IsDefined(typeof(GBC_R1_ActorID), (GBC_R1_ActorID)Actor.ActorID))
+                        return actorName;
+                }
+
+                return $"ID_{Actor.ActorID}";
+            }
+        }
+
         public override string SecondaryName => null;
 
         public bool IsTrigger => Actor.ActorID == 0xFF;
