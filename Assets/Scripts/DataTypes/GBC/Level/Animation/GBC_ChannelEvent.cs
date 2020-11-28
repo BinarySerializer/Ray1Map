@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace R1Engine
 {
     public class GBC_ChannelEvent : GBC_BaseChannelEvent
     {
+        public GBC_ChannelEventInstruction.LayerInfo[][] AnimLayerInfos { get; set; } // Set before serializing
         public GBC_ChannelEventInstruction[] Instructions { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -25,7 +27,7 @@ namespace R1Engine
                 {
                     while (endPointer.AbsoluteOffset > s.CurrentPointer.AbsoluteOffset)
                     {
-                        instructions.Add(s.SerializeObject<GBC_ChannelEventInstruction>(default, name: $"{nameof(Instructions)}[{index}]"));
+                        instructions.Add(s.SerializeObject<GBC_ChannelEventInstruction>(default, onPreSerialize: x => x.AnimLayerInfos = AnimLayerInfos, name: $"{nameof(Instructions)}[{index}]"));
                         index++;
                     }
 
@@ -34,7 +36,8 @@ namespace R1Engine
                 }
                 catch (Exception ex)
                 {
-                    s.Log($"Errors parsing instruction: {ex.Message}");
+                    s.Log($"Error parsing instruction: {ex.Message}");
+                    Debug.LogWarning($"Error parsing instruction at {Offset}: {ex.Message}");
 
                     s.Goto(endPointer);
                 }

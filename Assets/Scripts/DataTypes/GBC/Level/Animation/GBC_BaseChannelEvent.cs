@@ -2,13 +2,13 @@
 {
     public class GBC_BaseChannelEvent : R1Serializable
     {
-        public byte EventType { get; set; }
-        public byte EventDataSize { get; set; }
+        public byte Byte_00 { get; set; }
+        public byte DataSize { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            EventType = s.Serialize<byte>(EventType, name: nameof(EventType));
-            EventDataSize = s.Serialize<byte>(EventDataSize, name: nameof(EventDataSize));
+            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
+            DataSize = s.Serialize<byte>(DataSize, name: nameof(DataSize));
         }
     }
 }

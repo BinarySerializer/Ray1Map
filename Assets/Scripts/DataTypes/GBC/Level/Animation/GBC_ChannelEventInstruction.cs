@@ -4,17 +4,25 @@ namespace R1Engine
 {
     public class GBC_ChannelEventInstruction : R1Serializable
     {
+        public LayerInfo[][] AnimLayerInfos { get; set; } // Set before serializing
+
         public InstructionCommand Command { get; set; }
 
         // Params
         public byte LayerIndex { get; set; }
         
+        public byte LayerInfosCount { get; set; }
+        public LayerInfo[] LayerInfos { get; set; }
+
         public sbyte XPos { get; set; }
         public sbyte YPos { get; set; }
+
+        public byte Height { get; set; }
+        public byte Width { get; set; }
+
+        public byte UnkHitboxValue { get; set; }
         
         public TileGraphicsInfo[] TileGraphicsInfos { get; set; }
-
-        public byte[] UnknownParams { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -22,6 +30,11 @@ namespace R1Engine
 
             switch (Command)
             {
+                case InstructionCommand.SetLayerInfos:
+                    LayerInfosCount = s.Serialize<byte>(LayerInfosCount, name: nameof(LayerInfosCount));
+                    LayerInfos = s.SerializeObjectArray<LayerInfo>(LayerInfos, LayerInfosCount, name: nameof(LayerInfos));
+                    break;
+
                 case InstructionCommand.SetTilePosition:
                     LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
                     XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
@@ -30,25 +43,32 @@ namespace R1Engine
 
                 case InstructionCommand.SetTileGraphics:
                     LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
-                    TileGraphicsInfos = s.SerializeObjectArray<TileGraphicsInfo>(TileGraphicsInfos, 1, name: nameof(TileGraphicsInfos)); // TODO: Get count
+                    TileGraphicsInfos = s.SerializeObjectArray<TileGraphicsInfo>(TileGraphicsInfos, AnimLayerInfos[LayerIndex].Length, name: nameof(TileGraphicsInfos));
                     break;
 
-                case InstructionCommand.Unknown_0B: // Hitbox? x, y, w, h?
-                    UnknownParams = s.SerializeArray<byte>(UnknownParams, 4, name: nameof(UnknownParams));
+                case InstructionCommand.SetCollisionBox:
+                    XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
+                    YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));
+                    Width = s.Serialize<byte>(Width, name: nameof(Width));
+                    Height = s.Serialize<byte>(Height, name: nameof(Height));
                     break;
 
-                case InstructionCommand.Unknown_01:
-                case InstructionCommand.Unknown_02:
                 case InstructionCommand.Unknown_07:
                 case InstructionCommand.Unknown_08:
+                    LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
+                    break;
+
                 case InstructionCommand.Unknown_0C:
-                    UnknownParams = s.SerializeArray<byte>(UnknownParams, 1, name: nameof(UnknownParams));
+                case InstructionCommand.Unknown_0D:
+                case InstructionCommand.Unknown_0E:
+                    UnkHitboxValue = s.Serialize<byte>(UnkHitboxValue, name: nameof(UnkHitboxValue));
                     break;
 
                 case InstructionCommand.Terminator:
                     // Do nothing
                     break;
 
+                case InstructionCommand.Unknown_02:
                 default:
                     throw new ArgumentOutOfRangeException(nameof(Command), Command, null);
             }
@@ -56,7 +76,7 @@ namespace R1Engine
 
         public enum InstructionCommand : byte
         {
-            Unknown_01 = 0x01,
+            SetLayerInfos = 0x01,
             Unknown_02 = 0x02,
             
             SetTilePosition = 0x03,
@@ -65,7 +85,7 @@ namespace R1Engine
             Unknown_07 = 0x07,
             Unknown_08 = 0x08,
 
-            Unknown_0B = 0x0B,
+            SetCollisionBox = 0x0B,
             Unknown_0C = 0x0C,
             Unknown_0D = 0x0D,
             Unknown_0E = 0x0E,
@@ -94,6 +114,18 @@ namespace R1Engine
                     Attr_VerticalFlip = bitFunc(Attr_VerticalFlip ? 1 : 0, 1, name: nameof(Attr_VerticalFlip)) == 1;
                     Attr_Prio = bitFunc(Attr_Prio ? 1 : 0, 1, name: nameof(Attr_Prio)) == 1;
                 });
+            }
+        }
+
+        public class LayerInfo : R1Serializable
+        {
+            public byte Index { get; set; }
+            public byte[] Data { get; set; }
+
+            public override void SerializeImpl(SerializerObject s)
+            {
+                Index = s.Serialize<byte>(Index, name: nameof(Index));
+                Data = s.SerializeArray<byte>(Data, 4, name: nameof(Data));
             }
         }
     }
