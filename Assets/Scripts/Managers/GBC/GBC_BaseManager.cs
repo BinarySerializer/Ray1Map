@@ -142,21 +142,21 @@ namespace R1Engine
                     Index = i
                 }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
 
-            var scene = sceneList.Level;
-            var playField = scene.Scene;
+            var level = sceneList.Level;
+            var scene = level.Scene;
+            var playField = scene.PlayField;
 
-            var map = playField.PlayField;
-
-            var maps = GetMaps(context, map, scene);
+            var maps = GetMaps(context, playField, level);
 
             var objManager = new Unity_ObjectManager(context);
-            var objects = new List<Unity_Object>(playField.Actors.Select(x => new Unity_Object_GBC(x, objManager)));
+            var objects = new List<Unity_Object>(scene.Actors.Select(x => new Unity_Object_GBC(x, objManager)));
 
             return UniTask.FromResult(new Unity_Level(
                 maps: maps,
                 objManager: objManager,
                 eventData: objects,
                 cellSize: CellSize,
+                sectors: scene.Knots.Select(x => new Unity_Sector(x.Actors.Select(i => (int)i).ToList())).ToArray(),
                 getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString()));
         }

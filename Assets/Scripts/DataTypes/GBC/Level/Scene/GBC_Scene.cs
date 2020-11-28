@@ -6,8 +6,8 @@ namespace R1Engine
     {
         public ushort ActorsCount { get; set; }
         public ushort ActorsOffset { get; set; }
-        public byte UnknownKnotValue { get; set; }
-        public byte KnotsCount { get; set; }
+        public byte KnotsWidth { get; set; }
+        public byte KnotsHeight { get; set; }
         public ushort KnotsOffset { get; set; }
         public ushort Ushort_08 { get; set; }
         public ushort Ushort_0A { get; set; }
@@ -44,8 +44,8 @@ namespace R1Engine
                 // Parse data
                 ActorsCount = s.Serialize<ushort>(ActorsCount, name: nameof(ActorsCount));
                 ActorsOffset = s.Serialize<ushort>(ActorsOffset, name: nameof(ActorsOffset));
-                UnknownKnotValue = s.Serialize<byte>(UnknownKnotValue, name: nameof(UnknownKnotValue));
-                KnotsCount = s.Serialize<byte>(KnotsCount, name: nameof(KnotsCount));
+                KnotsWidth = s.Serialize<byte>(KnotsWidth, name: nameof(KnotsWidth));
+                KnotsHeight = s.Serialize<byte>(KnotsHeight, name: nameof(KnotsHeight));
                 KnotsOffset = s.Serialize<ushort>(KnotsOffset, name: nameof(KnotsOffset));
                 Ushort_08 = s.Serialize<ushort>(Ushort_08, name: nameof(Ushort_08));
                 Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
@@ -65,7 +65,7 @@ namespace R1Engine
 
                 // Parse from pointers
                 Actors = s.DoAt(blockOffset + ActorsOffset, () => s.SerializeObjectArray<GBC_Actor>(Actors, ActorsCount, name: nameof(Actors)));
-                Knots = s.DoAt(blockOffset + KnotsOffset, () => s.SerializeObjectArray<GBC_Knot>(Knots, KnotsCount, name: nameof(Knots)));
+                Knots = s.DoAt(blockOffset + KnotsOffset, () => s.SerializeObjectArray<GBC_Knot>(Knots, KnotsWidth * KnotsHeight, name: nameof(Knots)));
             });
 
             // Parse data from pointers
