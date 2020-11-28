@@ -56,7 +56,7 @@
             s.Goto(BlockStartPointer);
             SerializeBlock(s);
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm) {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm || s.GameSettings.EngineVersion == EngineVersion.GBC_R1_PocketPC) {
                 s.Align(baseOffset: BlockStartPointer);
             }
             CheckBlockSize(s);

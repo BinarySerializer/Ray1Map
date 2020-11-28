@@ -4,11 +4,12 @@
     {
         public byte[] Data { get; set; }
 
+        public GBC_ActionTable ActionTable { get; set; }
+
         public override void SerializeBlock(SerializerObject s)
         {
-            Data = s.SerializeArray<byte>(Data, BlockSize, name: nameof(Data));
-
-            // TODO: Parse block at offset 0, which in turn references block which references tileKit + animations
+            Data = s.SerializeArray<byte>(Data, 11, name: nameof(Data));
+            ActionTable = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_ActionTable>(ActionTable, name: $"{nameof(ActionTable)}"));
         }
     }
 }
