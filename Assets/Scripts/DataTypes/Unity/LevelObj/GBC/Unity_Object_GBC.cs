@@ -94,7 +94,7 @@ namespace R1Engine
         public override Unity_ObjAnimation CurrentAnimation => ActorModel?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
-        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimIndex ?? ActionIndex;
+        public override int? GetAnimIndex => OverrideAnimIndex - 1 ?? State?.AnimIndex - 1 ?? ActionIndex;
         protected override int GetSpriteID => ActorModelIndex;
         public override IList<Sprite> Sprites => ActorModel?.Graphics?.Sprites;
 
@@ -203,7 +203,7 @@ namespace R1Engine
                 for (byte i = 0; i < states.Length; i++)
                 {
                     uiStates.Add(new GBC_UIState("Action " + i, stateIndex: i));
-                    usedAnims.Add(states[i].AnimIndex);
+                    usedAnims.Add(states[i].AnimIndex - 1);
                 }
             }
             if (anims != null)
@@ -211,7 +211,7 @@ namespace R1Engine
                 for (int i = 0; i < anims.Count; i++)
                 {
                     if (usedAnims.Contains(i)) continue;
-                    uiStates.Add(new GBC_UIState("Animation " + i, animIndex: i));
+                    uiStates.Add(new GBC_UIState("Animation " + i, animIndex: i + 1));
                 }
             }
 
