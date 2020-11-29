@@ -491,7 +491,12 @@
                 case GBC_TileCollisionType.Trigger_Left: return Unity_MapCollisionTypeGraphic.Direction_Left;
                 case GBC_TileCollisionType.Trigger_Up: return Unity_MapCollisionTypeGraphic.Direction_Up;
                 case GBC_TileCollisionType.Trigger_Down: return Unity_MapCollisionTypeGraphic.Direction_Down;
+                case GBC_TileCollisionType.Trigger_UpRight: return Unity_MapCollisionTypeGraphic.Direction_UpRight;
+                case GBC_TileCollisionType.Trigger_UpLeft: return Unity_MapCollisionTypeGraphic.Direction_UpLeft;
+                case GBC_TileCollisionType.Trigger_DownRight: return Unity_MapCollisionTypeGraphic.Direction_DownRight;
+                case GBC_TileCollisionType.Trigger_DownLeft: return Unity_MapCollisionTypeGraphic.Direction_DownLeft;
                 case GBC_TileCollisionType.Water: return Unity_MapCollisionTypeGraphic.Water;
+                case GBC_TileCollisionType.Climb_Full: return Unity_MapCollisionTypeGraphic.Climb_Full;
                 default: return Unity_MapCollisionTypeGraphic.Unknown0;
             }
         }

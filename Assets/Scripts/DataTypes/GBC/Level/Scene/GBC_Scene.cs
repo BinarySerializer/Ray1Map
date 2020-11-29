@@ -66,6 +66,7 @@ namespace R1Engine
                 // Parse from pointers
                 Actors = s.DoAt(blockOffset + ActorsOffset, () => s.SerializeObjectArray<GBC_Actor>(Actors, ActorsCount, name: nameof(Actors)));
                 Knots = s.DoAt(blockOffset + KnotsOffset, () => s.SerializeObjectArray<GBC_Knot>(Knots, KnotsHeight * KnotsWidth, name: nameof(Knots)));
+                s.Goto(Knots.Last().Offset + Knots.Last().ActorsCount * 2 + 1); // Go to end of the block
             });
 
             // Parse data from pointers

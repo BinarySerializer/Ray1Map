@@ -34,6 +34,12 @@
         Trigger_Up = 22,
         Trigger_Down = 23,
 
-        Water = 29
+        Trigger_UpRight = 24,
+        Trigger_UpLeft = 25,
+        Trigger_DownRight = 26,
+        Trigger_DownLeft = 27,
+
+        Water = 29,
+        Climb_Full = 30
     }
 }
