@@ -285,6 +285,7 @@ namespace R1Engine
                 return des;
 
             // Get properties
+            //model.PuppetLayersCount;
             var puppet = model.ActionTable.Puppet;
             var tileKit = puppet.TileKit;
             var pal = Util.ConvertAndSplitGBCPalette(tileKit.Palette);
@@ -316,69 +317,56 @@ namespace R1Engine
                 // Create the animation
                 var unityAnim = new Unity_ObjAnimation()
                 {
-                    Frames = new Unity_ObjAnimationFrame[anim.Keyframes.Length],
-                    AnimSpeeds = new int[anim.Keyframes.Length]
+                    Frames = new Unity_ObjAnimationFrame[anim.Keyframes.Length-1],
+                    AnimSpeeds = new int[anim.Keyframes.Length-1]
                 };
 
                 // Keep track of the layers
-                var layers = new AnimLayer[model.PuppetLayersCount];
+                var channels = new List<AnimChannel>();
+                //[model.PuppetLayersCount];
 
                 // TODO: Collision
 
                 // Enumerate every frame
-                for (var frameIndex = 0; frameIndex < anim.Keyframes.Length; frameIndex++)
+                for (var frameIndex = 0; frameIndex < anim.Keyframes.Length-1; frameIndex++)
                 {
                     // Get the frame
                     var frame = anim.Keyframes[frameIndex];
 
                     // Process every command
                     foreach (var cmd in frame.Commands)
-                        ProcessAnimCommands(cmd, layers);
+                        ProcessAnimCommands(cmd, channels);
 
-                    var spriteLayers = new List<Unity_ObjAnimationPart>();
+                    var animationParts = new List<Unity_ObjAnimationPart>();
 
                     // Add every visible layer
-                    for (var i = 0; i < layers.Length; i++)
+                    for (var i = 0; i < channels.Count; i++)
                     {
-                        var layer = layers[i];
+                        var channel = channels[i];
 
                         // Make sure the layer is not null and visible
-                        if (layer?.IsVisible != true)
-                            continue;
+                        if (!channel.IsVisible) continue;
 
                         // Get the layer info
-                        var l = layer.LayerInfo;
-
-                        // Add layer
-                        addLayer(l.Tile, l.XPos, l.YPos);
-
-                        // Add each linked layer
-                        for (int j = 0; j < layer?.LinkedLayers; j++)
-                        {
-                            i++;
-                            var linkedLayer = layers[i];
-                            l = linkedLayer?.LayerInfo;
-
-                            if (l != null)
-                                // Linked layers use positions relative to previous layer
-                                addLayer(l.Tile, layer.LayerInfo.XPos + l.XPos, layer.LayerInfo.YPos + l.YPos);
+                        foreach (var l in channel.SpriteInfo) {
+                            addAnimationPart(l.Tile, l.XPos, l.YPos);
                         }
 
                         // Helper for adding a layer to the frame
-                        void addLayer(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos)
+                        void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos)
                         {
-                            spriteLayers.Add(new Unity_ObjAnimationPart
+                            animationParts.Add(new Unity_ObjAnimationPart
                             {
                                 ImageIndex = (int)(tile.TileIndex + (tile.Attr_PalIndex * tileKit.TilesCount)),
-                                XPosition = xPos + model.RenderBoxX,
-                                YPosition = yPos + model.RenderBoxY,
+                                XPosition = xPos,
+                                YPosition = yPos,
                                 IsFlippedHorizontally = tile.Attr_HorizontalFlip,
                                 IsFlippedVertically = tile.Attr_VerticalFlip
                             });
                         }
                     }
 
-                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(spriteLayers.ToArray());
+                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.ToArray());
                     unityAnim.AnimSpeeds[frameIndex] = frame.Time;
                 }
 
@@ -389,66 +377,65 @@ namespace R1Engine
             return des;
         }
 
-        protected void ProcessAnimCommands(GBC_Keyframe_Command cmd, AnimLayer[] layers)
+        protected void ProcessAnimCommands(GBC_Keyframe_Command cmd, List<AnimChannel> channels)
         {
             switch (cmd.Command)
             {
                 case GBC_Keyframe_Command.InstructionCommand.SpriteNew:
-                    foreach (GBC_Keyframe_Command.LayerInfo l in cmd.LayerInfos)
-                    {
-                        layers[l.SpriteID] = new AnimLayer(new GBC_Keyframe_Command.LayerInfo()
-                        {
-                            SpriteID = l.SpriteID,
-                            Tile = l.Tile,
-                            XPos = l.XPos,
-                            YPos = l.YPos
-                        }, cmd.LayerInfosCount - 1);
+                    var layerInfos = new AnimLayerInfo[cmd.LayerInfos.Length];
+                    for (int i = 0; i < cmd.LayerInfos.Length; i++) {
+                        layerInfos[i] = new AnimLayerInfo() {
+                            SpriteID = cmd.LayerInfos[i].SpriteID,
+                            Tile = cmd.LayerInfos[i].Tile,
+                            XPos = cmd.LayerInfos[i].XPos + (i > 0 ? layerInfos[0].XPos : 0),
+                            YPos = cmd.LayerInfos[i].YPos  + (i > 0 ? layerInfos[0].YPos : 0)
+                        };
                     }
+                    channels.Add(new AnimChannel(layerInfos));
                     break;
 
                 case GBC_Keyframe_Command.InstructionCommand.SpriteMove:
-                    layers[cmd.LayerIndex].LayerInfo.XPos += cmd.XPos;
-                    layers[cmd.LayerIndex].LayerInfo.YPos += cmd.YPos;
+                    foreach (var sprite in channels[cmd.ChannelIndex].SpriteInfo) {
+                        sprite.XPos += cmd.XPos;
+                        sprite.YPos += cmd.YPos;
+                    }
 
                     break;
 
                 case GBC_Keyframe_Command.InstructionCommand.SetTileGraphics:
-                    var startIndex = 0;
-                    for (int i = 0; i < cmd.LayerIndex; i++)
-                    {
-                        startIndex++;
-                        i += layers[i].LinkedLayers;
-                    }
 
                     for (int i = 0; i < cmd.TileGraphicsInfos.Length; i++)
-                        layers[startIndex + i].LayerInfo.Tile = cmd.TileGraphicsInfos[i];
+                        channels[cmd.ChannelIndex].SpriteInfo[i].Tile = cmd.TileGraphicsInfos[i];
                     break;
 
                 case GBC_Keyframe_Command.InstructionCommand.SetInvisible:
-                    layers[cmd.LayerIndex].IsVisible = false;
+                    channels[cmd.ChannelIndex].IsVisible = false;
                     break;
 
                 case GBC_Keyframe_Command.InstructionCommand.SetVisible:
-                    layers[cmd.LayerIndex].IsVisible = true;
+                    channels[cmd.ChannelIndex].IsVisible = true;
                     break;
 
                 case GBC_Keyframe_Command.InstructionCommand.Terminator:
-                    Array.Clear(layers, 0, layers.Length);
+                    channels.Clear();
                     break;
             }
         }
 
-        protected class AnimLayer
+        protected class AnimChannel
         {
-            public AnimLayer(GBC_Keyframe_Command.LayerInfo layerInfo, int linkedLayers)
-            {
-                LayerInfo = layerInfo;
-                LinkedLayers = linkedLayers;
+            public AnimChannel(AnimLayerInfo[] spriteInfo) {
+                SpriteInfo = spriteInfo;
             }
 
-            public GBC_Keyframe_Command.LayerInfo LayerInfo { get; }
-            public int LinkedLayers { get; }
+            public AnimLayerInfo[] SpriteInfo { get; }
             public bool IsVisible { get; set; } = true;
+        }
+        protected class AnimLayerInfo {
+            public byte SpriteID { get; set; } // The index this sprite is given in the puppet's sprite array
+            public GBC_Keyframe_Command.TileGraphicsInfo Tile { get; set; }
+            public int XPos { get; set; }
+            public int YPos { get; set; }
         }
     }
 }

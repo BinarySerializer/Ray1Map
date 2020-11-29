@@ -367,8 +367,8 @@ namespace R1Engine
                         prefabRenderers[i].flipY = (layerMirroredY ^ mirroredY);
 
                         // Get the dimensions
-                        var w = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.texture.width;
-                        var h = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.texture.height;
+                        var w = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.textureRect.width;
+                        var h = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.textureRect.height;
 
                         var xx = layer.XPosition + (layerMirroredX ? w : 0);
 

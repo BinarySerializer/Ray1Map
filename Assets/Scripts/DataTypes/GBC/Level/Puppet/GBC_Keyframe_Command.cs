@@ -8,7 +8,7 @@ namespace R1Engine
         public InstructionCommand Command { get; set; }
 
         // Params
-        public byte LayerIndex { get; set; }
+        public byte ChannelIndex { get; set; }
         
         public byte LayerInfosCount { get; set; }
         public LayerInfo[] LayerInfos { get; set; }
@@ -36,14 +36,14 @@ namespace R1Engine
                     break;
 
                 case InstructionCommand.SpriteMove:
-                    LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
+                    ChannelIndex = s.Serialize<byte>(ChannelIndex, name: nameof(ChannelIndex));
                     XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
                     YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));
                     break;
 
                 case InstructionCommand.SetTileGraphics:
-                    LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
-                    TileGraphicsInfos = s.SerializeObjectArray<TileGraphicsInfo>(TileGraphicsInfos, TileGraphicsInfos?.Length ?? ChannelData?.Temp_LayerSpriteCountState[LayerIndex] ?? 0, name: nameof(TileGraphicsInfos));
+                    ChannelIndex = s.Serialize<byte>(ChannelIndex, name: nameof(ChannelIndex));
+                    TileGraphicsInfos = s.SerializeObjectArray<TileGraphicsInfo>(TileGraphicsInfos, TileGraphicsInfos?.Length ?? ChannelData?.Temp_LayerSpriteCountState[ChannelIndex] ?? 0, name: nameof(TileGraphicsInfos));
                     break;
 
                 case InstructionCommand.SetCollisionBox:
@@ -55,7 +55,7 @@ namespace R1Engine
 
                 case InstructionCommand.SetInvisible: // Set sprite->field6 to 0 for all sprites in layer
                 case InstructionCommand.SetVisible: // Set sprite->field6 to 1 for all sprites in layer
-                    LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
+                    ChannelIndex = s.Serialize<byte>(ChannelIndex, name: nameof(ChannelIndex));
                     break;
 
                 case InstructionCommand.Unknown_0C:
@@ -110,9 +110,9 @@ namespace R1Engine
                 {
                     Attr_PalIndex = (byte)bitFunc(Attr_PalIndex, 2, name: nameof(Attr_PalIndex));
                     Attr_VRAMBank = (byte)bitFunc(Attr_VRAMBank, 1, name: nameof(Attr_VRAMBank));
-                    bitFunc(default, 1, name: "Padding"); // Palette number for non-CGB mode, which is irrelevant here
-                    Attr_HorizontalFlip = bitFunc(Attr_HorizontalFlip ? 1 : 0, 1, name: nameof(Attr_HorizontalFlip)) == 1;
+                    bitFunc(default, 1, name: "Attr_Padding"); // Palette number for non-CGB mode, which is irrelevant here
                     Attr_VerticalFlip = bitFunc(Attr_VerticalFlip ? 1 : 0, 1, name: nameof(Attr_VerticalFlip)) == 1;
+                    Attr_HorizontalFlip = bitFunc(Attr_HorizontalFlip ? 1 : 0, 1, name: nameof(Attr_HorizontalFlip)) == 1;
                     Attr_Prio = bitFunc(Attr_Prio ? 1 : 0, 1, name: nameof(Attr_Prio)) == 1;
                 });
             }
