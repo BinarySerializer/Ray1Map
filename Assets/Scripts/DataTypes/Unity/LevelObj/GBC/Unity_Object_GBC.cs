@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class Unity_Object_GBC : Unity_Object
     {
-        public Unity_Object_GBC(GBC_Actor actor, Unity_ObjectManager objManager)
+        public Unity_Object_GBC(GBC_Actor actor, Unity_ObjectManager_GBC objManager)
         {
             // Set properties
             Actor = actor;
@@ -15,7 +15,33 @@ namespace R1Engine
         }
 
         public GBC_Actor Actor { get; }
-        public Unity_ObjectManager ObjManager { get; }
+        public Unity_ObjectManager_GBC ObjManager { get; }
+
+        public GBC_Action State => ActorModel?.States.ElementAtOrDefault(ActionIndex);
+        public Unity_ObjectManager_GBC.ActorModel ActorModel => ObjManager.ActorModels.ElementAtOrDefault(ActorModelIndex);
+
+        public int ActorModelIndex
+        {
+            get => Actor.ActorModel == null ? -1 : ObjManager.ActorModelsLookup.TryGetItem(Actor.Index_ActorModel, -1);
+            set
+            {
+                if (Actor.ActorModel == null)
+                    return;
+
+                if (value != ActorModelIndex)
+                {
+                    ActionIndex = 0;
+                    OverrideAnimIndex = null;
+                    Actor.Index_ActorModel = (byte)ObjManager.ActorModels[value].Index;
+                }
+            }
+        }
+
+        public int ActionIndex
+        {
+            get => Actor.State - 1;
+            set => Actor.State = (byte)(value + 1);
+        }
 
         public override short XPosition
         {
@@ -32,7 +58,7 @@ namespace R1Engine
         public override string DebugText => String.Empty;
 
         public override R1Serializable SerializableData => Actor;
-        public override ILegacyEditorWrapper LegacyWrapper => null;
+        public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override bool CanBeLinked => true;
         public override IEnumerable<int> Links => Actor.Links.
@@ -43,6 +69,9 @@ namespace R1Engine
         {
             get
             {
+                if (Actor.IsCaptor)
+                    return $"Captor";
+
                 if (ObjManager.Context.Settings.Game == Game.GBC_R1)
                 {
                     var actorName = ((GBC_R1_ActorID)Actor.ActorID).ToString();
@@ -62,14 +91,132 @@ namespace R1Engine
         public override bool IsEditor => IsTrigger;
         public override ObjectType Type => IsTrigger ? ObjectType.Trigger : ObjectType.Object;
 
-        public override Unity_ObjAnimation CurrentAnimation => null;
-        public override int AnimSpeed => CurrentAnimation?.AnimSpeed.Value ?? 0;
+        public override Unity_ObjAnimation CurrentAnimation => ActorModel?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
+        public override int AnimSpeed => CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
-        public override int? GetAnimIndex => -1;
-        protected override int GetSpriteID => -1;
-        public override IList<Sprite> Sprites => null;
+        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimIndex ?? ActionIndex;
+        protected override int GetSpriteID => ActorModelIndex;
+        public override IList<Sprite> Sprites => ActorModel?.Graphics?.Sprites;
 
-        protected override bool IsUIStateArrayUpToDate => false;
-        protected override void RecalculateUIStates() => UIStates = new UIState[0];
+        private class LegacyEditorWrapper : ILegacyEditorWrapper
+        {
+            public LegacyEditorWrapper(Unity_Object_GBC obj)
+            {
+                Obj = obj;
+            }
+
+            private Unity_Object_GBC Obj { get; }
+
+            public ushort Type
+            {
+                get => Obj.Actor.IsCaptor ? (ushort)0 : (ushort)Obj.Actor.ActorID;
+                set
+                {
+                    if (!Obj.Actor.IsCaptor)
+                        Obj.Actor.ActorID = (sbyte) value;
+                }
+            }
+
+            public int DES
+            {
+                get => Obj.ActorModelIndex;
+                set => Obj.ActorModelIndex = value;
+            }
+
+            public int ETA
+            {
+                get => Obj.ActorModelIndex;
+                set => Obj.ActorModelIndex = value;
+            }
+
+            public byte Etat { get; set; }
+
+            public byte SubEtat
+            {
+                get => (byte)Obj.ActionIndex;
+                set => Obj.ActionIndex = value;
+            }
+
+            public int EtatLength => 0;
+            public int SubEtatLength => Obj.ActorModel?.States?.Length > 0 ? Obj.ActorModel?.States?.Length ?? 0 : Obj.ActorModel?.Graphics?.Animations.Count ?? 0;
+
+            public byte OffsetBX { get; set; }
+
+            public byte OffsetBY { get; set; }
+
+            public byte OffsetHY { get; set; }
+
+            public byte FollowSprite { get; set; }
+
+            public uint HitPoints { get; set; }
+
+            public byte HitSprite { get; set; }
+
+            public bool FollowEnabled { get; set; }
+        }
+
+        #region UI States
+        protected int UIStates_GraphicsDataIndex { get; set; } = -2;
+        protected override bool IsUIStateArrayUpToDate => ActorModelIndex == UIStates_GraphicsDataIndex;
+
+        protected class GBC_UIState : UIState
+        {
+            public GBC_UIState(string displayName, byte stateIndex) : base(displayName)
+            {
+                StateIndex = stateIndex;
+            }
+            public GBC_UIState(string displayName, int animIndex) : base(displayName, animIndex) { }
+
+            public byte StateIndex { get; }
+
+            public override void Apply(Unity_Object obj)
+            {
+                if (IsState)
+                {
+                    (obj as Unity_Object_GBC).ActionIndex = StateIndex;
+                    obj.OverrideAnimIndex = null;
+                }
+                else
+                {
+                    obj.OverrideAnimIndex = AnimIndex;
+                }
+            }
+
+            public override bool IsCurrentState(Unity_Object obj)
+            {
+                if (obj.OverrideAnimIndex.HasValue)
+                    return !IsState && AnimIndex == obj.OverrideAnimIndex;
+                else
+                    return IsState && StateIndex == (obj as Unity_Object_GBC).ActionIndex;
+            }
+        }
+
+        protected override void RecalculateUIStates()
+        {
+            UIStates_GraphicsDataIndex = ActorModelIndex;
+            var states = ActorModel?.States;
+            var anims = ActorModel?.Graphics?.Animations;
+            HashSet<int> usedAnims = new HashSet<int>();
+            List<UIState> uiStates = new List<UIState>();
+            if (states != null)
+            {
+                for (byte i = 0; i < states.Length; i++)
+                {
+                    uiStates.Add(new GBC_UIState("Action " + i, stateIndex: i));
+                    usedAnims.Add(states[i].AnimIndex);
+                }
+            }
+            if (anims != null)
+            {
+                for (int i = 0; i < anims.Count; i++)
+                {
+                    if (usedAnims.Contains(i)) continue;
+                    uiStates.Add(new GBC_UIState("Animation " + i, animIndex: i));
+                }
+            }
+
+            UIStates = uiStates.ToArray();
+        }
+        #endregion
     }
 }

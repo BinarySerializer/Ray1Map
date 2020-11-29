@@ -9,9 +9,9 @@ namespace R1Engine
         public byte KnotsHeight { get; set; }
         public byte KnotsWidth { get; set; }
         public ushort KnotsOffset { get; set; }
-        public ushort Height { get; set; } // Camera related?
-        public ushort Width { get; set; } // Camera related?
-        public byte Timeout { get; set; } // Bonus related
+        public ushort Height { get; set; }
+        public ushort Width { get; set; }
+        public byte Timeout { get; set; } // For bonus levels
         public byte Index_PlayField { get; set; }
         public byte IndexMin_ActorModels { get; set; }
         public byte IndexMax_ActorModels { get; set; }
@@ -32,7 +32,7 @@ namespace R1Engine
         // Parsed from offset table
         public GBC_PlayField PlayField { get; set; }
 
-        // TODO: Parse music block
+        // TODO: Parse sound bank block
 
         public override void SerializeBlock(SerializerObject s)
         {

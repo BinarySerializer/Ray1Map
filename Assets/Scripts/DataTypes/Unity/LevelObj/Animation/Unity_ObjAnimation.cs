@@ -11,5 +11,6 @@
         public Unity_ObjAnimationFrame[] Frames { get; set; }
 
         public int? AnimSpeed { get; set; }
+        public int[] AnimSpeeds { get; set; }
     }
 }

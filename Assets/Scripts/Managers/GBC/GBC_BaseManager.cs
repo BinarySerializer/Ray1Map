@@ -276,7 +276,17 @@ namespace R1Engine
             //    index++;
             //}
 
-            var objManager = new Unity_ObjectManager(context);
+            var actorModels = new List<Unity_ObjectManager_GBC.ActorModel>();
+
+            foreach (var actor in scene.Actors)
+            {
+                if (actorModels.Any(x => x.Index == actor.Index_ActorModel) || actor.ActorModel == null)
+                    continue;
+
+                actorModels.Add(new Unity_ObjectManager_GBC.ActorModel(actor.Index_ActorModel, actor.ActorModel.ActionTable.Actions, null));
+            }
+
+            var objManager = new Unity_ObjectManager_GBC(context, actorModels.ToArray());
             var objects = new List<Unity_Object>(scene.Actors.Select(x => new Unity_Object_GBC(x, objManager)));
 
             return UniTask.FromResult(new Unity_Level(

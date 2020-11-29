@@ -5,7 +5,7 @@
         public byte LevelIndex { get; set; }
         public byte[] UnkData0 { get; set; }
         public byte LinkedLevelsCount { get; set; }
-        public byte[] UnkData1 { get; set; } // This data is identical across GBC and PalmOS, so most likely no 16/32-bit values
+        public byte[] UnkData1 { get; set; }
         public byte[] LinkedLevels { get; set; } // exit block index = exit + 1
         
         // Parsed
