@@ -304,7 +304,7 @@ namespace R1Engine
                         if (tileIndex >= tileKit.TilesCount)
                             break;
 
-                        des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x, tileSetTex.height - y - 1 - CellSize, CellSize, CellSize)));
+                        des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x, tileSetTex.height - y - CellSize, CellSize, CellSize)));
                         tileIndex++;
                     }
                 }
