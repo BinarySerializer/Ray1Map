@@ -6,12 +6,12 @@ namespace R1Engine
     {
         public ushort ActorsCount { get; set; }
         public ushort ActorsOffset { get; set; }
-        public byte KnotsWidth { get; set; }
         public byte KnotsHeight { get; set; }
+        public byte KnotsWidth { get; set; }
         public ushort KnotsOffset { get; set; }
-        public ushort Ushort_08 { get; set; } // Camera related?
-        public ushort Ushort_0A { get; set; } // Camera related?
-        public byte Byte_0C { get; set; } // Bonus related
+        public ushort Height { get; set; } // Camera related?
+        public ushort Width { get; set; } // Camera related?
+        public byte Timeout { get; set; } // Bonus related
         public byte Index_PlayField { get; set; }
         public byte IndexMin_ActorModels { get; set; }
         public byte IndexMax_ActorModels { get; set; }
@@ -44,12 +44,12 @@ namespace R1Engine
                 // Parse data
                 ActorsCount = s.Serialize<ushort>(ActorsCount, name: nameof(ActorsCount));
                 ActorsOffset = s.Serialize<ushort>(ActorsOffset, name: nameof(ActorsOffset));
-                KnotsWidth = s.Serialize<byte>(KnotsWidth, name: nameof(KnotsWidth));
                 KnotsHeight = s.Serialize<byte>(KnotsHeight, name: nameof(KnotsHeight));
+                KnotsWidth = s.Serialize<byte>(KnotsWidth, name: nameof(KnotsWidth));
                 KnotsOffset = s.Serialize<ushort>(KnotsOffset, name: nameof(KnotsOffset));
-                Ushort_08 = s.Serialize<ushort>(Ushort_08, name: nameof(Ushort_08));
-                Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
-                Byte_0C = s.Serialize<byte>(Byte_0C, name: nameof(Byte_0C));
+                Height = s.Serialize<ushort>(Height, name: nameof(Height));
+                Width = s.Serialize<ushort>(Width, name: nameof(Width));
+                Timeout = s.Serialize<byte>(Timeout, name: nameof(Timeout));
                 Index_PlayField = s.Serialize<byte>(Index_PlayField, name: nameof(Index_PlayField));
                 IndexMin_ActorModels = s.Serialize<byte>(IndexMin_ActorModels, name: nameof(IndexMin_ActorModels));
                 IndexMax_ActorModels = s.Serialize<byte>(IndexMax_ActorModels, name: nameof(IndexMax_ActorModels));
@@ -65,7 +65,7 @@ namespace R1Engine
 
                 // Parse from pointers
                 Actors = s.DoAt(blockOffset + ActorsOffset, () => s.SerializeObjectArray<GBC_Actor>(Actors, ActorsCount, name: nameof(Actors)));
-                Knots = s.DoAt(blockOffset + KnotsOffset, () => s.SerializeObjectArray<GBC_Knot>(Knots, KnotsWidth * KnotsHeight, name: nameof(Knots)));
+                Knots = s.DoAt(blockOffset + KnotsOffset, () => s.SerializeObjectArray<GBC_Knot>(Knots, KnotsHeight * KnotsWidth, name: nameof(Knots)));
             });
 
             // Parse data from pointers
