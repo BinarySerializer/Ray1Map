@@ -292,7 +292,7 @@ namespace R1Engine
             // Add sprites for each palette
             for (int palIndex = 0; palIndex < pal.Length; palIndex++)
             {
-                var tileSetTex = Util.ToTileSetTexture(tileKit.TileData, pal[palIndex], Util.TileEncoding.Planar_2bpp, CellSize, false, wrap: 16);
+                var tileSetTex = Util.ToTileSetTexture(tileKit.TileData, pal[palIndex], Util.TileEncoding.Planar_2bpp, CellSize, true, wrap: 16);
 
                 var tileIndex = 0;
 
@@ -304,7 +304,7 @@ namespace R1Engine
                         if (tileIndex >= tileKit.TilesCount)
                             break;
 
-                        des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x, y, CellSize, CellSize)));
+                        des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x, tileSetTex.height - y - 1 - CellSize, CellSize, CellSize)));
                         tileIndex++;
                     }
                 }
