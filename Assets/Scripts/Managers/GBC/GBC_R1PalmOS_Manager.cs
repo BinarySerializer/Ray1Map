@@ -33,6 +33,10 @@ namespace R1Engine
             };
         }
 
+        public static ARGBColor[] GetPalmOS4BitPalette() {
+            return Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
+        }
+
         public static ARGBColor[] GetPalmOS8BitPalette() {
             ARGBColor[] pal = new ARGBColor[256];
             int palIndex = 0;
@@ -88,7 +92,7 @@ namespace R1Engine
             int w = (int)vignette.Width;
             int h = (int)vignette.Height;
 
-            var palette = vignette.BPP == 8 ? GetPalmOS8BitPalette() : Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
+            var palette = vignette.BPP == 8 ? GetPalmOS8BitPalette() : GetPalmOS4BitPalette();
 
             Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
             for (int y = 0; y < h; y++) {
@@ -132,7 +136,7 @@ namespace R1Engine
                     var dataBase = FileFactory.Read<Palm_Database>(relPath, context, (so, pd) => pd.Type = type.Value);
 
                     var palette8Bit = GetPalmOS8BitPalette();
-                    var palette4Bit = Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
+                    var palette4Bit = GetPalmOS4BitPalette();
 
                     for (int i = 0; i < dataBase.RecordsCount; i++)
                     {
@@ -227,7 +231,7 @@ namespace R1Engine
 
             bool greyScale = context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
             Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
-            Color[] pal = (greyScale ? Util.CreateDummyPalette(16, firstTransparent: false).Reverse() : GetPalmOS8BitPalette()).Select(x => x.GetColor()).ToArray();
+            Color[] pal = (greyScale ? GetPalmOS4BitPalette() : GetPalmOS8BitPalette()).Select(x => x.GetColor()).ToArray();
             var tileSetTex = Util.ToTileSetTexture(playField.TileKit.TileData, pal, encoding, CellSize, flipY: false);
 
             var maps = new Unity_Map[]

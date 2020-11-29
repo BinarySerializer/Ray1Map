@@ -28,10 +28,19 @@ namespace R1Engine
                     return Util.ConvertAndSplitGBCPalette(Palette).Select(p => Util.ToTileSetTexture(TileData, p, Util.TileEncoding.Planar_2bpp, GBC_BaseManager.CellSize, true)).ToArray();
 
                 case EngineVersion.GBC_R1_Palm:
-                    return new Texture2D[]
-                    {
+
+                    bool greyScale = Context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
+                    if (greyScale) {
+                        return new Texture2D[]
+                        {
+                        Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS4BitPalette().Select(x => x.GetColor()).ToArray(), Util.TileEncoding.Linear_4bpp_ReverseOrder, GBC_BaseManager.CellSize, true)
+                        };
+                    } else {
+                        return new Texture2D[]
+                        {
                         Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS8BitPalette().Select(x => x.GetColor()).ToArray(), Util.TileEncoding.Linear_8bpp, GBC_BaseManager.CellSize, true)
-                    };
+                        };
+                    }
 
                 case EngineVersion.GBC_R1_PocketPC:
                     return new Texture2D[]
