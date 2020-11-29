@@ -10,6 +10,7 @@ namespace R1Engine
 {
     public class GBC_R1PocketPC_Manager : GBC_BaseManager
     {
+        public override int LevelCount => 47;
         public string AllfixFilePath => "worldmap.dat";
         public string[] GetAllDataPaths(Context c) {
             return new string[] {
@@ -76,11 +77,6 @@ namespace R1Engine
             }
             return pal;
         }
-
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
-        {
-            new GameInfo_World(0, Enumerable.Range(0, 47).ToArray()), 
-        });
 
         public override GameAction[] GetGameActions(GameSettings settings) => base.GetGameActions(settings).Concat(new GameAction[]
         {

@@ -11,10 +11,7 @@ namespace R1Engine
     {
         public string GetROMFilePath => "ROM.gbc";
 
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
-        {
-            new GameInfo_World(0, Enumerable.Range(0, 47).ToArray()), 
-        });
+        public override int LevelCount => 47;
 
         public override GBC_LevelList GetSceneList(Context context)
         {
