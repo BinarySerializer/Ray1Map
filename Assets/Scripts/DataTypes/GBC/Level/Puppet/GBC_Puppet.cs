@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBC_PuppetData : GBC_BaseBlock
+    public class GBC_Puppet : GBC_BaseBlock
     {
         public byte[] PuppetData { get; set; }
 

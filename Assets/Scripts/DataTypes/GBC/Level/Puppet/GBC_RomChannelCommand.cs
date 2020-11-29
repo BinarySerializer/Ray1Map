@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace R1Engine
 {
-    public class GBC_ChannelEventInstruction : R1Serializable
-    {
-        public LayerInfo[][] AnimLayerInfos { get; set; } // Set before serializing
+    public class GBC_RomChannelCommand : R1Serializable {
+        public GBC_ChannelData ChannelData { get; set; } // Set before serializing
 
         public InstructionCommand Command { get; set; }
 
@@ -17,8 +17,8 @@ namespace R1Engine
         public sbyte XPos { get; set; }
         public sbyte YPos { get; set; }
 
-        public byte Height { get; set; }
-        public byte Width { get; set; }
+        public byte HalfHeight { get; set; }
+        public byte HalfWidth { get; set; }
 
         public byte UnkHitboxValue { get; set; }
         
@@ -33,6 +33,9 @@ namespace R1Engine
                 case InstructionCommand.SpriteNew:
                     LayerInfosCount = s.Serialize<byte>(LayerInfosCount, name: nameof(LayerInfosCount));
                     LayerInfos = s.SerializeObjectArray<LayerInfo>(LayerInfos, LayerInfosCount, name: nameof(LayerInfos));
+                    if (ChannelData?.Temp_LayerSpriteCountState != null) {
+                        ChannelData.Temp_LayerSpriteCountState.Add(LayerInfosCount);
+                    }
                     break;
 
                 case InstructionCommand.SpriteMove:
@@ -43,18 +46,18 @@ namespace R1Engine
 
                 case InstructionCommand.SetTileGraphics:
                     LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
-                    TileGraphicsInfos = s.SerializeObjectArray<TileGraphicsInfo>(TileGraphicsInfos, AnimLayerInfos[LayerIndex].Length, name: nameof(TileGraphicsInfos));
+                    TileGraphicsInfos = s.SerializeObjectArray<TileGraphicsInfo>(TileGraphicsInfos, TileGraphicsInfos?.Length ?? ChannelData?.Temp_LayerSpriteCountState[LayerIndex] ?? 0, name: nameof(TileGraphicsInfos));
                     break;
 
                 case InstructionCommand.SetCollisionBox: // TODO: This might not be collision as width and height are sometimes 0
                     XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
                     YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));
-                    Width = s.Serialize<byte>(Width, name: nameof(Width));
-                    Height = s.Serialize<byte>(Height, name: nameof(Height));
+                    HalfWidth = s.Serialize<byte>(HalfWidth, name: nameof(HalfWidth));
+                    HalfHeight = s.Serialize<byte>(HalfHeight, name: nameof(HalfHeight));
                     break;
 
-                case InstructionCommand.Unknown_07:
-                case InstructionCommand.Unknown_08:
+                case InstructionCommand.SetInvisible: // Set sprite->field6 to 0 for all sprites in layer
+                case InstructionCommand.SetVisible: // Set sprite->field6 to 1 for all sprites in layer
                     LayerIndex = s.Serialize<byte>(LayerIndex, name: nameof(LayerIndex));
                     break;
 
@@ -65,7 +68,9 @@ namespace R1Engine
                     break;
 
                 case InstructionCommand.Terminator:
-                    // Do nothing
+                    if (ChannelData?.Temp_LayerSpriteCountState != null) {
+                        ChannelData.Temp_LayerSpriteCountState.Clear();
+                    }
                     break;
 
                 case InstructionCommand.SpriteDelete:
@@ -83,8 +88,8 @@ namespace R1Engine
             //SpriteMoveMultiple = 0x04,
             SetTileGraphics = 0x05,
 
-            Unknown_07 = 0x07,
-            Unknown_08 = 0x08,
+            SetInvisible = 0x07,
+            SetVisible = 0x08,
 
             SetCollisionBox = 0x0B,
             Unknown_0C = 0x0C,
@@ -96,7 +101,7 @@ namespace R1Engine
 
         public class TileGraphicsInfo : R1Serializable
         {
-            public byte TileIndex { get; set; }
+            public byte TileIndex { get; set; } // If -1, same effect as SetInvisible, otherwise SetVisible
             public byte Attr_PalIndex { get; set; }
             public byte Attr_VRAMBank { get; set; }
             public bool Attr_HorizontalFlip { get; set; }
@@ -120,13 +125,17 @@ namespace R1Engine
 
         public class LayerInfo : R1Serializable
         {
-            public byte Index { get; set; }
-            public byte[] Data { get; set; }
+            public byte SpriteID { get; set; } // The index this sprite is given in the puppet's sprite array
+            public TileGraphicsInfo Tile { get; set; }
+            public sbyte XPos { get; set; }
+            public sbyte YPos { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
-                Index = s.Serialize<byte>(Index, name: nameof(Index));
-                Data = s.SerializeArray<byte>(Data, 4, name: nameof(Data));
+                SpriteID = s.Serialize<byte>(SpriteID, name: nameof(SpriteID));
+                Tile = s.SerializeObject<TileGraphicsInfo>(Tile, name: nameof(Tile));
+                XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
+                YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));
             }
         }
     }

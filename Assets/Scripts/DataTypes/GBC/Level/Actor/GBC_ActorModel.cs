@@ -4,7 +4,7 @@
     {
         public byte ActorModelByte00 { get; set; } // Important: Also at offset 0 in memory Actor struct
         public byte Anim0 { get; set; }
-        public byte PuppetChannelCount { get; set; }
+        public byte PuppetLayersCount { get; set; }
         public sbyte RenderBoxY { get; set; }
         public sbyte RenderBoxX { get; set; }
         public byte RenderBoxHeight { get; set; }
@@ -17,7 +17,7 @@
         {
             ActorModelByte00 = s.Serialize<byte>(ActorModelByte00, name: nameof(ActorModelByte00));
             Anim0 = s.Serialize<byte>(Anim0, name: nameof(Anim0));
-            PuppetChannelCount = s.Serialize<byte>(PuppetChannelCount, name: nameof(PuppetChannelCount));
+            PuppetLayersCount = s.Serialize<byte>(PuppetLayersCount, name: nameof(PuppetLayersCount));
             RenderBoxY = s.Serialize<sbyte>(RenderBoxY, name: nameof(RenderBoxY));
             RenderBoxX = s.Serialize<sbyte>(RenderBoxX, name: nameof(RenderBoxX));
             RenderBoxHeight = s.Serialize<byte>(RenderBoxHeight, name: nameof(RenderBoxHeight));
