@@ -125,6 +125,127 @@ namespace R1Engine
             Debug.Log("Finished logging blocks");
         }
 
+        public IEnumerable<Texture2D> GetAnimationFrames(GBC_ActorModel model, byte animIndex)
+        {
+            // Get properties
+            var puppet = model.ActionTable.Puppet;
+            var anim = puppet.Animations[animIndex];
+            var tileKit = puppet.TileKit;
+            var pal = Util.ConvertAndSplitGBCPalette(tileKit.Palette);
+
+            var layers = new AnimLayer[model.PuppetLayersCount];
+
+            var w = model.RenderBoxWidth + Math.Abs(model.RenderBoxX);
+            var h = model.RenderBoxHeight + Math.Abs(model.RenderBoxY);
+
+            // Enumerate every frame
+            foreach (var frame in anim.Keyframes)
+            {
+                // Process every command
+                foreach (var cmd in frame.Commands)
+                {
+                    switch (cmd.Command)
+                    {
+                        case GBC_Keyframe_Command.InstructionCommand.SpriteNew:
+                            foreach (GBC_Keyframe_Command.LayerInfo l in cmd.LayerInfos)
+                            {
+                                layers[l.SpriteID] = new AnimLayer(new GBC_Keyframe_Command.LayerInfo()
+                                {
+                                    SpriteID = l.SpriteID,
+                                    Tile = l.Tile,
+                                    XPos = l.XPos,
+                                    YPos = l.YPos
+                                }, cmd.LayerInfosCount - 1);
+                            }
+                            break;
+
+                        case GBC_Keyframe_Command.InstructionCommand.SpriteMove:
+                            layers[cmd.LayerIndex].LayerInfo.XPos += cmd.XPos;
+                            layers[cmd.LayerIndex].LayerInfo.YPos += cmd.YPos;
+
+                            break;
+
+                        case GBC_Keyframe_Command.InstructionCommand.SetTileGraphics:
+                            var startIndex = 0;
+                            for (int i = 0; i < cmd.LayerIndex; i++)
+                            {
+                                startIndex++;
+                                i += layers[i].LinkedLayers;
+                            }
+
+                            for (int i = 0; i < cmd.TileGraphicsInfos.Length; i++)
+                                layers[startIndex + i].LayerInfo.Tile = cmd.TileGraphicsInfos[i];
+                            break;
+
+                        case GBC_Keyframe_Command.InstructionCommand.SetInvisible:
+                            layers[cmd.LayerIndex].IsVisible = false;
+                            break;
+
+                        case GBC_Keyframe_Command.InstructionCommand.SetVisible:
+                            layers[cmd.LayerIndex].IsVisible = true;
+                            break;
+
+                        case GBC_Keyframe_Command.InstructionCommand.Terminator:
+                            Array.Clear(layers, 0, layers.Length);
+                            break;
+                    }
+                }
+
+                if (layers.All(x => x == null))
+                    continue;
+
+                var minX = layers.Where(x => x?.IsVisible == true).Select(x => x.LayerInfo).Min(x => x.XPos + model.RenderBoxX);
+                var minY = layers.Where(x => x?.IsVisible == true).Select(x => x.LayerInfo).Min(x => x.YPos + model.RenderBoxY);
+
+                var tex = TextureHelpers.CreateTexture2D(w - minX, h - minY, clear: true);
+
+                // Draw every tile layer to the texture
+                for (var i = 0; i < layers.Length; i++)
+                {
+                    var layer = layers[i];
+
+                    if (layer?.IsVisible != true)
+                        continue;
+
+                    var l = layer.LayerInfo;
+
+                    // Draw layer
+                    drawTile(l.Tile, l.XPos + model.RenderBoxX - minX, l.YPos + model.RenderBoxY - minY);
+
+                    // Draw each linked layer
+                    for (int j = 0; j < layer?.LinkedLayers; j++)
+                    {
+                        i++;
+                        var linkedLayer = layers[i];
+                        l = linkedLayer.LayerInfo;
+
+                        // Linked layers use positions relative to previous layer
+                        drawTile(l.Tile, layer.LayerInfo.XPos + model.RenderBoxX - minX + l.XPos, layer.LayerInfo.YPos + model.RenderBoxY - minY + l.YPos);
+                    }
+
+                    // Helper for drawing a tile to the frame
+                    void drawTile(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos)
+                    {
+                        tex.FillInTile(
+                            imgData: tileKit.TileData,
+                            imgDataOffset: tile.TileIndex * 0x10,
+                            pal: pal[tile.Attr_PalIndex],
+                            encoding: Util.TileEncoding.Planar_2bpp,
+                            tileWidth: CellSize,
+                            tileX: xPos,
+                            tileY: yPos,
+                            flipTileX: tile.Attr_HorizontalFlip,
+                            flipTileY: tile.Attr_VerticalFlip,
+                            flipTextureY: true);
+                    }
+                }
+
+                tex.Apply();
+
+                yield return tex;
+            }
+        }
+
         public abstract GBC_LevelList GetSceneList(Context context);
 
         public abstract Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level);
@@ -148,6 +269,13 @@ namespace R1Engine
 
             var maps = GetMaps(context, playField, level);
 
+            //var index = 0;
+            //foreach (Texture2D tex in GetAnimationFrames(scene.Actors[0].ActorModel, 6))
+            //{
+            //    Util.ByteArrayToFile(Path.Combine(context.BasePath, "AnimTest", $"{index}.png"), tex.EncodeToPNG());
+            //    index++;
+            //}
+
             var objManager = new Unity_ObjectManager(context);
             var objects = new List<Unity_Object>(scene.Actors.Select(x => new Unity_Object_GBC(x, objManager)));
 
@@ -164,5 +292,18 @@ namespace R1Engine
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public virtual UniTask LoadFilesAsync(Context context) => UniTask.CompletedTask;
+
+        protected class AnimLayer
+        {
+            public AnimLayer(GBC_Keyframe_Command.LayerInfo layerInfo, int linkedLayers)
+            {
+                LayerInfo = layerInfo;
+                LinkedLayers = linkedLayers;
+            }
+
+            public GBC_Keyframe_Command.LayerInfo LayerInfo { get; }
+            public int LinkedLayers { get; }
+            public bool IsVisible { get; set; } = true;
+        }
     }
 }

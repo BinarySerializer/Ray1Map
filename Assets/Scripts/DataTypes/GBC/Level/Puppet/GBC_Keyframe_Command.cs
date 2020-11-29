@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -33,9 +32,7 @@ namespace R1Engine
                 case InstructionCommand.SpriteNew:
                     LayerInfosCount = s.Serialize<byte>(LayerInfosCount, name: nameof(LayerInfosCount));
                     LayerInfos = s.SerializeObjectArray<LayerInfo>(LayerInfos, LayerInfosCount, name: nameof(LayerInfos));
-                    if (ChannelData?.Temp_LayerSpriteCountState != null) {
-                        ChannelData.Temp_LayerSpriteCountState.Add(LayerInfosCount);
-                    }
+                    ChannelData?.Temp_LayerSpriteCountState?.Add(LayerInfosCount);
                     break;
 
                 case InstructionCommand.SpriteMove:
@@ -49,7 +46,7 @@ namespace R1Engine
                     TileGraphicsInfos = s.SerializeObjectArray<TileGraphicsInfo>(TileGraphicsInfos, TileGraphicsInfos?.Length ?? ChannelData?.Temp_LayerSpriteCountState[LayerIndex] ?? 0, name: nameof(TileGraphicsInfos));
                     break;
 
-                case InstructionCommand.SetCollisionBox: // TODO: This might not be collision as width and height are sometimes 0
+                case InstructionCommand.SetCollisionBox:
                     XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
                     YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));
                     HalfWidth = s.Serialize<byte>(HalfWidth, name: nameof(HalfWidth));
@@ -68,9 +65,7 @@ namespace R1Engine
                     break;
 
                 case InstructionCommand.Terminator:
-                    if (ChannelData?.Temp_LayerSpriteCountState != null) {
-                        ChannelData.Temp_LayerSpriteCountState.Clear();
-                    }
+                    ChannelData?.Temp_LayerSpriteCountState?.Clear();
                     break;
 
                 case InstructionCommand.SpriteDelete:
