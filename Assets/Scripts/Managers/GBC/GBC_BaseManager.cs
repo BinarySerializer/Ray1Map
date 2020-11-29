@@ -285,16 +285,14 @@ namespace R1Engine
                 return des;
 
             // Get properties
-            //model.PuppetLayersCount;
             var puppet = model.ActionTable.Puppet;
             var tileKit = puppet.TileKit;
-            var pal = Util.ConvertAndSplitGBCPalette(tileKit.Palette);
+
+            var tileSets = tileKit.GetTileSetTex();
 
             // Add sprites for each palette
-            for (int palIndex = 0; palIndex < pal.Length; palIndex++)
+            foreach (var tileSetTex in tileSets)
             {
-                var tileSetTex = Util.ToTileSetTexture(tileKit.TileData, pal[palIndex], Util.TileEncoding.Planar_2bpp, CellSize, true, wrap: 16);
-
                 var tileIndex = 0;
 
                 // Split texture into tile sprites
@@ -355,9 +353,11 @@ namespace R1Engine
                         // Helper for adding a layer to the frame
                         void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos)
                         {
+                            var imgIndex = tileSets.Length == 1 ? tile.TileIndex : (int)(tile.TileIndex + (tile.Attr_PalIndex * tileKit.TilesCount));
+
                             animationParts.Add(new Unity_ObjAnimationPart
                             {
-                                ImageIndex = (int)(tile.TileIndex + (tile.Attr_PalIndex * tileKit.TilesCount)),
+                                ImageIndex = imgIndex,
                                 XPosition = xPos,
                                 YPosition = yPos,
                                 IsFlippedHorizontally = tile.Attr_HorizontalFlip,

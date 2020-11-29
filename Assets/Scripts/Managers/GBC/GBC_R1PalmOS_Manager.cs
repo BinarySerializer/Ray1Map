@@ -33,7 +33,7 @@ namespace R1Engine
             };
         }
 
-        public ARGBColor[] GetPalmOS8BitPalette() {
+        public static ARGBColor[] GetPalmOS8BitPalette() {
             ARGBColor[] pal = new ARGBColor[256];
             int palIndex = 0;
 

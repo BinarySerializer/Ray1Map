@@ -1,4 +1,9 @@
-﻿namespace R1Engine
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace R1Engine
 {
     public class GBC_TileKit : GBC_BaseBlock 
     {
@@ -14,6 +19,28 @@
 
         // Pocket PC
         public BGR565Color[] TileDataPocketPC { get; set; }
+
+        public Texture2D[] GetTileSetTex()
+        {
+            switch (Context.Settings.EngineVersion)
+            {
+                case EngineVersion.GBC_R1:
+                    return Util.ConvertAndSplitGBCPalette(Palette).Select(p => Util.ToTileSetTexture(TileData, p, Util.TileEncoding.Planar_2bpp, GBC_BaseManager.CellSize, true)).ToArray();
+
+                case EngineVersion.GBC_R1_Palm:
+                    return new Texture2D[]
+                    {
+                        Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS8BitPalette().Select(x => x.GetColor()).ToArray(), Util.TileEncoding.Linear_8bpp, GBC_BaseManager.CellSize, true)
+                    };
+
+                case EngineVersion.GBC_R1_PocketPC:
+                    return null;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
 
         public override void SerializeBlock(SerializerObject s)
         {
