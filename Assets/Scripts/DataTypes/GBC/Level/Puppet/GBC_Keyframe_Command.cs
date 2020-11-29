@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace R1Engine
 {
-    public class GBC_RomChannelCommand : R1Serializable {
-        public GBC_ChannelData ChannelData { get; set; } // Set before serializing
+    public class GBC_Keyframe_Command : R1Serializable {
+        public GBC_RomChannel ChannelData { get; set; } // Set before serializing
 
         public InstructionCommand Command { get; set; }
 

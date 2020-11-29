@@ -2,8 +2,8 @@
 {
     public class GBC_ActorModel : GBC_BaseBlock
     {
-        public byte ActorModelByte00 { get; set; } // Important: Also at offset 0 in memory Actor struct
-        public byte Anim0 { get; set; }
+        public byte ActorModelByte00 { get; set; } // Important: Also at offset 0 in memory Actor struct. Flags?
+        public byte Anim0 { get; set; } // Some animation related thing. Flags?
         public byte PuppetLayersCount { get; set; }
         public sbyte RenderBoxY { get; set; }
         public sbyte RenderBoxX { get; set; }

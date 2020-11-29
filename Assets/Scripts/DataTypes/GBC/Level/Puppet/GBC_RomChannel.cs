@@ -1,57 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace R1Engine
 {
     /// <summary>
-    /// Contains all the commands to update an image.
-    /// The first RomChannel will have a lot of data, while other RomChannels will only contain the differences.
-    /// Better name: Keyframe
+    /// Contains all the data necessary to play one animation
+    /// Better name: Animation
     /// </summary>
-    public class GBC_RomChannel : R1Serializable {
-        public byte Time { get; set; } // Amount of frames to show this image (60FPS)
-        public byte DataSize { get; set; }
-        public GBC_ChannelData ChannelData { get; set; } // Set before serializing
-        public GBC_RomChannelCommand[] Commands { get; set; }
+    public class GBC_RomChannel : GBC_BaseBlock {
 
-        public override void SerializeImpl(SerializerObject s) {
-            Time = s.Serialize<byte>(Time, name: nameof(Time));
-            DataSize = s.Serialize<byte>(DataSize, name: nameof(DataSize));
+        public ushort Count { get; set; }
+        public GBC_Keyframe[] Keyframes { get; set; }
 
-            // Serialize commands
-            if (Commands == null)
-            {
-                var instructions = new List<GBC_RomChannelCommand>();
+        public List<int> Temp_LayerSpriteCountState { get; set; }
 
-                var p = s.CurrentPointer;
-                var endPointer = p + DataSize;
-                var index = 0;
-
-                try
-                {
-                    while (endPointer.AbsoluteOffset > s.CurrentPointer.AbsoluteOffset)
-                    {
-                        instructions.Add(s.SerializeObject<GBC_RomChannelCommand>(default, onPreSerialize: x => x.ChannelData = ChannelData, name: $"{nameof(Commands)}[{index}]"));
-                        index++;
-                    }
-
-                    if (endPointer.AbsoluteOffset != s.CurrentPointer.AbsoluteOffset)
-                        throw new Exception("Instruction overflow!");
-                }
-                catch (Exception ex)
-                {
-                    s.Log($"Error parsing instruction: {ex.Message}");
-                    Debug.LogWarning($"Error parsing instruction at {Offset}: {ex.Message}");
-
-                    s.Goto(endPointer);
-                }
-
-                Commands = instructions.ToArray();
-            }
-            else
-            {
-                Commands = s.SerializeObjectArray<GBC_RomChannelCommand>(Commands, Commands.Length, name: nameof(Commands));
+        public override void SerializeBlock(SerializerObject s)
+        {
+            s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Little, () => {
+                Count = s.Serialize<ushort>(Count, name: nameof(Count));
+            });
+            if (Keyframes == null) {
+                // To serialize the keyframes, we need to keep track of the layer sprite count changes between them
+                Temp_LayerSpriteCountState = new List<int>();
+                Keyframes = s.SerializeObjectArray<GBC_Keyframe>(Keyframes, Count - 1, onPreSerialize: x => x.ChannelData = this, name: nameof(Keyframes));
+                Temp_LayerSpriteCountState = null;// We serialized this now, so we can remove this list
+            } else {
+                Keyframes = s.SerializeObjectArray<GBC_Keyframe>(Keyframes, Count - 1, name: nameof(Keyframes));
             }
         }
     }
