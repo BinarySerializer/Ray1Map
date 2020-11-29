@@ -14,7 +14,7 @@ namespace R1Engine
         /// <param name="tileMapColors">The tile map colors</param>
         /// <param name="tileMapWidth">The tile map width, in tiles</param>
         /// <param name="cellSize">The tile size</param>
-        public Unity_MapTileMap(IList<ARGBColor> tileMapColors, int tileMapWidth, int cellSize) {
+        public Unity_MapTileMap(IList<BaseColor> tileMapColors, int tileMapWidth, int cellSize) {
             // Create the tile array
             Tiles = new Unity_TileTexture[tileMapColors.Count / (cellSize * cellSize)];
 

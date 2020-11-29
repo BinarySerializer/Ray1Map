@@ -163,7 +163,7 @@ namespace R1Engine
             {
                 var palPos = spritePaletteOffsets[sprite.Name];
                 s.DoAt(new Pointer(palPos, sprite.Offset.file), () => {
-                    var cols = s.SerializeObjectArray<ARGB1555Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
+                    var cols = s.SerializeObjectArray<RGBA5551Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
                     pal = Util.ConvertGBAPalette(cols);
                 });
             }
@@ -192,7 +192,7 @@ namespace R1Engine
                 {
                     var palPos = spritePaletteOffsets[name];
                     s.DoAt(new Pointer(palPos, spriteSet.Offset.file), () => {
-                        var cols = s.SerializeObjectArray<ARGB1555Color>(default, spriteSet.Is8Bit ? 256 : 16, name: "Palette");
+                        var cols = s.SerializeObjectArray<RGBA5551Color>(default, spriteSet.Is8Bit ? 256 : 16, name: "Palette");
                         pal = Util.ConvertGBAPalette(cols);
                     });
                 }

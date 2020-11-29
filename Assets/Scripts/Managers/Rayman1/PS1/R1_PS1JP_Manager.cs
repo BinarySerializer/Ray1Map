@@ -25,13 +25,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set colors to use</returns>
-        public IList<ARGBColor> GetTileSetColors(Context context)
+        public IList<BaseColor> GetTileSetColors(Context context)
         {
             var levelTileSetFileName = GetSpecialTileSetPath(context.Settings);
 
             if (FileSystem.FileExists(context.BasePath + levelTileSetFileName))
             {
-                ObjectArray<ARGB1555Color> cols = FileFactory.Read<ObjectArray<ARGB1555Color>>(levelTileSetFileName, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+                ObjectArray<RGBA5551Color> cols = FileFactory.Read<ObjectArray<RGBA5551Color>>(levelTileSetFileName, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
                 return cols.Value;
             }
 
@@ -87,7 +87,7 @@ namespace R1Engine
             // Reserve spot for tiles in vram
             if (mode == VRAMMode.Level)
             {
-                IList<ARGBColor> tiles = GetTileSetColors(context);
+                IList<BaseColor> tiles = GetTileSetColors(context);
                 int tilesetHeight = tiles.Count / 256;
                 const int tilesetWidth = 4 * 128;
                 int tilesetPage = (16 - 4); // Max pages - tileset width
@@ -129,22 +129,22 @@ namespace R1Engine
             int paletteY = 224; // 480 - 1 page height
             if (mode != VRAMMode.BigRay)
             {
-                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
 
                 paletteY += 26;
-                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
 
                 if (mode == VRAMMode.Level)
                 {
-                    vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                    vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                    vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
+                    vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
                 }
                 else
                 {
-                    vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                    vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                    vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
+                    vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
                 }
             }
             else
@@ -152,8 +152,8 @@ namespace R1Engine
                 paletteY += 31;
 
                 // BigRay
-                vram.AddDataAt(1, 1, 0, paletteY++, bigRay.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(1, 1, 0, paletteY++, bigRay.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, bigRay.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, bigRay.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
             }
 
             context.StoreObject("vram", vram);

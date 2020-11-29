@@ -18,7 +18,7 @@ namespace R1Engine
         // Parsed
         public ushort[] CombinedTileData { get; set; }
         public ushort[] CombinedTileOffsets { get; set; }
-        public ARGB1555Color[][] Palettes { get; set; }
+        public RGBA5551Color[][] Palettes { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -54,10 +54,10 @@ namespace R1Engine
             s.DoAt(PalettesPointer, () =>
             {
                 if (Palettes == null)
-                    Palettes = new ARGB1555Color[PaletteIndexTablePointer.Value.GetMaxPaletteIndex() + 1][];
+                    Palettes = new RGBA5551Color[PaletteIndexTablePointer.Value.GetMaxPaletteIndex() + 1][];
 
                 for (int i = 0; i < Palettes.Length; i++)
-                    Palettes[i] = s.SerializeObjectArray<ARGB1555Color>(Palettes[i], 16, name: $"{nameof(Palettes)}[i]");
+                    Palettes[i] = s.SerializeObjectArray<RGBA5551Color>(Palettes[i], 16, name: $"{nameof(Palettes)}[i]");
             });
 
             s.DoEncoded(new RHR_SpriteEncoder(false, GraphicsDataPointer.Value.CompressionLookupBuffer, GraphicsDataPointer.Value.CompressedDataPointer), () => {

@@ -18,7 +18,7 @@
         /// <summary>
         /// The image blocks
         /// </summary>
-        public ObjectArray<ARGB1555Color>[] ImageBlocks { get; set; }
+        public ObjectArray<RGBA5551Color>[] ImageBlocks { get; set; }
 
         /// <summary>
         /// Serializes the data
@@ -35,13 +35,13 @@
             // IMAGE BLOCKS
 
             if (ImageBlocks == null)
-                ImageBlocks = new ObjectArray<ARGB1555Color>[Pointers.Length];
+                ImageBlocks = new ObjectArray<RGBA5551Color>[Pointers.Length];
 
             for (int i = 0; i < Pointers.Length; i++)
             {
                 var parentPointer = i == Pointers.Length - 1 ? FileSize : Pointers[i + 1];
 
-                ImageBlocks[i] = s.SerializeObject<ObjectArray<ARGB1555Color>>(ImageBlocks[i], name: $"{nameof(ImageBlocks)} [{i}]", onPreSerialize: x => x.Length = (parentPointer - Pointers[i]) / 2);
+                ImageBlocks[i] = s.SerializeObject<ObjectArray<RGBA5551Color>>(ImageBlocks[i], name: $"{nameof(ImageBlocks)} [{i}]", onPreSerialize: x => x.Length = (parentPointer - Pointers[i]) / 2);
             }
         }
     }

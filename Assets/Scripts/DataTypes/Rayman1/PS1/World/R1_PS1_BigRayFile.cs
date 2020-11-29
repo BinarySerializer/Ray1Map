@@ -26,9 +26,9 @@
         /// </summary>
         public byte[] TextureBlock { get; set; }
 
-        public ARGB1555Color[] Palette1 { get; set; }
+        public RGBA5551Color[] Palette1 { get; set; }
 
-        public ARGB1555Color[] Palette2 { get; set; }
+        public RGBA5551Color[] Palette2 { get; set; }
 
         #endregion
 
@@ -50,10 +50,10 @@
             s.DoAt(TextureBlockPointer, () => TextureBlock = s.SerializeArray<byte>(TextureBlock, Palette1Pointer - s.CurrentPointer, name: nameof(TextureBlock)));
 
             // PALETTE 1
-            s.DoAt(Palette1Pointer, () => Palette1 = s.SerializeObjectArray<ARGB1555Color>(Palette1, 256, name: nameof(Palette1)));
+            s.DoAt(Palette1Pointer, () => Palette1 = s.SerializeObjectArray<RGBA5551Color>(Palette1, 256, name: nameof(Palette1)));
 
             // PALETTE 2
-            s.DoAt(Palette2Pointer, () => Palette2 = s.SerializeObjectArray<ARGB1555Color>(Palette2, 256, name: nameof(Palette2)));
+            s.DoAt(Palette2Pointer, () => Palette2 = s.SerializeObjectArray<RGBA5551Color>(Palette2, 256, name: nameof(Palette2)));
         }
 
         #endregion

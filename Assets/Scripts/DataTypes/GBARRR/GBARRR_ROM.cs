@@ -24,11 +24,11 @@ namespace R1Engine
         public GBARRR_MapBlock CollisionMap { get; set; }
         public GBARRR_MapBlock LevelMap { get; set; }
         public GBARRR_MapBlock FGMap { get; set; }
-        public ARGB1555Color[][] AnimatedPalettes { get; set; }
+        public RGBA5551Color[][] AnimatedPalettes { get; set; }
 
         // Palettes
-        public ARGB1555Color[] TilePalette { get; set; }
-        public ARGB1555Color[] SpritePalette { get; set; }
+        public RGBA5551Color[] TilePalette { get; set; }
+        public RGBA5551Color[] SpritePalette { get; set; }
 
         // Tables
         public GBARRR_GraphicsTableEntry[][] GraphicsTable0 { get; set; }
@@ -55,17 +55,17 @@ namespace R1Engine
         public MapTile[] Mode7_BG0MapData { get; set; }
         public MapTile[] Mode7_BG1MapData { get; set; }
         public MapTile[] Mode7_MapData { get; set; }
-        public ARGB1555Color[] Mode7_MapPalette { get; set; }
-        public ARGB1555Color[] Mode7_BG1Palette { get; set; }
-        public ARGB1555Color[] Mode7_BG0Palette { get; set; }
-        public ARGB1555Color[] Mode7_TilemapPalette { get; set; }
+        public RGBA5551Color[] Mode7_MapPalette { get; set; }
+        public RGBA5551Color[] Mode7_BG1Palette { get; set; }
+        public RGBA5551Color[] Mode7_BG0Palette { get; set; }
+        public RGBA5551Color[] Mode7_TilemapPalette { get; set; }
         public GBARRR_Mode7Object[] Mode7_Objects { get; set; }
 
         // Menu
         public Pointer[] Menu_Pointers { get; set; }
         public byte[][] Menu_Tiles { get; set; }
         public MapTile[][] Menu_MapData { get; set; }
-        public ARGB1555Color[][] Menu_Palette { get; set; }
+        public RGBA5551Color[][] Menu_Palette { get; set; }
 
 
         public override void SerializeImpl(SerializerObject s)
@@ -136,16 +136,16 @@ namespace R1Engine
                 var tilePalIndex = GetLevelTilePaletteOffsetIndex(s.GameSettings);
                 if (tilePalIndex != null)
                     OffsetTable.DoAtBlock(s.Context, tilePalIndex.Value, size =>
-                        TilePalette = s.SerializeObjectArray<ARGB1555Color>(TilePalette, 0x100, name: nameof(TilePalette)));
+                        TilePalette = s.SerializeObjectArray<RGBA5551Color>(TilePalette, 0x100, name: nameof(TilePalette)));
                 OffsetTable.DoAtBlock(s.Context, lvlInfo.SpritePaletteIndex, size =>
-                    SpritePalette = s.SerializeObjectArray<ARGB1555Color>(SpritePalette, 0x100, name: nameof(SpritePalette)));
+                    SpritePalette = s.SerializeObjectArray<RGBA5551Color>(SpritePalette, 0x100, name: nameof(SpritePalette)));
 
                 if (AnimatedPalettes == null)
-                    AnimatedPalettes = new ARGB1555Color[5][];
+                    AnimatedPalettes = new RGBA5551Color[5][];
 
                 for (int i = 0; i < AnimatedPalettes.Length; i++)
                     OffsetTable.DoAtBlock(s.Context, 764 + i, size => 
-                        AnimatedPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(AnimatedPalettes[i], 0x100, name: $"{nameof(AnimatedPalettes)}[{i}]"));
+                        AnimatedPalettes[i] = s.SerializeObjectArray<RGBA5551Color>(AnimatedPalettes[i], 0x100, name: $"{nameof(AnimatedPalettes)}[{i}]"));
 
                 // Serialize tables
                 s.DoAt(pointerTable[GBARRR_Pointer.GraphicsTables], () =>
@@ -230,12 +230,12 @@ namespace R1Engine
                 });
 
                 // Serialize palettes
-                Mode7_MapPalette = s.DoAt(Mode7_MapPalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_MapPalette, 16 * 16, name: nameof(Mode7_MapPalette)));
-                Mode7_BG1Palette = s.DoAt(Mode7_BG1PalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_BG1Palette, 16, name: nameof(Mode7_BG1Palette)));
-                Mode7_BG0Palette = s.DoAt(Mode7_BG0PalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_BG0Palette, 16, name: nameof(Mode7_BG0Palette)));
+                Mode7_MapPalette = s.DoAt(Mode7_MapPalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_MapPalette, 16 * 16, name: nameof(Mode7_MapPalette)));
+                Mode7_BG1Palette = s.DoAt(Mode7_BG1PalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_BG1Palette, 16, name: nameof(Mode7_BG1Palette)));
+                Mode7_BG0Palette = s.DoAt(Mode7_BG0PalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_BG0Palette, 16, name: nameof(Mode7_BG0Palette)));
 
                 // Fill in full tilemap palette
-                Mode7_TilemapPalette = new ARGB1555Color[16 * 16];
+                Mode7_TilemapPalette = new RGBA5551Color[16 * 16];
 
                 for (int i = 0; i < 12 * 16; i++)
                     Mode7_TilemapPalette[i] = Mode7_MapPalette[i];
@@ -268,7 +268,7 @@ namespace R1Engine
 
                 Menu_Tiles = new byte[menuLevels.Length][];
                 Menu_MapData = new MapTile[menuLevels.Length][];
-                Menu_Palette = new ARGB1555Color[menuLevels.Length][];
+                Menu_Palette = new RGBA5551Color[menuLevels.Length][];
 
                 for (int i = 0; i < menuLevels.Length; i++)
                 {
@@ -295,7 +295,7 @@ namespace R1Engine
                             Menu_MapData[i] = s.SerializeObjectArray<MapTile>(Menu_MapData[i], size.Width * size.Height, onPreSerialize: x => x.GBARRRType = mapType, name: $"{nameof(Menu_MapData)}[{i}]"));
                     }
 
-                    Menu_Palette[i] = s.DoAt(Menu_Pointers[lvl * 3 + 2], () => s.SerializeObjectArray<ARGB1555Color>(Menu_Palette[i], 16 * 16, name: $"{nameof(Menu_Palette)}[{i}]"));
+                    Menu_Palette[i] = s.DoAt(Menu_Pointers[lvl * 3 + 2], () => s.SerializeObjectArray<RGBA5551Color>(Menu_Palette[i], 16 * 16, name: $"{nameof(Menu_Palette)}[{i}]"));
                 }
             }
         }

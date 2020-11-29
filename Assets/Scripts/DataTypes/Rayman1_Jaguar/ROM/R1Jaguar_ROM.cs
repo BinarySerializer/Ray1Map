@@ -48,12 +48,12 @@ namespace R1Engine
         /// <summary>
         /// The current sprite palette
         /// </summary>
-        public RGB556Color[] SpritePalette { get; set; }
+        public GBR655Color[] SpritePalette { get; set; }
 
         /// <summary>
         /// The current tileset data
         /// </summary>
-        public RGB556Color[] TileData { get; set; }
+        public GBR655Color[] TileData { get; set; }
 
         public R1Jaguar_EventDefinition[] EventDefinitions { get; set; }
         public R1Jaguar_EventDefinition[] AdditionalEventDefinitions { get; set; }
@@ -64,7 +64,7 @@ namespace R1Engine
         public Dictionary<uint, byte[]> ImageBuffers { get; set; }
 
         public Pointer BackgroundPointer { get; set; }
-        public RGB556Color[] Background { get; set; }
+        public GBR655Color[] Background { get; set; }
 
         // Prototype only
         public Dictionary<uint, R1_ImageDescriptor[]> ImageBufferDescriptors { get; set; }
@@ -292,10 +292,10 @@ namespace R1Engine
                     s.DoAt(eventPointer, () => EventData = s.SerializeObject<R1Jaguar_EventBlock>(EventData, name: nameof(EventData)));
 
                 // Serialize sprite palette
-                s.DoAt<RGB556Color[]>(palPointer, () => SpritePalette = s.SerializeObjectArray<RGB556Color>(SpritePalette, 256, name: nameof(SpritePalette)));
+                s.DoAt<GBR655Color[]>(palPointer, () => SpritePalette = s.SerializeObjectArray<GBR655Color>(SpritePalette, 256, name: nameof(SpritePalette)));
 
                 // Serialize tile data
-                s.DoAt(tilesPointer, () => s.DoEncoded(new RNCEncoder(), () => TileData = s.SerializeObjectArray<RGB556Color>(TileData, s.CurrentLength / 2, name: nameof(TileData))));
+                s.DoAt(tilesPointer, () => s.DoEncoded(new RNCEncoder(), () => TileData = s.SerializeObjectArray<GBR655Color>(TileData, s.CurrentLength / 2, name: nameof(TileData))));
 
                 // Serialize image buffers
                 if (ImageBuffers == null)
@@ -332,7 +332,7 @@ namespace R1Engine
                 BackgroundPointer = mapCommands.Concat(wldCommands.Commands).FirstOrDefault(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && vigs.Any(y => y.Key == x.ImageBufferPointer.AbsoluteOffset))?.ImageBufferPointer;
 
                 if (BackgroundPointer != null)
-                    s.DoAt(BackgroundPointer, () => s.DoEncoded(new RNCEncoder(), () => Background = s.SerializeObjectArray<RGB556Color>(Background, s.CurrentLength / 2, name: nameof(Background))));
+                    s.DoAt(BackgroundPointer, () => s.DoEncoded(new RNCEncoder(), () => Background = s.SerializeObjectArray<GBR655Color>(Background, s.CurrentLength / 2, name: nameof(Background))));
             }
             else
             {
@@ -348,7 +348,7 @@ namespace R1Engine
                 s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.ml_jun), () => LevelLoadCommands[0][0] = s.SerializeObject<R1Jaguar_LevelLoadCommandCollection>(LevelLoadCommands[0][0], name: $"{nameof(LevelLoadCommands)}[0][0]"));
 
                 // Palette
-                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.coltable), () => SpritePalette = s.SerializeObjectArray<RGB556Color>(SpritePalette, 256, name: nameof(SpritePalette)));
+                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.coltable), () => SpritePalette = s.SerializeObjectArray<GBR655Color>(SpritePalette, 256, name: nameof(SpritePalette)));
                 
                 // Map
                 s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.jun_map), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData)));
@@ -357,7 +357,7 @@ namespace R1Engine
                 s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.test_mapevent), () => EventData = s.SerializeObject<R1Jaguar_EventBlock>(EventData, name: nameof(EventData)));
                 
                 // Tilemap
-                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.jun_block), () => TileData = s.SerializeObjectArray<RGB556Color>(TileData, 440 * (16 * 16), name: nameof(TileData)));
+                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.jun_block), () => TileData = s.SerializeObjectArray<GBR655Color>(TileData, 440 * (16 * 16), name: nameof(TileData)));
 
                 // Serialize image buffers and descriptors
                 if (ImageBuffers == null)
@@ -404,7 +404,7 @@ namespace R1Engine
 
                 // Serialize background
                 BackgroundPointer = GetProtoDataPointer(R1Jaguar_Proto_References.jun_plan0);
-                s.DoAt(BackgroundPointer, () => Background = s.SerializeObjectArray<RGB556Color>(Background, 192 * 246, name: nameof(Background)));
+                s.DoAt(BackgroundPointer, () => Background = s.SerializeObjectArray<GBR655Color>(Background, 192 * 246, name: nameof(Background)));
             }
         }
 

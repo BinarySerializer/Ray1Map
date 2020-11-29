@@ -96,7 +96,7 @@ namespace R1Engine
             var filename = GetTileSetFilePath(context.Settings);
 
             // Read the file
-            var tileSet = FileFactory.Read<ObjectArray<ARGB1555Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
+            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
 
             // Return the tile set
             return new Unity_MapTileMap(tileSet.Value, TileSetWidth, Settings.CellSize);
@@ -135,8 +135,8 @@ namespace R1Engine
             var height = s.Height;
             var offset = s.ImageBufferOffset;
 
-            var pal4 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = 256);
-            var pal8 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = 256);
+            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = 256);
+            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = 256);
 
             // Select correct palette
             var palette = s.ImageType == 3 ? pal8.Value : pal4.Value;

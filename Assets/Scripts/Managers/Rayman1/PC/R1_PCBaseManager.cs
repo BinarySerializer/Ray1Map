@@ -312,7 +312,7 @@ namespace R1Engine
                 R1_PC_AnimationDescriptor[] rayAnim = null;
 
                 // Helper method for exporting textures
-                async UniTask<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<R1_PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<ARGBColor> palette = null)
+                async UniTask<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<R1_PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<BaseColor> palette = null)
                     where Wld : R1_PC_BaseWorldFile, new()
                 {
                     // Read the file
@@ -359,7 +359,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The big ray palette</returns>
-        public virtual IList<ARGBColor> GetBigRayPalette(Context context) => null;
+        public virtual IList<BaseColor> GetBigRayPalette(Context context) => null;
 
         /// <summary>
         /// Exports all sprite textures from the world file to the specified output directory
@@ -370,7 +370,7 @@ namespace R1Engine
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
         /// <param name="palette">Optional palette to use</param>
-        public void ExportSpriteTextures(Context context, R1_PC_BaseWorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null) {
+        public void ExportSpriteTextures(Context context, R1_PC_BaseWorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<BaseColor> palette = null) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
@@ -419,7 +419,7 @@ namespace R1Engine
         /// <param name="desIndex">The DES index</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprite textures</returns>
-        public Texture2D[] GetSpriteTextures(List<R1_PC_LevFile> levels, R1_PC_DES desItem, int desIndex, IList<ARGBColor> palette = null)
+        public Texture2D[] GetSpriteTextures(List<R1_PC_LevFile> levels, R1_PC_DES desItem, int desIndex, IList<BaseColor> palette = null)
         {
             // Create the output array
             var output = new Texture2D[desItem.ImageDescriptors.Length];
@@ -464,7 +464,7 @@ namespace R1Engine
         /// <param name="eventInfo">The event info</param>
         /// <param name="rayAnim">Rayman's animation</param>
         /// <param name="palette">Optional palette to use</param>
-        public async UniTask ExportAnimationFramesAsync(Context context, R1_PC_BaseWorldFile worldFile, string outputDir, int desOffset, R1_PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, R1_PC_AnimationDescriptor[] rayAnim, IList<ARGBColor> palette = null)
+        public async UniTask ExportAnimationFramesAsync(Context context, R1_PC_BaseWorldFile worldFile, string outputDir, int desOffset, R1_PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, R1_PC_AnimationDescriptor[] rayAnim, IList<BaseColor> palette = null)
         {
             // Create the directory
             Directory.CreateDirectory(outputDir);
@@ -733,7 +733,7 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="processedImageData">The processed image data to use</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(R1_ImageDescriptor s, IList<ARGBColor> palette, byte[] processedImageData)
+        public Texture2D GetSpriteTexture(R1_ImageDescriptor s, IList<BaseColor> palette, byte[] processedImageData)
         {
             // Ignore dummy sprites
             if (s.IsDummySprite())
@@ -794,7 +794,7 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="desIndex">The DES index</param>
         /// <returns>The common design</returns>
-        public virtual Unity_ObjGraphics GetCommonDesign(Context context, R1_PC_DES des, IList<ARGBColor> palette, int desIndex)
+        public virtual Unity_ObjGraphics GetCommonDesign(Context context, R1_PC_DES des, IList<BaseColor> palette, int desIndex)
         {
             // Check if the DES is used for multi-colored events
             var isMultiColored = IsDESMultiColored(context, desIndex + 1, LevelEditorData.EventInfoData);
@@ -829,7 +829,7 @@ namespace R1Engine
                     // Hack to get correct colors
                     var p = palette.Skip(i * 8 + 1).ToList();
 
-                    p.Insert(0, new ARGBColor(0, 0, 0));
+                    p.Insert(0, (CustomColor)Color.black);
 
                     if (i % 2 != 0)
                         p[8] = palette[i * 8];
@@ -1178,7 +1178,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="palette">The palette to use</param>
         /// <returns>The common event designs</returns>
-        public async UniTask<Unity_ObjectManager_R1.DESData[]> LoadSpritesAsync(Context context, IList<ARGBColor> palette)
+        public async UniTask<Unity_ObjectManager_R1.DESData[]> LoadSpritesAsync(Context context, IList<BaseColor> palette)
         {
             // Create the output list
             List<Unity_ObjectManager_R1.DESData> eventDesigns = new List<Unity_ObjectManager_R1.DESData>();
@@ -1190,7 +1190,7 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            IList<ARGBColor> bigRayPalette;
+            IList<BaseColor> bigRayPalette;
             R1_PC_DES[] des;
 
             if (context.Settings.R1_World != R1_World.Menu)
@@ -1264,7 +1264,7 @@ namespace R1Engine
 
             R1_PC_MapBlock mapData;
             R1_PC_EventBlock eventData;
-            ARGBColor[][] palettes;
+            BaseColor[][] palettes;
             R1_PC_TileTextureBlock tileTextureData = null;
             Texture2D bg;
             Texture2D bg2;
@@ -1293,7 +1293,7 @@ namespace R1Engine
                 var vig = await GetWorldMapVigAsync(context);
                 bg = vig.ToTexture(true);
                 bg2 = null;
-                palettes = new ARGBColor[][] { vig.VGAPalette };
+                palettes = new BaseColor[][] { vig.VGAPalette };
 
                 // Set empty map data
                 var width = (ushort)(vig.ImageWidth / Settings.CellSize);

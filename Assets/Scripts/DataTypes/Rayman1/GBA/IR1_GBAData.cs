@@ -36,7 +36,7 @@
         /// The sprite palette for the current level
         /// </summary>
         /// <param name="settings">The game settings</param>
-        ARGB1555Color[] GetSpritePalettes(GameSettings settings);
+        RGBA5551Color[] GetSpritePalettes(GameSettings settings);
 
 
         /// <summary>

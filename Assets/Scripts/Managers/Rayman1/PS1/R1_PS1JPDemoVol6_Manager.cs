@@ -88,7 +88,7 @@ namespace R1Engine
             var filename = GetTileSetFilePath(context.Settings);
 
             // Read the file
-            var tileSet = FileFactory.Read<ObjectArray<ARGB1555Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
+            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
 
             // Return the tile set
             return new Unity_MapTileMap(tileSet.Value, TileSetWidth, Settings.CellSize);
@@ -103,9 +103,9 @@ namespace R1Engine
         protected override void FillVRAM(Context context, VRAMMode mode)
         {
             // Read palettes
-            var pal4 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = y.CurrentLength / 2);
-            var pal8 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = y.CurrentLength / 2);
-            var palLettre = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetFontPalettePath(), context, (y, x) => x.Length = y.CurrentLength / 2);
+            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = y.CurrentLength / 2);
+            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = y.CurrentLength / 2);
+            var palLettre = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetFontPalettePath(), context, (y, x) => x.Length = y.CurrentLength / 2);
 
             // Read the files
             var fixGraphics = FileFactory.Read<Array<byte>>(GetAllfixSpritePath(), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
@@ -133,9 +133,9 @@ namespace R1Engine
             vram.AddData(lvlGraphics.Value, 256);
 
             int paletteY = 256 - 3; // 480 - 1 page height
-            vram.AddDataAt(1, 1, 0, paletteY++, palLettre.Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(1, 1, 0, paletteY++, pal4.Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(1, 1, 0, paletteY++, pal8.Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(1, 1, 0, paletteY++, palLettre.Value.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
+            vram.AddDataAt(1, 1, 0, paletteY++, pal4.Value.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
+            vram.AddDataAt(1, 1, 0, paletteY++, pal8.Value.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
             context.StoreObject("vram", vram);
         }
 

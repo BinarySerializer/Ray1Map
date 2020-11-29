@@ -38,46 +38,6 @@ namespace R1Engine
             };
         }
 
-        public ARGBColor[] GetPalmOS8BitPalette() {
-            ARGBColor[] pal = new ARGBColor[256];
-            int palIndex = 0;
-
-            for (int r = 0; r < 6; r++) {
-                for (int b = 0; b < 3; b++) {
-                    for (int g = 0; g < 6; g++) {
-                        pal[palIndex++] = new ARGBColor(
-                            (byte)(0xFF - r * 0x33),
-                            (byte)(0xFF - g * 0x33),
-                            (byte)(0xFF - b * 0x33));
-                    }
-                }
-            }
-            for (int r = 0; r < 6; r++) {
-                for (int b = 0; b < 3; b++) {
-                    for (int g = 0; g < 6; g++) {
-                        pal[palIndex++] = new ARGBColor(
-                            (byte)(0xFF - r * 0x33),
-                            (byte)(0xFF - g * 0x33),
-                            (byte)(0xFF - (b+3) * 0x33));
-                    }
-                }
-            }
-            for (int i = 2; i < 16; i++) {
-                if(i % 3 == 0) continue;
-                byte b = (byte)(0x11 * i);
-                pal[palIndex++] = new ARGBColor(b,b,b);
-            }
-            pal[palIndex++] = new ARGBColor(0xC0, 0xC0, 0xC0);
-            pal[palIndex++] = new ARGBColor(0x80, 0x00, 0x00);
-            pal[palIndex++] = new ARGBColor(0x80, 0x00, 0x80);
-            pal[palIndex++] = new ARGBColor(0x00, 0x80, 0x00);
-            pal[palIndex++] = new ARGBColor(0x00, 0x80, 0x80);
-            for (int i = palIndex; i < 256; i++) {
-                pal[palIndex++] = new ARGBColor(0,0,0);
-            }
-            return pal;
-        }
-
         public override GameAction[] GetGameActions(GameSettings settings) => base.GetGameActions(settings).Concat(new GameAction[]
         {
             new GameAction("Export DataBases", false, true, (input, output) => ExportDataBasesAsync(settings, output, false)),
@@ -93,14 +53,14 @@ namespace R1Engine
             int w = (int)vignette.Width;
             int h = (int)vignette.Height;
 
-            var palette = vignette.BPP == 8 ? GetPalmOS8BitPalette() : Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
+            var palette = vignette.BPP == 8 ? Util.CreateDummyPalette(256, firstTransparent: false) : Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
 
             Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     int ind = y * w + x;
                     if (vignette.BPP == 16) {
-                        ARGBColor col = vignette.DataPPC[ind];
+                        BaseColor col = vignette.DataPPC[ind];
                         tex.SetPixel(x, h - 1 - y, col.GetColor());
                     } else if (vignette.BPP == 8) {
                         int col = vignette.Data[ind];
@@ -132,7 +92,7 @@ namespace R1Engine
                     await context.AddLinearSerializedFileAsync(relPath, BinaryFile.Endian.Little);
                     var dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(relPath, context);
 
-                    var palette8Bit = GetPalmOS8BitPalette();
+                    var palette8Bit = Util.CreateDummyPalette(256, firstTransparent: false);
                     var palette4Bit = Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
 
                     for (int i = 0; i < dataFile.BlockCount; i++)

@@ -35,7 +35,7 @@ namespace R1Engine
         public GBAIsometric_Spyro_UnkStruct[] UnkStructs { get; set; }
         public GBAIsometric_Spyro_CutsceneMap[] CutsceneMaps { get; set; }
 
-        public ARGB1555Color[] CommonPalette { get; set; }
+        public RGBA5551Color[] CommonPalette { get; set; }
 
         public GBAIsometric_Spyro3_State_NPC[] States_Spyro3_NPC { get; set; }
         public GBAIsometric_Spyro3_State_DoorTypes[] States_Spyro3_DoorTypes { get; set; }
@@ -156,7 +156,7 @@ namespace R1Engine
 
             // Serialize common palette for Spyro 2
             if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
-                CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(CommonPalette, 256, name: nameof(CommonPalette)));
+                CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(CommonPalette, 256, name: nameof(CommonPalette)));
 
             // Serialize object states
             States_Spyro3_NPC = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro3_NPC), () => s.SerializeObjectArray<GBAIsometric_Spyro3_State_NPC>(States_Spyro3_NPC, 49, name: nameof(States_Spyro3_NPC)));

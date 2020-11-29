@@ -215,7 +215,7 @@ namespace R1Engine
             return localization;
         }
 
-        public override IList<ARGBColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND00")?.VGAPalette;
+        public override IList<BaseColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND00")?.VGAPalette;
 
         public override async UniTask LoadFilesAsync(Context context)
         {

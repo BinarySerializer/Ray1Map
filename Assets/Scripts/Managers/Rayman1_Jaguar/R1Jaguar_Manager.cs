@@ -205,12 +205,12 @@ namespace R1Engine
                         var palettes = lvlCmds.
                             Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Palette
                             || c.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.PaletteDemo)?.PalettePointer).
-                            Select((x, i) => x == null ? rom.SpritePalette : s.DoAt<RGB556Color[]>(x, () => s.SerializeObjectArray<RGB556Color>(default, 256, name: $"SpritePalette[{i}]"))).
+                            Select((x, i) => x == null ? rom.SpritePalette : s.DoAt<GBR655Color[]>(x, () => s.SerializeObjectArray<GBR655Color>(default, 256, name: $"SpritePalette[{i}]"))).
                             ToArray();
 
                         // Get the world and level sprite commands and palettes
                         var worldCmds = new List<R1Jaguar_LevelLoadCommand>();
-                        var worldPal = new List<RGB556Color[]>();
+                        var worldPal = new List<GBR655Color[]>();
 
                         if (worldIndex < 6)
                         {
@@ -240,7 +240,7 @@ namespace R1Engine
                     }
 
                     // Helper method for exporting a collection of DES
-                    async UniTask ExportGroupAsync(IReadOnlyList<R1Jaguar_LevelLoadCommand> cmds, IReadOnlyList<RGB556Color[]> palettes, string name)
+                    async UniTask ExportGroupAsync(IReadOnlyList<R1Jaguar_LevelLoadCommand> cmds, IReadOnlyList<GBR655Color[]> palettes, string name)
                     {
                         // Enumerate every graphics
                         for (var desIndex = 0; desIndex < cmds.Count; desIndex++)
@@ -516,7 +516,7 @@ namespace R1Engine
         /// <param name="pal">The palette</param>
         /// <param name="imgBuffer">The image buffer</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(R1_ImageDescriptor d, ARGBColor[] pal, byte[] imgBuffer)
+        public Texture2D GetSpriteTexture(R1_ImageDescriptor d, BaseColor[] pal, byte[] imgBuffer)
         {
             // Make sure the sprite is valid
             if (d.IsDummySprite())
@@ -597,7 +597,7 @@ namespace R1Engine
                     {
                         s.DoEncoded(new RNCEncoder(), () =>
                         {
-                            var values = s.SerializeObjectArray<RGB556Color>(default, s.CurrentLength / 2);
+                            var values = s.SerializeObjectArray<GBR655Color>(default, s.CurrentLength / 2);
 
                             var tex = TextureHelpers.CreateTexture2D(vig.Value, values.Length / vig.Value);
 
@@ -655,7 +655,7 @@ namespace R1Engine
                             {
                                 if (as888)
                                 {
-                                    var values = s.SerializeObjectArray<RGB556Color>(default, s.CurrentLength / 2);
+                                    var values = s.SerializeObjectArray<GBR655Color>(default, s.CurrentLength / 2);
 
                                     var output = new byte[values.Length * 3];
                                         
@@ -664,9 +664,9 @@ namespace R1Engine
                                         var v = values[i];
 
                                         // Write RGB values
-                                        output[i * 3 + 0] = v.Red;
-                                        output[i * 3 + 1] = v.Green;
-                                        output[i * 3 + 2] = v.Blue;
+                                        output[i * 3 + 0] = (byte)(v.Red * 255f);
+                                        output[i * 3 + 1] = (byte)(v.Green * 255f);
+                                        output[i * 3 + 2] = (byte)(v.Blue * 255f);
                                     }
 
                                     Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}_{p.FileOffset + 0x00800000:X8}"), output);
@@ -732,7 +732,7 @@ namespace R1Engine
                     Select(x => x.Commands.First(y => y.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Palette || y.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.PaletteDemo)).
                     Select(x => x.PalettePointer).
                     Distinct().
-                    SelectMany(x => s.DoAt<RGB556Color[]>(x, () => s.SerializeObjectArray<RGB556Color>(default, 256, name: "SpritePalette"))).
+                    SelectMany(x => s.DoAt<GBR655Color[]>(x, () => s.SerializeObjectArray<GBR655Color>(default, 256, name: "SpritePalette"))).
                     ToArray();
 
                 // Export
@@ -1179,7 +1179,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load tile set and treat black as transparent
-            maps[0].TileSet[0] = new Unity_MapTileMap(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, Settings.CellSize);
+            maps[0].TileSet[0] = new Unity_MapTileMap(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? BaseColor.clear : x).ToArray(), 1, Settings.CellSize);
 
             var eventDefinitions = new List<Unity_ObjectManager_R1Jaguar.EventDefinition>();
             var objManager = new Unity_ObjectManager_R1Jaguar(context, eventDefinitions);

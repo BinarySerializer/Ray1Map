@@ -14,7 +14,7 @@ namespace R1Engine
 
         public R1_PS1_FileTableEntry[] FileTable { get; set; }
 
-        public ARGB1555Color[] Saturn_Palettes { get; set; }
+        public RGBA5551Color[] Saturn_Palettes { get; set; }
         public string[][] Saturn_FNDFileTable { get; set; }
         public string[][] Saturn_FNDSPFileTable { get; set; }
         public byte[][] Saturn_FNDIndexTable { get; set; }
@@ -78,7 +78,7 @@ namespace R1Engine
             {
                 var saturnManager = (R1_Saturn_Manager)manager;
 
-                Saturn_Palettes = s.DoAt(new Pointer(saturnManager.GetPalOffset, Offset.file), () => s.SerializeObjectArray<ARGB1555Color>(Saturn_Palettes, 25 * 256 * 2, name: nameof(Saturn_Palettes)));
+                Saturn_Palettes = s.DoAt(new Pointer(saturnManager.GetPalOffset, Offset.file), () => s.SerializeObjectArray<RGBA5551Color>(Saturn_Palettes, 25 * 256 * 2, name: nameof(Saturn_Palettes)));
 
                 if (Saturn_FNDFileTable == null)
                     Saturn_FNDFileTable = new string[6][];

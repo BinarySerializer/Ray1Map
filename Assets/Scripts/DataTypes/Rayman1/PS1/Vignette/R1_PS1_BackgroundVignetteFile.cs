@@ -30,7 +30,7 @@
         /// <summary>
         /// The parallax sprites color palettes
         /// </summary>
-        public ARGB1555Color[][] ParallaxPalettes { get; set; }
+        public RGBA5551Color[][] ParallaxPalettes { get; set; }
 
         /// <summary>
         /// Serializes the data
@@ -54,10 +54,10 @@
 
                 uint numPalettes = (uint)(FileSize - s.CurrentPointer.FileOffset) / (256 * 2);
                 if (ParallaxPalettes == null)
-                    ParallaxPalettes = new ARGB1555Color[numPalettes][];
+                    ParallaxPalettes = new RGBA5551Color[numPalettes][];
 
                 for (int i = 0; i < ParallaxPalettes.Length; i++)
-                    ParallaxPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(ParallaxPalettes[i], 256, name: nameof(ParallaxPalettes) + "[" + i + "]");
+                    ParallaxPalettes[i] = s.SerializeObjectArray<RGBA5551Color>(ParallaxPalettes[i], 256, name: nameof(ParallaxPalettes) + "[" + i + "]");
             });
         }
     }

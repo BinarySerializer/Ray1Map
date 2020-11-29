@@ -67,17 +67,17 @@
         /// <summary>
         /// The event palette
         /// </summary>
-        public ARGB1555Color[] EventPalette1 { get; set; }
+        public RGBA5551Color[] EventPalette1 { get; set; }
 
         /// <summary>
         /// The event palette
         /// </summary>
-        public ARGB1555Color[] EventPalette2 { get; set; }
+        public RGBA5551Color[] EventPalette2 { get; set; }
 
         /// <summary>
         /// The raw tiles (JP)
         /// </summary>
-        public ARGB1555Color[] RawTiles { get; set; }
+        public RGBA5551Color[] RawTiles { get; set; }
 
         /// <summary>
         /// The paletted tiles (EU/US)
@@ -87,7 +87,7 @@
         /// <summary>
         /// The tile color palettes
         /// </summary>
-        public ARGB1555Color[][] TilePalettes { get; set; }
+        public RGBA5551Color[][] TilePalettes { get; set; }
 
         /// <summary>
         /// The tile palette index table
@@ -124,12 +124,12 @@
 
             // EVENT PALETTE 1
             s.DoAt(EventPalette1BlockPointer, () => {
-                EventPalette1 = s.SerializeObjectArray<ARGB1555Color>(EventPalette1, 256, name: nameof(EventPalette1));
+                EventPalette1 = s.SerializeObjectArray<RGBA5551Color>(EventPalette1, 256, name: nameof(EventPalette1));
             });
 
             // EVENT PALETTE 2
             s.DoAt(EventPalette2BlockPointer, () => {
-                EventPalette2 = s.SerializeObjectArray<ARGB1555Color>(EventPalette2, 256, name: nameof(EventPalette2));
+                EventPalette2 = s.SerializeObjectArray<RGBA5551Color>(EventPalette2, 256, name: nameof(EventPalette2));
             });
 
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1)
@@ -146,11 +146,11 @@
                     uint numPalettes = (uint)(PaletteIndexBlockPointer - TilePaletteBlockPointer) / (256 * 2);
                     if (TilePalettes == null)
                     {
-                        TilePalettes = new ARGB1555Color[numPalettes][];
+                        TilePalettes = new RGBA5551Color[numPalettes][];
                     }
                     for (int i = 0; i < TilePalettes.Length; i++)
                     {
-                        TilePalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TilePalettes[i], 256, name: nameof(TilePalettes) + "[" + i + "]");
+                        TilePalettes[i] = s.SerializeObjectArray<RGBA5551Color>(TilePalettes[i], 256, name: nameof(TilePalettes) + "[" + i + "]");
                     }
                 });
 
@@ -168,7 +168,7 @@
                     int tileCount = RawTiles?.Length ?? (int)((FileSize - s.CurrentPointer.FileOffset) / 2);
 
                     // Serialize the tiles
-                    RawTiles = s.SerializeObjectArray<ARGB1555Color>(RawTiles, tileCount, name: nameof(RawTiles));
+                    RawTiles = s.SerializeObjectArray<RGBA5551Color>(RawTiles, tileCount, name: nameof(RawTiles));
                 });
             }
 

@@ -13,7 +13,7 @@ namespace R1Engine
         // Parsed
         public GBAIsometric_Spyro_SpriteMap Map { get; set; }
         public byte[] TileSet { get; set; }
-        public ARGB1555Color[] Palette { get; set; }
+        public RGBA5551Color[] Palette { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -26,7 +26,7 @@ namespace R1Engine
 
             Map = MapIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Map, name: nameof(Map)));
             TileSet = TileSetIndex.DoAtBlock(size => s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
-            Palette = PaletteIndex.DoAtBlock(size => s.SerializeObjectArray<ARGB1555Color>(Palette, 16, name: nameof(Palette)));
+            Palette = PaletteIndex.DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Palette, 16, name: nameof(Palette)));
         }
 
         public Texture2D ToTexture2D()

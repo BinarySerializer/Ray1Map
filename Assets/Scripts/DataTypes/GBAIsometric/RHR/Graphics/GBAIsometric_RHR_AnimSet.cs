@@ -24,7 +24,7 @@ namespace R1Engine
         public byte[] Bytes_28 { get; set; }
         public Pointer NamePointer { get; set; }
 
-        public ARGB1555Color[] Palette { get; set; }
+        public RGBA5551Color[] Palette { get; set; }
         public string Name { get; set; }
         public GBAIsometric_RHR_Animation[] Animations { get; set; }
         public GBAIsometric_RHR_AnimFrame[] Frames { get; set; }
@@ -52,7 +52,7 @@ namespace R1Engine
             Bytes_28 = s.SerializeArray<byte>(Bytes_28, 8, name: nameof(Bytes_28));
             NamePointer = s.SerializePointer(NamePointer, name: nameof(NamePointer));
 
-            Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<ARGB1555Color>(Palette, Is8Bit ? 256 : 16, name: nameof(Palette)));
+            Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(Palette, Is8Bit ? 256 : 16, name: nameof(Palette)));
             Name = s.DoAt(NamePointer, () => s.SerializeString(Name, name: nameof(Name)));
 
             Animations = s.DoAt(AnimationsPointer, () => s.SerializeObjectArray<GBAIsometric_RHR_Animation>(Animations, AnimationCount, name: nameof(Animations)));

@@ -145,7 +145,7 @@ namespace R1Engine
             return UniTask.FromResult<IReadOnlyDictionary<string, string[]>>(localization);
         }
 
-        public override IList<ARGBColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND04")?.VGAPalette;
+        public override IList<BaseColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND04")?.VGAPalette;
 
         public override async UniTask LoadFilesAsync(Context context)
         {

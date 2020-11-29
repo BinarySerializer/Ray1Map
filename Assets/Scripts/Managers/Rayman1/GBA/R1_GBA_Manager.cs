@@ -111,7 +111,7 @@ namespace R1Engine
                 var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
                 var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
 
-                var graphics = new Dictionary<Pointer, List<KeyValuePair<R1_World, ARGB1555Color[]>>>();
+                var graphics = new Dictionary<Pointer, List<KeyValuePair<R1_World, RGBA5551Color[]>>>();
 
                 // Enumerate every world
                 foreach (var world in GetLevels(baseGameSettings).First().Worlds)
@@ -137,10 +137,10 @@ namespace R1Engine
                             var key = eventData.GraphicDataPointers[i];
 
                             if (!graphics.ContainsKey(key))
-                                graphics.Add(key, new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                                graphics.Add(key, new List<KeyValuePair<R1_World, RGBA5551Color[]>>());
 
                             if (graphics[key].All(x => x.Key != (R1_World)world.Index))
-                                graphics[key].Add(new KeyValuePair<R1_World, ARGB1555Color[]>((R1_World)world.Index, data.GetSpritePalettes(baseGameSettings)));
+                                graphics[key].Add(new KeyValuePair<R1_World, RGBA5551Color[]>((R1_World)world.Index, data.GetSpritePalettes(baseGameSettings)));
                         }
                     }
                 }
@@ -148,17 +148,17 @@ namespace R1Engine
                 // Add unused graphics
                 if (isGBA)
                 {
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_DrumWalkerGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Clock], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_InkGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Alpha], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Alpha2], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_PinsGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_DrumWalkerGraphics], new List<KeyValuePair<R1_World, RGBA5551Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Clock], new List<KeyValuePair<R1_World, RGBA5551Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_InkGraphics], new List<KeyValuePair<R1_World, RGBA5551Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Alpha], new List<KeyValuePair<R1_World, RGBA5551Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Alpha2], new List<KeyValuePair<R1_World, RGBA5551Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_PinsGraphics], new List<KeyValuePair<R1_World, RGBA5551Color[]>>());
                 }
                 else
                 {
                     // TODO: Where is the font?
-                    graphics.Add(dsiPointerTable[R1_DSi_Pointer.DES_Clock], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(dsiPointerTable[R1_DSi_Pointer.DES_Clock], new List<KeyValuePair<R1_World, RGBA5551Color[]>>());
                 }
 
                 var desIndex = 0;
@@ -412,8 +412,8 @@ namespace R1Engine
 
         public async UniTask ExportPaletteImage(GameSettings settings, string outputPath)
         {
-            var spritePals = new List<ARGB1555Color[]>();
-            var tilePals = new List<ARGB1555Color[]>();
+            var spritePals = new List<RGBA5551Color[]>();
+            var tilePals = new List<RGBA5551Color[]>();
 
             // Enumerate every world
             foreach (var world in GetLevels(settings).First().Worlds)
@@ -447,7 +447,7 @@ namespace R1Engine
                 }
             }
 
-            foreach (ARGB1555Color c in spritePals.Concat(tilePals).SelectMany(p => p))
+            foreach (RGBA5551Color c in spritePals.Concat(tilePals).SelectMany(p => p))
                 c.Alpha = Byte.MaxValue;
 
             // Export
@@ -600,7 +600,7 @@ namespace R1Engine
         /// <param name="s">The image descriptor to use</param>
         /// <param name="pal">The sprite palette</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, R1_ImageDescriptor s, ARGB1555Color[] pal)
+        public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, R1_ImageDescriptor s, RGBA5551Color[] pal)
         {
             if (s.IsDummySprite())
                 return null;
@@ -801,7 +801,7 @@ namespace R1Engine
             int blockX, int blockY,
             int relX, int relY,
             byte[] imageBuffer, int imageBufferOffset,
-            IList<ARGB1555Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true) {
+            IList<RGBA5551Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true) {
             for (int y = 0; y < 8; y++) {
                 for (int x = 0; x < 8; x++) {
                     int actualX = blockX + (doubleScale ? relX * 2 : relX) * 8 + (doubleScale ? x * 2 : x);

@@ -25,7 +25,7 @@ namespace R1Engine
         /// The sprite palette for the current level
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public ARGB1555Color[] GetSpritePalettes(GameSettings settings)
+        public RGBA5551Color[] GetSpritePalettes(GameSettings settings)
         {
             R1_DSi_PaletteReference palRef;
             switch (settings.R1_World)

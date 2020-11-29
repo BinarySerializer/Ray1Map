@@ -40,7 +40,7 @@ namespace R1Engine
         /// <summary>
         /// The 6 available palettes (16 colors each)
         /// </summary>
-        public ARGB1555Color[] Palettes { get; set; }
+        public RGBA5551Color[] Palettes { get; set; }
 
         #endregion
 
@@ -68,7 +68,7 @@ namespace R1Engine
             s.DoAt(ImageValuesPointer, () => ImageValues = s.SerializeArray<ushort>(default, Width * Height, name: nameof(ImageValues)));
             var imgDataLength = ImageValues.Select(x => BitHelpers.ExtractBits(x, 12, 0)).Max() + 1;
             s.DoAt(ImageDataPointer, () => ImageData = s.SerializeArray<byte>(ImageData, 0x20 * imgDataLength, name: nameof(ImageData)));
-            s.DoAt(PalettesPointer, () => Palettes = s.SerializeObjectArray<ARGB1555Color>(Palettes, 16 * 16, name: nameof(Palettes)));
+            s.DoAt(PalettesPointer, () => Palettes = s.SerializeObjectArray<RGBA5551Color>(Palettes, 16 * 16, name: nameof(Palettes)));
         }
 
         #endregion

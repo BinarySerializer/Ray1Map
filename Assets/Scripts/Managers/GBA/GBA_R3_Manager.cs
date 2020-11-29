@@ -55,10 +55,10 @@ namespace R1Engine
 
                 int vigCount = settings.GameModeSelection == GameModeSelection.Rayman3GBAUSPrototype ? 18 : 20;
 
-                var palettes = new ARGB1555Color[vigCount][];
+                var palettes = new RGBA5551Color[vigCount][];
 
                 for (int i = 0; i < vigCount; i++)
-                    palettes[i] = s.DoAt(pointerTable[GBA_Pointer.VignettePalettes] + (512 * i), () => s.SerializeObjectArray<ARGB1555Color>(default, 256));
+                    palettes[i] = s.DoAt(pointerTable[GBA_Pointer.VignettePalettes] + (512 * i), () => s.SerializeObjectArray<RGBA5551Color>(default, 256));
 
                 // Go to vignette offset
                 s.Goto(pointerTable[GBA_Pointer.Vignette]);
@@ -150,7 +150,7 @@ namespace R1Engine
             const int creditsIcons = 16;
 
             var creditsIconsData = s.DoAt(dataBlock.UiOffsetTable.GetPointer(offset), () => s.SerializeObject<GBA_DummyBlock>(default)).Data;
-            var creditsIconsPal = s.DoAt(dataBlock.UiOffsetTable.GetPointer(offset + 1) + 8, () => s.SerializeObjectArray<ARGB1555Color>(default, 256));
+            var creditsIconsPal = s.DoAt(dataBlock.UiOffsetTable.GetPointer(offset + 1) + 8, () => s.SerializeObjectArray<RGBA5551Color>(default, 256));
 
             for (int i = 0; i < creditsIcons; i++)
             {

@@ -92,7 +92,8 @@ namespace R1Engine
                     flipTextureY: false,
                     tileX: x * 8,
                     tileY: y * 8,
-                    flipTileX: true,
+                    flipTileX: !descriptor.FlipX,
+                    flipTileY: descriptor.FlipY,
                     ignoreTransparent: true);
             }
 

@@ -38,13 +38,13 @@ namespace R1Engine
         /// <summary>
         /// The sprite palettes. The game uses the same 16 palettes (with 16 colors) for every sprite in the game. During runtime this gets copied to 0x05000200.
         /// </summary>
-        public ARGB1555Color[] SpritePalettes { get; set; }
+        public RGBA5551Color[] SpritePalettes { get; set; }
 
         /// <summary>
         /// The sprite palette for the current level
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public ARGB1555Color[] GetSpritePalettes(GameSettings settings) => SpritePalettes; 
+        public RGBA5551Color[] GetSpritePalettes(GameSettings settings) => SpritePalettes; 
 
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace R1Engine
             WorldMapVignette = s.SerializeObject<R1_GBA_WorldMapVignette>(WorldMapVignette, name: nameof(WorldMapVignette));
 
             s.DoAt(pointerTable[R1_GBA_ROMPointer.SpritePalettes], 
-                () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16, name: nameof(SpritePalettes)));
+                () => SpritePalettes = s.SerializeObjectArray<RGBA5551Color>(SpritePalettes, 16 * 16, name: nameof(SpritePalettes)));
 
             if (s.GameSettings.R1_World != R1_World.Menu)
             {

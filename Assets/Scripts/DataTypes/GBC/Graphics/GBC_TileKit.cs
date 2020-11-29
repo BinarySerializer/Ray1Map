@@ -15,7 +15,7 @@ namespace R1Engine
         public byte PaletteCount { get; set; }
         public ushort PaletteOffset { get; set; }
         public ushort TileDataOffset { get; set; }
-        public ARGB1555Color[] Palette { get; set; }
+        public RGBA5551Color[] Palette { get; set; }
 
         // Pocket PC
         public BGR565Color[] TileDataPocketPC { get; set; }
@@ -45,7 +45,7 @@ namespace R1Engine
                 case EngineVersion.GBC_R1_PocketPC:
                     return new Texture2D[]
                     {
-                        Util.ToTileSetTexture(TileDataPocketPC.Select(c => c.Color565 == 0 ? new ARGBColor(0,0,0,0) : c).ToArray(), GBC_BaseManager.CellSize, true)
+                        Util.ToTileSetTexture(TileDataPocketPC.Select(c => c.Color565 == 0 ? BaseColor.clear : c).ToArray(), GBC_BaseManager.CellSize, true)
                     };
 
                 default:
@@ -69,7 +69,7 @@ namespace R1Engine
                 TileDataOffset = s.Serialize<ushort>(TileDataOffset, name: nameof(TileDataOffset));
                 TilesCount = s.Serialize<UInt24>((UInt24)TilesCount, name: nameof(TilesCount));
                 s.DoAt(BlockStartPointer + PaletteOffset, () => {
-                    Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, PaletteCount * 4, name: nameof(Palette));
+                    Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, PaletteCount * 4, name: nameof(Palette));
                 });
                 s.DoAt(BlockStartPointer + TileDataOffset, () => {
                     TileData = s.SerializeArray<byte>(TileData, TilesCount * 0x10, name: nameof(TileData));

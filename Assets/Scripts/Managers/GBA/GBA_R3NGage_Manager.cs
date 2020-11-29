@@ -63,7 +63,7 @@ namespace R1Engine
                     s.DoAt(dataBlock.UiOffsetTable.GetPointer(vignetteStart + i), () => s.DoEncoded(new GBA_LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength)));
 
                     // Read palette
-                    var palette = s.DoAt(dataBlock.UiOffsetTable.GetPointer(palStart + i), () => s.SerializeObjectArray<ARGB1555Color>(default, 256));
+                    var palette = s.DoAt(dataBlock.UiOffsetTable.GetPointer(palStart + i), () => s.SerializeObjectArray<RGBA5551Color>(default, 256));
 
                     // Create a texture
                     var tex = TextureHelpers.CreateTexture2D(176, 208);

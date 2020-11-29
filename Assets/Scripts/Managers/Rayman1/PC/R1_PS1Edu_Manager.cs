@@ -178,7 +178,7 @@ namespace R1Engine
             using (var context = new Context(settings))
             {
                 // Get the big ray palette if exporting sprites
-                IList<ARGBColor> brPal = null;
+                IList<BaseColor> brPal = null;
 
                 var s = context.Deserializer;
 
@@ -349,7 +349,7 @@ namespace R1Engine
                         ushort texIndex = levelIndices[localGspIndex];
                         var d = levelTex.Descriptors[texIndex];
 
-                        IList<ARGBColor> p = null;
+                        IList<BaseColor> p = null;
 
                         if (levelTex.Palettes.Length == levelTex.Descriptors.Length)
                             p = levelTex.Palettes[texIndex].Value;
@@ -366,16 +366,16 @@ namespace R1Engine
                                 newPal[8] = p[color * 8];
 
                             p = newPal;*/
-                            List<ARGBColor> newPal = new List<ARGBColor>();
+                            List<BaseColor> newPal = new List<BaseColor>();
                             for (int c = 0; c < p.Count; c++) {
                                 if (c == 0) {
                                     newPal.Add(p[c]);
                                 } else {
                                     bool added = false;
                                     for (int oc = 0; oc < 8; oc++) {
-                                        if ((level.ColorPalettes[0][oc].Red >> 3) == (p[c].Red >> 3) &&
-                                            (level.ColorPalettes[0][oc].Green >> 3) == (p[c].Green >> 3) &&
-                                            (level.ColorPalettes[0][oc].Blue >> 3) == (p[c].Blue >> 3)) {
+                                        if ((int)(31 * level.ColorPalettes[0][oc].Red  ) == (int)(31 * p[c].Red  ) &&
+                                            (int)(31 * level.ColorPalettes[0][oc].Green) == (int)(31 * p[c].Green) &&
+                                            (int)(31 * level.ColorPalettes[0][oc].Blue ) == (int)(31 * p[c].Blue )) {
                                             newPal.Add(level.ColorPalettes[0][oc + color * 8]);
                                             added = true;
                                             break;
@@ -407,13 +407,13 @@ namespace R1Engine
         /// <param name="tex">The .tex file data</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprites</returns>
-        public IEnumerable<Texture2D> GetSpriteTextures(R1_PS1Edu_TEX tex, IList<ARGBColor> palette = null)
+        public IEnumerable<Texture2D> GetSpriteTextures(R1_PS1Edu_TEX tex, IList<BaseColor> palette = null)
         {
             // Parse the sprites from the texture pages
             for (int i = 0; i < tex.Descriptors.Length; i++)
             {
                 var d = tex.Descriptors[i];
-                IList<ARGBColor> p = palette;
+                IList<BaseColor> p = palette;
 
                 if (p == null && tex.Palettes.Length == tex.Descriptors.Length)
                     p = tex.Palettes[i].Value;
@@ -422,7 +422,7 @@ namespace R1Engine
             }
         }
 
-        public Texture2D GetSpriteTexture(R1_PS1Edu_TEX tex, R1_PS1Edu_TEXDescriptor d, IList<ARGBColor> p)
+        public Texture2D GetSpriteTexture(R1_PS1Edu_TEX tex, R1_PS1Edu_TEXDescriptor d, IList<BaseColor> p)
         {
             // Create the texture
             Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, clear: true);
@@ -445,13 +445,13 @@ namespace R1Engine
                     }
                     else
                     {
-                        ARGBColor col = null;
+                        BaseColor col = null;
 
                         switch (tex.BitDepth)
                         {
                             case 4: col = p[paletteIndex]; break;
                             case 8: col = p[paletteIndex]; break;
-                            case 16: col = ARGB1555Color.From1555(paletteIndex); break;
+                            case 16: col = RGBA5551Color.From5551(paletteIndex); break;
                         }
 
                         Color c = col.GetColor();
@@ -575,7 +575,7 @@ namespace R1Engine
 
             // Enumerate every palette
             for (int i = 0; i < levData.ColorPalettes.Length; i++)
-                output[i] = new Unity_MapTileMap(levData.TileTextures.Select(x => x == 0 ? new RGB666Color(0, 0, 0, 0) : levData.ColorPalettes[i][x]).ToArray(), 512 / Settings.CellSize, Settings.CellSize);
+                output[i] = new Unity_MapTileMap(levData.TileTextures.Select(x => x == 0 ? BaseColor.clear : levData.ColorPalettes[i][x]).ToArray(), 512 / Settings.CellSize, Settings.CellSize);
 
             return output;
         }

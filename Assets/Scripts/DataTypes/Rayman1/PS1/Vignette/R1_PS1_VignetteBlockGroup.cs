@@ -31,7 +31,7 @@ namespace R1Engine
         /// <summary>
         /// The image blocks, each one 64 pixels wide
         /// </summary>
-        public ARGB1555Color[][] ImageBlocks { get; set; }
+        public RGBA5551Color[][] ImageBlocks { get; set; }
 
         /// <summary>
         /// Gets the block width based on engine version
@@ -61,12 +61,12 @@ namespace R1Engine
                 // Get the size of each block
                 var blockSize = Height * blockWidth;
 
-                ImageBlocks = new ARGB1555Color[BlockGroupSize / blockSize][];
+                ImageBlocks = new RGBA5551Color[BlockGroupSize / blockSize][];
             }
 
             // Serialize blocks
             for (int i = 0; i < ImageBlocks.Length; i++)
-                ImageBlocks[i] = s.SerializeObjectArray<ARGB1555Color>(ImageBlocks[i], blockWidth * Height, name: nameof(ImageBlocks) + "[" + i + "]");
+                ImageBlocks[i] = s.SerializeObjectArray<RGBA5551Color>(ImageBlocks[i], blockWidth * Height, name: nameof(ImageBlocks) + "[" + i + "]");
         }
 
         public Texture2D ToTexture(Context context)

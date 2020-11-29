@@ -130,7 +130,7 @@ namespace R1Engine
             //Debug.Log(paletteX + " - " + paletteY + " - " + pageX + " - " + pageY + " - " + tp);
 
             // Get the palette size
-            var palette = tp == 0 ? new ARGB1555Color[16] : new ARGB1555Color[256];
+            var palette = tp == 0 ? new RGBA5551Color[16] : new RGBA5551Color[256];
 
             // Create the texture
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
@@ -737,7 +737,7 @@ namespace R1Engine
                     if (fileInfo.FileType == VignetteFileType.Raw16)
                     {
                         // Read the raw data
-                        var rawData = FileFactory.Read<ObjectArray<ARGB1555Color>>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+                        var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
 
                         // Create the texture
                         textures.Add(TextureHelpers.CreateTexture2D(fileInfo.Width, (int)(rawData.Length / fileInfo.Width)));

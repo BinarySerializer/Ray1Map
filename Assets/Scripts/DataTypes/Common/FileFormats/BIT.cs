@@ -8,11 +8,11 @@ namespace R1Engine
     /// </summary>
     public class BIT : R1Serializable
     {
-        public ARGB1555Color[] Pixels;
+        public RGBA5551Color[] Pixels;
         public byte[] PixelsPaletted;
 
         public Array<byte> PLT;
-        public ObjectArray<ARGB1555Color> PAL;
+        public ObjectArray<RGBA5551Color> PAL;
 
         /// <summary>
         /// Converts the PCX data to a texture
@@ -102,9 +102,9 @@ namespace R1Engine
                 PixelsPaletted = s.SerializeArray<byte>(PixelsPaletted, PixelsPaletted.Length, name: nameof(PixelsPaletted));
             } else {
                 if (Pixels == null) {
-                    Pixels = new ARGB1555Color[s.CurrentLength / 2];
+                    Pixels = new RGBA5551Color[s.CurrentLength / 2];
                 }
-                Pixels = s.SerializeObjectArray<ARGB1555Color>(Pixels, Pixels.Length, name: nameof(Pixels));
+                Pixels = s.SerializeObjectArray<RGBA5551Color>(Pixels, Pixels.Length, name: nameof(Pixels));
             }
         }
 

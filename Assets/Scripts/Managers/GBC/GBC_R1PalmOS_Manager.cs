@@ -33,46 +33,47 @@ namespace R1Engine
             };
         }
 
-        public static ARGBColor[] GetPalmOS4BitPalette() {
+        public static BaseColor[] GetPalmOS4BitPalette() {
             return Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
         }
 
-        public static ARGBColor[] GetPalmOS8BitPalette() {
-            ARGBColor[] pal = new ARGBColor[256];
+
+        public static BaseColor[] GetPalmOS8BitPalette() {
+            BaseColor[] pal = new BaseColor[256];
             int palIndex = 0;
 
             for (int r = 0; r < 6; r++) {
                 for (int b = 0; b < 3; b++) {
                     for (int g = 0; g < 6; g++) {
-                        pal[palIndex++] = new ARGBColor(
-                            (byte)(0xFF - r * 0x33),
-                            (byte)(0xFF - g * 0x33),
-                            (byte)(0xFF - b * 0x33));
+                        pal[palIndex++] = new CustomColor(
+                            (byte)(0xFF - r * 0x33) / 255f,
+                            (byte)(0xFF - g * 0x33) / 255f,
+                            (byte)(0xFF - b * 0x33) / 255f);
                     }
                 }
             }
             for (int r = 0; r < 6; r++) {
                 for (int b = 0; b < 3; b++) {
                     for (int g = 0; g < 6; g++) {
-                        pal[palIndex++] = new ARGBColor(
-                            (byte)(0xFF - r * 0x33),
-                            (byte)(0xFF - g * 0x33),
-                            (byte)(0xFF - (b+3) * 0x33));
+                        pal[palIndex++] = new CustomColor(
+                            (byte)(0xFF - r * 0x33) / 255f,
+                            (byte)(0xFF - g * 0x33) / 255f,
+                            (byte)(0xFF - (b + 3) * 0x33) / 255f);
                     }
                 }
             }
             for (int i = 2; i < 16; i++) {
-                if(i % 3 == 0) continue;
+                if (i % 3 == 0) continue;
                 byte b = (byte)(0x11 * i);
-                pal[palIndex++] = new ARGBColor(b,b,b);
+                pal[palIndex++] = new CustomColor(b / 255f, b / 255f, b / 255f);
             }
-            pal[palIndex++] = new ARGBColor(0xC0, 0xC0, 0xC0);
-            pal[palIndex++] = new ARGBColor(0x80, 0x00, 0x00);
-            pal[palIndex++] = new ARGBColor(0x80, 0x00, 0x80);
-            pal[palIndex++] = new ARGBColor(0x00, 0x80, 0x00);
-            pal[palIndex++] = new ARGBColor(0x00, 0x80, 0x80);
+            pal[palIndex++] = new CustomColor(0xC0 / 255, 0xC0 / 255, 0xC0 / 255);
+            pal[palIndex++] = new CustomColor(0x80 / 255, 0x00 / 255, 0x00 / 255);
+            pal[palIndex++] = new CustomColor(0x80 / 255, 0x00 / 255, 0x80 / 255);
+            pal[palIndex++] = new CustomColor(0x00 / 255, 0x80 / 255, 0x00 / 255);
+            pal[palIndex++] = new CustomColor(0x00 / 255, 0x80 / 255, 0x80 / 255);
             for (int i = palIndex; i < 256; i++) {
-                pal[palIndex++] = new ARGBColor(0,0,0);
+                pal[palIndex++] = new CustomColor(0, 0, 0);
             }
             return pal;
         }

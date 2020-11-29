@@ -12,7 +12,7 @@
         public byte VRAMBank2MapCount { get; set; }
         public GBC_TileVRAMMap[] VRAMBank1Map { get; set; }
         public GBC_TileVRAMMap[] VRAMBank2Map { get; set; }
-        public ARGB1555Color[] Palette { get; set; }
+        public RGBA5551Color[] Palette { get; set; }
 
         // Parsed from offset table
         public GBC_TileKit TileKit { get; set; }
@@ -30,7 +30,7 @@
                 VRAMBank2MapCount = s.Serialize<byte>(VRAMBank2MapCount, name: nameof(VRAMBank2MapCount));
                 VRAMBank1Map = s.SerializeObjectArray<GBC_TileVRAMMap>(VRAMBank1Map, VRAMBank1MapCount, name: nameof(VRAMBank1Map));
                 VRAMBank2Map = s.SerializeObjectArray<GBC_TileVRAMMap>(VRAMBank2Map, VRAMBank2MapCount, name: nameof(VRAMBank2Map));
-                Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, PaletteCount * 4, name: nameof(Palette));
+                Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, PaletteCount * 4, name: nameof(Palette));
 
 
                 BGMapTileNumbers = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBC_MapBlock>(BGMapTileNumbers, onPreSerialize: b => {

@@ -13,7 +13,7 @@ namespace R1Engine
 
         // Maps only
         public Pointer MapPalettePointer { get; set; }
-        public ARGB1555Color[] MapPalette { get; set; }
+        public RGBA5551Color[] MapPalette { get; set; }
 
         // Parsed
         public ushort[] MapData { get; set; }
@@ -27,7 +27,7 @@ namespace R1Engine
             Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
             MapDataPointer = s.SerializePointer(MapDataPointer, name: nameof(MapDataPointer));
             MapPalettePointer = s.SerializePointer(MapPalettePointer, name: nameof(MapPalettePointer));
-            MapPalette = s.DoAt(MapPalettePointer, () => s.SerializeObjectArray<ARGB1555Color>(MapPalette, 256, name: nameof(MapPalette)));
+            MapPalette = s.DoAt(MapPalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(MapPalette, 256, name: nameof(MapPalette)));
 
             s.DoAt(MapDataPointer, () =>
             {

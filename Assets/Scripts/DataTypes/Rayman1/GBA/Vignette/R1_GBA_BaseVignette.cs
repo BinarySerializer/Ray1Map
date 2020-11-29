@@ -47,7 +47,7 @@
         /// <summary>
         /// The 6 available palettes (16 colors each)
         /// </summary>
-        public ARGB1555Color[] Palettes { get; set; }
+        public RGBA5551Color[] Palettes { get; set; }
 
         #endregion
 
@@ -76,7 +76,7 @@
             s.DoAt(PaletteIndicesPointer, () => PaletteIndices = s.SerializeArray<byte>(PaletteIndices, Width * Height, name: nameof(PaletteIndices)));
 
             s.DoAt(PalettesPointer, () => {
-                Palettes = s.SerializeObjectArray<ARGB1555Color>(Palettes,
+                Palettes = s.SerializeObjectArray<RGBA5551Color>(Palettes,
                     (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi) ? 256 : (PaletteCount * 16),
                     name: nameof(Palettes));
             });

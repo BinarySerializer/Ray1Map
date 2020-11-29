@@ -13,7 +13,7 @@
 
         // Parsed
         public Pointer[] PagePointers { get; set; }
-        public ObjectArray<ARGB1555Color>[] Palettes { get; set; }
+        public ObjectArray<RGBA5551Color>[] Palettes { get; set; }
         public R1_PS1Edu_TEXDescriptor[] Descriptors { get; set; }
         public byte[][] TexturePages { get; set; }
 
@@ -34,7 +34,7 @@
             // Initialize array sizes
             if (PagePointers == null) PagePointers = new Pointer[NumPages];
             if (TexturePages == null) TexturePages = new byte[NumPages][];
-            if (Palettes == null) Palettes = new ObjectArray<ARGB1555Color>[NumPalettes];
+            if (Palettes == null) Palettes = new ObjectArray<RGBA5551Color>[NumPalettes];
             if (Descriptors == null) Descriptors = new R1_PS1Edu_TEXDescriptor[NumDescriptors];
 
             PagePointers = s.SerializePointerArray(PagePointers, PagePointers.Length, anchor: Offset, name: nameof(PagePointers));

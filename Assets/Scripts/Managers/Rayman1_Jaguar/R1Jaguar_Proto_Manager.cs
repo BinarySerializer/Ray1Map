@@ -322,7 +322,7 @@ namespace R1Engine
                     {
                         var tex = TextureHelpers.CreateTexture2D(vig.Width, vig.Height);
 
-                        var values = s.SerializeObjectArray<RGB556Color>(default, tex.width * vig.Height);
+                        var values = s.SerializeObjectArray<GBR655Color>(default, tex.width * vig.Height);
                         
                         for (int y = 0; y < tex.height; y++)
                         {

@@ -327,7 +327,7 @@ namespace R1Engine
                     x.SpritePaletteIndex
                 }).ToArray();
 
-                ARGBColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(256, true, wrap: 16) : null;
+                BaseColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(256, true, wrap: 16) : null;
 
                 // Helper
                 void ExportConvertedMode7Block(string outPath, uint length) {
@@ -356,7 +356,7 @@ namespace R1Engine
                         s.Goto(blockOff);
                         if (length == 0x200) {
                             var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette");
-                            PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
+                            PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette.png"), p.Palette.Select(x => new CustomColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
                             exported = true;
                             if (p != null) pal = p.Palette;
                         }
@@ -509,8 +509,8 @@ namespace R1Engine
                                 }
                                 if (gb.Count != 0) 
                                 {
-                                    ARGB1555Color[] p = null;
-                                    rom.OffsetTable.DoAtBlock(context, a.PalBlockIndex, blockSize => p = s.SerializeObjectArray<ARGB1555Color>(default, 256));
+                                    RGBA5551Color[] p = null;
+                                    rom.OffsetTable.DoAtBlock(context, a.PalBlockIndex, blockSize => p = s.SerializeObjectArray<RGBA5551Color>(default, 256));
                                     int tileDataSize = gb.TileData[0].Length;
                                     if (gb.TileData.All(td => td.Length == tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
                                         //gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
@@ -546,7 +546,7 @@ namespace R1Engine
                             if (size == 0x200)
                             {
                                 var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette[{i}]");
-                                PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette/{i}{append}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
+                                PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette/{i}{append}.png"), p.Palette.Select(x => new CustomColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
                                 exported = true;
                                 if (p != null)
                                     pal = p.Palette;
@@ -912,7 +912,7 @@ namespace R1Engine
             return graphicsData;
         }
 
-        protected IEnumerable<Texture2D> GetSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex)
+        protected IEnumerable<Texture2D> GetSpriteFrames(GBARRR_GraphicsBlock spr, BaseColor[] palette, int paletteIndex)
         {
             // For each frame
             Color[] paletteColors = new Color[16];
@@ -975,7 +975,7 @@ namespace R1Engine
             }
         }
 
-        protected void ExportSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex, string outputDir, bool includeAbsolutePointer, int speed) {
+        protected void ExportSpriteFrames(GBARRR_GraphicsBlock spr, BaseColor[] palette, int paletteIndex, string outputDir, bool includeAbsolutePointer, int speed) {
             try 
             {
                 var index = 0;
@@ -1071,7 +1071,7 @@ namespace R1Engine
             return map;
         }
 
-        public Unity_MapTileMap LoadTileSet(byte[] tilemap, bool is4bit, ARGBColor[] palette, int palStart = 0, int palCount = 1, AnimTileInfo[] animtedTileInfos = null)
+        public Unity_MapTileMap LoadTileSet(byte[] tilemap, bool is4bit, BaseColor[] palette, int palStart = 0, int palCount = 1, AnimTileInfo[] animtedTileInfos = null)
         {
             animtedTileInfos = animtedTileInfos ?? new AnimTileInfo[0];
             int block_size = is4bit ? 0x20 : 0x40;
@@ -1119,7 +1119,7 @@ namespace R1Engine
                 currentBlockIndex += animTileInfo.PalCount;
             }
 
-            void fillTiles(ARGBColor[] pal, int palOffset, int blockIndex)
+            void fillTiles(BaseColor[] pal, int palOffset, int blockIndex)
             {
                 var tileIndex = 0;
 
@@ -3070,7 +3070,7 @@ namespace R1Engine
             public ushort Height { get; }
         }
 
-        public AnimTileInfo[] GetBG0AnimTileInfo(int level, ARGBColor[][] animtedPalettes)
+        public AnimTileInfo[] GetBG0AnimTileInfo(int level, BaseColor[][] animtedPalettes)
         {
             switch (level)
             {
@@ -3084,7 +3084,7 @@ namespace R1Engine
                     return null;
             }
         }
-        public AnimTileInfo[] GetFGAnimTileInfo(int level, ARGBColor[][] animtedPalettes)
+        public AnimTileInfo[] GetFGAnimTileInfo(int level, BaseColor[][] animtedPalettes)
         {
             switch (level)
             {
@@ -3122,7 +3122,7 @@ namespace R1Engine
 
         public class AnimTileInfo
         {
-            public AnimTileInfo(ARGBColor[] animatedPalette, int animSpeed, int tilePalIndex = 0, int palCount = 16)
+            public AnimTileInfo(BaseColor[] animatedPalette, int animSpeed, int tilePalIndex = 0, int palCount = 16)
             {
                 AnimatedPalette = animatedPalette;
                 AnimSpeed = animSpeed;
@@ -3130,7 +3130,7 @@ namespace R1Engine
                 PalCount = palCount;
             }
 
-            public ARGBColor[] AnimatedPalette { get; }
+            public BaseColor[] AnimatedPalette { get; }
             public int AnimSpeed { get; }
             public int TilePalIndex { get; }
             public int PalCount { get; }

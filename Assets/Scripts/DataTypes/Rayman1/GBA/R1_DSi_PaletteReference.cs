@@ -9,7 +9,7 @@
         public uint UInt_04;
         public Pointer NamePointer;
 
-        public ARGB1555Color[] Palette { get; set; }
+        public RGBA5551Color[] Palette { get; set; }
         public string Name;
 
         /// <summary>
@@ -24,7 +24,7 @@
 
             s.DoAt(NamePointer, () => Name = s.SerializeString(Name, name: nameof(Name)));
             s.DoAt(PalettePointer, () => {
-                Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, 256, name: nameof(Palette));
+                Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, 256, name: nameof(Palette));
             });
         }
     }

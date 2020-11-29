@@ -154,7 +154,7 @@ namespace R1Engine
                 return new Unity_MapTileMap(Settings.CellSize);
 
             // Read the files
-            var tileSetPalette = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetTileSetPaletteFilePath(context), context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+            var tileSetPalette = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetTileSetPaletteFilePath(context), context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
             var tileSetPaletteIndexTable = FileFactory.Read<Array<byte>>(GetTileSetPaletteIndexTableFilePath(context), context, onPreSerialize: (s, x) => x.Length = s.CurrentLength);
             var tileSet = FileFactory.Read<BIT>(GetTileSetFilePath(context), context, onPreSerialize: (s, b) =>
             {
@@ -456,7 +456,7 @@ namespace R1Engine
                     });
 
                     // Read the raw data
-                    var rawData = FileFactory.Read<ObjectArray<ARGB1555Color>>(file, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+                    var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(file, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
 
                     // Create the texture
                     var tex = TextureHelpers.CreateTexture2D(width, (int)(rawData.Length / width));

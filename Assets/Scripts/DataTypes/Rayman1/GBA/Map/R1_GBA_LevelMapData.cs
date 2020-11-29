@@ -68,7 +68,7 @@ namespace R1Engine
         /// <summary>
         /// The 10 available tile palettes (16 colors each)
         /// </summary>
-        public ARGB1555Color[] TilePalettes { get; set; }
+        public RGBA5551Color[] TilePalettes { get; set; }
 
         public byte[] TilePaletteIndices { get; set; }
 
@@ -140,7 +140,7 @@ namespace R1Engine
                 });
 
                 s.DoAt(TileBlockIndicesPointer, () => TileBlockIndices = s.SerializeArray<ushort>(TileBlockIndices, TilePaletteIndices.Length, name: nameof(TileBlockIndices)));
-                s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<ARGB1555Color>(TilePalettes, 10 * 16, name: nameof(TilePalettes)));
+                s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<RGBA5551Color>(TilePalettes, 10 * 16, name: nameof(TilePalettes)));
 
                 ushort maxBlockIndex = TileBlockIndices.Max();
                 s.DoAt(TileDataPointer, () => TileData = s.SerializeArray<byte>(TileData, 0x20 * ((uint)maxBlockIndex + 1), name: nameof(TileData)));
@@ -151,7 +151,7 @@ namespace R1Engine
                 s.DoAt(TileDataPointer, () => {
                     s.DoEncoded(new GBA_LZSSEncoder(), () => TileData = s.SerializeArray<byte>(TileData, s.CurrentLength, name: nameof(TileData)));
                 });
-                s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<ARGB1555Color>(TilePalettes, 256, name: nameof(TilePalettes)));
+                s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<RGBA5551Color>(TilePalettes, 256, name: nameof(TilePalettes)));
                 s.DoAt(TileBlockIndicesPointer, () => {
                     uint maxTileInd = MapData.Tiles.Max(t => t.TileMapY);
                     TileBlockIndices = s.SerializeArray<ushort>(TileBlockIndices, (maxTileInd + 1) * 4, name: nameof(TileBlockIndices));

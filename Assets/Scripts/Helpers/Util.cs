@@ -39,16 +39,16 @@ namespace R1Engine
 
 			return string.Format("{0:n" + decimalPlaces + "} {1}", dValue, SizeSuffixes[i]);
 		}
-        public static ARGBColor[] CreateDummyPalette(int length, bool firstTransparent = true, int? wrap = null) {
-            ARGBColor[] pal = new ARGBColor[length];
+        public static BaseColor[] CreateDummyPalette(int length, bool firstTransparent = true, int? wrap = null) {
+            BaseColor[] pal = new BaseColor[length];
             if(wrap == null) wrap = length;
             if (firstTransparent) {
-                pal[0] = new ARGBColor(0,0,0,0);
+                pal[0] = BaseColor.clear;
             }
             for (int i = firstTransparent ? 1 : 0; i < length; i++) {
                 float val = (float)(i % wrap.Value) / (wrap.Value - 1);
-                byte bv = (byte)Mathf.RoundToInt(val * 255f);
-                pal[i] = new ARGBColor(255,bv,bv,bv);
+                float bv = val;
+                pal[i] = new CustomColor(bv,bv,bv);
             }
             return pal;
         }
@@ -582,7 +582,7 @@ namespace R1Engine
         }
 
 
-        public static Texture2D ToTileSetTexture(ARGBColor[] imgData, int tileWidth, bool flipY, int wrap = 32) {
+        public static Texture2D ToTileSetTexture(BaseColor[] imgData, int tileWidth, bool flipY, int wrap = 32) {
             int tileSize = tileWidth * tileWidth;
             int tilesetLength = imgData.Length / tileSize;
 
@@ -603,7 +603,7 @@ namespace R1Engine
             return tex;
         }
 
-        public static void FillInTile(this Texture2D tex, ARGBColor[] imgData, int imgDataOffset, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false) {
+        public static void FillInTile(this Texture2D tex, BaseColor[] imgData, int imgDataOffset, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false) {
             // Fill in tile pixels
             for (int y = 0; y < tileWidth; y++) {
 
@@ -655,7 +655,7 @@ namespace R1Engine
                 return LCM(numbers[i], LCM(numbers, i + 1));
         }
 
-        public static Color[] ConvertGBAPalette(IEnumerable<ARGB1555Color> palette, bool firstTransparent = true) => palette.Select((x, i) => {
+        public static Color[] ConvertGBAPalette(IEnumerable<RGBA5551Color> palette, bool firstTransparent = true) => palette.Select((x, i) => {
             Color c = x.GetColor();
             if (i != 0 || !firstTransparent) {
                 c.a = 1f;
@@ -664,8 +664,8 @@ namespace R1Engine
             }
             return c;
         }).ToArray();
-        public static Color[][] ConvertAndSplitGBAPalette(ARGB1555Color[] palette, bool firstTransparent = true) => palette.Split(16, 16).Select(p => ConvertGBAPalette(p, firstTransparent: firstTransparent)).ToArray();
-        public static Color[][] ConvertAndSplitGBCPalette(ARGB1555Color[] palette, bool firstTransparent = true) => palette.Split(palette.Length / 4, 4).Select(p => ConvertGBAPalette(p, firstTransparent: firstTransparent)).ToArray();
+        public static Color[][] ConvertAndSplitGBAPalette(RGBA5551Color[] palette, bool firstTransparent = true) => palette.Split(16, 16).Select(p => ConvertGBAPalette(p, firstTransparent: firstTransparent)).ToArray();
+        public static Color[][] ConvertAndSplitGBCPalette(RGBA5551Color[] palette, bool firstTransparent = true) => palette.Split(palette.Length / 4, 4).Select(p => ConvertGBAPalette(p, firstTransparent: firstTransparent)).ToArray();
 
 
         public static IEnumerable<T[]> Split<T>(this T[] array, int length, int size) => Enumerable.Range(0, length).Select(x => array.Skip(size * x).Take(size).ToArray());

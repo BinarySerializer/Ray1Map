@@ -15,7 +15,7 @@ namespace R1Engine
         /// <param name="outputPath">The path to export to</param>
         /// <param name="name">The palette name</param>
         /// <param name="palette">The palette</param>
-        public static void ExportPaletteToGimp(string outputPath, string name, ARGBColor[] palette)
+        public static void ExportPaletteToGimp(string outputPath, string name, BaseColor[] palette)
         {
             // Create the file
             using (var fileStream = File.Create(outputPath))
@@ -40,7 +40,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="outputPath">The path to export to</param>
         /// <param name="palette">The palette</param>
-        public static void ExportPalette(string outputPath, IList<ARGBColor> palette, int scale = 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null, bool reverseY = false)
+        public static void ExportPalette(string outputPath, IList<BaseColor> palette, int scale = 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null, bool reverseY = false)
         {
             int length = optionalLength ?? palette.Count;
             int wrap = optionalWrap ?? length;

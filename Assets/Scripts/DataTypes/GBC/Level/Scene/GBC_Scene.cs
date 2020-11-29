@@ -16,8 +16,8 @@ namespace R1Engine
         public byte IndexMin_ActorModels { get; set; }
         public byte IndexMax_ActorModels { get; set; }
 
-        public ARGB1555Color[] ObjPalette { get; set; }
-        public ARGB1555Color[] TilePalette { get; set; }
+        public RGBA5551Color[] ObjPalette { get; set; }
+        public RGBA5551Color[] TilePalette { get; set; }
         public ushort MainActor_0 { get; set; }
         public ushort MainActor_1 { get; set; }
         public ushort MainActor_2 { get; set; }
@@ -53,8 +53,8 @@ namespace R1Engine
                 Index_PlayField = s.Serialize<byte>(Index_PlayField, name: nameof(Index_PlayField));
                 IndexMin_ActorModels = s.Serialize<byte>(IndexMin_ActorModels, name: nameof(IndexMin_ActorModels));
                 IndexMax_ActorModels = s.Serialize<byte>(IndexMax_ActorModels, name: nameof(IndexMax_ActorModels));
-                ObjPalette = s.SerializeObjectArray<ARGB1555Color>(ObjPalette, 8 * 4, name: nameof(ObjPalette));
-                TilePalette = s.SerializeObjectArray<ARGB1555Color>(TilePalette, 8 * 4, name: nameof(TilePalette));
+                ObjPalette = s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 8 * 4, name: nameof(ObjPalette));
+                TilePalette = s.SerializeObjectArray<RGBA5551Color>(TilePalette, 8 * 4, name: nameof(TilePalette));
                 MainActor_0 = s.Serialize<ushort>(MainActor_0, name: nameof(MainActor_0));
                 MainActor_1 = s.Serialize<ushort>(MainActor_1, name: nameof(MainActor_1));
                 MainActor_2 = s.Serialize<ushort>(MainActor_2, name: nameof(MainActor_2));

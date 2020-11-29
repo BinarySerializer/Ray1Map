@@ -212,10 +212,10 @@ namespace R1Engine
 
         public async UniTask ExportPaletteImageAsync(GameSettings settings, string outputPath)
         {
-            var spritePals = new List<ARGB1555Color[]>();
-            var tilePals = new List<ARGB1555Color[]>();
+            var spritePals = new List<RGBA5551Color[]>();
+            var tilePals = new List<RGBA5551Color[]>();
 
-            void Add(ICollection<ARGB1555Color[]> pals, ARGB1555Color[] pal)
+            void Add(ICollection<RGBA5551Color[]> pals, RGBA5551Color[] pal)
             {
                 if (pal != null && !pals.Any(x => x.SequenceEqual(pal)))
                     pals.Add(pal);
@@ -253,7 +253,7 @@ namespace R1Engine
                     Add(spritePals, wld.EventPalette1);
                     Add(spritePals, wld.EventPalette2);
 
-                    foreach (var tilePal in wld.TilePalettes ?? new ARGB1555Color[0][])
+                    foreach (var tilePal in wld.TilePalettes ?? new RGBA5551Color[0][])
                         Add(tilePals, tilePal);
                 }
             }

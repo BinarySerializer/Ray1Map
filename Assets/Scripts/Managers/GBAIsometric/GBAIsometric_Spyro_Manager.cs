@@ -52,7 +52,7 @@ namespace R1Engine
 
                     if (categorize && length == 512)
                     {
-                        var pal = rom.DataTable.DoAtBlock(context, i, size => s.SerializeObjectArray<ARGB1555Color>(default, 256, name: $"Pal[{i}]"));
+                        var pal = rom.DataTable.DoAtBlock(context, i, size => s.SerializeObjectArray<RGBA5551Color>(default, 256, name: $"Pal[{i}]"));
 
                         PaletteHelpers.ExportPalette(Path.Combine(outputPath, "Palettes", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), pal, optionalWrap: 16);
                     }
@@ -183,7 +183,7 @@ namespace R1Engine
 
                     for (int i = 0; i < 256; i++)
                     {
-                        if (lvlPal[i].Color1555 != 0)
+                        if (lvlPal[i].Color5551 != 0)
                             objPal[i] = lvlPal[i];
                     }
                 }
@@ -529,7 +529,7 @@ namespace R1Engine
 
                 for (int i = 0; i < 256; i++)
                 {
-                    if (lvlPal[i].Color1555 != 0)
+                    if (lvlPal[i].Color5551 != 0)
                         objPal[i] = lvlPal[i];
                 }
             }
@@ -663,7 +663,7 @@ namespace R1Engine
             }
         }
 
-        public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
+        public Unity_MapTileMap LoadTileSet(RGBA5551Color[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
         {
             var palettes = Util.ConvertAndSplitGBAPalette(tilePal);
 
@@ -685,7 +685,7 @@ namespace R1Engine
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }
 
-        public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, byte[] tileSet, MapTile[] mapTiles)
+        public Unity_MapTileMap LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet, MapTile[] mapTiles)
         {
             var palettes = Util.ConvertGBAPalette(tilePal).Split(16, 16).ToArray();
 
@@ -698,7 +698,7 @@ namespace R1Engine
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }
 
-        public Unity_MapTileMap LoadTileSet(ARGB1555Color[] tilePal, byte[] tileSet)
+        public Unity_MapTileMap LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet)
         {
             var pal = Util.ConvertGBAPalette(tilePal);
 

@@ -169,11 +169,11 @@ namespace R1Engine {
 			if (page == null) return 0;
 			return page.GetByte(x, y);
 		}
-		public ARGB1555Color GetColor1555(int pageX, int pageY, int x, int y) {
+		public RGBA5551Color GetColor1555(int pageX, int pageY, int x, int y) {
 			byte b0 = GetPixel8(pageX, pageY, x * 2, y);
 			byte b1 = GetPixel8(pageX, pageY, (x * 2) + 1, y);
 			ushort col = (ushort)(b0 | (b1 << 8));
-			return new ARGB1555Color() { Color1555 = col };
+			return RGBA5551Color.From5551(col);
 		}
 
 		public class Page {
