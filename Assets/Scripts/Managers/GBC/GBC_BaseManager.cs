@@ -286,7 +286,12 @@ namespace R1Engine
 
             // Get properties
             var puppet = model.ActionTable.Puppet;
-            var tileKit = puppet.TileKit;
+            var curPuppet = puppet;
+            var tileKit = curPuppet.TileKit;
+            while (tileKit == null) {
+                curPuppet = puppet.BasePuppet;
+                tileKit = curPuppet.TileKit;
+            }
 
             var tileSets = tileKit.GetTileSetTex();
 

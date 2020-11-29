@@ -34,8 +34,10 @@ namespace R1Engine
                     };
 
                 case EngineVersion.GBC_R1_PocketPC:
-                    return null;
-                    break;
+                    return new Texture2D[]
+                    {
+                        Util.ToTileSetTexture(TileDataPocketPC.Select(c => c.Color565 == 0 ? new ARGBColor(0,0,0,0) : c).ToArray(), GBC_BaseManager.CellSize, true)
+                    };
 
                 default:
                     throw new ArgumentOutOfRangeException();

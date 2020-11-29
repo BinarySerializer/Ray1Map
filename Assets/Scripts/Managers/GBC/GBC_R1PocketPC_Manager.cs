@@ -140,8 +140,8 @@ namespace R1Engine
                         ushort blockID = (ushort)(i + 1);
                         Pointer blockPtr = dataFile.Resolve(blockID);
                         uint blockLength = dataFile.GetLength(blockID) ?? 0;
-
-                        var name = $"{blockID}";
+                        if(blockPtr == null) continue;
+                        var name = $"{blockID}_{blockPtr.StringFileOffset}";
                         bool exported = false;
                         if (categorized && filePath.Contains("menu")) 
                         {

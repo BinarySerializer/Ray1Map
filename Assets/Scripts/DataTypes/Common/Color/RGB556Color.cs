@@ -23,9 +23,9 @@
         public ushort Color565 {
             get {
                 ushort val = 0;
-                BitHelpers.SetBits(val, (ushort)((Red / 255f) * 31), 5, 11);
-                BitHelpers.SetBits(val, (ushort)((Green / 255f) * 63), 6, 0);
-                BitHelpers.SetBits(val, (ushort)((Blue / 255f) * 31), 5, 6);
+                val = (ushort)BitHelpers.SetBits(val, (ushort)((Red / 255f) * 31), 5, 11);
+                val = (ushort)BitHelpers.SetBits(val, (ushort)((Green / 255f) * 63), 6, 0);
+                val = (ushort)BitHelpers.SetBits(val, (ushort)((Blue / 255f) * 31), 5, 6);
                 return val;
             }
             set {
