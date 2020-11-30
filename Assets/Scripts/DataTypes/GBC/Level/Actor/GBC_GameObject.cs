@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBC_Actor : R1Serializable
+    public class GBC_GameObject : R1Serializable
     {
         public byte Index_ActorModel { get; set; } // Invalid if 0
         public ushort Index { get; set; }
@@ -11,9 +11,16 @@
         public byte UnkByte1 { get; set; }
         public byte ActionID { get; set; }
         public byte LinkCount { get; set; }
-        public GBC_ActorLink[] Links { get; set; }
+        public GBC_GameObjectLink[] Links { get; set; }
+
+        // Actors
         public GBC_UnkActorStruct UnkActorStruct { get; set; }
         public byte UnkByte { get; set; }
+
+        // Captors
+        public byte UnkCaptorByte { get; set; }
+        public byte BoxHeight { get; set; }
+        public byte BoxWidth { get; set; }
 
         public bool IsCaptor => ActorID == -1;
 
@@ -31,11 +38,15 @@
             UnkByte1 = s.Serialize<byte>(UnkByte1, name: nameof(UnkByte1));
             ActionID = s.Serialize<byte>(ActionID, name: nameof(ActionID));
             LinkCount = s.Serialize<byte>(LinkCount, name: nameof(LinkCount));
-            Links = s.SerializeObjectArray<GBC_ActorLink>(Links, LinkCount, name: nameof(Links));
-            UnkActorStruct = s.SerializeObject<GBC_UnkActorStruct>(UnkActorStruct, name: nameof(UnkActorStruct));
-
-            if (!IsCaptor)
+            Links = s.SerializeObjectArray<GBC_GameObjectLink>(Links, LinkCount, name: nameof(Links));
+            if (IsCaptor) {
+                UnkCaptorByte = s.Serialize<byte>(UnkCaptorByte, name: nameof(UnkCaptorByte));
+                BoxHeight = s.Serialize<byte>(BoxHeight, name: nameof(BoxHeight));
+                BoxWidth = s.Serialize<byte>(BoxWidth, name: nameof(BoxWidth));
+            } else {
+                UnkActorStruct = s.SerializeObject<GBC_UnkActorStruct>(UnkActorStruct, name: nameof(UnkActorStruct));
                 UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));
+            }
         }
     }
 }

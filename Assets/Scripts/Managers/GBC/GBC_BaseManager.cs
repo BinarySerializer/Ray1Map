@@ -152,7 +152,7 @@ namespace R1Engine
                     await UniTask.WaitForEndOfFrame();
 
                     // Enumerate every graphic group
-                    foreach (var model in data.Scene.Actors.Select(x => x.ActorModel).Where(x => x != null).Distinct())
+                    foreach (var model in data.Scene.GameObjects.Select(x => x.ActorModel).Where(x => x != null).Distinct())
                     {
                         var puppet = model.ActionTable.Puppet;
                         var offset = puppet.Offset;
@@ -252,7 +252,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading actor models & puppets";
             await Controller.WaitIfNecessary();
 
-            foreach (var actor in scene.Actors)
+            foreach (var actor in scene.GameObjects)
             {
                 if (actorModels.Any(x => x.Index == actor.Index_ActorModel) || actor.ActorModel == null)
                     continue;
@@ -269,7 +269,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var objManager = new Unity_ObjectManager_GBC(context, actorModels.ToArray());
-            var objects = new List<Unity_Object>(scene.Actors.Select(x => new Unity_Object_GBC(x, objManager)));
+            var objects = new List<Unity_Object>(scene.GameObjects.Select(x => new Unity_Object_GBC(x, objManager)));
 
             return new Unity_Level(
                 maps: maps,

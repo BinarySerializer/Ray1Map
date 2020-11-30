@@ -7,14 +7,14 @@ namespace R1Engine
 {
     public class Unity_Object_GBC : Unity_Object
     {
-        public Unity_Object_GBC(GBC_Actor actor, Unity_ObjectManager_GBC objManager)
+        public Unity_Object_GBC(GBC_GameObject actor, Unity_ObjectManager_GBC objManager)
         {
             // Set properties
             Actor = actor;
             ObjManager = objManager;
         }
 
-        public GBC_Actor Actor { get; }
+        public GBC_GameObject Actor { get; }
         public Unity_ObjectManager_GBC ObjManager { get; }
 
         public GBC_Action Action => ActorModel?.Actions.ElementAtOrDefault(ActionIndex);
@@ -62,9 +62,9 @@ namespace R1Engine
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override bool CanBeLinked => true;
-        public override IEnumerable<int> Links => Actor.Links.
-            Where(link => link.ActorIndex > 0 && link.Byte_02 == 0).
-            Select(link => link.ActorIndex - 1);
+        public override IEnumerable<int> Links => Actor.Links
+            .Where(link => link.Type == GBC_GameObjectLink.MessageType.GameObject && link.GameObjectID.HasValue)
+            .Select(link => link.GameObjectID.Value - 1);
 
         public override string PrimaryName
         {

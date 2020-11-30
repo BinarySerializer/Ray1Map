@@ -4,8 +4,8 @@ namespace R1Engine
 {
     public class GBC_Scene : GBC_BaseBlock
     {
-        public ushort ActorsCount { get; set; }
-        public ushort ActorsOffset { get; set; }
+        public ushort GameObjectsCount { get; set; }
+        public ushort GameObjectsOffset { get; set; }
         public byte KnotsHeight { get; set; }
         public byte KnotsWidth { get; set; }
         public ushort KnotsOffset { get; set; }
@@ -26,7 +26,7 @@ namespace R1Engine
         public GBC_UnkActorStruct[] UnkActorStructs { get; set; }
 
         // Parsed from offsets
-        public GBC_Actor[] Actors { get; set; }
+        public GBC_GameObject[] GameObjects { get; set; }
         public GBC_Knot[] Knots { get; set; } // Sectors
 
         // Parsed from offset table
@@ -42,8 +42,8 @@ namespace R1Engine
             s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Little, () => 
             {
                 // Parse data
-                ActorsCount = s.Serialize<ushort>(ActorsCount, name: nameof(ActorsCount));
-                ActorsOffset = s.Serialize<ushort>(ActorsOffset, name: nameof(ActorsOffset));
+                GameObjectsCount = s.Serialize<ushort>(GameObjectsCount, name: nameof(GameObjectsCount));
+                GameObjectsOffset = s.Serialize<ushort>(GameObjectsOffset, name: nameof(GameObjectsOffset));
                 KnotsHeight = s.Serialize<byte>(KnotsHeight, name: nameof(KnotsHeight));
                 KnotsWidth = s.Serialize<byte>(KnotsWidth, name: nameof(KnotsWidth));
                 KnotsOffset = s.Serialize<ushort>(KnotsOffset, name: nameof(KnotsOffset));
@@ -61,10 +61,10 @@ namespace R1Engine
                 Index_SoundBank = s.Serialize<byte>(Index_SoundBank, name: nameof(Index_SoundBank));
 
                 // TODO: Parse data (UnkActorStructs?)
-                UnknownData = s.SerializeArray<byte>(UnknownData, (blockOffset + ActorsOffset).AbsoluteOffset - s.CurrentPointer.AbsoluteOffset, name: nameof(UnknownData));
+                UnknownData = s.SerializeArray<byte>(UnknownData, (blockOffset + GameObjectsOffset).AbsoluteOffset - s.CurrentPointer.AbsoluteOffset, name: nameof(UnknownData));
 
                 // Parse from pointers
-                Actors = s.DoAt(blockOffset + ActorsOffset, () => s.SerializeObjectArray<GBC_Actor>(Actors, ActorsCount, name: nameof(Actors)));
+                GameObjects = s.DoAt(blockOffset + GameObjectsOffset, () => s.SerializeObjectArray<GBC_GameObject>(GameObjects, GameObjectsCount, name: nameof(GameObjects)));
                 Knots = s.DoAt(blockOffset + KnotsOffset, () => s.SerializeObjectArray<GBC_Knot>(Knots, KnotsHeight * KnotsWidth, name: nameof(Knots)));
                 s.Goto(Knots.Last().Offset + Knots.Last().ActorsCount * 2 + 1); // Go to end of the block
             });
@@ -73,7 +73,7 @@ namespace R1Engine
             PlayField = s.DoAt(DependencyTable.GetPointer(Index_PlayField - 1), () => s.SerializeObject<GBC_PlayField>(PlayField, name: nameof(PlayField)));
 
             // Parse actor models
-            foreach (var actor in Actors.Where(x => x.Index_ActorModel > 1))
+            foreach (var actor in GameObjects.Where(x => x.Index_ActorModel > 1))
                 actor.ActorModel = s.DoAt(DependencyTable.GetPointer(actor.Index_ActorModel - 1), () => s.SerializeObject<GBC_ActorModel>(actor.ActorModel, name: $"{nameof(actor.ActorModel)}[{actor.Index_ActorModel}]"));
         }
     }
