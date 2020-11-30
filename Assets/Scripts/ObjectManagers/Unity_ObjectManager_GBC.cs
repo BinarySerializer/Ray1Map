@@ -24,16 +24,20 @@ namespace R1Engine
 
         public class ActorModel
         {
-            public ActorModel(int index, GBC_Action[] states, Unity_ObjGraphics graphics)
+            public ActorModel(int index, GBC_Action[] actions, Unity_ObjGraphics graphics)
             {
                 Index = index;
-                States = states;
+                Actions = actions;
                 Graphics = graphics;
+
+                for (int i = 0; i < (Actions?.Length ?? 0); i++)
+                    ActionsLookup[Actions[i]?.ActionID ?? 0] = i;
             }
 
             public int Index { get; }
 
-            public GBC_Action[] States { get; }
+            public Dictionary<int, int> ActionsLookup { get; } = new Dictionary<int, int>();
+            public GBC_Action[] Actions { get; }
 
             public Unity_ObjGraphics Graphics { get; }
         }

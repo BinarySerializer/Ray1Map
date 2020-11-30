@@ -17,7 +17,7 @@ namespace R1Engine
         public GBC_Actor Actor { get; }
         public Unity_ObjectManager_GBC ObjManager { get; }
 
-        public GBC_Action State => ActorModel?.States.ElementAtOrDefault(ActionIndex);
+        public GBC_Action Action => ActorModel?.Actions.ElementAtOrDefault(ActionIndex);
         public Unity_ObjectManager_GBC.ActorModel ActorModel => ObjManager.ActorModels.ElementAtOrDefault(ActorModelIndex);
 
         public int ActorModelIndex
@@ -37,10 +37,10 @@ namespace R1Engine
             }
         }
 
-        public int ActionIndex // TODO: Incorrect - look up action with the same ActionID in actorModel
+        public int ActionIndex
         {
-            get => Actor.ActionID - 1;
-            set => Actor.ActionID = (byte)(value + 1);
+            get => ActorModel?.ActionsLookup.TryGetItem(Actor.ActionID, 0) ?? 0;
+            set => Actor.ActionID = ActorModel?.Actions[value].ActionID ?? 0;
         }
 
         public override short XPosition
@@ -55,7 +55,8 @@ namespace R1Engine
             set => Actor.YPos = value;
         }
 
-        public override string DebugText => String.Empty;
+        public override string DebugText => $"ActionIndex: {ActionIndex}{Environment.NewLine}" +
+                                            $"ActionID: {Actor.ActionID}{Environment.NewLine}";
 
         public override R1Serializable SerializableData => Actor;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
@@ -94,7 +95,7 @@ namespace R1Engine
         public override Unity_ObjAnimation CurrentAnimation => ActorModel?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
-        public override int? GetAnimIndex => OverrideAnimIndex - 1 ?? State?.AnimIndex - 1 ?? ActionIndex;
+        public override int? GetAnimIndex => OverrideAnimIndex - 1 ?? Action?.AnimIndex - 1 ?? ActionIndex;
         protected override int GetSpriteID => ActorModelIndex;
         public override IList<Sprite> Sprites => ActorModel?.Graphics?.Sprites;
 
@@ -138,7 +139,7 @@ namespace R1Engine
             }
 
             public int EtatLength => 0;
-            public int SubEtatLength => Obj.ActorModel?.States?.Length > 0 ? Obj.ActorModel?.States?.Length ?? 0 : Obj.ActorModel?.Graphics?.Animations.Count ?? 0;
+            public int SubEtatLength => Obj.ActorModel?.Actions?.Length > 0 ? Obj.ActorModel?.Actions?.Length ?? 0 : Obj.ActorModel?.Graphics?.Animations.Count ?? 0;
 
             public byte OffsetBX { get; set; }
 
@@ -194,16 +195,16 @@ namespace R1Engine
         protected override void RecalculateUIStates()
         {
             UIStates_GraphicsDataIndex = ActorModelIndex;
-            var states = ActorModel?.States;
+            var actions = ActorModel?.Actions;
             var anims = ActorModel?.Graphics?.Animations;
             HashSet<int> usedAnims = new HashSet<int>();
             List<UIState> uiStates = new List<UIState>();
-            if (states != null)
+            if (actions != null)
             {
-                for (byte i = 0; i < states.Length; i++)
+                for (byte i = 0; i < actions.Length; i++)
                 {
-                    uiStates.Add(new GBC_UIState("Action " + i, stateIndex: i));
-                    usedAnims.Add(states[i].AnimIndex - 1);
+                    uiStates.Add(new GBC_UIState($"Action {actions[i].ActionID}", stateIndex: i));
+                    usedAnims.Add(actions[i].AnimIndex - 1);
                 }
             }
             if (anims != null)
