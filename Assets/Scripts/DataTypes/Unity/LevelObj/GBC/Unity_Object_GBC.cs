@@ -37,10 +37,10 @@ namespace R1Engine
             }
         }
 
-        public int ActionIndex
+        public int ActionIndex // TODO: Incorrect - look up action with the same ActionID in actorModel
         {
-            get => Actor.State - 1;
-            set => Actor.State = (byte)(value + 1);
+            get => Actor.ActionID - 1;
+            set => Actor.ActionID = (byte)(value + 1);
         }
 
         public override short XPosition

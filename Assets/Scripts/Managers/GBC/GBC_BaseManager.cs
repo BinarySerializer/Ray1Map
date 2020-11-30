@@ -372,7 +372,7 @@ namespace R1Engine
                         }
                     }
 
-                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.ToArray().OrderByDescending(p => p.Priority).ToArray());
+                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.OrderByDescending(p => p.Priority).ToArray());
                     unityAnim.AnimSpeeds[frameIndex] = frame.Time;
                 }
 

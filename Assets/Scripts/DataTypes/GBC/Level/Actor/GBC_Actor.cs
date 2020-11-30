@@ -4,7 +4,7 @@
     {
         public byte Index_ActorModel { get; set; } // Invalid if 0
         public ushort Index { get; set; }
-        public byte State { get; set; }
+        public byte ActionID { get; set; }
         public sbyte ActorID { get; set; }
         public short YPos { get; set; }
         public short XPos { get; set; }
@@ -24,7 +24,7 @@
         {
             Index_ActorModel = s.Serialize<byte>(Index_ActorModel, name: nameof(Index_ActorModel));
             Index = s.Serialize<ushort>(Index, name: nameof(Index));
-            State = s.Serialize<byte>(State, name: nameof(State));
+            ActionID = s.Serialize<byte>(ActionID, name: nameof(ActionID));
             ActorID = s.Serialize<sbyte>(ActorID, name: nameof(ActorID));
             YPos = s.Serialize<short>(YPos, name: nameof(YPos));
             XPos = s.Serialize<short>(XPos, name: nameof(XPos));

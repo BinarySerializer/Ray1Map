@@ -2,7 +2,7 @@
 {
     public class GBC_ActorModel : GBC_BaseBlock
     {
-        public byte ActorModelByte00 { get; set; } // Important: Also at offset 0 in memory Actor struct. Flags?
+        public byte ActorID { get; set; }
         public byte Anim0 { get; set; } // Some animation related thing. Flags?
         public byte PuppetLayersCount { get; set; }
         public sbyte RenderBoxY { get; set; }
@@ -15,7 +15,7 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            ActorModelByte00 = s.Serialize<byte>(ActorModelByte00, name: nameof(ActorModelByte00));
+            ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
             Anim0 = s.Serialize<byte>(Anim0, name: nameof(Anim0));
             PuppetLayersCount = s.Serialize<byte>(PuppetLayersCount, name: nameof(PuppetLayersCount));
             RenderBoxY = s.Serialize<sbyte>(RenderBoxY, name: nameof(RenderBoxY));
