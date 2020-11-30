@@ -33,12 +33,12 @@ namespace R1Engine
                     if (greyScale) {
                         return new Texture2D[]
                         {
-                        Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS4BitPalette().Select(x => x.GetColor()).ToArray(), Util.TileEncoding.Linear_4bpp_ReverseOrder, GBC_BaseManager.CellSize, true)
+                        Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS4BitPalette().Select((x,i) => (i == 0)  ? Color.clear : x.GetColor()).ToArray(), Util.TileEncoding.Linear_4bpp_ReverseOrder, GBC_BaseManager.CellSize, true)
                         };
                     } else {
                         return new Texture2D[]
                         {
-                        Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS8BitPalette().Select(x => x.GetColor()).ToArray(), Util.TileEncoding.Linear_8bpp, GBC_BaseManager.CellSize, true)
+                        Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS8BitPalette().Select((x,i) => (i == 0x5F || i == 0xFF)  ? Color.clear : x.GetColor()).ToArray(), Util.TileEncoding.Linear_8bpp, GBC_BaseManager.CellSize, true)
                         };
                     }
 
