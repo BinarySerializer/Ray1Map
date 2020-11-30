@@ -98,36 +98,35 @@ namespace R1Engine
         {
             public byte TileIndex { get; set; } // If -1, same effect as SetInvisible, otherwise SetVisible
             public byte Attr_PalIndex { get; set; }
-            public byte Attr_VRAMBank { get; set; }
+            public byte Attr_Unknown1 { get; set; }
             public bool Attr_HorizontalFlip { get; set; }
             public bool Attr_VerticalFlip { get; set; }
-            public bool Attr_Prio { get; set; }
+            public bool Attr_Unknown2 { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
                 TileIndex = s.Serialize<byte>(TileIndex, name: nameof(TileIndex));
                 s.SerializeBitValues<byte>(bitFunc =>
                 {
-                    Attr_PalIndex = (byte)bitFunc(Attr_PalIndex, 2, name: nameof(Attr_PalIndex));
-                    Attr_VRAMBank = (byte)bitFunc(Attr_VRAMBank, 1, name: nameof(Attr_VRAMBank));
-                    bitFunc(default, 1, name: "Attr_Padding"); // Palette number for non-CGB mode, which is irrelevant here
-                    Attr_VerticalFlip = bitFunc(Attr_VerticalFlip ? 1 : 0, 1, name: nameof(Attr_VerticalFlip)) == 1;
+                    Attr_PalIndex = (byte)bitFunc(Attr_PalIndex, 3, name: nameof(Attr_PalIndex));
+                    Attr_Unknown1 = (byte)bitFunc(Attr_Unknown1, 2, name: nameof(Attr_Unknown1));
                     Attr_HorizontalFlip = bitFunc(Attr_HorizontalFlip ? 1 : 0, 1, name: nameof(Attr_HorizontalFlip)) == 1;
-                    Attr_Prio = bitFunc(Attr_Prio ? 1 : 0, 1, name: nameof(Attr_Prio)) == 1;
+                    Attr_VerticalFlip = bitFunc(Attr_VerticalFlip ? 1 : 0, 1, name: nameof(Attr_VerticalFlip)) == 1;
+                    Attr_Unknown2 = bitFunc(Attr_Unknown2 ? 1 : 0, 1, name: nameof(Attr_Unknown2)) == 1;
                 });
             }
         }
 
         public class LayerInfo : R1Serializable
         {
-            public byte SpriteID { get; set; } // The index this sprite is given in the puppet's sprite array
+            public byte DrawIndex { get; set; } // The index this sprite is given in the puppet's sprite array
             public TileGraphicsInfo Tile { get; set; }
             public sbyte XPos { get; set; }
             public sbyte YPos { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
-                SpriteID = s.Serialize<byte>(SpriteID, name: nameof(SpriteID));
+                DrawIndex = s.Serialize<byte>(DrawIndex, name: nameof(DrawIndex));
                 Tile = s.SerializeObject<TileGraphicsInfo>(Tile, name: nameof(Tile));
                 XPos = s.Serialize<sbyte>(XPos, name: nameof(XPos));
                 YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));

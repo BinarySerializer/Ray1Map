@@ -352,11 +352,11 @@ namespace R1Engine
 
                         // Get the layer info
                         foreach (var l in channel.SpriteInfo) {
-                            addAnimationPart(l.Tile, l.XPos, l.YPos);
+                            addAnimationPart(l.Tile, l.XPos, l.YPos, l);
                         }
 
                         // Helper for adding a layer to the frame
-                        void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos)
+                        void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos, AnimLayerInfo l)
                         {
                             var imgIndex = tileSets.Length == 1 ? tile.TileIndex : (int)(tile.TileIndex + (tile.Attr_PalIndex * tileKit.TilesCount));
 
@@ -366,12 +366,13 @@ namespace R1Engine
                                 XPosition = xPos,
                                 YPosition = yPos,
                                 IsFlippedHorizontally = tile.Attr_HorizontalFlip,
-                                IsFlippedVertically = tile.Attr_VerticalFlip
+                                IsFlippedVertically = tile.Attr_VerticalFlip,
+                                Priority = l.DrawIndex
                             });
                         }
                     }
 
-                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.ToArray());
+                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.ToArray().OrderByDescending(p => p.Priority).ToArray());
                     unityAnim.AnimSpeeds[frameIndex] = frame.Time;
                 }
 
@@ -390,7 +391,7 @@ namespace R1Engine
                     var layerInfos = new AnimLayerInfo[cmd.LayerInfos.Length];
                     for (int i = 0; i < cmd.LayerInfos.Length; i++) {
                         layerInfos[i] = new AnimLayerInfo() {
-                            SpriteID = cmd.LayerInfos[i].SpriteID,
+                            DrawIndex = cmd.LayerInfos[i].DrawIndex,
                             Tile = cmd.LayerInfos[i].Tile,
                             XPos = cmd.LayerInfos[i].XPos + (i > 0 ? layerInfos[0].XPos : 0),
                             YPos = cmd.LayerInfos[i].YPos  + (i > 0 ? layerInfos[0].YPos : 0)
@@ -437,7 +438,7 @@ namespace R1Engine
             public bool IsVisible { get; set; } = true;
         }
         protected class AnimLayerInfo {
-            public byte SpriteID { get; set; } // The index this sprite is given in the puppet's sprite array
+            public byte DrawIndex { get; set; } // The index this sprite is given in the puppet's sprite array
             public GBC_Keyframe_Command.TileGraphicsInfo Tile { get; set; }
             public int XPos { get; set; }
             public int YPos { get; set; }
