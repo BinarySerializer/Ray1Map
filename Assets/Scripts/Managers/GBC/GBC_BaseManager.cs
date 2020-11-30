@@ -335,14 +335,8 @@ namespace R1Engine
 
                 // Keep track of the layers
                 var channels = new List<AnimChannel>();
-                //[model.PuppetLayersCount];
 
-                // TODO: Collision
-                //var collisionX = 0;
-                //var collisionY = 0;
-                //var collisionWidth = 0;
-                //var collisionHeight = 0;
-                //var hasCollision = false;
+                var collision = new CollisionLayerInfo();
 
                 // Enumerate every frame
                 for (var frameIndex = 0; frameIndex < anim.Keyframes.Length-1; frameIndex++)
@@ -352,22 +346,17 @@ namespace R1Engine
 
                     // Process every command
                     foreach (var cmd in frame.Commands)
-                        ProcessAnimCommands(cmd, channels);
+                        ProcessAnimCommands(cmd, channels, collision);
 
                     var animationParts = new List<Unity_ObjAnimationPart>();
+                    Unity_ObjAnimationCollisionPart[] collisionParts = null;
 
                     // Add every visible layer
-                    for (var i = 0; i < channels.Count; i++)
+                    foreach (AnimChannel channel in channels.Where(channel => channel.IsVisible))
                     {
-                        var channel = channels[i];
-
-                        // Make sure the layer is not null and visible
-                        if (!channel.IsVisible) continue;
-
                         // Get the layer info
-                        foreach (var l in channel.SpriteInfo) {
+                        foreach (var l in channel.SpriteInfo)
                             addAnimationPart(l.Tile, l.XPos, l.YPos, l);
-                        }
 
                         // Helper for adding a layer to the frame
                         void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos, AnimLayerInfo l)
@@ -386,7 +375,23 @@ namespace R1Engine
                         }
                     }
 
-                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.OrderByDescending(p => p.Priority).ToArray());
+                    // Add collision layer if enabled
+                    if (collision.IsEnabled)
+                    {
+                        collisionParts = new Unity_ObjAnimationCollisionPart[]
+                        {
+                            new Unity_ObjAnimationCollisionPart
+                            {
+                                XPosition = collision.XPos,
+                                YPosition = collision.YPos,
+                                Width = collision.Width,
+                                Height = collision.Height,
+                                Type = Unity_ObjAnimationCollisionPart.CollisionType.AttackBox
+                            }
+                        };
+                    }
+
+                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.OrderByDescending(p => p.Priority).ToArray(), collisionParts);
                     unityAnim.AnimSpeeds[frameIndex] = frame.Time;
                 }
 
@@ -397,7 +402,7 @@ namespace R1Engine
             return des;
         }
 
-        protected void ProcessAnimCommands(GBC_Keyframe_Command cmd, List<AnimChannel> channels)
+        protected void ProcessAnimCommands(GBC_Keyframe_Command cmd, List<AnimChannel> channels, CollisionLayerInfo collision)
         {
             switch (cmd.Command)
             {
@@ -439,6 +444,14 @@ namespace R1Engine
                 case GBC_Keyframe_Command.InstructionCommand.Terminator:
                     channels.Clear();
                     break;
+
+                case GBC_Keyframe_Command.InstructionCommand.SetCollisionBox:
+                    collision.Width = cmd.HalfWidth * 2;
+                    collision.Height = cmd.HalfHeight * 2;
+                    collision.XPos = cmd.XPos;
+                    collision.YPos = cmd.YPos;
+                    collision.IsEnabled = true;
+                    break;
             }
         }
 
@@ -456,6 +469,14 @@ namespace R1Engine
             public GBC_Keyframe_Command.TileGraphicsInfo Tile { get; set; }
             public int XPos { get; set; }
             public int YPos { get; set; }
+        }
+        protected class CollisionLayerInfo
+        {
+            public int XPos { get; set; }
+            public int YPos { get; set; }
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public bool IsEnabled { get; set; }
         }
     }
 }
