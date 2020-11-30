@@ -89,6 +89,18 @@ namespace R1Engine
 
         public bool IsTrigger => Actor.IsCaptor;
 
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision => Actor.IsCaptor ? new Unity_ObjAnimationCollisionPart[]
+        {
+            new Unity_ObjAnimationCollisionPart
+            {
+                XPosition = -(Actor.BoxWidth / 2),
+                YPosition = -(Actor.BoxHeight / 2),
+                Width = Actor.BoxWidth,
+                Height = Actor.BoxHeight,
+                Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+            }
+        } : new Unity_ObjAnimationCollisionPart[0];
+
         public override bool IsEditor => IsTrigger;
         public override ObjectType Type => IsTrigger ? ObjectType.Trigger : ObjectType.Object;
 
