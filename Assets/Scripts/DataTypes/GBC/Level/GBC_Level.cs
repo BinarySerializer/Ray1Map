@@ -21,7 +21,7 @@
             // TODO: Parse remaining data
 
             // Parse data from pointers
-            Scene = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_Scene>(Scene, name: nameof(Scene)));
+            Scene = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_Scene>(Scene, name: nameof(Scene)));
         }
     }
 }

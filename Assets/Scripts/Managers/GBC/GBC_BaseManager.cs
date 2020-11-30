@@ -51,7 +51,7 @@ namespace R1Engine
                             if (export && block.Data != null)
                                 Util.ByteArrayToFile(Path.Combine(outputDir, path, $"{block.Offset.file.filePath}_0x{block.Offset.StringFileOffset}.bin"), block.Data);
 
-                            writer.WriteLine($"{$"{block.Offset}:",-30}{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.OffsetTable.OffsetsCount} - BlockSize: {block.Data?.Length}");
+                            writer.WriteLine($"{$"{block.Offset}:",-30}{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.DependencyTable.DependenciesCount} - BlockSize: {block.Data?.Length}");
 
                             // Handle every block offset in the table
                             for (int i = 0; i < block.SubBlocks.Length; i++)
@@ -154,14 +154,17 @@ namespace R1Engine
                     // Enumerate every graphic group
                     foreach (var model in data.Scene.Actors.Select(x => x.ActorModel).Where(x => x != null).Distinct())
                     {
-                        if (exported.Contains(model.Offset))
+                        var puppet = model.ActionTable.Puppet;
+                        var offset = puppet.Offset;
+
+                        if (exported.Contains(offset))
                             return;
 
-                        exported.Add(model.Offset);
+                        exported.Add(offset);
 
                         try
                         {
-                            var commonDesign = GetCommonDesign(model);
+                            var commonDesign = GetCommonDesign(puppet);
 
                             for (var animIndex = 0; animIndex < commonDesign.Animations.Count; animIndex++)
                             {
@@ -173,7 +176,7 @@ namespace R1Engine
 
                                 foreach (var tex in GetAnimationFrames(model, anim, commonDesign.Sprites))
                                 {
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{model.Offset.file.filePath}_0x{model.Offset.FileOffset}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{offset.file.filePath}_0x{offset.FileOffset}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
                                     frameIndex++;
                                 }
                             }
@@ -218,14 +221,17 @@ namespace R1Engine
 
         public abstract Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level);
 
-        public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
+            Controller.DetailedState = $"Loading data";
+            await Controller.WaitIfNecessary();
+
             var sceneList = GetSceneList(context);
 
             // Log unused data blocks in offset tables
-            var notParsedBlocks = GBC_OffsetTable.OffsetTables.Where(x => x.UsedOffsets.Any(y => !y) && x != sceneList.OffsetTable).ToArray();
+            var notParsedBlocks = GBC_DependencyTable.DependencyTables.Where(x => x.UsedDependencies.Any(y => !y) && x != sceneList.DependencyTable).ToArray();
             if (notParsedBlocks.Any())
-                Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, notParsedBlocks.Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedOffsets.Select((o, i) => new
+                Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, notParsedBlocks.Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedDependencies.Select((o, i) => new
                 {
                     Obj = o,
                     Index = i
@@ -235,44 +241,51 @@ namespace R1Engine
             var scene = level.Scene;
             var playField = scene.PlayField;
 
+            Controller.DetailedState = $"Loading maps";
+            await Controller.WaitIfNecessary();
+
             var maps = GetMaps(context, playField, level);
 
+            var objGraphics = new Dictionary<Pointer, Unity_ObjGraphics>();
             var actorModels = new List<Unity_ObjectManager_GBC.ActorModel>();
+
+            Controller.DetailedState = $"Loading actor models & puppets";
+            await Controller.WaitIfNecessary();
 
             foreach (var actor in scene.Actors)
             {
                 if (actorModels.Any(x => x.Index == actor.Index_ActorModel) || actor.ActorModel == null)
                     continue;
 
-                try
-                {
-                    actorModels.Add(new Unity_ObjectManager_GBC.ActorModel(actor.Index_ActorModel, actor.ActorModel.ActionTable.Actions, GetCommonDesign(actor.ActorModel)));
-                }
-                catch (Exception ex)
-                {
-                    actorModels.Add(new Unity_ObjectManager_GBC.ActorModel(actor.Index_ActorModel, actor.ActorModel.ActionTable.Actions, null));
-                    Debug.LogWarning(ex);
-                }
+                var puppet = actor.ActorModel.ActionTable.Puppet;
+
+                if (!objGraphics.ContainsKey(puppet.Offset))
+                    objGraphics[puppet.Offset] = GetCommonDesign(puppet);
+
+                actorModels.Add(new Unity_ObjectManager_GBC.ActorModel(actor.Index_ActorModel, actor.ActorModel.ActionTable.Actions, objGraphics[puppet.Offset]));
             }
+
+            Controller.DetailedState = $"Loading actors";
+            await Controller.WaitIfNecessary();
 
             var objManager = new Unity_ObjectManager_GBC(context, actorModels.ToArray());
             var objects = new List<Unity_Object>(scene.Actors.Select(x => new Unity_Object_GBC(x, objManager)));
 
-            return UniTask.FromResult(new Unity_Level(
+            return new Unity_Level(
                 maps: maps,
                 objManager: objManager,
                 eventData: objects,
                 cellSize: CellSize,
                 sectors: scene.Knots.Select(x => new Unity_Sector(x.Actors.Select(i => i - 1).ToList())).ToArray(),
                 getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
-                getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString()));
+                getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString());
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public virtual UniTask LoadFilesAsync(Context context) => UniTask.CompletedTask;
 
-        public Unity_ObjGraphics GetCommonDesign(GBC_ActorModel model)
+        public Unity_ObjGraphics GetCommonDesign(GBC_Puppet puppet)
         {
             // Create the design
             var des = new Unity_ObjGraphics
@@ -281,11 +294,7 @@ namespace R1Engine
                 Animations = new List<Unity_ObjAnimation>(),
             };
 
-            if (model == null)
-                return des;
-
             // Get properties
-            var puppet = model.ActionTable.Puppet;
             var curPuppet = puppet;
             var tileKit = curPuppet.TileKit;
             while (tileKit == null) {
@@ -329,6 +338,11 @@ namespace R1Engine
                 //[model.PuppetLayersCount];
 
                 // TODO: Collision
+                //var collisionX = 0;
+                //var collisionY = 0;
+                //var collisionWidth = 0;
+                //var collisionHeight = 0;
+                //var hasCollision = false;
 
                 // Enumerate every frame
                 for (var frameIndex = 0; frameIndex < anim.Keyframes.Length-1; frameIndex++)

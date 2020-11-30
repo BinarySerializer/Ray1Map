@@ -33,7 +33,7 @@
                 });
                 s.Goto(BlockStartPointer + BlockSize);
             });
-            Puppet = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_Puppet>(Puppet, name: $"{nameof(Puppet)}"));
+            Puppet = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_Puppet>(Puppet, name: $"{nameof(Puppet)}"));
         }
     }
 }

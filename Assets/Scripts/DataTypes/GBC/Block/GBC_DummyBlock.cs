@@ -13,16 +13,16 @@ namespace R1Engine
 
             // Serialize sub-blocks
             if (SubBlocks == null)
-                SubBlocks = new GBC_DummyBlock[OffsetTable.OffsetsCount];
+                SubBlocks = new GBC_DummyBlock[DependencyTable.DependenciesCount];
 
             // Get all root pointers
             var rootBlock = ((GBC_BaseManager)s.GameSettings.GetGameManager).GetSceneList(s.Context);
-            var rootTable = rootBlock.OffsetTable;
-            var rootPointers = Enumerable.Range(0, rootTable.Offsets.Length).Select(x => rootTable.GetPointer(x)).ToArray();
+            var rootTable = rootBlock.DependencyTable;
+            var rootPointers = Enumerable.Range(0, rootTable.Dependencies.Length).Select(x => rootTable.GetPointer(x)).ToArray();
 
-            for (int i = 0; i < OffsetTable.Offsets.Length; i++)
+            for (int i = 0; i < DependencyTable.Dependencies.Length; i++)
             {
-                var p = OffsetTable.GetPointer(i);
+                var p = DependencyTable.GetPointer(i);
 
                 if (rootPointers.Contains(p) && Offset != rootBlock.Offset)
                     continue;

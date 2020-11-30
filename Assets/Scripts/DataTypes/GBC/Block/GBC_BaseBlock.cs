@@ -8,14 +8,14 @@
 
         public LUDI_BlockIdentifier LUDI_Header { get; set; }
 
-        public GBC_OffsetTable OffsetTable { get; set; }
+        public GBC_DependencyTable DependencyTable { get; set; }
 
         public Pointer BlockStartPointer {
             get {
                 if (Context.Settings.EngineVersion == EngineVersion.GBC_R1) {
                     return GBC_DataPointer.GetPointer();
                 } else {
-                    return Offset + OffsetTable.Size + 4;
+                    return Offset + DependencyTable.Size + 4;
                 }
             }
         }
@@ -29,7 +29,7 @@
                         var offTable = Context.GetStoredObject<LUDI_GlobalOffsetTable>(GBC_BaseManager.GlobalOffsetTableKey);
                         uint? size = offTable?.GetBlockLength(LUDI_Header);
                         if (size.HasValue) {
-                            _cachedBlockLength = size.Value - OffsetTable.Size - 4;
+                            _cachedBlockLength = size.Value - DependencyTable.Size - 4;
                         } else {
                             _cachedBlockLength = 0;
                         }
@@ -52,7 +52,7 @@
                 LUDI_Header = s.SerializeObject<LUDI_BlockIdentifier>(LUDI_Header, name: nameof(LUDI_Header));
             }
 
-            OffsetTable = s.SerializeObject<GBC_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
+            DependencyTable = s.SerializeObject<GBC_DependencyTable>(DependencyTable, name: nameof(DependencyTable));
             s.Goto(BlockStartPointer);
             SerializeBlock(s);
 

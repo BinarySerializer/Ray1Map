@@ -26,7 +26,7 @@
             Index_Unknown = s.Serialize<byte>(Index_Unknown, name: nameof(Index_Unknown));
 
             // Parse data from pointers
-            Level = s.DoAt(OffsetTable.GetPointer(s.GameSettings.Level), () => s.SerializeObject<GBC_Level>(Level, name: nameof(Level)));
+            Level = s.DoAt(DependencyTable.GetPointer(s.GameSettings.Level), () => s.SerializeObject<GBC_Level>(Level, name: nameof(Level)));
         }
     }
 }

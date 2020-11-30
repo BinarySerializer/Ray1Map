@@ -33,17 +33,17 @@
                 Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, PaletteCount * 4, name: nameof(Palette));
 
 
-                BGMapTileNumbers = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBC_MapBlock>(BGMapTileNumbers, onPreSerialize: b => {
+                BGMapTileNumbers = s.DoAt(DependencyTable.GetPointer(1), () => s.SerializeObject<GBC_MapBlock>(BGMapTileNumbers, onPreSerialize: b => {
                     b.Width = (byte)Width;
                     b.Height = (byte)Height;
                     b.Type = MapTile.GBC_TileType.BGMapTileNumbers;
                 }, name: nameof(BGMapTileNumbers)));
-                BGMapAttributes = s.DoAt(OffsetTable.GetPointer(2), () => s.SerializeObject<GBC_MapBlock>(BGMapAttributes, onPreSerialize: b => {
+                BGMapAttributes = s.DoAt(DependencyTable.GetPointer(2), () => s.SerializeObject<GBC_MapBlock>(BGMapAttributes, onPreSerialize: b => {
                     b.Width = (byte)Width;
                     b.Height = (byte)Height;
                     b.Type = MapTile.GBC_TileType.BGMapAttributes;
                 }, name: nameof(BGMapTileNumbers)));
-                Collision = s.DoAt(OffsetTable.GetPointer(3), () => s.SerializeObject<GBC_MapBlock>(Collision, onPreSerialize: b => {
+                Collision = s.DoAt(DependencyTable.GetPointer(3), () => s.SerializeObject<GBC_MapBlock>(Collision, onPreSerialize: b => {
                     b.Width = (byte)Width;
                     b.Height = (byte)Height;
                     b.Type = MapTile.GBC_TileType.Collision;
@@ -54,7 +54,7 @@
                 MapTiles = s.SerializeObjectArray<MapTile>(MapTiles, Width * Height, name: nameof(MapTiles));
             }
 
-            TileKit = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_TileKit>(TileKit, name: nameof(TileKit)));
+            TileKit = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_TileKit>(TileKit, name: nameof(TileKit)));
 
         }
     }

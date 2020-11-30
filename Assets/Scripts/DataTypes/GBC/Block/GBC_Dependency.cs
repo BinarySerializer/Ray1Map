@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBC_Offset : R1Serializable
+    public class GBC_Dependency : R1Serializable
     {
         public LUDI_FileIdentifier FileID { get; set; }
         public LUDI_BlockIdentifier BlockID { get; set; }

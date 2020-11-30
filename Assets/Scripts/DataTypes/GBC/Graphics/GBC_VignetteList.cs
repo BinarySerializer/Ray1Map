@@ -8,10 +8,10 @@
         {
             // Serialize vignettes
             if (Vignettes == null)
-                Vignettes = new GBC_Vignette[OffsetTable.OffsetsCount];
+                Vignettes = new GBC_Vignette[DependencyTable.DependenciesCount];
 
             for (int i = 0; i < Vignettes.Length; i++)
-                Vignettes[i] = s.DoAt(OffsetTable.GetPointer(i), () => s.SerializeObject<GBC_Vignette>(Vignettes[i], name: $"{nameof(Vignettes)}[{i}]"));
+                Vignettes[i] = s.DoAt(DependencyTable.GetPointer(i), () => s.SerializeObject<GBC_Vignette>(Vignettes[i], name: $"{nameof(Vignettes)}[{i}]"));
         }
     }
 }

@@ -10,7 +10,7 @@
             // This block has no data
 
             // Parse data from pointers (first pointer leads to scene list, remaining pointers lead to the level scenes)
-            LevelList = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_LevelList>(LevelList, name: nameof(LevelList)));
+            LevelList = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_LevelList>(LevelList, name: nameof(LevelList)));
         }
     }
 }

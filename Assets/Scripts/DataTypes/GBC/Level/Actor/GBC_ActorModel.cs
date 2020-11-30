@@ -23,7 +23,7 @@
             RenderBoxHeight = s.Serialize<byte>(RenderBoxHeight, name: nameof(RenderBoxHeight));
             RenderBoxWidth = s.Serialize<byte>(RenderBoxWidth, name: nameof(RenderBoxWidth));
             Data = s.SerializeArray<byte>(Data, 4, name: nameof(Data));
-            ActionTable = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBC_ActionTable>(ActionTable, name: $"{nameof(ActionTable)}"));
+            ActionTable = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_ActionTable>(ActionTable, name: $"{nameof(ActionTable)}"));
         }
     }
 }
