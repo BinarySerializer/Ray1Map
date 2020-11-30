@@ -448,8 +448,8 @@ namespace R1Engine
                 case GBC_Keyframe_Command.InstructionCommand.SetCollisionBox:
                     collision.Width = cmd.HalfWidth * 2;
                     collision.Height = cmd.HalfHeight * 2;
-                    collision.XPos = cmd.XPos;
-                    collision.YPos = cmd.YPos;
+                    collision.XPos = cmd.XPos - cmd.HalfWidth;
+                    collision.YPos = cmd.YPos - cmd.HalfHeight;
                     collision.IsEnabled = true;
                     break;
             }
