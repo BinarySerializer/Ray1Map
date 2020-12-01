@@ -27,7 +27,7 @@ namespace R1Engine
         public GBA_Action State => GraphicsData?.States.ElementAtOrDefault(Actor.ActionIndex);
         public Unity_ObjectManager_GBA.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault(GraphicsDataIndex);
 
-        public override ObjectType Type => Actor.Type == GBA_Actor.ActorType.Waypoint || Actor.Type == GBA_Actor.ActorType.Captor ? ObjectType.Trigger : ObjectType.Object;
+        public override ObjectType Type => Actor.Type == GBA_Actor.ActorType.Waypoint ? ObjectType.Waypoint : Actor.Type == GBA_Actor.ActorType.Captor ? ObjectType.Trigger : ObjectType.Object;
 
         public int GraphicsDataIndex
         {
