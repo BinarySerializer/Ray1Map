@@ -20,32 +20,38 @@ namespace R1Engine
         // Pocket PC
         public BGR565Color[] TileDataPocketPC { get; set; }
 
-        public Texture2D[] GetTileSetTex()
+        public Texture2D[][] GetTileSetTex()
         {
             switch (Context.Settings.EngineVersion)
             {
                 case EngineVersion.GBC_R1:
-                    return Util.ConvertAndSplitGBCPalette(Palette).Select(p => Util.ToTileSetTexture(TileData, p, Util.TileEncoding.Planar_2bpp, GBC_BaseManager.CellSize, true)).ToArray();
+                    return Enumerable.Range(0,4) // For each transparent index
+                        .Select(ti => Util.ConvertAndSplitGBCPalette(Palette, transparentIndex: ti)) // split palette
+                        .Select(tip => tip.Select(p => Util.ToTileSetTexture(TileData, p, Util.TileEncoding.Planar_2bpp, GBC_BaseManager.CellSize, true)).ToArray()) // For each transparent index palette, create a texture for each palette
+                        .ToArray();
 
                 case EngineVersion.GBC_R1_Palm:
 
                     bool greyScale = Context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
                     if (greyScale) {
-                        return new Texture2D[]
-                        {
-                        Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS4BitPalette().Select((x,i) => (i == 0)  ? Color.clear : x.GetColor()).ToArray(), Util.TileEncoding.Linear_4bpp_ReverseOrder, GBC_BaseManager.CellSize, true)
+                        return new Texture2D[][] {
+                            new Texture2D[] {
+                                Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS4BitPalette().Select((x,i) => (i == 0)  ? Color.clear : x.GetColor()).ToArray(), Util.TileEncoding.Linear_4bpp_ReverseOrder, GBC_BaseManager.CellSize, true)
+                            }
                         };
                     } else {
-                        return new Texture2D[]
-                        {
-                        Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS8BitPalette().Select((x,i) => (i == 0x5F || i == 0xFF)  ? Color.clear : x.GetColor()).ToArray(), Util.TileEncoding.Linear_8bpp, GBC_BaseManager.CellSize, true)
+                        return new Texture2D[][] {
+                            new Texture2D[] {
+                                Util.ToTileSetTexture(TileData, GBC_R1PalmOS_Manager.GetPalmOS8BitPalette().Select((x,i) => (i == 0x5F || i == 0xFF)  ? Color.clear : x.GetColor()).ToArray(), Util.TileEncoding.Linear_8bpp, GBC_BaseManager.CellSize, true)
+                            }
                         };
                     }
 
                 case EngineVersion.GBC_R1_PocketPC:
-                    return new Texture2D[]
-                    {
-                        Util.ToTileSetTexture(TileDataPocketPC.Select(c => c.Color565 == 0 ? BaseColor.clear : c).ToArray(), GBC_BaseManager.CellSize, true)
+                    return new Texture2D[][] {
+                        new Texture2D[] {
+                            Util.ToTileSetTexture(TileDataPocketPC.Select(c => c.Color565 == 0 ? BaseColor.clear : c).ToArray(), GBC_BaseManager.CellSize, true)
+                        }
                     };
 
                 default:

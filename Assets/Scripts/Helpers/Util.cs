@@ -655,17 +655,25 @@ namespace R1Engine
                 return LCM(numbers[i], LCM(numbers, i + 1));
         }
 
-        public static Color[] ConvertGBAPalette(IEnumerable<RGBA5551Color> palette, bool firstTransparent = true) => palette.Select((x, i) => {
+        public static Color[] ConvertGBAPalette(IEnumerable<RGBA5551Color> palette, int? transparentIndex = 0) => palette.Select((x, i) => {
             Color c = x.GetColor();
-            if (i != 0 || !firstTransparent) {
+            if (!transparentIndex.HasValue || i != transparentIndex.Value) {
                 c.a = 1f;
             } else {
                 c.a = 0f;
             }
             return c;
         }).ToArray();
-        public static Color[][] ConvertAndSplitGBAPalette(RGBA5551Color[] palette, bool firstTransparent = true) => palette.Split(16, 16).Select(p => ConvertGBAPalette(p, firstTransparent: firstTransparent)).ToArray();
-        public static Color[][] ConvertAndSplitGBCPalette(RGBA5551Color[] palette, bool firstTransparent = true) => palette.Split(palette.Length / 4, 4).Select(p => ConvertGBAPalette(p, firstTransparent: firstTransparent)).ToArray();
+        public static Color[][] ConvertAndSplitGBAPalette(RGBA5551Color[] palette, bool firstTransparent = true)
+            => palette
+            .Split(16, 16)
+            .Select(p => ConvertGBAPalette(p, transparentIndex: firstTransparent ? (int?)0 : null))
+            .ToArray();
+        public static Color[][] ConvertAndSplitGBCPalette(RGBA5551Color[] palette, int? transparentIndex = 0)
+            => palette
+            .Split(palette.Length / 4, 4)
+            .Select(p => ConvertGBAPalette(p, transparentIndex: transparentIndex))
+            .ToArray();
 
 
         public static IEnumerable<T[]> Split<T>(this T[] array, int length, int size) => Enumerable.Range(0, length).Select(x => array.Skip(size * x).Take(size).ToArray());

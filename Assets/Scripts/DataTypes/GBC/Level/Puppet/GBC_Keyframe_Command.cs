@@ -112,7 +112,7 @@ namespace R1Engine
 
         public class TileAttribute : R1Serializable {
             public byte PalIndex { get; set; }
-            public byte Unknown1 { get; set; }
+            public byte TransparentColorIndex { get; set; }
             public bool HorizontalFlip { get; set; }
             public bool VerticalFlip { get; set; }
             public bool Unknown2 { get; set; }
@@ -120,7 +120,7 @@ namespace R1Engine
             public override void SerializeImpl(SerializerObject s) {
                 s.SerializeBitValues<byte>(bitFunc => {
                     PalIndex = (byte)bitFunc(PalIndex, 3, name: nameof(PalIndex));
-                    Unknown1 = (byte)bitFunc(Unknown1, 2, name: nameof(Unknown1));
+                    TransparentColorIndex = (byte)bitFunc(TransparentColorIndex, 2, name: nameof(TransparentColorIndex));
                     HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                     VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
                     Unknown2 = bitFunc(Unknown2 ? 1 : 0, 1, name: nameof(Unknown2)) == 1;

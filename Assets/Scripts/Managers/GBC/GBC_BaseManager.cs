@@ -358,22 +358,23 @@ namespace R1Engine
             var centerY = model.RenderBoxY + model.RenderBoxHeight / 2;*/
 
             var tileSets = tileKit.GetTileSetTex();
+            var transparentIndexCount = tileSets.Length;
+            var paletteCount = tileSets[0].Length;
 
             // Add sprites for each palette
-            foreach (var tileSetTex in tileSets)
-            {
-                var tileIndex = 0;
+            foreach (var transparentIndexTileSets in tileSets) {
+                foreach (var tileSetTex in transparentIndexTileSets) {
+                    var tileIndex = 0;
 
-                // Split texture into tile sprites
-                for (int y = 0; y < tileSetTex.height; y += CellSize)
-                {
-                    for (int x = 0; x < tileSetTex.width; x += CellSize)
-                    {
-                        if (tileIndex >= tileKit.TilesCount)
-                            break;
+                    // Split texture into tile sprites
+                    for (int y = 0; y < tileSetTex.height; y += CellSize) {
+                        for (int x = 0; x < tileSetTex.width; x += CellSize) {
+                            if (tileIndex >= tileKit.TilesCount)
+                                break;
 
-                        des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x, tileSetTex.height - y - CellSize, CellSize, CellSize)));
-                        tileIndex++;
+                            des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x, tileSetTex.height - y - CellSize, CellSize, CellSize)));
+                            tileIndex++;
+                        }
                     }
                 }
             }
@@ -409,7 +410,9 @@ namespace R1Engine
 
                     // Helper for adding a layer to the frame
                     void addAnimationPart(byte tileIndex, GBC_Keyframe_Command.TileAttribute attribute, int xPos, int yPos, byte drawIndex) {
-                        var imgIndex = tileSets.Length == 1 ? tileIndex : (int)(tileIndex + (attribute.PalIndex * tileKit.TilesCount));
+                        int imgIndex = tileIndex;
+                        if(paletteCount > 1 && attribute.PalIndex != 0) imgIndex += (int)(tileKit.TilesCount * attribute.PalIndex);
+                        if(transparentIndexCount > 1 && attribute.TransparentColorIndex != 0) imgIndex += (int)(tileKit.TilesCount * paletteCount * attribute.TransparentColorIndex);
 
                         animationParts.Add(new Unity_ObjAnimationPart {
                             ImageIndex = imgIndex,

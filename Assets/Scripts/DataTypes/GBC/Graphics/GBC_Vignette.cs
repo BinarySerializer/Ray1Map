@@ -14,7 +14,7 @@ namespace R1Engine
 
         public Texture2D ToTexture2D()
         {
-            var pal = Util.ConvertAndSplitGBCPalette(Palette, firstTransparent: false);
+            var pal = Util.ConvertAndSplitGBCPalette(Palette, transparentIndex: null);
             return Util.ToTileSetTexture(TileSet, pal.First(), Util.TileEncoding.Planar_2bpp, 8, true, wrap: Width, getPalFunc: x => pal[PalIndices[x]]);
         }
 
