@@ -404,6 +404,15 @@ namespace R1Engine
 
             return des;
         }
+        protected void LimitChannelPos(AnimChannel ch) {
+            // Limit to sbyte
+            var centerX = 0;
+            var centerY = -64;
+            while (ch.XPos < centerX - 128) ch.XPos += 256;
+            while (ch.XPos >= centerX + 128) ch.XPos -= 256;
+            while (ch.YPos < centerY - 128) ch.YPos += 256;
+            while (ch.YPos >= centerY + 128) ch.YPos -= 256;
+        }
 
         protected void ProcessAnimCommands(GBC_Keyframe_Command cmd, List<AnimChannel> channels, CollisionLayerInfo collision)
         {
@@ -411,8 +420,8 @@ namespace R1Engine
             {
                 case GBC_Keyframe_Command.InstructionCommand.SpriteNew:
                     var layerInfos = new AnimLayerInfo[cmd.LayerInfos.Length];
-                    sbyte xPos = cmd.LayerInfos.Length > 0 ? cmd.LayerInfos[0].XPos : (sbyte)0;
-                    sbyte yPos = cmd.LayerInfos.Length > 0 ? cmd.LayerInfos[0].YPos : (sbyte)0;
+                    int xPos = cmd.LayerInfos.Length > 0 ? cmd.LayerInfos[0].XPos : (sbyte)0;
+                    int yPos = cmd.LayerInfos.Length > 0 ? cmd.LayerInfos[0].YPos : (sbyte)0;
                     for (int i = 0; i < cmd.LayerInfos.Length; i++) {
                         layerInfos[i] = new AnimLayerInfo() {
                             DrawIndex = cmd.LayerInfos[i].DrawIndex,
@@ -421,10 +430,12 @@ namespace R1Engine
                             YPos = (i > 0 ? cmd.LayerInfos[i].YPos : 0)
                         };
                     }
-                    channels.Add(new AnimChannel(layerInfos) {
+                    var channel = new AnimChannel(layerInfos) {
                         XPos = xPos,
                         YPos = yPos
-                    });
+                    };
+                    LimitChannelPos(channel);
+                    channels.Add(channel);
                     break;
 
                 case GBC_Keyframe_Command.InstructionCommand.SpriteMove:
@@ -432,11 +443,7 @@ namespace R1Engine
                     ch.XPos += cmd.XPos;
                     ch.YPos += cmd.YPos;
 
-                    // Limit to sbyte
-                    /*while (ch.XPos <  centerX - 128) ch.XPos += 256;
-                    while (ch.XPos >= centerX + 128) ch.XPos -= 256;
-                    while (ch.YPos <  centerY - 128) ch.YPos += 256;
-                    while (ch.YPos >= centerY + 128) ch.YPos -= 256;*/
+                    LimitChannelPos(ch);
 
                     break;
 
@@ -476,8 +483,8 @@ namespace R1Engine
 
             public AnimLayerInfo[] SpriteInfo { get; }
             public bool IsVisible { get; set; } = true;
-            public sbyte XPos { get; set; }
-            public sbyte YPos { get; set; }
+            public int XPos { get; set; }
+            public int YPos { get; set; }
         }
         protected class AnimLayerInfo {
             public byte DrawIndex { get; set; } // The index this sprite is given in the puppet's sprite array
