@@ -16,8 +16,8 @@ namespace R1Engine
         public bool IsSelected { get; set; }
         public bool ShowOffsets => (IsSelected || Settings.ShowObjOffsets) && EnableBoxCollider;
         public bool ShowCollision => (IsSelected || Settings.ShowObjCollision) && IsVisible;
-        public bool ShowObjIcon => Settings.ShowDefaultObjIcons && ObjData.CurrentAnimation == null && IsVisible && (!HasObjCollision || !Settings.ShowObjCollision);
-        public bool EnableBoxCollider => IsVisible && (ObjData.CurrentAnimation != null || ShowObjIcon || (HasObjCollision && ShowCollision));
+        public bool ShowGizmo => Settings.ShowDefaultObjIcons && ObjData.CurrentAnimation == null && IsVisible && (!HasObjCollision || !Settings.ShowObjCollision);
+        public bool EnableBoxCollider => IsVisible && (ObjData.CurrentAnimation != null || ShowGizmo || (HasObjCollision && ShowCollision));
         public bool HasObjCollision => ObjData.ObjCollision?.Any() == true;
 
         public int Index { get; set; }
@@ -178,6 +178,33 @@ namespace R1Engine
                 Sprite spr = gizmo.sprite;
                 defaultRenderer.sprite = spr;
             }
+            if (ShowGizmo) {
+                UpdateGizmoPosition(ObjData.ObjCollision, ObjData.Pivot);
+            }
+        }
+        public void UpdateGizmoPosition(Unity_ObjAnimationCollisionPart[] collision, Vector2 pivot) {
+            if (collision == null || collision.Length == 0) {
+                defaultRenderer.transform.localPosition = Vector3.zero;
+            } else {
+                var mirroredX = ObjData.FlipHorizontally;
+                var mirroredY = ObjData.FlipVertically;
+                Vector2 center = new Vector2(
+                    collision.Average(c => (c.XPosition - pivot.x + c.Width / 2f) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x),
+                    collision.Average(c => (-c.YPosition - pivot.y - c.Height / 2f) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y)) / LevelEditorData.Level.PixelsPerUnit;
+
+                defaultRenderer.transform.localPosition = center;
+            }
+        }
+        public void SetGizmoBoxCollider() {
+            if (boxCollider != null) {
+                var center = new Vector2(defaultRenderer.transform.localPosition.x, defaultRenderer.transform.localPosition.y);
+                boxCollider.size = Vector2.one * 1.45f;
+                boxCollider.offset = Vector2.zero + center;
+            } else if (boxCollider3D != null) {
+                var center = new Vector3(defaultRenderer.transform.localPosition.x, defaultRenderer.transform.localPosition.y);
+                boxCollider3D.size = new Vector3(1.45f, 1.925f, 0.1f);
+                boxCollider3D.center = new Vector3(0, 1.925f / 2, 0f) + center;
+            }
         }
 
         public void UpdatePosition3D() {
@@ -305,7 +332,7 @@ namespace R1Engine
             var anim = ObjData.CurrentAnimation;
 
             // 
-            bool defaultRendererEnabled = ShowObjIcon;
+            bool defaultRendererEnabled = ShowGizmo;
             if (defaultRenderer.gameObject.activeSelf != defaultRendererEnabled) {
                 defaultRenderer.gameObject.SetActive(defaultRendererEnabled);
             }
@@ -453,6 +480,9 @@ namespace R1Engine
                 }
             }
 
+            if (ShowGizmo) {
+                UpdateGizmoPosition(ObjData.ObjCollision, ObjData.Pivot);
+            }
             if (frameUpdated || collisionUpdated) {
                 var col = ObjData.ObjCollision;
 
@@ -531,6 +561,7 @@ namespace R1Engine
                             var h = (topY - bottomY) / LevelEditorData.Level.PixelsPerUnit;
                             boxCollider.size = new Vector2(w, h);
                             boxCollider.offset = new Vector2(leftX / LevelEditorData.Level.PixelsPerUnit + w / 2f, (topY / LevelEditorData.Level.PixelsPerUnit - h / 2f));
+
                         } else if (boxCollider3D != null) {
                             float w = 1f;
                             float h = 1f;
@@ -544,20 +575,16 @@ namespace R1Engine
                                 centerX = sprites[0].transform.localPosition.x + (w / 2 - (sprites[0].sprite.pivot.x / sprites[0].sprite.pixelsPerUnit)) * (mirroredX ? -1f : 1f);
                                 centerY = sprites[0].transform.localPosition.y + (h / 2 - (sprites[0].sprite.pivot.y / sprites[0].sprite.pixelsPerUnit)) * (mirroredY ? -1f : 1f);
                             }
-                            boxCollider3D.size = new Vector3(w, h,0.1f);
+                            boxCollider3D.size = new Vector3(w, h, 0.1f);
                             boxCollider3D.center = new Vector2(centerX, centerY);
-
                         }
                     }
                 } else {
-                    if (boxCollider != null) {
-                        boxCollider.size = Vector2.one * 1.45f;
-                        boxCollider.offset = Vector2.zero;
-                    } else if (boxCollider3D != null) {
-                        boxCollider3D.size = new Vector3(1.45f,1.925f,0.1f);
-                        boxCollider3D.center = new Vector3(0,1.925f/2,0f);
-                    }
+                    SetGizmoBoxCollider();
                 }
+            }
+            if (ShowGizmo && anim == null && !CurrentShowCollision) {
+                SetGizmoBoxCollider();
             }
 
             // Update offset points

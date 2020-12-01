@@ -242,17 +242,24 @@ namespace R1Engine
         public override bool FlipHorizontally => State?.Flags.HasFlag(GBA_Action.ActorStateFlags.HorizontalFlip) ?? false;
         public override bool FlipVertically => State?.Flags.HasFlag(GBA_Action.ActorStateFlags.VerticalFlip) ?? false;
 
-        public override Unity_ObjAnimationCollisionPart[] ObjCollision => Actor.Type == GBA_Actor.ActorType.Captor ? new Unity_ObjAnimationCollisionPart[]
-        {
-            new Unity_ObjAnimationCollisionPart()
-            {
-                XPosition = Actor.BoxMinX - XPosition,
-                YPosition = Actor.BoxMinY - YPosition,
-                Width = Actor.BoxMaxX - Actor.BoxMinX,
-                Height = Actor.BoxMaxY - Actor.BoxMinY,
-                Type = Actor.CaptorID == GBA_Actor.CaptorType.Player ? Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox : Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox
+        private Unity_ObjAnimationCollisionPart[] objCollision;
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision {
+            get {
+                if (objCollision == null) {
+                    objCollision = Actor.Type == GBA_Actor.ActorType.Captor ? new Unity_ObjAnimationCollisionPart[] {
+                        new Unity_ObjAnimationCollisionPart()
+                        {
+                            XPosition = Actor.BoxMinX - XPosition,
+                            YPosition = Actor.BoxMinY - YPosition,
+                            Width = Actor.BoxMaxX - Actor.BoxMinX,
+                            Height = Actor.BoxMaxY - Actor.BoxMinY,
+                            Type = Actor.CaptorID == GBA_Actor.CaptorType.Player ? Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox : Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox
+                        }
+                    } : new Unity_ObjAnimationCollisionPart[0];
+                }
+                return objCollision;
             }
-        } : new Unity_ObjAnimationCollisionPart[0];
+        }
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed.Value ?? 0;

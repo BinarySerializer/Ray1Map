@@ -137,17 +137,25 @@ namespace R1Engine
             LevelEntrance = 4
         }
 
-        public override Unity_ObjAnimationCollisionPart[] ObjCollision => IsTriggerType ? new Unity_ObjAnimationCollisionPart[]
-        {
-            new Unity_ObjAnimationCollisionPart()
-            {
-                XPosition = 0,
-                YPosition = 0,
-                Width = (int)Actor.P_SpriteSize,
-                Height = (int)Actor.P_SpriteSize,
-                Type = GetCollisionType
+
+        private Unity_ObjAnimationCollisionPart[] objCollision;
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision {
+            get {
+                if (objCollision == null) {
+                    objCollision = IsTriggerType ? new Unity_ObjAnimationCollisionPart[] {
+                        new Unity_ObjAnimationCollisionPart()
+                        {
+                            XPosition = 0,
+                            YPosition = 0,
+                            Width = (int)Actor.P_SpriteSize,
+                            Height = (int)Actor.P_SpriteSize,
+                            Type = GetCollisionType
+                        }
+                    } : new Unity_ObjAnimationCollisionPart[0];
+                }
+                return objCollision;
             }
-        } : new Unity_ObjAnimationCollisionPart[0];
+        }
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
         public override int AnimSpeed => GraphicsData?.AnimSpeed ?? 0;
@@ -155,6 +163,26 @@ namespace R1Engine
         protected override int GetSpriteID => AnimationGroupIndex;
         public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
         public override int? GetLayer(int index) => -index;
+        public override ObjectType Type {
+
+            get {
+                switch (Actor.ObjectType) {
+                    case GBARRR_ActorType.MurfyTrigger:
+                    case GBARRR_ActorType.SizeTrigger:
+                        return ObjectType.Trigger;
+
+                    case GBARRR_ActorType.Special:
+                        switch ((SpecialType_Function)Actor.P_FunctionPointer) {
+                            case SpecialType_Function.LevelEndTrigger:
+                            case SpecialType_Function.LevelEntranceTrigger:
+                            case SpecialType_Function.MinigameTrigger:
+                                return ObjectType.Trigger;
+                        }
+                        break;
+                }
+                return ObjectType.Object;
+            }
+        }
 
         #region UI States
         protected int UIStates_AnimGroupIndex { get; set; } = -2;
