@@ -691,13 +691,14 @@ function formatText(text) {
 }
 function getUnformattedTextHTML(text) {
 	// Special tags
-	text = text.replace(/<key>/gi, "(");
-	text = text.replace(/<\/key>/gi, ") ");
-	text = text.replace(/<name>/gi, "");
-	text = text.replace(/<\/name>/gi, ": ");
-	text = text.replace(/<description>/gi, "");
-	text = text.replace(/<\/description>/gi, "");
-
+	if(text != null) {
+		text = text.replace(/<key>/gi, "(");
+		text = text.replace(/<\/key>/gi, ") ");
+		text = text.replace(/<name>/gi, "");
+		text = text.replace(/<\/name>/gi, ": ");
+		text = text.replace(/<description>/gi, "");
+		text = text.replace(/<\/description>/gi, "");
+	}
 	return escapeHTML(text);
 }
 function getLanguageHTML(lang, langStart) {
