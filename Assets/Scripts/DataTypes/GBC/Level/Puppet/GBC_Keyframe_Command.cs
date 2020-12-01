@@ -24,7 +24,7 @@ namespace R1Engine
         public TileGraphicsInfo[] TileGraphicsInfos { get; set; }
 
         // Donald Duck
-        public TileMapInfo DD_Map_TileIndices { get; set; }
+        public TileMapInfo DD_Map_TileGraphics { get; set; }
         public byte DD_Map_Width { get; set; }
         public byte DD_Map_Height { get; set; }
 
@@ -74,7 +74,7 @@ namespace R1Engine
                     DD_Map_Height = s.Serialize<byte>(DD_Map_Height, name: nameof(DD_Map_Height));
                     break;
                 case InstructionCommand.SetMapGraphics:
-                    DD_Map_TileIndices = s.SerializeObject<TileMapInfo>(DD_Map_TileIndices, name: nameof(DD_Map_TileIndices));
+                    DD_Map_TileGraphics = s.SerializeObject<TileMapInfo>(DD_Map_TileGraphics, name: nameof(DD_Map_TileGraphics));
                     break;
 
                 case InstructionCommand.Terminator:

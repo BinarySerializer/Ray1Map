@@ -392,6 +392,7 @@ namespace R1Engine
                 var channels = new List<AnimChannel>();
 
                 var collision = new CollisionLayerInfo();
+                AnimMap map = null;
 
                 // Enumerate every frame
                 for (var frameIndex = 0; frameIndex < anim.Keyframes.Length-1; frameIndex++)
@@ -401,22 +402,22 @@ namespace R1Engine
 
                     // Process every command
                     foreach (var cmd in frame.Commands)
-                        ProcessAnimCommands(cmd, channels, collision);
+                        ProcessAnimCommands(cmd, channels, collision, ref map);
 
                     var animationParts = new List<Unity_ObjAnimationPart>();
                     Unity_ObjAnimationCollisionPart[] collisionParts = null;
 
                     // Helper for adding a layer to the frame
-                    void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos, AnimLayerInfo l) {
-                        var imgIndex = tileSets.Length == 1 ? tile.TileIndex : (int)(tile.TileIndex + (tile.Attribute.PalIndex * tileKit.TilesCount));
+                    void addAnimationPart(byte tileIndex, GBC_Keyframe_Command.TileAttribute attribute, int xPos, int yPos, byte drawIndex) {
+                        var imgIndex = tileSets.Length == 1 ? tileIndex : (int)(tileIndex + (attribute.PalIndex * tileKit.TilesCount));
 
                         animationParts.Add(new Unity_ObjAnimationPart {
                             ImageIndex = imgIndex,
                             XPosition = xPos,
                             YPosition = yPos,
-                            IsFlippedHorizontally = tile.Attribute.HorizontalFlip,
-                            IsFlippedVertically = tile.Attribute.VerticalFlip,
-                            Priority = l.DrawIndex
+                            IsFlippedHorizontally = attribute.HorizontalFlip,
+                            IsFlippedVertically = attribute.VerticalFlip,
+                            Priority = drawIndex
                         });
                     }
 
@@ -425,7 +426,14 @@ namespace R1Engine
                     {
                         // Get the layer info
                         foreach (var l in channel.SpriteInfo)
-                            addAnimationPart(l.Tile, channel.XPos + l.XPos, channel.YPos + l.YPos, l);
+                            addAnimationPart(l.Tile.TileIndex, l.Tile.Attribute, channel.XPos + l.XPos, channel.YPos + l.YPos, l.DrawIndex);
+                    }
+                    if (map != null) {
+                        for (int y = 0; y < map.Height; y++) {
+                            for (int x = 0; x < map.Width; x++) {
+                                addAnimationPart(map.MapInfo.TileIndices[y * map.Width + x], map.MapInfo.Attributes[y * map.Width + x], x * 8, y * 8, 0);
+                            }
+                        }
                     }
 
                     // Add collision layer if enabled
@@ -464,7 +472,7 @@ namespace R1Engine
             while (ch.YPos >= centerY + 128) ch.YPos -= 256;
         }
 
-        protected void ProcessAnimCommands(GBC_Keyframe_Command cmd, List<AnimChannel> channels, CollisionLayerInfo collision)
+        protected void ProcessAnimCommands(GBC_Keyframe_Command cmd, List<AnimChannel> channels, CollisionLayerInfo collision, ref AnimMap map)
         {
             switch (cmd.Command)
             {
@@ -522,6 +530,15 @@ namespace R1Engine
                     collision.YPos = cmd.YPos - cmd.HalfHeight;
                     collision.IsEnabled = true;
                     break;
+                case GBC_Keyframe_Command.InstructionCommand.SetMapDimensions:
+                    if(map == null) map = new AnimMap();
+                    map.Width = cmd.DD_Map_Width;
+                    map.Height = cmd.DD_Map_Height;
+                    break;
+                case GBC_Keyframe_Command.InstructionCommand.SetMapGraphics:
+                    if (map == null) map = new AnimMap();
+                    map.MapInfo = cmd.DD_Map_TileGraphics;
+                    break;
             }
         }
 
@@ -549,6 +566,12 @@ namespace R1Engine
             public int Width { get; set; }
             public int Height { get; set; }
             public bool IsEnabled { get; set; }
+        }
+
+        protected class AnimMap {
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public GBC_Keyframe_Command.TileMapInfo MapInfo { get; set; }
         }
     }
 }
