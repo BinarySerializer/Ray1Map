@@ -302,6 +302,9 @@ namespace R1Engine
                 tileKit = curPuppet.TileKit;
             }
 
+            /*var centerX = model.RenderBoxX + model.RenderBoxWidth / 2;
+            var centerY = model.RenderBoxY + model.RenderBoxHeight / 2;*/
+
             var tileSets = tileKit.GetTileSetTex();
 
             // Add sprites for each palette
@@ -356,7 +359,7 @@ namespace R1Engine
                     {
                         // Get the layer info
                         foreach (var l in channel.SpriteInfo)
-                            addAnimationPart(l.Tile, l.XPos, l.YPos, l);
+                            addAnimationPart(l.Tile, channel.XPos + l.XPos, channel.YPos + l.YPos, l);
 
                         // Helper for adding a layer to the frame
                         void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos, AnimLayerInfo l)
@@ -408,22 +411,32 @@ namespace R1Engine
             {
                 case GBC_Keyframe_Command.InstructionCommand.SpriteNew:
                     var layerInfos = new AnimLayerInfo[cmd.LayerInfos.Length];
+                    sbyte xPos = cmd.LayerInfos.Length > 0 ? cmd.LayerInfos[0].XPos : (sbyte)0;
+                    sbyte yPos = cmd.LayerInfos.Length > 0 ? cmd.LayerInfos[0].YPos : (sbyte)0;
                     for (int i = 0; i < cmd.LayerInfos.Length; i++) {
                         layerInfos[i] = new AnimLayerInfo() {
                             DrawIndex = cmd.LayerInfos[i].DrawIndex,
                             Tile = cmd.LayerInfos[i].Tile,
-                            XPos = cmd.LayerInfos[i].XPos + (i > 0 ? layerInfos[0].XPos : 0),
-                            YPos = cmd.LayerInfos[i].YPos  + (i > 0 ? layerInfos[0].YPos : 0)
+                            XPos = (i > 0 ? cmd.LayerInfos[i].XPos : 0),
+                            YPos = (i > 0 ? cmd.LayerInfos[i].YPos : 0)
                         };
                     }
-                    channels.Add(new AnimChannel(layerInfos));
+                    channels.Add(new AnimChannel(layerInfos) {
+                        XPos = xPos,
+                        YPos = yPos
+                    });
                     break;
 
                 case GBC_Keyframe_Command.InstructionCommand.SpriteMove:
-                    foreach (var sprite in channels[cmd.ChannelIndex].SpriteInfo) {
-                        sprite.XPos += cmd.XPos;
-                        sprite.YPos += cmd.YPos;
-                    }
+                    var ch = channels[cmd.ChannelIndex];
+                    ch.XPos += cmd.XPos;
+                    ch.YPos += cmd.YPos;
+
+                    // Limit to sbyte
+                    /*while (ch.XPos <  centerX - 128) ch.XPos += 256;
+                    while (ch.XPos >= centerX + 128) ch.XPos -= 256;
+                    while (ch.YPos <  centerY - 128) ch.YPos += 256;
+                    while (ch.YPos >= centerY + 128) ch.YPos -= 256;*/
 
                     break;
 
@@ -463,6 +476,8 @@ namespace R1Engine
 
             public AnimLayerInfo[] SpriteInfo { get; }
             public bool IsVisible { get; set; } = true;
+            public sbyte XPos { get; set; }
+            public sbyte YPos { get; set; }
         }
         protected class AnimLayerInfo {
             public byte DrawIndex { get; set; } // The index this sprite is given in the puppet's sprite array
