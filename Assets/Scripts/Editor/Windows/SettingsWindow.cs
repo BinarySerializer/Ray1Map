@@ -171,25 +171,25 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("Visibility");
 
-        Settings.ShowObjects = EditorField("Show objects", Settings.ShowObjects);
+        Settings.ShowObjects = EditorField("Show objects (O)", Settings.ShowObjects);
 
-        Settings.ShowLinks = EditorField("Show links", Settings.ShowLinks);
+        Settings.ShowLinks = EditorField("Show links (L)", Settings.ShowLinks);
 
-        Settings.ShowTiles = EditorField("Show tiles", Settings.ShowTiles);
+        Settings.ShowTiles = EditorField("Show tiles (T)", Settings.ShowTiles);
 
-        Settings.ShowCollision = EditorField("Show tile collision", Settings.ShowCollision);
+        Settings.ShowCollision = EditorField("Show tile collision (C)", Settings.ShowCollision);
 
-        Settings.ShowObjCollision = EditorField("Show object collision", Settings.ShowObjCollision);
+        Settings.ShowObjCollision = EditorField("Show object collision (B)", Settings.ShowObjCollision);
 
-        Settings.ShowAlwaysObjects = EditorField("Show always objects", Settings.ShowAlwaysObjects);
+        Settings.ShowAlwaysObjects = EditorField("Show always objects (G)", Settings.ShowAlwaysObjects);
 
-        Settings.ShowEditorObjects = EditorField("Show editor objects", Settings.ShowEditorObjects);
+        Settings.ShowEditorObjects = EditorField("Show editor objects (E)", Settings.ShowEditorObjects);
 
-        Settings.ShowDefaultObjIcons = EditorField("Show default object icons", Settings.ShowDefaultObjIcons);
+        Settings.ShowDefaultObjIcons = EditorField("Show gizmos", Settings.ShowDefaultObjIcons);
 
         Settings.ShowObjOffsets = EditorField("Show object offsets", Settings.ShowObjOffsets);
 
-        Settings.ShowRayman = EditorField("Show Rayman", Settings.ShowRayman);
+        Settings.ShowRayman = EditorField("Show Rayman object (R)", Settings.ShowRayman);
 
         Settings.HideUnusedLinks = EditorField("Hide unused links", Settings.HideUnusedLinks);
 
@@ -199,9 +199,9 @@ public class SettingsWindow : UnityWindow
 
         Settings.UseHDCollisionSheet = EditorField("Use HD collision sheet", Settings.UseHDCollisionSheet);
 
-        Settings.AnimateSprites = EditorField("Animate sprites", Settings.AnimateSprites);
+        Settings.AnimateSprites = EditorField("Animate sprites (P)", Settings.AnimateSprites);
 
-        Settings.AnimateTiles = EditorField("Animate tiles", Settings.AnimateTiles);
+        Settings.AnimateTiles = EditorField("Animate tiles (Y)", Settings.AnimateTiles);
 
         Settings.ShowDebugInfo = EditorField("Show debug info", Settings.ShowDebugInfo);
 
@@ -245,7 +245,7 @@ public class SettingsWindow : UnityWindow
                 if (LevelEditorData.Level?.IsometricData != null) {
                     var cam = Controller.obj?.levelController?.editor?.cam;
                     if (cam != null) {
-                        cam.FreeCameraMode = EditorField($"Free camera mode", cam.FreeCameraMode);
+                        cam.FreeCameraMode = EditorField($"Free camera mode (F)", cam.FreeCameraMode);
                     }
                 }
 

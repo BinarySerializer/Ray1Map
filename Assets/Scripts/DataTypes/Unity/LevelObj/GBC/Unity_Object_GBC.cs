@@ -103,8 +103,9 @@ namespace R1Engine
 
         public override bool IsEditor => IsTrigger;
         public override ObjectType Type => IsTrigger ? ObjectType.Trigger : ObjectType.Object;
+		public override bool IsAlways => !Actor.IsCaptor && Actor.ActionID == 0;
 
-        public override Unity_ObjAnimation CurrentAnimation => ActorModel?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
+		public override Unity_ObjAnimation CurrentAnimation => ActorModel?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex - 1 ?? Action?.AnimIndex - 1 ?? ActionIndex;
