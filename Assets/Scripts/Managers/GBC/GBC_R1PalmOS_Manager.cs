@@ -14,7 +14,7 @@ namespace R1Engine
         public string AllfixFilePath => "worldmap.pdb";
         public string[] GetAllDataPaths(Context c) {
             return new string[] {
-                ((c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColor) ? "palmcolormenu" : "menu"),
+                c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColor ? "palmcolormenu" : "menu",
                 "worldmap",
                 "jungle1",
                 "jungle2",
@@ -33,10 +33,7 @@ namespace R1Engine
             };
         }
 
-        public static BaseColor[] GetPalmOS4BitPalette() {
-            return Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
-        }
-
+        public static BaseColor[] GetPalmOS4BitPalette() => Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
 
         public static BaseColor[] GetPalmOS8BitPalette() {
             BaseColor[] pal = new BaseColor[256];
@@ -80,9 +77,7 @@ namespace R1Engine
 
         public override GameAction[] GetGameActions(GameSettings settings) => base.GetGameActions(settings).Concat(new GameAction[]
         {
-            new GameAction("Export DataBases", false, true, (input, output) => ExportDataBasesAsync(settings, output, false)),
-            new GameAction("Export DataBases (Categorized)", false, true, (input, output) => ExportDataBasesAsync(settings, output, true)),
-            new GameAction("Export TileSets", false, true, (input, output) => ExportDataBasesAsync(settings, output, false, asTileSet: true)),
+            new GameAction("Export Databases", false, true, (input, output) => ExportDataBasesAsync(settings, output)),
         }).ToArray();
 
         void ExportVignette(GBC_PalmOS_Vignette vignette, string outputPath) {
@@ -117,7 +112,7 @@ namespace R1Engine
             Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
         }
 
-        public async UniTask ExportDataBasesAsync(GameSettings settings, string outputDir, bool categorized, bool asTileSet = false)
+        public async UniTask ExportDataBasesAsync(GameSettings settings, string outputDir)
         {
             using (var context = new Context(settings))
             {
@@ -136,75 +131,48 @@ namespace R1Engine
 
                     var dataBase = FileFactory.Read<Palm_Database>(relPath, context, (so, pd) => pd.Type = type.Value);
 
-                    var palette8Bit = GetPalmOS8BitPalette();
-                    var palette4Bit = GetPalmOS4BitPalette();
-
                     for (int i = 0; i < dataBase.RecordsCount; i++)
                     {
                         var record = dataBase.Records[i];
                         var name = type == Palm_Database.DatabaseType.PRC ? $"{record.Name}_{record.ID}" : $"{i}";
-                        bool exported = false;
-                        if (categorized && filePath.Contains("menu")) 
-                        {
-                            if (!exported) {
-                                try {
-                                    LUDI_CompressedBlock<GBC_PalmOS_Vignette> vignette = null;
-                                    s.DoAt(record.DataPointer, () => {
-                                        vignette = s.SerializeObject<LUDI_CompressedBlock<GBC_PalmOS_Vignette>>(default, name: nameof(vignette));
-                                    });
-                                    ExportVignette(vignette.Value, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"Vignette/{name}.png"));
-                                    exported = true;
-                                } catch (Exception) { }
-                            }
-                            if (!exported) {
-                                try {
-                                    LUDI_UncompressedBlock<GBC_PalmOS_Vignette> vignette = null;
-                                    s.DoAt(record.DataPointer, () => {
-                                        vignette = s.SerializeObject<LUDI_UncompressedBlock<GBC_PalmOS_Vignette>>(default, name: nameof(vignette));
-                                    });
-                                    ExportVignette(vignette.Value, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"Vignette/{name}.png"));
-                                    exported = true;
-                                } catch (Exception) { }
-                            }
-                            if (!exported) {
-                                s.Goto(record.DataPointer);
-                                var bytes = s.DoAt(record.DataPointer, () => s.SerializeArray<byte>(default, record.Length, name: $"Record[{i}]"));
-                                string filename = $"Uncategorized/{name}.bin";
-                                Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
-                            }
-                        } 
-                        else if (asTileSet)
-                        {
-                            if (record.Length <= 12)
-                                continue;
 
-                            var isValid = s.DoAt(record.DataPointer, () =>
-                            {
-                                s.Serialize<uint>(default); // Header
-                                var unk = s.Serialize<uint>(default); // ?
-                                var count = s.Serialize<uint>(default); // Count
-
-                                return count * 0x40 + 12 == record.Length;
-                            });
-
-                            if (!isValid)
-                                continue;
-
-                            var tileSet = s.DoAt(record.DataPointer, () => s.SerializeObject<GBC_TileKit>(default, name: "TileSet"));
-
-                            bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
-                            Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
-                            var tex = Util.ToTileSetTexture(tileSet.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), encoding, 8, true, wrap: 16);
-                            
-                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}_0x{record.DataPointer.FileOffset:X8}.png"), tex.EncodeToPNG());
-                        }
-                        else
-                        {
-                            string filename = $"{name}.bin";
-                            var bytes = s.DoAt(record.DataPointer, () => s.SerializeArray<byte>(default, record.Length, name: $"Record[{i}]"));
-                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
-                        }
+                        string filename = $"{name}.bin";
+                        var bytes = s.DoAt(record.DataPointer, () => s.SerializeArray<byte>(default, record.Length, name: $"Record[{i}]"));
+                        Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
                     }
+                }
+            }
+        }
+
+        public override void ExportVignette(Context context, string outputDir)
+        {
+            var s = context.Deserializer;
+
+            var path = GetAllDataPaths(context).First(x => x.Contains("menu"));
+
+            var dataBase = FileFactory.Read<Palm_Database>(path + ".pdb", context, (so, pd) => pd.Type = Palm_Database.DatabaseType.PDB);
+
+            for (int i = 0; i < dataBase.RecordsCount; i++)
+            {
+                var record = dataBase.Records[i];
+                bool exported = false;
+
+                try
+                {
+                    var vignette = s.DoAt(record.DataPointer, () => s.SerializeObject<LUDI_CompressedBlock<GBC_PalmOS_Vignette>>(default, name: "Vignette"));
+                    ExportVignette(vignette.Value, Path.Combine(outputDir, path, $"{i}.png"));
+                    exported = true;
+                }
+                catch (Exception) { }
+
+                if (!exported)
+                {
+                    try
+                    {
+                        var vignette = s.DoAt(record.DataPointer, () => s.SerializeObject<LUDI_UncompressedBlock<GBC_PalmOS_Vignette>>(default, name: "Vignette"));
+                        ExportVignette(vignette.Value, Path.Combine(outputDir, path, $"{i}.png"));
+                    }
+                    catch (Exception) { }
                 }
             }
         }
