@@ -354,28 +354,26 @@ namespace R1Engine
                     var animationParts = new List<Unity_ObjAnimationPart>();
                     Unity_ObjAnimationCollisionPart[] collisionParts = null;
 
+                    // Helper for adding a layer to the frame
+                    void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos, AnimLayerInfo l) {
+                        var imgIndex = tileSets.Length == 1 ? tile.TileIndex : (int)(tile.TileIndex + (tile.Attribute.PalIndex * tileKit.TilesCount));
+
+                        animationParts.Add(new Unity_ObjAnimationPart {
+                            ImageIndex = imgIndex,
+                            XPosition = xPos,
+                            YPosition = yPos,
+                            IsFlippedHorizontally = tile.Attribute.HorizontalFlip,
+                            IsFlippedVertically = tile.Attribute.VerticalFlip,
+                            Priority = l.DrawIndex
+                        });
+                    }
+
                     // Add every visible layer
                     foreach (AnimChannel channel in channels.Where(channel => channel.IsVisible))
                     {
                         // Get the layer info
                         foreach (var l in channel.SpriteInfo)
                             addAnimationPart(l.Tile, channel.XPos + l.XPos, channel.YPos + l.YPos, l);
-
-                        // Helper for adding a layer to the frame
-                        void addAnimationPart(GBC_Keyframe_Command.TileGraphicsInfo tile, int xPos, int yPos, AnimLayerInfo l)
-                        {
-                            var imgIndex = tileSets.Length == 1 ? tile.TileIndex : (int)(tile.TileIndex + (tile.Attr_PalIndex * tileKit.TilesCount));
-
-                            animationParts.Add(new Unity_ObjAnimationPart
-                            {
-                                ImageIndex = imgIndex,
-                                XPosition = xPos,
-                                YPosition = yPos,
-                                IsFlippedHorizontally = tile.Attr_HorizontalFlip,
-                                IsFlippedVertically = tile.Attr_VerticalFlip,
-                                Priority = l.DrawIndex
-                            });
-                        }
                     }
 
                     // Add collision layer if enabled

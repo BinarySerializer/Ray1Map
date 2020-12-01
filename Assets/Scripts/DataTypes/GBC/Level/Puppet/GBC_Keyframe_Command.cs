@@ -23,6 +23,11 @@ namespace R1Engine
         
         public TileGraphicsInfo[] TileGraphicsInfos { get; set; }
 
+        // Donald Duck
+        public TileMapInfo DD_Map_TileIndices { get; set; }
+        public byte DD_Map_Width { get; set; }
+        public byte DD_Map_Height { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             Command = s.Serialize<InstructionCommand>(Command, name: nameof(Command));
@@ -64,6 +69,14 @@ namespace R1Engine
                     UnkHitboxValue = s.Serialize<byte>(UnkHitboxValue, name: nameof(UnkHitboxValue));
                     break;
 
+                case InstructionCommand.SetMapDimensions:
+                    DD_Map_Width = s.Serialize<byte>(DD_Map_Width, name: nameof(DD_Map_Width));
+                    DD_Map_Height = s.Serialize<byte>(DD_Map_Height, name: nameof(DD_Map_Height));
+                    break;
+                case InstructionCommand.SetMapGraphics:
+                    DD_Map_TileIndices = s.SerializeObject<TileMapInfo>(DD_Map_TileIndices, name: nameof(DD_Map_TileIndices));
+                    break;
+
                 case InstructionCommand.Terminator:
                     ChannelData?.Temp_LayerSpriteCountState?.Clear();
                     break;
@@ -91,29 +104,39 @@ namespace R1Engine
             Unknown_0D = 0x0D,
             Unknown_0E = 0x0E,
 
+            SetMapDimensions = 0x1D,
+            SetMapGraphics = 0x1E,
+
             Terminator = 0xFF,
+        }
+
+        public class TileAttribute : R1Serializable {
+            public byte PalIndex { get; set; }
+            public byte Unknown1 { get; set; }
+            public bool HorizontalFlip { get; set; }
+            public bool VerticalFlip { get; set; }
+            public bool Unknown2 { get; set; }
+
+            public override void SerializeImpl(SerializerObject s) {
+                s.SerializeBitValues<byte>(bitFunc => {
+                    PalIndex = (byte)bitFunc(PalIndex, 3, name: nameof(PalIndex));
+                    Unknown1 = (byte)bitFunc(Unknown1, 2, name: nameof(Unknown1));
+                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                    Unknown2 = bitFunc(Unknown2 ? 1 : 0, 1, name: nameof(Unknown2)) == 1;
+                });
+            }
         }
 
         public class TileGraphicsInfo : R1Serializable
         {
             public byte TileIndex { get; set; } // If -1, same effect as SetInvisible, otherwise SetVisible
-            public byte Attr_PalIndex { get; set; }
-            public byte Attr_Unknown1 { get; set; }
-            public bool Attr_HorizontalFlip { get; set; }
-            public bool Attr_VerticalFlip { get; set; }
-            public bool Attr_Unknown2 { get; set; }
+            public TileAttribute Attribute { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
                 TileIndex = s.Serialize<byte>(TileIndex, name: nameof(TileIndex));
-                s.SerializeBitValues<byte>(bitFunc =>
-                {
-                    Attr_PalIndex = (byte)bitFunc(Attr_PalIndex, 3, name: nameof(Attr_PalIndex));
-                    Attr_Unknown1 = (byte)bitFunc(Attr_Unknown1, 2, name: nameof(Attr_Unknown1));
-                    Attr_HorizontalFlip = bitFunc(Attr_HorizontalFlip ? 1 : 0, 1, name: nameof(Attr_HorizontalFlip)) == 1;
-                    Attr_VerticalFlip = bitFunc(Attr_VerticalFlip ? 1 : 0, 1, name: nameof(Attr_VerticalFlip)) == 1;
-                    Attr_Unknown2 = bitFunc(Attr_Unknown2 ? 1 : 0, 1, name: nameof(Attr_Unknown2)) == 1;
-                });
+                Attribute = s.SerializeObject<TileAttribute>(Attribute, name: nameof(Attribute));
             }
         }
 
@@ -132,5 +155,27 @@ namespace R1Engine
                 YPos = s.Serialize<sbyte>(YPos, name: nameof(YPos));
             }
         }
+
+        public class TileMapInfo : R1Serializable {
+            public byte Byte00_Indices { get; set; }
+            public byte Count_Indices { get; set; }
+            public byte[] TileIndices { get; set; }
+            public byte LastByte_Indices { get; set; }
+            public byte Byte00_Attributes { get; set; }
+            public byte Count_Attributes { get; set; }
+            public TileAttribute[] Attributes { get; set; }
+            public byte LastByte_Attributes { get; set; }
+
+            public override void SerializeImpl(SerializerObject s) {
+                Byte00_Indices = s.Serialize<byte>(Byte00_Indices, name: nameof(Byte00_Indices));
+                Count_Indices = s.Serialize<byte>(Count_Indices, name: nameof(Count_Indices));
+				TileIndices = s.SerializeArray<byte>(TileIndices, Count_Indices, name: nameof(TileIndices));
+                LastByte_Indices = s.Serialize<byte>(LastByte_Indices, name: nameof(LastByte_Indices));
+                Byte00_Attributes = s.Serialize<byte>(Byte00_Attributes, name: nameof(Byte00_Attributes));
+                Count_Attributes = s.Serialize<byte>(Count_Attributes, name: nameof(Count_Attributes));
+                Attributes = s.SerializeObjectArray<TileAttribute>(Attributes, Count_Attributes, name: nameof(Attributes));
+                LastByte_Attributes = s.Serialize<byte>(LastByte_Attributes, name: nameof(LastByte_Attributes));
+            }
+		}
     }
 }
