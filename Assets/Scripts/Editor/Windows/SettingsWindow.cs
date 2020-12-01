@@ -187,7 +187,7 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowDefaultObjIcons = EditorField("Show gizmos", Settings.ShowDefaultObjIcons);
 
-        Settings.ShowObjOffsets = EditorField("Show object offsets", Settings.ShowObjOffsets);
+        Settings.ShowObjOffsets = EditorField("Show object offsets (X)", Settings.ShowObjOffsets);
 
         Settings.ShowRayman = EditorField("Show Rayman object (R)", Settings.ShowRayman);
 
