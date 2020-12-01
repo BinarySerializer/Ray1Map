@@ -209,7 +209,13 @@ namespace R1Engine
                 {
                     var sprite = sprites[layer.ImageIndex];
 
-                    // TODO: Copy sprite pixels to tex, ignoring transparent pixels
+                    for (int y = 0; y < sprite.rect.height; y++)
+                    {
+                        for (int x = 0; x < sprite.rect.width; x++)
+                        {
+                            tex.SetPixel(layer.XPosition - minX + x, layer.YPosition - minY + y, sprite.texture.GetPixel((int)(sprite.rect.x + x), (int)(sprite.rect.y + y)));
+                        }
+                    }
                 }
 
                 tex.Apply();
