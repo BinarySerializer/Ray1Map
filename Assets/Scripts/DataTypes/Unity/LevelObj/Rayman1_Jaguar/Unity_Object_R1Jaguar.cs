@@ -61,6 +61,8 @@ namespace R1Engine
 
         public int LinkIndex { get; set; }
 
+        public override ObjectType Type => ObjManager.EventDefinitions[EventDefinitionIndex].DisplayName == "MS_ge1" ? ObjectType.Trigger : ObjectType.Object;
+
         public Unity_ObjGraphics DES => ObjManager.EventDefinitions[EventDefinitionIndex].DES;
         public Unity_ObjectManager_R1Jaguar.State[][] ETA => ObjManager.EventDefinitions[EventDefinitionIndex].ETA;
         public Unity_ObjectManager_R1Jaguar.State State => ETA?.ElementAtOrDefault(RuntimeComplexStateIndex)?.ElementAtOrDefault(RuntimeStateIndex);
