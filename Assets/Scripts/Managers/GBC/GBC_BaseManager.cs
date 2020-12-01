@@ -434,7 +434,10 @@ namespace R1Engine
                     if (map != null) {
                         for (int y = 0; y < map.Height; y++) {
                             for (int x = 0; x < map.Width; x++) {
-                                addAnimationPart(map.MapInfo.TileIndices[y * map.Width + x], map.MapInfo.Attributes[y * map.Width + x], x * 8, y * 8, 0);
+                                var ind = y * map.Width + x;
+                                if (ind < map.MapInfo.Count_Attributes && ind < map.MapInfo.Count_Indices) {
+                                    addAnimationPart(map.MapInfo.TileIndices[ind], map.MapInfo.Attributes[ind], x * 8, y * 8, 0);
+                                }
                             }
                         }
                     }
