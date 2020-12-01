@@ -157,8 +157,7 @@ namespace R1Engine
                         var puppet = model.ActionTable.Puppet;
                         var offset = puppet.Offset;
 
-                        if (exported.Contains(offset))
-                            return;
+                        if (exported.Contains(offset)) continue;
 
                         exported.Add(offset);
 
@@ -176,7 +175,7 @@ namespace R1Engine
 
                                 foreach (var tex in GetAnimationFrames(model, anim, commonDesign.Sprites))
                                 {
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{offset.file.filePath}_0x{offset.FileOffset}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{offset.file.filePath}_0x{offset.StringFileOffset}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
                                     frameIndex++;
                                 }
                             }
@@ -194,26 +193,44 @@ namespace R1Engine
 
         public IEnumerable<Texture2D> GetAnimationFrames(GBC_ActorModel model, Unity_ObjAnimation objAnim, IList<Sprite> sprites)
         {
-            var w = model.RenderBoxWidth + Math.Abs(model.RenderBoxX);
-            var h = model.RenderBoxHeight + Math.Abs(model.RenderBoxY);
+            /*var w = model.RenderBoxWidth;
+            var h = model.RenderBoxHeight;
+            var minX = model.RenderBoxX;
+            var minY = model.RenderBoxY;*/
 
             var minX = objAnim.Frames.SelectMany(x => x.SpriteLayers).Min(x => x.XPosition);
             var minY = objAnim.Frames.SelectMany(x => x.SpriteLayers).Min(x => x.YPosition);
+            var maxX = objAnim.Frames.SelectMany(x => x.SpriteLayers).Max(x => x.XPosition + 8);
+            var maxY = objAnim.Frames.SelectMany(x => x.SpriteLayers).Max(x => x.YPosition + 8);
+            var w = maxX - minX;
+            var h = maxY - minY;
 
             // Enumerate every frame
             foreach (var frame in objAnim.Frames)
             {
-                var tex = TextureHelpers.CreateTexture2D(w - minX, h - minY, clear: true);
+                var tex = TextureHelpers.CreateTexture2D(w, h, clear: true);
 
                 foreach (var layer in frame.SpriteLayers)
                 {
                     var sprite = sprites[layer.ImageIndex];
+                    var rect = sprite.rect;
+                    var rectX = (int)rect.x;
+                    var rectY = (int)rect.y;
+                    var rectW = (int)rect.width;
+                    var rectH = (int)rect.height;
 
-                    for (int y = 0; y < sprite.rect.height; y++)
+                    Color[] pixels = sprite.texture.GetPixels(rectX, rectY, rectW, rectH);
+
+                    for (int y = 0; y < rectH; y++)
                     {
-                        for (int x = 0; x < sprite.rect.width; x++)
+                        for (int x = 0; x < rectW; x++)
                         {
-                            tex.SetPixel(layer.XPosition - minX + x, layer.YPosition - minY + y, sprite.texture.GetPixel((int)(sprite.rect.x + x), (int)(sprite.rect.y + y)));
+                            var pix = pixels[y * rectW + x];
+                            if (pix.a > 0) {
+                                var actualX = layer.IsFlippedHorizontally ? rectW - x - 1 : x;
+                                var actualY = !layer.IsFlippedVertically ? rectH - y - 1 : y;
+                                tex.SetPixel(layer.XPosition - minX + actualX, h - 1 - (layer.YPosition - minY + actualY), pix);
+                            }
                         }
                     }
                 }
