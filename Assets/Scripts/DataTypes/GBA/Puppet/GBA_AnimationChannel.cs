@@ -189,10 +189,10 @@ namespace R1Engine
             UnknownC
         }
 
-        public float GetRotation(GBA_Animation anim, GBA_SpriteGroup spriteGroup, int frameIndex) {
+        public float GetRotation(GBA_Animation anim, GBA_Puppet puppet, int frameIndex) {
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
-                if (spriteGroup.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
-                    var m = spriteGroup.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
+                if (puppet.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
+                    var m = puppet.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
                     if (m != null) {
                         var rotation = -Mathf.Atan2(m.Pb / 256f, m.Pa / 256f);
                         return rotation * Mathf.Rad2Deg;
@@ -208,10 +208,10 @@ namespace R1Engine
             return 0f;
         }
 
-        public UnityEngine.Vector2 GetScale(GBA_Animation anim, GBA_SpriteGroup spriteGroup, int frameIndex) {
+        public UnityEngine.Vector2 GetScale(GBA_Animation anim, GBA_Puppet puppet, int frameIndex) {
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
-                if (spriteGroup.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
-                    var m = spriteGroup.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
+                if (puppet.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
+                    var m = puppet.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
                     if (m != null) {
                         var a = m.Pa / 256f;
                         var b = m.Pb / 256f;

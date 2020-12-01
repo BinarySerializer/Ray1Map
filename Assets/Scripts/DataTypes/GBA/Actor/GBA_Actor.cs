@@ -11,9 +11,9 @@
         
         public byte ActorID { get; set; }
         
-        public byte GraphicsDataIndex { get; set; }
+        public byte ModelIndex { get; set; }
 
-        public byte StateIndex { get; set; }
+        public byte ActionIndex { get; set; }
 
         public byte Link_0 { get; set; } = 0xFF;
         public byte Link_1 { get; set; } = 0xFF;
@@ -23,14 +23,14 @@
         // For specific actor types
         public ActorType Type { get; set; }
         // BoxActor
-        public byte BoxActorBlockOffsetIndex { get; set; }
+        public byte CaptorDataOffsetIndex { get; set; }
         public byte[] UnkData1 { get; set; }
         public byte[] UnkData2 { get; set; }
         public short BoxMinY { get; set; }
         public short BoxMinX { get; set; }
         public short BoxMaxY { get; set; }
         public short BoxMaxX { get; set; }
-        public BoxActorType BoxActorID { get; set; }
+        public CaptorType CaptorID { get; set; }
         public byte LinkedActorsCount { get; set; }
 
         // Unk2
@@ -49,9 +49,9 @@
 
         #region Parsed
 
-        public GBA_ActorGraphicData GraphicData { get; set; }
+        public GBA_ActorModel ActorModel { get; set; }
 
-        public GBA_BoxTriggerActorDataBlock BoxActorBlock { get; set; }
+        public GBA_CaptorData CaptorData { get; set; }
 
         #endregion
 
@@ -65,20 +65,20 @@
                 ActorSize = s.Serialize<ushort>(ActorSize, name: nameof(ActorSize));
                 if (ActorSize >= 2) {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-                    GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
+                    ModelIndex = s.Serialize<byte>(ModelIndex, name: nameof(ModelIndex));
                 }
                 ExtraData = s.SerializeArray<byte>(ExtraData, ActorSize - (s.CurrentPointer - Offset), name: nameof(ExtraData));
             } else {
                 XPos = s.Serialize<short>(XPos, name: nameof(XPos));
                 YPos = s.Serialize<short>(YPos, name: nameof(YPos));
 
-                if (Type != ActorType.BoxTrigger) {
+                if (Type != ActorType.Captor) {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
                     ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
 
-                    if (s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Type == ActorType.Normal || Type == ActorType.Always) {
-                        GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
-                        StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
+                    if (s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Type == ActorType.Actor || Type == ActorType.AlwaysActor) {
+                        ModelIndex = s.Serialize<byte>(ModelIndex, name: nameof(ModelIndex));
+                        ActionIndex = s.Serialize<byte>(ActionIndex, name: nameof(ActionIndex));
                     }
 
                     if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance && s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow) {
@@ -97,7 +97,7 @@
                     } 
                     else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) 
                     {
-                        if (Type == ActorType.Trigger || Type == ActorType.Unk) {
+                        if (Type == ActorType.Waypoint || Type == ActorType.Unk) {
                             ActorSize = s.Serialize<ushort>(ActorSize, name: nameof(ActorSize));
                             ExtraData = s.SerializeArray<byte>(ExtraData, ActorSize - 8, name: nameof(ExtraData));
                         } else {
@@ -112,15 +112,15 @@
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                         UnkData1 = s.SerializeArray<byte>(UnkData1, 1, name: nameof(UnkData1));
                         LinkedActorsCount = s.Serialize<byte>(LinkedActorsCount, name: nameof(LinkedActorsCount));
-                        BoxActorID = s.Serialize<BoxActorType>(BoxActorID, name: nameof(BoxActorID));
+                        CaptorID = s.Serialize<CaptorType>(CaptorID, name: nameof(CaptorID));
                     } else {
                         s.SerializeBitValues<byte>(bitFunc =>
                         {
                             LinkedActorsCount = (byte)bitFunc(LinkedActorsCount, 5, name: nameof(LinkedActorsCount));
-                            BoxActorID = (BoxActorType)bitFunc((byte)BoxActorID, 3, name: nameof(BoxActorID));
+                            CaptorID = (CaptorType)bitFunc((byte)CaptorID, 3, name: nameof(CaptorID));
                         });
                     }
-                    BoxActorBlockOffsetIndex = s.Serialize<byte>(BoxActorBlockOffsetIndex, name: nameof(BoxActorBlockOffsetIndex));
+                    CaptorDataOffsetIndex = s.Serialize<byte>(CaptorDataOffsetIndex, name: nameof(CaptorDataOffsetIndex));
 
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                         UnkData2 = s.SerializeArray<byte>(UnkData2, 1, name: nameof(UnkData2));
@@ -145,15 +145,15 @@
 
 
         public enum ActorType {
-            Main,
-            Always,
-            Normal,
-            BoxTrigger,
-            Trigger,
+            MainActor,
+            AlwaysActor,
+            Actor,
+            Captor,
+            Waypoint,
             Unk
         }
 
-        public enum BoxActorType : byte
+        public enum CaptorType : byte
         {
             // Triggers when the area is hit
             Hit = 0,

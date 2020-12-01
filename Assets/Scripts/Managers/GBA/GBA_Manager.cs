@@ -255,14 +255,14 @@ namespace R1Engine
                 foreach (var menuSprite in AdditionalSprites4bpp)
                 {
                     var s = context.Deserializer;
-                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false, menuSprite);
+                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_Puppet>(default)), false, menuSprite);
                 }
                 await Controller.WaitIfNecessary();
 
                 foreach (var menuSprite in AdditionalSprites8bpp)
                 {
                     var s = context.Deserializer;
-                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true, menuSprite);
+                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_Puppet>(default)), true, menuSprite);
                 }
                 await Controller.WaitIfNecessary();
             }
@@ -286,14 +286,14 @@ namespace R1Engine
                     // Enumerate every graphic group
                     await UniTask.WaitForEndOfFrame();
 
-                    foreach (var spr in lvl.GetAllActors(settings).Select(x => x.GraphicData.SpriteGroup).Distinct())
+                    foreach (var spr in lvl.GetAllActors(settings).Select(x => x.ActorModel.Puppet).Distinct())
                         await ExportSpriteGroup(spr, false, -1);
                 }
             }
 
             Debug.Log("Finished export");
 
-            async UniTask ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit, int uioffset)
+            async UniTask ExportSpriteGroup(GBA_Puppet spr, bool is8bit, int uioffset)
             {
                 if (exported.Contains(spr.Offset))
                     return;
@@ -307,7 +307,7 @@ namespace R1Engine
             }
         }
 
-        protected void ExportSpriteTileSet(GBA_SpriteGroup spr, string outputDir, bool is8bit, int uioffset)
+        protected void ExportSpriteTileSet(GBA_Puppet spr, string outputDir, bool is8bit, int uioffset)
         {
             try
             {
@@ -365,7 +365,7 @@ namespace R1Engine
             }
         }
 
-        protected async UniTask ExportAnimations(GBA_SpriteGroup spr, string outputDir, bool is8bit)
+        protected async UniTask ExportAnimations(GBA_Puppet spr, string outputDir, bool is8bit)
         {
             MagickImage[] sprites = null;
 
@@ -691,13 +691,13 @@ namespace R1Engine
 
             foreach (var actor in scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0])
             {
-                if (graphicsData.Any(x => x.Index == actor.GraphicsDataIndex))
+                if (graphicsData.Any(x => x.Index == actor.ModelIndex))
                     continue;
 
-                if (actor.GraphicData == null)
+                if (actor.ActorModel == null)
                     continue;
 
-                graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.GraphicsDataIndex, actor.GraphicData.States, GetCommonDesign(actor.GraphicData)));
+                graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.ModelIndex, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel)));
             }
 
             var objManager = new Unity_ObjectManager_GBA(context, graphicsData.ToArray());
@@ -737,7 +737,7 @@ namespace R1Engine
                 cellSize: 8, 
                 getCollisionTypeNameFunc: x => ((GBA_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
-                sectors: scene?.Sectors.Select(x => new Unity_Sector(x.NormalActorIndices.Concat(x.BoxTriggerActorIndices2 ?? new byte[0]).Select(y => (int)y).ToList())).ToArray()
+                sectors: scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray()
                 );
 
             var mapDatas = new MapTile[mapLayers.Length][];
@@ -903,8 +903,8 @@ namespace R1Engine
             return level;
         }
 
-        public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorGraphicData graphics) => GetCommonDesign(graphics.SpriteGroup, false);
-        public Unity_ObjGraphics GetCommonDesign(GBA_SpriteGroup spr, bool is8bit)
+        public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorModel graphics) => GetCommonDesign(graphics.Puppet, false);
+        public Unity_ObjGraphics GetCommonDesign(GBA_Puppet spr, bool is8bit)
         {
             // Create the design
             var des = new Unity_ObjGraphics
@@ -953,7 +953,7 @@ namespace R1Engine
                 }
             }
 
-            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, int frame, GBA_AnimationChannel l) {
+            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_Puppet s, GBA_Animation a, int frame, GBA_AnimationChannel l) {
                 if (l.RenderMode == GBA_AnimationChannel.GfxMode.Window
                     || l.RenderMode == GBA_AnimationChannel.GfxMode.Regular
                     || l.ChannelType != GBA_AnimationChannel.Type.Sprite) 
@@ -993,7 +993,7 @@ namespace R1Engine
                 return parts;
             }
 
-            Unity_ObjAnimationCollisionPart[] GetCollisionPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, GBA_AnimationChannel l) 
+            Unity_ObjAnimationCollisionPart[] GetCollisionPartsForLayer(GBA_Puppet s, GBA_Animation a, GBA_AnimationChannel l) 
             {
                 if (l.ChannelType != GBA_AnimationChannel.Type.AttackBox && l.ChannelType != GBA_AnimationChannel.Type.VulnerabilityBox) 
                     return new Unity_ObjAnimationCollisionPart[0];

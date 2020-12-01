@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBA_BoxTriggerActorData : R1Serializable
+    public class GBA_CaptorDataEntry : R1Serializable
     {
         public ushort UShort_00 { get; set; }
         public byte LinkedActor { get; set; }

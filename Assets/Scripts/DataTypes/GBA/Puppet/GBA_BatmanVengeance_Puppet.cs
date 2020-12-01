@@ -2,7 +2,7 @@
 
 namespace R1Engine
 {
-    public class GBA_BatmanVengeance_SpriteGroup : GBA_BaseBlock {
+    public class GBA_BatmanVengeance_Puppet : GBA_BaseBlock {
         #region Data
 
         public byte Byte_00 { get; set; }

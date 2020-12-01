@@ -20,19 +20,19 @@ namespace R1Engine
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
 
-        public override Unity_ObjGraphics GetCommonDesign(GBA_ActorGraphicData graphicData) {
+        public override Unity_ObjGraphics GetCommonDesign(GBA_ActorModel model) {
             // Create the design
             var des = new Unity_ObjGraphics {
                 Sprites = new List<Sprite>(),
                 Animations = new List<Unity_ObjAnimation>(),
             };
-            if (graphicData == null) return des;
+            if (model == null) return des;
 
-            var tileMap = graphicData.SpriteGroup_BatmanVengeance.TileMap;
-            var pal = graphicData.SpriteGroup_BatmanVengeance.Palette.Palette;
+            var tileMap = model.Puppet_BatmanVengeance.TileMap;
+            var pal = model.Puppet_BatmanVengeance.Palette.Palette;
             const int tileWidth = 8;
             const int tileSize = (tileWidth * tileWidth) / 2;
-            var numPalettes = graphicData.SpriteGroup_BatmanVengeance.Palette.Palette.Length / 16;
+            var numPalettes = model.Puppet_BatmanVengeance.Palette.Palette.Length / 16;
 
             // Add sprites for each palette
             for (int palIndex = 0; palIndex < numPalettes; palIndex++) {
@@ -60,7 +60,7 @@ namespace R1Engine
                 }
             }
 
-            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_BatmanVengeance_SpriteGroup s, GBA_BatmanVengeance_Animation a, int frame, GBA_BatmanVengeance_AnimationChannel l) {
+            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_BatmanVengeance_Puppet s, GBA_BatmanVengeance_Animation a, int frame, GBA_BatmanVengeance_AnimationChannel l) {
                 /*if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Regular
@@ -70,11 +70,11 @@ namespace R1Engine
                     return new Unity_ObjAnimationPart[0];
                 }*/
                 Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[l.XSize * l.YSize];
-                if (l.ImageIndex > graphicData.SpriteGroup_BatmanVengeance.TileMap.TileMapLength) {
-                    Controller.print("Image index too high: " + graphicData.Offset + " - " + l.Offset);
+                if (l.ImageIndex > model.Puppet_BatmanVengeance.TileMap.TileMapLength) {
+                    Controller.print("Image index too high: " + model.Offset + " - " + l.Offset);
                 }
-                if (l.PaletteIndex > graphicData.SpriteGroup_BatmanVengeance.Palette.Palette.Length / 16) {
-                    Controller.print("Palette index too high: " + graphicData.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (graphicData.SpriteGroup_BatmanVengeance.Palette.Palette.Length / 16));
+                if (l.PaletteIndex > model.Puppet_BatmanVengeance.Palette.Palette.Length / 16) {
+                    Controller.print("Palette index too high: " + model.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (model.Puppet_BatmanVengeance.Palette.Palette.Length / 16));
                 }
                 float rot = 0;// l.GetRotation(a, s, frame);
                 Vector2? scl = null;// l.GetScale(a, s, frame);
@@ -97,11 +97,11 @@ namespace R1Engine
             }
 
             // Add first animation for now
-            foreach (var a in graphicData.SpriteGroup_BatmanVengeance.Animations) {
+            foreach (var a in model.Puppet_BatmanVengeance.Animations) {
                 var unityAnim = new Unity_ObjAnimation();
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
-                    frames.Add(new Unity_ObjAnimationFrame(a.Frames[i].Layers/*.OrderByDescending(l => l.Priority)*/.SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup_BatmanVengeance, a, i, l)).Reverse().ToArray()));
+                    frames.Add(new Unity_ObjAnimationFrame(a.Frames[i].Layers/*.OrderByDescending(l => l.Priority)*/.SelectMany(l => GetPartsForLayer(model.Puppet_BatmanVengeance, a, i, l)).Reverse().ToArray()));
                 }
                 unityAnim.Frames = frames.ToArray();
                 unityAnim.AnimSpeed = 1;

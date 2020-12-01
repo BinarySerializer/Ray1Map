@@ -28,7 +28,7 @@ namespace R1Engine
 
         public class GraphicsData
         {
-            public GraphicsData(int index, GBA_ActorState[] states, Unity_ObjGraphics graphics)
+            public GraphicsData(int index, GBA_Action[] states, Unity_ObjGraphics graphics)
             {
                 Index = index;
                 States = states;
@@ -37,7 +37,7 @@ namespace R1Engine
 
             public int Index { get; }
 
-            public GBA_ActorState[] States { get; }
+            public GBA_Action[] States { get; }
 
             public Unity_ObjGraphics Graphics { get; }
         }

@@ -2,7 +2,7 @@
 
 namespace R1Engine
 {
-    public class GBA_ActorState : R1Serializable
+    public class GBA_Action : R1Serializable
     {
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }

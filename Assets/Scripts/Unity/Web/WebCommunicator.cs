@@ -247,7 +247,7 @@ public class WebCommunicator : MonoBehaviour {
 				case Unity_Object_GBA gbaObj:
 					webObj.GBA_ActorID = gbaObj.Actor.ActorID;
 					webObj.GBA_GraphicsDataIndex = gbaObj.GraphicsDataIndex;
-					webObj.GBA_State = gbaObj.Actor.StateIndex;
+					webObj.GBA_State = gbaObj.Actor.ActionIndex;
 
                     if (includeLists)
                         webObj.GBA_GraphicsDataNames = gbaObj.ObjManager.GraphicsDatas.Select(x => x.Index.ToString()).ToArray();

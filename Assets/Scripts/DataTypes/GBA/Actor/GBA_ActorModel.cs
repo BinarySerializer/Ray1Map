@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBA_ActorGraphicData : GBA_BaseBlock
+    public class GBA_ActorModel : GBA_BaseBlock
     {
         public byte[] UnkData { get; set; }
 
@@ -9,10 +9,10 @@
         public byte Byte_0A { get; set; }
         public byte Byte_0B { get; set; }
 
-        public GBA_ActorState[] States { get; set; }
+        public GBA_Action[] Actions { get; set; }
 
-        public GBA_SpriteGroup SpriteGroup { get; set; }
-        public GBA_BatmanVengeance_SpriteGroup SpriteGroup_BatmanVengeance { get; set; }
+        public GBA_Puppet Puppet { get; set; }
+        public GBA_BatmanVengeance_Puppet Puppet_BatmanVengeance { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -27,25 +27,25 @@
 
             // TODO: Get number of entries
             if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
-                States = s.SerializeObjectArray<GBA_ActorState>(States, (BlockSize - 4) / 12, name: nameof(States));
+                Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 4) / 12, name: nameof(Actions));
             } else {
-                States = s.SerializeObjectArray<GBA_ActorState>(States, (BlockSize - 12) / 8, name: nameof(States));
+                Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 12) / 8, name: nameof(Actions));
             }
         }
 
         public override void SerializeOffsetData(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
-                SpriteGroup_BatmanVengeance = s.DoAt(OffsetTable.GetPointer(SpriteGroupOffsetIndex), () => s.SerializeObject<GBA_BatmanVengeance_SpriteGroup>(SpriteGroup_BatmanVengeance, name: nameof(SpriteGroup_BatmanVengeance)));
+                Puppet_BatmanVengeance = s.DoAt(OffsetTable.GetPointer(SpriteGroupOffsetIndex), () => s.SerializeObject<GBA_BatmanVengeance_Puppet>(Puppet_BatmanVengeance, name: nameof(Puppet_BatmanVengeance)));
             } else {
-                SpriteGroup = s.DoAt(OffsetTable.GetPointer(SpriteGroupOffsetIndex), () => s.SerializeObject<GBA_SpriteGroup>(SpriteGroup, name: nameof(SpriteGroup)));
+                Puppet = s.DoAt(OffsetTable.GetPointer(SpriteGroupOffsetIndex), () => s.SerializeObject<GBA_Puppet>(Puppet, name: nameof(Puppet)));
             }
 
             // Parse state data
-            for (var i = 0; i < States.Length; i++)
+            for (var i = 0; i < Actions.Length; i++)
             {
-                if (States[i].StateDataType != -1)
-                    States[i].StateData = s.DoAt(OffsetTable.GetPointer(States[i].StateDataOffsetIndex), () => s.SerializeObject<GBA_ActorStateData>(States[i].StateData, name: $"{nameof(GBA_ActorState.StateData)}[{i}]"));
+                if (Actions[i].StateDataType != -1)
+                    Actions[i].StateData = s.DoAt(OffsetTable.GetPointer(Actions[i].StateDataOffsetIndex), () => s.SerializeObject<GBA_ActorStateData>(Actions[i].StateData, name: $"{nameof(GBA_Action.StateData)}[{i}]"));
             }
         }
     }

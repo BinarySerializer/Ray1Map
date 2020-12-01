@@ -28,21 +28,21 @@ namespace R1Engine
         public GBA_Actor[] AlwaysActors { get; set; }
         public GBA_Actor[] NormalActors { get; set; }
 
-        public GBA_Actor[] BoxTriggerActors { get; set; }
-        public GBA_Actor[] TriggerActors { get; set; }
+        public GBA_Actor[] Captors { get; set; }
+        public GBA_Actor[] Waypoints { get; set; }
         public GBA_Actor[] UnkActors { get; set; }
 
         public IEnumerable<GBA_Actor> GetAllActors(GameSettings settings)
         {
             if (settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
-                return AlwaysActors.Concat(NormalActors).Concat(BoxTriggerActors).Concat(TriggerActors).Concat(UnkActors);
+                return AlwaysActors.Concat(NormalActors).Concat(Captors).Concat(Waypoints).Concat(UnkActors);
             else if (settings.EngineVersion < EngineVersion.GBA_R3_Proto)
-                return MainActors.Concat(NormalActors).Concat(AlwaysActors).Concat(BoxTriggerActors);
+                return MainActors.Concat(NormalActors).Concat(AlwaysActors).Concat(Captors);
             else
-                return AlwaysActors.Concat(NormalActors).Concat(BoxTriggerActors);
+                return AlwaysActors.Concat(NormalActors).Concat(Captors);
         }
 
-        public GBA_SceneSector[] Sectors { get; set; }
+        public GBA_Knot[] Knots { get; set; }
 
         public byte[] RemainingData { get; set; }
 
@@ -77,31 +77,31 @@ namespace R1Engine
 
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
 
-                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always, name: nameof(AlwaysActors));
-                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
-                BoxTriggerActors = s.SerializeObjectArray<GBA_Actor>(BoxTriggerActors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.BoxTrigger, name: nameof(BoxTriggerActors));
-                TriggerActors = s.SerializeObjectArray<GBA_Actor>(TriggerActors, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Trigger, name: nameof(TriggerActors));
+                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.AlwaysActor, name: nameof(AlwaysActors));
+                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Actor, name: nameof(NormalActors));
+                Captors = s.SerializeObjectArray<GBA_Actor>(Captors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Captor, name: nameof(Captors));
+                Waypoints = s.SerializeObjectArray<GBA_Actor>(Waypoints, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Waypoint, name: nameof(Waypoints));
                 UnkActors = s.SerializeObjectArray<GBA_Actor>(UnkActors, ActorsCount4, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Unk, name: nameof(UnkActors));
             }
             else if (s.GameSettings.EngineVersion < EngineVersion.GBA_R3_Proto)
             {
-                MainActors = s.SerializeObjectArray<GBA_Actor>(MainActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Main, name: nameof(MainActors));
-                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
-                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always, name: nameof(AlwaysActors));
-                BoxTriggerActors = s.SerializeObjectArray<GBA_Actor>(BoxTriggerActors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.BoxTrigger, name: nameof(BoxTriggerActors));
+                MainActors = s.SerializeObjectArray<GBA_Actor>(MainActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.MainActor, name: nameof(MainActors));
+                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Actor, name: nameof(NormalActors));
+                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.AlwaysActor, name: nameof(AlwaysActors));
+                Captors = s.SerializeObjectArray<GBA_Actor>(Captors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Captor, name: nameof(Captors));
             }
             else 
             {
-                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always, name: nameof(AlwaysActors));
-                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
+                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.AlwaysActor, name: nameof(AlwaysActors));
+                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Actor, name: nameof(NormalActors));
 
                 if (ActorsCount3 > 0)
                     Debug.LogWarning($"Unparsed actors for count 3 in level {s.GameSettings.Level}");
 
-                BoxTriggerActors = s.SerializeObjectArray<GBA_Actor>(BoxTriggerActors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.BoxTrigger, name: nameof(BoxTriggerActors));
+                Captors = s.SerializeObjectArray<GBA_Actor>(Captors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Captor, name: nameof(Captors));
             }
 
-            Sectors = s.SerializeObjectArray<GBA_SceneSector>(Sectors, SectorsCount, name: nameof(Sectors));
+            Knots = s.SerializeObjectArray<GBA_Knot>(Knots, SectorsCount, name: nameof(Knots));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
@@ -115,20 +115,20 @@ namespace R1Engine
 
             for (var i = 0; i < actors.Length; i++)
             {
-                if (actors[i].Type == GBA_Actor.ActorType.BoxTrigger)
+                if (actors[i].Type == GBA_Actor.ActorType.Captor)
                 {
-                    actors[i].BoxActorBlock = s.DoAt(OffsetTable.GetPointer(actors[i].BoxActorBlockOffsetIndex, isRelativeOffset: IsGCNBlock),
-                        () => s.SerializeObject<GBA_BoxTriggerActorDataBlock>(actors[i].BoxActorBlock,
+                    actors[i].CaptorData = s.DoAt(OffsetTable.GetPointer(actors[i].CaptorDataOffsetIndex, isRelativeOffset: IsGCNBlock),
+                        () => s.SerializeObject<GBA_CaptorData>(actors[i].CaptorData,
                         onPreSerialize: bab => {
                             bab.IsGCNBlock = IsGCNBlock;
                             bab.Length = actors[i].LinkedActorsCount;
-                            }, name: $"{nameof(GBA_Actor.BoxActorBlock)}[{i}]"));
+                            }, name: $"{nameof(GBA_Actor.CaptorData)}[{i}]"));
                 }
-                else if (actors[i].Type != GBA_Actor.ActorType.Trigger && actors[i].Type != GBA_Actor.ActorType.Unk && actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
+                else if (actors[i].Type != GBA_Actor.ActorType.Waypoint && actors[i].Type != GBA_Actor.ActorType.Unk && actors[i].ModelIndex < OffsetTable.OffsetsCount)
                 {
-                    actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(actors[i].GraphicsDataIndex),
-                        () => s.SerializeObject<GBA_ActorGraphicData>(actors[i].GraphicData,
-                            name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));
+                    actors[i].ActorModel = s.DoAt(OffsetTable.GetPointer(actors[i].ModelIndex),
+                        () => s.SerializeObject<GBA_ActorModel>(actors[i].ActorModel,
+                            name: $"{nameof(GBA_Actor.ActorModel)}[{i}]"));
                 }
             }
         }
@@ -139,11 +139,11 @@ namespace R1Engine
             var actors = GetAllActors(s.GameSettings).ToArray();
 
             for (var i = 0; i < actors.Length; i++) {
-                if (actors[i].Type == GBA_Actor.ActorType.BoxTrigger) {
-                    var ind = actors[i].BoxActorBlockOffsetIndex;
+                if (actors[i].Type == GBA_Actor.ActorType.Captor) {
+                    var ind = actors[i].CaptorDataOffsetIndex;
                     if (ind != 0xFF && (ind + 1) >= max) max = ind + 1;
-                } else if (actors[i].Type != GBA_Actor.ActorType.Trigger && actors[i].Type != GBA_Actor.ActorType.Unk) {
-                    var ind = actors[i].GraphicsDataIndex;
+                } else if (actors[i].Type != GBA_Actor.ActorType.Waypoint && actors[i].Type != GBA_Actor.ActorType.Unk) {
+                    var ind = actors[i].ModelIndex;
                     if (ind != 0xFF && (ind + 1) >= max) max = ind + 1;
                 }
             }
