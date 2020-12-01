@@ -411,7 +411,7 @@ namespace R1Engine
         protected void LimitChannelPos(AnimChannel ch) {
             // Limit to sbyte
             var centerX = 0;
-            var centerY = -64;
+            var centerY = -40;
             while (ch.XPos < centerX - 128) ch.XPos += 256;
             while (ch.XPos >= centerX + 128) ch.XPos -= 256;
             while (ch.YPos < centerY - 128) ch.YPos += 256;
