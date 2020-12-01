@@ -40,9 +40,7 @@ namespace R1Engine
 
         public override GameAction[] GetGameActions(GameSettings settings) => base.GetGameActions(settings).Concat(new GameAction[]
         {
-            new GameAction("Export DataBases", false, true, (input, output) => ExportDataBasesAsync(settings, output, false)),
-            new GameAction("Export DataBases (Categorized)", false, true, (input, output) => ExportDataBasesAsync(settings, output, true)),
-            new GameAction("Export TileSets", false, true, (input, output) => ExportDataBasesAsync(settings, output, false, asTileSet: true)),
+            new GameAction("Export Databases", false, true, (input, output) => ExportDataBasesAsync(settings, output)),
         }).ToArray();
 
         void ExportVignette(GBC_PalmOS_Vignette vignette, string outputPath) {
@@ -80,7 +78,51 @@ namespace R1Engine
             Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
         }
 
-        public async UniTask ExportDataBasesAsync(GameSettings settings, string outputDir, bool categorized, bool asTileSet = false)
+        public override void ExportVignette(Context context, string outputDir)
+        {
+            var s = context.Deserializer;
+
+            var path = GetAllDataPaths(context).First(x => x.Contains("menu"));
+
+            var dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(path + ".dat", context);
+
+            for (int i = 0; i < dataFile.BlockCount; i++)
+            {
+                ushort blockID = dataFile.OffsetTable.Entries[i].BlockID;
+                Pointer blockPtr = dataFile.Resolve(blockID);
+
+                if (blockPtr == null) 
+                    continue;
+
+                bool exported = false;
+
+                try
+                {
+                    var vignette = s.DoAt(blockPtr, () => s.SerializeObject<LUDI_CompressedBlock<GBC_PalmOS_Vignette>>(default, name: "Vignette"));
+                    ExportVignette(vignette.Value, Path.Combine(outputDir, path, $"{blockID}.png"));
+                    exported = true;
+                }
+                catch (Exception)
+                {
+                    s.Goto(blockPtr);
+                }
+
+                if (!exported)
+                {
+                    try
+                    {
+                        var vignette = s.DoAt(blockPtr, () => s.SerializeObject<LUDI_UncompressedBlock<GBC_PalmOS_Vignette>>(default, name: "Vignette"));
+                        ExportVignette(vignette.Value, Path.Combine(outputDir, path, $"{blockID}.png"));
+                    }
+                    catch (Exception)
+                    {
+                        s.Goto(blockPtr);
+                    }
+                }
+            }
+        }
+
+        public async UniTask ExportDataBasesAsync(GameSettings settings, string outputDir)
         {
             using (var context = new Context(settings))
             {
@@ -92,77 +134,20 @@ namespace R1Engine
                     await context.AddLinearSerializedFileAsync(relPath, BinaryFile.Endian.Little);
                     var dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(relPath, context);
 
-                    var palette8Bit = Util.CreateDummyPalette(256, firstTransparent: false);
-                    var palette4Bit = Util.CreateDummyPalette(16, firstTransparent: false).Reverse().ToArray();
-
                     for (int i = 0; i < dataFile.BlockCount; i++)
                     {
-                        ushort blockID = (ushort)(i + 1);
+                        ushort blockID = dataFile.OffsetTable.Entries[i].BlockID;
                         Pointer blockPtr = dataFile.Resolve(blockID);
                         uint blockLength = dataFile.GetLength(blockID) ?? 0;
-                        if(blockPtr == null) continue;
+
+                        if(blockPtr == null) 
+                            continue;
+
                         var name = $"{blockID}_{blockPtr.StringFileOffset}";
-                        bool exported = false;
-                        if (categorized && filePath.Contains("menu")) 
-                        {
-                            if (!exported) {
-                                try {
-                                    LUDI_CompressedBlock<GBC_PalmOS_Vignette> vignette = null;
-                                    s.DoAt(blockPtr, () => {
-                                        vignette = s.SerializeObject<LUDI_CompressedBlock<GBC_PalmOS_Vignette>>(default, name: nameof(vignette));
-                                    });
-                                    ExportVignette(vignette.Value, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"Vignette/{name}.png"));
-                                    exported = true;
-                                } catch (Exception) { }
-                            }
-                            if (!exported) {
-                                try {
-                                    LUDI_UncompressedBlock<GBC_PalmOS_Vignette> vignette = null;
-                                    s.DoAt(blockPtr, () => {
-                                        vignette = s.SerializeObject<LUDI_UncompressedBlock<GBC_PalmOS_Vignette>>(default, name: nameof(vignette));
-                                    });
-                                    ExportVignette(vignette.Value, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"Vignette/{name}.png"));
-                                    exported = true;
-                                } catch (Exception) { }
-                            }
-                            if (!exported) {
-                                s.Goto(blockPtr);
-                                var bytes = s.DoAt(blockPtr, () => s.SerializeArray<byte>(default, blockLength, name: $"Block[{blockID}]"));
-                                string filename = $"Uncategorized/{name}.bin";
-                                Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
-                            }
-                        } 
-                        else if (asTileSet)
-                        {
-                            if (blockLength <= 12)
-                                continue;
 
-                            var isValid = s.DoAt(blockPtr, () =>
-                            {
-                                s.Serialize<uint>(default); // Header
-                                var unk = s.Serialize<uint>(default); // ?
-                                var count = s.Serialize<uint>(default); // Count
-
-                                return count * 0x40 + 12 == blockLength;
-                            });
-
-                            if (!isValid)
-                                continue;
-
-                            var tileSet = s.DoAt(blockPtr, () => s.SerializeObject<GBC_TileKit>(default, name: "TileSet"));
-
-                            bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
-                            Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
-                            var tex = Util.ToTileSetTexture(tileSet.TileData, palette8Bit.Select(x => x.GetColor()).ToArray(), encoding, 8, true, wrap: 16);
-                            
-                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), $"{name}_0x{blockPtr.FileOffset:X8}.png"), tex.EncodeToPNG());
-                        }
-                        else
-                        {
-                            string filename = $"{name}.bin";
-                            var bytes = s.DoAt(blockPtr, () => s.SerializeArray<byte>(default, blockLength, name: $"Record[{blockID}]"));
-                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
-                        }
+                        string filename = $"{name}.bin";
+                        var bytes = s.DoAt(blockPtr, () => s.SerializeArray<byte>(default, blockLength, name: $"Record[{blockID}]"));
+                        Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
                     }
                 }
             }

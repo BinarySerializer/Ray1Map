@@ -93,6 +93,24 @@ namespace R1Engine
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
         public override bool IsEditor => AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.None;
+        public override ObjectType Type
+        {
+            get
+            {
+                switch (EventData.EventType)
+                {
+                    case R1_R2EventType.Gendoor_Spawn:
+                    case R1_R2EventType.Gendoor_Trigger:
+                        return ObjectType.Trigger;
+
+                    case R1_R2EventType.RaymanPosition:
+                        return ObjectType.Waypoint;
+
+                    default:
+                        return ObjectType.Object;
+                }
+            }
+        }
 
         public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.None && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.SwitchedOn)));
         public override bool CanBeLinkedToGroup => true; // TODO: Find link flags for obj types

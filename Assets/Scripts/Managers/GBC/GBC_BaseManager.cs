@@ -24,6 +24,7 @@ namespace R1Engine
             new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output)),
+            new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteAsync(settings, output)),
         };
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
@@ -32,93 +33,111 @@ namespace R1Engine
             {
                 await LoadFilesAsync(context);
 
-                // Get the deserializer
-                var s = context.Deserializer;
+                ExportBlocks(context, outputDir, export, GetSceneList(context).Offset);
+            }
 
-                var references = new Dictionary<Pointer, HashSet<Pointer>>();
+            Debug.Log("Finished logging blocks");
+        }
+        public void ExportBlocks(Context context, string outputDir, bool export, Pointer rootOffset)
+        {
+            // Get the deserializer
+            var s = context.Deserializer;
 
-                using (var logFile = File.Create(Path.Combine(outputDir, "GBC_Blocks_Log-Map.txt")))
+            var references = new Dictionary<Pointer, HashSet<Pointer>>();
+
+            using (var logFile = File.Create(Path.Combine(outputDir, "GBC_Blocks_Log-Map.txt")))
+            {
+                using (var writer = new StreamWriter(logFile))
                 {
-                    using (var writer = new StreamWriter(logFile))
+                    var indentLevel = 0;
+                    GBC_DummyBlock rootBlock = s.DoAt(rootOffset, () => s.SerializeObject<GBC_DummyBlock>(default, name: $"RootBlock"));
+
+                    void ExportBlocks(GBC_DummyBlock block, int index, string path)
                     {
-                        var indentLevel = 0;
-                        GBC_DummyBlock rootBlock = s.DoAt(GetSceneList(context).Offset, () => s.SerializeObject<GBC_DummyBlock>(default, name: $"RootBlock"));
+                        indentLevel++;
 
-                        void ExportBlocks(GBC_DummyBlock block, int index, string path)
+                        if (export && block.Data != null)
+                            Util.ByteArrayToFile(Path.Combine(outputDir, path, $"{block.Offset.file.filePath}_0x{block.Offset.StringFileOffset}.bin"), block.Data);
+
+                        writer.WriteLine($"{$"{block.Offset}:",-30}{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.DependencyTable.DependenciesCount} - BlockSize: {block.Data?.Length}");
+
+                        // Handle every block offset in the table
+                        for (int i = 0; i < block.SubBlocks.Length; i++)
                         {
-                            indentLevel++;
+                            if (block.SubBlocks[i] == null)
+                                continue;
 
-                            if (export && block.Data != null)
-                                Util.ByteArrayToFile(Path.Combine(outputDir, path, $"{block.Offset.file.filePath}_0x{block.Offset.StringFileOffset}.bin"), block.Data);
+                            if (!references.ContainsKey(block.SubBlocks[i].Offset))
+                                references[block.SubBlocks[i].Offset] = new HashSet<Pointer>();
 
-                            writer.WriteLine($"{$"{block.Offset}:",-30}{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.DependencyTable.DependenciesCount} - BlockSize: {block.Data?.Length}");
+                            references[block.SubBlocks[i].Offset].Add(block.Offset);
 
-                            // Handle every block offset in the table
-                            for (int i = 0; i < block.SubBlocks.Length; i++)
+                            // Export
+                            ExportBlocks(block.SubBlocks[i], i, Path.Combine(path, $"{i} - {block.SubBlocks[i].Offset.file.filePath}_0x{block.SubBlocks[i].Offset.StringFileOffset}"));
+                        }
+
+                        indentLevel--;
+                    }
+
+                    ExportBlocks(rootBlock, 0, $"{rootBlock.Offset.file.filePath}_0x{rootBlock.Offset.StringFileOffset}");
+                }
+            }
+
+            // Log references
+            using (var logFile = File.Create(Path.Combine(outputDir, "GBC_Blocks_Log-References.txt")))
+            {
+                using (var writer = new StreamWriter(logFile))
+                {
+                    foreach (var r in references.OrderBy(x => x.Key))
+                    {
+                        writer.WriteLine($"{$"{r.Key}:",-30} {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
+                    }
+                }
+            }
+
+            // If LUDI, export unreferenced blocks
+            if (export)
+            {
+                var got = context.GetStoredObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey);
+                if (got != null)
+                {
+                    foreach (var file in got.Files)
+                    {
+                        string filename = Path.GetFileNameWithoutExtension(file.Offset.file.AbsolutePath);
+                        if (file.OffsetTable != null)
+                        {
+                            for (int i = 0; i < file.OffsetTable.NumEntries; i++)
                             {
-                                if (block.SubBlocks[i] == null)
-                                    continue;
-
-                                if (!references.ContainsKey(block.SubBlocks[i].Offset))
-                                    references[block.SubBlocks[i].Offset] = new HashSet<Pointer>();
-
-                                references[block.SubBlocks[i].Offset].Add(block.Offset);
-
-                                // Export
-                                ExportBlocks(block.SubBlocks[i], i, Path.Combine(path, $"{i} - {block.SubBlocks[i].Offset.file.filePath}_0x{block.SubBlocks[i].Offset.StringFileOffset}"));
-                            }
-
-                            indentLevel--;
-                        }
-
-                        ExportBlocks(rootBlock, 0, $"{rootBlock.Offset.file.filePath}_0x{rootBlock.Offset.StringFileOffset}");
-                    }
-                }
-
-                // Log references
-                using (var logFile = File.Create(Path.Combine(outputDir, "GBC_Blocks_Log-References.txt")))
-                {
-                    using (var writer = new StreamWriter(logFile))
-                    {
-                        foreach (var r in references.OrderBy(x => x.Key))
-                        {
-                            writer.WriteLine($"{$"{r.Key}:",-30} {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
-                        }
-                    }
-                }
-
-                // If LUDI, export unreferenced blocks
-                if (export) {
-                    var got = context.GetStoredObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey);
-                    if (got != null) {
-                        foreach (var file in got.Files) {
-                            string filename = Path.GetFileNameWithoutExtension(file.Offset.file.AbsolutePath);
-                            if (file.OffsetTable != null) {
-                                for (int i = 0; i < file.OffsetTable.NumEntries; i++) {
-                                    var id = file.OffsetTable.Entries[i].BlockID;
-                                    Pointer blockPtr = file.Resolve(id);
-                                    if (!references.ContainsKey(blockPtr)) {
-                                        uint? blockLength = file.GetLength(id);
-                                        if (blockLength.HasValue) {
-                                            s.DoAt(blockPtr, () => {
-                                                byte[] data = s.SerializeArray<byte>(default, blockLength.Value, name: $"{filename}_{id}");
-                                                Util.ByteArrayToFile(Path.Combine(outputDir, $"Unreferenced/{filename} - ID_{file.FileID.FileID}", $"{id}_{blockPtr.StringFileOffset}.bin"), data);
-                                            });
-                                        }
+                                var id = file.OffsetTable.Entries[i].BlockID;
+                                Pointer blockPtr = file.Resolve(id);
+                                if (!references.ContainsKey(blockPtr))
+                                {
+                                    uint? blockLength = file.GetLength(id);
+                                    if (blockLength.HasValue)
+                                    {
+                                        s.DoAt(blockPtr, () => {
+                                            byte[] data = s.SerializeArray<byte>(default, blockLength.Value, name: $"{filename}_{id}");
+                                            Util.ByteArrayToFile(Path.Combine(outputDir, $"Unreferenced/{filename} - ID_{file.FileID.FileID}", $"{id}_{blockPtr.StringFileOffset}.bin"), data);
+                                        });
                                     }
                                 }
-                            } else if (file.DataInfo != null) {
-                                for (int i = 0; i < file.DataInfo.NumDataBlocks; i++) {
-                                    var id = (ushort)(i + 1);
-                                    Pointer blockPtr = file.Resolve(id);
-                                    if (!references.ContainsKey(blockPtr)) {
-                                        uint? blockLength = file.GetLength(id);
-                                        if (blockLength.HasValue) {
-                                            s.DoAt(blockPtr, () => {
-                                                LUDI_DummyBlock dummyBlock = s.SerializeObject<LUDI_DummyBlock>(default, name: $"{filename}_{id}");
-                                                Util.ByteArrayToFile(Path.Combine(outputDir, $"Unreferenced/{filename} - ID_{file.FileID.FileID}", $"{id}_{blockPtr.StringFileOffset}.bin"), dummyBlock.Data);
-                                            });
-                                        }
+                            }
+                        }
+                        else if (file.DataInfo != null)
+                        {
+                            for (int i = 0; i < file.DataInfo.NumDataBlocks; i++)
+                            {
+                                var id = (ushort)(i + 1);
+                                Pointer blockPtr = file.Resolve(id);
+                                if (!references.ContainsKey(blockPtr))
+                                {
+                                    uint? blockLength = file.GetLength(id);
+                                    if (blockLength.HasValue)
+                                    {
+                                        s.DoAt(blockPtr, () => {
+                                            LUDI_DummyBlock dummyBlock = s.SerializeObject<LUDI_DummyBlock>(default, name: $"{filename}_{id}");
+                                            Util.ByteArrayToFile(Path.Combine(outputDir, $"Unreferenced/{filename} - ID_{file.FileID.FileID}", $"{id}_{blockPtr.StringFileOffset}.bin"), dummyBlock.Data);
+                                        });
                                     }
                                 }
                             }
@@ -126,9 +145,19 @@ namespace R1Engine
                     }
                 }
             }
-
-            Debug.Log("Finished logging blocks");
         }
+        public async UniTask ExportVignetteAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // TODO: Export vignette from levels
+
+                ExportVignette(context, outputDir);
+            }
+        }
+        public virtual void ExportVignette(Context context, string outputDir) { }
 
         public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir)
         {
