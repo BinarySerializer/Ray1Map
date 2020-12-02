@@ -29,7 +29,7 @@ namespace R1Engine
             new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteAsync(settings, output)),
         };
 
-        public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
+        public virtual async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
         {
             using (var context = new Context(settings))
             {

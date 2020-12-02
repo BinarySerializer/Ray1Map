@@ -19,10 +19,12 @@
                 if (!HasMemoryBankValue)
                     bank = Offset.FileOffset / 0x4000;
 
-                _cachedPointer = baseOffset + (0x4000 * bank) + (Pointer - 0x4000);
+                _cachedPointer = GetPointer(baseOffset, Pointer, bank);
             }
             return _cachedPointer;
         }
+
+        public static Pointer GetPointer(Pointer romBaseOffset, long pointer, long memoryBank) => romBaseOffset + (0x4000 * memoryBank) + (pointer - 0x4000);
 
         public override void SerializeImpl(SerializerObject s)
         {

@@ -2,6 +2,7 @@
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -16,6 +17,27 @@ namespace R1Engine
         public override GBC_LevelList GetSceneList(Context context)
         {
             return FileFactory.Read<GBC_ROM>(GetROMFilePath, context).LevelList;
+        }
+
+        public override async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                var rom = FileFactory.Read<GBC_ROM>(GetROMFilePath, context);
+
+                for (int i = 0; i < rom.ReferencesCount; i++)
+                {
+                    var dir = Path.Combine(outputDir, $"{i}");
+
+                    Directory.CreateDirectory(dir);
+
+                    ExportBlocks(context, dir, export, rom.References[i].Pointer.GetPointer());
+                }
+            }
+
+            Debug.Log("Finished logging blocks");
         }
 
         public override Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level) {
