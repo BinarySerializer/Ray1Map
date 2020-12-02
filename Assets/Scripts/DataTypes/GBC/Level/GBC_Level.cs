@@ -41,17 +41,17 @@
         }
 
         public class CageUID : R1Serializable {
-            public byte ActorID { get; set; } // Local to this level
+            public byte GameObjectXlateID { get; set; } // Local to this level
             public byte GlobalCageID { get; set; } // Global
 
             public override void SerializeImpl(SerializerObject s) {
-				ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
+				GameObjectXlateID = s.Serialize<byte>(GameObjectXlateID, name: nameof(GameObjectXlateID));
                 GlobalCageID = s.Serialize<byte>(GlobalCageID, name: nameof(GlobalCageID));
 			}
         }
 
         public enum MapType : byte {
-            Normal = 0,
+            Adventure = 0,
             Bonus = 1,
             WorldMap = 2
         }

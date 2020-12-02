@@ -134,7 +134,7 @@ namespace R1Engine
                 set
                 {
                     if (!Obj.Actor.IsCaptor)
-                        Obj.Actor.ActorID = (sbyte) value;
+                        Obj.Actor.ActorID = (byte) value;
                 }
             }
 
