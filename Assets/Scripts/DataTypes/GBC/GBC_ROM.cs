@@ -21,25 +21,24 @@ namespace R1Engine
                 memoryBank = 31;
 
             // Serialize data
-            s.DoAt(GBC_Pointer.GetPointer(Offset, 0x4000, memoryBank), () =>
+            s.DoAt(GBC_Pointer.GetPointer(Offset, GBC_Pointer.MemoryBankBaseAddress, memoryBank), () =>
             {
                 ReferencesCount = s.Serialize<ushort>(ReferencesCount, name: nameof(ReferencesCount));
                 Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
                 References = s.SerializeObjectArray<Reference>(References, ReferencesCount, name: nameof(References));
             });
 
-            // TODO: Clean up
-            LevelList = s.DoAt(References.First(x => x.Bytes_00[2] == 0x17).Pointer.GetPointer(), () => s.SerializeObject<GBC_LevelList>(LevelList, name: nameof(LevelList)));
+            LevelList = s.DoAt(References.First(x => x.BlockHeader.Type == GBC_BlockType.LevelList).Pointer.GetPointer(), () => s.SerializeObject<GBC_LevelList>(LevelList, name: nameof(LevelList)));
         }
 
         public class Reference : R1Serializable
         {
-            public byte[] Bytes_00 { get; set; }
+            public GBC_BlockHeader BlockHeader { get; set; }
             public GBC_Pointer Pointer { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
-                Bytes_00 = s.SerializeArray<byte>(Bytes_00, 5, name: nameof(Bytes_00));
+                BlockHeader = s.SerializeObject<GBC_BlockHeader>(BlockHeader, name: nameof(BlockHeader));
                 Pointer = s.SerializeObject<GBC_Pointer>(Pointer, name: nameof(Pointer));
             }
         }

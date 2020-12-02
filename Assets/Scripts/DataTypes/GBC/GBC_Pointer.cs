@@ -17,14 +17,17 @@
 
                 // If we don't have a bank value the pointer is in the current bank
                 if (!HasMemoryBankValue)
-                    bank = Offset.FileOffset / 0x4000;
+                    bank = Offset.FileOffset / MemoryBankSize;
 
                 _cachedPointer = GetPointer(baseOffset, Pointer, bank);
             }
             return _cachedPointer;
         }
 
-        public static Pointer GetPointer(Pointer romBaseOffset, long pointer, long memoryBank) => romBaseOffset + (0x4000 * memoryBank) + (pointer - 0x4000);
+        public static Pointer GetPointer(Pointer romBaseOffset, long pointer, long memoryBank) => romBaseOffset + (MemoryBankSize * memoryBank) + (pointer - MemoryBankBaseAddress);
+
+        public const long MemoryBankBaseAddress = 0x4000;
+        public const long MemoryBankSize = 0x4000;
 
         public override void SerializeImpl(SerializerObject s)
         {

@@ -1,8 +1,10 @@
-﻿namespace R1Engine
+﻿using UnityEngine;
+
+namespace R1Engine
 {
     public abstract class GBC_BaseBlock : R1Serializable 
     {
-        public byte[] GBC_Bytes_00 { get; set; }
+        public GBC_BlockHeader GBC_Header { get; set; }
         public ushort GBC_DataLength { get; set; } // The size of the data in the block
         public GBC_Pointer GBC_DataPointer { get; set; } // Offset to the end of the offset table (using the current memory bank). The game uses this to skip the offset table and start parsing the data.
 
@@ -43,7 +45,7 @@
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
             {
-                GBC_Bytes_00 = s.SerializeArray<byte>(GBC_Bytes_00, 5, name: nameof(GBC_Bytes_00));
+                GBC_Header = s.SerializeObject<GBC_BlockHeader>(GBC_Header, name: nameof(GBC_Header));
                 GBC_DataLength = s.Serialize<ushort>(GBC_DataLength, name: nameof(GBC_DataLength));
                 GBC_DataPointer = s.SerializeObject<GBC_Pointer>(GBC_DataPointer, onPreSerialize: x => x.HasMemoryBankValue = false, name: nameof(GBC_DataPointer));
             }
@@ -68,8 +70,8 @@
 
         private void CheckBlockSize(SerializerObject s) {
              if (BlockStartPointer + BlockSize != s.CurrentPointer) {
-                UnityEngine.Debug.LogWarning($"{GetType()} @ {Offset}: Serialized size: {(s.CurrentPointer - BlockStartPointer)} != BlockSize: {BlockSize}");
-            }
+                Debug.LogWarning($"{GetType()} @ {Offset}: Serialized size: {(s.CurrentPointer - BlockStartPointer)} != BlockSize: {BlockSize}");
+             }
         }
     }
 }

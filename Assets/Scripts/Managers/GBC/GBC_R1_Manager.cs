@@ -40,6 +40,32 @@ namespace R1Engine
             Debug.Log("Finished logging blocks");
         }
 
+        public override void ExportVignette(Context context, string outputDir)
+        {
+            var s = context.Deserializer;
+            var rom = FileFactory.Read<GBC_ROM>(GetROMFilePath, context);
+
+            // Enumerate every reference
+            for (int i = 0; i < rom.References.Length; i++)
+            {
+                // Get the reference
+                var reference = rom.References[i];
+                
+                // Make sure it's a vignette
+                if (reference.BlockHeader.Type != GBC_BlockType.Vignette)
+                    continue;
+                
+                var dir = Path.Combine(outputDir, $"BlockRoot_{i}");
+
+                // We assume it's always an array
+                var vigArray = s.DoAt(reference.Pointer.GetPointer(), () => s.SerializeObject<GBC_BlockArray<GBC_Vignette>>(default, name: "Vignette"));
+
+                // Export every vignette
+                for (int j = 0; j < vigArray.Blocks.Length; j++)
+                    Util.ByteArrayToFile(Path.Combine(dir, $"{j}.png"), vigArray.Blocks[j].ToTexture2D().EncodeToPNG());
+            }
+        }
+
         public override Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level) {
 
             var pal = Util.ConvertAndSplitGBCPalette(playField.Palette, transparentIndex: null);

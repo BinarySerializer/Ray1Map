@@ -31,8 +31,7 @@ namespace R1Engine
 
         // Parsed from offset table
         public GBC_PlayField PlayField { get; set; }
-
-        // TODO: Parse sound bank block
+        public GBC_SoundBank SoundBank { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -71,6 +70,7 @@ namespace R1Engine
 
             // Parse data from pointers
             PlayField = s.DoAt(DependencyTable.GetPointer(Index_PlayField - 1), () => s.SerializeObject<GBC_PlayField>(PlayField, name: nameof(PlayField)));
+            SoundBank = s.DoAt(DependencyTable.GetPointer(Index_SoundBank - 1), () => s.SerializeObject<GBC_SoundBank>(SoundBank, name: nameof(SoundBank)));
 
             // Parse actor models
             foreach (var actor in GameObjects.Where(x => x.Index_ActorModel > 1))
