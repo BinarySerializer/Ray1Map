@@ -11,6 +11,8 @@
         public sbyte LinkedLevelsStartIndex { get; set; } // Actually start index + 1 (-1 if there are no linked levels)
         public sbyte TimeOut { get; set; }
         public sbyte NbTings { get; set; }
+        public byte[] UnkData0 { get; set; }
+        public CageUID[] Cages { get; set; }
         public byte[] UnkData1 { get; set; }
         public byte[] LinkedLevels { get; set; } // level block index = LinkedLevelsStartIndex - 1 + LinkedLevels[i]
         
@@ -27,13 +29,25 @@
             LinkedLevelsStartIndex = s.Serialize<sbyte>(LinkedLevelsStartIndex, name: nameof(LinkedLevelsStartIndex));
             TimeOut = s.Serialize<sbyte>(TimeOut, name: nameof(TimeOut));
             NbTings = s.Serialize<sbyte>(NbTings, name: nameof(NbTings));
-            UnkData1 = s.SerializeArray<byte>(UnkData1, 57, name: nameof(UnkData1));
+            UnkData0 = s.SerializeArray<byte>(UnkData0, 21, name: nameof(UnkData1));
+            Cages = s.SerializeObjectArray<CageUID>(Cages, 10, name: nameof(Cages));
+            UnkData1 = s.SerializeArray<byte>(UnkData1, 7, name: nameof(UnkData1));
             LinkedLevels = s.SerializeArray<byte>(LinkedLevels, LinkedLevelsCount, name: nameof(LinkedLevels));
 
             // TODO: Parse remaining data
 
             // Parse data from pointers
             Scene = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_Scene>(Scene, name: nameof(Scene)));
+        }
+
+        public class CageUID : R1Serializable {
+            public byte ActorID { get; set; } // Local to this level
+            public byte GlobalCageID { get; set; } // Global
+
+            public override void SerializeImpl(SerializerObject s) {
+				ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
+                GlobalCageID = s.Serialize<byte>(GlobalCageID, name: nameof(GlobalCageID));
+			}
         }
 
         public enum MapType : byte {
