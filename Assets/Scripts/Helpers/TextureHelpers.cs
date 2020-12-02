@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.Tilemaps;
+﻿using ImageMagick;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -44,6 +44,24 @@ namespace R1Engine
                 texture = tex
             };
             return t;
+        }
+
+        public static MagickImage ToMagickImage(this Texture2D tex)
+        {
+            var pixels = tex.GetPixels();
+            var bytes = new byte[pixels.Length * 4];
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                bytes[i * 4 + 0] = (byte)(pixels[i].a * 255);
+                bytes[i * 4 + 1] = (byte)(pixels[i].b * 255);
+                bytes[i * 4 + 2] = (byte)(pixels[i].g * 255);
+                bytes[i * 4 + 3] = (byte)(pixels[i].r * 255);
+            }
+
+            var img = new MagickImage(bytes, new PixelReadSettings(tex.width, tex.height, StorageType.Char, PixelMapping.ABGR));
+            img.Flip();
+            return img;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using ImageMagick;
 using R1Engine.Serialize;
 using UnityEngine;
 
@@ -23,7 +24,8 @@ namespace R1Engine
         {
             new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
-            new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output)),
+            new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
+            new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
             new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteAsync(settings, output)),
         };
 
@@ -159,7 +161,7 @@ namespace R1Engine
         }
         public virtual void ExportVignette(Context context, string outputDir) { }
 
-        public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir)
+        public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
         {
             var exported = new HashSet<Pointer>();
 
@@ -200,12 +202,41 @@ namespace R1Engine
 
                                 var anim = commonDesign.Animations[animIndex];
 
-                                var frameIndex = 0;
+                                // Skip animation with no layers
+                                if (!anim.Frames.SelectMany(x => x.SpriteLayers).Any())
+                                    continue;
 
-                                foreach (var tex in GetAnimationFrames(model, anim, commonDesign.Sprites))
+                                if (saveAsGif)
                                 {
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{offset.file.filePath}_0x{offset.StringFileOffset}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
-                                    frameIndex++;
+                                    using (MagickImageCollection collection = new MagickImageCollection())
+                                    {
+                                        int index = 0;
+
+                                        foreach (var tex in GetAnimationFrames(anim, commonDesign.Sprites))
+                                        {
+                                            var img = tex.ToMagickImage();
+                                            collection.Add(img);
+                                            collection[index].AnimationDelay = anim.AnimSpeeds[index];
+                                            collection[index].AnimationTicksPerSecond = 60;
+                                            collection[index].Trim();
+
+                                            collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                                            index++;
+                                        }
+
+                                        // Save gif
+                                        collection.Write(Path.Combine(outputDir, $"{offset.file.filePath}_0x{offset.StringFileOffset} - {animIndex}.gif"));
+                                    }
+                                }
+                                else
+                                {
+                                    var frameIndex = 0;
+
+                                    foreach (var tex in GetAnimationFrames(anim, commonDesign.Sprites))
+                                    {
+                                        Util.ByteArrayToFile(Path.Combine(outputDir, $"{offset.file.filePath}_0x{offset.StringFileOffset}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                                        frameIndex++;
+                                    }
                                 }
                             }
                         }
@@ -220,13 +251,8 @@ namespace R1Engine
             Debug.Log("Finished export");
         }
 
-        public IEnumerable<Texture2D> GetAnimationFrames(GBC_ActorModel model, Unity_ObjAnimation objAnim, IList<Sprite> sprites)
+        public IEnumerable<Texture2D> GetAnimationFrames(Unity_ObjAnimation objAnim, IList<Sprite> sprites)
         {
-            /*var w = model.RenderBoxWidth;
-            var h = model.RenderBoxHeight;
-            var minX = model.RenderBoxX;
-            var minY = model.RenderBoxY;*/
-
             var minX = objAnim.Frames.SelectMany(x => x.SpriteLayers).Min(x => x.XPosition);
             var minY = objAnim.Frames.SelectMany(x => x.SpriteLayers).Min(x => x.YPosition);
             var maxX = objAnim.Frames.SelectMany(x => x.SpriteLayers).Max(x => x.XPosition + 8);

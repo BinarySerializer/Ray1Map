@@ -374,24 +374,7 @@ namespace R1Engine
                 var commonDesign = GetCommonDesign(spr, is8bit);
 
                 // Convert Texture2D to MagickImage
-                sprites = commonDesign.Sprites.Select(x => GetMagickImage(x.texture.GetPixels())).ToArray();
-
-                MagickImage GetMagickImage(IList<Color> pixels)
-                {
-                    var bytes = new byte[pixels.Count * 4];
-
-                    for (int i = 0; i < pixels.Count; i++)
-                    {
-                        bytes[i * 4 + 0] = (byte)(pixels[i].a * 255);
-                        bytes[i * 4 + 1] = (byte)(pixels[i].b * 255);
-                        bytes[i * 4 + 2] = (byte)(pixels[i].g * 255);
-                        bytes[i * 4 + 3] = (byte)(pixels[i].r * 255);
-                    }
-                    
-                    var img = new MagickImage(bytes, new PixelReadSettings(8, 8, StorageType.Char, PixelMapping.ABGR));
-                    img.Flip();
-                    return img;
-                }
+                sprites = commonDesign.Sprites.Select(x => x.texture.ToMagickImage()).ToArray();
 
                 var animIndex = 0;
 
