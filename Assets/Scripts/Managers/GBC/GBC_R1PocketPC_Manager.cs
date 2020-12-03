@@ -86,9 +86,9 @@ namespace R1Engine
             foreach (var p in vignetteLists) {
                 var vigListFile = FileFactory.Read<LUDI_PocketPC_DataFile>(p + ".dat", context);
                 s.DoAt(vigListFile.Resolve(1), () => {
-                    var vigList = s.SerializeObject<LUDI_VignetteList>(default, name: p);
-                    for(int i = 0; i < vigList.VignetteCount; i++) {
-                        var vig = vigList.VignetteDataPPC[i];
+                    var vigList = s.SerializeObject<LUDI_Video>(default, name: p);
+                    for(int i = 0; i < vigList.FrameCount; i++) {
+                        var vig = vigList.FrameDataPPC[i];
                         int w = (int)vigList.Width;
                         int h = (int)vigList.Height;
 
