@@ -13,6 +13,7 @@
         ActorModel = 0x0C,
         SoundBank = 0x0D,
         Scene = 0x10,
+        Type_12 = 0x12,
         Level = 0x16,
         LevelList = 0x17,
         Vignette = 0x1A,

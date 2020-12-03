@@ -295,7 +295,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 2 (GBC)</td>
-    <td class="tg-yw4l">EU/US</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -303,7 +303,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   </tr>
   <tr>
     <td class="tg-yw4l">Donald Duck Goin' Quackers (GBC)</td>
-    <td class="tg-yw4l">EU/US</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
