@@ -35,7 +35,7 @@ namespace R1Engine
 
                 case EngineVersion.GBC_R1_Palm:
 
-                    bool greyScale = Context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
+                    bool greyScale = Context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale || Context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscaleDemo;
                     if (greyScale) {
                         return new Texture2D[][] {
                             new Texture2D[] {
@@ -73,7 +73,7 @@ namespace R1Engine
                 }
                 TileDataPocketPC = s.SerializeObjectArray<BGR565Color>(TileDataPocketPC, TilesCount * 8 * 8, name: nameof(TileDataPocketPC));
             } else if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm) {
-                bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
+                bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale || s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscaleDemo;
                 TilesCount = s.Serialize<uint>(TilesCount, name: nameof(TilesCount));
                 TileData = s.SerializeArray<byte>(TileData, TilesCount * (greyScale ? 0x20 : 0x40), name: nameof(TileData));
             } else {

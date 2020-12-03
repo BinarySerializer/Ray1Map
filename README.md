@@ -279,7 +279,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PalmOS)</td>
-    <td class="tg-yw4l">Color, Greyscale</td>
+    <td class="tg-yw4l">Color, Greyscale, Color Demo, Greyscale Demo</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>

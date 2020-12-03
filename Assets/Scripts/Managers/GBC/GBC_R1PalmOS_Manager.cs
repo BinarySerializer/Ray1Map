@@ -14,7 +14,7 @@ namespace R1Engine
         public string AllfixFilePath => "worldmap.pdb";
         public string[] GetAllDataPaths(Context c) {
             return new string[] {
-                c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColor ? "palmcolormenu" : "menu",
+                c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColor || c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColorDemo ? "palmcolormenu" : "menu",
                 "worldmap",
                 "jungle1",
                 "jungle2",
@@ -186,8 +186,8 @@ namespace R1Engine
             List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
             foreach (var path in GetAllDataPaths(context)) {
                 var fullPath = $"{path}.pdb";
-                await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Big);
-                dataFiles.Add(FileFactory.Read<LUDI_PalmOS_DataFile>(fullPath, context));
+                if (await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Big) != null)
+                    dataFiles.Add(FileFactory.Read<LUDI_PalmOS_DataFile>(fullPath, context));
             }
             globalOffsetTable.Files = dataFiles.ToArray();
             context.StoreObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
@@ -197,12 +197,12 @@ namespace R1Engine
         {
             var allfix = FileFactory.Read<LUDI_PalmOS_DataFile>(AllfixFilePath, context);
             var s = context.Deserializer;
-            return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_LevelManifest>(default, name: "SceneManfiest")).LevelList;
+            return s.DoAt(allfix.Resolve(1), () => s.SerializeObject<GBC_LevelManifest>(default, name: "LevelManifest")).LevelList;
         }
 
 		public override Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level) {
 
-            bool greyScale = context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
+            bool greyScale = context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale || context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscaleDemo;
             Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
             Color[] pal = (greyScale ? GetPalmOS4BitPalette() : GetPalmOS8BitPalette()).Select(x => x.GetColor()).ToArray();
             var tileSetTex = Util.ToTileSetTexture(playField.TileKit.TileData, pal, encoding, CellSize, flipY: false);
