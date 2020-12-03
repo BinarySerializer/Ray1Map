@@ -311,6 +311,15 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - IPAQ)", typeof(GBC_R1PocketPC_Manager))]
         RaymanGBCPocketPC_LandscapeIPAQ,
 
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - Portrait Demo)", typeof(GBC_R1PocketPC_Manager))]
+        RaymanGBCPocketPC_PortraitDemo,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - Landscape Demo)", typeof(GBC_R1PocketPC_Manager))]
+        RaymanGBCPocketPC_LandscapeDemo,
+
+        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_PocketPC, Game.GBC_R1, "Rayman (PocketPC - IPAQ Demo)", typeof(GBC_R1PocketPC_Manager))]
+        RaymanGBCPocketPC_LandscapeIPAQDemo,
+
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_R1, "Rayman (GBC - EU/US)", typeof(GBC_R1_Manager))]
         RaymanGBC,
 

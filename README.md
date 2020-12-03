@@ -287,7 +287,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PocketPC)</td>
-    <td class="tg-yw4l">Portrait, Landscape, IPAQ</td>
+    <td class="tg-yw4l">Portrait, Landscape, IPAQ, Portrait Demo, Landscape Demo, IPAQ Demo</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>

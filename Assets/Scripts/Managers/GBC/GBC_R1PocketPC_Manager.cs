@@ -188,8 +188,8 @@ namespace R1Engine
             List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
             foreach (var path in GetAllDataPaths(context)) {
                 var fullPath = $"{path}.dat";
-                await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Little);
-                dataFiles.Add(FileFactory.Read<LUDI_PocketPC_DataFile>(fullPath, context));
+                if (await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Little) != null)
+                    dataFiles.Add(FileFactory.Read<LUDI_PocketPC_DataFile>(fullPath, context));
             }
             globalOffsetTable.Files = dataFiles.ToArray();
             context.StoreObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
