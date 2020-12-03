@@ -82,8 +82,32 @@ namespace R1Engine
         {
             var s = context.Deserializer;
 
-            var path = GetAllDataPaths(context).First(x => x.Contains("menu"));
+            var vignetteLists = new string[] { "intro", "outro" };
+            foreach (var p in vignetteLists) {
+                var vigListFile = FileFactory.Read<LUDI_PocketPC_DataFile>(p + ".dat", context);
+                s.DoAt(vigListFile.Resolve(1), () => {
+                    var vigList = s.SerializeObject<LUDI_VignetteList>(default, name: p);
+                    for(int i = 0; i < vigList.VignetteCount; i++) {
+                        var vig = vigList.VignetteDataPPC[i];
+                        int w = (int)vigList.Width;
+                        int h = (int)vigList.Height;
 
+                        Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
+                        for (int y = 0; y < h; y++) {
+                            for (int x = 0; x < w; x++) {
+                                int ind = y * w + x;
+                                BaseColor col = vig[ind];
+                                tex.SetPixel(x, h - 1 - y, col.GetColor());
+                            }
+                        }
+                        tex.Apply();
+                        Util.ByteArrayToFile(Path.Combine(outputDir, p, $"{i}.png"), tex.EncodeToPNG());
+                    }
+                });
+
+            }
+
+            var path = GetAllDataPaths(context).First(x => x.Contains("menu"));
             var dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(path + ".dat", context);
 
             for (int i = 0; i < dataFile.BlockCount; i++)

@@ -7,6 +7,9 @@ namespace R1Engine
 {
     public class GBC_TileKit : GBC_BaseBlock 
     {
+        // OnPreSerialize
+        public uint? PresetTilesCount { get; set; }
+
         // Palm OS
         public uint TilesCount { get; set; }
         public byte[] TileData { get; set; }
@@ -63,7 +66,11 @@ namespace R1Engine
         {
             // Serialize data
             if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_PocketPC) {
-                TilesCount = s.Serialize<uint>(TilesCount, name: nameof(TilesCount));
+                if (PresetTilesCount.HasValue) {
+                    TilesCount = PresetTilesCount.Value;
+                } else {
+                    TilesCount = s.Serialize<uint>(TilesCount, name: nameof(TilesCount));
+                }
                 TileDataPocketPC = s.SerializeObjectArray<BGR565Color>(TileDataPocketPC, TilesCount * 8 * 8, name: nameof(TileDataPocketPC));
             } else if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm) {
                 bool greyScale = s.GameSettings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale;
