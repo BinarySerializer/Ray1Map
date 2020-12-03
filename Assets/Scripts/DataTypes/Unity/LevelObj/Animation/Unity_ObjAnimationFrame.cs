@@ -20,5 +20,7 @@
         /// The collision layers
         /// </summary>
         public Unity_ObjAnimationCollisionPart[] CollisionLayers { get; }
+
+        public string DebugInfo { get; set; }
     }
 }

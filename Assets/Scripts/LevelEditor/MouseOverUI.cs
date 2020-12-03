@@ -10,24 +10,32 @@ namespace R1Engine
         public Text textGraphic, textCollision;
         public GameObject panel;
 
-        void Update() {
-            if (Controller.LoadState != Controller.State.Finished) return;
+        void Update() 
+        {
+            // Make sure the editor has finished loading
+            if (Controller.LoadState != Controller.State.Finished) 
+                return;
+
+            // Set position to mouse position
             transform.position = Input.mousePosition;
 
             var selector = Controller.obj.levelController.editor.objectHighlight;
             var cam = Controller.obj.levelController.editor.cam;
             bool mouselook = cam.MouseLookEnabled || cam.MouseLookRMBEnabled;
             if (mouselook) {
-                if(panel.activeSelf) panel.SetActive(false);
+                if(panel.activeSelf) 
+                    panel.SetActive(false);
             } else {
-                if (!panel.activeSelf) panel.SetActive(true);
+                if (!panel.activeSelf) 
+                    panel.SetActive(true);
             }
+
             var e = selector?.highlightedObject;
             var t = selector?.highlightedTile;
             var c = selector?.highlightedCollision;
             var c3d = selector?.highlightedCollision3D;
 
-            // Mouse over event
+            // Mouse over object
             if (e != null) {
                 textGraphic.enabled = true;
 
@@ -38,7 +46,7 @@ namespace R1Engine
                 // Set debug text
                 Controller.obj.tempDebugText.text = Settings.ShowDebugInfo 
                     ? $"{e.ObjData.DebugText}{Environment.NewLine}" +
-                      $"{Environment.NewLine}" +
+                      $"{e.ObjData.CurrentAnimation?.Frames?.ElementAtOrDefault(e.ObjData.AnimationFrame)?.DebugInfo}{Environment.NewLine}" +
                       $"{nameof(e.ObjData.AnimationIndex)}: {e.ObjData.AnimationIndex}{Environment.NewLine}" +
                       $"{nameof(e.ObjData.AnimationFrame)}: {e.ObjData.AnimationFrame}{Environment.NewLine}" +
                       $"{nameof(e.ObjData.AnimSpeed)}: {e.ObjData.AnimSpeed}{Environment.NewLine}" +

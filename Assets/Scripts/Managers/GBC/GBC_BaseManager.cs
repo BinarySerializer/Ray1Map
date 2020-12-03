@@ -515,7 +515,10 @@ namespace R1Engine
                         };
                     }
 
-                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.OrderByDescending(p => p.Priority).ToArray(), collisionParts);
+                    unityAnim.Frames[frameIndex] = new Unity_ObjAnimationFrame(animationParts.OrderByDescending(p => p.Priority).ToArray(), collisionParts)
+                    {
+                        DebugInfo = $"PrevColCmd: {collision.PrevCmd}{Environment.NewLine}"
+                    };
                     unityAnim.AnimSpeeds[frameIndex] = frame.Time;
                 }
 
@@ -592,6 +595,7 @@ namespace R1Engine
                     collision.XPos = cmd.XPos - cmd.HalfWidth;
                     collision.YPos = cmd.YPos - cmd.HalfHeight;
                     collision.IsEnabled = true;
+                    collision.PrevCmd = (byte)cmd.Command;
                     break;
                 case GBC_Keyframe_Command.InstructionCommand.SetMapDimensions:
                     if(map == null) map = new AnimMap();
@@ -601,6 +605,11 @@ namespace R1Engine
                 case GBC_Keyframe_Command.InstructionCommand.SetMapGraphics:
                     if (map == null) map = new AnimMap();
                     map.MapInfo = cmd.DD_Map_TileGraphics;
+                    break;
+                case GBC_Keyframe_Command.InstructionCommand.Unknown_0C:
+                case GBC_Keyframe_Command.InstructionCommand.Unknown_0D:
+                case GBC_Keyframe_Command.InstructionCommand.Unknown_0E:
+                    collision.PrevCmd = (byte)cmd.Command;
                     break;
             }
         }
@@ -628,6 +637,7 @@ namespace R1Engine
             public int YPos { get; set; }
             public int Width { get; set; }
             public int Height { get; set; }
+            public byte PrevCmd { get; set; }
             public bool IsEnabled { get; set; }
         }
 
