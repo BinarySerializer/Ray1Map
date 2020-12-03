@@ -31,7 +31,7 @@
             NbTings = s.Serialize<sbyte>(NbTings, name: nameof(NbTings));
             UnkData0 = s.SerializeArray<byte>(UnkData0, 21, name: nameof(UnkData1));
             Cages = s.SerializeObjectArray<CageUID>(Cages, 10, name: nameof(Cages));
-            UnkData1 = s.SerializeArray<byte>(UnkData1, 7, name: nameof(UnkData1));
+            UnkData1 = s.SerializeArray<byte>(UnkData1, 16, name: nameof(UnkData1));
             LinkedLevels = s.SerializeArray<byte>(LinkedLevels, LinkedLevelsCount, name: nameof(LinkedLevels));
 
             // TODO: Parse remaining data
