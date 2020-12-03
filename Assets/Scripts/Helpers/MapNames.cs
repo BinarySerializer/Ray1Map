@@ -543,7 +543,7 @@ namespace R1Engine
                 [19] = "Sulphurous Sea",
             },
             [1] = new Dictionary<int, string>() {
-                [0] = "Worldmap",
+                [0] = "World Map",
                 [1] = "Main Menu",
                 [2] = "Pause Screen",
                 [3] = "Score Screen",
