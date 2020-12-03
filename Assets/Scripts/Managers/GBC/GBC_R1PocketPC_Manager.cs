@@ -115,8 +115,8 @@ namespace R1Engine
                             // Add frame to image collection
                             var img = tex.ToMagickImage();
                             collection.Add(img);
-                            collection[i].AnimationDelay = (int)video.Speed;
-                            collection[i].AnimationTicksPerSecond = 60;
+                            collection[i].AnimationDelay = 1;
+                            collection[i].AnimationTicksPerSecond = 15;
                             collection[i].Trim();
                             collection[i].GifDisposeMethod = GifDisposeMethod.Background;
                         }

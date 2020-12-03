@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using ImageMagick;
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
@@ -64,12 +65,28 @@ namespace R1Engine
                 }
                 else if (reference.BlockHeader.Type == GBC_BlockType.Video)
                 {
-                    // Serialize video block
-                    var video = s.DoAt(reference.Pointer.GetPointer(), () => s.SerializeObject<GBC_Video>(default, name: "Video"));
+                    using (MagickImageCollection collection = new MagickImageCollection()) {
+                        // Serialize video block
+                        var video = s.DoAt(reference.Pointer.GetPointer(), () => s.SerializeObject<GBC_Video>(default, name: "Video"));
 
-                    // Export every frame
-                    for (int j = 0; j < video.Frames.Length; j++)
-                        Util.ByteArrayToFile(Path.Combine(dir, $"{j}.png"), video.Frames[j].ToTexture2D().EncodeToPNG());
+                        for (int j = 0; j < video.Frames.Length; j++) {
+                            Texture2D tex = video.Frames[j].ToTexture2D();
+
+                            // Export frame
+                            Util.ByteArrayToFile(Path.Combine(dir, "Frames", $"{j}.png"), tex.EncodeToPNG());
+
+                            // Add frame to image collection
+                            var img = tex.ToMagickImage();
+                            collection.Add(img);
+                            collection[j].AnimationDelay = 1;
+                            collection[j].AnimationTicksPerSecond = 15;
+                            collection[j].Trim();
+                            collection[j].GifDisposeMethod = GifDisposeMethod.Background;
+                        }
+
+                        // Save gif
+                        collection.Write(Path.Combine(dir, $"BlockRoot_{i}.gif"));
+                    }
                 }
             }
 
