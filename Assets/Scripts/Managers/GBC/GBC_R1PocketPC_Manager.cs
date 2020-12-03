@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ImageMagick;
 using UnityEngine;
 
 namespace R1Engine
@@ -85,23 +86,43 @@ namespace R1Engine
             var vignetteLists = new string[] { "intro", "outro" };
             foreach (var p in vignetteLists) {
                 var vigListFile = FileFactory.Read<LUDI_PocketPC_DataFile>(p + ".dat", context);
-                s.DoAt(vigListFile.Resolve(1), () => {
-                    var vigList = s.SerializeObject<LUDI_Video>(default, name: p);
-                    for(int i = 0; i < vigList.FrameCount; i++) {
-                        var vig = vigList.FrameDataPPC[i];
-                        int w = (int)vigList.Width;
-                        int h = (int)vigList.Height;
+                s.DoAt(vigListFile.Resolve(1), () => 
+                {
+                    using (MagickImageCollection collection = new MagickImageCollection())
+                    {
+                        var video = s.SerializeObject<LUDI_Video>(default, name: p);
+                        for (int i = 0; i < video.FrameCount; i++)
+                        {
+                            var vig = video.FrameDataPPC[i];
+                            int w = (int)video.Width;
+                            int h = (int)video.Height;
 
-                        Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
-                        for (int y = 0; y < h; y++) {
-                            for (int x = 0; x < w; x++) {
-                                int ind = y * w + x;
-                                BaseColor col = vig[ind];
-                                tex.SetPixel(x, h - 1 - y, col.GetColor());
+                            Texture2D tex = TextureHelpers.CreateTexture2D(w, h);
+                            for (int y = 0; y < h; y++)
+                            {
+                                for (int x = 0; x < w; x++)
+                                {
+                                    int ind = y * w + x;
+                                    BaseColor col = vig[ind];
+                                    tex.SetPixel(x, h - 1 - y, col.GetColor());
+                                }
                             }
+                            tex.Apply();
+
+                            // Export frame
+                            Util.ByteArrayToFile(Path.Combine(outputDir, p, $"{i}.png"), tex.EncodeToPNG());
+
+                            // Add frame to image collection
+                            var img = tex.ToMagickImage();
+                            collection.Add(img);
+                            collection[i].AnimationDelay = (int)video.Speed;
+                            collection[i].AnimationTicksPerSecond = 60;
+                            collection[i].Trim();
+                            collection[i].GifDisposeMethod = GifDisposeMethod.Background;
                         }
-                        tex.Apply();
-                        Util.ByteArrayToFile(Path.Combine(outputDir, p, $"{i}.png"), tex.EncodeToPNG());
+
+                        // Save gif
+                        collection.Write(Path.Combine(outputDir, $"{p}.gif"));
                     }
                 });
 
