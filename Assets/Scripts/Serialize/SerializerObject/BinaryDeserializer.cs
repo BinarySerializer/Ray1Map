@@ -105,6 +105,10 @@ namespace R1Engine
                 case TypeCode.Object:
                     if (type == typeof(UInt24)) {
                         return reader.ReadUInt24();
+                    } else if(type == typeof(byte?)) {
+                        byte nullableByte = reader.ReadByte();
+                        if(nullableByte == 0xFF) return (byte?)null;
+                        return nullableByte;
                     } else {
                         throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
                     }
@@ -216,7 +220,7 @@ namespace R1Engine
             string logString = LogPrefix;
             T t = (T)ReadAsObject<T>(name);
             if (Settings.Log) {
-                Context.Log.Log(logString + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + t.ToString());
+                Context.Log.Log(logString + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + (t?.ToString() ?? "null"));
             }
             return t;
         }

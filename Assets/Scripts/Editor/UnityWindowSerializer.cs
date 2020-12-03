@@ -123,6 +123,19 @@ public class UnityWindowSerializer : SerializerObject
             case TypeCode.Object:
                 if (type == typeof(UInt24)) {
                     return (T)(object)(UInt32)(uint)Window.EditorField(String.Empty, (uint)(UInt24)(object)obj, rect: rect);
+                } else if(type == typeof(byte?)) {
+                    var b = (byte?)(object)obj;
+                    byte value = 0;
+                    bool hasValue = false;
+                    if(b.HasValue) {
+                        rect = Window.PrefixToggle(rect, ref hasValue);
+                        value = (byte)Window.EditorField(String.Empty, b.Value, rect: rect);
+                    } else {
+                        rect = Window.PrefixToggle(rect, ref hasValue);
+                        value = 0;
+                    }
+                    if(hasValue) return (T)(object)(byte?)value;
+                    return (T)(object)(byte?)null;
                 } else {
                     throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
                 }

@@ -45,7 +45,7 @@ namespace R1Engine
         /// Writes a supported value to the stream
         /// </summary>
         /// <param name="value">The value</param>
-        protected void Write(object value)
+        protected void Write<T>(T value)
         {
             if (value is byte[] ba)
                 writer.Write(ba);
@@ -95,7 +95,22 @@ namespace R1Engine
             else if (value is UInt24 u24)
                 writer.Write(u24);
 
-            else if (value is null)
+            else if (Nullable.GetUnderlyingType(typeof(T)) != null) {
+                // It's nullable
+                var underlyingType = Nullable.GetUnderlyingType(typeof(T));
+                if (underlyingType == typeof(byte)) {
+                    var v = (byte?)(object)value;
+                    if (v.HasValue) {
+                        writer.Write(v.Value);
+                    } else {
+                        writer.Write((byte)0xFF);
+                    }
+                    return;
+                } else {
+                    throw new NotSupportedException($"The specified type {typeof(T).Name} is not supported.");
+                }
+            }
+            else if ((object)value is null)
                 throw new ArgumentNullException(nameof(value));
 
             else
@@ -177,7 +192,7 @@ namespace R1Engine
 
         public override T Serialize<T>(T obj, string name = null) {
             if (Settings.Log) {
-                Context.Log.Log(LogPrefix + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + obj.ToString());
+                Context.Log.Log(LogPrefix + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + (obj?.ToString() ?? "null"));
             }
             Write(obj);
             return obj;

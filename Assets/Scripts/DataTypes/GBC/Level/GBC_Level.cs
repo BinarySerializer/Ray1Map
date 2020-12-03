@@ -13,6 +13,9 @@
         public sbyte NbTings { get; set; }
         public byte[] UnkData0 { get; set; }
         public CageUID[] Cages { get; set; }
+        public VignetteReference VignetteIntro { get; set; }
+        public VignetteReference VignetteOutro { get; set; }
+        public VignetteReference VignetteLevelName { get; set; }
         public byte[] UnkData1 { get; set; }
         public byte[] LinkedLevels { get; set; } // level block index = LinkedLevelsStartIndex - 1 + LinkedLevels[i]
         
@@ -29,9 +32,12 @@
             LinkedLevelsStartIndex = s.Serialize<sbyte>(LinkedLevelsStartIndex, name: nameof(LinkedLevelsStartIndex));
             TimeOut = s.Serialize<sbyte>(TimeOut, name: nameof(TimeOut));
             NbTings = s.Serialize<sbyte>(NbTings, name: nameof(NbTings));
-            UnkData0 = s.SerializeArray<byte>(UnkData0, 21, name: nameof(UnkData1));
+            UnkData0 = s.SerializeArray<byte>(UnkData0, 21, name: nameof(UnkData0));
             Cages = s.SerializeObjectArray<CageUID>(Cages, 10, name: nameof(Cages));
-            UnkData1 = s.SerializeArray<byte>(UnkData1, 16, name: nameof(UnkData1));
+            VignetteIntro = s.SerializeObject<VignetteReference>(VignetteIntro, name: nameof(VignetteIntro));
+            VignetteOutro = s.SerializeObject<VignetteReference>(VignetteOutro, name: nameof(VignetteOutro));
+            VignetteLevelName = s.SerializeObject<VignetteReference>(VignetteLevelName, name: nameof(VignetteLevelName));
+            UnkData1 = s.SerializeArray<byte>(UnkData1, 1, name: nameof(UnkData1));
             LinkedLevels = s.SerializeArray<byte>(LinkedLevels, LinkedLevelsCount, name: nameof(LinkedLevels));
 
             // TODO: Parse remaining data
@@ -49,6 +55,21 @@
                 GlobalCageID = s.Serialize<byte>(GlobalCageID, name: nameof(GlobalCageID));
 			}
         }
+        public class VignetteReference : R1Serializable {
+            public bool HasVignette { get; set; }
+            public byte? Index { get; set; }
+            public byte Byte_02 { get; set; }
+            public byte Byte_03 { get; set; }
+            public byte? Byte_04 { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				HasVignette = s.Serialize<bool>(HasVignette, name: nameof(HasVignette));
+                Index = s.Serialize<byte?>(Index, name: nameof(Index));
+                Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+                Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+                Byte_04 = s.Serialize<byte?>(Byte_04, name: nameof(Byte_04));
+            }
+		}
 
         public enum MapType : byte {
             Adventure = 0,
