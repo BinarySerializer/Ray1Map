@@ -35,7 +35,7 @@ namespace R1Engine
             {
                 await LoadFilesAsync(context);
 
-                ExportBlocks(context, outputDir, export, GetSceneList(context).Offset);
+                ExportBlocks(context, outputDir, export, GetLevelList(context).Offset);
             }
 
             Debug.Log("Finished logging blocks");
@@ -211,7 +211,7 @@ namespace R1Engine
                     await LoadFilesAsync(context);
 
                     // Read the level
-                    var data = GetSceneList(context).Level;
+                    var data = GetLevelList(context).Level;
 
                     await UniTask.WaitForEndOfFrame();
 
@@ -328,7 +328,7 @@ namespace R1Engine
             }
         }
 
-        public abstract GBC_LevelList GetSceneList(Context context);
+        public abstract GBC_LevelList GetLevelList(Context context);
 
         public abstract Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level);
 
@@ -337,7 +337,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
 
-            var sceneList = GetSceneList(context);
+            var sceneList = GetLevelList(context);
 
             // Log unused data blocks in offset tables
             var notParsedBlocks = GBC_DependencyTable.DependencyTables.Where(x => x.UsedDependencies.Any(y => !y) && x != sceneList.DependencyTable).ToArray();

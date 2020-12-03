@@ -14,7 +14,7 @@ namespace R1Engine
 
         public override int LevelCount => 47;
 
-        public override GBC_LevelList GetSceneList(Context context)
+        public override GBC_LevelList GetLevelList(Context context)
         {
             return FileFactory.Read<GBC_ROM>(GetROMFilePath, context).LevelList;
         }
@@ -63,6 +63,28 @@ namespace R1Engine
                 // Export every vignette
                 for (int j = 0; j < vigArray.Blocks.Length; j++)
                     Util.ByteArrayToFile(Path.Combine(dir, $"{j}.png"), vigArray.Blocks[j].ToTexture2D().EncodeToPNG());
+            }
+
+            var levelList = GetLevelList(context);
+            for (int i = 0; i < levelList.DependencyTable.DependenciesCount; i++) {
+                var level = s.DoAt(levelList.DependencyTable.GetPointer(i), () => {
+                    return s.SerializeObject<GBC_Level>(default, name: $"Level[{i}]");
+                });
+                ExportVignetteReference(level, level.VignetteIntro, Path.Combine(outputDir, "Levels", i.ToString(), "Intro"));
+                ExportVignetteReference(level, level.VignetteOutro, Path.Combine(outputDir, "Levels", i.ToString(), "Outro"));
+                ExportVignetteReference(level, level.VignetteLevelName, Path.Combine(outputDir, "Levels", i.ToString(), "Name"));
+            }
+
+            void ExportVignetteReference(GBC_BaseBlock vigRefParent, GBC_Level.VignetteReference vigRef, string outPath) {
+                vigRef.SerializeVignettes(s, vigRefParent);
+                if (vigRef.Vignette != null) {
+                    if (vigRef.Vignette.Vignettes != null) {
+                        for (int j = 0; j < vigRef.Vignette.Vignettes.Length; j++)
+                            Util.ByteArrayToFile(Path.Combine(outPath, $"{j}.png"), vigRef.Vignette.Vignettes[j].ToTexture2D().EncodeToPNG());
+                    } else {
+                        Util.ByteArrayToFile(outPath + ".png", vigRef.Vignette.ToTexture2D().EncodeToPNG());
+                    }
+                }
             }
         }
 

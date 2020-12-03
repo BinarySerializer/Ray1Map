@@ -62,12 +62,22 @@
             public byte Byte_03 { get; set; }
             public byte? Byte_04 { get; set; }
 
+            // For parsing
+            public GBC_Vignette Vignette { get; set; }
+
 			public override void SerializeImpl(SerializerObject s) {
 				HasVignette = s.Serialize<bool>(HasVignette, name: nameof(HasVignette));
                 Index = s.Serialize<byte?>(Index, name: nameof(Index));
                 Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
                 Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
                 Byte_04 = s.Serialize<byte?>(Byte_04, name: nameof(Byte_04));
+            }
+
+            public void SerializeVignettes(SerializerObject s, GBC_BaseBlock parentBlock) {
+                if(!HasVignette) return;
+                s.DoAt(parentBlock.DependencyTable.GetPointer((byte)(Index-1)), () => {
+                    Vignette = s.SerializeObject<GBC_Vignette>(Vignette, name: nameof(Vignette));
+                });
             }
 		}
 

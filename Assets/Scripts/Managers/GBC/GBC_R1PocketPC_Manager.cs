@@ -174,7 +174,7 @@ namespace R1Engine
             context.StoreObject<LUDI_GlobalOffsetTable>(GlobalOffsetTableKey, globalOffsetTable);
         }
 
-        public override GBC_LevelList GetSceneList(Context context)
+        public override GBC_LevelList GetLevelList(Context context)
         {
             var allfix = FileFactory.Read<LUDI_PocketPC_DataFile>(AllfixFilePath, context);
             var s = context.Deserializer;

@@ -16,7 +16,7 @@ namespace R1Engine
                 SubBlocks = new GBC_DummyBlock[DependencyTable.DependenciesCount];
 
             // Get all root pointers
-            var rootBlock = ((GBC_BaseManager)s.GameSettings.GetGameManager).GetSceneList(s.Context);
+            var rootBlock = ((GBC_BaseManager)s.GameSettings.GetGameManager).GetLevelList(s.Context);
             var rootTable = rootBlock.DependencyTable;
             var rootPointers = Enumerable.Range(0, rootTable.Dependencies.Length).Select(x => rootTable.GetPointer(x)).ToArray();
 
