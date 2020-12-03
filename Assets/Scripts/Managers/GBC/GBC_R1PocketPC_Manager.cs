@@ -85,7 +85,12 @@ namespace R1Engine
 
             var vignetteLists = new string[] { "intro", "outro" };
             foreach (var p in vignetteLists) {
-                var vigListFile = FileFactory.Read<LUDI_PocketPC_DataFile>(p + ".dat", context);
+                var vigPath = p + ".dat";
+
+                if (!context.FileExists(vigPath))
+                    continue;
+
+                var vigListFile = FileFactory.Read<LUDI_PocketPC_DataFile>(vigPath, context);
                 s.DoAt(vigListFile.Resolve(1), () => 
                 {
                     using (MagickImageCollection collection = new MagickImageCollection())
