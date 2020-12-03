@@ -187,8 +187,6 @@ namespace R1Engine
             {
                 await LoadFilesAsync(context);
 
-                // TODO: Export vignette from levels
-
                 ExportVignette(context, outputDir);
             }
         }

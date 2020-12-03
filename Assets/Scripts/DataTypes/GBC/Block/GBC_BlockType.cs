@@ -15,6 +15,8 @@
         Scene = 0x10,
         Level = 0x16,
         LevelList = 0x17,
-        Vignette = 0x1A
+        Vignette = 0x1A,
+        VideoFrame = 0x25,
+        Video = 0x26,
     }
 }

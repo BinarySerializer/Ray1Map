@@ -50,19 +50,27 @@ namespace R1Engine
             {
                 // Get the reference
                 var reference = rom.References[i];
-                
-                // Make sure it's a vignette
-                if (reference.BlockHeader.Type != GBC_BlockType.Vignette)
-                    continue;
-                
+
                 var dir = Path.Combine(outputDir, $"BlockRoot_{i}");
 
-                // We assume it's always an array
-                var vigArray = s.DoAt(reference.Pointer.GetPointer(), () => s.SerializeObject<GBC_BlockArray<GBC_Vignette>>(default, name: "Vignette"));
+                if (reference.BlockHeader.Type == GBC_BlockType.Vignette)
+                {
+                    // We assume it's always an array
+                    var vigArray = s.DoAt(reference.Pointer.GetPointer(), () => s.SerializeObject<GBC_BlockArray<GBC_Vignette>>(default, name: "Vignette"));
 
-                // Export every vignette
-                for (int j = 0; j < vigArray.Blocks.Length; j++)
-                    Util.ByteArrayToFile(Path.Combine(dir, $"{j}.png"), vigArray.Blocks[j].ToTexture2D().EncodeToPNG());
+                    // Export every vignette
+                    for (int j = 0; j < vigArray.Blocks.Length; j++)
+                        Util.ByteArrayToFile(Path.Combine(dir, $"{j}.png"), vigArray.Blocks[j].ToTexture2D().EncodeToPNG());
+                }
+                else if (reference.BlockHeader.Type == GBC_BlockType.Video)
+                {
+                    // Serialize video block
+                    var video = s.DoAt(reference.Pointer.GetPointer(), () => s.SerializeObject<GBC_Video>(default, name: "Video"));
+
+                    // Export every frame
+                    for (int j = 0; j < video.Frames.Length; j++)
+                        Util.ByteArrayToFile(Path.Combine(dir, $"{j}.png"), video.Frames[j].ToTexture2D().EncodeToPNG());
+                }
             }
 
             var levelList = GetLevelList(context);
