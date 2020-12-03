@@ -148,6 +148,39 @@ namespace R1Engine
                 }
             }
         }
+        protected void ExportLUDIDataFile(LUDI_BaseDataFile dataFile, SerializerObject s, string outputDir) {
+            if (dataFile.OffsetTable != null) {
+                for (int i = 0; i < dataFile.BlockCount; i++) {
+                    ushort blockID = dataFile.OffsetTable.Entries[i].BlockID;
+                    Pointer blockPtr = dataFile.Resolve(blockID);
+                    uint blockLength = dataFile.GetLength(blockID) ?? 0;
+
+                    if (blockPtr == null)
+                        continue;
+
+                    var name = $"{blockID}_{blockPtr.StringFileOffset}";
+
+                    string filename = $"{name}.bin";
+                    var bytes = s.DoAt(blockPtr, () => s.SerializeArray<byte>(default, blockLength, name: $"Record[{blockID}]"));
+                    Util.ByteArrayToFile(Path.Combine(outputDir, filename), bytes);
+                }
+            } else if (dataFile.DataInfo != null) {
+                for (int i = 0; i < dataFile.DataInfo.NumDataBlocks; i++) {
+                    ushort blockID = (ushort)(i + 1);
+                    Pointer blockPtr = dataFile.Resolve(blockID);
+                    uint blockLength = dataFile.GetLength(blockID) ?? 0;
+
+                    if (blockPtr == null)
+                        continue;
+
+                    var name = $"{blockID}_{blockPtr.StringFileOffset}";
+
+                    string filename = $"{name}.bin";
+                    var bytes = s.DoAt(blockPtr, () => s.SerializeArray<byte>(default, blockLength, name: $"Record[{blockID}]"));
+                    Util.ByteArrayToFile(Path.Combine(outputDir, filename), bytes);
+                }
+            }
+        }
         public async UniTask ExportVignetteAsync(GameSettings settings, string outputDir)
         {
             using (var context = new Context(settings))

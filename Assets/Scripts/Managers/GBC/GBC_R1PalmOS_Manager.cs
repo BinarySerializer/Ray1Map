@@ -129,16 +129,20 @@ namespace R1Engine
                     var relPath = Path.GetFileName(filePath);
                     await context.AddLinearSerializedFileAsync(relPath, BinaryFile.Endian.Big);
 
-                    var dataBase = FileFactory.Read<Palm_Database>(relPath, context, (so, pd) => pd.Type = type.Value);
+                    if (type == Palm_Database.DatabaseType.PDB) {
+                        var dataFile = FileFactory.Read<LUDI_PalmOS_DataFile>(relPath, context);
+                        ExportLUDIDataFile(dataFile, s, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath)));
+                    } else {
+                        var dataBase = FileFactory.Read<Palm_Database>(relPath, context, (so, pd) => pd.Type = type.Value);
 
-                    for (int i = 0; i < dataBase.RecordsCount; i++)
-                    {
-                        var record = dataBase.Records[i];
-                        var name = type == Palm_Database.DatabaseType.PRC ? $"{record.Name}_{record.ID}" : $"{i}";
+                        for (int i = 0; i < dataBase.RecordsCount; i++) {
+                            var record = dataBase.Records[i];
+                            var name = type == Palm_Database.DatabaseType.PRC ? $"{record.Name}_{record.ID}" : $"{i}";
 
-                        string filename = $"{name}.bin";
-                        var bytes = s.DoAt(record.DataPointer, () => s.SerializeArray<byte>(default, record.Length, name: $"Record[{i}]"));
-                        Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
+                            string filename = $"{name}.bin";
+                            var bytes = s.DoAt(record.DataPointer, () => s.SerializeArray<byte>(default, record.Length, name: $"Record[{i}]"));
+                            Util.ByteArrayToFile(Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath), filename), bytes);
+                        }
                     }
                 }
             }
