@@ -12,6 +12,10 @@ namespace R1Engine
             // Set properties
             Actor = actor;
             ObjManager = objManager;
+
+            // Uncomment for screenshot enumeration to show Rayman
+            //if ((objManager.Context.Settings.Game == Game.GBC_R1 || objManager.Context.Settings.Game == Game.GBC_R2) && Actor.ActorID == 0)
+            //    ActionIndex = 0;
         }
 
         public GBC_GameObject Actor { get; }

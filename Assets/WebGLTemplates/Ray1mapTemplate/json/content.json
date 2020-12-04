@@ -131,12 +131,33 @@
 					]
 				},
 				{
-					"title": "Rayman SNES",
+					"title": "Rayman (SNES)",
 					"viewer": "ray1map",
 					"json": "snes",
 					"image": ".\/img\/logo\/r1_snes.png",
 					"versions": [
 						{ "json": "proto", "image": ".\/img\/version\/snes.png", "name": "SNES Prototype", "folder": "snes/proto" }
+					]
+				},
+				{
+					"title": "Rayman (GBC)",
+					"viewer": "ray1map",
+					"json": "gbc\/r1",
+					"image": ".\/img\/logo\/r1_gbc.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gbc.png", "name": "GBC", "folder": "gbc/r1_eu" },
+						{ "json": "pocketpc_landscape", "image": ".\/img\/version\/pocketpc.png", "name": "Pocket PC", "folder": "gbc/pocketpc_landscape" },
+						{ "json": "palmos_color", "image": ".\/img\/version\/palmos.png", "name": "Palm OS (Color)", "folder": "gbc/r1_palmos_color" },
+						{ "json": "palmos_greyscale", "image": ".\/img\/version\/palmos.png", "name": "Palm OS (Greyscale)", "folder": "gbc/r1_palmos_greyscale" }
+					]
+				},
+				{
+					"title": "Rayman 2 (GBC)",
+					"viewer": "ray1map",
+					"json": "gbc\/r2",
+					"image": ".\/img\/logo\/r2_gbc.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gbc.png", "name": "GBC", "folder": "gbc/r2_eu" }
 					]
 				},
 				{
@@ -201,6 +222,24 @@
 		{
 			"name": "Other games",
 			"games": [
+				{
+					"title": "Donald Duck Quack Attack",
+					"viewer": "ray1map",
+					"json": "gbc\/dd",
+					"image": ".\/img\/logo\/dd.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gbc.png", "name": "GBC", "folder": "gbc/dd_eu" }
+					]
+				},
+				{
+					"title": "Mowgli's Wild Adventure",
+					"viewer": "ray1map",
+					"json": "gbc\/mowgli",
+					"image": ".\/img\/logo\/mowgli.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gbc.png", "name": "GBC", "folder": "gbc/mowgli_eu" }
+					]
+				},
 				{
 					"title": "Batman Vengeance",
 					"viewer": "ray1map",

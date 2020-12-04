@@ -17,6 +17,7 @@
         Level = 0x16,
         LevelList = 0x17,
         Vignette = 0x1A,
+        DD_Menu = 0x1F, // Contains sub-blocks with vignette etc.
         VideoFrame = 0x25,
         Video = 0x26,
     }

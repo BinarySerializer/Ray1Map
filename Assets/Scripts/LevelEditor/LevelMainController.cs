@@ -209,6 +209,11 @@ namespace R1Engine
                 foreach (var o in Objects)
                     Destroy(o);
                 Objects.Clear();
+                Destroy(controllerEvents);
+                Destroy(controllerTilemap.tilemapFull);
+                Destroy(controllerTilemap.tilemapPreview);
+                Destroy(controllerTilemap);
+                Destroy(Controller.obj);
                 Destroy(this);
                 LevelEditorData.Level = null;
                 SceneManager.LoadScene("Dummy");

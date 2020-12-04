@@ -36,7 +36,7 @@ namespace R1Engine
                     }
 
                     if (endPointer.AbsoluteOffset != s.CurrentPointer.AbsoluteOffset)
-                        throw new Exception("Instruction overflow!");
+                        throw new Exception($"Instruction overflow for level {s.GameSettings.Level}!");
                 }
                 catch (Exception ex)
                 {
