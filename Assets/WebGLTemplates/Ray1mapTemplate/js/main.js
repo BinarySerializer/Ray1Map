@@ -986,6 +986,21 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 				fillSelectorList(graphicsSelector, obj.GBA_ActorModelNames);
 				graphicsSelector.prop("selectedIndex", obj.GBA_ActorModelIndex);
 				graphicsLabel.text("Actor Model");
+			} else if(obj.hasOwnProperty("GBC_ActorModelNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.GBC_ActorModelNames);
+				graphicsSelector.prop("selectedIndex", obj.GBC_ActorModelIndex);
+				graphicsLabel.text("Actor Model");
+			} else if(obj.hasOwnProperty("GBARRR_AnimationGroupNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.GBARRR_AnimationGroupNames);
+				graphicsSelector.prop("selectedIndex", obj.GBARRR_AnimationGroupIndex);
+				graphicsLabel.text("Animation Group");
+			} else if(obj.hasOwnProperty("GBAIsometric_AnimSetNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.GBAIsometric_AnimSetNames);
+				graphicsSelector.prop("selectedIndex", obj.GBAIsometric_AnimSetIndex);
+				graphicsLabel.text("Animation Set");
 			}
 			if(obj.hasOwnProperty("R1_ETANames")) {
 				hasGraphics2 = true;
@@ -1006,6 +1021,15 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			} else if(obj.hasOwnProperty("GBA_ActorModelNames")) {
 				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.GBA_ActorModelIndex);
+			} else if(obj.hasOwnProperty("GBC_ActorModelNames")) {
+				hasGraphics = true;
+				graphicsSelector.prop("selectedIndex", obj.GBC_ActorModelIndex);
+			} else if(obj.hasOwnProperty("GBARRR_AnimationGroupNames")) {
+				hasGraphics = true;
+				graphicsSelector.prop("selectedIndex", obj.GBARRR_AnimationGroupIndex);
+			} else if(obj.hasOwnProperty("GBAIsometric_AnimSetNames")) {
+				hasGraphics = true;
+				graphicsSelector.prop("selectedIndex", obj.GBAIsometric_AnimSetIndex);
 			}
 			if(obj.hasOwnProperty("R1_ETANames")) {
 				hasGraphics2 = true;
@@ -1180,6 +1204,15 @@ function sendObject() {
 		} else if(currentObject.hasOwnProperty("GBA_ActorModelNames")) {
 			jsonObj.Object.GBA_ActorModelIndex = graphicsSelector.prop("selectedIndex");
 			graphicsSelector.prop("selectedIndex", currentObject.GBA_ActorModelIndex);
+		} else if(currentObject.hasOwnProperty("GBC_ActorModelNames")) {
+			jsonObj.Object.GBC_ActorModelIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", currentObject.GBC_ActorModelIndex);
+		} else if(currentObject.hasOwnProperty("GBARRR_AnimationGroupNames")) {
+			jsonObj.Object.GBARRR_AnimationGroupIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", currentObject.GBARRR_AnimationGroupIndex);
+		} else if(currentObject.hasOwnProperty("GBAIsometric_AnimSetNames")) {
+			jsonObj.Object.GBAIsometric_AnimSetIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", currentObject.GBAIsometric_AnimSetIndex);
 		}
 		if(currentObject.hasOwnProperty("R1_ETANames")) {
 			jsonObj.Object.R1_ETAIndex = graphics2Selector.prop("selectedIndex");
@@ -1239,6 +1272,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	// Only properties that can be modified
 	if(newObj.hasOwnProperty("X")) oldObj.X = newObj.X;
 	if(newObj.hasOwnProperty("Y")) oldObj.Y = newObj.Y;
+	if(newObj.hasOwnProperty("Position3D")) oldObj.Position3D = newObj.Position3D;
 
 	if(newObj.hasOwnProperty("AnimIndex")) oldObj.AnimIndex = newObj.AnimIndex;
 	if(newObj.hasOwnProperty("IsEnabled")) oldObj.IsEnabled = newObj.IsEnabled;
@@ -1273,6 +1307,16 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBA_ActorModelIndex")) oldObj.GBA_ActorModelIndex = newObj.GBA_ActorModelIndex;
 	if(newObj.hasOwnProperty("GBA_Action")) oldObj.GBA_Action = newObj.GBA_Action;
 
+	// GBC
+	if(newObj.hasOwnProperty("GBC_XlateID")) oldObj.GBC_XlateID = newObj.GBC_XlateID;
+	if(newObj.hasOwnProperty("GBC_ActorModelIndex")) oldObj.GBC_ActorModelIndex = newObj.GBC_ActorModelIndex;
+
+	// GBARRR
+	if(newObj.hasOwnProperty("GBARRR_AnimationGroupIndex")) oldObj.GBARRR_AnimationGroupIndex = newObj.GBARRR_AnimationGroupIndex;
+
+	// GBAIsometric
+	if(newObj.hasOwnProperty("GBAIsometric_AnimSetIndex")) oldObj.GBAIsometric_AnimSetIndex = newObj.GBAIsometric_AnimSetIndex;
+
 	// Lists
 	if(newObj.hasOwnProperty("StateNames")) oldObj.StateNames = newObj.StateNames;
 	if(newObj.hasOwnProperty("R1_Commands")) oldObj.R1_Commands = newObj.R1_Commands;
@@ -1281,6 +1325,9 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("R2_AnimGroupNames")) oldObj.R2_AnimGroupNames = newObj.R2_AnimGroupNames;
 	if(newObj.hasOwnProperty("R1Jaguar_EventDefinitionNames")) oldObj.R1Jaguar_EventDefinitionNames = newObj.R1Jaguar_EventDefinitionNames;
 	if(newObj.hasOwnProperty("GBA_ActorModelNames")) oldObj.GBA_ActorModelNames = newObj.GBA_ActorModelNames;
+	if(newObj.hasOwnProperty("GBC_ActorModelNames")) oldObj.GBC_ActorModelNames = newObj.GBC_ActorModelNames;
+	if(newObj.hasOwnProperty("GBAIsometric_AnimSetNames")) oldObj.GBAIsometric_AnimSetNames = newObj.GBAIsometric_AnimSetNames;
+	if(newObj.hasOwnProperty("GBARRR_AnimationGroupNames")) oldObj.GBARRR_AnimationGroupNames = newObj.GBARRR_AnimationGroupNames;
 }
 function handleMessage_selection(msg) {
 	let selection = msg;

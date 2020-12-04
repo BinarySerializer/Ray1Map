@@ -48,7 +48,7 @@ public class WebJSON {
 		public bool? ShowAlwaysObjects { get; set; }
 		public bool? ShowDebugInfo { get; set; }
 		public bool? ShowEditorObjects { get; set; }
-		public bool? ShowDefaultObjIcons { get; set; }
+		public bool? ShowGizmos { get; set; }
 		public bool? ShowObjOffsets { get; set; }
         public bool? ShowRayman { get; set; }
 		public bool? FreeCameraMode { get; set; }

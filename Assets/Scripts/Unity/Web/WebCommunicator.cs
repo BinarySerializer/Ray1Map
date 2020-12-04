@@ -59,19 +59,20 @@ public class WebCommunicator : MonoBehaviour {
 			// TODO: Handle highlight & selection changes like in raymap:
 			var hl = Controller.obj.levelController.editor.objectHighlight;
 
+			var hlCollision3D = hl.highlightedCollision3D;
+			var hlCollision = hl.highlightedCollision;
 			if (!Settings.ShowCollision) {
-				highlightedCollision3D_ = null;
-				highlightedCollision_ = null;
+				hlCollision3D = null;
+				hlCollision = null;
 			}
 			if (highlightedObject_ != hl.highlightedObject ||
-				(Settings.ShowCollision && (
-				highlightedCollision3D_ != hl.highlightedCollision3D ||
-				(highlightedCollision_ != hl.highlightedCollision &&
-				(highlightedCollision_ == null || hl.highlightedCollision == null ||
-				!highlightedCollision_.SequenceEqual(hl.highlightedCollision)))))) {
+				(highlightedCollision3D_ != hlCollision3D ||
+				(highlightedCollision_ != hlCollision &&
+				(highlightedCollision_ == null || hlCollision == null ||
+				!highlightedCollision_.SequenceEqual(hlCollision))))) {
 				highlightedObject_ = hl.highlightedObject;
-				highlightedCollision_ = hl.highlightedCollision;
-				highlightedCollision3D_ = hl.highlightedCollision3D;
+				highlightedCollision_ = hlCollision;
+				highlightedCollision3D_ = hlCollision3D;
 				Send(GetHighlightMessageJSON());
 			}
 
@@ -334,7 +335,7 @@ public class WebCommunicator : MonoBehaviour {
 			ShowAlwaysObjects = Settings.ShowAlwaysObjects,
 			ShowEditorObjects = Settings.ShowEditorObjects,
 			ShowDebugInfo = Settings.ShowDebugInfo,
-			ShowDefaultObjIcons = Settings.ShowDefaultObjIcons,
+			ShowGizmos = Settings.ShowDefaultObjIcons,
 			ShowObjOffsets = Settings.ShowObjOffsets,
 			ShowRayman = Settings.ShowRayman,
 			StateSwitchingMode = Settings.StateSwitchingMode
@@ -429,7 +430,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.ShowAlwaysObjects.HasValue) Settings.ShowAlwaysObjects = msg.ShowAlwaysObjects.Value;
 		if (msg.ShowEditorObjects.HasValue) Settings.ShowEditorObjects = msg.ShowEditorObjects.Value;
 		if (msg.ShowObjOffsets.HasValue) Settings.ShowObjOffsets = msg.ShowObjOffsets.Value;
-		if (msg.ShowDefaultObjIcons.HasValue) Settings.ShowDefaultObjIcons = msg.ShowDefaultObjIcons.Value;
+		if (msg.ShowGizmos.HasValue) Settings.ShowDefaultObjIcons = msg.ShowGizmos.Value;
 		if (msg.ShowRayman.HasValue) Settings.ShowRayman = msg.ShowRayman.Value;
 		if (msg.ShowDebugInfo.HasValue) Settings.ShowDebugInfo = msg.ShowDebugInfo.Value;
 		if (msg.StateSwitchingMode.HasValue) Settings.StateSwitchingMode = msg.StateSwitchingMode.Value;
