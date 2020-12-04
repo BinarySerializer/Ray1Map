@@ -176,6 +176,8 @@ public class WebCommunicator : MonoBehaviour {
 				.Select(c => new WebJSON.Collision() { Type = LevelEditorData.Level.GetCollisionTypeNameFunc(c.Data?.CollisionType ?? 0) })
 				.Where(c => c.Type != "Empty" && c.Type != "None") // Filter out empty types
 				.ToArray();
+			if(selectionJSON.Highlight.Collision?.Length == 0)
+				selectionJSON.Highlight.Collision = null;
 		}
 
 		return selectionJSON;

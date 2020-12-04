@@ -16,28 +16,9 @@ namespace R1Engine
         #endregion
 
         #region Methods
-        private static Mesh fenceMesh = null;
-        private static Mesh climbMesh = null;
-        private static Mesh boxMesh = null;
-        private static Mesh planeMesh = null;
-        private static Mesh slopeMesh = null;
-        private static MaterialPropertyBlock mpb = null;
-
-        void SetRendererColor(MeshRenderer mr, Color color) {
-            if (mpb == null) {
-                mpb = new MaterialPropertyBlock();
-            }
-            mr.GetPropertyBlock(mpb);
-            mpb.SetColor("_Color", color);
-            mr.SetPropertyBlock(mpb);
-        }
-
-        void AddFence(GameObject gao, AdditionalTypeFlags type, Material mat, Color color, float height) {
+        void AddFence(GameObject gao, AdditionalTypeFlags type, Material mat, Color color, float height, List<MeshFilter> addMeshes) {
             int numBars = 3;
-            if (fenceMesh == null) {
-                float fenceHeight = 4f;
-                fenceMesh = GeometryHelpers.CreateBoxDifferentHeights(0.1f, fenceHeight, fenceHeight, fenceHeight, fenceHeight);
-            }
+            float fenceHeight = 4f;
             for (int i = 0; i < numBars; i++) {
                 GameObject sgao = new GameObject($"Fence {i}");
                 sgao.layer = LayerMask.NameToLayer("3D Collision");
@@ -58,91 +39,38 @@ namespace R1Engine
                         break;
                 }
                 MeshFilter smf = sgao.AddComponent<MeshFilter>();
-                smf.mesh = fenceMesh;
-                MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
-                smr.sharedMaterial = mat;
-                //smr.material.color = color;
+                smf.mesh = GeometryHelpers.CreateBoxDifferentHeights(0.1f, fenceHeight, fenceHeight, fenceHeight, fenceHeight);
+                addMeshes.Add(smf);
+                /*MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
+                smr.sharedMaterial = mat;*/
             }
         }
-        void AddClimb(GameObject gao, AdditionalTypeFlags type, Material mat, Color color, float height, float baseHeight) {
+
+        void AddClimb(GameObject gao, AdditionalTypeFlags type, Material mat, Color color, float height, float baseHeight, List<MeshFilter> addMeshes) {
             int numBars = Mathf.RoundToInt(height - baseHeight);
-            if (climbMesh == null) {
-                climbMesh = GeometryHelpers.CreateBox(1f, 0.2f, 0.1f);
-            }
             for (int i = 0; i < numBars; i++) {
                 GameObject sgao = new GameObject($"Fence {i}");
                 sgao.layer = LayerMask.NameToLayer("3D Collision");
                 sgao.transform.SetParent(gao.transform);
                 sgao.transform.localScale = Vector3.one;
                 MeshFilter smf = sgao.AddComponent<MeshFilter>();
-                smf.mesh = climbMesh;
                 switch (type) {
                     case AdditionalTypeFlags.ClimbUpRight:
                         sgao.transform.localPosition = new Vector3(0, baseHeight + i + 0.5f, -0.55f);
+                        smf.mesh = GeometryHelpers.CreateBox(1f, 0.2f, 0.1f);
                         break;
                     case AdditionalTypeFlags.ClimbUpLeft:
                         sgao.transform.localPosition = new Vector3(0.55f, baseHeight + i + 0.5f, 0);
-                        sgao.transform.localRotation = Quaternion.Euler(0,90,0);
+                        smf.mesh = GeometryHelpers.CreateBox(0.1f, 0.2f, 1f);
                         break;
                 }
-                MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
-                smr.sharedMaterial = mat;
-                //smr.material.color = color;
+                addMeshes.Add(smf);
+                /*MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
+                smr.sharedMaterial = mat;*/
             }
-        }
-        void CreateBox(GameObject gao, Material mat, Color color, float height) {
-            if (boxMesh == null) {
-                boxMesh = GeometryHelpers.CreateBoxDifferentHeights(1, 1, 1, 1, 1);
-            }
-            GameObject sgao = new GameObject($"Box");
-            sgao.layer = LayerMask.NameToLayer("3D Collision");
-            sgao.transform.SetParent(gao.transform);
-            sgao.transform.localScale = new Vector3(1,height,1);
-            sgao.transform.localPosition = Vector3.zero;
-            MeshFilter smf = sgao.AddComponent<MeshFilter>();
-            smf.mesh = boxMesh;
-            MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
-            smr.sharedMaterial = mat;
-            SetRendererColor(smr, color);
-            //smr.material.color = color;
-        }
-        void CreateSlope(GameObject gao, Material mat, ShapeType shape, Color color, float height) {
-            if (slopeMesh == null) {
-                slopeMesh = GeometryHelpers.CreateBoxDifferentHeights(1, 1, 1, 0, 0);
-            }
-            GameObject sgao = new GameObject($"Box");
-            sgao.layer = LayerMask.NameToLayer("3D Collision");
-            sgao.transform.SetParent(gao.transform);
-            sgao.transform.localScale = new Vector3(1, 1, 1);
-            sgao.transform.localPosition = new Vector3(0,height,0);
-            if (shape == ShapeType.SlopeUpLeft) {
-                sgao.transform.localRotation = Quaternion.Euler(0, -90, 0);
-            }
-            MeshFilter smf = sgao.AddComponent<MeshFilter>();
-            smf.mesh = slopeMesh;
-            MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
-            smr.sharedMaterial = mat;
-            SetRendererColor(smr, color);
-            //smr.material.color = color;
-        }
-        void CreatePlane(GameObject gao, Material mat, Color color) {
-            if (planeMesh == null) {
-                planeMesh = GeometryHelpers.CreateBoxDifferentHeights(1, 0,0,0,0);
-            }
-            GameObject sgao = new GameObject($"Plane");
-            sgao.layer = LayerMask.NameToLayer("3D Collision");
-            sgao.transform.SetParent(gao.transform);
-            sgao.transform.localScale = Vector3.one;
-            sgao.transform.localPosition = Vector3.zero;
-            MeshFilter smf = sgao.AddComponent<MeshFilter>();
-            smf.mesh = planeMesh;
-            MeshRenderer smr = sgao.AddComponent<MeshRenderer>();
-            smr.sharedMaterial = mat;
-            SetRendererColor(smr, color);
-            //smr.material.color = color;
         }
 
-        public GameObject GetGameObject(GameObject parent, int x, int y, Material mat, Unity_IsometricCollisionTile[] collisionData, int levelWidth, int levelHeight) {
+        public MeshFilter GetGameObject(GameObject parent, int x, int y, Material mat, Unity_IsometricCollisionTile[] collisionData, int levelWidth, int levelHeight, List<MeshFilter> addMeshes) {
             GameObject gao = new GameObject();
             gao.name = DebugText;
 
@@ -150,8 +78,6 @@ namespace R1Engine
             gao.transform.SetParent(parent.transform);
             gao.transform.localScale = Vector3.one;
             gao.transform.localPosition = new Vector3(x + 0.5f, 0, -y - 0.5f);
-            //MeshFilter mf = gao.AddComponent<MeshFilter>();
-
 
             var color = new Color(CollisionColors[Type].r, CollisionColors[Type].g, CollisionColors[Type].b);
             if ((x + y) % 2 == 1) {
@@ -161,61 +87,55 @@ namespace R1Engine
                 color = Color.HSVToRGB(h, s, v);
             }
 
+            MeshFilter mf = gao.AddComponent<MeshFilter>();
             switch (Shape) {
                 case ShapeType.SlopeUpRight:
-                case ShapeType.SlopeUpLeft:
-                    if (Height > 0) CreateBox(gao, mat, color, Height);
-                    CreateSlope(gao, mat, Shape, color, Height);
-                    //mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height + 1, Height + 1, Height, Height, color: color);
+                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height + 1, Height + 1, Height, Height, color: color);
                     break;
-                    //mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height + 1, Height, Height, Height + 1, color: color);
-                    //break;
+                case ShapeType.SlopeUpLeft:
+                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height + 1, Height, Height, Height + 1, color: color);
+                    break;
                 default:
-                    if (Height > 0) {
-                        CreateBox(gao, mat, color, Height);
-                    } else {
-                        CreatePlane(gao, mat, color);
-                    }
-                    //mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, Height, Height, Height, color: color);
+                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, Height, Height, Height, color: color);
                     break;
             }
-            MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-            mr.sharedMaterial = mat;
+            /*MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = mat;*/
 
             if (AddType.HasFlag(AdditionalTypeFlags.FenceUpLeft_RHR)) {
                 var neighborBlock = x > 0 ? collisionData[y * levelWidth + (x - 1)] : null;
                 var maxHeight = Math.Max(Height, neighborBlock?.Height ?? 0);
-                AddFence(gao, AdditionalTypeFlags.FenceUpLeft, mat, color, maxHeight);
+                AddFence(gao, AdditionalTypeFlags.FenceUpLeft, mat, color, maxHeight, addMeshes);
             }
             if (AddType.HasFlag(AdditionalTypeFlags.FenceUpRight_RHR)) {
                 var neighborBlock = y > 0 ? collisionData[(y - 1) * levelWidth + x] : null;
                 var maxHeight = Math.Max(Height, neighborBlock?.Height ?? 0);
-                AddFence(gao, AdditionalTypeFlags.FenceUpRight, mat, color, maxHeight);
+                AddFence(gao, AdditionalTypeFlags.FenceUpRight, mat, color, maxHeight, addMeshes);
             }
             if (AddType.HasFlag(AdditionalTypeFlags.FenceUpLeft)) {
-                AddFence(gao, AdditionalTypeFlags.FenceUpLeft, mat, color, Height);
+                AddFence(gao, AdditionalTypeFlags.FenceUpLeft, mat, color, Height, addMeshes);
             }
             if (AddType.HasFlag(AdditionalTypeFlags.FenceUpRight)) {
-                AddFence(gao, AdditionalTypeFlags.FenceUpRight, mat, color, Height);
+                AddFence(gao, AdditionalTypeFlags.FenceUpRight, mat, color, Height, addMeshes);
             }
             if (AddType.HasFlag(AdditionalTypeFlags.FenceDownRight)) {
-                AddFence(gao, AdditionalTypeFlags.FenceDownRight, mat, color, Height);
+                AddFence(gao, AdditionalTypeFlags.FenceDownRight, mat, color, Height, addMeshes);
             }
             if (AddType.HasFlag(AdditionalTypeFlags.FenceDownLeft)) {
-                AddFence(gao, AdditionalTypeFlags.FenceDownLeft, mat, color, Height);
+                AddFence(gao, AdditionalTypeFlags.FenceDownLeft, mat, color, Height, addMeshes);
             }
 
             if (AddType.HasFlag(AdditionalTypeFlags.ClimbUpLeft)) {
                 var neighborBlock = x + 1 < levelWidth ? collisionData[y * levelWidth + (x + 1)] : null;
                 var baseHeight = neighborBlock?.Height ?? 0;
-                AddClimb(gao, AdditionalTypeFlags.ClimbUpLeft, mat, color, Height, baseHeight);
+                AddClimb(gao, AdditionalTypeFlags.ClimbUpLeft, mat, color, Height, baseHeight, addMeshes);
             }
             if (AddType.HasFlag(AdditionalTypeFlags.ClimbUpRight)) {
                 var neighborBlock = y + 1 < levelHeight ? collisionData[(y + 1) * levelWidth + x] : null;
                 var baseHeight = neighborBlock?.Height ?? 0;
-                AddClimb(gao, AdditionalTypeFlags.ClimbUpRight, mat, color, Height, baseHeight);
+                AddClimb(gao, AdditionalTypeFlags.ClimbUpRight, mat, color, Height, baseHeight, addMeshes);
             }
-            return gao;
+            return mf;
         }
 
         public GameObject GetGameObjectCollider(GameObject parent, int x, int y) {
