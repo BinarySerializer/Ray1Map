@@ -826,6 +826,12 @@ a:focus {
 	padding: 0 1em 0 1em;
 	flex: 1 1 auto;
 }
+.highlight-collision-type,
+.highlight-collision-shape,
+.highlight-collision-addtype {
+	padding: 0 1em 0 1em;
+	flex: 1 1 auto;
+}
 
 
 

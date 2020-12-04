@@ -58,12 +58,17 @@ public class WebCommunicator : MonoBehaviour {
         if ((Application.platform == RuntimePlatform.WebGLPlayer || debugMessages) && Controller.LoadState == Controller.State.Finished) {
 			// TODO: Handle highlight & selection changes like in raymap:
 			var hl = Controller.obj.levelController.editor.objectHighlight;
-			// TODO: Also check highlighted collision?
+
+			if (!Settings.ShowCollision) {
+				highlightedCollision3D_ = null;
+				highlightedCollision_ = null;
+			}
 			if (highlightedObject_ != hl.highlightedObject ||
+				(Settings.ShowCollision && (
 				highlightedCollision3D_ != hl.highlightedCollision3D ||
 				(highlightedCollision_ != hl.highlightedCollision &&
 				(highlightedCollision_ == null || hl.highlightedCollision == null ||
-				!highlightedCollision_.SequenceEqual(hl.highlightedCollision)))) {
+				!highlightedCollision_.SequenceEqual(hl.highlightedCollision)))))) {
 				highlightedObject_ = hl.highlightedObject;
 				highlightedCollision_ = hl.highlightedCollision;
 				highlightedCollision3D_ = hl.highlightedCollision3D;
@@ -160,12 +165,13 @@ public class WebCommunicator : MonoBehaviour {
 			selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
 				new WebJSON.Collision() {
 					Type = highlightedCollision3D_.Type.ToString(),
-					Shape = highlightedCollision3D_.Shape.ToString(),
-					AdditionalType = highlightedCollision3D_.AddType.ToString()
+					Shape = highlightedCollision3D_.Shape != Unity_IsometricCollisionTile.ShapeType.None ? highlightedCollision3D_.Shape.ToString() : null,
+					AdditionalType = highlightedCollision3D_.AddType != Unity_IsometricCollisionTile.AdditionalTypeFlags.None ? highlightedCollision3D_.AddType.ToString() : null
 				}
 			};
-		} else if (highlightedCollision_ != null) {
+		} else if (highlightedCollision_ != null && highlightedCollision_.Length > 0) {
 			selectionJSON.Highlight.Collision = highlightedCollision_
+				.Where(c => c != null)
 				.Select(c => new WebJSON.Collision() { Type = LevelEditorData.Level.GetCollisionTypeNameFunc(c.Data?.CollisionType ?? 0) })
 				.Where(c => c.Type != "Empty" && c.Type != "None") // Filter out empty types
 				.ToArray();

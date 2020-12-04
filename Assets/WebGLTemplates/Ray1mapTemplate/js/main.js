@@ -1328,19 +1328,14 @@ function handleMessage_highlight(msg) {
 	}
 	if(msg.hasOwnProperty("Collision")) {
 		highlight_tooltip.addClass("collision");
-		highlight += "<div class='highlight-header'>Collide Type:</div><div class='highlight-collider'>";
-		if(msg.Collider.hasOwnProperty("CollideTypes")) {
-			if(msg.Collider.CollideTypes.length > 0) {
-				$.each(msg.Collider.CollideTypes, function (idx, col) {
-					highlight += "<div class='highlight-collideType'>" + col + "</div>";
-				});
-			} else {
-				highlight += "<div class='highlight-collideType'>Default</div>"
-			}
-		} else {
-			highlight += "<div class='highlight-collideType'>Default</div>"
-		}
-		highlight += "</div>";
+		highlight += "<div class='highlight-header'>Collision:</div>";
+		$.each(msg.Collision, function(idx, col) {
+			highlight += "<div class='highlight-collision'>";
+			if(col.hasOwnProperty("Type")) highlight += "<div class='highlight-collision-type'>" + col.Type + "</div>";
+			if(col.hasOwnProperty("Shape")) highlight += "<div class='highlight-collision-shape'>" + col.Shape + "</div>";
+			if(col.hasOwnProperty("AdditionalType")) highlight += "<div class='highlight-collision-addtype'>" + col.AdditionalType + "</div>";
+			highlight += "</div>";
+		});
 	}
 	if(highlight !== "") {
 		highlight_tooltip.html(highlight);
