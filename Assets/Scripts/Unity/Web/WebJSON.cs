@@ -113,7 +113,20 @@ public class WebJSON {
 		public byte? GBA_Action { get; set; }
 
 		// GBC
-		public 
+		public ushort? GBC_XlateID { get; set; }
+		public string[] GBC_ActorModelNames { get; set; }
+		public int? GBC_ActorModelIndex { get; set; }
+
+		// Isometric: RHR & Spyro
+		public Vector3? Position3D { get; set; }
+		public int? GBAIsometric_AnimSetIndex { get; set; }
+		public string[] GBAIsometric_AnimSetNames { get; set; }
+
+		// RRR
+		public int? GBARRR_AnimationGroupIndex { get; set; }
+		public string[] GBARRR_AnimationGroupNames { get; set; }
+
+		// TODO: Add other properties for GBC, Isometric and RRR
 	}
 	public class Layer {
 		public int Index { get; set; }

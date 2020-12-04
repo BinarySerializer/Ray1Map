@@ -192,6 +192,9 @@ public class WebCommunicator : MonoBehaviour {
 			X = obj.ObjData.XPosition,
 			Y = obj.ObjData.YPosition
 		};
+		if (obj.ObjData is Unity_Object_3D o3d && LevelEditorData.Level?.IsometricData != null) {
+			webObj.Position3D = o3d.Position;
+		}
 
 		if (includeDetails) {
 			// Common details
@@ -258,6 +261,32 @@ public class WebCommunicator : MonoBehaviour {
                     if (includeLists)
                         webObj.GBA_ActorModelNames = gbaObj.ObjManager.GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
                     break;
+				case Unity_Object_GBAIsometricRHR rhrObj:
+					webObj.GBAIsometric_AnimSetIndex = rhrObj.AnimSetIndex;
+					if(includeLists)
+						webObj.GBAIsometric_AnimSetNames = rhrObj.ObjManager.AnimSets.Select(x => x.Name).ToArray();
+					break;
+				case Unity_Object_GBAIsometricSpyro spyroObj:
+					webObj.GBAIsometric_AnimSetIndex = spyroObj.AnimSetIndex;
+					if (includeLists)
+						webObj.GBAIsometric_AnimSetNames = spyroObj.ObjManager.AnimSets.Select((x,i) => i.ToString()).ToArray();
+					break;
+				case Unity_Object_GBAIsometricSpyro2_2D spyro2DObj:
+					webObj.GBAIsometric_AnimSetIndex = spyro2DObj.AnimSetIndex;
+					if (includeLists)
+						webObj.GBAIsometric_AnimSetNames = spyro2DObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
+					break;
+				case Unity_Object_GBC gbcObj:
+					webObj.GBC_XlateID = gbcObj.Actor.XlateID;
+					webObj.GBC_ActorModelIndex = gbcObj.ActorModelIndex;
+					if (includeLists)
+						webObj.GBC_ActorModelNames = gbcObj.ObjManager.ActorModels.Select(x => x.Index.ToString()).ToArray();
+					break;
+				case Unity_Object_GBARRR rrrObj:
+					webObj.GBARRR_AnimationGroupIndex = rrrObj.AnimationGroupIndex;
+					if (includeLists)
+						webObj.GBARRR_AnimationGroupNames = rrrObj.ObjManager.GraphicsDatas.Select((g,i) => i.ToString()).ToArray();
+					break;
 			}
 		}
 		return webObj;
@@ -482,6 +511,9 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.Y.HasValue) o.ObjData.YPosition = (short)msg.Y.Value;
 		if (msg.IsEnabled.HasValue) o.IsEnabled = msg.IsEnabled.Value;
 		if (msg.StateIndex.HasValue) o.ObjData.CurrentUIState = msg.StateIndex.Value;
+		if (msg.Position3D.HasValue && o.ObjData is Unity_Object_3D o3d) {
+			o3d.Position = msg.Position3D.Value;
+		}
 		switch (o.ObjData) {
 			case Unity_Object_R1 r1o:
 				if (msg.R1_ETAIndex.HasValue && r1o.ETAIndex != msg.R1_ETAIndex.Value) {
@@ -505,9 +537,39 @@ public class WebCommunicator : MonoBehaviour {
 					refreshObjectLists = true;
 				}
 				break;
-			case Unity_Object_GBA go:
-				if (msg.GBA_ActorModelIndex.HasValue && go.GraphicsDataIndex != msg.GBA_ActorModelIndex.Value) {
-					go.GraphicsDataIndex = msg.GBA_ActorModelIndex.Value;
+			case Unity_Object_GBA gbao:
+				if (msg.GBA_ActorModelIndex.HasValue && gbao.GraphicsDataIndex != msg.GBA_ActorModelIndex.Value) {
+					gbao.GraphicsDataIndex = msg.GBA_ActorModelIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBC gbco:
+				if (msg.GBC_ActorModelIndex.HasValue && gbco.ActorModelIndex != msg.GBC_ActorModelIndex.Value) {
+					gbco.ActorModelIndex = msg.GBC_ActorModelIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBARRR rrro:
+				if (msg.GBARRR_AnimationGroupIndex.HasValue && rrro.AnimationGroupIndex != msg.GBARRR_AnimationGroupIndex.Value) {
+					rrro.AnimationGroupIndex = msg.GBARRR_AnimationGroupIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBAIsometricRHR rhro:
+				if (msg.GBAIsometric_AnimSetIndex.HasValue && rhro.AnimSetIndex != msg.GBAIsometric_AnimSetIndex.Value) {
+					rhro.AnimSetIndex = msg.GBAIsometric_AnimSetIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBAIsometricSpyro spyro_o:
+				if (msg.GBAIsometric_AnimSetIndex.HasValue && spyro_o.AnimSetIndex != msg.GBAIsometric_AnimSetIndex.Value) {
+					spyro_o.AnimSetIndex = msg.GBAIsometric_AnimSetIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBAIsometricSpyro2_2D spyro2D_o:
+				if (msg.GBAIsometric_AnimSetIndex.HasValue && spyro2D_o.AnimSetIndex != msg.GBAIsometric_AnimSetIndex.Value) {
+					spyro2D_o.AnimSetIndex = msg.GBAIsometric_AnimSetIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
