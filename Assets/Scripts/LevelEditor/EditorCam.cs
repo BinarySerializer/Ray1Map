@@ -418,7 +418,7 @@ namespace R1Engine {
                 size = gao.transform.lossyScale;
             }
             if (center.HasValue) {
-                float objectSize = Mathf.Min(5f, Mathf.Max(size.Value.x, size.Value.y, size.Value.z));
+                float objectSize = Mathf.Min(5f, Mathf.Max(2.25f,size.Value.x, size.Value.y, size.Value.z));
                 bool orthographic = !_freeCameraMode;
                 if (orthographic) {
                     var cam = this;
