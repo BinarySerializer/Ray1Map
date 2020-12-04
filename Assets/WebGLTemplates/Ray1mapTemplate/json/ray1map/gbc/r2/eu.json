@@ -1,0 +1,73 @@
+{
+  "name": "Rayman 2 (GBC)",
+  "mode": "Rayman2GBCEU",
+  "folder": "gbc/r2_eu",
+  "icons": [
+    { "image": ".\/img\/icon\/R2GBC\/FairyGlade.gif", "level": 0 },
+    { "image": ".\/img\/icon\/R2GBC\/MarshesAwakening.gif", "level": 6 },
+    { "image": ".\/img\/icon\/R2GBC\/WhaleBay.gif", "level": 10 },
+    { "image": ".\/img\/icon\/R2GBC\/CaveBadDreams.gif", "level": 14 },
+    { "image": ".\/img\/icon\/R2GBC\/Canopy.gif", "level": 18 },
+    { "image": ".\/img\/icon\/R2GBC\/SanctuaryStoneFire.gif", "level": 22 },
+    { "image": ".\/img\/icon\/R2GBC\/EchoingCaves.gif", "level": 26 },
+    { "image": ".\/img\/icon\/R2GBC\/ThePrecipice.gif", "level": 30 },
+    { "image": ".\/img\/icon\/R2GBC\/SanctuaryRockLava.gif", "level": 35 },
+    { "image": ".\/img\/icon\/R2GBC\/TombAncients.gif", "level": 39 }
+  ],
+  "levels": [
+    { "world": 0, "level": 43, "nameInternal": "43", "name": "World Map"},
+    { "world": 0, "level": 42, "nameInternal": "42", "name": "World Map - Time Attack"},
+
+    { "world": 0, "level": 9, "nameInternal": "9", "name": "Fairy Glade 1"},
+    { "world": 0, "level": 10, "nameInternal": "10", "name": "Fairy Glade 2"},
+    { "world": 0, "level": 11, "nameInternal": "11", "name": "Fairy Glade 3"},
+    { "world": 0, "level": 12, "nameInternal": "12", "name": "(Bonus) Fairy Glade"},
+
+    { "world": 0, "level": 13, "nameInternal": "13", "name": "Marshes of Awakening 1"},
+    { "world": 0, "level": 14, "nameInternal": "14", "name": "Marshes of Awakening 2"},
+    { "world": 0, "level": 15, "nameInternal": "15", "name": "Marshes of Awakening 3"},
+    { "world": 0, "level": 16, "nameInternal": "16", "name": "(Bonus) Marshes of Awakening"},
+
+    { "world": 0, "level": 17, "nameInternal": "17", "name": "Whale Bay 1"},
+    { "world": 0, "level": 18, "nameInternal": "18", "name": "Whale Bay 2"},
+    { "world": 0, "level": 19, "nameInternal": "19", "name": "Whale Bay 3"},
+    { "world": 0, "level": 20, "nameInternal": "20", "name": "(Bonus) Whale Bay"},
+
+    { "world": 0, "level": 22, "nameInternal": "22", "name": "Cave of Bad Dreams 1"},
+    { "world": 0, "level": 23, "nameInternal": "23", "name": "Cave of Bad Dreams 2"},
+    { "world": 0, "level": 24, "nameInternal": "24", "name": "Cave of Bad Dreams 3"},
+    { "world": 0, "level": 21, "nameInternal": "21", "name": "(Bonus) Cave of Bad Dreams"},
+
+    { "world": 0, "level": 25, "nameInternal": "25", "name": "The Canopy 1"},
+    { "world": 0, "level": 28, "nameInternal": "28", "name": "The Canopy 2"},
+    { "world": 0, "level": 26, "nameInternal": "26", "name": "The Canopy 3"},
+    { "world": 0, "level": 27, "nameInternal": "27", "name": "(Bonus) The Canopy"},
+    
+    { "world": 0, "level": 29, "nameInternal": "29", "name": "Sanctuary of Stone & Fire 1"},
+    { "world": 0, "level": 30, "nameInternal": "30", "name": "Sanctuary of Stone & Fire 2"},
+    { "world": 0, "level": 31, "nameInternal": "31", "name": "Sanctuary of Stone & Fire 3"},
+    { "world": 0, "level": 32, "nameInternal": "32", "name": "(Bonus) Sanctuary of Stone & Fire"},
+
+    { "world": 0, "level": 34, "nameInternal": "34", "name": "Echoing Caves 1"},
+    { "world": 0, "level": 35, "nameInternal": "35", "name": "Echoing Caves 2"},
+    { "world": 0, "level": 36, "nameInternal": "36", "name": "Echoing Caves 3"},
+    { "world": 0, "level": 33, "nameInternal": "33", "name": "(Bonus) Echoing Caves"},
+
+    { "world": 0, "level": 37, "nameInternal": "37", "name": "The Precipice 1"},
+    { "world": 0, "level": 39, "nameInternal": "39", "name": "The Precipice 2"},
+    { "world": 0, "level": 40, "nameInternal": "40", "name": "The Precipice 3"},
+    { "world": 0, "level": 41, "nameInternal": "41", "name": "The Precipice 4 - Boss"},
+    { "world": 0, "level": 38, "nameInternal": "38", "name": "(Bonus) The Precipice"},
+
+    { "world": 0, "level": 1, "nameInternal": "1", "name": "Sanctuary of Rock & Lava 1"},
+    { "world": 0, "level": 2, "nameInternal": "2", "name": "Sanctuary of Rock & Lava 2"},
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Sanctuary of Rock & Lava 3"},
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "(Bonus) Sanctuary of Rock & Lava"},
+
+    { "world": 0, "level": 5, "nameInternal": "5", "name": "Tomb of the Ancients 1"},
+    { "world": 0, "level": 6, "nameInternal": "6", "name": "Tomb of the Ancients 2"},
+    { "world": 0, "level": 7, "nameInternal": "7", "name": "Tomb of the Ancients 3"},
+    { "world": 0, "level": 4, "nameInternal": "4", "name": "Tomb of the Ancients 4 - Boss"},
+    { "world": 0, "level": 8, "nameInternal": "8", "name": "(Bonus) Tomb of the Ancients"}
+  ]
+}
