@@ -84,7 +84,7 @@ namespace R1Engine {
             mesh.RecalculateBounds();
             return mesh;
         }
-        public static Mesh CreateBoxDifferentHeights(float sz, float h0, float h1, float h2, float h3) {
+        public static Mesh CreateBoxDifferentHeights(float sz, float h0, float h1, float h2, float h3, Color? color = null) {
             Mesh mesh = new Mesh();
 
             float length = sz;
@@ -159,6 +159,14 @@ namespace R1Engine {
             mesh.normals = normals;
             mesh.uv = uvs;
             mesh.triangles = triangles;
+
+            if (color.HasValue) {
+                Color[] cols = new Color[vertices.Length];
+                for (int i = 0; i < cols.Length; i++) {
+                    cols[i] = color.Value;
+                }
+                mesh.colors = cols;
+            }
 
             mesh.RecalculateBounds();
             return mesh;

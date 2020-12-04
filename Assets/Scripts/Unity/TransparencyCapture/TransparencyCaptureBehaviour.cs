@@ -26,7 +26,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			cameras.Add(ec.camera3D);
 		}
 
-		var lScreenshot = zzTransparencyCapture.CaptureScreenshot(width, height, isTransparent);
+		var lScreenshot = zzTransparencyCapture.CaptureScreenshot(width, height, isTransparent, camera: cameras.ToArray());
 		try {
 			screenshotBytes = lScreenshot.EncodeToPNG();
 		} finally {
