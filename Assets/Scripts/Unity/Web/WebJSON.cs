@@ -107,10 +107,13 @@ public class WebJSON {
 		public byte? R1Jaguar_State { get; set; }
 
 		// GBA
-		public string[] GBA_GraphicsDataNames { get; set; }
+		public string[] GBA_ActorModelNames { get; set; }
 		public byte? GBA_ActorID { get; set; }
-		public int? GBA_GraphicsDataIndex { get; set; }
-		public byte? GBA_State { get; set; }
+		public int? GBA_ActorModelIndex { get; set; }
+		public byte? GBA_Action { get; set; }
+
+		// GBC
+		public 
 	}
 	public class Layer {
 		public int Index { get; set; }

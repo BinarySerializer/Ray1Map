@@ -252,11 +252,11 @@ public class WebCommunicator : MonoBehaviour {
 
 				case Unity_Object_GBA gbaObj:
 					webObj.GBA_ActorID = gbaObj.Actor.ActorID;
-					webObj.GBA_GraphicsDataIndex = gbaObj.GraphicsDataIndex;
-					webObj.GBA_State = gbaObj.Actor.ActionIndex;
+					webObj.GBA_ActorModelIndex = gbaObj.GraphicsDataIndex;
+					webObj.GBA_Action = gbaObj.Actor.ActionIndex;
 
                     if (includeLists)
-                        webObj.GBA_GraphicsDataNames = gbaObj.ObjManager.GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
+                        webObj.GBA_ActorModelNames = gbaObj.ObjManager.GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
                     break;
 			}
 		}
@@ -506,8 +506,8 @@ public class WebCommunicator : MonoBehaviour {
 				}
 				break;
 			case Unity_Object_GBA go:
-				if (msg.GBA_GraphicsDataIndex.HasValue && go.GraphicsDataIndex != msg.GBA_GraphicsDataIndex.Value) {
-					go.GraphicsDataIndex = msg.GBA_GraphicsDataIndex.Value;
+				if (msg.GBA_ActorModelIndex.HasValue && go.GraphicsDataIndex != msg.GBA_ActorModelIndex.Value) {
+					go.GraphicsDataIndex = msg.GBA_ActorModelIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
