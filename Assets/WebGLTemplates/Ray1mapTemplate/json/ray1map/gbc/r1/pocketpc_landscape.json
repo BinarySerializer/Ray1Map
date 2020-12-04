@@ -1,0 +1,72 @@
+{
+  "name": "Rayman (Pocket PC)",
+  "mode": "RaymanGBCPocketPC_Landscape",
+  "folder": "gbc/r1_pocketpc_landscape",
+  "icons": [
+    { "image": ".\/img\/icon\/R1GBC\/SpellboundForest.gif", "level": 0 },
+    { "image": ".\/img\/icon\/R1GBC\/AiryTunes.gif", "level": 9 },
+    { "image": ".\/img\/icon\/R1GBC\/RainyForest.gif", "level": 15 },
+    { "image": ".\/img\/icon\/R1GBC\/RockyPeaks.gif", "level": 19 },
+    { "image": ".\/img\/icon\/R1GBC\/AncientForest.gif", "level": 25 },
+    { "image": ".\/img\/icon\/R1GBC\/FieryDepths.gif", "level": 30 },
+    { "image": ".\/img\/icon\/R1GBC\/ArcaneForest.gif", "level": 36 },
+    { "image": ".\/img\/icon\/R1GBC\/DarkLegacy.gif", "level": 43 }
+  ],
+  "levels": [
+    { "world": 0, "level": 31, "nameInternal": "31", "name": "World Map"},
+    { "world": 0, "level": 46, "nameInternal": "46", "name": "World Map - Time Attack"},
+    { "world": 0, "level": 35, "nameInternal": "35", "name": "Ubi Cliff"},
+
+    { "world": 0, "level": 9, "nameInternal": "9", "name": "Spellbound Forest 1"},
+    { "world": 0, "level": 10, "nameInternal": "10", "name": "Spellbound Forest 2"},
+    { "world": 0, "level": 11, "nameInternal": "11", "name": "Spellbound Forest 3"},
+    { "world": 0, "level": 12, "nameInternal": "12", "name": "Spellbound Forest 4"},
+    { "world": 0, "level": 34, "nameInternal": "34", "name": "(Bonus) Spellbound Forest 1"},
+    { "world": 0, "level": 41, "nameInternal": "41", "name": "(Bonus) Spellbound Forest 2"},
+
+    { "world": 0, "level": 27, "nameInternal": "27", "name": "Airy Tunes 1"},
+    { "world": 0, "level": 28, "nameInternal": "28", "name": "Airy Tunes 2"},
+    { "world": 0, "level": 29, "nameInternal": "29", "name": "Airy Tunes 3"},
+    { "world": 0, "level": 30, "nameInternal": "30", "name": "Airy Tunes 4"},
+    { "world": 0, "level": 37, "nameInternal": "37", "name": "(Bonus) Airy Tunes 1"},
+    { "world": 0, "level": 38, "nameInternal": "38", "name": "(Bonus) Airy Tunes 2"},
+
+    { "world": 0, "level": 13, "nameInternal": "13", "name": "Rainy Forest 1"},
+    { "world": 0, "level": 14, "nameInternal": "14", "name": "Rainy Forest 2"},
+    { "world": 0, "level": 15, "nameInternal": "15", "name": "Rainy Forest 3"},
+    { "world": 0, "level": 42, "nameInternal": "42", "name": "(Bonus) Rainy Forest 1"},
+
+    { "world": 0, "level": 26, "nameInternal": "26", "name": "Rocky Peaks 1"},
+    { "world": 0, "level": 23, "nameInternal": "23", "name": "Rocky Peaks 2"},
+    { "world": 0, "level": 24, "nameInternal": "24", "name": "Rocky Peaks 3"},
+    { "world": 0, "level": 25, "nameInternal": "25", "name": "Rocky Peaks 4"},
+    { "world": 0, "level": 44, "nameInternal": "44", "name": "(Bonus) Rocky Peaks 1"},
+    { "world": 0, "level": 45, "nameInternal": "45", "name": "(Bonus) Rocky Peaks 2"},
+
+    { "world": 0, "level": 16, "nameInternal": "16", "name": "Ancient Forest 1"},
+    { "world": 0, "level": 17, "nameInternal": "17", "name": "Ancient Forest 2"},
+    { "world": 0, "level": 18, "nameInternal": "18", "name": "Ancient Forest 3"},
+    { "world": 0, "level": 36, "nameInternal": "36", "name": "(Bonus) Ancient Forest 1"},
+    { "world": 0, "level": 43, "nameInternal": "43", "name": "(Bonus) Ancient Forest 2"},
+
+    { "world": 0, "level": 1, "nameInternal": "1", "name": "Fiery Depths 1"},
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "Fiery Depths 2"},
+    { "world": 0, "level": 2, "nameInternal": "2", "name": "Fiery Depths 3"},
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Fiery Depths 4"},
+    { "world": 0, "level": 39, "nameInternal": "39", "name": "(Bonus) Fiery Depths 1"},
+    { "world": 0, "level": 40, "nameInternal": "40", "name": "(Bonus) Fiery Depths 2"},
+
+    { "world": 0, "level": 19, "nameInternal": "19", "name": "Arcane Forest 1"},
+    { "world": 0, "level": 20, "nameInternal": "20", "name": "Arcane Forest 2"},
+    { "world": 0, "level": 21, "nameInternal": "21", "name": "Arcane Forest 3"},
+    { "world": 0, "level": 22, "nameInternal": "22", "name": "Arcane Forest 4"},
+    { "world": 0, "level": 8, "nameInternal": "8", "name": "Arcane Forest 5 - Boss"},
+    { "world": 0, "level": 32, "nameInternal": "32", "name": "(Bonus) Arcane Forest 1"},
+    { "world": 0, "level": 33, "nameInternal": "33", "name": "(Bonus) Arcane Forest 2"},
+
+    { "world": 0, "level": 6, "nameInternal": "6", "name": "Dark Legacy 1"},
+    { "world": 0, "level": 4, "nameInternal": "4", "name": "Dark Legacy 2"},
+    { "world": 0, "level": 7, "nameInternal": "7", "name": "Dark Legacy 3"},
+    { "world": 0, "level": 5, "nameInternal": "5", "name": "Dark Legacy 4"}
+  ]
+}

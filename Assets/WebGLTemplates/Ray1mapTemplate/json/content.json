@@ -146,7 +146,7 @@
 					"image": ".\/img\/logo\/r1_gbc.png",
 					"versions": [
 						{ "json": "eu", "image": ".\/img\/version\/gbc.png", "name": "GBC", "folder": "gbc/r1_eu" },
-						{ "json": "pocketpc_landscape", "image": ".\/img\/version\/pocketpc.png", "name": "Pocket PC", "folder": "gbc/pocketpc_landscape" },
+						{ "json": "pocketpc_landscape", "image": ".\/img\/version\/pocketpc.png", "name": "Pocket PC", "folder": "gbc/r1_pocketpc_landscape" },
 						{ "json": "palmos_color", "image": ".\/img\/version\/palmos.png", "name": "Palm OS (Color)", "folder": "gbc/r1_palmos_color" },
 						{ "json": "palmos_greyscale", "image": ".\/img\/version\/palmos.png", "name": "Palm OS (Greyscale)", "folder": "gbc/r1_palmos_greyscale" }
 					]
