@@ -222,24 +222,15 @@ public class SettingsWindow : UnityWindow
             if (lvl != null) {
                 DrawHeader("Editor Tools");
 
-                if (EditorButton("Copy localization")) {
-                    if (lvl.Localization != null) {
-                        TextEditor te = new TextEditor {
-                            text = JsonConvert.SerializeObject(lvl.Localization, Formatting.Indented)
-                        };
-                        te.SelectAll();
-                        te.Copy();
-                    }
+                if (EditorButton("Copy localization")) 
+                {
+                    if (lvl.Localization != null)
+                        JsonConvert.SerializeObject(lvl.Localization, Formatting.Indented).CopyToClipboard();
                 }
 
                 if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null) {
-                    if (EditorButton("Copy event flag info")) {
-                        TextEditor te = new TextEditor {
-                            text = r1.GetEventFlagsDebugInfo()
-                        };
-                        te.SelectAll();
-                        te.Copy();
-                    }
+                    if (EditorButton("Copy event flag info"))
+                        r1.GetEventFlagsDebugInfo().CopyToClipboard();
                 }
 
                 if (LevelEditorData.Level?.IsometricData != null) {

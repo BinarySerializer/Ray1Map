@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
+using Newtonsoft.Json;
 using R1Engine.Serialize;
 using UnityEngine;
 
@@ -27,6 +28,7 @@ namespace R1Engine
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
             new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteAsync(settings, output)),
+            new GameAction("Copy level info to clipboard", false, false, (input, output) => LevelInfoToClipboardAsync(settings)),
         };
 
         public virtual async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
@@ -191,6 +193,31 @@ namespace R1Engine
             }
         }
         public virtual void ExportVignette(Context context, string outputDir) { }
+        public async UniTask LevelInfoToClipboardAsync(GameSettings settings)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+                var lvls = GetLevelList(context);
+                var s = context.Deserializer;
+
+                var info = Enumerable.Range(0, LevelCount).Select(i =>
+                {
+                    var level = s.DoAt(lvls.DependencyTable.GetPointer(i), () => s.SerializeObject<GBC_Level>(default, name: $"Level[{i}]"));
+
+                    return new
+                    {
+                        Index = i,
+                        InGameIndex = level.InGameLevelIndex,
+                        Type = level.Type,
+                        IsGift = level.IsGift,
+                        Byte_02 = level.Byte_02
+                    };
+                });
+
+                JsonConvert.SerializeObject(info, Formatting.Indented).CopyToClipboard();
+            }
+        }
 
         public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
         {

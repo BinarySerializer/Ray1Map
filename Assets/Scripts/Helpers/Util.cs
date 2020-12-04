@@ -720,5 +720,15 @@ namespace R1Engine
             Linear_4bpp_ReverseOrder,
             Linear_8bpp,
         }
+
+        public static void CopyToClipboard(this string str)
+        {
+            TextEditor te = new TextEditor
+            {
+                text = str
+            };
+            te.SelectAll();
+            te.Copy();
+        }
     }
 }

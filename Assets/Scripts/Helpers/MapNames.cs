@@ -814,50 +814,60 @@ namespace R1Engine
 
         private static Dictionary<int, Dictionary<int, string>> Rayman2GBCNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
             [0] = new Dictionary<int, string>() {
-                [0] = "",
-                [1] = "",
-                [2] = "",
-                [3] = "",
-                [4] = "",
-                [5] = "",
-                [6] = "",
-                [7] = "",
-                [8] = "",
-                [9] = "Fairy Glade 1",
-                [10] = "Fairy Glade 2",
-                [11] = "Fairy Glade 3",
-                [12] = "Fairy Glade - Bonus",
-                [13] = "Marshes of Awakening 1",
-                [14] = "Marshes of Awakening 2",
-                [15] = "Marshes of Awakening 3",
-                [16] = "Marshes of Awakening - Bonus",
-                [17] = "Whale Bay 1",
-                [18] = "Whale Bay 2",
-                [19] = "Whale Bay 3",
-                [20] = "Whale Bay - Bonus",
-                [21] = "Cave of Bad Dreams - Bonus",
-                [22] = "Cave of Bad Dreams 1",
-                [23] = "Cave of Bad Dreams 2",
-                [24] = "Cave of Bad Dreams 3",
-                [25] = "The Canopy 1",
-                [26] = "",
-                [27] = "The Canopy - Bonus",
-                [28] = "",
-                [29] = "",
-                [30] = "",
-                [31] = "",
-                [32] = "",
-                [33] = "",
-                [34] = "",
-                [35] = "",
-                [36] = "",
-                [37] = "",
-                [38] = "",
-                [39] = "",
-                [40] = "",
-                [41] = "",
-                [42] = "",
-                [43] = "",
+                [0] = "Sanctuary of Rock & Lava - Bonus", // -1
+                [1] = "Sanctuary of Rock & Lava 1", // 25
+                [2] = "Sanctuary of Rock & Lava 2", // 26
+                [3] = "Sanctuary of Rock & Lava 3", // 27
+
+                [4] = "Tomb of the Ancients 4", // 31
+                [5] = "Tomb of the Ancients 1", // 28
+                [6] = "Tomb of the Ancients 2", // 29
+                [7] = "Tomb of the Ancients 3", // 30
+                [8] = "Tomb of the Ancients - Bonus", // -1
+
+                [9] = "Fairy Glade 1", // 0
+                [10] = "Fairy Glade 2", // 1
+                [11] = "Fairy Glade 3", // 2
+                [12] = "Fairy Glade - Bonus", // -1
+
+                [13] = "Marshes of Awakening 1", // 3
+                [14] = "Marshes of Awakening 2", // 4
+                [15] = "Marshes of Awakening 3", // 5
+                [16] = "Marshes of Awakening - Bonus", // -1
+
+                [17] = "Whale Bay 1", // 6
+                [18] = "Whale Bay 2", // 7
+                [19] = "Whale Bay 3", // 8
+                [20] = "Whale Bay - Bonus", // -1
+
+                [21] = "Cave of Bad Dreams - Bonus", // -1
+                [22] = "Cave of Bad Dreams 1", // 9
+                [23] = "Cave of Bad Dreams 2", // 10
+                [24] = "Cave of Bad Dreams 3", // 11
+
+                [25] = "The Canopy 1", // 12
+                [26] = "The Canopy 3", // 14
+                [27] = "The Canopy - Bonus", // -1
+                [28] = "The Canopy 2", // 13
+
+                [29] = "Sanctuary of Stone & Fire 1", // 15
+                [30] = "Sanctuary of Stone & Fire 2", // 16
+                [31] = "Sanctuary of Stone & Fire 3", // 17
+                [32] = "Sanctuary of Stone & Fire - Bonus", // -1
+
+                [33] = "Echoing Caves - Bonus", // -1
+                [34] = "Echoing Caves 1", // 18
+                [35] = "Echoing Caves 2", // 19
+                [36] = "Echoing Caves 3", // 20
+
+                [37] = "The Precipice 1", // 21
+                [38] = "The Precipice - Bonus", // -1
+                [39] = "The Precipice 2", // 22
+                [40] = "The Precipice 3", // 23
+                [41] = "The Precipice 4", // 24
+
+                [42] = "Time attack map", // 32
+                [43] = "World map", // -1
             },
         };
     }
