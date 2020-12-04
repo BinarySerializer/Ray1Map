@@ -293,7 +293,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Get the animation groups
-            var r2AnimGroups = events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup).Distinct().ToArray();
+            var r2AnimGroups = events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup).Where(x => x != null).Distinct().ToArray();
             Unity_ObjectManager_R2.AnimGroup[] animGroups = new Unity_ObjectManager_R2.AnimGroup[r2AnimGroups.Length];
             for (int i = 0; i < animGroups.Length; i++) {
                 animGroups[i] = await getGroupAsync(r2AnimGroups[i]);

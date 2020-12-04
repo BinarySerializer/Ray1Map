@@ -242,7 +242,6 @@ public class WebCommunicator : MonoBehaviour {
 
 				case Unity_Object_R2 r2obj:
 					webObj.R1_Type = (ushort)r2obj.EventData.EventType;
-					webObj.R2_AnimGroupIndex = r2obj.AnimGroupIndex;
 					webObj.R2_MapLayer = r2obj.EventData.MapLayer.ToString();
 					webObj.R1_Etat = r2obj.EventData.Etat;
 					webObj.R1_SubEtat = r2obj.EventData.SubEtat;
@@ -251,9 +250,13 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.R1_OffsetHY = r2obj.EventData.CollisionData?.OffsetHY;
 					webObj.R1_DisplayPrio = r2obj.EventData.DisplayPrio;
 
-                    if (includeLists)
-                        webObj.R2_AnimGroupNames = r2obj.ObjManager.AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
-                    break;
+					if (r2obj.AnimGroupIndex != -1)
+                    {
+                        webObj.R2_AnimGroupIndex = r2obj.AnimGroupIndex;
+                        if (includeLists)
+                            webObj.R2_AnimGroupNames = r2obj.ObjManager.AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
+                    }
+					break;
 
 				case Unity_Object_R1Jaguar r1jaguarObj:
 					webObj.R1Jaguar_EventDefinitionIndex = r1jaguarObj.EventDefinitionIndex;
@@ -266,37 +269,54 @@ public class WebCommunicator : MonoBehaviour {
 
 				case Unity_Object_GBA gbaObj:
 					webObj.GBA_ActorID = gbaObj.Actor.ActorID;
-					webObj.GBA_ActorModelIndex = gbaObj.GraphicsDataIndex;
 					webObj.GBA_Action = gbaObj.Actor.ActionIndex;
 
-                    if (includeLists)
-                        webObj.GBA_ActorModelNames = gbaObj.ObjManager.GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
-                    break;
+					if (gbaObj.GraphicsDataIndex != -1)
+                    {
+                        webObj.GBA_ActorModelIndex = gbaObj.GraphicsDataIndex;
+
+                        if (includeLists)
+                            webObj.GBA_ActorModelNames = gbaObj.ObjManager.GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
+                    }
+					break;
 				case Unity_Object_GBAIsometricRHR rhrObj:
 					webObj.GBAIsometric_AnimSetIndex = rhrObj.AnimSetIndex;
 					if(includeLists)
 						webObj.GBAIsometric_AnimSetNames = rhrObj.ObjManager.AnimSets.Select(x => x.Name).ToArray();
 					break;
 				case Unity_Object_GBAIsometricSpyro spyroObj:
-					webObj.GBAIsometric_AnimSetIndex = spyroObj.AnimSetIndex;
-					if (includeLists)
-						webObj.GBAIsometric_AnimSetNames = spyroObj.ObjManager.AnimSets.Select((x,i) => i.ToString()).ToArray();
+					if (spyroObj.AnimSetIndex != -1)
+                    {
+                        webObj.GBAIsometric_AnimSetIndex = spyroObj.AnimSetIndex;
+                        if (includeLists)
+                            webObj.GBAIsometric_AnimSetNames = spyroObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
+                    }
 					break;
 				case Unity_Object_GBAIsometricSpyro2_2D spyro2DObj:
-					webObj.GBAIsometric_AnimSetIndex = spyro2DObj.AnimSetIndex;
-					if (includeLists)
-						webObj.GBAIsometric_AnimSetNames = spyro2DObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
+					if (spyro2DObj.AnimSetIndex != -1)
+                    {
+                        webObj.GBAIsometric_AnimSetIndex = spyro2DObj.AnimSetIndex;
+                        if (includeLists)
+                            webObj.GBAIsometric_AnimSetNames = spyro2DObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
+                    }
 					break;
 				case Unity_Object_GBC gbcObj:
 					webObj.GBC_XlateID = gbcObj.Actor.XlateID;
-					webObj.GBC_ActorModelIndex = gbcObj.ActorModelIndex;
-					if (includeLists)
-						webObj.GBC_ActorModelNames = gbcObj.ObjManager.ActorModels.Select(x => x.Index.ToString()).ToArray();
+
+					if (gbcObj.ActorModelIndex != -1)
+                    {
+                        webObj.GBC_ActorModelIndex = gbcObj.ActorModelIndex;
+                        if (includeLists)
+                            webObj.GBC_ActorModelNames = gbcObj.ObjManager.ActorModels.Select(x => x.Index.ToString()).ToArray();
+                    }
 					break;
 				case Unity_Object_GBARRR rrrObj:
-					webObj.GBARRR_AnimationGroupIndex = rrrObj.AnimationGroupIndex;
-					if (includeLists)
-						webObj.GBARRR_AnimationGroupNames = rrrObj.ObjManager.GraphicsDatas.Select((g,i) => i.ToString()).ToArray();
+					if (rrrObj.AnimationGroupIndex != -1)
+                    {
+                        webObj.GBARRR_AnimationGroupIndex = rrrObj.AnimationGroupIndex;
+                        if (includeLists)
+                            webObj.GBARRR_AnimationGroupNames = rrrObj.ObjManager.GraphicsDatas.Select((g, i) => i.ToString()).ToArray();
+                    }
 					break;
 			}
 		}

@@ -36,7 +36,7 @@ namespace R1Engine
         {
             get => ObjManager.AnimGroupsLookup.TryGetItem(EventData.AnimGroupPointer?.AbsoluteOffset ?? 0, -1);
             set {
-                if (value != AnimGroupIndex) {
+                if (value != AnimGroupIndex && EventData.AnimGroupPointer != null) {
                     EventData.Etat = EventData.InitialEtat = 0;
                     EventData.SubEtat = EventData.InitialSubEtat = 0;
                     OverrideAnimIndex = null;
