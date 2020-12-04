@@ -828,6 +828,9 @@ function getObjVars(obj) {
 
 	// GBA
 
+	// GBC
+	if(obj.hasOwnProperty("GBC_XlateID")) objVars.push({"Name": "XlateID", "Value": obj.GBC_XlateID});
+
 	return objVars;
 }
 
@@ -922,8 +925,18 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 	if(obj === null) { 
 		$('.object-description').addClass('invisible');
 	} else {
-		$('#posX').val(obj.X);
-		$('#posY').val(obj.Y);
+		if(obj.hasOwnProperty("Position3D")) {
+			$('#position2DInputGroup').addClass('invisible');
+			$('#position3DInputGroup').removeClass('invisible');
+			$('#posX-3D').val(obj.Position3D.x);
+			$('#posY-3D').val(obj.Position3D.y);
+			$('#posZ-3D').val(obj.Position3D.z);
+		} else {
+			$('#position3DInputGroup').addClass('invisible');
+			$('#position2DInputGroup').removeClass('invisible');
+			$('#posX').val(obj.X);
+			$('#posY').val(obj.Y);
+		}
 		$("#objectName").html(getObjectNameHTML(obj));
 
 		selectButton($("#btn-enabled"), obj.IsEnabled);
@@ -1222,20 +1235,36 @@ function sendObject() {
 }
 function setObjectTransform() {
 	if(currentObject != null) {
-		let posX = $('#posX').val();
-		let posY = $('#posY').val();
-		
-		if($.isNumeric(posX) && $.isNumeric(posY)) {
-			posX = Math.floor(posX);
-			posY = Math.floor(posY);
-			let jsonObj = {
-				Object: {
-					Index:   currentObject.Index,
-					X:		 posX,
-					Y:		 posY
+		if(currentObject.hasOwnProperty("Position3D")) {
+			let posX = $('#posX-3D').val();
+			let posY = $('#posY-3D').val();
+			let posZ = $('#posZ-3D').val();
+			
+			if($.isNumeric(posX) && $.isNumeric(posY) && $.isNumeric(posZ)) {
+				let jsonObj = {
+					Object: {
+						Index:      currentObject.Index,
+						Position3D: { x: posX, y: posY, z: posZ}
+					}
 				}
+				sendMessage(jsonObj);
 			}
-			sendMessage(jsonObj);
+		} else {
+			let posX = $('#posX').val();
+			let posY = $('#posY').val();
+			
+			if($.isNumeric(posX) && $.isNumeric(posY)) {
+				posX = Math.floor(posX);
+				posY = Math.floor(posY);
+				let jsonObj = {
+					Object: {
+						Index:   currentObject.Index,
+						X:		 posX,
+						Y:		 posY
+					}
+				}
+				sendMessage(jsonObj);
+			}
 		}
 	}
 }

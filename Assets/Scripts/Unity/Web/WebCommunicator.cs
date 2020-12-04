@@ -25,6 +25,7 @@ public class WebCommunicator : MonoBehaviour {
 	Unity_ObjBehaviour highlightedObject_;
 	Unity_ObjBehaviour selectedObject_;
 	int x_, y_;
+	Vector3 pos3D_;
 
 	private Newtonsoft.Json.JsonSerializerSettings _jsonSettings;
 	public Newtonsoft.Json.JsonSerializerSettings JsonSettings {
@@ -82,6 +83,9 @@ public class WebCommunicator : MonoBehaviour {
 				if (selectedObject_ != null) {
 					x_ = selectedObject_.ObjData.XPosition;
 					y_ = selectedObject_.ObjData.YPosition;
+					if (selectedObject_.ObjData is Unity_Object_3D o3d && LevelEditorData.Level?.IsometricData != null) {
+						pos3D_ = o3d.Position;
+					}
 					// TODO: keep state indices so updates on animation speed, etc. can be sent
 					//selectedPersoStateIndex_ = selectedPerso_.currentState;
 					Send(GetSelectionMessageJSON(includeLists: true, includeDetails: true));
@@ -90,9 +94,13 @@ public class WebCommunicator : MonoBehaviour {
 
 			// Check selected object's changed values
 			if (selectedObject_ != null) {
-				if (selectedObject_.ObjData.XPosition != x_ || selectedObject_.ObjData.YPosition != y_) {
+				if (selectedObject_.ObjData.XPosition != x_ || selectedObject_.ObjData.YPosition != y_ ||
+					(selectedObject_.ObjData is Unity_Object_3D o3d && LevelEditorData.Level?.IsometricData != null && o3d.Position != pos3D_)) {
 					x_ = selectedObject_.ObjData.XPosition;
 					y_ = selectedObject_.ObjData.YPosition;
+					if (selectedObject_.ObjData is Unity_Object_3D o3d2 && LevelEditorData.Level?.IsometricData != null) {
+						pos3D_ = o3d2.Position;
+					}
 					Send(GetSelectionMessageJSON(includeLists: false, includeDetails: false));
 				}
 			}
