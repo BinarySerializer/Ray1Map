@@ -15,9 +15,40 @@ namespace R1Engine
 
         public override int LevelCount => 47;
 
+        public override GameAction[] GetGameActions(GameSettings settings) => base.GetGameActions(settings).Concat(new GameAction[]
+        {
+            new GameAction("Export Root TileKits", false, true, (input, output) => ExportRootTileKitsAsync(settings, output)),
+        }).ToArray();
+
         public override GBC_LevelList GetLevelList(Context context)
         {
             return FileFactory.Read<GBC_ROM>(GetROMFilePath, context).LevelList;
+        }
+
+        public async UniTask ExportRootTileKitsAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                var s = context.Deserializer;
+                var rom = FileFactory.Read<GBC_ROM>(GetROMFilePath, context);
+
+                for (int i = 0; i < rom.ReferencesCount; i++)
+                {
+                    // Get the reference
+                    var reference = rom.References[i];
+
+                    if (reference.BlockHeader.Type == GBC_BlockType.TileKit)
+                    {
+                        var tileKit = s.DoAt(reference.Pointer.GetPointer(), () => s.SerializeObject<GBC_TileKit>(default, name: $"TileKit[{i}]"));
+                        var tex = tileKit.GetTileSetTex();
+
+                        for (int j = 0; j < tex.Length; j++)
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"TileKit{i}_Pal{j}.png"), tex[0][j].EncodeToPNG());
+                    }
+                }
+            }
         }
 
         public override async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
