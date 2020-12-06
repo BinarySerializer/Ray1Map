@@ -64,15 +64,50 @@ namespace R1Engine
 		public class Row : R1Serializable {
             public byte Command { get; set; }
             public byte[] CommandData { get; set; }
+
+            // Parsed
+            public Type CommandType { get; set; }
+            public int CommandChannel { get; set; }
+            public int Time { get; set; }
+            public int Note { get; set; }
+
 			public override void SerializeImpl(SerializerObject s) {
 				Command = s.Serialize<byte>(Command, name: nameof(Command));
                 if (Command != 0xFC) {
                     CommandData = s.SerializeArray<byte>(CommandData, 4, name: nameof(CommandData));
+                    int type = (Command % 10);
+                    CommandChannel = (Command / 10);
+                    if (System.Enum.IsDefined(typeof(Type), CommandType)) {
+                        CommandType = (Type)type;
+                        switch (CommandType) {
+                            case Type.Note:
+                                Note = CommandData[0] | (CommandData[1] << 8);
+                                s.Log($"Channel {CommandChannel} - Command: {CommandType} - Note: {Note}");
+                                break;
+                            case Type.Time:
+                                Time = CommandData[1] | (CommandData[2] << 8) | (CommandData[3] << 16);
+                                s.Log($"Channel {CommandChannel} - Command: {CommandType} - Time: {Time}");
+                                break;
+                            default:
+                                s.Log($"Channel {CommandChannel} - Command: {CommandType}");
+                                break;
+                        }
+                    } else {
+                        CommandType = Type.Unknown;
+                        s.Log($"Channel {CommandChannel} - Command: {CommandType}");
+                    }
                 }
 
                 if ((s.GameSettings.Game == Game.GBC_DD || s.GameSettings.Game == Game.GBC_Mowgli) && Command == 0xFC) {
                     CommandData = s.SerializeArray<byte>(CommandData, 3, name: nameof(CommandData));
                 }
+            }
+
+            public enum Type {
+                Unknown = -1,
+                Time = 0,
+                Note = 2,
+                Effect = 4,
             }
 		}
 	}
