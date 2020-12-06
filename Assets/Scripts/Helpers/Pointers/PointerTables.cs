@@ -475,7 +475,7 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_BG0Tiles] = 0x087081d0,
                         [GBARRR_Pointer.Mode7_BG0Map] = 0x087081dc,
                         [GBARRR_Pointer.Mode7_MapData] = 0x08708194, // It's compressed! // TODO: Add to export
-                        [GBARRR_Pointer.Mode7_UnkMapData] = 0x087081a0, // It's compressed! // TODO: Add to export
+                        [GBARRR_Pointer.Mode7_CollisionMapData] = 0x087081a0, // It's compressed! // TODO: Add to export
                         [GBARRR_Pointer.Mode7_TilePalette] = 0x087081b8,
                         [GBARRR_Pointer.Mode7_BG1Palette] = 0x0870820c,
                         [GBARRR_Pointer.Mode7_BG0Palette] = 0x087081e8,
@@ -494,7 +494,7 @@ namespace R1Engine
                         [GBARRR_Pointer.RNC_5] = 0x086bd1d1,
 
                         [GBARRR_Pointer.Mode7_ComprArray1] = 0x08708144,
-                        [GBARRR_Pointer.Mode7_ComprArray2] = 0x087081C4,
+                        [GBARRR_Pointer.Mode7_CollisionTypesArray] = 0x087081C4,
                         [GBARRR_Pointer.Mode7_Objects] = 0x087081ac,
                         [GBARRR_Pointer.Mode7_ComprArray4] = 0x0870815c,
 
@@ -519,7 +519,7 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_BG0Tiles] = 0x08721940,
                         [GBARRR_Pointer.Mode7_BG0Map] = 0x0872194c,
                         [GBARRR_Pointer.Mode7_MapData] = 0x08721904,
-                        [GBARRR_Pointer.Mode7_UnkMapData] = 0x08721910,
+                        [GBARRR_Pointer.Mode7_CollisionMapData] = 0x08721910,
                         [GBARRR_Pointer.Mode7_TilePalette] = 0x08721928,
                         [GBARRR_Pointer.Mode7_BG1Palette] = 0x0872197c,
                         [GBARRR_Pointer.Mode7_BG0Palette] = 0x08721958,
@@ -538,7 +538,7 @@ namespace R1Engine
                         [GBARRR_Pointer.RNC_5] = 0x086d6941,
 
                         [GBARRR_Pointer.Mode7_ComprArray1] = 0x087218b4,
-                        [GBARRR_Pointer.Mode7_ComprArray2] = 0x08721934,
+                        [GBARRR_Pointer.Mode7_CollisionTypesArray] = 0x08721934,
                         [GBARRR_Pointer.Mode7_Objects] = 0x0872191c,
                         [GBARRR_Pointer.Mode7_ComprArray4] = 0x087218cc,
 
