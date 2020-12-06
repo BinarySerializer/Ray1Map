@@ -402,10 +402,19 @@ function handleMessage_settings(msg) {
 	//selectButton($("#btn-displayInactive"), msg.DisplayInactive);
 	selectButton($("#btn-showObjects"), msg.ShowObjects);
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
-	selectButton($("#btn-animateTiles"), msg.AnimateTiles);
+	if(msg.hasOwnProperty("HasAnimatedTiles") && !msg.HasAnimatedTiles) {
+		$("#btn-animateTiles").addClass("disabled-button");
+	} else {
+		selectButton($("#btn-animateTiles"), msg.AnimateTiles);
+	}
 	selectButton($("btn-showEditorObjects"), msg.ShowEditorObjects);
 	selectButton($("btn-showAlwaysObjects"), msg.ShowAlwaysObjects);
 	selectButton($("btn-showRayman"), msg.ShowRayman);
+	if(msg.hasOwnProperty("CanUseFreeCameraMode") && msg.CanUseFreeCameraMode) {
+		selectButton($("#btn-freeCameraMode"), msg.FreeCameraMode);
+	} else {
+		$("#btn-freeCameraMode").addClass("disabled-button");
+	}
 
 	if(msg.hasOwnProperty("StateSwitchingMode")) {
 		selectButton($("#btn-stateSwitching"), msg.StateSwitchingMode !== "None");
@@ -1440,7 +1449,8 @@ function sendSettings() {
 			AnimateSprites: $("#btn-animateSprites").hasClass("selected"),
 			AnimateTiles: $("#btn-animateTiles").hasClass("selected"),
 			StateSwitchingMode: global_settings.StateSwitchingMode,
-			Palette: paletteSelector.prop("selectedIndex")
+			Palette: paletteSelector.prop("selectedIndex"),
+			FreeCameraMode: $("#btn-freeCameraMode").hasClass("selected")
 		}
 	}
 	if($("#btn-showAlwaysObjects").length) jsonObj.Settings.ShowAlwaysObjects = $("#btn-showAlwaysObjects").hasClass("selected");
