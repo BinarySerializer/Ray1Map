@@ -428,7 +428,7 @@ namespace R1Engine
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_5], nameof(GBARRR_Pointer.RNC_5));
 
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray1], nameof(GBARRR_Pointer.Mode7_ComprArray1), 3);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray2], nameof(GBARRR_Pointer.Mode7_ComprArray2), 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_CollisionTypesArray], nameof(GBARRR_Pointer.Mode7_CollisionTypesArray), 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Objects], nameof(GBARRR_Pointer.Mode7_Objects), 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray4], nameof(GBARRR_Pointer.Mode7_ComprArray4), 3);
 
@@ -596,7 +596,7 @@ namespace R1Engine
             if (gameMode == GameMode.Mode7)
             {
                 var map = new Unity_Map {
-                    Type = Unity_Map.MapType.Graphics,// | Unity_Map.MapType.Collision,
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                     Width = 256,
                     Height = 256,
                     TileSet = new Unity_MapTileMap[]
@@ -605,7 +605,7 @@ namespace R1Engine
                     },
                     MapTiles = rom.Mode7_MapData.Select((x, i) =>
                     {
-                        //x.CollisionType = rom.Mode7_CollisionMapData[i].CollisionType;
+                        x.CollisionType = rom.Mode7_CollisionTypes[rom.Mode7_CollisionMapData[i]];
                         return new Unity_Tile(x);
                     }).ToArray(),
                 };

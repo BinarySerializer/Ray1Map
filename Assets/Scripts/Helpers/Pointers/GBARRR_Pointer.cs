@@ -14,7 +14,7 @@
         Mode7_Bg1Map, // 0x0600B800
         Mode7_BG0Tiles, // 0x06004000
         Mode7_BG0Map, // 0x06007800
-        Mode7_UnkMapData, // 0x02001D64
+        Mode7_CollisionMapData, // 0x02001D64
         Mode7_MapData, // 0x02001D80
         Mode7_TilePalette, // 0x5000000
         Mode7_BG1Palette, // 0x050001C0
@@ -30,8 +30,10 @@
 
         // Unknown compressed Mode7 pointer arrays
         Mode7_ComprArray1, // 0x06015000 world-specific sprites
-        Mode7_ComprArray2, // 0x020150D0 (1024 bytes)
+        Mode7_CollisionTypesArray, // 0x020150D0 (1024 bytes). Graphics tile -> Collision tile map for each level
         Mode7_ComprArray4, // 0x06010A00 hud sprites
+
+        Mode7_CollisionWidths, // 3 shorts
 
         // Unknown compressed data 
         RNC_0, // 0x06010000
