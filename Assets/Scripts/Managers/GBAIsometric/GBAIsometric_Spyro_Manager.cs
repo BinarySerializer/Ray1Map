@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 
 namespace R1Engine
@@ -802,5 +803,99 @@ namespace R1Engine
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
+
+        public async UniTask CreateInitFuncUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
+        {
+            using (var usContext = new Context(usSettings))
+            {
+                using (var euContext = new Context(euSettings))
+                {
+                    // Load rom files
+                    await LoadFilesAsync(usContext);
+                    await LoadFilesAsync(euContext);
+
+                    // Read files
+                    var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, usContext);
+                    var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, euContext);
+
+                    var outputStr = String.Empty;
+
+                    var usedOffsets = new HashSet<uint>();
+
+                    for (int i = 0; i < usRom.ObjectTypes.Length; i++)
+                    {
+                        var usInit = usRom.ObjectTypes[i].Data?.InitFunctionPointer?.AbsoluteOffset;
+                        var euInit = euRom.ObjectTypes[i].Data?.InitFunctionPointer?.AbsoluteOffset;
+
+                        if (usInit == null || euInit == null)
+                            continue;
+
+                        if (usedOffsets.Contains(usInit.Value))
+                            continue;
+                        
+                        usedOffsets.Add(usInit.Value);
+
+                        outputStr += $"case 0x{euInit:X8}: return 0x{usInit:X8};{Environment.NewLine}";
+                    }
+
+                    outputStr.CopyToClipboard();
+                }
+            }
+        }
+        public async UniTask CreateAnimSetIndexUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
+        {
+            using (var usContext = new Context(usSettings))
+            {
+                using (var euContext = new Context(euSettings))
+                {
+                    // Load rom files
+                    await LoadFilesAsync(usContext);
+                    await LoadFilesAsync(euContext);
+
+                    // Read files
+                    var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, usContext);
+                    var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, euContext);
+
+                    // Calculate hash for every anim set
+                    var usHash = new string[usRom.AnimSets.Length];
+                    var euHash = new string[euRom.AnimSets.Length];
+
+                    calcHash(usHash, usRom.AnimSets);
+                    calcHash(euHash, euRom.AnimSets);
+
+                    void calcHash(IList<string> hash, IReadOnlyList<GBAIsometric_Spyro_AnimSet> animSets)
+                    {
+                        // Check the hash
+                        using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                        {
+                            var s = animSets.First().Context.Deserializer;
+
+                            for (int i = 0; i < animSets.Count; i++)
+                            {
+                                var a = animSets[i];
+
+                                var data = a.AnimBlockIndex.DoAtBlock(size => s.SerializeArray<byte>(default, size));
+
+                                hash[i] = Convert.ToBase64String(sha1.ComputeHash(data));
+                            }
+                        }
+                    }
+
+                    var outputStr = String.Empty;
+
+                    for (int i = 0; i < euHash.Length; i++)
+                    {
+                        var matchingIndex = usHash.FindItemIndex(x => x == euHash[i]);
+
+                        if (matchingIndex == -1)
+                            outputStr += $"case null: return {i};{Environment.NewLine}";
+                        else
+                            outputStr += $"case {matchingIndex}: return {i};{Environment.NewLine}";
+                    }
+
+                    outputStr.CopyToClipboard();
+                }
+            }
+        }
     }
 }

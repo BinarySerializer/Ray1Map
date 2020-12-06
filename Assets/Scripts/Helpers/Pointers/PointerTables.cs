@@ -676,6 +676,10 @@ namespace R1Engine
 
                         [GBAIsometric_Spyro_Pointer.LevelData] = 0x0817ab88,
                         [GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9] = 0x08179208,
+
+                        [GBAIsometric_Spyro_Pointer.States_Spyro2_LevelObjectives] = 0x08176bf8,
+                        [GBAIsometric_Spyro_Pointer.States_Spyro2_Portals] = 0x08176e60,
+                        [GBAIsometric_Spyro_Pointer.States_Spyro2_ChallengePortals] = 0x0817788c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroSeasonFlameUS:
@@ -735,6 +739,10 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.LevelData] = 0x081d0b44,
                         [GBAIsometric_Spyro_Pointer.LevelData_Spyro3_Agent9] = 0x081d22bc,
                         [GBAIsometric_Spyro_Pointer.LevelData_Spyro3_SgtByrd] = 0x081d1d34,
+
+                        [GBAIsometric_Spyro_Pointer.States_Spyro3_NPC] = 0x081cb924,
+                        [GBAIsometric_Spyro_Pointer.States_Spyro3_DoorTypes] = 0x081cc020,
+                        [GBAIsometric_Spyro_Pointer.States_Spyro3_DoorGraphics] = 0x081cbec0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroAdventureUS:
