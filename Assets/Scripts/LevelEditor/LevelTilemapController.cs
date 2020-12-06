@@ -75,6 +75,8 @@ namespace R1Engine
         public GameObject IsometricCollision { get; set; }
         public Material isometricCollisionMaterial;
 
+        public bool HasAnimatedTiles { get; private set; } = false;
+
         public void InitializeTilemaps() {
             var level = LevelEditorData.Level;
 
@@ -311,6 +313,7 @@ namespace R1Engine
             Unity_TileTexture tile = map.GetTile(t, LevelEditorData.CurrentSettings);
             var atInstance = map.GetAnimatedTile(t, LevelEditorData.CurrentSettings);
             if (atInstance != null) {
+                HasAnimatedTiles = true;
                 atInstance.x = x;
                 atInstance.y = y;
                 atInstance.combinedTileIndex = combinedTileIndex;

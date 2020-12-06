@@ -375,7 +375,14 @@ public class WebCommunicator : MonoBehaviour {
 
 		// Add layers
 		var lvl = LevelEditorData.Level;
+		if (Controller.obj?.levelController?.controllerTilemap != null) {
+			var tc = Controller.obj?.levelController?.controllerTilemap;
+			s.HasAnimatedTiles = tc.HasAnimatedTiles;
+		}
 		if (lvl != null) {
+			if (lvl.IsometricData != null) {
+				s.CanUseFreeCameraMode = true;
+			}
 			List<WebJSON.Layer> layers = new List<WebJSON.Layer>();
 			if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
 				layers.Add(new WebJSON.Layer() {

@@ -53,6 +53,9 @@ public class WebJSON {
         public bool? ShowRayman { get; set; }
 		public bool? FreeCameraMode { get; set; }
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
+
+		public bool? CanUseFreeCameraMode { get; set; }
+		public bool? HasAnimatedTiles { get; set; }
 		
 		public Layer[] Layers { get; set; }
 		public string[] Palettes { get; set; }
