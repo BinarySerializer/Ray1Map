@@ -160,21 +160,33 @@ namespace R1Engine
             public byte Byte00_Indices { get; set; }
             public byte Count_Indices { get; set; }
             public byte[] TileIndices { get; set; }
-            public byte LastByte_Indices { get; set; }
+            public bool HasExtraData_Indices { get; set; }
             public byte Byte00_Attributes { get; set; }
             public byte Count_Attributes { get; set; }
             public TileAttribute[] Attributes { get; set; }
-            public byte LastByte_Attributes { get; set; }
+            public bool HasExtraData_Attributes { get; set; }
+
+            // Optional
+            public ushort[] ExtraData_Indices { get; set; }
+            public ushort[] ExtraData_Attributes { get; set; }
 
             public override void SerializeImpl(SerializerObject s) {
                 Byte00_Indices = s.Serialize<byte>(Byte00_Indices, name: nameof(Byte00_Indices));
                 Count_Indices = s.Serialize<byte>(Count_Indices, name: nameof(Count_Indices));
 				TileIndices = s.SerializeArray<byte>(TileIndices, Count_Indices, name: nameof(TileIndices));
-                LastByte_Indices = s.Serialize<byte>(LastByte_Indices, name: nameof(LastByte_Indices));
+                HasExtraData_Indices = s.Serialize<bool>(HasExtraData_Indices, name: nameof(HasExtraData_Indices));
+                if (HasExtraData_Indices) {
+                    ExtraData_Indices = s.SerializeArraySize<ushort, byte>(ExtraData_Indices, name: nameof(ExtraData_Indices));
+                    ExtraData_Indices = s.SerializeArray<ushort>(ExtraData_Indices, ExtraData_Indices.Length, name: nameof(ExtraData_Indices));
+                }
                 Byte00_Attributes = s.Serialize<byte>(Byte00_Attributes, name: nameof(Byte00_Attributes));
                 Count_Attributes = s.Serialize<byte>(Count_Attributes, name: nameof(Count_Attributes));
                 Attributes = s.SerializeObjectArray<TileAttribute>(Attributes, Count_Attributes, name: nameof(Attributes));
-                LastByte_Attributes = s.Serialize<byte>(LastByte_Attributes, name: nameof(LastByte_Attributes));
+                HasExtraData_Attributes = s.Serialize<bool>(HasExtraData_Attributes, name: nameof(HasExtraData_Attributes));
+                if (HasExtraData_Attributes) {
+                    ExtraData_Attributes = s.SerializeArraySize<ushort, byte>(ExtraData_Attributes, name: nameof(ExtraData_Attributes));
+                    ExtraData_Attributes = s.SerializeArray<ushort>(ExtraData_Attributes, ExtraData_Attributes.Length, name: nameof(ExtraData_Attributes));
+                }
             }
 		}
     }
