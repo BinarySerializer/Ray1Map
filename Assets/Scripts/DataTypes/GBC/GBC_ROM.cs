@@ -9,6 +9,7 @@ namespace R1Engine
         public Reference[] References { get; set; }
 
         public GBC_LevelList LevelList { get; set; }
+        //public GBC_SoundBank SoundBank { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -29,6 +30,8 @@ namespace R1Engine
             });
 
             LevelList = s.DoAt(References.First(x => x.BlockHeader.Type == GBC_BlockType.LevelList).Pointer.GetPointer(), () => s.SerializeObject<GBC_LevelList>(LevelList, name: nameof(LevelList)));
+            //SoundBank = s.DoAt(References.First(x => x.BlockHeader.Type == GBC_BlockType.SoundBank).Pointer.GetPointer(), () => s.SerializeObject<GBC_SoundBank>(SoundBank, name: nameof(SoundBank)));
+
         }
 
         public class Reference : R1Serializable
