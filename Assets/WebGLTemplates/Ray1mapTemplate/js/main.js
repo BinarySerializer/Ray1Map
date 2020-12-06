@@ -828,6 +828,10 @@ function getObjVars(obj) {
 
 	// GBA
 
+	// GBARRR
+	if(obj.hasOwnProperty("GBARRR_GraphicsKey")) objVars.push({"Name": "GraphicsKey", "Value": obj.GBARRR_GraphicsKey})
+	if(obj.hasOwnProperty("GBARRR_GraphicsIndex")) objVars.push({"Name": "GraphicsIndex", "Value": obj.GBARRR_GraphicsIndex})
+
 	// GBC
 	if(obj.hasOwnProperty("GBC_XlateID")) objVars.push({"Name": "XlateID", "Value": obj.GBC_XlateID});
 
@@ -1342,6 +1346,8 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 
 	// GBARRR
 	if(newObj.hasOwnProperty("GBARRR_AnimationGroupIndex")) oldObj.GBARRR_AnimationGroupIndex = newObj.GBARRR_AnimationGroupIndex;
+	if(newObj.hasOwnProperty("GBARRR_GraphicsIndex")) oldObj.GBARRR_GraphicsIndex = newObj.GBARRR_GraphicsIndex;
+	if(newObj.hasOwnProperty("GBARRR_GraphicsKey")) oldObj.GBARRR_GraphicsKey = newObj.GBARRR_GraphicsKey;
 
 	// GBAIsometric
 	if(newObj.hasOwnProperty("GBAIsometric_AnimSetIndex")) oldObj.GBAIsometric_AnimSetIndex = newObj.GBAIsometric_AnimSetIndex;

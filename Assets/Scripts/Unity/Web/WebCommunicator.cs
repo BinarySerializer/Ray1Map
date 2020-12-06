@@ -311,6 +311,8 @@ public class WebCommunicator : MonoBehaviour {
                     }
 					break;
 				case Unity_Object_GBARRR rrrObj:
+					webObj.GBARRR_GraphicsIndex = (int)rrrObj.Actor.P_GraphicsIndex;
+					webObj.GBARRR_GraphicsKey = rrrObj.Actor.Ushort_0C;
 					if (rrrObj.AnimationGroupIndex != -1)
                     {
                         webObj.GBARRR_AnimationGroupIndex = rrrObj.AnimationGroupIndex;

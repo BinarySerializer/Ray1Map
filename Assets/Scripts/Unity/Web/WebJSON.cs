@@ -125,6 +125,8 @@ public class WebJSON {
 		// RRR
 		public int? GBARRR_AnimationGroupIndex { get; set; }
 		public string[] GBARRR_AnimationGroupNames { get; set; }
+		public int? GBARRR_GraphicsIndex { get; set; }
+		public int? GBARRR_GraphicsKey { get; set; }
 
 		// TODO: Add other properties for GBC, Isometric and RRR
 	}
