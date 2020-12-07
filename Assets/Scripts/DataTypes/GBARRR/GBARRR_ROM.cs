@@ -230,7 +230,7 @@ namespace R1Engine
                 });
                 s.DoAt(Mode7_ObjectsPointers[s.GameSettings.Level], () =>
                 {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_Objects = s.SerializeObjectArray<GBARRR_Mode7Object>(Mode7_Objects, s.CurrentLength / 32, name: nameof(Mode7_Objects)));
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_Objects = s.SerializeObjectArray<GBARRR_Mode7Object>(Mode7_Objects, 141, name: nameof(Mode7_Objects)));
                 });
                 s.DoAt(Mode7_CollisionMapDataPointers[s.GameSettings.Level], () => {
                     Mode7_CollisionMapData = s.SerializeArray<ushort>(Mode7_CollisionMapData, 256 * 256, name: nameof(Mode7_CollisionTypes));

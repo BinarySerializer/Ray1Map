@@ -10,9 +10,11 @@
         public override void SerializeImpl(SerializerObject s)
         {
             ObjectType = s.Serialize<Mode7Type>(ObjectType, name: nameof(ObjectType));
-            XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
-            YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
-            Data = s.SerializeArray<byte>(Data, 32 - (2 * 3), name: nameof(Data));
+            if (ObjectType != Mode7Type.Invalid) {
+                XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
+                YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
+                Data = s.SerializeArray<byte>(Data, 32 - (2 * 3), name: nameof(Data));
+            }
         }
 
         public enum Mode7Type : short

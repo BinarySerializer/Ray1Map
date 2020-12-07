@@ -33,8 +33,6 @@
         Mode7_CollisionTypesArray, // 0x020150D0 (1024 bytes). Graphics tile -> Collision tile map for each level
         Mode7_ComprArray4, // 0x06010A00 hud sprites
 
-        Mode7_CollisionWidths, // 3 shorts
-
         // Unknown compressed data 
         RNC_0, // 0x06010000
         RNC_1, // 0x06010800
