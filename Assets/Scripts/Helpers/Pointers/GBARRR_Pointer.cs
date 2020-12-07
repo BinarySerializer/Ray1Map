@@ -46,5 +46,11 @@
         MusicTable,
         MusicSampleTable,
         SoundEffectSampleTable,
+
+        SpritesPauseMenu,
+        SpritesGameOver,
+        SpritesMode7Rayman,
+        SpritesMode7UI,
+        Mode7_SpritePalette,
     }
 }

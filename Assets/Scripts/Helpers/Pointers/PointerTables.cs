@@ -547,6 +547,12 @@ namespace R1Engine
                         [GBARRR_Pointer.MusicTable] = 0x08607f10,
                         [GBARRR_Pointer.MusicSampleTable] = 0x083c3a9c,
                         [GBARRR_Pointer.SoundEffectSampleTable] = 0x08606ae8,
+
+                        [GBARRR_Pointer.SpritesPauseMenu] = 0x086c9270,
+                        [GBARRR_Pointer.SpritesGameOver] = 0x086d615c,
+                        [GBARRR_Pointer.SpritesMode7Rayman] = 0x086b6a68,
+                        [GBARRR_Pointer.SpritesMode7UI] = 0x086eb3c8,
+                        [GBARRR_Pointer.Mode7_SpritePalette] = 0x086a6128,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:
