@@ -4,12 +4,18 @@
     {
         None = 0,
 
-        // It appears that the reactionary tiles work in a way of changing a moving platform's position in directions like "up-left", like how the UFO works in R1
-        Reactionary0 = 1,
-        Reactionary1 = 2,
-        Reactionary2 = 3,
-        Reactionary3 = 4,
-        Reactionary4 = 5,
+        Direction_Left = 1,
+        Direction_Right = 2,
+        Direction_Up = 3,
+        Direction_Down = 4,
+
+        Direction_UpLeft = 5,
+        Direction_UpRight = 6, // Verify this
+        Direction_DownLeft = 7, // Verify this
+        Direction_DownRight = 8,
+
+        Unknown_11 = 11,
+        Unknown_14 = 14,
 
         Cliff = 18,
         Water = 19,
@@ -25,9 +31,11 @@
         Hill_Slight_Right_1 = 29,
         Hill_Steep_Right = 30,
 
-        // Used for enemy movements
-        ReactionaryEnemy = 47,
-        
-        ReactionaryUnk = 49,
+        ReactionaryEnemy = 47, // Used for enemy movements
+
+        ReactionaryUnk = 49, // Appears to change the direction of a moving platform after a certain amount of hits
+
+        ValidTarget = 50,
+        InvalidTarget = 51,
     }
 }

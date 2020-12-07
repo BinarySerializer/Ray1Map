@@ -667,7 +667,7 @@ namespace R1Engine
                 mapLayers = mapLayers.Concat(mode7Layers).ToArray();
             }
 
-            Controller.DetailedState = $"Loading actor graphics";
+            Controller.DetailedState = $"Loading actor models & puppets";
             await Controller.WaitIfNecessary();
 
             var graphicsData = new List<Unity_ObjectManager_GBA.GraphicsData>();
@@ -718,8 +718,8 @@ namespace R1Engine
                 defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision), 
                 localization: loc, 
                 cellSize: 8, 
-                getCollisionTypeNameFunc: x => ((GBA_TileCollisionType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
+                getCollisionTypeNameFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),
+                getCollisionTypeGraphicFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
                 sectors: scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray()
                 );
 

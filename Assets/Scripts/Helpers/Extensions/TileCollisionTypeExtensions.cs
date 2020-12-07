@@ -153,19 +153,32 @@
                 case R2_TileCollisionType.None:
                     return Unity_MapCollisionTypeGraphic.None;
 
-                case R2_TileCollisionType.Reactionary0:
-                    return Unity_MapCollisionTypeGraphic.Reactionary;
+                case R2_TileCollisionType.Direction_Left:
+                    return Unity_MapCollisionTypeGraphic.Direction_Left;
 
-                case R2_TileCollisionType.Reactionary1:
-                    return Unity_MapCollisionTypeGraphic.Reactionary;
+                case R2_TileCollisionType.Direction_Right:
+                    return Unity_MapCollisionTypeGraphic.Direction_Right;
 
-                case R2_TileCollisionType.Reactionary2:
-                    return Unity_MapCollisionTypeGraphic.Reactionary;
+                case R2_TileCollisionType.Direction_Up:
+                    return Unity_MapCollisionTypeGraphic.Direction_Up;
 
-                case R2_TileCollisionType.Reactionary3:
-                    return Unity_MapCollisionTypeGraphic.Reactionary;
+                case R2_TileCollisionType.Direction_Down:
+                    return Unity_MapCollisionTypeGraphic.Direction_Down;
 
-                case R2_TileCollisionType.Reactionary4:
+                case R2_TileCollisionType.Direction_UpLeft:
+                    return Unity_MapCollisionTypeGraphic.Direction_UpLeft;
+
+                case R2_TileCollisionType.Direction_UpRight:
+                    return Unity_MapCollisionTypeGraphic.Direction_UpRight;
+
+                case R2_TileCollisionType.Direction_DownLeft:
+                    return Unity_MapCollisionTypeGraphic.Direction_DownLeft;
+
+                case R2_TileCollisionType.Direction_DownRight:
+                    return Unity_MapCollisionTypeGraphic.Direction_DownRight;
+
+                case R2_TileCollisionType.Unknown_11:
+                case R2_TileCollisionType.Unknown_14:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
                 case R2_TileCollisionType.Cliff:
@@ -199,10 +212,16 @@
                     return Unity_MapCollisionTypeGraphic.Hill_Steep_Right;
 
                 case R2_TileCollisionType.ReactionaryEnemy:
-                    return Unity_MapCollisionTypeGraphic.Reactionary;
+                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
 
                 case R2_TileCollisionType.ReactionaryUnk:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
+
+                case R2_TileCollisionType.ValidTarget:
+                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+
+                case R2_TileCollisionType.InvalidTarget:
+                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;
@@ -240,7 +259,7 @@
                 case GBA_TileCollisionType.Climb_Spider_52:
                 case GBA_TileCollisionType.Climb_Spider_53:
                 case GBA_TileCollisionType.Climb_Spider_54:
-                    return Unity_MapCollisionTypeGraphic.Climb;
+                    return Unity_MapCollisionTypeGraphic.Climb; // TODO: New graphic
 
                 case GBA_TileCollisionType.Solid_Right_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
@@ -291,13 +310,13 @@
                 case GBA_TileCollisionType.Reactionary_Turn_90CounterClockwise:
                 case GBA_TileCollisionType.Reactionary_Turn_90Clockwise:
                 case GBA_TileCollisionType.Reactionary_Turn_45Clockwise:
-                    return Unity_MapCollisionTypeGraphic.Reactionary;
-                
+                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+
                 case GBA_TileCollisionType.AutoJump:
                     return Unity_MapCollisionTypeGraphic.Bounce;
 
                 case GBA_TileCollisionType.Water:
-                case GBA_TileCollisionType.Lava:
+                case GBA_TileCollisionType.Lava: // TODO: New graphic
                     return Unity_MapCollisionTypeGraphic.Water;
 
                 case GBA_TileCollisionType.InstaKill:
@@ -305,6 +324,62 @@
 
                 case GBA_TileCollisionType.Cliff:
                     return Unity_MapCollisionTypeGraphic.Cliff;
+
+                default:
+                    return Unity_MapCollisionTypeGraphic.Unknown0;
+            }
+        }
+
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBA_Mode7TileCollisionType collisionType)
+        {
+            switch (collisionType)
+            {
+                case GBA_Mode7TileCollisionType.Empty:
+                    return Unity_MapCollisionTypeGraphic.None;
+
+                case GBA_Mode7TileCollisionType.Damage:
+                    return Unity_MapCollisionTypeGraphic.Damage;
+
+                case GBA_Mode7TileCollisionType.Solid:
+                    return Unity_MapCollisionTypeGraphic.Solid;
+
+                case GBA_Mode7TileCollisionType.Direction_Down:
+                    return Unity_MapCollisionTypeGraphic.Direction_Down;
+                case GBA_Mode7TileCollisionType.Direction_DownLeft:
+                    return Unity_MapCollisionTypeGraphic.Direction_DownLeft;
+                case GBA_Mode7TileCollisionType.Direction_DownRight:
+                    return Unity_MapCollisionTypeGraphic.Direction_DownRight;
+                case GBA_Mode7TileCollisionType.Direction_Left:
+                    return Unity_MapCollisionTypeGraphic.Direction_Left;
+                case GBA_Mode7TileCollisionType.Direction_Right:
+                    return Unity_MapCollisionTypeGraphic.Direction_Right;
+                case GBA_Mode7TileCollisionType.Direction_Up:
+                    return Unity_MapCollisionTypeGraphic.Direction_Up;
+                case GBA_Mode7TileCollisionType.Direction_UpLeft:
+                    return Unity_MapCollisionTypeGraphic.Direction_UpLeft;
+                case GBA_Mode7TileCollisionType.Direction_UpRight:
+                    return Unity_MapCollisionTypeGraphic.Direction_UpRight;
+
+                case GBA_Mode7TileCollisionType.EnemyTrigger_Left:
+                case GBA_Mode7TileCollisionType.EnemyTrigger_Right:
+                case GBA_Mode7TileCollisionType.EnemyTrigger_Up:
+                case GBA_Mode7TileCollisionType.EnemyTrigger_Down:
+                case GBA_Mode7TileCollisionType.EnemyTrigger_UpLeft:
+                case GBA_Mode7TileCollisionType.EnemyTrigger_DownLeft:
+                case GBA_Mode7TileCollisionType.EnemyTrigger_DownRight:
+                case GBA_Mode7TileCollisionType.EnemyTrigger_UpRight:
+                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+
+                case GBA_Mode7TileCollisionType.Bounce:
+                    return Unity_MapCollisionTypeGraphic.Bounce;
+
+                case GBA_Mode7TileCollisionType.Bumper1:
+                case GBA_Mode7TileCollisionType.Bumper2:
+                    return Unity_MapCollisionTypeGraphic.Bounce; // TODO: New graphic
+
+                case GBA_Mode7TileCollisionType.Damage_FinishLine:
+                case GBA_Mode7TileCollisionType.FinishLine:
+                    return Unity_MapCollisionTypeGraphic.Exit; // TODO: New graphic
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;
@@ -406,6 +481,41 @@
 
                 case GBARRR_TileCollisionType.Slippery:
                     return Unity_MapCollisionTypeGraphic.Slippery;
+
+                default:
+                    return Unity_MapCollisionTypeGraphic.Unknown0;
+            }
+        }
+
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBARRR_Mode7TileCollisionType collisionType)
+        {
+            switch (collisionType)
+            {
+                case GBARRR_Mode7TileCollisionType.Empty:
+                    return Unity_MapCollisionTypeGraphic.None;
+
+                case GBARRR_Mode7TileCollisionType.Solid:
+                    return Unity_MapCollisionTypeGraphic.Solid;
+
+                case GBARRR_Mode7TileCollisionType.Speed:
+                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+
+                case GBARRR_Mode7TileCollisionType.Bounce:
+                    return Unity_MapCollisionTypeGraphic.Bounce;
+
+                case GBARRR_Mode7TileCollisionType.Damage:
+                    return Unity_MapCollisionTypeGraphic.Spikes;
+
+                case GBARRR_Mode7TileCollisionType.Slippery:
+                    return Unity_MapCollisionTypeGraphic.Slippery;
+
+                case GBARRR_Mode7TileCollisionType.SlowDown:
+                    return Unity_MapCollisionTypeGraphic.Damage;
+
+                case GBARRR_Mode7TileCollisionType.FinishLine1:
+                case GBARRR_Mode7TileCollisionType.FinishLine2:
+                case GBARRR_Mode7TileCollisionType.FinishLine3:
+                    return Unity_MapCollisionTypeGraphic.Exit; // TODO: New graphic
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;

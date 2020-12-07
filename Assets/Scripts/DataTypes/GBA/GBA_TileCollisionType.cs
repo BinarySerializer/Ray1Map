@@ -1,7 +1,5 @@
 ﻿namespace R1Engine
 {
-    // NOTE: The majority of these are different for Mode7 stages. Mode7 also has the following unique types: 48-59-60-61-62
-
     /// <summary>
     /// The collision types for GBA
     /// </summary>
