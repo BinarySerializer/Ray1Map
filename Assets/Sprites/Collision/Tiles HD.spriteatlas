@@ -31,12 +31,17 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: d5efc838a195a4f4ca87a9169cf23ae5, type: 3}
-    totalSpriteSurfaceArea: 2883584
+    totalSpriteSurfaceArea: 3932160
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 58236ae183f0c8e468ed1e2f3274e0b1, type: 3}
+  - {fileID: 21300000, guid: baeb250381d1abb4591c0abbdbc15384, type: 3}
+  - {fileID: 21300000, guid: 077b39a35308adc418a2844aaa358a47, type: 3}
+  - {fileID: 21300000, guid: 1d8b675512a9b6a4eadb996016f20900, type: 3}
   - {fileID: 21300000, guid: 4bf4c3f7acfddda4095d9c46cd5e1b7a, type: 3}
+  - {fileID: 21300000, guid: c56d5bf7a3650834dba7d3ddf49489b3, type: 3}
+  - {fileID: 21300000, guid: f6727a4951a72c04bb8bf316dfc6c955, type: 3}
   - {fileID: -3581508582439343098, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
   - {fileID: -8071664622476123821, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
   - {fileID: 4867547398572345846, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
@@ -79,9 +84,25 @@ SpriteAtlas:
   - {fileID: -2602771086480544207, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
   - {fileID: -8916883517313955387, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
   - {fileID: 7529079607414775979, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
+  - {fileID: 21300000, guid: 508e981ea756c3a4db375d9e46384bde, type: 3}
+  - {fileID: 21300000, guid: ec38880f4f0aa494598eaface72d7625, type: 3}
+  - {fileID: 7610186236831870203, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
+  - {fileID: 1404266636425041786, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
+  - {fileID: -2695103760611457254, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
+  - {fileID: 1241844653330762546, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
+  - {fileID: 3776810192206525565, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
+  - {fileID: 1344497748560519238, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
+  - {fileID: -7308731493771777079, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
+  - {fileID: -1224737178806774259, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
+  - {fileID: 21300000, guid: 56f99feff7482da4c8e6990cff8d217e, type: 3}
   m_PackedSpriteNamesToIndex:
   - Angle_Top_Right
+  - EndSlippery
+  - Rotate_CounterClockwise45
+  - Lava
   - Angle_Top_Left
+  - Rotate_CounterClockwise90
+  - Climb_Spider
   - Spikes
   - Slippery_Steep_Right
   - LedgeGrab
@@ -124,5 +145,16 @@ SpriteAtlas:
   - Solid
   - Water_NoSplash
   - Slippery
+  - Rotate_Clockwise90
+  - Climb_Walls
+  - EnemyDirection_DownRight
+  - EnemyDirection_Down
+  - EnemyDirection_Right
+  - EnemyDirection_UpLeft
+  - EnemyDirection_DownLeft
+  - EnemyDirection_Up
+  - EnemyDirection_UpRight
+  - EnemyDirection_Left
+  - Rotate_Clockwise45
   m_Tag: Tiles HD
   m_IsVariant: 0

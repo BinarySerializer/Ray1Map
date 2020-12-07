@@ -48,5 +48,19 @@
 
         Angle_Top_Left,
         Angle_Top_Right,
+
+
+        EnemyDirection_Up,
+        EnemyDirection_Down,
+        EnemyDirection_Left,
+        EnemyDirection_Right,
+        EndSlippery,
+        Climb_Spider,
+        Climb_Walls,
+        Rotate_Clockwise45,
+        Rotate_Clockwise90,
+        Rotate_CounterClockwise45,
+        Rotate_CounterClockwise90,
+        Lava,
     }
 }
