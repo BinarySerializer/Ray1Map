@@ -3,9 +3,9 @@
     /// <summary>
     /// The collision types for GBA
     /// </summary>
-    public enum GBA_TileCollisionType : sbyte
+    public enum GBA_TileCollisionType : byte
     {
-        Empty = -1,
+        Empty = 0xFF,
 
         Solid = 0,
 

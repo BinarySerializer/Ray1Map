@@ -212,7 +212,7 @@
                     return Unity_MapCollisionTypeGraphic.Hill_Steep_Right;
 
                 case R2_TileCollisionType.ReactionaryEnemy:
-                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Reactionary;
 
                 case R2_TileCollisionType.ReactionaryUnk:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
