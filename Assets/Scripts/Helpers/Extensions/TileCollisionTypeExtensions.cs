@@ -246,8 +246,10 @@
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
                 case GBA_TileCollisionType.Solid:
-                case GBA_TileCollisionType.EndSlippery:
                     return engineVersion != EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Solid : Unity_MapCollisionTypeGraphic.None;
+
+                case GBA_TileCollisionType.EndSlippery:
+                    return Unity_MapCollisionTypeGraphic.EndSlippery;
 
                 case GBA_TileCollisionType.Climb:
                     return Unity_MapCollisionTypeGraphic.Climb_Full;
@@ -255,11 +257,13 @@
                     return Unity_MapCollisionTypeGraphic.Climb_Hang;
 
                 case GBA_TileCollisionType.ClimbableWalls:
+                    return Unity_MapCollisionTypeGraphic.Climb_Walls;
+
                 case GBA_TileCollisionType.Climb_Spider_51:
                 case GBA_TileCollisionType.Climb_Spider_52:
                 case GBA_TileCollisionType.Climb_Spider_53:
                 case GBA_TileCollisionType.Climb_Spider_54:
-                    return Unity_MapCollisionTypeGraphic.Climb; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Climb_Spider;
 
                 case GBA_TileCollisionType.Solid_Right_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
@@ -303,21 +307,31 @@
                     return Unity_MapCollisionTypeGraphic.Direction_UpRight;
 
                 case GBA_TileCollisionType.EnemyTrigger_Left:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_Left;
                 case GBA_TileCollisionType.EnemyTrigger_Right:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_Right;
                 case GBA_TileCollisionType.EnemyTrigger_Up:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_Up;
                 case GBA_TileCollisionType.EnemyTrigger_Down:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_Down;
+
                 case GBA_TileCollisionType.Reactionary_Turn_45CounterClockwise:
+                    return Unity_MapCollisionTypeGraphic.Rotate_CounterClockwise45; 
                 case GBA_TileCollisionType.Reactionary_Turn_90CounterClockwise:
+                    return Unity_MapCollisionTypeGraphic.Rotate_CounterClockwise90; 
                 case GBA_TileCollisionType.Reactionary_Turn_90Clockwise:
+                    return Unity_MapCollisionTypeGraphic.Rotate_Clockwise90; 
                 case GBA_TileCollisionType.Reactionary_Turn_45Clockwise:
-                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Rotate_Clockwise45; 
 
                 case GBA_TileCollisionType.AutoJump:
                     return Unity_MapCollisionTypeGraphic.Bounce;
 
                 case GBA_TileCollisionType.Water:
-                case GBA_TileCollisionType.Lava: // TODO: New graphic
                     return Unity_MapCollisionTypeGraphic.Water;
+
+                case GBA_TileCollisionType.Lava:
+                    return Unity_MapCollisionTypeGraphic.Lava;
 
                 case GBA_TileCollisionType.InstaKill:
                     return Unity_MapCollisionTypeGraphic.Spikes;
@@ -361,9 +375,13 @@
                     return Unity_MapCollisionTypeGraphic.Direction_UpRight;
 
                 case GBA_Mode7TileCollisionType.EnemyTrigger_Left:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_Left;
                 case GBA_Mode7TileCollisionType.EnemyTrigger_Right:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_Right;
                 case GBA_Mode7TileCollisionType.EnemyTrigger_Up:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_Up;
                 case GBA_Mode7TileCollisionType.EnemyTrigger_Down:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_Down;
                 case GBA_Mode7TileCollisionType.EnemyTrigger_UpLeft:
                 case GBA_Mode7TileCollisionType.EnemyTrigger_DownLeft:
                 case GBA_Mode7TileCollisionType.EnemyTrigger_DownRight:
