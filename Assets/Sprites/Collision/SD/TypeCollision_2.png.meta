@@ -64,10 +64,10 @@ TextureImporter:
     second: Rotate_Clockwise90
   - first:
       213: -3496398249689967212
-    second: Rotate_CounterClockwise90
+    second: Rotate_Clockwise90
   - first:
       213: -5736621929414159237
-    second: Rotate_CounterClockwise45
+    second: Rotate_Clockwise45
   - first:
       213: -5984812877084800497
     second: Lava
@@ -558,7 +558,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rotate_Clockwise45
+      name: Rotate_CounterClockwise45
       rect:
         serializedVersion: 2
         x: 32
@@ -579,7 +579,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rotate_Clockwise90
+      name: Rotate_CounterClockwise90
       rect:
         serializedVersion: 2
         x: 48
@@ -600,7 +600,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rotate_CounterClockwise90
+      name: Rotate_Clockwise90
       rect:
         serializedVersion: 2
         x: 64
@@ -621,7 +621,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Rotate_CounterClockwise45
+      name: Rotate_Clockwise45
       rect:
         serializedVersion: 2
         x: 80
