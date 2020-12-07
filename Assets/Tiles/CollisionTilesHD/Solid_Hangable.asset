@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: EndSlippery
+  m_Name: Solid_Hangable
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: -403557844658274033, guid: 1b34c08603350434984995076dda802e,
+  m_Sprite: {fileID: 4867547398572345846, guid: f440200d427a0ab418d808b0845e3fb9,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:

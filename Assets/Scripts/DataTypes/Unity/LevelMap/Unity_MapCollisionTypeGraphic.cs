@@ -44,7 +44,8 @@
         Direction_DownRight,
         Climb_Full,
         Climb_Hang,
-        LedgeGrab,
+        Solid_Hangable,
+        Slippery_Hangable,
 
         Angle_Top_Left,
         Angle_Top_Right,
@@ -54,7 +55,6 @@
         EnemyDirection_Down,
         EnemyDirection_Left,
         EnemyDirection_Right,
-        EndSlippery,
         Climb_Spider,
         Climb_Walls,
         Rotate_Clockwise45,

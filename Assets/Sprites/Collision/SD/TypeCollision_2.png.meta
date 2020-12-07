@@ -4,7 +4,7 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: 1877323086903821328
-    second: LedgeGrab
+    second: Solid_Hangable
   - first:
       213: 4536573328369616790
     second: Climb_Hang
@@ -37,7 +37,7 @@ TextureImporter:
     second: Direction_UpLeft
   - first:
       213: -403557844658274033
-    second: EndSlippery
+    second: Slippery_Hangable
   - first:
       213: -3430106347616854512
     second: Climb_Walls
@@ -180,7 +180,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: LedgeGrab
+      name: Solid_Hangable
       rect:
         serializedVersion: 2
         x: 0
@@ -411,7 +411,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: EndSlippery
+      name: Slippery_Hangable
       rect:
         serializedVersion: 2
         x: 48

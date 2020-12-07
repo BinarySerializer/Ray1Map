@@ -241,7 +241,7 @@
                 case GBA_TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
                 case GBA_TileCollisionType.Ledge:
-                    return Unity_MapCollisionTypeGraphic.LedgeGrab;
+                    return Unity_MapCollisionTypeGraphic.Solid_Hangable;
                 case GBA_TileCollisionType.Passthrough:
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
@@ -249,7 +249,7 @@
                     return engineVersion != EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Solid : Unity_MapCollisionTypeGraphic.None;
 
                 case GBA_TileCollisionType.EndSlippery:
-                    return Unity_MapCollisionTypeGraphic.EndSlippery;
+                    return Unity_MapCollisionTypeGraphic.Slippery_Hangable;
 
                 case GBA_TileCollisionType.Climb:
                     return Unity_MapCollisionTypeGraphic.Climb_Full;
@@ -430,7 +430,7 @@
                     return Unity_MapCollisionTypeGraphic.Damage;
 
                 case GBARRR_TileCollisionType.PinObj:
-                    return Unity_MapCollisionTypeGraphic.LedgeGrab;
+                    return Unity_MapCollisionTypeGraphic.Solid_Hangable;
 
                 case GBARRR_TileCollisionType.Trigger_Right1:
                 case GBARRR_TileCollisionType.Trigger_Right2:

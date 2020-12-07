@@ -7,7 +7,7 @@ TextureImporter:
     second: Climb_Full
   - first:
       213: 4867547398572345846
-    second: LedgeGrab
+    second: Solid_Hangable
   - first:
       213: -5356422488573592705
     second: Climb_Hang
@@ -258,7 +258,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: LedgeGrab
+      name: Solid_Hangable
       rect:
         serializedVersion: 2
         x: 256

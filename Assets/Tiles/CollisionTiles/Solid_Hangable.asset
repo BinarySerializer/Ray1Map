@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: LedgeGrab
+  m_Name: Solid_Hangable
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 1877323086903821328, guid: 1b34c08603350434984995076dda802e,
     type: 3}

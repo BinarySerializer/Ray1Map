@@ -36,8 +36,8 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 28f9cd8388bfaf8448ea729408899799, type: 3}
+  - {fileID: -403557844658274033, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: 2834357983806616692, guid: 1b34c08603350434984995076dda802e, type: 3}
-  - {fileID: 1877323086903821328, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: 8653725111196545660, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: 4800029848246086115, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: 1293285418797953619, guid: 1b34c08603350434984995076dda802e, type: 3}
@@ -52,8 +52,8 @@ SpriteAtlas:
   - {fileID: 1580294909663003558, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: 3650989443003397875, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: -2407276464361511430, guid: 1b34c08603350434984995076dda802e, type: 3}
+  - {fileID: 1877323086903821328, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: -6766529816403859323, guid: 1b34c08603350434984995076dda802e, type: 3}
-  - {fileID: -403557844658274033, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: 4536573328369616790, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: -3512847774044218668, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: 7586653261181008106, guid: 1b34c08603350434984995076dda802e, type: 3}
@@ -93,8 +93,8 @@ SpriteAtlas:
   - {fileID: 306881212683075847, guid: cb3f3f5e1e59faf42abf6bc76b12e133, type: 3}
   m_PackedSpriteNamesToIndex:
   - Angle_Top_Left
+  - Slippery_Hangable
   - Rotate_Clockwise90
-  - LedgeGrab
   - EnemyDirection_Down
   - Direction_DownRight
   - Direction_Right
@@ -109,8 +109,8 @@ SpriteAtlas:
   - Direction_DownLeft
   - Climb_Full
   - Direction_Up
+  - Solid_Hangable
   - Direction_UpLeft
-  - EndSlippery
   - Climb_Hang
   - EnemyDirection_Up
   - Climb_Spider
