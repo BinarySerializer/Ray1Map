@@ -5,7 +5,9 @@
         public Mode7Type ObjectType { get; set; }
         public short XPosition { get; set; }
         public short YPosition { get; set; }
-        public byte[] Data { get; set; }
+        public byte[] Data0 { get; set; }
+        public short AnimFrame { get; set; }
+        public byte[] Data1 { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -13,7 +15,9 @@
             if (ObjectType != Mode7Type.Invalid) {
                 XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
-                Data = s.SerializeArray<byte>(Data, 32 - (2 * 3), name: nameof(Data));
+                Data0 = s.SerializeArray<byte>(Data0, 10, name: nameof(Data0));
+                AnimFrame = s.Serialize<short>(AnimFrame, name: nameof(AnimFrame));
+                Data1 = s.SerializeArray<byte>(Data1, 14, name: nameof(Data1));
             }
         }
 
