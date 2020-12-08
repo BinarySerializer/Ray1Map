@@ -53,5 +53,8 @@
         SpritesMode7Rayman,
         SpritesMode7UI,
         Mode7_SpritePalette,
+
+        Mode7_AnimationFrameIndices,
+        Mode7_ObjectTypes,
     }
 }

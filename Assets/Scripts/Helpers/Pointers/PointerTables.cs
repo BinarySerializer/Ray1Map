@@ -555,6 +555,9 @@ namespace R1Engine
                         [GBARRR_Pointer.SpritesMode7Rayman] = 0x086b6a68,
                         [GBARRR_Pointer.SpritesMode7UI] = 0x086eb3c8,
                         [GBARRR_Pointer.Mode7_SpritePalette] = 0x086a6128,
+
+                        [GBARRR_Pointer.Mode7_AnimationFrameIndices] = 0x08721a38,
+                        [GBARRR_Pointer.Mode7_ObjectTypes] = 0x087217f0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:
