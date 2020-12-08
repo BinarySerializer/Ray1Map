@@ -1408,6 +1408,11 @@ a:focus {
 .header-button.disabled-button {
 	pointer-events: none;
 }
+.header-button.removed-button {
+	pointer-events: none;
+	display: none;
+	visibility: hidden;
+}
 .settings-input-group.disabled {
 	pointer-events: none;
 	display: none;

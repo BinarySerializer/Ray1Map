@@ -374,6 +374,8 @@ public class WebCommunicator : MonoBehaviour {
 		};
 
 		// Add layers
+		var c = LevelEditorData.MainContext;
+		s.CanUseStateSwitchingMode = (c?.Settings?.MajorEngineVersion == MajorEngineVersion.Rayman1) == true;
 		var lvl = LevelEditorData.Level;
 		if (Controller.obj?.levelController?.controllerTilemap != null) {
 			var tc = Controller.obj?.levelController?.controllerTilemap;

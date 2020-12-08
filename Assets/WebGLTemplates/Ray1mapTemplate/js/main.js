@@ -404,25 +404,36 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	if(msg.hasOwnProperty("HasAnimatedTiles") && !msg.HasAnimatedTiles) {
 		$("#btn-animateTiles").addClass("disabled-button");
+		$("#btn-animateTiles").addClass("removed-button");
 	} else {
+		$("#btn-animateTiles").removeClass("removed-button");
 		selectButton($("#btn-animateTiles"), msg.AnimateTiles);
 	}
 	selectButton($("btn-showEditorObjects"), msg.ShowEditorObjects);
 	selectButton($("btn-showAlwaysObjects"), msg.ShowAlwaysObjects);
 	selectButton($("btn-showRayman"), msg.ShowRayman);
 	if(msg.hasOwnProperty("CanUseFreeCameraMode") && msg.CanUseFreeCameraMode) {
+		$("#btn-freeCameraMode").removeClass("removed-button");
 		selectButton($("#btn-freeCameraMode"), msg.FreeCameraMode);
 	} else {
+		$("#btn-freeCameraMode").addClass("removed-button");
 		$("#btn-freeCameraMode").addClass("disabled-button");
 	}
 
-	if(msg.hasOwnProperty("StateSwitchingMode")) {
-		selectButton($("#btn-stateSwitching"), msg.StateSwitchingMode !== "None");
-		if(msg.StateSwitchingMode === "Original") {
-			$("#btn-stateSwitching").html('<i class="icon-arrow-shuffle"></i>');
-		} else {
-			$("#btn-stateSwitching").html('<i class="icon-arrow-repeat"></i>');
+	if(msg.hasOwnProperty("CanUseStateSwitchingMode") && msg.CanUseStateSwitchingMode) {
+		$("#btn-stateSwitching").removeClass("removed-button");
+		$("#btn-stateSwitching").removeClass("disabled-button");
+		if(msg.hasOwnProperty("StateSwitchingMode")) {
+			selectButton($("#btn-stateSwitching"), msg.StateSwitchingMode !== "None");
+			if(msg.StateSwitchingMode === "Original") {
+				$("#btn-stateSwitching").html('<i class="icon-arrow-shuffle"></i>');
+			} else {
+				$("#btn-stateSwitching").html('<i class="icon-arrow-repeat"></i>');
+			}
 		}
+	} else {
+		$("#btn-stateSwitching").addClass("removed-button");
+		$("#btn-stateSwitching").addClass("disabled-button");
 	}
 	if(msg.hasOwnProperty("Palettes") && msg.Palettes.length > 1) {
 		paletteSelector.empty();

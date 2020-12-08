@@ -55,6 +55,7 @@ public class WebJSON {
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 
 		public bool? CanUseFreeCameraMode { get; set; }
+		public bool? CanUseStateSwitchingMode { get; set; }
 		public bool? HasAnimatedTiles { get; set; }
 		
 		public Layer[] Layers { get; set; }
