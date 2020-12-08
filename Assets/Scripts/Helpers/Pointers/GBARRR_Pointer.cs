@@ -22,8 +22,9 @@
         Mode7_Objects, // 0x020127B0 (32-byte structs)
 
         // Unknown non-compressed Mode7 pointer arrays
-        Mode7_Array1, // 0x02000240 (length 0x7D0) - length seems to be 304 for first level and 220 for second? Object related data, two shorts.
-        Mode7_Array2, // 0x05000200 (length 0x100) - sprite palette?
+        Mode7_Waypoints, // 0x02000240 (length 0x7D0) - length seems to be 304 for first level and 220 for second? Object related data, two shorts.
+        Mode7_WaypointsCount,
+        Mode7_LevelSpritePalette, // 0x05000200 (length 0x100) - sprite palette?
         Mode7_Array3, // 0x05000200 (length 0x80)
 
         Mode7UnknownPal, // 05000200 (length 0x10) - this is not in an array and not compressed

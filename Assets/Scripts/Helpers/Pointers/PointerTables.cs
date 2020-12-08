@@ -480,8 +480,9 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_BG1Palette] = 0x0870820c,
                         [GBARRR_Pointer.Mode7_BG0Palette] = 0x087081e8,
 
-                        [GBARRR_Pointer.Mode7_Array1] = 0x08708174, // Appears to be very different than on EU
-                        [GBARRR_Pointer.Mode7_Array2] = 0x08708150,
+                        [GBARRR_Pointer.Mode7_Waypoints] = 0x08708174, // Appears to be very different than on EU
+                        [GBARRR_Pointer.Mode7_WaypointsCount] = 0x08708180,
+                        [GBARRR_Pointer.Mode7_LevelSpritePalette] = 0x08708150,
                         [GBARRR_Pointer.Mode7_Array3] = 0x08708168,
 
                         [GBARRR_Pointer.Mode7UnknownPal] = 0x0868C9B8,
@@ -524,8 +525,9 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_BG1Palette] = 0x0872197c,
                         [GBARRR_Pointer.Mode7_BG0Palette] = 0x08721958,
 
-                        [GBARRR_Pointer.Mode7_Array1] = 0x087218e4,
-                        [GBARRR_Pointer.Mode7_Array2] = 0x087218c0,
+                        [GBARRR_Pointer.Mode7_Waypoints] = 0x087218e4,
+                        [GBARRR_Pointer.Mode7_WaypointsCount] = 0x087218f0,
+                        [GBARRR_Pointer.Mode7_LevelSpritePalette] = 0x087218c0,
                         [GBARRR_Pointer.Mode7_Array3] = 0x087218d8,
 
                         [GBARRR_Pointer.Mode7UnknownPal] = 0x086a6128,

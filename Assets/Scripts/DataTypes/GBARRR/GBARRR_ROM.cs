@@ -64,6 +64,10 @@ namespace R1Engine
         public byte[] Mode7_CollisionTypes { get; set; }
         public ushort[] Mode7_CollisionMapData { get; set; }
 
+        public Pointer[] Mode7_WaypointsPointers { get; set; }
+        public short[] Mode7_WaypointsCount { get; set; }
+        public GBARRR_Mode7Waypoint[] Mode7_Waypoints { get; set; }
+
         // Menu
         public Pointer[] Menu_Pointers { get; set; }
         public byte[][] Menu_Tiles { get; set; }
@@ -192,6 +196,8 @@ namespace R1Engine
                 Mode7_BG0PalettePointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG0Palette], () => s.SerializePointerArray(Mode7_BG0PalettePointers, 3, name: nameof(Mode7_BG0PalettePointers)));
                 Mode7_ObjectsPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Objects], () => s.SerializePointerArray(Mode7_ObjectsPointers, 3, name: nameof(Mode7_ObjectsPointers)));
                 Mode7_CollisionTypesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_CollisionTypesArray], () => s.SerializePointerArray(Mode7_CollisionTypesPointers, 3, name: nameof(Mode7_CollisionTypesPointers)));
+                Mode7_WaypointsCount = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_WaypointsCount], () => s.SerializeArray<short>(Mode7_WaypointsCount, 3, name: nameof(Mode7_WaypointsCount)));
+                Mode7_WaypointsPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Waypoints], () => s.SerializePointerArray(Mode7_WaypointsPointers, 3, name: nameof(Mode7_WaypointsPointers)));
 
                 // Serialize compressed tile data
                 s.DoAt(Mode7_MapTilesPointers[s.GameSettings.Level], () => {
@@ -232,11 +238,21 @@ namespace R1Engine
                 {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_Objects = s.SerializeObjectArray<GBARRR_Mode7Object>(Mode7_Objects, 141, name: nameof(Mode7_Objects)));
                 });
-                s.DoAt(Mode7_CollisionMapDataPointers[s.GameSettings.Level], () => {
-                    Mode7_CollisionMapData = s.SerializeArray<ushort>(Mode7_CollisionMapData, 256 * 256, name: nameof(Mode7_CollisionTypes));
-                });
+                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAEU) {
+                    s.DoAt(Mode7_CollisionMapDataPointers[s.GameSettings.Level], () => {
+                        Mode7_CollisionMapData = s.SerializeArray<ushort>(Mode7_CollisionMapData, 256 * 256, name: nameof(Mode7_CollisionMapData));
+                    });
+                } else {
+                    s.DoAt(Mode7_CollisionMapDataPointers[s.GameSettings.Level], () => {
+                        s.DoEncoded(new RNCEncoder(hasHeader: false), () =>
+                            Mode7_CollisionMapData = s.SerializeArray<ushort>(Mode7_CollisionMapData, 256 * 256, name: nameof(Mode7_CollisionMapData)));
+                    });
+                }
                 s.DoAt(Mode7_CollisionTypesPointers[s.GameSettings.Level], () => {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_CollisionTypes = s.SerializeArray<byte>(Mode7_CollisionTypes, s.CurrentLength, name: nameof(Mode7_CollisionTypes)));
+                });
+                s.DoAt(Mode7_WaypointsPointers[s.GameSettings.Level], () => {
+                    Mode7_Waypoints = s.SerializeObjectArray<GBARRR_Mode7Waypoint>(Mode7_Waypoints, Mode7_WaypointsCount[s.GameSettings.Level], name: nameof(Mode7_Waypoints));
                 });
 
                 // Serialize palettes

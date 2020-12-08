@@ -416,8 +416,8 @@ namespace R1Engine
                 if (flags.HasFlag(ExportFlags.AdditionalBlocks)) {
                     var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
 
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Array1], nameof(GBARRR_Pointer.Mode7_Array1), 3, compressed: false, 0x7D0);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Array2], nameof(GBARRR_Pointer.Mode7_Array2), 3, compressed: false);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Waypoints], nameof(GBARRR_Pointer.Mode7_Waypoints), 3, compressed: false, 0x7D0);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_LevelSpritePalette], nameof(GBARRR_Pointer.Mode7_LevelSpritePalette), 3, compressed: false);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Array3], nameof(GBARRR_Pointer.Mode7_Array3), 3, compressed: false, 0x80);
 
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_0], nameof(GBARRR_Pointer.RNC_0));
@@ -633,8 +633,8 @@ namespace R1Engine
                 var objmanager = new Unity_ObjectManager(context);
 
                 var objLength = rom.Mode7_Objects.FindItemIndex(x => x.ObjectType == GBARRR_Mode7Object.Mode7Type.Invalid);
-                var mode7Objects = rom.Mode7_Objects.Take(objLength).Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager)).ToList();
-
+                var mode7Waypoints = rom.Mode7_Waypoints.Select(x => (Unity_Object)new Unity_Object_GBARRRMode7Waypoint(x, objmanager));
+                var mode7Objects = rom.Mode7_Objects.Take(objLength).Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager)).Concat(mode7Waypoints).ToList();
                 return new Unity_Level(
                     maps: new Unity_Map[]
                     {
