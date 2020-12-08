@@ -88,8 +88,8 @@ public class WebCommunicator : MonoBehaviour {
 					}
 					// TODO: keep state indices so updates on animation speed, etc. can be sent
 					//selectedPersoStateIndex_ = selectedPerso_.currentState;
-					Send(GetSelectionMessageJSON(includeLists: true, includeDetails: true));
 				}
+				Send(GetSelectionMessageJSON(includeLists: true, includeDetails: true));
 			}
 
 			// Check selected object's changed values

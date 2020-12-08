@@ -1296,7 +1296,7 @@ function setSelection(obj) {
 		sendMessage(jsonObj);
 	}
 }
-function clearSelection() {
+function clearSelection(send) {
 	description_column.addClass('invisible');
 	$(".objects-item").removeClass("current-objects-item");
 	/*setTimeout(function(){
@@ -1308,7 +1308,7 @@ function clearSelection() {
 			//Offset: "null"
 		}
 	}
-	sendMessage(jsonObj);
+	if(send) sendMessage(jsonObj);
 }
 function handleMessage_selection_updateObject(oldObj, newObj) {
 	// Only properties that can be modified
@@ -1376,7 +1376,9 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 function handleMessage_selection(msg) {
 	let selection = msg;
 	if(!selection.hasOwnProperty("Object")) {
-		// Deselection. Can only happen from web version, so do nothing
+		// Deselection
+		clearSelection(false);
+		btn_close_description.addClass("disabled-button");
 		return;
 	}
 	let object = selection.Object;
@@ -2020,7 +2022,7 @@ $(function() {
 	});
 	
 	$(document).on('click', "#btn-close-description", function() {
-		clearSelection();
+		clearSelection(true);
 		$(this).addClass("disabled-button");
 		return false;
 	});
