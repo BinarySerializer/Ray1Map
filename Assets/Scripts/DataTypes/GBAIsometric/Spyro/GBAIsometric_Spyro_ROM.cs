@@ -35,7 +35,8 @@ namespace R1Engine
         public GBAIsometric_Spyro_UnkStruct[] UnkStructs { get; set; }
         public GBAIsometric_Spyro_CutsceneMap[] CutsceneMaps { get; set; }
 
-        public RGBA5551Color[] CommonPalette { get; set; }
+        public RGBA5551Color[] Spyro2_CommonPalette { get; set; }
+        public RGBA5551Color[][] Spyro2_AnimSetPalettes { get; set; }
 
         public GBAIsometric_Spyro3_State_NPC[] States_Spyro3_NPC { get; set; }
         public GBAIsometric_Spyro3_State_DoorTypes[] States_Spyro3_DoorTypes { get; set; }
@@ -154,9 +155,24 @@ namespace R1Engine
             LevelNames = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelNames), () => s.SerializeObjectArray<GBAIsometric_LocIndex>(LevelNames, manager.TotalLevelsCount, name: nameof(LevelNames)));
             MenuPages = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.MenuPages), () => s.SerializeObjectArray<GBAIsometric_Spyro_MenuPage>(MenuPages, manager.MenuPageCount, name: nameof(MenuPages)));
 
-            // Serialize common palette for Spyro 2
+            // Serialize palettes for Spyro 2
             if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
-                CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(CommonPalette, 256, name: nameof(CommonPalette)));
+            {
+                Spyro2_CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Spyro2_CommonPalette, 256, name: nameof(Spyro2_CommonPalette)));
+
+                var palInfo = s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameUS ? Spyro2_PalInfoUS : Spyro2_PalInfoEU;
+
+                if (Spyro2_AnimSetPalettes == null)
+                    Spyro2_AnimSetPalettes = new RGBA5551Color[palInfo.Length][];
+
+                for (int i = 0; i < Spyro2_AnimSetPalettes.Length; i++)
+                {
+                    var index = palInfo[i].BlockIndex;
+
+                    if (index != -1)
+                        Spyro2_AnimSetPalettes[i] = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)index).DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Spyro2_AnimSetPalettes[i], size / 2, name: $"{nameof(Spyro2_AnimSetPalettes)}[{i}]"));
+                }
+            }
 
             // Serialize object states
             States_Spyro3_NPC = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.States_Spyro3_NPC), () => s.SerializeObjectArray<GBAIsometric_Spyro3_State_NPC>(States_Spyro3_NPC, 49, name: nameof(States_Spyro3_NPC)));
@@ -246,5 +262,196 @@ namespace R1Engine
             else
                 return settings.Level;
         }
+
+        public class PalInfo
+        {
+            public PalInfo(bool usesCommonPalette) : this(-1, usesCommonPalette) { }
+            public PalInfo(long blockIndex = -1, bool usesCommonPalette = true)
+            {
+                BlockIndex = blockIndex;
+                UsesCommonPalette = usesCommonPalette;
+            }
+
+            public long BlockIndex { get; }
+            public bool UsesCommonPalette { get; }
+        }
+
+        public PalInfo[] Spyro2_PalInfoUS => new PalInfo[]
+        {
+            // TODO: Add remaining pal block indices
+
+            // HUD/Menu
+            new PalInfo(false), // AnimSet 0
+            new PalInfo(78, false), // AnimSet 1
+            new PalInfo(false), // AnimSet 2
+            new PalInfo(false), // AnimSet 3
+            new PalInfo(false), // AnimSet 4
+            new PalInfo(false), // AnimSet 5
+            new PalInfo(227, false), // AnimSet 6
+
+            // Game
+            new PalInfo(315), // AnimSet 7
+            new PalInfo(310), // AnimSet 8
+            new PalInfo(333), // AnimSet 9
+            new PalInfo(317), // AnimSet 10
+            new PalInfo(339), // AnimSet 11
+            new PalInfo(335), // AnimSet 12
+            new PalInfo(315), // AnimSet 13
+            new PalInfo(), // AnimSet 14
+            new PalInfo(320), // AnimSet 15
+            new PalInfo(339), // AnimSet 16
+            new PalInfo(333), // AnimSet 17
+            new PalInfo(), // AnimSet 18
+            new PalInfo(328), // AnimSet 19
+            new PalInfo(328), // AnimSet 20
+            new PalInfo(), // AnimSet 21
+            new PalInfo(310), // AnimSet 22
+            new PalInfo(327), // AnimSet 23
+            new PalInfo(344), // AnimSet 24
+            new PalInfo(313), // AnimSet 25
+            new PalInfo(337), // AnimSet 26
+            new PalInfo(), // AnimSet 27
+            new PalInfo(), // AnimSet 28
+            new PalInfo(320), // AnimSet 29
+            new PalInfo(310), // AnimSet 30
+            new PalInfo(320), // AnimSet 31
+            new PalInfo(), // AnimSet 32
+            new PalInfo(339), // AnimSet 33
+            new PalInfo(), // AnimSet 34
+            new PalInfo(), // AnimSet 35
+            new PalInfo(339), // AnimSet 36
+            new PalInfo(344), // AnimSet 37
+            new PalInfo(), // AnimSet 38
+            new PalInfo(327), // AnimSet 39
+            new PalInfo(327), // AnimSet 40
+            new PalInfo(341), // AnimSet 41
+            new PalInfo(341), // AnimSet 42
+            new PalInfo(), // AnimSet 43
+            new PalInfo(318), // AnimSet 44
+            new PalInfo(333), // AnimSet 45
+            new PalInfo(332), // AnimSet 46
+            new PalInfo(312), // AnimSet 47
+            new PalInfo(330), // AnimSet 48
+            new PalInfo(), // AnimSet 49
+            new PalInfo(335), // AnimSet 50
+            new PalInfo(), // AnimSet 51
+            new PalInfo(), // AnimSet 52
+            new PalInfo(332), // AnimSet 53
+            new PalInfo(339), // AnimSet 54
+            new PalInfo(335), // AnimSet 55
+            new PalInfo(), // AnimSet 56
+            new PalInfo(339), // AnimSet 57
+            new PalInfo(344), // AnimSet 58
+            new PalInfo(333), // AnimSet 59
+            new PalInfo(339), // AnimSet 60
+            new PalInfo(339), // AnimSet 61
+            new PalInfo(344), // AnimSet 62
+            new PalInfo(310), // AnimSet 63
+            new PalInfo(339), // AnimSet 64
+            new PalInfo(), // AnimSet 65
+            new PalInfo(333), // AnimSet 66
+            new PalInfo(), // AnimSet 67
+            new PalInfo(330), // AnimSet 68
+            new PalInfo(330), // AnimSet 69
+            new PalInfo(320), // AnimSet 70
+            new PalInfo(342), // AnimSet 71
+            new PalInfo(), // AnimSet 72
+            new PalInfo(), // AnimSet 73
+            new PalInfo(327), // AnimSet 74
+            new PalInfo(), // AnimSet 75
+            new PalInfo(339), // AnimSet 76
+            new PalInfo(), // AnimSet 77
+            new PalInfo(342), // AnimSet 78
+            new PalInfo(), // AnimSet 79
+            new PalInfo(333), // AnimSet 80
+            new PalInfo(335), // AnimSet 81
+            new PalInfo(327), // AnimSet 82
+            new PalInfo(317), // AnimSet 83
+            new PalInfo(), // AnimSet 84
+            new PalInfo(333), // AnimSet 85
+            new PalInfo(333), // AnimSet 86
+            new PalInfo(339), // AnimSet 87
+            new PalInfo(), // AnimSet 88
+            new PalInfo(317), // AnimSet 89
+            new PalInfo(), // AnimSet 90
+            new PalInfo(323), // AnimSet 91
+            new PalInfo(328), // AnimSet 92
+            new PalInfo(323), // AnimSet 93
+            new PalInfo(323), // AnimSet 94
+            new PalInfo(), // AnimSet 95
+            new PalInfo(344), // AnimSet 96
+            new PalInfo(342), // AnimSet 97
+            new PalInfo(323), // AnimSet 98
+            new PalInfo(312), // AnimSet 99
+            new PalInfo(310), // AnimSet 100
+            new PalInfo(), // AnimSet 101
+            new PalInfo(), // AnimSet 102
+            new PalInfo(323), // AnimSet 103
+            new PalInfo(333), // AnimSet 104
+            new PalInfo(), // AnimSet 105
+            new PalInfo(333), // AnimSet 106
+            new PalInfo(317), // AnimSet 107
+            new PalInfo(), // AnimSet 108
+            new PalInfo(342), // AnimSet 109
+            new PalInfo(344), // AnimSet 110
+            new PalInfo(323), // AnimSet 111
+            new PalInfo(), // AnimSet 112
+            new PalInfo(333), // AnimSet 113
+            new PalInfo(339), // AnimSet 114
+            new PalInfo(339), // AnimSet 115
+            new PalInfo(333), // AnimSet 116
+            new PalInfo(320), // AnimSet 117
+            new PalInfo(320), // AnimSet 118
+            new PalInfo(339), // AnimSet 119
+            new PalInfo(), // AnimSet 120
+            new PalInfo(327), // AnimSet 121
+
+            // Agent 9
+            new PalInfo(1216, false), // AnimSet 122
+            new PalInfo(1216, false), // AnimSet 123
+            new PalInfo(1216, false), // AnimSet 124
+            new PalInfo(1216, false), // AnimSet 125
+            new PalInfo(1216, false), // AnimSet 126
+            new PalInfo(1216, false), // AnimSet 127
+            new PalInfo(1216, false), // AnimSet 128
+            new PalInfo(1216, false), // AnimSet 129
+            new PalInfo(1216, false), // AnimSet 130
+            new PalInfo(1216, false), // AnimSet 131
+            new PalInfo(1216, false), // AnimSet 132
+            new PalInfo(1216, false), // AnimSet 133
+            new PalInfo(1216, false), // AnimSet 134
+            new PalInfo(1216, false), // AnimSet 135
+            new PalInfo(1216, false), // AnimSet 136
+            new PalInfo(1216, false), // AnimSet 137
+            new PalInfo(1216, false), // AnimSet 138
+            new PalInfo(1216, false), // AnimSet 139
+            new PalInfo(1216, false), // AnimSet 140
+            new PalInfo(1216, false), // AnimSet 141
+            new PalInfo(1216, false), // AnimSet 142
+            new PalInfo(1216, false), // AnimSet 143
+            new PalInfo(1216, false), // AnimSet 144
+            new PalInfo(1216, false), // AnimSet 145
+            new PalInfo(1216, false), // AnimSet 146
+            new PalInfo(1216, false), // AnimSet 147
+            new PalInfo(1216, false), // AnimSet 148
+            new PalInfo(1216, false), // AnimSet 149
+            new PalInfo(1215, false), // AnimSet 150
+            new PalInfo(1216, false), // AnimSet 151
+
+            // Other (Sparx Panic etc.)
+            new PalInfo(), // AnimSet 152
+            new PalInfo(), // AnimSet 153
+            new PalInfo(), // AnimSet 154
+            new PalInfo(), // AnimSet 155
+            new PalInfo(), // AnimSet 156
+            new PalInfo(), // AnimSet 157
+            new PalInfo(), // AnimSet 158
+            new PalInfo(), // AnimSet 159
+            new PalInfo(), // AnimSet 160
+            new PalInfo(), // AnimSet 161
+        };
+
+        // TODO: Fill out
+        public PalInfo[] Spyro2_PalInfoEU => new PalInfo[] { };
     }
 }

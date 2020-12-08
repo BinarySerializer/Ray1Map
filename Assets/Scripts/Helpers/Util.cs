@@ -666,7 +666,7 @@ namespace R1Engine
         }).ToArray();
         public static Color[][] ConvertAndSplitGBAPalette(RGBA5551Color[] palette, bool firstTransparent = true)
             => palette
-            .Split(16, 16)
+            .Split(palette.Length / 16, 16)
             .Select(p => ConvertGBAPalette(p, transparentIndex: firstTransparent ? (int?)0 : null))
             .ToArray();
         public static Color[][] ConvertAndSplitGBCPalette(RGBA5551Color[] palette, int? transparentIndex = 0)
