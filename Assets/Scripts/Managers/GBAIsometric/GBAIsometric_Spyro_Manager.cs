@@ -175,28 +175,15 @@ namespace R1Engine
                 foreach (var map in rom.LevelMaps ?? new GBAIsometric_Spyro_LevelMap[0])
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Maps", $"{map.LevelID}.png"), map.ToTexture2D().EncodeToPNG());
 
-                var objPal = rom.GetLevelData(settings).ObjPalette;
-
-                if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 0)
-                {
-                    var lvlPal = objPal;
-                    objPal = rom.CommonPalette;
-
-                    for (int i = 0; i < 256; i++)
-                    {
-                        if (lvlPal[i].Color5551 != 0)
-                            objPal[i] = lvlPal[i];
-                    }
-                }
+                var animSetPalettes = GetAnimSetPalettes(context, rom);
 
                 // Export animation sets
                 for (var i = 0; i < rom.AnimSets.Length; i++)
                 {
                     var animSet = rom.AnimSets[i];
                     var outPath = Path.Combine(outputPath, "AnimSets", $"{i}");
-                    var pal = Util.ConvertAndSplitGBAPalette(objPal);
 
-                    await ExportAnimSetAsync(outPath, animSet, pal);
+                    await ExportAnimSetAsync(outPath, animSet, animSetPalettes[i]);
                 }
             }
         }
@@ -366,7 +353,7 @@ namespace R1Engine
                     cellSize: CellSize,
                     getCollisionTypeNameFunc: collNameFunc,
                     getCollisionTypeGraphicFunc: collGraphicFunc,
-                    localization: LoadLocalization(context, rom)) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
+                    localization: LoadLocalization(rom)) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
             }
 
             var levelData = rom.GetLevelData(context.Settings);
@@ -504,11 +491,11 @@ namespace R1Engine
                 getCollisionTypeGraphicFunc: collGraphicFunc,
                 defaultMap: 1,
                 isometricData: isometricData,
-                localization: LoadLocalization(context, rom),
+                localization: LoadLocalization(rom),
                 defaultCollisionMap: validMaps.Length - 1) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
         }
 
-        public Dictionary<string, string[]> LoadLocalization(Context context, GBAIsometric_Spyro_ROM rom)
+        public Dictionary<string, string[]> LoadLocalization(GBAIsometric_Spyro_ROM rom)
         {
             var langages = GetLanguages.ToArray();
 
@@ -521,33 +508,75 @@ namespace R1Engine
 
         public IEnumerable<Unity_ObjectManager_GBAIsometricSpyro.AnimSet> GetAnimSets(Context context, GBAIsometric_Spyro_ROM rom)
         {
-            var objPal = rom.GetLevelData(context.Settings).ObjPalette;
+            var animSetPalettes = GetAnimSetPalettes(context, rom);
 
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 0)
-            {
-                var lvlPal = objPal;
-                objPal = rom.CommonPalette;
-
-                for (int i = 0; i < 256; i++)
-                {
-                    if (lvlPal[i].Color5551 != 0)
-                        objPal[i] = lvlPal[i];
-                }
-            }
-
-            var pal = Util.ConvertAndSplitGBAPalette(objPal);
+            var index = 0;
 
             // Add animation sets
             foreach (var animSet in rom.AnimSets)
             {
+                var animSetIndex = index;
+
                 yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock.Animations.Select(x =>
                 {
                     return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(
-                        () => GetAnimationFrames(animSet, x, pal).Select(f => f.CreateSprite()).ToArray(),
-                        x.AnimSpeed,
-                        GetFramePositions(animSet, x));
+                        animFrameFunc: () => GetAnimationFrames(animSet, x, animSetPalettes[animSetIndex]).Select(f => f.CreateSprite()).ToArray(),
+                        animSpeed: x.AnimSpeed,
+                        positions: GetFramePositions(x));
                 }).ToArray());
+
+                index++;
             }
+        }
+
+        public Color[][][] GetAnimSetPalettes(Context context, GBAIsometric_Spyro_ROM rom)
+        {
+            var animSetPalettes = new Color[rom.AnimSets.Length][][];
+
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+            {
+                var objPal = rom.GetLevelData(context.Settings).ObjPalette;
+                var pal = Util.ConvertAndSplitGBAPalette(objPal);
+
+                for (int i = 0; i < animSetPalettes.Length; i++)
+                    animSetPalettes[i] = pal;
+            }
+            else
+            {
+                var cachedPalettes = new Dictionary<long, Color[][]>();
+                var palInfo = context.Settings.GameModeSelection == GameModeSelection.SpyroSeasonFlameUS ? rom.Spyro2_PalInfoUS : rom.Spyro2_PalInfoEU;
+                var commonPal = rom.Spyro2_CommonPalette;
+
+                for (int i = 0; i < palInfo.Length; i++)
+                {
+                    var p = palInfo[i];
+                    var pal = rom.Spyro2_AnimSetPalettes[i] ?? rom.GetLevelData(context.Settings).ObjPalette;
+
+                    if (!cachedPalettes.ContainsKey(p.BlockIndex))
+                    {
+                        if (p.UsesCommonPalette || p.BlockIndex == -1)
+                        {
+                            var newPal = (RGBA5551Color[])commonPal.Clone();
+
+                            for (int j = 0; j < 256; j++)
+                            {
+                                if (pal[j].Color5551 != 0)
+                                    newPal[j] = pal[j];
+                            }
+
+                            cachedPalettes[p.BlockIndex] = Util.ConvertAndSplitGBAPalette(newPal);
+                        }
+                        else
+                        {
+                            cachedPalettes[p.BlockIndex] = Util.ConvertAndSplitGBAPalette(pal);
+                        }
+                    }
+
+                    animSetPalettes[i] = cachedPalettes[p.BlockIndex];
+                }
+            }
+
+            return animSetPalettes;
         }
 
         // Recreated from function at 0x08050200 (US rom for Spyro3)
@@ -708,7 +737,7 @@ namespace R1Engine
             return new Unity_MapTileMap(tileSetTex, CellSize);
         }
 
-        public Vector2Int[] GetFramePositions(GBAIsometric_Spyro_AnimSet animSet, GBAIsometric_Spyro_Animation anim) {
+        public Vector2Int[] GetFramePositions(GBAIsometric_Spyro_Animation anim) {
             Vector2Int[] pos = new Vector2Int[anim.Frames.Length + (anim.PingPong ? (anim.Frames.Length - 2) : 0)];
             for (int i = 0; i < anim.Frames.Length; i++) {
                 var f = anim.Frames[i];
@@ -755,7 +784,7 @@ namespace R1Engine
                 Texture2D tex = TextureHelpers.CreateTexture2D(w, h, clear: true);
                 int totalTileInd = 0;
 
-                void addObjToFrame(byte spriteSize, GBAIsometric_Spyro_AnimPattern.Shape spriteShape, int xpos, int ypos, int relativeTile, byte palIndex)
+                void addObjToFrame(byte spriteSize, GBAIsometric_Spyro_AnimPattern.Shape spriteShape, int xpos, int ypos, int relativeTile, int palIndex)
                 {
                     // Get size
                     Util.GetGBASize((byte)spriteShape, spriteSize, out int width, out int height);
@@ -763,6 +792,9 @@ namespace R1Engine
                     //var tileIndex = relativeTile;
                     var tileIndex = frameImg.TileIndex + totalTileInd;
                     totalTileInd += width * height;
+
+                    // Clamp palette index
+                    palIndex = Mathf.Clamp(palIndex, 0, pal.Length - 1);
 
                     for (int y = 0; y < height; y++)
                     {
@@ -896,6 +928,53 @@ namespace R1Engine
                     outputStr.CopyToClipboard();
                 }
             }
+        }
+        public async UniTask CreateAnimSetPalBlockTableAsync(GameSettings settings)
+        {
+            // Keep track of palettes
+            var palTable = new int?[AnimSetsCount];
+
+            // Enumerate every level
+            foreach (var world in GetLevels(settings).First().Worlds)
+            {
+                foreach (var lev in world.Maps)
+                {
+                    if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && world.Index == 4)
+                        continue;
+
+                    var levSettings = new GameSettings(settings.GameModeSelection, settings.GameDirectory, world.Index, lev);
+
+                    using (var context = new Context(levSettings))
+                    {
+                        await LoadFilesAsync(context);
+
+                        // Load level
+                        var level = await LoadAsync(context, false);
+
+                        // Init the objects
+                        level.ObjManager.InitObjects(level);
+
+                        // Get the pal block index
+                        var palBlockIndex = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context).GetLevelData(levSettings).ObjPaletteIndex.Index;
+
+                        // Enumerate every object
+                        foreach (var obj in level.EventData.OfType<Unity_Object_GBAIsometricSpyro>().Where(x => x.AnimSetIndex != -1))
+                            palTable[obj.AnimSetIndex] = palBlockIndex;
+                        foreach (var obj in level.EventData.OfType<Unity_Object_GBAIsometricSpyro2_2D>().Where(x => x.AnimSetIndex != -1))
+                            palTable[obj.AnimSetIndex] = palBlockIndex;
+                    }
+
+                    Debug.Log($"Finished level {world.Index}-{lev}");
+                    await Controller.WaitIfNecessary();
+                }
+            }
+
+            var output = String.Empty;
+
+            for (int i = 0; i < palTable.Length; i++)
+                output += $"new PalInfo({palTable[i]}), // AnimSet {i}{Environment.NewLine}";
+
+            output.CopyToClipboard();
         }
     }
 }
