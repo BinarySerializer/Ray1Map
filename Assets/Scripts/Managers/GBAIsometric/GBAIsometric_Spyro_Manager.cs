@@ -175,28 +175,15 @@ namespace R1Engine
                 foreach (var map in rom.LevelMaps ?? new GBAIsometric_Spyro_LevelMap[0])
                     Util.ByteArrayToFile(Path.Combine(outputPath, "Maps", $"{map.LevelID}.png"), map.ToTexture2D().EncodeToPNG());
 
-                var objPal = rom.GetLevelData(settings).ObjPalette;
-
-                if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 0)
-                {
-                    var lvlPal = objPal;
-                    objPal = rom.Spyro2_CommonPalette;
-
-                    for (int i = 0; i < 256; i++)
-                    {
-                        if (lvlPal[i].Color5551 != 0)
-                            objPal[i] = lvlPal[i];
-                    }
-                }
+                var animSetPalettes = GetAnimSetPalettes(context, rom);
 
                 // Export animation sets
                 for (var i = 0; i < rom.AnimSets.Length; i++)
                 {
                     var animSet = rom.AnimSets[i];
                     var outPath = Path.Combine(outputPath, "AnimSets", $"{i}");
-                    var pal = Util.ConvertAndSplitGBAPalette(objPal);
 
-                    await ExportAnimSetAsync(outPath, animSet, pal);
+                    await ExportAnimSetAsync(outPath, animSet, animSetPalettes[i]);
                 }
             }
         }
@@ -521,6 +508,29 @@ namespace R1Engine
 
         public IEnumerable<Unity_ObjectManager_GBAIsometricSpyro.AnimSet> GetAnimSets(Context context, GBAIsometric_Spyro_ROM rom)
         {
+            var animSetPalettes = GetAnimSetPalettes(context, rom);
+
+            var index = 0;
+
+            // Add animation sets
+            foreach (var animSet in rom.AnimSets)
+            {
+                var animSetIndex = index;
+
+                yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock.Animations.Select(x =>
+                {
+                    return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(
+                        animFrameFunc: () => GetAnimationFrames(animSet, x, animSetPalettes[animSetIndex]).Select(f => f.CreateSprite()).ToArray(),
+                        animSpeed: x.AnimSpeed,
+                        positions: GetFramePositions(x));
+                }).ToArray());
+
+                index++;
+            }
+        }
+
+        public Color[][][] GetAnimSetPalettes(Context context, GBAIsometric_Spyro_ROM rom)
+        {
             var animSetPalettes = new Color[rom.AnimSets.Length][][];
 
             if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
@@ -566,23 +576,7 @@ namespace R1Engine
                 }
             }
 
-            var index = 0;
-
-            // Add animation sets
-            foreach (var animSet in rom.AnimSets)
-            {
-                var animSetIndex = index;
-
-                yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock.Animations.Select(x =>
-                {
-                    return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(
-                        animFrameFunc: () => GetAnimationFrames(animSet, x, animSetPalettes[animSetIndex]).Select(f => f.CreateSprite()).ToArray(),
-                        animSpeed: x.AnimSpeed,
-                        positions: GetFramePositions(x));
-                }).ToArray());
-
-                index++;
-            }
+            return animSetPalettes;
         }
 
         // Recreated from function at 0x08050200 (US rom for Spyro3)
