@@ -491,7 +491,7 @@ namespace R1Engine
                         [GBARRR_Pointer.Sprites_Compressed_GameOver] = 0x08701318,
                         [GBARRR_Pointer.RNC_2] = 0x086E1164,
                         [GBARRR_Pointer.RNC_3] = 0x086E2044,
-                        [GBARRR_Pointer.RNC_4] = 0x086c2378,
+                        [GBARRR_Pointer.Sprites_PauseMenu_Carrot] = 0x086c2378,
                         [GBARRR_Pointer.RNC_5] = 0x086bd1d1,
 
                         [GBARRR_Pointer.Mode7_Sprites_World] = 0x08708144,
@@ -535,7 +535,7 @@ namespace R1Engine
                         [GBARRR_Pointer.Sprites_Compressed_GameOver] = 0x0871aa88,
                         [GBARRR_Pointer.RNC_2] = 0x086fa8d4,
                         [GBARRR_Pointer.RNC_3] = 0x086fb7b4,
-                        [GBARRR_Pointer.RNC_4] = 0x086dbae8,
+                        [GBARRR_Pointer.Sprites_PauseMenu_Carrot] = 0x086dbae8,
                         [GBARRR_Pointer.RNC_5] = 0x086d6941,
 
                         [GBARRR_Pointer.Mode7_Sprites_World] = 0x087218b4,
@@ -557,6 +557,7 @@ namespace R1Engine
                         [GBARRR_Pointer.Palette_MenuFont] = 0x0871aa48,
                         [GBARRR_Pointer.Palette_GameOver1] = 0x086ca664,
                         [GBARRR_Pointer.Palette_GameOver2] = 0x0871b06e,
+                        [GBARRR_Pointer.Palette_MenuSprites] = 0x086b7810,
 
                         [GBARRR_Pointer.Mode7_AnimationFrameIndices] = 0x08721a38,
                         [GBARRR_Pointer.Mode7_Animations] = 0x087217f0,

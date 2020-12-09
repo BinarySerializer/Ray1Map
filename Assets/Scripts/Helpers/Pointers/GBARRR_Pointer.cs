@@ -35,7 +35,7 @@
         Sprites_Compressed_GameOver, // 0x06010800
         RNC_2, // 0x06002000
         RNC_3, // 0x02015500
-        RNC_4, // 0x06016900
+        Sprites_PauseMenu_Carrot, // 0x06016900
         RNC_5, // 0x06010000
 
         MenuArray,
@@ -57,6 +57,7 @@
         Palette_MenuFont, // 050001c0 (0x20 * 2)
         Palette_GameOver1, // 05000200 (0x10 * 2)
         Palette_GameOver2, // 05000220 ((0x10 * 2)
+        Palette_MenuSprites, // 05000200 (0x20 * 2)
 
 
         Mode7_AnimationFrameIndices,

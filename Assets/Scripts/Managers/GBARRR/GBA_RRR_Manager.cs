@@ -426,7 +426,7 @@ namespace R1Engine
                     ExportMode7Block(pointerTable[GBARRR_Pointer.Sprites_Compressed_GameOver], nameof(GBARRR_Pointer.Sprites_Compressed_GameOver));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_2], nameof(GBARRR_Pointer.RNC_2));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_3], nameof(GBARRR_Pointer.RNC_3));
-                    ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_4], nameof(GBARRR_Pointer.RNC_4));
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Sprites_PauseMenu_Carrot], nameof(GBARRR_Pointer.Sprites_PauseMenu_Carrot));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_5], nameof(GBARRR_Pointer.RNC_5));
 
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Sprites_World], nameof(GBARRR_Pointer.Mode7_Sprites_World), 3);
@@ -608,6 +608,24 @@ namespace R1Engine
                     animSets[i] = serializedAnimSets[ptr];
                 }
 
+                async UniTask ExportAllAnimSets(string path, Mode7VRAMEntry[] vram, RGBA5551Color[] palette) {
+                    HashSet<GBARRR_Mode7AnimSet> exportedAnimSets = new HashSet<GBARRR_Mode7AnimSet>();
+                    for (int a = 0; a < animSets.Length; a++) {
+                        if (!exportedAnimSets.Contains(animSets[a])) {
+                            exportedAnimSets.Add(animSets[a]);
+                            Texture2D[] texs = Mode7_GetAnimSetFrames(animSets[a], palette, vram, isExport: true);
+                            if (texs == null) continue;
+                            for (int i = 0; i < texs.Length; i++) {
+                                if (texs[i] == null) continue;
+                                Util.ByteArrayToFile(Path.Combine(path, $"AnimSet_{a}", $"{i}.png"), texs[i].EncodeToPNG());
+                            }
+                            await Controller.WaitIfNecessary();
+                            // TODO: Also export the animations themselves
+                        }
+                    }
+                }
+
+                // Mode7
                 // Read & export graphics for Mode7
                 var hudPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_HUD], () => s.SerializePointerArray(default, 3, name: "HUDSpritePointers"));
                 var worldPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_World], () => s.SerializePointerArray(default, 3, name: "WorldSpritePointers"));
@@ -616,8 +634,19 @@ namespace R1Engine
                 var palette2Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_2], () => s.SerializePointerArray(default, 3, name: "Palette2Pointers"));
                 var palette1Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_1], () => s.SerializePointerArray(default, 3, name: "Palette1Pointers"));
                 GBARRR_Palette palette0 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_0], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette0"));
+
+                // Read per-frame graphics
+                var raymanGraphics = new byte[raymanPointers.Length][];
+                for (int f = 0; f < raymanPointers.Length; f++) {
+                    raymanGraphics[f] = s.DoAt(raymanPointers[f], () => s.SerializeArray<byte>(raymanGraphics[f], 0x800, name: $"{nameof(raymanGraphics)}[{f}]"));
+                }
+                var lumCountGraphics = new byte[lumCountPointers.Length][];
+                for (int f = 0; f < lumCountPointers.Length; f++) {
+                    lumCountGraphics[f] = s.DoAt(lumCountPointers[f], () => s.SerializeArray<byte>(lumCountGraphics[f], 0x100, name: $"{nameof(lumCountGraphics)}[{f}]"));
+                }
+
+                // Read & export per level 
                 for (int i = 0; i < 3; i++) {
-                    // Read level specific 
                     byte[] hudSprites = null;
                     s.DoAt(hudPointers[i], () => {
                         s.DoEncoded(new RNCEncoder(hasHeader: false), () => hudSprites = s.SerializeArray<byte>(hudSprites, s.CurrentLength, name: nameof(hudSprites)));
@@ -626,8 +655,6 @@ namespace R1Engine
                     s.DoAt(worldPointers[i], () => {
                         s.DoEncoded(new RNCEncoder(hasHeader: false), () => worldSprites = s.SerializeArray<byte>(worldSprites, s.CurrentLength, name: nameof(worldSprites)));
                     });
-                    byte[] raymanSprite = s.DoAt(raymanPointers[i], () => s.SerializeArray<byte>(default, 0x800, name: "RaymanSprite"));
-                    byte[] lumCountSprite = s.DoAt(lumCountPointers[i], () => s.SerializeArray<byte>(default, 0x100, name: "LumCountSprite"));
                     var palette2 = s.DoAt(palette2Pointers[i], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette2"));
                     var palette1 = s.DoAt(palette1Pointers[i], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette1"));
 
@@ -638,295 +665,170 @@ namespace R1Engine
                     Array.Copy(palette0.Palette, newPalette, 0x10);
                     PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Level_{i}", $"Palette.png"), newPalette, optionalWrap: 16);
 
-                    // TODO: Create sprite animation pieces
-                    Dictionary<uint, byte[]> imageData = new Dictionary<uint, byte[]>();
-                    imageData[0x06015000] = worldSprites;
-                    imageData[0x06010a00] = hudSprites;
-                    imageData[0x06010000] = raymanSprite;
-                    imageData[0x06010900] = lumCountSprite;
-                    for (int a = 0; a < animSets.Length; a++) {
-                        await ExportAnimations(animSets[a], newPalette, imageData, Path.Combine(outputPath, $"Level_{i}", $"Anim_{a}"));
-                    }
+                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, IsPerFrame = true, PerFrameImageData = raymanGraphics });
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010900, IsPerFrame = true, PerFrameImageData = lumCountGraphics });
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06015000, ImageData = worldSprites });
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010a00, ImageData = hudSprites });
+
+                    await ExportAllAnimSets(Path.Combine(outputPath, $"Level_{i}"), vram.ToArray(), newPalette);
                 }
 
-                // TODO: Read & export other graphics (game over, menu)
+                // Menu
+                {
+                    byte[] menuSprites0 = null;
+                    s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu_Carrot], () => {
+                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                    });
+
+                    var menuPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu], () => s.SerializePointerArray(default, 12, name: "PauseMenuSpritePointers"));
+                    var menuGraphics = new byte[menuPointers.Length][];
+                    for (int f = 0; f < menuPointers.Length; f++) {
+                        menuGraphics[f] = s.DoAt(menuPointers[f], () => s.SerializeArray<byte>(menuGraphics[f], 0xC80 * 2, name: $"{nameof(menuGraphics)}[{f}]"));
+                    }
+
+                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06016900, ImageData = menuSprites0 });
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06015000, IsPerFrame = true, PerFrameImageData = menuGraphics });
+                    GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_MenuSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
+
+                    PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Menu", $"Palette.png"), palette.Palette, optionalWrap: 16);
+
+                    await ExportAllAnimSets(Path.Combine(outputPath, $"Menu"), vram.ToArray(), palette.Palette);
+                }
+
+                // Game over
+                {
+                    byte[] gameOverCompressedSprites = null;
+                    s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_GameOver], () => {
+                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => gameOverCompressedSprites = s.SerializeArray<byte>(gameOverCompressedSprites, s.CurrentLength, name: nameof(gameOverCompressedSprites)));
+                    });
+
+                    var gameOverPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_GameOver], () => s.SerializePointerArray(default, 47, name: "GameOverSpritePointers"));
+                    var gameOverGraphics = new byte[gameOverPointers.Length][];
+                    for (int f = 0; f < gameOverPointers.Length; f++) {
+                        gameOverGraphics[f] = s.DoAt(gameOverPointers[f], () => s.SerializeArray<byte>(gameOverGraphics[f], 0x400 * 2, name: $"{nameof(gameOverGraphics)}[{f}]"));
+                    }
+
+                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010800, ImageData = gameOverCompressedSprites });
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, IsPerFrame = true, PerFrameImageData = gameOverGraphics });
+                    GBARRR_Palette palette1 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_GameOver1], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette"));
+                    GBARRR_Palette palette2 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_GameOver2], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette"));
+
+                    // Create merged palette
+                    var newPalette = new RGBA5551Color[256];
+                    Array.Copy(palette1.Palette, newPalette, 0x100);
+                    Array.Copy(palette2.Palette, 0, newPalette, 0x10, 0x10);
+                    PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"GameOver", $"Palette.png"), newPalette, optionalWrap: 16);
+
+                    await ExportAllAnimSets(Path.Combine(outputPath, $"GameOver"), vram.ToArray(), newPalette);
+                }
+
+                // TODO: Read & export other graphics (game over, ... ?)
             }
 
         }
 
-
-        protected async UniTask ExportAnimations(GBARRR_Mode7AnimSet animSet, RGBA5551Color[] palette, Dictionary<uint, byte[]> imageData, string outputDir) {
-            MagickImage[] sprites = null;
-
-            try {
-                var commonDesign = Mode7_GetCommonDesign(animSet, palette, imageData);
-
-                // Convert Texture2D to MagickImage
-                sprites = commonDesign.Sprites.Select(x => x.texture.ToMagickImage()).ToArray();
-
-                var animIndex = 0;
-
-                // Export every animation
-                foreach (var anim in commonDesign.Animations) {
-                    await Controller.WaitIfNecessary();
-                    var frameIndex = 0;
-                    var animDir = Path.Combine(outputDir, $"{animIndex}-{anim.AnimSpeed}");
-                    Directory.CreateDirectory(animDir);
-                    if (anim.Frames == null || anim.Frames.Length == 0) continue;
-
-
-                    /*var shiftX = anim.Frames.Min(f => f.Layers.Select(x => Mathf.Min(0, x.XPosition)).DefaultIfEmpty().Min()) * -1;
-                    var shiftY = anim.Frames.Min(f => f.Layers.Select(x => Mathf.Min(0, x.YPosition)).DefaultIfEmpty().Min()) * -1;
-
-                    var maxX = anim.Frames.Max(f => f.Layers.Select(x => x.XPosition).DefaultIfEmpty().Max()) + 8 + shiftX;
-                    var maxY = anim.Frames.Max(f => f.Layers.Select(x => x.YPosition).DefaultIfEmpty().Max()) + 8 + shiftY;*/
-
-                    Vector2Int min = new Vector2Int();
-                    Vector2Int max = new Vector2Int();
-                    foreach (var frame in anim.Frames) {
-                        foreach (var layer in frame.SpriteLayers) {
-                            Vector2 size = new Vector2Int(8, 8);
-                            Vector2 pos = new Vector2(layer.XPosition, layer.YPosition);
-                            if ((layer.Scale.HasValue && layer.Scale.Value != Vector2.one) || (layer.Rotation.HasValue && layer.Rotation.Value != 0f)) {
-                                Vector2 transformOrigin = new Vector2(layer.TransformOriginX, layer.TransformOriginY);
-                                Vector2 relativePos = pos - transformOrigin; // Center relative to transform origin
-
-                                // Scale first
-                                Vector2 scale = Vector2.one;
-                                if (layer.Scale.HasValue && layer.Scale.Value != Vector2.one) {
-                                    scale = layer.Scale.Value;
-                                    float scaleX = layer.Scale.Value.x;
-                                    float scaleY = layer.Scale.Value.y;
-                                    if (scaleX == 0f || scaleY == 0f) continue;
-                                    if (scaleX > 0f) {
-                                        scaleX = Mathf.Ceil(size.x * scaleX) / (size.x);
-                                    } else {
-                                        scaleX = -Mathf.Ceil(size.x * -scaleX) / (size.x);
-                                    }
-                                    if (scaleY > 0f) {
-                                        scaleY = Mathf.Ceil(size.y * scaleY) / (size.y);
-                                    } else {
-                                        scaleY = -Mathf.Ceil(size.y * -scaleY) / (size.y);
-                                    }
-                                    scale = new Vector2(scaleX, scaleY);
-
-                                    relativePos = Vector2.Scale(relativePos, layer.Scale.Value);
-                                    size = Vector2.Scale(size, scale);
-                                }
-                                // Then rotate
-                                float rotation = 0f;
-                                if (layer.Rotation.HasValue && layer.Rotation.Value != 0) {
-                                    rotation = -layer.Rotation.Value;
-                                    relativePos = Quaternion.Euler(0f, 0f, rotation) * relativePos;
-                                    //size = Quaternion.Euler(0f, 0f, rotation) * size;
-                                    // Calculate new bounding box
-                                    var newY = Mathf.Abs(size.x * Mathf.Sin(Mathf.Deg2Rad * rotation)) + Mathf.Abs(size.y * Mathf.Cos(Mathf.Deg2Rad * rotation));
-                                    var newX = Mathf.Abs(size.x * Mathf.Cos(Mathf.Deg2Rad * rotation)) + Mathf.Abs(size.y * Mathf.Sin(Mathf.Deg2Rad * rotation));
-                                    size = new Vector2(newX, newY);
-                                }
-                                pos = transformOrigin + relativePos;
-                            }
-                            int x = Mathf.FloorToInt(pos.x);
-                            int y = Mathf.FloorToInt(pos.y);
-                            if (x < min.x) min.x = x;
-                            if (y < min.y) min.y = y;
-                            int maxX = Mathf.CeilToInt(pos.x + size.x);
-                            int maxY = Mathf.CeilToInt(pos.y + size.y);
-                            if (maxX > max.x) max.x = maxX;
-                            if (maxY > max.y) max.y = maxY;
-                        }
-                    }
-                    Vector2Int frameImgSize = max - min;
-                    if (frameImgSize.x == 0 || frameImgSize.y == 0) continue;
-
-                    foreach (var frame in anim.Frames) {
-
-                        using (var frameImg = new MagickImage(new byte[frameImgSize.x * frameImgSize.y * 4], new PixelReadSettings(frameImgSize.x, frameImgSize.y, StorageType.Char, PixelMapping.ABGR))) {
-                            frameImg.FilterType = FilterType.Point;
-                            frameImg.Interpolate = PixelInterpolateMethod.Nearest;
-                            int layerIndex = 0;
-                            foreach (var layer in frame.SpriteLayers) {
-                                if(layer.ImageIndex >= sprites.Length) continue;
-                                MagickImage img = (MagickImage)sprites[layer.ImageIndex].Clone();
-                                Vector2 size = new Vector2(img.Width, img.Height);
-                                img.FilterType = FilterType.Point;
-                                img.Interpolate = PixelInterpolateMethod.Nearest;
-                                img.BackgroundColor = MagickColors.Transparent;
-                                if (layer.IsFlippedHorizontally)
-                                    img.Flop();
-
-                                if (layer.IsFlippedVertically)
-                                    img.Flip();
-                                Vector2 pos = new Vector2(layer.XPosition, layer.YPosition);
-                                if ((layer.Scale.HasValue && layer.Scale.Value != Vector2.one) || (layer.Rotation.HasValue && layer.Rotation.Value != 0f)) {
-                                    pos += size / 2f;
-                                    Vector2 transformOrigin = new Vector2(layer.TransformOriginX, layer.TransformOriginY);
-                                    Vector2 relativePos = pos - transformOrigin; // Center relative to transform origin
-                                    Vector2Int canvas = Vector2Int.one * 128;
-                                    img.Extent(canvas.x, canvas.y, Gravity.Center); // 2x max size
-
-                                    // Scale first
-                                    Vector2 scale = Vector2.one;
-                                    if (layer.Scale.HasValue && layer.Scale.Value != Vector2.one) {
-                                        scale = layer.Scale.Value;
-                                        float scaleX = layer.Scale.Value.x;
-                                        float scaleY = layer.Scale.Value.y;
-                                        if (scaleX == 0f || scaleY == 0f) continue;
-                                        if (scaleX > 0f) {
-                                            scaleX = Mathf.Ceil(size.x * scaleX) / (size.x);
-                                        } else {
-                                            scaleX = -Mathf.Ceil(size.x * -scaleX) / (size.x);
-                                        }
-                                        if (scaleY > 0f) {
-                                            scaleY = Mathf.Ceil(size.y * scaleY) / (size.y);
-                                        } else {
-                                            scaleY = -Mathf.Ceil(size.y * -scaleY) / (size.y);
-                                        }
-                                        scale = new Vector2(scaleX, scaleY);
-
-                                        relativePos = Vector2.Scale(relativePos, layer.Scale.Value);
-                                        size = Vector2.Scale(size, layer.Scale.Value);
-                                    }
-                                    // Then rotate
-                                    float rotation = 0f;
-                                    if (layer.Rotation.HasValue && layer.Rotation.Value != 0) {
-                                        rotation = -layer.Rotation.Value;
-                                        relativePos = Quaternion.Euler(0f, 0f, rotation) * relativePos;
-                                        size = Quaternion.Euler(0f, 0f, rotation) * size;
-                                        // Calculate new bounding box
-                                        /*var a = Mathf.Abs(x * Mathf.Sin(o)) + Mathf.Abs(y * Mathf.Cos(o));
-                                        var b = Mathf.Abs(x * Mathf.Cos(o)) + Mathf.Abs(y * Mathf.Sin(o));*/
-
-
-                                    }
-                                    if (scale.x < 0f) {
-                                        img.Flop();
-                                        scale.x = -scale.x;
-                                    }
-                                    if (scale.y < 0f) {
-                                        img.Flip();
-                                        scale.y = -scale.y;
-                                    }
-                                    img.Distort(DistortMethod.ScaleRotateTranslate, new double[] { (canvas.x / 2), (canvas.y / 2), scale.x, scale.y, rotation });
-                                    //img.Write(Path.Combine(animDir, $"{frameIndex}___{layerIndex}.png"), MagickFormat.Png);
-                                    frameImg.Composite(img,
-                                        Mathf.RoundToInt(transformOrigin.x + relativePos.x) - (canvas.x / 2) - min.x,
-                                        Mathf.RoundToInt(transformOrigin.y + relativePos.y) - (canvas.y / 2) - min.y, CompositeOperator.Over);
-                                } else {
-                                    frameImg.Composite(img,
-                                        Mathf.RoundToInt(pos.x) - min.x,
-                                        Mathf.RoundToInt(pos.y) - min.y, CompositeOperator.Over);
-                                }
-                                layerIndex++;
-                            }
-
-                            frameImg.Write(Path.Combine(animDir, $"{frameIndex}.png"), MagickFormat.Png);
-                        }
-
-                        frameIndex++;
-                    }
-
-                    animIndex++;
+        public Texture2D[] Mode7_GetAnimSetFrames(GBARRR_Mode7AnimSet animSet, RGBA5551Color[] palette, IEnumerable<Mode7VRAMEntry> vram, bool isExport = false) {
+            int minX1 = 0, minY1 = 0, maxX2 = int.MinValue, maxY2 = int.MinValue;
+            if (isExport) {
+                if (animSet.Frames.Length > 0) {
+                    var fs = animSet.Frames.Where(f => f?.Value != null && f?.Value?.Channels.Length > 0);
+                    minX1 = fs.Min(f => f.Value.MinXPosition);
+                    minY1 = fs.Min(f => f.Value.MinYPosition);
+                    maxX2 = fs.Max(f => f.Value.MaxXPosition);
+                    maxY2 = fs.Max(f => f.Value.MaxYPosition);
+                } else {
+                    maxX2 = 0;
+                    maxY2 = 0;
                 }
-            } catch (Exception ex) {
-                Debug.LogError($"Message: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
-            } finally {
-                if (sprites != null && sprites.Length > 0)
-                    foreach (var s in sprites)
-                        s?.Dispose();
             }
-        }
-        public Unity_ObjGraphics Mode7_GetCommonDesign(GBARRR_Mode7AnimSet animSet, RGBA5551Color[] palette, Dictionary<uint, byte[]> imageData) {
-            // Create the design
-            var des = new Unity_ObjGraphics {
-                Sprites = new List<Sprite>(),
-                Animations = new List<Unity_ObjAnimation>(),
-            };
-
-            if (animSet == null)
-                return des;
-            const bool is8bit = false;
-
             const int tileWidth = 8;
-            int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
-
-            // Image data base address = 0x06010000, tile indices are aligned to 32
+            int tileSize = (tileWidth * tileWidth) / 2;
             const uint baseAddr = 0x06010000;
-            var imgDataTiles = imageData.Select(kv => new KeyValuePair<uint, int>((uint)((kv.Key - baseAddr) / tileSize),Mathf.CeilToInt(kv.Value.Length / tileSize))).ToArray();
-
-            var length = imgDataTiles.Max(kv => kv.Key + kv.Value);
             var pal = Util.ConvertAndSplitGBAPalette(palette);
-            var numPalettes = is8bit ? 1 : pal.Length / 16;
+            var numPalettes = pal.Length;
 
-            // Add sprites for each palette
-            for (int palIndex = 0; palIndex < numPalettes; palIndex++) {
-                for (int i = 0; i < length; i++) {
-                    var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
-                    int tileIndex = i;
-                    uint tileAddr = (uint)(baseAddr + tileIndex * tileSize);
-                    if (imageData.Any(kv => tileAddr >= kv.Key && (tileAddr - kv.Key) < kv.Value.Length)) {
-                        var curImgData = imageData.FirstOrDefault(kv => tileAddr >= kv.Key && (tileAddr - kv.Key) < kv.Value.Length);
-                        var curTileOffset = tileAddr - curImgData.Key;
-                        tex.FillInTile(curImgData.Value, (int)curTileOffset, pal[palIndex], Util.TileEncoding.Linear_4bpp,8, true, 0,0);
-                    }
-
-                    tex.Apply();
-                    des.Sprites.Add(tex.CreateSprite());
-                }
-            }
-
-            Unity_ObjAnimationPart[] GetPartsForLayer(GBARRR_Mode7AnimationChannel l) {
-                if (l.Color == GBA_ColorMode.Color8bpp) {
-                    Debug.LogWarning("Animation Layer @ " + l.Offset + " has 8bpp color mode, which is currently not supported.");
-                    return new Unity_ObjAnimationPart[0];
-                }
-                Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[l.XSize * l.YSize];
-
-                var imgIndex = l.ImageIndex / (is8bit ? 2 : 1);
-
-                if (imgIndex > length) {
-                    Controller.print($"Image index {imgIndex} too high (length {length}) @ : " + l.Offset);
-                }
-                if (l.PaletteIndex > palette.Length / 16) {
-                    Controller.print("Palette index too high: " + l.Offset + " - " + l.PaletteIndex + " - " + (palette.Length / 16));
-                }
-                float rot = 0f;
-                Vector2 scl = Vector2.one;
-                for (int y = 0; y < l.YSize; y++) {
-                    for (int x = 0; x < l.XSize; x++) {
-                        parts[y * l.XSize + x] = new Unity_ObjAnimationPart {
-                            ImageIndex = (int)length * l.PaletteIndex + (imgIndex + y * l.XSize + x),
-                            IsFlippedHorizontally = l.IsFlippedHorizontally,
-                            IsFlippedVertically = l.IsFlippedVertically,
-                            XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * CellSize),
-                            YPosition = (l.YPosition + (l.IsFlippedVertically ? (l.YSize - 1 - y) : y) * CellSize),
-                            TransformOriginX = (l.XPosition + l.XSize * CellSize / 2f),
-                            TransformOriginY = (l.YPosition + l.YSize * CellSize / 2f)
-                        };
-                    }
-                }
-                return parts;
-            }
-
-            // Add animations
-            var unityAnim = new Unity_ObjAnimation {
-                AnimSpeed = 5
-            };
-
-            var frames = new List<Unity_ObjAnimationFrame>();
-
+            Texture2D[] texs = new Texture2D[animSet.Frames.Length];
             for (int i = 0; i < animSet.Frames.Length; i++) {
-                if(animSet.Frames[i]?.Value == null) continue;
-                frames.Add(new Unity_ObjAnimationFrame(
-                    animSet.Frames[i].Value.Channels.OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(l)).Reverse().ToArray()));
+                var frame = animSet.Frames[i].Value;
+                if(frame == null) continue;
+                int frameMinX = frame.MinXPosition;
+                int frameMinY = frame.MinYPosition;
+                int w, h, frameOffsetX, frameOffsetY;
+                if (isExport) {
+                    frameOffsetX = frameMinX - minX1;
+                    frameOffsetY = frameMinY - minY1;
+                    w = (maxX2 - minX1);
+                    h = (maxY2 - minY1);
+                } else {
+                    frameOffsetX = 0;
+                    frameOffsetY = 0;
+                    w = frame.MaxXPosition - frame.MinXPosition;
+                    h = frame.MaxYPosition - frame.MinYPosition;
+                }
+                Texture2D tex = TextureHelpers.CreateTexture2D(w, h, clear: true);
+
+                void addObjToFrame(GBARRR_Mode7AnimationChannel channel) {
+                    if(channel.IsEndAttribute) return;
+                    int width = channel.XSize;
+                    int height = channel.YSize;
+
+                    //var tileIndex = relativeTile;
+                    var imageIndex = channel.ImageIndex;
+                    var imageAddress = baseAddr + imageIndex * tileSize;
+
+                    // Clamp palette index
+                    var palIndex = Mathf.Clamp(channel.PaletteIndex, 0, pal.Length - 1);
+
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
+                            byte[] tileSet = null;
+                            int tileOffset = 0;
+
+                            // Find array to use
+                            foreach (var vramEntry in vram) {
+                                if (imageAddress >= vramEntry.Address) {
+                                    var relativeAddr = imageAddress - vramEntry.Address;
+                                    if (vramEntry.IsPerFrame) {
+                                        int frameIndex = i / 2;
+                                        if(frameIndex >= vramEntry.PerFrameImageData.Length) continue;
+                                        if (relativeAddr >= vramEntry.PerFrameImageData[frameIndex].Length) continue;
+                                        tileSet = vramEntry.PerFrameImageData[frameIndex];
+                                    } else {
+                                        if (relativeAddr >= vramEntry.ImageData.Length) continue;
+                                        tileSet = vramEntry.ImageData;
+                                    }
+                                    tileOffset = (int)relativeAddr;
+                                }
+                            }
+
+                            // Fill in tile
+                            if (tileSet != null) {
+                                int actualX = ((channel.IsFlippedHorizontally ? (channel.XSize - 1 - x) : x) * CellSize) + channel.XPosition - frameMinX + frameOffsetX;
+                                int actualY = ((channel.IsFlippedVertically ? (channel.XSize - 1 - y) : y) * CellSize) + channel.YPosition - frameMinY + frameOffsetY;
+
+                                tex.FillInTile(tileSet, tileOffset, pal[palIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, actualX, actualY,
+                                    flipTileX: channel.IsFlippedHorizontally,
+                                    flipTileY: channel.IsFlippedVertically,
+                                    ignoreTransparent: true);
+                            }
+
+                            imageAddress += tileSize;
+                        }
+                    }
+                }
+
+                foreach (var channel in frame.Channels)
+                    addObjToFrame(channel);
+
+                tex.Apply();
+
+                texs[i] = tex;
             }
-
-            unityAnim.Frames = frames.ToArray();
-            des.Animations.Add(unityAnim);
-
-            return des;
+            return texs;
         }
-
 
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
@@ -3511,6 +3413,13 @@ namespace R1Engine
             public ushort Height { get; }
             public AssembleOrder Order { get; }
             public enum AssembleOrder { Column, Row }
+        }
+
+        public class Mode7VRAMEntry {
+            public uint Address { get; set; }
+            public bool IsPerFrame { get; set; }
+            public byte[] ImageData { get; set; }
+            public byte[][] PerFrameImageData { get; set; }
         }
 
         public Dictionary<int, AnimationAssemble> FixedSpriteSizes => new Dictionary<int, AnimationAssemble>() {
