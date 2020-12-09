@@ -4,6 +4,7 @@
     {
         public bool Is2D { get; set; }
         public int SerializeDataForID { get; set; }
+        public static bool ForceSerializeAll { get; set; }
 
         public Pointer[] MapLayerPointers { get; set; }
 
@@ -51,7 +52,7 @@
                 ID = s.Serialize<uint>(ID, name: nameof(ID));
             }
 
-            if (SerializeDataForID == ID)
+            if (SerializeDataForID == ID || ForceSerializeAll)
             {
                 if (MapLayers == null)
                     MapLayers = new GBAIsometric_Spyro_MapLayer[MapLayerPointers.Length];

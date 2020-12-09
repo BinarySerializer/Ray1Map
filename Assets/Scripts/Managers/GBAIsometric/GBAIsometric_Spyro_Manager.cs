@@ -32,23 +32,30 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
-            new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false)),
-            new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, true)),
+            new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false, false)),
+            new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, true, false)),
+            new GameAction("Export Data Blocks (Unused)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false, true)),
             new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
             new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenes(settings, output)),
         };
 
-        public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize) {
+        public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize, bool ignoreUsedBlocks) {
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
                 await LoadFilesAsync(context);
+
+                if (ignoreUsedBlocks)
+                    GBAIsometric_Spyro_LevelData.ForceSerializeAll = true;
 
                 var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
                 var palette = Util.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
 
-                for (int i = 0; i < rom.DataTable.DataEntries.Length; i++)
+                for (ushort i = 0; i < rom.DataTable.DataEntries.Length; i++)
                 {
+                    if (ignoreUsedBlocks && GBAIsometric_Spyro_DataBlockIndex.UsedIndices.Contains(i))
+                        continue;
+
                     var length = rom.DataTable.DataEntries[i].DataLength;
 
                     if (categorize && length == 512)
@@ -188,7 +195,7 @@ namespace R1Engine
             }
         }
 
-        public async UniTask ExportAnimSetAsync(string outputPath, GBAIsometric_Spyro_AnimSet animSet, Color[][] pal)
+        public async UniTask ExportAnimSetAsync(string outputPath, GBAIsometric_Spyro_AnimSet animSet, Color[][][] pal)
         {
             if (animSet == null)
                 return;
@@ -202,7 +209,7 @@ namespace R1Engine
 
                 var anim = animSet.AnimBlock.Animations[a];
 
-                foreach (var tex in GetAnimationFrames(animSet, anim, pal, isExport: true))
+                foreach (var tex in GetAnimationFrames(animSet, anim, pal[Mathf.Clamp(a, 0, pal.Length - 1)], isExport: true))
                     Util.ByteArrayToFile(Path.Combine(outputPath, $"{a}-{anim.AnimSpeed}", $"{f++}.png"), tex.EncodeToPNG());
             }
         }
@@ -517,10 +524,10 @@ namespace R1Engine
             {
                 var animSetIndex = index;
 
-                yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock.Animations.Select(x =>
+                yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock.Animations.Select((x, i) =>
                 {
                     return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(
-                        animFrameFunc: () => GetAnimationFrames(animSet, x, animSetPalettes[animSetIndex]).Select(f => f.CreateSprite()).ToArray(),
+                        animFrameFunc: () => GetAnimationFrames(animSet, x, animSetPalettes[animSetIndex][Mathf.Clamp(i, 0, animSetPalettes[animSetIndex].Length - 1)]).Select(f => f.CreateSprite()).ToArray(),
                         animSpeed: x.AnimSpeed,
                         positions: GetFramePositions(x));
                 }).ToArray());
@@ -529,9 +536,10 @@ namespace R1Engine
             }
         }
 
-        public Color[][][] GetAnimSetPalettes(Context context, GBAIsometric_Spyro_ROM rom)
+        // [AnimSet][Anim][Pal][Color]
+        public Color[][][][] GetAnimSetPalettes(Context context, GBAIsometric_Spyro_ROM rom)
         {
-            var animSetPalettes = new Color[rom.AnimSets.Length][][];
+            var animSetPalettes = new Color[rom.AnimSets.Length][][][];
 
             if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
@@ -539,7 +547,10 @@ namespace R1Engine
                 var pal = Util.ConvertAndSplitGBAPalette(objPal);
 
                 for (int i = 0; i < animSetPalettes.Length; i++)
-                    animSetPalettes[i] = pal;
+                    animSetPalettes[i] = new Color[][][]
+                    {
+                        pal
+                    };
             }
             else
             {
@@ -550,29 +561,35 @@ namespace R1Engine
                 for (int i = 0; i < palInfo.Length; i++)
                 {
                     var p = palInfo[i];
-                    var pal = rom.Spyro2_AnimSetPalettes[i] ?? rom.GetLevelData(context.Settings).ObjPalette;
 
-                    if (!cachedPalettes.ContainsKey(p.BlockIndex))
+                    animSetPalettes[i] = p.BlockIndices?.Select((x, animIndex) =>
                     {
-                        if (p.UsesCommonPalette || p.BlockIndex == -1)
+                        if (p.UsesCommonPalette)
                         {
-                            var newPal = (RGBA5551Color[])commonPal.Clone();
-
-                            for (int j = 0; j < 256; j++)
+                            if (!cachedPalettes.ContainsKey(x))
                             {
-                                if (pal[j].Color5551 != 0)
-                                    newPal[j] = pal[j];
+                                var newPal = (RGBA5551Color[])commonPal.Clone();
+                                var pal = rom.Spyro2_AnimSetPalettes[i][animIndex];
+
+                                for (int j = 0; j < 256; j++)
+                                {
+                                    if (pal[j].Color5551 != 0)
+                                        newPal[j] = pal[j];
+                                }
+
+                                cachedPalettes[x] = Util.ConvertAndSplitGBAPalette(newPal);
                             }
 
-                            cachedPalettes[p.BlockIndex] = Util.ConvertAndSplitGBAPalette(newPal);
+                            return cachedPalettes[x];
                         }
                         else
                         {
-                            cachedPalettes[p.BlockIndex] = Util.ConvertAndSplitGBAPalette(pal);
+                            return Util.ConvertAndSplitGBAPalette(rom.Spyro2_AnimSetPalettes[i][animIndex]);
                         }
-                    }
-
-                    animSetPalettes[i] = cachedPalettes[p.BlockIndex];
+                    }).ToArray() ?? new Color[][][] // Default to level obj palette if no dedicated palette is specified
+                    {
+                        Util.ConvertAndSplitGBAPalette(rom.GetLevelData(context.Settings).ObjPalette)
+                    };
                 }
             }
 
@@ -973,6 +990,34 @@ namespace R1Engine
 
             for (int i = 0; i < palTable.Length; i++)
                 output += $"new PalInfo({palTable[i]}), // AnimSet {i}{Environment.NewLine}";
+
+            output.CopyToClipboard();
+        }
+        public async UniTask GetPalBlockIndexPerLevelAsync(GameSettings settings)
+        {
+            var output = String.Empty;
+
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Load the rom
+                var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
+
+                // Enumerate every level
+                foreach (var world in GetLevels(settings).First().Worlds)
+                {
+                    foreach (var lev in world.Maps)
+                    {
+                        if (settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && world.Index == 4)
+                            continue;
+
+                        var levSettings = new GameSettings(settings.GameModeSelection, settings.GameDirectory, world.Index, lev);
+
+                        output += $"{rom.GetLevelDataID(levSettings):00}: {rom.GetLevelData(levSettings).ObjPaletteIndex.Index}{Environment.NewLine}";
+                    }
+                }
+            }
 
             output.CopyToClipboard();
         }
