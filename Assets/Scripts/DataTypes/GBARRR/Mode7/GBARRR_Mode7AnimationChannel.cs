@@ -60,7 +60,8 @@ namespace R1Engine
             // Attr1
             XPosition = (short)BitHelpers.ExtractBits(Attr1, 9, 0);
             bool bit9 = false, bit10 = false, bit11 = false;
-            if (XPosition >= 256) XPosition -= 512;
+            //if (XPosition >= 256) XPosition -= 512;
+            if (XPosition >= 128) XPosition -= 256;
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
                 AffineMatrixIndex = BitHelpers.ExtractBits(Attr1, 5, 9);
             } else {
