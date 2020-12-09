@@ -31,12 +31,12 @@
         Mode7_Sprites_HUD, // 0x06010A00 hud sprites
 
         // Unknown compressed data 
-        RNC_0, // 0x06010000
+        Sprites_Compressed_Unk, // 0x06010000
         Sprites_Compressed_GameOver, // 0x06010800
         RNC_2, // 0x06002000
         RNC_3, // 0x02015500
         Sprites_PauseMenu_Carrot, // 0x06016900
-        RNC_5, // 0x06010000
+        Sprites_Compressed_MainMenu, // 0x06010000
 
         MenuArray,
 
@@ -46,8 +46,9 @@
 
         Sprites_PauseMenu,
         Sprites_GameOver,
-        Sprites_Mode7Rayman, // 06010000 (0x400) (current frame only)
-        Sprites_Mode7UI_LumCount, // 06010900 (0x80) (current frame only)
+        Sprites_Mode7Rayman, // 06010000 (0x400 * 2) (current frame only)
+        Sprites_Mode7UI_LumCount, // 06010900 (0x80 * 2) (current frame only)
+        Sprites_Mode7UI_TotalLumCount, // 06010800 (0x80 * 2) (current frame only)
         Sprites_MenuFont, // 0600c000 (0x710 * 2)
 
         Palette_Mode7Sprites_2, // 0x05000200 (length 0x100) - sprite palette?
@@ -57,7 +58,9 @@
         Palette_MenuFont, // 050001c0 (0x20 * 2)
         Palette_GameOver1, // 05000200 (0x10 * 2)
         Palette_GameOver2, // 05000220 ((0x10 * 2)
-        Palette_MenuSprites, // 05000200 (0x20 * 2)
+        Palette_PauseMenuSprites, // 05000200 (0x20 * 2)
+        Palette_UnkSprites, // 0500200 (0x100 * 2)
+        Palette_MainMenuSprites, // 0500200 (0x100 * 2)
 
 
         Mode7_AnimationFrameIndices,

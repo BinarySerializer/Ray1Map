@@ -422,12 +422,12 @@ namespace R1Engine
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_2], nameof(GBARRR_Pointer.Palette_Mode7Sprites_2), 3, compressed: false);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_1], nameof(GBARRR_Pointer.Palette_Mode7Sprites_1), 3, compressed: false, 0x80);
 
-                    ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_0], nameof(GBARRR_Pointer.RNC_0));
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Sprites_Compressed_Unk], nameof(GBARRR_Pointer.Sprites_Compressed_Unk));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.Sprites_Compressed_GameOver], nameof(GBARRR_Pointer.Sprites_Compressed_GameOver));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_2], nameof(GBARRR_Pointer.RNC_2));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_3], nameof(GBARRR_Pointer.RNC_3));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.Sprites_PauseMenu_Carrot], nameof(GBARRR_Pointer.Sprites_PauseMenu_Carrot));
-                    ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_5], nameof(GBARRR_Pointer.RNC_5));
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Sprites_Compressed_MainMenu], nameof(GBARRR_Pointer.Sprites_Compressed_MainMenu));
 
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Sprites_World], nameof(GBARRR_Pointer.Mode7_Sprites_World), 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_CollisionTypesArray], nameof(GBARRR_Pointer.Mode7_CollisionTypesArray), 3);
@@ -631,6 +631,7 @@ namespace R1Engine
                 var worldPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_World], () => s.SerializePointerArray(default, 3, name: "WorldSpritePointers"));
                 var raymanPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7Rayman], () => s.SerializePointerArray(default, 40, name: "RaymanSpritePointers"));
                 var lumCountPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7UI_LumCount], () => s.SerializePointerArray(default, 100, name: "LumCountSpritePointers"));
+                var totalLumCountPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7UI_TotalLumCount], () => s.SerializePointerArray(default, 100, name: "LifeCountSpritePointers"));
                 var palette2Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_2], () => s.SerializePointerArray(default, 3, name: "Palette2Pointers"));
                 var palette1Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_1], () => s.SerializePointerArray(default, 3, name: "Palette1Pointers"));
                 GBARRR_Palette palette0 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_0], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette0"));
@@ -643,6 +644,10 @@ namespace R1Engine
                 var lumCountGraphics = new byte[lumCountPointers.Length][];
                 for (int f = 0; f < lumCountPointers.Length; f++) {
                     lumCountGraphics[f] = s.DoAt(lumCountPointers[f], () => s.SerializeArray<byte>(lumCountGraphics[f], 0x100, name: $"{nameof(lumCountGraphics)}[{f}]"));
+                }
+                var totalLumCountGraphics = new byte[totalLumCountPointers.Length][];
+                for (int f = 0; f < totalLumCountPointers.Length; f++) {
+                    totalLumCountGraphics[f] = s.DoAt(totalLumCountPointers[f], () => s.SerializeArray<byte>(totalLumCountGraphics[f], 0x100, name: $"{nameof(totalLumCountGraphics)}[{f}]"));
                 }
 
                 // Read & export per level 
@@ -668,13 +673,14 @@ namespace R1Engine
                     List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
                     vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, IsPerFrame = true, PerFrameImageData = raymanGraphics });
                     vram.Add(new Mode7VRAMEntry() { Address = 0x06010900, IsPerFrame = true, PerFrameImageData = lumCountGraphics });
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010800, IsPerFrame = true, PerFrameImageData = totalLumCountGraphics });
                     vram.Add(new Mode7VRAMEntry() { Address = 0x06015000, ImageData = worldSprites });
                     vram.Add(new Mode7VRAMEntry() { Address = 0x06010a00, ImageData = hudSprites });
 
                     await ExportAllAnimSets(Path.Combine(outputPath, $"Level_{i}"), vram.ToArray(), newPalette);
                 }
 
-                // Menu
+                // Pause Menu
                 {
                     byte[] menuSprites0 = null;
                     s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu_Carrot], () => {
@@ -690,11 +696,11 @@ namespace R1Engine
                     List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
                     vram.Add(new Mode7VRAMEntry() { Address = 0x06016900, ImageData = menuSprites0 });
                     vram.Add(new Mode7VRAMEntry() { Address = 0x06015000, IsPerFrame = true, PerFrameImageData = menuGraphics });
-                    GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_MenuSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
+                    GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_PauseMenuSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
 
-                    PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Menu", $"Palette.png"), palette.Palette, optionalWrap: 16);
+                    PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"PauseMenu", $"Palette.png"), palette.Palette, optionalWrap: 16);
 
-                    await ExportAllAnimSets(Path.Combine(outputPath, $"Menu"), vram.ToArray(), palette.Palette);
+                    await ExportAllAnimSets(Path.Combine(outputPath, $"PauseMenu"), vram.ToArray(), palette.Palette);
                 }
 
                 // Game over
@@ -723,6 +729,42 @@ namespace R1Engine
                     PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"GameOver", $"Palette.png"), newPalette, optionalWrap: 16);
 
                     await ExportAllAnimSets(Path.Combine(outputPath, $"GameOver"), vram.ToArray(), newPalette);
+                }
+
+
+
+                // Unk
+                {
+                    byte[] menuSprites0 = null;
+                    s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_Unk], () => {
+                        //menuSprites0 = s.SerializeArray<byte>(menuSprites0, 0x20, name: nameof(menuSprites0));
+                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                    });
+
+                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, ImageData = menuSprites0 });
+                    GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_UnkSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
+
+                    PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Unk", $"Palette.png"), palette.Palette, optionalWrap: 16);
+
+                    await ExportAllAnimSets(Path.Combine(outputPath, $"Unk"), vram.ToArray(), palette.Palette);
+                }
+
+
+                // Main Menu
+                {
+                    byte[] menuSprites0 = null;
+                    s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_MainMenu], () => {
+                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                    });
+
+                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, ImageData = menuSprites0 });
+                    GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_MainMenuSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
+
+                    PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"MainMenu", $"Palette.png"), palette.Palette, optionalWrap: 16);
+
+                    await ExportAllAnimSets(Path.Combine(outputPath, $"MainMenu"), vram.ToArray(), palette.Palette);
                 }
 
                 // TODO: Read & export other graphics (game over, ... ?)
