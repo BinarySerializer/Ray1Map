@@ -482,22 +482,22 @@ namespace R1Engine
 
                         [GBARRR_Pointer.Mode7_Waypoints] = 0x08708174, // Appears to be very different than on EU
                         [GBARRR_Pointer.Mode7_WaypointsCount] = 0x08708180,
-                        [GBARRR_Pointer.Mode7_LevelSpritePalette] = 0x08708150,
-                        [GBARRR_Pointer.Mode7_Array3] = 0x08708168,
+                        [GBARRR_Pointer.Palette_Mode7Sprites_2] = 0x08708150,
+                        [GBARRR_Pointer.Palette_Mode7Sprites_1] = 0x08708168,
 
-                        [GBARRR_Pointer.Mode7UnknownPal] = 0x0868C9B8,
+                        [GBARRR_Pointer.Palette_Mode7Sprites_0] = 0x0868C9B8,
 
                         [GBARRR_Pointer.RNC_0] = 0x086C20EC,
-                        [GBARRR_Pointer.RNC_1] = 0x08701318,
+                        [GBARRR_Pointer.Sprites_Compressed_GameOver] = 0x08701318,
                         [GBARRR_Pointer.RNC_2] = 0x086E1164,
                         [GBARRR_Pointer.RNC_3] = 0x086E2044,
                         [GBARRR_Pointer.RNC_4] = 0x086c2378,
                         [GBARRR_Pointer.RNC_5] = 0x086bd1d1,
 
-                        [GBARRR_Pointer.Mode7_ComprArray1] = 0x08708144,
+                        [GBARRR_Pointer.Mode7_Sprites_World] = 0x08708144,
                         [GBARRR_Pointer.Mode7_CollisionTypesArray] = 0x087081C4,
                         [GBARRR_Pointer.Mode7_Objects] = 0x087081ac,
-                        [GBARRR_Pointer.Mode7_ComprArray4] = 0x0870815c,
+                        [GBARRR_Pointer.Mode7_Sprites_HUD] = 0x0870815c,
 
                         [GBARRR_Pointer.MenuArray] = 0x087087D4,
 
@@ -527,22 +527,21 @@ namespace R1Engine
 
                         [GBARRR_Pointer.Mode7_Waypoints] = 0x087218e4,
                         [GBARRR_Pointer.Mode7_WaypointsCount] = 0x087218f0,
-                        [GBARRR_Pointer.Mode7_LevelSpritePalette] = 0x087218c0,
-                        [GBARRR_Pointer.Mode7_Array3] = 0x087218d8,
-
-                        [GBARRR_Pointer.Mode7UnknownPal] = 0x086a6128,
+                        [GBARRR_Pointer.Palette_Mode7Sprites_2] = 0x087218c0,
+                        [GBARRR_Pointer.Palette_Mode7Sprites_1] = 0x087218d8,
+                        [GBARRR_Pointer.Palette_Mode7Sprites_0] = 0x086a6128,
 
                         [GBARRR_Pointer.RNC_0] = 0x086db85c,
-                        [GBARRR_Pointer.RNC_1] = 0x0871aa88,
+                        [GBARRR_Pointer.Sprites_Compressed_GameOver] = 0x0871aa88,
                         [GBARRR_Pointer.RNC_2] = 0x086fa8d4,
                         [GBARRR_Pointer.RNC_3] = 0x086fb7b4,
                         [GBARRR_Pointer.RNC_4] = 0x086dbae8,
                         [GBARRR_Pointer.RNC_5] = 0x086d6941,
 
-                        [GBARRR_Pointer.Mode7_ComprArray1] = 0x087218b4,
+                        [GBARRR_Pointer.Mode7_Sprites_World] = 0x087218b4,
                         [GBARRR_Pointer.Mode7_CollisionTypesArray] = 0x08721934,
                         [GBARRR_Pointer.Mode7_Objects] = 0x0872191c,
-                        [GBARRR_Pointer.Mode7_ComprArray4] = 0x087218cc,
+                        [GBARRR_Pointer.Mode7_Sprites_HUD] = 0x087218cc,
 
                         [GBARRR_Pointer.MenuArray] = 0x08721f44,
 
@@ -550,14 +549,17 @@ namespace R1Engine
                         [GBARRR_Pointer.MusicSampleTable] = 0x083c3a9c,
                         [GBARRR_Pointer.SoundEffectSampleTable] = 0x08606ae8,
 
-                        [GBARRR_Pointer.SpritesPauseMenu] = 0x086c9270,
-                        [GBARRR_Pointer.SpritesGameOver] = 0x086d615c,
-                        [GBARRR_Pointer.SpritesMode7Rayman] = 0x086b6a68,
-                        [GBARRR_Pointer.SpritesMode7UI] = 0x086eb3c8,
-                        [GBARRR_Pointer.Mode7_SpritePalette] = 0x086a6128,
+                        [GBARRR_Pointer.Sprites_PauseMenu] = 0x086c9270,
+                        [GBARRR_Pointer.Sprites_GameOver] = 0x086d615c,
+                        [GBARRR_Pointer.Sprites_Mode7Rayman] = 0x086b6a68,
+                        [GBARRR_Pointer.Sprites_Mode7UI_LumCount] = 0x086eb3c8,
+
+                        [GBARRR_Pointer.Palette_MenuFont] = 0x0871aa48,
+                        [GBARRR_Pointer.Palette_GameOver1] = 0x086ca664,
+                        [GBARRR_Pointer.Palette_GameOver2] = 0x0871b06e,
 
                         [GBARRR_Pointer.Mode7_AnimationFrameIndices] = 0x08721a38,
-                        [GBARRR_Pointer.Mode7_ObjectTypes] = 0x087217f0,
+                        [GBARRR_Pointer.Mode7_Animations] = 0x087217f0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

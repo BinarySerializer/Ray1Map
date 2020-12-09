@@ -61,6 +61,7 @@ namespace R1Engine
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Normal)), 
             new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Vignette)),
             new GameAction("Export Categorized & Converted Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.All)),
+            new GameAction("Export Mode7 Sprites", false, true, (input, output) => ExportMode7SpritesAsync(settings, output)),
             new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output)),
         };
 
@@ -417,22 +418,22 @@ namespace R1Engine
                     var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
 
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Waypoints], nameof(GBARRR_Pointer.Mode7_Waypoints), 3, compressed: false, 0x7D0);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_LevelSpritePalette], nameof(GBARRR_Pointer.Mode7_LevelSpritePalette), 3, compressed: false);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Array3], nameof(GBARRR_Pointer.Mode7_Array3), 3, compressed: false, 0x80);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_2], nameof(GBARRR_Pointer.Palette_Mode7Sprites_2), 3, compressed: false);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_1], nameof(GBARRR_Pointer.Palette_Mode7Sprites_1), 3, compressed: false, 0x80);
 
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_0], nameof(GBARRR_Pointer.RNC_0));
-                    ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_1], nameof(GBARRR_Pointer.RNC_1));
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Sprites_Compressed_GameOver], nameof(GBARRR_Pointer.Sprites_Compressed_GameOver));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_2], nameof(GBARRR_Pointer.RNC_2));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_3], nameof(GBARRR_Pointer.RNC_3));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_4], nameof(GBARRR_Pointer.RNC_4));
                     ExportMode7Block(pointerTable[GBARRR_Pointer.RNC_5], nameof(GBARRR_Pointer.RNC_5));
 
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray1], nameof(GBARRR_Pointer.Mode7_ComprArray1), 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Sprites_World], nameof(GBARRR_Pointer.Mode7_Sprites_World), 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_CollisionTypesArray], nameof(GBARRR_Pointer.Mode7_CollisionTypesArray), 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Objects], nameof(GBARRR_Pointer.Mode7_Objects), 3);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray4], nameof(GBARRR_Pointer.Mode7_ComprArray4), 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Sprites_HUD], nameof(GBARRR_Pointer.Mode7_Sprites_HUD), 3);
 
-                    ExportMode7Block(pointerTable[GBARRR_Pointer.Mode7UnknownPal], nameof(GBARRR_Pointer.Mode7UnknownPal), compressed: false);
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_0], nameof(GBARRR_Pointer.Palette_Mode7Sprites_0), compressed: false);
 
                     for (int i = 0; i < 15; i++) {
                         // Export palette first so it's cached
@@ -565,7 +566,82 @@ namespace R1Engine
             }
         }
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public async UniTask ExportMode7SpritesAsync(GameSettings settings, string outputPath) {
+
+            using (var context = new Context(settings)) {
+                var s = context.Deserializer;
+
+                // Load files
+                await LoadFilesAsync(context);
+                var romPath = GetROMFilePath;
+                var pointerTable = PointerTables.GBARRR_PointerTable(settings.GameModeSelection, context.GetFile(romPath));
+
+                // Read animation frame indices
+                var animationFrameIndicesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_AnimationFrameIndices], () => s.SerializePointerArray(default, 46, name: "AnimationFrameIndices"));
+				ushort[][] animationFrameIndices = new ushort[animationFrameIndicesPointers.Length][];
+                Dictionary<Pointer, ushort[]> serializedAnimFrameIndicesPointers = new Dictionary<Pointer, ushort[]>();
+                for (int i = 0; i < animationFrameIndices.Length; i++) {
+                    var ptr = animationFrameIndicesPointers[i];
+                    if (!serializedAnimFrameIndicesPointers.ContainsKey(ptr)) {
+                        Pointer nextPtr = animationFrameIndicesPointers.OrderBy(p => p.AbsoluteOffset).FirstOrDefault(p => p.AbsoluteOffset > ptr.AbsoluteOffset);
+                        if(nextPtr == null) {
+                            nextPtr = animationFrameIndicesPointers[animationFrameIndicesPointers.Length-1]+2; // Last one only has one frame
+                        }
+                        serializedAnimFrameIndicesPointers[ptr]= s.DoAt(ptr, () => s.SerializeArray<ushort>(default, (nextPtr-ptr)/2, name: $"{nameof(animationFrameIndices)}[{i}]"));
+                    }
+                    animationFrameIndices[i] = serializedAnimFrameIndicesPointers[ptr];
+                }
+
+                // Read animation sets, determine frame count of each
+                var animationPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Animations], () => s.SerializePointerArray(default, 49, name: "Animations"));
+                GBARRR_Mode7AnimSet[] animSets = new GBARRR_Mode7AnimSet[animationPointers.Length];
+                Dictionary<Pointer, GBARRR_Mode7AnimSet> serializedAnimSets = new Dictionary<Pointer, GBARRR_Mode7AnimSet>();
+                for (int i = 0; i < animSets.Length; i++) {
+                    var ptr = animationPointers[i];
+                    if (!serializedAnimSets.ContainsKey(ptr)) {
+                        var animationIndicesWithThisAnimSet = animationPointers.Select((x, j) => x == ptr ? j : -1).Where(x => x != -1 && x < animationFrameIndices.Length).ToArray();
+                        var maxFrameIndex = animationIndicesWithThisAnimSet.Select(x => animationFrameIndices[x].Max()).Max();
+                        var count = (maxFrameIndex + 1) * 2; // Why times 2?
+                        serializedAnimSets[ptr] = s.DoAt(ptr, () => s.SerializeObject<GBARRR_Mode7AnimSet>(default, onPreSerialize: x => x.Length = count, name: $"{nameof(animSets)}[{i}]"));
+                    }
+                    animSets[i] = serializedAnimSets[ptr];
+                }
+
+                // Read & export graphics for Mode7
+                var hudPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_HUD], () => s.SerializePointerArray(default, 3, name: "HUDSpritePointers"));
+                var worldPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_World], () => s.SerializePointerArray(default, 3, name: "WorldSpritePointers"));
+                var palette2Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_2], () => s.SerializePointerArray(default, 3, name: "Palette2Pointers"));
+                var palette1Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_1], () => s.SerializePointerArray(default, 3, name: "Palette1Pointers"));
+                GBARRR_Palette palette0 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_0], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette0"));
+                for (int i = 0; i < 3; i++) {
+                    // Read level specific 
+                    byte[] hudSprites = null;
+                    s.DoAt(hudPointers[i], () => {
+                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => hudSprites = s.SerializeArray<byte>(hudSprites, s.CurrentLength, name: nameof(hudSprites)));
+                    });
+                    byte[] worldSprites = null;
+                    s.DoAt(worldPointers[i], () => {
+                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => worldSprites = s.SerializeArray<byte>(worldSprites, s.CurrentLength, name: nameof(worldSprites)));
+                    });
+                    var palette2 = s.DoAt(palette2Pointers[i], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette2"));
+                    var palette1 = s.DoAt(palette1Pointers[i], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette1"));
+
+                    // Create merged palette
+                    var newPalette = new RGBA5551Color[256];
+                    Array.Copy(palette2.Palette, newPalette, 0x100);
+                    Array.Copy(palette1.Palette, newPalette, 0x80);
+                    Array.Copy(palette0.Palette, newPalette, 0x10);
+
+                    // TODO: Create sprite animation pieces
+                }
+
+                // TODO: Read & export other graphics (game over, menu)
+            }
+
+        }
+
+
+            public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
             var gameMode = GetCurrentGameMode(context.Settings);

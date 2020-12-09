@@ -24,19 +24,15 @@
         // Unknown non-compressed Mode7 pointer arrays
         Mode7_Waypoints, // 0x02000240 (length 0x7D0) - length seems to be 304 for first level and 220 for second? Object related data, two shorts.
         Mode7_WaypointsCount,
-        Mode7_LevelSpritePalette, // 0x05000200 (length 0x100) - sprite palette?
-        Mode7_Array3, // 0x05000200 (length 0x80)
-
-        Mode7UnknownPal, // 05000200 (length 0x10) - this is not in an array and not compressed
 
         // Unknown compressed Mode7 pointer arrays
-        Mode7_ComprArray1, // 0x06015000 world-specific sprites
+        Mode7_Sprites_World, // 0x06015000 world-specific sprites
         Mode7_CollisionTypesArray, // 0x020150D0 (1024 bytes). Graphics tile -> Collision tile map for each level
-        Mode7_ComprArray4, // 0x06010A00 hud sprites
+        Mode7_Sprites_HUD, // 0x06010A00 hud sprites
 
         // Unknown compressed data 
         RNC_0, // 0x06010000
-        RNC_1, // 0x06010800
+        Sprites_Compressed_GameOver, // 0x06010800
         RNC_2, // 0x06002000
         RNC_3, // 0x02015500
         RNC_4, // 0x06016900
@@ -48,13 +44,24 @@
         MusicSampleTable,
         SoundEffectSampleTable,
 
-        SpritesPauseMenu,
-        SpritesGameOver,
-        SpritesMode7Rayman,
-        SpritesMode7UI,
-        Mode7_SpritePalette,
+        Sprites_PauseMenu,
+        Sprites_GameOver,
+        Sprites_Mode7Rayman, // 06010000 (0x400) (current frame only)
+        Sprites_Mode7UI_LumCount, // 06010900 (0x80) (current frame only)
+        Sprites_MenuFont, // 0600c000 (0x710 * 2)
+
+        Palette_Mode7Sprites_2, // 0x05000200 (length 0x100) - sprite palette?
+        Palette_Mode7Sprites_1, // 0x05000200 (length 0x80)
+        Palette_Mode7Sprites_0, // 05000200 (0x10 * 2)
+
+        Palette_MenuFont, // 050001c0 (0x20 * 2)
+        Palette_GameOver1, // 05000200 (0x10 * 2)
+        Palette_GameOver2, // 05000220 ((0x10 * 2)
+
 
         Mode7_AnimationFrameIndices,
-        Mode7_ObjectTypes,
+        Mode7_Animations,
+
+        Mode
     }
 }
