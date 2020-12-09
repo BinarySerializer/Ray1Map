@@ -295,17 +295,15 @@ namespace R1Engine
 
         public PalInfo[] Spyro2_PalInfoUS => new PalInfo[]
         {
-            // TODO: Add remaining pal block indices
-
             // HUD/Menu
-            new PalInfo(false, new long[]
+            new PalInfo(true, new long[]
             {
                 315, // TODO: Wrong pal
                 315,
                 315,
                 315,
                 315,
-                315, // TODO: Wrong pal
+                1475,
             }), // AnimSet 0
             new PalInfo(78, false), // AnimSet 1
             new PalInfo(false), // AnimSet 2 // TODO: Wrong pal
@@ -355,7 +353,7 @@ namespace R1Engine
                 335, 335, // Starry Plains
                 337, 337, // Sunny Plains
                 320, 320, // Tiki Tropics
-                323, 323, // TODO: Is this unused?
+                323, 323, // NOTE: Unused
                 327, 327, // Haunted Hills
                 330, 330, // Shamrock Isle
                 339, 339, // Watertopia
@@ -374,7 +372,24 @@ namespace R1Engine
             new PalInfo(332), // AnimSet 46
             new PalInfo(312), // AnimSet 47
             new PalInfo(330), // AnimSet 48
-            new PalInfo(), // AnimSet 49 // TODO: Wrong palettes - one for each level (US version has an extra anim!)
+            new PalInfo(true, new long[]
+            {
+                315, // Temple of Dune
+                310, // Candy Lane
+                344, // Gypsy Road
+                342, // Winter Mesa
+                339, // Watertopia
+                330, // Shamrock Isle
+                315, // NOTE: Unused (US only)
+                315, // TODO: Wrong pal?
+                323, // Moon Fondue
+                332, // Arctic Outback
+                331, // Lunar Ledges
+                333, // Ripto's Mondo Volcano
+                332, // Canyon Hop
+                320, // Tiki Tropics
+                327, // Haunted Hills
+            }), // AnimSet 49
             new PalInfo(335), // AnimSet 50
             new PalInfo(328), // AnimSet 51
             new PalInfo(328), // AnimSet 52
@@ -450,47 +465,55 @@ namespace R1Engine
 
             // Agent 9
             new PalInfo(1216, false), // AnimSet 122
-            new PalInfo(1216, false), // AnimSet 123 // TODO: Wrong pal
+            new PalInfo(1215, false), // AnimSet 123
             new PalInfo(1216, false), // AnimSet 124
             new PalInfo(1216, false), // AnimSet 125
             new PalInfo(1216, false), // AnimSet 126
-            new PalInfo(1216, false), // AnimSet 127
+            new PalInfo(1209, false), // AnimSet 127
             new PalInfo(1216, false), // AnimSet 128
             new PalInfo(1216, false), // AnimSet 129
             new PalInfo(1216, false), // AnimSet 130
             new PalInfo(1216, false), // AnimSet 131
             new PalInfo(1216, false), // AnimSet 132
             new PalInfo(1216, false), // AnimSet 133
-            new PalInfo(1216, false), // AnimSet 134 // TODO: Wrong palettes - one per level
+            new PalInfo(false, new long[]
+            {
+                1209, 1209, // Alpine Adobe
+                1211, 1211, // Rumble Jungle
+                1215, 1215, // Minty Mines
+                1216, 1216, // Volcano Vaults
+            }), // AnimSet 134
             new PalInfo(1216, false), // AnimSet 135
             new PalInfo(1216, false), // AnimSet 136
             new PalInfo(1216, false), // AnimSet 137
             new PalInfo(1216, false), // AnimSet 138
-            new PalInfo(1216, false), // AnimSet 139 // TODO: Wrong pal
+            new PalInfo(1209, false), // AnimSet 139 // TODO: Wrong pal - unused?
             new PalInfo(1216, false), // AnimSet 140
-            new PalInfo(1216, false), // AnimSet 141 // TODO: Wrong pal
+            new PalInfo(1211, false), // AnimSet 141
             new PalInfo(1216, false), // AnimSet 142
-            new PalInfo(1216, false), // AnimSet 143 // TODO: Wrong pal
+            new PalInfo(1215, false), // AnimSet 143
             new PalInfo(1216, false), // AnimSet 144
             new PalInfo(1216, false), // AnimSet 145
             new PalInfo(1216, false), // AnimSet 146
-            new PalInfo(1216, false), // AnimSet 147 // TODO: Wrong pal
-            new PalInfo(1216, false), // AnimSet 148 // TODO: Wrong pal
+            new PalInfo(1211, false), // AnimSet 147
+            new PalInfo(1216, false), // AnimSet 148
             new PalInfo(1216, false), // AnimSet 149
             new PalInfo(1215, false), // AnimSet 150
-            new PalInfo(1216, false), // AnimSet 151 // TODO: Wrong pal
 
-            // Other (Sparx Panic etc.)
-            new PalInfo(), // AnimSet 152 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 153 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 154 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 155 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 156 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 157 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 158 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 159 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 160 // TODO: Wrong pal
-            new PalInfo(), // AnimSet 161 // TODO: Wrong pal
+            // Dragon Draughts
+            new PalInfo(1436, false), // AnimSet 151
+            new PalInfo(1436, false), // AnimSet 152
+            
+            // Sparx Panic
+            new PalInfo(1450), // AnimSet 153
+            new PalInfo(1475, false), // AnimSet 154
+            new PalInfo(1475, false), // AnimSet 155 // TODO: Transparency glitch - why?
+            new PalInfo(1475, false), // AnimSet 156
+            new PalInfo(1475, false), // AnimSet 157
+            new PalInfo(1475, false), // AnimSet 158
+            new PalInfo(1475, false), // AnimSet 159
+            new PalInfo(1475, false), // AnimSet 160
+            new PalInfo(1475, false), // AnimSet 161
         };
 
         // TODO: Fill out
