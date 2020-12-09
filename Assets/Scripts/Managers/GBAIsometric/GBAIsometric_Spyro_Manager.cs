@@ -32,23 +32,30 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
-            new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false)),
-            new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, true)),
+            new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false, false)),
+            new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, true, false)),
+            new GameAction("Export Data Blocks (Unused)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false, true)),
             new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
             new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenes(settings, output)),
         };
 
-        public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize) {
+        public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize, bool ignoreUsedBlocks) {
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
                 await LoadFilesAsync(context);
+
+                if (ignoreUsedBlocks)
+                    GBAIsometric_Spyro_LevelData.ForceSerializeAll = true;
 
                 var rom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, context);
 
                 var palette = Util.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
 
-                for (int i = 0; i < rom.DataTable.DataEntries.Length; i++)
+                for (ushort i = 0; i < rom.DataTable.DataEntries.Length; i++)
                 {
+                    if (ignoreUsedBlocks && GBAIsometric_Spyro_DataBlockIndex.UsedIndices.Contains(i))
+                        continue;
+
                     var length = rom.DataTable.DataEntries[i].DataLength;
 
                     if (categorize && length == 512)

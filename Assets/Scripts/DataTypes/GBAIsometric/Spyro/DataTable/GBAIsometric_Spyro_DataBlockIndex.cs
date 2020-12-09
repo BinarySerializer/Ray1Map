@@ -1,10 +1,13 @@
 ﻿using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 
 namespace R1Engine
 {
     public class GBAIsometric_Spyro_DataBlockIndex : R1Serializable
     {
+        public static HashSet<ushort> UsedIndices { get; } = new HashSet<ushort>();
+
         public bool HasPadding { get; set; }
 
         public ushort Index { get; set; }
@@ -21,6 +24,8 @@ namespace R1Engine
 
             if (HasPadding)
                 s.Serialize<ushort>(default, name: "Padding");
+
+            UsedIndices.Add(Index);
         }
 
         public static GBAIsometric_Spyro_DataBlockIndex FromIndex(SerializerObject s, ushort index)
@@ -31,6 +36,8 @@ namespace R1Engine
             };
 
             i.Init(s.CurrentPointer);
+
+            UsedIndices.Add(index);
 
             return i;
         }
