@@ -474,8 +474,8 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_Bg1Map] = 0x08708200,
                         [GBARRR_Pointer.Mode7_BG0Tiles] = 0x087081d0,
                         [GBARRR_Pointer.Mode7_BG0Map] = 0x087081dc,
-                        [GBARRR_Pointer.Mode7_MapData] = 0x08708194, // It's compressed! // TODO: Add to export
-                        [GBARRR_Pointer.Mode7_CollisionMapData] = 0x087081a0, // It's compressed! // TODO: Add to export
+                        [GBARRR_Pointer.Mode7_MapData] = 0x08708194,
+                        [GBARRR_Pointer.Mode7_CollisionMapData] = 0x087081a0,
                         [GBARRR_Pointer.Mode7_TilePalette] = 0x087081b8,
                         [GBARRR_Pointer.Mode7_BG1Palette] = 0x0870820c,
                         [GBARRR_Pointer.Mode7_BG0Palette] = 0x087081e8,
@@ -484,7 +484,6 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_WaypointsCount] = 0x08708180,
                         [GBARRR_Pointer.Palette_Mode7Sprites_2] = 0x08708150,
                         [GBARRR_Pointer.Palette_Mode7Sprites_1] = 0x08708168,
-
                         [GBARRR_Pointer.Palette_Mode7Sprites_0] = 0x0868C9B8,
 
                         [GBARRR_Pointer.Sprites_Compressed_Unk] = 0x086C20EC,
@@ -504,6 +503,22 @@ namespace R1Engine
                         [GBARRR_Pointer.MusicTable] = 0x0866E710,
                         [GBARRR_Pointer.MusicSampleTable] = 0x083C37BC,
                         [GBARRR_Pointer.SoundEffectSampleTable] = 0x0866D2E8,
+
+                        [GBARRR_Pointer.Sprites_PauseMenu] = 0x086afb00,
+                        [GBARRR_Pointer.Sprites_GameOver] = 0x086bc9ec,
+                        [GBARRR_Pointer.Sprites_Mode7Rayman] = 0x0869d2f8,
+                        [GBARRR_Pointer.Sprites_Mode7UI_LumCount] = 0x086d1c58,
+                        [GBARRR_Pointer.Sprites_Mode7UI_TotalLumCount] = 0x086c977c,
+
+                        [GBARRR_Pointer.Palette_MenuFont] = 0x087012d8,
+                        [GBARRR_Pointer.Palette_GameOver1] = 0x086b0ef4,
+                        [GBARRR_Pointer.Palette_GameOver2] = 0x087018fe,
+                        [GBARRR_Pointer.Palette_PauseMenuSprites] = 0x0869e0a0,
+                        [GBARRR_Pointer.Palette_UnkSprites] = 0x086c210c,
+                        [GBARRR_Pointer.Palette_MainMenuSprites] = 0x086c0224,
+
+                        [GBARRR_Pointer.Mode7_AnimationFrameIndices] = 0x087082c8,
+                        [GBARRR_Pointer.Mode7_Animations] = 0x08708080,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.RaymanRavingRabbidsGBAEU:

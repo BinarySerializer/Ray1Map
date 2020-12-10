@@ -791,7 +791,7 @@ namespace R1Engine
                 }
 
                 // Export the animations themselves
-                for (int a = 0; a < animSets.Length; a++) {
+                for (int a = 0; a < animationFrameIndices.Length; a++) {
                     if (!exportedAnimSets.ContainsKey(animSets[a])) continue;
                     var texs = exportedAnimSets[animSets[a]];
                     if(texs == null) continue;
@@ -805,7 +805,7 @@ namespace R1Engine
                             var img = tex.ToMagickImage();
                             collection.Add(img);
                             collection[index].AnimationDelay = 1;
-                            collection[index].AnimationTicksPerSecond = 15;
+                            collection[index].AnimationTicksPerSecond = 10;
                             collection[index].Trim();
 
                             collection[index].GifDisposeMethod = GifDisposeMethod.Background;
