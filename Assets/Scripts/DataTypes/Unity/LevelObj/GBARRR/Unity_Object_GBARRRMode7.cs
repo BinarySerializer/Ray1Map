@@ -17,6 +17,12 @@ namespace R1Engine
         public GBARRR_Mode7Object Object { get; }
         public Unity_ObjectManager_GBARRRMode7 ObjManager { get; }
 
+        public short AnimTypeIndex
+        {
+            get => (short)Object.ObjectType;
+            set => Object.ObjectType = (GBARRR_Mode7Object.Mode7Type)value;
+        }
+
         public override short XPosition
         {
             get => Object.XPosition;
@@ -36,15 +42,15 @@ namespace R1Engine
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_{(int)Object.ObjectType}";
+        public override string PrimaryName => $"Type_{AnimTypeIndex}";
         public override string SecondaryName => IsRayman ? "Rayman" : $"{Object.ObjectType}";
 
-        public Unity_ObjectManager_GBARRRMode7.GraphicsData GraphicsData => ForceNoGraphics ? null : ObjManager.GraphicsDatas.ElementAtOrDefault((int)Object.ObjectType);
+        public Unity_ObjectManager_GBARRRMode7.GraphicsData GraphicsData => ForceNoGraphics ? null : ObjManager.GraphicsDatas.ElementAtOrDefault(AnimTypeIndex);
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
         public override int AnimSpeed => GraphicsData?.AnimSpeed ?? 0;
         public override int? GetAnimIndex => 0;
-        protected override int GetSpriteID => (int)Object.ObjectType;
+        protected override int GetSpriteID => AnimTypeIndex;
         public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
 
         protected override bool IsUIStateArrayUpToDate => false;
@@ -62,13 +68,21 @@ namespace R1Engine
 
             public ushort Type
             {
-                get => (ushort)Obj.Object.ObjectType;
-                set => Obj.Object.ObjectType = (GBARRR_Mode7Object.Mode7Type)(short)value;
+                get => (ushort)Obj.AnimTypeIndex;
+                set => Obj.AnimTypeIndex = (short)value;
             }
 
-            public int DES { get; set; }
+            public int DES
+            {
+                get => (ushort)Obj.AnimTypeIndex;
+                set => Obj.AnimTypeIndex = (short)value;
+            }
 
-            public int ETA { get; set; }
+            public int ETA
+            {
+                get => (ushort)Obj.AnimTypeIndex;
+                set => Obj.AnimTypeIndex = (short)value;
+            }
 
             public byte Etat { get; set; }
 

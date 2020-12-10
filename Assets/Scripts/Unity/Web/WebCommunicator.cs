@@ -323,7 +323,7 @@ public class WebCommunicator : MonoBehaviour {
 				case Unity_Object_GBARRRMode7 rrrMode7Obj:
 					if (!rrrMode7Obj.ForceNoGraphics)
                     {
-                        webObj.GBARRR_AnimationGroupIndex = (int)rrrMode7Obj.Object.ObjectType;
+                        webObj.GBARRR_AnimationGroupIndex = rrrMode7Obj.AnimTypeIndex;
                         if (includeLists)
                             webObj.GBARRR_AnimationGroupNames = rrrMode7Obj.ObjManager.GraphicsDatas.Select((g, i) => i.ToString()).ToArray();
                     }
@@ -600,6 +600,12 @@ public class WebCommunicator : MonoBehaviour {
 			case Unity_Object_GBARRR rrro:
 				if (msg.GBARRR_AnimationGroupIndex.HasValue && rrro.AnimationGroupIndex != msg.GBARRR_AnimationGroupIndex.Value) {
 					rrro.AnimationGroupIndex = msg.GBARRR_AnimationGroupIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBARRRMode7 rrrMode7_o:
+				if (msg.GBARRR_AnimationGroupIndex.HasValue && rrrMode7_o.AnimTypeIndex != msg.GBARRR_AnimationGroupIndex.Value) {
+                    rrrMode7_o.AnimTypeIndex = (short)msg.GBARRR_AnimationGroupIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
