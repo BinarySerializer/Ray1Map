@@ -771,6 +771,21 @@ namespace R1Engine
             };
         }
 
+
+
+        public Vector2Int[] GetMode7AnimFramePositions(Mode7Data mode7Data, int animIndex, bool mirrored = false) {
+            var animSet = mode7Data.AnimSets[animIndex];
+            var frameIndices = mode7Data.FrameIndices[animIndex];
+            List<Vector2Int> pos = new List<Vector2Int>();
+            int index = 0;
+            foreach (var frameInd in frameIndices) {
+                var frame = animSet.Frames[frameInd * 2 + (mirrored ? 1 : 0)];
+                if(frame == null) continue;
+                pos.Add(new Vector2Int(frame.MinXPosition, frame.MinYPosition));
+            }
+            return pos.ToArray();
+        }
+
         public async UniTask ExportMode7SpritesAsync(GameSettings settings, string outputPath) {
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
@@ -812,7 +827,7 @@ namespace R1Engine
                         int index = 0;
 
                         foreach (var frame in animationFrameIndices[a]) {
-                            var tex = texs[frame * 2];
+                            var tex = texs[frame * 2]; // * 2 only if loadMirroredFrames
                             if(tex == null) continue;
                             var img = tex.ToMagickImage();
                             collection.Add(img);
@@ -836,11 +851,11 @@ namespace R1Engine
             int minX1 = 0, minY1 = 0, maxX2 = int.MinValue, maxY2 = int.MinValue;
             if (isExport) {
                 if (animSet.Frames.Length > 0) {
-                    var fs = animSet.Frames.Where(f => f?.Value != null && f?.Value?.Channels.Length > 0);
-                    minX1 = fs.Min(f => f.Value.MinXPosition);
-                    minY1 = fs.Min(f => f.Value.MinYPosition);
-                    maxX2 = fs.Max(f => f.Value.MaxXPosition);
-                    maxY2 = fs.Max(f => f.Value.MaxYPosition);
+                    var fs = animSet.Frames.Where(f => f != null && f.Channels.Length > 0);
+                    minX1 = fs.Min(f => f.MinXPosition);
+                    minY1 = fs.Min(f => f.MinYPosition);
+                    maxX2 = fs.Max(f => f.MaxXPosition);
+                    maxY2 = fs.Max(f => f.MaxYPosition);
                 } else {
                     maxX2 = 0;
                     maxY2 = 0;
@@ -854,7 +869,7 @@ namespace R1Engine
 
             Texture2D[] texs = new Texture2D[animSet.Frames.Length / (loadMirroredFrames ? 1 : 2)];
             for (int i = 0; i < texs.Length; i++) {
-                var frame = animSet.Frames[i * (loadMirroredFrames ? 1 : 2)].Value;
+                var frame = animSet.Frames[i * (loadMirroredFrames ? 1 : 2)];
                 if(frame == null) continue;
                 int frameMinX = frame.MinXPosition;
                 int frameMinY = frame.MinYPosition;

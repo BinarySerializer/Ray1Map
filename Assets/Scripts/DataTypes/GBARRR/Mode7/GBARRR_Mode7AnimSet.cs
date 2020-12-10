@@ -6,11 +6,18 @@ namespace R1Engine
     {
         public int Length { get; set; } // set in OnPreSerialize
 
-        public Pointer<GBARRR_Mode7AnimationFrame>[] Frames { get; set; }
+        public Pointer[] FramePointers { get; set; }
+        public GBARRR_Mode7AnimationFrame[] Frames { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Frames = s.SerializePointerArray<GBARRR_Mode7AnimationFrame>(Frames, Length, resolve: true, name: nameof(Frames));
+            FramePointers = s.SerializePointerArray(FramePointers, Length, name: nameof(FramePointers));
+            if (Frames == null) {
+                Frames = new GBARRR_Mode7AnimationFrame[Length];
+                for (int i = 0; i < Length; i++) {
+                    Frames[i] = s.DoAt(FramePointers[i], () => s.SerializeObject<GBARRR_Mode7AnimationFrame>(Frames[i], name: $"{nameof(Frames)}[{i}]"));
+                }
+            }
         }
     }
 }
