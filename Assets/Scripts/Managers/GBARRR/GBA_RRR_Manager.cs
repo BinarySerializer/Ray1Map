@@ -786,6 +786,15 @@ namespace R1Engine
             return pos.ToArray();
         }
 
+        public Vector2Int Mode7_GetRaymanStartPosition(int levelIndex) {
+            switch (levelIndex) {
+                case 0: return new Vector2Int(0xE0, 0x3C8);
+                case 1: return new Vector2Int(0xB0, 0x408);
+                case 2: return new Vector2Int(0xD8, 0x430);
+                default: return Vector2Int.zero;
+            }
+        }
+
         public async UniTask ExportMode7SpritesAsync(GameSettings settings, string outputPath) {
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
