@@ -1029,15 +1029,15 @@ namespace R1Engine
                     Mode7_Objects.
                     // Only take the valid ones
                     Take(objLength).
+                    // Convert to Unity objects
+                    Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager, x.ObjectType == GBARRR_Mode7Object.Mode7Type.Unknown || (int)x.ObjectType > 45)).
                     // Append Rayman
-                    Append(new GBARRR_Mode7Object
+                    Append(new Unity_Object_GBARRRMode7(new GBARRR_Mode7Object
                     {
                         ObjectType = GBARRR_Mode7Object.Mode7Type.Unknown,
                         XPosition = (short)rayPos.x,
                         YPosition = (short)rayPos.y
-                    }).
-                    // Convert to Unity objects
-                    Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager)).
+                    }, objmanager, false)).
                     // Add waypoints
                     Concat(mode7Waypoints).
                     // To list
@@ -1342,7 +1342,7 @@ namespace R1Engine
                 }
             }
 
-            // Export the animations themselves
+            // Add the animations
             for (int a = 0; a < animationFrameIndices.Length; a++)
             {
                 if (!animSetTextures.ContainsKey(animSets[a]))

@@ -7,10 +7,11 @@ namespace R1Engine
 {
     public class Unity_Object_GBARRRMode7 : Unity_Object
     {
-        public Unity_Object_GBARRRMode7(GBARRR_Mode7Object obj, Unity_ObjectManager_GBARRRMode7 objManager)
+        public Unity_Object_GBARRRMode7(GBARRR_Mode7Object obj, Unity_ObjectManager_GBARRRMode7 objManager, bool forceNoGraphics)
         {
             Object = obj;
             ObjManager = objManager;
+            ForceNoGraphics = forceNoGraphics;
         }
 
         public GBARRR_Mode7Object Object { get; }
@@ -27,15 +28,17 @@ namespace R1Engine
             set => Object.YPosition = value;
         }
 
+        public bool ForceNoGraphics { get; }
+
         public override string DebugText => String.Empty;
 
         public override R1Serializable SerializableData => Object;
-        public override ILegacyEditorWrapper LegacyWrapper { get; }
+        public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{(int)Object.ObjectType}";
         public override string SecondaryName => $"{Object.ObjectType}";
 
-        public Unity_ObjectManager_GBARRRMode7.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault((int)Object.ObjectType);
+        public Unity_ObjectManager_GBARRRMode7.GraphicsData GraphicsData => ForceNoGraphics ? null : ObjManager.GraphicsDatas.ElementAtOrDefault((int)Object.ObjectType);
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
         public override int AnimSpeed => GraphicsData?.AnimSpeed ?? 0;
@@ -45,5 +48,48 @@ namespace R1Engine
 
         protected override bool IsUIStateArrayUpToDate => false;
         protected override void RecalculateUIStates() => UIStates = new UIState[0];
+
+        #region LegacyEditorWrapper
+        private class LegacyEditorWrapper : ILegacyEditorWrapper
+        {
+            public LegacyEditorWrapper(Unity_Object_GBARRRMode7 obj)
+            {
+                Obj = obj;
+            }
+
+            private Unity_Object_GBARRRMode7 Obj { get; }
+
+            public ushort Type
+            {
+                get => (ushort)Obj.Object.ObjectType;
+                set => Obj.Object.ObjectType = (GBARRR_Mode7Object.Mode7Type)(short)value;
+            }
+
+            public int DES { get; set; }
+
+            public int ETA { get; set; }
+
+            public byte Etat { get; set; }
+
+            public byte SubEtat { get; set; }
+
+            public int EtatLength => 0;
+            public int SubEtatLength => 0;
+
+            public byte OffsetBX { get; set; }
+
+            public byte OffsetBY { get; set; }
+
+            public byte OffsetHY { get; set; }
+
+            public byte FollowSprite { get; set; }
+
+            public uint HitPoints { get; set; }
+
+            public byte HitSprite { get; set; }
+
+            public bool FollowEnabled { get; set; }
+        }
+        #endregion
     }
 }
