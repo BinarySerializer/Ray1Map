@@ -307,9 +307,9 @@ namespace R1Engine
             }), // AnimSet 0
             new PalInfo(78, false), // AnimSet 1
             new PalInfo(false), // AnimSet 2 // TODO: Wrong pal
-            new PalInfo(false), // AnimSet 3 // TODO: Wrong pal?
-            new PalInfo(false), // AnimSet 4 // TODO: Wrong pal
-            new PalInfo(false), // AnimSet 5 // TODO: Wrong pal
+            new PalInfo(226, false), // AnimSet 3
+            new PalInfo(225, false), // AnimSet 4
+            new PalInfo(225, false), // AnimSet 5
             new PalInfo(227, false), // AnimSet 6
 
             // Game
@@ -320,14 +320,14 @@ namespace R1Engine
             new PalInfo(339), // AnimSet 11
             new PalInfo(335), // AnimSet 12
             new PalInfo(315), // AnimSet 13
-            new PalInfo(), // AnimSet 14 // TODO: Wrong pal
+            new PalInfo(327), // AnimSet 14
             new PalInfo(320), // AnimSet 15
             new PalInfo(339), // AnimSet 16
             new PalInfo(333), // AnimSet 17
             new PalInfo(328), // AnimSet 18
             new PalInfo(328), // AnimSet 19
             new PalInfo(328), // AnimSet 20
-            new PalInfo(), // AnimSet 21 // TODO: Wrong pal
+            new PalInfo(), // AnimSet 21 // TODO: Wrong pal (rabbit)
             new PalInfo(310), // AnimSet 22
             new PalInfo(327), // AnimSet 23
             new PalInfo(344), // AnimSet 24
@@ -361,7 +361,7 @@ namespace R1Engine
                 344, 344, // Gypsy Road
             }), // AnimSet 36
             new PalInfo(344), // AnimSet 37
-            new PalInfo(), // AnimSet 38 // TODO: Wrong pal
+            new PalInfo(), // AnimSet 38 // TODO: Wrong pal (shadow?)
             new PalInfo(327), // AnimSet 39
             new PalInfo(327), // AnimSet 40
             new PalInfo(341), // AnimSet 41
@@ -381,7 +381,7 @@ namespace R1Engine
                 339, // Watertopia
                 330, // Shamrock Isle
                 315, // NOTE: Unused (US only)
-                315, // TODO: Wrong pal?
+                318, // Rocket icon
                 323, // Moon Fondue
                 332, // Arctic Outback
                 331, // Lunar Ledges
@@ -398,14 +398,14 @@ namespace R1Engine
             new PalInfo(335), // AnimSet 55
             new PalInfo(339), // AnimSet 56
             new PalInfo(339), // AnimSet 57
-            new PalInfo(344), // AnimSet 58 // TODO: Wrong pal
+            new PalInfo(344), // AnimSet 58 // TODO: Wrong pal (frog)
             new PalInfo(333), // AnimSet 59
             new PalInfo(339), // AnimSet 60
             new PalInfo(339), // AnimSet 61
             new PalInfo(344), // AnimSet 62
             new PalInfo(310), // AnimSet 63
             new PalInfo(339), // AnimSet 64
-            new PalInfo(), // AnimSet 65 // TODO: Wrong pal - unused?
+            new PalInfo(331), // AnimSet 65
             new PalInfo(333), // AnimSet 66
             new PalInfo(), // AnimSet 67 // TODO: Wrong pal
             new PalInfo(330), // AnimSet 68
@@ -413,9 +413,9 @@ namespace R1Engine
             new PalInfo(320), // AnimSet 70
             new PalInfo(342), // AnimSet 71
             new PalInfo(342), // AnimSet 72
-            new PalInfo(), // AnimSet 73 // TODO: Wrong pal?
+            new PalInfo(), // AnimSet 73 // TODO: Wrong pal (enemy attack)
             new PalInfo(327), // AnimSet 74
-            new PalInfo(327), // AnimSet 75
+            new PalInfo(321, false), // AnimSet 75
             new PalInfo(339), // AnimSet 76
             new PalInfo(339), // AnimSet 77
             new PalInfo(342), // AnimSet 78
@@ -423,12 +423,12 @@ namespace R1Engine
             new PalInfo(333), // AnimSet 80
             new PalInfo(335), // AnimSet 81
             new PalInfo(327), // AnimSet 82
-            new PalInfo(317), // AnimSet 83 // TODO: Wrong pal
+            new PalInfo(317), // AnimSet 83 // TODO: Wrong pal (rabbit)
             new PalInfo(), // AnimSet 84 // TODO: Wrong pal
             new PalInfo(333), // AnimSet 85
             new PalInfo(333), // AnimSet 86
             new PalInfo(339), // AnimSet 87
-            new PalInfo(), // AnimSet 88 // TODO: Wrong pal
+            new PalInfo(332), // AnimSet 88
             new PalInfo(317), // AnimSet 89
             new PalInfo(), // AnimSet 90 // TODO: Wrong pal - same as 91?
             new PalInfo(323), // AnimSet 91
@@ -456,7 +456,7 @@ namespace R1Engine
             new PalInfo(333), // AnimSet 113
             new PalInfo(339), // AnimSet 114
             new PalInfo(339), // AnimSet 115
-            new PalInfo(333), // AnimSet 116 // TODO: Wrong pal?
+            new PalInfo(320), // AnimSet 116
             new PalInfo(320), // AnimSet 117
             new PalInfo(320), // AnimSet 118
             new PalInfo(339), // AnimSet 119
