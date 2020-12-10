@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public enum GBARRR_ActorType : byte
+    public enum GBARRR_ObjectType : byte
     {
         Special = 0,
         Collectible = 1, // Lum, life

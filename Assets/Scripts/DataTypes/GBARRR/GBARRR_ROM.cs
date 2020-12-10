@@ -20,7 +20,7 @@ namespace R1Engine
         // Map data
         public GBARRR_BGMapBlock BG0Map { get; set; }
         public GBARRR_BGMapBlock BG1Map { get; set; }
-        public GBARRR_Scene LevelScene { get; set; }
+        public GBARRR_ObjectArray ObjectArray { get; set; }
         public GBARRR_MapBlock CollisionMap { get; set; }
         public GBARRR_MapBlock LevelMap { get; set; }
         public GBARRR_MapBlock FGMap { get; set; }
@@ -121,8 +121,8 @@ namespace R1Engine
                         onPreSerialize: x => x.BlockSize = size));
 
                 // Serialize level scene
-                OffsetTable.DoAtBlock(s.Context, lvlInfo.SceneIndex,
-                    size => LevelScene = s.SerializeObject<GBARRR_Scene>(LevelScene, name: nameof(LevelScene)));
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.ObjectArrayIndex,
+                    size => ObjectArray = s.SerializeObject<GBARRR_ObjectArray>(ObjectArray, name: nameof(ObjectArray)));
 
                 // Serialize maps
                 OffsetTable.DoAtBlock(s.Context, lvlInfo.BG0MapIndex, size =>
@@ -274,7 +274,7 @@ namespace R1Engine
             {
                 OffsetTable.DoAtBlock(s.Context, 1180, size =>
                 {
-                    LevelScene = s.SerializeObject<GBARRR_Scene>(LevelScene, onPreSerialize: x => x.IsUnusedMode7 = true, name: nameof(LevelScene));
+                    ObjectArray = s.SerializeObject<GBARRR_ObjectArray>(ObjectArray, onPreSerialize: x => x.IsUnusedMode7 = true, name: nameof(ObjectArray));
                     Mode7_MapData = s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Foreground, name: nameof(Mode7_MapData));
                 });
                 OffsetTable.DoAtBlock(s.Context, 1181, size =>

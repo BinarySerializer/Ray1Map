@@ -324,7 +324,7 @@ namespace R1Engine
                     // Tilesets
                     x.LevelTilesetIndex, x.BG0TilesetIndex, x.FGTilesetIndex, x.BG1TilesetIndex,
                     // Maps & scene
-                    x.BG0MapIndex, x.BG1MapIndex, x.CollisionMapIndex, x.LevelMapIndex, x.FGMapIndex, x.SceneIndex,
+                    x.BG0MapIndex, x.BG1MapIndex, x.CollisionMapIndex, x.LevelMapIndex, x.FGMapIndex, x.ObjectArrayIndex,
                     // Palette
                     x.SpritePaletteIndex
                 }).ToArray();
@@ -1158,7 +1158,7 @@ namespace R1Engine
                         bg1,
                     },
                     objManager: o,
-                    eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, o)).ToList(),
+                    eventData: rom.ObjectArray.Objects.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, o)).ToList(),
                     getCollisionTypeNameFunc: x => ((GBARRR_TileCollisionType)x).ToString(),
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
@@ -1209,14 +1209,14 @@ namespace R1Engine
             
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_GBARRR(context, await LoadGraphicsDataAsync(context, rom.LevelScene, rom, lvl, world));
+            var objManager = new Unity_ObjectManager_GBARRR(context, await LoadGraphicsDataAsync(context, rom));
 
             await Controller.WaitIfNecessary();
 
-            var objects = rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager));
+            var objects = rom.ObjectArray.Objects.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager));
 
             if (gameMode == GameMode.Village && context.Settings.Level == 2)
-                objects = objects.Where(x => ((Unity_Object_GBARRR)x).Actor.ObjectType != GBARRR_ActorType.Scenery2); // Disable rain
+                objects = objects.Where(x => ((Unity_Object_GBARRR)x).Object.ObjectType != GBARRR_ObjectType.Scenery2); // Disable rain
 
             var objList = objects.ToList();
 
@@ -1224,18 +1224,18 @@ namespace R1Engine
             var dict = GetActorGraphicsData(lvl, world);
             foreach (var obj in objList.Cast<Unity_Object_GBARRR>())
             {
-                AssignActorValues(obj.Actor, rom, lvl, world);
+                AssignObjectValues(obj.Object, rom, lvl, world);
 
-                if (!dict.ContainsKey(obj.Actor.P_GraphicsOffset))
+                if (!dict.ContainsKey(obj.Object.P_GraphicsOffset))
                 {
-                    if (obj.Actor.P_GraphicsOffset != 0) {
-                        Debug.LogWarning($"Graphics with offset {obj.Actor.P_GraphicsOffset:X8} wasn't loaded!");
+                    if (obj.Object.P_GraphicsOffset != 0) {
+                        Debug.LogWarning($"Graphics with offset {obj.Object.P_GraphicsOffset:X8} wasn't loaded!");
                     }
                     obj.AnimationGroupIndex = -1;
                     continue;
                 }
 
-                var animBlock = dict[obj.Actor.P_GraphicsOffset];
+                var animBlock = dict[obj.Object.P_GraphicsOffset];
                 var animGroup = objManager.GraphicsDatas.FindItemIndex(x => x.Any(y => y.BlockIndex == animBlock));
                 var animIndex = objManager.GraphicsDatas[animGroup].FindItemIndex(x => x.BlockIndex == animBlock);
 
@@ -1268,7 +1268,7 @@ namespace R1Engine
         }
 
 
-        protected async UniTask<Unity_ObjectManager_GBARRR.GraphicsData[][]> LoadGraphicsDataAsync(Context context, GBARRR_Scene scene, GBARRR_ROM rom, int level, int world)
+        protected async UniTask<Unity_ObjectManager_GBARRR.GraphicsData[][]> LoadGraphicsDataAsync(Context context, GBARRR_ROM rom)
         {
             SerializerObject s = context.Deserializer;
             var animTable = GBARRR_Tables.GetAnimBlocks;
@@ -2256,386 +2256,386 @@ namespace R1Engine
             return memAddressDict;
         }
 
-        public void AssignActorValues(GBARRR_Actor actor, GBARRR_ROM rom, int level, int world) {
+        public void AssignObjectValues(GBARRR_Object obj, GBARRR_ROM rom, int level, int world) {
             if(level == 0x1b) world = 5;
             if(world > 5) return;
-            GBARRR_GraphicsTableEntry graphicsEntry = rom.GraphicsTable0[world].LastOrDefault(e => e.Key * 2 == actor.Ushort_0C);
+            GBARRR_GraphicsTableEntry graphicsEntry = rom.GraphicsTable0[world].LastOrDefault(e => e.Key * 2 == obj.Ushort_0C);
             if (graphicsEntry == null) return;
-            actor.P_GraphicsIndex = graphicsEntry.Value;
-            actor.P_SpriteSize = rom.GraphicsTable1[world][actor.P_GraphicsIndex];
-            actor.P_FrameCount = rom.GraphicsTable2[world][actor.P_GraphicsIndex];
+            obj.P_GraphicsIndex = graphicsEntry.Value;
+            obj.P_SpriteSize = rom.GraphicsTable1[world][obj.P_GraphicsIndex];
+            obj.P_FrameCount = rom.GraphicsTable2[world][obj.P_GraphicsIndex];
 
             switch (world) {
                 case 0:
 					// 2 is always a big thing. We'll check that later
 					#region World 0
-					if (actor.P_GraphicsIndex == 3) {
-                        actor.P_FunctionPointer = 0x08037B9D;
+					if (obj.P_GraphicsIndex == 3) {
+                        obj.P_FunctionPointer = 0x08037B9D;
                     }
-                    if (actor.P_GraphicsIndex == 4) {
-                        actor.P_FunctionPointer = 0x08037CA1;
+                    if (obj.P_GraphicsIndex == 4) {
+                        obj.P_FunctionPointer = 0x08037CA1;
                     }
-                    if (actor.P_GraphicsIndex == 5) {
-                        actor.P_GraphicsOffset = 0x03005158;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 5) {
+                        obj.P_GraphicsOffset = 0x03005158;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 6) {
-                        actor.P_FunctionPointer = 0x0804DC65;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 6) {
+                        obj.P_FunctionPointer = 0x0804DC65;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 8) {
-                        actor.P_GraphicsOffset = 0x0300401C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 8) {
+                        obj.P_GraphicsOffset = 0x0300401C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 9) {
-                        actor.P_GraphicsOffset = 0x0300248C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 9) {
+                        obj.P_GraphicsOffset = 0x0300248C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 10) {
-                        actor.P_GraphicsOffset = 0x03002374;
-                        actor.P_PaletteIndex = 0x13a;
+                    if (obj.P_GraphicsIndex == 10) {
+                        obj.P_GraphicsOffset = 0x03002374;
+                        obj.P_PaletteIndex = 0x13a;
                     }
-                    if (actor.P_GraphicsIndex == 0xb) {
-                        actor.P_GraphicsOffset = 0x03005064;
-                        actor.P_PaletteIndex = 0x13c;
+                    if (obj.P_GraphicsIndex == 0xb) {
+                        obj.P_GraphicsOffset = 0x03005064;
+                        obj.P_PaletteIndex = 0x13c;
                     }
-                    if (actor.P_GraphicsIndex == 0x18) {
+                    if (obj.P_GraphicsIndex == 0x18) {
                         // Boss
-                        actor.P_GraphicsOffset = 828; // Hardcoded
-                        actor.P_PaletteIndex = 0x0000033B;
-                        actor.P_Field0E = 0;
-                        actor.P_Field08 = 0;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                        obj.P_GraphicsOffset = 828; // Hardcoded
+                        obj.P_PaletteIndex = 0x0000033B;
+                        obj.P_Field0E = 0;
+                        obj.P_Field08 = 0;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                         //*(undefined4*)0x03005370 = 3;
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    if (actor.P_GraphicsIndex == 0x32) {
-                        actor.P_GraphicsOffset = 0x0300290C;
-                        actor.P_PaletteIndex = 0x290;
-                        actor.P_SpriteSize = 0x40;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    if (obj.P_GraphicsIndex == 0x32) {
+                        obj.P_GraphicsOffset = 0x0300290C;
+                        obj.P_PaletteIndex = 0x290;
+                        obj.P_SpriteSize = 0x40;
                     }
-                    if (actor.P_GraphicsIndex == 0x1c) {
-                        actor.P_GraphicsOffset = 0x03003FF0;
-                        actor.P_PaletteIndex = 0x290;
-                        actor.P_SpriteSize = 0x40;
+                    if (obj.P_GraphicsIndex == 0x1c) {
+                        obj.P_GraphicsOffset = 0x03003FF0;
+                        obj.P_PaletteIndex = 0x290;
+                        obj.P_SpriteSize = 0x40;
                     }
-                    if (actor.P_GraphicsIndex == 0x1e) {
-                        actor.P_GraphicsOffset = 0x03002E40;
-                        actor.P_PaletteIndex = 0x0000028A;
-                        actor.P_SpriteSize = 0x40;
+                    if (obj.P_GraphicsIndex == 0x1e) {
+                        obj.P_GraphicsOffset = 0x03002E40;
+                        obj.P_PaletteIndex = 0x0000028A;
+                        obj.P_SpriteSize = 0x40;
                     }
-                    if (actor.P_GraphicsIndex == 0x43) {
-                        actor.P_GraphicsOffset = 0x030030A4;
-                        actor.P_PaletteIndex = 0x28c;
-                        actor.P_SpriteSize = 0x20;
+                    if (obj.P_GraphicsIndex == 0x43) {
+                        obj.P_GraphicsOffset = 0x030030A4;
+                        obj.P_PaletteIndex = 0x28c;
+                        obj.P_SpriteSize = 0x20;
                     }
-                    if (actor.P_GraphicsIndex == 0x1d) {
-                        actor.P_GraphicsOffset = 0x0300514C;
-                        actor.P_PaletteIndex = 0x0000028E;
-                        actor.P_SpriteSize = 0x40;
+                    if (obj.P_GraphicsIndex == 0x1d) {
+                        obj.P_GraphicsOffset = 0x0300514C;
+                        obj.P_PaletteIndex = 0x0000028E;
+                        obj.P_SpriteSize = 0x40;
                     }
-                    if (actor.P_GraphicsIndex == 0x46) {
-                        actor.P_GraphicsOffset = 0x03002540;
-                        actor.P_PaletteIndex = 0x00000295;
-                        actor.P_SpriteSize = 0x20;
+                    if (obj.P_GraphicsIndex == 0x46) {
+                        obj.P_GraphicsOffset = 0x03002540;
+                        obj.P_PaletteIndex = 0x00000295;
+                        obj.P_SpriteSize = 0x20;
                     }
-                    if (actor.P_GraphicsIndex == 0x44) {
-                        actor.P_GraphicsOffset = 0x03004024;
-                        actor.P_PaletteIndex = 0x00000297;
-                        actor.P_SpriteSize = 0x20;
+                    if (obj.P_GraphicsIndex == 0x44) {
+                        obj.P_GraphicsOffset = 0x03004024;
+                        obj.P_PaletteIndex = 0x00000297;
+                        obj.P_SpriteSize = 0x20;
                     }
-                    if (actor.P_GraphicsIndex == 0x45) {
-                        actor.P_GraphicsOffset = 0x03004388;
-                        actor.P_PaletteIndex = 0x00000297;
-                        actor.P_SpriteSize = 0x20;
+                    if (obj.P_GraphicsIndex == 0x45) {
+                        obj.P_GraphicsOffset = 0x03004388;
+                        obj.P_PaletteIndex = 0x00000297;
+                        obj.P_SpriteSize = 0x20;
                     }
-                    if (actor.P_GraphicsIndex == 0x1f) {
-                        actor.P_GraphicsOffset = 0x0300232C;
-                        actor.P_PaletteIndex = 0x00000293;
-                        actor.P_SpriteSize = 0x20;
+                    if (obj.P_GraphicsIndex == 0x1f) {
+                        obj.P_GraphicsOffset = 0x0300232C;
+                        obj.P_PaletteIndex = 0x00000293;
+                        obj.P_SpriteSize = 0x20;
                     }
-                    if (actor.P_GraphicsIndex == 0x28) {
-                        actor.P_GraphicsOffset = 0x030023BC;
-                        actor.P_PaletteIndex = 0x000001A3;
+                    if (obj.P_GraphicsIndex == 0x28) {
+                        obj.P_GraphicsOffset = 0x030023BC;
+                        obj.P_PaletteIndex = 0x000001A3;
                     }
-                    if (actor.P_GraphicsIndex == 0x29) {
-                        actor.P_GraphicsOffset = 0x030024C8;
-                        actor.P_PaletteIndex = 0x2c4;
+                    if (obj.P_GraphicsIndex == 0x29) {
+                        obj.P_GraphicsOffset = 0x030024C8;
+                        obj.P_PaletteIndex = 0x2c4;
                     }
-                    if (actor.P_GraphicsIndex == 0x2a) {
-                        actor.P_GraphicsOffset = 0x030051D0;
-                        actor.P_PaletteIndex = 0x1a6;
-                        actor.P_SpriteHeight = 0;
+                    if (obj.P_GraphicsIndex == 0x2a) {
+                        obj.P_GraphicsOffset = 0x030051D0;
+                        obj.P_PaletteIndex = 0x1a6;
+                        obj.P_SpriteHeight = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x2b) {
-                        actor.P_GraphicsOffset = 0x0300524C;
-                        actor.P_PaletteIndex = 0x1ae;
-                        actor.P_SpriteHeight = 1;
+                    if (obj.P_GraphicsIndex == 0x2b) {
+                        obj.P_GraphicsOffset = 0x0300524C;
+                        obj.P_PaletteIndex = 0x1ae;
+                        obj.P_SpriteHeight = 1;
                     }
-                    if (actor.P_GraphicsIndex == 0x2c) {
-                        actor.P_GraphicsOffset = 0x03002E68;
-                        actor.P_PaletteIndex = 0x1b6;
-                        actor.P_SpriteHeight = 2;
+                    if (obj.P_GraphicsIndex == 0x2c) {
+                        obj.P_GraphicsOffset = 0x03002E68;
+                        obj.P_PaletteIndex = 0x1b6;
+                        obj.P_SpriteHeight = 2;
                     }
-                    if (actor.P_GraphicsIndex == 0x2d) {
-                        actor.P_GraphicsOffset = 0x03002378;
-                        actor.P_PaletteIndex = 0x1be;
-                        actor.P_SpriteHeight = 4;
+                    if (obj.P_GraphicsIndex == 0x2d) {
+                        obj.P_GraphicsOffset = 0x03002378;
+                        obj.P_PaletteIndex = 0x1be;
+                        obj.P_SpriteHeight = 4;
                     }
-                    if (actor.P_GraphicsIndex == 0x30) {
-                        actor.P_GraphicsOffset = 0x03002958;
-                        actor.P_PaletteIndex = 0x186;
+                    if (obj.P_GraphicsIndex == 0x30) {
+                        obj.P_GraphicsOffset = 0x03002958;
+                        obj.P_PaletteIndex = 0x186;
                     }
-                    if (actor.P_GraphicsIndex == 0x31) {
-                        actor.P_GraphicsOffset = 0x030050F0;
-                        actor.P_PaletteIndex = 0x18a;
+                    if (obj.P_GraphicsIndex == 0x31) {
+                        obj.P_GraphicsOffset = 0x030050F0;
+                        obj.P_PaletteIndex = 0x18a;
                     }
-                    if (actor.P_GraphicsIndex == 0x2e) {
-                        actor.P_GraphicsOffset = 0x03002F0C;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 0x00000195;
-                        actor.P_Field12 = 6;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 0x2e) {
+                        obj.P_GraphicsOffset = 0x03002F0C;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 0x00000195;
+                        obj.P_Field12 = 6;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                         //*(Actor**)0x03004278 = actor;
                     }
-                    if (actor.P_GraphicsIndex == 0x33) {
-                        actor.P_GraphicsOffset = 0x03003F78;
-                        actor.P_PaletteIndex = 0x1c6;
-                        actor.P_SpriteHeight = 3;
+                    if (obj.P_GraphicsIndex == 0x33) {
+                        obj.P_GraphicsOffset = 0x03003F78;
+                        obj.P_PaletteIndex = 0x1c6;
+                        obj.P_SpriteHeight = 3;
                     }
-                    if (actor.P_GraphicsIndex == 0x3f) {
-                        actor.P_GraphicsOffset = 0x030029C8;
-                        actor.P_PaletteIndex = 0x1ce;
-                        actor.P_SpriteHeight = 5;
+                    if (obj.P_GraphicsIndex == 0x3f) {
+                        obj.P_GraphicsOffset = 0x030029C8;
+                        obj.P_PaletteIndex = 0x1ce;
+                        obj.P_SpriteHeight = 5;
                     }
-                    if (actor.P_GraphicsIndex == 0x34) {
-                        actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x34) {
+                        obj.P_GraphicsOffset = 0x03002324;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x35) {
-                        actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x35) {
+                        obj.P_GraphicsOffset = 0x03004264;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    if (actor.P_GraphicsIndex == 0x36) {
-                        actor.P_GraphicsOffset = 0x03004354;
-                        actor.P_PaletteIndex = 0x00000271;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    if (obj.P_GraphicsIndex == 0x36) {
+                        obj.P_GraphicsOffset = 0x03004354;
+                        obj.P_PaletteIndex = 0x00000271;
                     }
-                    if (actor.P_GraphicsIndex == 0x37) {
-                        actor.P_GraphicsOffset = 0x03003F54;
-                        actor.P_PaletteIndex = 0x00000273;
+                    if (obj.P_GraphicsIndex == 0x37) {
+                        obj.P_GraphicsOffset = 0x03003F54;
+                        obj.P_PaletteIndex = 0x00000273;
                     }
-                    if (actor.P_GraphicsIndex == 0x38) {
-                        actor.P_GraphicsOffset = 0x03003FC8;
-                        actor.P_PaletteIndex = 0x280;
+                    if (obj.P_GraphicsIndex == 0x38) {
+                        obj.P_GraphicsOffset = 0x03003FC8;
+                        obj.P_PaletteIndex = 0x280;
                     }
-                    if (actor.P_GraphicsIndex == 0x39) {
+                    if (obj.P_GraphicsIndex == 0x39) {
                         //0x030052AC = 0x030052AC + 1;
                         if (level == 0x1d) {
-                            actor.P_GraphicsOffset = 0x03005150;
-                            actor.P_PaletteIndex = 0x2e0;
+                            obj.P_GraphicsOffset = 0x03005150;
+                            obj.P_PaletteIndex = 0x2e0;
                         } else {
-                            actor.P_GraphicsOffset = 0x03003FBC;
-                            actor.P_PaletteIndex = 0x2e3;
+                            obj.P_GraphicsOffset = 0x03003FBC;
+                            obj.P_PaletteIndex = 0x2e3;
                         }
-                        actor.P_Field12 = 0;
-                        actor.P_Field2C = 0x50;
+                        obj.P_Field12 = 0;
+                        obj.P_Field2C = 0x50;
                     }
-                    if (actor.P_GraphicsIndex == 0x3a) {
-                        actor.P_GraphicsOffset = 0x03002E9C;
-                        actor.P_PaletteIndex = 0x2e6;
-                        actor.P_Field12 = 0;
-                        actor.P_Field2C = 0x50;
+                    if (obj.P_GraphicsIndex == 0x3a) {
+                        obj.P_GraphicsOffset = 0x03002E9C;
+                        obj.P_PaletteIndex = 0x2e6;
+                        obj.P_Field12 = 0;
+                        obj.P_Field2C = 0x50;
                     }
-                    if (actor.P_GraphicsIndex == 0x3b) {
-                        actor.P_GraphicsOffset = 0x03002E04;
-                        actor.P_PaletteIndex = 0x188;
+                    if (obj.P_GraphicsIndex == 0x3b) {
+                        obj.P_GraphicsOffset = 0x03002E04;
+                        obj.P_PaletteIndex = 0x188;
                     }
-                    if (actor.P_GraphicsIndex == 0x3c) {
-                        actor.P_GraphicsOffset = 0x03004FB8;
-                        actor.P_PaletteIndex = 0x150;
+                    if (obj.P_GraphicsIndex == 0x3c) {
+                        obj.P_GraphicsOffset = 0x03004FB8;
+                        obj.P_PaletteIndex = 0x150;
                     }
-                    if (actor.P_GraphicsIndex == 0x3e) {
-                        actor.P_GraphicsOffset = 0x03004F6C;
-                        actor.P_PaletteIndex = 0x17f;
+                    if (obj.P_GraphicsIndex == 0x3e) {
+                        obj.P_GraphicsOffset = 0x03004F6C;
+                        obj.P_PaletteIndex = 0x17f;
                     }
-                    if (actor.P_GraphicsIndex == 0x40) {
-                        actor.P_GraphicsOffset = 0x03002EBC;
-                        actor.P_PaletteIndex = 0x173;
-                        actor.P_Field10 = actor.RuntimeYPosition;
+                    if (obj.P_GraphicsIndex == 0x40) {
+                        obj.P_GraphicsOffset = 0x03002EBC;
+                        obj.P_PaletteIndex = 0x173;
+                        obj.P_Field10 = obj.RuntimeYPosition;
                     }
-                    if (actor.P_GraphicsIndex == 0x41) {
-                        actor.P_GraphicsOffset = 0x030022D8;
-                        actor.P_PaletteIndex = 0x158;
+                    if (obj.P_GraphicsIndex == 0x41) {
+                        obj.P_GraphicsOffset = 0x030022D8;
+                        obj.P_PaletteIndex = 0x158;
                     }
-                    if (actor.P_GraphicsIndex == 0x42) {
-                        actor.P_GraphicsOffset = 0x030022B8;
-                        actor.P_OtherGraphicsOffset = 0x0300234C;
-                        actor.P_Field20 = 100;
-                        actor.P_PaletteIndex = 0x148;
+                    if (obj.P_GraphicsIndex == 0x42) {
+                        obj.P_GraphicsOffset = 0x030022B8;
+                        obj.P_OtherGraphicsOffset = 0x0300234C;
+                        obj.P_Field20 = 100;
+                        obj.P_PaletteIndex = 0x148;
                     }
 					#endregion
 					break;
                 case 1:
                     // 2 is always a big thing. We'll check that later
                     #region World 1
-                    if (actor.P_GraphicsIndex == 3) {
-                        actor.P_FunctionPointer = 0x08037B9D;
+                    if (obj.P_GraphicsIndex == 3) {
+                        obj.P_FunctionPointer = 0x08037B9D;
                     }
-                    if (actor.P_GraphicsIndex == 4) {
-                        actor.P_FunctionPointer = 0x08037CA1;
+                    if (obj.P_GraphicsIndex == 4) {
+                        obj.P_FunctionPointer = 0x08037CA1;
                     }
-                    if (actor.P_GraphicsIndex == 5) {
-                        actor.P_GraphicsOffset = 0x03005158;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 5) {
+                        obj.P_GraphicsOffset = 0x03005158;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 6) {
-                        actor.P_FunctionPointer = 0x0804DC65;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 6) {
+                        obj.P_FunctionPointer = 0x0804DC65;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 8) {
-                        actor.P_GraphicsOffset = 0x0300401C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 8) {
+                        obj.P_GraphicsOffset = 0x0300401C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 9) {
-                        actor.P_GraphicsOffset = 0x0300248C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 9) {
+                        obj.P_GraphicsOffset = 0x0300248C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 10) {
-                        actor.P_GraphicsOffset = 0x03002374;
-                        actor.P_PaletteIndex = 0x13a;
+                    if (obj.P_GraphicsIndex == 10) {
+                        obj.P_GraphicsOffset = 0x03002374;
+                        obj.P_PaletteIndex = 0x13a;
                     }
-                    if (actor.P_GraphicsIndex == 0xb) {
-                        actor.P_GraphicsOffset = 0x03005064;
-                        actor.P_PaletteIndex = 0x13c;
+                    if (obj.P_GraphicsIndex == 0xb) {
+                        obj.P_GraphicsOffset = 0x03005064;
+                        obj.P_PaletteIndex = 0x13c;
                     }
-                    if (actor.P_GraphicsIndex == 0x10) {
-                        actor.P_GraphicsOffset = 0x030028B4;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x10) {
+                        obj.P_GraphicsOffset = 0x030028B4;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x11) {
-                        actor.P_GraphicsOffset = 0x03002DEC;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x11) {
+                        obj.P_GraphicsOffset = 0x03002DEC;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x12) {
-                        actor.P_GraphicsOffset = 0x03002E5C;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x12) {
+                        obj.P_GraphicsOffset = 0x03002E5C;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x13) {
-                        actor.P_GraphicsOffset = 0x03004FC8;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x13) {
+                        obj.P_GraphicsOffset = 0x03004FC8;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x18) {
+                    if (obj.P_GraphicsIndex == 0x18) {
                         // Boss
-                        actor.P_GraphicsOffset = 828; // Hardcoded
-                        actor.P_PaletteIndex = 0x0000033B;
-                        actor.P_Field0E = 0;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
-                        actor.P_SpriteWidth = 0xff;
+                        obj.P_GraphicsOffset = 828; // Hardcoded
+                        obj.P_PaletteIndex = 0x0000033B;
+                        obj.P_Field0E = 0;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
+                        obj.P_SpriteWidth = 0xff;
                         //*(undefined4*)0x03005370 = 3;
                     }
-                    if (actor.P_GraphicsIndex == 0x28) {
-                        actor.P_GraphicsOffset = 0x030042F8;
-                        actor.P_PaletteIndex = 0x000001D5;
-                        actor.P_SpriteHeight = 0;
+                    if (obj.P_GraphicsIndex == 0x28) {
+                        obj.P_GraphicsOffset = 0x030042F8;
+                        obj.P_PaletteIndex = 0x000001D5;
+                        obj.P_SpriteHeight = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x29) {
-                        actor.P_GraphicsOffset = 0x03002F14;
-                        actor.P_PaletteIndex = 0x1e8;
-                        actor.P_SpriteHeight = 1;
+                    if (obj.P_GraphicsIndex == 0x29) {
+                        obj.P_GraphicsOffset = 0x03002F14;
+                        obj.P_PaletteIndex = 0x1e8;
+                        obj.P_SpriteHeight = 1;
                     }
-                    if (actor.P_GraphicsIndex == 0x2a) {
-                        actor.P_GraphicsOffset = 0x03002568;
-                        actor.P_PaletteIndex = 0x1ee;
-                        actor.P_SpriteHeight = 2;
+                    if (obj.P_GraphicsIndex == 0x2a) {
+                        obj.P_GraphicsOffset = 0x03002568;
+                        obj.P_PaletteIndex = 0x1ee;
+                        obj.P_SpriteHeight = 2;
                     }
-                    if (actor.P_GraphicsIndex == 0x2b) {
-                        actor.P_GraphicsOffset = 0x030051A0;
-                        actor.P_PaletteIndex = 0x1dc;
-                        actor.P_FrameCount = 5;
-                        actor.P_Field34 = actor.P_Field12;
+                    if (obj.P_GraphicsIndex == 0x2b) {
+                        obj.P_GraphicsOffset = 0x030051A0;
+                        obj.P_PaletteIndex = 0x1dc;
+                        obj.P_FrameCount = 5;
+                        obj.P_Field34 = obj.P_Field12;
                     }
-                    if (actor.P_GraphicsIndex == 0x2c) {
-                        actor.P_GraphicsOffset = 0x03002378;
-                        actor.P_PaletteIndex = 0x1be;
-                        actor.P_SpriteHeight = 4;
+                    if (obj.P_GraphicsIndex == 0x2c) {
+                        obj.P_GraphicsOffset = 0x03002378;
+                        obj.P_PaletteIndex = 0x1be;
+                        obj.P_SpriteHeight = 4;
                     }
-                    if (actor.P_GraphicsIndex == 0x2d) {
-                        actor.P_GraphicsOffset = 0x03005128;
-                        actor.P_PaletteIndex = 0x000001FB;
-                        actor.P_SpriteHeight = 5;
+                    if (obj.P_GraphicsIndex == 0x2d) {
+                        obj.P_GraphicsOffset = 0x03005128;
+                        obj.P_PaletteIndex = 0x000001FB;
+                        obj.P_SpriteHeight = 5;
                     }
-                    if (actor.P_GraphicsIndex == 0x33) {
-                        actor.P_GraphicsOffset = 0x03005248;
-                        actor.P_PaletteIndex = 0x1fe;
-                        actor.P_SpriteHeight = 6;
+                    if (obj.P_GraphicsIndex == 0x33) {
+                        obj.P_GraphicsOffset = 0x03005248;
+                        obj.P_PaletteIndex = 0x1fe;
+                        obj.P_SpriteHeight = 6;
                     }
-                    if (actor.P_GraphicsIndex == 0x32) {
-                        actor.P_GraphicsOffset = 0x030029C8;
-                        actor.P_PaletteIndex = 0x1ce;
-                        actor.P_SpriteHeight = 7;
+                    if (obj.P_GraphicsIndex == 0x32) {
+                        obj.P_GraphicsOffset = 0x030029C8;
+                        obj.P_PaletteIndex = 0x1ce;
+                        obj.P_SpriteHeight = 7;
                     }
-                    if (actor.P_GraphicsIndex == 0x30) {
-                        actor.P_GraphicsOffset = 0x03004270;
-                        actor.P_PaletteIndex = 0x0000017B;
+                    if (obj.P_GraphicsIndex == 0x30) {
+                        obj.P_GraphicsOffset = 0x03004270;
+                        obj.P_PaletteIndex = 0x0000017B;
                     }
-                    if (actor.P_GraphicsIndex == 0x34) {
-                        actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x34) {
+                        obj.P_GraphicsOffset = 0x03002324;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x35) {
-                        actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x35) {
+                        obj.P_GraphicsOffset = 0x03004264;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x3a) {
-                        actor.P_GraphicsOffset = 0x03004F6C;
-                        actor.P_PaletteIndex = 0x0000017F;
+                    if (obj.P_GraphicsIndex == 0x3a) {
+                        obj.P_GraphicsOffset = 0x03004F6C;
+                        obj.P_PaletteIndex = 0x0000017F;
                     }
-                    if (actor.P_GraphicsIndex == 0x3b) {
-                        actor.P_GraphicsOffset = 0x03002370;
-                        actor.P_PaletteIndex = 0x0000017D;
+                    if (obj.P_GraphicsIndex == 0x3b) {
+                        obj.P_GraphicsOffset = 0x03002370;
+                        obj.P_PaletteIndex = 0x0000017D;
                     }
-                    if (actor.P_GraphicsIndex == 0x3c) {
-                        actor.P_GraphicsOffset = 0x030023CC;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x3c) {
+                        obj.P_GraphicsOffset = 0x030023CC;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x3d) {
-                        actor.P_GraphicsOffset = 0x030023F0;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x3d) {
+                        obj.P_GraphicsOffset = 0x030023F0;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x37) {
-                        actor.P_GraphicsOffset = 0x03002904;
-                        actor.P_PaletteIndex = 0x192;
+                    if (obj.P_GraphicsIndex == 0x37) {
+                        obj.P_GraphicsOffset = 0x03002904;
+                        obj.P_PaletteIndex = 0x192;
                     }
-                    if (actor.P_GraphicsIndex == 0x38) {
-                        actor.P_GraphicsOffset = 0x03004FF0;
-                        actor.P_PaletteIndex = 0x0000017B;
+                    if (obj.P_GraphicsIndex == 0x38) {
+                        obj.P_GraphicsOffset = 0x03004FF0;
+                        obj.P_PaletteIndex = 0x0000017B;
                     }
-                    if (actor.P_GraphicsIndex == 0x39) {
-                        actor.P_GraphicsOffset = 0x03002908;
-                        actor.P_Field14 = 0;
-                        actor.P_PaletteIndex = 0x14e;
+                    if (obj.P_GraphicsIndex == 0x39) {
+                        obj.P_GraphicsOffset = 0x03002908;
+                        obj.P_Field14 = 0;
+                        obj.P_PaletteIndex = 0x14e;
                     }
-                    if (actor.P_GraphicsIndex == 0x31) {
-                        actor.P_GraphicsOffset = 0x03005188;
-                        actor.P_PaletteIndex = 0x2a8;
+                    if (obj.P_GraphicsIndex == 0x31) {
+                        obj.P_GraphicsOffset = 0x03005188;
+                        obj.P_PaletteIndex = 0x2a8;
                     }
-                    if (actor.P_GraphicsIndex == 0x3e) {
-                        actor.P_GraphicsOffset = 0x03002300;
-                        actor.P_PaletteIndex = 0x000002A6;
+                    if (obj.P_GraphicsIndex == 0x3e) {
+                        obj.P_GraphicsOffset = 0x03002300;
+                        obj.P_PaletteIndex = 0x000002A6;
                     }
-                    if (actor.P_GraphicsIndex == 0x3f) {
-                        actor.P_GraphicsOffset = 0x03002E58;
-                        actor.P_PaletteIndex = 0x0000029E;
+                    if (obj.P_GraphicsIndex == 0x3f) {
+                        obj.P_GraphicsOffset = 0x03002E58;
+                        obj.P_PaletteIndex = 0x0000029E;
                     }
                     #endregion
                     break;
@@ -2643,135 +2643,135 @@ namespace R1Engine
                     // 2 is always a big thing. We'll check that later
                     #region World 2
 
-                    if (actor.P_GraphicsIndex == 3) {
-                        actor.P_FunctionPointer = 0x08037B9D; // Trigger (level completed)
+                    if (obj.P_GraphicsIndex == 3) {
+                        obj.P_FunctionPointer = 0x08037B9D; // Trigger (level completed)
                     }
-                    if (actor.P_GraphicsIndex == 4) {
-                        actor.P_FunctionPointer = 0x08037CA1; // Trigger (back to map)
+                    if (obj.P_GraphicsIndex == 4) {
+                        obj.P_FunctionPointer = 0x08037CA1; // Trigger (back to map)
                     }
-                    if (actor.P_GraphicsIndex == 5) {
-                        actor.P_GraphicsOffset = 0x03005158;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 5) {
+                        obj.P_GraphicsOffset = 0x03005158;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 6) {
-                        actor.P_FunctionPointer = 0x0804DC65;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 6) {
+                        obj.P_FunctionPointer = 0x0804DC65;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 0x18) {
+                    if (obj.P_GraphicsIndex == 0x18) {
                         // Boss
-                        actor.P_GraphicsOffset = 828; // Hardcoded
-                        actor.P_PaletteIndex = 0x0000033B;
-                        actor.P_Field0E = 0;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
-                        actor.P_SpriteWidth = 0xff;
+                        obj.P_GraphicsOffset = 828; // Hardcoded
+                        obj.P_PaletteIndex = 0x0000033B;
+                        obj.P_Field0E = 0;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
+                        obj.P_SpriteWidth = 0xff;
                         //*(undefined4*)0x03005370 = 4;
                     }
-                    if (actor.P_GraphicsIndex == 0x34) {
-                        actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x34) {
+                        obj.P_GraphicsOffset = 0x03002324;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x35) {
-                        actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x35) {
+                        obj.P_GraphicsOffset = 0x03004264;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 8) {
-                        actor.P_GraphicsOffset = 0x0300401C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 8) {
+                        obj.P_GraphicsOffset = 0x0300401C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 9) {
-                        actor.P_GraphicsOffset = 0x0300248C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 9) {
+                        obj.P_GraphicsOffset = 0x0300248C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 10) {
-                        actor.P_GraphicsOffset = 0x03002374;
-                        actor.P_PaletteIndex = 0x13a;
+                    if (obj.P_GraphicsIndex == 10) {
+                        obj.P_GraphicsOffset = 0x03002374;
+                        obj.P_PaletteIndex = 0x13a;
                     }
-                    if (actor.P_GraphicsIndex == 0xb) {
-                        actor.P_GraphicsOffset = 0x03005064;
-                        actor.P_PaletteIndex = 0x13c;
+                    if (obj.P_GraphicsIndex == 0xb) {
+                        obj.P_GraphicsOffset = 0x03005064;
+                        obj.P_PaletteIndex = 0x13c;
                     }
-                    if (actor.P_GraphicsIndex == 0x28) {
-                        actor.P_GraphicsOffset = 0x03002ED0;
-                        actor.P_PaletteIndex = 0x00000201;
-                        actor.P_SpriteHeight = 0;
+                    if (obj.P_GraphicsIndex == 0x28) {
+                        obj.P_GraphicsOffset = 0x03002ED0;
+                        obj.P_PaletteIndex = 0x00000201;
+                        obj.P_SpriteHeight = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x29) {
-                        actor.P_GraphicsOffset = 0x030022E0;
-                        actor.P_PaletteIndex = 0x00000207;
-                        actor.P_SpriteHeight = 1;
-                        actor.P_Field0E = 0x65;
+                    if (obj.P_GraphicsIndex == 0x29) {
+                        obj.P_GraphicsOffset = 0x030022E0;
+                        obj.P_PaletteIndex = 0x00000207;
+                        obj.P_SpriteHeight = 1;
+                        obj.P_Field0E = 0x65;
                     }
-                    if (actor.P_GraphicsIndex == 0x2a) {
-                        actor.P_GraphicsOffset = 0x03004F94;
-                        actor.P_PaletteIndex = 0x00000216;
-                        actor.P_SpriteHeight = 2;
+                    if (obj.P_GraphicsIndex == 0x2a) {
+                        obj.P_GraphicsOffset = 0x03004F94;
+                        obj.P_PaletteIndex = 0x00000216;
+                        obj.P_SpriteHeight = 2;
                     }
-                    if (actor.P_GraphicsIndex == 0x2b) {
-                        actor.P_GraphicsOffset = 0x030025CC;
-                        actor.P_PaletteIndex = 0x210;
-                        actor.P_SpriteHeight = 3;
+                    if (obj.P_GraphicsIndex == 0x2b) {
+                        obj.P_GraphicsOffset = 0x030025CC;
+                        obj.P_PaletteIndex = 0x210;
+                        obj.P_SpriteHeight = 3;
                     }
-                    if (actor.P_GraphicsIndex == 0x2c) {
-                        actor.P_GraphicsOffset = 0x03002464;
-                        actor.P_PaletteIndex = 0x21c;
-                        actor.P_SpriteHeight = 4;
+                    if (obj.P_GraphicsIndex == 0x2c) {
+                        obj.P_GraphicsOffset = 0x03002464;
+                        obj.P_PaletteIndex = 0x21c;
+                        obj.P_SpriteHeight = 4;
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    if (actor.P_GraphicsIndex == 0x30) {
-                        actor.P_GraphicsOffset = 0x03005140;
-                        actor.P_PaletteIndex = 0x00000177;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    if (obj.P_GraphicsIndex == 0x30) {
+                        obj.P_GraphicsOffset = 0x03005140;
+                        obj.P_PaletteIndex = 0x00000177;
                     }
-                    if (actor.P_GraphicsIndex == 0x36) {
-                        actor.P_GraphicsOffset = 0x03004FE0;
-                        actor.P_PaletteIndex = 0x00000179;
+                    if (obj.P_GraphicsIndex == 0x36) {
+                        obj.P_GraphicsOffset = 0x03004FE0;
+                        obj.P_PaletteIndex = 0x00000179;
                     }
-                    if (actor.P_GraphicsIndex == 0x3b) {
-                        actor.P_GraphicsOffset = 0x0300292C;
-                        actor.P_PaletteIndex = 0x000002B9;
+                    if (obj.P_GraphicsIndex == 0x3b) {
+                        obj.P_GraphicsOffset = 0x0300292C;
+                        obj.P_PaletteIndex = 0x000002B9;
                     }
-                    if (actor.P_GraphicsIndex == 0x3c) {
-                        actor.P_GraphicsOffset = 0x030024B8;
-                        actor.P_PaletteIndex = 0x30c;
+                    if (obj.P_GraphicsIndex == 0x3c) {
+                        obj.P_GraphicsOffset = 0x030024B8;
+                        obj.P_PaletteIndex = 0x30c;
                     }
-                    if (actor.P_GraphicsIndex == 0x3d) {
-                        actor.P_GraphicsOffset = 0x03004F6C;
-                        actor.P_PaletteIndex = 0x0000017F;
+                    if (obj.P_GraphicsIndex == 0x3d) {
+                        obj.P_GraphicsOffset = 0x03004F6C;
+                        obj.P_PaletteIndex = 0x0000017F;
                     }
-                    if (actor.P_GraphicsIndex == 0x3e) {
-                        actor.P_GraphicsOffset = 0x03005220;
-                        actor.P_PaletteIndex = 0x2c0;
+                    if (obj.P_GraphicsIndex == 0x3e) {
+                        obj.P_GraphicsOffset = 0x03005220;
+                        obj.P_PaletteIndex = 0x2c0;
                     }
-                    if (actor.P_GraphicsIndex == 0x40) {
-                        actor.P_GraphicsOffset = 0x030030B4;
-                        actor.P_PaletteIndex = 0x000002C9;
+                    if (obj.P_GraphicsIndex == 0x40) {
+                        obj.P_GraphicsOffset = 0x030030B4;
+                        obj.P_PaletteIndex = 0x000002C9;
                     }
-                    if (actor.P_GraphicsIndex == 0x41) {
-                        actor.P_GraphicsOffset = 0x03003088;
-                        actor.P_PaletteIndex = 0x30c;
+                    if (obj.P_GraphicsIndex == 0x41) {
+                        obj.P_GraphicsOffset = 0x03003088;
+                        obj.P_PaletteIndex = 0x30c;
                     }
-                    if (actor.P_GraphicsIndex == 0x42) {
-                        actor.P_GraphicsOffset = 0x030025B8;
-                        actor.P_PaletteIndex = 0x30c;
+                    if (obj.P_GraphicsIndex == 0x42) {
+                        obj.P_GraphicsOffset = 0x030025B8;
+                        obj.P_PaletteIndex = 0x30c;
                     }
-                    if (actor.P_GraphicsIndex == 0x31) {
-                        actor.P_GraphicsOffset = 0x0300435C;
-                        actor.P_PaletteIndex = 0x000002A2;
+                    if (obj.P_GraphicsIndex == 0x31) {
+                        obj.P_GraphicsOffset = 0x0300435C;
+                        obj.P_PaletteIndex = 0x000002A2;
                     }
-                    if (actor.P_GraphicsIndex == 0x32) {
-                        actor.P_GraphicsOffset = 0x0300245C;
-                        actor.P_PaletteIndex = 0x2a4;
+                    if (obj.P_GraphicsIndex == 0x32) {
+                        obj.P_GraphicsOffset = 0x0300245C;
+                        obj.P_PaletteIndex = 0x2a4;
                     }
-                    if (actor.P_GraphicsIndex == 0x43) {
-                        actor.P_GraphicsOffset = 0x030030C8;
-                        actor.P_PaletteIndex = 0x000002A1;
+                    if (obj.P_GraphicsIndex == 0x43) {
+                        obj.P_GraphicsOffset = 0x030030C8;
+                        obj.P_PaletteIndex = 0x000002A1;
                     }
-                    if (actor.P_GraphicsIndex == 0x44) {
-                        actor.P_GraphicsOffset = 0x03002e58;
-                        actor.P_PaletteIndex = 0x0000029E;
+                    if (obj.P_GraphicsIndex == 0x44) {
+                        obj.P_GraphicsOffset = 0x03002e58;
+                        obj.P_PaletteIndex = 0x0000029E;
                     }
                     #endregion
                     break;
@@ -2779,156 +2779,156 @@ namespace R1Engine
                     // 2 is always a big thing. We'll check that later
                     #region World 3
 
-                    if (actor.P_GraphicsIndex == 3) {
-                        actor.P_FunctionPointer = 0x08037B9D;
+                    if (obj.P_GraphicsIndex == 3) {
+                        obj.P_FunctionPointer = 0x08037B9D;
                     }
-                    if (actor.P_GraphicsIndex == 4) {
-                        actor.P_FunctionPointer = 0x08037CA1;
+                    if (obj.P_GraphicsIndex == 4) {
+                        obj.P_FunctionPointer = 0x08037CA1;
                     }
-                    if (actor.P_GraphicsIndex == 5) {
-                        actor.P_GraphicsOffset = 0x03005158;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 5) {
+                        obj.P_GraphicsOffset = 0x03005158;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 6) {
-                        actor.P_FunctionPointer = 0x0804DC65;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 6) {
+                        obj.P_FunctionPointer = 0x0804DC65;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 8) {
-                        actor.P_GraphicsOffset = 0x0300401C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 8) {
+                        obj.P_GraphicsOffset = 0x0300401C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 9) {
-                        actor.P_GraphicsOffset = 0x0300248C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 9) {
+                        obj.P_GraphicsOffset = 0x0300248C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 10) {
-                        actor.P_GraphicsOffset = 0x03002374;
-                        actor.P_PaletteIndex = 0x13a;
+                    if (obj.P_GraphicsIndex == 10) {
+                        obj.P_GraphicsOffset = 0x03002374;
+                        obj.P_PaletteIndex = 0x13a;
                     }
-                    if (actor.P_GraphicsIndex == 0xb) {
-                        actor.P_GraphicsOffset = 0x03005064;
-                        actor.P_PaletteIndex = 0x13c;
+                    if (obj.P_GraphicsIndex == 0xb) {
+                        obj.P_GraphicsOffset = 0x03005064;
+                        obj.P_PaletteIndex = 0x13c;
                     }
-                    if (actor.P_GraphicsIndex == 0x18) {
+                    if (obj.P_GraphicsIndex == 0x18) {
                         // Boss
-                        actor.P_GraphicsOffset = 828; // Hardcoded
-                        actor.P_PaletteIndex = 0x0000033B;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
-                        actor.P_SpriteHeight = 0;
+                        obj.P_GraphicsOffset = 828; // Hardcoded
+                        obj.P_PaletteIndex = 0x0000033B;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
+                        obj.P_SpriteHeight = 0;
                         //actor.P_Field0E = actor.RuntimeXPosition << 2;
-                        actor.P_Field2E = (short)0x00000341;
-                        actor.P_FrameCount = 0xb;
-                        actor.P_RuntimeAnimFrame = 1;
-                        actor.P_Field10 = 1;
-                        actor.P_Field14 = 200;
+                        obj.P_Field2E = (short)0x00000341;
+                        obj.P_FrameCount = 0xb;
+                        obj.P_RuntimeAnimFrame = 1;
+                        obj.P_Field10 = 1;
+                        obj.P_Field14 = 200;
                     }
-                    if (actor.P_GraphicsIndex == 0x28) {
-                        actor.P_GraphicsOffset = 0x03005190;
-                        actor.P_PaletteIndex = 0x00000223;
-                        actor.P_SpriteHeight = 0;
+                    if (obj.P_GraphicsIndex == 0x28) {
+                        obj.P_GraphicsOffset = 0x03005190;
+                        obj.P_PaletteIndex = 0x00000223;
+                        obj.P_SpriteHeight = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x29) {
-                        actor.P_GraphicsOffset = 0x030023B0;
-                        actor.P_PaletteIndex = 0x00000246;
-                        actor.P_SpriteHeight = 1;
+                    if (obj.P_GraphicsIndex == 0x29) {
+                        obj.P_GraphicsOffset = 0x030023B0;
+                        obj.P_PaletteIndex = 0x00000246;
+                        obj.P_SpriteHeight = 1;
                     }
-                    if (actor.P_GraphicsIndex == 0x2a) {
-                        actor.P_GraphicsOffset = 0x03002498;
-                        actor.P_PaletteIndex = 0x230;
-                        actor.P_SpriteHeight = 4;
+                    if (obj.P_GraphicsIndex == 0x2a) {
+                        obj.P_GraphicsOffset = 0x03002498;
+                        obj.P_PaletteIndex = 0x230;
+                        obj.P_SpriteHeight = 4;
                     }
-                    if (actor.P_GraphicsIndex == 0x2b) {
-                        actor.P_GraphicsOffset = 0x03003F74;
-                        actor.P_PaletteIndex = 0x238;
-                        actor.P_SpriteHeight = 2;
+                    if (obj.P_GraphicsIndex == 0x2b) {
+                        obj.P_GraphicsOffset = 0x03003F74;
+                        obj.P_PaletteIndex = 0x238;
+                        obj.P_SpriteHeight = 2;
                     }
-                    if (actor.P_GraphicsIndex == 0x2c) {
-                        actor.P_GraphicsOffset = 0x030028E8;
-                        actor.P_PaletteIndex = 0x240;
-                        actor.P_SpriteHeight = 3;
+                    if (obj.P_GraphicsIndex == 0x2c) {
+                        obj.P_GraphicsOffset = 0x030028E8;
+                        obj.P_PaletteIndex = 0x240;
+                        obj.P_SpriteHeight = 3;
                     }
-                    if (actor.P_GraphicsIndex == 0x2d) {
-                        actor.P_GraphicsOffset = 0x03002378;
-                        actor.P_PaletteIndex = 0x1be;
-                        actor.P_SpriteHeight = 5;
+                    if (obj.P_GraphicsIndex == 0x2d) {
+                        obj.P_GraphicsOffset = 0x03002378;
+                        obj.P_PaletteIndex = 0x1be;
+                        obj.P_SpriteHeight = 5;
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    if (actor.P_GraphicsIndex == 0x38) {
-                        actor.P_GraphicsOffset = 0x03004354;
-                        actor.P_PaletteIndex = 0x00000271;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    if (obj.P_GraphicsIndex == 0x38) {
+                        obj.P_GraphicsOffset = 0x03004354;
+                        obj.P_PaletteIndex = 0x00000271;
                     }
-                    if (actor.P_GraphicsIndex == 0x39) {
-                        actor.P_GraphicsOffset = 0x03003F54;
-                        actor.P_PaletteIndex = 0x00000273;
+                    if (obj.P_GraphicsIndex == 0x39) {
+                        obj.P_GraphicsOffset = 0x03003F54;
+                        obj.P_PaletteIndex = 0x00000273;
                     }
-                    if (actor.P_GraphicsIndex == 0x32) {
-                        actor.P_GraphicsOffset = 0x03003FC8;
-                        actor.P_PaletteIndex = 0x280;
+                    if (obj.P_GraphicsIndex == 0x32) {
+                        obj.P_GraphicsOffset = 0x03003FC8;
+                        obj.P_PaletteIndex = 0x280;
                     }
-                    if (actor.P_GraphicsIndex == 0x33) {
-                        actor.P_GraphicsOffset = 0x03005200;
-                        actor.P_PaletteIndex = 0x18e;
+                    if (obj.P_GraphicsIndex == 0x33) {
+                        obj.P_GraphicsOffset = 0x03005200;
+                        obj.P_PaletteIndex = 0x18e;
                     }
-                    if (actor.P_GraphicsIndex == 0x34) {
-                        actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x34) {
+                        obj.P_GraphicsOffset = 0x03002324;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x35) {
-                        actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x35) {
+                        obj.P_GraphicsOffset = 0x03004264;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    if (actor.P_GraphicsIndex == 0x36) {
-                        actor.P_GraphicsOffset = 0x03002444;
-                        actor.P_PaletteIndex = 0x152;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    if (obj.P_GraphicsIndex == 0x36) {
+                        obj.P_GraphicsOffset = 0x03002444;
+                        obj.P_PaletteIndex = 0x152;
                     }
-                    if (actor.P_GraphicsIndex == 0x37) {
-                        actor.P_GraphicsOffset = 0x030050A0;
-                        actor.P_PaletteIndex = 0x154;
+                    if (obj.P_GraphicsIndex == 0x37) {
+                        obj.P_GraphicsOffset = 0x030050A0;
+                        obj.P_PaletteIndex = 0x154;
                     }
-                    if (actor.P_GraphicsIndex == 0x3b) {
-                        actor.P_GraphicsOffset = 0x03003720;
-                        actor.P_PaletteIndex = 0x15a;
+                    if (obj.P_GraphicsIndex == 0x3b) {
+                        obj.P_GraphicsOffset = 0x03003720;
+                        obj.P_PaletteIndex = 0x15a;
                     }
-                    if (actor.P_GraphicsIndex == 0x30) {
-                        actor.P_GraphicsOffset = 0x0300523C;
-                        actor.P_PaletteIndex = 0x18c;
+                    if (obj.P_GraphicsIndex == 0x30) {
+                        obj.P_GraphicsOffset = 0x0300523C;
+                        obj.P_PaletteIndex = 0x18c;
                     }
-                    if (actor.P_GraphicsIndex == 0x3c) {
-                        actor.P_GraphicsOffset = 0x03002334;
-                        actor.P_PaletteIndex = 0x0000026F;
+                    if (obj.P_GraphicsIndex == 0x3c) {
+                        obj.P_GraphicsOffset = 0x03002334;
+                        obj.P_PaletteIndex = 0x0000026F;
                     }
-                    if (actor.P_GraphicsIndex == 0x3d) {
-                        actor.P_GraphicsOffset = 0x03004F6C;
-                        actor.P_PaletteIndex = 0x0000017F;
+                    if (obj.P_GraphicsIndex == 0x3d) {
+                        obj.P_GraphicsOffset = 0x03004F6C;
+                        obj.P_PaletteIndex = 0x0000017F;
                     }
-                    if (actor.P_GraphicsIndex == 0x3e) {
-                        actor.P_GraphicsOffset = 0x030042EC;
-                        actor.P_PaletteIndex = 0x000002B1;
+                    if (obj.P_GraphicsIndex == 0x3e) {
+                        obj.P_GraphicsOffset = 0x030042EC;
+                        obj.P_PaletteIndex = 0x000002B1;
                     }
-                    if (actor.P_GraphicsIndex == 0x40) {
-                        actor.P_GraphicsOffset = 0x03004040;
-                        actor.P_PaletteIndex = 0x000002C2;
+                    if (obj.P_GraphicsIndex == 0x40) {
+                        obj.P_GraphicsOffset = 0x03004040;
+                        obj.P_PaletteIndex = 0x000002C2;
                     }
-                    if (actor.P_GraphicsIndex == 0x41) {
-                        actor.P_GraphicsOffset = 0x030028DC;
-                        actor.P_PaletteIndex = 0x000002CB;
+                    if (obj.P_GraphicsIndex == 0x41) {
+                        obj.P_GraphicsOffset = 0x030028DC;
+                        obj.P_PaletteIndex = 0x000002CB;
                     }
-                    if (actor.P_GraphicsIndex == 0x42) {
-                        actor.P_GraphicsOffset = 0x03002ED4;
-                        actor.P_PaletteIndex = 0x156;
+                    if (obj.P_GraphicsIndex == 0x42) {
+                        obj.P_GraphicsOffset = 0x03002ED4;
+                        obj.P_PaletteIndex = 0x156;
                     }
-                    if (actor.P_GraphicsIndex == 0x31) {
-                        actor.P_GraphicsOffset = 0x03005188;
-                        actor.P_PaletteIndex = 0x2a8;
+                    if (obj.P_GraphicsIndex == 0x31) {
+                        obj.P_GraphicsOffset = 0x03005188;
+                        obj.P_PaletteIndex = 0x2a8;
                     }
-                    if (actor.P_GraphicsIndex == 0x43) {
-                        actor.P_GraphicsOffset = 0x03003F5C;
-                        actor.P_PaletteIndex = 0x000002AA;
+                    if (obj.P_GraphicsIndex == 0x43) {
+                        obj.P_GraphicsOffset = 0x03003F5C;
+                        obj.P_PaletteIndex = 0x000002AA;
                     }
                     #endregion
                     break;
@@ -2936,274 +2936,274 @@ namespace R1Engine
                     // 2 is always a big thing. We'll check that later
                     #region World 4
 
-                    if (actor.P_GraphicsIndex == 3) {
-                        actor.P_FunctionPointer = 0x08037B9D;
+                    if (obj.P_GraphicsIndex == 3) {
+                        obj.P_FunctionPointer = 0x08037B9D;
                     }
-                    if (actor.P_GraphicsIndex == 4) {
-                        actor.P_FunctionPointer = 0x08037CA1;
+                    if (obj.P_GraphicsIndex == 4) {
+                        obj.P_FunctionPointer = 0x08037CA1;
                     }
-                    if (actor.P_GraphicsIndex == 5) {
-                        actor.P_GraphicsOffset = 0x03005158;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 5) {
+                        obj.P_GraphicsOffset = 0x03005158;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 6) {
-                        actor.P_FunctionPointer = 0x0804DC65;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 6) {
+                        obj.P_FunctionPointer = 0x0804DC65;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 8) {
-                        actor.P_GraphicsOffset = 0x0300401C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 8) {
+                        obj.P_GraphicsOffset = 0x0300401C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 9) {
-                        actor.P_GraphicsOffset = 0x0300248C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 9) {
+                        obj.P_GraphicsOffset = 0x0300248C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 10) {
-                        actor.P_GraphicsOffset = 0x03002374;
-                        actor.P_PaletteIndex = 0x13a;
+                    if (obj.P_GraphicsIndex == 10) {
+                        obj.P_GraphicsOffset = 0x03002374;
+                        obj.P_PaletteIndex = 0x13a;
                     }
-                    if (actor.P_GraphicsIndex == 0xb) {
-                        actor.P_GraphicsOffset = 0x03005064;
-                        actor.P_PaletteIndex = 0x13c;
+                    if (obj.P_GraphicsIndex == 0xb) {
+                        obj.P_GraphicsOffset = 0x03005064;
+                        obj.P_PaletteIndex = 0x13c;
                     }
-                    if (actor.P_GraphicsIndex == 0x18) {
+                    if (obj.P_GraphicsIndex == 0x18) {
                         // Boss
-                        actor.P_GraphicsOffset = 828; // Hardcoded
-                        actor.P_PaletteIndex = 0x0000033B;
-                        actor.P_Field0E = 0;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                        obj.P_GraphicsOffset = 828; // Hardcoded
+                        obj.P_PaletteIndex = 0x0000033B;
+                        obj.P_Field0E = 0;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 0x28) {
+                    if (obj.P_GraphicsIndex == 0x28) {
                         if (level == 0) {
-                            actor.P_GraphicsOffset = 0x030051B8;
-                            actor.P_FrameCount = 0xd;
-                            actor.P_PaletteIndex = 0x00000282;
+                            obj.P_GraphicsOffset = 0x030051B8;
+                            obj.P_FrameCount = 0xd;
+                            obj.P_PaletteIndex = 0x00000282;
                         } else {
                             if (level == 0x18) {
-                                actor.P_Field34 = actor.P_Field34 | 0x200;
+                                obj.P_Field34 = obj.P_Field34 | 0x200;
                             } else {
-                                actor.P_GraphicsOffset = 0x03002ED0;
-                                actor.P_PaletteIndex = 0x00000201;
-                                actor.P_SpriteHeight = 4;
+                                obj.P_GraphicsOffset = 0x03002ED0;
+                                obj.P_PaletteIndex = 0x00000201;
+                                obj.P_SpriteHeight = 4;
                             }
                         }
                     }
-                    if (actor.P_GraphicsIndex == 0x29) {
-                        actor.P_GraphicsOffset = 0x0300501C;
-                        actor.P_PaletteIndex = 0x0000024D;
-                        actor.P_SpriteHeight = 0;
+                    if (obj.P_GraphicsIndex == 0x29) {
+                        obj.P_GraphicsOffset = 0x0300501C;
+                        obj.P_PaletteIndex = 0x0000024D;
+                        obj.P_SpriteHeight = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x2a) {
+                    if (obj.P_GraphicsIndex == 0x2a) {
                         if (level == 0) {
-                            actor.P_GraphicsOffset = 0x03004338;
-                            actor.P_FrameCount = 0x1d;
-                            actor.P_PaletteIndex = 0x288;
+                            obj.P_GraphicsOffset = 0x03004338;
+                            obj.P_FrameCount = 0x1d;
+                            obj.P_PaletteIndex = 0x288;
                         } else {
                             if (level == 0x18) {
-                                actor.P_Field34 = actor.P_Field34 | 0x200;
+                                obj.P_Field34 = obj.P_Field34 | 0x200;
                             } else {
-                                actor.P_GraphicsOffset = 0x03002464;
-                                actor.P_PaletteIndex = 0x21c;
-                                actor.P_SpriteHeight = 2;
+                                obj.P_GraphicsOffset = 0x03002464;
+                                obj.P_PaletteIndex = 0x21c;
+                                obj.P_SpriteHeight = 2;
                             }
                         }
                     }
-                    if (actor.P_GraphicsIndex == 0x2b) {
+                    if (obj.P_GraphicsIndex == 0x2b) {
                         if (level == 0) {
-                            actor.P_GraphicsOffset = 0x03004330;
-                            actor.P_FrameCount = 6;
-                            actor.P_PaletteIndex = 0x284;
+                            obj.P_GraphicsOffset = 0x03004330;
+                            obj.P_FrameCount = 6;
+                            obj.P_PaletteIndex = 0x284;
                         } else {
                             if (level == 0x18) {
-                                actor.P_Field34 = actor.P_Field34 | 0x200;
+                                obj.P_Field34 = obj.P_Field34 | 0x200;
                             } else {
-                                actor.P_GraphicsOffset = 0x03002DE0;
-                                actor.P_PaletteIndex = 0x0000025B;
-                                actor.P_SpriteHeight = 1;
+                                obj.P_GraphicsOffset = 0x03002DE0;
+                                obj.P_PaletteIndex = 0x0000025B;
+                                obj.P_SpriteHeight = 1;
                             }
                         }
                     }
-                    if (actor.P_GraphicsIndex == 0x2c) {
+                    if (obj.P_GraphicsIndex == 0x2c) {
                         if (level == 0) {
-                            actor.P_GraphicsOffset = 0x03002580;
-                            actor.P_FrameCount = 6;
-                            actor.P_PaletteIndex = 0x00000286;
+                            obj.P_GraphicsOffset = 0x03002580;
+                            obj.P_FrameCount = 6;
+                            obj.P_PaletteIndex = 0x00000286;
                         } else {
                             if (level == 0x18) {
-                                actor.P_Field34 = actor.P_Field34 | 0x200;
+                                obj.P_Field34 = obj.P_Field34 | 0x200;
                             } else {
-                                actor.P_GraphicsOffset = 0x030024F0;
-                                actor.P_PaletteIndex = 0x00000253;
-                                actor.P_SpriteHeight = 3;
+                                obj.P_GraphicsOffset = 0x030024F0;
+                                obj.P_PaletteIndex = 0x00000253;
+                                obj.P_SpriteHeight = 3;
                             }
                         }
                     }
-                    if (actor.P_GraphicsIndex == 0x2e) {
-                        actor.P_GraphicsOffset = 0x03002F0C;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 0x00000195;
-                        actor.P_Field12 = 6;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 0x2e) {
+                        obj.P_GraphicsOffset = 0x03002F0C;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 0x00000195;
+                        obj.P_Field12 = 6;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                         //*(Actor**)0x03004278 = actor;
                     }
-                    if (actor.P_GraphicsIndex == 0x30) {
-                        actor.P_GraphicsOffset = 0x03002514;
-                        actor.P_PaletteIndex = 0x00000175;
+                    if (obj.P_GraphicsIndex == 0x30) {
+                        obj.P_GraphicsOffset = 0x03002514;
+                        obj.P_PaletteIndex = 0x00000175;
                     }
-                    if (actor.P_GraphicsIndex == 0x31) {
-                        switch (actor.Ushort_0E) {
-                            case 1: actor.P_GraphicsOffset = 0x03005090; break;
-                            case 2: actor.P_GraphicsOffset = 0x030042f4; break;
-                            case 3: actor.P_GraphicsOffset = 0x03004034; break;
-                            case 4: actor.P_GraphicsOffset = 0x030023a4; break;
-                            case 5: actor.P_GraphicsOffset = 0x03002500; break;
+                    if (obj.P_GraphicsIndex == 0x31) {
+                        switch (obj.Ushort_0E) {
+                            case 1: obj.P_GraphicsOffset = 0x03005090; break;
+                            case 2: obj.P_GraphicsOffset = 0x030042f4; break;
+                            case 3: obj.P_GraphicsOffset = 0x03004034; break;
+                            case 4: obj.P_GraphicsOffset = 0x030023a4; break;
+                            case 5: obj.P_GraphicsOffset = 0x03002500; break;
                             case 0:
-                            default: actor.P_GraphicsOffset = 0x03005114; break;
+                            default: obj.P_GraphicsOffset = 0x03005114; break;
                         }
-                        actor.P_PaletteIndex = 0x00000279;
+                        obj.P_PaletteIndex = 0x00000279;
                     }
-                    if (actor.P_GraphicsIndex == 0x32) {
-                        actor.P_GraphicsOffset = 0x03003FCC;
-                        actor.P_PaletteIndex = 400;
+                    if (obj.P_GraphicsIndex == 0x32) {
+                        obj.P_GraphicsOffset = 0x03003FCC;
+                        obj.P_PaletteIndex = 400;
                     }
-                    if (actor.P_GraphicsIndex == 0x33) {
-                        actor.P_GraphicsOffset = 0x03004F9C;
-                        actor.P_PaletteIndex = 0x00000262;
-                        if (actor.P_Field12 == 0x96) {
+                    if (obj.P_GraphicsIndex == 0x33) {
+                        obj.P_GraphicsOffset = 0x03004F9C;
+                        obj.P_PaletteIndex = 0x00000262;
+                        if (obj.P_Field12 == 0x96) {
                             if (level == 0) {
-                                actor.P_Field34 = actor.P_Field34 | 0x200;
+                                obj.P_Field34 = obj.P_Field34 | 0x200;
                             } else {
-                                actor.P_FrameCount = 1;
+                                obj.P_FrameCount = 1;
                             }
                         }
                     }
-                    if (actor.P_GraphicsIndex == 0x34) {
-                        actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x34) {
+                        obj.P_GraphicsOffset = 0x03002324;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x35) {
-                        actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x35) {
+                        obj.P_GraphicsOffset = 0x03004264;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    if (actor.P_GraphicsIndex == 0x36) {
-                        actor.P_GraphicsOffset = 0x0300439C;
-                        actor.P_PaletteIndex = 0x000002DD;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    if (obj.P_GraphicsIndex == 0x36) {
+                        obj.P_GraphicsOffset = 0x0300439C;
+                        obj.P_PaletteIndex = 0x000002DD;
                     }
-                    if (actor.P_GraphicsIndex == 0x37) {
-                        actor.P_GraphicsOffset = 0x030050B0;
-                        actor.P_PaletteIndex = 0x000002DD;
+                    if (obj.P_GraphicsIndex == 0x37) {
+                        obj.P_GraphicsOffset = 0x030050B0;
+                        obj.P_PaletteIndex = 0x000002DD;
                     }
-                    if (actor.P_GraphicsIndex == 0x38) {
-                        actor.P_GraphicsOffset = 0x03004340;
-                        actor.P_OtherGraphicsOffset = 0x03004010;
-                        actor.P_PaletteIndex = 0x2ac;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x38) {
+                        obj.P_GraphicsOffset = 0x03004340;
+                        obj.P_OtherGraphicsOffset = 0x03004010;
+                        obj.P_PaletteIndex = 0x2ac;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x39) {
-                        actor.P_GraphicsOffset = 0x030025AC;
-                        actor.P_PaletteIndex = 0x000002AF;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x39) {
+                        obj.P_GraphicsOffset = 0x030025AC;
+                        obj.P_PaletteIndex = 0x000002AF;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x3a) {
-                        actor.P_GraphicsOffset = 0x03005080;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 0x3a) {
+                        obj.P_GraphicsOffset = 0x03005080;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 0x3b) {
-                        actor.P_GraphicsOffset = 0x0300292C;
-                        actor.P_PaletteIndex = 0x2b4;
+                    if (obj.P_GraphicsIndex == 0x3b) {
+                        obj.P_GraphicsOffset = 0x0300292C;
+                        obj.P_PaletteIndex = 0x2b4;
                     }
-                    if (actor.P_GraphicsIndex == 0x3c) {
-                        actor.P_GraphicsOffset = 0x030022B8;
-                        actor.P_OtherGraphicsOffset = 0x0300234C;
-                        actor.P_Field14 = 0x03004020;
-                        actor.P_Field0E = 4;
-                        actor.P_Field10 = 0x40;
-                        actor.P_Field20 = 100;
-                        actor.P_PaletteIndex = 0x148;
+                    if (obj.P_GraphicsIndex == 0x3c) {
+                        obj.P_GraphicsOffset = 0x030022B8;
+                        obj.P_OtherGraphicsOffset = 0x0300234C;
+                        obj.P_Field14 = 0x03004020;
+                        obj.P_Field0E = 4;
+                        obj.P_Field10 = 0x40;
+                        obj.P_Field20 = 100;
+                        obj.P_PaletteIndex = 0x148;
                     }
-                    if (actor.P_GraphicsIndex == 0x3d) {
-                        actor.P_GraphicsOffset = 0x03002E24;
-                        actor.P_PaletteIndex = 4;
+                    if (obj.P_GraphicsIndex == 0x3d) {
+                        obj.P_GraphicsOffset = 0x03002E24;
+                        obj.P_PaletteIndex = 4;
                     }
-                    if (actor.P_GraphicsIndex == 0x3e) {
-                        actor.P_GraphicsOffset = 0x03002544;
-                        actor.P_PaletteIndex = 0x260;
+                    if (obj.P_GraphicsIndex == 0x3e) {
+                        obj.P_GraphicsOffset = 0x03002544;
+                        obj.P_PaletteIndex = 0x260;
                     }
-                    if (actor.P_GraphicsIndex == 0x3f) {
-                        actor.P_GraphicsOffset = 0x030023B4;
-                        actor.P_PaletteIndex = 0x00000262;
+                    if (obj.P_GraphicsIndex == 0x3f) {
+                        obj.P_GraphicsOffset = 0x030023B4;
+                        obj.P_PaletteIndex = 0x00000262;
                     }
-                    if (actor.P_GraphicsIndex == 0x40) {
-                        actor.P_GraphicsOffset = 0x030050EC;
-                        actor.P_PaletteIndex = 0x00000262;
+                    if (obj.P_GraphicsIndex == 0x40) {
+                        obj.P_GraphicsOffset = 0x030050EC;
+                        obj.P_PaletteIndex = 0x00000262;
                     }
-                    if (actor.P_GraphicsIndex == 0x41) {
-                        actor.P_GraphicsOffset = 0x03004308;
-                        actor.P_PaletteIndex = 0x00000262;
+                    if (obj.P_GraphicsIndex == 0x41) {
+                        obj.P_GraphicsOffset = 0x03004308;
+                        obj.P_PaletteIndex = 0x00000262;
                     }
-                    if (actor.P_GraphicsIndex == 0x42) {
-                        actor.P_GraphicsOffset = 0x0300403C;
-                        actor.P_PaletteIndex = 0x00000262;
+                    if (obj.P_GraphicsIndex == 0x42) {
+                        obj.P_GraphicsOffset = 0x0300403C;
+                        obj.P_PaletteIndex = 0x00000262;
                     }
-                    if (actor.P_GraphicsIndex == 0x44) {
-                        actor.P_GraphicsOffset = 0x03004390;
-                        actor.P_PaletteIndex = 0x00000262;
+                    if (obj.P_GraphicsIndex == 0x44) {
+                        obj.P_GraphicsOffset = 0x03004390;
+                        obj.P_PaletteIndex = 0x00000262;
                     }
-                    if (actor.P_GraphicsIndex == 0x45) {
-                        actor.P_GraphicsOffset = 0x03004FFC;
-                        actor.P_PaletteIndex = 0x00000262;
+                    if (obj.P_GraphicsIndex == 0x45) {
+                        obj.P_GraphicsOffset = 0x03004FFC;
+                        obj.P_PaletteIndex = 0x00000262;
                     }
-                    if (actor.P_GraphicsIndex == 0x27) {
+                    if (obj.P_GraphicsIndex == 0x27) {
                         // Boss Prison
-                        actor.P_GraphicsOffset = 812; // Hardcoded
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
-                        actor.P_FrameCount = 5;
-                        actor.P_Field2E = 0x32c;
-                        actor.P_PaletteIndex = 0x328;
-                        actor.P_Field34 = actor.P_Field34 | 1;
+                        obj.P_GraphicsOffset = 812; // Hardcoded
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
+                        obj.P_FrameCount = 5;
+                        obj.P_Field2E = 0x32c;
+                        obj.P_PaletteIndex = 0x328;
+                        obj.P_Field34 = obj.P_Field34 | 1;
                         //*(undefined4*)0x03005370 = 3;
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    if (actor.P_GraphicsIndex == 0x47) {
-                        actor.P_GraphicsOffset = 0x03005088;
-                        actor.P_PaletteIndex = 2;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    if (obj.P_GraphicsIndex == 0x47) {
+                        obj.P_GraphicsOffset = 0x03005088;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 0x48) {
-                        actor.P_GraphicsOffset = 0x03005228;
-                        actor.P_PaletteIndex = 0x000002BE;
+                    if (obj.P_GraphicsIndex == 0x48) {
+                        obj.P_GraphicsOffset = 0x03005228;
+                        obj.P_PaletteIndex = 0x000002BE;
                     }
-                    if (actor.P_GraphicsIndex == 0x4c) {
-                        actor.P_GraphicsOffset = 0x0300516C;
-                        actor.P_PaletteIndex = 0x338;
-                        actor.P_Field12 = (uint)actor.RuntimeXPosition;
-                        actor.P_Field0E = (uint)actor.RuntimeYPosition;
+                    if (obj.P_GraphicsIndex == 0x4c) {
+                        obj.P_GraphicsOffset = 0x0300516C;
+                        obj.P_PaletteIndex = 0x338;
+                        obj.P_Field12 = (uint)obj.RuntimeXPosition;
+                        obj.P_Field0E = (uint)obj.RuntimeYPosition;
                     }
-                    if (actor.P_GraphicsIndex == 0x4d) {
-                        actor.P_GraphicsOffset = 0x03002534;
-                        actor.P_PaletteIndex = 0x338;
-                        actor.P_Field12 = (uint)actor.RuntimeXPosition;
-                        actor.P_Field0E = (uint)actor.RuntimeYPosition;
+                    if (obj.P_GraphicsIndex == 0x4d) {
+                        obj.P_GraphicsOffset = 0x03002534;
+                        obj.P_PaletteIndex = 0x338;
+                        obj.P_Field12 = (uint)obj.RuntimeXPosition;
+                        obj.P_Field0E = (uint)obj.RuntimeYPosition;
                     }
-                    if (actor.P_GraphicsIndex == 0x4e) {
-                        actor.P_GraphicsOffset = 0x03003728;
-                        actor.P_PaletteIndex = 0x00000262;
+                    if (obj.P_GraphicsIndex == 0x4e) {
+                        obj.P_GraphicsOffset = 0x03003728;
+                        obj.P_PaletteIndex = 0x00000262;
                     }
-                    if (actor.P_GraphicsIndex == 0x4f) {
-                        actor.P_GraphicsOffset = 0x03004F6C;
-                        actor.P_PaletteIndex = 0x0000017F;
+                    if (obj.P_GraphicsIndex == 0x4f) {
+                        obj.P_GraphicsOffset = 0x03004F6C;
+                        obj.P_PaletteIndex = 0x0000017F;
                     }
-                    if (actor.P_GraphicsIndex == 0x4a) {
-                        actor.P_GraphicsOffset = 0x0300232C;
-                        actor.P_PaletteIndex = 0x293;
+                    if (obj.P_GraphicsIndex == 0x4a) {
+                        obj.P_GraphicsOffset = 0x0300232C;
+                        obj.P_PaletteIndex = 0x293;
                     }
-                    if (actor.P_GraphicsIndex == 0x4b) {
-                        actor.P_GraphicsOffset = 0x03002E58;
-                        actor.P_PaletteIndex = 0x0000029E;
+                    if (obj.P_GraphicsIndex == 0x4b) {
+                        obj.P_GraphicsOffset = 0x03002E58;
+                        obj.P_PaletteIndex = 0x0000029E;
                     }
                     #endregion
                     break;
@@ -3211,180 +3211,180 @@ namespace R1Engine
                     // 2 is always a big thing. We'll check that later
                     #region World 5
 
-                    if (actor.P_GraphicsIndex == 3) {
-                        actor.P_FunctionPointer = 0x08037b9d;
+                    if (obj.P_GraphicsIndex == 3) {
+                        obj.P_FunctionPointer = 0x08037b9d;
                     }
-                    if (actor.P_GraphicsIndex == 4) {
-                        actor.P_FunctionPointer = 0x08037ca1;
+                    if (obj.P_GraphicsIndex == 4) {
+                        obj.P_FunctionPointer = 0x08037ca1;
                     }
-                    if (actor.P_GraphicsIndex == 5) {
-                        actor.P_GraphicsOffset = 0x03005158;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 5) {
+                        obj.P_GraphicsOffset = 0x03005158;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 6) {
-                        actor.P_FunctionPointer = 0x0804dc65;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 6) {
+                        obj.P_FunctionPointer = 0x0804dc65;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 8) {
-                        actor.P_GraphicsOffset = 0x0300401C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 8) {
+                        obj.P_GraphicsOffset = 0x0300401C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 9) {
-                        actor.P_GraphicsOffset = 0x0300248C;
-                        actor.P_PaletteIndex = 2;
+                    if (obj.P_GraphicsIndex == 9) {
+                        obj.P_GraphicsOffset = 0x0300248C;
+                        obj.P_PaletteIndex = 2;
                     }
-                    if (actor.P_GraphicsIndex == 10) {
-                        actor.P_GraphicsOffset = 0x03002374;
-                        actor.P_PaletteIndex = 0x13a;
+                    if (obj.P_GraphicsIndex == 10) {
+                        obj.P_GraphicsOffset = 0x03002374;
+                        obj.P_PaletteIndex = 0x13a;
                     }
-                    if (actor.P_GraphicsIndex == 0xb) {
-                        actor.P_GraphicsOffset = 0x03005064;
-                        actor.P_PaletteIndex = 0x13c;
+                    if (obj.P_GraphicsIndex == 0xb) {
+                        obj.P_GraphicsOffset = 0x03005064;
+                        obj.P_PaletteIndex = 0x13c;
                     }
-                    if (actor.P_GraphicsIndex == 0x10) {
-                        actor.P_GraphicsOffset = 0x030028B4;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x10) {
+                        obj.P_GraphicsOffset = 0x030028B4;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x11) {
-                        actor.P_GraphicsOffset = 0x03002DEC;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x11) {
+                        obj.P_GraphicsOffset = 0x03002DEC;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x12) {
-                        actor.P_GraphicsOffset = 0x03002E5C;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x12) {
+                        obj.P_GraphicsOffset = 0x03002E5C;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x13) {
-                        actor.P_GraphicsOffset = 0x03004FC8;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x13) {
+                        obj.P_GraphicsOffset = 0x03004FC8;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x28) {
-                        actor.P_GraphicsOffset = 0x030024E8;
-                        actor.P_PaletteIndex = 0x0000036A;
+                    if (obj.P_GraphicsIndex == 0x28) {
+                        obj.P_GraphicsOffset = 0x030024E8;
+                        obj.P_PaletteIndex = 0x0000036A;
                     }
-                    if (actor.P_GraphicsIndex == 0x29) {
-                        actor.P_GraphicsOffset = 0x030022F0;
-                        actor.P_PaletteIndex = 0x0000036A;
+                    if (obj.P_GraphicsIndex == 0x29) {
+                        obj.P_GraphicsOffset = 0x030022F0;
+                        obj.P_PaletteIndex = 0x0000036A;
                     }
-                    if (actor.P_GraphicsIndex == 0x2a) {
-                        actor.P_GraphicsOffset = 0x03002528;
-                        actor.P_PaletteIndex = 0x0000036A;
+                    if (obj.P_GraphicsIndex == 0x2a) {
+                        obj.P_GraphicsOffset = 0x03002528;
+                        obj.P_PaletteIndex = 0x0000036A;
                     }
-                    if (actor.P_GraphicsIndex == 0x2b) {
-                        actor.P_GraphicsOffset = 0x03003F7C;
-                        actor.P_PaletteIndex = 0x0000036A;
+                    if (obj.P_GraphicsIndex == 0x2b) {
+                        obj.P_GraphicsOffset = 0x03003F7C;
+                        obj.P_PaletteIndex = 0x0000036A;
                     }
-                    if (actor.P_GraphicsIndex == 0x2c) {
-                        actor.P_GraphicsOffset = 0x03002EF0;
-                        actor.P_PaletteIndex = 0x00000372;
+                    if (obj.P_GraphicsIndex == 0x2c) {
+                        obj.P_GraphicsOffset = 0x03002EF0;
+                        obj.P_PaletteIndex = 0x00000372;
                     }
-                    if (actor.P_GraphicsIndex == 0x30) {
-                        actor.P_GraphicsOffset = 0x03004270;
-                        actor.P_PaletteIndex = 0x0000017B;
+                    if (obj.P_GraphicsIndex == 0x30) {
+                        obj.P_GraphicsOffset = 0x03004270;
+                        obj.P_PaletteIndex = 0x0000017B;
                     }
-                    if (actor.P_GraphicsIndex == 0x2e) {
-                        actor.P_GraphicsOffset = 0x03002F0C;
-                        actor.P_FrameCount = 10;
-                        actor.P_PaletteIndex = 0x19c;
-                        actor.P_Field12 = 6;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 0x2e) {
+                        obj.P_GraphicsOffset = 0x03002F0C;
+                        obj.P_FrameCount = 10;
+                        obj.P_PaletteIndex = 0x19c;
+                        obj.P_Field12 = 6;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                         //0x03004278 = actor;
                     }
-                    if (actor.P_GraphicsIndex == 0x34) {
-                        actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x34) {
+                        obj.P_GraphicsOffset = 0x03002324;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x35) {
-                        actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_FrameCount = 8;
-                        actor.P_PaletteIndex = 2;
-                        actor.P_Field12 = 0;
+                    if (obj.P_GraphicsIndex == 0x35) {
+                        obj.P_GraphicsOffset = 0x03004264;
+                        obj.P_FrameCount = 8;
+                        obj.P_PaletteIndex = 2;
+                        obj.P_Field12 = 0;
                     }
-                    if (actor.P_GraphicsIndex == 0x3a) {
-                        actor.P_GraphicsOffset = 0x03004F6C;
-                        actor.P_PaletteIndex = 0x0000017F;
+                    if (obj.P_GraphicsIndex == 0x3a) {
+                        obj.P_GraphicsOffset = 0x03004F6C;
+                        obj.P_PaletteIndex = 0x0000017F;
                     }
-                    if (actor.P_GraphicsIndex == 0x3b) {
-                        actor.P_GraphicsOffset = 0x03002370;
-                        actor.P_PaletteIndex = 0x0000017D;
+                    if (obj.P_GraphicsIndex == 0x3b) {
+                        obj.P_GraphicsOffset = 0x03002370;
+                        obj.P_PaletteIndex = 0x0000017D;
                     }
-                    if (actor.P_GraphicsIndex == 0x3c) {
-                        actor.P_GraphicsOffset = 0x030023CC;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x3c) {
+                        obj.P_GraphicsOffset = 0x030023CC;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x3d) {
-                        actor.P_GraphicsOffset = 0x030023F0;
-                        actor.P_PaletteIndex = 0x264;
+                    if (obj.P_GraphicsIndex == 0x3d) {
+                        obj.P_GraphicsOffset = 0x030023F0;
+                        obj.P_PaletteIndex = 0x264;
                     }
-                    if (actor.P_GraphicsIndex == 0x38) {
-                        actor.P_GraphicsOffset = 0x03004FF0;
-                        actor.P_PaletteIndex = 0x0000017B;
+                    if (obj.P_GraphicsIndex == 0x38) {
+                        obj.P_GraphicsOffset = 0x03004FF0;
+                        obj.P_PaletteIndex = 0x0000017B;
                     }
-                    if (actor.P_GraphicsIndex == 0x39) {
-                        actor.P_GraphicsOffset = 0x03002908;
-                        actor.P_Field14 = 0;
-                        actor.P_PaletteIndex = 0x14e;
+                    if (obj.P_GraphicsIndex == 0x39) {
+                        obj.P_GraphicsOffset = 0x03002908;
+                        obj.P_Field14 = 0;
+                        obj.P_PaletteIndex = 0x14e;
                     }
-                    if (actor.P_GraphicsIndex == 0x3e) {
-                        actor.P_GraphicsOffset = 0x03004248;
-                        actor.P_PaletteIndex = 0x00000275;
+                    if (obj.P_GraphicsIndex == 0x3e) {
+                        obj.P_GraphicsOffset = 0x03004248;
+                        obj.P_PaletteIndex = 0x00000275;
                     }
-                    if (actor.P_GraphicsIndex == 0xf) {
-                        actor.P_GraphicsOffset = 0x030022F4;
-                        actor.P_PaletteIndex = 0x00000277;
+                    if (obj.P_GraphicsIndex == 0xf) {
+                        obj.P_GraphicsOffset = 0x030022F4;
+                        obj.P_PaletteIndex = 0x00000277;
                         /*iVar12 = GetSomeIndex(0x16);
                         if (iVar12 != 0) {
                             actor.P_AnimIndex = 1;
                         }*/
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
-                    if (actor.P_GraphicsIndex == 0x37) {
-                        actor.P_GraphicsOffset = 0x0300518C;
-                        actor.P_PaletteIndex = 0x15c;
+                    obj.P_GraphicsIndex = obj.P_GraphicsIndex;
+                    if (obj.P_GraphicsIndex == 0x37) {
+                        obj.P_GraphicsOffset = 0x0300518C;
+                        obj.P_PaletteIndex = 0x15c;
                     }
-                    if (actor.P_GraphicsIndex == 0x3f) {
-                        actor.P_GraphicsOffset = 0x03002E94;
-                        actor.P_PaletteIndex = 0x15e;
+                    if (obj.P_GraphicsIndex == 0x3f) {
+                        obj.P_GraphicsOffset = 0x03002E94;
+                        obj.P_PaletteIndex = 0x15e;
                     }
-                    if (actor.P_GraphicsIndex == 0x40) {
-                        actor.P_GraphicsOffset = 0x03005100;
-                        actor.P_PaletteIndex = 0x160;
+                    if (obj.P_GraphicsIndex == 0x40) {
+                        obj.P_GraphicsOffset = 0x03005100;
+                        obj.P_PaletteIndex = 0x160;
                     }
-                    if (actor.P_GraphicsIndex == 0x27) {
-                        actor.P_GraphicsOffset = 0x03002EB4;
-                        actor.P_PaletteIndex = 0x0000016F;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 0x27) {
+                        obj.P_GraphicsOffset = 0x03002EB4;
+                        obj.P_PaletteIndex = 0x0000016F;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 0x36) {
-                        actor.P_GraphicsOffset = 0x03002F1C;
-                        actor.P_PaletteIndex = 0x0000016F;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 0x36) {
+                        obj.P_GraphicsOffset = 0x03002F1C;
+                        obj.P_PaletteIndex = 0x0000016F;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
-                    if (actor.P_GraphicsIndex == 0x41) {
-                        actor.P_GraphicsOffset = 0x03004260;
-                        actor.P_PaletteIndex = 0x0000016F;
-                        actor.P_Field34 = actor.P_Field34 | 0x200;
+                    if (obj.P_GraphicsIndex == 0x41) {
+                        obj.P_GraphicsOffset = 0x03004260;
+                        obj.P_PaletteIndex = 0x0000016F;
+                        obj.P_Field34 = obj.P_Field34 | 0x200;
                     }
                     #endregion
                     break;
             }
 
             // Ly
-            if (actor.P_GraphicsIndex == 0x2e && world < 5 && (level == 1 || level == 6 || level == 0xb || level == 0x10 || level == 0x16 || level == 0x1b)) {
-                actor.P_GraphicsOffset = 0x03002F0C;
-                actor.P_FrameCount = 10;
-                actor.P_PaletteIndex = 0x19c;
-                actor.P_Field12 = 6;
-                actor.P_Field34 = actor.P_Field34 | 0x200;
+            if (obj.P_GraphicsIndex == 0x2e && world < 5 && (level == 1 || level == 6 || level == 0xb || level == 0x10 || level == 0x16 || level == 0x1b)) {
+                obj.P_GraphicsOffset = 0x03002F0C;
+                obj.P_FrameCount = 10;
+                obj.P_PaletteIndex = 0x19c;
+                obj.P_Field12 = 6;
+                obj.P_Field34 = obj.P_Field34 | 0x200;
                 //0x03004278 = actor;
             }
             // Rayman
-            if (actor.P_GraphicsIndex == 2) {
-                actor.P_GraphicsOffset = 148;
-                actor.P_PaletteIndex = 144;
+            if (obj.P_GraphicsIndex == 2) {
+                obj.P_GraphicsOffset = 148;
+                obj.P_PaletteIndex = 144;
                 if (level == 0) {
-                    actor.P_GraphicsOffset = 226;
+                    obj.P_GraphicsOffset = 226;
                 }
             }
         }

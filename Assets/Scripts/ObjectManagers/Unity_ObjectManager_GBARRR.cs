@@ -19,13 +19,13 @@ namespace R1Engine
 
             foreach (var obj in objects.Cast<Unity_Object_GBARRR>())
             {
-                if (obj.Actor.LinkGroup == 0)
+                if (obj.Object.LinkGroup == 0)
                     continue;
 
-                if (!links.ContainsKey(obj.Actor.LinkGroup))
-                    links[obj.Actor.LinkGroup] = new List<Unity_Object_GBARRR>();
+                if (!links.ContainsKey(obj.Object.LinkGroup))
+                    links[obj.Object.LinkGroup] = new List<Unity_Object_GBARRR>();
 
-                links[obj.Actor.LinkGroup].Add(obj);
+                links[obj.Object.LinkGroup].Add(obj);
             }
 
             foreach (var l in links.Where(x => x.Value.Count > 1))
