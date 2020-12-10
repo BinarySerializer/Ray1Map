@@ -567,219 +567,231 @@ namespace R1Engine
             }
         }
 
-        public async UniTask ExportMode7SpritesAsync(GameSettings settings, string outputPath) {
+        public async UniTask<Mode7Data> LoadMode7SpritesAsync(Context context) {
+            var s = context.Deserializer;
+            var romPath = GetROMFilePath;
+            var pointerTable = PointerTables.GBARRR_PointerTable(context.Settings.GameModeSelection, context.GetFile(romPath));
 
+            // Read animation frame indices
+            Controller.DetailedState = $"Loading animation frames";
+            await Controller.WaitIfNecessary();
+
+            var animationFrameIndicesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_AnimationFrameIndices], () => s.SerializePointerArray(default, 46, name: "AnimationFrameIndices"));
+            ushort[][] animationFrameIndices = new ushort[animationFrameIndicesPointers.Length][];
+            Dictionary<Pointer, ushort[]> serializedAnimFrameIndicesPointers = new Dictionary<Pointer, ushort[]>();
+            for (int i = 0; i < animationFrameIndices.Length; i++) {
+                var ptr = animationFrameIndicesPointers[i];
+                if (!serializedAnimFrameIndicesPointers.ContainsKey(ptr)) {
+                    Pointer nextPtr = animationFrameIndicesPointers.OrderBy(p => p.AbsoluteOffset).FirstOrDefault(p => p.AbsoluteOffset > ptr.AbsoluteOffset);
+                    if (nextPtr == null) {
+                        nextPtr = animationFrameIndicesPointers[animationFrameIndicesPointers.Length - 1] + 2; // Last one only has one frame
+                    }
+                    serializedAnimFrameIndicesPointers[ptr] = s.DoAt(ptr, () => s.SerializeArray<ushort>(default, (nextPtr - ptr) / 2, name: $"{nameof(animationFrameIndices)}[{i}]"));
+                }
+                animationFrameIndices[i] = serializedAnimFrameIndicesPointers[ptr];
+            }
+
+            // Read animation sets, determine frame count of each
+            var animationPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Animations], () => s.SerializePointerArray(default, 49, name: "Animations"));
+            GBARRR_Mode7AnimSet[] animSets = new GBARRR_Mode7AnimSet[animationPointers.Length];
+            Dictionary<Pointer, GBARRR_Mode7AnimSet> serializedAnimSets = new Dictionary<Pointer, GBARRR_Mode7AnimSet>();
+            for (int i = 0; i < animSets.Length; i++) {
+                var ptr = animationPointers[i];
+                if (!serializedAnimSets.ContainsKey(ptr)) {
+                    var animationIndicesWithThisAnimSet = animationPointers.Select((x, j) => x == ptr ? j : -1).Where(x => x != -1 && x < animationFrameIndices.Length).ToArray();
+                    var maxFrameIndex = animationIndicesWithThisAnimSet.Select(x => animationFrameIndices[x].Max()).Max();
+                    var count = (maxFrameIndex + 1) * 2; // Why times 2?
+                    serializedAnimSets[ptr] = s.DoAt(ptr, () => s.SerializeObject<GBARRR_Mode7AnimSet>(default, onPreSerialize: x => x.Length = count, name: $"{nameof(animSets)}[{i}]"));
+                }
+                animSets[i] = serializedAnimSets[ptr];
+            }
+
+            // Mode7
+            Controller.DetailedState = $"Loading VRAM configurations (Mode7)";
+            await Controller.WaitIfNecessary();
+            // Read & export graphics for Mode7
+            var hudPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_HUD], () => s.SerializePointerArray(default, 3, name: "HUDSpritePointers"));
+            var worldPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_World], () => s.SerializePointerArray(default, 3, name: "WorldSpritePointers"));
+            var raymanPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7Rayman], () => s.SerializePointerArray(default, 40, name: "RaymanSpritePointers"));
+            var lumCountPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7UI_LumCount], () => s.SerializePointerArray(default, 100, name: "LumCountSpritePointers"));
+            var totalLumCountPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7UI_TotalLumCount], () => s.SerializePointerArray(default, 100, name: "TotalLumCountSpritePointers"));
+            var palette2Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_2], () => s.SerializePointerArray(default, 3, name: "Palette2Pointers"));
+            var palette1Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_1], () => s.SerializePointerArray(default, 3, name: "Palette1Pointers"));
+            GBARRR_Palette palette0 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_0], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette0"));
+
+            // Read per-frame graphics
+            var raymanGraphics = new byte[raymanPointers.Length][];
+            for (int f = 0; f < raymanPointers.Length; f++) {
+                raymanGraphics[f] = s.DoAt(raymanPointers[f], () => s.SerializeArray<byte>(raymanGraphics[f], 0x800, name: $"{nameof(raymanGraphics)}[{f}]"));
+            }
+            var lumCountGraphics = new byte[lumCountPointers.Length][];
+            for (int f = 0; f < lumCountPointers.Length; f++) {
+                lumCountGraphics[f] = s.DoAt(lumCountPointers[f], () => s.SerializeArray<byte>(lumCountGraphics[f], 0x100, name: $"{nameof(lumCountGraphics)}[{f}]"));
+            }
+            var totalLumCountGraphics = new byte[totalLumCountPointers.Length][];
+            for (int f = 0; f < totalLumCountPointers.Length; f++) {
+                totalLumCountGraphics[f] = s.DoAt(totalLumCountPointers[f], () => s.SerializeArray<byte>(totalLumCountGraphics[f], 0x100, name: $"{nameof(totalLumCountGraphics)}[{f}]"));
+            }
+            var vramConfigs = new Dictionary<Mode7Config, Mode7VRAMConfiguration>();
+
+            // Read & export per level 
+            {
+                int levelIndex = 0; // it's the same data for all 3 levels
+                byte[] hudSprites = null;
+                s.DoAt(hudPointers[levelIndex], () => {
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => hudSprites = s.SerializeArray<byte>(hudSprites, s.CurrentLength, name: nameof(hudSprites)));
+                });
+                byte[] worldSprites = null;
+                s.DoAt(worldPointers[levelIndex], () => {
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => worldSprites = s.SerializeArray<byte>(worldSprites, s.CurrentLength, name: nameof(worldSprites)));
+                });
+                var palette2 = s.DoAt(palette2Pointers[levelIndex], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette2"));
+                var palette1 = s.DoAt(palette1Pointers[levelIndex], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette1"));
+
+                // Create merged palette
+                var newPalette = new RGBA5551Color[256];
+                Array.Copy(palette2.Palette, newPalette, 0x100);
+                Array.Copy(palette1.Palette, newPalette, 0x80);
+                Array.Copy(palette0.Palette, newPalette, 0x10);
+                //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Level_{levelIndex}", $"Palette.png"), newPalette, optionalWrap: 16);
+
+                List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, IsPerFrame = true, PerFrameImageData = raymanGraphics });
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06010900, IsPerFrame = true, PerFrameImageData = lumCountGraphics });
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06010800, IsPerFrame = true, PerFrameImageData = totalLumCountGraphics });
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06015000, ImageData = worldSprites });
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06010a00, ImageData = hudSprites });
+                vramConfigs[Mode7Config.Mode7] = new Mode7VRAMConfiguration() { Palette = newPalette, VRAM = vram.ToArray() };
+                //await ExportAllAnimSets(Path.Combine(outputPath, $"Level_{i}"), vram.ToArray(), newPalette);
+            }
+
+            // Pause Menu
+            Controller.DetailedState = $"Loading VRAM configurations (Pause)";
+            await Controller.WaitIfNecessary();
+            {
+                byte[] menuSprites0 = null;
+                s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu_Carrot], () => {
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                });
+
+                var menuPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu], () => s.SerializePointerArray(default, 12, name: "PauseMenuSpritePointers"));
+                var menuGraphics = new byte[menuPointers.Length][];
+                for (int f = 0; f < menuPointers.Length; f++) {
+                    menuGraphics[f] = s.DoAt(menuPointers[f], () => s.SerializeArray<byte>(menuGraphics[f], 0xC80 * 2, name: $"{nameof(menuGraphics)}[{f}]"));
+                }
+
+                List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06016900, ImageData = menuSprites0 });
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06015000, IsPerFrame = true, PerFrameImageData = menuGraphics });
+                GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_PauseMenuSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
+
+                //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"PauseMenu", $"Palette.png"), palette.Palette, optionalWrap: 16);
+
+                vramConfigs[Mode7Config.PauseMenu] = new Mode7VRAMConfiguration() { Palette = palette.Palette, VRAM = vram.ToArray() };
+                //await ExportAllAnimSets(Path.Combine(outputPath, $"PauseMenu"), vram.ToArray(), palette.Palette);
+            }
+
+            // Game over
+            Controller.DetailedState = $"Loading VRAM configurations (Game Over)";
+            await Controller.WaitIfNecessary();
+            {
+                byte[] gameOverCompressedSprites = null;
+                s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_GameOver], () => {
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => gameOverCompressedSprites = s.SerializeArray<byte>(gameOverCompressedSprites, s.CurrentLength, name: nameof(gameOverCompressedSprites)));
+                });
+
+                var gameOverPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_GameOver], () => s.SerializePointerArray(default, 47, name: "GameOverSpritePointers"));
+                var gameOverGraphics = new byte[gameOverPointers.Length][];
+                for (int f = 0; f < gameOverPointers.Length; f++) {
+                    gameOverGraphics[f] = s.DoAt(gameOverPointers[f], () => s.SerializeArray<byte>(gameOverGraphics[f], 0x400 * 2, name: $"{nameof(gameOverGraphics)}[{f}]"));
+                }
+
+                List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06010800, ImageData = gameOverCompressedSprites });
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, IsPerFrame = true, PerFrameImageData = gameOverGraphics });
+                GBARRR_Palette palette1 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_GameOver1], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette"));
+                GBARRR_Palette palette2 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_GameOver2], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette"));
+
+                // Create merged palette
+                var newPalette = new RGBA5551Color[256];
+                Array.Copy(palette1.Palette, newPalette, 0x100);
+                Array.Copy(palette2.Palette, 0, newPalette, 0x10, 0x10);
+                //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"GameOver", $"Palette.png"), newPalette, optionalWrap: 16);
+
+                vramConfigs[Mode7Config.GameOver] = new Mode7VRAMConfiguration() { Palette = newPalette, VRAM = vram.ToArray() };
+                //await ExportAllAnimSets(Path.Combine(outputPath, $"GameOver"), vram.ToArray(), newPalette);
+            }
+
+
+
+            // Unk
+            Controller.DetailedState = $"Loading VRAM configurations (Unknown)";
+            await Controller.WaitIfNecessary();
+            {
+                byte[] menuSprites0 = null;
+                s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_Unk], () => {
+                    //menuSprites0 = s.SerializeArray<byte>(menuSprites0, 0x20, name: nameof(menuSprites0));
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                });
+
+                List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, ImageData = menuSprites0 });
+                GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_UnkSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
+
+                //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Unk", $"Palette.png"), palette.Palette, optionalWrap: 16);
+
+                vramConfigs[Mode7Config.Unk] = new Mode7VRAMConfiguration() { Palette = palette.Palette, VRAM = vram.ToArray() };
+                //await ExportAllAnimSets(Path.Combine(outputPath, $"Unk"), vram.ToArray(), palette.Palette);
+            }
+
+
+            // Main Menu
+            Controller.DetailedState = $"Loading VRAM configurations (Main Menu)";
+            await Controller.WaitIfNecessary();
+            {
+                byte[] menuSprites0 = null;
+                s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_MainMenu], () => {
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                });
+
+                List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
+                vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, ImageData = menuSprites0 });
+                GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_MainMenuSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
+
+                //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"MainMenu", $"Palette.png"), palette.Palette, optionalWrap: 16);
+
+                vramConfigs[Mode7Config.MainMenu] = new Mode7VRAMConfiguration() { Palette = palette.Palette, VRAM = vram.ToArray() };
+                //await ExportAllAnimSets(Path.Combine(outputPath, $"MainMenu"), vram.ToArray(), palette.Palette);
+            }
+
+            return new Mode7Data() {
+                AnimSets = animSets,
+                FrameIndices = animationFrameIndices,
+                Configurations = vramConfigs
+            };
+        }
+
+        public async UniTask ExportMode7SpritesAsync(GameSettings settings, string outputPath) {
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
 
                 // Load files
                 await LoadFilesAsync(context);
-                var romPath = GetROMFilePath;
-                var pointerTable = PointerTables.GBARRR_PointerTable(settings.GameModeSelection, context.GetFile(romPath));
-
-                // Read animation frame indices
-                var animationFrameIndicesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_AnimationFrameIndices], () => s.SerializePointerArray(default, 46, name: "AnimationFrameIndices"));
-				ushort[][] animationFrameIndices = new ushort[animationFrameIndicesPointers.Length][];
-                Dictionary<Pointer, ushort[]> serializedAnimFrameIndicesPointers = new Dictionary<Pointer, ushort[]>();
-                for (int i = 0; i < animationFrameIndices.Length; i++) {
-                    var ptr = animationFrameIndicesPointers[i];
-                    if (!serializedAnimFrameIndicesPointers.ContainsKey(ptr)) {
-                        Pointer nextPtr = animationFrameIndicesPointers.OrderBy(p => p.AbsoluteOffset).FirstOrDefault(p => p.AbsoluteOffset > ptr.AbsoluteOffset);
-                        if(nextPtr == null) {
-                            nextPtr = animationFrameIndicesPointers[animationFrameIndicesPointers.Length-1]+2; // Last one only has one frame
-                        }
-                        serializedAnimFrameIndicesPointers[ptr]= s.DoAt(ptr, () => s.SerializeArray<ushort>(default, (nextPtr-ptr)/2, name: $"{nameof(animationFrameIndices)}[{i}]"));
-                    }
-                    animationFrameIndices[i] = serializedAnimFrameIndicesPointers[ptr];
-                }
-
-                // Read animation sets, determine frame count of each
-                var animationPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Animations], () => s.SerializePointerArray(default, 49, name: "Animations"));
-                GBARRR_Mode7AnimSet[] animSets = new GBARRR_Mode7AnimSet[animationPointers.Length];
-                Dictionary<Pointer, GBARRR_Mode7AnimSet> serializedAnimSets = new Dictionary<Pointer, GBARRR_Mode7AnimSet>();
-                for (int i = 0; i < animSets.Length; i++) {
-                    var ptr = animationPointers[i];
-                    if (!serializedAnimSets.ContainsKey(ptr)) {
-                        var animationIndicesWithThisAnimSet = animationPointers.Select((x, j) => x == ptr ? j : -1).Where(x => x != -1 && x < animationFrameIndices.Length).ToArray();
-                        var maxFrameIndex = animationIndicesWithThisAnimSet.Select(x => animationFrameIndices[x].Max()).Max();
-                        var count = (maxFrameIndex + 1) * 2; // Why times 2?
-                        serializedAnimSets[ptr] = s.DoAt(ptr, () => s.SerializeObject<GBARRR_Mode7AnimSet>(default, onPreSerialize: x => x.Length = count, name: $"{nameof(animSets)}[{i}]"));
-                    }
-                    animSets[i] = serializedAnimSets[ptr];
-                }
-
-                // Mode7
-                // Read & export graphics for Mode7
-                var hudPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_HUD], () => s.SerializePointerArray(default, 3, name: "HUDSpritePointers"));
-                var worldPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Sprites_World], () => s.SerializePointerArray(default, 3, name: "WorldSpritePointers"));
-                var raymanPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7Rayman], () => s.SerializePointerArray(default, 40, name: "RaymanSpritePointers"));
-                var lumCountPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7UI_LumCount], () => s.SerializePointerArray(default, 100, name: "LumCountSpritePointers"));
-                var totalLumCountPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Mode7UI_TotalLumCount], () => s.SerializePointerArray(default, 100, name: "TotalLumCountSpritePointers"));
-                var palette2Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_2], () => s.SerializePointerArray(default, 3, name: "Palette2Pointers"));
-                var palette1Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_1], () => s.SerializePointerArray(default, 3, name: "Palette1Pointers"));
-                GBARRR_Palette palette0 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_0], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette0"));
-
-                // Read per-frame graphics
-                var raymanGraphics = new byte[raymanPointers.Length][];
-                for (int f = 0; f < raymanPointers.Length; f++) {
-                    raymanGraphics[f] = s.DoAt(raymanPointers[f], () => s.SerializeArray<byte>(raymanGraphics[f], 0x800, name: $"{nameof(raymanGraphics)}[{f}]"));
-                }
-                var lumCountGraphics = new byte[lumCountPointers.Length][];
-                for (int f = 0; f < lumCountPointers.Length; f++) {
-                    lumCountGraphics[f] = s.DoAt(lumCountPointers[f], () => s.SerializeArray<byte>(lumCountGraphics[f], 0x100, name: $"{nameof(lumCountGraphics)}[{f}]"));
-                }
-                var totalLumCountGraphics = new byte[totalLumCountPointers.Length][];
-                for (int f = 0; f < totalLumCountPointers.Length; f++) {
-                    totalLumCountGraphics[f] = s.DoAt(totalLumCountPointers[f], () => s.SerializeArray<byte>(totalLumCountGraphics[f], 0x100, name: $"{nameof(totalLumCountGraphics)}[{f}]"));
-                }
-                var vramConfigs = new Dictionary<Mode7Config, Mode7VRAMConfiguration>();
-
-                // Read & export per level 
-                {
-                    int levelIndex = 0; // it's the same data for all 3 levels
-                    byte[] hudSprites = null;
-                    s.DoAt(hudPointers[levelIndex], () => {
-                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => hudSprites = s.SerializeArray<byte>(hudSprites, s.CurrentLength, name: nameof(hudSprites)));
-                    });
-                    byte[] worldSprites = null;
-                    s.DoAt(worldPointers[levelIndex], () => {
-                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => worldSprites = s.SerializeArray<byte>(worldSprites, s.CurrentLength, name: nameof(worldSprites)));
-                    });
-                    var palette2 = s.DoAt(palette2Pointers[levelIndex], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette2"));
-                    var palette1 = s.DoAt(palette1Pointers[levelIndex], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette1"));
-
-                    // Create merged palette
-                    var newPalette = new RGBA5551Color[256];
-                    Array.Copy(palette2.Palette, newPalette, 0x100);
-                    Array.Copy(palette1.Palette, newPalette, 0x80);
-                    Array.Copy(palette0.Palette, newPalette, 0x10);
-                    //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Level_{levelIndex}", $"Palette.png"), newPalette, optionalWrap: 16);
-
-                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, IsPerFrame = true, PerFrameImageData = raymanGraphics });
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010900, IsPerFrame = true, PerFrameImageData = lumCountGraphics });
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010800, IsPerFrame = true, PerFrameImageData = totalLumCountGraphics });
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06015000, ImageData = worldSprites });
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010a00, ImageData = hudSprites });
-                    vramConfigs[Mode7Config.Mode7] = new Mode7VRAMConfiguration() { Palette = newPalette, VRAM = vram.ToArray() };
-                    //await ExportAllAnimSets(Path.Combine(outputPath, $"Level_{i}"), vram.ToArray(), newPalette);
-                }
-
-                // Pause Menu
-                {
-                    byte[] menuSprites0 = null;
-                    s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu_Carrot], () => {
-                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
-                    });
-
-                    var menuPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu], () => s.SerializePointerArray(default, 12, name: "PauseMenuSpritePointers"));
-                    var menuGraphics = new byte[menuPointers.Length][];
-                    for (int f = 0; f < menuPointers.Length; f++) {
-                        menuGraphics[f] = s.DoAt(menuPointers[f], () => s.SerializeArray<byte>(menuGraphics[f], 0xC80 * 2, name: $"{nameof(menuGraphics)}[{f}]"));
-                    }
-
-                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06016900, ImageData = menuSprites0 });
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06015000, IsPerFrame = true, PerFrameImageData = menuGraphics });
-                    GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_PauseMenuSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
-
-                    //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"PauseMenu", $"Palette.png"), palette.Palette, optionalWrap: 16);
-
-                    vramConfigs[Mode7Config.PauseMenu] = new Mode7VRAMConfiguration() { Palette = palette.Palette, VRAM = vram.ToArray() };
-                    //await ExportAllAnimSets(Path.Combine(outputPath, $"PauseMenu"), vram.ToArray(), palette.Palette);
-                }
-
-                // Game over
-                {
-                    byte[] gameOverCompressedSprites = null;
-                    s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_GameOver], () => {
-                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => gameOverCompressedSprites = s.SerializeArray<byte>(gameOverCompressedSprites, s.CurrentLength, name: nameof(gameOverCompressedSprites)));
-                    });
-
-                    var gameOverPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_GameOver], () => s.SerializePointerArray(default, 47, name: "GameOverSpritePointers"));
-                    var gameOverGraphics = new byte[gameOverPointers.Length][];
-                    for (int f = 0; f < gameOverPointers.Length; f++) {
-                        gameOverGraphics[f] = s.DoAt(gameOverPointers[f], () => s.SerializeArray<byte>(gameOverGraphics[f], 0x400 * 2, name: $"{nameof(gameOverGraphics)}[{f}]"));
-                    }
-
-                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010800, ImageData = gameOverCompressedSprites });
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, IsPerFrame = true, PerFrameImageData = gameOverGraphics });
-                    GBARRR_Palette palette1 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_GameOver1], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette"));
-                    GBARRR_Palette palette2 = s.DoAt(pointerTable[GBARRR_Pointer.Palette_GameOver2], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette"));
-
-                    // Create merged palette
-                    var newPalette = new RGBA5551Color[256];
-                    Array.Copy(palette1.Palette, newPalette, 0x100);
-                    Array.Copy(palette2.Palette, 0, newPalette, 0x10, 0x10);
-                    //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"GameOver", $"Palette.png"), newPalette, optionalWrap: 16);
-
-                    vramConfigs[Mode7Config.GameOver] = new Mode7VRAMConfiguration() { Palette = newPalette, VRAM = vram.ToArray() };
-                    //await ExportAllAnimSets(Path.Combine(outputPath, $"GameOver"), vram.ToArray(), newPalette);
-                }
-
-
-
-                // Unk
-                {
-                    byte[] menuSprites0 = null;
-                    s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_Unk], () => {
-                        //menuSprites0 = s.SerializeArray<byte>(menuSprites0, 0x20, name: nameof(menuSprites0));
-                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
-                    });
-
-                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, ImageData = menuSprites0 });
-                    GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_UnkSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
-
-                    //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Unk", $"Palette.png"), palette.Palette, optionalWrap: 16);
-
-                    vramConfigs[Mode7Config.Unk] = new Mode7VRAMConfiguration() { Palette = palette.Palette, VRAM = vram.ToArray() };
-                    //await ExportAllAnimSets(Path.Combine(outputPath, $"Unk"), vram.ToArray(), palette.Palette);
-                }
-
-
-                // Main Menu
-                {
-                    byte[] menuSprites0 = null;
-                    s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_MainMenu], () => {
-                        s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
-                    });
-
-                    List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
-                    vram.Add(new Mode7VRAMEntry() { Address = 0x06010000, ImageData = menuSprites0 });
-                    GBARRR_Palette palette = s.DoAt(pointerTable[GBARRR_Pointer.Palette_MainMenuSprites], () => s.SerializeObject<GBARRR_Palette>(default, name: "MenuPalette"));
-
-                    //PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"MainMenu", $"Palette.png"), palette.Palette, optionalWrap: 16);
-
-                    vramConfigs[Mode7Config.MainMenu] = new Mode7VRAMConfiguration() { Palette = palette.Palette, VRAM = vram.ToArray() };
-                    //await ExportAllAnimSets(Path.Combine(outputPath, $"MainMenu"), vram.ToArray(), palette.Palette);
-                }
-                Mode7Config GetVRAMConfig(int animIndex) {
-                    Mode7Config config = Mode7Config.Mode7;
-                    if (animSets[animIndex] == animSets[0] || animSets[animIndex] == animSets[1] || animSets[animIndex] == animSets[3] ||
-                        animSets[animIndex] == animSets[12] || animSets[animIndex] == animSets[13]) {
-                        config = Mode7Config.Mode7;
-                    } else if (animSets[animIndex] == animSets[19]) {
-                        config = Mode7Config.MainMenu;
-                    } else if (animSets[animIndex] == animSets[40] || animSets[animIndex] == animSets[41]) {
-                        config = Mode7Config.GameOver;
-                    } else if (animSets[animIndex] == animSets[43] || animSets[animIndex] == animSets[44]) {
-                        config = Mode7Config.PauseMenu;
-                    } else if (animSets[animIndex] == animSets[45]) {
-                        config = Mode7Config.Unk;
-                    }
-                    return config;
-                }
+                
+                var mode7Data = await LoadMode7SpritesAsync(context);
+                var animSets = mode7Data.AnimSets;
+                var vramConfigs = mode7Data.Configurations;
+                var animationFrameIndices = mode7Data.FrameIndices;
+              
 
                 // Export anim set frames
                 Dictionary<GBARRR_Mode7AnimSet, Texture2D[]> exportedAnimSets = new Dictionary<GBARRR_Mode7AnimSet, Texture2D[]>();
                 for (int a = 0; a < animSets.Length; a++) {
                     if (!exportedAnimSets.ContainsKey(animSets[a])) {
                         Mode7VRAMConfiguration vramConfig = null;
-                        Mode7Config config = GetVRAMConfig(a);
+                        Mode7Config config = mode7Data.GetVRAMConfig(a);
                         vramConfig = vramConfigs[config];
-                        Texture2D[] texs = Mode7_GetAnimSetFrames(animSets[a], vramConfig.Palette, vramConfig.VRAM, isExport: true);
+                        Texture2D[] texs = Mode7_GetAnimSetFrames(animSets[a], vramConfig.Palette, vramConfig.VRAM, isExport: true, loadMirroredFrames: true);
                         exportedAnimSets[animSets[a]] = texs;
                         if (texs == null) continue;
                         for (int i = 0; i < texs.Length; i++) {
@@ -820,7 +832,7 @@ namespace R1Engine
 
         }
 
-        public Texture2D[] Mode7_GetAnimSetFrames(GBARRR_Mode7AnimSet animSet, RGBA5551Color[] palette, IEnumerable<Mode7VRAMEntry> vram, bool isExport = false) {
+        public Texture2D[] Mode7_GetAnimSetFrames(GBARRR_Mode7AnimSet animSet, RGBA5551Color[] palette, IEnumerable<Mode7VRAMEntry> vram, bool isExport = false, bool loadMirroredFrames = false) {
             int minX1 = 0, minY1 = 0, maxX2 = int.MinValue, maxY2 = int.MinValue;
             if (isExport) {
                 if (animSet.Frames.Length > 0) {
@@ -840,9 +852,9 @@ namespace R1Engine
             var pal = Util.ConvertAndSplitGBAPalette(palette);
             var numPalettes = pal.Length;
 
-            Texture2D[] texs = new Texture2D[animSet.Frames.Length];
-            for (int i = 0; i < animSet.Frames.Length; i++) {
-                var frame = animSet.Frames[i].Value;
+            Texture2D[] texs = new Texture2D[animSet.Frames.Length / (loadMirroredFrames ? 1 : 2)];
+            for (int i = 0; i < texs.Length; i++) {
+                var frame = animSet.Frames[i * (loadMirroredFrames ? 1 : 2)].Value;
                 if(frame == null) continue;
                 int frameMinX = frame.MinXPosition;
                 int frameMinY = frame.MinYPosition;
@@ -882,7 +894,7 @@ namespace R1Engine
                                 if (imageAddress >= vramEntry.Address) {
                                     var relativeAddr = imageAddress - vramEntry.Address;
                                     if (vramEntry.IsPerFrame) {
-                                        int frameIndex = i / 2;
+                                        int frameIndex = i / (loadMirroredFrames ? 2 : 1);
                                         if(frameIndex >= vramEntry.PerFrameImageData.Length) continue;
                                         if (relativeAddr >= vramEntry.PerFrameImageData[frameIndex].Length) continue;
                                         tileSet = vramEntry.PerFrameImageData[frameIndex];
@@ -3515,6 +3527,31 @@ namespace R1Engine
         public class Mode7VRAMConfiguration {
             public Mode7VRAMEntry[] VRAM { get; set; }
             public RGBA5551Color[] Palette { get; set; }
+        }
+
+        public class Mode7Data {
+            public Dictionary<Mode7Config, Mode7VRAMConfiguration> Configurations { get; set; }
+            public ushort[][] FrameIndices { get; set; }
+            public GBARRR_Mode7AnimSet[] AnimSets { get; set; }
+
+
+
+            public Mode7Config GetVRAMConfig(int animIndex) {
+                Mode7Config config = Mode7Config.Mode7;
+                if (AnimSets[animIndex] == AnimSets[0] || AnimSets[animIndex] == AnimSets[1] || AnimSets[animIndex] == AnimSets[3] ||
+                    AnimSets[animIndex] == AnimSets[12] || AnimSets[animIndex] == AnimSets[13]) {
+                    config = Mode7Config.Mode7;
+                } else if (AnimSets[animIndex] == AnimSets[19]) {
+                    config = Mode7Config.MainMenu;
+                } else if (AnimSets[animIndex] == AnimSets[40] || AnimSets[animIndex] == AnimSets[41]) {
+                    config = Mode7Config.GameOver;
+                } else if (AnimSets[animIndex] == AnimSets[43] || AnimSets[animIndex] == AnimSets[44]) {
+                    config = Mode7Config.PauseMenu;
+                } else if (AnimSets[animIndex] == AnimSets[45]) {
+                    config = Mode7Config.Unk;
+                }
+                return config;
+            }
         }
         public enum Mode7Config {
             Mode7,
