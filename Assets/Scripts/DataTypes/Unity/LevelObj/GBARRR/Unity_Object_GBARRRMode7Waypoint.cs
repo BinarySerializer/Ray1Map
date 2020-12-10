@@ -10,6 +10,9 @@ namespace R1Engine
         {
             Object = obj;
             ObjManager = objManager;
+
+            // Default to no entries
+            UIStates = new UIState[0];
         }
 
         public GBARRR_Mode7Waypoint Object { get; }
@@ -32,17 +35,17 @@ namespace R1Engine
 		public override string DebugText => String.Empty;
 
         public override R1Serializable SerializableData => Object;
-        public override ILegacyEditorWrapper LegacyWrapper { get; }
+        public override ILegacyEditorWrapper LegacyWrapper => null;
 
-        public override string PrimaryName => $"Unknown";
-        public override string SecondaryName => $"Unknown";
+        public override string PrimaryName => $"Waypoint";
+        public override string SecondaryName => null;
 
         public override Unity_ObjAnimation CurrentAnimation => null;
         public override int AnimSpeed => 0;
         public override int? GetAnimIndex => 0;
         protected override int GetSpriteID => 0;
         public override IList<Sprite> Sprites => null;
-        protected override bool IsUIStateArrayUpToDate => false;
-        protected override void RecalculateUIStates() => UIStates = new UIState[0];
+        protected override bool IsUIStateArrayUpToDate => true;
+        protected override void RecalculateUIStates() { }
     }
 }

@@ -777,11 +777,11 @@ namespace R1Engine
             var animSet = mode7Data.AnimSets[animIndex];
             var frameIndices = mode7Data.FrameIndices[animIndex];
             List<Vector2Int> pos = new List<Vector2Int>();
-            int index = 0;
-            foreach (var frameInd in frameIndices) {
-                var frame = animSet.Frames[frameInd * 2 + (mirrored ? 1 : 0)];
-                if(frame == null) continue;
-                pos.Add(new Vector2Int(frame.MinXPosition, frame.MinYPosition));
+            foreach (var frameInd in frameIndices)
+            {
+                var frame = animSet.Frames[frameInd + (mirrored ? 1 : 0)];
+
+                pos.Add(new Vector2Int(frame?.MinXPosition ?? 0, frame?.MinYPosition ?? 0));
             }
             return pos.ToArray();
         }
@@ -797,8 +797,6 @@ namespace R1Engine
 
         public async UniTask ExportMode7SpritesAsync(GameSettings settings, string outputPath) {
             using (var context = new Context(settings)) {
-                var s = context.Deserializer;
-
                 // Load files
                 await LoadFilesAsync(context);
                 
@@ -1021,11 +1019,30 @@ namespace R1Engine
                     MapTiles = rom.Mode7_BG1MapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
                 };
 
-                var objmanager = new Unity_ObjectManager(context);
+                var objmanager = new Unity_ObjectManager_GBARRRMode7(context, await LoadGraphicsDataAsync(context));
 
                 var objLength = rom.Mode7_Objects.FindItemIndex(x => x.ObjectType == GBARRR_Mode7Object.Mode7Type.Invalid);
                 var mode7Waypoints = rom.Mode7_Waypoints.Select(x => (Unity_Object)new Unity_Object_GBARRRMode7Waypoint(x, objmanager));
-                var mode7Objects = rom.Mode7_Objects.Take(objLength).Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager)).Concat(mode7Waypoints).ToList();
+                var rayPos = Mode7_GetRaymanStartPosition(lvl);
+                var mode7Objects = rom.
+                    // Get the objects
+                    Mode7_Objects.
+                    // Only take the valid ones
+                    Take(objLength).
+                    // Append Rayman
+                    Append(new GBARRR_Mode7Object
+                    {
+                        ObjectType = GBARRR_Mode7Object.Mode7Type.Unknown,
+                        XPosition = (short)rayPos.x,
+                        YPosition = (short)rayPos.y
+                    }).
+                    // Convert to Unity objects
+                    Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager)).
+                    // Add waypoints
+                    Concat(mode7Waypoints).
+                    // To list
+                    ToList();
+
                 return new Unity_Level(
                     maps: new Unity_Map[]
                     {
@@ -1298,6 +1315,43 @@ namespace R1Engine
 
                     }
                 }
+            }
+
+            return graphicsData;
+        }
+        protected async UniTask<Unity_ObjectManager_GBARRRMode7.GraphicsData[]> LoadGraphicsDataAsync(Context context)
+        {
+            var mode7Data = await LoadMode7SpritesAsync(context);
+            var animSets = mode7Data.AnimSets;
+            var vramConfigs = mode7Data.Configurations;
+            var animationFrameIndices = mode7Data.FrameIndices;
+
+            var graphicsData = new Unity_ObjectManager_GBARRRMode7.GraphicsData[animationFrameIndices.Length];
+
+            // Get textures for each animation set
+            Dictionary<GBARRR_Mode7AnimSet, Texture2D[]> animSetTextures = new Dictionary<GBARRR_Mode7AnimSet, Texture2D[]>();
+            for (int a = 0; a < animSets.Length; a++)
+            {
+                if (!animSetTextures.ContainsKey(animSets[a]))
+                {
+                    Mode7Config config = mode7Data.GetVRAMConfig(a);
+                    Mode7VRAMConfiguration vramConfig = vramConfigs[config];
+                    Texture2D[] texs = Mode7_GetAnimSetFrames(animSets[a], vramConfig.Palette, vramConfig.VRAM);
+                    animSetTextures[animSets[a]] = texs;
+                    await Controller.WaitIfNecessary();
+                }
+            }
+
+            // Export the animations themselves
+            for (int a = 0; a < animationFrameIndices.Length; a++)
+            {
+                if (!animSetTextures.ContainsKey(animSets[a]))
+                    continue;
+
+                var allTexs = animSetTextures[animSets[a]];
+                var texs = animationFrameIndices[a].Select(x => allTexs?[x]);
+
+                graphicsData[a] = new Unity_ObjectManager_GBARRRMode7.GraphicsData(texs.Select(x => x?.CreateSprite()).ToArray(), 6, GetMode7AnimFramePositions(mode7Data, a));
             }
 
             return graphicsData;
