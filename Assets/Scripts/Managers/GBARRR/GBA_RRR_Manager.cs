@@ -779,7 +779,7 @@ namespace R1Engine
             List<Vector2Int> pos = new List<Vector2Int>();
             foreach (var frameInd in frameIndices)
             {
-                var frame = animSet.Frames[frameInd + (mirrored ? 1 : 0)];
+                var frame = animSet.Frames[frameInd * 2 + (mirrored ? 1 : 0)];
 
                 pos.Add(new Vector2Int(frame?.MinXPosition ?? 0, frame?.MinYPosition ?? 0));
             }
