@@ -1,5 +1,4 @@
 ﻿using R1Engine;
-using System;
 using UnityEngine;
 
 public class WebJSON {
@@ -131,9 +130,7 @@ public class WebJSON {
 		public string[] GBARRR_AnimationGroupNames { get; set; }
 		public int? GBARRR_GraphicsIndex { get; set; }
 		public int? GBARRR_GraphicsKey { get; set; }
-
-		// TODO: Add other properties for GBC, Isometric and RRR
-	}
+    }
 	public class Layer {
 		public int Index { get; set; }
 		public bool? IsVisible { get; set; }

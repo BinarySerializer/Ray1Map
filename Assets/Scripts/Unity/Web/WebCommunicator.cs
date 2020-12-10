@@ -320,6 +320,14 @@ public class WebCommunicator : MonoBehaviour {
                             webObj.GBARRR_AnimationGroupNames = rrrObj.ObjManager.GraphicsDatas.Select((g, i) => i.ToString()).ToArray();
                     }
 					break;
+				case Unity_Object_GBARRRMode7 rrrMode7Obj:
+					if (!rrrMode7Obj.ForceNoGraphics)
+                    {
+                        webObj.GBARRR_AnimationGroupIndex = (int)rrrMode7Obj.Object.ObjectType;
+                        if (includeLists)
+                            webObj.GBARRR_AnimationGroupNames = rrrMode7Obj.ObjManager.GraphicsDatas.Select((g, i) => i.ToString()).ToArray();
+                    }
+					break;
 			}
 		}
 		return webObj;
