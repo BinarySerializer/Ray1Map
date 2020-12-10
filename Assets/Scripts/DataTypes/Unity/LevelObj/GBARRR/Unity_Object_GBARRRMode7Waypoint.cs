@@ -35,7 +35,7 @@ namespace R1Engine
 		public override string DebugText => String.Empty;
 
         public override R1Serializable SerializableData => Object;
-        public override ILegacyEditorWrapper LegacyWrapper => null;
+        public override ILegacyEditorWrapper LegacyWrapper => new DummyLegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Waypoint";
         public override string SecondaryName => null;

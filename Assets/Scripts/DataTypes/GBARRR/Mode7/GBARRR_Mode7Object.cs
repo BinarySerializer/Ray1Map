@@ -23,7 +23,7 @@
 
         public enum Mode7Type : short
         {
-            Unknown = 0,
+            Rayman = 0,
             Shadow = 1,
             Font = 2,
             RedLum = 3,

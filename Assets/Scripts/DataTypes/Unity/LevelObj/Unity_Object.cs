@@ -180,6 +180,42 @@ namespace R1Engine
             public abstract void Apply(Unity_Object obj);
             public abstract bool IsCurrentState(Unity_Object obj);
         }
-		#endregion
-	}
+        #endregion
+
+
+        protected class DummyLegacyEditorWrapper : ILegacyEditorWrapper {
+            public DummyLegacyEditorWrapper(Unity_Object obj) {
+                Obj = obj;
+            }
+
+            private Unity_Object Obj { get; }
+
+            public ushort Type { get; set; }
+
+            public int DES { get; set; }
+
+            public int ETA { get; set; }
+
+            public byte Etat { get; set; }
+
+            public byte SubEtat { get; set; }
+
+            public int EtatLength => 0;
+            public int SubEtatLength => 0;
+
+            public byte OffsetBX { get; set; }
+
+            public byte OffsetBY { get; set; }
+
+            public byte OffsetHY { get; set; }
+
+            public byte FollowSprite { get; set; }
+
+            public uint HitPoints { get; set; }
+
+            public byte HitSprite { get; set; }
+
+            public bool FollowEnabled { get; set; }
+        }
+    }
 }

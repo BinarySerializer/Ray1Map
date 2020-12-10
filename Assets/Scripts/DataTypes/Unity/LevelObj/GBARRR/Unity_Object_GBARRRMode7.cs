@@ -35,7 +35,7 @@ namespace R1Engine
         }
 
         public bool ForceNoGraphics { get; }
-        public bool IsRayman => Object.ObjectType == GBARRR_Mode7Object.Mode7Type.Unknown && !ForceNoGraphics;
+        public bool IsRayman => Object.ObjectType == GBARRR_Mode7Object.Mode7Type.Rayman && !ForceNoGraphics;
 
         public override string DebugText => String.Empty;
 
@@ -43,7 +43,7 @@ namespace R1Engine
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{AnimTypeIndex}";
-        public override string SecondaryName => IsRayman ? "Rayman" : $"{Object.ObjectType}";
+        public override string SecondaryName => (!IsRayman && Object.ObjectType == GBARRR_Mode7Object.Mode7Type.Rayman) ? "Removed" : $"{Object.ObjectType}";
 
         public Unity_ObjectManager_GBARRRMode7.GraphicsData GraphicsData => ForceNoGraphics ? null : ObjManager.GraphicsDatas.ElementAtOrDefault(AnimTypeIndex);
 
@@ -53,8 +53,31 @@ namespace R1Engine
         protected override int GetSpriteID => AnimTypeIndex;
         public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
 
-        protected override bool IsUIStateArrayUpToDate => false;
-        protected override void RecalculateUIStates() => UIStates = new UIState[0];
+
+        #region UI States
+        protected int UIStates_AnimTypeIndex { get; set; } = -2;
+        protected override bool IsUIStateArrayUpToDate => AnimTypeIndex == UIStates_AnimTypeIndex;
+
+        protected override void RecalculateUIStates() {
+            UIStates_AnimTypeIndex = AnimTypeIndex;
+            if (ForceNoGraphics) {
+                UIStates = new UIState[0];
+            } else {
+                UIStates = ObjManager?.GraphicsDatas?.Select((x, i) => (UIState)new RRRMode7_UIState($"{i} ({(GBARRR_Mode7Object.Mode7Type)i})", i)).ToArray() ?? new UIState[0];
+            }
+        }
+
+        protected class RRRMode7_UIState : UIState {
+            public RRRMode7_UIState(string displayName, int animIndex) : base(displayName, animIndex) { }
+
+            public override void Apply(Unity_Object obj) {
+                var rrrObj = (Unity_Object_GBARRRMode7)obj;
+                rrrObj.AnimTypeIndex = (short)AnimIndex;
+            }
+
+            public override bool IsCurrentState(Unity_Object obj) => AnimIndex == ((Unity_Object_GBARRRMode7)obj).AnimTypeIndex;
+        }
+        #endregion
 
         #region LegacyEditorWrapper
         private class LegacyEditorWrapper : ILegacyEditorWrapper
