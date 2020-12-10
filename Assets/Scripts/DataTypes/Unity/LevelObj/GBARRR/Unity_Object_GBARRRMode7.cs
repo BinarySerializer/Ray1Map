@@ -29,6 +29,7 @@ namespace R1Engine
         }
 
         public bool ForceNoGraphics { get; }
+        public bool IsRayman => Object.ObjectType == GBARRR_Mode7Object.Mode7Type.Unknown && !ForceNoGraphics;
 
         public override string DebugText => String.Empty;
 
@@ -36,7 +37,7 @@ namespace R1Engine
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{(int)Object.ObjectType}";
-        public override string SecondaryName => $"{Object.ObjectType}";
+        public override string SecondaryName => IsRayman ? "Rayman" : $"{Object.ObjectType}";
 
         public Unity_ObjectManager_GBARRRMode7.GraphicsData GraphicsData => ForceNoGraphics ? null : ObjManager.GraphicsDatas.ElementAtOrDefault((int)Object.ObjectType);
 

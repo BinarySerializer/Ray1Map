@@ -1031,13 +1031,6 @@ namespace R1Engine
                     Take(objLength).
                     // Convert to Unity objects
                     Select(x => (Unity_Object)new Unity_Object_GBARRRMode7(x, objmanager, x.ObjectType == GBARRR_Mode7Object.Mode7Type.Unknown || (int)x.ObjectType > 45)).
-                    // Append Rayman
-                    Append(new Unity_Object_GBARRRMode7(new GBARRR_Mode7Object
-                    {
-                        ObjectType = GBARRR_Mode7Object.Mode7Type.Unknown,
-                        XPosition = (short)rayPos.x,
-                        YPosition = (short)rayPos.y
-                    }, objmanager, false)).
                     // Add waypoints
                     Concat(mode7Waypoints).
                     // To list
@@ -1056,7 +1049,13 @@ namespace R1Engine
                     cellSize: CellSize,
                     localization: loc,
                     eventData: mode7Objects,
-                    defaultMap: 0
+                    defaultMap: 0,
+                    rayman: new Unity_Object_GBARRRMode7(new GBARRR_Mode7Object
+                    {
+                        ObjectType = GBARRR_Mode7Object.Mode7Type.Unknown,
+                        XPosition = (short)rayPos.x,
+                        YPosition = (short)rayPos.y
+                    }, objmanager, false)
                 );
             }
 
