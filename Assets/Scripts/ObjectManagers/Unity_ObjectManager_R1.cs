@@ -642,12 +642,18 @@ namespace R1Engine
             {
                 get
                 {
-                    if (Name != null && 
-                        // Only display the official KIT names for web
-                        (LevelEditorData.MainContext.Settings.EngineVersion == EngineVersion.R1_PC_Kit || FileSystem.mode == FileSystem.Mode.Normal))
+                    var defaultName = PrimaryPointer != null ? PrimaryPointer.ToString() : Index.ToString();
+
+                    // If we don't have a name, return the default name
+                    if (Name == null)
+                        return defaultName;
+
+                    // The name is only official for Rayman Designer, so return that as is then
+                    if (LevelEditorData.MainContext.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
                         return Name;
 
-                    return (PrimaryPointer != null ? PrimaryPointer.ToString() : Index.ToString());
+                    // Otherwise show both versions
+                    return $"{defaultName} ({Name})";
                 }
             }
         }
