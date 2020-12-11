@@ -306,7 +306,7 @@ namespace R1Engine
                 1475,
             }), // AnimSet 0
             new PalInfo(78, false), // AnimSet 1
-            new PalInfo(false), // AnimSet 2 // TODO: Wrong pal
+            new PalInfo(175, false), // AnimSet 2
             new PalInfo(226, false), // AnimSet 3
             new PalInfo(225, false), // AnimSet 4
             new PalInfo(225, false), // AnimSet 5
@@ -327,7 +327,7 @@ namespace R1Engine
             new PalInfo(328), // AnimSet 18
             new PalInfo(328), // AnimSet 19
             new PalInfo(328), // AnimSet 20
-            new PalInfo(), // AnimSet 21 // TODO: Wrong pal (rabbit)
+            new PalInfo(), // AnimSet 21 // TODO: Wrong pal (rabbit - unused?)
             new PalInfo(310), // AnimSet 22
             new PalInfo(327), // AnimSet 23
             new PalInfo(344), // AnimSet 24
@@ -361,12 +361,12 @@ namespace R1Engine
                 344, 344, // Gypsy Road
             }), // AnimSet 36
             new PalInfo(344), // AnimSet 37
-            new PalInfo(), // AnimSet 38 // TODO: Wrong pal (shadow?)
+            new PalInfo(310), // AnimSet 38
             new PalInfo(327), // AnimSet 39
             new PalInfo(327), // AnimSet 40
             new PalInfo(341), // AnimSet 41
             new PalInfo(341), // AnimSet 42
-            new PalInfo(), // AnimSet 43 // TODO: Wrong pal
+            new PalInfo(310), // AnimSet 43
             new PalInfo(318), // AnimSet 44
             new PalInfo(333), // AnimSet 45
             new PalInfo(332), // AnimSet 46
@@ -398,7 +398,7 @@ namespace R1Engine
             new PalInfo(335), // AnimSet 55
             new PalInfo(339), // AnimSet 56
             new PalInfo(339), // AnimSet 57
-            new PalInfo(344), // AnimSet 58 // TODO: Wrong pal (frog)
+            new PalInfo(327), // AnimSet 58 // NOTE: Uses different palette in Gypsy Road
             new PalInfo(333), // AnimSet 59
             new PalInfo(339), // AnimSet 60
             new PalInfo(339), // AnimSet 61
@@ -423,7 +423,7 @@ namespace R1Engine
             new PalInfo(333), // AnimSet 80
             new PalInfo(335), // AnimSet 81
             new PalInfo(327), // AnimSet 82
-            new PalInfo(317), // AnimSet 83 // TODO: Wrong pal (rabbit)
+            new PalInfo(310), // AnimSet 83 // NOTE: Uses different palette in Dreamy Castle
             new PalInfo(), // AnimSet 84 // TODO: Wrong pal
             new PalInfo(333), // AnimSet 85
             new PalInfo(333), // AnimSet 86
@@ -487,7 +487,7 @@ namespace R1Engine
             new PalInfo(1216, false), // AnimSet 136
             new PalInfo(1216, false), // AnimSet 137
             new PalInfo(1216, false), // AnimSet 138
-            new PalInfo(1209, false), // AnimSet 139 // TODO: Wrong pal - unused?
+            new PalInfo(1209, false), // AnimSet 139 // NOTE: Wrong pal - unused?
             new PalInfo(1216, false), // AnimSet 140
             new PalInfo(1211, false), // AnimSet 141
             new PalInfo(1216, false), // AnimSet 142
