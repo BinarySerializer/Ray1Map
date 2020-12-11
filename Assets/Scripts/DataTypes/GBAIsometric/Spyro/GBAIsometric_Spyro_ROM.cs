@@ -407,7 +407,7 @@ namespace R1Engine
             new PalInfo(339), // AnimSet 64
             new PalInfo(331), // AnimSet 65
             new PalInfo(333), // AnimSet 66
-            new PalInfo(), // AnimSet 67 // TODO: Wrong pal
+            new PalInfo(), // AnimSet 67 // TODO: Wrong pal (0x0803C735)
             new PalInfo(330), // AnimSet 68
             new PalInfo(330), // AnimSet 69
             new PalInfo(320), // AnimSet 70
@@ -419,30 +419,30 @@ namespace R1Engine
             new PalInfo(339), // AnimSet 76
             new PalInfo(339), // AnimSet 77
             new PalInfo(342), // AnimSet 78
-            new PalInfo(), // AnimSet 79 // TODO: Wrong pal
+            new PalInfo(312), // AnimSet 79
             new PalInfo(333), // AnimSet 80
             new PalInfo(335), // AnimSet 81
             new PalInfo(327), // AnimSet 82
             new PalInfo(310), // AnimSet 83 // NOTE: Uses different palette in Dreamy Castle
-            new PalInfo(), // AnimSet 84 // TODO: Wrong pal
+            new PalInfo(344), // AnimSet 84
             new PalInfo(333), // AnimSet 85
             new PalInfo(333), // AnimSet 86
             new PalInfo(339), // AnimSet 87
             new PalInfo(332), // AnimSet 88
             new PalInfo(317), // AnimSet 89
-            new PalInfo(), // AnimSet 90 // TODO: Wrong pal - same as 91?
+            new PalInfo(341), // AnimSet 90
             new PalInfo(323), // AnimSet 91
             new PalInfo(328), // AnimSet 92
             new PalInfo(323), // AnimSet 93
             new PalInfo(323), // AnimSet 94
-            new PalInfo(), // AnimSet 95 // TODO: Wrong pal?
+            new PalInfo(339), // AnimSet 95
             new PalInfo(344), // AnimSet 96
             new PalInfo(342), // AnimSet 97
             new PalInfo(323), // AnimSet 98
             new PalInfo(312), // AnimSet 99
             new PalInfo(310), // AnimSet 100
             new PalInfo(310), // AnimSet 101
-            new PalInfo(), // AnimSet 102 // TODO: Wrong pal?
+            new PalInfo(312), // AnimSet 102
             new PalInfo(323), // AnimSet 103
             new PalInfo(333), // AnimSet 104
             new PalInfo(), // AnimSet 105
