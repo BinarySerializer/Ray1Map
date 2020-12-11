@@ -746,7 +746,7 @@ namespace R1Engine
 
             return address;
         }
-        private static int ConvertAnimSetIndex(GameModeSelection gameMode, int index)
+        public static int ConvertAnimSetIndex(GameModeSelection gameMode, int index)
         {
             if (gameMode == GameModeSelection.SpyroAdventureEU)
             {

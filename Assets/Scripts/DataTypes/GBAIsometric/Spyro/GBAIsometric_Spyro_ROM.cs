@@ -298,7 +298,7 @@ namespace R1Engine
             // HUD/Menu
             new PalInfo(true, new long[]
             {
-                315, // TODO: Wrong pal
+                1211,
                 315,
                 315,
                 315,
@@ -327,7 +327,7 @@ namespace R1Engine
             new PalInfo(328), // AnimSet 18
             new PalInfo(328), // AnimSet 19
             new PalInfo(328), // AnimSet 20
-            new PalInfo(), // AnimSet 21 // TODO: Wrong pal (rabbit - unused?)
+            new PalInfo(), // AnimSet 21 // NOTE: Unused (not in eu version)
             new PalInfo(310), // AnimSet 22
             new PalInfo(327), // AnimSet 23
             new PalInfo(344), // AnimSet 24
@@ -407,13 +407,13 @@ namespace R1Engine
             new PalInfo(339), // AnimSet 64
             new PalInfo(331), // AnimSet 65
             new PalInfo(333), // AnimSet 66
-            new PalInfo(), // AnimSet 67 // TODO: Wrong pal (0x0803C735)
+            new PalInfo(333), // AnimSet 67
             new PalInfo(330), // AnimSet 68
             new PalInfo(330), // AnimSet 69
             new PalInfo(320), // AnimSet 70
             new PalInfo(342), // AnimSet 71
             new PalInfo(342), // AnimSet 72
-            new PalInfo(), // AnimSet 73 // TODO: Wrong pal (enemy attack)
+            new PalInfo(312), // AnimSet 73
             new PalInfo(327), // AnimSet 74
             new PalInfo(321, false), // AnimSet 75
             new PalInfo(339), // AnimSet 76
@@ -445,7 +445,7 @@ namespace R1Engine
             new PalInfo(312), // AnimSet 102
             new PalInfo(323), // AnimSet 103
             new PalInfo(333), // AnimSet 104
-            new PalInfo(), // AnimSet 105
+            new PalInfo(332), // AnimSet 105
             new PalInfo(333), // AnimSet 106
             new PalInfo(317), // AnimSet 107
             new PalInfo(342), // AnimSet 108
@@ -487,7 +487,7 @@ namespace R1Engine
             new PalInfo(1216, false), // AnimSet 136
             new PalInfo(1216, false), // AnimSet 137
             new PalInfo(1216, false), // AnimSet 138
-            new PalInfo(1209, false), // AnimSet 139 // NOTE: Wrong pal - unused?
+            new PalInfo(1209, false), // AnimSet 139 // NOTE: Unused (?)
             new PalInfo(1216, false), // AnimSet 140
             new PalInfo(1211, false), // AnimSet 141
             new PalInfo(1216, false), // AnimSet 142
@@ -516,7 +516,171 @@ namespace R1Engine
             new PalInfo(1475, false), // AnimSet 161
         };
 
-        // TODO: Fill out
-        public PalInfo[] Spyro2_PalInfoEU => new PalInfo[] { };
+        // Generated from the us table
+        public PalInfo[] Spyro2_PalInfoEU => new PalInfo[]
+        {
+            new PalInfo(true, 1216, 326, 326, 326, 326, 1480), // AnimSet 0 (0)
+            new PalInfo(false, 78), // AnimSet 1 (1)
+            new PalInfo(false, 173), // AnimSet 2 (2)
+            new PalInfo(false, 239), // AnimSet 3
+            new PalInfo(false, 239), // AnimSet 4 (3)
+            new PalInfo(false, 239), // AnimSet 5
+            new PalInfo(false, 239), // AnimSet 6
+            new PalInfo(false, 239), // AnimSet 7
+            new PalInfo(false, 239), // AnimSet 8
+            new PalInfo(false, 238), // AnimSet 9 (4)
+            new PalInfo(false, 238), // AnimSet 10 (5)
+            new PalInfo(false, 240), // AnimSet 11 (6)
+            new PalInfo(true, 326), // AnimSet 12 (7)
+            new PalInfo(true, 321), // AnimSet 13 (8)
+            new PalInfo(true, 344), // AnimSet 14 (9)
+            new PalInfo(true, 328), // AnimSet 15 (10)
+            new PalInfo(true, 350), // AnimSet 16 (11)
+            new PalInfo(true, 346), // AnimSet 17 (12)
+            new PalInfo(true, 326), // AnimSet 18 (13)
+            new PalInfo(true, 338), // AnimSet 19 (14)
+            new PalInfo(true, 331), // AnimSet 20 (15)
+            new PalInfo(true, 350), // AnimSet 21 (16)
+            new PalInfo(true, 344), // AnimSet 22 (17)
+            new PalInfo(true, 339), // AnimSet 23 (18)
+            new PalInfo(true, 339), // AnimSet 24 (19)
+            new PalInfo(true, 339), // AnimSet 25 (20)
+            new PalInfo(true, 321), // AnimSet 26 (22)
+            new PalInfo(true, 338), // AnimSet 27 (23)
+            new PalInfo(true, 355), // AnimSet 28 (24)
+            new PalInfo(true, 324), // AnimSet 29 (25)
+            new PalInfo(true, 348), // AnimSet 30 (26)
+            new PalInfo(true, 339), // AnimSet 31 (27)
+            new PalInfo(true, 339), // AnimSet 32 (28)
+            new PalInfo(true, 331), // AnimSet 33 (29)
+            new PalInfo(true, 321), // AnimSet 34 (30)
+            new PalInfo(true, 331), // AnimSet 35 (31)
+            new PalInfo(true, 329), // AnimSet 36 (32)
+            new PalInfo(true, 350), // AnimSet 37 (33)
+            new PalInfo(true, 339), // AnimSet 38 (34)
+            new PalInfo(true, 339), // AnimSet 39 (35)
+            new PalInfo(true, 321, 321, 334, 334, 323, 323, 323, 326, 326, 328, 328, 336, 336, 346, 346, 348, 348, 331, 331, 334, 334, 338, 338, 341, 341, 350, 350, 353, 353, 355, 355), // AnimSet 40 (36)
+            new PalInfo(true, 355), // AnimSet 41 (37)
+            new PalInfo(true, 321), // AnimSet 42 (38)
+            new PalInfo(true, 338), // AnimSet 43 (39)
+            new PalInfo(true, 338), // AnimSet 44 (40)
+            new PalInfo(true, 352), // AnimSet 45 (41)
+            new PalInfo(true, 352), // AnimSet 46 (42)
+            new PalInfo(true, 321), // AnimSet 47 (43)
+            new PalInfo(true, 329), // AnimSet 48 (44)
+            new PalInfo(true, 344), // AnimSet 49 (45)
+            new PalInfo(true, 343), // AnimSet 50 (46)
+            new PalInfo(true, 323), // AnimSet 51 (47)
+            new PalInfo(true, 341), // AnimSet 52 (48)
+            new PalInfo(true, 326, 321, 355, 353, 350, 341, 329, 334, 343, 342, 344, 343, 331, 338), // AnimSet 53 (49)
+            new PalInfo(true, 346), // AnimSet 54 (50)
+            new PalInfo(true, 339), // AnimSet 55 (51)
+            new PalInfo(true, 339), // AnimSet 56 (52)
+            new PalInfo(true, 343), // AnimSet 57 (53)
+            new PalInfo(true, 350), // AnimSet 58 (54)
+            new PalInfo(true, 346), // AnimSet 59 (55)
+            new PalInfo(true, 350), // AnimSet 60 (56)
+            new PalInfo(true, 350), // AnimSet 61 (57)
+            new PalInfo(true, 338), // AnimSet 62 (58)
+            new PalInfo(true, 344), // AnimSet 63 (59)
+            new PalInfo(true, 350), // AnimSet 64 (60)
+            new PalInfo(true, 350), // AnimSet 65 (61)
+            new PalInfo(true, 355), // AnimSet 66 (62)
+            new PalInfo(true, 321), // AnimSet 67 (63)
+            new PalInfo(true, 350), // AnimSet 68 (64)
+            new PalInfo(true, 342), // AnimSet 69 (65)
+            new PalInfo(true, 344), // AnimSet 70 (66)
+            new PalInfo(true, 344), // AnimSet 71 (67)
+            new PalInfo(true, 341), // AnimSet 72 (68)
+            new PalInfo(true, 341), // AnimSet 73 (69)
+            new PalInfo(true, 331), // AnimSet 74 (70)
+            new PalInfo(true, 353), // AnimSet 75 (71)
+            new PalInfo(true, 353), // AnimSet 76 (72)
+            new PalInfo(true, 323), // AnimSet 77 (73)
+            new PalInfo(true, 338), // AnimSet 78 (74)
+            new PalInfo(false, 332), // AnimSet 79 (75)
+            new PalInfo(true, 350), // AnimSet 80 (76)
+            new PalInfo(true, 353), // AnimSet 81 (78)
+            new PalInfo(true, 323), // AnimSet 82 (79)
+            new PalInfo(true, 344), // AnimSet 83 (80)
+            new PalInfo(true, 346), // AnimSet 84 (81)
+            new PalInfo(true, 338), // AnimSet 85 (82)
+            new PalInfo(true, 321), // AnimSet 86 (83)
+            new PalInfo(true, 355), // AnimSet 87 (84)
+            new PalInfo(true, 344), // AnimSet 88 (85)
+            new PalInfo(true, 344), // AnimSet 89 (86)
+            new PalInfo(true, 350), // AnimSet 90 (87)
+            new PalInfo(true, 343), // AnimSet 91 (88)
+            new PalInfo(true, 328), // AnimSet 92 (89)
+            new PalInfo(true, 352), // AnimSet 93 (90)
+            new PalInfo(true, 334), // AnimSet 94 (91)
+            new PalInfo(true, 339), // AnimSet 95 (92)
+            new PalInfo(true, 334), // AnimSet 96 (93)
+            new PalInfo(true, 334), // AnimSet 97 (94)
+            new PalInfo(true, 350), // AnimSet 98 (95)
+            new PalInfo(true, 355), // AnimSet 99 (96)
+            new PalInfo(true, 353), // AnimSet 100 (97)
+            new PalInfo(true, 334), // AnimSet 101 (98)
+            new PalInfo(true, 323), // AnimSet 102 (99)
+            new PalInfo(true, 321), // AnimSet 103 (100)
+            new PalInfo(true, 321), // AnimSet 104 (101)
+            new PalInfo(true, 323), // AnimSet 105 (102)
+            new PalInfo(true, 334), // AnimSet 106 (103)
+            new PalInfo(true, 344), // AnimSet 107 (104)
+            new PalInfo(true, 343), // AnimSet 108 (105)
+            new PalInfo(true, 344), // AnimSet 109 (106)
+            new PalInfo(true, 328), // AnimSet 110 (107)
+            new PalInfo(true, 353), // AnimSet 111 (108)
+            new PalInfo(true, 353), // AnimSet 112 (109)
+            new PalInfo(true, 355), // AnimSet 113 (110)
+            new PalInfo(true, 334), // AnimSet 114 (111)
+            new PalInfo(true, 334), // AnimSet 115 (112)
+            new PalInfo(true, 344), // AnimSet 116 (113)
+            new PalInfo(true, 350), // AnimSet 117 (114)
+            new PalInfo(true, 350), // AnimSet 118 (115)
+            new PalInfo(true, 331), // AnimSet 119 (116)
+            new PalInfo(true, 331), // AnimSet 120 (117)
+            new PalInfo(true, 331), // AnimSet 121 (118)
+            new PalInfo(true, 350), // AnimSet 122 (119)
+            new PalInfo(true, 350), // AnimSet 123 (120)
+            new PalInfo(true, 338), // AnimSet 124 (121)
+            new PalInfo(false, 1221), // AnimSet 125 (122)
+            new PalInfo(false, 1220), // AnimSet 126 (123)
+            new PalInfo(false, 1221), // AnimSet 127 (124)
+            new PalInfo(false, 1221), // AnimSet 128 (125)
+            new PalInfo(false, 1221), // AnimSet 129 (126)
+            new PalInfo(false, 1214), // AnimSet 130 (127)
+            new PalInfo(false, 1221), // AnimSet 131 (128)
+            new PalInfo(false, 1221), // AnimSet 132 (129)
+            new PalInfo(false, 1221), // AnimSet 133 (130)
+            new PalInfo(false, 1221), // AnimSet 134 (131)
+            new PalInfo(false, 1221), // AnimSet 135 (132)
+            new PalInfo(false, 1221), // AnimSet 136 (133)
+            new PalInfo(false, 1214, 1214, 1216, 1216, 1220, 1220, 1221, 1221), // AnimSet 137 (134)
+            new PalInfo(false, 1221), // AnimSet 138 (135)
+            new PalInfo(false, 1221), // AnimSet 139 (136)
+            new PalInfo(false, 1221), // AnimSet 140 (137)
+            new PalInfo(false, 1221), // AnimSet 141 (138)
+            new PalInfo(false, 1214), // AnimSet 142 (139)
+            new PalInfo(false, 1221), // AnimSet 143 (140)
+            new PalInfo(false, 1216), // AnimSet 144 (141)
+            new PalInfo(false, 1221), // AnimSet 145 (142)
+            new PalInfo(false, 1220), // AnimSet 146 (143)
+            new PalInfo(false, 1221), // AnimSet 147 (144)
+            new PalInfo(false, 1221), // AnimSet 148 (145)
+            new PalInfo(false, 1221), // AnimSet 149 (146)
+            new PalInfo(false, 1216), // AnimSet 150 (147)
+            new PalInfo(false, 1221), // AnimSet 151 (148)
+            new PalInfo(false, 1221), // AnimSet 152 (149)
+            new PalInfo(false, 1220), // AnimSet 153 (150)
+            new PalInfo(false, 1441), // AnimSet 154 (151)
+            new PalInfo(false, 1441), // AnimSet 155 (152)
+            new PalInfo(true, 1455), // AnimSet 156 (153)
+            new PalInfo(false, 1480), // AnimSet 157 (154)
+            new PalInfo(false, 1480), // AnimSet 158 (155)
+            new PalInfo(false, 1480), // AnimSet 159 (156)
+            new PalInfo(false, 1480), // AnimSet 160 (157)
+            new PalInfo(false, 1480), // AnimSet 161 (158)
+        };
     }
 }

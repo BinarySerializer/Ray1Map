@@ -1021,5 +1021,79 @@ namespace R1Engine
 
             output.CopyToClipboard();
         }
+        public async UniTask CreatePalBlockIndexPerLevelUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
+        {
+            using (var usContext = new Context(usSettings))
+            {
+                using (var euContext = new Context(euSettings))
+                {
+                    // Load rom files
+                    await LoadFilesAsync(usContext);
+                    await LoadFilesAsync(euContext);
+
+                    // Read files
+                    var usRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, usContext);
+                    var euRom = FileFactory.Read<GBAIsometric_Spyro_ROM>(GetROMFilePath, euContext);
+
+                    // Calculate hash for every table entry
+                    var usHash = new string[usRom.DataTable.DataEntries.Length];
+                    var euHash = new string[euRom.DataTable.DataEntries.Length];
+
+                    calcHash(usHash, usRom.DataTable);
+                    calcHash(euHash, euRom.DataTable);
+
+                    void calcHash(IList<string> hash, GBAIsometric_Spyro_DataTable table)
+                    {
+                        // Check the hash
+                        using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                        {
+                            var s = table.Context.Deserializer;
+
+                            for (int i = 0; i < table.DataEntries.Length; i++)
+                            {
+                                var data = table.DoAtBlock(table.Context, i, size => s.SerializeArray<byte>(default, size));
+
+                                hash[i] = Convert.ToBase64String(sha1.ComputeHash(data));
+                            }
+                        }
+                    }
+
+                    int lazyWayToGetUSAnimSetIndex(int euIndex)
+                    {
+                        for (int i = 0; i < usRom.AnimSets.Length; i++)
+                        {
+                            if (GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(euSettings.GameModeSelection, i) == euIndex)
+                                return i;
+                        }
+
+                        return -1;
+                    }
+
+                    var outputStr = String.Empty;
+
+                    for (int i = 0; i < euRom.AnimSets.Length; i++)
+                    {
+                        var usIndex = lazyWayToGetUSAnimSetIndex(i);
+
+                        if (usIndex == -1)
+                        {
+                            outputStr += $"new PalInfo(null), // AnimSet {i}{Environment.NewLine}";
+                        }
+                        else
+                        {
+                            var usPalInfo = usRom.Spyro2_PalInfoUS[usIndex];
+
+                            if (usPalInfo.BlockIndices == null)
+                                outputStr += $"new PalInfo(), // AnimSet {i} ({usIndex}){Environment.NewLine}";
+                            else
+                                outputStr += $"new PalInfo({usPalInfo.UsesCommonPalette.ToString().ToLower()}, {String.Join(", ", usPalInfo.BlockIndices.Select(x => euHash.FindItemIndex(b => b == usHash[x])))}), // AnimSet {i} ({usIndex}){Environment.NewLine}";
+                        }
+                    }
+
+                    outputStr.CopyToClipboard();
+                }
+            }
+        }
+
     }
 }
