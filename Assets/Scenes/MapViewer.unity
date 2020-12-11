@@ -2306,6 +2306,15 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: ff08c2d4adccb784b8f1b88c5628208f, type: 3}
     sprite3D: {fileID: 21300000, guid: 63be38493dd09fc4f9d3bb8425614687, type: 3}
     color: {r: 0.28627452, g: 0.4745098, b: 0.9843137, a: 1}
+  linkTypeColors:
+  - linkType: 2
+    color: {r: 1, g: 0.18431371, b: 0.53048193, a: 1}
+  - linkType: 3
+    color: {r: 0.7608986, g: 0, b: 1, a: 1}
+  - linkType: 5
+    color: {r: 0.64684546, g: 1, b: 0, a: 1}
+  - linkType: 0
+    color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &195220863
 GameObject:
   m_ObjectHideFlags: 0

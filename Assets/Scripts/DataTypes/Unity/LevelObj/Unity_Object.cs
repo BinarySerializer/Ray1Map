@@ -15,6 +15,7 @@ namespace R1Engine
         public abstract string DebugText { get; }
         public int EditorLinkGroup { get; set; }
         public virtual IEnumerable<int> Links => new int[0];
+        public virtual IEnumerable<LinkType> LinkTypes => null;
         public bool HasPendingEdits { get; set; }
         public abstract R1Serializable SerializableData { get; }
 
@@ -126,6 +127,14 @@ namespace R1Engine
             Object,
             Trigger,
             Waypoint
+        }
+        public enum LinkType {
+            Unknown,
+            WakeUp,
+            Sleep,
+            Destroy,
+            Reset,
+            ResetWakeUp
         }
         public virtual ObjectType Type => Unity_Object.ObjectType.Object;
 

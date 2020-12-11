@@ -74,6 +74,7 @@ namespace R1Engine
         private bool updateLinkPos = false;
 
         public Gizmo[] gizmos;
+        public LinkTypeColor[] linkTypeColors;
 
         #endregion
 
@@ -185,10 +186,19 @@ namespace R1Engine
         {
             var objList = Controller.obj.levelController.Objects;
 
-            Color GetColorForObject(Unity_ObjBehaviour obj) {
+            Color GetColorForObject(Unity_ObjBehaviour obj, Unity_Object.LinkType? linkType) {
                 Gizmo gizmo = gizmos.FirstOrDefault(g => g.name == obj.ObjData.Type.ToString());
                 if (gizmo == null) gizmo = gizmos[0];
-                return new Color(gizmo.color.r, gizmo.color.g, gizmo.color.b, 200/255f);
+                Color c = gizmo.color;
+                if (obj.ObjData.Type == Unity_Object.ObjectType.Object) {
+                    if (linkType.HasValue && linkType.Value != Unity_Object.LinkType.Unknown) {
+                        LinkTypeColor linkTypeColor = linkTypeColors.FirstOrDefault(ltc => ltc.linkType == linkType.Value);
+                        if (linkTypeColor != null) {
+                            c = linkTypeColor.color;
+                        }
+                    }
+                }
+                return new Color(c.r, c.g, c.b, 200/255f);
             }
             // foreach (var linkedActorIndex in obj.ObjData.Links)
             // Initialize one-way links
@@ -196,6 +206,7 @@ namespace R1Engine
             {
                 var links = obj.ObjData.Links.ToArray();
                 var linkCount = links.Length;
+                var linkTypes = obj.ObjData.LinkTypes?.ToArray();
 
                 obj.oneWayLinkLines = new LineRenderer[linkCount];
 
@@ -208,7 +219,7 @@ namespace R1Engine
                     lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
                     lr.material = linkLineMaterial;
                     var linkedObj = Controller.obj.levelController.Objects[links[i]];
-                    lr.material.color = GetColorForObject(linkedObj);
+                    lr.material.color = GetColorForObject(linkedObj, linkTypes?.Length > i ? (Unity_Object.LinkType?)linkTypes[i] : null);
                     //lr.material.color = linkColorActive;
                     lr.positionCount = 2;
                     lr.widthMultiplier = 1f;
@@ -814,6 +825,12 @@ namespace R1Engine
             public string name;
             public Sprite sprite;
             public Sprite sprite3D;
+            public Color color;
+        }
+
+        [Serializable]
+        public class LinkTypeColor {
+            public Unity_Object.LinkType linkType;
             public Color color;
         }
     }

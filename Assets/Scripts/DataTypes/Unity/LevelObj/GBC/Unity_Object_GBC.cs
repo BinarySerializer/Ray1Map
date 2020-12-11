@@ -67,8 +67,23 @@ namespace R1Engine
 
         public override bool CanBeLinked => true;
         public override IEnumerable<int> Links => Actor.Links
-            .Where(link => link.Type == GBC_GameObjectLink.MessageType.GameObject && link.GameObjectID.HasValue)
+            .Where(link => link.Type == GBC_GameObjectLink.MessageType.GameObject && link.GameObjectID.HasValue && link.GameObjectID.Value != Actor.XlateID)
             .Select(link => link.GameObjectID.Value - 1);
+
+		public override IEnumerable<LinkType> LinkTypes => Actor.Links
+            .Where(link => link.Type == GBC_GameObjectLink.MessageType.GameObject && link.GameObjectID.HasValue && link.GameObjectID.Value != Actor.XlateID)
+            .Select(link => GetLinkType(link));
+
+        private LinkType GetLinkType(GBC_GameObjectLink link) {
+            switch (link.MessageID) {
+                case 1: return LinkType.WakeUp;
+                case 2: return LinkType.Sleep;
+                case 3: return LinkType.Destroy;
+                case 4: return LinkType.Reset;
+                case 5: return LinkType.ResetWakeUp;
+                default: return LinkType.Unknown;
+            }
+        }
 
         public override string PrimaryName
         {
