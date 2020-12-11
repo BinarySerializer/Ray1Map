@@ -954,6 +954,35 @@ namespace R1Engine
             return texs;
         }
 
+        public Unity_ObjectManager_GBARRRMode7Unused.GraphicsDataGroup[] Mode7Unused_GetGraphicsGroups(GBARRR_ROM rom)
+        {
+            return new Unity_ObjectManager_GBARRRMode7Unused.GraphicsDataGroup[]
+            {
+                getGroup(1175), // Rayman
+                getGroup(1176), // Pencil
+            };
+
+            Unity_ObjectManager_GBARRRMode7Unused.GraphicsDataGroup getGroup(int blockIndex)
+            {
+                const int width = 64;
+                const int height = 64;
+
+                GBARRR_Tileset tileSet = null;
+
+                rom.OffsetTable.DoAtBlock(rom.Context, blockIndex, size => tileSet = rom.Context.Deserializer.SerializeObject<GBARRR_Tileset>(tileSet, onPreSerialize: x =>
+                {
+                    x.BlockSize = size;
+                    x.PalLength = 16;
+                }, name: $"SpriteTileSet[{blockIndex}]"));
+
+                var tex = Util.ToTileSetTexture(tileSet.Data, Util.ConvertGBAPalette(tileSet.Palette), Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: width / CellSize);
+
+                var count = tex.height / height;
+
+                return new Unity_ObjectManager_GBARRRMode7Unused.GraphicsDataGroup(Enumerable.Range(0, count).Select(x => new Unity_ObjectManager_GBARRRMode7Unused.GraphicsData(tex.CreateSprite(new Rect(0, x * height, width, height)))).Reverse().ToArray(), blockIndex);
+            }
+        }
+
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
@@ -1148,7 +1177,7 @@ namespace R1Engine
                     })).ToArray(),
                 };
 
-                var o = new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0][]);
+                var o = new Unity_ObjectManager_GBARRRMode7Unused(context, Mode7Unused_GetGraphicsGroups(rom));
 
                 return new Unity_Level(
                     maps: new Unity_Map[]
@@ -1158,12 +1187,16 @@ namespace R1Engine
                         bg1,
                     },
                     objManager: o,
-                    eventData: rom.ObjectArray.Objects.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, o)).ToList(),
+                    eventData: rom.ObjectArray.Objects.Select(x => (Unity_Object)new Unity_Object_GBARRRMode7Unused(x, o)).ToList(),
                     getCollisionTypeNameFunc: x => ((GBARRR_TileCollisionType)x).ToString(),
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
                     localization: loc,
-                    defaultMap: 0
+                    defaultMap: 0,
+                    rayman: new Unity_Object_GBARRRMode7Unused(new GBARRR_Object(), o)
+                    {
+                        AnimationGroupIndex = 0
+                    }
                 );
             }
 
