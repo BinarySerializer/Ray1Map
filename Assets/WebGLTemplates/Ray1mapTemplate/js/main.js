@@ -622,6 +622,10 @@ function formatTextR1(text) {
 function formatTextGBA(text) {
 	return text;
 }
+function formatTextRRRGBA(text) {
+	text = text.replace(/\%/gi, "<br/>"); // New Lines
+	return text;
+}
 
 function formatOpenSpaceTextR2(text) {
 	let orgText = text;
@@ -699,7 +703,9 @@ function formatText(text) {
 	if(gameSettings != null){
 		if(gameSettings.MajorEngineVersion === "Rayman1" || gameSettings.MajorEngineVersion === "Rayman1Jaguar") {
 			text = formatTextR1(text);
-		} else if(gameSettings.MajorEngineVersion === "GBA" || gameSettings.MajorEngineVersion === "GBARRR" | gameSettings.MajorEngineVersion === "GBAIsometric") {
+		} else if(gameSettings.MajorEngineVersion === "GBARRR") {
+			text = formatTextRRRGBA(text);
+		} else if(gameSettings.MajorEngineVersion === "GBA" | gameSettings.MajorEngineVersion === "GBAIsometric") {
 			text = formatTextGBA(text);
 		}
 	} else {
