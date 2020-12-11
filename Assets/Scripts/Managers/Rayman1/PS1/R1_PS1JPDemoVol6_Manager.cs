@@ -74,7 +74,32 @@ namespace R1Engine
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {
-            new FileTableInfo(ExeBaseAddress.Value + 0x6811C, 455, R1_PS1_FileType.demo_file), // TODO: Get separate arrays 
+            new FileTableInfo(0x801b791c, 3, R1_PS1_FileType.filefxs),
+            new FileTableInfo(0x801b79d0, 1, R1_PS1_FileType.demo_vig),
+            new FileTableInfo(0x801b7a0c, 12, R1_PS1_FileType.vab_file),
+
+            new FileTableInfo(0x801b7cdc, 5, R1_PS1_FileType.wld_file), // Jungle
+
+            // Unused
+            //new FileTableInfo(0x801B7E08, 5, R1_PS1_FileType.wld_file), // Music
+            //new FileTableInfo(0x801B7F34, 5, R1_PS1_FileType.wld_file), // Mountain
+            //new FileTableInfo(0x801B8060, 5, R1_PS1_FileType.wld_file), // Image
+            //new FileTableInfo(0x801B818C, 5, R1_PS1_FileType.wld_file), // Cave
+            //new FileTableInfo(0x801B82B8, 5, R1_PS1_FileType.wld_file), // Cake
+
+            new FileTableInfo(0x801b83e4, 64, R1_PS1_FileType.map_file), // Jungle
+
+            // Unused
+            //new FileTableInfo(0x801B92E4, 64, R1_PS1_FileType.map_file), // Music
+            //new FileTableInfo(0x801BA1E4, 64, R1_PS1_FileType.map_file), // Mountain
+            //new FileTableInfo(0x801BB0E4, 64, R1_PS1_FileType.map_file), // Image
+            //new FileTableInfo(0x801BBFE4, 64, R1_PS1_FileType.map_file), // Cave
+            //new FileTableInfo(0x801BCEE4, 64, R1_PS1_FileType.map_file), // Cake
+
+            new FileTableInfo(0x801BDDE4, 11, R1_PS1_FileType.fnd_file),
+            new FileTableInfo(0x801be078, 11, R1_PS1_FileType.demo_file), // BGI (background data?)
+
+            new FileTableInfo(0x801BE30C, 4, R1_PS1_FileType.trk_file)
         };
 
         /// <summary>
