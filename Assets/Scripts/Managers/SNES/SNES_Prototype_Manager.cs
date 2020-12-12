@@ -100,19 +100,7 @@ namespace R1Engine
             // Load sprites
             var sprites = GetSprites(rom);
 
-            var objManager = new Unity_ObjectManager_SNES(context, rom.States.Select(x =>
-            {
-                var anim = x.Animation.ToCommonAnimation();
-
-                // Set flip flags
-                foreach (var layer in anim.Frames.SelectMany(frame => frame.SpriteLayers))
-                {
-                    layer.IsFlippedHorizontally = rom.ImageDescriptors[layer.ImageIndex].FlipX;
-                    layer.IsFlippedVertically = !rom.ImageDescriptors[layer.ImageIndex].FlipY;
-                }
-
-                return new Unity_ObjectManager_SNES.State(x, anim);
-            }).ToArray(), sprites);
+            var objManager = new Unity_ObjectManager_SNES(context, rom.States.Select(x => new Unity_ObjectManager_SNES.State(x, x.Animation.ToCommonAnimation())).ToArray(), sprites);
 
             // Create Rayman
             var rayman = new Unity_Object_SNES(objManager);
@@ -141,17 +129,23 @@ namespace R1Engine
             var pal = Util.ConvertAndSplitGBAPalette(rom.SpritePalette);
 
             var buffer = rom.SpriteTileSet;
-            var tileSets = pal.Select(x => Util.ToTileSetTexture(buffer, x, Util.TileEncoding.Planar_4bpp, 8, false, wrap: 16, flipTileX: true)).ToArray();
+            var tileSets = pal.Select(x => Util.ToTileSetTexture(buffer, x, Util.TileEncoding.Planar_4bpp, 8, true, wrap: 16, flipTileX: true)).ToArray();
 
             for (int i = 0; i < rom.ImageDescriptors.Length; i++)
             {
+                if (i == 0)
+                {
+                    sprites[i] = null;
+                    continue;
+                }
+
                 var imgDescriptor = rom.ImageDescriptors[i];
 
                 var xPos = imgDescriptor.TileIndex % 16;
                 var yPos = (imgDescriptor.TileIndex - xPos) / 16;
                 var size = imgDescriptor.IsLarge ? 16 : 8;
 
-                sprites[i] = tileSets[imgDescriptor.Palette].CreateSprite(new Rect(xPos * 8, yPos * 8, size, size));
+                sprites[i] = tileSets[imgDescriptor.Palette].CreateSprite(new Rect(xPos * 8, tileSets[imgDescriptor.Palette].height - yPos * 8 - size, size, size));
             }
 
             return sprites;

@@ -114,7 +114,19 @@ namespace R1Engine
                     YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                     JaguarImageIndexByte = s.Serialize<byte>(JaguarImageIndexByte, name: nameof(JaguarImageIndexByte));
                 }*/
-                XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
+                if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.SNES)
+                {
+                    s.SerializeBitValues<byte>(bitFunc =>
+                    {
+                        XPosition = (byte)bitFunc(XPosition, 7, name: nameof(XPosition));
+                        IsFlippedHorizontally = bitFunc(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
+                    });
+                }
+                else
+                {
+                    XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
+                }
+
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                 ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
             }
