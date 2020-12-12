@@ -302,6 +302,7 @@ namespace R1Engine
                         // Instantiate prefab
                         SpriteRenderer newRenderer = Instantiate(prefabSpritepart, transform).GetComponent<SpriteRenderer>();
                         newRenderer.sortingOrder = is3D ? 0 : (Layer + i);
+                        newRenderer.sortingLayerName = ObjData.MapLayer == 2 ? "Object Sprites Back" : "Object Sprites";
                         if (is3D) newRenderer.gameObject.layer = LayerMask.NameToLayer("3D Object");
 
                         newRenderer.transform.localPosition = new Vector3(0, 0, is3D ? 0 : (spritesLength - i));

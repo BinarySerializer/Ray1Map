@@ -47,13 +47,13 @@ TagManager:
   - name: Tiles Back
     uniqueID: 2904260121
     locked: 0
-  - name: Event Sprites Back
+  - name: Object Sprites Back
     uniqueID: 2065233017
     locked: 0
   - name: Tiles
     uniqueID: 2769402595
     locked: 0
-  - name: Event Sprites
+  - name: Object Sprites
     uniqueID: 1770392689
     locked: 0
   - name: Tiles Front
