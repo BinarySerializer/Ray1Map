@@ -2,8 +2,13 @@
 {
     public class SNES_Proto_ImageDescriptor : R1Serializable
     {
-        public bool IsLarge { get; set; }
-        public byte Unknown { get; set; }
+
+        // See https://wiki.superfamicom.org/snes-sprites (Sprite Table 2)
+        public byte Padding0 { get; set; }
+        public bool IsEmpty { get; set; } // true = no sprite?
+        public byte Padding1 { get; set; }
+        public bool IsLarge { get; set; } // true = 16x16, false = 8x8
+        // Same link (Sprite Table 1)
         public int TileIndex { get; set; }
         public int Palette { get; set; }
         public int Priority { get; set; }
@@ -13,7 +18,9 @@
         public override void SerializeImpl(SerializerObject s)
         {
             s.SerializeBitValues<byte>(bitFunc => {
-                Unknown = (byte)bitFunc(Unknown, 7, name: nameof(Unknown));
+                Padding0 = (byte)bitFunc(Padding0, 3, name: nameof(Padding0));
+                IsEmpty = bitFunc(IsEmpty ? 1 : 0, 1, name: nameof(IsEmpty)) == 1;
+                Padding1 = (byte)bitFunc(Padding1, 3, name: nameof(Padding1));
                 IsLarge = bitFunc(IsLarge ? 1 : 0, 1, name: nameof(IsLarge)) == 1;
             });
             s.SerializeBitValues<ushort>(bitFunc =>

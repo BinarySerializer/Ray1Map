@@ -1,5 +1,8 @@
 ﻿namespace R1Engine
 {
+    /// <summary>
+    /// SNES Pointer class. See https://datacrystal.romhacking.net/wiki/Pointer#SNES_Pointers
+    /// </summary>
     public class SNES_Pointer : R1Serializable
     {
         public bool HasMemoryBankValue { get; set; } = false; // Set before serializing
