@@ -42,7 +42,7 @@ namespace R1Engine
 
         protected override void RecalculateUIStates() {
             UIStates_StateIndex = StateIndex;
-            UIStates = ObjManager?.States?.Select((x, i) => (UIState)new SNES_UIState($"{i}", i)).ToArray() ?? new UIState[0];
+            UIStates = ObjManager?.States?.Select((x, i) => (UIState)new SNES_UIState($"{i} (Animation {ObjManager.States.Select(s => s.SNES_State.Animation).Distinct().FindItemIndex(s => s == x.SNES_State.Animation)})", i)).ToArray() ?? new UIState[0];
         }
 
         protected class SNES_UIState : UIState {
