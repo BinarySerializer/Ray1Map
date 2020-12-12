@@ -121,13 +121,18 @@ namespace R1Engine
                         XPosition = (byte)bitFunc(XPosition, 7, name: nameof(XPosition));
                         IsFlippedHorizontally = bitFunc(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
                     });
+                    s.SerializeBitValues<byte>(bitFunc =>
+                    {
+                        YPosition = (byte)bitFunc(YPosition, 7, name: nameof(YPosition));
+                        IsFlippedVertically = bitFunc(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedVertically)) == 1;
+                    });
                 }
                 else
                 {
                     XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
+                    YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                 }
 
-                YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                 ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
             }
             else
