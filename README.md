@@ -252,7 +252,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
     <td class="tg-yw4l">Rayman (SNES - Prototype)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
