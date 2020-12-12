@@ -11,7 +11,7 @@
         public byte Byte_09 { get; set; }
         public byte Byte_0A { get; set; }
         public byte FrameCount { get; set; } // Frame count
-        public byte Byte_0C { get; set; }
+        public byte AnimSpeed { get; set; }
         public byte Byte_0D { get; set; }
         public byte Byte_0E { get; set; }
         public byte Byte_0F { get; set; } // Always 0
@@ -33,7 +33,7 @@
             Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
             Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
-            Byte_0C = s.Serialize<byte>(Byte_0C, name: nameof(Byte_0C));
+            AnimSpeed = s.Serialize<byte>(AnimSpeed, name: nameof(AnimSpeed));
             Byte_0D = s.Serialize<byte>(Byte_0D, name: nameof(Byte_0D));
             Byte_0E = s.Serialize<byte>(Byte_0E, name: nameof(Byte_0E));
             Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));

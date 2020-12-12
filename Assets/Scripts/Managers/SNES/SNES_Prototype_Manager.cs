@@ -3,6 +3,7 @@ using R1Engine.Serialize;
 using System;
 using System.IO;
 using System.Linq;
+using ImageMagick;
 using UnityEngine;
 
 namespace R1Engine
@@ -21,7 +22,9 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
-            new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output)), 
+            new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output)),
+            new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
+            new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
         };
 
         public async UniTask ExportSpritesAsync(GameSettings settings, string outputDir)
@@ -66,6 +69,115 @@ namespace R1Engine
             }
         }
 
+        public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load rom
+                await LoadFilesAsync(context);
+                var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
+
+                var sprites = GetSprites(rom);
+
+                var animIndex = 0;
+
+                foreach (var stateGroup in rom.States.GroupBy(x => x.Animation))
+                {
+                    // Get the animation
+                    var anim = stateGroup.Key;
+                    var layersPerFrame = anim.LayersPerFrame;
+                    var frameCount = anim.FrameCount;
+
+                    // Calculate frame size
+                    int minX = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.XPosition);
+                    int minY = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.YPosition);
+                    int frameWidth = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.width + x.XPosition);
+                    int frameHeight = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.height + x.YPosition);
+
+                    // Create frame textures
+                    var frames = new Texture2D[frameCount];
+
+                    // Create each animation frame
+                    for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
+                    {
+                        var tex = TextureHelpers.CreateTexture2D(frameWidth - minX, frameHeight - minY, clear: true);
+
+                        // Write each layer
+                        for (var layerIndex = 0; layerIndex < layersPerFrame; layerIndex++)
+                        {
+                            var animationLayer = anim.Layers[frameIndex * layersPerFrame + layerIndex];
+
+                            if (animationLayer.ImageIndex >= sprites.Length)
+                                continue;
+
+                            // Get the sprite
+                            var sprite = sprites[animationLayer.ImageIndex];
+
+                            if (sprite == null)
+                                continue;
+
+                            // Set every pixel
+                            for (int y = 0; y < sprite.rect.height; y++)
+                            {
+                                for (int x = 0; x < sprite.rect.width; x++)
+                                {
+                                    var c = sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y);
+
+                                    var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.rect.width - 1 - x) : x) + animationLayer.XPosition;
+                                    var yPosition = (!animationLayer.IsFlippedVertically ? (sprite.rect.height - 1 - y) : y) + animationLayer.YPosition;
+
+                                    xPosition -= minX;
+                                    yPosition -= minY;
+
+                                    if (c.a != 0)
+                                        tex.SetPixel((int)xPosition, (int)(tex.height - yPosition - 1), c);
+                                }
+                            }
+                        }
+
+                        tex.Apply();
+
+                        frames[frameIndex] = tex;
+                    }
+
+                    // Export animation
+                    if (saveAsGif)
+                    {
+                        var speeds = stateGroup.Select(x => x.AnimSpeed).Distinct();
+
+                        foreach (var speed in speeds)
+                        {
+                            using (MagickImageCollection collection = new MagickImageCollection())
+                            {
+                                int index = 0;
+
+                                foreach (var tex in frames)
+                                {
+                                    var img = tex.ToMagickImage();
+                                    collection.Add(img);
+                                    collection[index].AnimationDelay = speed;
+                                    collection[index].AnimationTicksPerSecond = 60;
+                                    collection[index].Trim();
+
+                                    collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                                    index++;
+                                }
+
+                                // Save gif
+                                collection.Write(Path.Combine(outputDir, $"{animIndex} ({speed}).gif"));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < frames.Length; i++)
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{animIndex}", $"{i}.png"), frames[i].EncodeToPNG());
+                    }
+
+                    animIndex++;
+                }
+            }
+        }
 
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {

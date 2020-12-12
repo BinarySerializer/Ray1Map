@@ -30,7 +30,7 @@ namespace R1Engine
         public Unity_ObjectManager_SNES.State State => ObjManager.States.ElementAtOrDefault(StateIndex);
 
         public override Unity_ObjAnimation CurrentAnimation => State?.Animation;
-        public override int AnimSpeed => 2; // TODO: Fix
+        public override int AnimSpeed => State?.SNES_State.AnimSpeed ?? 0;
         public override int? GetAnimIndex => StateIndex;
         protected override int GetSpriteID => 0;
         public override IList<Sprite> Sprites => ObjManager.Sprites;
