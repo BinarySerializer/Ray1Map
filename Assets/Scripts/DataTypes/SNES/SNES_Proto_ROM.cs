@@ -6,6 +6,7 @@
         public RGBA5551Color[] Palettes { get; set; }
         public SNES_Proto_TileDescriptor[] TileDescriptors { get; set; }
         public byte[] TileMap { get; set; }
+        public SNES_Proto_State[] States { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -17,6 +18,7 @@
             Palettes = s.DoAt(s.CurrentPointer + 0x2ADC4, () => s.SerializeObjectArray<RGBA5551Color>(Palettes, 16* 16, name: nameof(Palettes)));
             TileDescriptors = s.DoAt(s.CurrentPointer + 0x1AAF8, () => s.SerializeObjectArray<SNES_Proto_TileDescriptor>(TileDescriptors, 1024 * 4, name: nameof(TileDescriptors)));
             TileMap = s.DoAt(s.CurrentPointer + 0x30000, () => s.SerializeArray<byte>(TileMap, 0x10000, name: nameof(TileMap)));
+            States = s.DoAt(s.CurrentPointer + 0x210AC, () => s.SerializeObjectArray<SNES_Proto_State>(States, 5 * 0x15, name: nameof(States)));
         }
     }
 }

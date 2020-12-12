@@ -102,7 +102,8 @@ namespace R1Engine
                 XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar
+                || s.GameSettings.MajorEngineVersion == MajorEngineVersion.SNES)
             {
                 /*if (FlipFlagInX) {
                     JaguarXByte = s.Serialize<byte>(JaguarXByte, name: nameof(JaguarXByte));
