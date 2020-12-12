@@ -49,8 +49,8 @@ namespace R1Engine
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
         public override int AnimSpeed => GraphicsData?.AnimSpeed ?? 0;
-        public override int? GetAnimIndex => 0;
-        protected override int GetSpriteID => AnimTypeIndex;
+        public override int? GetAnimIndex => AnimTypeIndex;
+        protected override int GetSpriteID => 0;
         public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
 
 

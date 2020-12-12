@@ -2,11 +2,11 @@
 {
     public class SNES_Proto_State : R1Serializable
     {
-        public SNES_Pointer Pointer_00 { get; set; }
+        public SNES_Pointer Pointer_00 { get; set; } // 16-byte struct?
         public SNES_Pointer Pointer_02 { get; set; }
         public SNES_Pointer AnimPointer { get; set; }
-        public byte Byte_06 { get; set; }
-        public byte Byte_07 { get; set; }
+        public byte Byte_06 { get; set; } // Flags?
+        public byte Byte_07 { get; set; } // 0 or 0xFF
         public byte Byte_08_AnimRelated { get; set; } // Animation related. Same animation -> same number
         public byte Byte_09 { get; set; }
         public byte Byte_0A { get; set; }
@@ -14,7 +14,7 @@
         public byte Byte_0C { get; set; }
         public byte Byte_0D { get; set; }
         public byte Byte_0E { get; set; }
-        public byte Byte_0F { get; set; }
+        public byte Byte_0F { get; set; } // Always 0
 
         public R1Jaguar_AnimationDescriptor Animation { get; set; }
 

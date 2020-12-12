@@ -21,7 +21,6 @@
             // The layer index
             var layer = 0;
 
-            var frames = animationDescriptor.Frames;
             var layers = animationDescriptor.Layers;
 
             // Create each frame

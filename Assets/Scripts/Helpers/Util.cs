@@ -465,7 +465,7 @@ namespace R1Engine
             File.WriteAllLines(Path.Combine(outputDir, "blocks_log.txt"), log);
         }
 
-        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, TileEncoding encoding, int tileWidth, bool flipY, int wrap = 32, Func<int, Color[]> getPalFunc = null)
+        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, TileEncoding encoding, int tileWidth, bool flipY, int wrap = 32, Func<int, Color[]> getPalFunc = null, bool flipTileX = false, bool flipTileY = false)
         {
             int bpp;
 
@@ -496,7 +496,17 @@ namespace R1Engine
                 int tileY = ((i / wrap)) * tileWidth;
                 int tileX = (i % wrap) * tileWidth;
 
-                tex.FillInTile(imgData, i * tileSize, getPalFunc?.Invoke(i) ?? pal, encoding, tileWidth, flipY, tileX, tileY);
+                tex.FillInTile(
+                    imgData: imgData, 
+                    imgDataOffset: i * tileSize, 
+                    pal: getPalFunc?.Invoke(i) ?? pal, 
+                    encoding: encoding, 
+                    tileWidth: tileWidth, 
+                    flipTextureY: flipY, 
+                    tileX: tileX, 
+                    tileY: tileY, 
+                    flipTileX: flipTileX, 
+                    flipTileY: flipTileY);
             }
 
             tex.Apply();

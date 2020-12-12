@@ -1,8 +1,8 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -19,7 +19,53 @@ namespace R1Engine
 
         public virtual string GetROMFilePath => $"ROM.sfc";
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[0];
+        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        {
+            new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output)), 
+        };
+
+        public async UniTask ExportSpritesAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load rom
+                await LoadFilesAsync(context);
+                var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
+
+                var sprites = GetSprites(rom);
+
+                // Export every sprite
+                for (int i = 0; i < sprites.Length; i++)
+                {
+                    var imgDescriptor = rom.ImageDescriptors[i];
+                    var sprite = sprites[i];
+
+                    var xPos = imgDescriptor.TileIndex % 16;
+                    var yPos = (imgDescriptor.TileIndex - xPos) / 16;
+                    
+                    var width = (int)sprite.rect.width;
+                    var height = (int)sprite.rect.height;
+
+                    var newTex = TextureHelpers.CreateTexture2D(width, height);
+
+                    var flipX = imgDescriptor.FlipX;
+                    var flipY = !imgDescriptor.FlipY;
+                    
+                    for (int y = 0; y < height; y++)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            newTex.SetPixel(flipX ? width - x - 1 : x, flipY ? height - y - 1 : y, sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y));
+                        }
+                    }
+
+                    newTex.Apply();
+
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{i}.png"), newTex.EncodeToPNG());
+                }
+            }
+        }
+
 
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
@@ -48,21 +94,70 @@ namespace R1Engine
                 }
             };
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(maps, new Unity_ObjectManager(context),
-                getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic());
+            Controller.DetailedState = $"Loading sprites";
+            await Controller.WaitIfNecessary();
+
+            // Load sprites
+            var sprites = GetSprites(rom);
+
+            var objManager = new Unity_ObjectManager_SNES(context, rom.States.Select(x =>
+            {
+                var anim = x.Animation.ToCommonAnimation();
+
+                // Set flip flags
+                foreach (var layer in anim.Frames.SelectMany(frame => frame.SpriteLayers))
+                {
+                    layer.IsFlippedHorizontally = rom.ImageDescriptors[layer.ImageIndex].FlipX;
+                    layer.IsFlippedVertically = !rom.ImageDescriptors[layer.ImageIndex].FlipY;
+                }
+
+                return new Unity_ObjectManager_SNES.State(x, anim);
+            }).ToArray(), sprites);
+
+            // Create Rayman
+            var rayman = new Unity_Object_SNES(objManager);
 
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
-            // Load tile set and treat black as transparent
-            level.Maps[0].TileSet[0] = GetTileSet(context, rom);
+            // Convert levelData to common level format
+            Unity_Level level = new Unity_Level(
+                maps: maps, 
+                objManager: new Unity_ObjectManager(context),
+                getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
+                getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(),
+                rayman: rayman);
+
+            // Load tile set
+            level.Maps[0].TileSet[0] = GetTileSet(rom);
 
             return level;
         }
+        
+        public Sprite[] GetSprites(SNES_Proto_ROM rom)
+        {
+            var sprites = new Sprite[rom.ImageDescriptors.Length];
 
-        public virtual Unity_MapTileMap GetTileSet(Context context, SNES_Proto_ROM rom)
+            var pal = Util.ConvertAndSplitGBAPalette(rom.SpritePalette);
+
+            var buffer = rom.SpriteTileSet;
+            var tileSets = pal.Select(x => Util.ToTileSetTexture(buffer, x, Util.TileEncoding.Planar_4bpp, 8, false, wrap: 16, flipTileX: true)).ToArray();
+
+            for (int i = 0; i < rom.ImageDescriptors.Length; i++)
+            {
+                var imgDescriptor = rom.ImageDescriptors[i];
+
+                var xPos = imgDescriptor.TileIndex % 16;
+                var yPos = (imgDescriptor.TileIndex - xPos) / 16;
+                var size = imgDescriptor.IsLarge ? 16 : 8;
+
+                sprites[i] = tileSets[imgDescriptor.Palette].CreateSprite(new Rect(xPos * 8, yPos * 8, size, size));
+            }
+
+            return sprites;
+        }
+
+        public virtual Unity_MapTileMap GetTileSet(SNES_Proto_ROM rom)
         {
             // Read the tiles
             const int block_size = 0x20;
@@ -72,7 +167,7 @@ namespace R1Engine
             // Get the tile-set texture
             var tex = TextureHelpers.CreateTexture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize, clear: true);
 
-            var pal = Util.ConvertAndSplitGBAPalette(rom.Palettes);
+            var pal = Util.ConvertAndSplitGBAPalette(rom.TilePalette);
 
             for (int i = 0; i < rom.TileDescriptors.Length; i++)
             {
@@ -84,7 +179,7 @@ namespace R1Engine
                 var curOff = block_size * descriptor.TileIndex;
 
                 tex.FillInTile(
-                    imgData: rom.TileMap, 
+                    imgData: rom.TileSet, 
                     imgDataOffset: curOff, 
                     pal: pal[descriptor.Palette], 
                     encoding: Util.TileEncoding.Planar_4bpp, 
