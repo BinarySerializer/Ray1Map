@@ -90,7 +90,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override Unity_MapTileMap GetTileSet(Context context)
+        public override Unity_TileSet GetTileSet(Context context)
         {
             // Get the file name
             var filename = GetTileSetFilePath(context.Settings);
@@ -99,7 +99,7 @@ namespace R1Engine
             var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
 
             // Return the tile set
-            return new Unity_MapTileMap(tileSet.Value, TileSetWidth, Settings.CellSize);
+            return new Unity_TileSet(tileSet.Value, TileSetWidth, Settings.CellSize);
         }
 
         /// <summary>

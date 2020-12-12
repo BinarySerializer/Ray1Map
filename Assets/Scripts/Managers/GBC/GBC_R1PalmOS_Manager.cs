@@ -213,9 +213,9 @@ namespace R1Engine
                 {
                     Width = (ushort)playField.Width,
                     Height = (ushort)playField.Height,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
-                        new Unity_MapTileMap(tileSetTex, CellSize),
+                        new Unity_TileSet(tileSetTex, CellSize),
                     },
                     MapTiles = playField.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
                     Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,

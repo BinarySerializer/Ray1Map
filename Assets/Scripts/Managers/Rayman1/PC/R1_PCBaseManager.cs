@@ -1380,7 +1380,7 @@ namespace R1Engine
                     Height = mapData.Height,
 
                     // Create the tile arrays
-                    TileSet = new Unity_MapTileMap[palettes.Length],
+                    TileSet = new Unity_TileSet[palettes.Length],
                     MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
 
                     TileSetTransparencyModes = tileTextureData?.TexturesOffsetTable.Select(x => tileTextureData.NonTransparentTextures.Concat(tileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
@@ -1450,7 +1450,7 @@ namespace R1Engine
             }
             else
             {
-                level.Maps[0].TileSet[0] = new Unity_MapTileMap(Settings.CellSize);
+                level.Maps[0].TileSet[0] = new Unity_TileSet(Settings.CellSize);
             }
 
             // Return the level
@@ -1471,13 +1471,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="levData">The level data to get the tile-set for</param>
         /// <returns>The 3 tile-sets</returns>
-        public Unity_MapTileMap[] ReadTileSets(R1_PC_LevFile levData) {
+        public Unity_TileSet[] ReadTileSets(R1_PC_LevFile levData) {
             // Create the output array
-            var output = new Unity_MapTileMap[]
+            var output = new Unity_TileSet[]
             {
-                new Unity_MapTileMap(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length]),
-                new Unity_MapTileMap(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length]),
-                new Unity_MapTileMap(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length])
+                new Unity_TileSet(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length]),
+                new Unity_TileSet(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length]),
+                new Unity_TileSet(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length])
             };
 
             // Keep track of the tile index

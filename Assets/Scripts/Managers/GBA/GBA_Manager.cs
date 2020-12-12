@@ -835,7 +835,7 @@ namespace R1Engine
             }
 
             // Cache loaded tilesets
-            Dictionary<byte[], Unity_MapTileMap[]> tilesetCache = new Dictionary<byte[], Unity_MapTileMap[]>();
+            Dictionary<byte[], Unity_TileSet[]> tilesetCache = new Dictionary<byte[], Unity_TileSet[]>();
 
             // Get tileset info for every map
             var tilesetInfos = mapLayers.Select(x => x.StructType == GBA_TileLayer.Type.Collision ? new TilesetInfo(null, false, null, null) : GetTilesetInfo(context, playField, x)).ToArray();
@@ -849,8 +849,8 @@ namespace R1Engine
                 // Load empty tileset for collision layer
                 if (map.StructType == GBA_TileLayer.Type.Collision)
                 {
-                    level.Maps[layer].TileSet = new Unity_MapTileMap[] {
-                        new Unity_MapTileMap(new Unity_TileTexture[] {
+                    level.Maps[layer].TileSet = new Unity_TileSet[] {
+                        new Unity_TileSet(new Unity_TileTexture[] {
                             TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
                         })
                     };
@@ -1044,7 +1044,7 @@ namespace R1Engine
 
             return new TilesetInfo(tileset, is8bpp, tilePalettes, animatedTilekits);
         }
-        protected async UniTask<Unity_MapTileMap[]> LoadTilesetsAsync(MapTile[] mapData, TilesetInfo info, int tilesetIndex)
+        protected async UniTask<Unity_TileSet[]> LoadTilesetsAsync(MapTile[] mapData, TilesetInfo info, int tilesetIndex)
         {
             Controller.DetailedState = $"Loading tileset {tilesetIndex + 1}";
             await Controller.WaitIfNecessary();
@@ -1070,7 +1070,7 @@ namespace R1Engine
 
             const int paletteSize = 16;
 
-            var output = new Unity_MapTileMap[info.TilePalettes.Length];
+            var output = new Unity_TileSet[info.TilePalettes.Length];
 
             var wrap = 4096 / CellSize;
 
@@ -1190,7 +1190,7 @@ namespace R1Engine
             }
 
             for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
-                output[tilePal] = new Unity_MapTileMap(tiles[tilePal])
+                output[tilePal] = new Unity_TileSet(tiles[tilePal])
                 {
                     AnimatedTiles = animatedTiles
                 };

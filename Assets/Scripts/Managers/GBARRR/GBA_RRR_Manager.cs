@@ -1017,7 +1017,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                     Width = 256,
                     Height = 256,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         LoadTileSet(rom.Mode7_MapTiles, false, rom.Mode7_TilemapPalette), 
                     },
@@ -1031,7 +1031,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics,
                     Width = 32,
                     Height = 12, // Height is actually 32, but the remaining tiles are always transparent, but with a solid color
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         LoadTileSet(rom.Mode7_BG0Tiles, false, rom.Mode7_TilemapPalette), 
                     },
@@ -1041,7 +1041,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics,
                     Width = 32,
                     Height = 32,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         LoadTileSet(rom.Mode7_BG1Tiles, false, rom.Mode7_TilemapPalette), 
                     },
@@ -1103,7 +1103,7 @@ namespace R1Engine
                         Type = Unity_Map.MapType.Graphics,
                         Width = size.Width,
                         Height = size.Height,
-                        TileSet = new Unity_MapTileMap[]
+                        TileSet = new Unity_TileSet[]
                         {
                             LoadTileSet(rom.Menu_Tiles[i], palIndex != null, rom.Menu_Palette[i], palIndex ?? 0),
                         },
@@ -1138,7 +1138,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                     Width = 256,
                     Height = 256,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         LoadTileSet(rom.LevelTileset.Data, false, rom.LevelTileset.Palette),
                     },
@@ -1154,7 +1154,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics,
                     Width = 32,
                     Height = 8,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         LoadTileSet(rom.BG0TileSet.Data, false, rom.BG0TileSet.Palette),
                     },
@@ -1167,7 +1167,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics,
                     Width = 32,
                     Height = 7,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         LoadTileSet(rom.BG1TileSet.Data, false, rom.BG1TileSet.Palette),
                     },
@@ -1217,7 +1217,7 @@ namespace R1Engine
                 Type = Unity_Map.MapType.Graphics,
                 Width = 32,
                 Height = 32,
-                TileSet = new Unity_MapTileMap[] { bg0Tileset },
+                TileSet = new Unity_TileSet[] { bg0Tileset },
                 MapTiles = rom.BG0Map.MapTiles.Select(x =>
                 {
                     // Modify the index for animated tiles
@@ -1229,7 +1229,7 @@ namespace R1Engine
                 Type = Unity_Map.MapType.Graphics,
                 Width = 32,
                 Height = 32,
-                TileSet = new Unity_MapTileMap[] { bg1Tileset },
+                TileSet = new Unity_TileSet[] { bg1Tileset },
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
 
@@ -1470,13 +1470,13 @@ namespace R1Engine
             }
         }
 
-        public Unity_Map LoadMap(uint width, uint height, GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, byte alphaBlending, bool foreground, int palIndex)
+        public Unity_Map LoadMap(uint width, uint height, GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_TileSet tileset, byte alphaBlending, bool foreground, int palIndex)
         {
             var map = new Unity_Map {
                 Type = Unity_Map.MapType.Graphics,
                 Width = (ushort)(width * 4), // The game uses 32x32 tiles, made out of 8x8 tiles
                 Height = (ushort)(height * 4),
-                TileSet = new Unity_MapTileMap[]
+                TileSet = new Unity_TileSet[]
                 {
                     tileset
                 },
@@ -1548,7 +1548,7 @@ namespace R1Engine
             return map;
         }
 
-        public Unity_MapTileMap LoadTileSet(byte[] tilemap, bool is4bit, BaseColor[] palette, int palStart = 0, int palCount = 1, AnimTileInfo[] animtedTileInfos = null)
+        public Unity_TileSet LoadTileSet(byte[] tilemap, bool is4bit, BaseColor[] palette, int palStart = 0, int palCount = 1, AnimTileInfo[] animtedTileInfos = null)
         {
             animtedTileInfos = animtedTileInfos ?? new AnimTileInfo[0];
             int block_size = is4bit ? 0x20 : 0x40;
@@ -1642,7 +1642,7 @@ namespace R1Engine
 
             tex.Apply();
 
-            return new Unity_MapTileMap(tex, CellSize)
+            return new Unity_TileSet(tex, CellSize)
             {
                 AnimatedTiles = unityAnimTiles?.ToArray(),
                 GBARRR_PalOffsets = palOffsets

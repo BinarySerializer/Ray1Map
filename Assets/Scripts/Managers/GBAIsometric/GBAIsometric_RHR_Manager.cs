@@ -466,7 +466,7 @@ namespace R1Engine
             if (levelInfo?.MapPointer?.Value != null && Settings.LoadIsometricMapLayer)
                 availableMaps = availableMaps.Append(levelInfo.MapPointer.Value);
 
-            var tileSets = new Dictionary<GBAIsometric_RHR_TileSet, Unity_MapTileMap>();
+            var tileSets = new Dictionary<GBAIsometric_RHR_TileSet, Unity_TileSet>();
 
             Controller.DetailedState = $"Loading collision";
             await Controller.WaitIfNecessary();
@@ -489,7 +489,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics,
                     Width = width,
                     Height = height,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         tileSets[tileSetData]
                     },
@@ -670,10 +670,10 @@ namespace R1Engine
             return tiles;
         }
 
-        public Unity_MapTileMap LoadTileMap(Context context, GBAIsometric_RHR_MapLayer mapLayer, GBAIsometric_RHR_PaletteAnimationTable palAnimTable)
+        public Unity_TileSet LoadTileMap(Context context, GBAIsometric_RHR_MapLayer mapLayer, GBAIsometric_RHR_PaletteAnimationTable palAnimTable)
         {
             var s = context.Deserializer;
-            Unity_MapTileMap t = null;
+            Unity_TileSet t = null;
             var tileMap = mapLayer.TileSetPointer.Value;
             var palTable = tileMap.PaletteIndexTablePointer?.Value;
             var is8bit = mapLayer.StructType == GBAIsometric_RHR_MapLayer.MapLayerType.Map;
@@ -851,7 +851,7 @@ namespace R1Engine
                     }
                 }
 
-                t = new Unity_MapTileMap(tiles.Concat(animPalTiles).ToArray())
+                t = new Unity_TileSet(tiles.Concat(animPalTiles).ToArray())
                 {
                     AnimatedTiles = unityAnimTiles.ToArray(),
                     GBAIsometric_BaseLength = baseLength,

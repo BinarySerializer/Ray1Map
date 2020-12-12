@@ -7,14 +7,14 @@ namespace R1Engine
     /// <summary>
     /// Defines a common tile-set
     /// </summary>
-    public class Unity_MapTileMap {
+    public class Unity_TileSet {
         /// <summary>
         /// Creates a tile set from a tile map
         /// </summary>
         /// <param name="tileMapColors">The tile map colors</param>
         /// <param name="tileMapWidth">The tile map width, in tiles</param>
         /// <param name="cellSize">The tile size</param>
-        public Unity_MapTileMap(IList<BaseColor> tileMapColors, int tileMapWidth, int cellSize) {
+        public Unity_TileSet(IList<BaseColor> tileMapColors, int tileMapWidth, int cellSize) {
             // Create the tile array
             Tiles = new Unity_TileTexture[tileMapColors.Count / (cellSize * cellSize)];
 
@@ -49,7 +49,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="tileSet">The tile-set texture</param>
         /// <param name="cellSize">The tile size</param>
-        public Unity_MapTileMap(Texture2D tileSet, int cellSize) {
+        public Unity_TileSet(Texture2D tileSet, int cellSize) {
             // Create the tile array
             Tiles = new Unity_TileTexture[(tileSet.width / cellSize) * (tileSet.height / cellSize)];
 
@@ -71,14 +71,14 @@ namespace R1Engine
         /// Creates a tile set from a tile array
         /// </summary>
         /// <param name="tiles">The tiles in this set</param>
-        public Unity_MapTileMap(Unity_TileTexture[] tiles) {
+        public Unity_TileSet(Unity_TileTexture[] tiles) {
             Tiles = tiles;
         }
 
         /// <summary>
         /// Creates an empty tileset with a single transparent tile
         /// </summary>
-        public Unity_MapTileMap(int cellSize) 
+        public Unity_TileSet(int cellSize) 
         {
             Tiles = new Unity_TileTexture[]
             {

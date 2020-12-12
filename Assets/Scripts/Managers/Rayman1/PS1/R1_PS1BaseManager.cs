@@ -86,7 +86,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public abstract Unity_MapTileMap GetTileSet(Context context);
+        public abstract Unity_TileSet GetTileSet(Context context);
 
         /// <summary>
         /// Fills the PS1 v-ram and returns it
@@ -218,7 +218,7 @@ namespace R1Engine
         /// <returns>The level</returns>
         public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, R1_EventData[] events, ushort[] eventLinkingTable, bool loadTextures, R1_PS1_BackgroundBlock bg = null)
         {
-            Unity_MapTileMap tileSet = GetTileSet(context);
+            Unity_TileSet tileSet = GetTileSet(context);
 
             var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>>();
             var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
@@ -366,7 +366,7 @@ namespace R1Engine
                     Height = map.Height,
 
                     // Create the tile array
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         tileSet
                     },

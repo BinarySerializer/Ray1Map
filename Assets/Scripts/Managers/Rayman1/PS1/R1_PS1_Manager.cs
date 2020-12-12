@@ -23,10 +23,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override Unity_MapTileMap GetTileSet(Context context)
+        public override Unity_TileSet GetTileSet(Context context)
         {
             if (context.Settings.R1_World == R1_World.Menu)
-                return new Unity_MapTileMap(Settings.CellSize);
+                return new Unity_TileSet(Settings.CellSize);
 
             // Get the file name
             var filename = GetWorldFilePath(context.Settings);
@@ -62,7 +62,7 @@ namespace R1Engine
                 }
             }
 
-            return new Unity_MapTileMap(pixels, TileSetWidth, Settings.CellSize);
+            return new Unity_TileSet(pixels, TileSetWidth, Settings.CellSize);
         }
 
         /// <summary>

@@ -555,7 +555,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="levelMapData">The level to get the tile set for</param>
         /// <returns>The tile set to use</returns>
-        public virtual Unity_MapTileMap GetTileSet(Context context, R1_GBA_LevelMapData levelMapData) 
+        public virtual Unity_TileSet GetTileSet(Context context, R1_GBA_LevelMapData levelMapData) 
         {
             // Read the tiles
             int block_size = Is4Bit ? 0x20 : 0x40;
@@ -565,7 +565,7 @@ namespace R1Engine
             {
                 var dummy = TextureHelpers.CreateTexture2D(256, Settings.CellSize, clear: true, applyClear: true);
 
-                return new Unity_MapTileMap(dummy, Settings.CellSize);
+                return new Unity_TileSet(dummy, Settings.CellSize);
             }
 
             uint length = (uint)levelMapData.TileBlockIndices.Length * 8 * 8;
@@ -589,7 +589,7 @@ namespace R1Engine
 
             tex.Apply();
 
-            return new Unity_MapTileMap(tex, Settings.CellSize);
+            return new Unity_TileSet(tex, Settings.CellSize);
         }
 
         /// <summary>
@@ -876,7 +876,7 @@ namespace R1Engine
             // Get properties
             MapData mapData;
             R1_GBA_LevelEventData eventData;
-            Unity_MapTileMap tileset;
+            Unity_TileSet tileset;
             Texture2D bg;
             Texture2D bg2;
 
@@ -915,7 +915,7 @@ namespace R1Engine
                 bg2 = null;
 
                 mapData = MapData.GetEmptyMapData(bg.width / Settings.CellSize, bg.height / Settings.CellSize);
-                tileset = new Unity_MapTileMap(Settings.CellSize);
+                tileset = new Unity_TileSet(Settings.CellSize);
 
                 eventData = null;
             }
@@ -932,7 +932,7 @@ namespace R1Engine
                     Height = mapData.Height,
 
                     // Create the tile arrays
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         tileset
                     },

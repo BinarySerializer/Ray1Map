@@ -110,13 +110,13 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="map">The map</param>
         /// <returns>The tile set to use</returns>
-        public Unity_MapTileMap GetTileSet(Context context, int map) {
+        public Unity_TileSet GetTileSet(Context context, int map) {
             var tileSetPath = GetSubMapTilesetPath(map);
             var palettePath = GetSubMapPalettePath(map);
             var tileSet = FileFactory.Read<Array<byte>>(tileSetPath, context, (s, x) => x.Length = s.CurrentLength);
             var palette = FileFactory.Read<ObjectArray<RGBA5551Color>>(palettePath, context, (s, x) => x.Length = s.CurrentLength / 2);
 
-            return new Unity_MapTileMap(tileSet.Value.Select(ind => palette.Value[ind]).ToArray(), TileSetWidth, Settings.CellSize);
+            return new Unity_TileSet(tileSet.Value.Select(ind => palette.Value[ind]).ToArray(), TileSetWidth, Settings.CellSize);
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override Unity_MapTileMap GetTileSet(Context context) => throw new NotImplementedException();
+        public override Unity_TileSet GetTileSet(Context context) => throw new NotImplementedException();
 
         /// <summary>
         /// Fills the PS1 v-ram and returns it
@@ -344,7 +344,7 @@ namespace R1Engine
                 Height = x.Height,
 
                 // Create the tile array
-                TileSet = new Unity_MapTileMap[1],
+                TileSet = new Unity_TileSet[1],
                 TileSetWidth = TileSetWidth
             }).ToArray();
 
@@ -365,7 +365,7 @@ namespace R1Engine
             for (int i = 0; i < MapCount; i++)
             {
                 // Get the tile set
-                Unity_MapTileMap tileSet = GetTileSet(context, i);
+                Unity_TileSet tileSet = GetTileSet(context, i);
 
                 level.Maps[i].TileSet[0] = tileSet;
 

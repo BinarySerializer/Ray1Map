@@ -513,7 +513,7 @@ namespace R1Engine
                     Height = levelData.Height,
 
                     // Create the tile arrays
-                    TileSet = new Unity_MapTileMap[3],
+                    TileSet = new Unity_TileSet[3],
                     MapTiles = levelData.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
                 }
             };
@@ -568,14 +568,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="levData">The level data to get the tile-set for</param>
         /// <returns>The 3 tile-sets</returns>
-        public Unity_MapTileMap[] ReadTileSets(R1_PS1Edu_LevFile levData)
+        public Unity_TileSet[] ReadTileSets(R1_PS1Edu_LevFile levData)
         {
             // Create the output array
-            var output = new Unity_MapTileMap[levData.ColorPalettes.Length];
+            var output = new Unity_TileSet[levData.ColorPalettes.Length];
 
             // Enumerate every palette
             for (int i = 0; i < levData.ColorPalettes.Length; i++)
-                output[i] = new Unity_MapTileMap(levData.TileTextures.Select(x => x == 0 ? BaseColor.clear : levData.ColorPalettes[i][x]).ToArray(), 512 / Settings.CellSize, Settings.CellSize);
+                output[i] = new Unity_TileSet(levData.TileTextures.Select(x => x == 0 ? BaseColor.clear : levData.ColorPalettes[i][x]).ToArray(), 512 / Settings.CellSize, Settings.CellSize);
 
             return output;
         }

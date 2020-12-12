@@ -195,9 +195,9 @@ namespace R1Engine
             var unityMap = new Unity_Map {
                 Width = (ushort)playField.Width,
                 Height = (ushort)playField.Height,
-                TileSet = new Unity_MapTileMap[]
+                TileSet = new Unity_TileSet[]
                     {
-                        new Unity_MapTileMap(tileSetTex, CellSize),
+                        new Unity_TileSet(tileSetTex, CellSize),
                     },
                 MapTiles = mapTiles.Select(x => new Unity_Tile(x)).ToArray(),
                 Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
@@ -219,9 +219,9 @@ namespace R1Engine
                 var fgMap = new Unity_Map {
                     Width = (ushort)playField.Width,
                     Height = (ushort)playField.Height,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
-                        new Unity_MapTileMap(tileSetTexFG, CellSize),
+                        new Unity_TileSet(tileSetTexFG, CellSize),
                     },
                     MapTiles = mapTilesFG.Select(x => new Unity_Tile(x)).ToArray(),
                     Type = Unity_Map.MapType.Graphics,

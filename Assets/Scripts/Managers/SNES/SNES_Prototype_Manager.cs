@@ -187,23 +187,67 @@ namespace R1Engine
             // Read the rom
             var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
 
-            // Get the map
-            var map = rom.MapData;
+            Controller.DetailedState = $"Loading maps";
+            await Controller.WaitIfNecessary();
+
+            // Get the tilesets
+            var tileSet = GetTileSet(rom);
+            //var genericTileSet = GetGenericTileSet(rom);
 
             var maps = new Unity_Map[]
             {
+                // TODO: Background is 2bpp and uses different tileset
+                // Background
+                //new Unity_Map()
+                //{
+                //    Type = Unity_Map.MapType.Graphics,
+                //    Width = 32,
+                //    Height = 32,
+                //    TileSet = new Unity_TileSet[]
+                //    {
+                //        genericTileSet
+                //    },
+                //    MapTiles = rom.BackgroundTiles.Select(x => new Unity_Tile(new MapTile()
+                //    {
+                //        TileMapY = (ushort)(x.TileIndex + 1024),
+                //        HorizontalFlip = x.FlipX,
+                //        VerticalFlip = x.FlipY
+                //    })).ToArray(),
+                //},
+                // Map
                 new Unity_Map()
                 {
                     Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
 
                     // Set the dimensions
-                    Width = map.Width,
-                    Height = map.Height,
+                    Width = rom.MapData.Width,
+                    Height = rom.MapData.Height,
 
                     // Create the tile arrays
-                    TileSet = new Unity_MapTileMap[1],
-                    MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                }
+                    TileSet = new Unity_TileSet[]
+                    {
+                        tileSet
+                    },
+                    MapTiles = rom.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                },
+                // TODO: Uncomment after we make primary map 8px instead
+                // Foreground
+                //new Unity_Map()
+                //{
+                //    Type = Unity_Map.MapType.Graphics,
+                //    Width = 32,
+                //    Height = 32,
+                //    TileSet = new Unity_TileSet[]
+                //    {
+                //        genericTileSet
+                //    },
+                //    MapTiles = rom.ForegroundTiles.Select(x => new Unity_Tile(new MapTile()
+                //    {
+                //        TileMapY = (ushort)x.TileIndex,
+                //        HorizontalFlip = x.FlipX,
+                //        VerticalFlip = x.FlipY
+                //    })).ToArray(),
+                //},
             };
 
             Controller.DetailedState = $"Loading sprites";
@@ -217,9 +261,6 @@ namespace R1Engine
             // Create Rayman
             var rayman = new Unity_Object_SNES(objManager);
 
-            Controller.DetailedState = $"Loading tile set";
-            await Controller.WaitIfNecessary();
-
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level(
                 maps: maps, 
@@ -227,9 +268,6 @@ namespace R1Engine
                 getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(),
                 rayman: rayman);
-
-            // Load tile set
-            level.Maps[0].TileSet[0] = GetTileSet(rom);
 
             return level;
         }
@@ -263,7 +301,7 @@ namespace R1Engine
             return sprites;
         }
 
-        public virtual Unity_MapTileMap GetTileSet(SNES_Proto_ROM rom)
+        public virtual Unity_TileSet GetTileSet(SNES_Proto_ROM rom)
         {
             // Read the tiles
             const int block_size = 0x20;
@@ -285,7 +323,7 @@ namespace R1Engine
                 var curOff = block_size * descriptor.TileIndex;
 
                 tex.FillInTile(
-                    imgData: rom.TileSet, 
+                    imgData: rom.TileSet_0000, 
                     imgDataOffset: curOff, 
                     pal: pal[descriptor.Palette], 
                     encoding: Util.TileEncoding.Planar_4bpp, 
@@ -300,7 +338,23 @@ namespace R1Engine
 
             tex.Apply();
 
-            return new Unity_MapTileMap(tex, Settings.CellSize);
+            return new Unity_TileSet(tex, Settings.CellSize);
+        }
+        public virtual Unity_TileSet GetGenericTileSet(SNES_Proto_ROM rom)
+        {
+            var tileDescriptors = rom.TileDescriptors.Concat(rom.BackgroundTiles).Concat(rom.ForegroundTiles).ToArray();
+            var pal = Util.ConvertAndSplitGBAPalette(rom.TilePalette);
+
+            var tex = Util.ToTileSetTexture(
+                imgData: rom.TileSet_0000, 
+                pal: pal.First(), 
+                encoding: Util.TileEncoding.Planar_4bpp, 
+                tileWidth: 8, 
+                flipY: false, 
+                flipTileX: true,
+                getPalFunc: x => pal[tileDescriptors.FirstOrDefault(t => t.TileIndex == x)?.Palette ?? 0]);
+
+            return new Unity_TileSet(tex, 8);
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

@@ -127,7 +127,7 @@ namespace R1Engine
                     Height = mapData.Height,
 
                     // Create the tile arrays
-                    TileSet = new Unity_MapTileMap[1],
+                    TileSet = new Unity_TileSet[1],
                     MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
                 }
             };
@@ -245,7 +245,7 @@ namespace R1Engine
             return level;
         }
 
-        public Unity_MapTileMap LoadTileSet(PCX pcx)
+        public Unity_TileSet LoadTileSet(PCX pcx)
         {
             // Get the tilemap texture
             var tileMap = pcx.ToTexture();
@@ -281,7 +281,7 @@ namespace R1Engine
                 }
             }
 
-            return new Unity_MapTileMap(tiles);
+            return new Unity_TileSet(tiles);
         }
 
         #endregion

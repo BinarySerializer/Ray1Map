@@ -29,7 +29,7 @@ namespace R1Engine
         /// <summary>
         /// The tile-sets, one for each palette
         /// </summary>
-        public Unity_MapTileMap[] TileSet { get; set; }
+        public Unity_TileSet[] TileSet { get; set; }
 
         /// <summary>
         /// The transparency mode for the tiles in the tileset on PC

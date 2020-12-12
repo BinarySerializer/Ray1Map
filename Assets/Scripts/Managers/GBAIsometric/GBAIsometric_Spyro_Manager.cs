@@ -340,7 +340,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics,
                     Width = cutsceneMap.Map.Width,
                     Height = cutsceneMap.Map.Height,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         cutsceneTileSet
                     },
@@ -395,7 +395,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics,
                     Width = (ushort)width,
                     Height = (ushort)height,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         tileSet
                     },
@@ -425,7 +425,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Collision,
                     Width = (ushort)(width),
                     Height = (ushort)(height),
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         tileSet
                     },
@@ -441,7 +441,7 @@ namespace R1Engine
                     Type = Unity_Map.MapType.Graphics,
                     Width = lvlMap.Map.Width,
                     Height = lvlMap.Map.Height,
-                    TileSet = new Unity_MapTileMap[]
+                    TileSet = new Unity_TileSet[]
                     {
                         LoadTileSet(lvlMap.Palette, lvlMap.TileSet, lvlMap.Map.MapData)
                     },
@@ -710,7 +710,7 @@ namespace R1Engine
             }
         }
 
-        public Unity_MapTileMap LoadTileSet(RGBA5551Color[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
+        public Unity_TileSet LoadTileSet(RGBA5551Color[] tilePal, GBAIsometric_Spyro_TileSet[] tileSets, Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles)
         {
             var palettes = Util.ConvertAndSplitGBAPalette(tilePal);
 
@@ -729,10 +729,10 @@ namespace R1Engine
 
             var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
 
-            return new Unity_MapTileMap(tileSetTex, CellSize);
+            return new Unity_TileSet(tileSetTex, CellSize);
         }
 
-        public Unity_MapTileMap LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet, MapTile[] mapTiles)
+        public Unity_TileSet LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet, MapTile[] mapTiles)
         {
             var palettes = Util.ConvertGBAPalette(tilePal).Split(16, 16).ToArray();
 
@@ -742,16 +742,16 @@ namespace R1Engine
 
             var tileSetTex = Util.ToTileSetTexture(tileSet, palettes.First(), Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: i => palettes[paletteIndices[i]]);
 
-            return new Unity_MapTileMap(tileSetTex, CellSize);
+            return new Unity_TileSet(tileSetTex, CellSize);
         }
 
-        public Unity_MapTileMap LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet)
+        public Unity_TileSet LoadTileSet(RGBA5551Color[] tilePal, byte[] tileSet)
         {
             var pal = Util.ConvertGBAPalette(tilePal);
 
             var tileSetTex = Util.ToTileSetTexture(tileSet, pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
 
-            return new Unity_MapTileMap(tileSetTex, CellSize);
+            return new Unity_TileSet(tileSetTex, CellSize);
         }
 
         public Vector2Int[] GetFramePositions(GBAIsometric_Spyro_Animation anim) {
