@@ -197,6 +197,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Get the tilesets
+            var tileSet_0000_shadow = LoadTileSet(rom.TileSet_0000, rom.TilePalette, false, true, true);
             var tileSet_0000 = LoadTileSet(rom.TileSet_0000, rom.TilePalette, false, true);
             var tileSet_8000 = LoadTileSet(rom.TileSet_8000, rom.TilePalette, true, false);
 
@@ -235,7 +236,19 @@ namespace R1Engine
                     {
                         tileSet_0000
                     },
-                    MapTiles = map,
+                    MapTiles = map.Select(x => x.Data.Priority ? new Unity_Tile(new MapTile()) : x).ToArray(),
+                },
+                // Map (no priority)
+                new Unity_Map()
+                {
+                    Type = Unity_Map.MapType.Graphics,
+                    Width = (ushort)(rom.BG1_Map.Width * 2),
+                    Height = (ushort)(rom.BG1_Map.Height * 2),
+                    TileSet = new Unity_TileSet[]
+                    {
+                        tileSet_0000_shadow
+                    },
+                    MapTiles = map.Select(x => x.Data.Priority ? x : new Unity_Tile(new MapTile())).ToArray(),
                 },
                 // Map (priority)
                 new Unity_Map()
@@ -249,7 +262,8 @@ namespace R1Engine
                     },
                     MapTiles = map.Select(x => !x.Data.Priority ? new Unity_Tile(new MapTile()) : x).ToArray(),
                     Layer = Unity_Map.MapLayer.Front,
-                    Alpha = 0.5f
+                    IsAdditive = true,
+                    Alpha = 1f
                 },
                 // Foreground
                 new Unity_Map()
@@ -403,7 +417,7 @@ namespace R1Engine
             return output;
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] palette, bool is2bpp, bool flipX)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] palette, bool is2bpp, bool flipX, bool shadow = false)
         {
             var pal = is2bpp ? Util.ConvertAndSplitGBCPalette(palette) : Util.ConvertAndSplitGBAPalette(palette);
 
@@ -421,23 +435,27 @@ namespace R1Engine
 
             for (int p = 0; p < numPalettes; p++)
             {
-                for (int i = 0; i < tilesetLength; i++)
-                {
+                for (int i = 0; i < tilesetLength; i++) {
                     int tileInd = i + p * tilesetLength;
                     int tileY = (tileInd / wrap) * tileWidth;
                     int tileX = (tileInd % wrap) * tileWidth;
 
                     tex.FillInTile(
-                        imgData: tileSet, 
-                        imgDataOffset: i * tileSize, 
-                        pal: pal[p], 
-                        encoding: is2bpp ? Util.TileEncoding.Planar_2bpp : Util.TileEncoding.Planar_4bpp, 
-                        tileWidth: tileWidth, 
-                        flipTextureY: false, 
-                        tileX: tileX, 
+                        imgData: tileSet,
+                        imgDataOffset: i * tileSize,
+                        pal: pal[p],
+                        encoding: is2bpp ? Util.TileEncoding.Planar_2bpp : Util.TileEncoding.Planar_4bpp,
+                        tileWidth: tileWidth,
+                        flipTextureY: false,
+                        tileX: tileX,
                         tileY: tileY,
                         flipTileX: flipX);
                 }
+            }
+            if (shadow) {
+                var colors = tex.GetPixels();
+                colors = colors.Select(c => c.a == 0 ? c : Color.black).ToArray();
+                tex.SetPixels(colors);
             }
 
             tex.Apply();
