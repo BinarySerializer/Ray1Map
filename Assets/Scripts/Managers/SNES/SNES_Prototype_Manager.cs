@@ -280,6 +280,7 @@ namespace R1Engine
                         x.TileMapY = (ushort)(x.PaletteIndex * tileSet_0000.SNES_BaseLength + x.TileMapY);
                         return new Unity_Tile(x);
                     }).ToArray(),
+                    Layer = Unity_Map.MapLayer.Front,
                 },
                 // Collision
                 new Unity_Map()
