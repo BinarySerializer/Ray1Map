@@ -5,7 +5,9 @@
     /// </summary>
     public class SNES_Pointer : R1Serializable
     {
-        public bool HasMemoryBankValue { get; set; } = false; // Set before serializing
+        // Set before serializing
+        public bool HasMemoryBankValue { get; set; } = false;
+        public ushort? MemoryBankOverride { get; set; }
 
         public ushort Pointer { get; set; }
         public ushort MemoryBank { get; set; }
@@ -16,10 +18,10 @@
                 // The ROM is split into memory banks, with the size 0x8000 which get loaded at 0x8000 in RAM.
                 var baseOffset = Offset.file.StartPointer;
 
-                long bank = MemoryBank;
+                long bank = MemoryBankOverride ?? MemoryBank;
 
                 // If we don't have a bank value the pointer is in the current bank
-                if (!HasMemoryBankValue)
+                if (!HasMemoryBankValue && MemoryBankOverride == null)
                     bank = Offset.FileOffset / MemoryBankSize;
 
                 _cachedPointer = GetPointer(baseOffset, Pointer, bank);

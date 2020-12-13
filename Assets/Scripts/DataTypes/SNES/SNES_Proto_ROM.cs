@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public class SNES_Proto_ROM : R1Serializable
     {
@@ -16,8 +14,7 @@ namespace R1Engine
         public MapTile[] BG2_Tiles { get; set; } // Foreground
         public MapTile[] BG3_Tiles { get; set; } // Background
 
-        public SNES_Proto_State[] States { get; set; }
-        public SNES_Proto_ImageDescriptor[] ImageDescriptors { get; set; }
+        public SNES_Proto_Object Rayman { get; set; }
         public byte[] SpriteTileSet { get; set; }
         public byte[] SpriteTileSetAdd0 { get; set; }
         public byte[] SpriteTileSetAdd1 { get; set; }
@@ -45,10 +42,11 @@ namespace R1Engine
             BG1_Tiles = s.DoAt(s.CurrentPointer + 0x1AAF8, () => s.SerializeObjectArray<MapTile>(BG1_Tiles, 1024 * 4, onPreSerialize: x => x.SNES_Is8PxTile = true, name: nameof(BG1_Tiles)));
             BG2_Tiles = s.DoAt(s.CurrentPointer + 0x29dc4, () => s.SerializeObjectArray<MapTile>(BG2_Tiles, 32 * 32, onPreSerialize: x => x.SNES_Is8PxTile = true, name: nameof(BG2_Tiles)));
             BG3_Tiles = s.DoAt(s.CurrentPointer + 0x2A5C4, () => s.SerializeObjectArray<MapTile>(BG3_Tiles, 32 * 32, onPreSerialize: x => x.SNES_Is8PxTile = true, name: nameof(BG3_Tiles)));
-            
+
             // Serialize object data
-            States = s.DoAt(s.CurrentPointer + 0x210AC, () => s.SerializeObjectArray<SNES_Proto_State>(States, 5 * 0x15, name: nameof(States)));
-            ImageDescriptors = s.DoAt(s.CurrentPointer + 0x20f4c, () => s.SerializeObjectArray<SNES_Proto_ImageDescriptor>(ImageDescriptors, States.Max(state => state.Animation?.Layers.Max(layer => layer.ImageIndex + 1) ?? 0), name: nameof(ImageDescriptors)));
+            Rayman = s.DoAt(s.CurrentPointer + 0x10016, () => s.SerializeObject<SNES_Proto_Object>(Rayman, name: nameof(Rayman)));
+
+            // Serialize sprite tile sets
             SpriteTileSet = s.DoAt(s.CurrentPointer + 0x2afc4, () => s.SerializeArray<byte>(SpriteTileSet, 0x3000, name: nameof(SpriteTileSet)));
             SpriteTileSetAdd0 = s.DoAt(s.CurrentPointer + 0x24ea8, () => s.SerializeArray<byte>(SpriteTileSetAdd0, 0x600, name: nameof(SpriteTileSetAdd0)));
             SpriteTileSetAdd1 = s.DoAt(s.CurrentPointer + 0x24ea8 + 0x600, () => s.SerializeArray<byte>(SpriteTileSetAdd1, 0x600, name: nameof(SpriteTileSetAdd1)));

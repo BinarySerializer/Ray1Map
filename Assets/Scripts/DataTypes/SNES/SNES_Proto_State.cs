@@ -42,9 +42,7 @@ namespace R1Engine
             Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));
 
             // AnimationPointer points to first layer. So, go back 4 bytes to get header
-            s.DoAt(AnimPointer.GetPointer() - 4, () => {
-                Animation = s.SerializeObject<R1Jaguar_AnimationDescriptor>(Animation, name: nameof(Animation));
-            });
+            Animation = s.DoAt(AnimPointer.GetPointer() - 4, () => s.SerializeObject<R1Jaguar_AnimationDescriptor>(Animation, name: nameof(Animation)));
         }
 
 

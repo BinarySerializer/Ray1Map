@@ -7,21 +7,32 @@ namespace R1Engine
 {
     public class Unity_Object_SNES : Unity_Object
     {
-        public Unity_Object_SNES(Unity_ObjectManager_SNES objManager)
+        public Unity_Object_SNES(SNES_Proto_Object obj, Unity_ObjectManager_SNES objManager)
         {
+            Object = obj;
             ObjManager = objManager;
         }
 
+        public SNES_Proto_Object Object { get; }
         public Unity_ObjectManager_SNES ObjManager { get; }
 
-        public override short XPosition { get; set; }
-        public override short YPosition { get; set; }
+        public override short XPosition
+        {
+            get => Object.XPosition;
+            set => Object.XPosition = value;
+        }
+
+        public override short YPosition
+        {
+            get => Object.YPosition;
+            set => Object.YPosition = value;
+        }
 
         public int StateIndex { get; set; }
 
         public override string DebugText => String.Empty;
 
-        public override R1Serializable SerializableData => null;
+        public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
 		public override bool FlipHorizontally => !State.SNES_State.Flags.HasFlag(SNES_Proto_State.StateFlags.UseCurrentFlip)
