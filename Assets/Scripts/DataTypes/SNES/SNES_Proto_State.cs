@@ -7,7 +7,7 @@ namespace R1Engine
         public SNES_Pointer MovementFunctionPointer { get; set; } // Modifying this changes how Rayman moves
         public SNES_Pointer CollisionFunctionPointer { get; set; } // Modifying this changes what kind of platform Rayman thinks he's on
         public SNES_Pointer AnimPointer { get; set; }
-        public byte Byte_06 { get; set; } // Flags. Flip flag is one of the lower bits. Upper bits contain some state switching flag (states loop forever if nulled)
+        public StateFlags Flags { get; set; } // Flip flag is one of the lower bits. Upper bits contain some state switching flag (states loop forever if nulled)
         public byte Byte_07 { get; set; } // 0 or 0xFF
         public byte Byte_08_AnimRelated { get; set; } // Animation related. Same animation -> same number
         public byte Byte_09 { get; set; }
@@ -30,7 +30,7 @@ namespace R1Engine
             MovementFunctionPointer = s.SerializeObject<SNES_Pointer>(MovementFunctionPointer, name: nameof(MovementFunctionPointer));
             CollisionFunctionPointer = s.SerializeObject<SNES_Pointer>(CollisionFunctionPointer, name: nameof(CollisionFunctionPointer));
             AnimPointer = s.SerializeObject<SNES_Pointer>(AnimPointer, name: nameof(AnimPointer));
-            Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
+            Flags = s.Serialize<StateFlags>(Flags, name: nameof(Flags));
             Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
             Byte_08_AnimRelated = s.Serialize<byte>(Byte_08_AnimRelated, name: nameof(Byte_08_AnimRelated));
             Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
@@ -45,6 +45,22 @@ namespace R1Engine
             s.DoAt(AnimPointer.GetPointer() - 4, () => {
                 Animation = s.SerializeObject<R1Jaguar_AnimationDescriptor>(Animation, name: nameof(Animation));
             });
+        }
+
+
+
+        [Flags]
+        public enum StateFlags : byte {
+            None = 0,
+
+            HorizontalFlip = 1 << 0,
+            UseCurrentFlip = 1 << 1,
+            UnkFlag_2 = 1 << 2,
+            UnkFlag_3 = 1 << 3,
+            UnkFlag_4 = 1 << 4,
+            UnkFlag_5 = 1 << 5,
+            UnkFlag_6 = 1 << 6,
+            UnkFlag_7 = 1 << 7,
         }
     }
 }
