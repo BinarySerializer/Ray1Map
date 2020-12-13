@@ -40,8 +40,11 @@ namespace R1Engine
                 // Export every sprite
                 for (int i = 0; i < sprites.Length; i++)
                 {
-                    var imgDescriptor = rom.ImageDescriptors[i];
+                    var spriteIndex = i % rom.ImageDescriptors.Length;
+                    var vramConfig = i / rom.ImageDescriptors.Length;
+                    var imgDescriptor = rom.ImageDescriptors[spriteIndex];
                     var sprite = sprites[i];
+                    if(sprite == null) continue;
 
                     var xPos = imgDescriptor.TileIndex % 16;
                     var yPos = (imgDescriptor.TileIndex - xPos) / 16;
@@ -58,13 +61,13 @@ namespace R1Engine
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            newTex.SetPixel(flipX ? width - x - 1 : x, flipY ? height - y - 1 : y, sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y));
+                            newTex.SetPixel(flipX ? width - x - 1 : x, (!flipY) ? height - y - 1 : y, sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y));
                         }
                     }
 
                     newTex.Apply();
 
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{i}.png"), newTex.EncodeToPNG());
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{spriteIndex} - {vramConfig}.png"), newTex.EncodeToPNG());
                 }
             }
         }
@@ -87,6 +90,9 @@ namespace R1Engine
                     var anim = stateGroup.Key;
                     var layersPerFrame = anim.LayersPerFrame;
                     var frameCount = anim.FrameCount;
+                    string animPointer = String.Format("{0:X4}", (stateGroup.Key.Offset.FileOffset + 4) % 0x8000 + 0x8000);
+                    int vramConfig = stateGroup.First().VRAMConfigIndex;
+                    var spriteOffset = rom.ImageDescriptors.Length * vramConfig;
 
                     // Calculate frame size
                     int minX = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.XPosition);
@@ -107,11 +113,11 @@ namespace R1Engine
                         {
                             var animationLayer = anim.Layers[frameIndex * layersPerFrame + layerIndex];
 
-                            if (animationLayer.ImageIndex >= sprites.Length)
+                            if ((spriteOffset + animationLayer.ImageIndex) >= sprites.Length)
                                 continue;
 
                             // Get the sprite
-                            var sprite = sprites[animationLayer.ImageIndex];
+                            var sprite = sprites[spriteOffset + animationLayer.ImageIndex];
 
                             if (sprite == null)
                                 continue;
@@ -164,7 +170,7 @@ namespace R1Engine
                                 }
 
                                 // Save gif
-                                collection.Write(Path.Combine(outputDir, $"{animIndex} ({speed}).gif"));
+                                collection.Write(Path.Combine(outputDir, $"{animIndex} ({speed}) - {animPointer}.gif"));
                             }
                         }
                     }
@@ -256,7 +262,9 @@ namespace R1Engine
             // Load sprites
             var sprites = GetSprites(rom);
 
-            var objManager = new Unity_ObjectManager_SNES(context, rom.States.Select(x => new Unity_ObjectManager_SNES.State(x, x.Animation.ToCommonAnimation())).ToArray(), sprites);
+            var objManager = new Unity_ObjectManager_SNES(context,
+                rom.States.Select(x => new Unity_ObjectManager_SNES.State(x,
+                x.Animation.ToCommonAnimation(baseSpriteIndex: x.VRAMConfigIndex * rom.ImageDescriptors.Length))).ToArray(), sprites);
 
             // Create Rayman
             var rayman = new Unity_Object_SNES(objManager);
@@ -271,33 +279,49 @@ namespace R1Engine
 
             return level;
         }
-        
-        public Sprite[] GetSprites(SNES_Proto_ROM rom)
-        {
-            var sprites = new Sprite[rom.ImageDescriptors.Length];
+
+        public Sprite[] GetSprites(SNES_Proto_ROM rom) {
+            var sprites = new Sprite[rom.ImageDescriptors.Length * 3];
 
             var pal = Util.ConvertAndSplitGBAPalette(rom.SpritePalette);
-
-            var buffer = rom.SpriteTileSet;
-            var tileSets = pal.Select(x => Util.ToTileSetTexture(buffer, x, Util.TileEncoding.Planar_4bpp, 8, true, wrap: 16, flipTileX: true)).ToArray();
-
-            for (int i = 0; i < rom.ImageDescriptors.Length; i++)
-            {
-                if (i == 0)
-                {
-                    sprites[i] = null;
-                    continue;
+            var buffer = new byte[rom.SpriteTileSet.Length];
+            for (int addBlock = 0; addBlock < 3; addBlock++) {
+                Array.Copy(rom.SpriteTileSet, buffer, buffer.Length);
+                switch (addBlock) {
+                    case 0:
+                        Array.Copy(rom.SpriteTileSetAdd0, 0, buffer, 0xC00, 0x400);
+                        Array.Copy(rom.SpriteTileSetAdd0, 0x400, buffer, 0x1000, 0x100);
+                        Array.Copy(rom.SpriteTileSetAdd0, 0x500, buffer, 0x1200, 0x100);
+                        break;
+                    case 1:
+                        Array.Copy(rom.SpriteTileSetAdd1, 0, buffer, 0xC00, 0x400);
+                        Array.Copy(rom.SpriteTileSetAdd1, 0x400, buffer, 0x1000, 0x100);
+                        Array.Copy(rom.SpriteTileSetAdd1, 0x500, buffer, 0x1200, 0x100);
+                        break;
+                    case 2:
+                        Array.Copy(rom.SpriteTileSetAdd2, 0, buffer, 0xC00, 0x400);
+                        break;
                 }
 
-                var imgDescriptor = rom.ImageDescriptors[i];
 
-                var xPos = imgDescriptor.TileIndex % 16;
-                var yPos = (imgDescriptor.TileIndex - xPos) / 16;
-                var size = imgDescriptor.IsLarge ? 16 : 8;
 
-                sprites[i] = tileSets[imgDescriptor.Palette].CreateSprite(new Rect(xPos * 8, tileSets[imgDescriptor.Palette].height - yPos * 8 - size, size, size));
+                var tileSets = pal.Select(x => Util.ToTileSetTexture(buffer, x, Util.TileEncoding.Planar_4bpp, 8, true, wrap: 16, flipTileX: true)).ToArray();
+
+                for (int i = 0; i < rom.ImageDescriptors.Length; i++) {
+                    if (i == 0) {
+                        sprites[i] = null;
+                        continue;
+                    }
+
+                    var imgDescriptor = rom.ImageDescriptors[i];
+
+                    var xPos = imgDescriptor.TileIndex % 16;
+                    var yPos = (imgDescriptor.TileIndex - xPos) / 16;
+                    var size = imgDescriptor.IsLarge ? 16 : 8;
+
+                    sprites[addBlock * rom.ImageDescriptors.Length + i] = tileSets[imgDescriptor.Palette].CreateSprite(new Rect(xPos * 8, tileSets[imgDescriptor.Palette].height - yPos * 8 - size, size, size));
+                }
             }
-
             return sprites;
         }
 

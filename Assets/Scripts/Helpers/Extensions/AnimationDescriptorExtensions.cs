@@ -10,7 +10,7 @@
         /// </summary>
         /// <param name="animationDescriptor">The animation descriptor</param>
         /// <returns>The common animation</returns>
-        public static Unity_ObjAnimation ToCommonAnimation(this IR1_AnimationDescriptor animationDescriptor)
+        public static Unity_ObjAnimation ToCommonAnimation(this IR1_AnimationDescriptor animationDescriptor, int baseSpriteIndex = 0)
         {
             // Create the animation
             var animation = new Unity_ObjAnimation
@@ -38,7 +38,7 @@
 
                         // Create the animation part
                         var part = new Unity_ObjAnimationPart {
-                            ImageIndex = animationLayer.ImageIndex,
+                            ImageIndex = animationLayer.ImageIndex + baseSpriteIndex,
                             XPosition = animationLayer.XPosition,
                             YPosition = animationLayer.YPosition,
                             IsFlippedHorizontally = animationLayer.IsFlippedHorizontally,

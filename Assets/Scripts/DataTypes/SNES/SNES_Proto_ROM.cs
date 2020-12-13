@@ -18,6 +18,9 @@ namespace R1Engine
         public SNES_Proto_State[] States { get; set; }
         public SNES_Proto_ImageDescriptor[] ImageDescriptors { get; set; }
         public byte[] SpriteTileSet { get; set; }
+        public byte[] SpriteTileSetAdd0 { get; set; }
+        public byte[] SpriteTileSetAdd1 { get; set; }
+        public byte[] SpriteTileSetAdd2 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -42,7 +45,9 @@ namespace R1Engine
             States = s.DoAt(s.CurrentPointer + 0x210AC, () => s.SerializeObjectArray<SNES_Proto_State>(States, 5 * 0x15, name: nameof(States)));
             ImageDescriptors = s.DoAt(s.CurrentPointer + 0x20f4c, () => s.SerializeObjectArray<SNES_Proto_ImageDescriptor>(ImageDescriptors, States.Max(state => state.Animation?.Layers.Max(layer => layer.ImageIndex + 1) ?? 0), name: nameof(ImageDescriptors)));
             SpriteTileSet = s.DoAt(s.CurrentPointer + 0x2afc4, () => s.SerializeArray<byte>(SpriteTileSet, 0x3000, name: nameof(SpriteTileSet)));
-
+            SpriteTileSetAdd0 = s.DoAt(s.CurrentPointer + 0x24ea8, () => s.SerializeArray<byte>(SpriteTileSetAdd0, 0x600, name: nameof(SpriteTileSetAdd0)));
+            SpriteTileSetAdd1 = s.DoAt(s.CurrentPointer + 0x24ea8 + 0x600, () => s.SerializeArray<byte>(SpriteTileSetAdd1, 0x600, name: nameof(SpriteTileSetAdd1)));
+            SpriteTileSetAdd2 = s.DoAt(s.CurrentPointer + 0x24ea8 + 0xC00, () => s.SerializeArray<byte>(SpriteTileSetAdd2, 0x400, name: nameof(SpriteTileSetAdd2)));
         }
     }
 }

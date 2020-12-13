@@ -1,15 +1,17 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     public class SNES_Proto_State : R1Serializable
     {
-        public SNES_Pointer Pointer_00 { get; set; } // 16-byte struct?
-        public SNES_Pointer Pointer_02 { get; set; }
+        public SNES_Pointer MovementFunctionPointer { get; set; } // Modifying this changes how Rayman moves
+        public SNES_Pointer CollisionFunctionPointer { get; set; } // Modifying this changes what kind of platform Rayman thinks he's on
         public SNES_Pointer AnimPointer { get; set; }
-        public byte Byte_06 { get; set; } // Flags?
+        public byte Byte_06 { get; set; } // Flags. Flip flag is one of the lower bits. Upper bits contain some state switching flag (states loop forever if nulled)
         public byte Byte_07 { get; set; } // 0 or 0xFF
         public byte Byte_08_AnimRelated { get; set; } // Animation related. Same animation -> same number
         public byte Byte_09 { get; set; }
-        public byte Byte_0A { get; set; }
+        public byte VRAMConfigurationID { get; set; } // 0,2,4,6. If 0, vram isn't modified. Making this 0 for all states makes the game not load any extra image block
         public byte FrameCount { get; set; } // Frame count
         public byte AnimSpeed { get; set; }
         public byte Byte_0D { get; set; }
@@ -17,6 +19,7 @@
         public byte Byte_0F { get; set; } // Always 0
 
         public R1Jaguar_AnimationDescriptor Animation { get; set; }
+        public int VRAMConfigIndex => Math.Max(0, (VRAMConfigurationID / 2) - 1);
 
         /// <summary>
         /// Handles the data serialization
@@ -24,14 +27,14 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            Pointer_00 = s.SerializeObject<SNES_Pointer>(Pointer_00, name: nameof(Pointer_00));
-            Pointer_02 = s.SerializeObject<SNES_Pointer>(Pointer_02, name: nameof(Pointer_02));
+            MovementFunctionPointer = s.SerializeObject<SNES_Pointer>(MovementFunctionPointer, name: nameof(MovementFunctionPointer));
+            CollisionFunctionPointer = s.SerializeObject<SNES_Pointer>(CollisionFunctionPointer, name: nameof(CollisionFunctionPointer));
             AnimPointer = s.SerializeObject<SNES_Pointer>(AnimPointer, name: nameof(AnimPointer));
             Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
             Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
             Byte_08_AnimRelated = s.Serialize<byte>(Byte_08_AnimRelated, name: nameof(Byte_08_AnimRelated));
             Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
-            Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
+            VRAMConfigurationID = s.Serialize<byte>(VRAMConfigurationID, name: nameof(VRAMConfigurationID));
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
             AnimSpeed = s.Serialize<byte>(AnimSpeed, name: nameof(AnimSpeed));
             Byte_0D = s.Serialize<byte>(Byte_0D, name: nameof(Byte_0D));
