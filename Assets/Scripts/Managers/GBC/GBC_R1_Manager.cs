@@ -159,12 +159,12 @@ namespace R1Engine
                     // Attributes
                     HorizontalFlip = playField.BGMapAttributes.MapTiles[i].HorizontalFlip,
                     VerticalFlip = playField.BGMapAttributes.MapTiles[i].VerticalFlip,
-                    GBC_Priority = playField.BGMapAttributes.MapTiles[i].GBC_Priority,
+                    Priority = playField.BGMapAttributes.MapTiles[i].Priority,
 
                     // Collision
                     CollisionType = playField.Collision.MapTiles[i].CollisionType,
                 };
-                if (t.GBC_Priority == 1) hasFGLayer = true;
+                if (t.Priority) hasFGLayer = true;
 
                 // Determine tile index
                 var indexInVRAMSigned = playField.BGMapTileNumbers.MapTiles[i].TileMapY;
@@ -205,11 +205,11 @@ namespace R1Engine
             if (hasFGLayer) {
                 var mapTilesFG = new MapTile[playField.Width * playField.Height];
                 for (int i = 0; i < mapTilesFG.Length; i++) {
-                    MapTile t = mapTiles[i].GBC_Priority == 1 ? new MapTile() {
+                    MapTile t = mapTiles[i].Priority ? new MapTile() {
                         HorizontalFlip = mapTiles[i].HorizontalFlip,
                         VerticalFlip = mapTiles[i].VerticalFlip,
                         PaletteIndex = mapTiles[i].PaletteIndex,
-                        GBC_Priority = mapTiles[i].GBC_Priority,
+                        Priority = mapTiles[i].Priority,
                         TileMapY = (ushort)(mapTiles[i].TileMapY + 1) // + 1 because transparent tile was added to tileset
                     } : new MapTile();
                     mapTilesFG[i] = t;

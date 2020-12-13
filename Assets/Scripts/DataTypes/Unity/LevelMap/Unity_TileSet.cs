@@ -95,5 +95,6 @@ namespace R1Engine
 
         public int[] GBARRR_PalOffsets { get; set; }
         public int GBAIsometric_BaseLength { get; set; }
+        public int SNES_BaseLength { get; set; }
     }
 }

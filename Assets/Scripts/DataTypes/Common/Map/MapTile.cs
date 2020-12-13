@@ -32,11 +32,11 @@ namespace R1Engine
         public byte PC_Unk2 { get; set; }
 
         public byte PaletteIndex { get; set; }
+        public bool Priority { get; set; }
 
         public byte GBARRR_MenuUnk { get; set; }
         public byte GBC_BankNumber { get; set; }
         public byte GBC_Unused { get; set; }
-        public byte GBC_Priority { get; set; }
 
 
         #endregion
@@ -64,6 +64,8 @@ namespace R1Engine
             BGMapAttributes,
             Collision
         }
+
+        public bool SNES_Is8PxTile { get; set; } // True for normal 8x8 tiles, otherwise a 16x16 tile which consists of 4 8x8 tiles
 
         #endregion
 
@@ -120,13 +122,27 @@ namespace R1Engine
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.SNES)
             {
-                s.SerializeBitValues<ushort>(bitFunc =>
+                if (!SNES_Is8PxTile)
                 {
-                    TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
-                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
-                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                    CollisionType = (byte)bitFunc(CollisionType, 4, name: nameof(CollisionType));
-                });
+                    s.SerializeBitValues<ushort>(bitFunc =>
+                    {
+                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
+                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        CollisionType = (byte)bitFunc(CollisionType, 4, name: nameof(CollisionType));
+                    });
+                }
+                else
+                {
+                    s.SerializeBitValues<ushort>(bitFunc =>
+                    {
+                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
+                        PaletteIndex = (byte)bitFunc(PaletteIndex, 3, name: nameof(PaletteIndex));
+                        Priority = bitFunc(Priority ? 1 : 0, 1, name: nameof(Priority)) == 1;
+                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                    });
+                }
 
                 TileMapX = 0;
             }
@@ -319,7 +335,7 @@ namespace R1Engine
                             GBC_Unused = (byte)bitFunc((byte)GBC_Unused, 1, name: nameof(GBC_Unused));
                             HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                             VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                            GBC_Priority = (byte)bitFunc((byte)GBC_Priority, 1, name: nameof(GBC_Priority));
+                            Priority = bitFunc(Priority ? 1 : 0, 1, name: nameof(Priority)) == 1;
                         });
                         break;
                     case GBC_TileType.Collision:

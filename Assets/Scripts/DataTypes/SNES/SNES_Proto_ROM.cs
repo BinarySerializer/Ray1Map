@@ -7,13 +7,14 @@ namespace R1Engine
         public RGBA5551Color[] TilePalette { get; set; }
         public RGBA5551Color[] SpritePalette { get; set; }
 
-        public MapData MapData { get; set; }
-        public SNES_Proto_TileDescriptor[] TileDescriptors { get; set; }
         public byte[] TileSet_0000 { get; set; } // 4bpp for normal and foreground map
         public byte[] TileSet_8000 { get; set; } // 2bpp, for background map
+        // TODO: Animated tiles (OAM2)
 
-        public SNES_Proto_TileDescriptor[] ForegroundTiles { get; set; }
-        public SNES_Proto_TileDescriptor[] BackgroundTiles { get; set; }
+        public MapData BG1_Map { get; set; }
+        public MapTile[] BG1_Tiles { get; set; }
+        public MapTile[] BG2_Tiles { get; set; } // Foreground
+        public MapTile[] BG3_Tiles { get; set; } // Background
 
         public SNES_Proto_State[] States { get; set; }
         public SNES_Proto_ImageDescriptor[] ImageDescriptors { get; set; }
@@ -28,20 +29,24 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
+            // Serialize palettes
             s.DoAt(s.CurrentPointer + 0x2ADC4, () =>
             {
                 TilePalette = s.SerializeObjectArray<RGBA5551Color>(TilePalette, 8 * 16, name: nameof(TilePalette));
                 SpritePalette = s.SerializeObjectArray<RGBA5551Color>(SpritePalette, 8 * 16, name: nameof(SpritePalette));
             });
 
-            MapData = s.DoAt(s.CurrentPointer + 0x28000, () => s.SerializeObject<MapData>(MapData, name: nameof(MapData)));
-            TileDescriptors = s.DoAt(s.CurrentPointer + 0x1AAF8, () => s.SerializeObjectArray<SNES_Proto_TileDescriptor>(TileDescriptors, 1024 * 4, name: nameof(TileDescriptors)));
+            // Serialize tile sets
             TileSet_0000 = s.DoAt(s.CurrentPointer + 0x30000, () => s.SerializeArray<byte>(TileSet_0000, 1024 * 32, name: nameof(TileSet_0000)));
             TileSet_8000 = s.DoAt(s.CurrentPointer + 0x36F00, () => s.SerializeArray<byte>(TileSet_8000, 21 * 16, name: nameof(TileSet_8000)));
 
-            ForegroundTiles = s.DoAt(s.CurrentPointer + 0x29dc4, () => s.SerializeObjectArray<SNES_Proto_TileDescriptor>(ForegroundTiles, 32 * 32, name: nameof(ForegroundTiles)));
-            BackgroundTiles = s.DoAt(s.CurrentPointer + 0x2A5C4, () => s.SerializeObjectArray<SNES_Proto_TileDescriptor>(BackgroundTiles, 32 * 32, name: nameof(BackgroundTiles)));
+            // Serialize maps
+            BG1_Map = s.DoAt(s.CurrentPointer + 0x28000, () => s.SerializeObject<MapData>(BG1_Map, name: nameof(BG1_Map)));
+            BG1_Tiles = s.DoAt(s.CurrentPointer + 0x1AAF8, () => s.SerializeObjectArray<MapTile>(BG1_Tiles, 1024 * 4, onPreSerialize: x => x.SNES_Is8PxTile = true, name: nameof(BG1_Tiles)));
+            BG2_Tiles = s.DoAt(s.CurrentPointer + 0x29dc4, () => s.SerializeObjectArray<MapTile>(BG2_Tiles, 32 * 32, onPreSerialize: x => x.SNES_Is8PxTile = true, name: nameof(BG2_Tiles)));
+            BG3_Tiles = s.DoAt(s.CurrentPointer + 0x2A5C4, () => s.SerializeObjectArray<MapTile>(BG3_Tiles, 32 * 32, onPreSerialize: x => x.SNES_Is8PxTile = true, name: nameof(BG3_Tiles)));
             
+            // Serialize object data
             States = s.DoAt(s.CurrentPointer + 0x210AC, () => s.SerializeObjectArray<SNES_Proto_State>(States, 5 * 0x15, name: nameof(States)));
             ImageDescriptors = s.DoAt(s.CurrentPointer + 0x20f4c, () => s.SerializeObjectArray<SNES_Proto_ImageDescriptor>(ImageDescriptors, States.Max(state => state.Animation?.Layers.Max(layer => layer.ImageIndex + 1) ?? 0), name: nameof(ImageDescriptors)));
             SpriteTileSet = s.DoAt(s.CurrentPointer + 0x2afc4, () => s.SerializeArray<byte>(SpriteTileSet, 0x3000, name: nameof(SpriteTileSet)));

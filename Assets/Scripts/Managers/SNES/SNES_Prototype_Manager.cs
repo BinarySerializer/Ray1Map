@@ -1,9 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
+using ImageMagick;
 using R1Engine.Serialize;
 using System;
 using System.IO;
 using System.Linq;
-using ImageMagick;
 using UnityEngine;
 
 namespace R1Engine
@@ -197,63 +197,85 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Get the tilesets
-            var tileSet = GetTileSet(rom);
-            //var genericTileSet = GetGenericTileSet(rom);
+            var tileSet_0000 = LoadTileSet(rom.TileSet_0000, rom.TilePalette, false, true);
+            var tileSet_8000 = LoadTileSet(rom.TileSet_8000, rom.TilePalette, true, false);
+
+            // Load the primary map
+            var map = LoadMap(rom.BG1_Map, rom.BG1_Tiles).Select(x =>
+            {
+                x.TileMapY = (ushort)(x.PaletteIndex * tileSet_0000.SNES_BaseLength + x.TileMapY);
+                return new Unity_Tile(x);
+            }).ToArray();
 
             var maps = new Unity_Map[]
             {
-                // TODO: Background is 2bpp and uses different tileset
                 // Background
-                //new Unity_Map()
-                //{
-                //    Type = Unity_Map.MapType.Graphics,
-                //    Width = 32,
-                //    Height = 32,
-                //    TileSet = new Unity_TileSet[]
-                //    {
-                //        genericTileSet
-                //    },
-                //    MapTiles = rom.BackgroundTiles.Select(x => new Unity_Tile(new MapTile()
-                //    {
-                //        TileMapY = (ushort)(x.TileIndex + 1024),
-                //        HorizontalFlip = x.FlipX,
-                //        VerticalFlip = x.FlipY
-                //    })).ToArray(),
-                //},
-                // Map
                 new Unity_Map()
                 {
-                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
-
-                    // Set the dimensions
-                    Width = rom.MapData.Width,
-                    Height = rom.MapData.Height,
-
-                    // Create the tile arrays
+                    Type = Unity_Map.MapType.Graphics,
+                    Width = 32,
+                    Height = 32,
                     TileSet = new Unity_TileSet[]
                     {
-                        tileSet
+                        tileSet_8000
                     },
-                    MapTiles = rom.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = rom.BG3_Tiles.Select(x =>
+                    {
+                        x.TileMapY = (ushort)(x.PaletteIndex * tileSet_8000.SNES_BaseLength + x.TileMapY);
+                        return new Unity_Tile(x);
+                    }).ToArray(),
                 },
-                // TODO: Uncomment after we make primary map 8px instead
+                // Map (no priority)
+                new Unity_Map()
+                {
+                    Type = Unity_Map.MapType.Graphics,
+                    Width = (ushort)(rom.BG1_Map.Width * 2),
+                    Height = (ushort)(rom.BG1_Map.Height * 2),
+                    TileSet = new Unity_TileSet[]
+                    {
+                        tileSet_0000
+                    },
+                    MapTiles = map,
+                },
+                // Map (priority)
+                new Unity_Map()
+                {
+                    Type = Unity_Map.MapType.Graphics,
+                    Width = (ushort)(rom.BG1_Map.Width * 2),
+                    Height = (ushort)(rom.BG1_Map.Height * 2),
+                    TileSet = new Unity_TileSet[]
+                    {
+                        tileSet_0000
+                    },
+                    MapTiles = map.Select(x => !x.Data.Priority ? new Unity_Tile(new MapTile()) : x).ToArray(),
+                    Layer = Unity_Map.MapLayer.Front,
+                    Alpha = 0.5f
+                },
                 // Foreground
-                //new Unity_Map()
-                //{
-                //    Type = Unity_Map.MapType.Graphics,
-                //    Width = 32,
-                //    Height = 32,
-                //    TileSet = new Unity_TileSet[]
-                //    {
-                //        genericTileSet
-                //    },
-                //    MapTiles = rom.ForegroundTiles.Select(x => new Unity_Tile(new MapTile()
-                //    {
-                //        TileMapY = (ushort)x.TileIndex,
-                //        HorizontalFlip = x.FlipX,
-                //        VerticalFlip = x.FlipY
-                //    })).ToArray(),
-                //},
+                new Unity_Map()
+                {
+                    Type = Unity_Map.MapType.Graphics,
+                    Width = 32,
+                    Height = 32,
+                    TileSet = new Unity_TileSet[]
+                    {
+                        tileSet_0000
+                    },
+                    MapTiles = rom.BG2_Tiles.Select(x =>
+                    {
+                        x.TileMapY = (ushort)(x.PaletteIndex * tileSet_0000.SNES_BaseLength + x.TileMapY);
+                        return new Unity_Tile(x);
+                    }).ToArray(),
+                },
+                // Collision
+                new Unity_Map()
+                {
+                    Type = Unity_Map.MapType.Collision,
+                    Width = rom.BG1_Map.Width,
+                    Height = rom.BG1_Map.Height,
+                    TileSet = new Unity_TileSet[0],
+                    MapTiles = rom.BG1_Map.Tiles.Select(x => new Unity_Tile(x)).ToArray()
+                },
             };
 
             Controller.DetailedState = $"Loading sprites";
@@ -267,7 +289,11 @@ namespace R1Engine
                 x.Animation.ToCommonAnimation(baseSpriteIndex: x.VRAMConfigIndex * rom.ImageDescriptors.Length))).ToArray(), sprites);
 
             // Create Rayman
-            var rayman = new Unity_Object_SNES(objManager);
+            var rayman = new Unity_Object_SNES(objManager)
+            {
+                XPosition = 96,
+                YPosition = 70
+            };
 
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level(
@@ -275,7 +301,11 @@ namespace R1Engine
                 objManager: new Unity_ObjectManager(context),
                 getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(),
-                rayman: rayman);
+                rayman: rayman,
+                cellSize: 8)
+            {
+                CellSizeOverrideCollision = 16
+            };
 
             return level;
         }
@@ -325,60 +355,101 @@ namespace R1Engine
             return sprites;
         }
 
-        public virtual Unity_TileSet GetTileSet(SNES_Proto_ROM rom)
+        public MapTile[] LoadMap(MapData map, MapTile[] tiles8)
         {
-            // Read the tiles
-            const int block_size = 0x20;
+            var output = new MapTile[map.Width * 2 * map.Height * 2];
 
-            uint length = (uint)rom.TileDescriptors.Length * 8 * 8;
-
-            // Get the tile-set texture
-            var tex = TextureHelpers.CreateTexture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize, clear: true);
-
-            var pal = Util.ConvertAndSplitGBAPalette(rom.TilePalette);
-
-            for (int i = 0; i < rom.TileDescriptors.Length; i++)
+            for (int y = 0; y < map.Height; y++)
             {
-                var descriptor = rom.TileDescriptors[i];
+                for (int x = 0; x < map.Width; x++)
+                {
+                    var actualX = x * 2;
+                    var actualY = y * 2;
 
-                var x = ((i / 4) * 2) % (256 / 8) + ((i % 2) == 0 ? 0 : 1);
-                var y = (((i / 4) * 2) / (256 / 8)) * 2 + ((i % 4) < 2 ? 0 : 1);
+                    var mapTile = map.Tiles[y * map.Width + x];
 
-                var curOff = block_size * descriptor.TileIndex;
+                    setTileAt(actualX, actualY, 0, 0, tiles8[mapTile.TileMapY * 4 + 0]);
+                    setTileAt(actualX, actualY, 1, 0, tiles8[mapTile.TileMapY * 4 + 1]);
+                    setTileAt(actualX, actualY, 0, 1, tiles8[mapTile.TileMapY * 4 + 2]);
+                    setTileAt(actualX, actualY, 1, 1, tiles8[mapTile.TileMapY * 4 + 3]);
 
-                tex.FillInTile(
-                    imgData: rom.TileSet_0000, 
-                    imgDataOffset: curOff, 
-                    pal: pal[descriptor.Palette], 
-                    encoding: Util.TileEncoding.Planar_4bpp, 
-                    tileWidth: 8, 
-                    flipTextureY: false,
-                    tileX: x * 8,
-                    tileY: y * 8,
-                    flipTileX: !descriptor.FlipX,
-                    flipTileY: descriptor.FlipY,
-                    ignoreTransparent: true);
+                    void setTileAt(int baseX, int baseY, int offX, int offY, MapTile tile)
+                    {
+                        var newTile = new MapTile()
+                        {
+                            TileMapY = tile.TileMapY,
+                            Priority = tile.Priority,
+                            PaletteIndex = tile.PaletteIndex,
+                            HorizontalFlip = tile.HorizontalFlip,
+                            VerticalFlip = tile.VerticalFlip
+                        };
+
+                        if (mapTile.HorizontalFlip)
+                        {
+                            offX = offX == 1 ? 0 : 1;
+                            newTile.HorizontalFlip = !newTile.HorizontalFlip;
+                        }
+
+                        if (mapTile.VerticalFlip)
+                        {
+                            offY = offY == 1 ? 0 : 1;
+                            newTile.VerticalFlip = !newTile.VerticalFlip;
+                        }
+
+                        var outputX = baseX + offX;
+                        var outputY = baseY + offY;
+
+                        output[outputY * (map.Width * 2) + outputX] = newTile;
+                    }
+                }
+            }
+
+            return output;
+        }
+
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] palette, bool is2bpp, bool flipX)
+        {
+            var pal = is2bpp ? Util.ConvertAndSplitGBCPalette(palette) : Util.ConvertAndSplitGBAPalette(palette);
+
+            int numPalettes = pal.Length;
+            const int wrap = 64;
+            int bpp = is2bpp ? 2 : 4;
+            const int tileWidth = 8;
+            int tileSize = tileWidth * tileWidth * bpp / 8;
+            int tilesetLength = tileSet.Length / tileSize;
+
+            int tilesX = Math.Min(tilesetLength * numPalettes, wrap);
+            int tilesY = Mathf.CeilToInt(tilesetLength * numPalettes / (float)wrap);
+
+            var tex = TextureHelpers.CreateTexture2D(tilesX * tileWidth, tilesY * tileWidth);
+
+            for (int p = 0; p < numPalettes; p++)
+            {
+                for (int i = 0; i < tilesetLength; i++)
+                {
+                    int tileInd = i + p * tilesetLength;
+                    int tileY = (tileInd / wrap) * tileWidth;
+                    int tileX = (tileInd % wrap) * tileWidth;
+
+                    tex.FillInTile(
+                        imgData: tileSet, 
+                        imgDataOffset: i * tileSize, 
+                        pal: pal[p], 
+                        encoding: is2bpp ? Util.TileEncoding.Planar_2bpp : Util.TileEncoding.Planar_4bpp, 
+                        tileWidth: tileWidth, 
+                        flipTextureY: false, 
+                        tileX: tileX, 
+                        tileY: tileY,
+                        flipTileX: flipX);
+                }
             }
 
             tex.Apply();
 
-            return new Unity_TileSet(tex, Settings.CellSize);
-        }
-        public virtual Unity_TileSet GetGenericTileSet(SNES_Proto_ROM rom)
-        {
-            var tileDescriptors = rom.TileDescriptors.Concat(rom.BackgroundTiles).Concat(rom.ForegroundTiles).ToArray();
-            var pal = Util.ConvertAndSplitGBAPalette(rom.TilePalette);
-
-            var tex = Util.ToTileSetTexture(
-                imgData: rom.TileSet_0000, 
-                pal: pal.First(), 
-                encoding: Util.TileEncoding.Planar_4bpp, 
-                tileWidth: 8, 
-                flipY: false, 
-                flipTileX: true,
-                getPalFunc: x => pal[tileDescriptors.FirstOrDefault(t => t.TileIndex == x)?.Palette ?? 0]);
-
-            return new Unity_TileSet(tex, 8);
+            return new Unity_TileSet(tex, tileWidth)
+            {
+                SNES_BaseLength = tilesetLength
+            };
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
