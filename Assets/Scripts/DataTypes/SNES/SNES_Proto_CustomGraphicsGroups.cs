@@ -218,23 +218,112 @@ namespace R1Engine {
             new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xA4, IsLarge = true }, // Orb 2
             new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xA6, IsLarge = true }, // Orb 2
 
+            // Sparkles (start index 4)
+            new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xD6, }, // Small spark
+            new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xC4, }, // Big spark
+            new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xC4, FlipX = true }, // Big spark
+            new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xC4, FlipY = true }, // Big spark
+            new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xC4, FlipX = true, FlipY = true }, // Big spark
+
             // Start index 17
         };
 
         public static R1Jaguar_AnimationDescriptor[] Orb_Animations => new R1Jaguar_AnimationDescriptor[] {
             // Enemy normal
             new R1Jaguar_AnimationDescriptor() {
-                LayersPerFrame = 1,
-                FrameCount = 3,
+                LayersPerFrame = 5,
+                FrameCount = 13,
                 Layers = new R1_AnimationLayer[][] {
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
+                    new R1_AnimationLayer[] { // Spark hidden
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
+                    },
                     new R1_AnimationLayer[] { // Frame 0
                         new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 6, YPosition = 6, ImageIndex = 4 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 7, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 7, YPosition = 7, ImageIndex = 0 },
                     },
                     new R1_AnimationLayer[] { // Frame 1
                         new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 2 },
+                        new R1_AnimationLayer() { XPosition = 2, YPosition = 2, ImageIndex = 5 },
+                        new R1_AnimationLayer() { XPosition = 9, YPosition = 2, ImageIndex = 6 },
+                        new R1_AnimationLayer() { XPosition = 2, YPosition = 9, ImageIndex = 7 },
+                        new R1_AnimationLayer() { XPosition = 9, YPosition = 9, ImageIndex = 8 },
                     },
                     new R1_AnimationLayer[] { // Frame 2
                         new R1_AnimationLayer() { XPosition = 8, YPosition = 8, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 6, YPosition = 6, ImageIndex = 4 },
+                        new R1_AnimationLayer() { XPosition = 9, YPosition = 0, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 9, ImageIndex = 0 },
+                        new R1_AnimationLayer() { XPosition = 9, YPosition = 9, ImageIndex = 0 },
                     },
                 }.SelectMany(ls => ls).ToArray()
             },

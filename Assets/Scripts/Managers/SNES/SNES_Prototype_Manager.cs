@@ -57,8 +57,8 @@ namespace R1Engine
 
                         var newTex = TextureHelpers.CreateTexture2D(width, height);
 
-                        var flipX = imgDescriptor.FlipX;
-                        var flipY = !imgDescriptor.FlipY;
+                        var flipX = false;
+                        var flipY = true;
 
                         for (int y = 0; y < height; y++)
                         {
@@ -346,7 +346,7 @@ namespace R1Engine
                 {
                     Animation = x,
                     Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
-                    AnimSpeed = 8 // TODO: Allow each animation to have a different speed
+                    AnimSpeed = 5 // TODO: Allow each animation to have a different speed
                 }).ToArray(), SNES_Proto_CustomGraphicsGroups.Orb_ImageDescriptors, true, "Unused Orb (recreated)"),
                 GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Effect_Animations.Select(x => new SNES_Proto_State()
                 {
@@ -404,7 +404,23 @@ namespace R1Engine
                     var yPos = (imgDescriptor.TileIndex - xPos) / 16;
                     var size = imgDescriptor.IsLarge ? 16 : 8;
 
-                    sprites[addBlock * imageDescriptors.Length + i] = tileSets[imgDescriptor.Palette].CreateSprite(new Rect(xPos * 8, tileSets[imgDescriptor.Palette].height - yPos * 8 - size, size, size));
+                    var spriteTex = TextureHelpers.CreateTexture2D(size,size);
+
+                    var flipX = imgDescriptor.FlipX;
+                    var flipY = !imgDescriptor.FlipY;
+
+                    var texX = xPos * 8;
+                    var texY = tileSets[imgDescriptor.Palette].height - yPos * 8 - size;
+                    var width = size;
+                    var height = size;
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
+                            spriteTex.SetPixel(flipX ? width - x - 1 : x, (!flipY) ? height - y - 1 : y, tileSets[imgDescriptor.Palette].GetPixel(texX + x, texY + y));
+                        }
+                    }
+
+                    spriteTex.Apply();
+                    sprites[addBlock * imageDescriptors.Length + i] = spriteTex.CreateSprite();
                 }
             }
             return sprites;
