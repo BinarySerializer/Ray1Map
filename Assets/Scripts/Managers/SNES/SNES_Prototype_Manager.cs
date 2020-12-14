@@ -183,6 +183,91 @@ namespace R1Engine
 
                     animIndex++;
                 }
+
+                sprites = GetSprites(rom, CustomImageDescriptors);
+
+                foreach (var anim in CustomAnimations) {
+                    // Get the animation
+                    var layersPerFrame = anim.LayersPerFrame;
+                    var frameCount = anim.FrameCount;
+                    int vramConfig = 0;
+                    var spriteOffset = rom.Rayman.ImageDescriptors.Length * vramConfig;
+
+                    // Calculate frame size
+                    int minX = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.XPosition);
+                    int minY = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.YPosition);
+                    int frameWidth = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.width + x.XPosition);
+                    int frameHeight = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.height + x.YPosition);
+
+                    // Create frame textures
+                    var frames = new Texture2D[frameCount];
+
+                    // Create each animation frame
+                    for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+                        var tex = TextureHelpers.CreateTexture2D(frameWidth - minX, frameHeight - minY, clear: true);
+
+                        // Write each layer
+                        for (var layerIndex = 0; layerIndex < layersPerFrame; layerIndex++) {
+                            var animationLayer = anim.Layers[frameIndex * layersPerFrame + layerIndex];
+
+                            if ((spriteOffset + animationLayer.ImageIndex) >= sprites.Length)
+                                continue;
+
+                            // Get the sprite
+                            var sprite = sprites[spriteOffset + animationLayer.ImageIndex];
+
+                            if (sprite == null)
+                                continue;
+
+                            // Set every pixel
+                            for (int y = 0; y < sprite.rect.height; y++) {
+                                for (int x = 0; x < sprite.rect.width; x++) {
+                                    var c = sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y);
+
+                                    var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.rect.width - 1 - x) : x) + animationLayer.XPosition;
+                                    var yPosition = (!animationLayer.IsFlippedVertically ? (sprite.rect.height - 1 - y) : y) + animationLayer.YPosition;
+
+                                    xPosition -= minX;
+                                    yPosition -= minY;
+
+                                    if (c.a != 0)
+                                        tex.SetPixel((int)xPosition, (int)(tex.height - yPosition - 1), c);
+                                }
+                            }
+                        }
+
+                        tex.Apply();
+
+                        frames[frameIndex] = tex;
+                    }
+
+                    // Export animation
+                    if (saveAsGif) {
+                        var speed = 8;
+                        using (MagickImageCollection collection = new MagickImageCollection()) {
+                            int index = 0;
+
+                            foreach (var tex in frames) {
+                                var img = tex.ToMagickImage();
+                                collection.Add(img);
+                                collection[index].AnimationDelay = speed;
+                                collection[index].AnimationTicksPerSecond = 60;
+                                collection[index].Trim();
+
+                                collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                                index++;
+                            }
+
+                            // Save gif
+                            collection.Write(Path.Combine(outputDir, $"{animIndex} ({speed}).gif"));
+                        }
+                    } else {
+                        for (int i = 0; i < frames.Length; i++)
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{animIndex}", $"{i}.png"), frames[i].EncodeToPNG());
+                    }
+
+                    animIndex++;
+                }
             }
         }
 
@@ -322,8 +407,9 @@ namespace R1Engine
             return level;
         }
 
-        public Sprite[] GetSprites(SNES_Proto_ROM rom) {
-            var sprites = new Sprite[rom.Rayman.ImageDescriptors.Length * 3];
+        public Sprite[] GetSprites(SNES_Proto_ROM rom, SNES_Proto_ImageDescriptor[] imageDescriptors = null) {
+            if(imageDescriptors == null) imageDescriptors = rom.Rayman.ImageDescriptors;
+            var sprites = new Sprite[imageDescriptors.Length * 3];
 
             var pal = Util.ConvertAndSplitGBAPalette(rom.SpritePalette);
             var buffer = new byte[rom.SpriteTileSet.Length];
@@ -349,19 +435,19 @@ namespace R1Engine
 
                 var tileSets = pal.Select(x => Util.ToTileSetTexture(buffer, x, Util.TileEncoding.Planar_4bpp, 8, true, wrap: 16, flipTileX: true)).ToArray();
 
-                for (int i = 0; i < rom.Rayman.ImageDescriptors.Length; i++) {
+                for (int i = 0; i < imageDescriptors.Length; i++) {
                     if (i == 0) {
                         sprites[i] = null;
                         continue;
                     }
 
-                    var imgDescriptor = rom.Rayman.ImageDescriptors[i];
+                    var imgDescriptor = imageDescriptors[i];
 
                     var xPos = imgDescriptor.TileIndex % 16;
                     var yPos = (imgDescriptor.TileIndex - xPos) / 16;
                     var size = imgDescriptor.IsLarge ? 16 : 8;
 
-                    sprites[addBlock * rom.Rayman.ImageDescriptors.Length + i] = tileSets[imgDescriptor.Palette].CreateSprite(new Rect(xPos * 8, tileSets[imgDescriptor.Palette].height - yPos * 8 - size, size, size));
+                    sprites[addBlock * imageDescriptors.Length + i] = tileSets[imgDescriptor.Palette].CreateSprite(new Rect(xPos * 8, tileSets[imgDescriptor.Palette].height - yPos * 8 - size, size, size));
                 }
             }
             return sprites;
@@ -527,5 +613,141 @@ namespace R1Engine
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
+
+        protected SNES_Proto_ImageDescriptor[] CustomImageDescriptors => new SNES_Proto_ImageDescriptor[] {
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0x0 }, // NULL
+            // Enemy (start index 1)
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xE0 }, // Body 1
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xE1 },
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xE2 }, // Body 2
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xE3 },
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xF0 }, // Body 3
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xF1 },
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xF2 }, // Body 4
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xF3 },
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xE4 }, // Body 5 (vertical)
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xF4 },
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xE5 }, // Body 6 (vertical)
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xF5 },
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xE6 }, // Body surprised
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xE7 },
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xF6 }, // Stinger
+            new SNES_Proto_ImageDescriptor() { Palette = 5, Priority = 2, TileIndex = 0xF7 }, // Back
+
+            // Start index 17
+        };
+
+        protected R1Jaguar_AnimationDescriptor[] CustomAnimations => new R1Jaguar_AnimationDescriptor[] {
+            // Enemy normal
+            new R1Jaguar_AnimationDescriptor() {
+                LayersPerFrame = 3,
+                FrameCount = 8, // 4 frames, pingponged
+                Layers = new R1_AnimationLayer[][] {
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 12, YPosition = 4, ImageIndex = 16 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 4, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 2 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 1
+                        new R1_AnimationLayer() { XPosition = 11, YPosition = 3, ImageIndex = 16 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 4, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 4 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 2
+                        new R1_AnimationLayer() { XPosition = 10, YPosition = 3, ImageIndex = 16 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 4, ImageIndex = 5 },
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 6 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 3
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 3, ImageIndex = 16 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 4, ImageIndex = 7 },
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 8 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 3
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 16 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 4, ImageIndex = 7 },
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 8 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 2
+                        new R1_AnimationLayer() { XPosition = 10, YPosition = 4, ImageIndex = 16 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 3, ImageIndex = 5 },
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 3, ImageIndex = 6 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 1
+                        new R1_AnimationLayer() { XPosition = 11, YPosition = 4, ImageIndex = 16 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 3, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 3, ImageIndex = 4 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 12, YPosition = 4, ImageIndex = 16 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 3, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 3, ImageIndex = 2 },
+                    },
+                }.SelectMany(ls => ls).ToArray()
+            },
+            // Enemy surprised / stinger
+            new R1Jaguar_AnimationDescriptor() {
+                LayersPerFrame = 4,
+                FrameCount = 6,
+                Layers = new R1_AnimationLayer[][] {
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 12, YPosition = 3, ImageIndex = 16 }, // Back
+                        new R1_AnimationLayer() { XPosition = 16, YPosition = 3, ImageIndex = 15 }, // Stinger
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 2, ImageIndex = 13 }, // Body
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 2, ImageIndex = 14 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 1
+                        new R1_AnimationLayer() { XPosition = 12, YPosition = 2, ImageIndex = 16 }, // Back
+                        new R1_AnimationLayer() { XPosition = 17, YPosition = 3, ImageIndex = 15 }, // Stinger
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 1, ImageIndex = 13 }, // Body
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 1, ImageIndex = 14 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 2
+                        new R1_AnimationLayer() { XPosition = 12, YPosition = 2, ImageIndex = 16 }, // Back
+                        new R1_AnimationLayer() { XPosition = 18, YPosition = 2, ImageIndex = 15 }, // Stinger
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 2, ImageIndex = 13 }, // Body
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 2, ImageIndex = 14 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 3
+                        new R1_AnimationLayer() { XPosition = 12, YPosition = 3, ImageIndex = 16 }, // Back
+                        new R1_AnimationLayer() { XPosition = 18, YPosition = 2, ImageIndex = 15 }, // Stinger
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 4, ImageIndex = 13 }, // Body
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 14 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 4
+                        new R1_AnimationLayer() { XPosition = 12, YPosition = 4, ImageIndex = 16 }, // Back
+                        new R1_AnimationLayer() { XPosition = 17, YPosition = 2, ImageIndex = 15 }, // Stinger
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 4, ImageIndex = 13 }, // Body
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 14 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 5
+                        new R1_AnimationLayer() { XPosition = 12, YPosition = 4, ImageIndex = 16 }, // Back
+                        new R1_AnimationLayer() { XPosition = 18, YPosition = 3, ImageIndex = 0 }, // Stinger
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 4, ImageIndex = 5 }, // Body
+                        new R1_AnimationLayer() { XPosition = 8, YPosition = 4, ImageIndex = 6 },
+                    },
+                }.SelectMany(ls => ls).ToArray()
+            },
+            new R1Jaguar_AnimationDescriptor() {
+                LayersPerFrame = 2,
+                FrameCount = 1,
+                Layers = new R1_AnimationLayer[][] {
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 0, ImageIndex = 9 }, // Body
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 8, ImageIndex = 10 },
+                    },
+                }.SelectMany(ls => ls).ToArray()
+            },
+            new R1Jaguar_AnimationDescriptor() {
+                LayersPerFrame = 2,
+                FrameCount = 1,
+                Layers = new R1_AnimationLayer[][] {
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 4, ImageIndex = 11 }, // Body
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 8, ImageIndex = 12 },
+                    },
+                }.SelectMany(ls => ls).ToArray()
+            },
+        };
     }
 }
