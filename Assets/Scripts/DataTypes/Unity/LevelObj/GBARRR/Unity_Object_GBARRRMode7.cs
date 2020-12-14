@@ -55,11 +55,11 @@ namespace R1Engine
 
 
         #region UI States
-        protected int UIStates_AnimTypeIndex { get; set; } = -2;
-        protected override bool IsUIStateArrayUpToDate => AnimTypeIndex == UIStates_AnimTypeIndex;
+        protected bool UIStates_HasInitialized { get; set; }
+        protected override bool IsUIStateArrayUpToDate => UIStates_HasInitialized;
 
         protected override void RecalculateUIStates() {
-            UIStates_AnimTypeIndex = AnimTypeIndex;
+            UIStates_HasInitialized = true;
             if (ForceNoGraphics) {
                 UIStates = new UIState[0];
             } else {
