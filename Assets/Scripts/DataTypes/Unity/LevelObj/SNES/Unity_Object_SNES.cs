@@ -37,8 +37,8 @@ namespace R1Engine
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-		public override bool FlipHorizontally => true;//!State.SNES_State.Flags.HasFlag(SNES_Proto_State.StateFlags.UseCurrentFlip)
-            //&& !State.SNES_State.Flags.HasFlag(SNES_Proto_State.StateFlags.HorizontalFlip);
+		public override bool FlipHorizontally => !State.SNES_State.Flags.HasFlag(SNES_Proto_State.StateFlags.UseCurrentFlip)
+            && !State.SNES_State.Flags.HasFlag(SNES_Proto_State.StateFlags.HorizontalFlip);
 
 		public override string PrimaryName => $"Rayman";
         public override string SecondaryName => null;
