@@ -2,6 +2,7 @@
 using ImageMagick;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -197,8 +198,8 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Get the tilesets
-            var tileSet_0000_shadow = LoadTileSet(rom.TileSet_0000, rom.TilePalette, false, true, true);
-            var tileSet_0000 = LoadTileSet(rom.TileSet_0000, rom.TilePalette, false, true);
+            var tileSet_0000_shadow = LoadTileSet(rom.TileSet_0000, rom.TilePalette, false, true, animatedTiles: rom.AnimatedTiles, shadow: true);
+            var tileSet_0000 = LoadTileSet(rom.TileSet_0000, rom.TilePalette, false, true, animatedTiles: rom.AnimatedTiles);
             var tileSet_8000 = LoadTileSet(rom.TileSet_8000, rom.TilePalette, true, false);
 
             // Load the primary map
@@ -418,7 +419,7 @@ namespace R1Engine
             return output;
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] palette, bool is2bpp, bool flipX, bool shadow = false)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] palette, bool is2bpp, bool flipX, SNES_Proto_AnimatedTileEntry[] animatedTiles = null, bool shadow = false)
         {
             var pal = is2bpp ? Util.ConvertAndSplitGBCPalette(palette) : Util.ConvertAndSplitGBAPalette(palette);
 
@@ -428,16 +429,18 @@ namespace R1Engine
             const int tileWidth = 8;
             int tileSize = tileWidth * tileWidth * bpp / 8;
             int tilesetLength = tileSet.Length / tileSize;
+            int animatedTilesLength = animatedTiles?.Sum(at => at.GraphicsBuffer.Length / tileSize) ?? 0;
+            int totalTilesetLength = tilesetLength + animatedTilesLength;
 
-            int tilesX = Math.Min(tilesetLength * numPalettes, wrap);
-            int tilesY = Mathf.CeilToInt(tilesetLength * numPalettes / (float)wrap);
+            int tilesX = Math.Min(totalTilesetLength * numPalettes, wrap);
+            int tilesY = Mathf.CeilToInt(totalTilesetLength * numPalettes / (float)wrap);
 
             var tex = TextureHelpers.CreateTexture2D(tilesX * tileWidth, tilesY * tileWidth);
 
             for (int p = 0; p < numPalettes; p++)
             {
                 for (int i = 0; i < tilesetLength; i++) {
-                    int tileInd = i + p * tilesetLength;
+                    int tileInd = i + p * totalTilesetLength;
                     int tileY = (tileInd / wrap) * tileWidth;
                     int tileX = (tileInd % wrap) * tileWidth;
 
@@ -452,6 +455,30 @@ namespace R1Engine
                         tileY: tileY,
                         flipTileX: flipX);
                 }
+
+                if (animatedTiles != null) {
+                    int curAnimatedTile = 0;
+                    for (int i = 0; i < animatedTiles.Length; i++) {
+                        int numTiles = animatedTiles[i].GraphicsBuffer.Length / tileSize;
+                        for (int t = 0; t < numTiles; t++) {
+                            int tileInd = tilesetLength + curAnimatedTile + p * totalTilesetLength;
+                            int tileY = (tileInd / wrap) * tileWidth;
+                            int tileX = (tileInd % wrap) * tileWidth;
+
+                            tex.FillInTile(
+                                imgData: animatedTiles[i].GraphicsBuffer,
+                                imgDataOffset: t * tileSize,
+                                pal: pal[p],
+                                encoding: is2bpp ? Util.TileEncoding.Planar_2bpp : Util.TileEncoding.Planar_4bpp,
+                                tileWidth: tileWidth,
+                                flipTextureY: false,
+                                tileX: tileX,
+                                tileY: tileY,
+                                flipTileX: flipX);
+                            curAnimatedTile++;
+                        }
+                    }
+                }
             }
             if (shadow) {
                 var colors = tex.GetPixels();
@@ -460,10 +487,40 @@ namespace R1Engine
             }
 
             tex.Apply();
-
+            Unity_AnimatedTile[] unityAnimatedTiles = null;
+            if (animatedTiles != null) {
+                int curAnimatedTile = 0;
+                var animTilesDict = new Dictionary<int, List<int>>();
+                foreach (var at in animatedTiles) {
+                    var tileInd = (at.VRAMAddress * 2) / 0x20;
+                    int numTiles = at.GraphicsBuffer.Length / tileSize;
+                    for (int i = 0; i < numTiles; i++) {
+                        int key = tileInd + i;
+                        if (!animTilesDict.ContainsKey(key)) {
+                            animTilesDict[key] = new List<int>();
+                            animTilesDict[key].Add(key);
+                        }
+                        animTilesDict[key].Add(tilesetLength + curAnimatedTile);
+                        curAnimatedTile++;
+                    }
+                }
+                var unityAnimTilesList = new List<Unity_AnimatedTile>();
+                for (int p = 0; p < numPalettes; p++) {
+                    foreach (var kv in animTilesDict) {
+                        Unity_AnimatedTile newAT = new Unity_AnimatedTile() {
+                            AnimationSpeed = 2,
+                            TileIndices = kv.Value.Select(t => t + p * totalTilesetLength).ToArray()
+                        };
+                        //Debug.Log(string.Join(",",newAT.TileIndices));
+                        unityAnimTilesList.Add(newAT);
+                    }
+                }
+                unityAnimatedTiles = unityAnimTilesList.ToArray();
+            }
             return new Unity_TileSet(tex, tileWidth)
             {
-                SNES_BaseLength = tilesetLength
+                SNES_BaseLength = totalTilesetLength,
+                AnimatedTiles = unityAnimatedTiles
             };
         }
 

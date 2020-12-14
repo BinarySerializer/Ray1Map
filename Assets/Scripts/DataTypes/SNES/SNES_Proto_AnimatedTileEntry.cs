@@ -19,7 +19,7 @@
             Unknown = s.SerializeArray<byte>(Unknown, UnknownCount, name: nameof(Unknown));
 
             GraphicsBuffer = s.DoAt(GraphicsPointer.GetPointer(), () => {
-                return s.SerializeArray<byte>(GraphicsBuffer, 0x20 * (Byte_05 == 0x60 ? 19 : 24), name: nameof(GraphicsBuffer));
+                return s.SerializeArray<byte>(GraphicsBuffer, 0x20 * (Byte_05 == 0x60 ? 19 : 32), name: nameof(GraphicsBuffer));
             });
         }
     }
