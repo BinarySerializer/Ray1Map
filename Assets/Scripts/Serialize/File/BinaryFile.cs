@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using Cysharp.Threading.Tasks;
 
-namespace R1Engine.Serialize {
-	public abstract class BinaryFile : IDisposable {
+namespace R1Engine.Serialize
+{
+    public abstract class BinaryFile : IDisposable {
 		public Context Context { get; }
 		public long baseAddress;
 		private Dictionary<uint, Pointer> predefinedPointers = new Dictionary<uint, Pointer>();
@@ -74,5 +73,31 @@ namespace R1Engine.Serialize {
 		/// Indicates if the file should be recreated when writing to it
 		/// </summary>
 		public bool RecreateOnWrite { get; set; } = true;
-    }
+
+		public virtual bool[] FileReadMap { get; protected set; }
+
+		protected bool ShouldInitFileReadMap { get; set; }
+		public void InitFileReadMap() => ShouldInitFileReadMap = true;
+		public void InitFileReadMap(long length, bool forceInit = false)
+        {
+			if (forceInit || ShouldInitFileReadMap)
+            {
+				ShouldInitFileReadMap = false;
+                FileReadMap = new bool[length];
+			}
+        }
+
+        public void UpdateReadMap(Pointer offset, long length)
+        {
+            if (FileReadMap == null) 
+                return;
+
+            for (int i = 0; i < length; i++)
+                FileReadMap[offset.FileOffset + i] = true;
+        }
+		public void ExportFileReadMap(string outputFilePath)
+        {
+			File.WriteAllBytes(outputFilePath, FileReadMap.Select(x => (byte)(x ? 0xFF : 0x00)).ToArray());
+        }
+	}
 }

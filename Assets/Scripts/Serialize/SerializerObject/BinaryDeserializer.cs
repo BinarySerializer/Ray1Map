@@ -37,6 +37,7 @@ namespace R1Engine
             if (newFile == null) return;
             if (!readers.ContainsKey(newFile)) {
                 readers.Add(newFile, newFile.CreateReader());
+                newFile.InitFileReadMap(readers[newFile].BaseStream.Length);
             }
             reader = readers[newFile];
             currentFile = newFile;
@@ -218,7 +219,13 @@ namespace R1Engine
 
         public override T Serialize<T>(T obj, string name = null) {
             string logString = LogPrefix;
+
+            var start = CurrentPointer;
+
             T t = (T)ReadAsObject<T>(name);
+
+            currentFile.UpdateReadMap(start, CurrentPointer - start);
+
             if (Settings.Log) {
                 Context.Log.Log(logString + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + (t?.ToString() ?? "null"));
             }
@@ -227,7 +234,13 @@ namespace R1Engine
 
         public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) {
             string logString = LogPrefix;
+
+            var start = CurrentPointer;
+
             T checksum = (T)ReadAsObject<T>(name);
+
+            currentFile.UpdateReadMap(start, CurrentPointer - start);
+
             if (!checksum.Equals(calculatedChecksum)) {
                 Debug.LogWarning("Checksum " + name + " did not match!");
             }
@@ -302,6 +315,7 @@ namespace R1Engine
         public override T[] SerializeArray<T>(T[] obj, long count, string name = null) {
             // Use byte reading method if requested
             if (typeof(T) == typeof(byte)) {
+                currentFile.UpdateReadMap(CurrentPointer, count);
                 if (Settings.Log) {
                     string normalLog = LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>") + ": ";
                     byte[] bytes = reader.ReadBytes((int)count);
