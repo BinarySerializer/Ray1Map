@@ -36,39 +36,42 @@ namespace R1Engine
                 await LoadFilesAsync(context);
                 var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
 
-                var sprites = GetSprites(rom);
+                var graphicsGroups = GetGraphicsGroups(rom);
 
-                // Export every sprite
-                for (int i = 0; i < sprites.Length; i++)
+                foreach (var graphicsGroup in graphicsGroups)
                 {
-                    var spriteIndex = i % rom.Rayman.ImageDescriptors.Length;
-                    var vramConfig = i / rom.Rayman.ImageDescriptors.Length;
-                    var imgDescriptor = rom.Rayman.ImageDescriptors[spriteIndex];
-                    var sprite = sprites[i];
-                    if(sprite == null) continue;
-
-                    var xPos = imgDescriptor.TileIndex % 16;
-                    var yPos = (imgDescriptor.TileIndex - xPos) / 16;
-                    
-                    var width = (int)sprite.rect.width;
-                    var height = (int)sprite.rect.height;
-
-                    var newTex = TextureHelpers.CreateTexture2D(width, height);
-
-                    var flipX = imgDescriptor.FlipX;
-                    var flipY = !imgDescriptor.FlipY;
-                    
-                    for (int y = 0; y < height; y++)
+                    // Export every sprite
+                    for (int i = 0; i < graphicsGroup.Sprites.Length; i++)
                     {
-                        for (int x = 0; x < width; x++)
+                        var spriteIndex = i % graphicsGroup.ImageDescriptors.Length;
+                        var vramConfig = i / graphicsGroup.ImageDescriptors.Length;
+                        var imgDescriptor = graphicsGroup.ImageDescriptors[spriteIndex];
+                        var sprite = graphicsGroup.Sprites[i];
+                        if (sprite == null) continue;
+
+                        var xPos = imgDescriptor.TileIndex % 16;
+                        var yPos = (imgDescriptor.TileIndex - xPos) / 16;
+
+                        var width = (int)sprite.rect.width;
+                        var height = (int)sprite.rect.height;
+
+                        var newTex = TextureHelpers.CreateTexture2D(width, height);
+
+                        var flipX = imgDescriptor.FlipX;
+                        var flipY = !imgDescriptor.FlipY;
+
+                        for (int y = 0; y < height; y++)
                         {
-                            newTex.SetPixel(flipX ? width - x - 1 : x, (!flipY) ? height - y - 1 : y, sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y));
+                            for (int x = 0; x < width; x++)
+                            {
+                                newTex.SetPixel(flipX ? width - x - 1 : x, (!flipY) ? height - y - 1 : y, sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y));
+                            }
                         }
+
+                        newTex.Apply();
+
+                        Util.ByteArrayToFile(Path.Combine(outputDir, graphicsGroup.Name, $"{spriteIndex} - {vramConfig}.png"), newTex.EncodeToPNG());
                     }
-
-                    newTex.Apply();
-
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{spriteIndex} - {vramConfig}.png"), newTex.EncodeToPNG());
                 }
             }
         }
@@ -81,192 +84,115 @@ namespace R1Engine
                 await LoadFilesAsync(context);
                 var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
 
-                var sprites = GetSprites(rom);
-
-                var animIndex = 0;
-
-                foreach (var stateGroup in rom.Rayman.States.GroupBy(x => x.Animation))
+                foreach (var graphicsGroup in GetGraphicsGroups(rom))
                 {
-                    // Get the animation
-                    var anim = stateGroup.Key;
-                    var layersPerFrame = anim.LayersPerFrame;
-                    var frameCount = anim.FrameCount;
-                    string animPointer = String.Format("{0:X4}", (stateGroup.Key.Offset.FileOffset + 4) % 0x8000 + 0x8000);
-                    int vramConfig = stateGroup.First().VRAMConfigIndex;
-                    var spriteOffset = rom.Rayman.ImageDescriptors.Length * vramConfig;
+                    var groupDir = Path.Combine(outputDir, graphicsGroup.Name);
 
-                    // Calculate frame size
-                    int minX = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.XPosition);
-                    int minY = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.YPosition);
-                    int frameWidth = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.width + x.XPosition);
-                    int frameHeight = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.height + x.YPosition);
+                    Directory.CreateDirectory(groupDir);
 
-                    // Create frame textures
-                    var frames = new Texture2D[frameCount];
+                    var sprites = graphicsGroup.Sprites;
+                    var states = graphicsGroup.States;
 
-                    // Create each animation frame
-                    for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
+                    var animIndex = 0;
+
+                    foreach (var stateGroup in states.Select(x => x.SNES_State).GroupBy(x => x.Animation))
                     {
-                        var tex = TextureHelpers.CreateTexture2D(frameWidth - minX, frameHeight - minY, clear: true);
+                        // Get the animation
+                        var anim = stateGroup.Key;
+                        var layersPerFrame = anim.LayersPerFrame;
+                        var frameCount = anim.FrameCount;
+                        string animPointer = stateGroup.Key.Offset != null ? $"{(stateGroup.Key.Offset.FileOffset + 4) % 0x8000 + 0x8000:X4}" : null;
+                        int vramConfig = stateGroup.First().VRAMConfigIndex;
+                        var spriteOffset = graphicsGroup.ImageDescriptors.Length * vramConfig;
 
-                        // Write each layer
-                        for (var layerIndex = 0; layerIndex < layersPerFrame; layerIndex++)
+                        // Calculate frame size
+                        int minX = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.XPosition);
+                        int minY = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.YPosition);
+                        int frameWidth = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.width + x.XPosition);
+                        int frameHeight = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.height + x.YPosition);
+
+                        // Create frame textures
+                        var frames = new Texture2D[frameCount];
+
+                        // Create each animation frame
+                        for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
                         {
-                            var animationLayer = anim.Layers[frameIndex * layersPerFrame + layerIndex];
+                            var tex = TextureHelpers.CreateTexture2D(frameWidth - minX, frameHeight - minY, clear: true);
 
-                            if ((spriteOffset + animationLayer.ImageIndex) >= sprites.Length)
-                                continue;
-
-                            // Get the sprite
-                            var sprite = sprites[spriteOffset + animationLayer.ImageIndex];
-
-                            if (sprite == null)
-                                continue;
-
-                            // Set every pixel
-                            for (int y = 0; y < sprite.rect.height; y++)
+                            // Write each layer
+                            for (var layerIndex = 0; layerIndex < layersPerFrame; layerIndex++)
                             {
-                                for (int x = 0; x < sprite.rect.width; x++)
+                                var animationLayer = anim.Layers[frameIndex * layersPerFrame + layerIndex];
+
+                                if ((spriteOffset + animationLayer.ImageIndex) >= sprites.Length)
+                                    continue;
+
+                                // Get the sprite
+                                var sprite = sprites[spriteOffset + animationLayer.ImageIndex];
+
+                                if (sprite == null)
+                                    continue;
+
+                                // Set every pixel
+                                for (int y = 0; y < sprite.rect.height; y++)
                                 {
-                                    var c = sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y);
+                                    for (int x = 0; x < sprite.rect.width; x++)
+                                    {
+                                        var c = sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y);
 
-                                    var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.rect.width - 1 - x) : x) + animationLayer.XPosition;
-                                    var yPosition = (!animationLayer.IsFlippedVertically ? (sprite.rect.height - 1 - y) : y) + animationLayer.YPosition;
+                                        var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.rect.width - 1 - x) : x) + animationLayer.XPosition;
+                                        var yPosition = (!animationLayer.IsFlippedVertically ? (sprite.rect.height - 1 - y) : y) + animationLayer.YPosition;
 
-                                    xPosition -= minX;
-                                    yPosition -= minY;
+                                        xPosition -= minX;
+                                        yPosition -= minY;
 
-                                    if (c.a != 0)
-                                        tex.SetPixel((int)xPosition, (int)(tex.height - yPosition - 1), c);
+                                        if (c.a != 0)
+                                            tex.SetPixel((int)xPosition, (int)(tex.height - yPosition - 1), c);
+                                    }
                                 }
                             }
+
+                            tex.Apply();
+
+                            frames[frameIndex] = tex;
                         }
 
-                        tex.Apply();
-
-                        frames[frameIndex] = tex;
-                    }
-
-                    // Export animation
-                    if (saveAsGif)
-                    {
-                        var speeds = stateGroup.Select(x => x.AnimSpeed).Distinct();
-
-                        foreach (var speed in speeds)
+                        // Export animation
+                        if (saveAsGif)
                         {
-                            using (MagickImageCollection collection = new MagickImageCollection())
+                            var speeds = stateGroup.Select(x => x.AnimSpeed).Distinct();
+
+                            foreach (var speed in speeds)
                             {
-                                int index = 0;
-
-                                foreach (var tex in frames)
+                                using (MagickImageCollection collection = new MagickImageCollection())
                                 {
-                                    var img = tex.ToMagickImage();
-                                    collection.Add(img);
-                                    collection[index].AnimationDelay = speed;
-                                    collection[index].AnimationTicksPerSecond = 60;
-                                    collection[index].Trim();
+                                    int index = 0;
 
-                                    collection[index].GifDisposeMethod = GifDisposeMethod.Background;
-                                    index++;
-                                }
+                                    foreach (var tex in frames)
+                                    {
+                                        var img = tex.ToMagickImage();
+                                        collection.Add(img);
+                                        collection[index].AnimationDelay = speed;
+                                        collection[index].AnimationTicksPerSecond = 60;
+                                        collection[index].Trim();
 
-                                // Save gif
-                                collection.Write(Path.Combine(outputDir, $"{animIndex} ({speed}) - {animPointer}.gif"));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < frames.Length; i++)
-                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{animIndex}", $"{i}.png"), frames[i].EncodeToPNG());
-                    }
+                                        collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                                        index++;
+                                    }
 
-                    animIndex++;
-                }
-
-                sprites = GetSprites(rom, CustomImageDescriptors);
-
-                foreach (var anim in CustomAnimations) {
-                    // Get the animation
-                    var layersPerFrame = anim.LayersPerFrame;
-                    var frameCount = anim.FrameCount;
-                    int vramConfig = 0;
-                    var spriteOffset = rom.Rayman.ImageDescriptors.Length * vramConfig;
-
-                    // Calculate frame size
-                    int minX = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.XPosition);
-                    int minY = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.YPosition);
-                    int frameWidth = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.width + x.XPosition);
-                    int frameHeight = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.height + x.YPosition);
-
-                    // Create frame textures
-                    var frames = new Texture2D[frameCount];
-
-                    // Create each animation frame
-                    for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-                        var tex = TextureHelpers.CreateTexture2D(frameWidth - minX, frameHeight - minY, clear: true);
-
-                        // Write each layer
-                        for (var layerIndex = 0; layerIndex < layersPerFrame; layerIndex++) {
-                            var animationLayer = anim.Layers[frameIndex * layersPerFrame + layerIndex];
-
-                            if ((spriteOffset + animationLayer.ImageIndex) >= sprites.Length)
-                                continue;
-
-                            // Get the sprite
-                            var sprite = sprites[spriteOffset + animationLayer.ImageIndex];
-
-                            if (sprite == null)
-                                continue;
-
-                            // Set every pixel
-                            for (int y = 0; y < sprite.rect.height; y++) {
-                                for (int x = 0; x < sprite.rect.width; x++) {
-                                    var c = sprite.texture.GetPixel((int)sprite.rect.x + x, (int)sprite.rect.y + y);
-
-                                    var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.rect.width - 1 - x) : x) + animationLayer.XPosition;
-                                    var yPosition = (!animationLayer.IsFlippedVertically ? (sprite.rect.height - 1 - y) : y) + animationLayer.YPosition;
-
-                                    xPosition -= minX;
-                                    yPosition -= minY;
-
-                                    if (c.a != 0)
-                                        tex.SetPixel((int)xPosition, (int)(tex.height - yPosition - 1), c);
+                                    // Save gif
+                                    collection.Write(Path.Combine(groupDir, $"{animIndex} ({speed}){(animPointer != null ? $" - {animPointer}" : String.Empty)}.gif"));
                                 }
                             }
                         }
-
-                        tex.Apply();
-
-                        frames[frameIndex] = tex;
-                    }
-
-                    // Export animation
-                    if (saveAsGif) {
-                        var speed = 8;
-                        using (MagickImageCollection collection = new MagickImageCollection()) {
-                            int index = 0;
-
-                            foreach (var tex in frames) {
-                                var img = tex.ToMagickImage();
-                                collection.Add(img);
-                                collection[index].AnimationDelay = speed;
-                                collection[index].AnimationTicksPerSecond = 60;
-                                collection[index].Trim();
-
-                                collection[index].GifDisposeMethod = GifDisposeMethod.Background;
-                                index++;
-                            }
-
-                            // Save gif
-                            collection.Write(Path.Combine(outputDir, $"{animIndex} ({speed}).gif"));
+                        else
+                        {
+                            for (int i = 0; i < frames.Length; i++)
+                                Util.ByteArrayToFile(Path.Combine(groupDir, $"{animIndex}", $"{i}.png"), frames[i].EncodeToPNG());
                         }
-                    } else {
-                        for (int i = 0; i < frames.Length; i++)
-                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{animIndex}", $"{i}.png"), frames[i].EncodeToPNG());
-                    }
 
-                    animIndex++;
+                        animIndex++;
+                    }
                 }
             }
         }
@@ -382,12 +308,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading sprites";
             await Controller.WaitIfNecessary();
 
-            // Load sprites
-            var sprites = GetSprites(rom);
-
-            var objManager = new Unity_ObjectManager_SNES(context,
-                rom.Rayman.States.Select(x => new Unity_ObjectManager_SNES.State(x,
-                x.Animation.ToCommonAnimation(baseSpriteIndex: x.VRAMConfigIndex * rom.Rayman.ImageDescriptors.Length))).ToArray(), sprites);
+            var objManager = new Unity_ObjectManager_SNES(context, GetGraphicsGroups(rom));
 
             // Create Rayman
             var rayman = new Unity_Object_SNES(rom.Rayman, objManager);
@@ -395,7 +316,7 @@ namespace R1Engine
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level(
                 maps: maps, 
-                objManager: new Unity_ObjectManager(context),
+                objManager: objManager,
                 getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(),
                 rayman: rayman,
@@ -407,8 +328,32 @@ namespace R1Engine
             return level;
         }
 
-        public Sprite[] GetSprites(SNES_Proto_ROM rom, SNES_Proto_ImageDescriptor[] imageDescriptors = null) {
-            if(imageDescriptors == null) imageDescriptors = rom.Rayman.ImageDescriptors;
+        public Unity_ObjectManager_SNES.GraphicsGroup[] GetGraphicsGroups(SNES_Proto_ROM rom)
+        {
+            return new Unity_ObjectManager_SNES.GraphicsGroup[]
+            {
+                // Rayman
+                GetGraphicsGroup(rom, rom.Rayman.States, rom.Rayman.ImageDescriptors, false, "Rayman"),
+
+                // Custom
+                GetGraphicsGroup(rom, CustomAnimations.Select(x => new SNES_Proto_State()
+                {
+                    Animation = x,
+                    Flags = SNES_Proto_State.StateFlags.None,
+                    AnimSpeed = 8 // TODO: Allow each animation to have a different speed
+                }).ToArray(), CustomImageDescriptors, true, "Unused (recreated)"),
+            };
+        }
+
+        public Unity_ObjectManager_SNES.GraphicsGroup GetGraphicsGroup(SNES_Proto_ROM rom, SNES_Proto_State[] states, SNES_Proto_ImageDescriptor[] imgDescriptors, bool isRecreated, string name)
+        {
+            var objStates = states.Select(x => new Unity_ObjectManager_SNES.GraphicsGroup.State(x, x.Animation.ToCommonAnimation(x.VRAMConfigIndex * imgDescriptors.Length))).ToArray();
+
+            return new Unity_ObjectManager_SNES.GraphicsGroup(objStates, imgDescriptors, GetSprites(rom, imgDescriptors), isRecreated, name);
+        }
+
+        public Sprite[] GetSprites(SNES_Proto_ROM rom, SNES_Proto_ImageDescriptor[] imageDescriptors) 
+        {
             var sprites = new Sprite[imageDescriptors.Length * 3];
 
             var pal = Util.ConvertAndSplitGBAPalette(rom.SpritePalette);

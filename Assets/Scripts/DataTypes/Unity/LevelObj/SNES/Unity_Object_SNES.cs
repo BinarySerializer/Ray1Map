@@ -30,6 +30,17 @@ namespace R1Engine
 
         public override Vector2 Pivot => new Vector2(40,0); // Hardcoded
 
+        private int _graphicsGroupIndex;
+        public int GraphicsGroupIndex
+        {
+            get => _graphicsGroupIndex;
+            set
+            {
+                _graphicsGroupIndex = value;
+                StateIndex = 0;
+            }
+        }
+
         public int StateIndex { get; set; }
 
         public override string DebugText => String.Empty;
@@ -43,22 +54,28 @@ namespace R1Engine
 		public override string PrimaryName => $"Rayman";
         public override string SecondaryName => null;
 
-        public Unity_ObjectManager_SNES.State State => ObjManager.States.ElementAtOrDefault(StateIndex);
+        public Unity_ObjectManager_SNES.GraphicsGroup GraphicsGroup => ObjManager.GraphicsGroups.ElementAtOrDefault(GraphicsGroupIndex);
+        public Unity_ObjectManager_SNES.GraphicsGroup.State State => GraphicsGroup?.States.ElementAtOrDefault(StateIndex);
 
         public override Unity_ObjAnimation CurrentAnimation => State?.Animation;
         public override int AnimSpeed => State?.SNES_State.AnimSpeed ?? 0;
         public override int? GetAnimIndex => StateIndex;
-        protected override int GetSpriteID => 0;
-        public override IList<Sprite> Sprites => ObjManager.Sprites;
+        protected override int GetSpriteID => GraphicsGroupIndex;
+        public override IList<Sprite> Sprites => GraphicsGroup?.Sprites;
 
 
         #region UI States
-        protected int UIStates_StateIndex { get; set; } = -2;
-        protected override bool IsUIStateArrayUpToDate => StateIndex == UIStates_StateIndex;
+        protected int UIStates_GraphicsGroupIndex { get; set; } = -2;
+        protected override bool IsUIStateArrayUpToDate => GraphicsGroupIndex == UIStates_GraphicsGroupIndex;
 
         protected override void RecalculateUIStates() {
-            UIStates_StateIndex = StateIndex;
-            UIStates = ObjManager?.States?.Select((x, i) => (UIState)new SNES_UIState($"{i} (Animation {ObjManager.States.Select(s => s.SNES_State.Animation).Distinct().FindItemIndex(s => s == x.SNES_State.Animation)})", i)).ToArray() ?? new UIState[0];
+            UIStates_GraphicsGroupIndex = GraphicsGroupIndex;
+            UIStates = GraphicsGroup?.States?.Select((x, i) =>
+            {
+                var animIndex = GraphicsGroup.States.Select(s => s.SNES_State.Animation).Distinct().FindItemIndex(s => s == x.SNES_State.Animation);
+
+                return (UIState)new SNES_UIState(GraphicsGroup.IsRecreated ? $"Recreated animation {animIndex}" : $"{i} (Animation {animIndex})", i);
+            }).ToArray() ?? new UIState[0];
         }
 
         protected class SNES_UIState : UIState {
@@ -85,9 +102,17 @@ namespace R1Engine
 
             public ushort Type { get; set; }
 
-            public int DES { get; set; }
+            public int DES
+            {
+                get => Obj.GraphicsGroupIndex;
+                set => Obj.GraphicsGroupIndex = value;
+            }
 
-            public int ETA { get; set; }
+            public int ETA
+            {
+                get => Obj.GraphicsGroupIndex;
+                set => Obj.GraphicsGroupIndex = value;
+            }
 
             public byte Etat
             {
@@ -97,7 +122,7 @@ namespace R1Engine
 
             public byte SubEtat { get; set; }
 
-            public int EtatLength => Obj.ObjManager.States.Length;
+            public int EtatLength => Obj.GraphicsGroup?.States?.Length ?? 0;
             public int SubEtatLength => 0;
 
             public byte OffsetBX { get; set; }

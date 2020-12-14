@@ -6,28 +6,44 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_SNES : Unity_ObjectManager
     {
-        public Unity_ObjectManager_SNES(Context context, State[] states, Sprite[] sprites) : base(context)
+        public Unity_ObjectManager_SNES(Context context, GraphicsGroup[] graphicsGroups) : base(context)
         {
-            States = states;
-            Sprites = sprites;
+            GraphicsGroups = graphicsGroups;
         }
 
-        public State[] States { get; }
-        public Sprite[] Sprites { get; }
+        public GraphicsGroup[] GraphicsGroups { get; }
 
-        public class State
+        public class GraphicsGroup
         {
-            public State(SNES_Proto_State state, Unity_ObjAnimation animation)
+            public GraphicsGroup(State[] states, SNES_Proto_ImageDescriptor[] imageDescriptors, Sprite[] sprites, bool isRecreated, string name)
             {
-                SNES_State = state;
-                Animation = animation;
+                States = states;
+                ImageDescriptors = imageDescriptors;
+                Sprites = sprites;
+                IsRecreated = isRecreated;
+                Name = name;
             }
 
-            public SNES_Proto_State SNES_State { get; }
-            public Unity_ObjAnimation Animation { get; }
+            public State[] States { get; }
+            public SNES_Proto_ImageDescriptor[] ImageDescriptors { get; }
+            public Sprite[] Sprites { get; }
+            public bool IsRecreated { get; }
+            public string Name { get; }
+
+            public class State
+            {
+                public State(SNES_Proto_State state, Unity_ObjAnimation animation)
+                {
+                    SNES_State = state;
+                    Animation = animation;
+                }
+
+                public SNES_Proto_State SNES_State { get; }
+                public Unity_ObjAnimation Animation { get; }
+            }
         }
 
-        public override string[] LegacyDESNames => States.Select((x,i) => i.ToString()).ToArray();
+        public override string[] LegacyDESNames => GraphicsGroups.Select((x,i) => x.Name).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
     }
 }
