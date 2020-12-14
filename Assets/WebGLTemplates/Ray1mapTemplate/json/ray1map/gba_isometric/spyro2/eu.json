@@ -4,19 +4,19 @@
   "folder": "gba_isometric/spyro2_eu",
 	"icons": [
 		{
-			"image": ".\/img\/icon\/Spyro2\/World1.png",
+			"image": ".\/img\/icon\/Spyro2\/World1.gif",
 			"level": 0
 		},
 		{
-			"image": ".\/img\/icon\/Spyro2\/World2.png",
+			"image": ".\/img\/icon\/Spyro2\/World2.gif",
 			"level": 14
 		},
 		{
-			"image": ".\/img\/icon\/Spyro2\/World3.png",
+			"image": ".\/img\/icon\/Spyro2\/World3.gif",
 			"level": 30
 		},
 		{
-			"image": ".\/img\/icon\/Spyro2\/Extra.png",
+			"image": ".\/img\/icon\/Spyro2\/Extra.gif",
 			"level": 43
 		}
 	],
