@@ -87,13 +87,13 @@ namespace R1Engine.Serialize
 			}
         }
 
-        public void UpdateReadMap(Pointer offset, long length)
+        public void UpdateReadMap(long offset, long length)
         {
             if (FileReadMap == null) 
                 return;
 
             for (int i = 0; i < length; i++)
-                FileReadMap[offset.FileOffset + i] = true;
+                FileReadMap[offset + i] = true;
         }
 		public void ExportFileReadMap(string outputFilePath)
         {
