@@ -7,10 +7,10 @@
     {
         // Set before serializing
         public bool HasMemoryBankValue { get; set; } = false;
-        public ushort? MemoryBankOverride { get; set; }
+        public byte? MemoryBankOverride { get; set; }
 
         public ushort Pointer { get; set; }
-        public ushort MemoryBank { get; set; }
+        public byte MemoryBank { get; set; }
 
         private Pointer _cachedPointer;
         public Pointer GetPointer() {
@@ -34,12 +34,9 @@
         public const long MemoryBankBaseAddress = 0x8000;
         public const long MemoryBankSize = 0x8000;
 
-        public override void SerializeImpl(SerializerObject s)
-        {
+        public override void SerializeImpl(SerializerObject s) {
+            if (HasMemoryBankValue) MemoryBank = s.Serialize<byte>(MemoryBank, name: nameof(MemoryBank));
             Pointer = s.Serialize<ushort>(Pointer, name: nameof(Pointer));
-
-            if (HasMemoryBankValue)
-                MemoryBank = s.Serialize<ushort>(MemoryBank, name: nameof(MemoryBank));
 
             s.Log($"Pointer: {GetPointer()}");
         }

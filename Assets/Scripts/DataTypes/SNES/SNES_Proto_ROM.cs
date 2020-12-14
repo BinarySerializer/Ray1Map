@@ -20,6 +20,8 @@
         public byte[] SpriteTileSetAdd1 { get; set; }
         public byte[] SpriteTileSetAdd2 { get; set; }
 
+        public SNES_Proto_AnimatedTileEntry[] AnimatedTiles { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -36,7 +38,11 @@
             // Serialize tile sets
             TileSet_0000 = s.DoAt(s.CurrentPointer + 0x30000, () => s.SerializeArray<byte>(TileSet_0000, 1024 * 32, name: nameof(TileSet_0000)));
             TileSet_8000 = s.DoAt(s.CurrentPointer + 0x36F00, () => s.SerializeArray<byte>(TileSet_8000, 21 * 16, name: nameof(TileSet_8000)));
-
+            // Animated tiles: 0x37050
+            s.DoAt(s.CurrentPointer + 0x8077, () => {
+                AnimatedTiles = s.SerializeArraySize<SNES_Proto_AnimatedTileEntry, byte>(AnimatedTiles, name: nameof(AnimatedTiles));
+                AnimatedTiles = s.SerializeObjectArray<SNES_Proto_AnimatedTileEntry>(AnimatedTiles, AnimatedTiles.Length, name: nameof(AnimatedTiles));
+            });
             // Serialize maps
             BG1_Map = s.DoAt(s.CurrentPointer + 0x28000, () => s.SerializeObject<MapData>(BG1_Map, name: nameof(BG1_Map)));
             BG1_Tiles = s.DoAt(s.CurrentPointer + 0x1AAF8, () => s.SerializeObjectArray<MapTile>(BG1_Tiles, 1024 * 4, onPreSerialize: x => x.SNES_Is8PxTile = true, name: nameof(BG1_Tiles)));
