@@ -1438,12 +1438,12 @@ function handleMessage_highlight(msg) {
 	}
 	if(msg.hasOwnProperty("Collision")) {
 		highlight_tooltip.addClass("collision");
-		highlight += "<div class='highlight-header'>Collision:</div>";
+		highlight += "<div class='highlight-header'>Collision</div>";
 		$.each(msg.Collision, function(idx, col) {
 			highlight += "<div class='highlight-collision'>";
 			if(col.hasOwnProperty("Type")) highlight += "<div class='highlight-collision-type'>" + col.Type + "</div>";
 			if(col.hasOwnProperty("Shape")) highlight += "<div class='highlight-collision-shape'>" + col.Shape + "</div>";
-			if(col.hasOwnProperty("AdditionalType")) highlight += "<div class='highlight-collision-addtype'>" + col.AdditionalType + "</div>";
+			if(col.hasOwnProperty("AdditionalType")) highlight += "<div class='highlight-collision-addtype'>+" + col.AdditionalType + "</div>";
 			highlight += "</div>";
 		});
 	}

@@ -178,6 +178,10 @@ body {
   color: #dcddd4;
 }
 
+.highlight-header {
+  background-color: #2b2c31;
+}
+
 #text-highlight-tooltip {
   background-color: rgba(0, 0, 0, 0.8);
   color: white;

@@ -205,6 +205,9 @@ body {
     background-color: $color_bg_light;
 	color: $color;
 }
+.highlight-header {
+	background-color: $color_bg_dark;
+}
 #text-highlight-tooltip {
     background-color: $color_text_bg_normal;
 	color: white;

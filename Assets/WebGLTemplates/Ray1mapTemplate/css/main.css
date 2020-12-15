@@ -712,7 +712,6 @@ a:focus {
 	flex-flow: column;
 	align-items: center;
 	box-sizing: border-box;
-	padding: 0 0.5em 0 0.5em;
     margin-left: 15px;
     position: absolute;
     z-index: 100;
@@ -720,6 +719,7 @@ a:focus {
     border-radius: 0.75em;
     pointer-events: none;
 	justify-content: space-around;
+	overflow: clip;
 }
 #text-highlight-tooltip {
     display: flex;
@@ -806,6 +806,10 @@ a:focus {
 }
 .highlight-header {
 	font-weight: bold;
+	padding: 0 0.5em 0 0.5em;
+	width: 100%;
+	text-align: center;
+	box-sizing: border-box;
 }
 
 .highlight-perso,
@@ -813,6 +817,8 @@ a:focus {
     display: flex;
 	flex-flow: row;
 	justify-content: space-around;
+	padding: 0 0.5em 0 0.5em;
+	box-sizing: border-box;
 }
 .highlight-collision,
 .highlight-waypoint {
@@ -820,6 +826,10 @@ a:focus {
 	flex-flow: row;
 	justify-content: space-around;
 	max-width: 28em;
+	padding: 0 0.5em 0 0.5em;
+	width: 100%;
+	text-align: center;
+	box-sizing: border-box;
 }
 .highlight-collideType,
 .highlight-graphName {
@@ -831,6 +841,9 @@ a:focus {
 .highlight-collision-addtype {
 	padding: 0 1em 0 1em;
 	flex: 1 1 auto;
+}
+.highlight-collision-addtype {
+	font-style: italic;
 }
 
 
