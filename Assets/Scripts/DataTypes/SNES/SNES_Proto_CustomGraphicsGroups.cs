@@ -545,19 +545,89 @@ namespace R1Engine {
             new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xAD, FlipX = true },
             new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xAD, FlipY = true },
             new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0xAD, FlipX = true, FlipY = true },
+
+            // Stars (Start index 41)
+            new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0x8A, IsLarge = true },
+            new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0x8C, IsLarge = true },
+            new SNES_Proto_ImageDescriptor() { Palette = 2, Priority = 2, TileIndex = 0x8E, IsLarge = true },
+
         };
 
         public static R1Jaguar_AnimationDescriptor[] Effect_Animations => new R1Jaguar_AnimationDescriptor[] {
             // Effect PAF
             new R1Jaguar_AnimationDescriptor() {
-                LayersPerFrame = 4,
-                FrameCount = 1,
+                LayersPerFrame = 5,
+                FrameCount = 10,
                 Layers = new R1_AnimationLayer[][] {
+                    new R1_AnimationLayer[] {
+                        new R1_AnimationLayer() { XPosition = 14, YPosition = 8, ImageIndex = 43 },
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                    },
+                    new R1_AnimationLayer[] {
+                        new R1_AnimationLayer() { XPosition = 14, YPosition = 8, ImageIndex = 42 },
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                    },
                     new R1_AnimationLayer[] { // Frame 0
-                        new R1_AnimationLayer() { XPosition = 0, YPosition = 0, ImageIndex = 1 }, // Back
-                        new R1_AnimationLayer() { XPosition = 16, YPosition = 0, ImageIndex = 2 },
-                        new R1_AnimationLayer() { XPosition = 10, YPosition = 16, ImageIndex = 3 },
-                        new R1_AnimationLayer() { XPosition = 18, YPosition = 16, ImageIndex = 4 },
+                        new R1_AnimationLayer() { XPosition = 14, YPosition = 4, ImageIndex = 41 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 8, ImageIndex = 1 }, // PAF
+                        new R1_AnimationLayer() { XPosition = 20, YPosition = 8, ImageIndex = 2 },
+                        new R1_AnimationLayer() { XPosition = 14, YPosition = 24, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 22, YPosition = 24, ImageIndex = 4 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 18, YPosition = 1, ImageIndex = 41 },
+                        new R1_AnimationLayer() { XPosition = 1, YPosition = 11, ImageIndex = 1 }, // PAF
+                        new R1_AnimationLayer() { XPosition = 17, YPosition = 11, ImageIndex = 2 },
+                        new R1_AnimationLayer() { XPosition = 11, YPosition = 27, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 19, YPosition = 27, ImageIndex = 4 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 19, YPosition = 0, ImageIndex = 41 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 12, ImageIndex = 1 }, // PAF
+                        new R1_AnimationLayer() { XPosition = 16, YPosition = 12, ImageIndex = 2 },
+                        new R1_AnimationLayer() { XPosition = 10, YPosition = 28, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 18, YPosition = 28, ImageIndex = 4 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 19, YPosition = 0, ImageIndex = 41 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 12, ImageIndex = 1 }, // PAF
+                        new R1_AnimationLayer() { XPosition = 16, YPosition = 12, ImageIndex = 2 },
+                        new R1_AnimationLayer() { XPosition = 10, YPosition = 28, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 18, YPosition = 28, ImageIndex = 4 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 18, YPosition = 1, ImageIndex = 41 },
+                        new R1_AnimationLayer() { XPosition = 1, YPosition = 11, ImageIndex = 1 }, // PAF
+                        new R1_AnimationLayer() { XPosition = 17, YPosition = 11, ImageIndex = 2 },
+                        new R1_AnimationLayer() { XPosition = 11, YPosition = 27, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 19, YPosition = 27, ImageIndex = 4 },
+                    },
+                    new R1_AnimationLayer[] { // Frame 0
+                        new R1_AnimationLayer() { XPosition = 14, YPosition = 4, ImageIndex = 41 },
+                        new R1_AnimationLayer() { XPosition = 4, YPosition = 8, ImageIndex = 1 }, // PAF
+                        new R1_AnimationLayer() { XPosition = 20, YPosition = 8, ImageIndex = 2 },
+                        new R1_AnimationLayer() { XPosition = 14, YPosition = 24, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 22, YPosition = 24, ImageIndex = 4 },
+                    },
+                    new R1_AnimationLayer[] {
+                        new R1_AnimationLayer() { XPosition = 14, YPosition = 8, ImageIndex = 42 },
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                    },
+                    new R1_AnimationLayer[] {
+                        new R1_AnimationLayer() { XPosition = 14, YPosition = 8, ImageIndex = 43 },
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
+                        new R1_AnimationLayer(),
                     },
                 }.SelectMany(ls => ls).ToArray()
             },
@@ -627,6 +697,53 @@ namespace R1Engine {
                         new R1_AnimationLayer() { XPosition = 16, YPosition = 9, ImageIndex = 38 },
                         new R1_AnimationLayer() { XPosition = 9, YPosition = 16, ImageIndex = 39 },
                         new R1_AnimationLayer() { XPosition = 16, YPosition = 16, ImageIndex = 40 },
+                    },
+                }.SelectMany(ls => ls).ToArray()
+            },
+
+        };
+
+
+
+        public static SNES_Proto_ImageDescriptor[] Fist_ImageDescriptors => new SNES_Proto_ImageDescriptor[] {
+            new SNES_Proto_ImageDescriptor() { IsEmpty = true, TileIndex = 0x0 }, // NULL
+            // Fist Normal (start index 1)
+            new SNES_Proto_ImageDescriptor() { Palette = 0, Priority = 2, TileIndex = 0xC8, IsLarge = true },
+            new SNES_Proto_ImageDescriptor() { Palette = 0, Priority = 2, TileIndex = 0xCA, IsLarge = true },
+            new SNES_Proto_ImageDescriptor() { Palette = 0, Priority = 2, TileIndex = 0xCC, IsLarge = true },
+            new SNES_Proto_ImageDescriptor() { Palette = 0, Priority = 2, TileIndex = 0xCE, IsLarge = true },
+            // Fist Gold (start index 5)
+            new SNES_Proto_ImageDescriptor() { Palette = 1, Priority = 2, TileIndex = 0xC8, IsLarge = true },
+            new SNES_Proto_ImageDescriptor() { Palette = 1, Priority = 2, TileIndex = 0xCA, IsLarge = true },
+            new SNES_Proto_ImageDescriptor() { Palette = 1, Priority = 2, TileIndex = 0xCC, IsLarge = true },
+            new SNES_Proto_ImageDescriptor() { Palette = 1, Priority = 2, TileIndex = 0xCE, IsLarge = true },
+
+        };
+
+        public static R1Jaguar_AnimationDescriptor[] Fist_Animations => new R1Jaguar_AnimationDescriptor[] {
+            // Fist normal
+            new R1Jaguar_AnimationDescriptor() {
+                LayersPerFrame = 4,
+                FrameCount = 1,
+                Layers = new R1_AnimationLayer[][] {
+                    new R1_AnimationLayer[] {
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 0, ImageIndex = 1 },
+                        new R1_AnimationLayer() { XPosition = 16, YPosition = 0, ImageIndex = 2 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 16, ImageIndex = 3 },
+                        new R1_AnimationLayer() { XPosition = 16, YPosition = 16, ImageIndex = 4 },
+                    },
+                }.SelectMany(ls => ls).ToArray()
+            },
+            // Fist gold
+            new R1Jaguar_AnimationDescriptor() {
+                LayersPerFrame = 4,
+                FrameCount = 1,
+                Layers = new R1_AnimationLayer[][] {
+                    new R1_AnimationLayer[] {
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 0, ImageIndex = 5 },
+                        new R1_AnimationLayer() { XPosition = 16, YPosition = 0, ImageIndex = 6 },
+                        new R1_AnimationLayer() { XPosition = 0, YPosition = 16, ImageIndex = 7 },
+                        new R1_AnimationLayer() { XPosition = 16, YPosition = 16, ImageIndex = 8 },
                     },
                 }.SelectMany(ls => ls).ToArray()
             },

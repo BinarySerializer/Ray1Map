@@ -340,19 +340,25 @@ namespace R1Engine
                 {
                     Animation = x,
                     Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
-                    AnimSpeed = 8 // TODO: Allow each animation to have a different speed
+                    AnimSpeed = 8
                 }).ToArray(), SNES_Proto_CustomGraphicsGroups.Enemy_ImageDescriptors, true, "Unused Enemy (recreated)"),
                 GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Orb_Animations.Select(x => new SNES_Proto_State()
                 {
                     Animation = x,
                     Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
-                    AnimSpeed = 5 // TODO: Allow each animation to have a different speed
+                    AnimSpeed = 5
                 }).ToArray(), SNES_Proto_CustomGraphicsGroups.Orb_ImageDescriptors, true, "Unused Orb (recreated)"),
+                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Fist_Animations.Select(x => new SNES_Proto_State()
+                {
+                    Animation = x,
+                    Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
+                    AnimSpeed = 8
+                }).ToArray(), SNES_Proto_CustomGraphicsGroups.Fist_ImageDescriptors, true, "Unused Fist (recreated)"),
                 GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Effect_Animations.Select(x => new SNES_Proto_State()
                 {
                     Animation = x,
                     Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
-                    AnimSpeed = 8 // TODO: Allow each animation to have a different speed
+                    AnimSpeed = 8
                 }).ToArray(), SNES_Proto_CustomGraphicsGroups.Effect_ImageDescriptors, true, "Unused Effects (recreated)"),
             };
         }
