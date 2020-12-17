@@ -56,7 +56,7 @@ namespace R1Engine
         public abstract int[] AdditionalSprites4bpp { get; }
         public abstract int[] AdditionalSprites8bpp { get; }
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public virtual GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Compressed Blocks", false, true, (input, output) => ExportAllCompressedBlocksAsync(settings, output)),
             new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
