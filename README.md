@@ -379,6 +379,14 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
+    <td class="tg-yw4l">Rayman 3 Mad Trax (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">Splinter Cell (GBA)</td>
     <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
