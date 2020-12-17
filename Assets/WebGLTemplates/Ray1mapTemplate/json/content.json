@@ -169,6 +169,8 @@
 						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/r3_eu" },
 						{ "json": "digiblast", "image": ".\/img\/version\/digiblast.png", "name": "Digiblast", "folder": "gba/r3_digiblast" },
 						{ "json": "ngage", "image": ".\/img\/version\/ngage.png", "name": "N-Gage", "folder": "gba/r3_ngage" },
+						{ "json": "eu_madTrax", "image": ".\/img\/version\/gba.png", "name": "Mad Trax (EU)", "folder": "gba/r3_eu_madTrax" },
+						{ "json": "us_madTrax", "image": ".\/img\/version\/gba.png", "name": "Mad Trax (US)", "folder": "gba/r3_us_madTrax" },
 						{ "json": "us_proto", "image": ".\/img\/version\/gba.png", "name": "GBA Prototype", "folder": "gba/r3_us_proto" }
 					]
 				},

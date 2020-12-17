@@ -1,0 +1,12 @@
+{
+  "name": "Rayman 3 Mad Trax (GBA - US)",
+  "mode": "Rayman3GBAMadTraxUS",
+  "folder": "gba/r3_us_madTrax",
+  "levels": [
+    { "world": 0, "level": 0, "nameInternal": "client_pad_english", "name": "English" },
+    { "world": 1, "level": 0, "nameInternal": "client_pad_french", "name": "French" },
+    { "world": 2, "level": 0, "nameInternal": "client_pad_german", "name": "German" },
+    { "world": 3, "level": 0, "nameInternal": "client_pad_italian", "name": "Italian" },
+    { "world": 4, "level": 0, "nameInternal": "client_pad_spanish", "name": "Spanish" }
+  ]
+}
