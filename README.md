@@ -339,6 +339,22 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
+    <td class="tg-yw4l">Donald Duck Advance (GBA)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Crouching Tiger Hidden Dragon (GBA)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">Sabrina the Teenage Witch: Potion Commotion (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
