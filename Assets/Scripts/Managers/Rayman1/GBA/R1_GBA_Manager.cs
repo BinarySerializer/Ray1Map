@@ -48,7 +48,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the base address for the ROM file
         /// </summary>
-        protected virtual uint GetROMBaseAddress => 0x08000000;
+        protected virtual uint GetROMBaseAddress => GBA_ROMBase.Address_ROM;
 
         /// <summary>
         /// True if colors are 4-bit, false if they're 8-bit

@@ -1211,7 +1211,7 @@ namespace R1Engine
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
-        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath(context), 0x08000000);
+        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath(context), GBA_ROMBase.Address_ROM);
 
         public enum LevelType
         {

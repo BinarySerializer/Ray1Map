@@ -62,5 +62,14 @@ namespace R1Engine
             ComplementCheck = s.Serialize<byte>(ComplementCheck, name: nameof(ComplementCheck));
             Reserved2 = s.SerializeArray<byte>(Reserved2, 2, name: nameof(Reserved2));
         }
+
+        // Addresses
+        public const uint Address_WRAM = 0x2000000;  // Size 0x40000
+        public const uint Address_IRAM = 0x3000000;  // Size 0x08000
+        public const uint Address_IO   = 0x4000000;  // Size 0x003FF
+        public const uint Address_PAL  = 0x5000000;  // Size 0x04000
+        public const uint Address_VRAM = 0x6000000;  // Size 0x18000
+        public const uint Address_OAM  = 0x7000000;  // Size 0x00400
+        public const uint Address_ROM  = 0x08000000; // Size 0x1000000
     }
 }

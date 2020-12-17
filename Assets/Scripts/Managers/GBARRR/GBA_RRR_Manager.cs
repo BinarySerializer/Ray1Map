@@ -1671,7 +1671,7 @@ namespace R1Engine
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
-        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
+        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
 
 		#region Hardcoded methods
 		public Dictionary<uint, uint> GetActorGraphicsData(int level, int world) {
