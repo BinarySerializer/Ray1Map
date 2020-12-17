@@ -11,8 +11,7 @@ namespace R1Engine
 {
     public abstract class GBA_Manager : IGameManager
     {
-        public virtual int PixelsPerUnit { get; set; } = 16;
-        public virtual int CellSize { get; set; } = 8;
+        public int CellSize { get; set; } = 8;
 
         public GameInfo_Volume[] GetLevels(GameSettings settings)
         {
@@ -556,7 +555,37 @@ namespace R1Engine
         }
 
         public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Data;
-        public virtual GBA_LocLanguageTable LoadLocalization(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Localization;
+        public virtual GBA_LocLanguageTable LoadLocalizationTable(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Localization;
+        public virtual Dictionary<string, string[]> LoadLocalization(Context context)
+        {
+            var strings = LoadLocalizationTable(context)?.StringGroups;
+            Dictionary<string, string[]> loc = null;
+
+            if (strings != null)
+            {
+                loc = new Dictionary<string, string[]>();
+
+                // TODO: Don't hard-code languages as they differ between games and releases
+                var languages = new string[]
+                {
+                    "English",
+                    "French",
+                    "Spanish",
+                    "German",
+                    "Italian",
+                    "Dutch",
+                    "Swedish",
+                    "Finnish",
+                    "Norwegian",
+                    "Danish"
+                };
+
+                for (int i = 0; i < strings.Length; i++)
+                    loc.Add(languages[i], strings[i].LocStrings.SelectMany(x => x.Strings).ToArray());
+            }
+
+            return loc;
+        }
 
         public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
@@ -608,26 +637,28 @@ namespace R1Engine
                 }
                 else if (lvlType == LevelType.MadTrax)
                 {
+                    // Get all layers
+                    var allLayers = new GBA_PlayField[]
+                    {
+                        dataBlock.MadTraxPlayField_BG,
+                        dataBlock.MadTraxPlayField_FG,
+                    }.SelectMany(x => x.Layers).ToArray();
+
                     scene = null;
+                    
+                    // Create a dummy playfield to store the layers in
                     playField = new GBA_PlayField()
                     {
                         TilePalette = dataBlock.MadTraxPalette,
-                        Layers = new GBA_TileLayer[]
+                        Layers = allLayers,
+                    };
+
+                    // Set the palette for every tile kit
+                    foreach (var l in allLayers)
+                        l.TileKit.Palettes = new GBA_Palette[]
                         {
-                            dataBlock.MadTraxPlayfield1.TileLayer,
-                            dataBlock.MadTraxPlayfield2.TileLayer,
-                        },
-                    };
-                    dataBlock.MadTraxPlayfield1.TileLayer.TileKit = dataBlock.MadTraxPlayfield1.TileKit;
-                    dataBlock.MadTraxPlayfield1.TileLayer.TileKit.Palettes = new GBA_Palette[]
-                    {
-                        dataBlock.MadTraxPalette
-                    };
-                    dataBlock.MadTraxPlayfield2.TileLayer.TileKit = dataBlock.MadTraxPlayfield2.TileKit;
-                    dataBlock.MadTraxPlayfield2.TileLayer.TileKit.Palettes = new GBA_Palette[]
-                    {
-                        dataBlock.MadTraxPalette
-                    };
+                            dataBlock.MadTraxPalette
+                        };
                 }
                 else
                 {
@@ -641,16 +672,18 @@ namespace R1Engine
             // Get the map layers, skipping the text layers
             var mapLayers = playField.Layers.Where(x => x.StructType != GBA_TileLayer.Type.TextLayerMode7).ToArray();
 
-            var mode7Layers = playField.Layers.Where(x => x.StructType == GBA_TileLayer.Type.TextLayerMode7).ToArray();
-
             // Create layers for Mode7 background
-            if (playField.StructType == GBA_PlayField.Type.PlayFieldMode7) {
+            if (playField.StructType == GBA_PlayField.Type.PlayFieldMode7)
+            {
+                // Get Mode7 text layers
+                var mode7Layers = playField.Layers.Where(x => x.StructType == GBA_TileLayer.Type.TextLayerMode7).ToArray();
+
                 int currentY = 0;
                 int currentBlock = 0;
-                for (int i = 0; i < mode7Layers.Length; i++) {
-                    var l = mode7Layers[i];
+                foreach (GBA_TileLayer l in mode7Layers)
+                {
                     MapTile[] t = new MapTile[l.Width * l.Height];
-                    int screenBlockWidth = 32;
+                    const int screenBlockWidth = 32;
                     for (int y = 0; y < l.Height; y++) {
                         for (int x = 0; x < l.Width; x++) {
                             int screenblock = (currentBlock + (x / screenBlockWidth)) * 1024;
@@ -670,58 +703,19 @@ namespace R1Engine
             Controller.DetailedState = $"Loading actor models & puppets";
             await Controller.WaitIfNecessary();
 
-            var graphicsData = new List<Unity_ObjectManager_GBA.GraphicsData>();
-
-            foreach (var actor in scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0])
-            {
-                if (graphicsData.Any(x => x.Index == actor.ModelIndex))
-                    continue;
-
-                if (actor.ActorModel == null)
-                    continue;
-
-                graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.ModelIndex, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel)));
-            }
-
-            var objManager = new Unity_ObjectManager_GBA(context, graphicsData.ToArray());
-
-            var strings = LoadLocalization(context)?.StringGroups;
-            Dictionary<string, string[]> loc = null;
-
-            if (strings != null)
-            {
-                loc = new Dictionary<string, string[]>();
-
-                // TODO: Don't hard-code languages as they differ between games and releases
-                var languages = new string[]
-                {
-                    "English",
-                    "French",
-                    "Spanish",
-                    "German",
-                    "Italian",
-                    "Dutch",
-                    "Swedish",
-                    "Finnish",
-                    "Norwegian",
-                    "Danish"
-                };
-
-                for (int i = 0; i < strings.Length; i++)
-                    loc.Add(languages[i], strings[i].LocStrings.SelectMany(x => x.Strings).ToArray());
-            }
+            var actorModels = LoadActorModels(context, scene);
+            var objManager = new Unity_ObjectManager_GBA(context, actorModels);
 
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level(
-                maps: new Unity_Map[mapLayers.Length], 
+                maps: new Unity_Map[mapLayers.Length],
                 objManager: objManager, 
                 defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision), 
-                localization: loc, 
-                cellSize: 8, 
+                localization: LoadLocalization(context), 
+                cellSize: CellSize, 
                 getCollisionTypeNameFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
-                sectors: scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray()
-                );
+                sectors: scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray());
 
             var mapDatas = new MapTile[mapLayers.Length][];
 
@@ -750,10 +744,8 @@ namespace R1Engine
                     MapTile[] mapData = map.MapData;
                     //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
                     if (map.StructType == GBA_TileLayer.Type.RotscaleLayerMode7) {
-                        mapData = map.Mode7Data?.Select(x => {
-                            return new MapTile() {
-                                TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0]
-                            };
+                        mapData = map.Mode7Data?.Select(x => new MapTile() {
+                            TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0]
                         }).ToArray();
                     } else if (!map.UsesTileKitDirectly
                         && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
@@ -879,9 +871,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Add actors
-            if (scene != null)
-                foreach (var a in scene.GetAllActors(context.Settings))
-                    level.EventData.Add(new Unity_Object_GBA(a, objManager));
+            level.EventData.AddRange(scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, objManager)) ?? new Unity_Object_GBA[0]);
 
             return level;
         }
@@ -1016,6 +1006,24 @@ namespace R1Engine
             }
 
             return des;
+        }
+
+        public Unity_ObjectManager_GBA.GraphicsData[] LoadActorModels(Context context, GBA_Scene scene)
+        {
+            var graphicsData = new List<Unity_ObjectManager_GBA.GraphicsData>();
+
+            foreach (var actor in scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0])
+            {
+                if (graphicsData.Any(x => x.Index == actor.ModelIndex))
+                    continue;
+
+                if (actor.ActorModel == null)
+                    continue;
+
+                graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.ModelIndex, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel)));
+            }
+
+            return graphicsData.ToArray();
         }
 
         protected TilesetInfo GetTilesetInfo(Context context, GBA_PlayField playField, GBA_TileLayer map)

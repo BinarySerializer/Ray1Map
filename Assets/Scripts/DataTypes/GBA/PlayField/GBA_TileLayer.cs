@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// A map block for GBA
@@ -54,13 +52,14 @@ namespace R1Engine
         public GBA_TileKit TileKit { get; set; }
 
         // Mad Trax
-        public uint MadTrax_Uint_00 { get; set; }
-        public uint MadTrax_Uint_04 { get; set; }
-        public uint MadTrax_Uint_08 { get; set; }
+        public uint MadTrax_ClusterOffset { get; set; }
+        public uint MadTrax_UnusedOffset { get; set; }
+        public uint MadTrax_MapOffset { get; set; }
         public byte[] MadTraxUnk { get; set; }
 
         // Parsed
         public GBA_Cluster Cluster { get; set; }
+        public GBA_ClusterBlock ClusterBlock { get; set; }
 
         public override void SerializeBlock(SerializerObject s) {
 
@@ -80,19 +79,21 @@ namespace R1Engine
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
             {
-                MadTrax_Uint_00 = s.Serialize<uint>(MadTrax_Uint_00, name: nameof(MadTrax_Uint_00));
-                MadTrax_Uint_04 = s.Serialize<uint>(MadTrax_Uint_04, name: nameof(MadTrax_Uint_04));
-                MadTrax_Uint_08 = s.Serialize<uint>(MadTrax_Uint_08, name: nameof(MadTrax_Uint_08));
-
-                Width = s.Serialize<ushort>(Width, name: nameof(Width));
-                Height = s.Serialize<ushort>(Height, name: nameof(Height));
-
-                MadTraxUnk = s.SerializeArray<byte>(MadTraxUnk, 16, name: nameof(MadTraxUnk));
-
-                // TODO: Are these in the above values?
+                var blockPointer = s.CurrentPointer;
                 ColorMode = GBA_ColorMode.Color4bpp;
                 IsCompressed = false;
                 StructType = Type.Layer2D;
+
+                // Serialize offsets
+                MadTrax_ClusterOffset = s.Serialize<uint>(MadTrax_ClusterOffset, name: nameof(MadTrax_ClusterOffset));
+                MadTrax_UnusedOffset = s.Serialize<uint>(MadTrax_UnusedOffset, name: nameof(MadTrax_UnusedOffset));
+                MadTrax_MapOffset = s.Serialize<uint>(MadTrax_MapOffset, name: nameof(MadTrax_MapOffset));
+
+                // Serialize cluster
+                Cluster = s.DoAt(blockPointer + MadTrax_ClusterOffset, () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
+
+                // Go to the map data
+                s.Goto(blockPointer + MadTrax_MapOffset);
             }
             else 
             {
