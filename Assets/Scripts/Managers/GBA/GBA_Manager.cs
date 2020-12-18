@@ -703,8 +703,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading actor models & puppets";
             await Controller.WaitIfNecessary();
 
-            var actorModels = LoadActorModels(context, scene);
-            var objManager = new Unity_ObjectManager_GBA(context, actorModels);
+            var objManager = GetObjectManager(context, scene);
 
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level(
@@ -871,12 +870,14 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Add actors
-            level.EventData.AddRange(scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, objManager)) ?? new Unity_Object_GBA[0]);
+            level.EventData.AddRange(GetObjects(context, scene, objManager));
 
             return level;
         }
 
         public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorModel graphics) => GetCommonDesign(graphics.Puppet, false);
+        public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene));
+        public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager)) ?? new Unity_Object_GBA[0];
         public Unity_ObjGraphics GetCommonDesign(GBA_Puppet spr, bool is8bit)
         {
             // Create the design

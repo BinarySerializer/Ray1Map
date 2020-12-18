@@ -1,9 +1,9 @@
-﻿using System;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using R1Engine.Serialize;
 using UnityEngine;
 
 namespace R1Engine
@@ -54,139 +54,129 @@ namespace R1Engine
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new NotImplementedException();
 
+        public override Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene) => new Unity_ObjectManager_GBAMadTrax(context, LoadMadTraxSprites(context).Select(x => new Unity_ObjectManager_GBAMadTrax.GraphicsData(x.ToTexture2D(), x.Offset)).ToArray());
+        public override IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager) => new Unity_Object[]
+        {
+            new Unity_Object_GBAMadTrax((Unity_ObjectManager_GBAMadTrax)objManager)
+            {
+                CurrentSprite = 17,
+                XPosition = 178,
+                YPosition = 10
+            }, 
+        };
+
         public async UniTask ExportSpritesAsync(GameSettings settings, string outputDir)
         {
             using (var context = new Context(settings))
             {
-                var s = context.Deserializer;
-                int tileLength = CellSize * CellSize / 2;
-
                 foreach (var world in GetLevels(settings).First().Worlds.Where(x => x.Maps.Length > 0).Select(x => x.Index))
                 {
                     settings.World = world;
-                    var filePath = GetROMFilePath(context);
-                    var file = (Files)world;
 
-                    var pointerTable = PointerTables.GBA_PointerTable(context, await context.AddMemoryMappedFile(filePath, GBA_ROMBase.Address_ROM));
-
-                    s.Goto(pointerTable[GBA_Pointer.MadTrax_Sprites]);
+                    await context.AddMemoryMappedFile(GetROMFilePath(context), GBA_ROMBase.Address_ROM);
 
                     int index = 0;
 
-                    exportSprites(width: 8, height: 8, length: 9); // Gumsi
-                    exportSprites(width: 8, height: 8, length: 9); // Rayman
-                    exportSprites(width: 2, height: 4, length: 5); // Big blocks
-
-                    if (file == Files.client_pad2 || file == Files.client_pad3)
-                    {
-                        exportSprites(width: 2, height: 4, length: 2); // Big blocks (are these correct?)
-                        exportSprites(width: 2, height: 4, length: 5); // Blocks
-                        exportSprites(width: 1, height: 2, length: 2); // Effect
-                        exportSprites(width: 4, height: 4, length: 1);
-                        exportSprites(width: 2, height: 2, length: 4);
-                        exportSprites(width: 2, height: 2, length: 1);
-                        exportSprites(width: 1, height: 1, length: 3);
-
-                        exportSprites(width: 8, height: 8, length: 1); // ?
-                        s.Goto(s.CurrentPointer + 0x20 * 1); // ?
-
-                        exportSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 2, length: 1); // Controls screen
-                    }
-                    else
-                    {
-                        exportSprites(width: 4, height: 4, length: 1); // Big blocks
-                        exportSprites(width: 2, height: 4, length: 1); // Missile
-                        exportSprites(width: 4, height: 4, length: file == Files.client_pad145 ? 6 : 21); // Blocks
-                        exportSprites(width: 2, height: 4, length: 6); // Missiles
-                        exportSprites(width: 2, height: 2, length: 1); // Missiles
-                        exportSprites(width: 2, height: 1, length: 1); // Effect
-                        exportSprites(width: 2, height: 4, length: 1); // Vertical bar
-
-                        if (file != Files.client_pad145)
-                            exportSprites(width: 2, height: 1, length: 1); // Arrow
-
-                        exportSprites(width: 2, height: 2, length: 4);
-
-                        exportSprites(width: 4, height: 4, length: 7); // Explosion 
-                        exportSprites(width: 2, height: 2, length: 1);
-                        exportSprites(width: 4, height: 4, length: 1);
-                        exportSprites(width: 1, height: 1, length: 3);
-
-                        s.Goto(s.CurrentPointer + 0x20 * 4); // ?
-
-                        exportSprites(width: 4, height: 4, assmbleWidth: 8, assembleHeight: 5, length: 1); // Controls screen
-                    }
-
-                    if (file == Files.client_pad145 || file == Files.client_pad2 || file == Files.client_pad3)
-                        exportSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 1, length: 1); // Restart
-
-                    if (file == Files.client_pad2 || file == Files.client_pad3)
-                        exportSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 1, length: 1); // Try again
-                    else
-                        exportSprites(width: 8, height: 8, length: 1); // Fail
-
-                    if (file == Files.client_pad145 || file == Files.client_pad2 || file == Files.client_pad3)
-                        exportSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 1, length: 1); // Thank you
-                    else
-                        exportSprites(width: 4, height: 4, assmbleWidth: 8, assembleHeight: 3, length: 1); // Win
-
-                    exportSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 1, length: 1); // Connection failed
-
-                    if (file != Files.client_pad2 && file != Files.client_pad3)
-                    {
-                        exportSprites(width: 4, height: 8, assmbleWidth: 4, assembleHeight: 1, length: 1); // Pause
-                        exportSprites(width: 4, height: 4, length: 1); // Balloon small
-                        exportSprites(width: 8, height: 8, length: 1); // Balloon big
-                        exportSprites(width: 8, height: 4, length: 4); // 3, 2, 1, Go!
-                        exportSprites(width: 2, height: 2, length: 9); // 1-9
-                        exportSprites(width: 4, height: 2, assmbleWidth: 2, assembleHeight: 1, length: 1); // Level
-                    }
-
-                    void exportSprites(int width, int height, int assmbleWidth = 1, int assembleHeight = 1, int length = 1)
-                    {
-                        for (int i = 0; i < length; i++)
-                        {
-                            var pointer = s.CurrentPointer;
-
-                            var pal = Util.ConvertGBAPalette(s.SerializeObjectArray<RGBA5551Color>(default, 16, name: $"Palette[{index}]"));
-                            var tileData = s.SerializeArray<byte>(default, width * height * assmbleWidth * assembleHeight * tileLength, name: $"TileData[{index}]");
-
-                            var tex = TextureHelpers.CreateTexture2D(width * assmbleWidth * CellSize, height * assembleHeight * CellSize);
-
-                            var assembleLength = width * height * tileLength;
-
-                            for (int assembleY = 0; assembleY < assembleHeight; assembleY++)
-                            {
-                                for (int assembleX = 0; assembleX < assmbleWidth; assembleX++)
-                                {
-                                    var assembleOffset = assembleLength * (assembleY * assmbleWidth + assembleX);
-
-                                    for (int y = 0; y < height; y++)
-                                    {
-                                        for (int x = 0; x < width; x++)
-                                        {
-                                            var relTileOffset = tileLength * (y * width + x);
-
-                                            tex.FillInTile(
-                                                imgData: tileData,
-                                                imgDataOffset: assembleOffset + relTileOffset,
-                                                pal: pal,
-                                                encoding: Util.TileEncoding.Linear_4bpp,
-                                                tileWidth: CellSize,
-                                                flipTextureY: true,
-                                                tileX: CellSize * (assembleX * width + x),
-                                                tileY: CellSize * (assembleY * height + y));
-                                        }
-                                    }
-                                }
-                            }
-
-
-                            Util.ByteArrayToFile(Path.Combine(outputDir, file.ToString(), $"Sprite_{index++}_0x{pointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
-                        }
-                    }
+                    foreach (var spr in LoadMadTraxSprites(context))
+                        Util.ByteArrayToFile(Path.Combine(outputDir, ((Files)world).ToString(), $"Sprite_{index++}_0x{spr.Offset.AbsoluteOffset:X8}.png"), spr.ToTexture2D().EncodeToPNG());
                 }
             }
+        }
+
+        public GBA_R3MadTraxSprite[] LoadMadTraxSprites(Context context)
+        {
+            var output = new List<GBA_R3MadTraxSprite>();
+
+            var file = (Files)context.Settings.World;
+            var pointerTable = PointerTables.GBA_PointerTable(context, context.GetFile(GetROMFilePath(context)));
+            var s = context.Deserializer;
+
+            s.Goto(pointerTable[GBA_Pointer.MadTrax_Sprites]);
+
+            int index = 0;
+
+            loadSprites(width: 8, height: 8, length: 9); // Gumsi
+            loadSprites(width: 8, height: 8, length: 9); // Rayman
+            loadSprites(width: 2, height: 4, length: 5); // Big blocks
+
+            if (file == Files.client_pad2 || file == Files.client_pad3)
+            {
+                loadSprites(width: 2, height: 4, length: 2); // Big blocks (are these correct?)
+                loadSprites(width: 2, height: 4, length: 5); // Blocks
+                loadSprites(width: 1, height: 2, length: 2); // Effect
+                loadSprites(width: 4, height: 4, length: 1);
+                loadSprites(width: 2, height: 2, length: 4);
+                loadSprites(width: 2, height: 2, length: 1);
+                loadSprites(width: 1, height: 1, length: 3);
+
+                loadSprites(width: 8, height: 8, length: 1); // ?
+                s.Goto(s.CurrentPointer + 0x20 * 1); // ?
+
+                loadSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 2, length: 1); // Controls screen
+            }
+            else
+            {
+                loadSprites(width: 4, height: 4, length: 1); // Big blocks
+                loadSprites(width: 2, height: 4, length: 1); // Missile
+                loadSprites(width: 4, height: 4, length: file == Files.client_pad145 ? 6 : 21); // Blocks
+                loadSprites(width: 2, height: 4, length: 6); // Missiles
+                loadSprites(width: 2, height: 2, length: 1); // Missiles
+                loadSprites(width: 2, height: 1, length: 1); // Effect
+                loadSprites(width: 2, height: 4, length: 1); // Vertical bar
+
+                if (file != Files.client_pad145)
+                    loadSprites(width: 2, height: 1, length: 1); // Arrow
+
+                loadSprites(width: 2, height: 2, length: 4);
+
+                loadSprites(width: 4, height: 4, length: 7); // Explosion 
+                loadSprites(width: 2, height: 2, length: 1);
+                loadSprites(width: 4, height: 4, length: 1);
+                loadSprites(width: 1, height: 1, length: 3);
+
+                s.Goto(s.CurrentPointer + 0x20 * 4); // ?
+
+                loadSprites(width: 4, height: 4, assmbleWidth: 8, assembleHeight: 5, length: 1); // Controls screen
+            }
+
+            if (file == Files.client_pad145 || file == Files.client_pad2 || file == Files.client_pad3)
+                loadSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 1, length: 1); // Restart
+
+            if (file == Files.client_pad2 || file == Files.client_pad3)
+                loadSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 1, length: 1); // Try again
+            else
+                loadSprites(width: 8, height: 8, length: 1); // Fail
+
+            if (file == Files.client_pad145 || file == Files.client_pad2 || file == Files.client_pad3)
+                loadSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 1, length: 1); // Thank you
+            else
+                loadSprites(width: 4, height: 4, assmbleWidth: 8, assembleHeight: 3, length: 1); // Win
+
+            loadSprites(width: 4, height: 8, assmbleWidth: 8, assembleHeight: 1, length: 1); // Connection failed
+
+            if (file != Files.client_pad2 && file != Files.client_pad3)
+            {
+                loadSprites(width: 4, height: 8, assmbleWidth: 4, assembleHeight: 1, length: 1); // Pause
+                loadSprites(width: 4, height: 4, length: 1); // Balloon small
+                loadSprites(width: 8, height: 8, length: 1); // Balloon big
+                loadSprites(width: 8, height: 4, length: 4); // 3, 2, 1, Go!
+                loadSprites(width: 2, height: 2, length: 9); // 1-9
+                loadSprites(width: 4, height: 2, assmbleWidth: 2, assembleHeight: 1, length: 1); // Level
+            }
+
+            void loadSprites(int width, int height, int assmbleWidth = 1, int assembleHeight = 1, int length = 1)
+            {
+                for (int i = 0; i < length; i++)
+                    output.Add(s.SerializeObject<GBA_R3MadTraxSprite>(default, onPreSerialize: x =>
+                    {
+                        x.Width = width;
+                        x.Height = height;
+                        x.AssembleWidth = assmbleWidth;
+                        x.AssembleHeight = assembleHeight;
+                    }, name: $"Sprite[{index++}]"));
+            }
+
+            return output.ToArray();
         }
     }
 }
