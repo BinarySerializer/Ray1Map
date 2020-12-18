@@ -267,24 +267,27 @@ namespace R1Engine
                         case GBA_R3MadTrax_Manager.Files.client_pad_spanish:
                             return new Dictionary<GBA_Pointer, uint>()
                             {
-                                [GBA_Pointer.UiOffsetTable] = 0x0802F5EC
+                                [GBA_Pointer.UiOffsetTable] = 0x0802F5EC,
+                                [GBA_Pointer.MadTrax_Sprites] = 0x0800E000,
                             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                         case GBA_R3MadTrax_Manager.Files.client_pad145:
                             return new Dictionary<GBA_Pointer, uint>()
                             {
-                                [GBA_Pointer.UiOffsetTable] = 0x0802e34c
+                                [GBA_Pointer.UiOffsetTable] = 0x0802e34c,
+                                [GBA_Pointer.MadTrax_Sprites] = 0x0800DD80,
                             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                         case GBA_R3MadTrax_Manager.Files.client_pad2:
                         case GBA_R3MadTrax_Manager.Files.client_pad3:
                             return new Dictionary<GBA_Pointer, uint>()
                             {
-                                [GBA_Pointer.UiOffsetTable] = 0x08025970
+                                [GBA_Pointer.UiOffsetTable] = 0x08025970,
+                                [GBA_Pointer.MadTrax_Sprites] = 0x0800CBC0,
                             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                         default:
-                            throw new ArgumentOutOfRangeException();
+                            throw new ArgumentOutOfRangeException(nameof(context.Settings.World), context.Settings.World, null);
                     }
 
                 case GameModeSelection.Rayman3NGage:

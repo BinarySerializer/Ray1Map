@@ -9,6 +9,7 @@
         LevelInfo,
         Localization,
         VignettePalettes,
-        Vignette
+        Vignette,
+        MadTrax_Sprites
     }
 }
