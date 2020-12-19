@@ -28,7 +28,7 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Are these x/y min/max values for the hitbox?
-            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 Short_00 = s.Serialize<short>(Short_00, name: nameof(Short_00));
                 Short_02 = s.Serialize<short>(Short_02, name: nameof(Short_02));
                 Short_04 = s.Serialize<short>(Short_04, name: nameof(Short_04));

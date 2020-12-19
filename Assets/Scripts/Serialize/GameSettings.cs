@@ -78,8 +78,6 @@ namespace R1Engine
             set => World = (int)value;
         }
 
-        public bool GBA_IsShanghai => EngineVersion == EngineVersion.GBA_DonaldDuck || EngineVersion == EngineVersion.GBA_CrouchingTiger || EngineVersion == EngineVersion.GBA_R3_MadTrax;
-
         // Helpers
 
         public IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);

@@ -748,7 +748,7 @@ namespace R1Engine
                         }).ToArray();
                     } else if (!map.UsesTileKitDirectly
                         && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
-                        && context.Settings.EngineVersion > EngineVersion.GBA_R3_MadTrax) {
+                        && context.Settings.EngineVersion > EngineVersion.GBA_BatmanVengeance) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
@@ -1034,7 +1034,7 @@ namespace R1Engine
             bool is8bpp;
             GBA_Palette[] tilePalettes;
             GBA_AnimatedTileKit[] animatedTilekits = null;
-            if (context.Settings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+            if (context.Settings.EngineVersion <= EngineVersion.GBA_BatmanVengeance)
             {
                 is8bpp = map.TileKit.Is8bpp;
                 tileset = is8bpp ? map.TileKit.TileSet8bpp : map.TileKit.TileSet4bpp;

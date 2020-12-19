@@ -155,7 +155,7 @@ namespace R1Engine
                     && s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                     int numBits = Is8Bpp ? 9 : 10;
 
-                    if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                         numBits = 8;
                     }/*else if(s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
                         numBits = Is8Bpp ? 9 : 10;
@@ -208,7 +208,7 @@ namespace R1Engine
                 } else {
                     int numBits = Is8Bpp ? 14 : 11;
 
-                    if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                         numBits = 10;
                     } else if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                         numBits = Is8Bpp ? 14 : 12;

@@ -26,7 +26,7 @@
             Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
 
             // TODO: Get number of entries
-            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 4) / 12, name: nameof(Actions));
             } else {
                 Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 12) / 8, name: nameof(Actions));

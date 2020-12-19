@@ -10,12 +10,12 @@
 
         public override void SerializeBlock(SerializerObject s) 
         {
-            if (s.GameSettings.GBA_IsShanghai)
+            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
                 s.Goto(ShanghaiOffsetTable.GetPointer(0));
 
             Length = s.Serialize<uint>(Length, name: nameof(Length));
 
-            if (s.GameSettings.GBA_IsShanghai)
+            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
                 s.Goto(ShanghaiOffsetTable.GetPointer(1));
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {

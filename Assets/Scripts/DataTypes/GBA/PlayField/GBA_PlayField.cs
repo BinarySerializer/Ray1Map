@@ -112,7 +112,7 @@
                     Clusters = s.SerializeObjectArray<GBA_Cluster>(Clusters, 4, name: nameof(Clusters));
                     BatmanLayers = s.SerializeObjectArray<GBA_Batman_TileLayer>(BatmanLayers, LayerCount, name: nameof(BatmanLayers));
                 }
-                else if (s.GameSettings.GBA_IsShanghai)
+                else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
                 {
                     s.SerializeArray(new byte[3], 3, name: "Padding");
                     BatmanLayers = s.SerializeObjectArray<GBA_Batman_TileLayer>(BatmanLayers, LayerCount, name: nameof(BatmanLayers));
@@ -294,7 +294,7 @@
                     IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
                     Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
                 }
-                else if (s.GameSettings.GBA_IsShanghai)
+                else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
                 {
                     Index_TileLayer = s.Serialize<byte>(Index_TileLayer, name: nameof(Index_TileLayer));
                     LayerID = s.Serialize<byte>(LayerID, name: nameof(LayerID));
