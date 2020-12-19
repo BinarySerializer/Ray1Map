@@ -21,6 +21,16 @@
 
         public byte[] Batman_Data { get; set; }
 
+        public byte Shanghai_Byte_04 { get; set; } // 0 or 3
+        public byte Shanghai_Byte_05 { get; set; }
+        public byte Shanghai_Byte_06 { get; set; }
+        public byte Shanghai_Byte_07 { get; set; }
+        public byte Shanghai_Byte_08 { get; set; }
+        public byte Shanghai_MapTileSize { get; set; } // The size of each tile in bytes
+        public byte Shanghai_Byte_09 { get; set; }
+        public byte Shanghai_Byte_0A { get; set; }
+        public byte Shanghai_Byte_0B { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
@@ -32,7 +42,30 @@
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
 
-                Batman_Data = s.SerializeArray<byte>(Batman_Data, 8, name: nameof(Batman_Data));
+                Shanghai_Byte_04 = s.Serialize<byte>(Shanghai_Byte_04, name: nameof(Shanghai_Byte_04));
+                Shanghai_Byte_05 = s.Serialize<byte>(Shanghai_Byte_05, name: nameof(Shanghai_Byte_05));
+                Shanghai_Byte_06 = s.Serialize<byte>(Shanghai_Byte_06, name: nameof(Shanghai_Byte_06));
+                Shanghai_Byte_07 = s.Serialize<byte>(Shanghai_Byte_07, name: nameof(Shanghai_Byte_07));
+
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+                {
+                    Shanghai_Byte_08 = s.Serialize<byte>(Shanghai_Byte_08, name: nameof(Shanghai_Byte_08));
+                    Shanghai_Byte_09 = s.Serialize<byte>(Shanghai_Byte_09, name: nameof(Shanghai_Byte_09));
+                    Shanghai_MapTileSize = 2;
+                }
+                else if (s.GameSettings.EngineVersion == EngineVersion.GBA_DonaldDuck)
+                {
+                    Shanghai_MapTileSize = s.Serialize<byte>(Shanghai_MapTileSize, name: nameof(Shanghai_MapTileSize));
+                    Shanghai_Byte_09 = s.Serialize<byte>(Shanghai_Byte_09, name: nameof(Shanghai_Byte_09));
+                }
+                else
+                {
+                    Shanghai_Byte_08 = s.Serialize<byte>(Shanghai_Byte_08, name: nameof(Shanghai_Byte_08));
+                    Shanghai_MapTileSize = s.Serialize<byte>(Shanghai_MapTileSize, name: nameof(Shanghai_MapTileSize));
+                }
+
+                Shanghai_Byte_0A = s.Serialize<byte>(Shanghai_Byte_0A, name: nameof(Shanghai_Byte_0A));
+                Shanghai_Byte_0B = s.Serialize<byte>(Shanghai_Byte_0B, name: nameof(Shanghai_Byte_0B));
 
                 ScrollX = s.Serialize<int>(ScrollX, name: nameof(ScrollX));
                 s.Log($"ScrollXFloat: {ScrollXFloat}");

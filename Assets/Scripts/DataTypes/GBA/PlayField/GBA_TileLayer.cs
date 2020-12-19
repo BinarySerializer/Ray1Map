@@ -51,7 +51,9 @@
         // Batman
         public GBA_TileKit TileKit { get; set; }
 
-        public byte[] MadTraxUnk { get; set; }
+        // Shanghai
+        public ushort Shanghai_CollisionValue1 { get; set; }
+        public ushort Shanghai_CollisionValue2 { get; set; }
 
         // Parsed
         public GBA_Cluster Cluster { get; set; }
@@ -77,13 +79,26 @@
             {
                 ColorMode = GBA_ColorMode.Color4bpp;
                 IsCompressed = false;
-                StructType = Type.Layer2D;
 
-                // Serialize cluster
-                Cluster = s.DoAt(ShanghaiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
+                if (StructType == Type.Layer2D)
+                {
+                    // Serialize cluster
+                    Cluster = s.DoAt(ShanghaiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
 
-                // Go to the map data
-                s.Goto(ShanghaiOffsetTable.GetPointer(2));
+                    // Go to the map data
+                    s.Goto(ShanghaiOffsetTable.GetPointer(2));
+                }
+                else
+                {
+                    // Go to the collision data
+                    s.Goto(ShanghaiOffsetTable.GetPointer(0));
+
+                    // Serialize header properties
+                    Shanghai_CollisionValue1 = s.Serialize<ushort>(Shanghai_CollisionValue1, name: nameof(Shanghai_CollisionValue1));
+                    Width = s.Serialize<ushort>(Width, name: nameof(Width));
+                    Height = s.Serialize<ushort>(Height, name: nameof(Height));
+                    Shanghai_CollisionValue2 = s.Serialize<ushort>(Shanghai_CollisionValue2, name: nameof(Shanghai_CollisionValue2));
+                }
             }
             else 
             {
@@ -196,6 +211,7 @@
                             }
                         }
                         m.Is8Bpp = ColorMode == GBA_ColorMode.Color8bpp;
+                        m.GBA_Shanghai_TileSize = Cluster?.Shanghai_MapTileSize ?? 0;
                     }, name: nameof(MapData));
                     break;
                 case Type.RotscaleLayerMode7:
@@ -227,6 +243,6 @@
             PoP = 5
         }
 
-        public override long GetShanghaiOffsetTableLength => 3;
+        public override long GetShanghaiOffsetTableLength => StructType == Type.Layer2D ? 3 : 1;
     }
 }

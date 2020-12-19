@@ -236,7 +236,7 @@
                     return Unity_MapCollisionTypeGraphic.None;
 
                 case GBA_TileCollisionType.Slippery:
-                    return engineVersion != EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Slippery : Unity_MapCollisionTypeGraphic.Solid;
+                    return engineVersion > EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Slippery : Unity_MapCollisionTypeGraphic.Solid;
 
                 case GBA_TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
@@ -246,7 +246,7 @@
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
                 case GBA_TileCollisionType.Solid:
-                    return engineVersion != EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Solid : Unity_MapCollisionTypeGraphic.None;
+                    return engineVersion > EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Solid : Unity_MapCollisionTypeGraphic.None;
 
                 case GBA_TileCollisionType.EndSlippery:
                     return Unity_MapCollisionTypeGraphic.Slippery_Hangable;

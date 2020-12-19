@@ -43,6 +43,7 @@ namespace R1Engine
 
         #region PreSerialize Properties
 
+        public byte GBA_Shanghai_TileSize { get; set; }
         public GBA_TileType GBATileType { get; set; } = GBA_TileType.Normal;
         public GBC_TileType GBCTileType { get; set; } = GBC_TileType.Full;
         public bool Is8Bpp { get; set; }
@@ -149,8 +150,28 @@ namespace R1Engine
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBA)
             {
                 // TODO: Use SerializeBitValues
-
-                if ((GBATileType == GBA_TileType.BGTile || GBATileType == GBA_TileType.FGTile)
+                
+                if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax) // Shanghai
+                {
+                    if (GBA_Shanghai_TileSize == 2)
+                    {
+                        s.SerializeBitValues<ushort>(bitFunc =>
+                        {
+                            TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
+                            HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                            VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                            PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                        });
+                    }
+                    else if (GBA_Shanghai_TileSize == 1)
+                    {
+                        s.SerializeBitValues<byte>(bitFunc =>
+                        {
+                            TileMapY = (ushort)bitFunc(TileMapY, 8, name: nameof(TileMapY));
+                        });
+                    }
+                }
+                else if ((GBATileType == GBA_TileType.BGTile || GBATileType == GBA_TileType.FGTile)
                     && s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
                     && s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                     int numBits = Is8Bpp ? 9 : 10;

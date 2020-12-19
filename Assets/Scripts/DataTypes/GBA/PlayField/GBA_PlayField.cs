@@ -302,6 +302,13 @@
 
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
+
+                // TODO: Temp solution
+                if (s.GameSettings.EngineVersion < EngineVersion.GBA_R3_MadTrax && !IsCollisionBlock)
+                {
+                    Width = (ushort)(Width / 2);
+                    Height = (ushort)(Height / 2);
+                }
             }
         }
 
