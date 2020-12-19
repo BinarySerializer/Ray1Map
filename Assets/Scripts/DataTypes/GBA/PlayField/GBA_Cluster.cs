@@ -27,7 +27,7 @@
             {
                 Batman_Data = s.SerializeArray<byte>(Batman_Data, 0x10, name: nameof(Batman_Data));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+            else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
             {
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));

@@ -4,7 +4,6 @@
     {
         #region PlayField Data
 
-        // Indicates if the PlayField is of type 2D or Mode7
         public Type StructType { get; set; }
 
         public byte TileKitOffsetIndex { get; set; }
@@ -17,7 +16,6 @@
 
         public byte Unk_03 { get; set; }
 
-        // For BG_0 parallax scrolling?
         // 0-4 (isn't it 0-3?)
         public byte ClusterCount { get; set; }
 
@@ -86,7 +84,7 @@
             {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } 
-            else if (s.GameSettings.EngineVersion != EngineVersion.GBA_R3_MadTrax)
+            else if (s.GameSettings.EngineVersion > EngineVersion.GBA_R3_MadTrax)
             {
                 StructType = s.Serialize<Type>(StructType, name: nameof(StructType));
                 TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
@@ -101,7 +99,7 @@
             }
             if (StructType != Type.PlayFieldZoom && StructType != Type.PlayFieldPoP) {
 
-                if (StructType == Type.PlayField2D && s.GameSettings.EngineVersion != EngineVersion.GBA_R3_MadTrax)
+                if (StructType == Type.PlayField2D && s.GameSettings.EngineVersion > EngineVersion.GBA_R3_MadTrax)
                     ClusterCount = s.Serialize<byte>(ClusterCount, name: nameof(ClusterCount));
 
                 LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
@@ -159,7 +157,7 @@
         public override void SerializeOffsetData(SerializerObject s) {
             if (StructType == Type.PlayField2D && Clusters == null) ClusterBlocks = new GBA_ClusterBlock[ClusterCount];
             if (Layers == null) Layers = new GBA_TileLayer[LayerCount];
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance || s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance)
             {
                 // Serialize tile palette
                 if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
@@ -181,7 +179,7 @@
                     });
 
                     // Serialize tile kit
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+                    if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
                         Layers[i].TileKit = s.DoAt(OffsetTable.GetPointer(BatmanLayers[i].Index_TileKit), () => s.SerializeObject<GBA_TileKit>(Layers[i].TileKit, name: $"{nameof(GBA_TileLayer.TileKit)}[{i}]"));
                 }
             }

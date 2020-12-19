@@ -32,9 +32,6 @@ namespace R1Engine
 
         public LevelType GetLevelType(Context context)
         {
-            if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
-                return LevelType.MadTrax;
-
             var worlds = WorldLevels.Length;
 
             if (context.Settings.World == worlds && MenuLevels.Any())
@@ -597,6 +594,9 @@ namespace R1Engine
             GBA_PlayField playField;
             GBA_Scene scene;
 
+            // Load the data block
+            var dataBlock = lvlType == LevelType.DLC ? null : LoadDataBlock(context);
+
             if (lvlType == LevelType.DLC)
             {
                 var s = context.Deserializer;
@@ -618,9 +618,6 @@ namespace R1Engine
             }
             else
             {
-                // Load the data block
-                var dataBlock = LoadDataBlock(context);
-
                 // Log unused data blocks in offset tables
                 var notParsedBlocks = GBA_OffsetTable.OffsetTables.Skip(1).Where(x => x.UsedOffsets.Any(y => !y)).ToArray();
                 if (notParsedBlocks.Any())
@@ -632,33 +629,30 @@ namespace R1Engine
 
                 if (lvlType == LevelType.Game)
                 {
-                    scene = dataBlock.Scene;
-                    playField = dataBlock.Scene.PlayField;
-                }
-                else if (lvlType == LevelType.MadTrax)
-                {
-                    // Get all layers
-                    var allLayers = new GBA_PlayField[]
+                    if (context.Settings.EngineVersion > EngineVersion.GBA_R3_MadTrax)
                     {
-                        dataBlock.MadTraxPlayField_BG,
-                        dataBlock.MadTraxPlayField_FG,
-                    }.SelectMany(x => x.Layers).ToArray();
-
-                    scene = null;
-                    
-                    // Create a dummy playfield to store the layers in
-                    playField = new GBA_PlayField()
+                        scene = dataBlock.Scene;
+                        playField = dataBlock.Scene.PlayField;
+                    }
+                    else if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
                     {
-                        TilePalette = dataBlock.MadTraxPalette,
-                        Layers = allLayers,
-                    };
+                        scene = null;
 
-                    // Set the palette for every tile kit
-                    foreach (var l in allLayers)
-                        l.TileKit.Palettes = new GBA_Palette[]
+                        // Create a dummy playfield to store the layers in
+                        playField = new GBA_PlayField()
                         {
-                            dataBlock.MadTraxPalette
+                            Layers = new GBA_PlayField[]
+                            {
+                                dataBlock.MadTraxPlayField_BG,
+                                dataBlock.MadTraxPlayField_FG,
+                            }.SelectMany(x => x.Layers).ToArray(),
                         };
+                    }
+                    else // Shanghai
+                    {
+                        scene = null;
+                        playField = dataBlock.Shanghai_Level.PlayField;
+                    }
                 }
                 else
                 {
@@ -829,7 +823,7 @@ namespace R1Engine
             Dictionary<byte[], Unity_TileSet[]> tilesetCache = new Dictionary<byte[], Unity_TileSet[]>();
 
             // Get tileset info for every map
-            var tilesetInfos = mapLayers.Select(x => x.StructType == GBA_TileLayer.Type.Collision ? new TilesetInfo(null, false, null, null) : GetTilesetInfo(context, playField, x)).ToArray();
+            var tilesetInfos = mapLayers.Select(x => x.StructType == GBA_TileLayer.Type.Collision ? new TilesetInfo(null, false, null, null) : GetTilesetInfo(context, playField, x, dataBlock)).ToArray();
 
             // Load tilesets
             var tilesetIndex = 0;
@@ -1027,7 +1021,7 @@ namespace R1Engine
             return graphicsData.ToArray();
         }
 
-        protected TilesetInfo GetTilesetInfo(Context context, GBA_PlayField playField, GBA_TileLayer map)
+        protected TilesetInfo GetTilesetInfo(Context context, GBA_PlayField playField, GBA_TileLayer map, GBA_Data data)
         {
             // Get the tileset to use
             byte[] tileset;
@@ -1038,9 +1032,19 @@ namespace R1Engine
             {
                 is8bpp = map.TileKit.Is8bpp;
                 tileset = is8bpp ? map.TileKit.TileSet8bpp : map.TileKit.TileSet4bpp;
+
+                GBA_Palette pal;
+
+                if (context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                    pal = playField.TilePalette;
+                else if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+                    pal = data.MadTraxPalette;
+                else
+                    pal = data.Shanghai_Level.TilePal;
+
                 tilePalettes = new GBA_Palette[]
                 {
-                    playField.TilePalette
+                    pal
                 };
             }
             else
@@ -1218,8 +1222,7 @@ namespace R1Engine
         {
             Game,
             Menu,
-            DLC,
-            MadTrax
+            DLC
         }
 
         protected class TilesetInfo

@@ -73,9 +73,8 @@
                     ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
                 }
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+            else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
             {
-                var blockPointer = s.CurrentPointer;
                 ColorMode = GBA_ColorMode.Color4bpp;
                 IsCompressed = false;
                 StructType = Type.Layer2D;
