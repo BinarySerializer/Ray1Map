@@ -22,6 +22,8 @@
         public bool IsBlockCompressed { get; set; }
         public bool IsGCNBlock { get; set; }
 
+        public GBA_ShanghaiLocalOffsetTable ShanghaiOffsetTable { get; set; }
+
 		public override void SerializeImpl(SerializerObject s) {
             SerializeBlockSize(s);
             if (IsBlockCompressed) {
@@ -39,14 +41,30 @@
                     SerializeOffsetData(s);
                     s.Goto(s.CurrentPointer.file.StartPointer + s.CurrentLength); // no warning
                 });
-            } else {
-                if (!IsGCNBlock) SerializeOffsetTable(s);
+            } else 
+            {
+                // GCN blocks don't have offset tables before the block
+                if (!IsGCNBlock) 
+                    SerializeOffsetTable(s);
+
+                // The Shanghai branch has a local offset table within each block
+                if (s.GameSettings.GBA_IsShanghai)
+                    ShanghaiOffsetTable = s.SerializeObject<GBA_ShanghaiLocalOffsetTable>(ShanghaiOffsetTable, x => x.Length = GetShanghaiOffsetTableLength, name: nameof(ShanghaiOffsetTable));
+
+                // Serialize the block
                 SerializeBlock(s);
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage || IsGCNBlock) {
+
+                // Align for GCN and Splinter Cell N-Gage
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage || IsGCNBlock)
                     s.Align();
-                }
+
+                // Verify that we serialized the entire block
                 CheckBlockSize(s);
-                if(IsGCNBlock) SerializeOffsetTable(s);
+
+                // Serialize GCN offset table, located after the block data
+                if(IsGCNBlock)
+                    SerializeOffsetTable(s);
+
                 // Serialize data from the offset table
                 SerializeOffsetData(s);
             }
@@ -92,5 +110,6 @@
         public abstract void SerializeBlock(SerializerObject s);
         public virtual void SerializeOffsetData(SerializerObject s) { }
         public virtual int GetOffsetTableLengthGCN(SerializerObject s) { return 0; }
+        public virtual long GetShanghaiOffsetTableLength => 0;
     }
 }

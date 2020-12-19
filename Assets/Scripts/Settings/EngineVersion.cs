@@ -38,7 +38,11 @@ namespace R1Engine
         // GBA
 
         GBA_BatmanVengeance,             // 2001
-        GBA_R3_MadTrax,                  // 2003 - released with R3, but uses a branch from Batman Vengeance
+
+        GBA_DonaldDuck,                  // 2001 (Shanghai)
+        GBA_CrouchingTiger,              // 2003 (Shanghai)
+        GBA_R3_MadTrax,                  // 2003 (Shanghai)
+
         GBA_Sabrina,                     // 2002
         GBA_R3_Proto,                    // 2003
         GBA_R3,                          // 2003

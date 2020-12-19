@@ -28,6 +28,8 @@ namespace R1Engine
             Level = level;
         }
 
+        // Global settings
+
         /// <summary>
         /// The game mode selection
         /// </summary>
@@ -58,12 +60,6 @@ namespace R1Engine
         /// </summary>
         public int World { get; set; }
 
-        public R1_World R1_World
-        {
-            get => (R1_World) World;
-            set => World = (int)value;
-        }
-
         /// <summary>
         /// The game level, starting at 1
         /// </summary>
@@ -73,6 +69,18 @@ namespace R1Engine
         /// The educational game volume name
         /// </summary>
         public string EduVolume { get; set; }
+
+        // Specific game helpers
+
+        public R1_World R1_World
+        {
+            get => (R1_World)World;
+            set => World = (int)value;
+        }
+
+        public bool GBA_IsShanghai => EngineVersion == EngineVersion.GBA_DonaldDuck || EngineVersion == EngineVersion.GBA_CrouchingTiger || EngineVersion == EngineVersion.GBA_R3_MadTrax;
+
+        // Helpers
 
         public IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);
     }

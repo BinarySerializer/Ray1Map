@@ -51,10 +51,6 @@
         // Batman
         public GBA_TileKit TileKit { get; set; }
 
-        // Mad Trax
-        public uint MadTrax_ClusterOffset { get; set; }
-        public uint MadTrax_UnusedOffset { get; set; }
-        public uint MadTrax_MapOffset { get; set; }
         public byte[] MadTraxUnk { get; set; }
 
         // Parsed
@@ -84,16 +80,11 @@
                 IsCompressed = false;
                 StructType = Type.Layer2D;
 
-                // Serialize offsets
-                MadTrax_ClusterOffset = s.Serialize<uint>(MadTrax_ClusterOffset, name: nameof(MadTrax_ClusterOffset));
-                MadTrax_UnusedOffset = s.Serialize<uint>(MadTrax_UnusedOffset, name: nameof(MadTrax_UnusedOffset));
-                MadTrax_MapOffset = s.Serialize<uint>(MadTrax_MapOffset, name: nameof(MadTrax_MapOffset));
-
                 // Serialize cluster
-                Cluster = s.DoAt(blockPointer + MadTrax_ClusterOffset, () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
+                Cluster = s.DoAt(ShanghaiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
 
                 // Go to the map data
-                s.Goto(blockPointer + MadTrax_MapOffset);
+                s.Goto(ShanghaiOffsetTable.GetPointer(2));
             }
             else 
             {
@@ -236,5 +227,7 @@
             SplinterCellZoom = 4,
             PoP = 5
         }
+
+        public override long GetShanghaiOffsetTableLength => 3;
     }
 }

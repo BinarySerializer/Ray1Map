@@ -8,15 +8,15 @@
         public uint Length { get; set; }
         public BaseColor[] Palette { get; set; }
 
-        public override void SerializeBlock(SerializerObject s) {
-
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
-            {
-                MadTrax_Uint_00 = s.Serialize<uint>(MadTrax_Uint_00, name: nameof(MadTrax_Uint_00));
-                MadTrax_Uint_04 = s.Serialize<uint>(MadTrax_Uint_04, name: nameof(MadTrax_Uint_04));
-            }
+        public override void SerializeBlock(SerializerObject s) 
+        {
+            if (s.GameSettings.GBA_IsShanghai)
+                s.Goto(ShanghaiOffsetTable.GetPointer(0));
 
             Length = s.Serialize<uint>(Length, name: nameof(Length));
+
+            if (s.GameSettings.GBA_IsShanghai)
+                s.Goto(ShanghaiOffsetTable.GetPointer(1));
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                 Palette = s.SerializeObjectArray<BGRA4441Color>((BGRA4441Color[])Palette, Length, name: nameof(Palette));
@@ -24,5 +24,7 @@
                 Palette = s.SerializeObjectArray<RGBA5551Color>((RGBA5551Color[])Palette, Length, name: nameof(Palette));
             }
         }
+
+        public override long GetShanghaiOffsetTableLength => 2;
     }
 }

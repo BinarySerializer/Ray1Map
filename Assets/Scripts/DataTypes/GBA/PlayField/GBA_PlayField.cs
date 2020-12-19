@@ -57,6 +57,7 @@
         public GBA_TileLayer[] Layers { get; set; }
 
         public GBA_Batman_TileLayer[] BatmanLayers { get; set; }
+        public GBA_Batman_TileLayer Shanghai_AdditionalLayer { get; set; }
 
         // Batman: Vengeance
         public GBA_Palette TilePalette { get; set; }
@@ -111,10 +112,11 @@
                     Clusters = s.SerializeObjectArray<GBA_Cluster>(Clusters, 4, name: nameof(Clusters));
                     BatmanLayers = s.SerializeObjectArray<GBA_Batman_TileLayer>(BatmanLayers, LayerCount, name: nameof(BatmanLayers));
                 }
-                else if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+                else if (s.GameSettings.GBA_IsShanghai)
                 {
                     s.SerializeArray(new byte[3], 3, name: "Padding");
                     BatmanLayers = s.SerializeObjectArray<GBA_Batman_TileLayer>(BatmanLayers, LayerCount, name: nameof(BatmanLayers));
+                    Shanghai_AdditionalLayer = s.SerializeObject<GBA_Batman_TileLayer>(Shanghai_AdditionalLayer, name: nameof(Shanghai_AdditionalLayer)); // TODO: What is this?
                 }
                 else
                 {
@@ -292,7 +294,7 @@
                     IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
                     Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
                 }
-                else if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+                else if (s.GameSettings.GBA_IsShanghai)
                 {
                     Index_TileLayer = s.Serialize<byte>(Index_TileLayer, name: nameof(Index_TileLayer));
                     LayerID = s.Serialize<byte>(LayerID, name: nameof(LayerID));
