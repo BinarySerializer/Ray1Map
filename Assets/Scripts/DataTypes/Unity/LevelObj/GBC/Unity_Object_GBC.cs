@@ -26,10 +26,10 @@ namespace R1Engine
 
         public int ActorModelIndex
         {
-            get => Actor.ActorModel == null ? -1 : ObjManager.ActorModelsLookup.TryGetItem(Actor.Index_ActorModel, -1);
+            get => Actor.ActorModel == null && ObjManager.Context.Settings.MajorEngineVersion == MajorEngineVersion.GBC ? -1 : ObjManager.ActorModelsLookup.TryGetItem(Actor.Index_ActorModel, -1);
             set
             {
-                if (Actor.ActorModel == null)
+                if (Actor.ActorModel == null && ObjManager.Context.Settings.MajorEngineVersion == MajorEngineVersion.GBC)
                     return;
 
                 if (value != ActorModelIndex)
@@ -72,7 +72,7 @@ namespace R1Engine
 
 		public override IEnumerable<LinkType> LinkTypes => Actor.Links
             .Where(link => link.Type == GBC_GameObjectLink.MessageType.GameObject && link.GameObjectID.HasValue && link.GameObjectID.Value != Actor.XlateID)
-            .Select(link => GetLinkType(link));
+            .Select(GetLinkType);
 
         private LinkType GetLinkType(GBC_GameObjectLink link) {
             switch (link.MessageID) {
@@ -132,7 +132,7 @@ namespace R1Engine
 		public override bool IsAlways => !Actor.IsCaptor && Actor.ActionID == 0;
 
 		public override Unity_ObjAnimation CurrentAnimation => ActorModel?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
-        public override int AnimSpeed => CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
+        public override int AnimSpeed => CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? CurrentAnimation?.AnimSpeed ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex - 1 ?? Action?.AnimIndex - 1 ?? ActionIndex;
         protected override int GetSpriteID => ActorModelIndex;
