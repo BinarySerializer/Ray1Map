@@ -21,7 +21,7 @@ namespace R1Engine
         #region Parsed
 
         public GBA_SpritePalette Palette { get; set; }
-        public GBA_SpriteTileMap TileMap { get; set; }
+        public GBA_SpriteTileSet TileSet { get; set; }
         public GBA_Animation[] Animations { get; set; }
         public Dictionary<int, GBA_AffineMatrixList> Matrices { get; set; } = new Dictionary<int, GBA_AffineMatrixList>();
 
@@ -53,11 +53,11 @@ namespace R1Engine
         public override void SerializeOffsetData(SerializerObject s)
         {
             Palette = s.DoAt(OffsetTable.GetPointer(PaletteOffsetIndex), () => s.SerializeObject<GBA_SpritePalette>(Palette, name: nameof(Palette)));
-            TileMap = s.DoAt(OffsetTable.GetPointer(TileMapOffsetIndex), () => s.SerializeObject<GBA_SpriteTileMap>(TileMap, onPreSerialize: x =>
+            TileSet = s.DoAt(OffsetTable.GetPointer(TileMapOffsetIndex), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, onPreSerialize: x =>
             {
                 if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina)
                     x.IsDataCompressed = BitHelpers.ExtractBits(Byte_04, 1, 5) == 0;
-            }, name: nameof(TileMap)));
+            }, name: nameof(TileSet)));
 
             if (Animations == null)
                 Animations = new GBA_Animation[AnimationsCount];

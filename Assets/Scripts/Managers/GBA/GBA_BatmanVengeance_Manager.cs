@@ -28,7 +28,7 @@ namespace R1Engine
             };
             if (model == null) return des;
 
-            var tileMap = model.Puppet_BatmanVengeance.TileMap;
+            var tileMap = model.Puppet_BatmanVengeance.TileSet;
             var pal = model.Puppet_BatmanVengeance.Palette.Palette;
             const int tileWidth = 8;
             const int tileSize = (tileWidth * tileWidth) / 2;
@@ -43,7 +43,7 @@ namespace R1Engine
                         for (int x = 0; x < tileWidth; x++) {
                             int index = (i * tileSize) + ((y * tileWidth + x) / 2);
 
-                            var b = tileMap.TileMap[index];
+                            var b = tileMap.TileSet[index];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
                             Color c = pal[palIndex * 16 + v].GetColor();
@@ -70,7 +70,7 @@ namespace R1Engine
                     return new Unity_ObjAnimationPart[0];
                 }*/
                 Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[l.XSize * l.YSize];
-                if (l.ImageIndex > model.Puppet_BatmanVengeance.TileMap.TileMapLength) {
+                if (l.ImageIndex > model.Puppet_BatmanVengeance.TileSet.TileMapLength) {
                     Controller.print("Image index too high: " + model.Offset + " - " + l.Offset);
                 }
                 if (l.PaletteIndex > model.Puppet_BatmanVengeance.Palette.Palette.Length / 16) {

@@ -398,7 +398,7 @@ namespace R1Engine
                 if (!objGraphics.ContainsKey(puppet.Offset))
                     objGraphics[puppet.Offset] = GetCommonDesign(puppet);
 
-                actorModels.Add(new Unity_ObjectManager_GBC.ActorModel(actor.Index_ActorModel, actor.ActorModel.ActionTable.Actions, objGraphics[puppet.Offset]));
+                actorModels.Add(new Unity_ObjectManager_GBC.ActorModel(actor.Index_ActorModel, actor.ActorModel.ActionTable.ActionTable.Actions, objGraphics[puppet.Offset]));
             }
 
             Controller.DetailedState = $"Loading actors";

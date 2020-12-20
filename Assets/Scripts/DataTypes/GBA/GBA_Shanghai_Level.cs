@@ -13,6 +13,8 @@
 
         // Parsed from offets
 
+        public GBA_Shanghai_Scene Scene { get; set; }
+        public GBA_Palette ObjPal { get; set; }
         public GBA_PlayField PlayField { get; set; }
         public GBA_Palette TilePal { get; set; }
 
@@ -30,6 +32,8 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
+            Scene = s.DoAt(OffsetTable.GetPointer(Index_Scene), () => s.SerializeObject<GBA_Shanghai_Scene>(Scene, name: nameof(Scene)));
+            ObjPal = s.DoAt(OffsetTable.GetPointer(Index_ObjPal), () => s.SerializeObject<GBA_Palette>(ObjPal, name: nameof(ObjPal)));
             PlayField = s.DoAt(OffsetTable.GetPointer(Index_PlayField), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
             TilePal = s.DoAt(OffsetTable.GetPointer(Index_TilePal), () => s.SerializeObject<GBA_Palette>(TilePal, name: nameof(TilePal)));
         }

@@ -311,7 +311,7 @@ namespace R1Engine
 
                 for (int palIndex = 0; palIndex < paletteCount; palIndex++)
                 {
-                    var numTiles = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
+                    var numTiles = spr.TileSet.TileMapLength / (is8bit ? 2 : 1);
                     const int wrap = 16;
                     int tileDataSize = (CellSize * CellSize) / (is8bit ? 1 : 2);
 
@@ -333,7 +333,7 @@ namespace R1Engine
                             {
                                 int index = (i * tileDataSize) + ((y * CellSize + x) / (is8bit ? 1 : 2));
 
-                                var v = is8bit ? spr.TileMap.TileMap[index] : BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
+                                var v = is8bit ? spr.TileSet.TileSet[index] : BitHelpers.ExtractBits(spr.TileSet.TileSet[index], 4, x % 2 == 0 ? 0 : 4);
 
                                 Color c = spr.Palette.Palette[palIndex * 16 + v].GetColor();
 
@@ -930,8 +930,8 @@ namespace R1Engine
             if (spr == null)
                 return des;
 
-            var length = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
-            var tileMap = spr.TileMap;
+            var length = spr.TileSet.TileMapLength / (is8bit ? 2 : 1);
+            var tileMap = spr.TileSet;
             var pal = spr.Palette.Palette;
             const int tileWidth = 8;
             int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
@@ -950,7 +950,7 @@ namespace R1Engine
                         {
                             int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
 
-                            var b = tileMap.TileMap[index];
+                            var b = tileMap.TileSet[index];
                             var v = is8bit ? b : BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
                             Color c = pal[palIndex * 16 + v].GetColor();

@@ -25,7 +25,7 @@
         public bool IsCaptor => ActorID == null;
 
         // Parsed
-        public GBC_ActorModel ActorModel { get; set; }
+        public GBC_ActorModelBlock ActorModel { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -39,12 +39,16 @@
             ActionID = s.Serialize<byte>(ActionID, name: nameof(ActionID));
             LinkCount = s.Serialize<byte>(LinkCount, name: nameof(LinkCount));
             Links = s.SerializeObjectArray<GBC_GameObjectLink>(Links, LinkCount, name: nameof(Links));
-            if (IsCaptor) {
+            if (IsCaptor) 
+            {
                 UnkCaptorByte = s.Serialize<byte>(UnkCaptorByte, name: nameof(UnkCaptorByte));
                 BoxHeight = s.Serialize<byte>(BoxHeight, name: nameof(BoxHeight));
                 BoxWidth = s.Serialize<byte>(BoxWidth, name: nameof(BoxWidth));
-            } else {
-                UnkActorStruct = s.SerializeObject<GBC_UnkActorStruct>(UnkActorStruct, name: nameof(UnkActorStruct));
+            } 
+            else 
+            {
+                if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBC)
+                    UnkActorStruct = s.SerializeObject<GBC_UnkActorStruct>(UnkActorStruct, name: nameof(UnkActorStruct));
                 UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));
             }
         }

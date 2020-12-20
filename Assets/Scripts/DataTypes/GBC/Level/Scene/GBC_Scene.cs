@@ -74,7 +74,7 @@ namespace R1Engine
 
             // Parse actor models
             foreach (var actor in GameObjects.Where(x => x.Index_ActorModel > 1))
-                actor.ActorModel = s.DoAt(DependencyTable.GetPointer(actor.Index_ActorModel - 1), () => s.SerializeObject<GBC_ActorModel>(actor.ActorModel, name: $"{nameof(actor.ActorModel)}[{actor.Index_ActorModel}]"));
+                actor.ActorModel = s.DoAt(DependencyTable.GetPointer(actor.Index_ActorModel - 1), () => s.SerializeObject<GBC_ActorModelBlock>(actor.ActorModel, name: $"{nameof(actor.ActorModel)}[{actor.Index_ActorModel}]"));
         }
     }
 }
