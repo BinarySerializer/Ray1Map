@@ -697,40 +697,27 @@ namespace R1Engine
             // Create a normal 8x8 map array for Shanghai games with 16x16 maps
             foreach (var l in mapLayers.Where(x => x.Cluster?.Shanghai_MapTileSize == 1 || x.Cluster?.Shanghai_MapTileSize == 2))
             {
-                var indexArrayWidth = l.Width / 4;
-                var indexArrayHeight = l.Height;
                 var indexArray = l.Cluster.Shanghai_MapTileSize == 1 ? l.Shanghai_MapIndices_8.Select(x => (ushort)x).ToArray() : l.Shanghai_MapIndices_16;
 
-                l.MapData = new MapTile[l.Width * l.Height];
+                l.MapData = new MapTile[l.Width * l.Height]; //new MapTile[Mathf.CeilToInt(l.Width / 4f) * 4 * l.Height];
 
-                for (int y = 0; y < indexArrayHeight; y++)
-                {
-                    for (int x = 0; x < indexArrayWidth; x++)
-                    {
-                        var actualX = x * 4;
-                        var actualY = y;
-
-                        var mapTile = indexArray[y * indexArrayWidth + x];
-
-                        setTileAt(0, 0, l.Shanghai_MapTiles[mapTile * 4 + 0]);
-                        setTileAt(1, 0, l.Shanghai_MapTiles[mapTile * 4 + 1]);
-                        setTileAt(2, 0, l.Shanghai_MapTiles[mapTile * 4 + 2]);
-                        setTileAt(3, 0, l.Shanghai_MapTiles[mapTile * 4 + 3]);
-
-                        void setTileAt(int offX, int offY, MapTile tile)
-                        {
-                            var outputX = actualX + offX;
-                            var outputY = actualY + offY;
-
-                            l.MapData[outputY * l.Width + outputX] = new MapTile()
-                            {
-                                TileMapY = tile.TileMapY,
-                                HorizontalFlip = tile.HorizontalFlip,
-                                VerticalFlip = tile.VerticalFlip,
-                                PaletteIndex = tile.PaletteIndex
-                            };
-                        }
+                for (int i = 0; i < l.MapData.Length; i++) {
+                    if (i >= l.Width * l.Height) {
+                        l.MapData[i] = new MapTile() {
+                        };
+                        continue;
                     }
+                    var mapTile = indexArray[i / 4];
+                    var offX = i % 4;
+                    var tile = l.Shanghai_MapTiles[mapTile * 4 + offX];
+
+                    l.MapData[i] = new MapTile()
+                    {
+                        TileMapY = tile.TileMapY,
+                        HorizontalFlip = tile.HorizontalFlip,
+                        VerticalFlip = tile.VerticalFlip,
+                        PaletteIndex = tile.PaletteIndex
+                    };
                 }
             }
 
