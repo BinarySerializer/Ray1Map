@@ -19,6 +19,9 @@
         public ushort Index_PlayField { get; set; }
         public ushort Index_TilePal { get; set; }
 
+        public ushort CrouchingTiger_Ushort { get; set; }
+        public ushort Index_CrouchingTiger { get; set; }
+
         // Parsed from offsets
 
         public GBA_Shanghai_ActorsBlock Actors { get; set; }
@@ -47,6 +50,9 @@
             Index_Knots = s.Serialize<ushort>(Index_Knots, name: nameof(Index_Knots));
             Index_PlayField = s.Serialize<ushort>(Index_PlayField, name: nameof(Index_PlayField));
             Index_TilePal = s.Serialize<ushort>(Index_TilePal, name: nameof(Index_TilePal));
+
+            CrouchingTiger_Ushort = s.Serialize<ushort>(CrouchingTiger_Ushort, name: nameof(CrouchingTiger_Ushort));
+            Index_CrouchingTiger = s.Serialize<ushort>(Index_CrouchingTiger, name: nameof(Index_CrouchingTiger));
         }
 
         public override void SerializeOffsetData(SerializerObject s)

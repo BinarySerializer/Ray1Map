@@ -12,6 +12,7 @@
         public byte ActionID { get; set; }
         public byte LinkCount { get; set; }
         public GBC_GameObjectLink[] Links { get; set; }
+        public byte[] CrouchingTiger_Bytes { get; set; }
 
         // Actors
         public GBC_UnkActorStruct UnkActorStruct { get; set; }
@@ -63,7 +64,11 @@
             {
                 if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBC)
                     UnkActorStruct = s.SerializeObject<GBC_UnkActorStruct>(UnkActorStruct, name: nameof(UnkActorStruct));
-                UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));
+
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_CrouchingTiger)
+                    CrouchingTiger_Bytes = s.SerializeArray<byte>(CrouchingTiger_Bytes, 9, name: nameof(CrouchingTiger_Bytes));
+                else
+                    UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));
             }
         }
     }

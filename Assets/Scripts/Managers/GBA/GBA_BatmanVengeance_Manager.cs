@@ -31,35 +31,55 @@ namespace R1Engine
             if (puppet == null) 
                 return des;
 
-            var tileMap = puppet.TileSet;
-            var pal = GetSpritePalette(puppet, data).Palette;
+            var tileSet = puppet.TileSet;
+            var pal = Util.ConvertGBAPalette((RGBA5551Color[])GetSpritePalette(puppet, data).Palette);
             const int tileWidth = 8;
             const int tileSize = (tileWidth * tileWidth) / 2;
             var numPalettes = pal.Length / 16;
 
             // Add sprites for each palette
-            for (int palIndex = 0; palIndex < numPalettes; palIndex++) {
-                for (int i = 0; i < tileMap.TileSetLength; i++) {
-                    var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+            if (tileSet.Is8Bit)
+            {
+                var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
 
-                    for (int y = 0; y < tileWidth; y++) {
-                        for (int x = 0; x < tileWidth; x++) {
-                            int index = (i * tileSize) + ((y * tileWidth + x) / 2);
-
-                            var b = tileMap.TileSet[index];
-                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
-
-                            Color c = pal[palIndex * 16 + v].GetColor();
-
-                            if (v != 0)
-                                c = new Color(c.r, c.g, c.b, 1f);
-
-                            tex.SetPixel(x, (tileWidth - 1 - y), c);
-                        }
+                // Extract every sprite
+                for (int y = 0; y < tileSetTex.height; y += CellSize)
+                {
+                    for (int x = 0; x < tileSetTex.width; x += CellSize)
+                    {
+                        des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x, y, CellSize, CellSize)));
                     }
+                }
+            }
+            else
+            {
+                for (int palIndex = 0; palIndex < numPalettes; palIndex++)
+                {
+                    for (int i = 0; i < tileSet.TileSetLength; i++)
+                    {
+                        var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
 
-                    tex.Apply();
-                    des.Sprites.Add(tex.CreateSprite());
+                        for (int y = 0; y < tileWidth; y++)
+                        {
+                            for (int x = 0; x < tileWidth; x++)
+                            {
+                                int index = (i * tileSize) + ((y * tileWidth + x) / 2);
+
+                                var b = tileSet.TileSet[index];
+                                var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+
+                                Color c = pal[palIndex * 16 + v];
+
+                                if (v != 0)
+                                    c = new Color(c.r, c.g, c.b, 1f);
+
+                                tex.SetPixel(x, (tileWidth - 1 - y), c);
+                            }
+                        }
+
+                        tex.Apply();
+                        des.Sprites.Add(tex.CreateSprite());
+                    }
                 }
             }
 
@@ -84,7 +104,7 @@ namespace R1Engine
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Unity_ObjAnimationPart {
-                            ImageIndex = tileMap.TileSetLength * l.PaletteIndex + (l.ImageIndex + y * l.XSize + x),
+                            ImageIndex = tileSet.TileSetLength * (tileSet.Is8Bit ? 0 : l.PaletteIndex) + (l.ImageIndex + y * l.XSize + x),
                             IsFlippedHorizontally = l.IsFlippedHorizontally,
                             IsFlippedVertically = l.IsFlippedVertically,
                             XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * CellSize),

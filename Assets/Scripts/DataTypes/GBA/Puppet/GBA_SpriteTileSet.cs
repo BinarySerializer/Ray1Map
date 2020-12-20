@@ -9,7 +9,7 @@
 
         public ushort TileSetLength { get; set; }
         public bool IsCompressed { get; set; }
-        public bool Is8Bit { get; set; } // TODO: Double check this property for all games and use it when parsing the data
+        public bool Is8Bit { get; set; }
 
         public byte[] TileSet { get; set; }
 
@@ -25,11 +25,13 @@
                 Is8Bit = s.Serialize<bool>(Is8Bit, name: nameof(Is8Bit));
             }
 
+            var tileLength = s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance && Is8Bit ? 64 : 32;
+
             if (IsDataCompressed ?? IsCompressed) {
-                s.DoEncoded(new GBA_LZSSEncoder(), () => TileSet = s.SerializeArray<byte>(TileSet, TileSetLength * 32, name: nameof(TileSet)));
+                s.DoEncoded(new GBA_LZSSEncoder(), () => TileSet = s.SerializeArray<byte>(TileSet, TileSetLength * tileLength, name: nameof(TileSet)));
                 s.Align();
             } else {
-                TileSet = s.SerializeArray<byte>(TileSet, TileSetLength * 32, name: nameof(TileSet));
+                TileSet = s.SerializeArray<byte>(TileSet, TileSetLength * tileLength, name: nameof(TileSet));
             }
         }
     }
