@@ -26,10 +26,10 @@ namespace R1Engine
 
         public int ActorModelIndex
         {
-            get => Actor.ActorModel == null && ObjManager.Context.Settings.MajorEngineVersion == MajorEngineVersion.GBC ? -1 : ObjManager.ActorModelsLookup.TryGetItem(Actor.Index_ActorModel, -1);
+            get => Actor.ActorModel == null && IsGBC ? -1 : ObjManager.ActorModelsLookup.TryGetItem(Actor.Index_ActorModel, -1);
             set
             {
-                if (Actor.ActorModel == null && ObjManager.Context.Settings.MajorEngineVersion == MajorEngineVersion.GBC)
+                if (Actor.ActorModel == null && IsGBC)
                     return;
 
                 if (value != ActorModelIndex)
@@ -134,9 +134,11 @@ namespace R1Engine
 		public override Unity_ObjAnimation CurrentAnimation => ActorModel?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? CurrentAnimation?.AnimSpeed ?? 0;
 
-        public override int? GetAnimIndex => OverrideAnimIndex - 1 ?? Action?.AnimIndex - 1 ?? ActionIndex;
+        public override int? GetAnimIndex => OverrideAnimIndex - (IsGBC ? 1 : 0) ?? Action?.AnimIndex - (IsGBC ? 1 : 0) ?? ActionIndex;
         protected override int GetSpriteID => ActorModelIndex;
         public override IList<Sprite> Sprites => ActorModel?.Graphics?.Sprites;
+
+        public bool IsGBC => ObjManager.Context.Settings.MajorEngineVersion == MajorEngineVersion.GBC;
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
@@ -243,7 +245,7 @@ namespace R1Engine
                 for (byte i = 0; i < actions.Length; i++)
                 {
                     uiStates.Add(new GBC_UIState($"Action {actions[i].ActionID}", stateIndex: i));
-                    usedAnims.Add(actions[i].AnimIndex - 1);
+                    usedAnims.Add(actions[i].AnimIndex - (IsGBC ? 1 : 0));
                 }
             }
             if (anims != null)
@@ -251,7 +253,7 @@ namespace R1Engine
                 for (int i = 0; i < anims.Count; i++)
                 {
                     if (usedAnims.Contains(i)) continue;
-                    uiStates.Add(new GBC_UIState("Animation " + i, animIndex: i + 1));
+                    uiStates.Add(new GBC_UIState("Animation " + i, animIndex: i + (IsGBC ? 1 : 0)));
                 }
             }
 
