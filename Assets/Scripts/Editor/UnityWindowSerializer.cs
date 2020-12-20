@@ -126,8 +126,8 @@ public class UnityWindowSerializer : SerializerObject
                 } else if(type == typeof(byte?)) {
                     var b = (byte?)(object)obj;
                     byte value = 0;
-                    bool hasValue = false;
-                    if(b.HasValue) {
+                    bool hasValue = b.HasValue;
+                    if(hasValue) {
                         rect = Window.PrefixToggle(rect, ref hasValue);
                         value = (byte)Window.EditorField(String.Empty, b.Value, rect: rect);
                     } else {
