@@ -311,7 +311,7 @@ namespace R1Engine
 
                 for (int palIndex = 0; palIndex < paletteCount; palIndex++)
                 {
-                    var numTiles = spr.TileSet.TileMapLength / (is8bit ? 2 : 1);
+                    var numTiles = spr.TileSet.TileSetLength / (is8bit ? 2 : 1);
                     const int wrap = 16;
                     int tileDataSize = (CellSize * CellSize) / (is8bit ? 1 : 2);
 
@@ -743,7 +743,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading actor models & puppets";
             await Controller.WaitIfNecessary();
 
-            var objManager = GetObjectManager(context, scene);
+            var objManager = GetObjectManager(context, scene, dataBlock);
 
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level(
@@ -910,14 +910,14 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Add actors
-            level.EventData.AddRange(GetObjects(context, scene, objManager));
+            level.EventData.AddRange(GetObjects(context, scene, objManager, dataBlock));
 
             return level;
         }
 
-        public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorModel graphics) => GetCommonDesign(graphics.Puppet, false);
-        public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene));
-        public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager)) ?? new Unity_Object_GBA[0];
+        public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorModel graphics, GBA_Data data) => GetCommonDesign(graphics.Puppet, false);
+        public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene, data));
+        public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager)) ?? new Unity_Object_GBA[0];
         public Unity_ObjGraphics GetCommonDesign(GBA_Puppet spr, bool is8bit)
         {
             // Create the design
@@ -930,7 +930,7 @@ namespace R1Engine
             if (spr == null)
                 return des;
 
-            var length = spr.TileSet.TileMapLength / (is8bit ? 2 : 1);
+            var length = spr.TileSet.TileSetLength / (is8bit ? 2 : 1);
             var tileMap = spr.TileSet;
             var pal = spr.Palette.Palette;
             const int tileWidth = 8;
@@ -1049,7 +1049,7 @@ namespace R1Engine
             return des;
         }
 
-        public Unity_ObjectManager_GBA.GraphicsData[] LoadActorModels(Context context, GBA_Scene scene)
+        public Unity_ObjectManager_GBA.GraphicsData[] LoadActorModels(Context context, GBA_Scene scene, GBA_Data data)
         {
             var graphicsData = new List<Unity_ObjectManager_GBA.GraphicsData>();
 
@@ -1061,7 +1061,7 @@ namespace R1Engine
                 if (actor.ActorModel == null)
                     continue;
 
-                graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.ModelIndex, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel)));
+                graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.ModelIndex, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel, data)));
             }
 
             return graphicsData.ToArray();

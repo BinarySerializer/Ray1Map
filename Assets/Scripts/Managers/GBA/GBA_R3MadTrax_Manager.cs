@@ -54,8 +54,8 @@ namespace R1Engine
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new NotImplementedException();
 
-        public override Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene) => new Unity_ObjectManager_GBAMadTrax(context, LoadMadTraxSprites(context).Select(x => new Unity_ObjectManager_GBAMadTrax.GraphicsData(x.ToTexture2D(), x.Offset)).ToArray());
-        public override IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager) => new Unity_Object[]
+        public override Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBAMadTrax(context, LoadMadTraxSprites(context).Select(x => new Unity_ObjectManager_GBAMadTrax.GraphicsData(x.ToTexture2D(), x.Offset)).ToArray());
+        public override IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => new Unity_Object[]
         {
             new Unity_Object_GBAMadTrax((Unity_ObjectManager_GBAMadTrax)objManager)
             {

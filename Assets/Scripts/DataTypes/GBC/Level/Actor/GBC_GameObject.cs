@@ -33,8 +33,18 @@
             XlateID = s.Serialize<ushort>(XlateID, name: nameof(XlateID));
             UnkByte0 = s.Serialize<byte>(UnkByte0, name: nameof(UnkByte0));
             ActorID = s.Serialize<byte?>(ActorID, name: nameof(ActorID));
-            YPos = s.Serialize<short>(YPos, name: nameof(YPos));
-            XPos = s.Serialize<short>(XPos, name: nameof(XPos));
+
+            if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBC)
+            {
+                YPos = s.Serialize<short>(YPos, name: nameof(YPos));
+                XPos = s.Serialize<short>(XPos, name: nameof(XPos));
+            }
+            else
+            {
+                XPos = s.Serialize<short>(XPos, name: nameof(XPos));
+                YPos = s.Serialize<short>(YPos, name: nameof(YPos));
+            }
+
             UnkByte1 = s.Serialize<byte>(UnkByte1, name: nameof(UnkByte1));
             ActionID = s.Serialize<byte>(ActionID, name: nameof(ActionID));
             LinkCount = s.Serialize<byte>(LinkCount, name: nameof(LinkCount));
