@@ -47,13 +47,7 @@
                 Shanghai_Byte_06 = s.Serialize<byte>(Shanghai_Byte_06, name: nameof(Shanghai_Byte_06));
                 Shanghai_Byte_07 = s.Serialize<byte>(Shanghai_Byte_07, name: nameof(Shanghai_Byte_07));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
-                {
-                    Shanghai_Byte_08 = s.Serialize<byte>(Shanghai_Byte_08, name: nameof(Shanghai_Byte_08));
-                    Shanghai_Byte_09 = s.Serialize<byte>(Shanghai_Byte_09, name: nameof(Shanghai_Byte_09));
-                    Shanghai_MapTileSize = 2;
-                }
-                else if (s.GameSettings.EngineVersion == EngineVersion.GBA_DonaldDuck)
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_DonaldDuck)
                 {
                     Shanghai_MapTileSize = s.Serialize<byte>(Shanghai_MapTileSize, name: nameof(Shanghai_MapTileSize));
                     Shanghai_Byte_09 = s.Serialize<byte>(Shanghai_Byte_09, name: nameof(Shanghai_Byte_09));

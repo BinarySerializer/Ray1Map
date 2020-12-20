@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     /// <summary>
     /// A map block for GBA
@@ -54,6 +56,9 @@
         // Shanghai
         public ushort Shanghai_CollisionValue1 { get; set; }
         public ushort Shanghai_CollisionValue2 { get; set; }
+        public byte[] Shanghai_MapIndices_8 { get; set; }
+        public ushort[] Shanghai_MapIndices_16 { get; set; }
+        public MapTile[] Shanghai_MapTiles { get; set; }
 
         // Parsed
         public GBA_Cluster Cluster { get; set; }
@@ -75,7 +80,7 @@
                     ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
                 }
             }
-            else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+            else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax) // Shanghai
             {
                 ColorMode = GBA_ColorMode.Color4bpp;
                 IsCompressed = false;
@@ -87,6 +92,26 @@
 
                     // Go to the map data
                     s.Goto(ShanghaiOffsetTable.GetPointer(2));
+
+                    // If the map tile size is not 0 the map is split into a 16x16 index array and 8x8 map tiles
+                    if (Cluster.Shanghai_MapTileSize != 0)
+                    {
+                        var indexArrayWidth = Width / 2;
+                        var indexArrayHeight = Height / 2;
+
+                        // The tile size is either 1 or 2 bytes
+                        if (Cluster.Shanghai_MapTileSize == 1)
+                            Shanghai_MapIndices_8 = s.SerializeArray<byte>(Shanghai_MapIndices_8, indexArrayWidth * indexArrayHeight, name: nameof(Shanghai_MapIndices_8));
+                        else
+                            Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, indexArrayWidth * indexArrayHeight, name: nameof(Shanghai_MapIndices_16));
+
+                        var indexArray = Cluster.Shanghai_MapTileSize == 1 ? Shanghai_MapIndices_8.Select(x => (ushort)x).ToArray() : Shanghai_MapIndices_16;
+
+                        Shanghai_MapTiles = s.SerializeObjectArray<MapTile>(Shanghai_MapTiles, (indexArray.Max() + 1) * 4, name: nameof(Shanghai_MapTiles));
+
+                        // Return to avoid serializing the map tile array normally
+                        return;
+                    }
                 }
                 else
                 {
@@ -211,7 +236,6 @@
                             }
                         }
                         m.Is8Bpp = ColorMode == GBA_ColorMode.Color8bpp;
-                        m.GBA_Shanghai_TileSize = Cluster?.Shanghai_MapTileSize ?? 0;
                     }, name: nameof(MapData));
                     break;
                 case Type.RotscaleLayerMode7:
