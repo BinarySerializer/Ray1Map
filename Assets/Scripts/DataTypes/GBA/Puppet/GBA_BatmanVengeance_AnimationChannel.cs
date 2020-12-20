@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using static R1Engine.GBA_AnimationChannel;
+﻿using static R1Engine.GBA_AnimationChannel;
 
 namespace R1Engine
 {
     public class GBA_BatmanVengeance_AnimationChannel : R1Serializable {
         #region Data
-        public byte Byte_00 { get; set; }
-        public byte Byte_01 { get; set; }
         public short XPosition { get; set; }
         public short YPosition { get; set; }
         public ushort ImageIndex { get; set; }
@@ -16,28 +13,33 @@ namespace R1Engine
 		#region Parsed
         public int XSize { get; set; } = 1;
         public int YSize { get; set; } = 1;
-        public int PaletteIndex { get; set; } = 0;
-        public bool IsFlippedHorizontally { get; set; } = false;
-        public bool IsFlippedVertically { get; set; } = false;
+        public int PaletteIndex { get; set; }
+        public bool IsFlippedHorizontally { get; set; }
+        public bool IsFlippedVertically { get; set; }
         public Shape SpriteShape { get; set; }
         public int SpriteSize { get; set; }
         #endregion
 
         #region Public Methods
 
-        public override void SerializeImpl(SerializerObject s) {
-            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
-            Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+        public override void SerializeImpl(SerializerObject s) 
+        {
+            s.SerializeBitValues<byte>(bitFunc =>
+            {
+                bitFunc(default, 6, name: "Padding");
+                IsFlippedHorizontally = bitFunc(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
+                IsFlippedVertically = bitFunc(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedVertically)) == 1;
+            });
+            s.SerializeBitValues<byte>(bitFunc =>
+            {
+                SpriteSize = bitFunc(SpriteSize, 2, name: nameof(SpriteSize));
+                SpriteShape = (Shape)bitFunc((int)SpriteShape, 2, name: nameof(SpriteShape));
+                PaletteIndex = bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+            });
+
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
             XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
             ImageIndex = s.Serialize<ushort>(ImageIndex, name: nameof(ImageIndex));
-
-
-            IsFlippedHorizontally = BitHelpers.ExtractBits(Byte_00, 1, 6) == 1;
-            IsFlippedVertically = BitHelpers.ExtractBits(Byte_00, 1, 7) == 1;
-            SpriteShape = (Shape)BitHelpers.ExtractBits(Byte_01, 2, 2);
-            SpriteSize = BitHelpers.ExtractBits(Byte_01, 2, 0);
-
 
             // Calculate size
             XSize = 1;
