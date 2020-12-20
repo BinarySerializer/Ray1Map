@@ -8,10 +8,10 @@ namespace R1Engine
     {
         #region Level Data
 
-        public byte PlayFieldIndex { get; set; }
+        public byte Index_PlayField { get; set; }
         public byte Unk_01 { get; set; }
         public byte Unk_02 { get; set; }
-        public byte Unk_03 { get; set; }
+        public byte IndexMin_ActorModels { get; set; }
 
         public byte ActorsCountTotal { get; set; }
 
@@ -21,7 +21,7 @@ namespace R1Engine
         public byte ActorsCount4 { get; set; }
         public byte ActorsCount5 { get; set; }
 
-        public byte Unk_0A { get; set; }
+        public byte IndexMax_ActorModels { get; set; }
         public byte SectorsCount { get; set; }
 
         public GBA_Actor[] MainActors { get; set; }
@@ -58,10 +58,10 @@ namespace R1Engine
 
         public override void SerializeBlock(SerializerObject s)
         {
-            PlayFieldIndex = s.Serialize<byte>(PlayFieldIndex, name: nameof(PlayFieldIndex));
+            Index_PlayField = s.Serialize<byte>(Index_PlayField, name: nameof(Index_PlayField));
             Unk_01 = s.Serialize<byte>(Unk_01, name: nameof(Unk_01));
             Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
-            Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
+            IndexMin_ActorModels = s.Serialize<byte>(IndexMin_ActorModels, name: nameof(IndexMin_ActorModels));
 
             ActorsCountTotal = s.Serialize<byte>(ActorsCountTotal, name: nameof(ActorsCountTotal));
 
@@ -71,7 +71,7 @@ namespace R1Engine
             ActorsCount4 = s.Serialize<byte>(ActorsCount4, name: nameof(ActorsCount4));
             ActorsCount5 = s.Serialize<byte>(ActorsCount5, name: nameof(ActorsCount5));
 
-            Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
+            IndexMax_ActorModels = s.Serialize<byte>(IndexMax_ActorModels, name: nameof(IndexMax_ActorModels));
 
             SectorsCount = s.Serialize<byte>(SectorsCount, name: nameof(SectorsCount));
 
@@ -107,8 +107,8 @@ namespace R1Engine
         public override void SerializeOffsetData(SerializerObject s)
         {
             // Parse level block data
-            if (OffsetTable.Offsets[PlayFieldIndex] != -1)
-                PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
+            if (OffsetTable.Offsets[Index_PlayField] != -1)
+                PlayField = s.DoAt(OffsetTable.GetPointer(Index_PlayField), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
 
             // Parse actor data
             var actors = GetAllActors(s.GameSettings).ToArray();
@@ -134,7 +134,7 @@ namespace R1Engine
         }
 
 		public override int GetOffsetTableLengthGCN(SerializerObject s) {
-            int max = PlayFieldIndex + 1;
+            int max = Index_PlayField + 1;
             // Parse actor data
             var actors = GetAllActors(s.GameSettings).ToArray();
 
