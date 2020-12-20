@@ -32,7 +32,7 @@ namespace R1Engine
                 return des;
 
             var tileSet = puppet.TileSet;
-            var pal = Util.ConvertGBAPalette((RGBA5551Color[])GetSpritePalette(puppet, data).Palette);
+            var pal = GetSpritePalette(puppet, data).Palette;
             const int tileWidth = 8;
             const int tileSize = (tileWidth * tileWidth) / 2;
             var numPalettes = pal.Length / 16;
@@ -40,7 +40,8 @@ namespace R1Engine
             // Add sprites for each palette
             if (tileSet.Is8Bit)
             {
-                var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
+                var pal_8 = Util.ConvertGBAPalette((RGBA5551Color[])pal);
+                var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal_8, Util.TileEncoding.Linear_8bpp, CellSize, false);
 
                 // Extract every sprite
                 for (int y = 0; y < tileSetTex.height; y += CellSize)
@@ -53,6 +54,8 @@ namespace R1Engine
             }
             else
             {
+                var pal_8 = Util.ConvertAndSplitGBAPalette((RGBA5551Color[])pal);
+
                 for (int palIndex = 0; palIndex < numPalettes; palIndex++)
                 {
                     for (int i = 0; i < tileSet.TileSetLength; i++)
@@ -68,7 +71,7 @@ namespace R1Engine
                                 var b = tileSet.TileSet[index];
                                 var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
-                                Color c = pal[palIndex * 16 + v];
+                                Color c = pal_8[palIndex][v];
 
                                 if (v != 0)
                                     c = new Color(c.r, c.g, c.b, 1f);
