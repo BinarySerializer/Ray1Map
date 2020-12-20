@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('../fonts/icomoon/icomoon.eot?zg3695');
-  src:  url('../fonts/icomoon/icomoon.eot?zg3695#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon/icomoon.ttf?zg3695') format('truetype'),
-    url('../fonts/icomoon/icomoon.woff?zg3695') format('woff'),
-    url('../fonts/icomoon/icomoon.svg?zg3695#icomoon') format('svg');
+  src:  url('../fonts/icomoon/icomoon.eot?hbjqnq');
+  src:  url('../fonts/icomoon/icomoon.eot?hbjqnq#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon/icomoon.ttf?hbjqnq') format('truetype'),
+    url('../fonts/icomoon/icomoon.woff?hbjqnq') format('woff'),
+    url('../fonts/icomoon/icomoon.svg?hbjqnq#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,74 +25,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-globe1:before {
-  content: "\e90b";
+.icon-plus1:before {
+  content: "\e94a";
 }
-.icon-brush:before {
-  content: "\e93c";
-}
-.icon-paint:before {
-  content: "\e93c";
-}
-.icon-hash:before {
-  content: "\e929";
-}
-.icon-number:before {
-  content: "\e929";
-}
-.icon-type:before {
-  content: "\e92a";
-}
-.icon-typography:before {
-  content: "\e92a";
-}
-.icon-text:before {
-  content: "\e92a";
-}
-.icon-font:before {
-  content: "\e92a";
-}
-.icon-wind:before {
-  content: "\e925";
-}
-.icon-windy:before {
-  content: "\e926";
-}
-.icon-sun:before {
-  content: "\e9d4";
-}
-.icon-volume-medium:before {
-  content: "\ea27";
-}
-.icon-document-file-numbers:before {
-  content: "\e92b";
-}
-.icon-document-file-numbers1:before {
-  content: "\e92c";
-}
-.icon-file-numbers:before {
-  content: "\e92d";
-}
-.icon-file-numbers1:before {
-  content: "\e92e";
-}
-.icon-gamepad1:before {
-  content: "\e945";
-}
-.icon-camera-2:before {
-  content: "\e914";
-}
-.icon-movie:before {
-  content: "\e914";
-}
-.icon-video:before {
-  content: "\e914";
-}
-.icon-record:before {
-  content: "\e914";
-}
-.icon-film:before {
-  content: "\e914";
+.icon-add:before {
+  content: "\e94b";
 }
 .icon-videogame_asset:before {
   content: "\e944";
@@ -225,6 +162,81 @@
 }
 .icon-times:before {
   content: "\e901";
+}
+.icon-globe1:before {
+  content: "\e90b";
+}
+.icon-brush:before {
+  content: "\e93c";
+}
+.icon-paint:before {
+  content: "\e93c";
+}
+.icon-hash:before {
+  content: "\e929";
+}
+.icon-number:before {
+  content: "\e929";
+}
+.icon-type:before {
+  content: "\e92a";
+}
+.icon-typography:before {
+  content: "\e92a";
+}
+.icon-text:before {
+  content: "\e92a";
+}
+.icon-font:before {
+  content: "\e92a";
+}
+.icon-wind:before {
+  content: "\e925";
+}
+.icon-windy:before {
+  content: "\e926";
+}
+.icon-sun:before {
+  content: "\e9d4";
+}
+.icon-volume-medium:before {
+  content: "\ea27";
+}
+.icon-document-file-numbers:before {
+  content: "\e92b";
+}
+.icon-document-file-numbers1:before {
+  content: "\e92c";
+}
+.icon-file-numbers:before {
+  content: "\e92d";
+}
+.icon-file-numbers1:before {
+  content: "\e92e";
+}
+.icon-gamepad1:before {
+  content: "\e945";
+}
+.icon-camera-2:before {
+  content: "\e914";
+}
+.icon-movie:before {
+  content: "\e914";
+}
+.icon-video:before {
+  content: "\e914";
+}
+.icon-record:before {
+  content: "\e914";
+}
+.icon-film:before {
+  content: "\e914";
+}
+.icon-arrow-repeat:before {
+  content: "\e946";
+}
+.icon-arrow-sync:before {
+  content: "\e947";
 }
 .icon-game-controller:before {
   content: "\e942";

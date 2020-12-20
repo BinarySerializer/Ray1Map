@@ -401,6 +401,8 @@ function handleMessage_settings(msg) {
 	//selectButton($("#btn-viewInvisible"), msg.ViewInvisible);
 	//selectButton($("#btn-displayInactive"), msg.DisplayInactive);
 	selectButton($("#btn-showObjects"), msg.ShowObjects);
+	selectButton($("#btn-showObjOffsets"), msg.ShowObjOffsets);
+	selectButton($("#btn-showGizmos"), msg.ShowGizmos);
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	if(msg.hasOwnProperty("HasAnimatedTiles") && !msg.HasAnimatedTiles) {
 		$("#btn-animateTiles").addClass("disabled-button");
@@ -1481,6 +1483,8 @@ function sendSettings() {
 			//ViewInvisible: $("#btn-viewInvisible").hasClass("selected"),
 			//DisplayInactive: $("#btn-displayInactive").hasClass("selected"),
 			ShowObjects: $("#btn-showObjects").hasClass("selected"),
+			ShowObjOffsets: $("#btn-showObjOffsets").hasClass("selected"),
+			ShowGizmos: $("#btn-showGizmos").hasClass("selected"),
 			AnimateSprites: $("#btn-animateSprites").hasClass("selected"),
 			AnimateTiles: $("#btn-animateTiles").hasClass("selected"),
 			StateSwitchingMode: global_settings.StateSwitchingMode,
