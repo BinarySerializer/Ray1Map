@@ -26,10 +26,10 @@ namespace R1Engine
 
         public int ActorModelIndex
         {
-            get => Actor.ActorModel == null && IsGBC ? -1 : ObjManager.ActorModelsLookup.TryGetItem(Actor.Index_ActorModel, -1);
+            get => Actor.ActorModel == null && IsGBC || Actor.GBA_ActorModel == null && !IsGBC ? -1 : ObjManager.ActorModelsLookup.TryGetItem(Actor.Index_ActorModel, -1);
             set
             {
-                if (Actor.ActorModel == null && IsGBC)
+                if (Actor.ActorModel == null && IsGBC || Actor.GBA_ActorModel == null && !IsGBC)
                     return;
 
                 if (value != ActorModelIndex)

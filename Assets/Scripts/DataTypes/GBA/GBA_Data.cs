@@ -12,7 +12,7 @@
         public GBA_PlayField MadTraxPlayField_FG { get; set; }
         public GBA_Palette MadTraxPalette { get; set; }
 
-        public GBA_Shanghai_Level Shanghai_Level { get; set; }
+        public GBA_Shanghai_Scene Shanghai_Scene { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -44,7 +44,7 @@
                     }
                     else
                     {
-                        Shanghai_Level = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_Shanghai_Level>(Shanghai_Level, name: nameof(Shanghai_Level)));
+                        Shanghai_Scene = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_Shanghai_Scene>(Shanghai_Scene, name: nameof(Shanghai_Scene)));
                     }
 
                     break;

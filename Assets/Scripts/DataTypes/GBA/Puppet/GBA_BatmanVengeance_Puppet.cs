@@ -43,6 +43,8 @@
 
             for (int i = 0; i < AnimationOffsets.Length; i++)
                 Animations[i] = s.DoAt(animOffsetsBase + AnimationOffsets[i], () => s.SerializeObject<GBA_BatmanVengeance_Animation>(Animations[i], name: $"{nameof(Animations)}[{i}]"));
+
+            s.Goto(Offset + BlockSize);
         }
 
         public override void SerializeOffsetData(SerializerObject s)

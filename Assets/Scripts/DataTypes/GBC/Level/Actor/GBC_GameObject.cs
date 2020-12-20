@@ -22,14 +22,18 @@
         public byte BoxHeight { get; set; }
         public byte BoxWidth { get; set; }
 
+        public bool GBA_IsCaptor { get; set; } // Set before serializing
         public bool IsCaptor => ActorID == null;
 
         // Parsed
         public GBC_ActorModelBlock ActorModel { get; set; }
+        public GBA_Shanghai_ActorModel GBA_ActorModel { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Index_ActorModel = s.Serialize<byte>(Index_ActorModel, name: nameof(Index_ActorModel));
+            if (!GBA_IsCaptor)
+                Index_ActorModel = s.Serialize<byte>(Index_ActorModel, name: nameof(Index_ActorModel));
+
             XlateID = s.Serialize<ushort>(XlateID, name: nameof(XlateID));
             UnkByte0 = s.Serialize<byte>(UnkByte0, name: nameof(UnkByte0));
             ActorID = s.Serialize<byte?>(ActorID, name: nameof(ActorID));

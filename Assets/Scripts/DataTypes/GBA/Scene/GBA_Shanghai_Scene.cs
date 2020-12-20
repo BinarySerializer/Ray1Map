@@ -1,47 +1,62 @@
-﻿using System.Collections.Generic;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public class GBA_Shanghai_Scene : GBA_BaseBlock
     {
-        public byte ActorModelsCount { get; set; }
-        public byte GameObjectsCount { get; set; } // Doesn't seem to match - maybe always objects count?
-        public byte Byte_02 { get; set; }
+        public ushort GameObjectsCount { get; set; }
+        public byte KnotsWidth { get; set; }
+        public byte KnotsHeight { get; set; }
 
-        public GBC_GameObject[] GameObjects { get; set; }
+        public ushort MainActor_0 { get; set; }
+        public ushort MainActor_1 { get; set; }
+        public ushort MainActor_2 { get; set; }
+
+        public byte[] Bytes_0A { get; set; }
+
+        public ushort Index_Actors { get; set; }
+        public ushort Index_ObjPal { get; set; }
+        public ushort Index_Captors { get; set; }
+        public ushort Index_Knots { get; set; }
+        public ushort Index_PlayField { get; set; }
+        public ushort Index_TilePal { get; set; }
 
         // Parsed from offsets
-        public GBA_Shanghai_ActorModel[] ActorModels { get; set; }
+
+        public GBA_Shanghai_ActorsBlock Actors { get; set; }
+        public GBA_SpritePalette ObjPal { get; set; }
+        public GBA_Shanghai_CaptorsBlock Captors { get; set; }
+        public GBA_Shanghai_KnotsBlock Knots { get; set; }
+        public GBA_PlayField PlayField { get; set; }
+        public GBA_Palette TilePal { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
-            ActorModelsCount = s.Serialize<byte>(ActorModelsCount, name: nameof(ActorModelsCount));
-            GameObjectsCount = s.Serialize<byte>(GameObjectsCount, name: nameof(GameObjectsCount));
-            Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+            GameObjectsCount = s.Serialize<ushort>(GameObjectsCount, name: nameof(GameObjectsCount));
 
-            if (GameObjects == null)
-            {
-                var obj = new List<GBC_GameObject>();
+            KnotsWidth = s.Serialize<byte>(KnotsWidth, name: nameof(KnotsWidth));
+            KnotsHeight = s.Serialize<byte>(KnotsHeight, name: nameof(KnotsHeight));
 
-                var index = 0;
-                while (s.CurrentPointer.AbsoluteOffset < (Offset + BlockSize).AbsoluteOffset)
-                    obj.Add(s.SerializeObject<GBC_GameObject>(default, name: $"{nameof(GameObjects)}[{index++}]"));
+            MainActor_0 = s.Serialize<ushort>(MainActor_0, name: nameof(MainActor_0));
+            MainActor_1 = s.Serialize<ushort>(MainActor_1, name: nameof(MainActor_1));
+            MainActor_2 = s.Serialize<ushort>(MainActor_2, name: nameof(MainActor_2));
 
-                GameObjects = obj.ToArray();
-            }
-            else
-            {
-                GameObjects = s.SerializeObjectArray<GBC_GameObject>(GameObjects, GameObjectsCount, name: nameof(GameObjects));
-            }
+            Bytes_0A = s.SerializeArray<byte>(Bytes_0A, 6, name: nameof(Bytes_0A));
+
+            Index_Actors = s.Serialize<ushort>(Index_Actors, name: nameof(Index_Actors));
+            Index_ObjPal = s.Serialize<ushort>(Index_ObjPal, name: nameof(Index_ObjPal));
+            Index_Captors = s.Serialize<ushort>(Index_Captors, name: nameof(Index_Captors));
+            Index_Knots = s.Serialize<ushort>(Index_Knots, name: nameof(Index_Knots));
+            Index_PlayField = s.Serialize<ushort>(Index_PlayField, name: nameof(Index_PlayField));
+            Index_TilePal = s.Serialize<ushort>(Index_TilePal, name: nameof(Index_TilePal));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            if (ActorModels == null)
-                ActorModels = new GBA_Shanghai_ActorModel[ActorModelsCount];
-
-            for (int i = 0; i < ActorModels.Length; i++)
-                ActorModels[i] = s.DoAt(OffsetTable.GetPointer(i), () => s.SerializeObject<GBA_Shanghai_ActorModel>(ActorModels[i], name: $"{nameof(ActorModels)}[{i}]"));
+            Actors = s.DoAt(OffsetTable.GetPointer(Index_Actors), () => s.SerializeObject<GBA_Shanghai_ActorsBlock>(Actors, name: nameof(Actors)));
+            ObjPal = s.DoAt(OffsetTable.GetPointer(Index_ObjPal), () => s.SerializeObject<GBA_SpritePalette>(ObjPal, name: nameof(ObjPal)));
+            Captors = s.DoAt(OffsetTable.GetPointer(Index_Captors), () => s.SerializeObject<GBA_Shanghai_CaptorsBlock>(Captors, name: nameof(Captors)));
+            Knots = s.DoAt(OffsetTable.GetPointer(Index_Knots), () => s.SerializeObject<GBA_Shanghai_KnotsBlock>(Knots, x => x.Length = KnotsWidth * KnotsHeight, name: nameof(Knots)));
+            PlayField = s.DoAt(OffsetTable.GetPointer(Index_PlayField), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
+            TilePal = s.DoAt(OffsetTable.GetPointer(Index_TilePal), () => s.SerializeObject<GBA_Palette>(TilePal, name: nameof(TilePal)));
         }
     }
 }

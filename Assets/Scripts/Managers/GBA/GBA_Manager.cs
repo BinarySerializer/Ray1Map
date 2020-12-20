@@ -651,7 +651,7 @@ namespace R1Engine
                     else // Shanghai
                     {
                         scene = null;
-                        playField = dataBlock.Shanghai_Level.PlayField;
+                        playField = dataBlock.Shanghai_Scene.PlayField;
                     }
                 }
                 else
@@ -1086,7 +1086,7 @@ namespace R1Engine
                 else if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
                     pal = data.MadTraxPalette;
                 else
-                    pal = data.Shanghai_Level.TilePal;
+                    pal = data.Shanghai_Scene.TilePal;
 
                 tilePalettes = new GBA_Palette[]
                 {
