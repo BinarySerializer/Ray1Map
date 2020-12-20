@@ -697,8 +697,8 @@ namespace R1Engine
             // Create a normal 8x8 map array for Shanghai games with 16x16 maps
             foreach (var l in mapLayers.Where(x => x.Cluster?.Shanghai_MapTileSize == 1 || x.Cluster?.Shanghai_MapTileSize == 2))
             {
-                var indexArrayWidth = l.Width / 2;
-                var indexArrayHeight = l.Height / 2;
+                var indexArrayWidth = l.Width / 4;
+                var indexArrayHeight = l.Height;
                 var indexArray = l.Cluster.Shanghai_MapTileSize == 1 ? l.Shanghai_MapIndices_8.Select(x => (ushort)x).ToArray() : l.Shanghai_MapIndices_16;
 
                 l.MapData = new MapTile[l.Width * l.Height];
@@ -707,26 +707,20 @@ namespace R1Engine
                 {
                     for (int x = 0; x < indexArrayWidth; x++)
                     {
-                        var actualX = x * 2;
-                        var actualY = y * 2;
+                        var actualX = x * 4;
+                        var actualY = y;
 
                         var mapTile = indexArray[y * indexArrayWidth + x];
 
                         setTileAt(0, 0, l.Shanghai_MapTiles[mapTile * 4 + 0]);
                         setTileAt(1, 0, l.Shanghai_MapTiles[mapTile * 4 + 1]);
-                        setTileAt(0, 1, l.Shanghai_MapTiles[mapTile * 4 + 2]);
-                        setTileAt(1, 1, l.Shanghai_MapTiles[mapTile * 4 + 3]);
+                        setTileAt(2, 0, l.Shanghai_MapTiles[mapTile * 4 + 2]);
+                        setTileAt(3, 0, l.Shanghai_MapTiles[mapTile * 4 + 3]);
 
                         void setTileAt(int offX, int offY, MapTile tile)
                         {
                             var outputX = actualX + offX;
                             var outputY = actualY + offY;
-
-                            // Super hacky temp solution which doesn't even really work
-                            if (outputX < (l.Width / 2))
-                                outputX *= 2;
-                            else
-                                outputX = l.Width - ((l.Width - outputX - 1) * 2) - 1;
 
                             l.MapData[outputY * l.Width + outputX] = new MapTile()
                             {
