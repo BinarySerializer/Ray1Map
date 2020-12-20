@@ -325,6 +325,12 @@ public class WebCommunicator : MonoBehaviour {
                     if (includeLists)
                         webObj.GBARRR_AnimationGroupNames = rrrMode7UnusedObj.ObjManager.GraphicsDatas.Select((g, i) => g.BlockIndex.ToString()).ToArray();
 					break;
+
+				case Unity_Object_SNES snesObj:
+					webObj.SNES_GraphicsGroupIndex = snesObj.GraphicsGroupIndex;
+					if(includeLists)
+						webObj.SNES_GraphicsGroupNames = snesObj.ObjManager.GraphicsGroups.Select((g, i) => g.Name).ToArray();
+					break;
 			}
 		}
 		return webObj;
@@ -621,6 +627,12 @@ public class WebCommunicator : MonoBehaviour {
 			case Unity_Object_GBAIsometricSpyro2_2D spyro2D_o:
 				if (msg.GBAIsometric_AnimSetIndex.HasValue && spyro2D_o.AnimSetIndex != msg.GBAIsometric_AnimSetIndex.Value) {
 					spyro2D_o.AnimSetIndex = msg.GBAIsometric_AnimSetIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_SNES snes_o:
+				if (msg.SNES_GraphicsGroupIndex.HasValue && snes_o.GraphicsGroupIndex != msg.SNES_GraphicsGroupIndex.Value) {
+					snes_o.GraphicsGroupIndex = msg.SNES_GraphicsGroupIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
