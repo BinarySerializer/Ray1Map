@@ -51,8 +51,11 @@
             Index_PlayField = s.Serialize<ushort>(Index_PlayField, name: nameof(Index_PlayField));
             Index_TilePal = s.Serialize<ushort>(Index_TilePal, name: nameof(Index_TilePal));
 
-            CrouchingTiger_Ushort = s.Serialize<ushort>(CrouchingTiger_Ushort, name: nameof(CrouchingTiger_Ushort));
-            Index_CrouchingTiger = s.Serialize<ushort>(Index_CrouchingTiger, name: nameof(Index_CrouchingTiger));
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_CrouchingTiger)
+            {
+                CrouchingTiger_Ushort = s.Serialize<ushort>(CrouchingTiger_Ushort, name: nameof(CrouchingTiger_Ushort));
+                Index_CrouchingTiger = s.Serialize<ushort>(Index_CrouchingTiger, name: nameof(Index_CrouchingTiger));
+            }
         }
 
         public override void SerializeOffsetData(SerializerObject s)

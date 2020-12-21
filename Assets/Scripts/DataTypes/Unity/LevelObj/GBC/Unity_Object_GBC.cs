@@ -59,6 +59,8 @@ namespace R1Engine
             set => Actor.YPos = value;
         }
 
+        public override bool FlipHorizontally => Action?.FlipX == true;
+
         public override string DebugText => $"ActionIndex: {ActionIndex}{Environment.NewLine}" +
                                             $"ActionID: {Actor.ActionID}{Environment.NewLine}";
 
