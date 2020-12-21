@@ -32,7 +32,7 @@ namespace R1Engine
                 return des;
 
             var tileSet = puppet.TileSet;
-            var pal = GetSpritePalette(puppet, data).Palette;
+            var pal = GetSpritePalette(puppet, data);
             const int tileWidth = 8;
             const int tileSize = (tileWidth * tileWidth) / 2;
             var numPalettes = pal.Length / 16;
@@ -104,7 +104,7 @@ namespace R1Engine
                         var flipY = false;
                         var ind = y * width + x;
                         parts[ind] = new Unity_ObjAnimationPart {
-                            ImageIndex = tileSet.TileSetLength * (tileSet.Is8Bit ? 0 : c.TileMap[ind].PaletteIndex) + (c.TileMap[ind].TileIndex + y * width + x),
+                            ImageIndex = tileSet.TileSetLength * (tileSet.Is8Bit ? 0 : c.TileMap[ind].PaletteIndex) + (c.TileMap[ind].TileIndex),
                             IsFlippedHorizontally = flipX,
                             IsFlippedVertically = flipY,
                             XPosition = x * CellSize,
@@ -178,6 +178,6 @@ namespace R1Engine
             return des;
         }
 
-        protected virtual GBA_SpritePalette GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => puppet.Palette;
+        protected virtual BaseColor[] GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => puppet.Palette.Palette;
     }
 }

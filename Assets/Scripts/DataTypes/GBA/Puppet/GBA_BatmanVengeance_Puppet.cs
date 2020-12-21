@@ -3,7 +3,7 @@
     public class GBA_BatmanVengeance_Puppet : GBA_BaseBlock {
         #region Data
 
-        public byte Byte_00 { get; set; }
+        public bool IsObjAnimation { get; set; } // False if it's a tile animation, thus using the tile palette
         public byte Index_Palette { get; set; }
         public byte AnimationsCount { get; set; }
         public byte Index_TileSet { get; set; }
@@ -28,7 +28,7 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
+            IsObjAnimation = s.Serialize<bool>(IsObjAnimation, name: nameof(IsObjAnimation));
             Index_Palette = s.Serialize<byte>(Index_Palette, name: nameof(Index_Palette));
             AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
             Index_TileSet = s.Serialize<byte>(Index_TileSet, name: nameof(Index_TileSet));

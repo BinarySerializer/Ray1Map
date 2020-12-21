@@ -12,6 +12,6 @@ namespace R1Engine
 
         public override Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => data.Shanghai_Scene.Knots.Knots.Select(x => new Unity_Sector(x.Actors.Select(v => v - 1).ToList())).ToArray();
 
-        protected override GBA_SpritePalette GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => data.Shanghai_Scene.ObjPal;
+        protected override BaseColor[] GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => puppet.IsObjAnimation ? data.Shanghai_Scene.ObjPal.Palette : data.Shanghai_Scene.TilePal.Palette;
     }
 }
