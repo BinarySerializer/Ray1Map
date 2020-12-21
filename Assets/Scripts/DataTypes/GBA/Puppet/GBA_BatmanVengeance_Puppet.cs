@@ -8,14 +8,16 @@
         public byte AnimationsCount { get; set; }
         public byte Index_TileSet { get; set; }
 
-        public byte[] Shanghai_Bytes { get; set; }
+        public byte TilemapWidth { get; set; }
+        public byte TilemapHeight { get; set; }
+        public byte[] Padding { get; set; }
 
         public uint[] AnimationOffsets { get; set; }
 
         #endregion
 
         #region Parsed
-
+        public Pointer BlockEndPointer { get; set; }
         public GBA_SpritePalette Palette { get; set; }
         public GBA_SpriteTileSet TileSet { get; set; }
         public GBA_BatmanVengeance_Animation[] Animations { get; set; }
@@ -31,18 +33,20 @@
             AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
             Index_TileSet = s.Serialize<byte>(Index_TileSet, name: nameof(Index_TileSet));
 
-            if (s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance)
-                Shanghai_Bytes = s.SerializeArray<byte>(Shanghai_Bytes, 4, name: nameof(Shanghai_Bytes));
-
+            if (s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance) {
+                TilemapWidth = s.Serialize<byte>(TilemapWidth, name: nameof(TilemapWidth));
+                TilemapHeight = s.Serialize<byte>(TilemapHeight, name: nameof(TilemapHeight));
+                Padding = s.SerializeArray<byte>(Padding, 2, name: nameof(Padding));
+            }
             var animOffsetsBase = s.CurrentPointer;
 
             AnimationOffsets = s.SerializeArray<uint>(AnimationOffsets, AnimationsCount, name: nameof(AnimationOffsets));
 
             if (Animations == null) 
                 Animations = new GBA_BatmanVengeance_Animation[AnimationOffsets.Length];
-
+            BlockEndPointer = Offset + BlockSize;
             for (int i = 0; i < AnimationOffsets.Length; i++)
-                Animations[i] = s.DoAt(animOffsetsBase + AnimationOffsets[i], () => s.SerializeObject<GBA_BatmanVengeance_Animation>(Animations[i], name: $"{nameof(Animations)}[{i}]"));
+                Animations[i] = s.DoAt(animOffsetsBase + AnimationOffsets[i], () => s.SerializeObject<GBA_BatmanVengeance_Animation>(Animations[i], onPreSerialize: a => a.Puppet = this, name: $"{nameof(Animations)}[{i}]"));
 
             s.Goto(Offset + BlockSize);
         }

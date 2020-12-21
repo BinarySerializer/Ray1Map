@@ -127,7 +127,11 @@ namespace R1Engine
                 var unityAnim = new Unity_ObjAnimation();
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
-                    frames.Add(new Unity_ObjAnimationFrame(a.Frames[i].Layers/*.OrderByDescending(l => l.Priority)*/.SelectMany(l => GetPartsForLayer(puppet, a, i, l)).Reverse().ToArray()));
+                    // TODO: Change to use commands system
+                    frames.Add(new Unity_ObjAnimationFrame(
+                        a.Frames[i].Commands
+                        .FirstOrDefault(c => c.Command == GBA_BatmanVengeance_AnimationCommand.InstructionCommand.SpriteNew)
+                        .Layers/*.OrderByDescending(l => l.Priority)*/.SelectMany(l => GetPartsForLayer(puppet, a, i, l)).Reverse().ToArray()));
                 }
                 unityAnim.Frames = frames.ToArray();
                 unityAnim.AnimSpeed = 1;

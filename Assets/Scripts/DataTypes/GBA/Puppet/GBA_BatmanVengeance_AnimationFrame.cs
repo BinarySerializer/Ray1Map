@@ -1,49 +1,48 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
     public class GBA_BatmanVengeance_AnimationFrame : R1Serializable {
-        #region Data
-        public byte Byte_00 { get; set; }
-        public byte Byte_01 { get; set; }
-        public byte LayerCount { get; set; }
-        public byte Byte_02 { get; set; }
-        public byte Byte_03 { get; set; }
+        // Set in onPreSerialize
+        public GBA_BatmanVengeance_Puppet Puppet { get; set; }
 
-        public byte[] Shanghai_Bytes { get; set; }
-
-        #endregion
-
-        #region Parsed
-
-        public GBA_BatmanVengeance_AnimationChannel[] Layers { get; set; }
-
-        #endregion
-
-        #region Public Methods
+        public GBA_BatmanVengeance_AnimationCommand[] Commands { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
-            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
+            // Serialize commands
+            if (Commands == null) {
+                var commands = new List<GBA_BatmanVengeance_AnimationCommand>();
 
-            if (s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance)
-            {
-                Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-                LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
+                var p = s.CurrentPointer;
+                var index = 0;
+
+                try {
+                    GBA_BatmanVengeance_AnimationCommand lastCommand = null;
+                    while ((lastCommand == null
+                        || !lastCommand.IsTerminator)
+                        && s.CurrentPointer.AbsoluteOffset < Puppet.BlockEndPointer.AbsoluteOffset) {
+                        lastCommand = s.SerializeObject<GBA_BatmanVengeance_AnimationCommand>(default, onPreSerialize: c => c.Puppet = Puppet, name: $"{nameof(Commands)}[{index}]");
+                        commands.Add(lastCommand);
+                        index++;
+                    }
+                    if (s.CurrentPointer.AbsoluteOffset > Puppet.BlockEndPointer.AbsoluteOffset) {
+                        throw new Exception($"Command overflow at {Offset}!");
+                    }
+                    if (!commands.Last().IsTerminator)
+                        throw new Exception($"Frame did not end with terminator command!");
+                } catch (Exception ex) {
+                    s.Log($"Error parsing command: {ex.Message}");
+                    Debug.LogWarning($"Error parsing command at {Offset}: {ex.Message}");
+                }
+
+                Commands = commands.ToArray();
+            } else {
+                Commands = s.SerializeObjectArray<GBA_BatmanVengeance_AnimationCommand>(Commands, Commands.Length, name: nameof(Commands));
             }
-            else
-            {
-                LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
-                Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
-            }
-            Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
-
-            Layers = s.SerializeObjectArray<GBA_BatmanVengeance_AnimationChannel>(Layers, LayerCount, name: nameof(Layers));
-
-            if (s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance)
-                Shanghai_Bytes = s.SerializeArray<byte>(Shanghai_Bytes, 12, name: nameof(Shanghai_Bytes));
         }
-
-        #endregion
     }
 }
