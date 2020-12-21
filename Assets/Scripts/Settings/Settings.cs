@@ -110,7 +110,7 @@ namespace R1Engine {
 
         public static ScreenshotName Screenshot_FileName { get; set; }
         public static bool Screenshot_ShowDefaultObj { get; set; }
-        public static bool HideUnusedLinks { get; set; } = FileSystem.mode == FileSystem.Mode.Web;
+        public static bool HideUnusedLinks { get; set; } = true;
         public static bool LoadIsometricMapLayer { get; set; } = true;
 
         private const string editorPrefsPrefix = "Ray1Map.";
