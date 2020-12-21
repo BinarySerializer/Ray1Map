@@ -28,6 +28,7 @@ namespace R1Engine
         public byte Byte_84_06 { get; set; }
         public byte Byte_84_07 { get; set; }
 
+        public ushort[] TileMapIndices { get; set; }
         public byte[] Padding { get; set; }
 
         #endregion
@@ -53,6 +54,10 @@ namespace R1Engine
                     LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
                     Padding = s.SerializeArray<byte>(Padding, isShanghai ? 1 : 2, name: nameof(Padding));
                     Layers = s.SerializeObjectArray<GBA_BatmanVengeance_AnimationChannel>(Layers, LayerCount, name: nameof(Layers));
+                    break;
+                case InstructionCommand.SpriteTilemap:
+                    Padding = s.SerializeArray<byte>(Padding, isShanghai ? 2 : 3, name: nameof(Padding));
+                    TileMapIndices = s.SerializeArray<ushort>(TileMapIndices, Puppet.TilemapWidth * Puppet.TilemapHeight, name: nameof(TileMapIndices));
                     break;
                 case InstructionCommand.Unknown80:
                     Byte_80_02 = s.Serialize<byte>(Byte_80_02, name: nameof(Byte_80_02));
