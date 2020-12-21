@@ -86,6 +86,35 @@ namespace R1Engine
                 }
             }
 
+            Unity_ObjAnimationPart[] GetPartsForTilemap(GBA_BatmanVengeance_Puppet s, GBA_BatmanVengeance_Animation a, int frame, GBA_BatmanVengeance_AnimationCommand c) {
+                /*if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
+                    || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
+                    || l.RenderMode == GBA_AnimationLayer.GfxMode.Regular
+                    || l.Mosaic) return new Unity_ObjAnimationPart[0];
+                if (l.Color == GBA_AnimationLayer.ColorMode.Color8bpp) {
+                    Debug.LogWarning("Animation Layer @ " + l.Offset + " has 8bpp color mode, which is currently not supported.");
+                    return new Unity_ObjAnimationPart[0];
+                }*/
+                var height = s.TilemapHeight;
+                var width = s.TilemapWidth;
+                Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[width * height];
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        var flipX = false;
+                        var flipY = false;
+                        var ind = y * width + x;
+                        parts[ind] = new Unity_ObjAnimationPart {
+                            ImageIndex = tileSet.TileSetLength * (tileSet.Is8Bit ? 0 : c.TileMap[ind].PaletteIndex) + (c.TileMap[ind].TileIndex + y * width + x),
+                            IsFlippedHorizontally = flipX,
+                            IsFlippedVertically = flipY,
+                            XPosition = x * CellSize,
+                            YPosition = y * CellSize,
+                        };
+                    }
+                }
+                return parts;
+            }
+
             Unity_ObjAnimationPart[] GetPartsForLayer(GBA_BatmanVengeance_Puppet s, GBA_BatmanVengeance_Animation a, int frame, GBA_BatmanVengeance_AnimationChannel l) {
                 /*if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
@@ -128,10 +157,18 @@ namespace R1Engine
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
                     // TODO: Change to use commands system
-                    frames.Add(new Unity_ObjAnimationFrame(
-                        a.Frames[i].Commands
-                        .FirstOrDefault(c => c.Command == GBA_BatmanVengeance_AnimationCommand.InstructionCommand.SpriteNew)
-                        .Layers/*.OrderByDescending(l => l.Priority)*/.SelectMany(l => GetPartsForLayer(puppet, a, i, l)).Reverse().ToArray()));
+                    List<Unity_ObjAnimationPart[]> parts = new List<Unity_ObjAnimationPart[]>();
+                    foreach (var c in a.Frames[i].Commands) {
+                        switch (c.Command) {
+                            case GBA_BatmanVengeance_AnimationCommand.InstructionCommand.SpriteNew:
+                                parts.Add(c.Layers.SelectMany(l => GetPartsForLayer(puppet, a, i, l)).Reverse().ToArray());
+                                break;
+                            case GBA_BatmanVengeance_AnimationCommand.InstructionCommand.SpriteTilemap:
+                                parts.Add(GetPartsForTilemap(puppet, a, i, c));
+                                break;
+                        }
+                    }
+                    frames.Add(new Unity_ObjAnimationFrame(parts.SelectMany(p => p).ToArray()));
                 }
                 unityAnim.Frames = frames.ToArray();
                 unityAnim.AnimSpeed = 1;

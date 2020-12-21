@@ -700,24 +700,21 @@ namespace R1Engine
                 var indexArray = l.Cluster.Shanghai_MapTileSize == 1 ? l.Shanghai_MapIndices_8.Select(x => (ushort)x).ToArray() : l.Shanghai_MapIndices_16;
 
                 l.MapData = new MapTile[l.Width * l.Height]; //new MapTile[Mathf.CeilToInt(l.Width / 4f) * 4 * l.Height];
+                int indexWidth = Mathf.CeilToInt(l.Width / 4f) * 4;
+                for (int y = 0; y < l.Height; y++) {
+                    for (int x = 0; x < l.Width; x++) {
+                        int i = y * indexWidth + x;
+                        var mapTile = indexArray[i / 4];
+                        var offX = i % 4;
+                        var tile = l.Shanghai_MapTiles[mapTile * 4 + offX];
 
-                for (int i = 0; i < l.MapData.Length; i++) {
-                    if (i >= l.Width * l.Height) {
-                        l.MapData[i] = new MapTile() {
+                        l.MapData[y * l.Width + x] = new MapTile() {
+                            TileMapY = tile.TileMapY,
+                            HorizontalFlip = tile.HorizontalFlip,
+                            VerticalFlip = tile.VerticalFlip,
+                            PaletteIndex = tile.PaletteIndex
                         };
-                        continue;
                     }
-                    var mapTile = indexArray[i / 4];
-                    var offX = i % 4;
-                    var tile = l.Shanghai_MapTiles[mapTile * 4 + offX];
-
-                    l.MapData[i] = new MapTile()
-                    {
-                        TileMapY = tile.TileMapY,
-                        HorizontalFlip = tile.HorizontalFlip,
-                        VerticalFlip = tile.VerticalFlip,
-                        PaletteIndex = tile.PaletteIndex
-                    };
                 }
             }
 

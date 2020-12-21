@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -96,14 +98,13 @@ namespace R1Engine
                     // If the map tile size is not 0 the map is split into a 16x16 index array and 8x8 map tiles
                     if (Cluster.Shanghai_MapTileSize != 0)
                     {
-                        var indexArrayWidth = Width / 2;
-                        var indexArrayHeight = Height / 2;
+                        var indexArrayLength = Mathf.CeilToInt(Width / 4f) * Height;
 
                         // The tile size is either 1 or 2 bytes
                         if (Cluster.Shanghai_MapTileSize == 1)
-                            Shanghai_MapIndices_8 = s.SerializeArray<byte>(Shanghai_MapIndices_8, indexArrayWidth * indexArrayHeight, name: nameof(Shanghai_MapIndices_8));
+                            Shanghai_MapIndices_8 = s.SerializeArray<byte>(Shanghai_MapIndices_8, indexArrayLength, name: nameof(Shanghai_MapIndices_8));
                         else
-                            Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, indexArrayWidth * indexArrayHeight, name: nameof(Shanghai_MapIndices_16));
+                            Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, indexArrayLength, name: nameof(Shanghai_MapIndices_16));
 
                         var indexArray = Cluster.Shanghai_MapTileSize == 1 ? Shanghai_MapIndices_8.Select(x => (ushort)x).ToArray() : Shanghai_MapIndices_16;
 

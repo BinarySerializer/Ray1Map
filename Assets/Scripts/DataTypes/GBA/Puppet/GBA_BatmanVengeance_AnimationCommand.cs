@@ -28,7 +28,7 @@ namespace R1Engine
         public byte Byte_84_06 { get; set; }
         public byte Byte_84_07 { get; set; }
 
-        public ushort[] TileMapIndices { get; set; }
+        public TileGraphicsInfo[] TileMap { get; set; }
         public byte[] Padding { get; set; }
 
         #endregion
@@ -57,7 +57,7 @@ namespace R1Engine
                     break;
                 case InstructionCommand.SpriteTilemap:
                     Padding = s.SerializeArray<byte>(Padding, isShanghai ? 2 : 3, name: nameof(Padding));
-                    TileMapIndices = s.SerializeArray<ushort>(TileMapIndices, Puppet.TilemapWidth * Puppet.TilemapHeight, name: nameof(TileMapIndices));
+                    TileMap = s.SerializeObjectArray<TileGraphicsInfo>(TileMap, Puppet.TilemapWidth * Puppet.TilemapHeight, name: nameof(TileMap));
                     break;
                 case InstructionCommand.Unknown80:
                     Byte_80_02 = s.Serialize<byte>(Byte_80_02, name: nameof(Byte_80_02));
@@ -103,6 +103,20 @@ namespace R1Engine
             Unknown80 = 0x80,
             Unknown83 = 0x83,
             Unknown84 = 0x84,
+        }
+
+
+
+        public class TileGraphicsInfo : R1Serializable {
+            public ushort TileIndex { get; set; } // If -1, same effect as SetInvisible, otherwise SetVisible
+            public byte PaletteIndex { get; set; }
+
+            public override void SerializeImpl(SerializerObject s) {
+                s.SerializeBitValues<ushort>(bitFunc => {
+                    TileIndex = (ushort)bitFunc(TileIndex, 12, name: nameof(TileIndex));
+                    PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                });
+            }
         }
     }
 }
