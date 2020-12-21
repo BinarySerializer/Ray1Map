@@ -4,6 +4,7 @@
         #region Data
 
         public bool IsObjAnimation { get; set; } // False if it's a tile animation, thus using the tile palette
+        public byte Batman_Byte00 { get; set; }
         public byte Index_Palette { get; set; }
         public byte AnimationsCount { get; set; }
         public byte Index_TileSet { get; set; }
@@ -28,7 +29,11 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            IsObjAnimation = s.Serialize<bool>(IsObjAnimation, name: nameof(IsObjAnimation));
+            if (s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance)
+                IsObjAnimation = s.Serialize<bool>(IsObjAnimation, name: nameof(IsObjAnimation));
+            else
+                Batman_Byte00 = s.Serialize<byte>(Batman_Byte00, name: nameof(Batman_Byte00));
+
             Index_Palette = s.Serialize<byte>(Index_Palette, name: nameof(Index_Palette));
             AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
             Index_TileSet = s.Serialize<byte>(Index_TileSet, name: nameof(Index_TileSet));

@@ -243,26 +243,48 @@ namespace R1Engine
         public override bool FlipVertically => State?.Flags.HasFlag(GBA_Action.ActorStateFlags.VerticalFlip) ?? false;
 
         private Unity_ObjAnimationCollisionPart[] objCollision;
+        private GBA_Action prevAction;
         public override Unity_ObjAnimationCollisionPart[] ObjCollision {
             get {
-                if (objCollision == null) {
-                    objCollision = Actor.Type == GBA_Actor.ActorType.Captor ? new Unity_ObjAnimationCollisionPart[] {
-                        new Unity_ObjAnimationCollisionPart()
+                if (objCollision == null || prevAction != State)
+                {
+                    prevAction = State;
+
+                    if (Actor.Type == GBA_Actor.ActorType.Captor)
+                        objCollision = new Unity_ObjAnimationCollisionPart[]
                         {
-                            XPosition = Actor.BoxMinX - XPosition,
-                            YPosition = Actor.BoxMinY - YPosition,
-                            Width = Actor.BoxMaxX - Actor.BoxMinX,
-                            Height = Actor.BoxMaxY - Actor.BoxMinY,
-                            Type = Actor.CaptorID == GBA_Actor.CaptorType.Player ? Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox : Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox
-                        }
-                    } : new Unity_ObjAnimationCollisionPart[0];
+                            new Unity_ObjAnimationCollisionPart()
+                            {
+                                XPosition = Actor.BoxMinX - XPosition,
+                                YPosition = Actor.BoxMinY - YPosition,
+                                Width = Actor.BoxMaxX - Actor.BoxMinX,
+                                Height = Actor.BoxMaxY - Actor.BoxMinY,
+                                Type = Actor.CaptorID == GBA_Actor.CaptorType.Player
+                                    ? Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                                    : Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox
+                            }
+                        };
+                    else if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                        objCollision = new Unity_ObjAnimationCollisionPart[]
+                        {
+                            new Unity_ObjAnimationCollisionPart
+                            {
+                                XPosition = State?.Hitbox_XPos ?? 0,
+                                YPosition = State?.Hitbox_YPos ?? 0,
+                                Width = State?.Hitbox_Width ?? 0,
+                                Height = State?.Hitbox_Height ?? 0,
+                                Type = Unity_ObjAnimationCollisionPart.CollisionType.AttackBox
+                            }
+                        };
+                    else
+                        objCollision = new Unity_ObjAnimationCollisionPart[0];
                 }
                 return objCollision;
             }
         }
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
-        public override int AnimSpeed => CurrentAnimation?.AnimSpeed.Value ?? 0;
+        public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? Actor.ActionIndex;
         protected override int GetSpriteID => GraphicsDataIndex;

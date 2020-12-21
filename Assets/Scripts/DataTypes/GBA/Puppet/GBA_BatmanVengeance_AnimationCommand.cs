@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -10,15 +9,18 @@ namespace R1Engine
         public InstructionCommand Command { get; set; }
         public byte CommandSize { get; set; }
 
+        public byte Time { get; set; }
 
         public byte LayerCount { get; set; }
 
-        public byte Byte_80_02 { get; set; }
-        public byte Byte_80_03 { get; set; }
-        public byte Byte_80_04 { get; set; }
-        public byte Byte_80_05 { get; set; }
-        public byte Byte_80_06 { get; set; }
-        public byte Byte_80_07 { get; set; }
+        public sbyte HitboxXPos { get; set; }
+        public sbyte HitboxYPos { get; set; }
+        public ushort HitboxHalfWidth { get; set; }
+        public ushort HitboxHalfHeight { get; set; }
+
+        public byte Byte_81_02 { get; set; }
+        public byte Byte_81_03 { get; set; }
+        public byte Byte_81_04 { get; set; }
 
         public byte Byte_83_02 { get; set; }
         public byte Byte_83_03 { get; set; }
@@ -46,9 +48,10 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s) {
             bool isShanghai = s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance;
             Command = s.Serialize<InstructionCommand>(Command, name: nameof(Command));
-            if (isShanghai) {
+
+            if (isShanghai)
                 CommandSize = s.Serialize<byte>(CommandSize, name: nameof(CommandSize)); // In bytes
-            }
+
             switch (Command) {
                 case InstructionCommand.SpriteNew:
                     LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
@@ -59,13 +62,16 @@ namespace R1Engine
                     Padding = s.SerializeArray<byte>(Padding, isShanghai ? 2 : 3, name: nameof(Padding));
                     TileMap = s.SerializeObjectArray<TileGraphicsInfo>(TileMap, Puppet.TilemapWidth * Puppet.TilemapHeight, name: nameof(TileMap));
                     break;
-                case InstructionCommand.Unknown80:
-                    Byte_80_02 = s.Serialize<byte>(Byte_80_02, name: nameof(Byte_80_02));
-                    Byte_80_03 = s.Serialize<byte>(Byte_80_03, name: nameof(Byte_80_03));
-                    Byte_80_04 = s.Serialize<byte>(Byte_80_04, name: nameof(Byte_80_04));
-                    Byte_80_05 = s.Serialize<byte>(Byte_80_05, name: nameof(Byte_80_05));
-                    Byte_80_06 = s.Serialize<byte>(Byte_80_06, name: nameof(Byte_80_06));
-                    Byte_80_07 = s.Serialize<byte>(Byte_80_07, name: nameof(Byte_80_07));
+                case InstructionCommand.Hitbox:
+                    HitboxXPos = s.Serialize<sbyte>(HitboxXPos, name: nameof(HitboxXPos));
+                    HitboxYPos = s.Serialize<sbyte>(HitboxYPos, name: nameof(HitboxYPos));
+                    HitboxHalfWidth = s.Serialize<ushort>(HitboxHalfWidth, name: nameof(HitboxHalfWidth));
+                    HitboxHalfHeight = s.Serialize<ushort>(HitboxHalfHeight, name: nameof(HitboxHalfHeight));
+                    break;
+                case InstructionCommand.Unknown81:
+                    Byte_81_02 = s.Serialize<byte>(Byte_81_02, name: nameof(Byte_81_02));
+                    Byte_81_03 = s.Serialize<byte>(Byte_81_03, name: nameof(Byte_81_03));
+                    Byte_81_04 = s.Serialize<byte>(Byte_81_04, name: nameof(Byte_81_04));
                     break;
                 case InstructionCommand.Unknown83:
                     Byte_83_02 = s.Serialize<byte>(Byte_83_02, name: nameof(Byte_83_02));
@@ -79,14 +85,18 @@ namespace R1Engine
                     Byte_84_07 = s.Serialize<byte>(Byte_84_07, name: nameof(Byte_84_07));
                     break;
                 case InstructionCommand.Terminator0:
-                    Padding = s.SerializeArray<byte>(Padding, isShanghai ? 2 : 3, name: nameof(Padding));
-                    break;
                 case InstructionCommand.Terminator20:
-                    Padding = s.SerializeArray<byte>(Padding, isShanghai ? 2 : 3, name: nameof(Padding));
+                    Time = s.Serialize<byte>(Time, name: nameof(Time));
+                    Padding = s.SerializeArray<byte>(Padding, isShanghai ? 1 : 2, name: nameof(Padding));
                     break;
+                default:
+                    throw new Exception($"Unknown command {Command}");
             }
-            if (isShanghai) {
-                if(CommandSize < 2) throw new Exception($"Command size {CommandSize} at {Offset}");
+            if (isShanghai) 
+            {
+                if (CommandSize < 2) 
+                    throw new Exception($"Command size {CommandSize} at {Offset}");
+
                 s.Goto(Offset + CommandSize);
             }
         }
@@ -100,7 +110,8 @@ namespace R1Engine
             SpriteNew = 0x01,
             SpriteTilemap = 0x10,
             Terminator20 = 0x20,
-            Unknown80 = 0x80,
+            Hitbox = 0x80,
+            Unknown81 = 0x81,
             Unknown83 = 0x83,
             Unknown84 = 0x84,
         }
