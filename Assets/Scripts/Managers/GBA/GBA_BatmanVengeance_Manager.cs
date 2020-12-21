@@ -172,6 +172,10 @@ namespace R1Engine
                 }
                 unityAnim.Frames = frames.ToArray();
                 unityAnim.AnimSpeed = 1;
+                unityAnim.AnimSpeeds = a.Frames.Select(x =>
+                {
+                    return (x.Commands.FirstOrDefault(c => c.Command == GBA_BatmanVengeance_AnimationCommand.InstructionCommand.Terminator0 || c.Command == GBA_BatmanVengeance_AnimationCommand.InstructionCommand.Terminator20)?.Padding[0] ?? 0) + 1;
+                }).ToArray();
                 des.Animations.Add(unityAnim);
             }
 
