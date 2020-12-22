@@ -119,7 +119,7 @@ namespace R1Engine
                                                       x.FollowEnabled == e.GetFollowEnabled(Context.Settings) &&
                                                       compareCommands(x));
 
-            // Create dummy item if not found
+            // Log if not found
             if (match == null && AvailableEvents.Any())
                 Debug.LogWarning($"Matching event not found for event with type {e.Type}, etat {e.Etat} & subetat {e.SubEtat} in level {Settings.World}-{Settings.Level}");
 

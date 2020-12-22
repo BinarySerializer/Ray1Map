@@ -694,7 +694,7 @@ namespace R1Engine
                 mapLayers = mapLayers.Concat(mode7Layers).ToArray();
             }
 
-            // Create a normal 8x8 map array for Shanghai games with 16x16 maps
+            // Create a normal 8x8 map array for Shanghai games with 32x8 maps
             foreach (var l in mapLayers.Where(x => x.Cluster?.Shanghai_MapTileSize == 1 || x.Cluster?.Shanghai_MapTileSize == 2))
             {
                 var indexArray = l.Cluster.Shanghai_MapTileSize == 1 ? l.Shanghai_MapIndices_8.Select(x => (ushort)x).ToArray() : l.Shanghai_MapIndices_16;

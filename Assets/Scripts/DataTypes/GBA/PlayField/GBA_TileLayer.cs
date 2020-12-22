@@ -95,7 +95,7 @@ namespace R1Engine
                     // Go to the map data
                     s.Goto(ShanghaiOffsetTable.GetPointer(2));
 
-                    // If the map tile size is not 0 the map is split into a 16x16 index array and 8x8 map tiles
+                    // If the map tile size is not 0 the map is split into a 32x8 index array and 8x8 map tiles
                     if (Cluster.Shanghai_MapTileSize != 0)
                     {
                         var indexArrayLength = Mathf.CeilToInt(Width / 4f) * Height;
