@@ -30,6 +30,16 @@ namespace R1Engine
         public byte Byte_84_06 { get; set; }
         public byte Byte_84_07 { get; set; }
 
+        public byte Byte_85_02 { get; set; }
+        public byte Byte_85_03 { get; set; }
+
+        public byte Byte_86_02 { get; set; }
+        public byte Byte_86_03 { get; set; }
+        public byte Byte_86_04 { get; set; }
+        public byte Byte_86_05 { get; set; }
+        public byte Byte_86_06 { get; set; }
+        public byte Byte_86_07 { get; set; }
+
         public TileGraphicsInfo[] TileMap { get; set; }
         public byte[] Padding { get; set; }
 
@@ -84,6 +94,18 @@ namespace R1Engine
                     Byte_84_06 = s.Serialize<byte>(Byte_84_06, name: nameof(Byte_84_06));
                     Byte_84_07 = s.Serialize<byte>(Byte_84_07, name: nameof(Byte_84_07));
                     break;
+                case InstructionCommand.Unknown85:
+                    Byte_85_02 = s.Serialize<byte>(Byte_85_02, name: nameof(Byte_85_02));
+                    Byte_85_03 = s.Serialize<byte>(Byte_85_03, name: nameof(Byte_85_03));
+                    break;
+                case InstructionCommand.Unknown86:
+                    Byte_86_02 = s.Serialize<byte>(Byte_86_02, name: nameof(Byte_86_02));
+                    Byte_86_03 = s.Serialize<byte>(Byte_86_03, name: nameof(Byte_86_03));
+                    Byte_86_04 = s.Serialize<byte>(Byte_86_04, name: nameof(Byte_86_04));
+                    Byte_86_05 = s.Serialize<byte>(Byte_86_05, name: nameof(Byte_86_05));
+                    Byte_86_06 = s.Serialize<byte>(Byte_86_06, name: nameof(Byte_86_06));
+                    Byte_86_07 = s.Serialize<byte>(Byte_86_07, name: nameof(Byte_86_07));
+                    break;
                 case InstructionCommand.Terminator0:
                 case InstructionCommand.Terminator20:
                     Time = s.Serialize<byte>(Time, name: nameof(Time));
@@ -114,6 +136,8 @@ namespace R1Engine
             Unknown81 = 0x81,
             Unknown83 = 0x83,
             Unknown84 = 0x84,
+            Unknown85 = 0x85,
+            Unknown86 = 0x86,
         }
 
 

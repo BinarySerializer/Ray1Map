@@ -29,7 +29,7 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_DonaldDuck)
                 IsObjAnimation = s.Serialize<bool>(IsObjAnimation, name: nameof(IsObjAnimation));
             else
                 Batman_Byte00 = s.Serialize<byte>(Batman_Byte00, name: nameof(Batman_Byte00));
