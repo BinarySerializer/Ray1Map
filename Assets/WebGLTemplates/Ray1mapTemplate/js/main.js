@@ -448,30 +448,52 @@ function handleMessage_settings(msg) {
 	
 	$("#btn-camera").removeClass("disabled-button");
 
-	if(msg.hasOwnProperty("Layers") && msg.Layers.length > 0 && layer_buttons.html() === "") {
-		let items = []
-		items.push("<div class='header-buttons-text'>Layers:</div>");
-		$.each(msg.Layers, function(i, l) {
-			let index = l.Index;
-			let active = (l.hasOwnProperty("IsVisible") && l.IsVisible) ? " selected" : "";
-			if(index < 0) {
-				if(index == -2) {
-					items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Background Layer"><div class="text">BG</div></div>');
-				} else if(index == -1) {
-					items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Parallax Background Layer"><div class="text">PAR</div></div>');
-				}
-			} else {
-				items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Layer ' + index + '"><div class="text">' + index + '</div></div>');
+	if((msg.hasOwnProperty("Layers") && msg.Layers.length > 0) || (msg.hasOwnProperty("ObjectLayers") && msg.ObjectLayers.length > 0)) {
+		if(layer_buttons.html() === "") {
+			let items = []
+			if(msg.hasOwnProperty("Layers") && msg.Layers.length > 0) {
+				items.push("<div class='header-buttons-text'>Layers:</div>");
+				$.each(msg.Layers, function(i, l) {
+					let index = l.Index;
+					let active = (l.hasOwnProperty("IsVisible") && l.IsVisible) ? " selected" : "";
+					if(index < 0) {
+						if(index == -2) {
+							items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Background Layer"><div class="text">BG</div></div>');
+						} else if(index == -1) {
+							items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Parallax Background Layer"><div class="text">PAR</div></div>');
+						}
+					} else {
+						items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Layer ' + index + '"><div class="text">' + index + '</div></div>');
+					}
+				});
 			}
-		});
-		layer_buttons.html(items.join(" "));
-	} else if(msg.hasOwnProperty("Layers") && msg.Layers.length > 0) {
-		$.each(msg.Layers, function(i, l) {
-			let index = l.Index;
-			if(l.hasOwnProperty("IsVisible")) {
-				selectButton($(".layer-button[data-layer-index='" + index + "']"), l.IsVisible);
+			if(msg.hasOwnProperty("ObjectLayers") && msg.ObjectLayers.length > 0) {
+				items.push("<div class='header-buttons-text'>Objects:</div>");
+				$.each(msg.Layers, function(i, l) {
+					let index = l.Index;
+					let active = (l.hasOwnProperty("IsVisible") && l.IsVisible) ? " selected" : "";
+					items.push('<div class="header-button settings-toggle object-layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Objects on Layer ' + index + '"><div class="text">' + index + '</div></div>');
+				});
 			}
-		});
+			layer_buttons.html(items.join(" "));
+		} else {
+			if(msg.hasOwnProperty("Layers") && msg.Layers.length > 0) {
+				$.each(msg.Layers, function(i, l) {
+					let index = l.Index;
+					if(l.hasOwnProperty("IsVisible")) {
+						selectButton($(".layer-button[data-layer-index='" + index + "']"), l.IsVisible);
+					}
+				});
+			}
+			if(msg.hasOwnProperty("ObjectLayers") && msg.ObjectLayers.length > 0) {
+				$.each(msg.Layers, function(i, l) {
+					let index = l.Index;
+					if(l.hasOwnProperty("IsVisible")) {
+						selectButton($(".object-layer-button[data-layer-index='" + index + "']"), l.IsVisible);
+					}
+				});
+			}
+		}
 	}
 }
 function getIndexFromObject(obj) {
@@ -1507,6 +1529,19 @@ function sendSettings() {
 			});
 		});
 		jsonObj.Settings.Layers = layerSettings;
+	}
+	let objectLayers = $(".object-layer-button");
+	if(objectLayers.length > 0) {
+		let layerSettings = [];
+		objectLayers.each(function(i) {
+			let dataIndex = $(this).data("layerIndex");
+			let isVisible = $(this).hasClass("selected");
+			layerSettings.push({
+				Index: dataIndex,
+				IsVisible: isVisible
+			});
+		});
+		jsonObj.Settings.ObjectLayers = layerSettings;
 	}
 	sendMessage(jsonObj);
 }
