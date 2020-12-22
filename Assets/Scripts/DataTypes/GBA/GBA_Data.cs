@@ -26,6 +26,12 @@
             // Serialize the offset table
             s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => UiOffsetTable = s.SerializeObject<GBA_OffsetTable>(UiOffsetTable, name: nameof(UiOffsetTable)));
 
+            // TODO: Serialize scene for Milan branch
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_TheMummy ||
+                s.GameSettings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy ||
+                s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                return;
+
             var manager = (GBA_Manager)s.Context.Settings.GetGameManager;
 
             switch (manager.GetLevelType(s.Context))
