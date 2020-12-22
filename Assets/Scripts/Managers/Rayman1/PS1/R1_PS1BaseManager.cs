@@ -294,7 +294,7 @@ namespace R1Engine
                     var desName = des.Name ?? LevelEditorData.NameTable_R1PS1DES?.TryGetItem(des.ImageDescriptorsPointer?.file.filePath)?.FindItem(x =>
                         x.Value.ImageDescriptors == des.ImageDescriptorsPointer?.AbsoluteOffset &&
                         x.Value.AnimationDescriptors == des.AnimationDescriptorsPointer?.AbsoluteOffset &&
-                        x.Value.ImageBuffer == des.ImageBufferPointer?.AbsoluteOffset).Key;
+                        (!x.Value.ImageBuffer.HasValue || x.Value.ImageBuffer == des.ImageBufferPointer?.AbsoluteOffset)).Key;
 
                     // Add to the designs
                     eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, imgDescriptors, des.ImageDescriptorsPointer, des.AnimationDescriptorsPointer, des.ImageBufferPointer), des.ImageDescriptorsPointer, name: desName));
