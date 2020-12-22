@@ -26,11 +26,12 @@
         GBA_DonaldDuckAdvance,
         GBA_CrouchingTigerHiddenDragon,
 
+        GBA_BatmanVengeance,
+
         GBA_TheMummy,
         GBA_TombRaiderTheProphecy,
         GBA_TomClancysRainbowSixRogueSpear,
 
-        GBA_BatmanVengeance,
         GBA_SabrinaTheTeenageWitchPotionCommotion,
         GBA_Rayman3,
         GBA_Rayman3_MadTrax,
