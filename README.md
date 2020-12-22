@@ -331,14 +331,6 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
     <th class="tg-yw4l"><b>Saving</b></th>
   </tr>
   <tr>
-    <td class="tg-yw4l">Batman Vengeance (GBA)</td>
-    <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
     <td class="tg-yw4l">Donald Duck Advance (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
@@ -349,6 +341,14 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   <tr>
     <td class="tg-yw4l">Crouching Tiger Hidden Dragon (GBA)</td>
     <td class="tg-yw4l">EU, US, US Beta</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Batman Vengeance (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>

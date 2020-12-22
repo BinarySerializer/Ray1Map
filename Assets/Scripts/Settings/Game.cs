@@ -23,22 +23,23 @@
 
         // GBA
 
+        GBA_DonaldDuckAdvance,
+        GBA_CrouchingTigerHiddenDragon,
+
+        GBA_BatmanVengeance,
+        GBA_SabrinaTheTeenageWitchPotionCommotion,
         GBA_Rayman3,
         GBA_Rayman3_MadTrax,
-        GBA_PrinceOfPersiaTheSandsOfTime,
-        GBA_SabrinaTheTeenageWitchPotionCommotion,
         GBA_SplinterCell,
+        GBA_PrinceOfPersiaTheSandsOfTime,
+        GBA_BatmanRiseOfSinTzu,
         GBA_SplinterCellPandoraTomorrow,
         GBA_StarWarsTrilogyApprenticeOfTheForce,
         GBA_StarWarsEpisodeIII,
         GBA_KingKong,
-        GBA_BatmanVengeance,
-        GBA_DonaldDuckAdvance,
-        GBA_CrouchingTigerHiddenDragon,
-        GBA_BatmanRiseOfSinTzu,
         GBA_OpenSeason,
-        GBA_SurfsUp,
         GBA_TMNT,
+        GBA_SurfsUp,
 
         // GBA RRR
         
