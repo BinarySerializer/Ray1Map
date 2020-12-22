@@ -60,6 +60,7 @@ public class WebJSON {
 		public Layer[] Layers { get; set; }
 		public string[] Palettes { get; set; }
 		public int? Palette { get; set; }
+		public Layer[] ObjectLayers { get; set; }
 
 		public Color? BackgroundTint { get; set; }
 		public Color? BackgroundTintDark { get; set; }

@@ -424,6 +424,15 @@ public class WebCommunicator : MonoBehaviour {
 			if (layers.Count > 0) {
 				s.Layers = layers.ToArray();
 			}
+			if (c?.Settings.EngineVersion == EngineVersion.R2_PS1) {
+				var objLayers = Controller.obj.levelController.Objects
+					.Select(o => o.ObjData.MapLayer).Distinct()
+					.Where(l => l.HasValue && (LevelEditorData.ShowEventsForMaps?.Length ?? 0) > l.Value);
+				s.ObjectLayers = objLayers.Select(l => new WebJSON.Layer() {
+					Index = l.Value,
+					IsVisible = LevelEditorData.ShowEventsForMaps[l.Value]
+					}).OrderBy(ol => ol.Index).ToArray();
+			}
 
             if (Controller.obj.levelController.controllerTilemap.HasAutoPaletteOption)
             {
@@ -512,6 +521,15 @@ public class WebCommunicator : MonoBehaviour {
 								tilemapController.IsLayerVisible[layer.Index] = layer.IsVisible.Value;
 							}
 							break;
+					}
+				}
+			}
+		}
+		if (msg.ObjectLayers != null && msg.ObjectLayers.Length > 0 && LevelEditorData.ShowEventsForMaps != null) {
+			foreach (var layer in msg.ObjectLayers) {
+				if (layer.IsVisible.HasValue) {
+					if (LevelEditorData.ShowEventsForMaps.Length > layer.Index) {
+						LevelEditorData.ShowEventsForMaps[layer.Index] = layer.IsVisible.Value;
 					}
 				}
 			}

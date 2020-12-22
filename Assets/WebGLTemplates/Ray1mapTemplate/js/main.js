@@ -411,9 +411,9 @@ function handleMessage_settings(msg) {
 		$("#btn-animateTiles").removeClass("removed-button");
 		selectButton($("#btn-animateTiles"), msg.AnimateTiles);
 	}
-	selectButton($("btn-showEditorObjects"), msg.ShowEditorObjects);
-	selectButton($("btn-showAlwaysObjects"), msg.ShowAlwaysObjects);
-	selectButton($("btn-showRayman"), msg.ShowRayman);
+	selectButton($("#btn-showEditorObjects"), msg.ShowEditorObjects);
+	selectButton($("#btn-showAlwaysObjects"), msg.ShowAlwaysObjects);
+	selectButton($("#btn-showRayman"), msg.ShowRayman);
 	if(msg.hasOwnProperty("CanUseFreeCameraMode") && msg.CanUseFreeCameraMode) {
 		$("#btn-freeCameraMode").removeClass("removed-button");
 		selectButton($("#btn-freeCameraMode"), msg.FreeCameraMode);
