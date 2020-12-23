@@ -910,39 +910,23 @@ namespace R1Engine
                 return des;
 
             var length = spr.TileSet.TileSetLength / (is8bit ? 2 : 1);
-            var tileMap = spr.TileSet;
+            var tileSet = spr.TileSet;
             var pal = spr.Palette.Palette;
             const int tileWidth = 8;
             int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
             var numPalettes = is8bit ? 1 : spr.Palette.Palette.Length / 16;
 
             // Add sprites for each palette
+            var pal_split = Util.ConvertAndSplitGBAPalette((RGBA5551Color[])pal);
             for (int palIndex = 0; palIndex < numPalettes; palIndex++)
             {
-                for (int i = 0; i < length; i++)
-                {
-                    var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+                var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal_split[palIndex], Util.TileEncoding.Linear_4bpp, CellSize, false, flipTileY: true);
 
-                    for (int y = 0; y < tileWidth; y++)
-                    {
-                        for (int x = 0; x < tileWidth; x++)
-                        {
-                            int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
-
-                            var b = tileMap.TileSet[index];
-                            var v = is8bit ? b : BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
-
-                            Color c = pal[palIndex * 16 + v].GetColor();
-
-                            if (v != 0)
-                                c = new Color(c.r, c.g, c.b, 1f);
-
-                            tex.SetPixel(x, (tileWidth - 1 - y), c);
-                        }
-                    }
-
-                    tex.Apply();
-                    des.Sprites.Add(tex.CreateSprite());
+                // Extract every sprite
+                for (int i = 0; i < tileSet.TileSetLength; i++) {
+                    int x = i % 32;
+                    int y = i / 32;
+                    des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x * CellSize, y * CellSize, CellSize, CellSize)));
                 }
             }
 
