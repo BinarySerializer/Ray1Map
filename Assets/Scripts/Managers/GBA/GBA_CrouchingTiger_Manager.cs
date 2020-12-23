@@ -8,7 +8,7 @@ namespace R1Engine
     {
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
-            Enumerable.Range(0, 1) // TODO: Get count
+            Enumerable.Range(0, 50) // TODO: Get count
         };
 
         public override int[] MenuLevels => new int[0];
@@ -17,5 +17,7 @@ namespace R1Engine
         public override int[] AdditionalSprites8bpp => new int[0];
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
+
+        protected override BaseColor[] GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => data.Shanghai_Scene.ObjPal.Palette;
     }
 }

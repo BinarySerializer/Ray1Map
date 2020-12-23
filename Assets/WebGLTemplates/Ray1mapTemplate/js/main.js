@@ -469,7 +469,7 @@ function handleMessage_settings(msg) {
 			}
 			if(msg.hasOwnProperty("ObjectLayers") && msg.ObjectLayers.length > 0) {
 				items.push("<div class='header-buttons-text'>Objects:</div>");
-				$.each(msg.Layers, function(i, l) {
+				$.each(msg.ObjectLayers, function(i, l) {
 					let index = l.Index;
 					let active = (l.hasOwnProperty("IsVisible") && l.IsVisible) ? " selected" : "";
 					items.push('<div class="header-button settings-toggle object-layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Objects on Layer ' + index + '"><div class="text">' + index + '</div></div>');
@@ -486,7 +486,7 @@ function handleMessage_settings(msg) {
 				});
 			}
 			if(msg.hasOwnProperty("ObjectLayers") && msg.ObjectLayers.length > 0) {
-				$.each(msg.Layers, function(i, l) {
+				$.each(msg.ObjectLayers, function(i, l) {
 					let index = l.Index;
 					if(l.hasOwnProperty("IsVisible")) {
 						selectButton($(".object-layer-button[data-layer-index='" + index + "']"), l.IsVisible);

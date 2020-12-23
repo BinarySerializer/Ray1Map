@@ -107,8 +107,10 @@ namespace R1Engine
             {
                 Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[l.XSize * l.YSize];
 
-                if (l.ImageIndex > puppet.TileSet.TileSetLength)
-                    Controller.print("Image index too high: " + puppet.Offset + " - " + l.Offset + $"Index: {l.ImageIndex} - Max: {puppet.TileSet.TileSetLength - 1}");
+                var imageIndex = l.ImageIndex / (tileSet.Is8Bit ? 2 : 1);
+
+                if (imageIndex > puppet.TileSet.TileSetLength)
+                    Controller.print("Image index too high: " + puppet.Offset + " - " + l.Offset + $"Index: {imageIndex} - Max: {puppet.TileSet.TileSetLength - 1}");
 
                 if (l.PaletteIndex > pal.Length / 16)
                     Controller.print("Palette index too high: " + puppet.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (pal.Length / 16));
@@ -116,7 +118,7 @@ namespace R1Engine
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Unity_ObjAnimationPart {
-                            ImageIndex = tileSet.TileSetLength * (tileSet.Is8Bit ? 0 : l.PaletteIndex) + (l.ImageIndex + y * l.XSize + x),
+                            ImageIndex = tileSet.TileSetLength * (tileSet.Is8Bit ? 0 : l.PaletteIndex) + (imageIndex + y * l.XSize + x),
                             IsFlippedHorizontally = l.IsFlippedHorizontally,
                             IsFlippedVertically = l.IsFlippedVertically,
                             XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * CellSize),
