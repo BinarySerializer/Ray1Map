@@ -175,6 +175,7 @@
                             l.StructType = BatmanLayers[i].IsCollisionBlock ? GBA_TileLayer.Type.Collision : GBA_TileLayer.Type.Layer2D;
                             l.Width = BatmanLayers[i].Width;
                             l.Height = BatmanLayers[i].Height;
+                            l.LayerID = BatmanLayers[i].LayerID;
                         }, name: $"{nameof(Layers)}[{i}]");
                     });
 

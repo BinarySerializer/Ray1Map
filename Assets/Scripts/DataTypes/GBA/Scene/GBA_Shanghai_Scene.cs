@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBA_Shanghai_Scene : GBA_BaseBlock
     {
@@ -16,11 +18,11 @@
         public ushort Index_ObjPal { get; set; }
         public ushort Index_Captors { get; set; }
         public ushort Index_Knots { get; set; }
-        public ushort Index_PlayField { get; set; }
+        public ushort Index_PlayFieldFG { get; set; }
         public ushort Index_TilePal { get; set; }
 
         public ushort CrouchingTiger_Ushort { get; set; }
-        public ushort Index_CrouchingTiger { get; set; }
+        public ushort Index_PlayFieldBG { get; set; }
 
         // Parsed from offsets
 
@@ -28,8 +30,18 @@
         public GBA_SpritePalette ObjPal { get; set; }
         public GBA_Shanghai_CaptorsBlock Captors { get; set; }
         public GBA_Shanghai_KnotsBlock Knots { get; set; }
-        public GBA_PlayField PlayField { get; set; }
+        public GBA_PlayField PlayFieldFG { get; set; }
+        public GBA_PlayField PlayFieldBG { get; set; }
         public GBA_Palette TilePal { get; set; }
+
+        public GBA_PlayField CombinedPlayField => new GBA_PlayField()
+        {
+            Layers = new GBA_PlayField[]
+            {
+                PlayFieldBG,
+                PlayFieldFG,
+            }.Where(x => x != null).SelectMany(x => x.Layers).ToArray(),
+        };
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -48,13 +60,13 @@
             Index_ObjPal = s.Serialize<ushort>(Index_ObjPal, name: nameof(Index_ObjPal));
             Index_Captors = s.Serialize<ushort>(Index_Captors, name: nameof(Index_Captors));
             Index_Knots = s.Serialize<ushort>(Index_Knots, name: nameof(Index_Knots));
-            Index_PlayField = s.Serialize<ushort>(Index_PlayField, name: nameof(Index_PlayField));
+            Index_PlayFieldFG = s.Serialize<ushort>(Index_PlayFieldFG, name: nameof(Index_PlayFieldFG));
             Index_TilePal = s.Serialize<ushort>(Index_TilePal, name: nameof(Index_TilePal));
 
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_CrouchingTiger)
             {
                 CrouchingTiger_Ushort = s.Serialize<ushort>(CrouchingTiger_Ushort, name: nameof(CrouchingTiger_Ushort));
-                Index_CrouchingTiger = s.Serialize<ushort>(Index_CrouchingTiger, name: nameof(Index_CrouchingTiger));
+                Index_PlayFieldBG = s.Serialize<ushort>(Index_PlayFieldBG, name: nameof(Index_PlayFieldBG));
             }
         }
 
@@ -64,7 +76,8 @@
             ObjPal = s.DoAt(OffsetTable.GetPointer(Index_ObjPal), () => s.SerializeObject<GBA_SpritePalette>(ObjPal, name: nameof(ObjPal)));
             Captors = s.DoAt(OffsetTable.GetPointer(Index_Captors), () => s.SerializeObject<GBA_Shanghai_CaptorsBlock>(Captors, name: nameof(Captors)));
             Knots = s.DoAt(OffsetTable.GetPointer(Index_Knots), () => s.SerializeObject<GBA_Shanghai_KnotsBlock>(Knots, x => x.Length = KnotsWidth * KnotsHeight, name: nameof(Knots)));
-            PlayField = s.DoAt(OffsetTable.GetPointer(Index_PlayField), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
+            PlayFieldFG = s.DoAt(OffsetTable.GetPointer(Index_PlayFieldFG), () => s.SerializeObject<GBA_PlayField>(PlayFieldFG, name: nameof(PlayFieldFG)));
+            PlayFieldBG = s.DoAt(OffsetTable.GetPointer(Index_PlayFieldBG), () => s.SerializeObject<GBA_PlayField>(PlayFieldBG, name: nameof(PlayFieldBG)));
             TilePal = s.DoAt(OffsetTable.GetPointer(Index_TilePal), () => s.SerializeObject<GBA_Palette>(TilePal, name: nameof(TilePal)));
         }
     }

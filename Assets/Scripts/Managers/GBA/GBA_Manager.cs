@@ -651,7 +651,7 @@ namespace R1Engine
                     else // Shanghai
                     {
                         scene = null;
-                        playField = dataBlock.Shanghai_Scene.PlayField;
+                        playField = dataBlock.Shanghai_Scene.CombinedPlayField;
                     }
                 }
                 else
