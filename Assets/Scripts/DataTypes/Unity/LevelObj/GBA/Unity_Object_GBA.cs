@@ -219,7 +219,7 @@ namespace R1Engine
                 if (Actor.Type == GBA_Actor.ActorType.Unk)
                     return null;
                 if (Actor.Type == GBA_Actor.ActorType.Captor) {
-                    return $"BOX_{(int)Actor.CaptorID}";
+                    return $"Captor_{(int)Actor.CaptorID}";
                 }
 
                 return $"ID_{Actor.ActorID}";
