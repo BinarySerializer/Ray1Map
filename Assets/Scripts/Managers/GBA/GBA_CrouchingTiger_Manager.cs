@@ -8,7 +8,8 @@ namespace R1Engine
     {
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
-            Enumerable.Range(0, 50) // TODO: Get count
+            Enumerable.Range(0, 40),
+            Enumerable.Range(156, 1)
         };
 
         public override int[] MenuLevels => new int[0];

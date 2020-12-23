@@ -21,7 +21,7 @@ namespace R1Engine
         public ushort Index_PlayFieldFG { get; set; }
         public ushort Index_TilePal { get; set; }
 
-        public ushort CrouchingTiger_Ushort { get; set; }
+        public bool HasPlayFieldBG { get; set; }
         public ushort Index_PlayFieldBG { get; set; }
 
         // Parsed from offsets
@@ -65,7 +65,8 @@ namespace R1Engine
 
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_CrouchingTiger)
             {
-                CrouchingTiger_Ushort = s.Serialize<ushort>(CrouchingTiger_Ushort, name: nameof(CrouchingTiger_Ushort));
+                HasPlayFieldBG = s.Serialize<bool>(HasPlayFieldBG, name: nameof(HasPlayFieldBG));
+                s.Serialize<byte>(default, name: "Padding");
                 Index_PlayFieldBG = s.Serialize<ushort>(Index_PlayFieldBG, name: nameof(Index_PlayFieldBG));
             }
         }
@@ -77,7 +78,10 @@ namespace R1Engine
             Captors = s.DoAt(OffsetTable.GetPointer(Index_Captors), () => s.SerializeObject<GBA_Shanghai_CaptorsBlock>(Captors, name: nameof(Captors)));
             Knots = s.DoAt(OffsetTable.GetPointer(Index_Knots), () => s.SerializeObject<GBA_Shanghai_KnotsBlock>(Knots, x => x.Length = KnotsWidth * KnotsHeight, name: nameof(Knots)));
             PlayFieldFG = s.DoAt(OffsetTable.GetPointer(Index_PlayFieldFG), () => s.SerializeObject<GBA_PlayField>(PlayFieldFG, name: nameof(PlayFieldFG)));
-            PlayFieldBG = s.DoAt(OffsetTable.GetPointer(Index_PlayFieldBG), () => s.SerializeObject<GBA_PlayField>(PlayFieldBG, name: nameof(PlayFieldBG)));
+
+            if (HasPlayFieldBG)
+                PlayFieldBG = s.DoAt(OffsetTable.GetPointer(Index_PlayFieldBG), () => s.SerializeObject<GBA_PlayField>(PlayFieldBG, name: nameof(PlayFieldBG)));
+
             TilePal = s.DoAt(OffsetTable.GetPointer(Index_TilePal), () => s.SerializeObject<GBA_Palette>(TilePal, name: nameof(TilePal)));
         }
     }
