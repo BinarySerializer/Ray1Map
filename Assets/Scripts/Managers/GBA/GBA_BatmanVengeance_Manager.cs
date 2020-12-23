@@ -160,7 +160,12 @@ namespace R1Engine
                                 break;
                         }
                     }
-                    frames.Add(new Unity_ObjAnimationFrame(parts.SelectMany(p => p).ToArray(), collisionParts.ToArray()));
+                    if (parts.Count == 0 && frames.Count > 0) {
+                        var lastFrame = frames.Last();
+                        frames.Add(new Unity_ObjAnimationFrame(lastFrame.SpriteLayers, lastFrame.CollisionLayers));
+                    } else {
+                        frames.Add(new Unity_ObjAnimationFrame(parts.SelectMany(p => p).ToArray(), collisionParts.ToArray()));
+                    }
                 }
                 unityAnim.Frames = frames.ToArray();
                 unityAnim.AnimSpeeds = a.Frames.Select(x => (x.Commands.FirstOrDefault(c => c.IsTerminator)?.Time ?? 0) + 1).ToArray();
