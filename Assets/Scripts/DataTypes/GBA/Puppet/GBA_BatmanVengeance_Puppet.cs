@@ -29,10 +29,10 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_DonaldDuck)
-                IsObjAnimation = s.Serialize<bool>(IsObjAnimation, name: nameof(IsObjAnimation));
-            else
-                Batman_Byte00 = s.Serialize<byte>(Batman_Byte00, name: nameof(Batman_Byte00));
+            s.SerializeBitValues<byte>(bitFunc => {
+                IsObjAnimation = bitFunc(IsObjAnimation ? 1 : 0, 1, name: nameof(IsObjAnimation)) == 1;
+                Batman_Byte00 = (byte)bitFunc(Batman_Byte00, 7, name: nameof(Batman_Byte00));
+            });
 
             Index_Palette = s.Serialize<byte>(Index_Palette, name: nameof(Index_Palette));
             AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
