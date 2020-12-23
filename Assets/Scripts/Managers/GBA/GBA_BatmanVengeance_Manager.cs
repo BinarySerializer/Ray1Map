@@ -38,27 +38,34 @@ namespace R1Engine
             var numPalettes = pal.Length / 16;
 
             // Add sprites for each palette
-            if (tileSet.Is8Bit)
-            {
+            if (tileSet.Is8Bit) {
                 var pal_8 = Util.ConvertGBAPalette((RGBA5551Color[])pal);
-                var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal_8, Util.TileEncoding.Linear_8bpp, CellSize, false);
+                var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal_8, Util.TileEncoding.Linear_8bpp, CellSize, false, flipTileY: true);
 
                 // Extract every sprite
-                for (int y = 0; y < tileSetTex.height; y += CellSize)
-                {
-                    for (int x = 0; x < tileSetTex.width; x += CellSize)
-                    {
-                        des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x, y, CellSize, CellSize)));
-                    }
+                for (int i = 0; i < tileSet.TileSetLength; i++) {
+                    int x = i % 32;
+                    int y = i / 32;
+                    des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x * CellSize, y * CellSize, CellSize, CellSize)));
                 }
             }
-            else
-            {
+            else {
                 var pal_8 = Util.ConvertAndSplitGBAPalette((RGBA5551Color[])pal);
 
                 for (int palIndex = 0; palIndex < numPalettes; palIndex++)
                 {
-                    for (int i = 0; i < tileSet.TileSetLength; i++)
+
+                    var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal_8[palIndex], Util.TileEncoding.Linear_4bpp, CellSize, false, flipTileY: true);
+
+                    // Extract every sprite
+                    for (int i = 0; i < tileSet.TileSetLength; i++) {
+                        int x = i % 32;
+                        int y = i / 32;
+                        des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x * CellSize, y * CellSize, CellSize, CellSize)));
+                    }
+
+
+                    /*for (int i = 0; i < tileSet.TileSetLength; i++)
                     {
                         var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
 
@@ -73,16 +80,13 @@ namespace R1Engine
 
                                 Color c = pal_8[palIndex][v];
 
-                                if (v != 0)
-                                    c = new Color(c.r, c.g, c.b, 1f);
-
                                 tex.SetPixel(x, (tileWidth - 1 - y), c);
                             }
                         }
 
                         tex.Apply();
                         des.Sprites.Add(tex.CreateSprite());
-                    }
+                    }*/
                 }
             }
 
