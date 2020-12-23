@@ -95,8 +95,10 @@ namespace R1Engine
                         var ind = y * width + x;
                         parts[ind] = new Unity_ObjAnimationPart {
                             ImageIndex = tileSet.TileSetLength * (tileSet.Is8Bit ? 0 : c.TileMap[ind].PaletteIndex) + (c.TileMap[ind].TileIndex),
-                            XPosition = x * CellSize,
-                            YPosition = y * CellSize,
+                            XPosition = x * CellSize - (width * CellSize / 2),
+                            YPosition = y * CellSize - (height * CellSize / 2),
+                            IsFlippedHorizontally = c.TileMap[ind].IsFlippedHorizontally,
+                            IsFlippedVertically = c.TileMap[ind].IsFlippedVertically,
                         };
                     }
                 }

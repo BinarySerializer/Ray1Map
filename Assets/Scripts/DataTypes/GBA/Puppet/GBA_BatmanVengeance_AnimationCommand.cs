@@ -144,11 +144,15 @@ namespace R1Engine
 
         public class TileGraphicsInfo : R1Serializable {
             public ushort TileIndex { get; set; } // If -1, same effect as SetInvisible, otherwise SetVisible
+            public bool IsFlippedHorizontally { get; set; }
+            public bool IsFlippedVertically { get; set; }
             public byte PaletteIndex { get; set; }
 
             public override void SerializeImpl(SerializerObject s) {
                 s.SerializeBitValues<ushort>(bitFunc => {
-                    TileIndex = (ushort)bitFunc(TileIndex, 12, name: nameof(TileIndex));
+                    TileIndex = (ushort)bitFunc(TileIndex, 10, name: nameof(TileIndex));
+                    IsFlippedHorizontally = bitFunc(IsFlippedHorizontally ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
+                    IsFlippedVertically = bitFunc(IsFlippedVertically ? 1 : 0, 1, name: nameof(IsFlippedHorizontally)) == 1;
                     PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
             }

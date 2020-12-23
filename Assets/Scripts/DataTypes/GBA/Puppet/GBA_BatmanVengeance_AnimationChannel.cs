@@ -43,9 +43,7 @@ namespace R1Engine
                     bitFunc(default, 4, name: "Unknown");
                     bitFunc(default, 4, name: "Unknown");
                     bitFunc(default, 4, name: "Unknown");
-                    bitFunc(default, 4, name: "Unknown");
-                    //YSize = bitFunc(YSize, 4, name: nameof(YSize));
-                    //XSize = bitFunc(XSize, 4, name: nameof(XSize));
+                    PaletteIndex = bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
                 ImageIndex = s.Serialize<ushort>(ImageIndex, name: nameof(ImageIndex));
             } else {
