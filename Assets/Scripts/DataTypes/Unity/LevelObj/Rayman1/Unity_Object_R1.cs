@@ -47,7 +47,11 @@ namespace R1Engine
 
         public Unity_ObjectManager_R1 ObjManager { get; }
 
-        public R1_EventState State => ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data?.ElementAtOrDefault(EventData.Etat)?.ElementAtOrDefault(EventData.SubEtat);
+        public R1_EventState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
+        public R1_EventState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
+        public R1_EventState LinkedState => GetState(CurrentState?.LinkedEtat ?? -1, CurrentState?.LinkedSubEtat ?? -1);
+
+        protected R1_EventState GetState(int etat, int subEtat) => ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
 
         public int DESIndex
         {
@@ -100,53 +104,18 @@ namespace R1Engine
             set => EventData.YPosition = value;
         }
 
-        // TODO: Update for PS1
-        public override string DebugText => 
-              $"RuntimePos: {EventData.InitialXPosition}, {EventData.InitialYPosition}{Environment.NewLine}" +
-              $"DisplayPrio: {EventData.DisplayPrio}{Environment.NewLine}" +
-              $"RuntimeLayer: {EventData.InitialDisplayPrio}{Environment.NewLine}" +
-              $"{Environment.NewLine}" +
-              $"Etat: {EventData.Etat}{Environment.NewLine}" +
-              $"Etat: {EventData.SubEtat}{Environment.NewLine}" +
-              $"RuntimeEtat: {EventData.InitialEtat}{Environment.NewLine}" +
-              $"RuntimeSubEtat: {EventData.InitialSubEtat}{Environment.NewLine}" +
-              //$"{Environment.NewLine}" +
-              //$"Unk_24: {EventData.Unk_24}{Environment.NewLine}" +
-              //$"Unk_28: {EventData.Unk_28}{Environment.NewLine}" +
-              //$"Unk_32: {EventData.Unk_32}{Environment.NewLine}" +
-              //$"Unk_36: {EventData.Unk_36}{Environment.NewLine}" +
-              //$"{Environment.NewLine}" +
-              //$"Unk_48: {EventData.Unk_48}{Environment.NewLine}" +
-              //$"Unk_54: {EventData.Unk_54}{Environment.NewLine}" +
-              //$"Unk_56: {EventData.Unk_56}{Environment.NewLine}" +
-              //$"Unk_58: {EventData.Unk_58}{Environment.NewLine}" +
-              //$"{Environment.NewLine}" +
-              //$"Unk_64: {EventData.Unk_64}{Environment.NewLine}" +
-              //$"Unk_66: {EventData.Unk_66}{Environment.NewLine}" +
-              //$"{Environment.NewLine}" +
-              //$"Unk_74: {EventData.Unk_74}{Environment.NewLine}" +
-              //$"Unk_76: {EventData.Unk_76}{Environment.NewLine}" +
-              //$"Unk_78: {EventData.Unk_78}{Environment.NewLine}" +
-              //$"Unk_80: {EventData.Unk_80}{Environment.NewLine}" +
-              //$"Unk_82: {EventData.Unk_82}{Environment.NewLine}" +
-              //$"Unk_84: {EventData.Unk_84}{Environment.NewLine}" +
-              //$"Unk_86: {EventData.Unk_86}{Environment.NewLine}" +
-              //$"Unk_88: {EventData.Unk_88}{Environment.NewLine}" +
-              //$"Unk_90: {EventData.Unk_90}{Environment.NewLine}" +
-              $"Runtime_ZdcIndex.ZDCCount: {EventData.Runtime_TypeZDC?.ZDCCount}{Environment.NewLine}" +
-              $"Runtime_ZdcIndex.ZDCIndex: {EventData.Runtime_TypeZDC?.ZDCIndex}{Environment.NewLine}" +
-              $"Unk_94: {EventData.Unk_94}{Environment.NewLine}" +
-              $"{Environment.NewLine}" +
-              $"PC_Flags: {EventData.PC_Flags}{Environment.NewLine}" +
-              $"PS1_RuntimeFlags: {EventData.PS1_RuntimeFlags}{Environment.NewLine}";
+        public override string DebugText => String.Empty;
 
-        public override IEnumerable<int> Links => new int[]
+        public override IEnumerable<int> Links
+        {
+            get
             {
-                WorldInfo.UpIndex,
-                WorldInfo.DownIndex,
-                WorldInfo.LeftIndex,
-                WorldInfo.RightIndex,
-            };
+                yield return WorldInfo.UpIndex;
+                yield return WorldInfo.DownIndex;
+                yield return WorldInfo.LeftIndex;
+                yield return WorldInfo.RightIndex;
+            }
+        }
 
         public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.Settings);
 
@@ -239,13 +208,13 @@ namespace R1Engine
                 yield break;
 
             // Make sure the current state and type supports collision
-            if (State == null || State.ZDCFlags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.NoCollision)))
+            if (CurrentState == null || CurrentState.ZDCFlags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.NoCollision)))
                 yield break;
 
             // Attempt to set the collision type
             var colType = (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.HurtsRayman)) 
                 ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox 
-                : State.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectFist) 
+                : CurrentState.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectFist) 
                     ? Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox 
                     : Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
 
@@ -349,9 +318,9 @@ namespace R1Engine
             set => EventData.RuntimeCurrentAnimIndex = (byte)(value ?? 0);
         }
 
-        public override int AnimSpeed => (EventData.Type.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0);
+        public override int AnimSpeed => (EventData.Type.IsHPFrame() ? 0 : CurrentState?.AnimationSpeed ?? 0);
 
-        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
+        public override int? GetAnimIndex => OverrideAnimIndex ?? CurrentState?.AnimationIndex ?? 0;
         protected override int GetSpriteID => DESIndex;
         public override IList<Sprite> Sprites => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.OffsetBX, -EventData.OffsetBY);
@@ -382,24 +351,40 @@ namespace R1Engine
             }
         }
 
+        protected HashSet<R1_EventState> EncounteredStates { get; } = new HashSet<R1_EventState>(); // Keep track of "encountered" states if we have state switching set to loop to avoid entering an infinite loop
+        protected R1_EventState PrevInitialState { get; set; }
+
         protected override void OnFinishedAnimation()
         {
             if (Settings.LoadFromMemory)
                 return;
 
+            // Check if the state has been modified
+            if (PrevInitialState != InitialState)
+            {
+                PrevInitialState = InitialState;
+
+                // Clear encountered states
+                EncounteredStates.Clear();
+            }
+
             if (Settings.StateSwitchingMode != StateSwitchingMode.None)
             {
                 // Get the current state
-                var state = State;
+                var state = CurrentState;
+
+                // Add current state to list of encountered states
+                EncounteredStates.Add(state);
 
                 // Check if we've reached the end of the linking chain and we're looping
-                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && 
-                    EventData.Etat == state.LinkedEtat && 
-                    EventData.SubEtat == state.LinkedSubEtat)
+                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EncounteredStates.Contains(LinkedState))
                 {
                     // Reset the state
                     EventData.Etat = EventData.InitialEtat;
                     EventData.SubEtat = EventData.InitialSubEtat;
+
+                    // Clear encountered states
+                    EncounteredStates.Clear();
                 }
                 else
                 {
