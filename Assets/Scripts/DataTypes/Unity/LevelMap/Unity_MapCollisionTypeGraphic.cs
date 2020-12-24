@@ -45,6 +45,7 @@
         Climb_Full,
         Climb_Hang,
         Solid_Hangable,
+        Solid_NotHangable,
         Slippery_Hangable,
 
         Angle_Top_Left,
@@ -55,6 +56,10 @@
         EnemyDirection_Down,
         EnemyDirection_Left,
         EnemyDirection_Right,
+        EnemyDirection_UpLeft,
+        EnemyDirection_UpRight,
+        EnemyDirection_DownLeft,
+        EnemyDirection_DownRight,
         Climb_Spider,
         Climb_Walls,
         Rotate_Clockwise45,
@@ -62,5 +67,16 @@
         Rotate_CounterClockwise45,
         Rotate_CounterClockwise90,
         Lava,
+        
+        Trigger_StopMovement,
+        Stealth,
+        DetectionZone,
+        Race_Bumper,
+        Race_SpeedUp,
+        Race_Finish1,
+        Race_Finish2,
+        Race_Finish3,
+        CannonTarget_Valid,
+        CannonTarget_Invalid,
     }
 }

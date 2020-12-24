@@ -218,10 +218,10 @@
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
                 case R2_TileCollisionType.ValidTarget:
-                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.CannonTarget_Valid;
 
                 case R2_TileCollisionType.InvalidTarget:
-                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.CannonTarget_Invalid;
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;
@@ -383,21 +383,25 @@
                 case GBA_Mode7TileCollisionType.EnemyTrigger_Down:
                     return Unity_MapCollisionTypeGraphic.EnemyDirection_Down;
                 case GBA_Mode7TileCollisionType.EnemyTrigger_UpLeft:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_UpLeft;
                 case GBA_Mode7TileCollisionType.EnemyTrigger_DownLeft:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_DownLeft;
                 case GBA_Mode7TileCollisionType.EnemyTrigger_DownRight:
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_DownRight;
                 case GBA_Mode7TileCollisionType.EnemyTrigger_UpRight:
-                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.EnemyDirection_UpRight;
 
                 case GBA_Mode7TileCollisionType.Bounce:
                     return Unity_MapCollisionTypeGraphic.Bounce;
 
                 case GBA_Mode7TileCollisionType.Bumper1:
                 case GBA_Mode7TileCollisionType.Bumper2:
-                    return Unity_MapCollisionTypeGraphic.Bounce; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Race_Bumper;
 
                 case GBA_Mode7TileCollisionType.Damage_FinishLine:
+                    return Unity_MapCollisionTypeGraphic.Race_Finish1;
                 case GBA_Mode7TileCollisionType.FinishLine:
-                    return Unity_MapCollisionTypeGraphic.Exit; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Race_Finish2;
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;
@@ -424,7 +428,7 @@
                     return Unity_MapCollisionTypeGraphic.Climb;
 
                 case GBARRR_TileCollisionType.SolidNoHang:
-                    return Unity_MapCollisionTypeGraphic.Solid; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Solid_NotHangable;
 
                 case GBARRR_TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
@@ -453,10 +457,10 @@
                     return Unity_MapCollisionTypeGraphic.Direction_Down;
 
                 case GBARRR_TileCollisionType.Trigger_Stop:
-                    return Unity_MapCollisionTypeGraphic.Seed; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Trigger_StopMovement;
 
                 case GBARRR_TileCollisionType.DetectionZone:
-                    return Unity_MapCollisionTypeGraphic.Exit; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.DetectionZone;
 
                 case GBARRR_TileCollisionType.Solid_Left_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
@@ -516,7 +520,7 @@
                     return Unity_MapCollisionTypeGraphic.Solid;
 
                 case GBARRR_Mode7TileCollisionType.Speed:
-                    return Unity_MapCollisionTypeGraphic.Reactionary; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Race_SpeedUp;
 
                 case GBARRR_Mode7TileCollisionType.Bounce:
                     return Unity_MapCollisionTypeGraphic.Bounce;
@@ -531,9 +535,11 @@
                     return Unity_MapCollisionTypeGraphic.Damage;
 
                 case GBARRR_Mode7TileCollisionType.FinishLine1:
+                    return Unity_MapCollisionTypeGraphic.Race_Finish1;
                 case GBARRR_Mode7TileCollisionType.FinishLine2:
+                    return Unity_MapCollisionTypeGraphic.Race_Finish2;
                 case GBARRR_Mode7TileCollisionType.FinishLine3:
-                    return Unity_MapCollisionTypeGraphic.Exit; // TODO: New graphic
+                    return Unity_MapCollisionTypeGraphic.Race_Finish3;
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;
@@ -550,8 +556,8 @@
                 case GBAIsometric_Spyro3_TileCollisionType2D.Solid:
                     return Unity_MapCollisionTypeGraphic.Solid;
 
-                case GBAIsometric_Spyro3_TileCollisionType2D.Hidden: // TODO: New graphic
-                    return Unity_MapCollisionTypeGraphic.Exit;
+                case GBAIsometric_Spyro3_TileCollisionType2D.Hidden:
+                    return Unity_MapCollisionTypeGraphic.Stealth;
 
                 case GBAIsometric_Spyro3_TileCollisionType2D.Hook:
                     return Unity_MapCollisionTypeGraphic.Climb_Full;

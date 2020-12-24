@@ -20,7 +20,19 @@ SpriteAtlas:
       readable: 0
       crunchedCompression: 0
       sRGB: 1
-    platformSettings: []
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     packingSettings:
       serializedVersion: 2
       padding: 2
@@ -31,7 +43,7 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 4f67897a7c1144b4c96580960f903fad, type: 3}
-    totalSpriteSurfaceArea: 14336
+    totalSpriteSurfaceArea: 18176
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -59,6 +71,21 @@ SpriteAtlas:
   - {fileID: 7586653261181008106, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: -3430106347616854512, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: -1928314702911298250, guid: 1b34c08603350434984995076dda802e, type: 3}
+  - {fileID: -9194689513151578204, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -8592029584354589911, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: 857013443609837443, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: 9097968163793552157, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: 2289268859991525308, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: 7484949207243427760, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -6193872267293402942, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: 538311081401336944, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -2075355440900834431, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -2799391548849485256, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -6815258365777293507, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -3379408102321610515, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -7474302931718650719, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -2427483602084164149, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: 5255996285059953597, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: 21300000, guid: 4b434f5d67f74fe4e83ffa4ba87daa7c, type: 3}
   - {fileID: 980301016103558135, guid: cb3f3f5e1e59faf42abf6bc76b12e133, type: 3}
   - {fileID: 5931549597590950192, guid: cb3f3f5e1e59faf42abf6bc76b12e133, type: 3}
@@ -116,6 +143,21 @@ SpriteAtlas:
   - Climb_Spider
   - Climb_Walls
   - EnemyDirection_Left
+  - Race_SpeedUp
+  - Stealth
+  - EnemyDirection_DownRight
+  - Trigger_StopMovement
+  - Race_Finish2
+  - Race_Finish3
+  - Race_Finish1
+  - Solid_NotHangable
+  - CannonTarget_Invalid
+  - Race_Bumper
+  - EnemyDirection_UpLeft
+  - EnemyDirection_DownLeft
+  - CannonTarget_Valid
+  - DetectionZone
+  - EnemyDirection_UpRight
   - Angle_Top_Right
   - Spikes
   - Slippery_Steep_Right

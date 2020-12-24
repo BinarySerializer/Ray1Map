@@ -20,7 +20,19 @@ SpriteAtlas:
       readable: 0
       crunchedCompression: 0
       sRGB: 1
-    platformSettings: []
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     packingSettings:
       serializedVersion: 2
       padding: 2
@@ -31,17 +43,28 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: d5efc838a195a4f4ca87a9169cf23ae5, type: 3}
-    totalSpriteSurfaceArea: 3932160
+    totalSpriteSurfaceArea: 4653056
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
+  - {fileID: 21300000, guid: 0a15f93180684ec4fa594ced6a03a161, type: 3}
+  - {fileID: 21300000, guid: d60c0a71d6e35c14783565183a589e6b, type: 3}
   - {fileID: 21300000, guid: 58236ae183f0c8e468ed1e2f3274e0b1, type: 3}
+  - {fileID: 21300000, guid: 0a7cc9620e5f23c469faf76439c440b4, type: 3}
   - {fileID: 21300000, guid: baeb250381d1abb4591c0abbdbc15384, type: 3}
   - {fileID: 21300000, guid: 077b39a35308adc418a2844aaa358a47, type: 3}
+  - {fileID: 21300000, guid: fe603c05259e02b4a872c73e695361c8, type: 3}
+  - {fileID: 21300000, guid: 77aabb35b5ba8504da2c344052572ad0, type: 3}
   - {fileID: 21300000, guid: 1d8b675512a9b6a4eadb996016f20900, type: 3}
   - {fileID: 21300000, guid: 4bf4c3f7acfddda4095d9c46cd5e1b7a, type: 3}
   - {fileID: 21300000, guid: c56d5bf7a3650834dba7d3ddf49489b3, type: 3}
+  - {fileID: 21300000, guid: 48233ea87268e4a4abfe936699cb023a, type: 3}
+  - {fileID: 21300000, guid: 61c33ec8899a3b14889cece58c2a580a, type: 3}
+  - {fileID: 21300000, guid: 819b89492736c4c48b7c5c37335f57a2, type: 3}
   - {fileID: 21300000, guid: f6727a4951a72c04bb8bf316dfc6c955, type: 3}
+  - {fileID: 21300000, guid: d60c1c7ab25e85d4bb6538009bcc791a, type: 3}
+  - {fileID: 21300000, guid: 192d018aa0ad31d439cec70f2d71320f, type: 3}
+  - {fileID: 21300000, guid: 52586d5cc88d40d4993ecff853663d0c, type: 3}
   - {fileID: -3581508582439343098, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
   - {fileID: -8071664622476123821, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
   - {fileID: -4950051264190424724, guid: f440200d427a0ab418d808b0845e3fb9, type: 3}
@@ -96,13 +119,24 @@ SpriteAtlas:
   - {fileID: -1224737178806774259, guid: 66939acf39c1d3a4297e4d6084c4c598, type: 3}
   - {fileID: 21300000, guid: 56f99feff7482da4c8e6990cff8d217e, type: 3}
   m_PackedSpriteNamesToIndex:
+  - Race_SpeedUp
+  - Race_Finish1
   - Angle_Top_Right
+  - Trigger_StopMovement
   - Slippery_Hangable
   - Rotate_CounterClockwise45
+  - CannonTarget_Valid
+  - Race_Finish2
   - Lava
   - Angle_Top_Left
   - Rotate_CounterClockwise90
+  - Solid_NotHangable
+  - CannonTarget_Invalid
+  - Race_Bumper
   - Climb_Spider
+  - DetectionZone
+  - Stealth
+  - Race_Finish3
   - Spikes
   - Slippery_Steep_Right
   - Direction_DownRight
