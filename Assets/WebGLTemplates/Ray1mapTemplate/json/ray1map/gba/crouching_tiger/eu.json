@@ -1,7 +1,7 @@
 {
-  "name": "Donald Duck Quack Attack (GBC)",
-  "mode": "DonaldDuckGBCEU",
-  "folder": "gbc/dd_eu",
+  "name": "Crouching Tiger Hidden Dragon (GBA)",
+  "mode": "CrouchingTigerHiddenDragonGBAEU",
+  "folder": "gba/crouching_tiger_eu",
   "levels": [
     { "world": 0, "level": 0, "nameInternal": "0", "name": "Map 0"},
     { "world": 0, "level": 1, "nameInternal": "1", "name": "Map 1"},
@@ -43,24 +43,6 @@
     { "world": 0, "level": 37, "nameInternal": "37", "name": "Map 37"},
     { "world": 0, "level": 38, "nameInternal": "38", "name": "Map 38"},
     { "world": 0, "level": 39, "nameInternal": "39", "name": "Map 39"},
-    { "world": 0, "level": 40, "nameInternal": "40", "name": "Map 40"},
-    { "world": 0, "level": 41, "nameInternal": "41", "name": "Map 41"},
-    { "world": 0, "level": 42, "nameInternal": "42", "name": "Map 42"},
-    { "world": 0, "level": 43, "nameInternal": "43", "name": "Map 43"},
-    { "world": 0, "level": 44, "nameInternal": "44", "name": "Map 44"},
-    { "world": 0, "level": 45, "nameInternal": "45", "name": "Map 45"},
-    { "world": 0, "level": 46, "nameInternal": "46", "name": "Map 46"},
-    { "world": 0, "level": 47, "nameInternal": "47", "name": "Map 47"},
-    { "world": 0, "level": 48, "nameInternal": "48", "name": "Map 48"},
-    { "world": 0, "level": 49, "nameInternal": "49", "name": "Map 49"},
-    { "world": 0, "level": 50, "nameInternal": "50", "name": "Map 50"},
-    { "world": 0, "level": 51, "nameInternal": "51", "name": "Map 51"},
-    { "world": 0, "level": 52, "nameInternal": "52", "name": "Map 52"},
-    { "world": 0, "level": 53, "nameInternal": "53", "name": "Map 53"},
-    { "world": 0, "level": 54, "nameInternal": "54", "name": "Map 54"},
-    { "world": 0, "level": 55, "nameInternal": "55", "name": "Map 55"},
-    { "world": 0, "level": 56, "nameInternal": "56", "name": "Map 56"},
-    { "world": 0, "level": 57, "nameInternal": "57", "name": "Map 57"},
-    { "world": 0, "level": 58, "nameInternal": "58", "name": "Map 58"}
+    { "world": 1, "level": 156, "nameInternal": "156", "name": "Map 156"}
   ]
 }

@@ -230,7 +230,8 @@
 					"json": "gbc\/dd",
 					"image": ".\/img\/logo\/dd.png",
 					"versions": [
-						{ "json": "eu", "image": ".\/img\/version\/gbc.png", "name": "GBC", "folder": "gbc/dd_eu" }
+						{ "json": "eu", "image": ".\/img\/version\/gbc.png", "name": "GBC", "folder": "gbc/dd_eu" },
+						{ "json": "gba_eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/donald_duck_advance_eu" }
 					]
 				},
 				{
@@ -240,6 +241,16 @@
 					"image": ".\/img\/logo\/mowgli.png",
 					"versions": [
 						{ "json": "eu", "image": ".\/img\/version\/gbc.png", "name": "GBC", "folder": "gbc/mowgli_eu" }
+					]
+				},
+				{
+					"title": "Crouching Tiger Hidden Dragon",
+					"viewer": "ray1map",
+					"json": "gba\/crouching_tiger",
+					"image": ".\/img\/logo\/crouching_tiger.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/crouching_tiger_eu" },
+						{ "json": "us_proto", "image": ".\/img\/version\/gba.png", "name": "GBA Prototype", "folder": "gba/crouching_tiger_us_beta" }
 					]
 				},
 				{
