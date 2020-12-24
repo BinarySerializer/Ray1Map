@@ -434,7 +434,7 @@
                     return Unity_MapCollisionTypeGraphic.Damage;
 
                 case GBARRR_TileCollisionType.PinObj:
-                    return Unity_MapCollisionTypeGraphic.Solid_Hangable;
+                    return Unity_MapCollisionTypeGraphic.SpikePin;
 
                 case GBARRR_TileCollisionType.Trigger_Right1:
                 case GBARRR_TileCollisionType.Trigger_Right2:
@@ -557,7 +557,7 @@
                     return Unity_MapCollisionTypeGraphic.Solid;
 
                 case GBAIsometric_Spyro3_TileCollisionType2D.Hidden:
-                    return Unity_MapCollisionTypeGraphic.Stealth;
+                    return Unity_MapCollisionTypeGraphic.DetectionZone;
 
                 case GBAIsometric_Spyro3_TileCollisionType2D.Hook:
                     return Unity_MapCollisionTypeGraphic.Climb_Full;

@@ -69,7 +69,7 @@
         Lava,
         
         Trigger_StopMovement,
-        Stealth,
+        SpikePin,
         DetectionZone,
         Race_Bumper,
         Race_SpeedUp,

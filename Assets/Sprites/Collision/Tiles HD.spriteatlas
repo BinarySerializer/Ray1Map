@@ -135,7 +135,7 @@ SpriteAtlas:
   - Race_Bumper
   - Climb_Spider
   - DetectionZone
-  - Stealth
+  - SpikePin
   - Race_Finish3
   - Spikes
   - Slippery_Steep_Right

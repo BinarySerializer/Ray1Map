@@ -72,7 +72,6 @@ SpriteAtlas:
   - {fileID: -3430106347616854512, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: -1928314702911298250, guid: 1b34c08603350434984995076dda802e, type: 3}
   - {fileID: -9194689513151578204, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
-  - {fileID: -8592029584354589911, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: 857013443609837443, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: 9097968163793552157, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: 2289268859991525308, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
@@ -83,6 +82,7 @@ SpriteAtlas:
   - {fileID: -2799391548849485256, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: -6815258365777293507, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: -3379408102321610515, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
+  - {fileID: -8592029584354589911, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: -7474302931718650719, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: -2427483602084164149, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
   - {fileID: 5255996285059953597, guid: 2773baf6fc818964ea0e01a198afad52, type: 3}
@@ -144,7 +144,6 @@ SpriteAtlas:
   - Climb_Walls
   - EnemyDirection_Left
   - Race_SpeedUp
-  - Stealth
   - EnemyDirection_DownRight
   - Trigger_StopMovement
   - Race_Finish2
@@ -155,6 +154,7 @@ SpriteAtlas:
   - Race_Bumper
   - EnemyDirection_UpLeft
   - EnemyDirection_DownLeft
+  - SpikePin
   - CannonTarget_Valid
   - DetectionZone
   - EnemyDirection_UpRight
