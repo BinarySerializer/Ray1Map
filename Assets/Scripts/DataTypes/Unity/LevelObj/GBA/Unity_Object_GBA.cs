@@ -382,14 +382,14 @@ namespace R1Engine
             List<UIState> uiStates = new List<UIState>();
             if (states != null) {
                 for (byte i = 0; i < states.Length; i++) {
-                    uiStates.Add(new GBA_UIState("State " + i, stateIndex: i));
+                    uiStates.Add(new GBA_UIState($"State {i} (Animation {states[i].AnimationIndex})", stateIndex: i));
                     usedAnims.Add(states[i].AnimationIndex);
                 }
             }
             if (anims != null) {
                 for (int i = 0; i < anims.Count; i++) {
                     if (usedAnims.Contains(i)) continue;
-                    uiStates.Add(new GBA_UIState("Animation " + i, animIndex: i));
+                    uiStates.Add(new GBA_UIState($"Animation {i}", animIndex: i));
                 }
             }
 

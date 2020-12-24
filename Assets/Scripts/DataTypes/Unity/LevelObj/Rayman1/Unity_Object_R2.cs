@@ -357,7 +357,7 @@ namespace R1Engine
                 for (byte i = 0; i < eta.Length; i++) {
                     for (byte j = 0; j < eta[i].Length; j++) {
                         usedAnims.Add(eta[i][j].AnimationIndex);
-                        uiStates.Add(new R2_UIState($"State {i}-{j}", i, j));
+                        uiStates.Add(new R2_UIState($"State {i}-{j} (Animation {eta[i][j].AnimationIndex})", i, j));
                     }
                 }
             }

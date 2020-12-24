@@ -246,8 +246,10 @@ namespace R1Engine
             {
                 for (byte i = 0; i < actions.Length; i++)
                 {
-                    uiStates.Add(new GBC_UIState($"Action {actions[i].ActionID}", stateIndex: i));
-                    usedAnims.Add(actions[i].AnimIndex - (IsGBC ? 1 : 0));
+                    var animIndex = actions[i].AnimIndex - (IsGBC ? 1 : 0);
+
+                    uiStates.Add(new GBC_UIState($"Action {actions[i].ActionID} ({animIndex})", stateIndex: i));
+                    usedAnims.Add(animIndex);
                 }
             }
             if (anims != null)
@@ -255,7 +257,7 @@ namespace R1Engine
                 for (int i = 0; i < anims.Count; i++)
                 {
                     if (usedAnims.Contains(i)) continue;
-                    uiStates.Add(new GBC_UIState("Animation " + i, animIndex: i + (IsGBC ? 1 : 0)));
+                    uiStates.Add(new GBC_UIState($"Animation {i}", animIndex: i + (IsGBC ? 1 : 0)));
                 }
             }
 

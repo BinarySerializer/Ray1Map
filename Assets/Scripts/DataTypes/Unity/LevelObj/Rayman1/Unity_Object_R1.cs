@@ -547,7 +547,7 @@ namespace R1Engine
                             continue;
                         
                         usedAnims.Add(eta[i][j].AnimationIndex);
-                        uiStates.Add(new R1_UIState($"State {i}-{j}", i, j));
+                        uiStates.Add(new R1_UIState($"State {i}-{j} (Animation {eta[i][j].AnimationIndex})", i, j));
                     }
                 }
             }
