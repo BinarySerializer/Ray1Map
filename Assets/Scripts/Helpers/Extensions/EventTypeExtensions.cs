@@ -34,6 +34,14 @@
                                                                     et == R1_EventType.TYPE_EDU_CHIFFRE;
 
         /// <summary>
+        /// Indicates if the linked event frames should be randomized in order
+        /// </summary>
+        /// <param name="et">The event type</param>
+        /// <returns></returns>
+        public static bool UsesRandomFrameLinks(this R1_EventType et) => et == R1_EventType.TYPE_HERSE_HAUT ||
+                                                                         et == R1_EventType.TYPE_HERSE_BAS;
+
+        /// <summary>
         /// Indicates if the event frame should be randomized
         /// </summary>
         /// <param name="et">The event type</param>

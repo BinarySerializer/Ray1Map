@@ -270,7 +270,7 @@ namespace R1Engine
                 var baseEvent = (Unity_Object_R1)level.EventData[i];
                 var linkedIndex = LinkTable[i];
 
-                if (baseEvent.EventData.Type.UsesRandomFrame() && i != linkedIndex)
+                if (baseEvent.EventData.Type.UsesRandomFrameLinks() && i != linkedIndex)
                 {
                     var index = 0;
 
