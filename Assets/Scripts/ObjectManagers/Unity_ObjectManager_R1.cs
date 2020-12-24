@@ -107,17 +107,24 @@ namespace R1Engine
                 eventInfo.Commands.SequenceEqual(compiledCmds);
 
             // Find a matching item
-            var match = AvailableEvents.FindItem(x => x.Type == (ushort)e.Type &&
-                                                      x.Etat == e.Etat &&
-                                                      x.SubEtat == e.SubEtat &&
-                                                      x.OffsetBX == e.OffsetBX &&
-                                                      x.OffsetBY == e.OffsetBY &&
-                                                      x.OffsetHY == e.OffsetHY &&
-                                                      x.FollowSprite == e.FollowSprite &&
-                                                      x.HitPoints == e.ActualHitPoints &&
-                                                      x.HitSprite == e.HitSprite &&
-                                                      x.FollowEnabled == e.GetFollowEnabled(Context.Settings) &&
-                                                      compareCommands(x));
+            var match = findMatch(EventMatchFlags.All) ?? 
+                        findMatch(EventMatchFlags.All & ~EventMatchFlags.HitSprite & ~EventMatchFlags.Commands) ??
+                        findMatch(EventMatchFlags.Type | EventMatchFlags.Etat | EventMatchFlags.SubEtat);
+
+            GeneralEventInfoData findMatch(EventMatchFlags flags)
+            {
+                return AvailableEvents.FindItem(x => (!flags.HasFlag(EventMatchFlags.Type) || x.Type == (ushort)e.Type) &&
+                                                     (!flags.HasFlag(EventMatchFlags.Etat) || x.Etat == e.Etat) &&
+                                                     (!flags.HasFlag(EventMatchFlags.SubEtat) || x.SubEtat == e.SubEtat) &&
+                                                     (!flags.HasFlag(EventMatchFlags.OffsetBX) || x.OffsetBX == e.OffsetBX) &&
+                                                     (!flags.HasFlag(EventMatchFlags.OffsetBY) || x.OffsetBY == e.OffsetBY) &&
+                                                     (!flags.HasFlag(EventMatchFlags.OffsetHY) || x.OffsetHY == e.OffsetHY) &&
+                                                     (!flags.HasFlag(EventMatchFlags.FollowSprite) || x.FollowSprite == e.FollowSprite) &&
+                                                     (!flags.HasFlag(EventMatchFlags.HitPoints) || x.HitPoints == e.ActualHitPoints) &&
+                                                     (!flags.HasFlag(EventMatchFlags.HitSprite) || x.HitSprite == e.HitSprite) &&
+                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.GetFollowEnabled(Context.Settings)) &&
+                                                     (!flags.HasFlag(EventMatchFlags.Commands) || compareCommands(x)));
+            }
 
             // Log if not found
             if (match == null && AvailableEvents.Any())
@@ -125,6 +132,26 @@ namespace R1Engine
 
             // Return the item
             return match;
+        }
+
+        [Flags]
+        protected enum EventMatchFlags : ushort
+        {
+            None = 0,
+
+            Type = 1 << 0,
+            Etat = 1 << 1,
+            SubEtat = 1 << 2,
+            OffsetBX = 1 << 3,
+            OffsetBY = 1 << 4,
+            OffsetHY = 1 << 5,
+            FollowSprite = 1 << 6,
+            HitPoints = 1 << 7,
+            HitSprite = 1 << 8,
+            FollowEnabled = 1 << 9,
+            Commands = 1 << 10,
+
+            All = UInt16.MaxValue,
         }
 
         public override int MaxObjectCount
