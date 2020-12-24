@@ -5,7 +5,6 @@
         public byte Byte_01 { get; set; }
         public byte AnimIndex { get; set; } // Block index to use in GBC_Puppet. 0 = no animation?
         public bool FlipX { get; set; }
-        public byte Index { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
