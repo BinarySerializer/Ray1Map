@@ -487,11 +487,12 @@ namespace R1Engine
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context) : new Unity_ObjectManager_R1.DESData[0];
 
-            var bigRayName = Path.GetFileNameWithoutExtension(GetBigRayFilePath(context.Settings));
+            var desNameTable = GetDESNameTable(context);
+            var etaNameTable = GetETANameTable(context);
 
-            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i)).ToArray();
+            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, desNameTable?.ElementAtOrDefault(i))).ToArray();
             var allEta = GetCurrentEventStates(context).ToArray();
-            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i)).ToArray();
+            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, etaNameTable?.ElementAtOrDefault(i))).ToArray();
 
             // Create the object manager
             var objManager = new Unity_ObjectManager_R1(
