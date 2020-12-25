@@ -36,6 +36,8 @@ namespace R1Engine
 
         public bool HasInitialized { get; set; }
         private int CurrentFrame { get; set; } = -1;
+        private bool CurrentMirrorX { get; set; }
+        private bool CurrentMirrorY { get; set; }
         private bool CurrentShowCollision { get; set; } = false;
 
         #endregion
@@ -361,6 +363,11 @@ namespace R1Engine
                 var pivot = ObjData.Pivot;
                 var mirroredX = ObjData.FlipHorizontally;
                 var mirroredY = ObjData.FlipVertically;
+                if (CurrentMirrorX != mirroredX || CurrentMirrorY != mirroredY) {
+                    frameUpdated = true;
+                    CurrentMirrorX = mirroredX;
+                    CurrentMirrorY = mirroredY;
+                }
 
                 if (frame >= anim.Frames.Length)
                     throw new Exception($"Invalid frame index {frame} with length {anim.Frames.Length} for obj {Index}. {ObjData.PrimaryName}-{ObjData.SecondaryName}");

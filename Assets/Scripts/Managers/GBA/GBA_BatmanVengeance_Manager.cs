@@ -162,6 +162,15 @@ namespace R1Engine
                                     Type = Unity_ObjAnimationCollisionPart.CollisionType.AttackBox
                                 });
                                 break;
+                            case GBA_BatmanVengeance_AnimationCommand.InstructionCommand.Hitbox_Batman:
+                                collisionParts.Add(new Unity_ObjAnimationCollisionPart {
+                                    XPosition = c.Hitbox_X1,
+                                    YPosition = c.Hitbox_Y1,
+                                    Width = c.Hitbox_X2 - c.Hitbox_X1,
+                                    Height = c.Hitbox_Y2 - c.Hitbox_Y1,
+                                    Type = Unity_ObjAnimationCollisionPart.CollisionType.AttackBox
+                                });
+                                break;
                         }
                     }
                     if (parts.Count == 0 && frames.Count > 0) {

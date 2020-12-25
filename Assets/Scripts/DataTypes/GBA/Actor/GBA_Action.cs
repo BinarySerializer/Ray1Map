@@ -10,10 +10,10 @@ namespace R1Engine
         public byte Byte_03 { get; set; }
 
         // Batman
-        public short Hitbox_XPos { get; set; }
-        public short Hitbox_YPos { get; set; }
-        public short Hitbox_Width { get; set; }
-        public short Hitbox_Height { get; set; }
+        public short Hitbox_Y1 { get; set; }
+        public short Hitbox_X1 { get; set; }
+        public short Hitbox_Y2 { get; set; }
+        public short Hitbox_X2 { get; set; }
 
         public byte AnimationIndex { get; set; }
         public ActorStateFlags Flags { get; set; }
@@ -28,10 +28,10 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
-                Hitbox_XPos = s.Serialize<short>(Hitbox_XPos, name: nameof(Hitbox_XPos));
-                Hitbox_YPos = s.Serialize<short>(Hitbox_YPos, name: nameof(Hitbox_YPos));
-                Hitbox_Width = s.Serialize<short>(Hitbox_Width, name: nameof(Hitbox_Width));
-                Hitbox_Height = s.Serialize<short>(Hitbox_Height, name: nameof(Hitbox_Height));
+                Hitbox_Y1 = s.Serialize<short>(Hitbox_Y1, name: nameof(Hitbox_Y1));
+                Hitbox_X1 = s.Serialize<short>(Hitbox_X1, name: nameof(Hitbox_X1));
+                Hitbox_Y2 = s.Serialize<short>(Hitbox_Y2, name: nameof(Hitbox_Y2));
+                Hitbox_X2 = s.Serialize<short>(Hitbox_X2, name: nameof(Hitbox_X2));
             } else {
                 Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
                 Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));

@@ -25,10 +25,10 @@ namespace R1Engine
         public byte Byte_83_02 { get; set; }
         public byte Byte_83_03 { get; set; }
 
-        public byte Byte_84_04 { get; set; }
-        public byte Byte_84_05 { get; set; }
-        public byte Byte_84_06 { get; set; }
-        public byte Byte_84_07 { get; set; }
+        public sbyte Hitbox_Y1 { get; set; }
+        public sbyte Hitbox_X1 { get; set; }
+        public sbyte Hitbox_Y2 { get; set; }
+        public sbyte Hitbox_X2 { get; set; }
 
         public byte Byte_85_02 { get; set; }
         public byte Byte_85_03 { get; set; }
@@ -87,12 +87,12 @@ namespace R1Engine
                     Byte_83_02 = s.Serialize<byte>(Byte_83_02, name: nameof(Byte_83_02));
                     Byte_83_03 = s.Serialize<byte>(Byte_83_03, name: nameof(Byte_83_03));
                     break;
-                case InstructionCommand.Unknown84:
+                case InstructionCommand.Hitbox_Batman:
                     Padding = s.SerializeArray<byte>(Padding, isShanghai ? 2 : 3, name: nameof(Padding));
-                    Byte_84_04 = s.Serialize<byte>(Byte_84_04, name: nameof(Byte_84_04));
-                    Byte_84_05 = s.Serialize<byte>(Byte_84_05, name: nameof(Byte_84_05));
-                    Byte_84_06 = s.Serialize<byte>(Byte_84_06, name: nameof(Byte_84_06));
-                    Byte_84_07 = s.Serialize<byte>(Byte_84_07, name: nameof(Byte_84_07));
+                    Hitbox_Y1 = s.Serialize<sbyte>(Hitbox_Y1, name: nameof(Hitbox_Y1));
+                    Hitbox_X1 = s.Serialize<sbyte>(Hitbox_X1, name: nameof(Hitbox_X1));
+                    Hitbox_Y2 = s.Serialize<sbyte>(Hitbox_Y2, name: nameof(Hitbox_Y2));
+                    Hitbox_X2 = s.Serialize<sbyte>(Hitbox_X2, name: nameof(Hitbox_X2));
                     break;
                 case InstructionCommand.Unknown85:
                     Byte_85_02 = s.Serialize<byte>(Byte_85_02, name: nameof(Byte_85_02));
@@ -135,7 +135,7 @@ namespace R1Engine
             Hitbox = 0x80,
             Unknown81 = 0x81,
             Unknown83 = 0x83,
-            Unknown84 = 0x84,
+            Hitbox_Batman = 0x84,
             Unknown85 = 0x85,
             Unknown86 = 0x86,
         }

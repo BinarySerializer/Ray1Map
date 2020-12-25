@@ -264,19 +264,22 @@ namespace R1Engine
                                     : Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox
                             }
                         };
-                    else if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                    else if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                         objCollision = new Unity_ObjAnimationCollisionPart[]
                         {
                             new Unity_ObjAnimationCollisionPart
                             {
-                                XPosition = State?.Hitbox_XPos ?? 0,
-                                YPosition = State?.Hitbox_YPos ?? 0,
-                                Width = State?.Hitbox_Width ?? 0,
-                                Height = State?.Hitbox_Height ?? 0,
-                                Type = Unity_ObjAnimationCollisionPart.CollisionType.AttackBox
+                                XPosition = State?.Hitbox_X1 ?? 0,
+                                YPosition = State?.Hitbox_Y1 ?? 0,
+                                Width = (State?.Hitbox_X2 - State?.Hitbox_X1) ?? 0,
+                                Height = (State?.Hitbox_Y2 - State?.Hitbox_Y1) ?? 0,
+                                Type = Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox
                             }
                         };
-                    else
+                        /*if (State != null && State.Flags.HasFlag(GBA_Action.ActorStateFlags.HorizontalFlip)) {
+                            objCollision[0].XPosition = -objCollision[0].XPosition;
+                        }*/
+                    } else
                         objCollision = new Unity_ObjAnimationCollisionPart[0];
                 }
                 return objCollision;
