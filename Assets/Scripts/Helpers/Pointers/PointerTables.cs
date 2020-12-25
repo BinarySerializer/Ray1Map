@@ -809,6 +809,8 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.States_Spyro3_NPC] = 0x081cb924,
                         [GBAIsometric_Spyro_Pointer.States_Spyro3_DoorTypes] = 0x081cc020,
                         [GBAIsometric_Spyro_Pointer.States_Spyro3_DoorGraphics] = 0x081cbec0,
+
+                        [GBAIsometric_Spyro_Pointer.QuestItems] = 0x081C0880,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.SpyroAdventureUS:
