@@ -236,12 +236,7 @@ public class SettingsWindow : UnityWindow
                 if (LevelEditorData.Level?.IsometricData != null) {
                     var cam = Controller.obj?.levelController?.editor?.cam;
                     if (cam != null) {
-                        bool wasFreeCam = cam.FreeCameraMode;
-                        cam.FreeCameraMode = EditorField($"Free camera mode (F)", cam.FreeCameraMode);
-                        if (cam.FreeCameraMode && !wasFreeCam) {
-                            // Enable collision view as well
-                            Settings.ShowCollision = true;
-                        }
+                        cam.ToggleFreeCameraMode(EditorField($"Free camera mode (F)", cam.FreeCameraMode));
                     }
                 }
 

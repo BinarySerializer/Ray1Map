@@ -39,6 +39,27 @@ namespace R1Engine {
                 UpdateOrthographic();
             }
         }
+
+        private bool? storedCollisionSetting = null;
+        public bool ToggleFreeCameraMode(bool freeCameraMode, bool setShowCollision = true) {
+            bool wasFreeCameraMode = FreeCameraMode;
+            FreeCameraMode = freeCameraMode;
+            if (setShowCollision && wasFreeCameraMode != FreeCameraMode) {
+                if (freeCameraMode) { // On enable free camera mode
+                    storedCollisionSetting = Settings.ShowCollision;
+                    Settings.ShowCollision = true;
+                    return true;
+                } else { // On disable
+                    if (storedCollisionSetting.HasValue) {
+                        Settings.ShowCollision = storedCollisionSetting.Value;
+                        storedCollisionSetting = null;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         void UpdateOrthographic() {
             //Allow RMB panning only in certain modes, otherwise force wasd movement
             bool canPan = (editor.currentMode == LevelEditorBehaviour.EditMode.Events || editor.currentMode == LevelEditorBehaviour.EditMode.Links);

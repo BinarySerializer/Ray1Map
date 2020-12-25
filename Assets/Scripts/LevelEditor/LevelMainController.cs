@@ -406,12 +406,7 @@ namespace R1Engine
 
             if (Controller.obj.levelEventController.hasLoaded && LevelEditorData.Level?.IsometricData != null) {
                 if (Input.GetKeyDown(KeyCode.F)) {
-                    bool wasFreeCam = editor.cam.FreeCameraMode;
-                    editor.cam.FreeCameraMode = !editor.cam.FreeCameraMode;
-                    if (editor.cam.FreeCameraMode && !wasFreeCam) {
-                        // Enable collision view as well
-                        Settings.ShowCollision = true;
-                    }
+                    editor.cam.ToggleFreeCameraMode(!editor.cam.FreeCameraMode);
                     updatedSettings = true;
                 }
             }

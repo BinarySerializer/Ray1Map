@@ -534,15 +534,13 @@ public class WebCommunicator : MonoBehaviour {
 				}
 			}
 		}
+		bool updatedShowCollision = false;
 		if (msg.FreeCameraMode.HasValue) {
 			if (LevelEditorData.Level?.IsometricData != null) {
 				var cam = Controller.obj?.levelController?.editor?.cam;
 				if (cam != null) {
-					bool wasFreeCam = cam.FreeCameraMode;
-					cam.FreeCameraMode = msg.FreeCameraMode.Value;
-					if (cam.FreeCameraMode && !wasFreeCam) {
-						// Enable collision view as well
-						Settings.ShowCollision = true;
+					if (cam.ToggleFreeCameraMode(msg.FreeCameraMode.Value)) {
+						updatedShowCollision = true;
 					}
 				}
 			}
@@ -564,6 +562,9 @@ public class WebCommunicator : MonoBehaviour {
 		}
 		if (msg.BackgroundTintDark.HasValue) {
 			Camera.main.backgroundColor = msg.BackgroundTintDark.Value;
+		}
+		if (updatedShowCollision) {
+			SendSettings();
 		}
 	}
 	private void ParseSelectionJSON(WebJSON.Selection msg) {
