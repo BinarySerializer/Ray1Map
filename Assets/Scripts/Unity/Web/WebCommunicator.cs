@@ -538,7 +538,12 @@ public class WebCommunicator : MonoBehaviour {
 			if (LevelEditorData.Level?.IsometricData != null) {
 				var cam = Controller.obj?.levelController?.editor?.cam;
 				if (cam != null) {
+					bool wasFreeCam = cam.FreeCameraMode;
 					cam.FreeCameraMode = msg.FreeCameraMode.Value;
+					if (cam.FreeCameraMode && !wasFreeCam) {
+						// Enable collision view as well
+						Settings.ShowCollision = true;
+					}
 				}
 			}
 		}
