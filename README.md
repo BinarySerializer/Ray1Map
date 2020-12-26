@@ -3,6 +3,8 @@
  
 Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution with special thanks to PluMGMK for helping out with the project. The goal of the project is to support map viewing for all tile-based Rayman games, with focus on the Rayman 1 games.
 
+View maps in the web version of Ray1Map directly in your browser: https://raym.app/maps_r1/
+
 ### Features
 * Tile viewing and editing
 * Collision viewing and editing
