@@ -72,7 +72,7 @@ namespace R1Engine
         public uint Unk_24 { get; set; }
         public uint Unk_28 { get; set; }
         public uint Unk_32 { get; set; }
-        public uint Unk_36 { get; set; }
+        public uint Unk_36 { get; set; } // 0 if inactive, 1 if active - is this a bool or can it be other values too? Game checks if it's 0 to see if always object is inactive.
 
         public int XPosition { get; set; }
         public int YPosition { get; set; }
@@ -93,8 +93,8 @@ namespace R1Engine
 
         public bool PS1Demo_IsFlipped { get; set; }
         public byte PS1Demo_Unk4 { get; set; }
-        public ushort Unk_64 { get; set; }
-        public ushort Unk_66 { get; set; }
+        public short SpeedX { get; set; }
+        public short SpeedY { get; set; }
 
         public ushort ImageDescriptorCount { get; set; }
 
@@ -111,7 +111,7 @@ namespace R1Engine
         public short Unk_82 { get; set; } // Linked event index?
         public short Unk_84 { get; set; }
         public short Unk_86 { get; set; }
-        public short Unk_88 { get; set; }
+        public short Unk_88 { get; set; } // Prev collision type for moving platforms
         public short Unk_90 { get; set; }
 
         public R1_ZDCEntry Runtime_TypeZDC { get; set; }
@@ -123,7 +123,7 @@ namespace R1Engine
 
         public R1_EventType Type { get; set; }
 
-        public byte[] Unk_98 { get; set; }
+        public R1Jaguar_TileCollisionType[] CollisionTypes { get; set; }
 
         public byte Unk_103 { get; set; }
 
@@ -355,8 +355,8 @@ namespace R1Engine
                 PS1Demo_Unk4 = s.Serialize<byte>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
             }
 
-            Unk_64 = s.Serialize<ushort>(Unk_64, name: nameof(Unk_64));
-            Unk_66 = s.Serialize<ushort>(Unk_66, name: nameof(Unk_66));
+            SpeedX = s.Serialize<short>(SpeedX, name: nameof(SpeedX));
+            SpeedY = s.Serialize<short>(SpeedY, name: nameof(SpeedY));
 
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
@@ -385,7 +385,7 @@ namespace R1Engine
             if (IsPCFormat(s.GameSettings))
             {
                 Type = s.Serialize<R1_EventType>(Type, name: nameof(Type));
-                Unk_98 = s.SerializeArray<byte>(Unk_98, 5, name: nameof(Unk_98));
+                CollisionTypes = s.SerializeArray<R1Jaguar_TileCollisionType>(CollisionTypes, 5, name: nameof(CollisionTypes));
                 Unk_103 = s.Serialize<byte>(Unk_103, name: nameof(Unk_103));
             }
             else

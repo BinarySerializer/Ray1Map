@@ -1584,8 +1584,8 @@ namespace R1Engine
                 if (r1Event.PS1Demo_Unk1 == null)
                     r1Event.PS1Demo_Unk1 = new byte[40];
 
-                if (r1Event.Unk_98 == null)
-                    r1Event.Unk_98 = new byte[5];
+                if (r1Event.CollisionTypes == null)
+                    r1Event.CollisionTypes = new R1Jaguar_TileCollisionType[5];
 
                 r1Event.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
                 r1Event.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;

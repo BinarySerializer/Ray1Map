@@ -242,8 +242,8 @@ namespace R1Engine
                 if (ed.PS1Demo_Unk1 == null)
                     ed.PS1Demo_Unk1 = new byte[40];
 
-                if (ed.Unk_98 == null)
-                    ed.Unk_98 = new byte[5];
+                if (ed.CollisionTypes == null)
+                    ed.CollisionTypes = new R1Jaguar_TileCollisionType[5];
 
                 // TODO: Do this in the Unity_Object instead
                 ed.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
