@@ -17,11 +17,15 @@ namespace R1Engine
             // Set editor states
             EventData.InitialEtat = EventData.Etat;
             EventData.InitialSubEtat = EventData.SubEtat;
+            EventData.InitialHitPoints = EventData.HitPoints;
             EventData.InitialDisplayPrio = EventData.DisplayPrio;
             EventData.InitialXPosition = EventData.XPosition;
             EventData.InitialYPosition = EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
             EventData.RuntimeMapLayer = EventData.MapLayer;
+
+            if (EventData.EventType == R1_R2EventType.Ting)
+                EventData.RuntimeCurrentAnimFrame = (byte)(EventData.HitPoints - 1);
         }
 
         public R1_R2EventData EventData { get; }
@@ -58,33 +62,7 @@ namespace R1Engine
             set => EventData.YPosition = value;
         }
 
-        public override string DebugText => $"UShort_00: {EventData.UShort_00}{Environment.NewLine}" +
-                                            $"UShort_02: {EventData.UShort_02}{Environment.NewLine}" +
-                                            $"UShort_04: {EventData.UShort_04}{Environment.NewLine}" +
-                                            $"UShort_06: {EventData.UShort_06}{Environment.NewLine}" +
-                                            $"UShort_08: {EventData.UShort_08}{Environment.NewLine}" +
-                                            $"UShort_0A: {EventData.UShort_0A}{Environment.NewLine}" +
-                                            $"HasUnkAnimData: {EventData.AnimGroup?.AnimationDecriptors?.ElementAtOrDefault(EventData.RuntimeCurrentAnimIndex)?.UnkAnimData?.Any() == true}{Environment.NewLine}" +
-                                            $"UnkStateRelatedValue: {EventData.UnkStateRelatedValue}{Environment.NewLine}" +
-                                            $"Unk_22: {EventData.InitialDisplayPrio}{Environment.NewLine}" +
-                                            $"MapLayer: {EventData.MapLayer}{Environment.NewLine}" +
-                                            $"Unk1: {EventData.Unk1}{Environment.NewLine}" +
-                                            $"Unk2: {String.Join("-", EventData.Unk2)}{Environment.NewLine}" +
-                                            $"RuntimeUnk1: {EventData.EventIndex}{Environment.NewLine}" +
-                                            $"EventType: {EventData.EventType}{Environment.NewLine}" +
-                                            $"RuntimeOffset1: {EventData.ScreenXPosition}{Environment.NewLine}" +
-                                            $"RuntimeOffset2: {EventData.ScreenYPosition}{Environment.NewLine}" +
-                                            $"RuntimeBytes1: {String.Join("-", EventData.RuntimeBytes1)}{Environment.NewLine}" +
-                                            $"Unk_58: {EventData.Unk_58}{Environment.NewLine}" +
-                                            $"Unk3: {String.Join("-", EventData.Unk3)}{Environment.NewLine}" +
-                                            $"Unk4: {String.Join("-", EventData.Unk4)}{Environment.NewLine}" +
-                                            $"Flags: {String.Join(", ", EventData.Flags.GetFlags())}{Environment.NewLine}" +
-                                            $"RuntimeFlags1: {EventData.RuntimeFlags1}{Environment.NewLine}" +
-                                            $"RuntimeFlags2: {EventData.RuntimeFlags2}{Environment.NewLine}" +
-                                            $"RuntimeFlags3: {EventData.RuntimeFlags3}{Environment.NewLine}" +
-                                            $"Unk5: {String.Join("-", EventData.Unk5)}{Environment.NewLine}" +
-                                            $"ZDC.ZDCIndex: {EventData.CollisionData?.ZDC.ZDCIndex}{Environment.NewLine}" +
-                                            $"ZDC.ZDCCount: {EventData.CollisionData?.ZDC.ZDCCount}{Environment.NewLine}";
+        public override string DebugText => String.Empty;
 
         public override R1Serializable SerializableData => EventData;
 
@@ -99,8 +77,8 @@ namespace R1Engine
             {
                 switch (EventData.EventType)
                 {
-                    case R1_R2EventType.Gendoor_Spawn:
-                    case R1_R2EventType.Gendoor_Trigger:
+                    case R1_R2EventType.Gendoor:
+                    case R1_R2EventType.Trigger:
                         return ObjectType.Trigger;
 
                     case R1_R2EventType.RaymanPosition:
@@ -113,7 +91,22 @@ namespace R1Engine
         }
 
         public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.None && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.SwitchedOn)));
-        public override bool CanBeLinkedToGroup => true; // TODO: Find link flags for obj types
+        public override bool CanBeLinkedToGroup => true;
+        public override bool CanBeLinked => EventData.ParamsGendoor != null || EventData.ParamsTrigger != null;
+
+        public override IEnumerable<int> Links
+        {
+            get
+            {
+                if (EventData.ParamsGendoor != null)
+                    foreach (var l in EventData.ParamsGendoor.LinkedObjects)
+                        yield return l;
+
+                if (EventData.ParamsTrigger != null)
+                    foreach (var l in EventData.ParamsTrigger.LinkedObjects)
+                        yield return l;
+            }
+        }
 
         public override string PrimaryName => $"TYPE_{(ushort)EventData.EventType}";
         public override string SecondaryName => $"{EventData.EventType}";
@@ -132,7 +125,7 @@ namespace R1Engine
                 yield break;
 
             // Hard-coded for gendoors
-            if (EventData.EventType == R1_R2EventType.Gendoor_Spawn || EventData.EventType == R1_R2EventType.Gendoor_Trigger) {
+            if (EventData.EventType == R1_R2EventType.Gendoor || EventData.EventType == R1_R2EventType.Trigger) {
                 // Function at 0x800e26c0
 
                 int zdcIndex;
@@ -337,7 +330,11 @@ namespace R1Engine
 
             public byte FollowSprite { get; set; }
 
-            public uint HitPoints { get; set; }
+            public uint HitPoints
+            {
+                get => Obj.EventData.HitPoints;
+                set => Obj.EventData.HitPoints = (byte)value;
+            }
 
             public byte HitSprite { get; set; }
 

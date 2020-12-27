@@ -3,8 +3,6 @@ using R1Engine.Serialize;
 
 namespace R1Engine
 {
-    // TODO: Clean up this class
-
     /// <summary>
     /// Event data for Rayman 2 (PS1 - Demo)
     /// </summary>
@@ -18,7 +16,7 @@ namespace R1Engine
         public static R1_R2EventData GetRayman(R1_R2EventData rayPos, R1_R2AllfixFooter data) => new R1_R2EventData()
         {
             // Gets loaded at 0x80178DF0 during runtime
-            UnkPointer = data.RaymanBehaviorPointer,
+            ObjParamsPointer = data.RaymanBehaviorPointer,
             CollisionDataPointer = data.RaymanCollisionDataPointer,
             AnimGroupPointer = data.RaymanAnimGroupPointer,
             XPosition = (short)(rayPos != null ? (rayPos.XPosition + rayPos.CollisionData.OffsetBX - data.RaymanCollisionData.OffsetBX) : 100),
@@ -28,10 +26,9 @@ namespace R1Engine
             MapLayer = ObjMapLayer.Front,
             Unk2 = new byte[17],
             EventType = R1_R2EventType.Rayman,
-            RuntimeBytes1 = new byte[7],
             DisplayPrio = 7,
-            Unk3 = new byte[10],
-            Unk4 = new byte[3],
+            Bytes_5B = new byte[10],
+            Bytes_65 = new byte[3],
             Unk5 = new byte[2],
             CollisionData = data.RaymanCollisionData,
             AnimGroup = data.RaymanAnimGroup
@@ -50,16 +47,15 @@ namespace R1Engine
         
         // 12 (0xC)
         
-        // Points to structs of varying sizes
-        public Pointer UnkPointer { get; set; }
+        public Pointer ObjParamsPointer { get; set; } // The data struct here depends on the object type and acts as additional parameters. Several of these are edited during runtime. The max size is 44 bytes, which all empty always slot events use.
 
         // Leads to 16-byte long structures for collision data
         public Pointer CollisionDataPointer { get; set; }
 
         public Pointer AnimGroupPointer { get; set; }
 
-        // Always 0 in file - gets set to a pointer to a function during runtime which gets called whenever the event is initialized
-        public uint RuntimeStHandlersPointer { get; set; }
+        // Always 0 in file - gets set to the object function struct when initialized, based on the type
+        public uint RuntimeHandlersPointer { get; set; }
         
         // 28 (0x1C)
 
@@ -70,9 +66,7 @@ namespace R1Engine
 
         public byte InitialEtat { get; set; }
         public byte InitialSubEtat { get; set; }
-
-        // Appears to closely resemble the hitpoints value from R1
-        public byte UnkStateRelatedValue { get; set; }
+        public byte InitialHitPoints { get; set; }
 
         // 24 (0x22)
 
@@ -82,9 +76,12 @@ namespace R1Engine
 
         // 26 (0x24)
 
-        public byte Unk1 { get; set; }
-
+        public byte Byte_25 { get; set; }
         public PS1_R2Demo_EventFlags Flags { get; set; }
+        public byte Byte_27 { get; set; }
+        
+        public int Float_XPos { get; set; }
+        public int Float_YPos { get; set; }
 
         public byte[] Unk2 { get; set; }
 
@@ -117,59 +114,43 @@ namespace R1Engine
 
         // 76 (0x4C)
 
-        // 0x4C and 0x4E are ushorts
-
-        // Second byte in here determines horizontal speed and fourth byte the vertical speed
-        public byte[] RuntimeBytes1 { get; set; }
+        public short Float_SpeedX { get; set; }
+        public short Float_SpeedY { get; set; }
+        public short Short_50 { get; set; }
+        public byte Byte_52 { get; set; }
 
         public byte RuntimeCurrentAnimIndex { get; set; }
 
         // 84 (0x54)
 
-        /// <summary>
-        /// The current animation frame during runtime
-        /// </summary>
         public byte RuntimeCurrentAnimFrame { get; set; }
 
         public byte Etat { get; set; }
         public byte SubEtat { get; set; }
-        public byte InitialUnkStateRelatedValue { get; set; }
-        public byte Unk_58 { get; set; }
+        public byte HitPoints { get; set; }
+        public byte Byte_58 { get; set; }
 
         // The layer to appear on (0-7)
         public byte DisplayPrio { get; set; }
 
         // 90 (0x5A)
 
-        public byte[] Unk3 { get; set; }
+        public R2_TileCollisionType RuntimeCurrentCollisionType { get; set; }
 
-        /*
-         
-           *(undefined *)(eventOffset + 0x52) = *(undefined *)(eventOffset + 0x25);
-           uVar3 = *(uint *)(eventOffset + 100);
-           *(uint *)(eventOffset + 100) = uVar3 & 0x9fffffff;
-           *(uint *)(eventOffset + 0x68) =
-           *(uint *)(eventOffset + 0x68) & 0xffffff03 | *(uint *)(eventOffset + 0x24) >> 0xf & 0xfc;
-           *(uint *)(eventOffset + 100) = uVar3 & 0x8fffffff | 0x4000000;
-           *(undefined *)(eventOffset + 0x65) = 0;
-           *(char *)(eventOffset + 100) = *(char *)(eventOffset + 0x24);
-           if (1 < (byte)(*(char *)(eventOffset + 0x24) - 1U)) {
-                *(undefined *)(eventOffset + 100) = 1;
-           }
-             
-             */
+        public byte[] Bytes_5B { get; set; }
 
         // 100 (0x64)
 
         public ObjMapLayer RuntimeMapLayer { get; set; }
 
-        public byte[] Unk4 { get; set; }
+        public byte[] Bytes_65 { get; set; }
 
         public PS1_R2Demo_EventRuntimeFlags1 RuntimeFlags1 { get; set; }
 
         // 104 (0x68)
 
         public PS1_R2Demo_EventRuntimeFlags2 RuntimeFlags2 { get; set; }
+
         // First bit determines if the sprite should be faded
         public byte RuntimeFlags3 { get; set; }
 
@@ -179,15 +160,12 @@ namespace R1Engine
 
         #region Pointer Data
 
-        /// <summary>
-        /// The collision data
-        /// </summary>
         public R1_R2EventCollision CollisionData { get; set; }
-
-        /// <summary>
-        /// The current animation group
-        /// </summary>
         public R1_R2EventAnimGroup AnimGroup { get; set; }
+
+        public byte[] ParamsGeneric { get; set; }
+        public Params_Gendoor ParamsGendoor { get; set; }
+        public Params_Trigger ParamsTrigger { get; set; }
 
         #endregion
 
@@ -208,10 +186,10 @@ namespace R1Engine
             UShort_0A = s.Serialize<ushort>(UShort_0A, name: nameof(UShort_0A));
 
             // Serialize pointers
-            UnkPointer = s.SerializePointer(UnkPointer, name: nameof(UnkPointer));
+            ObjParamsPointer = s.SerializePointer(ObjParamsPointer, name: nameof(ObjParamsPointer));
             CollisionDataPointer = s.SerializePointer(CollisionDataPointer, name: nameof(CollisionDataPointer));
             AnimGroupPointer = s.SerializePointer(AnimGroupPointer, name: nameof(AnimGroupPointer));
-            RuntimeStHandlersPointer = s.Serialize<uint>(RuntimeStHandlersPointer, name: nameof(RuntimeStHandlersPointer));
+            RuntimeHandlersPointer = s.Serialize<uint>(RuntimeHandlersPointer, name: nameof(RuntimeHandlersPointer));
 
             // Serialize positions
             InitialXPosition = s.Serialize<short>(InitialXPosition, name: nameof(InitialXPosition));
@@ -220,14 +198,18 @@ namespace R1Engine
             // Serialize state data
             InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
             InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
-            UnkStateRelatedValue = s.Serialize<byte>(UnkStateRelatedValue, name: nameof(UnkStateRelatedValue));
+            InitialHitPoints = s.Serialize<byte>(InitialHitPoints, name: nameof(InitialHitPoints));
             InitialDisplayPrio = s.Serialize<byte>(InitialDisplayPrio, name: nameof(InitialDisplayPrio));
             MapLayer = s.Serialize<ObjMapLayer>(MapLayer, name: nameof(MapLayer));
 
-            Unk1 = s.Serialize<byte>(Unk1, name: nameof(Unk1));
+            Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
             Flags = s.Serialize<PS1_R2Demo_EventFlags>(Flags, name: nameof(Flags));
+            Byte_27 = s.Serialize<byte>(Byte_27, name: nameof(Byte_27));
 
-            Unk2 = s.SerializeArray(Unk2, 17, name: nameof(Unk2));
+            Float_XPos = s.Serialize<int>(Float_XPos, name: nameof(Float_XPos));
+            Float_YPos = s.Serialize<int>(Float_YPos, name: nameof(Float_YPos));
+
+            Unk2 = s.SerializeArray(Unk2, 8, name: nameof(Unk2)); // Two floats?
 
             RuntimeCurrentStatePointer = s.Serialize<uint>(RuntimeCurrentStatePointer, name: nameof(RuntimeCurrentStatePointer));
             RuntimeCurrentAnimDescriptorPointer = s.Serialize<uint>(RuntimeCurrentAnimDescriptorPointer, name: nameof(RuntimeCurrentAnimDescriptorPointer));
@@ -243,22 +225,29 @@ namespace R1Engine
             ScreenXPosition = s.Serialize<short>(ScreenXPosition, name: nameof(ScreenXPosition));
             ScreenYPosition = s.Serialize<short>(ScreenYPosition, name: nameof(ScreenYPosition));
 
-            RuntimeBytes1 = s.SerializeArray(RuntimeBytes1, 7, name: nameof(RuntimeBytes1));
+            Float_SpeedX = s.Serialize<short>(Float_SpeedX, name: nameof(Float_SpeedX));
+            Float_SpeedY = s.Serialize<short>(Float_SpeedY, name: nameof(Float_SpeedY));
+            Short_50 = s.Serialize<short>(Short_50, name: nameof(Short_50));
+
+            Byte_52 = s.Serialize<byte>(Byte_52, name: nameof(Byte_52));
+
             RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
             RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
-            InitialUnkStateRelatedValue = s.Serialize<byte>(InitialUnkStateRelatedValue, name: nameof(InitialUnkStateRelatedValue));
-            Unk_58 = s.Serialize<byte>(Unk_58, name: nameof(Unk_58));
+            HitPoints = s.Serialize<byte>(HitPoints, name: nameof(HitPoints));
+            Byte_58 = s.Serialize<byte>(Byte_58, name: nameof(Byte_58));
 
             DisplayPrio = s.Serialize<byte>(DisplayPrio, name: nameof(DisplayPrio));
 
-            Unk3 = s.SerializeArray(Unk3, 10, name: nameof(Unk3));
+            RuntimeCurrentCollisionType = s.Serialize<R2_TileCollisionType>(RuntimeCurrentCollisionType, name: nameof(RuntimeCurrentCollisionType));
+
+            Bytes_5B = s.SerializeArray(Bytes_5B, 9, name: nameof(Bytes_5B));
 
             RuntimeMapLayer = s.Serialize<ObjMapLayer>(RuntimeMapLayer, name: nameof(RuntimeMapLayer));
 
-            Unk4 = s.SerializeArray(Unk4, 2, name: nameof(Unk4));
+            Bytes_65 = s.SerializeArray(Bytes_65, 2, name: nameof(Bytes_65));
 
             RuntimeFlags1 = s.Serialize<PS1_R2Demo_EventRuntimeFlags1>(RuntimeFlags1, name: nameof(RuntimeFlags1));
             RuntimeFlags2 = s.Serialize<PS1_R2Demo_EventRuntimeFlags2>(RuntimeFlags2, name: nameof(RuntimeFlags2));
@@ -271,6 +260,17 @@ namespace R1Engine
             // Serialize collision data
             if (CollisionDataPointer != null)
                 s.DoAt(CollisionDataPointer, () => CollisionData = s.SerializeObject<R1_R2EventCollision>(CollisionData, name: nameof(CollisionData)));
+
+            // Serialize object params
+            s.DoAt(ObjParamsPointer, () =>
+            {
+                if (EventType == R1_R2EventType.Gendoor || EventType == R1_R2EventType.Killdoor)
+                    ParamsGendoor = s.SerializeObject<Params_Gendoor>(ParamsGendoor, name: nameof(ParamsGendoor));
+                else if (EventType == R1_R2EventType.Trigger)
+                    ParamsTrigger = s.SerializeObject<Params_Trigger>(ParamsTrigger, name: nameof(ParamsTrigger));
+                else
+                    ParamsGeneric = s.SerializeArray<byte>(ParamsGeneric, 44, name: nameof(ParamsGeneric)); // 44 bytes is the max length for object params
+            });
 
             if (!s.FullSerialize || Offset.file is ProcessMemoryStreamFile)
                 return;
@@ -345,5 +345,60 @@ namespace R1Engine
             UnkFlag_6 = 1 << 6,
             UnkFlag_7 = 1 << 7,
         }
+
+        #region Object Params
+
+        public class Params_Gendoor : R1Serializable
+        {
+            public Pointer LinkedObjectsPointer { get; set; }
+            public Pointer Pointer_04 { get; set; }
+
+            public ushort LinkedObjectsCount { get; set; }
+            public byte Byte_0A { get;set; }
+            public byte Byte_0B { get;set; }
+            public byte Byte_0C { get;set; }
+            public byte Byte_0D { get;set; }
+            public byte Byte_0E { get;set; }
+            public byte Byte_0F { get;set; }
+
+            public short[] LinkedObjects { get; set; }
+
+            public override void SerializeImpl(SerializerObject s)
+            {
+                LinkedObjectsPointer = s.SerializePointer(LinkedObjectsPointer, name: nameof(LinkedObjectsPointer));
+                Pointer_04 = s.SerializePointer(Pointer_04, name: nameof(Pointer_04));
+                LinkedObjectsCount = s.Serialize<ushort>(LinkedObjectsCount, name: nameof(LinkedObjectsCount));
+                Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
+                Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
+                Byte_0C = s.Serialize<byte>(Byte_0C, name: nameof(Byte_0C));
+                Byte_0D = s.Serialize<byte>(Byte_0D, name: nameof(Byte_0D));
+                Byte_0E = s.Serialize<byte>(Byte_0E, name: nameof(Byte_0E));
+                Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));
+
+                LinkedObjects = s.DoAt(LinkedObjectsPointer, () => s.SerializeArray<short>(LinkedObjects, LinkedObjectsCount, name: nameof(LinkedObjects)));
+            }
+        }
+
+        public class Params_Trigger : R1Serializable
+        {
+            public Pointer LinkedObjectsPointer { get; set; }
+            public ushort LinkedObjectsCount { get; set; }
+            public ushort Flags { get; set; }
+
+            // 4 more bytes? They seem unreferenced.
+
+            public short[] LinkedObjects { get; set; }
+
+            public override void SerializeImpl(SerializerObject s)
+            {
+                LinkedObjectsPointer = s.SerializePointer(LinkedObjectsPointer, name: nameof(LinkedObjectsPointer));
+                LinkedObjectsCount = s.Serialize<ushort>(LinkedObjectsCount, name: nameof(LinkedObjectsCount));
+                Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
+
+                LinkedObjects = s.DoAt(LinkedObjectsPointer, () => s.SerializeArray<short>(LinkedObjects, LinkedObjectsCount, name: nameof(LinkedObjects)));
+            }
+        }
+
+        #endregion
     }
 }

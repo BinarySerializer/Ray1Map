@@ -11,8 +11,8 @@
         Oneup = 3,
         BigPower = 4,
         Flash = 5,
-        Gendoor_Spawn = 6,
-
+        Gendoor = 6,
+        Killdoor = 7, // Unused
         HitEffect = 8,
         FloatingMine = 9,
         Explosion = 10,
@@ -33,7 +33,7 @@
 
         Trampoline = 38,
 
-        Gendoor_Trigger = 48,
+        Trigger = 48,
         RaymanPosition = 49,
 
         Bolts = 51,
