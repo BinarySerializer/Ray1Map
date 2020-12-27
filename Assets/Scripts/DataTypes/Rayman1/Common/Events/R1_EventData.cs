@@ -117,10 +117,6 @@ namespace R1Engine
         public R1_ZDCEntry Runtime_TypeZDC { get; set; }
         public short Unk_94 { get; set; }
 
-        public ushort PS1_Unk2 { get; set; }
-        public ushort PS1_Unk3 { get; set; }
-        public ushort PS1_Unk4 { get; set; }
-
         public R1_EventType Type { get; set; }
 
         public R1Jaguar_TileCollisionType[] CollisionTypes { get; set; }
@@ -383,21 +379,10 @@ namespace R1Engine
             Unk_94 = s.Serialize<short>(Unk_94, name: nameof(Unk_94));
 
             if (IsPCFormat(s.GameSettings))
-            {
                 Type = s.Serialize<R1_EventType>(Type, name: nameof(Type));
-                CollisionTypes = s.SerializeArray<R1Jaguar_TileCollisionType>(CollisionTypes, 5, name: nameof(CollisionTypes));
-                Unk_103 = s.Serialize<byte>(Unk_103, name: nameof(Unk_103));
-            }
-            else
-            {
-                PS1_Unk2 = s.Serialize<ushort>(PS1_Unk2, name: nameof(PS1_Unk2));
 
-                if (s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3)
-                {
-                    PS1_Unk3 = s.Serialize<ushort>(PS1_Unk3, name: nameof(PS1_Unk3));
-                    PS1_Unk4 = s.Serialize<ushort>(PS1_Unk4, name: nameof(PS1_Unk4));
-                }
-            }
+            CollisionTypes = s.SerializeArray<R1Jaguar_TileCollisionType>(CollisionTypes, s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3 ? 5 : 1, name: nameof(CollisionTypes));
+            Unk_103 = s.Serialize<byte>(Unk_103, name: nameof(Unk_103));
 
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
             OffsetBY = s.Serialize<byte>(OffsetBY, name: nameof(OffsetBY));
