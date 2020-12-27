@@ -5,7 +5,7 @@
     /// </summary>
     public enum R1_R2EventType : ushort
     {
-        None = 0, // Most likely slots for always events
+        Invalid = 0, // Slots for always events
         Rayman = 1,
         Fist = 2,
         Oneup = 3,
@@ -18,7 +18,7 @@
         Explosion = 10,
         FistReflector = 11,
 
-        MetalThing1 = 13,
+        MetalPart = 13,
 
         WaterLily = 18,
         FlyingRing = 19,
@@ -43,7 +43,6 @@
 
         WaterSplash = 76,
 
-        // NOTE: This type is also used for an always event!
         Cannon = 81,
         CannonTarget = 82,
         Cannonball = 83,
@@ -56,10 +55,12 @@
         Ting = 97,
         Dino = 98,
         DinoBreath = 99,
-        SmackBX003Thing = 100,
+        SmackBX003Part = 100,
 
         Unk_102 = 102,
         GunshotExplosion = 103,
-        WaterFall = 104,
+        WaterFall = 104
+
+        // No more event types after this are defined in the exe
     }
 }

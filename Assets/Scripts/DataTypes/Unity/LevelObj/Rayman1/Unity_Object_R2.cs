@@ -32,7 +32,11 @@ namespace R1Engine
 
         public Unity_ObjectManager_R2 ObjManager { get; }
 
-        public R1_EventState State => AnimGroup?.ETA?.ElementAtOrDefault(EventData.Etat)?.ElementAtOrDefault(EventData.SubEtat);
+        public R1_EventState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
+        public R1_EventState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
+        public R1_EventState LinkedState => GetState(CurrentState?.LinkedEtat ?? -1, CurrentState?.LinkedSubEtat ?? -1);
+
+        protected R1_EventState GetState(int etat, int subEtat) => AnimGroup?.ETA?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
 
         public Unity_ObjectManager_R2.AnimGroup AnimGroup => ObjManager.AnimGroups.ElementAtOrDefault(AnimGroupIndex);
 
@@ -70,7 +74,7 @@ namespace R1Engine
 
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
-        public override bool IsEditor => AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.None;
+        public override bool IsEditor => AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.Invalid;
         public override ObjectType Type
         {
             get
@@ -90,7 +94,7 @@ namespace R1Engine
             }
         }
 
-        public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.None && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.SwitchedOn)));
+        public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.Invalid && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.SwitchedOn)));
         public override bool CanBeLinkedToGroup => true;
         public override bool CanBeLinked => EventData.ParamsGendoor != null || EventData.ParamsTrigger != null;
 
@@ -226,26 +230,47 @@ namespace R1Engine
             set => EventData.RuntimeCurrentAnimIndex = (byte)(value ?? 0);
         }
 
-        public override int AnimSpeed => State?.AnimationSpeed ?? 0;
+        public override int AnimSpeed => CurrentState?.AnimationSpeed ?? 0;
 
-        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex;
+        public override int? GetAnimIndex => OverrideAnimIndex ?? CurrentState?.AnimationIndex;
         protected override int GetSpriteID => AnimGroupIndex;
         public override IList<Sprite> Sprites => ObjManager.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.CollisionData?.OffsetBX ?? 0, -EventData.CollisionData?.OffsetBY ?? 0);
 
-		protected override void OnFinishedAnimation()
+        protected HashSet<R1_EventState> EncounteredStates { get; } = new HashSet<R1_EventState>(); // Keep track of "encountered" states if we have state switching set to loop to avoid entering an infinite loop
+        protected R1_EventState PrevInitialState { get; set; }
+
+        protected override void OnFinishedAnimation()
         {
+            if (Settings.LoadFromMemory)
+                return;
+
+            // Check if the state has been modified
+            if (PrevInitialState != InitialState)
+            {
+                PrevInitialState = InitialState;
+
+                // Clear encountered states
+                EncounteredStates.Clear();
+            }
+
             if (Settings.StateSwitchingMode != StateSwitchingMode.None)
             {
                 // Get the current state
-                var state = State;
+                var state = CurrentState;
+
+                // Add current state to list of encountered states
+                EncounteredStates.Add(state);
 
                 // Check if we've reached the end of the linking chain and we're looping
-                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EventData.Etat == state.LinkedEtat && EventData.SubEtat == state.LinkedSubEtat)
+                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EncounteredStates.Contains(LinkedState))
                 {
                     // Reset the state
                     EventData.Etat = EventData.InitialEtat;
                     EventData.SubEtat = EventData.InitialSubEtat;
+
+                    // Clear encountered states
+                    EncounteredStates.Clear();
                 }
                 else
                 {
