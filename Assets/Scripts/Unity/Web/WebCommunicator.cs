@@ -248,6 +248,7 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.R1_OffsetBX = r2obj.EventData.CollisionData?.OffsetBX;
 					webObj.R1_OffsetBY = r2obj.EventData.CollisionData?.OffsetBY;
 					webObj.R1_OffsetHY = r2obj.EventData.CollisionData?.OffsetHY;
+					webObj.R1_HitPoints = r2obj.EventData.HitPoints;
 					webObj.R1_DisplayPrio = r2obj.EventData.DisplayPrio;
 
 					if (r2obj.AnimGroupIndex != -1)

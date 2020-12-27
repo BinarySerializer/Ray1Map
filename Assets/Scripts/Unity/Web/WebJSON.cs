@@ -98,7 +98,7 @@ public class WebJSON {
         public byte? R1_OffsetBY { get; set; }
         public byte? R1_OffsetHY { get; set; }
         public byte? R1_FollowSprite { get; set; } // Not in R2
-        public uint? R1_HitPoints { get; set; } // Not in R2
+        public uint? R1_HitPoints { get; set; }
 		public byte? R1_HitSprite { get; set; } // Not in R2
 		public bool? R1_FollowEnabled { get; set; } // Not in R2
 		public byte? R1_DisplayPrio { get; set; }
