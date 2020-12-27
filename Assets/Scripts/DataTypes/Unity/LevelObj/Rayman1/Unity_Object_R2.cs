@@ -125,7 +125,7 @@ namespace R1Engine
                 yield break;
 
             // Hard-coded for gendoors
-            if (EventData.EventType == R1_R2EventType.Gendoor || EventData.EventType == R1_R2EventType.Trigger) {
+            if (EventData.EventType == R1_R2EventType.Gendoor || EventData.EventType == R1_R2EventType.Killdoor || EventData.EventType == R1_R2EventType.Trigger) {
                 // Function at 0x800e26c0
 
                 int zdcIndex;
