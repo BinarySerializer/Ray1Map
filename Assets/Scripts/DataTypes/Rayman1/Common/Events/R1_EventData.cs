@@ -100,7 +100,7 @@ namespace R1Engine
 
         public short RuntimeCurrentCommandOffset { get; set; }
         public short RuntimeCurrentCommandArgument { get; set; }
-        public short Unk_74 { get; set; }
+        public short Unk_74 { get; set; } // For Rayman this holds the index of the object he's standing on. It most likely has different uses for other events based on type. In R2 this is in the type specific data.
         public short Unk_76 { get; set; }
         public short Unk_78 { get; set; }
 
