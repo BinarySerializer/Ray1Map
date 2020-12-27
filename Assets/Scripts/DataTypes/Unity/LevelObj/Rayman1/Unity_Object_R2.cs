@@ -265,20 +265,29 @@ namespace R1Engine
                 // Check if we've reached the end of the linking chain and we're looping
                 if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EncounteredStates.Contains(LinkedState))
                 {
-                    // Reset the state
-                    EventData.Etat = EventData.InitialEtat;
-                    EventData.SubEtat = EventData.InitialSubEtat;
-
-                    // Clear encountered states
-                    EncounteredStates.Clear();
+                    ResetState();
                 }
                 else
                 {
                     // Update state values to the linked one
                     EventData.Etat = state.LinkedEtat;
                     EventData.SubEtat = state.LinkedSubEtat;
+
+                    // For always objects the game sets the last state in the chain to link to -1 to indicate that the object should now be hidden again, but to avoid the object now displaying in the editor we reset it here
+                    if (EventData.Etat == 0xFF || EventData.SubEtat == 0xFF)
+                        ResetState();
                 }
             }
+        }
+
+        protected void ResetState()
+        {
+            // Reset the state
+            EventData.Etat = EventData.InitialEtat;
+            EventData.SubEtat = EventData.InitialSubEtat;
+
+            // Clear encountered states
+            EncounteredStates.Clear();
         }
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
