@@ -130,7 +130,7 @@ namespace R1Engine
                     return $"\t{cmd} {Arguments[0]} {(sbyte)Arguments[1]} {(sbyte)Arguments[2]}";
                 case R1_EventCommandType.GO_X:
                 case R1_EventCommandType.GO_Y:
-                    return $"\t{cmd} {Arguments[0]}{Arguments[1]}";
+                    return $"\t{cmd} {Arguments[0] * 100 + Arguments[1]}";
                 default:
                     cmd = cmd.Replace("GO_", "");
                     return "\t" + cmd + (Arguments.Length > 0 ? (" " + string.Join(" ", Arguments)) : "") + ";";
