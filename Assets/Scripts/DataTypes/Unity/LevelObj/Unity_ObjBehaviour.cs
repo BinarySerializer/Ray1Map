@@ -479,40 +479,45 @@ namespace R1Engine
                         prefabRenderersCollision[i].enabled = false;
                     }
                 }
-                if (frameUpdated || collisionUpdated) {
-                    // Update collision
-                    for (int i = 0; i < anim.Frames[frame].CollisionLayers.Length; i++) {
-                        SetCollisionBox(anim.Frames[frame].CollisionLayers[i], prefabRenderersCollision[i], pivot);
-                        prefabRenderersCollision[i].enabled = CurrentShowCollision;
-                    }
-                }
             }
 
             if (ShowGizmo) {
                 UpdateGizmoPosition(ObjData.ObjCollision, ObjData.Pivot);
             }
-            if (frameUpdated || collisionUpdated) {
+            if (CurrentShowCollision && (frameUpdated || collisionUpdated)) {
                 var col = ObjData.ObjCollision;
 
                 // Update object collision
-                if (CurrentShowCollision && ((prefabRendersObjCollision == null && col != null && col.Length > 0) || col.Length != prefabRendersObjCollision?.Length)) {
+                if ((prefabRendersObjCollision == null && col != null && col.Length > 0) || col.Length != prefabRendersObjCollision?.Length) {
                     // Clear old sprites
                     ClearSprites(prefabRendersObjCollision);
 
                     if (col != null && col.Length > 0) {
-                        prefabRendersObjCollision = new SpriteRenderer[col.Length];
+                        if (CurrentShowCollision) {
+                            prefabRendersObjCollision = new SpriteRenderer[col.Length];
 
-                        // Instantiate prefabs
-                        for (int i = 0; i < col.Length; i++) {
-                            prefabRendersObjCollision[i] = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
-                            prefabRendersObjCollision[i].sortingOrder = Layer;
+                            // Instantiate prefabs
+                            for (int i = 0; i < col.Length; i++) {
+                                prefabRendersObjCollision[i] = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
+                                prefabRendersObjCollision[i].sortingOrder = Layer;
 
-                            prefabRendersObjCollision[i].transform.localPosition = new Vector3(0, 0, col.Length - i);
-                            prefabRendersObjCollision[i].transform.localRotation = Quaternion.identity;
-                            prefabRendersObjCollision[i].transform.localScale = Vector3.one * ObjData.Scale;
+                                prefabRendersObjCollision[i].transform.localPosition = new Vector3(0, 0, col.Length - i);
+                                prefabRendersObjCollision[i].transform.localRotation = Quaternion.identity;
+                                prefabRendersObjCollision[i].transform.localScale = Vector3.one * ObjData.Scale;
+                            }
                         }
                     } else {
                         prefabRendersObjCollision = null;
+                    }
+                }
+
+                if (anim != null) {
+                    var frame = ObjData.AnimationFrame;
+                    var pivot = ObjData.Pivot;
+                    // Update collision
+                    for (int i = 0; i < anim.Frames[frame].CollisionLayers.Length; i++) {
+                        SetCollisionBox(anim.Frames[frame].CollisionLayers[i], prefabRenderersCollision[i], pivot);
+                        prefabRenderersCollision[i].enabled = CurrentShowCollision;
                     }
                 }
 
@@ -520,6 +525,12 @@ namespace R1Engine
                     for (var i = 0; i < prefabRendersObjCollision.Length; i++) {
                         SetCollisionBox(col[i], prefabRendersObjCollision[i], ObjData.Pivot);
                         prefabRendersObjCollision[i].enabled = CurrentShowCollision;
+                    }
+                }
+            } else if(!CurrentShowCollision) {
+                if (prefabRendersObjCollision != null) {
+                    for (var i = 0; i < prefabRendersObjCollision.Length; i++) {
+                        prefabRendersObjCollision[i].enabled = false;
                     }
                 }
             }
