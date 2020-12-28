@@ -1587,6 +1587,12 @@ namespace R1Engine
                 if (r1Event.CollisionTypes == null)
                     r1Event.CollisionTypes = new R1Jaguar_TileCollisionType[5];
 
+                if (r1Event.CMD_Contexts == null)
+                    r1Event.CMD_Contexts = new R1_EventData.CommandContext[]
+                    {
+                        new R1_EventData.CommandContext()
+                    };
+
                 r1Event.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
                 r1Event.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 

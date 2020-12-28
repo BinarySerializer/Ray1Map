@@ -132,7 +132,7 @@ namespace R1Engine
                 if (IsPCFormat)
                 {
                     // Unk_28 is also some active flag, but it's 0 for Rayman
-                    return EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.SwitchedOn) && EventData.Unk_36 == 1;
+                    return EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.SwitchedOn) && EventData.IsActive == 1;
                 }
                 else
                 {

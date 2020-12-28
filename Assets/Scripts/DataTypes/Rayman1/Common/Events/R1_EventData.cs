@@ -69,24 +69,26 @@ namespace R1Engine
         public uint PS1Demo_Unk2 { get; set; }
         public uint PS1_Unk1 { get; set; }
 
-        public uint Unk_24 { get; set; }
-        public uint Unk_28 { get; set; }
-        public uint Unk_32 { get; set; }
-        public uint Unk_36 { get; set; } // 0 if inactive, 1 if active - is this a bool or can it be other values too? Game checks if it's 0 to see if always object is inactive.
+        public CommandContext[] CMD_Contexts { get; set; }
+
+        // How many of these uints are a part of the CMD context array?
+        public uint Uint_1C { get; set; }
+        public uint Uint_20 { get; set; }
+        public uint IsActive { get; set; } // 0 if inactive, 1 if active - is this a bool or can it be other values too? Game checks if it's 0 to see if always object is inactive.
 
         public int XPosition { get; set; }
         public int YPosition { get; set; }
 
         public short PS1Demo_Unk3 { get; set; }
 
-        public uint Unk_48 { get; set; }
+        public uint Uint_30 { get; set; }
 
         // This index is used by the game to handle the event links during runtime
         public short EventIndex { get; set; }
 
         public short ScreenXPosition { get; set; }
         public short ScreenYPosition { get; set; }
-        public short Unk_58 { get; set; }
+        public short Short_3A { get; set; }
 
         public short InitialXPosition { get; set; }
         public short InitialYPosition { get; set; }
@@ -98,30 +100,30 @@ namespace R1Engine
 
         public ushort ImageDescriptorCount { get; set; }
 
-        public short RuntimeCurrentCommandOffset { get; set; }
-        public short RuntimeCurrentCommandArgument { get; set; }
-        public short Unk_74 { get; set; } // For Rayman this holds the index of the object he's standing on. It most likely has different uses for other events based on type. In R2 this is in the type specific data.
-        public short Unk_76 { get; set; }
-        public short Unk_78 { get; set; }
+        public short CMD_CurrentOffset { get; set; }
+        public short CMD_Arg0 { get; set; } // This along with CMD_Arg1 might be a more generic temp value, so might have other uses too
+        public short Short_4A { get; set; } // For Rayman this holds the index of the object he's standing on. It most likely has different uses for other events based on type. In R2 this is in the type specific data.
+        public short Short_4C { get; set; }
+        public short Short_4E { get; set; }
 
         // This value is used for voice lines as a replacement of the normal HitPoints value in order to have a sample index higher than 255. When this is used HitPoints is always EDU_ExtHitPoints % 256.
         public uint EDU_ExtHitPoints { get; set; }
         
-        public short Unk_80 { get; set; }
-        public short Unk_82 { get; set; } // Linked event index?
-        public short Unk_84 { get; set; }
-        public short Unk_86 { get; set; }
-        public short Unk_88 { get; set; } // Prev collision type for moving platforms
-        public short Unk_90 { get; set; }
+        public short CMD_Arg1 { get; set; }
+        public short Short_52 { get; set; } // Linked event index?
+        public short Short_54 { get; set; }
+        public short Short_56 { get; set; }
+        public short Short_58 { get; set; } // Prev collision type for moving platforms
+        public short Short_5A { get; set; }
 
         public R1_ZDCEntry Runtime_TypeZDC { get; set; }
-        public short Unk_94 { get; set; }
+        public short Short_5E { get; set; }
 
         public R1_EventType Type { get; set; }
 
         public R1Jaguar_TileCollisionType[] CollisionTypes { get; set; }
 
-        public byte Unk_103 { get; set; }
+        public byte Byte_67 { get; set; }
 
         public byte OffsetBX { get; set; }
         public byte OffsetBY { get; set; }
@@ -135,7 +137,7 @@ namespace R1Engine
         public byte InitialSubEtat { get; set; }
         public byte InitialEtat { get; set; }
 
-        public uint RuntimeCurrentCommand { get; set; }
+        public uint CMD_CurrentCommand { get; set; }
 
         public byte OffsetHY { get; set; }
 
@@ -168,10 +170,10 @@ namespace R1Engine
 
         public byte PS1_Unk5 { get; set; }
 
-        public byte Unk_122 { get; set; }
-        public byte Unk_123 { get; set; }
-        public byte Unk_124 { get; set; }
-        public byte Unk_125 { get; set; }
+        public byte Byte_7A { get; set; }
+        public byte Byte_7B { get; set; }
+        public byte CMD_CurrentContext { get; set; }
+        public byte Byte_7D { get; set; }
         public byte PS1Demo_Unk5 { get; set; }
         public byte PS1Demo_Unk6 { get; set; }
         public byte PS1Demo_Unk7 { get; set; }
@@ -179,7 +181,7 @@ namespace R1Engine
 
         public byte InitialDisplayPrio { get; set; }
 
-        public byte Unk_127 { get; set; }
+        public byte Byte_7F { get; set; }
 
         public byte AnimDescriptorCount { get; set; }
 
@@ -189,7 +191,7 @@ namespace R1Engine
         public byte PS1_Flags { get; set; }
         public byte PS1_Unk7 { get; set; }
 
-        public ushort Unk_130 { get; set; }
+        public ushort Ushort_82 { get; set; }
 
         #endregion
 
@@ -310,10 +312,10 @@ namespace R1Engine
 
             if (IsPCFormat(s.GameSettings))
             {
-                Unk_24 = s.Serialize<uint>(Unk_24, name: nameof(Unk_24));
-                Unk_28 = s.Serialize<uint>(Unk_28, name: nameof(Unk_28));
-                Unk_32 = s.Serialize<uint>(Unk_32, name: nameof(Unk_32));
-                Unk_36 = s.Serialize<uint>(Unk_36, name: nameof(Unk_36));
+                CMD_Contexts = s.SerializeObjectArray<CommandContext>(CMD_Contexts, 1, name: nameof(CMD_Contexts));
+                Uint_1C = s.Serialize<uint>(Uint_1C, name: nameof(Uint_1C));
+                Uint_20 = s.Serialize<uint>(Uint_20, name: nameof(Uint_20));
+                IsActive = s.Serialize<uint>(IsActive, name: nameof(IsActive));
             }
 
             if (IsPCFormat(s.GameSettings))
@@ -334,12 +336,12 @@ namespace R1Engine
             else
             {
                 if (IsPCFormat(s.GameSettings))
-                    Unk_48 = s.Serialize<uint>(Unk_48, name: nameof(Unk_48));
+                    Uint_30 = s.Serialize<uint>(Uint_30, name: nameof(Uint_30));
 
                 EventIndex = s.Serialize<short>(EventIndex, name: nameof(EventIndex));
                 ScreenXPosition = s.Serialize<short>(ScreenXPosition, name: nameof(ScreenXPosition));
                 ScreenYPosition = s.Serialize<short>(ScreenYPosition, name: nameof(ScreenYPosition));
-                Unk_58 = s.Serialize<short>(Unk_58, name: nameof(Unk_58));
+                Short_3A = s.Serialize<short>(Short_3A, name: nameof(Short_3A));
             }
 
             InitialXPosition = s.Serialize<short>(InitialXPosition, name: nameof(InitialXPosition));
@@ -356,33 +358,33 @@ namespace R1Engine
 
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
-            RuntimeCurrentCommandOffset = s.Serialize<short>(RuntimeCurrentCommandOffset, name: nameof(RuntimeCurrentCommandOffset));
-            
-            RuntimeCurrentCommandArgument = s.Serialize<short>(RuntimeCurrentCommandArgument, name: nameof(RuntimeCurrentCommandArgument));
-            Unk_74 = s.Serialize<short>(Unk_74, name: nameof(Unk_74));
-            Unk_76 = s.Serialize<short>(Unk_76, name: nameof(Unk_76));
-            Unk_78 = s.Serialize<short>(Unk_78, name: nameof(Unk_78));
+            CMD_CurrentOffset = s.Serialize<short>(CMD_CurrentOffset, name: nameof(CMD_CurrentOffset));
+            CMD_Arg0 = s.Serialize<short>(CMD_Arg0, name: nameof(CMD_Arg0));
+
+            Short_4A = s.Serialize<short>(Short_4A, name: nameof(Short_4A));
+            Short_4C = s.Serialize<short>(Short_4C, name: nameof(Short_4C));
+            Short_4E = s.Serialize<short>(Short_4E, name: nameof(Short_4E));
 
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || 
                 s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || 
                 s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu)
                 EDU_ExtHitPoints = s.Serialize<uint>(EDU_ExtHitPoints, name: nameof(EDU_ExtHitPoints));
 
-            Unk_80 = s.Serialize<short>(Unk_80, name: nameof(Unk_80));
-            Unk_82 = s.Serialize<short>(Unk_82, name: nameof(Unk_82));
-            Unk_84 = s.Serialize<short>(Unk_84, name: nameof(Unk_84));
-            Unk_86 = s.Serialize<short>(Unk_86, name: nameof(Unk_86));
+            CMD_Arg1 = s.Serialize<short>(CMD_Arg1, name: nameof(CMD_Arg1));
+            Short_52 = s.Serialize<short>(Short_52, name: nameof(Short_52));
+            Short_54 = s.Serialize<short>(Short_54, name: nameof(Short_54));
+            Short_56 = s.Serialize<short>(Short_56, name: nameof(Short_56));
             
-            Unk_88 = s.Serialize<short>(Unk_88, name: nameof(Unk_88));
-            Unk_90 = s.Serialize<short>(Unk_90, name: nameof(Unk_90));
+            Short_58 = s.Serialize<short>(Short_58, name: nameof(Short_58));
+            Short_5A = s.Serialize<short>(Short_5A, name: nameof(Short_5A));
             Runtime_TypeZDC = s.SerializeObject<R1_ZDCEntry>(Runtime_TypeZDC, name: nameof(Runtime_TypeZDC));
-            Unk_94 = s.Serialize<short>(Unk_94, name: nameof(Unk_94));
+            Short_5E = s.Serialize<short>(Short_5E, name: nameof(Short_5E));
 
             if (IsPCFormat(s.GameSettings))
                 Type = s.Serialize<R1_EventType>(Type, name: nameof(Type));
 
             CollisionTypes = s.SerializeArray<R1Jaguar_TileCollisionType>(CollisionTypes, s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3 ? 5 : 1, name: nameof(CollisionTypes));
-            Unk_103 = s.Serialize<byte>(Unk_103, name: nameof(Unk_103));
+            Byte_67 = s.Serialize<byte>(Byte_67, name: nameof(Byte_67));
 
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
             OffsetBY = s.Serialize<byte>(OffsetBY, name: nameof(OffsetBY));
@@ -406,7 +408,7 @@ namespace R1Engine
                 InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
             }
 
-            RuntimeCurrentCommand = s.Serialize<uint>(RuntimeCurrentCommand, name: nameof(RuntimeCurrentCommand));
+            CMD_CurrentCommand = s.Serialize<uint>(CMD_CurrentCommand, name: nameof(CMD_CurrentCommand));
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
 
@@ -426,10 +428,10 @@ namespace R1Engine
             if (!IsPCFormat(s.GameSettings))
                 PS1_Unk5 = s.Serialize<byte>(PS1_Unk5, name: nameof(PS1_Unk5));
 
-            Unk_122 = s.Serialize<byte>(Unk_122, name: nameof(Unk_122));
-            Unk_123 = s.Serialize<byte>(Unk_123, name: nameof(Unk_123));
-            Unk_124 = s.Serialize<byte>(Unk_124, name: nameof(Unk_124));
-            Unk_125 = s.Serialize<byte>(Unk_125, name: nameof(Unk_125));
+            Byte_7A = s.Serialize<byte>(Byte_7A, name: nameof(Byte_7A));
+            Byte_7B = s.Serialize<byte>(Byte_7B, name: nameof(Byte_7B));
+            CMD_CurrentContext = s.Serialize<byte>(CMD_CurrentContext, name: nameof(CMD_CurrentContext));
+            Byte_7D = s.Serialize<byte>(Byte_7D, name: nameof(Byte_7D));
 
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
             {
@@ -444,14 +446,14 @@ namespace R1Engine
             }
 
             InitialDisplayPrio = s.Serialize<byte>(InitialDisplayPrio, name: nameof(InitialDisplayPrio));
-            Unk_127 = s.Serialize<byte>(Unk_127, name: nameof(Unk_127));
+            Byte_7F = s.Serialize<byte>(Byte_7F, name: nameof(Byte_7F));
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
             if (IsPCFormat(s.GameSettings))
             {
                 PC_Flags = s.Serialize<PC_EventFlags>(PC_Flags, name: nameof(PC_Flags));
-                Unk_130 = s.Serialize<ushort>(Unk_130, name: nameof(Unk_130));
+                Ushort_82 = s.Serialize<ushort>(Ushort_82, name: nameof(Ushort_82));
             }
             else
             {
@@ -570,6 +572,12 @@ namespace R1Engine
             PC_ImageBufferIndex = 1;
             PC_ETAIndex = 0;
 
+            CMD_Contexts = new CommandContext[]
+            {
+                new CommandContext()
+            };
+            CollisionTypes = new R1Jaguar_TileCollisionType[5];
+
             Commands = new R1_EventCommandCollection()
             {
                 Commands = new R1_EventCommand[0]
@@ -639,6 +647,12 @@ namespace R1Engine
             PC_ImageBufferIndex = 4;
             PC_ETAIndex = 2;
 
+            CMD_Contexts = new CommandContext[]
+            {
+                new CommandContext()
+            };
+            CollisionTypes = new R1Jaguar_TileCollisionType[5];
+
             Commands = new R1_EventCommandCollection()
             {
                 Commands = new R1_EventCommand[0]
@@ -699,6 +713,25 @@ namespace R1Engine
             UnkFlag_5 = 1 << 5,
             IsFlipped = 1 << 6,
             UnkFlag_7 = 1 << 7,
+        }
+
+        public class CommandContext : R1Serializable
+        {
+            /// <summary>
+            /// The offset where the context was stored, used to remember where to jump back to after execution of the sub-function has finished
+            /// </summary>
+            public ushort CmdOffset { get; set; }
+
+            /// <summary>
+            /// The amount of times the execution should repeat before continuing, used for loops
+            /// </summary>
+            public ushort Count { get; set; }
+
+            public override void SerializeImpl(SerializerObject s)
+            {
+                CmdOffset = s.Serialize<ushort>(CmdOffset, name: nameof(CmdOffset));
+                Count = s.Serialize<ushort>(Count, name: nameof(Count));
+            }
         }
     }
 }

@@ -31,11 +31,15 @@
         /// Set Etat to {arg1}
         /// </summary>
         GO_STATE = 0x8,
-        
-        // 1 arg
+
+        /// <summary>
+        /// Saves the current position and prepares a loop which loops with {arg1} being the amount of times to loop
+        /// </summary>
         GO_PREPARELOOP = 0x9,
 
-        // 0 args
+        /// <summary>
+        /// Perform the loop
+        /// </summary>
         GO_DOLOOP = 0xA,
         
         /// <summary>
@@ -67,11 +71,15 @@
         /// Skips to label {arg1} if false
         /// </summary>
         GO_BRANCHFALSE = 0x10,
-        
-        // 1 arg and one more if {arg1} <= 4
+
+        /// <summary>
+        /// Sets the TEST flag depending on {arg1}. If {arg1} <= 4 then {arg2} is used in the validation, otherwise only one argument is expected.
+        /// </summary>
         GO_TEST = 0x11,
 
-        // 1 arg
+        /// <summary>
+        /// Sets the TEST flag to {arg1}, treated as a boolean
+        /// </summary>
         GO_SETTEST = 0x12,
         
         /// <summary>
@@ -142,7 +150,7 @@
         GO_SKIPFALSE = 0x20,
 
         /// <summary>
-        /// Terminates the commands and loops back, {arg1} is always 0xFF
+        /// Terminates the commands and loops back, {arg1} is always 0xFF which is used as the command array terminator
         /// </summary>
         INVALID_CMD = 0x21,
 

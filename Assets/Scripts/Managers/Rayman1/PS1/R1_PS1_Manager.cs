@@ -245,6 +245,12 @@ namespace R1Engine
                 if (ed.CollisionTypes == null)
                     ed.CollisionTypes = new R1Jaguar_TileCollisionType[5];
 
+                if (ed.CMD_Contexts == null)
+                    ed.CMD_Contexts = new R1_EventData.CommandContext[]
+                    {
+                        new R1_EventData.CommandContext()
+                    };
+
                 // TODO: Do this in the Unity_Object instead
                 ed.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
                 ed.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;

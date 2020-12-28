@@ -215,6 +215,11 @@ namespace R1Engine
                         PS1Demo_Unk1 = new byte[40],
                         CollisionTypes = new R1Jaguar_TileCollisionType[5],
 
+                        CMD_Contexts = new R1_EventData.CommandContext[]
+                        {
+                            new R1_EventData.CommandContext()
+                        },
+
                         LabelOffsets = new ushort[0],
                         Commands = R1_EventCommandCollection.FromBytes(def.EventCommands, context.Settings),
                     };
