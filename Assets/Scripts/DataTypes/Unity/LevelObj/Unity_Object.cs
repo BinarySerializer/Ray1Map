@@ -90,7 +90,7 @@ namespace R1Engine
             AnimationFrame = (byte)Mathf.FloorToInt(AnimationFrameFloat);
 
             // Trigger animation finished event
-            if (isFinished) {
+            if (isFinished || AnimSpeed == 0) {
                 OnFinishedAnimation();
             }
         }
