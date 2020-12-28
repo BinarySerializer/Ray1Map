@@ -658,7 +658,10 @@ namespace R1Engine
 
             UnkFlag_0 = 1 << 0,
 
-            UnkFlag_1 = 1 << 1,
+            /// <summary>
+            /// A flag used for commands
+            /// </summary>
+            Test = 1 << 1,
 
             /// <summary>
             /// Indicates if the event should be drawn on screen

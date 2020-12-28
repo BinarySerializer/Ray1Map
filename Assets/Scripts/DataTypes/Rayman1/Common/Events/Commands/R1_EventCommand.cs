@@ -103,39 +103,91 @@ namespace R1Engine
             }
         }
 
-        public string ToTranslatedString(int[] labelOffsetsLineNumbers) {
-            string cmd = Command.ToString();
-            switch (Command) {
+        public string ToTranslatedString(int[] labelOffsetsLineNumbers) 
+        {
+            string cmd = $"{Command}";
+
+            var prepend = String.Empty;
+
+            if (RequiresTestTrue() || RequiresTestFalse())
+                prepend = $"\tif (TEST == {RequiresTestTrue().ToString().ToLower()}){Environment.NewLine}\t";
+
+            switch (Command) 
+            {
                 case R1_EventCommandType.RESERVED_GO_GOTO:
                 case R1_EventCommandType.RESERVED_GO_GOTOF:
                 case R1_EventCommandType.RESERVED_GO_GOTOT:
                     cmd = cmd.Replace("RESERVED_GO_", "");
-                    return $"\t{cmd} LINE {labelOffsetsLineNumbers[Arguments[0]]};";
+                    return $"{prepend}\t{cmd} LINE {labelOffsetsLineNumbers[Arguments[0]]};";
+
                 case R1_EventCommandType.RESERVED_GO_GOSUB:
                 case R1_EventCommandType.RESERVED_GO_SKIP:
                 case R1_EventCommandType.RESERVED_GO_SKIPF:
                 case R1_EventCommandType.RESERVED_GO_SKIPT:
                     cmd = cmd.Replace("RESERVED_GO_", "");
-                    return $"\t{cmd} TO LINE {labelOffsetsLineNumbers[Arguments[0]]};";
+
+                    return $"{prepend}\t{cmd} TO LINE {labelOffsetsLineNumbers[Arguments[0]]};";
+
                 case R1_EventCommandType.GO_LABEL:
                     return "LABEL " + Arguments[0] + ":";
+
                 case R1_EventCommandType.GO_RETURN:
                     if (Arguments.Length == 0) {
                         return "RETURN;";
                     } else {
                         cmd = cmd.Replace("GO_", "");
-                        return "\t" + cmd + (Arguments.Length > 0 ? (" " + string.Join(" ", Arguments)) : "") + ";";
+                        return "\t" + cmd + (Arguments.Length > 0 ? (" " + String.Join(" ", Arguments)) : "") + ";";
                     }
+
                 case R1_EventCommandType.GO_SPEED:
                     return $"\t{cmd} {Arguments[0]} {(sbyte)Arguments[1]} {(sbyte)Arguments[2]}";
+
                 case R1_EventCommandType.GO_X:
                 case R1_EventCommandType.GO_Y:
                     return $"\t{cmd} {Arguments[0] * 100 + Arguments[1]}";
+
+                case R1_EventCommandType.GO_TEST:
+                    var str = $"\tTEST = ";
+
+                    switch (Arguments[0])
+                    {
+                        case 0:
+                            return $"{str}IsFlipped == {(Arguments[1] == 1).ToString().ToLower()}";
+                        case 1:
+                            return $"{str}myRand({Arguments[1]})";
+                        case 2:
+                            return $"{str}"; // TODO: Fill out
+                        case 3:
+                            return $"{str}STATE == {Arguments[1]}";
+                        case 4:
+                            return $"{str}SUBSTATE == {Arguments[1]}";
+                        case 70:
+                            return $"{str}OBJ_IN_ZONE == true";
+                        case 71:
+                            return $"{str}Obj.Flags & 1 == true"; // TODO: What is this flag?
+                        case 72:
+                            return $"{str}Obj.Flags & 0x10 == true"; // TODO: What is this flag?
+                        default:
+                            return $"INVALID CMD ({cmd})";
+                    }
+
+                case R1_EventCommandType.GO_SETTEST:
+                    return $"\tTEST = {(Arguments[0] == 1).ToString().ToLower()}";
+
                 default:
                     cmd = cmd.Replace("GO_", "");
-                    return "\t" + cmd + (Arguments.Length > 0 ? (" " + string.Join(" ", Arguments)) : "") + ";";
+                    return $"{prepend}\t{cmd}{(Arguments.Length > 0 ? (" " + String.Join(" ", Arguments)) : "")};";
             }
         }
+
+        public bool RequiresTestTrue() => Command == R1_EventCommandType.RESERVED_GO_SKIPT ||
+                                          Command == R1_EventCommandType.RESERVED_GO_GOTOT ||
+                                          Command == R1_EventCommandType.GO_BRANCHTRUE ||
+                                          Command == R1_EventCommandType.GO_SKIPTRUE;
+        public bool RequiresTestFalse() => Command == R1_EventCommandType.RESERVED_GO_SKIPF ||
+                                           Command == R1_EventCommandType.RESERVED_GO_GOTOF ||
+                                           Command == R1_EventCommandType.GO_BRANCHFALSE ||
+                                           Command == R1_EventCommandType.GO_SKIPFALSE;
 
         public bool UsesLabelOffsets {
             get {
