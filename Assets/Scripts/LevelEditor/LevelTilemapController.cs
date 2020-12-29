@@ -218,6 +218,19 @@ namespace R1Engine
                 Debug.LogWarning($"The following collision types are not supported: {String.Join(", ", unsupportedTiles)}");
         }
 
+        private void ConfigureGraphicsMapLayer(int i) {
+            var lvl = LevelEditorData.Level;
+            if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
+                Debug.Log($"Graphics map {i} is in front");
+                SpriteRenderer tr = GraphicsTilemaps[i];
+                tr.sortingLayerName = "Tiles Front";
+            } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
+                Debug.Log($"Graphics map {i} is in the back");
+                SpriteRenderer tr = GraphicsTilemaps[i];
+                tr.sortingLayerName = "Tiles Back";
+            }
+        }
+
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
         public void RefreshTiles(int palette) 
         {
@@ -247,20 +260,14 @@ namespace R1Engine
                     if(!lvl.Maps[i].Type.HasFlag(Unity_Map.MapType.Graphics)) continue;
                     GraphicsTilemaps[i] = Instantiate<SpriteRenderer>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
                     GraphicsTilemaps[i].gameObject.name = "Tilemap Graphics " + i;
-                    if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
-                        Debug.Log($"Graphics map {i} is in front");
-                        SpriteRenderer tr = GraphicsTilemaps[i];
-                        tr.sortingLayerName = "Tiles Front";
-                    } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
-                        Debug.Log($"Graphics map {i} is in the back");
-                        SpriteRenderer tr = GraphicsTilemaps[i];
-                        tr.sortingLayerName = "Tiles Back";
-                    }
+                    ConfigureGraphicsMapLayer(i);
                 }
             }
             if (!lvl.Maps[0].Type.HasFlag(Unity_Map.MapType.Graphics)) {
                 Destroy(GraphicsTilemaps[0].gameObject);
                 GraphicsTilemaps[0] = null;
+            } else {
+                ConfigureGraphicsMapLayer(0);
             }
             animatedTiles = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[GraphicsTilemaps.Length];
             for (int mapIndex = 0; mapIndex < lvl.Maps.Length; mapIndex++) {
