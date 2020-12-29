@@ -117,7 +117,7 @@ namespace R1Engine
             } else {
                 lineNumbers = new int[0];
             }
-            return Commands.Select(c => c.ToTranslatedString(lineNumbers)).ToArray();
+            return Commands.Select((c, i) => c.ToTranslatedString(lineNumbers, Commands.ElementAtOrDefault(i - 1), Commands.ElementAtOrDefault(i + 1))).ToArray();
         }
     }
 }

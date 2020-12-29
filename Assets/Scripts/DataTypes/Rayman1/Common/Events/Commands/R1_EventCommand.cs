@@ -103,17 +103,22 @@ namespace R1Engine
             }
         }
 
-        public string ToTranslatedString(int[] labelOffsetsLineNumbers) 
+        public string ToTranslatedString(int[] labelOffsetsLineNumbers, R1_EventCommand prevCmd, R1_EventCommand nextCmd) 
         {
             string cmd = $"{Command}";
 
             var prepend = "\t";
 
-            if (RequiresTestTrue()) {
-                prepend += $"IF (TEST) ";
-            } else if (RequiresTestFalse()) {
-                prepend += $"IF (!TEST) ";
+            if (RequiresTestTrue() || RequiresTestFalse())
+            {
+                if (prevCmd?.Command == R1_EventCommandType.GO_TEST || prevCmd?.Command == R1_EventCommandType.GO_SETTEST)
+                    prepend = $"{prepend}\t";
+                else
+                    prepend += $"IF ({(RequiresTestFalse() ? "!" : "")}TEST) ";
             }
+
+            cmd = cmd.Replace("FALSE", "");
+            cmd = cmd.Replace("TRUE", "");
 
             switch (Command) 
             {
@@ -122,7 +127,7 @@ namespace R1Engine
                 case R1_EventCommandType.RESERVED_GO_GOTOT:
                     cmd = "GOTO";
                     return $"{prepend}{cmd} LINE {labelOffsetsLineNumbers[Arguments[0]]};";
-
+                            
                 case R1_EventCommandType.RESERVED_GO_GOSUB:
                 case R1_EventCommandType.RESERVED_GO_SKIP:
                 case R1_EventCommandType.RESERVED_GO_SKIPF:
@@ -153,32 +158,43 @@ namespace R1Engine
                     return $"{prepend}{cmd} {Arguments[0] * 100 + Arguments[1]}";
 
                 case R1_EventCommandType.GO_TEST:
-                    var str = $"{prepend}TEST = ";
+                case R1_EventCommandType.GO_SETTEST:
+                    var append = String.Empty;
 
-                    switch (Arguments[0])
+                    if (nextCmd?.RequiresTestFalse() == true || nextCmd?.RequiresTestTrue() == true)
                     {
-                        case 0:
-                            return $"{str}{((Arguments[1] == 1) ? "": "!")}ISFLIPPED";
-                        case 1:
-                            return $"{str}RANDOM({Arguments[1]})"; // myRand. RandArray[RandomIndex] % (Argument1 + 1);
-                        case 2:
-                            return $"{str}RAYMAN.X {((Arguments[1] == 1) ? ">" : "<=")} X";
-                        case 3:
-                            return $"{str}STATE == {Arguments[1]}";
-                        case 4:
-                            return $"{str}SUBSTATE == {Arguments[1]}";
-                        case 70:
-                            return $"{str}OBJ_IN_ZONE";
-                        case 71:
-                            return $"{str}HASFLAG(0)"; // TODO: What is this flag?
-                        case 72:
-                            return $"{str}!HASFLAG(4)"; // TODO: What is this flag?
-                        default:
-                            return $"{str}<UNKNOWN TEST ({Arguments[0]})>";
+                        prepend = $"{prepend}IF (";
+                        append = $")";
+                    }
+                    else
+                    {
+                        prepend = $"{prepend}TEST = ";
                     }
 
-                case R1_EventCommandType.GO_SETTEST:
-                    return $"{prepend}TEST = {(Arguments[0] == 1).ToString().ToUpper()}";
+                    if (Command == R1_EventCommandType.GO_SETTEST)
+                        return $"{prepend}{(Arguments[0] == 1).ToString().ToUpper()}{append}";
+                    else
+                        switch (Arguments[0])
+                        {
+                            case 0:
+                                return $"{prepend}{(Arguments[1] == 1 ? "": "!")}ISFLIPPED{append}";
+                            case 1:
+                                return $"{prepend}RANDOM({Arguments[1]})"; // myRand. RandArray[RandomIndex] % (Argument1 + 1);
+                            case 2:
+                                return $"{prepend}RAYMAN.X {((Arguments[1] == 1) ? ">" : "<=")} X{append}";
+                            case 3:
+                                return $"{prepend}STATE == {Arguments[1]}{append}";
+                            case 4:
+                                return $"{prepend}SUBSTATE == {Arguments[1]}{append}";
+                            case 70:
+                                return $"{prepend}OBJ_IN_ZONE{append}";
+                            case 71:
+                                return $"{prepend}HASFLAG(0){append}"; // TODO: What is this flag?
+                            case 72:
+                                return $"{prepend}!HASFLAG(4){append}"; // TODO: What is this flag?
+                            default:
+                                return $"{prepend}<UNKNOWN TEST ({Arguments[0]})>{append}";
+                        }
 
                 default:
                     cmd = cmd.Replace("GO_", "");
