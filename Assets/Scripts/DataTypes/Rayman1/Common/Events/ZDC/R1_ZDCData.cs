@@ -8,7 +8,8 @@
         public byte Height { get; set; }
         public byte Byte_06 { get; set; }
         public byte LayerIndex { get; set; }
-        public ushort R2_Flags { get; set; }
+        public byte R2_Flags { get; set; }
+        public byte ZDC_Flags { get; set; }
         
         public override void SerializeImpl(SerializerObject s)
         {
@@ -22,7 +23,8 @@
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
                     LayerIndex = (byte)bitFunc(LayerIndex, 5, name: nameof(LayerIndex));
-                    R2_Flags = (ushort)bitFunc(R2_Flags, 11, name: nameof(R2_Flags));
+                    R2_Flags = (byte)bitFunc(R2_Flags, 5, name: nameof(R2_Flags));
+                    ZDC_Flags = (byte)bitFunc(ZDC_Flags, 6, name: nameof(ZDC_Flags));
                 });
             }
             else

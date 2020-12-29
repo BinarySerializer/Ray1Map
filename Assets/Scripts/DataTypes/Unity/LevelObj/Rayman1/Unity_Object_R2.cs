@@ -120,7 +120,7 @@ namespace R1Engine
         public override int? MapLayer => EventData.RuntimeMapLayer == R1_R2EventData.ObjMapLayer.Back ? 2: 3;
 
         public override float Scale => EventData.RuntimeMapLayer == R1_R2EventData.ObjMapLayer.Back ? 0.5f : 1;
-        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlags2.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags2.IsFlipped) : EventData.Flags.HasFlag(R1_R2EventData.PS1_R2Demo_EventFlags.FlippedHorizontally);
+        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlipX : EventData.Flags.HasFlag(R1_R2EventData.PS1_R2Demo_EventFlags.FlippedHorizontally);
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC() {
             var zdcEntry = EventData.CollisionData?.ZDC;
@@ -128,89 +128,63 @@ namespace R1Engine
             if (zdcEntry == null)
                 yield break;
 
-            // Hard-coded for gendoors
-            if (EventData.EventType == R1_R2EventType.Gendoor || EventData.EventType == R1_R2EventType.Killdoor || EventData.EventType == R1_R2EventType.Trigger) {
-                // Function at 0x800e26c0
+            // Function at 0x800d8264 (BOX_IN_COLL_ZONES)
 
-                int zdcIndex;
-                var flags = ((byte)EventData.RuntimeFlags2) & 0xfc;
+            for (int i = 0; i < zdcEntry.ZDCCount; i++)
+            {
+                var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
 
-                if (flags == 0x04)
-                    zdcIndex = zdcEntry.ZDCIndex;
-                else if (flags == 0x08)
-                    zdcIndex = zdcEntry.ZDCIndex + 1;
-                else if (flags == 0x10)
-                    zdcIndex = zdcEntry.ZDCIndex + 2;
-                else if (flags == 0x20)
-                    zdcIndex = zdcEntry.ZDCIndex + 3;
-                else if (flags == 0x40)
-                    zdcIndex = zdcEntry.ZDCIndex + 4;
-                else
-                    yield break;
+                if (zdc == null)
+                    continue;
 
-                var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcIndex);
+                if (zdc.ZDC_Flags != 0 && (zdc.ZDC_Flags & EventData.ZDCFlags) == 0) 
+                    continue;
 
-                if (zdc != null) {
-                    yield return new Unity_ObjAnimationCollisionPart {
+                // Relative to the event origin
+                if (zdc.LayerIndex == 0x1F)
+                {
+                    yield return new Unity_ObjAnimationCollisionPart
+                    {
                         XPosition = zdc.XPosition,
                         YPosition = zdc.YPosition,
                         Width = zdc.Width,
                         Height = zdc.Height,
-                        Type = Unity_ObjAnimationCollisionPart.CollisionType.Gendoor
+                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
                     };
                 }
-            } else {
-                // Function at 0x800d7f90
+                // Relative to an animation layer
+                else
+                {
+                    Unity_ObjAnimationPart p = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex);
 
-                for (int i = 0; i < zdcEntry.ZDCCount; i++) {
-                    var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
-
-                    if (zdc == null)
+                    if (p == null)
                         continue;
 
-                    // Relative to the event origin
-                    if (zdc.LayerIndex == 0x1F) {
-                        yield return new Unity_ObjAnimationCollisionPart {
-                            XPosition = zdc.XPosition,
-                            YPosition = zdc.YPosition,
-                            Width = zdc.Width,
-                            Height = zdc.Height,
-                            Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
-                        };
-                    }
-                    // Relative to an animation layer
-                    else {
-                        Unity_ObjAnimationPart p = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex);
-
-                        if (p == null)
-                            continue;
-
-                        /*int w = 0, h = 0;
+                    /*int w = 0, h = 0;
                             if ((p.IsFlippedHorizontally || p.IsFlippedVertically) && p.ImageIndex < Sprites.Count) {
                                 var spr = Sprites[p.ImageIndex];
                                 w = spr?.texture?.width ?? 0;
                                 h = spr?.texture?.height ?? 0;
                             }*/
-                        var addX = p.XPosition;
-                        var addY = p.YPosition;
+                    var addX = p.XPosition;
+                    var addY = p.YPosition;
 
-                        var img = ObjManager.ImageDescriptors.ElementAtOrDefault(p.ImageIndex);
+                    var img = ObjManager.ImageDescriptors.ElementAtOrDefault(p.ImageIndex);
 
-                        if (img == null)
-                            continue;
+                    if (img == null)
+                        continue;
 
-                        addX += img.HitBoxOffsetX;
-                        addY += img.HitBoxOffsetY;
+                    addX += img.HitBoxOffsetX;
+                    addY += img.HitBoxOffsetY;
 
-                        yield return new Unity_ObjAnimationCollisionPart
-                        {
-                            XPosition = zdc.XPosition + addX,
-                            YPosition = zdc.YPosition + addY,
-                            Width = zdc.Width,
-                            Height = zdc.Height,
-                            Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
-                        };
-                    }
+                    yield return new Unity_ObjAnimationCollisionPart
+                    {
+                        XPosition = zdc.XPosition + addX,
+                        YPosition = zdc.YPosition + addY,
+                        Width = zdc.Width,
+                        Height = zdc.Height,
+                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                    };
                 }
             }
         }
