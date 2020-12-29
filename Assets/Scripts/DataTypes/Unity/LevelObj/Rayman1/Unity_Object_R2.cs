@@ -133,12 +133,24 @@ namespace R1Engine
             for (int i = 0; i < zdcEntry.ZDCCount; i++)
             {
                 var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
+                var zdcTriggerFlags = ObjManager.LevData.ZDCTriggerFlags?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
 
                 if (zdc == null)
                     continue;
 
                 if (zdc.ZDC_Flags != 0 && (zdc.ZDC_Flags & EventData.ZDCFlags) == 0) 
                     continue;
+
+                var hurtsRay = EventData.CollisionData?.Flags.HasFlag(R1_R2EventCollision.EventFlags.HurtsRayman) == true && 
+                               CurrentState?.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectRay) == true && 
+                               zdcTriggerFlags?.HasFlag(R1_R2LevDataFile.ZDC_TriggerFlags.Rayman) == true;
+
+                // Attempt to set the collision type
+                var colType = hurtsRay 
+                    ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox
+                    : zdcTriggerFlags?.HasFlag(R1_R2LevDataFile.ZDC_TriggerFlags.Poing_0) == true || zdcTriggerFlags?.HasFlag(R1_R2LevDataFile.ZDC_TriggerFlags.Poing_1) == true
+                        ? Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox
+                        : Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
 
                 // Relative to the event origin
                 if (zdc.LayerIndex == 0x1F)
@@ -149,7 +161,7 @@ namespace R1Engine
                         YPosition = zdc.YPosition,
                         Width = zdc.Width,
                         Height = zdc.Height,
-                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                        Type = colType
                     };
                 }
                 // Relative to an animation layer
@@ -183,7 +195,7 @@ namespace R1Engine
                         YPosition = zdc.YPosition + addY,
                         Width = zdc.Width,
                         Height = zdc.Height,
-                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                        Type = colType
                     };
                 }
             }

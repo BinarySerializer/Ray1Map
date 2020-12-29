@@ -12,8 +12,6 @@ namespace R1Engine
 
         public byte[] UnkR2_2 { get; set; }
 
-        public byte UnkR2_3 { get; set; }
-
         public byte[] UnkR2_4 { get; set; }
 
         /// <summary>
@@ -80,7 +78,7 @@ namespace R1Engine
                 UnkR2_2 = s.SerializeArray<byte>(UnkR2_2, 5, name: nameof(UnkR2_2));
                 LinkedEtat = s.Serialize<byte>(LinkedEtat, name: nameof(LinkedEtat));
                 LinkedSubEtat = s.Serialize<byte>(LinkedSubEtat, name: nameof(LinkedSubEtat));
-                UnkR2_3 = s.Serialize<byte>(UnkR2_3, name: nameof(UnkR2_3));
+                ZDCFlags = s.Serialize<R1_ZDCFlags>(ZDCFlags, name: nameof(ZDCFlags));
                 AnimationSpeed = s.Serialize<byte>(AnimationSpeed, name: nameof(AnimationSpeed));
                 UnkR2_4 = s.SerializeArray<byte>(UnkR2_4, 2, name: nameof(UnkR2_4));
             }

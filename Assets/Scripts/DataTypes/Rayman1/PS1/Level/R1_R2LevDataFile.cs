@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman 2 (PS1 - Demo)
@@ -76,7 +78,7 @@
         public R1_ImageDescriptor[] FixImageDescriptors { get; set; }
 
         public R1_ZDCData[] ZDC { get; set; }
-        public byte[] ZDCArray1 { get; set; }
+        public ZDC_TriggerFlags[] ZDCTriggerFlags { get; set; }
         public ushort[] ZDCArray2 { get; set; }
         public R1_R2ZDCUnkData[] ZDCArray3 { get; set; }
 
@@ -126,13 +128,30 @@
             s.DoAt(LoadedEventsPointer, () => Events = s.SerializeObjectArray<R1_R2EventData>(Events, LoadedEventCount, name: nameof(Events)));
             s.DoAt(AlwaysEventsPointer, () => AlwaysEvents = s.SerializeObjectArray<R1_R2EventData>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents)));
 
-            // TODO: Is there a length?
             s.DoAt(ZDCDataPointer, () => ZDC = s.SerializeObjectArray<R1_ZDCData>(ZDC, 237, name: nameof(ZDC)));
-            s.DoAt(ZDCArray1Pointer, () => ZDCArray1 = s.SerializeArray<byte>(ZDCArray1, 240, name: nameof(ZDCArray1)));
+            s.DoAt(ZDCArray1Pointer, () => ZDCTriggerFlags = s.SerializeArray<ZDC_TriggerFlags>(ZDCTriggerFlags, 237, name: nameof(ZDCTriggerFlags)));
             s.DoAt(ZDCArray2Pointer, () => ZDCArray2 = s.SerializeArray<ushort>(ZDCArray2, 474, name: nameof(ZDCArray2)));
             s.DoAt(ZDCArray3Pointer, () => ZDCArray3 = s.SerializeObjectArray<R1_R2ZDCUnkData>(ZDCArray3, 16, name: nameof(ZDCArray3)));
         }
 
         #endregion
+
+        [Flags]
+        public enum ZDC_TriggerFlags : byte
+        {
+            None = 0,
+
+            Flag_0 = 1 << 0,
+
+            Rayman = 1 << 1,
+            Poing_0 = 1 << 2,
+            
+            Flag_3 = 1 << 3,
+            Flag_4 = 1 << 4,
+            Flag_5 = 1 << 5,
+            Flag_6 = 1 << 6,
+
+            Poing_1 = 1 << 7
+        }
     }
 }

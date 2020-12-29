@@ -211,8 +211,10 @@ namespace R1Engine
             if (CurrentState == null || CurrentState.ZDCFlags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.NoCollision)))
                 yield break;
 
+            var hurtsRay = ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.HurtsRayman) && CurrentState?.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectRay) == true;
+
             // Attempt to set the collision type
-            var colType = (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.HurtsRayman)) 
+            var colType = hurtsRay 
                 ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox 
                 : CurrentState.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectFist) 
                     ? Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox 

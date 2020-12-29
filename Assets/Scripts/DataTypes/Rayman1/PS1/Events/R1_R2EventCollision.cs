@@ -1,12 +1,13 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event collision data for Rayman 2 (PS1 - Demo)
     /// </summary>
     public class R1_R2EventCollision : R1Serializable
     {
-        public byte Byte_00 { get; set; }
-        public byte Byte_01 { get; set; }
+        public EventFlags Flags { get; set; }
         public byte Byte_02 { get; set; }
         public byte Byte_03 { get; set; }
         
@@ -33,8 +34,7 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
-            Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+            Flags = s.Serialize<EventFlags>(Flags, name: nameof(Flags));
             Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
 
@@ -52,6 +52,14 @@
             Byte_0D = s.Serialize<byte>(Byte_0D, name: nameof(Byte_0D));
             Byte_0E = s.Serialize<byte>(Byte_0E, name: nameof(Byte_0E));
             Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));
+        }
+
+        [Flags]
+        public enum EventFlags : ushort
+        {
+            None = 0,
+
+            HurtsRayman = 1 << 2,
         }
     }
 }
