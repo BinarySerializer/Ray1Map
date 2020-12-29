@@ -43,6 +43,7 @@ namespace R1Engine
         #endregion
 
         public LineRenderer[] oneWayLinkLines;
+        public bool[] connectedOneWayLinkLines;
         // Default sprite
         public SpriteRenderer defaultRenderer;
         // Reference to spritepart prefab
@@ -693,8 +694,9 @@ namespace R1Engine
 
             // Update one-way link lines
             if (oneWayLinkLines != null)
-                foreach (var lr in oneWayLinkLines)
-                    lr.enabled = enableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked;
+                for (var i = 0; i < oneWayLinkLines.Length; i++)
+                    oneWayLinkLines[i].enabled = enableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked &&
+                                                 connectedOneWayLinkLines[i];
 
             HasInitialized = true;
         }

@@ -209,6 +209,7 @@ namespace R1Engine
                 var linkTypes = obj.ObjData.LinkTypes?.ToArray();
 
                 obj.oneWayLinkLines = new LineRenderer[linkCount];
+                obj.connectedOneWayLinkLines = new bool[linkCount];
 
                 for (int i = 0; i < linkCount; i++)
                 {
@@ -490,11 +491,17 @@ namespace R1Engine
             // Update the fields
             UpdateEventFields();
 
+            foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized))
+            {
+                var linkIndex = 0;
+                foreach (var linkedActorIndex in obj.ObjData.Links)
+                    obj.connectedOneWayLinkLines[linkIndex++] = Controller.obj.levelController.Objects[linkedActorIndex].EnableBoxCollider;
+            }
+
             // Check for changed obj positions for one-way links
             bool updateLinks = Controller.obj.levelController.Objects.Any(x => x.HasInitialized && x.transform.position != ObjPositions[x]);
             if (updateLinks) {
-                var initializedObjects = Controller.obj.levelController.Objects.Where(x => x.HasInitialized);
-                foreach (var obj in initializedObjects) {
+                foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized)) {
                     if(!obj.ObjData.CanBeLinked) continue;
                     var linkIndex = 0;
 
@@ -536,7 +543,7 @@ namespace R1Engine
                     }
                 }
                 // Update position
-                foreach (var obj in initializedObjects) {
+                foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized)) {
                     ObjPositions[obj] = obj.transform.position;
                 }
             }
