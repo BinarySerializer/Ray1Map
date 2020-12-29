@@ -149,7 +149,9 @@ namespace R1Engine
 
         // 104 (0x68)
 
-        public PS1_R2Demo_EventRuntimeFlags2 RuntimeFlags2 { get; set; }
+        public bool RuntimeFlipX { get; set; }
+        public bool RuntimeUnkFlag { get; set; }
+        public byte ZDCFlags { get; set; }
 
         // First bit determines if the sprite should be faded
         public byte RuntimeFlags3 { get; set; }
@@ -250,7 +252,14 @@ namespace R1Engine
             Bytes_65 = s.SerializeArray(Bytes_65, 2, name: nameof(Bytes_65));
 
             RuntimeFlags1 = s.Serialize<PS1_R2Demo_EventRuntimeFlags1>(RuntimeFlags1, name: nameof(RuntimeFlags1));
-            RuntimeFlags2 = s.Serialize<PS1_R2Demo_EventRuntimeFlags2>(RuntimeFlags2, name: nameof(RuntimeFlags2));
+
+            s.SerializeBitValues<byte>(bitFunc =>
+            {
+                RuntimeFlipX = bitFunc(RuntimeFlipX ? 1 : 0, 1, name: nameof(RuntimeFlipX)) == 1;
+                RuntimeUnkFlag = bitFunc(RuntimeUnkFlag ? 1 : 0, 1, name: nameof(RuntimeUnkFlag)) == 1;
+                ZDCFlags = (byte)bitFunc(ZDCFlags, 6, name: nameof(ZDCFlags));
+            });
+
             RuntimeFlags3 = s.Serialize<byte>(RuntimeFlags3, name: nameof(RuntimeFlags3));
 
             Unk5 = s.SerializeArray(Unk5, 2, name: nameof(Unk5));
@@ -325,57 +334,45 @@ namespace R1Engine
             UnkFlag_7 = 1 << 7,
         }
 
-        [Flags]
-        public enum PS1_R2Demo_EventRuntimeFlags2 : byte
-        {
-            None = 0,
-
-            /// <summary>
-            /// Indicates if the event should be flipped
-            /// </summary>
-            IsFlipped = 1 << 0,
-
-            UnkFlag_1 = 1 << 1,
-
-            // For collision
-            UnkFlag_2 = 1 << 2,
-            UnkFlag_3 = 1 << 3,
-            UnkFlag_4 = 1 << 4,
-            UnkFlag_5 = 1 << 5,
-            UnkFlag_6 = 1 << 6,
-            UnkFlag_7 = 1 << 7,
-        }
-
         #region Object Params
 
         public class Params_Gendoor : R1Serializable
         {
             public Pointer LinkedObjectsPointer { get; set; }
-            public Pointer Pointer_04 { get; set; }
+            public Pointer TriggerObjectsPointer { get; set; } // Objects that can trigger the gendoor when in range. We don't show these in the editor right now since they're unused in the prototype, even though the engine supports them.
 
             public ushort LinkedObjectsCount { get; set; }
-            public byte Byte_0A { get;set; }
-            public byte Byte_0B { get;set; }
-            public byte Byte_0C { get;set; }
-            public byte Byte_0D { get;set; }
-            public byte Byte_0E { get;set; }
-            public byte Byte_0F { get;set; }
+            public ushort TriggerObjectsCount { get;set; }
+            public GendoorFlags Flags_0 { get;set; } // Might be something different here?
+            public GendoorFlags Flags_1 { get;set; }
+            public byte RuntimeHasTriggered { get;set; } // Keeps track if the gendoor has triggered during runtime
 
             public short[] LinkedObjects { get; set; }
+            public short[] TriggerObjects { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
                 LinkedObjectsPointer = s.SerializePointer(LinkedObjectsPointer, name: nameof(LinkedObjectsPointer));
-                Pointer_04 = s.SerializePointer(Pointer_04, name: nameof(Pointer_04));
+                TriggerObjectsPointer = s.SerializePointer(TriggerObjectsPointer, name: nameof(TriggerObjectsPointer));
                 LinkedObjectsCount = s.Serialize<ushort>(LinkedObjectsCount, name: nameof(LinkedObjectsCount));
-                Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
-                Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
-                Byte_0C = s.Serialize<byte>(Byte_0C, name: nameof(Byte_0C));
-                Byte_0D = s.Serialize<byte>(Byte_0D, name: nameof(Byte_0D));
-                Byte_0E = s.Serialize<byte>(Byte_0E, name: nameof(Byte_0E));
-                Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));
+                TriggerObjectsCount = s.Serialize<ushort>(TriggerObjectsCount, name: nameof(TriggerObjectsCount));
+                Flags_0 = s.Serialize<GendoorFlags>(Flags_0, name: nameof(Flags_0));
+                Flags_1 = s.Serialize<GendoorFlags>(Flags_1, name: nameof(Flags_1));
+                RuntimeHasTriggered = s.Serialize<byte>(RuntimeHasTriggered, name: nameof(RuntimeHasTriggered));
+                s.Serialize<byte>(default, name: "Padding"); // Not referenced by the code
 
                 LinkedObjects = s.DoAt(LinkedObjectsPointer, () => s.SerializeArray<short>(LinkedObjects, LinkedObjectsCount, name: nameof(LinkedObjects)));
+                TriggerObjects = s.DoAt(TriggerObjectsPointer, () => s.SerializeArray<short>(TriggerObjects, TriggerObjectsCount, name: nameof(TriggerObjects)));
+            }
+
+            [Flags]
+            public enum GendoorFlags : byte
+            {
+                None = 0,
+
+                TriggeredByRayman = 1 << 0,
+                TriggeredByPoing = 1 << 1, // Triggered by Rayman's fist
+                MultiTriggered = 1 << 2, // Indicates if the gendoor can be triggered multiple times
             }
         }
 
