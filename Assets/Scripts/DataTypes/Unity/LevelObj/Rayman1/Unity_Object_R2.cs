@@ -74,7 +74,7 @@ namespace R1Engine
 
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
-        public override bool IsEditor => AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.Invalid;
+        public override bool IsEditor => (AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.Invalid) || EventData.DisplayPrio == 0;
         public override ObjectType Type
         {
             get
