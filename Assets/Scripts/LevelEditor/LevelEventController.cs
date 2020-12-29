@@ -491,7 +491,7 @@ namespace R1Engine
             // Update the fields
             UpdateEventFields();
 
-            foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized))
+            foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized && x.ObjData.CanBeLinked && x.connectedOneWayLinkLines != null))
             {
                 var linkIndex = 0;
                 foreach (var linkedActorIndex in obj.ObjData.Links)
