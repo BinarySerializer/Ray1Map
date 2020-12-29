@@ -50,9 +50,9 @@ namespace R1Engine
         // Reference to the box prefab
         public GameObject prefabBox;
         // Reference to the created renderers
-        public SpriteRenderer[] prefabRenderers;
-        public SpriteRenderer[] prefabRenderersCollision;
-        public SpriteRenderer[] prefabRendersObjCollision;
+        public SpriteRenderer[] animSpriteRenderers;
+        public SpriteRenderer[] animCollisionRenderers;
+        public SpriteRenderer[] objCollisionRenderers;
         // Reference to box collider
         public BoxCollider2D boxCollider;
         public BoxCollider boxCollider3D;
@@ -271,14 +271,13 @@ namespace R1Engine
                 CurrentFrame = -1;
                 CurrentShowCollision = ShowCollision;
                 frameUpdated = true;
-                // If animation is null, use default renderer ("E")
-                if (ObjData.CurrentAnimation == null)
-                {
-                    ClearSprites(prefabRenderers);
-                    ClearSprites(prefabRenderersCollision);
-                }
-                else
-                {
+
+                // Clear old arrays
+                ClearSprites(animSpriteRenderers);
+                ClearSprites(animCollisionRenderers);
+
+                // If animation is null, show gizmo instead
+                if (ObjData.CurrentAnimation != null) {
                     // Reset the current frame
                     ObjData.ResetFrame();
 
@@ -288,13 +287,9 @@ namespace R1Engine
                     // Get the amount of collision layers per frame
                     var collisionLength = ObjData.CurrentAnimation.Frames.Max(f => f.CollisionLayers?.Length ?? 0);
 
-                    // Clear old arrays
-                    ClearSprites(prefabRenderers);
-                    ClearSprites(prefabRenderersCollision);
-
                     // Create arrays
-                    prefabRenderers = new SpriteRenderer[spritesLength];
-                    prefabRenderersCollision = new SpriteRenderer[collisionLength];
+                    animSpriteRenderers = new SpriteRenderer[spritesLength];
+                    animCollisionRenderers = new SpriteRenderer[collisionLength];
 
                     bool is3D = ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null;
 
@@ -312,7 +307,7 @@ namespace R1Engine
                         newRenderer.transform.localScale = Vector3.one * ObjData.Scale;
 
                         // Add to list
-                        prefabRenderers[i] = newRenderer;
+                        animSpriteRenderers[i] = newRenderer;
                     }
 
                     // Populate collision boxes
@@ -326,7 +321,7 @@ namespace R1Engine
                         newRenderer.transform.localRotation = Quaternion.identity;
 
                         // Add to list
-                        prefabRenderersCollision[i] = newRenderer;
+                        animCollisionRenderers[i] = newRenderer;
                     }
                 }
             }
@@ -384,7 +379,7 @@ namespace R1Engine
                     if (ObjData is Unity_Object_R1 objr1 && objr1.EventData.Type.IsMultiColored())
                         spriteIndex += ((sprites.Count / 6) * objr1.EventData.HitPoints);
 
-                    if (prefabRenderers.Length <= i)
+                    if (animSpriteRenderers.Length <= i)
                         continue;
 
                     if (frameUpdated) {
@@ -392,18 +387,18 @@ namespace R1Engine
                         if (spriteIndex >= sprites.Count && (LevelEditorData.CurrentSettings.EngineVersion != EngineVersion.R2_PS1 || spriteIndex < 0xFFF)) {
                             print($"Sprite index too high: {ObjData.PrimaryName}|{ObjData.SecondaryName}: {spriteIndex} >= {sprites.Count}");
                         }
-                        prefabRenderers[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
+                        animSpriteRenderers[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
 
                         var layerMirroredX = layer.IsFlippedHorizontally;
                         var layerMirroredY = layer.IsFlippedVertically;
 
                         // Indicate if the sprites should be flipped
-                        prefabRenderers[i].flipX = (layerMirroredX ^ mirroredX);
-                        prefabRenderers[i].flipY = (layerMirroredY ^ mirroredY);
+                        animSpriteRenderers[i].flipX = (layerMirroredX ^ mirroredX);
+                        animSpriteRenderers[i].flipY = (layerMirroredY ^ mirroredY);
 
                         // Get the dimensions
-                        var w = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.textureRect.width;
-                        var h = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.textureRect.height;
+                        var w = animSpriteRenderers[i].sprite == null ? 0 : animSpriteRenderers[i].sprite.textureRect.width;
+                        var h = animSpriteRenderers[i].sprite == null ? 0 : animSpriteRenderers[i].sprite.textureRect.height;
 
                         var xx = layer.XPosition + (layerMirroredX ? w : 0);
 
@@ -414,31 +409,31 @@ namespace R1Engine
                             ((xx - pivot.x) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x) / (float)LevelEditorData.Level.PixelsPerUnit,
                             ((yy - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit);
 
-                        prefabRenderers[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRenderers[i].transform.localPosition.z);
-                        prefabRenderers[i].transform.localScale = Vector3.one * ObjData.Scale;
+                        animSpriteRenderers[i].transform.localPosition = new Vector3(pos.x, pos.y, animSpriteRenderers[i].transform.localPosition.z);
+                        animSpriteRenderers[i].transform.localScale = Vector3.one * ObjData.Scale;
 
-                        prefabRenderers[i].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                        animSpriteRenderers[i].transform.localRotation = Quaternion.Euler(0, 0, 0);
                         // First transform based on layer properties
                         if ((layer.Rotation.HasValue && layer.Rotation.Value != 0) || (layer.Scale.HasValue && layer.Scale.Value != Vector2.one)) {
 
                             Vector3 transformOrigin = new Vector3(
                                 (((layer.TransformOriginX - pivot.x) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x) / (float)LevelEditorData.Level.PixelsPerUnit),
                                 ((-layer.TransformOriginY - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit,
-                                prefabRenderers[i].transform.localPosition.z);
+                                animSpriteRenderers[i].transform.localPosition.z);
 
                             // Scale first
                             if (layer.Scale.HasValue && layer.Scale.Value != Vector2.one) {
                                 Vector3 scaleValue = new Vector3(layer.Scale.Value.x, layer.Scale.Value.y, 1f);
-                                prefabRenderers[i].transform.localScale = Vector3.Scale(Vector3.one * ObjData.Scale, scaleValue);
-                                Vector3 scaledPos = Vector3.Scale(prefabRenderers[i].transform.localPosition - transformOrigin, scaleValue);
-                                prefabRenderers[i].transform.localPosition = transformOrigin + scaledPos;
+                                animSpriteRenderers[i].transform.localScale = Vector3.Scale(Vector3.one * ObjData.Scale, scaleValue);
+                                Vector3 scaledPos = Vector3.Scale(animSpriteRenderers[i].transform.localPosition - transformOrigin, scaleValue);
+                                animSpriteRenderers[i].transform.localPosition = transformOrigin + scaledPos;
                             }
                             // Then rotate
                             if (layer.Rotation.HasValue && layer.Rotation.Value != 0) {
                                 /*Quaternion rotation = Quaternion.Euler(0, 0, layer.Rotation * 180f);*/
                                 //Vector3 rotationOrigin = Vector3.zero;
 
-                                prefabRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), layer.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
+                                animSpriteRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), layer.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
                                 /*    Vector2 relativePos = pos - rotationOrigin;
                                 Vector2 rotatedPos = rotation * relativePos;
                                 prefabRenderers[i].transform.localRotation = rotation;
@@ -452,31 +447,38 @@ namespace R1Engine
                             Vector3 transformOrigin = new Vector3(
                                 pivot.x / (float)LevelEditorData.Level.PixelsPerUnit,
                                 pivot.y / (float)LevelEditorData.Level.PixelsPerUnit,
-                                prefabRenderers[i].transform.localPosition.z);
+                                animSpriteRenderers[i].transform.localPosition.z);
 
                             // Then rotate
                             if (ObjData.Rotation.HasValue && ObjData.Rotation.Value != 0) {
-                                prefabRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), ObjData.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
+                                animSpriteRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), ObjData.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
                             }
                         }
                     }
 
                     // Get visibility
-                    prefabRenderers[i].enabled = isVisible;
-                    prefabRenderers[i].color = ObjData.IsDisabled ? new Color(1, 1, 1, 0.5f) : Color.white;
+                    animSpriteRenderers[i].enabled = isVisible;
+                    animSpriteRenderers[i].color = ObjData.IsDisabled ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
 
                 if (frameUpdated) {
                     // Remove unused sprites
-                    for (int i = anim.Frames[frame].SpriteLayers.Length; i < prefabRenderers.Length; i++) {
-                        prefabRenderers[i].sprite = null;
-                        prefabRenderers[i].enabled = false;
+                    for (int i = anim.Frames[frame].SpriteLayers.Length; i < animSpriteRenderers.Length; i++) {
+                        animSpriteRenderers[i].sprite = null;
+                        animSpriteRenderers[i].enabled = false;
                     }
 
                     // Remove unused collision layers
-                    for (int i = anim.Frames[frame].CollisionLayers.Length; i < prefabRenderersCollision.Length; i++) {
-                        prefabRenderersCollision[i].sprite = null;
-                        prefabRenderersCollision[i].enabled = false;
+                    for (int i = anim.Frames[frame].CollisionLayers.Length; i < animCollisionRenderers.Length; i++) {
+                        animCollisionRenderers[i].sprite = null;
+                        animCollisionRenderers[i].enabled = false;
+                    }
+                }
+                if (frameUpdated || collisionUpdated) {
+                    // Update collision
+                    for (int i = 0; i < anim.Frames[frame].CollisionLayers.Length; i++) {
+                        SetCollisionBox(anim.Frames[frame].CollisionLayers[i], animCollisionRenderers[i], pivot);
+                        animCollisionRenderers[i].enabled = CurrentShowCollision;
                     }
                 }
             }
@@ -485,52 +487,44 @@ namespace R1Engine
                 UpdateGizmoPosition(ObjData.ObjCollision, ObjData.Pivot);
             }
             if (CurrentShowCollision && (frameUpdated || collisionUpdated)) {
-                var col = ObjData.ObjCollision;
-
                 // Update object collision
-                if ((prefabRendersObjCollision == null && col != null && col.Length > 0) || col.Length != prefabRendersObjCollision?.Length) {
-                    // Clear old sprites
-                    ClearSprites(prefabRendersObjCollision);
+                var objCol = ObjData.ObjCollision;
 
-                    if (col != null && col.Length > 0) {
+                // Update new 
+                if ((objCollisionRenderers == null && objCol != null && objCol.Length > 0) || objCol.Length != objCollisionRenderers?.Length) {
+                    // Clear old object collision array
+                    ClearSprites(objCollisionRenderers);
+
+                    if (objCol != null && objCol.Length > 0) {
                         if (CurrentShowCollision) {
-                            prefabRendersObjCollision = new SpriteRenderer[col.Length];
+                            objCollisionRenderers = new SpriteRenderer[objCol.Length];
 
                             // Instantiate prefabs
-                            for (int i = 0; i < col.Length; i++) {
-                                prefabRendersObjCollision[i] = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
-                                prefabRendersObjCollision[i].sortingOrder = Layer;
+                            for (int i = 0; i < objCol.Length; i++) {
+                                objCollisionRenderers[i] = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
+                                objCollisionRenderers[i].sortingOrder = Layer;
 
-                                prefabRendersObjCollision[i].transform.localPosition = new Vector3(0, 0, col.Length - i);
-                                prefabRendersObjCollision[i].transform.localRotation = Quaternion.identity;
-                                prefabRendersObjCollision[i].transform.localScale = Vector3.one * ObjData.Scale;
+                                objCollisionRenderers[i].transform.localPosition = new Vector3(0, 0, objCol.Length - i);
+                                objCollisionRenderers[i].transform.localRotation = Quaternion.identity;
+                                objCollisionRenderers[i].transform.localScale = Vector3.one * ObjData.Scale;
                             }
                         }
                     } else {
-                        prefabRendersObjCollision = null;
+                        objCollisionRenderers = null;
                     }
                 }
 
-                if (anim != null) {
-                    var frame = ObjData.AnimationFrame;
-                    var pivot = ObjData.Pivot;
-                    // Update collision
-                    for (int i = 0; i < anim.Frames[frame].CollisionLayers.Length; i++) {
-                        SetCollisionBox(anim.Frames[frame].CollisionLayers[i], prefabRenderersCollision[i], pivot);
-                        prefabRenderersCollision[i].enabled = CurrentShowCollision;
-                    }
-                }
-
-                if (prefabRendersObjCollision != null) {
-                    for (var i = 0; i < prefabRendersObjCollision.Length; i++) {
-                        SetCollisionBox(col[i], prefabRendersObjCollision[i], ObjData.Pivot);
-                        prefabRendersObjCollision[i].enabled = CurrentShowCollision;
+                // Update object collision boxes
+                if (objCollisionRenderers != null) {
+                    for (var i = 0; i < objCollisionRenderers.Length; i++) {
+                        SetCollisionBox(objCol[i], objCollisionRenderers[i], ObjData.Pivot);
+                        objCollisionRenderers[i].enabled = CurrentShowCollision;
                     }
                 }
             } else if(!CurrentShowCollision) {
-                if (prefabRendersObjCollision != null) {
-                    for (var i = 0; i < prefabRendersObjCollision.Length; i++) {
-                        prefabRendersObjCollision[i].enabled = false;
+                if (objCollisionRenderers != null) {
+                    for (var i = 0; i < objCollisionRenderers.Length; i++) {
+                        objCollisionRenderers[i].enabled = false;
                     }
                 }
             }
@@ -545,15 +539,15 @@ namespace R1Engine
                         ((animLayer?.XPosition ?? 0) + (imgDescr?.HitBoxOffsetX ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit,
                         -((animLayer?.YPosition ?? 0) + (imgDescr?.HitBoxOffsetY ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
 
-                    var w = (prefabRenderers.ElementAtOrDefault(r1.EventData.FollowSprite)?.sprite == null) ? 0 : imgDescr?.HitBoxWidth ?? 0;
+                    var w = (animSpriteRenderers.ElementAtOrDefault(r1.EventData.FollowSprite)?.sprite == null) ? 0 : imgDescr?.HitBoxWidth ?? 0;
                     followSpriteLine.localScale = new Vector2(w, 1f);
                 }
             }
 
             // Update the collider size for when selecting the events
             if (frameUpdated || collisionUpdated) {
-                if (anim != null || prefabRendersObjCollision?.Any() == true) {
-                    var sprites = anim != null ? prefabRenderers : prefabRendersObjCollision;
+                if (anim != null || objCollisionRenderers?.Any() == true) {
+                    var sprites = anim != null ? animSpriteRenderers : objCollisionRenderers;
 
                     // Set box collider size to be the combination of all parts
                     float leftX = 0, bottomY = 0, rightX = 0, topY = 0;
@@ -734,9 +728,9 @@ namespace R1Engine
                 }
             }
             // Remove all children
-            ClearSprites(prefabRenderers);
-            ClearSprites(prefabRenderersCollision);
-            ClearSprites(prefabRendersObjCollision);
+            ClearSprites(animSpriteRenderers);
+            ClearSprites(animCollisionRenderers);
+            ClearSprites(objCollisionRenderers);
             // Remove from the position dictionary
             Controller.obj.levelEventController.ObjPositions.Remove(this);
             // Remove self

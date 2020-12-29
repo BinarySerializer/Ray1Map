@@ -107,76 +107,82 @@ namespace R1Engine
         {
             string cmd = $"{Command}";
 
-            var prepend = String.Empty;
+            var prepend = "\t";
 
-            if (RequiresTestTrue() || RequiresTestFalse())
-                prepend = $"\tif (TEST == {RequiresTestTrue().ToString().ToLower()}){Environment.NewLine}\t";
+            if (RequiresTestTrue()) {
+                prepend += $"IF (TEST) ";
+            } else if (RequiresTestFalse()) {
+                prepend += $"IF (!TEST) ";
+            }
 
             switch (Command) 
             {
                 case R1_EventCommandType.RESERVED_GO_GOTO:
                 case R1_EventCommandType.RESERVED_GO_GOTOF:
                 case R1_EventCommandType.RESERVED_GO_GOTOT:
-                    cmd = cmd.Replace("RESERVED_GO_", "");
-                    return $"{prepend}\t{cmd} LINE {labelOffsetsLineNumbers[Arguments[0]]};";
+                    cmd = "GOTO";
+                    return $"{prepend}{cmd} LINE {labelOffsetsLineNumbers[Arguments[0]]};";
 
                 case R1_EventCommandType.RESERVED_GO_GOSUB:
                 case R1_EventCommandType.RESERVED_GO_SKIP:
                 case R1_EventCommandType.RESERVED_GO_SKIPF:
                 case R1_EventCommandType.RESERVED_GO_SKIPT:
                     cmd = cmd.Replace("RESERVED_GO_", "");
+                    if(cmd == "SKIPT" || cmd == "SKIPF") cmd = "SKIP";
 
-                    return $"{prepend}\t{cmd} TO LINE {labelOffsetsLineNumbers[Arguments[0]]};";
+                    return $"{prepend}{cmd} TO LINE {labelOffsetsLineNumbers[Arguments[0]]};";
 
                 case R1_EventCommandType.GO_LABEL:
                     return "LABEL " + Arguments[0] + ":";
 
                 case R1_EventCommandType.GO_RETURN:
                     if (Arguments.Length == 0) {
-                        return "RETURN;";
+                        return $"{prepend}RETURN;";
                     } else {
                         cmd = cmd.Replace("GO_", "");
-                        return "\t" + cmd + (Arguments.Length > 0 ? (" " + String.Join(" ", Arguments)) : "") + ";";
+                        return $"{prepend}{cmd} {String.Join(" ", Arguments)};";
                     }
 
                 case R1_EventCommandType.GO_SPEED:
-                    return $"\t{cmd} {Arguments[0]} {(sbyte)Arguments[1]} {(sbyte)Arguments[2]}";
+                    cmd = cmd.Replace("GO_", "");
+                    return $"{prepend}{cmd} {Arguments[0]} {(sbyte)Arguments[1]} {(sbyte)Arguments[2]}";
 
                 case R1_EventCommandType.GO_X:
                 case R1_EventCommandType.GO_Y:
-                    return $"\t{cmd} {Arguments[0] * 100 + Arguments[1]}";
+                    cmd = cmd.Replace("GO_", "");
+                    return $"{prepend}{cmd} {Arguments[0] * 100 + Arguments[1]}";
 
                 case R1_EventCommandType.GO_TEST:
-                    var str = $"\tTEST = ";
+                    var str = $"{prepend}TEST = ";
 
                     switch (Arguments[0])
                     {
                         case 0:
-                            return $"{str}IsFlipped == {(Arguments[1] == 1).ToString().ToLower()}";
+                            return $"{str}{((Arguments[1] == 1) ? "": "!")}ISFLIPPED";
                         case 1:
-                            return $"{str}myRand({Arguments[1]})";
+                            return $"{str}RANDOM({Arguments[1]})"; // myRand. RandArray[RandomIndex] % (Argument1 + 1);
                         case 2:
-                            return $"{str}"; // TODO: Fill out
+                            return $"{str}RAYMAN.X {((Arguments[1] == 1) ? ">" : "<=")} X";
                         case 3:
                             return $"{str}STATE == {Arguments[1]}";
                         case 4:
                             return $"{str}SUBSTATE == {Arguments[1]}";
                         case 70:
-                            return $"{str}OBJ_IN_ZONE == true";
+                            return $"{str}OBJ_IN_ZONE";
                         case 71:
-                            return $"{str}Obj.Flags & 1 == true"; // TODO: What is this flag?
+                            return $"{str}HASFLAG(0)"; // TODO: What is this flag?
                         case 72:
-                            return $"{str}Obj.Flags & 0x10 == true"; // TODO: What is this flag?
+                            return $"{str}!HASFLAG(4)"; // TODO: What is this flag?
                         default:
-                            return $"INVALID CMD ({cmd})";
+                            return $"{str}<UNKNOWN TEST ({Arguments[0]})>";
                     }
 
                 case R1_EventCommandType.GO_SETTEST:
-                    return $"\tTEST = {(Arguments[0] == 1).ToString().ToLower()}";
+                    return $"{prepend}TEST = {(Arguments[0] == 1).ToString().ToUpper()}";
 
                 default:
                     cmd = cmd.Replace("GO_", "");
-                    return $"{prepend}\t{cmd}{(Arguments.Length > 0 ? (" " + String.Join(" ", Arguments)) : "")};";
+                    return $"{prepend}{cmd}{(Arguments.Length > 0 ? (" " + String.Join(" ", Arguments)) : "")};";
             }
         }
 
