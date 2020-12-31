@@ -77,6 +77,9 @@ namespace R1Engine
 
         public bool HasAnimatedTiles { get; private set; } = false;
 
+        public const int Index_Background = -2;
+        public const int Index_ParallaxBackground = -1;
+
         public void InitializeTilemaps() {
             var level = LevelEditorData.Level;
 
@@ -87,12 +90,20 @@ namespace R1Engine
             }
 
             if (level.Background != null) {
-                background.sprite = level.Background.CreateSprite();
+                bool wasTiled = background.drawMode == SpriteDrawMode.Tiled;
+                if (wasTiled) SetGraphicsLayerTiled(Index_Background, false);
+                var tex = level.Background;
+                background.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 1), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
                 background.gameObject.SetActive(true);
+                if (wasTiled) SetGraphicsLayerTiled(Index_Background, true);
             }
             if (level.ParallaxBackground != null) {
-                backgroundParallax.sprite = level.ParallaxBackground.CreateSprite();
+                bool wasTiled = background.drawMode == SpriteDrawMode.Tiled;
+                if (wasTiled) SetGraphicsLayerTiled(Index_ParallaxBackground, false);
+                var tex = level.ParallaxBackground;
+                backgroundParallax.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 1), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
                 backgroundParallax.gameObject.SetActive(true);
+                if (wasTiled) SetGraphicsLayerTiled(Index_ParallaxBackground, true);
             }
 
             // Resize the background tint
@@ -309,11 +320,43 @@ namespace R1Engine
                 }
                 tex.filterMode = FilterMode.Point;
                 tex.Apply();
+
+                bool wasTiled = GraphicsTilemaps[mapIndex].drawMode == SpriteDrawMode.Tiled;
+                if (wasTiled) SetGraphicsLayerTiled(mapIndex, false);
+
                 // Note: FullRect is important, otherwise when editing you need to create a new sprite
                 GraphicsTilemaps[mapIndex].sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
+
+                // After setting sprite, set tiled
+                if (wasTiled) SetGraphicsLayerTiled(mapIndex, true);
             }
 
             CreateTilemapFull();
+        }
+
+        public void SetGraphicsLayerTiled(int mapIndex, bool tiled) {
+            SpriteRenderer mapRenderer = null;
+            var scale = Vector3.one;
+            if (mapIndex < 0) {
+                if (mapIndex == -1) mapRenderer = backgroundParallax;
+                else if(mapIndex == -2) mapRenderer = background;
+            } else {
+                mapRenderer = GraphicsTilemaps[mapIndex];
+                scale.y = -1;
+            }
+            if (tiled) {
+                mapRenderer.drawMode = SpriteDrawMode.Tiled;
+                mapRenderer.tileMode = SpriteTileMode.Continuous;
+                mapRenderer.transform.localScale = scale;
+                mapRenderer.size = new Vector2(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight) * CellSizeInUnits;
+            } else {
+                mapRenderer.drawMode = SpriteDrawMode.Simple;
+                mapRenderer.transform.localScale = scale;
+                if (mapRenderer.sprite != null) {
+                    // Restore original size
+                    mapRenderer.size = mapRenderer.sprite.rect.size / mapRenderer.sprite.pixelsPerUnit;
+                }
+            }
         }
 
         private void AddAnimatedTile(Unity_Map map, int mapIndex, Unity_Tile t, int x, int y, int? combinedTileIndex = null) {

@@ -240,27 +240,76 @@ public class SettingsWindow : UnityWindow
                     }
                 }
 
-                if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
-                    var bg = Controller.obj.levelController.controllerTilemap.background;
+                if (Controller.obj?.levelController?.controllerTilemap != null) {
+                    var tilemapController = Controller.obj.levelController.controllerTilemap;
 
-                    var isActive = EditorField($"Show background", bg.gameObject.activeSelf);
+                    if (lvl.Background != null && tilemapController.background != null) {
+                        var bg = tilemapController.background;
 
-                    if (isActive != bg.gameObject.activeSelf)
-                        bg.gameObject.SetActive(isActive);
-                }
+                        var isActive = EditorField($"Show background", bg.gameObject.activeSelf);
 
-                if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
-                    var bg = Controller.obj.levelController.controllerTilemap.backgroundParallax;
+                        if (isActive != bg.gameObject.activeSelf)
+                            bg.gameObject.SetActive(isActive);
+                    }
 
-                    var isActive = EditorField($"Show parallax background", bg.gameObject.activeSelf);
+                    if (lvl.ParallaxBackground != null && tilemapController.backgroundParallax != null) {
+                        var bg = tilemapController.backgroundParallax;
 
-                    if (isActive != bg.gameObject.activeSelf)
-                        bg.gameObject.SetActive(isActive);
-                }
-                var layerVisibilities = Controller.obj?.levelController?.controllerTilemap?.IsLayerVisible;
-                if (layerVisibilities != null) {
-                    for (int i = 0; i < layerVisibilities.Length; i++) {
-                        layerVisibilities[i] = EditorField($"Show layer {i} ({LevelEditorData.Level.Maps[i].Type})", layerVisibilities[i]);
+                        var isActive = EditorField($"Show parallax background", bg.gameObject.activeSelf);
+
+                        if (isActive != bg.gameObject.activeSelf)
+                            bg.gameObject.SetActive(isActive);
+                    }
+                    var layerVisibilities = tilemapController.IsLayerVisible;
+                    if (layerVisibilities != null) {
+                        for (int i = 0; i < layerVisibilities.Length; i++) {
+                            layerVisibilities[i] = EditorField($"Show layer {i} ({LevelEditorData.Level.Maps[i].Type})", layerVisibilities[i]);
+                        }
+                    }
+                    if (lvl.Background != null && tilemapController.background != null) {
+                        var bg = tilemapController.background;
+                        var spr = bg.sprite;
+                        if (spr == null
+                                    || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxWidth * tilemapController.CellSizeInUnits
+                                    || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxHeight * tilemapController.CellSizeInUnits) {
+                            bool wasTiled = bg.drawMode == SpriteDrawMode.Tiled;
+                            bool setTiled = EditorField($"Tile background", wasTiled);
+
+                            if (setTiled != wasTiled) {
+                                tilemapController.SetGraphicsLayerTiled(LevelTilemapController.Index_Background, setTiled);
+                            }
+                        }
+                    }
+                    if (lvl.Background != null && tilemapController.backgroundParallax != null) {
+                        var bg = tilemapController.backgroundParallax;
+                        var spr = bg.sprite;
+                        if (spr == null
+                                    || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxWidth * tilemapController.CellSizeInUnits
+                                    || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxHeight * tilemapController.CellSizeInUnits) {
+                            bool wasTiled = bg.drawMode == SpriteDrawMode.Tiled;
+                            bool setTiled = EditorField($"Tile parallax background", wasTiled);
+
+                            if (setTiled != wasTiled) {
+                                tilemapController.SetGraphicsLayerTiled(LevelTilemapController.Index_ParallaxBackground, setTiled);
+                            }
+                        }
+                    }
+                    if (tilemapController.GraphicsTilemaps != null) {
+                        for (int i = 0; i < tilemapController.GraphicsTilemaps.Length; i++) {
+                            if (tilemapController.GraphicsTilemaps[i] != null) {
+                                var spr = tilemapController.GraphicsTilemaps[i].sprite;
+                                if (spr == null
+                                    || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxWidth * tilemapController.CellSizeInUnits
+                                    || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxHeight * tilemapController.CellSizeInUnits) {
+                                    bool wasTiled = tilemapController.GraphicsTilemaps[i].drawMode == SpriteDrawMode.Tiled;
+                                    bool setTiled = EditorField($"Tile graphics layer {i}", wasTiled);
+
+                                    if (setTiled != wasTiled) {
+                                        tilemapController.SetGraphicsLayerTiled(i, setTiled);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 

@@ -398,14 +398,14 @@ public class WebCommunicator : MonoBehaviour {
 			List<WebJSON.Layer> layers = new List<WebJSON.Layer>();
 			if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
 				layers.Add(new WebJSON.Layer() {
-					Index = -2,
+					Index = LevelTilemapController.Index_Background,
 					IsVisible = Controller.obj.levelController.controllerTilemap.background.gameObject.activeSelf
 				});
 			}
 
 			if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
 				layers.Add(new WebJSON.Layer() {
-					Index = -1,
+					Index = LevelTilemapController.Index_ParallaxBackground,
 					IsVisible = Controller.obj.levelController.controllerTilemap.backgroundParallax.gameObject.activeSelf
 				});
 			}
@@ -501,7 +501,7 @@ public class WebCommunicator : MonoBehaviour {
 			if (lvl != null && tilemapController != null) {
 				foreach (var layer in msg.Layers) {
 					switch (layer.Index) {
-						case -2:
+						case LevelTilemapController.Index_Background:
 							if (lvl.Background != null && tilemapController.background != null) {
 								var bg = tilemapController.background;
 								if (layer.IsVisible.HasValue && layer.IsVisible.Value != bg.gameObject.activeSelf) {
@@ -509,7 +509,7 @@ public class WebCommunicator : MonoBehaviour {
 								}
 							}
 							break;
-						case -1:
+						case LevelTilemapController.Index_ParallaxBackground:
 							if (lvl.ParallaxBackground != null && tilemapController.backgroundParallax != null) {
 								var bg = tilemapController.backgroundParallax;
 								if (layer.IsVisible.HasValue && layer.IsVisible.Value != bg.gameObject.activeSelf) {
