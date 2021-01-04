@@ -1541,7 +1541,7 @@ namespace R1Engine
         private static void Spyro2_61(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
             obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x17);
-            obj.AnimationGroupIndex = 0x02;
+            obj.AnimationGroupIndex = (byte)(obj.ObjManager.Context.Settings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 0x00 : 0x02);
         }
         private static void Spyro2_62(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Chills
         {
