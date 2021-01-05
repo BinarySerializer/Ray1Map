@@ -84,22 +84,28 @@ namespace R1Engine
             else if (s.GameSettings.GBA_IsMilan)
             {
                 ColorMode = GBA_ColorMode.Color4bpp;
-                IsCompressed = true;
 
                 // Serialize cluster
                 Cluster = s.DoAt(ShanghaiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
+                
+                IsCompressed = Cluster.Batman_Data[0] == 5 || (s.GameSettings.EngineVersion == EngineVersion.GBA_TheMummy && StructType == Type.Collision);
 
                 // Go to the map data
                 s.Goto(ShanghaiOffsetTable.GetPointer(2));
 
                 if (StructType == Type.Layer2D)
                 {
-                    s.DoEncoded(new GBA_LZSSEncoder(), () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, s.CurrentLength / 2, name: nameof(Shanghai_MapIndices_16)));
+                    s.DoEncodedIf(new GBA_LZSSEncoder(), IsCompressed, () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, (Width * Height) / 4, name: nameof(Shanghai_MapIndices_16)));
+
+                    var end = s.CurrentPointer;
 
                     // Go to the map tiles
                     s.Goto(ShanghaiOffsetTable.GetPointer(1));
 
-                    s.DoEncoded(new GBA_LZSSEncoder(), () => Shanghai_MapTiles = s.SerializeObjectArray<MapTile>(Shanghai_MapTiles, s.CurrentLength / 2, name: nameof(Shanghai_MapTiles)));
+                    s.DoEncodedIf(new GBA_LZSSEncoder(), IsCompressed, () => Shanghai_MapTiles = s.SerializeObjectArray<MapTile>(Shanghai_MapTiles, (Shanghai_MapIndices_16.Max(x => BitHelpers.ExtractBits(x, 12, 0)) + 1) * 4, name: nameof(Shanghai_MapTiles)));
+
+                    s.Goto(end);
+                    s.Align();
 
                     // Return to avoid serializing the map tile array normally
                     return;

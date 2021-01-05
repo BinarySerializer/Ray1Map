@@ -66,6 +66,14 @@ namespace R1Engine
         public abstract void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null);
         public abstract void DoEndian(BinaryFile.Endian endianness, Action action);
 
+        public void DoEncodedIf(IStreamEncoder encoder, bool isEncoded, Action action, BinaryFile.Endian? endianness = null)
+        {
+            if (isEncoded)
+                DoEncoded(encoder, action, endianness);
+            else
+                action();
+        }
+
         /// <summary>
         /// Main Serialize method.
         /// </summary>

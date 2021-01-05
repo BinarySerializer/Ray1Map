@@ -158,10 +158,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - US)", typeof(GBA_TheMummy_Manager))]
         TheMummyUS,
 
-        //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TombRaiderTheProphecy, Game.GBA_TombRaiderTheProphecy, "Tomb Raider: The Prophecy (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
+        //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TombRaiderTheProphecy, Game.GBA_TombRaiderTheProphecy, "Tomb Raider: The Prophecy (GBA - EU)", typeof(GBA_TombRaider_Manager))]
         //TombRaiderTheProphecyEU,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TombRaiderTheProphecy, Game.GBA_TombRaiderTheProphecy, "Tomb Raider: The Prophecy (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TombRaiderTheProphecy, Game.GBA_TombRaiderTheProphecy, "Tomb Raider: The Prophecy (GBA - US)", typeof(GBA_TombRaider_Manager))]
         TombRaiderTheProphecyUS,
 
         //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
