@@ -11,7 +11,7 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) 
+            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance && !s.GameSettings.GBA_IsMilan) 
             {
                 if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
                     s.Goto(ShanghaiOffsetTable.GetPointer(0));
@@ -34,6 +34,6 @@
             }
         }
 
-        public override long GetShanghaiOffsetTableLength => 2;
+        public override long GetShanghaiOffsetTableLength => Context.Settings.GBA_IsMilan ? 0 : 2;
     }
 }

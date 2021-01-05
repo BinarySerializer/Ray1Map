@@ -6,6 +6,7 @@
 
         // Parsed from offsets
         public GBA_PlayField PlayField { get; set; }
+        public GBA_Milan_ActorsBlock ActorsBlock { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -15,6 +16,9 @@
         public override void SerializeOffsetData(SerializerObject s)
         {
             PlayField = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
+            ActorsBlock = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBA_Milan_ActorsBlock>(ActorsBlock, name: nameof(ActorsBlock)));
+
+            // Block 4 is captors
         }
     }
 }

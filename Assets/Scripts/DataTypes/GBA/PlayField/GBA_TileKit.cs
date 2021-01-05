@@ -103,7 +103,7 @@ namespace R1Engine
                     Debug.Log("Level " + s.GameSettings.Level + " (" + s.GameSettings.World + ") has " + AnimatedTileKits.Length + " animated tilekits.");
                 }
             }
-            else if (s.GameSettings.GBA_IsMilan)
+            else if (s.GameSettings.GBA_IsMilan && OffsetTable.OffsetsCount > 0)
             {
                 if (Palettes == null)
                     Palettes = new GBA_Palette[1];
