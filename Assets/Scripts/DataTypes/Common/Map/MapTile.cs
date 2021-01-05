@@ -150,7 +150,7 @@ namespace R1Engine
             {
                 // TODO: Use SerializeBitValues
                 
-                if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax) // Shanghai
+                if (s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan)
                 {
                     s.SerializeBitValues<ushort>(bitFunc =>
                     {

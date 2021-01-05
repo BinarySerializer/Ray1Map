@@ -47,8 +47,8 @@
                 if (!IsGCNBlock) 
                     SerializeOffsetTable(s);
 
-                // The Shanghai branch has a local offset table within each block
-                if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+                // The Shanghai and Milan branches have a local offset table within each block
+                if (s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan)
                     ShanghaiOffsetTable = s.SerializeObject<GBA_ShanghaiLocalOffsetTable>(ShanghaiOffsetTable, x => x.Length = GetShanghaiOffsetTableLength, name: nameof(ShanghaiOffsetTable));
 
                 // Serialize the block

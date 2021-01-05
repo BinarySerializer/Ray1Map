@@ -152,10 +152,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_CrouchingTiger, Game.GBA_CrouchingTigerHiddenDragon, "Crouching Tiger Hidden Dragon (GBA - US Beta)", typeof(GBA_CrouchingTigerBeta_Manager))]
         CrouchingTigerHiddenDragonGBAUSBeta,
 
-        //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
+        //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - EU)", typeof(GBA_TheMummy_Manager))]
         //TheMummyEU,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - US)", typeof(GBA_TheMummy_Manager))]
         TheMummyUS,
 
         //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TombRaiderTheProphecy, Game.GBA_TombRaiderTheProphecy, "Tomb Raider: The Prophecy (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]

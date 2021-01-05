@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UnityEngine;
 
 namespace R1Engine
@@ -22,6 +23,8 @@ namespace R1Engine
         public bool Is8bpp { get; set; }
         public bool IsCompressed { get; set; }
 
+        public Milan_CompressionType CompressionType { get; set; }
+
         #region Parsed
         public GBA_Palette[] Palettes { get; set; }
         public GBA_AnimatedTileKitManager AnimatedTileKitManager { get; set; }
@@ -31,7 +34,17 @@ namespace R1Engine
         public override void SerializeBlock(SerializerObject s) {
             if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
                 Is8bpp = s.Serialize<bool>(Is8bpp, name: nameof(Is8bpp));
-                IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
+
+                if (s.GameSettings.GBA_IsMilan)
+                {
+                    CompressionType = s.Serialize<Milan_CompressionType>(CompressionType, name: nameof(CompressionType));
+                }
+                else
+                {
+                    IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
+                    CompressionType = IsCompressed ? Milan_CompressionType.LZSS : Milan_CompressionType.None;
+                }
+
                 if (Is8bpp) {
                     TileSet8bppSize = s.Serialize<ushort>(TileSet8bppSize, name: nameof(TileSet8bppSize));
                 } else {
@@ -45,18 +58,29 @@ namespace R1Engine
                 PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));
                 Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
                 PaletteIndices = s.SerializeArray<byte>(PaletteIndices, PaletteCount, name: nameof(PaletteIndices));
+
+                CompressionType = IsCompressed && s.GameSettings.EngineVersion != EngineVersion.GBA_R3_NGage ? Milan_CompressionType.LZSS : Milan_CompressionType.None;
             }
 
             // Serialize tilemap data
-            if (IsCompressed && s.GameSettings.EngineVersion != EngineVersion.GBA_R3_NGage) {
-                s.DoEncoded(new GBA_LZSSEncoder(), () => {
+            switch (CompressionType)
+            {
+                case Milan_CompressionType.None:
+                default:
                     TileSet4bpp = s.SerializeArray<byte>(TileSet4bpp, TileSet4bppSize * 0x20, name: nameof(TileSet4bpp));
                     TileSet8bpp = s.SerializeArray<byte>(TileSet8bpp, TileSet8bppSize * 0x40, name: nameof(TileSet8bpp));
-                });
-                s.Align();
-            } else {
-                TileSet4bpp = s.SerializeArray<byte>(TileSet4bpp, TileSet4bppSize * 0x20, name: nameof(TileSet4bpp));
-                TileSet8bpp = s.SerializeArray<byte>(TileSet8bpp, TileSet8bppSize * 0x40, name: nameof(TileSet8bpp));
+                    break;
+
+                case Milan_CompressionType.RL:
+                    throw new NotImplementedException();
+
+                case Milan_CompressionType.LZSS:
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => {
+                        TileSet4bpp = s.SerializeArray<byte>(TileSet4bpp, TileSet4bppSize * 0x20, name: nameof(TileSet4bpp));
+                        TileSet8bpp = s.SerializeArray<byte>(TileSet8bpp, TileSet8bppSize * 0x40, name: nameof(TileSet8bpp));
+                    });
+                    s.Align();
+                    break;
             }
         }
 
@@ -79,6 +103,20 @@ namespace R1Engine
                     Debug.Log("Level " + s.GameSettings.Level + " (" + s.GameSettings.World + ") has " + AnimatedTileKits.Length + " animated tilekits.");
                 }
             }
+            else if (s.GameSettings.GBA_IsMilan)
+            {
+                if (Palettes == null)
+                    Palettes = new GBA_Palette[1];
+
+                Palettes[0] = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Palette>(Palettes[0], name: nameof(Palettes)));
+            }
+        }
+
+        public enum Milan_CompressionType : byte
+        {
+            None = 0,
+            RL = 1,
+            LZSS = 2,
         }
     }
 }

@@ -55,7 +55,7 @@
         public GBA_TileLayer[] Layers { get; set; }
 
         public GBA_Batman_TileLayer[] BatmanLayers { get; set; }
-        public GBA_Batman_TileLayer Shanghai_AdditionalLayer { get; set; }
+        public GBA_Batman_TileLayer Shanghai_UILayer { get; set; }
 
         // Batman: Vengeance
         public GBA_Palette TilePalette { get; set; }
@@ -84,7 +84,7 @@
             {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } 
-            else if (s.GameSettings.EngineVersion > EngineVersion.GBA_R3_MadTrax)
+            else if (s.GameSettings.GBA_IsCommon)
             {
                 StructType = s.Serialize<Type>(StructType, name: nameof(StructType));
                 TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
@@ -99,7 +99,7 @@
             }
             if (StructType != Type.PlayFieldZoom && StructType != Type.PlayFieldPoP) {
 
-                if (StructType == Type.PlayField2D && s.GameSettings.EngineVersion > EngineVersion.GBA_R3_MadTrax)
+                if (StructType == Type.PlayField2D && s.GameSettings.EngineVersion > EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
                     ClusterCount = s.Serialize<byte>(ClusterCount, name: nameof(ClusterCount));
 
                 LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
@@ -110,11 +110,13 @@
                     Clusters = s.SerializeObjectArray<GBA_Cluster>(Clusters, 4, name: nameof(Clusters));
                     BatmanLayers = s.SerializeObjectArray<GBA_Batman_TileLayer>(BatmanLayers, LayerCount, name: nameof(BatmanLayers));
                 }
-                else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+                else if (s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan)
                 {
                     s.SerializeArray(new byte[3], 3, name: "Padding");
-                    BatmanLayers = s.SerializeObjectArray<GBA_Batman_TileLayer>(BatmanLayers, LayerCount, name: nameof(BatmanLayers));
-                    Shanghai_AdditionalLayer = s.SerializeObject<GBA_Batman_TileLayer>(Shanghai_AdditionalLayer, name: nameof(Shanghai_AdditionalLayer)); // TODO: What is this?
+                    BatmanLayers = s.SerializeObjectArray<GBA_Batman_TileLayer>(BatmanLayers, LayerCount - (s.GameSettings.GBA_IsMilan ? 1 : 0), name: nameof(BatmanLayers));
+
+                    // TODO: Parse the UI layer
+                    Shanghai_UILayer = s.SerializeObject<GBA_Batman_TileLayer>(Shanghai_UILayer, name: nameof(Shanghai_UILayer));
                 }
                 else
                 {
@@ -154,17 +156,20 @@
             }
         }
 
-        public override void SerializeOffsetData(SerializerObject s) {
+        public override void SerializeOffsetData(SerializerObject s) 
+        {
+            var layerCount = LayerCount - (s.GameSettings.GBA_IsMilan ? 1 : 0);
+
             if (StructType == Type.PlayField2D && Clusters == null) ClusterBlocks = new GBA_ClusterBlock[ClusterCount];
-            if (Layers == null) Layers = new GBA_TileLayer[LayerCount];
-            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance)
+            if (Layers == null) Layers = new GBA_TileLayer[layerCount];
+            if (s.GameSettings.GBA_IsShanghai ||s.GameSettings.GBA_IsMilan || s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
             {
                 // Serialize tile palette
                 if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
                     TilePalette = s.DoAt(OffsetTable.GetPointer(TilePaletteIndex), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));
 
                 // Serialize layers
-                for (int i = 0; i < LayerCount; i++)
+                for (int i = 0; i < layerCount; i++)
                 {
                     // Serialize tile layer
                     s.DoAt(OffsetTable.GetPointer(BatmanLayers[i].Index_TileLayer), () =>
@@ -176,11 +181,18 @@
                             l.Width = BatmanLayers[i].Width;
                             l.Height = BatmanLayers[i].Height;
                             l.LayerID = BatmanLayers[i].LayerID;
+
+                            // Layer 2 for Milan is always the shadow layer which should be transparent
+                            if (s.GameSettings.GBA_IsMilan && BatmanLayers[i].LayerID == 2)
+                            {
+                                l.ShouldSetBGAlphaBlending = true;
+                                l.AlphaBlending_Coeff = 8; // Is this value correct?
+                            }
                         }, name: $"{nameof(Layers)}[{i}]");
                     });
 
                     // Serialize tile kit
-                    if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+                    if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance && BatmanLayers[i].Index_TileKit != 0xFF)
                         Layers[i].TileKit = s.DoAt(OffsetTable.GetPointer(BatmanLayers[i].Index_TileKit), () => s.SerializeObject<GBA_TileKit>(Layers[i].TileKit, name: $"{nameof(GBA_TileLayer.TileKit)}[{i}]"));
                 }
             }
@@ -293,12 +305,21 @@
                     IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
                     Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
                 }
-                else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+                else if (s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan)
                 {
                     Index_TileLayer = s.Serialize<byte>(Index_TileLayer, name: nameof(Index_TileLayer));
                     LayerID = s.Serialize<byte>(LayerID, name: nameof(LayerID));
                     Index_TileKit = s.Serialize<byte>(Index_TileKit, name: nameof(Index_TileKit));
-                    IsCollisionBlock = s.Serialize<bool>(IsCollisionBlock, name: nameof(IsCollisionBlock));
+
+                    if (s.GameSettings.GBA_IsShanghai)
+                    {
+                        IsCollisionBlock = s.Serialize<bool>(IsCollisionBlock, name: nameof(IsCollisionBlock));
+                    }
+                    else
+                    {
+                        Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+                        IsCollisionBlock = LayerID == 4;
+                    }
                 }
 
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));

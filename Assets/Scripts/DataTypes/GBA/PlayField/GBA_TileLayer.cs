@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -82,7 +81,31 @@ namespace R1Engine
                     ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
                 }
             }
-            else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax) // Shanghai
+            else if (s.GameSettings.GBA_IsMilan)
+            {
+                ColorMode = GBA_ColorMode.Color4bpp;
+                IsCompressed = true;
+
+                // Serialize cluster
+                Cluster = s.DoAt(ShanghaiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
+
+                // Go to the map data
+                s.Goto(ShanghaiOffsetTable.GetPointer(2));
+
+                if (StructType == Type.Layer2D)
+                {
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, s.CurrentLength / 2, name: nameof(Shanghai_MapIndices_16)));
+
+                    // Go to the map tiles
+                    s.Goto(ShanghaiOffsetTable.GetPointer(1));
+
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => Shanghai_MapTiles = s.SerializeObjectArray<MapTile>(Shanghai_MapTiles, s.CurrentLength / 2, name: nameof(Shanghai_MapTiles)));
+
+                    // Return to avoid serializing the map tile array normally
+                    return;
+                }
+            }
+            else if (s.GameSettings.GBA_IsShanghai)
             {
                 ColorMode = GBA_ColorMode.Color4bpp;
                 IsCompressed = false;
@@ -268,6 +291,6 @@ namespace R1Engine
             PoP = 5
         }
 
-        public override long GetShanghaiOffsetTableLength => StructType == Type.Layer2D ? 3 : 1;
+        public override long GetShanghaiOffsetTableLength => StructType == Type.Layer2D || Context.Settings.GBA_IsMilan ? 3 : 1;
     }
 }

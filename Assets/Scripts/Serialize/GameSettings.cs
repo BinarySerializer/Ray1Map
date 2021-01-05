@@ -78,6 +78,10 @@ namespace R1Engine
             set => World = (int)value;
         }
 
+        public bool GBA_IsShanghai => EngineVersion <= EngineVersion.GBA_R3_MadTrax;
+        public bool GBA_IsMilan => EngineVersion <= EngineVersion.GBA_TomClancysRainbowSixRogueSpear && EngineVersion >= EngineVersion.GBA_TheMummy;
+        public bool GBA_IsCommon => EngineVersion >= EngineVersion.GBA_BatmanVengeance;
+
         // Helpers
 
         public IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);

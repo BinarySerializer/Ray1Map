@@ -37,34 +37,41 @@
             {
                 Batman_Data = s.SerializeArray<byte>(Batman_Data, 0x10, name: nameof(Batman_Data));
             }
-            else if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+            else if (s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan)
             {
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
 
-                Shanghai_Byte_04 = s.Serialize<byte>(Shanghai_Byte_04, name: nameof(Shanghai_Byte_04));
-                Shanghai_Byte_05 = s.Serialize<byte>(Shanghai_Byte_05, name: nameof(Shanghai_Byte_05));
-                Shanghai_Byte_06 = s.Serialize<byte>(Shanghai_Byte_06, name: nameof(Shanghai_Byte_06));
-                Shanghai_Byte_07 = s.Serialize<byte>(Shanghai_Byte_07, name: nameof(Shanghai_Byte_07));
-
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_DonaldDuck && Shanghai_Byte_04 == 3)
+                if (s.GameSettings.GBA_IsMilan)
                 {
-                    Shanghai_MapTileSize = s.Serialize<byte>(Shanghai_MapTileSize, name: nameof(Shanghai_MapTileSize));
-                    Shanghai_Byte_09 = s.Serialize<byte>(Shanghai_Byte_09, name: nameof(Shanghai_Byte_09));
+                    Batman_Data = s.SerializeArray<byte>(Batman_Data, 8, name: nameof(Batman_Data));
                 }
                 else
                 {
-                    Shanghai_Byte_08 = s.Serialize<byte>(Shanghai_Byte_08, name: nameof(Shanghai_Byte_08));
-                    Shanghai_MapTileSize = s.Serialize<byte>(Shanghai_MapTileSize, name: nameof(Shanghai_MapTileSize));
+                    Shanghai_Byte_04 = s.Serialize<byte>(Shanghai_Byte_04, name: nameof(Shanghai_Byte_04));
+                    Shanghai_Byte_05 = s.Serialize<byte>(Shanghai_Byte_05, name: nameof(Shanghai_Byte_05));
+                    Shanghai_Byte_06 = s.Serialize<byte>(Shanghai_Byte_06, name: nameof(Shanghai_Byte_06));
+                    Shanghai_Byte_07 = s.Serialize<byte>(Shanghai_Byte_07, name: nameof(Shanghai_Byte_07));
+
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_DonaldDuck && Shanghai_Byte_04 == 3)
+                    {
+                        Shanghai_MapTileSize = s.Serialize<byte>(Shanghai_MapTileSize, name: nameof(Shanghai_MapTileSize));
+                        Shanghai_Byte_09 = s.Serialize<byte>(Shanghai_Byte_09, name: nameof(Shanghai_Byte_09));
+                    }
+                    else
+                    {
+                        Shanghai_Byte_08 = s.Serialize<byte>(Shanghai_Byte_08, name: nameof(Shanghai_Byte_08));
+                        Shanghai_MapTileSize = s.Serialize<byte>(Shanghai_MapTileSize, name: nameof(Shanghai_MapTileSize));
+                    }
+
+                    Shanghai_Byte_0A = s.Serialize<byte>(Shanghai_Byte_0A, name: nameof(Shanghai_Byte_0A));
+                    Shanghai_Byte_0B = s.Serialize<byte>(Shanghai_Byte_0B, name: nameof(Shanghai_Byte_0B));
+
+                    ScrollX = s.Serialize<int>(ScrollX, name: nameof(ScrollX));
+                    s.Log($"ScrollXFloat: {ScrollXFloat}");
+                    ScrollY = s.Serialize<int>(ScrollY, name: nameof(ScrollY));
+                    s.Log($"ScrollYFloat: {ScrollYFloat}");
                 }
-
-                Shanghai_Byte_0A = s.Serialize<byte>(Shanghai_Byte_0A, name: nameof(Shanghai_Byte_0A));
-                Shanghai_Byte_0B = s.Serialize<byte>(Shanghai_Byte_0B, name: nameof(Shanghai_Byte_0B));
-
-                ScrollX = s.Serialize<int>(ScrollX, name: nameof(ScrollX));
-                s.Log($"ScrollXFloat: {ScrollXFloat}");
-                ScrollY = s.Serialize<int>(ScrollY, name: nameof(ScrollY));
-                s.Log($"ScrollYFloat: {ScrollYFloat}");
             }
             else
             {

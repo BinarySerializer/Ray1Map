@@ -629,7 +629,7 @@ namespace R1Engine
 
                 if (lvlType == LevelType.Game)
                 {
-                    if (context.Settings.EngineVersion > EngineVersion.GBA_R3_MadTrax)
+                    if (context.Settings.GBA_IsCommon)
                     {
                         scene = dataBlock.Scene;
                         playField = dataBlock.Scene.PlayField;
@@ -647,6 +647,11 @@ namespace R1Engine
                                 dataBlock.MadTraxPlayField_FG,
                             }.SelectMany(x => x.Layers).ToArray(),
                         };
+                    }
+                    else if (context.Settings.GBA_IsMilan)
+                    {
+                        scene = null;
+                        playField = dataBlock.Milan_SceneList.Scene.PlayField;
                     }
                     else // Shanghai
                     {
@@ -705,6 +710,10 @@ namespace R1Engine
                     for (int x = 0; x < l.Width; x++) {
                         int i = y * indexWidth + x;
                         var mapTile = indexArray[i / 4];
+
+                        if (context.Settings.GBA_IsMilan)
+                            mapTile = (ushort)BitHelpers.ExtractBits(mapTile, 12, 0);
+
                         var offX = i % 4;
                         var tile = l.Shanghai_MapTiles[mapTile * 4 + offX];
 
@@ -714,6 +723,50 @@ namespace R1Engine
                             VerticalFlip = tile.VerticalFlip,
                             PaletteIndex = tile.PaletteIndex
                         };
+                    }
+                }
+            }
+
+            // Create a normal 8x8 map array for Milan games with 16x16 maps
+            if (context.Settings.GBA_IsMilan)
+            {
+                foreach (var l in mapLayers.Where(x => x.StructType == GBA_TileLayer.Type.Layer2D))
+                {
+                    var indexArray = l.Shanghai_MapIndices_16;
+
+                    var indexArrayWidth = l.Width / 2;
+                    var indexArrayHeight = l.Height / 2;
+
+                    l.MapData = new MapTile[l.Width * l.Height];
+
+                    for (int y = 0; y < indexArrayHeight; y++)
+                    {
+                        for (int x = 0; x < indexArrayWidth; x++)
+                        {
+                            var actualX = x * 2;
+                            var actualY = y * 2;
+
+                            var mapTile = BitHelpers.ExtractBits(indexArray[y * indexArrayWidth + x], 12, 0);
+
+                            setTileAt(0, 0, l.Shanghai_MapTiles[mapTile * 4 + 0]);
+                            setTileAt(1, 0, l.Shanghai_MapTiles[mapTile * 4 + 1]);
+                            setTileAt(0, 1, l.Shanghai_MapTiles[mapTile * 4 + 2]);
+                            setTileAt(1, 1, l.Shanghai_MapTiles[mapTile * 4 + 3]);
+
+                            void setTileAt(int offX, int offY, MapTile tile)
+                            {
+                                var outputX = actualX + offX;
+                                var outputY = actualY + offY;
+
+                                l.MapData[outputY * l.Width + outputX] = new MapTile()
+                                {
+                                    TileMapY = tile.TileMapY,
+                                    HorizontalFlip = tile.HorizontalFlip,
+                                    VerticalFlip = tile.VerticalFlip,
+                                    PaletteIndex = tile.PaletteIndex
+                                };
+                            }
+                        }
                     }
                 }
             }
@@ -1048,6 +1101,8 @@ namespace R1Engine
                     pal = playField.TilePalette;
                 else if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
                     pal = data.MadTraxPalette;
+                else if (context.Settings.GBA_IsMilan)
+                    pal = map.TileKit.Palettes[0];
                 else
                     pal = data.Shanghai_Scene.TilePal;
 

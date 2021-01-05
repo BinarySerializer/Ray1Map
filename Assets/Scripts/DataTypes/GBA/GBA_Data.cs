@@ -14,6 +14,8 @@
 
         public GBA_Shanghai_Scene Shanghai_Scene { get; set; }
 
+        public GBA_Milan_SceneList Milan_SceneList { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -26,28 +28,32 @@
             // Serialize the offset table
             s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => UiOffsetTable = s.SerializeObject<GBA_OffsetTable>(UiOffsetTable, name: nameof(UiOffsetTable)));
 
-            // TODO: Serialize scene for Milan branch
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_TheMummy ||
-                s.GameSettings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy ||
-                s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
-                return;
-
             var manager = (GBA_Manager)s.Context.Settings.GetGameManager;
 
             switch (manager.GetLevelType(s.Context))
             {
                 case GBA_Manager.LevelType.Game:
                     // Serialize the level block for the current level
-                    if (s.GameSettings.EngineVersion > EngineVersion.GBA_R3_MadTrax)
+
+                    // Common
+                    if (s.GameSettings.GBA_IsCommon)
                     {
                         Scene = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_Scene>(Scene, name: nameof(Scene)));
                     }
+                    // Mad Trax
                     else if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
                     {
                         MadTraxPlayField_BG = s.DoAt(UiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_PlayField>(MadTraxPlayField_BG, name: nameof(MadTraxPlayField_BG)));
                         MadTraxPlayField_FG = s.DoAt(UiOffsetTable.GetPointer(1), () => s.SerializeObject<GBA_PlayField>(MadTraxPlayField_FG, name: nameof(MadTraxPlayField_FG)));
                         MadTraxPalette = s.DoAt(UiOffsetTable.GetPointer(2), () => s.SerializeObject<GBA_Palette>(MadTraxPalette, name: nameof(MadTraxPalette)));
                     }
+                    // Milan
+                    else if (s.GameSettings.GBA_IsMilan)
+                    {
+                        Milan_SceneList = s.DoAt(UiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Milan_SceneList>(Milan_SceneList, name: nameof(Milan_SceneList)));
+                        // TODO: Parse block 1 and 2 (menus?)
+                    }
+                    // Shanghai
                     else
                     {
                         Shanghai_Scene = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_Shanghai_Scene>(Shanghai_Scene, name: nameof(Shanghai_Scene)));
