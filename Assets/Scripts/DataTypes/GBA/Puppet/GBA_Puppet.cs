@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -7,14 +8,16 @@ namespace R1Engine
 
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }
-        public byte TileMapOffsetIndex { get; set; }
-        public byte PaletteOffsetIndex { get; set; }
-        public byte UnkOffsetIndex3 { get; set; }
-        public byte Byte_04 { get; set; }
-        public byte AnimationsCount { get; set; }
+        public ushort Index_TileSet { get; set; }
+        public ushort Index_Palette { get; set; }
+        public byte Index_Unknown { get; set; }
+        public ushort Byte_04 { get; set; }
+        public ushort AnimationsCount { get; set; }
         public byte Byte_06 { get; set; }
 
-        public byte[] AnimationIndexTable { get; set; }
+        public byte[] Milan_Bytes_08 { get; set; }
+
+        public ushort[] AnimationIndexTable { get; set; }
 
         #endregion
 
@@ -22,6 +25,7 @@ namespace R1Engine
 
         public GBA_SpritePalette Palette { get; set; }
         public GBA_SpriteTileSet TileSet { get; set; }
+        public GBA_TileKit Milan_TileKit { get; set; } // We could use the SpriteTileSet class here too, but it'd require duplicating all the compression code
         public GBA_Animation[] Animations { get; set; }
         public Dictionary<int, GBA_AffineMatrixList> Matrices { get; set; } = new Dictionary<int, GBA_AffineMatrixList>();
 
@@ -31,33 +35,51 @@ namespace R1Engine
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.GBA_Sabrina)
+            if (!s.GameSettings.GBA_IsMilan)
             {
-                Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
-                Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+                if (s.GameSettings.EngineVersion != EngineVersion.GBA_Sabrina)
+                {
+                    Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
+                    Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+                }
+
+                Index_TileSet = s.Serialize<byte>((byte)Index_TileSet, name: nameof(Index_TileSet));
+                Index_Palette = s.Serialize<byte>((byte)Index_Palette, name: nameof(Index_Palette));
+
+                if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
+                    Index_Unknown = s.Serialize<byte>(Index_Unknown, name: nameof(Index_Unknown));
+
+                Byte_04 = s.Serialize<byte>((byte)Byte_04, name: nameof(Byte_04));
+                AnimationsCount = s.Serialize<byte>((byte)AnimationsCount, name: nameof(AnimationsCount));
+                Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
+
+                AnimationIndexTable = s.SerializeArray<byte>(AnimationIndexTable?.Select(x => (byte)x).ToArray(), AnimationsCount, name: nameof(AnimationIndexTable)).Select(x => (ushort)x).ToArray();
             }
+            else
+            {
+                Index_TileSet = s.Serialize<ushort>(Index_TileSet, name: nameof(Index_TileSet));
+                Index_Palette = s.Serialize<ushort>(Index_Palette, name: nameof(Index_Palette));
+                Byte_04 = s.Serialize<ushort>(Byte_04, name: nameof(Byte_04));
+                AnimationsCount = s.Serialize<ushort>(AnimationsCount, name: nameof(AnimationsCount));
 
-            TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
-            PaletteOffsetIndex = s.Serialize<byte>(PaletteOffsetIndex, name: nameof(PaletteOffsetIndex));
+                Milan_Bytes_08 = s.SerializeArray<byte>(Milan_Bytes_08, 8, name: nameof(Milan_Bytes_08));
 
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
-                UnkOffsetIndex3 = s.Serialize<byte>(UnkOffsetIndex3, name: nameof(UnkOffsetIndex3));
-
-            Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-            AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
-            Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
-
-            AnimationIndexTable = s.SerializeArray<byte>(AnimationIndexTable, AnimationsCount, name: nameof(AnimationIndexTable));
+                AnimationIndexTable = s.SerializeArray<ushort>(AnimationIndexTable, AnimationsCount, name: nameof(AnimationIndexTable));
+            }
         }
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            Palette = s.DoAt(OffsetTable.GetPointer(PaletteOffsetIndex), () => s.SerializeObject<GBA_SpritePalette>(Palette, name: nameof(Palette)));
-            TileSet = s.DoAt(OffsetTable.GetPointer(TileMapOffsetIndex), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, onPreSerialize: x =>
-            {
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina)
-                    x.IsDataCompressed = BitHelpers.ExtractBits(Byte_04, 1, 5) == 0;
-            }, name: nameof(TileSet)));
+            Palette = s.DoAt(OffsetTable.GetPointer(Index_Palette), () => s.SerializeObject<GBA_SpritePalette>(Palette, name: nameof(Palette)));
+
+            if (!s.GameSettings.GBA_IsMilan)
+                TileSet = s.DoAt(OffsetTable.GetPointer(Index_TileSet), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, onPreSerialize: x =>
+                {
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina)
+                        x.IsDataCompressed = BitHelpers.ExtractBits(Byte_04, 1, 5) == 0;
+                }, name: nameof(TileSet)));
+            else
+                Milan_TileKit = s.DoAt(OffsetTable.GetPointer(Index_TileSet), () => s.SerializeObject<GBA_TileKit>(Milan_TileKit, name: nameof(Milan_TileKit)));
 
             if (Animations == null)
                 Animations = new GBA_Animation[AnimationsCount];

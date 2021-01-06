@@ -5,7 +5,7 @@
         public ushort Index_ActorModel { get; set; }
         public short XPos { get; set; }
         public short YPos { get; set; }
-        public ushort Ushort_06 { get; set; } // Always 0?
+        public ushort ActionIndex { get; set; }
         public ushort XlateID { get; set; }
 
         public ushort UnkData1Count { get; set; }
@@ -21,7 +21,7 @@
             Index_ActorModel = s.Serialize<ushort>(Index_ActorModel, name: nameof(Index_ActorModel));
             XPos = s.Serialize<short>(XPos, name: nameof(XPos));
             YPos = s.Serialize<short>(YPos, name: nameof(YPos));
-            Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
+            ActionIndex = s.Serialize<ushort>(ActionIndex, name: nameof(ActionIndex));
             XlateID = s.Serialize<ushort>(XlateID, name: nameof(XlateID));
 
             UnkData1Count = s.Serialize<ushort>(UnkData1Count, name: nameof(UnkData1Count));

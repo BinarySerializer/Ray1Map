@@ -951,7 +951,7 @@ namespace R1Engine
         public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene, data));
         public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager)) ?? new Unity_Object_GBA[0];
         public virtual Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray();
-        public Unity_ObjGraphics GetCommonDesign(GBA_Puppet spr, bool is8bit)
+        public Unity_ObjGraphics GetCommonDesign(GBA_Puppet puppet, bool is8bit)
         {
             // Create the design
             var des = new Unity_ObjGraphics
@@ -960,24 +960,26 @@ namespace R1Engine
                 Animations = new List<Unity_ObjAnimation>(),
             };
 
-            if (spr == null)
+            if (puppet == null)
                 return des;
 
-            var length = spr.TileSet.TileSetLength / (is8bit ? 2 : 1);
-            var tileSet = spr.TileSet;
-            var pal = spr.Palette.Palette;
+            var tileSetLength = puppet.Context.Settings.GBA_IsMilan ? (is8bit ? puppet.Milan_TileKit.TileSet8bppSize : puppet.Milan_TileKit.TileSet4bppSize) : puppet.TileSet.TileSetLength;
+
+            var length = tileSetLength / (is8bit ? 2 : 1);
+            var tileSet = puppet.Context.Settings.GBA_IsMilan ? (is8bit ? puppet.Milan_TileKit.TileSet8bpp : puppet.Milan_TileKit.TileSet4bpp) : puppet.TileSet.TileSet;
+            var pal = puppet.Palette.Palette;
             const int tileWidth = 8;
             int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
-            var numPalettes = is8bit ? 1 : spr.Palette.Palette.Length / 16;
+            var numPalettes = is8bit ? 1 : puppet.Palette.Palette.Length / 16;
 
             // Add sprites for each palette
             var pal_split = Util.ConvertAndSplitGBAPalette((RGBA5551Color[])pal);
             for (int palIndex = 0; palIndex < numPalettes; palIndex++)
             {
-                var tileSetTex = Util.ToTileSetTexture(tileSet.TileSet, pal_split[palIndex], Util.TileEncoding.Linear_4bpp, CellSize, false, flipTileY: true);
+                var tileSetTex = Util.ToTileSetTexture(tileSet, pal_split[palIndex], Util.TileEncoding.Linear_4bpp, CellSize, false, flipTileY: true);
 
                 // Extract every sprite
-                for (int i = 0; i < tileSet.TileSetLength; i++) {
+                for (int i = 0; i < tileSetLength; i++) {
                     int x = i % 32;
                     int y = i / 32;
                     des.Sprites.Add(tileSetTex.CreateSprite(rect: new Rect(x * CellSize, y * CellSize, CellSize, CellSize)));
@@ -999,10 +1001,10 @@ namespace R1Engine
                 var imgIndex = l.ImageIndex / (is8bit ? 2 : 1);
 
                 if (imgIndex > length) {
-                    Controller.print($"Image index {imgIndex} too high (length {length}) @ : " + spr.Offset + " - " + l.Offset);
+                    Controller.print($"Image index {imgIndex} too high (length {length}) @ : " + puppet.Offset + " - " + l.Offset);
                 }
-                if (l.PaletteIndex > spr.Palette.Palette.Length / 16) {
-                    Controller.print("Palette index too high: " + spr.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (spr.Palette.Palette.Length / 16));
+                if (l.PaletteIndex > puppet.Palette.Palette.Length / 16) {
+                    Controller.print("Palette index too high: " + puppet.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (puppet.Palette.Palette.Length / 16));
                 }
                 float rot = l.GetRotation(a, s, frame);
                 Vector2 scl = l.GetScale(a, s, frame);
@@ -1043,7 +1045,7 @@ namespace R1Engine
             }
 
             // Add animations
-            foreach (var a in spr.Animations) 
+            foreach (var a in puppet.Animations) 
             {
                 var unityAnim = new Unity_ObjAnimation
                 {
@@ -1054,8 +1056,8 @@ namespace R1Engine
 
                 for (int i = 0; i < a.FrameCount; i++) {
                     frames.Add(new Unity_ObjAnimationFrame(
-                        a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray(),
-                        a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetCollisionPartsForLayer(spr, a, l)).Reverse().ToArray()
+                        a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(puppet, a, i, l)).Reverse().ToArray(),
+                        a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetCollisionPartsForLayer(puppet, a, l)).Reverse().ToArray()
                         ));
                 }
 
