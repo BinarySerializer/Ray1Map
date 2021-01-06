@@ -24,23 +24,23 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBA ObjManager { get; }
 
-        public GBA_Action State => ModelData?.Actions.ElementAtOrDefault(Actor.ActionIndex);
-        public Unity_ObjectManager_GBA.ModelData ModelData => ObjManager.ActorModels.ElementAtOrDefault(GraphicsDataIndex);
+        public GBA_Action Action => ModelData?.Actions.ElementAtOrDefault(Actor.ActionIndex);
+        public Unity_ObjectManager_GBA.ModelData ModelData => ObjManager.ActorModels.ElementAtOrDefault(ActorModelIndex);
 
         public override ObjectType Type => Actor.Type == GBA_Actor.ActorType.Waypoint ? ObjectType.Waypoint : Actor.Type == GBA_Actor.ActorType.Captor ? ObjectType.Trigger : ObjectType.Object;
 
-        public int GraphicsDataIndex
+        public int ActorModelIndex
         {
-            get => Actor.ActorModel == null ? -1 : ObjManager.GraphicsDataLookup.TryGetItem(Actor.ModelIndex, -1);
+            get => Actor.ActorModel == null ? -1 : ObjManager.GraphicsDataLookup.TryGetItem(Actor.Index_ActorModel, -1);
             set 
             {
                 if (Actor.ActorModel == null)
                     return;
 
-                if (value != GraphicsDataIndex) {
+                if (value != ActorModelIndex) {
                     Actor.ActionIndex = 0;
                     OverrideAnimIndex = null;
-                    Actor.ModelIndex = (byte)ObjManager.ActorModels[value].Index;
+                    Actor.Index_ActorModel = (byte)ObjManager.ActorModels[value].Index;
                 }
             }
         }
@@ -71,110 +71,7 @@ namespace R1Engine
             }
         }
 
-        public override string DebugText
-        {
-            get
-            {
-                var text = new StringBuilder();
-
-                text.AppendLine($"{nameof(Actor.Type)}: {Actor.Type}");
-
-                if (Actor.Type == GBA_Actor.ActorType.Unk)
-                {
-                    text.AppendLine($"{nameof(Actor.Index)}: {Actor.Index}");
-                    text.AppendLine($"{nameof(Actor.Unk_01)}: {Actor.Unk_01}");
-                    text.AppendLine($"{nameof(Actor.ActorSize)}: {Actor.ActorSize}");
-                    if (Actor.ActorSize >= 2)
-                    {
-                        text.AppendLine($"{nameof(Actor.Byte_04)}: {Actor.Byte_04}");
-                        text.AppendLine($"{nameof(Actor.ModelIndex)}: {Actor.ModelIndex}");
-                    }
-                    text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
-                }
-                else
-                {
-                    if (Actor.Type != GBA_Actor.ActorType.Captor)
-                    {
-                        text.AppendLine($"{nameof(Actor.Byte_04)}: {Actor.Byte_04}");
-                        text.AppendLine($"{nameof(Actor.ActorID)}: {Actor.ActorID}");
-
-                        if (ObjManager.Context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Actor.Type == GBA_Actor.ActorType.Actor || Actor.Type == GBA_Actor.ActorType.AlwaysActor)
-                        {
-                            text.AppendLine($"{nameof(Actor.ModelIndex)}: {Actor.ModelIndex}");
-                            text.AppendLine($"{nameof(Actor.ActionIndex)}: {Actor.ActionIndex}");
-                        }
-
-                        if (ObjManager.Context.Settings.EngineVersion > EngineVersion.GBA_BatmanVengeance && ObjManager.Context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow)
-                        {
-                            text.AppendLine($"{nameof(Actor.Link_0)}: {Actor.Link_0}");
-                            text.AppendLine($"{nameof(Actor.Link_1)}: {Actor.Link_1}");
-                            text.AppendLine($"{nameof(Actor.Link_2)}: {Actor.Link_2}");
-                            text.AppendLine($"{nameof(Actor.Link_3)}: {Actor.Link_3}");
-                        }
-
-                        if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCell
-                            && ObjManager.Context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow)
-                        {
-                            text.AppendLine($"{nameof(Actor.Short_0C)}: {Actor.Short_0C}");
-                            text.AppendLine($"{nameof(Actor.Short_0E)}: {Actor.Short_0E}");
-                            text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
-                        }
-                        else if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
-                        {
-                            if (Actor.Type == GBA_Actor.ActorType.Waypoint || Actor.Type == GBA_Actor.ActorType.Unk)
-                            {
-                                text.AppendLine($"{nameof(Actor.ActorSize)}: {Actor.ActorSize}");
-                                text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
-                            }
-                            else
-                            {
-                                text.AppendLine($"{nameof(Actor.Short_0C)}: {Actor.Short_0C}");
-                                text.AppendLine($"{nameof(Actor.ActorSize)}: {Actor.ActorSize}");
-                                text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        text.AppendLine($"{nameof(Actor.Byte_04)}: {Actor.Byte_04}");
-                        text.AppendLine($"{nameof(Actor.CaptorID)}: {Actor.CaptorID}");
-                        text.AppendLine($"{nameof(Actor.LinkedActorsCount)}: {Actor.LinkedActorsCount}");
-                        
-                        if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
-                            text.AppendLine($"{nameof(Actor.UnkData1)}: {BitConverter.ToString(Actor.UnkData1)}");
-
-                        text.AppendLine($"{nameof(Actor.CaptorDataOffsetIndex)}: {Actor.CaptorDataOffsetIndex}");
-
-                        if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
-                        {
-                            text.AppendLine($"{nameof(Actor.UnkData2)}: {BitConverter.ToString(Actor.UnkData2)}");
-                            text.AppendLine($"{nameof(Actor.ActorSize)}: {Actor.ActorSize}");
-                        }
-                        else
-                        {
-                            text.AppendLine($"{nameof(Actor.UnkData2)}: {BitConverter.ToString(Actor.UnkData2)}");
-                        }
-                        text.AppendLine($"{nameof(Actor.BoxMinY)}: {Actor.BoxMinY}");
-                        text.AppendLine($"{nameof(Actor.BoxMinX)}: {Actor.BoxMinX}");
-                        text.AppendLine($"{nameof(Actor.BoxMaxY)}: {Actor.BoxMaxY}");
-                        text.AppendLine($"{nameof(Actor.BoxMaxX)}: {Actor.BoxMaxX}");
-
-                        if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
-                            text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
-
-                        for (int i = 0; i < Actor.CaptorData.DataEntries.Length; i++)
-                        {
-                            text.AppendLine($"{nameof(Actor.CaptorData.DataEntries)}[{i}].{nameof(GBA_CaptorDataEntry.UShort_00)}: {Actor.CaptorData.DataEntries[i].UShort_00}");
-                            text.AppendLine($"{nameof(Actor.CaptorData.DataEntries)}[{i}].{nameof(GBA_CaptorDataEntry.LinkedActor)}: {Actor.CaptorData.DataEntries[i].LinkedActor}");
-                            text.AppendLine($"{nameof(Actor.CaptorData.DataEntries)}[{i}].{nameof(GBA_CaptorDataEntry.Byte_03)}: {Actor.CaptorData.DataEntries[i].Byte_03}");
-                            text.AppendLine($"{nameof(Actor.CaptorData.DataEntries)}[{i}].{nameof(GBA_CaptorDataEntry.UShort_04)}: {Actor.CaptorData.DataEntries[i].UShort_04}");
-                        }
-                    }
-                }
-
-                return text.ToString();
-            }
-        }
+        public override string DebugText => String.Empty;
 
         public override IEnumerable<int> Links
         {
@@ -200,6 +97,10 @@ namespace R1Engine
                             yield return d.LinkedActor;
                         }
                     }
+
+                if (Actor.Milan_Links != null)
+                    foreach (var l in Actor.Milan_Links)
+                        yield return l.LinkedActor;
             }
         }
 
@@ -215,12 +116,17 @@ namespace R1Engine
         {
             get
             {
-
                 if (Actor.Type == GBA_Actor.ActorType.Unk)
                     return null;
-                if (Actor.Type == GBA_Actor.ActorType.Captor) {
+
+                if (Actor.Type == GBA_Actor.ActorType.Captor)
                     return $"Captor_{(int)Actor.CaptorID}";
-                }
+
+                if (ModelData?.Name != null)
+                    return ModelData.Name;
+
+                if (ObjManager.Context.Settings.GBA_IsMilan)
+                    return $"Actor";
 
                 return $"ID_{Actor.ActorID}";
             }
@@ -229,7 +135,7 @@ namespace R1Engine
         {
             get
             {
-                if (Actor.Type == GBA_Actor.ActorType.Captor)
+                if (Actor.Type == GBA_Actor.ActorType.Captor && !ObjManager.Context.Settings.GBA_IsMilan)
                     return $"Trigger ({Actor.CaptorID})";
 
                 if (ObjManager.Context.Settings.Game == Game.GBA_Rayman3)
@@ -239,18 +145,18 @@ namespace R1Engine
             }
         }
 
-        public override bool FlipHorizontally => State?.Flags.HasFlag(GBA_Action.ActorStateFlags.HorizontalFlip) ?? false;
-        public override bool FlipVertically => State?.Flags.HasFlag(GBA_Action.ActorStateFlags.VerticalFlip) ?? false;
+        public override bool FlipHorizontally => Action?.Flags.HasFlag(GBA_Action.ActorStateFlags.HorizontalFlip) ?? false;
+        public override bool FlipVertically => Action?.Flags.HasFlag(GBA_Action.ActorStateFlags.VerticalFlip) ?? false;
 
         private Unity_ObjAnimationCollisionPart[] objCollision;
         private GBA_Action prevAction;
         public override Unity_ObjAnimationCollisionPart[] ObjCollision {
             get {
-                if (objCollision == null || prevAction != State)
+                if (objCollision == null || prevAction != Action)
                 {
-                    prevAction = State;
+                    prevAction = Action;
 
-                    if (Actor.Type == GBA_Actor.ActorType.Captor)
+                    if (Actor.Type == GBA_Actor.ActorType.Captor && !ObjManager.Context.Settings.GBA_IsMilan)
                         objCollision = new Unity_ObjAnimationCollisionPart[]
                         {
                             new Unity_ObjAnimationCollisionPart()
@@ -269,10 +175,10 @@ namespace R1Engine
                         {
                             new Unity_ObjAnimationCollisionPart
                             {
-                                XPosition = State?.Hitbox_X1 ?? 0,
-                                YPosition = State?.Hitbox_Y1 ?? 0,
-                                Width = (State?.Hitbox_X2 - State?.Hitbox_X1) ?? 0,
-                                Height = (State?.Hitbox_Y2 - State?.Hitbox_Y1) ?? 0,
+                                XPosition = Action?.Hitbox_X1 ?? 0,
+                                YPosition = Action?.Hitbox_Y1 ?? 0,
+                                Width = (Action?.Hitbox_X2 - Action?.Hitbox_X1) ?? 0,
+                                Height = (Action?.Hitbox_Y2 - Action?.Hitbox_Y1) ?? 0,
                                 Type = Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox
                             }
                         };
@@ -289,8 +195,8 @@ namespace R1Engine
         public override Unity_ObjAnimation CurrentAnimation => ModelData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
-        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? Actor.ActionIndex;
-        protected override int GetSpriteID => GraphicsDataIndex;
+        public override int? GetAnimIndex => OverrideAnimIndex ?? Action?.AnimationIndex ?? Actor.ActionIndex;
+        protected override int GetSpriteID => ActorModelIndex;
         public override IList<Sprite> Sprites => ModelData?.Graphics.Sprites;
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
@@ -310,14 +216,14 @@ namespace R1Engine
 
             public int DES
             {
-                get => Obj.GraphicsDataIndex;
-                set => Obj.GraphicsDataIndex = value;
+                get => Obj.ActorModelIndex;
+                set => Obj.ActorModelIndex = value;
             }
 
             public int ETA
             {
-                get => Obj.GraphicsDataIndex;
-                set => Obj.GraphicsDataIndex = value;
+                get => Obj.ActorModelIndex;
+                set => Obj.ActorModelIndex = value;
             }
 
             public byte Etat { get; set; }
@@ -349,7 +255,7 @@ namespace R1Engine
 
 		#region UI States
 		protected int UIStates_GraphicsDataIndex { get; set; } = -2;
-        protected override bool IsUIStateArrayUpToDate => GraphicsDataIndex == UIStates_GraphicsDataIndex;
+        protected override bool IsUIStateArrayUpToDate => ActorModelIndex == UIStates_GraphicsDataIndex;
 
         protected class GBA_UIState : UIState {
             public GBA_UIState(string displayName, byte stateIndex) : base(displayName) {
@@ -378,7 +284,7 @@ namespace R1Engine
         }
 
         protected override void RecalculateUIStates() {
-            UIStates_GraphicsDataIndex = GraphicsDataIndex;
+            UIStates_GraphicsDataIndex = ActorModelIndex;
             var states = ModelData?.Actions;
             var anims = ModelData?.Graphics.Animations;
             HashSet<int> usedAnims = new HashSet<int>();

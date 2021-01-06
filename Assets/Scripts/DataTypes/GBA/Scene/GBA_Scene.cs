@@ -117,16 +117,16 @@ namespace R1Engine
             {
                 if (actors[i].Type == GBA_Actor.ActorType.Captor)
                 {
-                    actors[i].CaptorData = s.DoAt(OffsetTable.GetPointer(actors[i].CaptorDataOffsetIndex, isRelativeOffset: IsGCNBlock),
+                    actors[i].CaptorData = s.DoAt(OffsetTable.GetPointer(actors[i].Index_CaptorData, isRelativeOffset: IsGCNBlock),
                         () => s.SerializeObject<GBA_CaptorData>(actors[i].CaptorData,
                         onPreSerialize: bab => {
                             bab.IsGCNBlock = IsGCNBlock;
                             bab.Length = actors[i].LinkedActorsCount;
                             }, name: $"{nameof(GBA_Actor.CaptorData)}[{i}]"));
                 }
-                else if (actors[i].Type != GBA_Actor.ActorType.Waypoint && actors[i].Type != GBA_Actor.ActorType.Unk && actors[i].ModelIndex < OffsetTable.OffsetsCount)
+                else if (actors[i].Type != GBA_Actor.ActorType.Waypoint && actors[i].Type != GBA_Actor.ActorType.Unk && actors[i].Index_ActorModel < OffsetTable.OffsetsCount)
                 {
-                    actors[i].ActorModel = s.DoAt(OffsetTable.GetPointer(actors[i].ModelIndex),
+                    actors[i].ActorModel = s.DoAt(OffsetTable.GetPointer(actors[i].Index_ActorModel),
                         () => s.SerializeObject<GBA_ActorModel>(actors[i].ActorModel,
                             name: $"{nameof(GBA_Actor.ActorModel)}[{i}]"));
                 }
@@ -140,10 +140,10 @@ namespace R1Engine
 
             for (var i = 0; i < actors.Length; i++) {
                 if (actors[i].Type == GBA_Actor.ActorType.Captor) {
-                    var ind = actors[i].CaptorDataOffsetIndex;
+                    var ind = actors[i].Index_CaptorData;
                     if (ind != 0xFF && (ind + 1) >= max) max = ind + 1;
                 } else if (actors[i].Type != GBA_Actor.ActorType.Waypoint && actors[i].Type != GBA_Actor.ActorType.Unk) {
-                    var ind = actors[i].ModelIndex;
+                    var ind = actors[i].Index_ActorModel;
                     if (ind != 0xFF && (ind + 1) >= max) max = ind + 1;
                 }
             }

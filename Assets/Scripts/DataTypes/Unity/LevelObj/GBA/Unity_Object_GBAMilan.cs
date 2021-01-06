@@ -7,16 +7,16 @@ namespace R1Engine
 {
     public class Unity_Object_GBAMilan : Unity_Object
     {
-        public Unity_Object_GBAMilan(GBA_Milan_Actor actor, Unity_ObjectManager_GBA objManager)
+        public Unity_Object_GBAMilan(GBA_Actor actor, Unity_ObjectManager_GBA objManager)
         {
             // Set properties
             Actor = actor;
             ObjManager = objManager;
         }
 
-        public bool IsCaptor => Actor.IsCaptor;
+        public bool IsCaptor => Actor.Type == GBA_Actor.ActorType.Captor;
 
-        public GBA_Milan_Actor Actor { get; }
+        public GBA_Actor Actor { get; }
 
         public Unity_ObjectManager_GBA ObjManager { get; }
 
@@ -61,7 +61,7 @@ namespace R1Engine
         public override string SecondaryName => null;
 
         public override bool CanBeLinked => true;
-        public override IEnumerable<int> Links => Actor.Links.Select(x => (int)x.LinkedActor);
+        public override IEnumerable<int> Links => Actor.Milan_Links.Select(x => (int)x.LinkedActor);
 
         public override Unity_ObjAnimation CurrentAnimation => IsCaptor ? null : ModelData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;

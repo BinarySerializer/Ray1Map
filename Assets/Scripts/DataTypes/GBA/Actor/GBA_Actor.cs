@@ -11,7 +11,7 @@
         
         public byte ActorID { get; set; }
         
-        public byte ModelIndex { get; set; }
+        public ushort Index_ActorModel { get; set; }
 
         public byte ActionIndex { get; set; }
 
@@ -22,8 +22,8 @@
 
         // For specific actor types
         public ActorType Type { get; set; }
-        // BoxActor
-        public byte CaptorDataOffsetIndex { get; set; }
+        // Captor
+        public byte Index_CaptorData { get; set; }
         public byte[] UnkData1 { get; set; }
         public byte[] UnkData2 { get; set; }
         public short BoxMinY { get; set; }
@@ -45,6 +45,14 @@
         // Star Wars Trilogy & above
         public ushort ActorSize { get; set; }
 
+        // Milan
+        public ushort Milan_Ushort_06 { get; set; }
+        public ushort Milan_XlateID { get; set; }
+        public ushort Milan_LinksCount { get; set; }
+        public Milan_ActorLink[] Milan_Links { get; set; }
+        public ushort DialogCount { get; set; }
+        public ushort[] DialogTable { get; set; } // Loc indices for the dialog boxes when interacting with the actor
+
         #endregion
 
         #region Parsed
@@ -59,13 +67,43 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
+            if (s.GameSettings.GBA_IsMilan)
+            {
+                if (Type == ActorType.Actor)
+                {
+                    Index_ActorModel = s.Serialize<ushort>(Index_ActorModel, name: nameof(Index_ActorModel));
+                    XPos = s.Serialize<short>(XPos, name: nameof(XPos));
+                    YPos = s.Serialize<short>(YPos, name: nameof(YPos));
+                    Milan_Ushort_06 = s.Serialize<ushort>(Milan_Ushort_06, name: nameof(Milan_Ushort_06));
+                    Milan_XlateID = s.Serialize<ushort>(Milan_XlateID, name: nameof(Milan_XlateID));
+
+                    Milan_LinksCount = s.Serialize<ushort>(Milan_LinksCount, name: nameof(Milan_LinksCount));
+                    Milan_Links = s.SerializeObjectArray<Milan_ActorLink>(Milan_Links, Milan_LinksCount, name: nameof(Milan_Links));
+
+                    UnkData1 = s.SerializeArray<byte>(UnkData1, 12, name: nameof(UnkData1));
+
+                    DialogCount = s.Serialize<ushort>(DialogCount, name: nameof(DialogCount));
+                    DialogTable = s.SerializeArray<ushort>(DialogTable, DialogCount, name: nameof(DialogTable));
+                }
+                else
+                {
+                    XPos = s.Serialize<short>(XPos, name: nameof(XPos));
+                    YPos = s.Serialize<short>(YPos, name: nameof(YPos));
+                    Milan_Ushort_06 = s.Serialize<ushort>(Milan_Ushort_06, name: nameof(Milan_Ushort_06));
+                    Milan_XlateID = s.Serialize<ushort>(Milan_XlateID, name: nameof(Milan_XlateID));
+                    UnkData1 = s.SerializeArray<byte>(UnkData1, 6, name: nameof(UnkData1)); // Last ushort here seems to be the level the trigger should load
+                }
+
+                return;
+            }
+
             if (Type == ActorType.Unk) {
                 Index = s.Serialize<byte>(Index, name: nameof(Index));
                 Unk_01 = s.Serialize<byte>(Unk_01, name: nameof(Unk_01));
                 ActorSize = s.Serialize<ushort>(ActorSize, name: nameof(ActorSize));
                 if (ActorSize >= 2) {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-                    ModelIndex = s.Serialize<byte>(ModelIndex, name: nameof(ModelIndex));
+                    Index_ActorModel = s.Serialize<byte>((byte)Index_ActorModel, name: nameof(Index_ActorModel));
                 }
                 ExtraData = s.SerializeArray<byte>(ExtraData, ActorSize - (s.CurrentPointer - Offset), name: nameof(ExtraData));
             } else {
@@ -77,7 +115,7 @@
                     ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
 
                     if (s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Type == ActorType.Actor || Type == ActorType.AlwaysActor) {
-                        ModelIndex = s.Serialize<byte>(ModelIndex, name: nameof(ModelIndex));
+                        Index_ActorModel = s.Serialize<byte>((byte)Index_ActorModel, name: nameof(Index_ActorModel));
                         ActionIndex = s.Serialize<byte>(ActionIndex, name: nameof(ActionIndex));
                     }
 
@@ -120,7 +158,7 @@
                             CaptorID = (CaptorType)bitFunc((byte)CaptorID, 3, name: nameof(CaptorID));
                         });
                     }
-                    CaptorDataOffsetIndex = s.Serialize<byte>(CaptorDataOffsetIndex, name: nameof(CaptorDataOffsetIndex));
+                    Index_CaptorData = s.Serialize<byte>(Index_CaptorData, name: nameof(Index_CaptorData));
 
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                         UnkData2 = s.SerializeArray<byte>(UnkData2, 1, name: nameof(UnkData2));
@@ -167,6 +205,18 @@
             Unk_5,
             Unk_6,
             Unk_7,
+        }
+
+        public class Milan_ActorLink : R1Serializable
+        {
+            public ushort Ushort_00 { get; set; }
+            public ushort LinkedActor { get; set; }
+
+            public override void SerializeImpl(SerializerObject s)
+            {
+                Ushort_00 = s.Serialize<ushort>(Ushort_00, name: nameof(Ushort_00));
+                LinkedActor = s.Serialize<ushort>(LinkedActor, name: nameof(LinkedActor));
+            }
         }
     }
 }

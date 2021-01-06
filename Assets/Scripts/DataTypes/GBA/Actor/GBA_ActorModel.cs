@@ -14,21 +14,38 @@
         public GBA_Puppet Puppet { get; set; }
         public GBA_BatmanVengeance_Puppet Puppet_BatmanVengeance { get; set; }
 
+        // Milan
+        public string Milan_ActorID { get; set; }
+        public GBA_Milan_BasePuppet BasePuppet { get; set; }
+        public GBA_Milan_ActionTable ActionTable { get; set; }
+
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance) {
-                UnkData = s.SerializeArray<byte>(UnkData, 8, name: nameof(UnkData));
+            if (s.GameSettings.GBA_IsMilan)
+            {
+                Milan_ActorID = s.SerializeString(Milan_ActorID, length: 4, name: nameof(Milan_ActorID));
+                s.SerializeArray<byte>(new byte[8], 8, name: "Padding");
             }
+            else
+            {
+                if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance)
+                {
+                    UnkData = s.SerializeArray<byte>(UnkData, 8, name: nameof(UnkData));
+                }
 
-            Index_Puppet = s.Serialize<byte>(Index_Puppet, name: nameof(Index_Puppet));
-            Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
-            Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
-            Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
+                Index_Puppet = s.Serialize<byte>(Index_Puppet, name: nameof(Index_Puppet));
+                Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
+                Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
+                Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
-                Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 4) / 12, name: nameof(Actions));
-            } else {
-                Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 12) / 8, name: nameof(Actions));
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                {
+                    Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 4) / 12, name: nameof(Actions));
+                }
+                else
+                {
+                    Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 12) / 8, name: nameof(Actions));
+                }
             }
         }
 
@@ -37,17 +54,25 @@
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) 
             {
                 Puppet_BatmanVengeance = s.DoAt(OffsetTable.GetPointer(Index_Puppet), () => s.SerializeObject<GBA_BatmanVengeance_Puppet>(Puppet_BatmanVengeance, name: nameof(Puppet_BatmanVengeance)));
-            } 
+            }
+            else if (s.GameSettings.GBA_IsMilan)
+            {
+                BasePuppet = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Milan_BasePuppet>(BasePuppet, name: nameof(BasePuppet)));
+                ActionTable = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBA_Milan_ActionTable>(ActionTable, name: nameof(ActionTable)));
+            }
             else 
             {
                 Puppet = s.DoAt(OffsetTable.GetPointer(Index_Puppet), () => s.SerializeObject<GBA_Puppet>(Puppet, name: nameof(Puppet)));
             }
 
-            // Parse state data
-            for (var i = 0; i < Actions.Length; i++)
+            if (!s.GameSettings.GBA_IsMilan)
             {
-                if (Actions[i].StateDataType != -1)
-                    Actions[i].StateData = s.DoAt(OffsetTable.GetPointer(Actions[i].Index_StateData), () => s.SerializeObject<GBA_ActorStateData>(Actions[i].StateData, name: $"{nameof(GBA_Action.StateData)}[{i}]"));
+                // Parse state data
+                for (var i = 0; i < Actions.Length; i++)
+                {
+                    if (Actions[i].StateDataType != -1)
+                        Actions[i].StateData = s.DoAt(OffsetTable.GetPointer(Actions[i].Index_StateData), () => s.SerializeObject<GBA_ActorStateData>(Actions[i].StateData, name: $"{nameof(GBA_Action.StateData)}[{i}]"));
+                }
             }
         }
     }

@@ -1074,13 +1074,13 @@ namespace R1Engine
 
             foreach (var actor in scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0])
             {
-                if (graphicsData.Any(x => x.Index == actor.ModelIndex))
+                if (graphicsData.Any(x => x.Index == actor.Index_ActorModel))
                     continue;
 
                 if (actor.ActorModel == null)
                     continue;
 
-                graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.ModelIndex, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel, data)));
+                graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.Index_ActorModel, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel, data)));
             }
 
             return graphicsData.ToArray();

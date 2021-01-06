@@ -14,9 +14,9 @@ namespace R1Engine
                         index: i, 
                         actions: x.ActionTable.ActionBlocks.Select(y => y.Action).ToArray(), 
                         graphics: GetCommonDesign(x.BasePuppet.Puppet, x.BasePuppet.Puppet.Milan_TileKit.Is8bpp), 
-                        name: x.ActorID)).ToArray());
+                        name: x.Milan_ActorID)).ToArray());
 
-        public override IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => data.Milan_SceneList.Scene.ActorsBlock.Actors.Concat(data.Milan_SceneList.Scene.CaptorsBlock.Actors).Select(x => new Unity_Object_GBAMilan(x, (Unity_ObjectManager_GBA)objManager));
+        public override IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => data.Milan_SceneList.Scene.ActorsBlock.Actors.Concat(data.Milan_SceneList.Scene.CaptorsBlock.Actors).Select(x => new Unity_Object_GBA(x, (Unity_ObjectManager_GBA)objManager));
 
         public override Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => null;
 

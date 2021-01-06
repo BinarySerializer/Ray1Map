@@ -272,9 +272,9 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.GBA_ActorID = gbaObj.Actor.ActorID;
 					webObj.GBA_Action = gbaObj.Actor.ActionIndex;
 
-					if (gbaObj.GraphicsDataIndex != -1)
+					if (gbaObj.ActorModelIndex != -1)
                     {
-                        webObj.GBA_ActorModelIndex = gbaObj.GraphicsDataIndex;
+                        webObj.GBA_ActorModelIndex = gbaObj.ActorModelIndex;
 
                         if (includeLists)
                             webObj.GBA_ActorModelNames = gbaObj.ObjManager.ActorModels.Select(x => x.DisplayName).ToArray();
@@ -614,8 +614,8 @@ public class WebCommunicator : MonoBehaviour {
 				}
 				break;
 			case Unity_Object_GBA gbao:
-				if (msg.GBA_ActorModelIndex.HasValue && gbao.GraphicsDataIndex != msg.GBA_ActorModelIndex.Value) {
-					gbao.GraphicsDataIndex = msg.GBA_ActorModelIndex.Value;
+				if (msg.GBA_ActorModelIndex.HasValue && gbao.ActorModelIndex != msg.GBA_ActorModelIndex.Value) {
+					gbao.ActorModelIndex = msg.GBA_ActorModelIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
