@@ -47,7 +47,7 @@
             for (var i = 0; i < Actions.Length; i++)
             {
                 if (Actions[i].StateDataType != -1)
-                    Actions[i].StateData = s.DoAt(OffsetTable.GetPointer(Actions[i].StateDataOffsetIndex), () => s.SerializeObject<GBA_ActorStateData>(Actions[i].StateData, name: $"{nameof(GBA_Action.StateData)}[{i}]"));
+                    Actions[i].StateData = s.DoAt(OffsetTable.GetPointer(Actions[i].Index_StateData), () => s.SerializeObject<GBA_ActorStateData>(Actions[i].StateData, name: $"{nameof(GBA_Action.StateData)}[{i}]"));
             }
         }
     }

@@ -277,7 +277,7 @@ public class WebCommunicator : MonoBehaviour {
                         webObj.GBA_ActorModelIndex = gbaObj.GraphicsDataIndex;
 
                         if (includeLists)
-                            webObj.GBA_ActorModelNames = gbaObj.ObjManager.GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
+                            webObj.GBA_ActorModelNames = gbaObj.ObjManager.ActorModels.Select(x => x.DisplayName).ToArray();
                     }
 					break;
 				case Unity_Object_GBAIsometricRHR rhrObj:

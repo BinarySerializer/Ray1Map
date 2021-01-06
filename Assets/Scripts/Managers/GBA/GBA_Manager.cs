@@ -1068,9 +1068,9 @@ namespace R1Engine
             return des;
         }
 
-        public Unity_ObjectManager_GBA.GraphicsData[] LoadActorModels(Context context, GBA_Scene scene, GBA_Data data)
+        public Unity_ObjectManager_GBA.ModelData[] LoadActorModels(Context context, GBA_Scene scene, GBA_Data data)
         {
-            var graphicsData = new List<Unity_ObjectManager_GBA.GraphicsData>();
+            var graphicsData = new List<Unity_ObjectManager_GBA.ModelData>();
 
             foreach (var actor in scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0])
             {
@@ -1080,7 +1080,7 @@ namespace R1Engine
                 if (actor.ActorModel == null)
                     continue;
 
-                graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.ModelIndex, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel, data)));
+                graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.ModelIndex, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel, data)));
             }
 
             return graphicsData.ToArray();

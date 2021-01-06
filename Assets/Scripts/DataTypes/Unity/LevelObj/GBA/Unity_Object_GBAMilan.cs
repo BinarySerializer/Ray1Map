@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class Unity_Object_GBAMilan : Unity_Object
     {
-        public Unity_Object_GBAMilan(GBA_Milan_Actor actor, Unity_ObjectManager_GBAMilan objManager)
+        public Unity_Object_GBAMilan(GBA_Milan_Actor actor, Unity_ObjectManager_GBA objManager)
         {
             // Set properties
             Actor = actor;
@@ -18,10 +18,10 @@ namespace R1Engine
 
         public GBA_Milan_Actor Actor { get; }
 
-        public Unity_ObjectManager_GBAMilan ObjManager { get; }
+        public Unity_ObjectManager_GBA ObjManager { get; }
 
-        public GBA_Milan_Action State => ModelData?.Model.ActionTable.Actions.ElementAtOrDefault(Actor.ActionIndex);
-        public Unity_ObjectManager_GBAMilan.ModelData ModelData => ObjManager.ActorModels.ElementAtOrDefault(GraphicsDataIndex);
+        public GBA_Action State => ModelData?.Actions.ElementAtOrDefault(Actor.ActionIndex);
+        public Unity_ObjectManager_GBA.ModelData ModelData => ObjManager.ActorModels.ElementAtOrDefault(GraphicsDataIndex);
 
         public int GraphicsDataIndex
         {
@@ -57,7 +57,7 @@ namespace R1Engine
 
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => IsCaptor ? "Captor" : ModelData?.Model.ActorID ?? $"Actor";
+        public override string PrimaryName => IsCaptor ? "Captor" : ModelData?.Name ?? $"Actor";
         public override string SecondaryName => null;
 
         public override bool CanBeLinked => true;
@@ -66,7 +66,7 @@ namespace R1Engine
         public override Unity_ObjAnimation CurrentAnimation => IsCaptor ? null : ModelData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
-        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimIndex;
+        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex;
         protected override int GetSpriteID => GraphicsDataIndex;
         public override IList<Sprite> Sprites => ModelData?.Graphics.Sprites;
 
@@ -102,7 +102,7 @@ namespace R1Engine
             }
 
             public int EtatLength => 0;
-            public int SubEtatLength => Obj.ModelData?.Model.ActionTable.Actions.Length ?? 0;
+            public int SubEtatLength => Obj.ModelData?.Actions.Length ?? 0;
 
             public byte OffsetBX { get; set; }
 
@@ -152,14 +152,14 @@ namespace R1Engine
 
         protected override void RecalculateUIStates() {
             UIStates_GraphicsDataIndex = GraphicsDataIndex;
-            var states = ModelData?.Model.ActionTable.Actions;
+            var states = ModelData?.Actions;
             var anims = ModelData?.Graphics.Animations;
             HashSet<int> usedAnims = new HashSet<int>();
             List<UIState> uiStates = new List<UIState>();
             if (states != null) {
                 for (byte i = 0; i < states.Length; i++) {
-                    uiStates.Add(new GBA_UIState($"State {i} (Animation {states[i].AnimIndex})", stateIndex: i));
-                    usedAnims.Add(states[i].AnimIndex);
+                    uiStates.Add(new GBA_UIState($"State {i} (Animation {states[i].AnimationIndex})", stateIndex: i));
+                    usedAnims.Add(states[i].AnimationIndex);
                 }
             }
             if (anims != null) {

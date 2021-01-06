@@ -1,45 +1,48 @@
-﻿using System;
+﻿using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.Linq;
-using R1Engine.Serialize;
-using UnityEngine;
 
 namespace R1Engine
 {
     public class Unity_ObjectManager_GBA : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBA(Context context, GraphicsData[] graphicsDatas) : base(context)
+        public Unity_ObjectManager_GBA(Context context, ModelData[] actorModels) : base(context)
         {
-            GraphicsDatas = graphicsDatas;
-            if (GraphicsDatas != null) {
-                for (int i = 0; i < GraphicsDatas.Length; i++) {
-                    GraphicsDataLookup[GraphicsDatas[i]?.Index ?? 0] = i;
+            ActorModels = actorModels;
+            if (ActorModels != null) {
+                for (int i = 0; i < ActorModels.Length; i++) {
+                    GraphicsDataLookup[ActorModels[i]?.Index ?? 0] = i;
                 }
             }
         }
 
-        public GraphicsData[] GraphicsDatas { get; }
+        public ModelData[] ActorModels { get; }
         public Dictionary<int, int> GraphicsDataLookup { get; } = new Dictionary<int, int>();
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_GBA>().FindItem(x => x.Actor.ActorID == 0);
+        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.OfType<Unity_Object_GBA>().FindItem(x => x.Actor.ActorID == 0);
 
-        public override string[] LegacyDESNames => GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
+        public override string[] LegacyDESNames => ActorModels.Select(x => x.DisplayName).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
 
-        public class GraphicsData
+        public class ModelData
         {
-            public GraphicsData(int index, GBA_Action[] states, Unity_ObjGraphics graphics)
+            public ModelData(int index, GBA_Action[] actions, Unity_ObjGraphics graphics, string name = null)
             {
                 Index = index;
-                States = states;
+                Actions = actions;
                 Graphics = graphics;
+                Name = name;
             }
 
             public int Index { get; }
 
-            public GBA_Action[] States { get; }
+            public GBA_Action[] Actions { get; }
 
             public Unity_ObjGraphics Graphics { get; }
+
+            public string Name { get; }
+
+            public string DisplayName => Name == null ? $"{Index}" : $"{Index}_{Name}";
         }
     }
 }
