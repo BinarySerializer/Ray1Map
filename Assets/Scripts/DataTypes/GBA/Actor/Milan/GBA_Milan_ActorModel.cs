@@ -6,6 +6,7 @@
 
         // Parsed from offsets
         public GBA_Milan_BasePuppet BasePuppet { get; set; }
+        public GBA_Milan_ActionTable ActionTable { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -15,7 +16,7 @@
         public override void SerializeOffsetData(SerializerObject s)
         {
             BasePuppet = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Milan_BasePuppet>(BasePuppet, name: nameof(BasePuppet)));
-            // Block 1 has action block array
+            ActionTable = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBA_Milan_ActionTable>(ActionTable, name: nameof(ActionTable)));
         }
     }
 }
