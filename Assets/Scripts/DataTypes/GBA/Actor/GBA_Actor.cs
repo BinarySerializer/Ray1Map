@@ -53,6 +53,9 @@
         public ushort DialogCount { get; set; }
         public ushort[] DialogTable { get; set; } // Loc indices for the dialog boxes when interacting with the actor
 
+        public ushort Milan_CaptorIndicesCount { get; set; }
+        public ushort[] Milan_CaptorIndices { get; set; }
+
         #endregion
 
         #region Parsed
@@ -91,7 +94,12 @@
                     YPos = s.Serialize<short>(YPos, name: nameof(YPos));
                     Milan_Ushort_06 = s.Serialize<ushort>(Milan_Ushort_06, name: nameof(Milan_Ushort_06));
                     Milan_XlateID = s.Serialize<ushort>(Milan_XlateID, name: nameof(Milan_XlateID));
-                    UnkData1 = s.SerializeArray<byte>(UnkData1, 6, name: nameof(UnkData1)); // Last ushort here seems to be the level the trigger should load
+
+                    Milan_LinksCount = s.Serialize<ushort>(Milan_LinksCount, name: nameof(Milan_LinksCount));
+                    Milan_Links = s.SerializeObjectArray<Milan_ActorLink>(Milan_Links, Milan_LinksCount, name: nameof(Milan_Links));
+
+                    Milan_CaptorIndicesCount = s.Serialize<ushort>(Milan_CaptorIndicesCount, name: nameof(Milan_CaptorIndicesCount));
+                    Milan_CaptorIndices = s.SerializeArray<ushort>(Milan_CaptorIndices, Milan_CaptorIndicesCount, name: nameof(Milan_CaptorIndices));
                 }
 
                 return;
