@@ -46,6 +46,7 @@ namespace R1Engine
         public virtual string GetROMFilePath(Context context) => $"ROM.gba";
         public virtual string GetGameCubeManifestFilePath => $"gba.nfo";
 
+        public virtual long ActorTypeTableLength => 0;
         public abstract IEnumerable<int>[] WorldLevels { get; }
         public int LevelCount => WorldLevels.Select(x => x.Count()).Sum();
         public abstract int[] MenuLevels { get; }

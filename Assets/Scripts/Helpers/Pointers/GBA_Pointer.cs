@@ -10,6 +10,7 @@
         Localization,
         VignettePalettes,
         Vignette,
-        MadTrax_Sprites
+        MadTrax_Sprites,
+        ActorTypeTable
     }
 }

@@ -2,7 +2,7 @@
 {
     public class GBA_Milan_ActorModel : GBA_BaseBlock
     {
-        public string ModelIdentifier { get; set; }
+        public string ActorID { get; set; }
 
         // Parsed from offsets
         public GBA_Milan_BasePuppet BasePuppet { get; set; }
@@ -10,7 +10,8 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            ModelIdentifier = s.SerializeString(ModelIdentifier, length: 12, name: nameof(ModelIdentifier));
+            ActorID = s.SerializeString(ActorID, length: 4, name: nameof(ActorID));
+            s.SerializeArray<byte>(new byte[8], 8, name: "Padding");
         }
 
         public override void SerializeOffsetData(SerializerObject s)

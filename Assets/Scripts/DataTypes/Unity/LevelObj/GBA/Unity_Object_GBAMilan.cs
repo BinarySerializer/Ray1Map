@@ -53,7 +53,7 @@ namespace R1Engine
 
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => ModelData?.Model.ModelIdentifier ?? $"Actor";
+        public override string PrimaryName => ModelData?.Model.ActorID ?? $"Actor";
         public override string SecondaryName => null;
 
         public override Unity_ObjAnimation CurrentAnimation => null;
