@@ -14,6 +14,8 @@ namespace R1Engine
             ObjManager = objManager;
         }
 
+        public bool IsCaptor => Actor.IsCaptor;
+
         public GBA_Milan_Actor Actor { get; }
 
         public Unity_ObjectManager_GBAMilan ObjManager { get; }
@@ -23,7 +25,7 @@ namespace R1Engine
 
         public int GraphicsDataIndex
         {
-            get => ObjManager.GraphicsDataLookup.TryGetItem(Actor.Index_ActorModel, -1);
+            get => IsCaptor ? -1 : ObjManager.GraphicsDataLookup.TryGetItem(Actor.Index_ActorModel, -1);
             set
             {
                 if (value != GraphicsDataIndex)
@@ -49,14 +51,19 @@ namespace R1Engine
 
         public override string DebugText => String.Empty;
 
+        public override ObjectType Type => IsCaptor ? ObjectType.Trigger : ObjectType.Object;
+
         public override R1Serializable SerializableData => Actor;
 
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => ModelData?.Model.ActorID ?? $"Actor";
+        public override string PrimaryName => IsCaptor ? "Captor" : ModelData?.Model.ActorID ?? $"Actor";
         public override string SecondaryName => null;
 
-        public override Unity_ObjAnimation CurrentAnimation => ModelData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
+        public override bool CanBeLinked => true;
+        public override IEnumerable<int> Links => Actor.Links.Select(x => (int)x.LinkedActor);
+
+        public override Unity_ObjAnimation CurrentAnimation => IsCaptor ? null : ModelData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimIndex;

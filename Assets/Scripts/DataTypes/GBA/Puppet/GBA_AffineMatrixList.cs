@@ -5,12 +5,17 @@ namespace R1Engine
 {
     public class GBA_AffineMatrixList : GBA_BaseBlock
     {
+        public byte[] Milan_Header { get; set; } // First byte is the frame count
+
         public int FrameCount { get; set; }
         public ushort[] MatrixOffsets { get; set; }
         public GBA_AffineMatrix[][] Matrices { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
+            if (s.GameSettings.GBA_IsMilan)
+                Milan_Header = s.SerializeArray<byte>(Milan_Header, 4, name: nameof(Milan_Header));
+
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                 MatrixOffsets = s.SerializeArray<ushort>(MatrixOffsets, FrameCount, name: nameof(MatrixOffsets));
                 s.Align(4);

@@ -19,7 +19,7 @@ namespace R1Engine
         public ModelData[] ActorModels { get; }
         public Dictionary<int, int> GraphicsDataLookup { get; } = new Dictionary<int, int>();
 
-        public override string[] LegacyDESNames => ActorModels.Select(x => x.Index.ToString()).ToArray();
+        public override string[] LegacyDESNames => ActorModels.Select(x => x.Model.ActorID).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
 
         public class ModelData

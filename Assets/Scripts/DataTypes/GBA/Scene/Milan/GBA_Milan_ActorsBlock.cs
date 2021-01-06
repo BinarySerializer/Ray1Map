@@ -2,6 +2,8 @@
 {
     public class GBA_Milan_ActorsBlock : GBA_BaseBlock
     {
+        public bool IsCaptor { get; set; } // Set before serializing
+
         public uint ActorsCount { get; set; }
         public GBA_Milan_Actor[] Actors { get; set; }
 
@@ -14,11 +16,14 @@
             ActorsCount = s.Serialize<uint>(ActorsCount, name: nameof(ActorsCount));
 
             s.Goto(ShanghaiOffsetTable.GetPointer(1));
-            Actors = s.SerializeObjectArray<GBA_Milan_Actor>(Actors, ActorsCount, name: nameof(Actors));
+            Actors = s.SerializeObjectArray<GBA_Milan_Actor>(Actors, ActorsCount, x => x.IsCaptor = IsCaptor, name: nameof(Actors));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
         {
+            if (IsCaptor)
+                return;
+
             if (ActorModels == null)
                 ActorModels = new GBA_Milan_ActorModel[OffsetTable.OffsetsCount];
 

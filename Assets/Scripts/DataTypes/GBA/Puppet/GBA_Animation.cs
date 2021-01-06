@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBA_Animation : GBA_BaseBlock
     {
@@ -54,6 +56,8 @@
 
                 for (int i = 0; i < FrameCount; i++)
                     Layers[i] = s.DoAt(offsetBase + Milan_LayerOffsets[i], () => s.SerializeObjectArray<GBA_AnimationChannel>(Layers[i], (Milan_LayerOffsets[i + 1] - Milan_LayerOffsets[i]) / 6, name: $"{nameof(Layers)}[{i}]"));
+
+                s.Goto(offsetBase + Milan_LayerOffsets.LastOrDefault());
             }
         }
     }
