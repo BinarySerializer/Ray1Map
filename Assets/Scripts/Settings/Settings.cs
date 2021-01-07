@@ -113,6 +113,8 @@ namespace R1Engine {
         public static bool HideUnusedLinks { get; set; } = true;
         public static bool LoadIsometricMapLayer { get; set; } = true;
 
+        public static bool ShowGridMap { get; set; }
+
         private const string editorPrefsPrefix = "Ray1Map.";
         private const string settingsFile = "Settings.txt";
 
@@ -236,6 +238,7 @@ namespace R1Engine {
             Screenshot_ShowDefaultObj = s.SerializeBool("Screenshot_ShowDefaultObj", Screenshot_ShowDefaultObj);
             HideUnusedLinks = s.SerializeBool("HideUnusedLinks", HideUnusedLinks);
             LoadIsometricMapLayer = s.SerializeBool("LoadIsometricMapLayer", LoadIsometricMapLayer);
+            ShowGridMap = s.SerializeBool("ShowGridMap", ShowGridMap);
 
             ShowDefaultObjIcons = s.SerializeBool("ShowDefaultObjIcons", ShowDefaultObjIcons);
             ShowObjOffsets = s.SerializeBool("ShowObjOffsets", ShowObjOffsets);

@@ -638,7 +638,25 @@ namespace R1Engine
             }
         }
 
+        public static Texture2D GetGridTex(int cellSize)
+        {
+            var tex = TextureHelpers.CreateTexture2D(cellSize, cellSize);
 
+            for (int y = 0; y < cellSize; y++)
+            {
+                for (int x = 0; x < cellSize; x++)
+                {
+                    if (y == 0 || y == cellSize - 1 || x == 0 || x == cellSize - 1)
+                        tex.SetPixel(x, y, Color.black);
+                    else
+                        tex.SetPixel(x, y, Color.clear);
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
+        }
 
 
         public static int GCF(int a, int b)

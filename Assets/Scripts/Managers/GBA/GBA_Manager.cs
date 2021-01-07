@@ -777,18 +777,8 @@ namespace R1Engine
 
             var objManager = GetObjectManager(context, scene, dataBlock);
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(
-                maps: new Unity_Map[mapLayers.Length],
-                objManager: objManager, 
-                defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision), 
-                localization: LoadLocalization(context), 
-                cellSize: CellSize, 
-                getCollisionTypeNameFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
-                sectors: GetSectors(scene, dataBlock));
-
             var mapDatas = new MapTile[mapLayers.Length][];
+            var maps = new Unity_Map[mapLayers.Length];
 
             // Add every map
             for (int layer = 0; layer < mapLayers.Length; layer++)
@@ -800,7 +790,7 @@ namespace R1Engine
 
                 if (map.StructType == GBA_TileLayer.Type.Collision)
                 {
-                    level.Maps[layer] = new Unity_Map {
+                    maps[layer] = new Unity_Map {
                         Type = Unity_Map.MapType.Collision,
                         Width = map.Width,
                         Height = map.Height,
@@ -884,7 +874,7 @@ namespace R1Engine
 
                     mapDatas[layer] = mapData;
 
-                    level.Maps[layer] = new Unity_Map {
+                    maps[layer] = new Unity_Map {
                         Type = Unity_Map.MapType.Graphics,
                         Width = map.Width,
                         Height = map.Height,
@@ -892,7 +882,7 @@ namespace R1Engine
                         Layer = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
                     };
                     if (map.ShouldSetBGAlphaBlending) {
-                        level.Maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;
+                        maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;
                     }
                 }
             }
@@ -912,7 +902,7 @@ namespace R1Engine
                 // Load empty tileset for collision layer
                 if (map.StructType == GBA_TileLayer.Type.Collision)
                 {
-                    level.Maps[layer].TileSet = new Unity_TileSet[] {
+                    maps[layer].TileSet = new Unity_TileSet[] {
                         new Unity_TileSet(new Unity_TileTexture[] {
                             TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
                         })
@@ -934,17 +924,26 @@ namespace R1Engine
                     }
 
                     // Se the tileset
-                    level.Maps[layer].TileSet = tilesetCache[tilesetInfos[layer].Tileset];
+                    maps[layer].TileSet = tilesetCache[tilesetInfos[layer].Tileset];
                 }
             }
 
             Controller.DetailedState = $"Loading actors";
             await Controller.WaitIfNecessary();
 
-            // Add actors
-            level.EventData.AddRange(GetObjects(context, scene, objManager, dataBlock));
+            // Get actors
+            var actors = new List<Unity_Object>(GetObjects(context, scene, objManager, dataBlock));
 
-            return level;
+            return new Unity_Level(
+                maps: maps,
+                objManager: objManager,
+                eventData: actors,
+                defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision),
+                localization: LoadLocalization(context),
+                cellSize: CellSize,
+                getCollisionTypeNameFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),
+                getCollisionTypeGraphicFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
+                sectors: GetSectors(scene, dataBlock));
         }
 
         public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorModel graphics, GBA_Data data) => GetCommonDesign(graphics.Puppet, false);
