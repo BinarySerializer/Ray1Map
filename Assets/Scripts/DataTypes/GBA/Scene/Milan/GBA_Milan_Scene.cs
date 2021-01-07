@@ -7,6 +7,10 @@
         // Parsed from offsets
         public GBA_PlayField PlayField { get; set; }
         public GBA_Milan_ActorsBlock ActorsBlock { get; set; }
+        public GBA_DummyBlock TomClancy_Block_01 { get; set; }
+        public GBA_DummyBlock TomClancy_Block_02 { get; set; }
+        public GBA_DummyBlock Block_02 { get; set; }
+        public GBA_DummyBlock Block_03 { get; set; }
         public GBA_Milan_ActorsBlock CaptorsBlock { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
@@ -16,10 +20,22 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            PlayField = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
-            ActorsBlock = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBA_Milan_ActorsBlock>(ActorsBlock, name: nameof(ActorsBlock)));
+            var blockIndex = 0;
 
-            CaptorsBlock = s.DoAt(OffsetTable.GetPointer(4), () => s.SerializeObject<GBA_Milan_ActorsBlock>(CaptorsBlock, x => x.IsCaptor = true, name: nameof(CaptorsBlock)));
+            PlayField = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+            {
+                TomClancy_Block_01 = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_DummyBlock>(TomClancy_Block_01, name: nameof(TomClancy_Block_01)));
+                TomClancy_Block_02 = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_DummyBlock>(TomClancy_Block_02, name: nameof(TomClancy_Block_02)));
+            }
+
+            ActorsBlock = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Milan_ActorsBlock>(ActorsBlock, name: nameof(ActorsBlock)));
+
+            Block_02 = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_DummyBlock>(Block_02, name: nameof(Block_02)));
+            Block_03 = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_DummyBlock>(Block_03, name: nameof(Block_03)));
+
+            CaptorsBlock = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Milan_ActorsBlock>(CaptorsBlock, x => x.IsCaptor = true, name: nameof(CaptorsBlock)));
         }
     }
 }
