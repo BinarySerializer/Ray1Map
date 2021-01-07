@@ -16,8 +16,13 @@
 
         // Milan
         public string Milan_ActorID { get; set; }
-        public GBA_Milan_BasePuppet BasePuppet { get; set; }
-        public GBA_Milan_ActionTable ActionTable { get; set; }
+        public GBA_BlockArray<GBA_Puppet> Milan_Puppets { get; set; }
+        public GBA_BlockArray<GBA_Milan_ActionBlock> Milan_Actions { get; set; }
+
+        public GBA_Puppet[] GetPuppets => Context.Settings.GBA_IsMilan ? Milan_Puppets.Blocks : new GBA_Puppet[]
+        {
+            Puppet
+        };
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -57,8 +62,8 @@
             }
             else if (s.GameSettings.GBA_IsMilan)
             {
-                BasePuppet = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Milan_BasePuppet>(BasePuppet, name: nameof(BasePuppet)));
-                ActionTable = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBA_Milan_ActionTable>(ActionTable, name: nameof(ActionTable)));
+                Milan_Puppets = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_BlockArray<GBA_Puppet>>(Milan_Puppets, name: nameof(Milan_Puppets)));
+                Milan_Actions = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBA_BlockArray<GBA_Milan_ActionBlock>>(Milan_Actions, name: nameof(Milan_Actions)));
             }
             else 
             {

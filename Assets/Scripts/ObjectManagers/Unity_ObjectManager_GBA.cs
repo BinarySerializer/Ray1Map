@@ -26,11 +26,11 @@ namespace R1Engine
 
         public class ModelData
         {
-            public ModelData(int index, GBA_Action[] actions, Unity_ObjGraphics graphics, string name = null)
+            public ModelData(int index, GBA_Action[] actions, Unity_ObjGraphics[] puppets, string name = null)
             {
                 Index = index;
                 Actions = actions;
-                Graphics = graphics;
+                Puppets = puppets;
                 Name = name;
             }
 
@@ -38,7 +38,7 @@ namespace R1Engine
 
             public GBA_Action[] Actions { get; }
 
-            public Unity_ObjGraphics Graphics { get; }
+            public Unity_ObjGraphics[] Puppets { get; }
 
             public string Name { get; }
 

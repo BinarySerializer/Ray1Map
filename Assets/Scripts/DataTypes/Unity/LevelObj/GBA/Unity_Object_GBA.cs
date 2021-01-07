@@ -44,6 +44,7 @@ namespace R1Engine
             }
         }
 
+        public int PuppetIndex { get; set; } = 0;
 
         public override short XPosition
         {
@@ -201,12 +202,12 @@ namespace R1Engine
             }
         }
 
-        public override Unity_ObjAnimation CurrentAnimation => ModelData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
+        public override Unity_ObjAnimation CurrentAnimation => ModelData?.Puppets[PuppetIndex].Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex ?? Action?.AnimationIndex ?? Actor.ActionIndex;
         protected override int GetSpriteID => ActorModelIndex;
-        public override IList<Sprite> Sprites => ModelData?.Graphics.Sprites;
+        public override IList<Sprite> Sprites => ModelData?.Puppets[PuppetIndex].Sprites;
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
@@ -244,7 +245,7 @@ namespace R1Engine
             }
 
             public int EtatLength => 0;
-            public int SubEtatLength => Obj.ModelData?.Actions?.Length > 0 ? Obj.ModelData?.Actions?.Length ?? 0 : Obj.ModelData?.Graphics.Animations.Count ?? 0;
+            public int SubEtatLength => Obj.ModelData?.Actions?.Length > 0 ? Obj.ModelData?.Actions?.Length ?? 0 : Obj.ModelData?.Puppets[Obj.PuppetIndex].Animations.Count ?? 0;
 
             public byte OffsetBX { get; set; }
 
@@ -295,7 +296,7 @@ namespace R1Engine
         protected override void RecalculateUIStates() {
             UIStates_GraphicsDataIndex = ActorModelIndex;
             var states = ModelData?.Actions;
-            var anims = ModelData?.Graphics.Animations;
+            var anims = ModelData?.Puppets[PuppetIndex].Animations;
             HashSet<int> usedAnims = new HashSet<int>();
             List<UIState> uiStates = new List<UIState>();
             if (states != null) {

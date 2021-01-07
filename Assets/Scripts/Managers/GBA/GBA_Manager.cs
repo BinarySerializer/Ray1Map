@@ -947,7 +947,7 @@ namespace R1Engine
         }
 
         public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorModel graphics, GBA_Data data) => GetCommonDesign(graphics.Puppet, false);
-        public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene, data));
+        public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0], data));
         public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager)) ?? new Unity_Object_GBA[0];
         public virtual Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray();
         public Unity_ObjGraphics GetCommonDesign(GBA_Puppet puppet, bool is8bit)
@@ -1067,19 +1067,29 @@ namespace R1Engine
             return des;
         }
 
-        public Unity_ObjectManager_GBA.ModelData[] LoadActorModels(Context context, GBA_Scene scene, GBA_Data data)
+        public Unity_ObjectManager_GBA.ModelData[] LoadActorModels(Context context, IEnumerable<GBA_Actor> actors, GBA_Data data)
         {
             var graphicsData = new List<Unity_ObjectManager_GBA.ModelData>();
+            var cachedPuppets = new Dictionary<GBA_Puppet, Unity_ObjGraphics>();
 
-            foreach (var actor in scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0])
+            foreach (var actor in actors)
             {
+                // Make sure the model hasn't already been loaded
                 if (graphicsData.Any(x => x.Index == actor.Index_ActorModel))
                     continue;
 
+                // Make sure there is an actor model
                 if (actor.ActorModel == null)
                     continue;
 
-                graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.Index_ActorModel, actor.ActorModel.Actions, GetCommonDesign(actor.ActorModel, data)));
+                // Get the puppets
+                var modelPuppets = actor.ActorModel.GetPuppets;
+                var loadedPuppets = new Unity_ObjGraphics[modelPuppets.Length];
+
+                for (int i = 0; i < modelPuppets.Length; i++)
+                    loadedPuppets[i] = cachedPuppets.ContainsKey(modelPuppets[i]) ? cachedPuppets[modelPuppets[i]] : cachedPuppets[modelPuppets[i]] = GetCommonDesign(modelPuppets[i], context.Settings.GBA_IsMilan && modelPuppets[i].Milan_TileKit.Is8bpp);
+
+                graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.Index_ActorModel, context.Settings.GBA_IsMilan ? actor.ActorModel.Milan_Actions.Blocks.Select(y => y.Action).ToArray() : actor.ActorModel.Actions, loadedPuppets, actor.ActorModel.Milan_ActorID));
             }
 
             return graphicsData.ToArray();
