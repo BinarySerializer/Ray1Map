@@ -13,7 +13,7 @@ namespace R1Engine
         // Parsed
         public short XPosition { get; set; }
         public short YPosition { get; set; }
-        public short ImageIndex { get; set; }
+        public ushort ImageIndex { get; set; }
         public int PaletteIndex { get; set; }
         public Shape SpriteShape { get; set; }
         public int SpriteSize { get; set; }
@@ -83,19 +83,21 @@ namespace R1Engine
                 SpriteSize = BitHelpers.ExtractBits(Attr1, 2, 14);
 
                 if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina) {
-                    ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 12, 0);
+                    ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 12, 0);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
                 } else if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanRiseOfSinTzu) {
-                    ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 15, 0);
+                    ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 15, 0);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 1, 15); // another flag at byte 0xF?
-                } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
-                    ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 14, 0);
+                } else if (s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
+                    ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 14, 0);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 1, 14); // another flag at byte 0xF?
                 } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
-                    ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 14, 0);
+                    ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 14, 0);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 2, 14); // another flag at byte 0xF?
+                } else if(s.GameSettings.GBA_IsMilan) {
+                    ImageIndex = Attr2;
                 } else {
-                    ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 11, 0);
+                    ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 11, 0);
                     Priority = BitHelpers.ExtractBits(Attr2, 1, 11);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
                 }
