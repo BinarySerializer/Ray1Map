@@ -1433,7 +1433,7 @@ namespace R1Engine
             }
 
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(
+            return new Unity_Level(
                 maps: maps, 
                 objManager: objManager, 
                 eventData: eventDataList, 
@@ -1441,8 +1441,6 @@ namespace R1Engine
                 getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(), 
                 background: bg);
-
-            return level;
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

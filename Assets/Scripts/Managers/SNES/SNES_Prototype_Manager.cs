@@ -314,7 +314,7 @@ namespace R1Engine
             var rayman = new Unity_Object_SNES(rom.Rayman, objManager);
 
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(
+            return new Unity_Level(
                 maps: maps, 
                 objManager: objManager,
                 getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
@@ -324,8 +324,6 @@ namespace R1Engine
             {
                 CellSizeOverrideCollision = 16
             };
-
-            return level;
         }
 
         public Unity_ObjectManager_SNES.GraphicsGroup[] GetGraphicsGroups(SNES_Proto_ROM rom)

@@ -1140,7 +1140,7 @@ namespace R1Engine
             ray.AnimDescriptorsPointer = data.DES_Ray.AnimDescriptorsPointer;
             ray.ETAPointer = data.ETA_Ray?.Offset;
 
-            Unity_Level level = new Unity_Level(
+            return new Unity_Level(
                 maps: maps,
                 objManager: objManager,
                 localization: LoadLocalization(data),
@@ -1148,8 +1148,6 @@ namespace R1Engine
                 parallaxBackground: bg2,
                 eventData: events,
                 rayman: new Unity_Object_R1(ray, objManager));
-
-            return level;
         }
 
         /// <summary>

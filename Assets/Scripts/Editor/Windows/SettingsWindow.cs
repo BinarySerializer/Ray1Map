@@ -179,6 +179,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowCollision = EditorField("Show tile collision (C)", Settings.ShowCollision);
 
+        Settings.ShowGridMap = EditorField("Show grid map", Settings.ShowGridMap);
+
         Settings.ShowObjCollision = EditorField("Show object collision (B)", Settings.ShowObjCollision);
 
         Settings.ShowAlwaysObjects = EditorField("Show always objects (G)", Settings.ShowAlwaysObjects);

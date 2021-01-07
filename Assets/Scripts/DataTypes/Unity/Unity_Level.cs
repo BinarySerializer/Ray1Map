@@ -42,6 +42,22 @@ namespace R1Engine
             ParallaxBackground = parallaxBackground;
             Sectors = sectors;
             IsometricData = isometricData;
+
+            MaxWidth = Maps.Max(m => m.Width);
+            MaxHeight = Maps.Max(m => m.Height);
+
+            GridMap = new Unity_Map
+            {
+                Width = MaxWidth,
+                Height = MaxHeight,
+                TileSet = new Unity_TileSet[]
+                {
+                    new Unity_TileSet(Util.GetGridTex(cellSize), cellSize),
+                },
+                MapTiles = Enumerable.Range(0, MaxWidth * MaxHeight).Select(x => new Unity_Tile(new MapTile())).ToArray(),
+                Type = Unity_Map.MapType.Graphics,
+                Layer = Unity_Map.MapLayer.Front
+            };
         }
 
         #endregion
@@ -57,20 +73,9 @@ namespace R1Engine
         public int DefaultCollisionMap { get; }
 
         public Unity_Map[] Maps { get; }
-        private int? _maxWidth { get; set; }
-        private int? _maxHeight { get; set; }
-        public int MaxWidth {
-            get {
-                if(!_maxWidth.HasValue) _maxWidth = Maps.Max(m => m.Width);
-                return _maxWidth.Value;
-            }
-        }
-        public int MaxHeight {
-            get {
-                if (!_maxHeight.HasValue) _maxHeight = Maps.Max(m => m.Height);
-                return _maxHeight.Value;
-            }
-        }
+        public Unity_Map GridMap { get; }
+        public ushort MaxWidth { get; }
+        public ushort MaxHeight { get; }
 
         public List<Unity_Object> EventData { get; }
         public Unity_Object Rayman { get; }
