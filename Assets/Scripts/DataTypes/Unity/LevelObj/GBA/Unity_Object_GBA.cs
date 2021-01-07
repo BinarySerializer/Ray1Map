@@ -38,13 +38,14 @@ namespace R1Engine
 
                 if (value != ActorModelIndex) {
                     Actor.ActionIndex = 0;
+                    PuppetIndex = 0;
                     OverrideAnimIndex = null;
                     Actor.Index_ActorModel = (byte)ObjManager.ActorModels[value].Index;
                 }
             }
         }
 
-        public int PuppetIndex { get; set; } = 0;
+        public int PuppetIndex { get; set; }
 
         public override short XPosition
         {
@@ -206,7 +207,7 @@ namespace R1Engine
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex ?? Action?.AnimationIndex ?? Actor.ActionIndex;
-        protected override int GetSpriteID => ActorModelIndex;
+        protected override int GetSpriteID => PuppetIndex * ObjManager.ActorModels.Length + ActorModelIndex;
         public override IList<Sprite> Sprites => ModelData?.Puppets[PuppetIndex].Sprites;
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
@@ -271,23 +272,29 @@ namespace R1Engine
             public GBA_UIState(string displayName, byte stateIndex) : base(displayName) {
                 StateIndex = stateIndex;
             }
-            public GBA_UIState(string displayName, int animIndex) : base(displayName, animIndex) {}
+            public GBA_UIState(string displayName, int animIndex, int puppetIndex) : base(displayName, animIndex)
+            {
+                PuppetIndex = puppetIndex;
+            }
 
             public byte StateIndex { get; }
+            public int PuppetIndex { get; }
 
             public override void Apply(Unity_Object obj) {
                 if (IsState) {
                     (obj as Unity_Object_GBA).Actor.ActionIndex = StateIndex;
+                    (obj as Unity_Object_GBA).PuppetIndex = 0;
                     obj.OverrideAnimIndex = null;
                 } else {
                     obj.OverrideAnimIndex = AnimIndex;
+                    (obj as Unity_Object_GBA).PuppetIndex = PuppetIndex;
                 }
             }
 
             public override bool IsCurrentState(Unity_Object obj) {
 
                 if (obj.OverrideAnimIndex.HasValue)
-                    return !IsState && AnimIndex == obj.OverrideAnimIndex;
+                    return !IsState && AnimIndex == obj.OverrideAnimIndex && PuppetIndex == (obj as Unity_Object_GBA).PuppetIndex;
                 else
                     return IsState && StateIndex == (obj as Unity_Object_GBA).Actor.ActionIndex;
             }
@@ -296,7 +303,6 @@ namespace R1Engine
         protected override void RecalculateUIStates() {
             UIStates_GraphicsDataIndex = ActorModelIndex;
             var states = ModelData?.Actions;
-            var anims = ModelData?.Puppets[PuppetIndex].Animations;
             HashSet<int> usedAnims = new HashSet<int>();
             List<UIState> uiStates = new List<UIState>();
             if (states != null) {
@@ -305,10 +311,17 @@ namespace R1Engine
                     usedAnims.Add(states[i].AnimationIndex);
                 }
             }
-            if (anims != null) {
-                for (int i = 0; i < anims.Count; i++) {
-                    if (usedAnims.Contains(i)) continue;
-                    uiStates.Add(new GBA_UIState($"Animation {i}", animIndex: i));
+            if (ModelData?.Puppets != null) 
+            {
+                for (int puppetIndex = 0; puppetIndex < ModelData.Puppets.Length; puppetIndex++)
+                {
+                    for (int i = 0; i < ModelData.Puppets[puppetIndex].Animations.Count; i++)
+                    {
+                        if (usedAnims.Contains(i) && puppetIndex == 0) 
+                            continue;
+
+                        uiStates.Add(new GBA_UIState($"Animation {(ModelData.Puppets.Length > 1 ? $"{puppetIndex}-" : String.Empty)}{i}", animIndex: i, puppetIndex: puppetIndex));
+                    }
                 }
             }
 
