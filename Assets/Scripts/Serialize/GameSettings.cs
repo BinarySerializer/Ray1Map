@@ -79,7 +79,7 @@ namespace R1Engine
         }
 
         public bool GBA_IsShanghai => EngineVersion <= EngineVersion.GBA_R3_MadTrax;
-        public bool GBA_IsMilan => EngineVersion <= EngineVersion.GBA_TomClancysRainbowSixRogueSpear && EngineVersion >= EngineVersion.GBA_TheMummy;
+        public bool GBA_IsMilan => EngineVersion <= EngineVersion.GBA_TombRaiderTheProphecy && EngineVersion >= EngineVersion.GBA_TomClancysRainbowSixRogueSpear;
         public bool GBA_IsCommon => EngineVersion >= EngineVersion.GBA_BatmanVengeance;
 
         // Helpers

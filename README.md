@@ -349,6 +349,14 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
+    <td class="tg-yw4l">Tom Clancy's Rainbow Six: Rogue Spear (GBA)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">The Mummy (GBA)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -358,14 +366,6 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
   </tr>
   <tr>
     <td class="tg-yw4l">Tomb Raider: The Prophecy (GBA)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Tom Clancy's Rainbow Six: Rogue Spear (GBA)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>

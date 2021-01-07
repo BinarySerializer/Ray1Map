@@ -56,7 +56,7 @@ namespace R1Engine
         #region Public Methods
 
         public override void SerializeImpl(SerializerObject s) {
-            bool isShanghai = s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance;
+            bool isShanghai = s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan;
             Command = s.Serialize<InstructionCommand>(Command, name: nameof(Command));
 
             if (isShanghai)

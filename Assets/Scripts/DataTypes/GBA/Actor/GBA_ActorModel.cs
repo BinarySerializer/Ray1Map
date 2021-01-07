@@ -17,6 +17,7 @@
         // Milan
         public string Milan_ActorID { get; set; }
         public GBA_BlockArray<GBA_Puppet> Milan_Puppets { get; set; }
+        public GBA_BlockArray<GBA_BatmanVengeance_Puppet> TomClancy_Puppets { get; set; }
         public GBA_BlockArray<GBA_Milan_ActionBlock> Milan_Actions { get; set; }
 
         public GBA_Puppet[] GetPuppets => Context.Settings.GBA_IsMilan ? Milan_Puppets.Blocks : new GBA_Puppet[]
@@ -62,7 +63,15 @@
             }
             else if (s.GameSettings.GBA_IsMilan)
             {
-                Milan_Puppets = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_BlockArray<GBA_Puppet>>(Milan_Puppets, name: nameof(Milan_Puppets)));
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                {
+                    TomClancy_Puppets = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_BlockArray<GBA_BatmanVengeance_Puppet>>(TomClancy_Puppets, name: nameof(TomClancy_Puppets)));
+                }
+                else
+                {
+                    Milan_Puppets = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_BlockArray<GBA_Puppet>>(Milan_Puppets, name: nameof(Milan_Puppets)));
+                }
+
                 Milan_Actions = s.DoAt(OffsetTable.GetPointer(1), () => s.SerializeObject<GBA_BlockArray<GBA_Milan_ActionBlock>>(Milan_Actions, name: nameof(Milan_Actions)));
             }
             else 

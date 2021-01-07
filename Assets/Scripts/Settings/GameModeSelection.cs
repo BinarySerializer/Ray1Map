@@ -152,6 +152,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_CrouchingTiger, Game.GBA_CrouchingTigerHiddenDragon, "Crouching Tiger Hidden Dragon (GBA - US Beta)", typeof(GBA_CrouchingTigerBeta_Manager))]
         CrouchingTigerHiddenDragonGBAUSBeta,
 
+        //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
+        //TomClancysRainbowSixRogueSpearEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
+        TomClancysRainbowSixRogueSpearUS,
+
         //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TheMummy, Game.GBA_TheMummy, "The Mummy (GBA - EU)", typeof(GBA_TheMummy_Manager))]
         //TheMummyEU,
 
@@ -163,12 +169,6 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TombRaiderTheProphecy, Game.GBA_TombRaiderTheProphecy, "Tomb Raider: The Prophecy (GBA - US)", typeof(GBA_TombRaider_Manager))]
         TombRaiderTheProphecyUS,
-
-        //[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
-        //TomClancysRainbowSixRogueSpearEU,
-
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TomClancysRainbowSixRogueSpear, Game.GBA_TomClancysRainbowSixRogueSpear, "Tom Clancy's Rainbow Six: Rogue Spear (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
-        TomClancysRainbowSixRogueSpearUS,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanVengeance, Game.GBA_BatmanVengeance, "Batman Vengeance (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
         BatmanVengeanceGBAEU,

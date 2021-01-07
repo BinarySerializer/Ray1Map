@@ -58,7 +58,7 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance) // Shanghai
+            if (s.GameSettings.GBA_IsShanghai)
             {
                 TileSet = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, name: nameof(TileSet)));
             }

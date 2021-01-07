@@ -41,9 +41,9 @@ namespace R1Engine
         GBA_CrouchingTiger,                  // 2003 (Shanghai)
         GBA_R3_MadTrax,                      // 2003 (Shanghai)
                                              
+        GBA_TomClancysRainbowSixRogueSpear,  // 2002 (Milan)
         GBA_TheMummy,                        // 2002 (Milan)
         GBA_TombRaiderTheProphecy,           // 2002 (Milan)
-        GBA_TomClancysRainbowSixRogueSpear,  // 2002 (Milan)
 
         GBA_BatmanVengeance,                 // 2001
         GBA_Sabrina,                         // 2002
