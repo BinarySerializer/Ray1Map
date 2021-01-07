@@ -60,7 +60,8 @@ namespace R1Engine
         public enum MapLayer {
             Middle,
             Back,
-            Front
+            Front,
+            Overlay
         }
 
         #endregion

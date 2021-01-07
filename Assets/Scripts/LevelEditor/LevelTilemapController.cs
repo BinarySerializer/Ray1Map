@@ -17,6 +17,7 @@ namespace R1Engine
 
         public SpriteRenderer tilemapFull;
         public SpriteRenderer tilemapPreview;
+        public SpriteRenderer tilemapGrid;
         public bool focusedOnTemplate = false;
         public LevelEditorBehaviour editor;
 
@@ -331,6 +332,7 @@ namespace R1Engine
                 if (wasTiled) SetGraphicsLayerTiled(mapIndex, true);
             }
 
+            CreateTilemapGrid();
             CreateTilemapFull();
         }
 
@@ -373,6 +375,26 @@ namespace R1Engine
                 }
                 animatedTiles[mapIndex][at].Add(atInstance);
             }
+        }
+        private void CreateTilemapGrid() {
+            var lvl = LevelEditorData.Level;
+            int mapWidth = lvl.GridMap.Width;
+            int mapHeight = lvl.GridMap.Height;
+
+            int cellSize = LevelEditorData.Level.CellSize;
+            Texture2D tex = TextureHelpers.CreateTexture2D(mapWidth * cellSize, mapHeight * cellSize);
+
+            var map = lvl.GridMap;
+
+            for (int y = 0; y < map.Height; y++) {
+                for (int x = 0; x < map.Width; x++) {
+                    var t = map.MapTiles[y * map.Width + x];
+                    FillInTilePixels(tex, t, lvl.GridMap, -1, x, y, cellSize);
+                }
+            }
+
+            tex.Apply();
+            tilemapGrid.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
         }
 
         private void CreateTilemapFull() {
@@ -668,6 +690,9 @@ namespace R1Engine
                         }
                     }
                 }
+            }
+            if (Settings.ShowGridMap != tilemapGrid.gameObject.activeSelf) {
+                tilemapGrid.gameObject.SetActive(Settings.ShowGridMap);
             }
 
             CheckPaletteChange();

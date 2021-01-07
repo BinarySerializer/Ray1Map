@@ -646,8 +646,8 @@ namespace R1Engine
             {
                 for (int x = 0; x < cellSize; x++)
                 {
-                    if (y == 0 || y == cellSize - 1 || x == 0 || x == cellSize - 1)
-                        tex.SetPixel(x, y, Color.black);
+                    if (y == cellSize - 1 || x == cellSize - 1)
+                        tex.SetPixel(x, y, new Color(1,1,1,0.25f));
                     else
                         tex.SetPixel(x, y, Color.clear);
                 }

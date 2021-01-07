@@ -65,6 +65,9 @@ TagManager:
   - name: Types
     uniqueID: 3458465819
     locked: 0
+  - name: Grid
+    uniqueID: 4177950053
+    locked: 0
   - name: Links
     uniqueID: 1789067413
     locked: 0

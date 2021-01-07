@@ -56,7 +56,7 @@ namespace R1Engine
                 },
                 MapTiles = Enumerable.Range(0, MaxWidth * MaxHeight).Select(x => new Unity_Tile(new MapTile())).ToArray(),
                 Type = Unity_Map.MapType.Graphics,
-                Layer = Unity_Map.MapLayer.Front
+                Layer = Unity_Map.MapLayer.Overlay
             };
         }
 

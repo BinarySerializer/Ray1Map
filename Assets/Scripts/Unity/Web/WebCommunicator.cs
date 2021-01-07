@@ -382,7 +382,8 @@ public class WebCommunicator : MonoBehaviour {
 			ShowGizmos = Settings.ShowDefaultObjIcons,
 			ShowObjOffsets = Settings.ShowObjOffsets,
 			ShowRayman = Settings.ShowRayman,
-			StateSwitchingMode = Settings.StateSwitchingMode
+			StateSwitchingMode = Settings.StateSwitchingMode,
+			ShowGridMap = Settings.ShowGridMap,
 		};
 
 		// Add layers
@@ -494,6 +495,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.ShowRayman.HasValue) Settings.ShowRayman = msg.ShowRayman.Value;
 		if (msg.ShowDebugInfo.HasValue) Settings.ShowDebugInfo = msg.ShowDebugInfo.Value;
 		if (msg.StateSwitchingMode.HasValue) Settings.StateSwitchingMode = msg.StateSwitchingMode.Value;
+		if (msg.ShowGridMap.HasValue) Settings.ShowGridMap = msg.ShowGridMap.Value;
 
 		if (msg.Layers != null && msg.Layers.Length > 0) {
 			var lvl = LevelEditorData.Level;
