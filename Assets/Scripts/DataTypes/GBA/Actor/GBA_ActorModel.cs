@@ -20,10 +20,28 @@
         public GBA_BlockArray<GBA_BatmanVengeance_Puppet> TomClancy_Puppets { get; set; }
         public GBA_BlockArray<GBA_Milan_ActionBlock> Milan_Actions { get; set; }
 
-        public GBA_Puppet[] GetPuppets => Context.Settings.GBA_IsMilan ? Milan_Puppets.Blocks : new GBA_Puppet[]
+        public GBA_BaseBlock[] GetPuppets
         {
-            Puppet
-        };
+            get
+            {
+                if (Context.Settings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                    return TomClancy_Puppets.Blocks;
+
+                if (Context.Settings.GBA_IsMilan)
+                    return Milan_Puppets.Blocks;
+
+                if (Context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                    return new GBA_BaseBlock[]
+                    {
+                        Puppet_BatmanVengeance
+                    };
+
+                return new GBA_Puppet[]
+                    {
+                        Puppet
+                    };
+            }
+        }
 
         public override void SerializeBlock(SerializerObject s)
         {

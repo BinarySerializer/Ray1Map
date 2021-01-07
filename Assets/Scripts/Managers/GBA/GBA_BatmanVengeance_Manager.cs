@@ -20,8 +20,13 @@ namespace R1Engine
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
 
-        public override Unity_ObjGraphics GetCommonDesign(GBA_ActorModel model, GBA_Data data) => GetCommonDesign(model?.Puppet_BatmanVengeance, data);
-        public Unity_ObjGraphics GetCommonDesign(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) {
+        public override Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data)
+        {
+            if (puppetBlock is GBA_Puppet)
+                return base.GetCommonDesign(puppetBlock, is8bit, data);
+
+            var puppet = (GBA_BatmanVengeance_Puppet)puppetBlock;
+
             // Create the design
             var des = new Unity_ObjGraphics {
                 Sprites = new List<Sprite>(),
@@ -33,8 +38,6 @@ namespace R1Engine
 
             var tileSet = puppet.TileSet;
             var pal = GetSpritePalette(puppet, data);
-            const int tileWidth = 8;
-            const int tileSize = (tileWidth * tileWidth) / 2;
             var numPalettes = pal.Length / 16;
 
             // Add sprites for each palette

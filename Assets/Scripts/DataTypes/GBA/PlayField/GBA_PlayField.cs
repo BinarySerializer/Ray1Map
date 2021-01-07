@@ -99,7 +99,7 @@
             }
             if (StructType != Type.PlayFieldZoom && StructType != Type.PlayFieldPoP) {
 
-                if (StructType == Type.PlayField2D && s.GameSettings.EngineVersion > EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                if (StructType == Type.PlayField2D && s.GameSettings.EngineVersion > EngineVersion.GBA_TombRaiderTheProphecy)
                     ClusterCount = s.Serialize<byte>(ClusterCount, name: nameof(ClusterCount));
 
                 LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));

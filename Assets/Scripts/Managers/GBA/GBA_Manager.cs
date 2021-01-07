@@ -239,6 +239,8 @@ namespace R1Engine
         {
             var exported = new HashSet<Pointer>();
 
+            GBA_Data data;
+
             // Export menu sprites
             using (var context = new Context(settings))
             {
@@ -246,7 +248,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Load the data block
-                var data = LoadDataBlock(context);
+                data = LoadDataBlock(context);
 
                 // Enumerate every menu sprite group
                 foreach (var menuSprite in AdditionalSprites4bpp)
@@ -277,8 +279,8 @@ namespace R1Engine
                     await LoadFilesAsync(context);
 
                     // Read the level
-                    var data = LoadDataBlock(context);
-                    GBA_Scene lvl = data.Scene;
+                    var gbaData = LoadDataBlock(context);
+                    GBA_Scene lvl = gbaData.Scene;
 
                     // Enumerate every graphic group
                     await UniTask.WaitForEndOfFrame();
@@ -297,7 +299,7 @@ namespace R1Engine
                 exported.Add(spr.Offset);
 
                 if (exportAnimFrames) {
-                    await ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit);
+                    await ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit, data);
                 } else {
                     ExportSpriteTileSet(spr, outputDir, is8bit, uioffset);
                 }
@@ -362,13 +364,13 @@ namespace R1Engine
             }
         }
 
-        protected async UniTask ExportAnimations(GBA_Puppet spr, string outputDir, bool is8bit)
+        protected async UniTask ExportAnimations(GBA_Puppet spr, string outputDir, bool is8bit, GBA_Data data)
         {
             MagickImage[] sprites = null;
 
             try
             {
-                var commonDesign = GetCommonDesign(spr, is8bit);
+                var commonDesign = GetCommonDesign(spr, is8bit, data);
 
                 // Convert Texture2D to MagickImage
                 sprites = commonDesign.Sprites.Select(x => x.texture.ToMagickImage()).ToArray();
@@ -946,12 +948,13 @@ namespace R1Engine
                 sectors: GetSectors(scene, dataBlock));
         }
 
-        public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorModel graphics, GBA_Data data) => GetCommonDesign(graphics.Puppet, false);
         public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0], data));
         public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager)) ?? new Unity_Object_GBA[0];
         public virtual Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray();
-        public Unity_ObjGraphics GetCommonDesign(GBA_Puppet puppet, bool is8bit)
+        public virtual Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data)
         {
+            var puppet = (GBA_Puppet)puppetBlock;
+
             // Create the design
             var des = new Unity_ObjGraphics
             {
@@ -1070,7 +1073,7 @@ namespace R1Engine
         public Unity_ObjectManager_GBA.ModelData[] LoadActorModels(Context context, IEnumerable<GBA_Actor> actors, GBA_Data data)
         {
             var graphicsData = new List<Unity_ObjectManager_GBA.ModelData>();
-            var cachedPuppets = new Dictionary<GBA_Puppet, Unity_ObjGraphics>();
+            var cachedPuppets = new Dictionary<GBA_BaseBlock, Unity_ObjGraphics>();
 
             foreach (var actor in actors)
             {
@@ -1087,7 +1090,7 @@ namespace R1Engine
                 var loadedPuppets = new Unity_ObjGraphics[modelPuppets.Length];
 
                 for (int i = 0; i < modelPuppets.Length; i++)
-                    loadedPuppets[i] = cachedPuppets.ContainsKey(modelPuppets[i]) ? cachedPuppets[modelPuppets[i]] : cachedPuppets[modelPuppets[i]] = GetCommonDesign(modelPuppets[i], context.Settings.GBA_IsMilan && modelPuppets[i].Milan_TileKit.Is8bpp);
+                    loadedPuppets[i] = cachedPuppets.ContainsKey(modelPuppets[i]) ? cachedPuppets[modelPuppets[i]] : cachedPuppets[modelPuppets[i]] = GetCommonDesign(modelPuppets[i], false, data); // TODO: Don't always assume it's 4-bit!
 
                 graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.Index_ActorModel, context.Settings.GBA_IsMilan ? actor.ActorModel.Milan_Actions.Blocks.Select(y => y.Action).ToArray() : actor.ActorModel.Actions, loadedPuppets, actor.ActorModel.Milan_ActorID));
             }

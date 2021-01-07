@@ -4,15 +4,12 @@ using System.Linq;
 
 namespace R1Engine
 {
-    public class GBA_TheMummy_Manager : GBA_Milan_Manager
+    public class GBA_TomClancy_Manager : GBA_Milan_Manager
     {
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
-            Enumerable.Range(0, 46)
+            Enumerable.Range(0, 20)
         };
-
-        public override long ActorTypeTableLength => 70;
-        public override long Milan_LocTableLength => 87;
 
         public override int[] MenuLevels => new int[0];
         public override int DLCLevelCount => 0;
@@ -20,5 +17,7 @@ namespace R1Engine
         public override int[] AdditionalSprites8bpp => new int[0];
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
+
+        protected override BaseColor[] GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => data.Milan_SceneList.Scene.TomClancy_ObjPalette.Palette;
     }
 }
