@@ -51,7 +51,7 @@
         public ushort Milan_LinksCount { get; set; }
         public Milan_ActorLink[] Milan_Links { get; set; }
         public ushort DialogCount { get; set; }
-        public ushort[] DialogTable { get; set; } // Loc indices for the dialog boxes when interacting with the actor
+        public short[] DialogTable { get; set; } // Loc indices for the dialog boxes when interacting with the actor
 
         public ushort Milan_CaptorIndicesCount { get; set; }
         public ushort[] Milan_CaptorIndices { get; set; }
@@ -83,10 +83,10 @@
                     Milan_LinksCount = s.Serialize<ushort>(Milan_LinksCount, name: nameof(Milan_LinksCount));
                     Milan_Links = s.SerializeObjectArray<Milan_ActorLink>(Milan_Links, Milan_LinksCount, name: nameof(Milan_Links));
 
-                    UnkData1 = s.SerializeArray<byte>(UnkData1, 12, name: nameof(UnkData1));
+                    UnkData1 = s.SerializeArray<byte>(UnkData1, s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear ? 8 : 12, name: nameof(UnkData1));
 
                     DialogCount = s.Serialize<ushort>(DialogCount, name: nameof(DialogCount));
-                    DialogTable = s.SerializeArray<ushort>(DialogTable, DialogCount, name: nameof(DialogTable));
+                    DialogTable = s.SerializeArray<short>(DialogTable, DialogCount, name: nameof(DialogTable));
                 }
                 else
                 {

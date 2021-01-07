@@ -35,13 +35,15 @@
                 FrameCount = s.Serialize<uint>(FrameCount, name: nameof(FrameCount));
             }
 
+            var baseOffset = s.CurrentPointer;
+
             FrameOffsets = s.SerializeArray<uint>(FrameOffsets, FrameCount, name: nameof(FrameOffsets));
 
             if (Frames == null) 
                 Frames = new GBA_BatmanVengeance_AnimationFrame[FrameCount];
 
             for (int i = 0; i < FrameOffsets.Length; i++)
-                Frames[i] = s.DoAt(Offset + 4 + FrameOffsets[i], () => s.SerializeObject<GBA_BatmanVengeance_AnimationFrame>(Frames[i], onPreSerialize: f => f.Puppet = Puppet, name: $"{nameof(Frames)}[{i}]"));
+                Frames[i] = s.DoAt(baseOffset + FrameOffsets[i], () => s.SerializeObject<GBA_BatmanVengeance_AnimationFrame>(Frames[i], onPreSerialize: f => f.Puppet = Puppet, name: $"{nameof(Frames)}[{i}]"));
         }
 
         #endregion

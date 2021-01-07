@@ -7,8 +7,8 @@
         // Parsed from offsets
         public GBA_PlayField PlayField { get; set; }
         public GBA_Milan_ActorsBlock ActorsBlock { get; set; }
-        public GBA_DummyBlock TomClancy_Block_01 { get; set; }
-        public GBA_DummyBlock TomClancy_Block_02 { get; set; }
+        public GBA_Palette TomClancy_TilePalette { get; set; }
+        public GBA_Palette TomClancy_ObjPalette { get; set; }
         public GBA_DummyBlock Block_02 { get; set; }
         public GBA_DummyBlock Block_03 { get; set; }
         public GBA_Milan_ActorsBlock CaptorsBlock { get; set; }
@@ -26,8 +26,8 @@
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
             {
-                TomClancy_Block_01 = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_DummyBlock>(TomClancy_Block_01, name: nameof(TomClancy_Block_01)));
-                TomClancy_Block_02 = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_DummyBlock>(TomClancy_Block_02, name: nameof(TomClancy_Block_02)));
+                TomClancy_TilePalette = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Palette>(TomClancy_TilePalette, name: nameof(TomClancy_TilePalette)));
+                TomClancy_ObjPalette = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Palette>(TomClancy_ObjPalette, name: nameof(TomClancy_ObjPalette)));
             }
 
             ActorsBlock = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Milan_ActorsBlock>(ActorsBlock, name: nameof(ActorsBlock)));

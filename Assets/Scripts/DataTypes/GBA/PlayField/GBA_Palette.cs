@@ -6,7 +6,8 @@ namespace R1Engine {
     /// Palette block for GBA
     /// </summary>
     public class GBA_Palette : GBA_BaseBlock {
-        public uint Length { get; set; }
+        public ushort Length { get; set; }
+        public ushort PalOffset { get; set; }
         public BaseColor[] Palette { get; set; }
 
         public ushort Milan_Ushort_00 { get; set; }
@@ -15,7 +16,7 @@ namespace R1Engine {
 
         public override void SerializeBlock(SerializerObject s) 
         {
-            if (s.GameSettings.GBA_IsMilan)
+            if (s.GameSettings.GBA_IsMilan && s.GameSettings.EngineVersion != EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
             {
                 // Copied from function at 0x080087e4 in The Mummy (US)
 
@@ -78,12 +79,13 @@ namespace R1Engine {
             }
             else
             {
-                if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+                if (s.GameSettings.GBA_IsShanghai)
                     s.Goto(ShanghaiOffsetTable.GetPointer(0));
 
-                Length = s.Serialize<uint>(Length, name: nameof(Length));
+                Length = s.Serialize<ushort>(Length, name: nameof(Length));
+                PalOffset = s.Serialize<ushort>(PalOffset, name: nameof(PalOffset));
 
-                if (s.GameSettings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
+                if (s.GameSettings.GBA_IsShanghai)
                     s.Goto(ShanghaiOffsetTable.GetPointer(1));
 
                 if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage)

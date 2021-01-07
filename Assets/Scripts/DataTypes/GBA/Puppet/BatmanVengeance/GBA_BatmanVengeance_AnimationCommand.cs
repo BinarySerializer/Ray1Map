@@ -22,6 +22,9 @@ namespace R1Engine
         public byte Byte_81_03 { get; set; }
         public byte Byte_81_04 { get; set; }
 
+        public byte Byte_82_02 { get; set; }
+        public byte Byte_82_03 { get; set; }
+
         public byte Byte_83_02 { get; set; }
         public byte Byte_83_03 { get; set; }
 
@@ -83,6 +86,10 @@ namespace R1Engine
                     Byte_81_03 = s.Serialize<byte>(Byte_81_03, name: nameof(Byte_81_03));
                     Byte_81_04 = s.Serialize<byte>(Byte_81_04, name: nameof(Byte_81_04));
                     break;
+                case InstructionCommand.Unknown82:
+                    Byte_82_02 = s.Serialize<byte>(Byte_82_02, name: nameof(Byte_82_02));
+                    Byte_82_03 = s.Serialize<byte>(Byte_82_03, name: nameof(Byte_82_03));
+                    break;
                 case InstructionCommand.Unknown83:
                     Byte_83_02 = s.Serialize<byte>(Byte_83_02, name: nameof(Byte_83_02));
                     Byte_83_03 = s.Serialize<byte>(Byte_83_03, name: nameof(Byte_83_03));
@@ -134,6 +141,7 @@ namespace R1Engine
             Terminator20 = 0x20,
             Hitbox = 0x80,
             Unknown81 = 0x81,
+            Unknown82 = 0x82,
             Unknown83 = 0x83,
             Hitbox_Batman = 0x84,
             Unknown85 = 0x85,

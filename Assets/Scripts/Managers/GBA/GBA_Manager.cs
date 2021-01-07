@@ -1113,6 +1113,8 @@ namespace R1Engine
                     pal = playField.TilePalette;
                 else if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
                     pal = data.MadTraxPalette;
+                else if (context.Settings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                    pal = data.Milan_SceneList.Scene.TomClancy_TilePalette;
                 else if (context.Settings.GBA_IsMilan)
                     pal = map.TileKit.Palettes[0];
                 else

@@ -18,6 +18,8 @@
 
                 Data[i] = s.DoAt(ShanghaiOffsetTable.GetPointer(i), () => s.SerializeArray<byte>(Data[i], next - ShanghaiOffsetTable.GetPointer(i), name: $"{Data}[{i}]"));
             }
+
+            s.Goto(Offset + BlockSize);
         }
 
         public override void SerializeOffsetData(SerializerObject s)
