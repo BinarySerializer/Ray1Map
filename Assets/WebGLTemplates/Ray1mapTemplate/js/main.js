@@ -403,6 +403,7 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-showObjects"), msg.ShowObjects);
 	selectButton($("#btn-showObjOffsets"), msg.ShowObjOffsets);
 	selectButton($("#btn-showGizmos"), msg.ShowGizmos);
+	selectButton($("#btn-showGridMap"), msg.ShowGridMap);
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	if(msg.hasOwnProperty("HasAnimatedTiles") && !msg.HasAnimatedTiles) {
 		$("#btn-animateTiles").addClass("disabled-button");
@@ -1507,6 +1508,7 @@ function sendSettings() {
 			ShowObjects: $("#btn-showObjects").hasClass("selected"),
 			ShowObjOffsets: $("#btn-showObjOffsets").hasClass("selected"),
 			ShowGizmos: $("#btn-showGizmos").hasClass("selected"),
+			ShowGridMap: $("#btn-showGridMap").hasClass("selected"),
 			AnimateSprites: $("#btn-animateSprites").hasClass("selected"),
 			AnimateTiles: $("#btn-animateTiles").hasClass("selected"),
 			StateSwitchingMode: global_settings.StateSwitchingMode,

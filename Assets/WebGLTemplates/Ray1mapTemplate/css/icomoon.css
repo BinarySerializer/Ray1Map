@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('../fonts/icomoon/icomoon.eot?hbjqnq');
-  src:  url('../fonts/icomoon/icomoon.eot?hbjqnq#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon/icomoon.ttf?hbjqnq') format('truetype'),
-    url('../fonts/icomoon/icomoon.woff?hbjqnq') format('woff'),
-    url('../fonts/icomoon/icomoon.svg?hbjqnq#icomoon') format('svg');
+  src:  url('../fonts/icomoon/icomoon.eot?4wtl4c');
+  src:  url('../fonts/icomoon/icomoon.eot?4wtl4c#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon/icomoon.ttf?4wtl4c') format('truetype'),
+    url('../fonts/icomoon/icomoon.woff?4wtl4c') format('woff'),
+    url('../fonts/icomoon/icomoon.svg?4wtl4c#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -27,6 +27,9 @@
 
 .icon-plus1:before {
   content: "\e94a";
+}
+.icon-grid_on:before {
+  content: "\e94c";
 }
 .icon-add:before {
   content: "\e94b";
@@ -231,12 +234,6 @@
 }
 .icon-film:before {
   content: "\e914";
-}
-.icon-arrow-repeat:before {
-  content: "\e946";
-}
-.icon-arrow-sync:before {
-  content: "\e947";
 }
 .icon-game-controller:before {
   content: "\e942";
