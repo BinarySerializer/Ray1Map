@@ -11,6 +11,9 @@
         public GBA_R3_SceneInfo[] LevelInfo { get; set; }
 
         public GBA_LocLanguageTable Localization { get; set; }
+        public GBA_Milan_LocTable Milan_Localization { get; set; }
+
+        public GBA_ActorTypeTableEntry[] ActorTypeTable { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -21,7 +24,7 @@
             // Serialize ROM header
             base.SerializeImpl(s);
 
-            var levelCount = ((GBA_Manager)s.Context.Settings.GetGameManager).LevelCount;
+            var manager = ((GBA_Manager)s.Context.Settings.GetGameManager);
 
             // Get the pointer table
             var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.file);
@@ -31,11 +34,20 @@
 
             // Serialize level info
             if (pointerTable.ContainsKey(GBA_Pointer.LevelInfo))
-                LevelInfo = s.DoAt(pointerTable[GBA_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_SceneInfo>(LevelInfo, levelCount, name: nameof(LevelInfo)));
+                LevelInfo = s.DoAt(pointerTable[GBA_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_SceneInfo>(LevelInfo, manager.LevelCount, name: nameof(LevelInfo)));
 
             // Serialize localization
             if (pointerTable.ContainsKey(GBA_Pointer.Localization))
-                s.DoAt(pointerTable[GBA_Pointer.Localization], () => Localization = s.SerializeObject<GBA_LocLanguageTable>(Localization, name: nameof(Localization)));
+            {
+                if (s.GameSettings.GBA_IsMilan)
+                    s.DoAt(pointerTable[GBA_Pointer.Localization], () => Milan_Localization = s.SerializeObject<GBA_Milan_LocTable>(Milan_Localization, name: nameof(Milan_Localization)));
+                else
+                    s.DoAt(pointerTable[GBA_Pointer.Localization], () => Localization = s.SerializeObject<GBA_LocLanguageTable>(Localization, name: nameof(Localization)));
+            }
+
+            // Serialize actor type data
+            if (pointerTable.ContainsKey(GBA_Pointer.ActorTypeTable))
+                ActorTypeTable = s.DoAt(pointerTable[GBA_Pointer.ActorTypeTable], () => s.SerializeObjectArray<GBA_ActorTypeTableEntry>(ActorTypeTable, manager.ActorTypeTableLength, name: nameof(ActorTypeTable)));
         }
     }
 }

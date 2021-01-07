@@ -22,6 +22,7 @@ public class ObjPropertiesWindow : UnityWindow
     protected UnityWindowSerializer Serializer { get; set; }
 
     public bool R1_CmdPanelOpen { get; set; }
+    public bool LocPanelOpen { get; set; }
 
     protected override UniTask UpdateEditorFieldsAsync() 
     {
@@ -54,7 +55,13 @@ public class ObjPropertiesWindow : UnityWindow
 
                 try
                 {
-                    EditorGUI.BeginChangeCheck();
+                    LocPanelOpen = EditorGUI.Foldout(GetNextRect(ref YPos), LocPanelOpen, "Localization");
+
+                    if (LocPanelOpen)
+                    {
+                        foreach (var l in selectedObjData.GetLocIndices)
+                            EditorGUI.LabelField(GetNextRect(ref YPos), $"{l:000}: {LevelEditorData.Level.Localization.First().Value[l]}");
+                    }
 
                     if (selectedObjData is Unity_Object_R1 r1)
                     {
@@ -70,7 +77,9 @@ public class ObjPropertiesWindow : UnityWindow
                                 EditorGUI.TextArea(GetNextRect(ref YPos, height: cmdLines.Length * 15 + 2), String.Join(Environment.NewLine, cmdLines));
                         }
                     }
-                    
+
+                    EditorGUI.BeginChangeCheck();
+
                     selectedObj?.ObjData?.SerializableData?.SerializeImpl(Serializer);
 
                     if (EditorGUI.EndChangeCheck())

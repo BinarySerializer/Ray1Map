@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace R1Engine
@@ -105,6 +104,16 @@ namespace R1Engine
         }
 
         public override R1Serializable SerializableData => Actor;
+
+        public override IEnumerable<long> GetLocIndices
+        {
+            get
+            {
+                if (Actor.DialogTable != null)
+                    foreach (var d in Actor.DialogTable)
+                        yield return d;
+            }
+        }
 
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 

@@ -21,5 +21,35 @@ namespace R1Engine
         public override Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => null;
 
         protected override BaseColor[] GetSpritePalette(GBA_BatmanVengeance_Puppet puppet, GBA_Data data) => null;
+
+        public virtual long Milan_LocTableLength => 0;
+        public virtual long Milan_LocTableLangCount => 5;
+        public virtual string[] Milan_LocTableLanguages => new string[]
+        {
+            "English",
+            "French",
+            "German",
+            "Spanish",
+            "Italian",
+        };
+
+        public override Dictionary<string, string[]> LoadLocalization(Context context)
+        {
+            var locTable = FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Milan_Localization;
+
+            Dictionary<string, string[]> loc = null;
+
+            if (locTable != null)
+            {
+                loc = new Dictionary<string, string[]>();
+
+                var lang = Milan_LocTableLanguages;
+
+                for (int i = 0; i < lang.Length; i++)
+                    loc.Add(lang[i], locTable.Strings.Skip(i).Where((x, stringIndex) => stringIndex % lang.Length == 0).ToArray());
+            }
+
+            return loc;
+        }
     }
 }

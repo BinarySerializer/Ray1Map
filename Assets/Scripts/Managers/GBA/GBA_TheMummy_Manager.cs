@@ -12,6 +12,7 @@ namespace R1Engine
         };
 
         public override long ActorTypeTableLength => 70;
+        public override long Milan_LocTableLength => 87;
 
         public override int[] MenuLevels => new int[0];
         public override int DLCLevelCount => 0;

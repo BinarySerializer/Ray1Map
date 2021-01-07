@@ -16,8 +16,6 @@
 
         public GBA_Milan_SceneList Milan_SceneList { get; set; }
 
-        public GBA_ActorTypeTableEntry[] ActorTypeTable { get; set; }
-
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -72,9 +70,6 @@
                     // Nothing more to do here if it's a DLC map...
                     break;
             }
-
-            if (pointerTable.ContainsKey(GBA_Pointer.ActorTypeTable))
-                ActorTypeTable = s.DoAt(pointerTable[GBA_Pointer.ActorTypeTable], () => s.SerializeObjectArray<GBA_ActorTypeTableEntry>(ActorTypeTable, manager.ActorTypeTableLength, name: nameof(ActorTypeTable)));
         }
     }
 }
