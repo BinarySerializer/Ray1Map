@@ -60,7 +60,7 @@ public class ObjPropertiesWindow : UnityWindow
                     if (LocPanelOpen)
                     {
                         foreach (var l in selectedObjData.GetLocIndices)
-                            EditorGUI.LabelField(GetNextRect(ref YPos), $"{l:000}: {LevelEditorData.Level.Localization.First().Value[l]}");
+                            EditorGUI.LabelField(GetNextRect(ref YPos), $"{l:000}: {LevelEditorData.Level.Localization?.FirstOrDefault().Value?.ElementAtOrDefault(l)}");
                     }
 
                     if (selectedObjData is Unity_Object_R1 r1)

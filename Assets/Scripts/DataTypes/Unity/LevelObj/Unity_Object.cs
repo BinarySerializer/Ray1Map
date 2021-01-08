@@ -19,7 +19,7 @@ namespace R1Engine
         public bool HasPendingEdits { get; set; }
         public abstract R1Serializable SerializableData { get; }
 
-        public virtual IEnumerable<long> GetLocIndices => new long[0];
+        public virtual IEnumerable<int> GetLocIndices => new int[0];
 
         public abstract ILegacyEditorWrapper LegacyWrapper { get; }
 

@@ -107,7 +107,7 @@ namespace R1Engine
 
         public override R1Serializable SerializableData => Actor;
 
-        public override IEnumerable<long> GetLocIndices
+        public override IEnumerable<int> GetLocIndices
         {
             get
             {
