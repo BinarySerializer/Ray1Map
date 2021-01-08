@@ -31,6 +31,14 @@
         public byte Shanghai_Byte_0A { get; set; }
         public byte Shanghai_Byte_0B { get; set; }
 
+        public Milan_CompressionType Milan_MapCompressionType { get; set; }
+        public bool Milan_UnkFlag { get; set; } // True if collision?
+        public byte Milan_Byte_05 { get; set; }
+        public byte Milan_Byte_06 { get; set; } // Width related
+        public byte Milan_Byte_07 { get; set; } // Height related
+        public ushort Milan_Ushort_08 { get; set; }
+        public ushort Milan_Ushort_0A { get; set; } // Padding?
+
         public override void SerializeImpl(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
@@ -44,7 +52,17 @@
 
                 if (s.GameSettings.GBA_IsMilan)
                 {
-                    Batman_Data = s.SerializeArray<byte>(Batman_Data, 8, name: nameof(Batman_Data));
+                    s.SerializeBitValues<byte>(bitFunc =>
+                    {
+                        Milan_MapCompressionType = (Milan_CompressionType)bitFunc((byte)Milan_MapCompressionType, 7, name: nameof(Milan_MapCompressionType));
+                        Milan_UnkFlag = bitFunc(Milan_UnkFlag ? 1 : 0, 1, name: nameof(Milan_UnkFlag)) == 1;
+                    });
+
+                    Milan_Byte_05 = s.Serialize<byte>(Milan_Byte_05, name: nameof(Milan_Byte_05));
+                    Milan_Byte_06 = s.Serialize<byte>(Milan_Byte_06, name: nameof(Milan_Byte_06));
+                    Milan_Byte_07 = s.Serialize<byte>(Milan_Byte_07, name: nameof(Milan_Byte_07));
+                    Milan_Ushort_08 = s.Serialize<ushort>(Milan_Ushort_08, name: nameof(Milan_Ushort_08));
+                    Milan_Ushort_0A = s.Serialize<ushort>(Milan_Ushort_0A, name: nameof(Milan_Ushort_0A));
                 }
                 else
                 {
@@ -86,6 +104,17 @@
                 Byte_0E = s.Serialize<byte>(Byte_0E, name: nameof(Byte_0E));
                 Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));
             }
+        }
+
+        public enum Milan_CompressionType : byte
+        {
+            Collision_None = 0,
+            Collision_RL = 1,
+            Collsiion_LZSS = 2,
+
+            Map_None = 3,
+            Map_RL = 4,
+            Map_LZSS = 5
         }
     }
 }

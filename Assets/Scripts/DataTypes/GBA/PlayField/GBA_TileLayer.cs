@@ -90,31 +90,47 @@ namespace R1Engine
 
                 // Serialize cluster
                 Cluster = s.DoAt(ShanghaiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
-                
-                IsCompressed = Cluster.Batman_Data[0] == 5
-                    || (s.GameSettings.EngineVersion == EngineVersion.GBA_TheMummy && StructType == Type.Collision)
-                    || (s.GameSettings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy && Cluster.Batman_Data[0] == 0x81);
+
+                IStreamEncoder encoder = null;
+
+                switch (Cluster.Milan_MapCompressionType)
+                {
+                    case GBA_Cluster.Milan_CompressionType.Collision_RL:
+                    case GBA_Cluster.Milan_CompressionType.Map_RL:
+                        encoder = new GBA_RLEEncoder();
+                        break;
+
+                    case GBA_Cluster.Milan_CompressionType.Collsiion_LZSS:
+                    case GBA_Cluster.Milan_CompressionType.Map_LZSS:
+                        encoder = new GBA_LZSSEncoder();
+                        break;
+                }
 
                 // Go to the map data
                 s.Goto(ShanghaiOffsetTable.GetPointer(2));
 
                 if (StructType == Type.Layer2D)
                 {
-                    s.DoEncodedIf(new GBA_LZSSEncoder(), IsCompressed, () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, (Width * Height) / 4, name: nameof(Shanghai_MapIndices_16)));
+                    s.DoEncodedIf(encoder, encoder != null, () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, (Width * Height) / 4, name: nameof(Shanghai_MapIndices_16)));
 
                     var end = s.CurrentPointer;
 
                     // Go to the map tiles
                     s.Goto(ShanghaiOffsetTable.GetPointer(1));
 
-                    s.DoEncodedIf(new GBA_LZSSEncoder(), IsCompressed, () => Shanghai_MapTiles = s.SerializeObjectArray<MapTile>(Shanghai_MapTiles, (Shanghai_MapIndices_16.Max(x => BitHelpers.ExtractBits(x, 12, 0)) + 1) * 4, name: nameof(Shanghai_MapTiles)));
+                    s.DoEncodedIf(encoder, encoder != null, () => Shanghai_MapTiles = s.SerializeObjectArray<MapTile>(Shanghai_MapTiles, (Shanghai_MapIndices_16.Max(x => BitHelpers.ExtractBits(x, 12, 0)) + 1) * 4, name: nameof(Shanghai_MapTiles)));
 
                     s.Goto(end);
-                    s.Align();
-
-                    // Return to avoid serializing the map tile array normally
-                    return;
                 }
+                else // Collision
+                {
+                    s.DoEncodedIf(encoder, encoder != null, () => SerializeTileMap(s));
+                }
+
+                s.Align();
+
+                // Return to avoid serializing the map tile array normally
+                return;
             }
             else if (s.GameSettings.GBA_IsShanghai)
             {
@@ -249,8 +265,6 @@ namespace R1Engine
             {
                 if (!IsCompressed)
                     SerializeTileMap(s);
-                else if(s.GameSettings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy && Cluster.Batman_Data[0] == 0x81)
-                    s.DoEncoded(new GBA_RLEEncoder(), () => SerializeTileMap(s));
                 else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PoP)
                     s.DoEncoded(new GBA_Huffman4Encoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
                 else
