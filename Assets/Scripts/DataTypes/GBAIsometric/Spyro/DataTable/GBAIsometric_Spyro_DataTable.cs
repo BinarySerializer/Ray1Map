@@ -23,7 +23,7 @@ namespace R1Engine
                     return s.DoAt<T>(pointer, () =>
                     {
                         T data = null;
-                        s.DoEncoded(new HuffmanEncoder(), () => data = action(s.CurrentLength));
+                        s.DoEncoded(new GBA_Huffman4Encoder(), () => data = action(s.CurrentLength));
                         return data;
                     });
 

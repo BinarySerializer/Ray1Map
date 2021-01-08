@@ -157,12 +157,12 @@ namespace DSDecmp.Formats.Nitro
                 }
             }
 
-            if (readBytes < inLength)
+            /*if (readBytes < inLength)
             {
                 // the input may be 4-byte aligned.
                 if ((readBytes ^ (readBytes & 3)) + 4 < inLength)
                     throw new TooMuchInputException(readBytes, inLength);
-            }
+            }*/
 
             return decompressedSize;
         }

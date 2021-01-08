@@ -5,13 +5,13 @@ using System.IO;
 namespace R1Engine
 {
 	/// <summary>
-	/// Compresses/decompresses data using LZSS
+	/// Compresses/decompresses data using Huffman4
 	/// </summary>
-	public class HuffmanEncoder : IStreamEncoder {
+	public class GBA_RLEEncoder : IStreamEncoder {
 		public Stream DecodeStream(Stream s) {
-			Huffman4 huff = new Huffman4();
+			RLE rle = new RLE();
 			MemoryStream outStream = new MemoryStream();
-			huff.Decompress(s, s.Length, outStream);
+			rle.Decompress(s, s.Length, outStream);
 			outStream.Position = 0;
 			return outStream;
 		}

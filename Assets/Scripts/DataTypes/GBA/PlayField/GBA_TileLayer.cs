@@ -88,7 +88,9 @@ namespace R1Engine
                 // Serialize cluster
                 Cluster = s.DoAt(ShanghaiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Cluster>(Cluster, name: nameof(Cluster)));
                 
-                IsCompressed = Cluster.Batman_Data[0] == 5 || (s.GameSettings.EngineVersion == EngineVersion.GBA_TheMummy && StructType == Type.Collision);
+                IsCompressed = Cluster.Batman_Data[0] == 5
+                    || (s.GameSettings.EngineVersion == EngineVersion.GBA_TheMummy && StructType == Type.Collision)
+                    || (s.GameSettings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy && Cluster.Batman_Data[0] == 0x81);
 
                 // Go to the map data
                 s.Goto(ShanghaiOffsetTable.GetPointer(2));
@@ -244,8 +246,10 @@ namespace R1Engine
             {
                 if (!IsCompressed)
                     SerializeTileMap(s);
+                else if(s.GameSettings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy && Cluster.Batman_Data[0] == 0x81)
+                    s.DoEncoded(new GBA_RLEEncoder(), () => SerializeTileMap(s));
                 else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PoP)
-                    s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
+                    s.DoEncoded(new GBA_Huffman4Encoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
                 else
                     s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
                 s.Align();
