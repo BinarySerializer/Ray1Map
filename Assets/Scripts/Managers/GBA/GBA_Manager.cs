@@ -781,6 +781,7 @@ namespace R1Engine
 
             var mapDatas = new MapTile[mapLayers.Length][];
             var maps = new Unity_Map[mapLayers.Length];
+            Unity_IsometricData isometricData = null;
 
             // Add every map
             for (int layer = 0; layer < mapLayers.Length; layer++)
@@ -792,15 +793,44 @@ namespace R1Engine
 
                 if (map.StructType == GBA_TileLayer.Type.Collision)
                 {
-                    maps[layer] = new Unity_Map {
-                        Type = Unity_Map.MapType.Collision,
-                        Width = map.Width,
-                        Height = map.Height,
-                        MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
-                        {
-                            CollisionType = (byte)x
-                        })).ToArray(),
-                    };
+                    if (map.CollisionData3D != null) {
+                        isometricData = new Unity_IsometricData() {
+                            CollisionWidth = map.Width,
+                            CollisionHeight = map.Height,
+                            TilesWidth = map.Width,
+                            TilesHeight = map.Height,
+                            Collision = map.CollisionData3D.Select(c => new Unity_IsometricCollisionTile() {
+                                Type = c.Height > 10 ? Unity_IsometricCollisionTile.CollisionType.Wall : (Unity_IsometricCollisionTile.CollisionType)c.Type,
+                                Height = c.Height > 10 ? 0 : c.Height,
+
+                            }).ToArray(),
+                            Scale = new Vector3(1f, 3f/ Mathf.Cos(Mathf.Deg2Rad * 45f), 1f / Mathf.Sin(Mathf.Deg2Rad * 45f)) / 2f,
+                            ViewAngle = Quaternion.Euler(45f, 0f, 0f),
+                            CalculateYDisplacement = () => {
+                                return LevelEditorData.Level.IsometricData.CollisionHeight / 2f;
+                            },
+                            CalculateXDisplacement = () => {
+                                return LevelEditorData.Level.IsometricData.CollisionWidth / 2f;
+                            }
+                        };
+                        maps[layer] = new Unity_Map {
+                            Type = Unity_Map.MapType.Collision,
+                            Width = map.Width,
+                            Height = map.Height,
+                            MapTiles = map.CollisionData3D.Select((x, i) => new Unity_Tile(new MapTile() {
+                                CollisionType = (byte)x.Type
+                            })).ToArray(),
+                        };
+                    } else {
+                        maps[layer] = new Unity_Map {
+                            Type = Unity_Map.MapType.Collision,
+                            Width = map.Width,
+                            Height = map.Height,
+                            MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile() {
+                                CollisionType = (byte)x
+                            })).ToArray(),
+                        };
+                    }
                 }
                 else
                 {
@@ -945,7 +975,8 @@ namespace R1Engine
                 cellSize: CellSize,
                 getCollisionTypeNameFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
-                sectors: GetSectors(scene, dataBlock));
+                sectors: GetSectors(scene, dataBlock),
+                isometricData: isometricData);
         }
 
         public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0], data));

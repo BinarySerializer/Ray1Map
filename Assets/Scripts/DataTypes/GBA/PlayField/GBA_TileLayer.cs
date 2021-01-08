@@ -61,6 +61,9 @@ namespace R1Engine
         public ushort[] Shanghai_MapIndices_16 { get; set; }
         public MapTile[] Shanghai_MapTiles { get; set; }
 
+        // Milan
+        public GBA_3DCollision[] CollisionData3D { get; set; }
+
         // Parsed
         public GBA_Cluster Cluster { get; set; }
         public GBA_ClusterBlock ClusterBlock { get; set; }
@@ -276,7 +279,12 @@ namespace R1Engine
                     Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
                     break;
                 case Type.Collision:
-                    CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData));
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy || 
+                        s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear) {
+                        CollisionData3D = s.SerializeObjectArray<GBA_3DCollision>(CollisionData3D, Width * Height, name: nameof(CollisionData3D));
+                    } else {
+                        CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData));
+                    }
                     break;
             }
         }

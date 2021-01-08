@@ -72,15 +72,18 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 
 			// Update 3D camera
 			float scl = 1f;
-			Quaternion rot3D = Quaternion.Euler(30f, -45, 0);
+			Quaternion rot3D = LevelEditorData.Level.IsometricData.ViewAngle;
 			cam.transform.rotation = rot3D;
 			Vector3 v = rot3D * Vector3.back;
 			float w = LevelEditorData.Level.IsometricData.TilesWidth * cellSizeInUnits;
 			float h = (LevelEditorData.Level.IsometricData.TilesHeight) * cellSizeInUnits;
-			float colH = (LevelEditorData.Level.IsometricData.CollisionWidth + LevelEditorData.Level.IsometricData.CollisionHeight);
+			float colYDisplacement = LevelEditorData.Level.IsometricData.CalculateYDisplacement();
+			float colXDisplacement = LevelEditorData.Level.IsometricData.CalculateXDisplacement();
 
 			var pos = new Vector3((LevelEditorData.MaxWidth) * cellSizeInUnits / 2f, -(LevelEditorData.MaxHeight) * cellSizeInUnits / 2f, -10f);
-			cam.transform.position = v * 300 + rot3D * ((pos - new Vector3(w / 2f, colH / 2f - h / 2f, 0f)) / scl); // Move back 300 units
+
+			cam.transform.position = v * 300 + rot3D * ((pos -
+				new Vector3((w - colXDisplacement) / 2f, -(h - colYDisplacement) / 2f, 0f)) / scl); // Move back 300 units
 			cam.orthographicSize = Camera.main.orthographicSize / scl;
 			cam.rect = new Rect(0, 0, 1, 1);
 			cam.orthographic = true;

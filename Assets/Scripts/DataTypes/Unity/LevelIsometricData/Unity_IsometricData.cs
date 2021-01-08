@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -24,6 +25,10 @@ namespace R1Engine
 
         public int TilesWidth { get; set; }
         public int TilesHeight { get; set; }
+
+        public Quaternion ViewAngle { get; set; } = Quaternion.Euler(30f, -45, 0);
+        public Func<float> CalculateYDisplacement { get; set; } = () => LevelEditorData.Level.IsometricData.CollisionWidth + LevelEditorData.Level.IsometricData.CollisionHeight;
+        public Func<float> CalculateXDisplacement { get; set; } = () => 0;
 
         #endregion
 
