@@ -46,7 +46,7 @@
         public ushort ActorSize { get; set; }
 
         // Milan
-        public ushort Milan_Ushort_06 { get; set; }
+        public ushort Milan_Height { get; set; }
         public ushort Milan_XlateID { get; set; }
         public ushort Milan_LinksCount { get; set; }
         public Milan_ActorLink[] Milan_Links { get; set; }
@@ -77,7 +77,7 @@
                     Index_ActorModel = s.Serialize<ushort>(Index_ActorModel, name: nameof(Index_ActorModel));
                     XPos = s.Serialize<short>(XPos, name: nameof(XPos));
                     YPos = s.Serialize<short>(YPos, name: nameof(YPos));
-                    Milan_Ushort_06 = s.Serialize<ushort>(Milan_Ushort_06, name: nameof(Milan_Ushort_06));
+                    Milan_Height = s.Serialize<ushort>(Milan_Height, name: nameof(Milan_Height));
                     Milan_XlateID = s.Serialize<ushort>(Milan_XlateID, name: nameof(Milan_XlateID));
 
                     Milan_LinksCount = s.Serialize<ushort>(Milan_LinksCount, name: nameof(Milan_LinksCount));
@@ -92,7 +92,7 @@
                 {
                     XPos = s.Serialize<short>(XPos, name: nameof(XPos));
                     YPos = s.Serialize<short>(YPos, name: nameof(YPos));
-                    Milan_Ushort_06 = s.Serialize<ushort>(Milan_Ushort_06, name: nameof(Milan_Ushort_06));
+                    Milan_Height = s.Serialize<ushort>(Milan_Height, name: nameof(Milan_Height));
                     Milan_XlateID = s.Serialize<ushort>(Milan_XlateID, name: nameof(Milan_XlateID));
 
                     Milan_LinksCount = s.Serialize<ushort>(Milan_LinksCount, name: nameof(Milan_LinksCount));

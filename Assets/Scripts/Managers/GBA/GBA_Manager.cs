@@ -671,8 +671,15 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            // Get the map layers, skipping the text layers
-            var mapLayers = playField.Layers.Where(x => x.StructType != GBA_TileLayer.Type.TextLayerMode7).ToArray();
+            var uses3DCollision = context.Settings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy ||
+                                  context.Settings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear;
+
+            // Get the map layers
+            var mapLayers = playField.Layers.Where(x => 
+                // Skip text layers
+                x.StructType != GBA_TileLayer.Type.TextLayerMode7 &&
+                // Skip 3D collision
+                !(uses3DCollision && x.StructType == GBA_TileLayer.Type.Collision)).ToArray();
 
             // Create layers for Mode7 background
             if (playField.StructType == GBA_PlayField.Type.PlayFieldMode7)
@@ -793,44 +800,16 @@ namespace R1Engine
 
                 if (map.StructType == GBA_TileLayer.Type.Collision)
                 {
-                    if (map.CollisionData3D != null) {
-                        isometricData = new Unity_IsometricData() {
-                            CollisionWidth = map.Width,
-                            CollisionHeight = map.Height,
-                            TilesWidth = map.Width,
-                            TilesHeight = map.Height,
-                            Collision = map.CollisionData3D.Select(c => new Unity_IsometricCollisionTile() {
-                                Type = c.Height > 10 ? Unity_IsometricCollisionTile.CollisionType.Wall : (Unity_IsometricCollisionTile.CollisionType)c.Type,
-                                Height = c.Height > 10 ? 0 : c.Height,
-
-                            }).ToArray(),
-                            Scale = new Vector3(1f, 3f/ Mathf.Cos(Mathf.Deg2Rad * 45f), 1f / Mathf.Sin(Mathf.Deg2Rad * 45f)) / 2f,
-                            ViewAngle = Quaternion.Euler(45f, 0f, 0f),
-                            CalculateYDisplacement = () => {
-                                return LevelEditorData.Level.IsometricData.CollisionHeight / 2f;
-                            },
-                            CalculateXDisplacement = () => {
-                                return LevelEditorData.Level.IsometricData.CollisionWidth / 2f;
-                            }
-                        };
-                        maps[layer] = new Unity_Map {
-                            Type = Unity_Map.MapType.Collision,
-                            Width = map.Width,
-                            Height = map.Height,
-                            MapTiles = map.CollisionData3D.Select((x, i) => new Unity_Tile(new MapTile() {
-                                CollisionType = (byte)x.Type
-                            })).ToArray(),
-                        };
-                    } else {
-                        maps[layer] = new Unity_Map {
-                            Type = Unity_Map.MapType.Collision,
-                            Width = map.Width,
-                            Height = map.Height,
-                            MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile() {
-                                CollisionType = (byte)x
-                            })).ToArray(),
-                        };
-                    }
+                    maps[layer] = new Unity_Map
+                    {
+                        Type = Unity_Map.MapType.Collision,
+                        Width = map.Width,
+                        Height = map.Height,
+                        MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
+                        {
+                            CollisionType = (byte)x
+                        })).ToArray(),
+                    };
                 }
                 else
                 {
@@ -916,6 +895,33 @@ namespace R1Engine
                     if (map.ShouldSetBGAlphaBlending) {
                         maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;
                     }
+                }
+            }
+
+            // Add 3D collision
+            if (uses3DCollision)
+            {
+                var map = playField.Layers.FirstOrDefault(x => x.StructType == GBA_TileLayer.Type.Collision);
+
+                if (map != null)
+                {
+                    isometricData = new Unity_IsometricData()
+                    {
+                        CollisionWidth = map.Width,
+                        CollisionHeight = map.Height,
+                        TilesWidth = map.Width,
+                        TilesHeight = map.Height,
+                        Collision = map.CollisionData3D.Select(c => new Unity_IsometricCollisionTile()
+                        {
+                            Type = c.Height > 10 ? Unity_IsometricCollisionTile.CollisionType.Wall : (Unity_IsometricCollisionTile.CollisionType)c.Type,
+                            Height = c.Height > 10 ? 0 : c.Height,
+
+                        }).ToArray(),
+                        Scale = new Vector3(1f, 3f / Mathf.Cos(Mathf.Deg2Rad * 45f), 1f / Mathf.Sin(Mathf.Deg2Rad * 45f)) / 2f,
+                        ViewAngle = Quaternion.Euler(45f, 0f, 0f),
+                        CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionHeight / 2f,
+                        CalculateXDisplacement = () => LevelEditorData.Level.IsometricData.CollisionWidth / 2f
+                    };
                 }
             }
 
