@@ -1358,6 +1358,7 @@ a:focus {
 }
 #layer-buttons {
 	display: inline-block;
+	vertical-align: middle;
 }
 .small-footer-right {
 	display: block;
@@ -1391,6 +1392,7 @@ a:focus {
 	background-color: transparent;
 	text-align: center;
 	padding: 0.3em;
+	vertical-align: middle;
 	
 	border-radius: 50%;
 	/* border: 2px solid #9ed9a0; */
