@@ -12,5 +12,6 @@
         GBARRR,
         GBAIsometric,
         GBC,
+        GBACrash
     }
 }

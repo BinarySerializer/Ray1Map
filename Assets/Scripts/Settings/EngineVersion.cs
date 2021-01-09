@@ -80,5 +80,9 @@ namespace R1Engine
         GBC_R1_PocketPC,
         //GBC_R1_PalmDemo,
         //GBC_R1_PocketPCDemo,
+
+        // GBA Crash
+
+        GBACrash_Crash2,
     }
 }

@@ -62,5 +62,9 @@
         GBC_R2,
         GBC_DD,
         GBC_Mowgli,
+
+        // GBA Crash
+
+        GBACrash_Crash2
     }
 }

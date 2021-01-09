@@ -361,5 +361,10 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_Mowgli, "Mowgli's Wild Adventure (GBC - EU/US)", typeof(GBC_Mowgli_Manager))]
         MowgliGBC,
+
+        // Crash Bandicoot GBA
+
+        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBACrash_Crash2_Manager))]
+        Crash2GBAUS,
     }
 }
