@@ -855,5 +855,20 @@ namespace R1Engine
                     return null;
             }
         }
+
+        public static Dictionary<GBACrash_Pointer, Pointer> GBACrash_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
+            switch (gameMode) 
+            {
+                case GameModeSelection.Crash2GBAUS:
+                    return new Dictionary<GBACrash_Pointer, uint>() {
+                        [GBACrash_Pointer.LevelInfo] = 0x081d2714,
+                        [GBACrash_Pointer.Localization] = 0x081d5c04,
+                        [GBACrash_Pointer.Map2D_AnimSets] = 0x0846dd84,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                default:
+                    return null;
+            }
+        }
     }
 }
