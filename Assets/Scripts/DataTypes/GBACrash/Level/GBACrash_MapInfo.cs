@@ -12,6 +12,7 @@
 
         // Serialized from pointers
 
+        public RGBA5551Color[] TilePalette2D { get; set; }
         public GBACrash_MapData2D MapData2D { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -24,6 +25,7 @@
             Byte_12 = s.Serialize<byte>(Byte_12, name: nameof(Byte_12));
             Byte_13 = s.Serialize<byte>(Byte_13, name: nameof(Byte_13));
 
+            TilePalette2D = s.DoAt(TilePalette2DPointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette2D, 256, name: nameof(TilePalette2D)));
             MapData2D = s.DoAt(MapData2DPointer, () => s.SerializeObject<GBACrash_MapData2D>(MapData2D, name: nameof(MapData2D)));
         }
 

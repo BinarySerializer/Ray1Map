@@ -45,17 +45,43 @@
 
             public class Object : R1Serializable
             {
-                public ushort ObjType { get; set; }
+                public ObjectType ObjType { get; set; }
                 public short XPos { get; set; }
                 public short YPos { get; set; }
                 public ushort Ushort_06 { get; set; }
 
                 public override void SerializeImpl(SerializerObject s)
                 {
-                    ObjType = s.Serialize<ushort>(ObjType, name: nameof(ObjType));
+                    ObjType = s.Serialize<ObjectType>(ObjType, name: nameof(ObjType));
                     XPos = s.Serialize<short>(XPos, name: nameof(XPos));
                     YPos = s.Serialize<short>(YPos, name: nameof(YPos));
                     Ushort_06 = s.Serialize<ushort>(Ushort_06, name: nameof(Ushort_06));
+                }
+
+                public enum ObjectType : short
+                {
+                    Crash = 0,
+
+                    Wumpa = 2,
+
+                    TimeTrialClock = 9,
+
+                    Crate_Normal = 13,
+                    Crate_Checkpoint = 14,
+                    Crate_AkuAku = 15,
+
+                    Crate_NitroSwitch = 19,
+                    Crate_Iron = 20,
+                    Crate_IronUp = 20,
+                    Crate_Life = 22,
+                    Crate_Nitro = 23,
+                    Crate_QuestionMark = 24,
+                    Crate_Bounce = 25,
+                    Crate_Locked = 26,
+                    Crate_TNT = 27,
+                    Crate_Slot = 28,
+
+                    TutorialMessage = 105,
                 }
             }
         }
