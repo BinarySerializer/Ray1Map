@@ -11,6 +11,8 @@
 
         // Serialized from pointers
         public GBACrash_MapLayer[] MapLayers { get; set; }
+        public GBACrash_ObjData ObjData { get; set; }
+        public GBACrash_ObjDataUnkTable ObjDataUnkTable { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -28,6 +30,9 @@
 
             for (int i = 0; i < MapLayers.Length; i++)
                 MapLayers[i] = s.DoAt(MapLayersPointers[i], () => s.SerializeObject<GBACrash_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
+
+            ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBACrash_ObjData>(ObjData, name: nameof(ObjData)));
+            ObjDataUnkTable = s.DoAt(ObjDataUnkTablePointer, () => s.SerializeObject<GBACrash_ObjDataUnkTable>(ObjDataUnkTable, name: nameof(ObjDataUnkTable)));
         }
     }
 }
