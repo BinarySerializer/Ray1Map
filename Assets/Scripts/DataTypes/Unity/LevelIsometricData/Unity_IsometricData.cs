@@ -29,6 +29,8 @@ namespace R1Engine
         public Quaternion ViewAngle { get; set; } = Quaternion.Euler(30f, -45, 0);
         public Func<float> CalculateYDisplacement { get; set; } = () => LevelEditorData.Level.IsometricData.CollisionWidth + LevelEditorData.Level.IsometricData.CollisionHeight;
         public Func<float> CalculateXDisplacement { get; set; } = () => 0;
+        public Vector3 ObjectScale { get; set; } = Vector3.one * 16;
+        public Vector3 AbsoluteObjectScale => new Vector3(Scale.x / ObjectScale.x, Scale.y / ObjectScale.y, Scale.z / ObjectScale.z);
 
         #endregion
 

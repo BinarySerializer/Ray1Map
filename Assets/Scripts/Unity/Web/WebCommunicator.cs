@@ -589,7 +589,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.Y.HasValue) o.ObjData.YPosition = (short)msg.Y.Value;
 		if (msg.IsEnabled.HasValue) o.IsEnabled = msg.IsEnabled.Value;
 		if (msg.StateIndex.HasValue) o.ObjData.CurrentUIState = msg.StateIndex.Value;
-		if (msg.Position3D.HasValue && o.ObjData is Unity_Object_3D o3d) {
+		if (msg.Position3D.HasValue && o.ObjData is Unity_Object_3D o3d && LevelEditorData.Level?.IsometricData != null) {
 			o3d.Position = msg.Position3D.Value;
 		}
 		switch (o.ObjData) {

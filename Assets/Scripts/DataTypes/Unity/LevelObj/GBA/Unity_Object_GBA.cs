@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBA : Unity_Object
+    public class Unity_Object_GBA : Unity_Object_3D
     {
         public Unity_Object_GBA(GBA_Actor actor, Unity_ObjectManager_GBA objManager)
         {
@@ -71,6 +71,16 @@ namespace R1Engine
                 Actor.BoxMaxY = (short)(Actor.BoxMaxY - change);
             }
         }
+        public override Vector3 Position {
+            get => new Vector3(Actor.XPos, Actor.YPos, Actor.Milan_Height);
+            set {
+                Actor.XPos = (short)Mathf.RoundToInt(value.x);
+                Actor.YPos = (short)Mathf.RoundToInt(value.y);
+                Actor.Milan_Height = (ushort)Mathf.RoundToInt(Mathf.Clamp(value.z,ushort.MinValue, ushort.MaxValue));
+
+            }
+        }
+
 
         public override string DebugText => String.Empty;
 
@@ -267,8 +277,7 @@ namespace R1Engine
 		#region UI States
 		protected int UIStates_GraphicsDataIndex { get; set; } = -2;
         protected override bool IsUIStateArrayUpToDate => ActorModelIndex == UIStates_GraphicsDataIndex;
-
-        protected class GBA_UIState : UIState {
+		protected class GBA_UIState : UIState {
             public GBA_UIState(string displayName, byte stateIndex) : base(displayName) {
                 StateIndex = stateIndex;
             }

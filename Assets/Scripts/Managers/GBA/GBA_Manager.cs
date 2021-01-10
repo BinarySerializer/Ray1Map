@@ -920,7 +920,8 @@ namespace R1Engine
                         Scale = new Vector3(1f, 3f / Mathf.Cos(Mathf.Deg2Rad * 45f), 1f / Mathf.Sin(Mathf.Deg2Rad * 45f)) / 2f,
                         ViewAngle = Quaternion.Euler(45f, 0f, 0f),
                         CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionHeight / 2f,
-                        CalculateXDisplacement = () => LevelEditorData.Level.IsometricData.CollisionWidth / 2f
+                        CalculateXDisplacement = () => LevelEditorData.Level.IsometricData.CollisionWidth / 2f,
+                        ObjectScale = new Vector3(8,24,8)
                     };
                 }
             }
