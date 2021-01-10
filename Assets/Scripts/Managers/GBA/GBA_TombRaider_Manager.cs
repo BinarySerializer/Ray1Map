@@ -11,6 +11,8 @@ namespace R1Engine
             Enumerable.Range(0, 53)
         };
 
+        public override long Milan_LocTableLength => 136;
+
         public override int[] MenuLevels => new int[0];
         public override int DLCLevelCount => 0;
         public override int[] AdditionalSprites4bpp => new int[0];

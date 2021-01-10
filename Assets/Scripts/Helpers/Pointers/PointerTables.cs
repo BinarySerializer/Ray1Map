@@ -475,6 +475,7 @@ namespace R1Engine
                 case GameModeSelection.TombRaiderTheProphecyUS:
                     return new Dictionary<GBA_Pointer, uint>() {
                         [GBA_Pointer.UiOffsetTable] = 0x08061d48,
+                        [GBA_Pointer.Localization] = 0x08061250,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.TomClancysRainbowSixRogueSpearUS:
