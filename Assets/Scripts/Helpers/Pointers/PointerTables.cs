@@ -465,6 +465,7 @@ namespace R1Engine
                         [GBA_Pointer.UiOffsetTable] = 0x081824D8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.TheMummyEU:
                 case GameModeSelection.TheMummyUS:
                     return new Dictionary<GBA_Pointer, uint>() {
                         [GBA_Pointer.UiOffsetTable] = 0x080601b8,
@@ -472,10 +473,16 @@ namespace R1Engine
                         [GBA_Pointer.Localization] = 0x0805fadc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.TombRaiderTheProphecyEU:
                 case GameModeSelection.TombRaiderTheProphecyUS:
                     return new Dictionary<GBA_Pointer, uint>() {
                         [GBA_Pointer.UiOffsetTable] = 0x08061d48,
                         [GBA_Pointer.Localization] = 0x08061250,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.TomClancysRainbowSixRogueSpearEU:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x08045E20,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.TomClancysRainbowSixRogueSpearUS:
