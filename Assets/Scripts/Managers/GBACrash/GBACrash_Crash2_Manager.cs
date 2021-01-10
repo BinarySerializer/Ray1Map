@@ -143,7 +143,7 @@ namespace R1Engine
                         },
                         MapTiles = GetTileMap(x, map.MapData2D.DataBlock.TileLayerDatas[i], i == 3, x.TileSet.TileSet.Length / 32),
                         Type = Unity_Map.MapType.Graphics,
-                        Layer = x.LayerPrio == 1 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
+                        Layer = i == 2 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
                     },
                     Prio = x.LayerPrio
                 };

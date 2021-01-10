@@ -11,352 +11,354 @@ namespace R1Engine
             {
                 switch (obj.Object.ObjType)
                 {
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crash:
+                    case GBACrash_ObjType.Crash:
                         obj.AnimSetIndex = 0;
                         obj.AnimIndex = 18;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_1:
+                    case GBACrash_ObjType.Type_1:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Wumpa:
+                    case GBACrash_ObjType.Wumpa:
                         obj.AnimSetIndex = 0x1B;
                         obj.AnimIndex = 1;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_3:
+                    case GBACrash_ObjType.Crystal:
+                        obj.AnimSetIndex = 29;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_ObjType.Type_4:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_4:
+                    case GBACrash_ObjType.Type_5:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_5:
+                    case GBACrash_ObjType.Type_6:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_6:
+                    case GBACrash_ObjType.Type_7:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_7:
+                    case GBACrash_ObjType.Type_8:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_8:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
-                        break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.TimeTrialClock:
+                    case GBACrash_ObjType.TimeTrialClock:
                         obj.AnimSetIndex = 28;
                         obj.AnimIndex = 0;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_10:
+                    case GBACrash_ObjType.Type_10:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_11:
+                    case GBACrash_ObjType.Type_11:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_12:
+                    case GBACrash_ObjType.Type_12:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_Normal:
+                    case GBACrash_ObjType.Crate_Normal:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 31;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_Checkpoint:
+                    case GBACrash_ObjType.Crate_Checkpoint:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 26;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_AkuAku:
+                    case GBACrash_ObjType.Crate_AkuAku:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 23;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_16:
+                    case GBACrash_ObjType.Type_16:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_17:
+                    case GBACrash_ObjType.Type_17:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_18:
+                    case GBACrash_ObjType.Type_18:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_NitroSwitch:
+                    case GBACrash_ObjType.Crate_NitroSwitch:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 4;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_Iron:
+                    case GBACrash_ObjType.Crate_Iron:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 32;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_IronUp:
+                    case GBACrash_ObjType.Crate_IronUp:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 2;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_Life:
+                    case GBACrash_ObjType.Crate_Life:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 28;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_Nitro:
+                    case GBACrash_ObjType.Crate_Nitro:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 5;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_QuestionMark:
+                    case GBACrash_ObjType.Crate_QuestionMark:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 0;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_Bounce:
+                    case GBACrash_ObjType.Crate_Bounce:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 25;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_Locked:
+                    case GBACrash_ObjType.Crate_Locked:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 6;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_TNT:
+                    case GBACrash_ObjType.Crate_TNT:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 17;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Crate_Slot:
+                    case GBACrash_ObjType.Crate_Slot:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 7;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_29:
+                    case GBACrash_ObjType.Type_29:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_30:
+                    case GBACrash_ObjType.Type_30:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_31:
+                    case GBACrash_ObjType.Type_31:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_32:
+                    case GBACrash_ObjType.Type_32:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_33:
+                    case GBACrash_ObjType.Type_33:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_34:
+                    case GBACrash_ObjType.Type_34:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_35:
+                    case GBACrash_ObjType.Type_35:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_36:
+                    case GBACrash_ObjType.Type_36:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_37:
+                    case GBACrash_ObjType.Type_37:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.LevelExit:
+                    case GBACrash_ObjType.LevelExit:
                         obj.AnimSetIndex = 39;
                         obj.AnimIndex = 2;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_39:
+                    case GBACrash_ObjType.Type_39:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_40:
+                    case GBACrash_ObjType.Type_40:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_41:
+                    case GBACrash_ObjType.Type_41:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_42:
+                    case GBACrash_ObjType.Type_42:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_43:
+                    case GBACrash_ObjType.Type_43:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_44:
+                    case GBACrash_ObjType.Type_44:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_45:
+                    case GBACrash_ObjType.Type_45:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_46:
+                    case GBACrash_ObjType.Type_46:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_47:
+                    case GBACrash_ObjType.Type_47:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_48:
+                    case GBACrash_ObjType.Type_48:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_49:
+                    case GBACrash_ObjType.Type_49:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_50:
+                    case GBACrash_ObjType.Type_50:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_51:
+                    case GBACrash_ObjType.Type_51:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_52:
+                    case GBACrash_ObjType.Type_52:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_53:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Scorpion:
+                        obj.AnimSetIndex = 5;
+                        obj.AnimIndex = 0;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_54:
+                    case GBACrash_ObjType.Type_54:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_55:
+                    case GBACrash_ObjType.Type_55:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_56:
+                    case GBACrash_ObjType.Type_56:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_57:
+                    case GBACrash_ObjType.Type_57:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_58:
+                    case GBACrash_ObjType.Type_58:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_59:
+                    case GBACrash_ObjType.Type_59:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_60:
+                    case GBACrash_ObjType.Type_60:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_61:
+                    case GBACrash_ObjType.Type_61:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_62:
+                    case GBACrash_ObjType.Type_62:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_63:
+                    case GBACrash_ObjType.Type_63:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_64:
+                    case GBACrash_ObjType.Type_64:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_65:
+                    case GBACrash_ObjType.Type_65:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_66:
+                    case GBACrash_ObjType.Type_66:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_67:
+                    case GBACrash_ObjType.Type_67:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_68:
+                    case GBACrash_ObjType.Type_68:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_69:
+                    case GBACrash_ObjType.Type_69:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_70:
+                    case GBACrash_ObjType.Type_70:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_71:
+                    case GBACrash_ObjType.Type_71:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_72:
+                    case GBACrash_ObjType.Type_72:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_73:
+                    case GBACrash_ObjType.Type_73:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_74:
+                    case GBACrash_ObjType.Type_74:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_75:
+                    case GBACrash_ObjType.Type_75:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_76:
+                    case GBACrash_ObjType.Type_76:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_77:
+                    case GBACrash_ObjType.Type_77:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_78:
+                    case GBACrash_ObjType.Type_78:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_79:
+                    case GBACrash_ObjType.Type_79:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_80:
+                    case GBACrash_ObjType.Type_80:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_81:
+                    case GBACrash_ObjType.Type_81:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_82:
+                    case GBACrash_ObjType.Type_82:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_83:
+                    case GBACrash_ObjType.Type_83:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_84:
+                    case GBACrash_ObjType.Type_84:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_85:
+                    case GBACrash_ObjType.Type_85:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_86:
+                    case GBACrash_ObjType.Type_86:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_87:
+                    case GBACrash_ObjType.Type_87:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_88:
+                    case GBACrash_ObjType.Type_88:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_89:
+                    case GBACrash_ObjType.Type_89:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_90:
+                    case GBACrash_ObjType.Type_90:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_91:
+                    case GBACrash_ObjType.Type_91:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_92:
+                    case GBACrash_ObjType.Type_92:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_93:
+                    case GBACrash_ObjType.Type_93:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_94:
+                    case GBACrash_ObjType.Type_94:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_95:
+                    case GBACrash_ObjType.Type_95:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_96:
+                    case GBACrash_ObjType.Type_96:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_97:
+                    case GBACrash_ObjType.Type_97:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_98:
+                    case GBACrash_ObjType.Type_98:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_99:
+                    case GBACrash_ObjType.Type_99:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_100:
+                    case GBACrash_ObjType.Type_100:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_101:
+                    case GBACrash_ObjType.Type_101:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_102:
+                    case GBACrash_ObjType.Type_102:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_103:
+                    case GBACrash_ObjType.Type_103:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_104:
+                    case GBACrash_ObjType.Type_104:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.TutorialMessage:
+                    case GBACrash_ObjType.TutorialMessage:
                         obj.AnimSetIndex = 30;
                         obj.AnimIndex = 2;
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_106:
+                    case GBACrash_ObjType.Type_106:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_107:
+                    case GBACrash_ObjType.Type_107:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_108:
+                    case GBACrash_ObjType.Type_108:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjData.ObjGroup.Object.ObjectType.Type_109:
+                    case GBACrash_ObjType.Type_109:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
                     default:

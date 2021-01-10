@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class Unity_Object_GBACrash : Unity_Object
     {
-        public Unity_Object_GBACrash(Unity_ObjectManager_GBACrash objManager, GBACrash_ObjData.ObjGroup.Object obj)
+        public Unity_Object_GBACrash(Unity_ObjectManager_GBACrash objManager, GBACrash_Object obj)
         {
             ObjManager = objManager;
             Object = obj;
@@ -17,7 +17,7 @@ namespace R1Engine
         }
 
         public Unity_ObjectManager_GBACrash ObjManager { get; }
-        public GBACrash_ObjData.ObjGroup.Object Object { get; set; }
+        public GBACrash_Object Object { get; set; }
 
         public override short XPosition
         {
@@ -75,7 +75,7 @@ namespace R1Engine
             public ushort Type
             {
                 get => (ushort)Obj.Object.ObjType;
-                set => Obj.Object.ObjType = (GBACrash_ObjData.ObjGroup.Object.ObjectType)value;
+                set => Obj.Object.ObjType = (GBACrash_ObjType)value;
             }
 
             public int DES
