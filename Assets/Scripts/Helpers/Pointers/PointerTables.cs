@@ -864,6 +864,8 @@ namespace R1Engine
                         [GBACrash_Pointer.LevelInfo] = 0x081d2714,
                         [GBACrash_Pointer.Localization] = 0x081d5c04,
                         [GBACrash_Pointer.Map2D_AnimSets] = 0x0846dd84,
+                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082aadd4,
+                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x0846d1d4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

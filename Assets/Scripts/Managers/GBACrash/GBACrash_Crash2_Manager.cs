@@ -271,6 +271,51 @@ namespace R1Engine
             return tileMap;
         }
 
+        public Texture2D LoadAnimFrame(GBACrash_AnimationFrame frame, byte[] tileSet, Color[] pal)
+        {
+            var shapes = TileShapes;
+
+            var minX = frame.TilePositions.Select(x => x.XPos).Min();
+            var minY = frame.TilePositions.Select(x => x.YPos).Min();
+            var maxX = (int)Enumerable.Range(0, frame.TilesCount).Select(x => frame.TilePositions[x].XPos + shapes[frame.TileShapes[x].ShapeIndex].x).Max();
+            var maxY = (int)Enumerable.Range(0, frame.TilesCount).Select(x => frame.TilePositions[x].YPos + shapes[frame.TileShapes[x].ShapeIndex].y).Max();
+
+            var width = maxX - minX;
+            var height = maxY - minY;
+
+            var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
+
+            int offset = (int)frame.TileOffset.Value;
+
+            for (int i = 0; i < frame.TilesCount; i++)
+            {
+                var shape = shapes[frame.TileShapes[i].ShapeIndex];
+                var pos = frame.TilePositions[i];
+
+                for (int y = 0; y < shape.y; y += 8)
+                {
+                    for (int x = 0; x < shape.x; x += 8)
+                    {
+                        tex.FillInTile(
+                            imgData: tileSet,
+                            imgDataOffset: offset,
+                            pal: pal,
+                            encoding: Util.TileEncoding.Linear_4bpp,
+                            tileWidth: CellSize,
+                            flipTextureY: true,
+                            tileX: pos.XPos + x - minX,
+                            tileY: pos.YPos + y - minY);
+
+                        offset += 32;
+                    }
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
+        }
+
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
@@ -353,6 +398,22 @@ namespace R1Engine
             new LevInfo(28, 0, "N. Tropy - Part 1"), 
             new LevInfo(28, 1, "N. Tropy - Part 2"), 
             new LevInfo(28, 2, "N. Tropy - Part 3"), 
+        };
+
+        public Vector2[] TileShapes = new Vector2[]
+        {
+            new Vector2(0x08, 0x08), 
+            new Vector2(0x10, 0x10), 
+            new Vector2(0x20, 0x20), 
+            new Vector2(0x40, 0x40), 
+            new Vector2(0x10, 0x08), 
+            new Vector2(0x20, 0x08), 
+            new Vector2(0x20, 0x10), 
+            new Vector2(0x40, 0x20), 
+            new Vector2(0x08, 0x10), 
+            new Vector2(0x08, 0x20), 
+            new Vector2(0x10, 0x20), 
+            new Vector2(0x20, 0x40), 
         };
     }
 }

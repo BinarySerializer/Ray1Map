@@ -10,7 +10,7 @@
         // Serialized from pointers
         
         public TilePosition[] TilePositions { get; set; }
-        public byte[] TileShapes { get; set; }
+        public TileShape[] TileShapes { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -20,7 +20,7 @@
             TilesCount = s.Serialize<byte>(TilesCount, name: nameof(TilesCount));
 
             TilePositions = s.DoAt(TilePositionsPointer, () => s.SerializeObjectArray<TilePosition>(TilePositions, TilesCount, name: nameof(TilePositions)));
-            TileShapes = s.DoAt(TileShapesPointer, () => s.SerializeArray<byte>(TileShapes, TilesCount, name: nameof(TileShapes)));
+            TileShapes = s.DoAt(TileShapesPointer, () => s.SerializeObjectArray<TileShape>(TileShapes, TilesCount, name: nameof(TileShapes)));
         }
 
         public class TilePosition : R1Serializable
@@ -32,6 +32,21 @@
             {
                 XPos = s.Serialize<short>(XPos, name: nameof(XPos));
                 YPos = s.Serialize<short>(YPos, name: nameof(YPos));
+            }
+        }
+
+        public class TileShape : R1Serializable
+        {
+            public byte ShapeIndex { get; set; }
+            public byte Unknown { get; set; }
+
+            public override void SerializeImpl(SerializerObject s)
+            {
+                s.SerializeBitValues<byte>(bitFunc =>
+                {
+                    ShapeIndex = (byte)bitFunc(ShapeIndex, 4, name: nameof(ShapeIndex));
+                    Unknown = (byte)bitFunc(Unknown, 4, name: nameof(Unknown));
+                });
             }
         }
     }
