@@ -11,6 +11,7 @@
 
         // Serialized from pointers
         public GBACrash_MapLayer[] MapLayers { get; set; }
+        public GBACrash_MapLayer CollisionLayer { get; set; }
         public GBACrash_MapData2DDataBlock DataBlock { get; set; }
         public GBACrash_ObjData ObjData { get; set; }
         public GBACrash_ObjDataUnkTable ObjDataUnkTable { get; set; }
@@ -31,6 +32,8 @@
 
             for (int i = 0; i < MapLayers.Length; i++)
                 MapLayers[i] = s.DoAt(MapLayersPointers[i], () => s.SerializeObject<GBACrash_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
+
+            CollisionLayer = s.DoAt(CollisionDataPointer, () => s.SerializeObject<GBACrash_MapLayer>(CollisionLayer, name: nameof(CollisionLayer)));
 
             DataBlock = s.DoAt(DataBlockPointer, () => s.SerializeObject<GBACrash_MapData2DDataBlock>(DataBlock, x =>
             {

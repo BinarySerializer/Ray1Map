@@ -2,6 +2,8 @@
 {
     public class GBACrash_LevelInfo : R1Serializable
     {
+        public GBACrash_Crash2_Manager.LevInfo LevInfo { get; set; } // Set before serializing if it's the current level
+
         public uint LocIndex_LevelName { get; set; }
         public GBACrash_Crash2_LevelTheme LevelTheme { get; set; } // For the level music
         public GBACrash_Time Time_Saphire { get; set; }
@@ -32,7 +34,7 @@
             s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
             LevelDataPointer = s.SerializePointer(LevelDataPointer, name: nameof(LevelDataPointer));
 
-            LevelData = s.DoAt(LevelDataPointer, () => s.SerializeObject<GBACrash_LevelData>(LevelData, name: nameof(LevelData)));
+            LevelData = s.DoAt(LevelDataPointer, () => s.SerializeObject<GBACrash_LevelData>(LevelData, x => x.LevInfo = LevInfo, name: nameof(LevelData)));
         }
 
         public enum GBACrash_Crash2_LevelTheme

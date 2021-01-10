@@ -78,7 +78,14 @@ namespace R1Engine
                     },
                     Prio = x.LayerPrio
                 };
-            }).Where(x => x != null).OrderByDescending(x => x.Prio).Select(x => x.Map).ToArray();
+            }).Where(x => x != null).OrderByDescending(x => x.Prio).Select(x => x.Map).Append(new Unity_Map()
+            {
+                Width = map.MapData2D.CollisionLayer.MapWidth,
+                Height = map.MapData2D.CollisionLayer.MapHeight,
+                TileSet = new Unity_TileSet[0],
+                MapTiles = GetTileMap(map.MapData2D.CollisionLayer, map.MapData2D.DataBlock.CollisionLayerData, isCollision: true),
+                Type = Unity_Map.MapType.Collision,
+            }).ToArray();
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
@@ -90,7 +97,9 @@ namespace R1Engine
                 maps: maps,
                 objManager: objmanager,
                 eventData: new List<Unity_Object>(objects),
-                cellSize: CellSize);
+                cellSize: CellSize,
+                getCollisionTypeGraphicFunc: x => ((GBACrash_Crash2_CollisionType)x).GetCollisionTypeGraphic(),
+                getCollisionTypeNameFunc: x => ((GBACrash_Crash2_CollisionType)x).ToString());
         }
 
         public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit)
@@ -141,7 +150,7 @@ namespace R1Engine
             return new Unity_TileSet(tex, CellSize);
         }
 
-        public Unity_Tile[] GetTileMap(GBACrash_MapLayer layer, GBACrash_MapData2DDataBlock.GBACrash_TileLayerData tileLayerData, bool is8bit, int tileSetLength)
+        public Unity_Tile[] GetTileMap(GBACrash_MapLayer layer, GBACrash_MapData2DDataBlock.GBACrash_TileLayerData tileLayerData, bool is8bit = false, int tileSetLength = 0, bool isCollision = false)
         {
             var tileMap = new Unity_Tile[layer.MapWidth * layer.MapHeight];
 
@@ -221,17 +230,35 @@ namespace R1Engine
                         if (tileMap.Length <= tileMapIndex)
                             return;
 
-                        tileMap[tileMapIndex] = new Unity_Tile(is8bit ? new MapTile()
+                        MapTile mapTile;
+
+                        if (isCollision)
                         {
-                            TileMapY = (ushort)(BitHelpers.ExtractBits(tileIndex, 14, 0)),
-                            HorizontalFlip = BitHelpers.ExtractBits(tileIndex, 1, 14) == 1,
-                            VerticalFlip = BitHelpers.ExtractBits(tileIndex, 1, 15) == 1,
-                        } : new MapTile()
+                            mapTile = new MapTile()
+                            {
+                                CollisionType = (byte)tileIndex
+                            };
+                        }
+                        else if (is8bit)
                         {
-                            TileMapY = (ushort)(BitHelpers.ExtractBits(tileIndex, 10, 0) + (tileSetLength * BitHelpers.ExtractBits(tileIndex, 4, 12))),
-                            HorizontalFlip = BitHelpers.ExtractBits(tileIndex, 1, 10) == 1,
-                            VerticalFlip = BitHelpers.ExtractBits(tileIndex, 1, 11) == 1,
-                        })
+                            mapTile = new MapTile()
+                            {
+                                TileMapY = (ushort)(BitHelpers.ExtractBits(tileIndex, 14, 0)),
+                                HorizontalFlip = BitHelpers.ExtractBits(tileIndex, 1, 14) == 1,
+                                VerticalFlip = BitHelpers.ExtractBits(tileIndex, 1, 15) == 1,
+                            };
+                        }
+                        else
+                        {
+                            mapTile = new MapTile()
+                            {
+                                TileMapY = (ushort)(BitHelpers.ExtractBits(tileIndex, 10, 0) + (tileSetLength * BitHelpers.ExtractBits(tileIndex, 4, 12))),
+                                HorizontalFlip = BitHelpers.ExtractBits(tileIndex, 1, 10) == 1,
+                                VerticalFlip = BitHelpers.ExtractBits(tileIndex, 1, 11) == 1,
+                            };
+                        }
+
+                        tileMap[tileMapIndex] = new Unity_Tile(mapTile)
                         {
                             DebugText = $"CMD: {cmd}{Environment.NewLine}" +
                                         $"Index: {blockIndex}{Environment.NewLine}" +
@@ -277,6 +304,8 @@ namespace R1Engine
                 Challenge
             }
         }
+
+        public LevInfo[] LevInfos => Levels;
 
         public static LevInfo[] Levels = new LevInfo[]
         {

@@ -8,6 +8,7 @@ namespace R1Engine
         public GBACrash_MapData2D MapData { get; set; } // Set before serializing
 
         public GBACrash_TileLayerData[] TileLayerDatas { get; set; }
+        public GBACrash_TileLayerData CollisionLayerData { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
@@ -19,8 +20,13 @@ namespace R1Engine
             for (int i = 0; i < TileLayerDatas.Length; i++)
             {
                 if (MapData.MapLayers[i] != null)
-                    TileLayerDatas[i] = s.DoAt(basePointer + MapData.MapLayers[i].DataBlockOffset, () => s.SerializeObject<GBACrash_TileLayerData>(TileLayerDatas[i],x => x.MapLayer = MapData.MapLayers[i], name: $"{nameof(TileLayerDatas)}[{i}]"));
+                    TileLayerDatas[i] = s.DoAt(basePointer + MapData.MapLayers[i].DataBlockOffset, () => s.SerializeObject<GBACrash_TileLayerData>(TileLayerDatas[i], x => x.MapLayer = MapData.MapLayers[i], name: $"{nameof(TileLayerDatas)}[{i}]"));
             }
+
+            if (MapData.CollisionDataPointer != null)
+                CollisionLayerData = s.DoAt(basePointer + MapData.CollisionLayer.DataBlockOffset, () => s.SerializeObject<GBACrash_TileLayerData>(CollisionLayerData, x => x.MapLayer = MapData.CollisionLayer, name: nameof(CollisionLayerData)));
+
+            s.Goto(basePointer + BlockLength);
         }
 
         public class GBACrash_TileLayerData : R1Serializable

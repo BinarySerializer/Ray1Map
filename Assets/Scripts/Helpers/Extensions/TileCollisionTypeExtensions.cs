@@ -634,5 +634,18 @@
                 default: return Unity_MapCollisionTypeGraphic.Unknown0;
             }
         }
+
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBACrash_Crash2_CollisionType collisionType) {
+            switch (collisionType) 
+            {
+                case GBACrash_Crash2_CollisionType.None: return Unity_MapCollisionTypeGraphic.None;
+                case GBACrash_Crash2_CollisionType.Solid: return Unity_MapCollisionTypeGraphic.Solid;
+                case GBACrash_Crash2_CollisionType.Hill_Slight_Left_1: return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
+                case GBACrash_Crash2_CollisionType.Hill_Slight_Left_2: return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2;
+                case GBACrash_Crash2_CollisionType.Hill_Slight_Right_1: return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
+                case GBACrash_Crash2_CollisionType.Hill_Slight_Right_2: return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
+                default: return Unity_MapCollisionTypeGraphic.Unknown0;
+            }
+        }
     }
 }
