@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -42,6 +43,9 @@ namespace R1Engine
 
                 case Game.GBC_R2:
                     return Rayman2GBCNames;
+
+                case Game.GBACrash_Crash2:
+                    return Crash2GBANames;
 
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
@@ -869,6 +873,10 @@ namespace R1Engine
                 [42] = "Time attack map", // 32
                 [43] = "World map", // -1
             },
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> Crash2GBANames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = GBACrash_Crash2_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
     }
 }
