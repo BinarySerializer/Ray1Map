@@ -143,6 +143,7 @@ namespace R1Engine
                         },
                         MapTiles = GetTileMap(x, map.MapData2D.DataBlock.TileLayerDatas[i], i == 3, x.TileSet.TileSet.Length / 32),
                         Type = Unity_Map.MapType.Graphics,
+                        Layer = x.LayerPrio == 1 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
                     },
                     Prio = x.LayerPrio
                 };
@@ -158,7 +159,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager(context);
+            var objmanager = new Unity_ObjectManager_GBACrash(context, LoadAnimSets(rom));
             var objects = map.MapData2D.ObjData.ObjGroups.SelectMany(x => x.Objects).Select(x => new Unity_Object_GBACrash(objmanager, x));
 
             return new Unity_Level(
@@ -339,6 +340,16 @@ namespace R1Engine
             return tileMap;
         }
 
+        public Unity_ObjectManager_GBACrash.AnimSet[] LoadAnimSets(GBACrash_ROM rom)
+        {
+            return rom.AnimSets.Select(animSet => new Unity_ObjectManager_GBACrash.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBACrash.AnimSet.Animation(
+                animFrameFunc: () => GetAnimFrames(animSet, i, rom.ObjTileSet, Util.ConvertGBAPalette(rom.ObjPalettes[anim.PaletteIndex].Palette)).Select(frame => frame.CreateSprite()).ToArray(),
+                crashAnim: anim,
+                xPos: animSet.GetMinX(i),
+                yPos: animSet.GetMinY(i)
+            )).ToArray())).ToArray();
+        }
+
         public Texture2D[] GetAnimFrames(GBACrash_AnimSet animSet, int animIndex, byte[] tileSet, Color[] pal)
         {
             var shapes = TileShapes;
@@ -350,8 +361,8 @@ namespace R1Engine
 
             var output = new Texture2D[frames.Length];
 
-            var minX = frames.SelectMany(f => f.TilePositions.Select(x => x.XPos)).Min();
-            var minY = frames.SelectMany(f => f.TilePositions.Select(x => x.YPos)).Min();
+            var minX = animSet.GetMinX(animIndex);
+            var minY = animSet.GetMinY(animIndex);
             var maxX = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].XPos + shapes[f.TileShapes[x].ShapeIndex].x)).Max();
             var maxY = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].YPos + shapes[f.TileShapes[x].ShapeIndex].y)).Max();
 

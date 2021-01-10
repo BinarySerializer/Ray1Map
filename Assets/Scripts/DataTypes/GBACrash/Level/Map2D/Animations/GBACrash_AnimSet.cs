@@ -15,6 +15,9 @@ namespace R1Engine
         public Pointer[] FramePointers { get; set; }
         public GBACrash_AnimationFrame[] AnimationFrames { get; set; }
 
+        public int GetMinX(int animIndex) => Animations[animIndex].FrameTable.Select(x => AnimationFrames[x]).SelectMany(f => f.TilePositions.Select(x => x.XPos)).Min();
+        public int GetMinY(int animIndex) => Animations[animIndex].FrameTable.Select(x => AnimationFrames[x]).SelectMany(f => f.TilePositions.Select(x => x.YPos)).Min();
+
         public override void SerializeImpl(SerializerObject s)
         {
             AnimationsPointer = s.SerializePointer(AnimationsPointer, name: nameof(AnimationsPointer));
