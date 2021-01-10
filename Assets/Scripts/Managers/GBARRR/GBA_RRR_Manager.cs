@@ -1523,7 +1523,7 @@ namespace R1Engine
                         setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8?[3], col_8?[3].CollisionType, $"{i}-3");
                     }
 
-                    void setTileAt(int tileX, int tileY, MapTile tile, byte? collisionType, string debugString)
+                    void setTileAt(int tileX, int tileY, MapTile tile, ushort? collisionType, string debugString)
                     {
                         var tileMapY = (mapBlock?.Type == GBARRR_MapBlock.MapType.Foreground && tile?.TileMapY > 1) 
                             ? (ushort)(tile?.TileMapY - 2 ?? 0) 

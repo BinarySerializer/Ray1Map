@@ -236,7 +236,7 @@ namespace R1Engine
                         {
                             mapTile = new MapTile()
                             {
-                                CollisionType = (byte)tileIndex
+                                CollisionType = (ushort)tileIndex
                             };
                         }
                         else if (is8bit)

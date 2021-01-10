@@ -20,8 +20,8 @@ namespace R1Engine
             int defaultMap = 0, int defaultCollisionMap = 0, 
             int pixelsPerUnit = 16, 
             int cellSize = 16,
-            Func<byte, string> getCollisionTypeNameFunc = null,
-            Func<byte, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null, 
+            Func<ushort, string> getCollisionTypeNameFunc = null,
+            Func<ushort, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null, 
             Texture2D background = null, 
             Texture2D parallaxBackground = null,
             Unity_Sector[] sectors = null,
@@ -84,8 +84,8 @@ namespace R1Engine
 
         public Unity_ObjectManager ObjManager { get; }
 
-        public Func<byte, string> GetCollisionTypeNameFunc { get; }
-        public Func<byte, Unity_MapCollisionTypeGraphic> GetCollisionTypeGraphicFunc { get; }
+        public Func<ushort, string> GetCollisionTypeNameFunc { get; }
+        public Func<ushort, Unity_MapCollisionTypeGraphic> GetCollisionTypeGraphicFunc { get; }
 
         public Texture2D Background { get; }
         public Texture2D ParallaxBackground { get; }

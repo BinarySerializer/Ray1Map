@@ -645,7 +645,7 @@ namespace R1Engine
                 destTile.Data.PC_TransparencyMode = map.TileSetTransparencyModes[(map.TileSetWidth * newTile.Data.TileMapY) + newTile.Data.TileMapX];
         }
 
-        public Unity_Tile SetTypeAtPos(int x, int y, byte collisionType) 
+        public Unity_Tile SetTypeAtPos(int x, int y, ushort collisionType) 
         {
             var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
 

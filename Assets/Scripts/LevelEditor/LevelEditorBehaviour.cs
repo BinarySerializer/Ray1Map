@@ -350,7 +350,7 @@ namespace R1Engine
                                     var t = map.GetMapTile(x, y);
                                     TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
-                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, (byte)currentType);
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, (ushort)currentType);
 
                                     t.HasPendingEdits = true;
 

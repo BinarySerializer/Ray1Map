@@ -14,7 +14,7 @@ namespace R1Engine
         public ushort TileMapY { get; set; }
 
         // The tile collision type
-        public byte CollisionType { get; set; }
+        public ushort CollisionType { get; set; }
 
         // Flip flags
         public bool HorizontalFlip { get; set; }
@@ -79,13 +79,13 @@ namespace R1Engine
             {
                 TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
                 TileMapX = 0;
-                CollisionType = (byte)s.Serialize<ushort>((ushort)CollisionType, name: nameof(CollisionType));
+                CollisionType = s.Serialize<ushort>(CollisionType, name: nameof(CollisionType));
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC)
             {
                 TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
                 TileMapX = 0;
-                CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
+                CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
                 PC_Unk1 = s.Serialize<byte>(PC_Unk1, name: nameof(PC_Unk1));
                 PC_TransparencyMode = s.Serialize<R1_PC_MapTileTransparencyMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
                 PC_Unk2 = s.Serialize<byte>(PC_Unk2, name: nameof(PC_Unk2));
@@ -107,7 +107,7 @@ namespace R1Engine
                     TileMapY = (ushort)bitFunc(TileMapY, 12, name: nameof(TileMapY));
                 });
 
-                CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
+                CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
                 s.Serialize<byte>(0, name: "Padding");
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
@@ -283,7 +283,7 @@ namespace R1Engine
             {
                 if (GBARRRType == GBARRR_MapBlock.MapType.Collision)
                 {
-                    CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
+                    CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
                 }
                 else if (GBARRRType == GBARRR_MapBlock.MapType.Tiles)
                 {
@@ -349,7 +349,7 @@ namespace R1Engine
                         });
                         break;
                     case GBC_TileType.Collision:
-                        CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
+                        CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
                         break;
                 }
             }
