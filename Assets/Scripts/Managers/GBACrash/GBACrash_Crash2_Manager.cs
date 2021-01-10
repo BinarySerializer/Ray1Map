@@ -2,7 +2,9 @@
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using ImageMagick;
 using UnityEngine;
 
 namespace R1Engine
@@ -19,7 +21,73 @@ namespace R1Engine
             new GameInfo_World(0, Enumerable.Range(0, Levels.Length).ToArray()),
         });
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[0];
+        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        {
+            new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
+            new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
+        };
+
+        public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context);
+
+                await UniTask.WaitForEndOfFrame();
+
+                // Enumerate every anim set
+                for (int animSetIndex = 0; animSetIndex < rom.AnimSets.Length; animSetIndex++)
+                {
+                    var animSet = rom.AnimSets[animSetIndex];
+
+                    // Enumerate every animation
+                    for (var animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
+                    {
+                        await UniTask.WaitForEndOfFrame();
+
+                        var anim = animSet.Animations[animIndex];
+                        var frames = GetAnimFrames(animSet, animIndex, rom.ObjTileSet, Util.ConvertGBAPalette(rom.ObjPalettes[anim.PaletteIndex].Palette));
+
+                        if (saveAsGif)
+                        {
+                            using (MagickImageCollection collection = new MagickImageCollection())
+                            {
+                                int index = 0;
+
+                                foreach (var frameTex in frames)
+                                {
+                                    var img = frameTex.ToMagickImage();
+                                    collection.Add(img);
+                                    collection[index].AnimationDelay = anim.AnimSpeed + 1;
+                                    collection[index].AnimationTicksPerSecond = 60;
+                                    collection[index].Trim();
+
+                                    collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                                    index++;
+                                }
+
+                                // Save gif
+                                collection.Write(Path.Combine(outputDir, $"{animSetIndex} - {animIndex}.gif"));
+                            }
+                        }
+                        else
+                        {
+                            var frameIndex = 0;
+
+                            foreach (var tex in frames)
+                            {
+                                Util.ByteArrayToFile(Path.Combine(outputDir, $"{animSetIndex}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                                frameIndex++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
@@ -271,49 +339,70 @@ namespace R1Engine
             return tileMap;
         }
 
-        public Texture2D LoadAnimFrame(GBACrash_AnimationFrame frame, byte[] tileSet, Color[] pal)
+        public Texture2D[] GetAnimFrames(GBACrash_AnimSet animSet, int animIndex, byte[] tileSet, Color[] pal)
         {
             var shapes = TileShapes;
 
-            var minX = frame.TilePositions.Select(x => x.XPos).Min();
-            var minY = frame.TilePositions.Select(x => x.YPos).Min();
-            var maxX = (int)Enumerable.Range(0, frame.TilesCount).Select(x => frame.TilePositions[x].XPos + shapes[frame.TileShapes[x].ShapeIndex].x).Max();
-            var maxY = (int)Enumerable.Range(0, frame.TilesCount).Select(x => frame.TilePositions[x].YPos + shapes[frame.TileShapes[x].ShapeIndex].y).Max();
+            var frames = animSet.Animations[animIndex].FrameTable.Select(x => animSet.AnimationFrames[x]).ToArray();
 
-            var width = maxX - minX;
-            var height = maxY - minY;
+            if (!frames.Any())
+                return new Texture2D[0];
 
-            var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
+            var output = new Texture2D[frames.Length];
 
-            int offset = (int)frame.TileOffset.Value;
+            var minX = frames.SelectMany(f => f.TilePositions.Select(x => x.XPos)).Min();
+            var minY = frames.SelectMany(f => f.TilePositions.Select(x => x.YPos)).Min();
+            var maxX = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].XPos + shapes[f.TileShapes[x].ShapeIndex].x)).Max();
+            var maxY = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].YPos + shapes[f.TileShapes[x].ShapeIndex].y)).Max();
 
-            for (int i = 0; i < frame.TilesCount; i++)
+            var width = (int)maxX - minX;
+            var height = (int)maxY - minY;
+
+            var frameCache = new Dictionary<GBACrash_AnimationFrame, Texture2D>();
+
+            for (int frameIndex = 0; frameIndex < frames.Length; frameIndex++)
             {
-                var shape = shapes[frame.TileShapes[i].ShapeIndex];
-                var pos = frame.TilePositions[i];
+                var frame = frames[frameIndex];
 
-                for (int y = 0; y < shape.y; y += 8)
+                if (!frameCache.ContainsKey(frame))
                 {
-                    for (int x = 0; x < shape.x; x += 8)
-                    {
-                        tex.FillInTile(
-                            imgData: tileSet,
-                            imgDataOffset: offset,
-                            pal: pal,
-                            encoding: Util.TileEncoding.Linear_4bpp,
-                            tileWidth: CellSize,
-                            flipTextureY: true,
-                            tileX: pos.XPos + x - minX,
-                            tileY: pos.YPos + y - minY);
+                    var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
 
-                        offset += 32;
+                    int offset = (int)frame.TileOffset.Value;
+
+                    for (int i = 0; i < frame.TilesCount; i++)
+                    {
+                        var shape = shapes[frame.TileShapes[i].ShapeIndex];
+                        var pos = frame.TilePositions[i];
+
+                        for (int y = 0; y < shape.y; y += 8)
+                        {
+                            for (int x = 0; x < shape.x; x += 8)
+                            {
+                                tex.FillInTile(
+                                    imgData: tileSet,
+                                    imgDataOffset: offset,
+                                    pal: pal,
+                                    encoding: Util.TileEncoding.Linear_4bpp,
+                                    tileWidth: CellSize,
+                                    flipTextureY: true,
+                                    tileX: pos.XPos + x - minX,
+                                    tileY: pos.YPos + y - minY);
+
+                                offset += 32;
+                            }
+                        }
                     }
+
+                    tex.Apply();
+
+                    frameCache.Add(frame, tex);
                 }
+
+                output[frameIndex] = frameCache[frame];
             }
 
-            tex.Apply();
-
-            return tex;
+            return output;
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

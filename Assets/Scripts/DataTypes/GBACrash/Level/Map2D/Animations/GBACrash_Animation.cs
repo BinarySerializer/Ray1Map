@@ -7,11 +7,11 @@
         // Hitbox and anim frame?
         public AnimRect Rect_0 { get; set; }
         public AnimRect Rect_1 { get; set; }
+
         public byte PaletteIndex { get; set; }
-        public byte Byte_11 { get; set; } // Speed + 1?
+        public byte AnimSpeed { get; set; } // Speed + 1
         public byte FramesCount { get; set; }
         public byte Byte_13 { get; set; }
-
 
         // Serialized from pointers
 
@@ -23,7 +23,7 @@
             Rect_0 = s.SerializeObject<AnimRect>(Rect_0, name: nameof(Rect_0));
             Rect_1 = s.SerializeObject<AnimRect>(Rect_1, name: nameof(Rect_1));
             PaletteIndex = s.Serialize<byte>(PaletteIndex, name: nameof(PaletteIndex));
-            Byte_11 = s.Serialize<byte>(Byte_11, name: nameof(Byte_11));
+            AnimSpeed = s.Serialize<byte>(AnimSpeed, name: nameof(AnimSpeed));
             FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
             Byte_13 = s.Serialize<byte>(Byte_13, name: nameof(Byte_13));
             s.SerializeArray<byte>(new byte[4], 4, name: "Padding");
