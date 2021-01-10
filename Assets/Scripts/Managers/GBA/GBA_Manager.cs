@@ -710,29 +710,32 @@ namespace R1Engine
             }
 
             // Create a normal 8x8 map array for Shanghai games with 32x8 maps
-            foreach (var l in mapLayers.Where(x => x.Cluster?.Shanghai_MapTileSize == 1 || x.Cluster?.Shanghai_MapTileSize == 2))
+            if (context.Settings.GBA_IsShanghai)
             {
-                var indexArray = l.Cluster.Shanghai_MapTileSize == 1 ? l.Shanghai_MapIndices_8.Select(x => (ushort)x).ToArray() : l.Shanghai_MapIndices_16;
+                foreach (var l in mapLayers.Where(x => x.Cluster?.Shanghai_MapTileSize == 1 || x.Cluster?.Shanghai_MapTileSize == 2))
+                {
+                    var indexArray = l.Cluster.Shanghai_MapTileSize == 1 ? l.Shanghai_MapIndices_8.Select(x => (ushort)x).ToArray() : l.Shanghai_MapIndices_16;
 
-                l.MapData = new MapTile[l.Width * l.Height]; //new MapTile[Mathf.CeilToInt(l.Width / 4f) * 4 * l.Height];
-                int indexWidth = Mathf.CeilToInt(l.Width / 4f) * 4;
-                for (int y = 0; y < l.Height; y++) {
-                    for (int x = 0; x < l.Width; x++) {
-                        int i = y * indexWidth + x;
-                        var mapTile = indexArray[i / 4];
+                    l.MapData = new MapTile[l.Width * l.Height]; //new MapTile[Mathf.CeilToInt(l.Width / 4f) * 4 * l.Height];
+                    int indexWidth = Mathf.CeilToInt(l.Width / 4f) * 4;
+                    for (int y = 0; y < l.Height; y++)
+                    {
+                        for (int x = 0; x < l.Width; x++)
+                        {
+                            int i = y * indexWidth + x;
+                            var mapTile = indexArray[i / 4];
 
-                        if (context.Settings.GBA_IsMilan)
-                            mapTile = (ushort)BitHelpers.ExtractBits(mapTile, 12, 0);
+                            var offX = i % 4;
+                            var tile = l.Shanghai_MapTiles[mapTile * 4 + offX];
 
-                        var offX = i % 4;
-                        var tile = l.Shanghai_MapTiles[mapTile * 4 + offX];
-
-                        l.MapData[y * l.Width + x] = new MapTile() {
-                            TileMapY = tile.TileMapY,
-                            HorizontalFlip = tile.HorizontalFlip,
-                            VerticalFlip = tile.VerticalFlip,
-                            PaletteIndex = tile.PaletteIndex
-                        };
+                            l.MapData[y * l.Width + x] = new MapTile()
+                            {
+                                TileMapY = tile.TileMapY,
+                                HorizontalFlip = tile.HorizontalFlip,
+                                VerticalFlip = tile.VerticalFlip,
+                                PaletteIndex = tile.PaletteIndex
+                            };
+                        }
                     }
                 }
             }
@@ -744,8 +747,8 @@ namespace R1Engine
                 {
                     var indexArray = l.Shanghai_MapIndices_16;
 
-                    var indexArrayWidth = l.Width / 2;
-                    var indexArrayHeight = l.Height / 2;
+                    var indexArrayWidth = Mathf.CeilToInt(l.Width / 2f);
+                    var indexArrayHeight = Mathf.CeilToInt(l.Height / 2f);
 
                     l.MapData = new MapTile[l.Width * l.Height];
 
@@ -767,6 +770,9 @@ namespace R1Engine
                             {
                                 var outputX = actualX + offX;
                                 var outputY = actualY + offY;
+                                
+                                if (outputX >= l.Width || outputY >= l.Height)
+                                    return;
 
                                 l.MapData[outputY * l.Width + outputX] = new MapTile()
                                 {

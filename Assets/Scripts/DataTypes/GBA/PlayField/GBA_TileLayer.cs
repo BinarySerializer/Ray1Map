@@ -111,7 +111,7 @@ namespace R1Engine
 
                 if (StructType == Type.Layer2D)
                 {
-                    s.DoEncodedIf(encoder, encoder != null, () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, (Width * Height) / 4, name: nameof(Shanghai_MapIndices_16)));
+                    s.DoEncodedIf(encoder, encoder != null, () => Shanghai_MapIndices_16 = s.SerializeArray<ushort>(Shanghai_MapIndices_16, ((Width + Width % 2) * (Height + Height % 2)) / 4, name: nameof(Shanghai_MapIndices_16)));
 
                     var end = s.CurrentPointer;
 
