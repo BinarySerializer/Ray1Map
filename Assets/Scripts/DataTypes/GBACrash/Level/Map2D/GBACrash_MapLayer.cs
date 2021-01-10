@@ -7,7 +7,7 @@
         public Pointer TileSetPointer { get; set; }
         public uint Uint_0C { get; set; }
         public uint Uint_10 { get; set; }
-        public ushort LayerIndex { get; set; }
+        public ushort LayerPrio { get; set; }
         public ushort TileMapWidth { get; set; }
         public ushort TileMapHeight { get; set; }
         public ushort MapWidth { get; set; }
@@ -26,7 +26,7 @@
             TileSetPointer = s.SerializePointer(TileSetPointer, name: nameof(TileSetPointer));
             Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
             Uint_10 = s.Serialize<uint>(Uint_10, name: nameof(Uint_10));
-            LayerIndex = s.Serialize<ushort>(LayerIndex, name: nameof(LayerIndex));
+            LayerPrio = s.Serialize<ushort>(LayerPrio, name: nameof(LayerPrio));
             TileMapWidth = s.Serialize<ushort>(TileMapWidth, name: nameof(TileMapWidth));
             TileMapHeight = s.Serialize<ushort>(TileMapHeight, name: nameof(TileMapHeight));
             MapWidth = s.Serialize<ushort>(MapWidth, name: nameof(MapWidth));

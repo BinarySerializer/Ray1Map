@@ -5,12 +5,13 @@
         public Pointer[] MapLayersPointers { get; set; }
         public Pointer CollisionDataPointer { get; set; }
         public Pointer DataBlockPointer { get; set; } // Contains the data for the level, which is referenced by offsets - this will be a nightmare to parse :(
-        public bool IsDataBlockFormatted { get; set; }
+        public bool HasDataBlockHeader { get; set; }
         public Pointer ObjDataPointer { get; set; }
         public Pointer ObjDataUnkTablePointer { get; set; }
 
         // Serialized from pointers
         public GBACrash_MapLayer[] MapLayers { get; set; }
+        public GBACrash_MapData2DDataBlock DataBlock { get; set; }
         public GBACrash_ObjData ObjData { get; set; }
         public GBACrash_ObjDataUnkTable ObjDataUnkTable { get; set; }
 
@@ -19,7 +20,7 @@
             MapLayersPointers = s.SerializePointerArray(MapLayersPointers, 4, name: nameof(MapLayersPointers));
             CollisionDataPointer = s.SerializePointer(CollisionDataPointer, name: nameof(CollisionDataPointer));
             DataBlockPointer = s.SerializePointer(DataBlockPointer, name: nameof(DataBlockPointer));
-            IsDataBlockFormatted = s.Serialize<bool>(IsDataBlockFormatted, name: nameof(IsDataBlockFormatted));
+            HasDataBlockHeader = s.Serialize<bool>(HasDataBlockHeader, name: nameof(HasDataBlockHeader));
             s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
             ObjDataPointer = s.SerializePointer(ObjDataPointer, name: nameof(ObjDataPointer));
             ObjDataUnkTablePointer = s.SerializePointer(ObjDataUnkTablePointer, name: nameof(ObjDataUnkTablePointer));
@@ -30,6 +31,12 @@
 
             for (int i = 0; i < MapLayers.Length; i++)
                 MapLayers[i] = s.DoAt(MapLayersPointers[i], () => s.SerializeObject<GBACrash_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
+
+            DataBlock = s.DoAt(DataBlockPointer, () => s.SerializeObject<GBACrash_MapData2DDataBlock>(DataBlock, x =>
+            {
+                x.HasHeader = HasDataBlockHeader;
+                x.MapData = this;
+            }, name: nameof(DataBlock)));
 
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBACrash_ObjData>(ObjData, name: nameof(ObjData)));
             ObjDataUnkTable = s.DoAt(ObjDataUnkTablePointer, () => s.SerializeObject<GBACrash_ObjDataUnkTable>(ObjDataUnkTable, name: nameof(ObjDataUnkTable)));

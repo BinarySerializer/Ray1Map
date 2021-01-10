@@ -4,25 +4,31 @@ namespace R1Engine
 {
     public abstract class GBACrash_BaseBlock : R1Serializable
     {
+        public bool HasHeader { get; set; } = true; // Set before serializing
+
         public BlockCompressionType Compression { get; set; }
         public int BlockLength { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize the header
-            s.DoAt(s.CurrentPointer, () => s.SerializeBitValues<uint>(bitFunc =>
+            if (HasHeader)
             {
-                bitFunc(default, 4, name: "Padding");
-                Compression = (BlockCompressionType)bitFunc((byte)Compression, 4, name: nameof(Compression));
-                BlockLength = bitFunc(BlockLength, 24, name: nameof(BlockLength));
-            }));
+                s.DoAt(s.CurrentPointer, () => s.SerializeBitValues<uint>(bitFunc =>
+                {
+                    bitFunc(default, 4, name: "Padding");
+                    Compression = (BlockCompressionType)bitFunc((byte)Compression, 4, name: nameof(Compression));
+                    BlockLength = bitFunc(BlockLength, 24, name: nameof(BlockLength));
+                }));
+            }
 
             IStreamEncoder encoder;
 
             switch (Compression)
             {
                 case BlockCompressionType.None:
-                    s.Goto(s.CurrentPointer + 4);
+                    if (HasHeader)
+                        s.Goto(s.CurrentPointer + 4);
                     encoder = null;
                     break;
 
