@@ -43,6 +43,7 @@ namespace R1Engine
         public override string SecondaryName => $"{Object.ObjType}";
 
         private int _animSetIndex;
+        private byte _animIndex;
 
         public int AnimSetIndex
         {
@@ -51,15 +52,26 @@ namespace R1Engine
             {
                 _animSetIndex = value;
                 AnimIndex = 0;
+                FreezeFrame = false;
             }
         }
 
-        public byte AnimIndex { get; set; }
+        public byte AnimIndex
+        {
+            get => _animIndex;
+            set
+            {
+                _animIndex = value;
+                FreezeFrame = false;
+            }
+        }
+
+        public bool FreezeFrame { get; set; }
 
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => Animation?.AnimHitBox;
 
         public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
-        public override int AnimSpeed => Animation?.CrashAnim.AnimSpeed ?? 0;
+        public override int AnimSpeed => FreezeFrame ? 0 : Animation?.CrashAnim.AnimSpeed ?? 0;
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Animation?.AnimFrames;

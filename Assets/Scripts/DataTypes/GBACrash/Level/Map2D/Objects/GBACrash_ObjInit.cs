@@ -66,18 +66,23 @@ namespace R1Engine
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 23;
                         break;
-                    case GBACrash_ObjType.Type_16:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Crate_Switch:
+                        obj.AnimSetIndex = 23;
+                        obj.AnimIndex = 3;
                         break;
-                    case GBACrash_ObjType.Type_17:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Crate_Up:
+                        obj.AnimSetIndex = 23;
+                        obj.AnimIndex = 24;
+                        obj.FreezeFrame = true;
                         break;
-                    case GBACrash_ObjType.Type_18:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Crate_Outline:
+                        obj.AnimSetIndex = 23;
+                        obj.AnimIndex = 21;
                         break;
                     case GBACrash_ObjType.Crate_NitroSwitch:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 4;
+                        obj.FreezeFrame = true;
                         break;
                     case GBACrash_ObjType.Crate_Iron:
                         obj.AnimSetIndex = 23;
@@ -102,10 +107,12 @@ namespace R1Engine
                     case GBACrash_ObjType.Crate_Bounce:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 25;
+                        obj.FreezeFrame = true;
                         break;
                     case GBACrash_ObjType.Crate_Locked:
                         obj.AnimSetIndex = 23;
                         obj.AnimIndex = 6;
+                        obj.FreezeFrame = true;
                         break;
                     case GBACrash_ObjType.Crate_TNT:
                         obj.AnimSetIndex = 23;
@@ -172,10 +179,12 @@ namespace R1Engine
                     case GBACrash_ObjType.BouncyPlatform_46:
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 4;
+                        obj.FreezeFrame = true;
                         break;
                     case GBACrash_ObjType.BouncyPlatform_47:
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 5;
+                        obj.FreezeFrame = true;
                         break;
                     case GBACrash_ObjType.Type_48:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
@@ -212,8 +221,9 @@ namespace R1Engine
                         obj.AnimSetIndex = 8;
                         obj.AnimIndex = 0;
                         break;
-                    case GBACrash_ObjType.Type_59:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Enemy_59:
+                        obj.AnimSetIndex = 10;
+                        obj.AnimIndex = 1;
                         break;
                     case GBACrash_ObjType.Type_60:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
@@ -224,26 +234,34 @@ namespace R1Engine
                     case GBACrash_ObjType.Type_62:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjType.Type_63:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Enemy_63:
+                        obj.AnimSetIndex = 15;
+                        obj.AnimIndex = 0;
                         break;
-                    case GBACrash_ObjType.Type_64:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Enemy_64:
+                        obj.AnimSetIndex = 16;
+                        obj.AnimIndex = 0;
                         break;
-                    case GBACrash_ObjType.Type_65:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Enemy_65:
+                        obj.AnimSetIndex = 17;
+                        obj.AnimIndex = 1;
                         break;
-                    case GBACrash_ObjType.Type_66:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Enemy_66:
+                        obj.AnimSetIndex = 14;
+                        obj.AnimIndex = 0;
                         break;
-                    case GBACrash_ObjType.Type_67:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Door_67:
+                        obj.AnimSetIndex = 37;
+                        obj.AnimIndex = 1;
                         break;
-                    case GBACrash_ObjType.Type_68:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Switch_68:
+                        obj.AnimSetIndex = 37;
+                        obj.AnimIndex = 0;
+                        obj.FreezeFrame = true;
                         break;
-                    case GBACrash_ObjType.Type_69:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Platform_69:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 8;
                         break;
                     case GBACrash_ObjType.Type_70:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
@@ -254,8 +272,9 @@ namespace R1Engine
                     case GBACrash_ObjType.Type_72:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjType.Type_73:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.Block:
+                        obj.AnimSetIndex = 37;
+                        obj.AnimIndex = 4;
                         break;
                     case GBACrash_ObjType.Type_74:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
@@ -332,8 +351,9 @@ namespace R1Engine
                     case GBACrash_ObjType.Type_98:
                         Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
                         break;
-                    case GBACrash_ObjType.Type_99:
-                        Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                    case GBACrash_ObjType.GemShard_Red:
+                        obj.AnimSetIndex = 24;
+                        obj.AnimIndex = 3;
                         break;
                     case GBACrash_ObjType.GemShard_Green:
                         obj.AnimSetIndex = 24;
