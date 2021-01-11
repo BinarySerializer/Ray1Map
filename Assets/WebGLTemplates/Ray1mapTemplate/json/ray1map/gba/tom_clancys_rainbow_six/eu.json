@@ -1,0 +1,27 @@
+{
+  "name": "Tom Clancy's Rainbow Six: Rogue Spear (GBA)",
+  "mode": "TomClancysRainbowSixRogueSpearEU",
+  "folder": "gba/tom_clancys_rainbow_six_eu",
+  "levels": [
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "Map 0"},
+    { "world": 0, "level": 1, "nameInternal": "1", "name": "Map 1"},
+    { "world": 0, "level": 2, "nameInternal": "2", "name": "Map 2"},
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Map 3"},
+    { "world": 0, "level": 4, "nameInternal": "4", "name": "Map 4"},
+    { "world": 0, "level": 5, "nameInternal": "5", "name": "Map 5"},
+    { "world": 0, "level": 6, "nameInternal": "6", "name": "Map 6"},
+    { "world": 0, "level": 7, "nameInternal": "7", "name": "Map 7"},
+    { "world": 0, "level": 8, "nameInternal": "8", "name": "Map 8"},
+    { "world": 0, "level": 9, "nameInternal": "9", "name": "Map 9"},
+    { "world": 0, "level": 10, "nameInternal": "10", "name": "Map 10"},
+    { "world": 0, "level": 11, "nameInternal": "11", "name": "Map 11"},
+    { "world": 0, "level": 12, "nameInternal": "12", "name": "Map 12"},
+    { "world": 0, "level": 13, "nameInternal": "13", "name": "Map 13"},
+    { "world": 0, "level": 14, "nameInternal": "14", "name": "Map 14"},
+    { "world": 0, "level": 15, "nameInternal": "15", "name": "Map 15"},
+    { "world": 0, "level": 16, "nameInternal": "16", "name": "Map 16"},
+    { "world": 0, "level": 17, "nameInternal": "17", "name": "Map 17"},
+    { "world": 0, "level": 18, "nameInternal": "18", "name": "Map 18"},
+    { "world": 0, "level": 19, "nameInternal": "19", "name": "Map 19"}
+  ]
+}
