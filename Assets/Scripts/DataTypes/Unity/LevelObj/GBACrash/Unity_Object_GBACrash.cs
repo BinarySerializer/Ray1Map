@@ -61,7 +61,6 @@ namespace R1Engine
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Animation?.AnimFrames;
-        public override int? GetLayer(int index) => -index;
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
