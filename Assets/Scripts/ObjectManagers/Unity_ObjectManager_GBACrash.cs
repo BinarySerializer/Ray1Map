@@ -7,12 +7,14 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBACrash : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBACrash(Context context, AnimSet[] animSets) : base(context)
+        public Unity_ObjectManager_GBACrash(Context context, AnimSet[] animSets, byte[][] objParams) : base(context)
         {
             AnimSets = animSets;
+            ObjParams = objParams;
         }
         
         public AnimSet[] AnimSets { get; }
+        public byte[][] ObjParams { get; }
 
         public override string[] LegacyDESNames => AnimSets.Select((x, i) => i.ToString()).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;

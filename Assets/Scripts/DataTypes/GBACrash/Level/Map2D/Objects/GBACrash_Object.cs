@@ -5,14 +5,14 @@
         public GBACrash_ObjType ObjType { get; set; }
         public short XPos { get; set; }
         public short YPos { get; set; }
-        public ushort Param { get; set; }
+        public ushort ObjParamsIndex { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             ObjType = s.Serialize<GBACrash_ObjType>(ObjType, name: nameof(ObjType));
             XPos = s.Serialize<short>(XPos, name: nameof(XPos));
             YPos = s.Serialize<short>(YPos, name: nameof(YPos));
-            Param = s.Serialize<ushort>(Param, name: nameof(Param));
+            ObjParamsIndex = s.Serialize<ushort>(ObjParamsIndex, name: nameof(ObjParamsIndex));
         }
     }
 }

@@ -31,7 +31,7 @@ namespace R1Engine
             set => Object.YPos = value;
         }
 
-        public override string DebugText => String.Empty;
+        public override string DebugText => $"Params: {Util.ByteArrayToHexString(ObjManager.ObjParams[Object.ObjParamsIndex])}{Environment.NewLine}";
 
         public Unity_ObjectManager_GBACrash.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBACrash.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
