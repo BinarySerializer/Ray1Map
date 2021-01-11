@@ -42,6 +42,9 @@ namespace R1Engine
         public override string PrimaryName => $"Type_{(int)Object.ObjType}";
         public override string SecondaryName => $"{Object.ObjType}";
 
+        public override bool FlipHorizontally => (ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex)?.FirstOrDefault() & 2) != 0;
+        public override bool FlipVertically => (ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex)?.FirstOrDefault() & 4) != 0;
+
         private int _animSetIndex;
         private byte _animIndex;
 
