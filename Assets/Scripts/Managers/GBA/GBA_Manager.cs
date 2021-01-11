@@ -917,12 +917,7 @@ namespace R1Engine
                         CollisionHeight = map.Height,
                         TilesWidth = map.Width,
                         TilesHeight = map.Height,
-                        Collision = map.CollisionData3D.Select(c => new Unity_IsometricCollisionTile()
-                        {
-                            Type = c.Height > 10 ? Unity_IsometricCollisionTile.CollisionType.Wall : (Unity_IsometricCollisionTile.CollisionType)c.Type,
-                            Height = c.Height > 10 ? 0 : c.Height,
-
-                        }).ToArray(),
+                        Collision = map.CollisionData3D.Select(c => c.ToIsometricCollisionTile()).ToArray(),
                         Scale = new Vector3(1f, 3f / Mathf.Cos(Mathf.Deg2Rad * 45f), 1f / Mathf.Sin(Mathf.Deg2Rad * 45f)) / 2f,
                         ViewAngle = Quaternion.Euler(45f, 0f, 0f),
                         CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionHeight / 2f,
