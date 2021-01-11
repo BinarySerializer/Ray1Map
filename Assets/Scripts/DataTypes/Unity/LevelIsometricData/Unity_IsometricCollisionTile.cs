@@ -186,6 +186,16 @@ namespace R1Engine
             DialogueTrigger3,
             DialogueTrigger4,
             FreezableWater,
+
+            // GBA Milan
+
+            Type_1,
+            Type_2,
+            Type_3,
+            Type_4,
+            Type_5,
+            Type_6,
+            Type_7,
         }
 
         public enum ShapeType : int {
@@ -226,6 +236,16 @@ namespace R1Engine
             [CollisionType.DialogueTrigger2] = new Color(23 / 255f, 145 / 255f, 38 / 255f),
             [CollisionType.DialogueTrigger3] = new Color(23 / 255f, 145 / 255f, 38 / 255f),
             [CollisionType.DialogueTrigger4] = new Color(23 / 255f, 145 / 255f, 38 / 255f),
+
+            // GBA Milan
+            
+            [CollisionType.Type_1] = new Color(145 / 255f, 92 / 255f, 78 / 255f),
+            [CollisionType.Type_2] = new Color(145 / 255f, 128 / 255f, 78 / 255f),
+            [CollisionType.Type_3] = new Color(78 / 255f, 145 / 255f, 87 / 255f),
+            [CollisionType.Type_4] = new Color(78 / 255f, 145 / 255f, 120 / 255f),
+            [CollisionType.Type_5] = new Color(78 / 255f, 126 / 255f, 145 / 255f),
+            [CollisionType.Type_6] = new Color(95 / 255f, 78 / 255f, 145 / 255f),
+            [CollisionType.Type_7] = new Color(138 / 255f, 78 / 255f, 145 / 255f),
         };
     }
 }

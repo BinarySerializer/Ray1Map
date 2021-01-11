@@ -218,8 +218,8 @@ namespace R1Engine
 
             // Convert position to unity space
             //transform.position = new Vector3(pos.x / 16f - 0.5f, pos.z / 32f, -pos.y / 16f + 0.5f);
-            Vector3 isometricScale = LevelEditorData.Level.IsometricData.Scale;
-            transform.position = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y) / 16f, isometricScale);
+            Vector3 isometricScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
+            transform.position = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y), isometricScale);
 
             // Billboard
             Camera cam = Controller.obj.levelEventController.editor.cam.camera3D;
@@ -237,6 +237,8 @@ namespace R1Engine
                 if (boxCollider == null) { // Check if object is destroyed
                     boxCollider = null; // Remove the reference. Despite the null check earlier the reference still exists.
                     boxCollider3D = gameObject.AddComponent<BoxCollider>();
+                    boxCollider3D.center = Vector3.zero;
+                    boxCollider3D.size = new Vector3(1,1,0.1f);
                 }
             }
         }
@@ -499,13 +501,14 @@ namespace R1Engine
                     if (objCol != null && objCol.Length > 0) {
                         if (CurrentShowCollision) {
                             objCollisionRenderers = new SpriteRenderer[objCol.Length];
+                            bool is3D = ObjData is Unity_Object_3D && LevelEditorData.Level.IsometricData != null;
 
                             // Instantiate prefabs
                             for (int i = 0; i < objCol.Length; i++) {
                                 objCollisionRenderers[i] = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
-                                objCollisionRenderers[i].sortingOrder = Layer;
+                                objCollisionRenderers[i].sortingOrder = is3D ? 0 : Layer;
 
-                                objCollisionRenderers[i].transform.localPosition = new Vector3(0, 0, objCol.Length - i);
+                                objCollisionRenderers[i].transform.localPosition = new Vector3(0, 0, is3D ? 0.1f : (objCol.Length - i));
                                 objCollisionRenderers[i].transform.localRotation = Quaternion.identity;
                                 objCollisionRenderers[i].transform.localScale = Vector3.one * ObjData.Scale;
                             }
@@ -552,14 +555,28 @@ namespace R1Engine
 
                     // Set box collider size to be the combination of all parts
                     float leftX = 0, bottomY = 0, rightX = 0, topY = 0;
+                    float w = 1f;
+                    float h = 1f;
+                    float centerX = 0f;
+                    float centerY = 0f;
                     bool first = true;
+                    bool hasSprites = false;
                     foreach (SpriteRenderer part in sprites) {
                         if (part.sprite == null)
                             continue;
 
-                        Bounds b = part.bounds;
-                        b = new Bounds(transform.InverseTransformPoint(b.center) * LevelEditorData.Level.PixelsPerUnit, transform.InverseTransformVector(b.size) * LevelEditorData.Level.PixelsPerUnit);
+                        hasSprites = true;
 
+                        Bounds b = part.bounds;
+                        if (boxCollider3D != null) {
+                            b = part.sprite?.bounds ?? b;
+                            var scl = part.transform.localScale;
+                            if(part.flipX) scl.x = scl.x * -1;
+                            if(part.flipY) scl.y = scl.y * -1;
+                            b = new Bounds((part.transform.localPosition + b.center) * LevelEditorData.Level.PixelsPerUnit, Vector3.Scale(b.size, scl) * LevelEditorData.Level.PixelsPerUnit);
+                        } else {
+                            b = new Bounds(transform.InverseTransformPoint(b.center) * LevelEditorData.Level.PixelsPerUnit, transform.InverseTransformVector(b.size) * LevelEditorData.Level.PixelsPerUnit);
+                        }
                         if (b.min.x < leftX || first) leftX = b.min.x;
                         if (b.min.y < bottomY || first) bottomY = b.min.y;
                         if (b.max.x > rightX || first) rightX = b.max.x;
@@ -569,26 +586,18 @@ namespace R1Engine
                             first = false;
                     }
 
-                    if (!first) {
+                    if (hasSprites) {
+                        w = (rightX - leftX) / LevelEditorData.Level.PixelsPerUnit;
+                        h = (topY - bottomY) / LevelEditorData.Level.PixelsPerUnit;
+                        centerX = leftX / LevelEditorData.Level.PixelsPerUnit + w / 2f;
+                        centerY = topY / LevelEditorData.Level.PixelsPerUnit - h / 2f;
+                        w = Mathf.Abs(w);
+                        h = Mathf.Abs(h);
                         if (boxCollider != null) {
-                            var w = (rightX - leftX) / LevelEditorData.Level.PixelsPerUnit;
-                            var h = (topY - bottomY) / LevelEditorData.Level.PixelsPerUnit;
                             boxCollider.size = new Vector2(w, h);
-                            boxCollider.offset = new Vector2(leftX / LevelEditorData.Level.PixelsPerUnit + w / 2f, (topY / LevelEditorData.Level.PixelsPerUnit - h / 2f));
+                            boxCollider.offset = new Vector2(centerX, centerY);
 
                         } else if (boxCollider3D != null) {
-                            float w = 1f;
-                            float h = 1f;
-                            float centerX = 0f;
-                            float centerY = 0f;
-                            if (sprites != null && sprites.Length > 0) {
-                                var mirroredX = ObjData.FlipHorizontally;
-                                var mirroredY = ObjData.FlipVertically;
-                                w = sprites[0].sprite.texture.width / sprites[0].sprite.pixelsPerUnit;
-                                h = sprites[0].sprite.texture.height / sprites[0].sprite.pixelsPerUnit;
-                                centerX = sprites[0].transform.localPosition.x + (w / 2 - (sprites[0].sprite.pivot.x / sprites[0].sprite.pixelsPerUnit)) * (mirroredX ? -1f : 1f);
-                                centerY = sprites[0].transform.localPosition.y + (h / 2 - (sprites[0].sprite.pivot.y / sprites[0].sprite.pixelsPerUnit)) * (mirroredY ? -1f : 1f);
-                            }
                             boxCollider3D.size = new Vector3(w, h, 0.1f);
                             boxCollider3D.center = new Vector2(centerX, centerY);
                         }

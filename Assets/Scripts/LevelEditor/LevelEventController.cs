@@ -514,28 +514,35 @@ namespace R1Engine
                             Vector3 target = linkedObj.midpoint;
 
                             //Debug.Log($"Updated link arrow for actor {obj.Index} from {origin} to {target}");
-
-                            float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
-                            if (AdaptiveSize < 0.25f) {
-                                lr.widthCurve = new AnimationCurve(
-                                    new Keyframe(0, 0f),
-                                    new Keyframe(AdaptiveSize / 2, 0.095f),
-                                    new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
-                                    new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
-                                    new Keyframe(1, 0f)); // tip of arrow
-                                lr.positionCount = 5;
-                                lr.SetPositions(new Vector3[] {
-                                    origin,
-                                    Vector3.Lerp(origin, target, AdaptiveSize / 2),
-                                    Vector3.Lerp(origin, target, 0.999f - AdaptiveSize),
-                                    Vector3.Lerp(origin, target, 1 - AdaptiveSize),
-                                    target });
-                            } else {
-                                lr.widthCurve = new AnimationCurve(
-                                    new Keyframe(0, 0.095f),
-                                    new Keyframe(1, 0.095f)); // tip of arrow
-                                lr.positionCount = 2;
-                                lr.SetPositions(new Vector3[] { origin, target });
+                            float dist = Vector3.Distance(origin, target);
+                            if (dist != 0) {
+                                float AdaptiveSize = 0.5f / dist;
+                                float threshold = 0.9f;
+                                bool hasBackLink = linkedObj?.ObjData?.Links != null && linkedObj.ObjData.Links.Contains(linkIndex);
+                                if (hasBackLink) {
+                                    threshold = 0.25f;
+                                }
+                                if (AdaptiveSize < threshold) {
+                                    lr.widthCurve = new AnimationCurve(
+                                        new Keyframe(0, 0f),
+                                        new Keyframe(hasBackLink ? AdaptiveSize / 2 : 0.001f, 0.095f),
+                                        new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
+                                        new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
+                                        new Keyframe(1, 0f)); // tip of arrow
+                                    lr.positionCount = 5;
+                                    lr.SetPositions(new Vector3[] {
+                                        origin,
+                                        Vector3.Lerp(origin, target, hasBackLink ? AdaptiveSize / 2 : 0.001f),
+                                        Vector3.Lerp(origin, target, 0.999f - AdaptiveSize),
+                                        Vector3.Lerp(origin, target, 1 - AdaptiveSize),
+                                        target });
+                                } else {
+                                    lr.widthCurve = new AnimationCurve(
+                                        new Keyframe(0, 0.095f),
+                                        new Keyframe(1, 0.095f)); // tip of arrow
+                                    lr.positionCount = 2;
+                                    lr.SetPositions(new Vector3[] { origin, target });
+                                }
                             }
                         }
 
@@ -647,7 +654,9 @@ namespace R1Engine
                                 } else if (Input.GetKey(KeyCode.J)) {
                                     addSelectedHeight -= isometricScale.y / 4f;
                                 }
-                                Vector3 scaledPos = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y) / 16f, isometricScale);
+                                Vector3 objectScale = LevelEditorData.Level.IsometricData.ObjectScale;
+                                Vector3 isometricObjectScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
+                                Vector3 scaledPos = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y), isometricObjectScale);
                                 Vector3 transformOrigin = SelectedEvent.transform.position;
                                 transformOrigin.y = selectedHeight;
                                 //Debug.Log(transformOrigin);
@@ -662,7 +671,7 @@ namespace R1Engine
                                     Vector3 diff = transformedSelectedPos - transformOrigin;
                                     Vector3 scaledObjectPos = mouseWorldPos - diff;
                                     scaledObjectPos.y = selectedHeight + addSelectedHeight;
-                                    Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, 16 * new Vector3(1f / isometricScale.x, 1f / isometricScale.y, 1f / isometricScale.z));
+                                    Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, new Vector3(1f / isometricObjectScale.x, 1f / isometricObjectScale.y, 1f / isometricObjectScale.z));
                                     Vector3 newPos = new Vector3(unscaledPos.x, -unscaledPos.z, unscaledPos.y);
                                     obj.Position = newPos;
                                     //Debug.Log(mouseWorldPos + " - " + newPos);
@@ -693,13 +702,14 @@ namespace R1Engine
                             if (modeEvents) {
                                 Unity_Object_3D obj = (Unity_Object_3D)SelectedEvent.ObjData;
                                 Vector3 isometricScale = LevelEditorData.Level.IsometricData.Scale;
+                                Vector3 isometricObjectScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
                                 Vector3 scaledObjectPos = SelectedEvent.transform.position;
                                 if (Input.GetKey(KeyCode.U)) {
                                     scaledObjectPos.y += isometricScale.y / 4f;
                                 } else if (Input.GetKey(KeyCode.J)) {
                                     scaledObjectPos.y -= isometricScale.y / 4f;
                                 }
-                                Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, 16 * new Vector3(1f / isometricScale.x, 1f / isometricScale.y, 1f / isometricScale.z));
+                                Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, new Vector3(1f / isometricObjectScale.x, 1f / isometricObjectScale.y, 1f / isometricObjectScale.z));
                                 Vector3 newPos = new Vector3(unscaledPos.x, -unscaledPos.z, unscaledPos.y);
                                 obj.Position = newPos;
                             }

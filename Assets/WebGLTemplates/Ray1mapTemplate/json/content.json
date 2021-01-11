@@ -254,6 +254,33 @@
 					]
 				},
 				{
+					"title": "Tom Clancy's Rainbow Six: Rogue Spear",
+					"viewer": "ray1map",
+					"json": "gba\/tom_clancys_rainbow_six",
+					"image": ".\/img\/logo\/tom_clancys_rainbow_six.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/tom_clancys_rainbow_six_eu" }
+					]
+				},
+				{
+					"title": "The Mummy",
+					"viewer": "ray1map",
+					"json": "gba\/the_mummy",
+					"image": ".\/img\/logo\/the_mummy.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/the_mummy_eu" }
+					]
+				},
+				{
+					"title": "Tomb Raider: The Prophecy",
+					"viewer": "ray1map",
+					"json": "gba\/tomb_raider_prophecy",
+					"image": ".\/img\/logo\/tomb_raider_prophecy.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/tomb_raider_prophecy_eu" }
+					]
+				},
+				{
 					"title": "Batman Vengeance",
 					"viewer": "ray1map",
 					"json": "gba\/batman_vengeance",
