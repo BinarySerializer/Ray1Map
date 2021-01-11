@@ -39,8 +39,8 @@ namespace R1Engine
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_{Object.ObjType}";
-        public override string SecondaryName => null;
+        public override string PrimaryName => $"Type_{(int)Object.ObjType}";
+        public override string SecondaryName => $"{Object.ObjType}";
 
         private int _animSetIndex;
 
@@ -55,6 +55,8 @@ namespace R1Engine
         }
 
         public byte AnimIndex { get; set; }
+
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision => Animation?.AnimHitBox;
 
         public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
         public override int AnimSpeed => Animation?.CrashAnim.AnimSpeed ?? 0;

@@ -5,8 +5,8 @@
         public Pointer FrameTablePointer { get; set; }
 
         // Hitbox and anim frame?
-        public AnimRect Rect_0 { get; set; }
-        public AnimRect Rect_1 { get; set; }
+        public AnimRect HitBox { get; set; }
+        public AnimRect RenderBox { get; set; }
 
         public byte PaletteIndex { get; set; }
         public byte AnimSpeed { get; set; } // Speed + 1
@@ -20,8 +20,8 @@
         public override void SerializeImpl(SerializerObject s)
         {
             FrameTablePointer = s.SerializePointer(FrameTablePointer, name: nameof(FrameTablePointer));
-            Rect_0 = s.SerializeObject<AnimRect>(Rect_0, name: nameof(Rect_0));
-            Rect_1 = s.SerializeObject<AnimRect>(Rect_1, name: nameof(Rect_1));
+            HitBox = s.SerializeObject<AnimRect>(HitBox, name: nameof(HitBox));
+            RenderBox = s.SerializeObject<AnimRect>(RenderBox, name: nameof(RenderBox));
             PaletteIndex = s.Serialize<byte>(PaletteIndex, name: nameof(PaletteIndex));
             AnimSpeed = s.Serialize<byte>(AnimSpeed, name: nameof(AnimSpeed));
             FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));

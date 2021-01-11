@@ -36,6 +36,18 @@ namespace R1Engine
                     CrashAnim = crashAnim;
                     XPos = xPos;
                     YPos = yPos;
+
+                    AnimHitBox = new Unity_ObjAnimationCollisionPart[]
+                    {
+                        new Unity_ObjAnimationCollisionPart()
+                        {
+                            Type = Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox,
+                            XPosition = CrashAnim.HitBox.X,
+                            YPosition = CrashAnim.HitBox.Y,
+                            Width = CrashAnim.HitBox.Width,
+                            Height = CrashAnim.HitBox.Height,
+                        },
+                    };
                 }
 
                 private Sprite[] Frames;
@@ -59,6 +71,8 @@ namespace R1Engine
                         }
                     })).ToArray()
                 });
+
+                public Unity_ObjAnimationCollisionPart[] AnimHitBox { get; } 
             }
         }
     }
