@@ -213,7 +213,7 @@ namespace R1Engine
             }
         }
 
-        public override Unity_ObjAnimation CurrentAnimation => ModelData?.Puppets[PuppetIndex].Animations.ElementAtOrDefault(AnimationIndex ?? -1);
+        public override Unity_ObjAnimation CurrentAnimation => Sprites?.Any() == true ? ModelData?.Puppets[PuppetIndex].Animations.ElementAtOrDefault(AnimationIndex ?? -1) : null;
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? CurrentAnimation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex ?? Action?.AnimationIndex ?? Actor.ActionIndex;
