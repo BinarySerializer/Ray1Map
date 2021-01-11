@@ -44,8 +44,8 @@ namespace R1Engine
                             Type = Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox,
                             XPosition = CrashAnim.HitBox.X,
                             YPosition = CrashAnim.HitBox.Y,
-                            Width = CrashAnim.HitBox.Width,
-                            Height = CrashAnim.HitBox.Height,
+                            Width = CrashAnim.HitBox.Width + 1,
+                            Height = CrashAnim.HitBox.Height + 1,
                         },
                     };
                 }
