@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public enum GBACrash_ObjType : short
+    public enum GBACrash_Crash2_ObjType : short
     {
         Crash = 0,
 

@@ -21,22 +21,22 @@ namespace R1Engine
             var pointerTable = PointerTables.GBACrash_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
             // Get the current lev info
-            var manager = (GBACrash_Crash2_Manager)s.GameSettings.GetGameManager;
+            var manager = (GBACrash_BaseManager)s.GameSettings.GetGameManager;
             var levInfo = manager.LevInfos[s.GameSettings.Level];
 
             LocTable = s.DoAt(pointerTable[GBACrash_Pointer.Localization], () => s.SerializeObject<GBACrash_LocTable>(LocTable, name: nameof(LocTable)));
-            s.Context.StoreObject(GBACrash_Crash2_Manager.LocTableID, LocTable);
+            s.Context.StoreObject(GBACrash_BaseManager.LocTableID, LocTable);
 
             s.DoAt(pointerTable[GBACrash_Pointer.LevelInfo], () =>
             {
                 if (LevelInfos == null)
-                    LevelInfos = new GBACrash_LevelInfo[29];
+                    LevelInfos = new GBACrash_LevelInfo[manager.LevInfos.Max(x => x.LevelIndex) + 1];
 
                 for (int i = 0; i < LevelInfos.Length; i++)
                     LevelInfos[i] = s.SerializeObject<GBACrash_LevelInfo>(LevelInfos[i], x => x.LevInfo = i == levInfo.LevelIndex ? levInfo : null, name: $"{nameof(LevelInfos)}[{i}]");
             });
 
-            AnimSets = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_AnimSets], () => s.SerializeObjectArray<GBACrash_AnimSet>(AnimSets, 49, name: nameof(AnimSets)));
+            AnimSets = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_AnimSets], () => s.SerializeObjectArray<GBACrash_AnimSet>(AnimSets, manager.AnimSetsCount, name: nameof(AnimSets)));
 
             var tileSetLength = (long)AnimSets.SelectMany(x => x.AnimationFrames).Select(x => 
                 x.TileOffset + (x.TileShapes.Select(t => (manager.TileShapes[t.ShapeIndex].x * manager.TileShapes[t.ShapeIndex].y) / 2).Sum())).Max();

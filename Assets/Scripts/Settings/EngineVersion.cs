@@ -83,6 +83,7 @@ namespace R1Engine
 
         // GBA Crash
 
+        GBACrash_Crash1,
         GBACrash_Crash2,
     }
 }

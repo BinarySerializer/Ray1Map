@@ -42,8 +42,18 @@
             {
                 X = s.Serialize<short>(X, name: nameof(X));
                 Y = s.Serialize<short>(Y, name: nameof(Y));
-                Width = s.Serialize<short>(Width, name: nameof(Width));
-                Height = s.Serialize<short>(Height, name: nameof(Height));
+
+                if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1)
+                {
+                    Width = s.Serialize<sbyte>((sbyte)Width, name: nameof(Width));
+                    Height = s.Serialize<sbyte>((sbyte)Height, name: nameof(Height));
+                    s.Serialize<ushort>(default, name: "Padding");
+                }
+                else
+                {
+                    Width = s.Serialize<short>(Width, name: nameof(Width));
+                    Height = s.Serialize<short>(Height, name: nameof(Height));
+                }
             }
         }
     }

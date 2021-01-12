@@ -7,7 +7,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            StringPointers = s.SerializePointerArray(StringPointers, 191, name: nameof(StringPointers));
+            StringPointers = s.SerializePointerArray(StringPointers, ((GBACrash_BaseManager)s.GameSettings.GetGameManager).LocTableCount, name: nameof(StringPointers));
 
             if (Strings == null)
                 Strings = new string[StringPointers.Length];

@@ -106,7 +106,7 @@ namespace R1Engine
             public ushort Type
             {
                 get => (ushort)Obj.Object.ObjType;
-                set => Obj.Object.ObjType = (GBACrash_ObjType)value;
+                set => Obj.Object.ObjType = (short)value;
             }
 
             public int DES

@@ -364,6 +364,9 @@ namespace R1Engine
 
         // Crash Bandicoot GBA
 
+        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash1, Game.GBACrash_Crash1, "Crash Bandicoot: The Huge Adventure (GBA - US)", typeof(GBACrash_Crash1_Manager))]
+        Crash1GBAUS,
+
         [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBACrash_Crash2_Manager))]
         Crash2GBAUS,
     }

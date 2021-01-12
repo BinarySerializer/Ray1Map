@@ -33,8 +33,8 @@
         {
             // 2D
             Normal = 0,
-            FlyingCarpet = 1, // Only used for the Evil Crunch fight
-            Helicopter = 2, // Only used for the Evil Coco fight
+            Normal_Vehicle_0 = 1, // Underwater in Crash 1, flying carpet in Crash 2
+            Normal_Vehicle_1 = 2, // Motorcycle in Crash 1, copter in Crash 2
 
             // 3D
             Mode7 = 3, // The water and space levels

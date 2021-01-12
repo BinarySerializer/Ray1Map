@@ -65,6 +65,7 @@
 
         // GBA Crash
 
-        GBACrash_Crash2
+        GBACrash_Crash1,
+        GBACrash_Crash2,
     }
 }

@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -867,6 +868,15 @@ namespace R1Engine
         public static Dictionary<GBACrash_Pointer, Pointer> GBACrash_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
             switch (gameMode) 
             {
+                case GameModeSelection.Crash1GBAUS:
+                    return new Dictionary<GBACrash_Pointer, uint>() {
+                        [GBACrash_Pointer.LevelInfo] = 0x0816c3ac,
+                        [GBACrash_Pointer.Localization] = 0x08172c18,
+                        [GBACrash_Pointer.Map2D_AnimSets] = 0x084a3634,
+                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bd144,
+                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a2684,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.Crash2GBAUS:
                     return new Dictionary<GBACrash_Pointer, uint>() {
                         [GBACrash_Pointer.LevelInfo] = 0x081d2714,

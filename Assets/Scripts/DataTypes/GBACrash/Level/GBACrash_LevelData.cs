@@ -3,7 +3,7 @@
     public class GBACrash_LevelData : R1Serializable
     {
         public bool SerializeAll { get; set; }
-        public GBACrash_Crash2_Manager.LevInfo LevInfo { get; set; } // Set before serializing if it's the current level
+        public GBACrash_BaseManager.LevInfo LevInfo { get; set; } // Set before serializing if it's the current level
 
         public uint MapsCount { get; set; }
         public Pointer MapsPointer { get; set; }
@@ -32,14 +32,14 @@
 
             for (int i = 0; i < Maps.Length; i++)
             {
-                if (SerializeAll || (LevInfo?.MapIndex == i && LevInfo?.MapType == GBACrash_Crash2_Manager.LevInfo.Type.Normal))
+                if (SerializeAll || (LevInfo?.MapIndex == i && LevInfo?.MapType == GBACrash_BaseManager.LevInfo.Type.Normal))
                     Maps[i] = s.DoAt(MapsPointers[i], () => s.SerializeObject<GBACrash_MapInfo>(Maps[i], name: $"{nameof(Maps)}[{i}]"));
             }
 
-            if (SerializeAll || LevInfo?.MapType == GBACrash_Crash2_Manager.LevInfo.Type.Bonus)
+            if (SerializeAll || LevInfo?.MapType == GBACrash_BaseManager.LevInfo.Type.Bonus)
                 BonusMap = s.DoAt(BonusMapPointer, () => s.SerializeObject<GBACrash_MapInfo>(BonusMap, name: nameof(BonusMap)));
 
-            if (SerializeAll || LevInfo?.MapType == GBACrash_Crash2_Manager.LevInfo.Type.Challenge)
+            if (SerializeAll || LevInfo?.MapType == GBACrash_BaseManager.LevInfo.Type.Challenge)
                 ChallengeMap = s.DoAt(ChallengeMapPointer, () => s.SerializeObject<GBACrash_MapInfo>(ChallengeMap, name: nameof(ChallengeMap)));
         }
     }
