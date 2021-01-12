@@ -7,14 +7,15 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBACrash : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBACrash(Context context, AnimSet[] animSets, byte[][] objParams) : base(context)
+        public Unity_ObjectManager_GBACrash(Context context, AnimSet[] animSets, GBACrash_MapInfo mapInfo) : base(context)
         {
             AnimSets = animSets;
-            ObjParams = objParams;
+            MapInfo = mapInfo;
         }
         
         public AnimSet[] AnimSets { get; }
-        public byte[][] ObjParams { get; }
+        public GBACrash_MapInfo MapInfo { get; }
+        public byte[][] ObjParams => MapInfo.MapData2D.ObjData.ObjParams;
 
         public override string[] LegacyDESNames => AnimSets.Select((x, i) => i.ToString()).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;

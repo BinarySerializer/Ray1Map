@@ -159,7 +159,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBACrash(context, LoadAnimSets(rom), map.MapData2D.ObjData.ObjParams);
+            var objmanager = new Unity_ObjectManager_GBACrash(context, LoadAnimSets(rom), map);
             var objects = map.MapData2D.ObjData.ObjGroups.SelectMany(x => x.Objects.Reverse()).Select(x => new Unity_Object_GBACrash(objmanager, x));
 
             return new Unity_Level(
