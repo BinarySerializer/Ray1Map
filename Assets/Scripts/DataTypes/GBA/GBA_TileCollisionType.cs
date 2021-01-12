@@ -16,7 +16,7 @@
         Ledge = 2,
 
         // At edges of slippery platforms
-        EndSlippery = 3,
+        Slippery_Ledge = 3,
 
         // Seems to be tiles which are only solid when you stand on them?
         Passthrough = 15,

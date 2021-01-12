@@ -248,7 +248,7 @@
                 case GBA_TileCollisionType.Solid:
                     return engineVersion > EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Solid : Unity_MapCollisionTypeGraphic.None;
 
-                case GBA_TileCollisionType.EndSlippery:
+                case GBA_TileCollisionType.Slippery_Ledge:
                     return Unity_MapCollisionTypeGraphic.Slippery_Hangable;
 
                 case GBA_TileCollisionType.Climb:
