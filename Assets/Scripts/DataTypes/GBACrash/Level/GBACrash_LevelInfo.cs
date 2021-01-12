@@ -6,7 +6,7 @@
 
         public uint LocIndex_LevelName { get; set; }
         public GBACrash_Crash2_LevelTheme LevelTheme { get; set; } // For the level music
-        public GBACrash_Time Time_Saphire { get; set; }
+        public GBACrash_Time Time_Sapphire { get; set; }
         public GBACrash_Time Time_Gold { get; set; }
         public GBACrash_Time Time_Platinum { get; set; }
         public uint Uint_14 { get; set; }
@@ -24,7 +24,7 @@
             s.Log($"LevelName: {s.Context.GetStoredObject<GBACrash_LocTable>(GBACrash_Crash2_Manager.LocTableID).Strings[LocIndex_LevelName]}");
             LevelTheme = s.Serialize<GBACrash_Crash2_LevelTheme>(LevelTheme, name: nameof(LevelTheme));
 
-            Time_Saphire = s.SerializeObject<GBACrash_Time>(Time_Saphire, name: nameof(Time_Saphire));
+            Time_Sapphire = s.SerializeObject<GBACrash_Time>(Time_Sapphire, name: nameof(Time_Sapphire));
             Time_Gold = s.SerializeObject<GBACrash_Time>(Time_Gold, name: nameof(Time_Gold));
             Time_Platinum = s.SerializeObject<GBACrash_Time>(Time_Platinum, name: nameof(Time_Platinum));
 

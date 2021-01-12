@@ -494,7 +494,7 @@ namespace R1Engine
                 var objCol = ObjData.ObjCollision;
 
                 // Update new 
-                if ((objCollisionRenderers == null && objCol != null && objCol.Length > 0) || objCol.Length != objCollisionRenderers?.Length) {
+                if ((objCollisionRenderers == null && objCol != null && objCol.Length > 0) || objCol?.Length != objCollisionRenderers?.Length) {
                     // Clear old object collision array
                     ClearSprites(objCollisionRenderers);
 

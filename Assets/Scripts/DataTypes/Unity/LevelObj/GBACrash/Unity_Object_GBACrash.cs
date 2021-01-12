@@ -14,10 +14,16 @@ namespace R1Engine
 
             // Init the object
             GBACrash_ObjInit.InitObj(ObjManager.Context.Settings.EngineVersion, this);
+
+            // Set link group
+            if (IsLinked)
+                EditorLinkGroup = ObjParams?.ElementAtOrDefault(4) ?? 0;
         }
 
         public Unity_ObjectManager_GBACrash ObjManager { get; }
         public GBACrash_Object Object { get; set; }
+
+        public bool IsLinked { get; set; }
 
         public override short XPosition
         {
@@ -31,7 +37,9 @@ namespace R1Engine
             set => Object.YPos = value;
         }
 
-        public override string DebugText => $"Params: {Util.ByteArrayToHexString(ObjManager.ObjParams[Object.ObjParamsIndex])}{Environment.NewLine}";
+        public override string DebugText => $"Params: {Util.ByteArrayToHexString(ObjParams)}{Environment.NewLine}";
+
+        public byte[] ObjParams => ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex);
 
         public Unity_ObjectManager_GBACrash.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBACrash.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
@@ -42,8 +50,12 @@ namespace R1Engine
         public override string PrimaryName => $"Type_{(int)Object.ObjType}";
         public override string SecondaryName => $"{Object.ObjType}";
 
-        public override bool FlipHorizontally => (ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex)?.FirstOrDefault() & 2) != 0;
-        public override bool FlipVertically => (ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex)?.FirstOrDefault() & 4) != 0;
+        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & 2) != 0;
+        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & 4) != 0;
+
+        public override bool CanBeLinkedToGroup => true;
+
+        public override ObjectType Type => AnimSetIndex == -1 ? ObjectType.Trigger : ObjectType.Object;
 
         private int _animSetIndex;
         private byte _animIndex;
@@ -53,6 +65,9 @@ namespace R1Engine
             get => _animSetIndex;
             set
             {
+                if (AnimSetIndex == -1)
+                    return;
+
                 _animSetIndex = value;
                 AnimIndex = 0;
                 FreezeFrame = false;
