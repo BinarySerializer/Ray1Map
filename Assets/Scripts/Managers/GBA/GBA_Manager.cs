@@ -235,7 +235,7 @@ namespace R1Engine
             Debug.Log("Finished logging blocks");
         }
 
-        public async UniTask ExportSpritesAsync(GameSettings settings, string outputDir, bool exportAnimFrames)
+        public virtual async UniTask ExportSpritesAsync(GameSettings settings, string outputDir, bool exportAnimFrames)
         {
             var exported = new HashSet<Pointer>();
 
@@ -373,7 +373,7 @@ namespace R1Engine
                 var commonDesign = GetCommonDesign(spr, is8bit, data);
 
                 // Convert Texture2D to MagickImage
-                sprites = commonDesign.Sprites.Select(x => x.texture.ToMagickImage()).ToArray();
+                sprites = commonDesign.Sprites.Select(x => x.ToMagickImage()).ToArray();
 
                 var animIndex = 0;
 
@@ -460,6 +460,12 @@ namespace R1Engine
                             int layerIndex = 0;
                             foreach (var layer in frame.SpriteLayers)
                             {
+                                if (layer.ImageIndex >= sprites.Length)
+                                {
+                                    Debug.LogWarning($"Out of bounds sprite index {layer.ImageIndex}/{sprites.Length}");
+                                    continue;
+                                }
+
                                 MagickImage img = (MagickImage)sprites[layer.ImageIndex].Clone();
                                 Vector2 size = new Vector2(img.Width, img.Height);
                                 img.FilterType = FilterType.Point;

@@ -63,5 +63,23 @@ namespace R1Engine
             img.Flip();
             return img;
         }
+
+        public static MagickImage ToMagickImage(this Sprite sprite)
+        {
+            var pixels = sprite.texture.GetPixels((int)sprite.rect.x, (int)sprite.rect.y, (int)sprite.rect.width, (int)sprite.rect.height);
+            var bytes = new byte[pixels.Length * 4];
+
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                bytes[i * 4 + 0] = (byte)(pixels[i].a * 255);
+                bytes[i * 4 + 1] = (byte)(pixels[i].b * 255);
+                bytes[i * 4 + 2] = (byte)(pixels[i].g * 255);
+                bytes[i * 4 + 3] = (byte)(pixels[i].r * 255);
+            }
+
+            var img = new MagickImage(bytes, new PixelReadSettings((int)sprite.rect.width, (int)sprite.rect.height, StorageType.Char, PixelMapping.ABGR));
+            img.Flip();
+            return img;
+        }
     }
 }

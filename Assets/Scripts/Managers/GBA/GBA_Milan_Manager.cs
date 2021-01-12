@@ -1,6 +1,10 @@
-﻿using R1Engine.Serialize;
+﻿using System;
+using R1Engine.Serialize;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -42,6 +46,60 @@ namespace R1Engine
             }
 
             return loc;
+        }
+
+        public override async UniTask ExportSpritesAsync(GameSettings settings, string outputDir, bool exportAnimFrames)
+        {
+            try
+            {
+                var exported = new HashSet<Pointer>();
+
+                // Enumerate every level
+                for (int lev = 0; lev < LevelCount; lev++)
+                {
+                    Debug.Log($"Exporting level {lev + 1}/{LevelCount}");
+
+                    settings.Level = lev;
+
+                    using (var context = new Context(settings))
+                    {
+                        // Load the ROM
+                        await LoadFilesAsync(context);
+
+                        // Read the level
+                        var gbaData = LoadDataBlock(context);
+                        var scene = gbaData.Milan_SceneList.Scene;
+
+                        // Enumerate every graphic group
+                        await UniTask.WaitForEndOfFrame();
+
+                        foreach (var model in scene.ActorsBlock.ActorModels)
+                        {
+                            foreach (var puppet in model.GetPuppets.Cast<GBA_Puppet>())
+                            {
+                                if (exported.Contains(puppet.Offset))
+                                    continue;
+
+                                exported.Add(puppet.Offset);
+
+                                if (puppet.Milan_TileKit.TileSet4bppSize == 0 && puppet.Milan_TileKit.TileSet8bppSize == 0)
+                                    continue;
+
+                                if (exportAnimFrames)
+                                    await ExportAnimations(puppet, Path.Combine(outputDir, $"{model.Milan_ActorID}_0x{puppet.Offset.AbsoluteOffset:X8}"), puppet.Milan_TileKit.Is8bpp, gbaData);
+                                else
+                                    ExportSpriteTileSet(puppet, outputDir, puppet.Milan_TileKit.Is8bpp, -1);
+                            }
+                        }
+                    }
+                }
+
+                Debug.Log("Finished export");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error: {ex}");
+            }
         }
     }
 }
