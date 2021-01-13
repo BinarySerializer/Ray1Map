@@ -7,7 +7,7 @@
         public uint TileSetFramesBlockLength { get; set; }
         public uint BackgroundIndex { get; set; }
         public Pointer ObjPalettePointer { get; set; }
-        public Pointer Pointer_14 { get; set; }
+        public Pointer ObjDataPointer { get; set; }
         public Pointer Pointer_18 { get; set; }
         public Pointer ObjTileSetPointer { get; set; }
         public uint Uint_20 { get; set; }
@@ -19,6 +19,7 @@
         // Serialized from pointers
         public GBACrash_Mode7_TileFrames TileSetFrames { get; set; }
         public RGBA5551Color[] ObjPalette { get; set; }
+        public GBACrash_Mode7_ObjData ObjData { get; set; }
         public GBACrash_TileSet ObjTileSet { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -28,7 +29,7 @@
             TileSetFramesBlockLength = s.Serialize<uint>(TileSetFramesBlockLength, name: nameof(TileSetFramesBlockLength));
             BackgroundIndex = s.Serialize<uint>(BackgroundIndex, name: nameof(BackgroundIndex));
             ObjPalettePointer = s.SerializePointer(ObjPalettePointer, name: nameof(ObjPalettePointer));
-            Pointer_14 = s.SerializePointer(Pointer_14, name: nameof(Pointer_14));
+            ObjDataPointer = s.SerializePointer(ObjDataPointer, name: nameof(ObjDataPointer));
             Pointer_18 = s.SerializePointer(Pointer_18, name: nameof(Pointer_18));
             ObjTileSetPointer = s.SerializePointer(ObjTileSetPointer, name: nameof(ObjTileSetPointer));
             Uint_20 = s.Serialize<uint>(Uint_20, name: nameof(Uint_20));
@@ -39,6 +40,7 @@
 
             TileSetFrames = s.DoAt(TileSetFramesPointer, () => s.SerializeObject<GBACrash_Mode7_TileFrames>(TileSetFrames, x => x.TileSetFramesBlockLength = TileSetFramesBlockLength, name: nameof(TileSetFrames)));
             ObjPalette = s.DoAt(ObjPalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));
+            ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBACrash_Mode7_ObjData>(ObjData, name: nameof(ObjData)));
             ObjTileSet = s.DoAt(ObjTileSetPointer, () => s.SerializeObject<GBACrash_TileSet>(ObjTileSet, name: nameof(ObjTileSet)));
         }
     }
