@@ -98,17 +98,19 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context);
-            var levInfo = LevInfos[context.Settings.Level];
-            var levelInfo = rom.LevelInfos[levInfo.LevelIndex];
+            var map = rom.CurrentMapInfo;
 
-            GBACrash_MapInfo map;
-
-            if (levInfo.MapType == LevInfo.Type.Normal)
-                map = levelInfo.LevelData.Maps[levInfo.MapIndex];
-            else if (levInfo.MapType == LevInfo.Type.Bonus)
-                map = levelInfo.LevelData.BonusMap;
+            if (map.MapType == GBACrash_MapInfo.GBACrash_MapType.Mode7)
+                return await LoadMode7Async(context, rom);
+            else if (map.MapType == GBACrash_MapInfo.GBACrash_MapType.Isometric)
+                throw new NotImplementedException();
             else
-                map = levelInfo.LevelData.ChallengeMap;
+                return await Load2DAsync(context, rom);
+        }
+
+        public async UniTask<Unity_Level> Load2DAsync(Context context, GBACrash_ROM rom)
+        {
+            var map = rom.CurrentMapInfo;
 
             Controller.DetailedState = "Loading tilesets";
             await Controller.WaitIfNecessary();
@@ -174,6 +176,41 @@ namespace R1Engine
                 getCollisionTypeNameFunc: x => ((GBACrash_Crash2_CollisionType)x).ToString());
         }
 
+        public async UniTask<Unity_Level> LoadMode7Async(Context context, GBACrash_ROM rom)
+        {
+            var levelInfo = rom.CurrentMode7LevelInfo;
+            var tileSetFrames = levelInfo.TileSetFrames;
+
+            Controller.DetailedState = "Loading maps & tilesets";
+            await Controller.WaitIfNecessary();
+
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map
+                {
+                    Width = tileSetFrames.Width,
+                    Height = tileSetFrames.Height,
+                    TileSet = new Unity_TileSet[]
+                    {
+                        LoadMode7FramesTileSet(tileSetFrames, rom.Mode7_TilePalette)
+                    },
+                    MapTiles = Enumerable.Range(0, tileSetFrames.Width * tileSetFrames.Height).Select(t => new Unity_Tile(new MapTile()
+                    {
+                        TileMapY = (ushort)t
+                    })).ToArray(),
+                    Type = Unity_Map.MapType.Graphics,
+                }
+            };
+
+            var objmanager = new Unity_ObjectManager(context);
+
+            return new Unity_Level(
+                maps: maps,
+                objManager: objmanager,
+                eventData: new List<Unity_Object>(),
+                cellSize: CellSize);
+        }
+
         public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit)
         {
             Texture2D tex;
@@ -220,6 +257,24 @@ namespace R1Engine
             }
 
             return new Unity_TileSet(tex, CellSize);
+        }
+
+        public Unity_TileSet LoadMode7FramesTileSet(GBACrash_Mode7_TileFrames tileFrames, RGBA5551Color[] pal)
+        {
+            var palettes = Util.ConvertAndSplitGBAPalette(pal);
+
+            var tex = Util.ToTileSetTexture(tileFrames.TileFrames.SelectMany(x => x.TileSet).ToArray(), palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false);
+
+            var length = tileFrames.Width * tileFrames.Height;
+
+            return new Unity_TileSet(tex, CellSize)
+            {
+                AnimatedTiles = Enumerable.Range(0, length).Select(t => new Unity_AnimatedTile
+                {
+                    AnimationSpeed = 1,
+                    TileIndices = Enumerable.Range(0, tileFrames.TileFrames.Length).Select(f => f * length + t).ToArray()
+                }).ToArray()
+            };
         }
 
         public Unity_Tile[] GetTileMap(GBACrash_MapLayer layer, GBACrash_MapData2DDataBlock.GBACrash_TileLayerData tileLayerData, bool is8bit = false, int tileSetLength = 0, bool isCollision = false)

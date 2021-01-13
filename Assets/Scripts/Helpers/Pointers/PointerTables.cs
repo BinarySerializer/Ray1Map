@@ -872,6 +872,7 @@ namespace R1Engine
                     return new Dictionary<GBACrash_Pointer, uint>() {
                         [GBACrash_Pointer.LevelInfo] = 0x0816c3ac,
                         [GBACrash_Pointer.Localization] = 0x08172c18,
+
                         [GBACrash_Pointer.Map2D_AnimSets] = 0x084a3634,
                         [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bd144,
                         [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a2684,
@@ -881,9 +882,14 @@ namespace R1Engine
                     return new Dictionary<GBACrash_Pointer, uint>() {
                         [GBACrash_Pointer.LevelInfo] = 0x081d2714,
                         [GBACrash_Pointer.Localization] = 0x081d5c04,
+
                         [GBACrash_Pointer.Map2D_AnimSets] = 0x0846dd84,
                         [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082aadd4,
                         [GBACrash_Pointer.Map2D_ObjPalettes] = 0x0846d1d4,
+
+                        [GBACrash_Pointer.Mode7_LevelInfo] = 0x081d6b58,
+                        [GBACrash_Pointer.Mode7_TilePalette_0] = 0x081d6cc4,
+                        [GBACrash_Pointer.Mode7_TilePalette_1] = 0x081d6ec4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

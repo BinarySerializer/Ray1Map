@@ -8,5 +8,9 @@
         Map2D_AnimSets,
         Map2D_ObjTileSet,
         Map2D_ObjPalettes,
+
+        Mode7_LevelInfo,
+        Mode7_TilePalette_0,
+        Mode7_TilePalette_1,
     }
 }
