@@ -8,8 +8,8 @@
         public uint BackgroundIndex { get; set; }
         public Pointer ObjPalettePointer { get; set; }
         public Pointer ObjDataPointer { get; set; }
-        public Pointer Pointer_18 { get; set; }
-        public Pointer ObjTileSetPointer { get; set; }
+        public Pointer AnimSetsPointer { get; set; }
+        public Pointer ObjGraphicsPointer { get; set; }
         public uint Uint_20 { get; set; }
         public uint Uint_24 { get; set; }
         public uint Uint_28 { get; set; }
@@ -20,7 +20,8 @@
         public GBACrash_Mode7_TileFrames TileSetFrames { get; set; }
         public RGBA5551Color[] ObjPalette { get; set; }
         public GBACrash_Mode7_ObjData ObjData { get; set; }
-        public GBACrash_TileSet ObjTileSet { get; set; }
+        public GBACrash_Mode7_AnimSet[] AnimSets { get; set; }
+        public GBACrash_Mode7_ObjGraphics ObjGraphics { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -30,8 +31,8 @@
             BackgroundIndex = s.Serialize<uint>(BackgroundIndex, name: nameof(BackgroundIndex));
             ObjPalettePointer = s.SerializePointer(ObjPalettePointer, name: nameof(ObjPalettePointer));
             ObjDataPointer = s.SerializePointer(ObjDataPointer, name: nameof(ObjDataPointer));
-            Pointer_18 = s.SerializePointer(Pointer_18, name: nameof(Pointer_18));
-            ObjTileSetPointer = s.SerializePointer(ObjTileSetPointer, name: nameof(ObjTileSetPointer));
+            AnimSetsPointer = s.SerializePointer(AnimSetsPointer, name: nameof(AnimSetsPointer));
+            ObjGraphicsPointer = s.SerializePointer(ObjGraphicsPointer, name: nameof(ObjGraphicsPointer));
             Uint_20 = s.Serialize<uint>(Uint_20, name: nameof(Uint_20));
             Uint_24 = s.Serialize<uint>(Uint_24, name: nameof(Uint_24));
             Uint_28 = s.Serialize<uint>(Uint_28, name: nameof(Uint_28));
@@ -41,7 +42,11 @@
             TileSetFrames = s.DoAt(TileSetFramesPointer, () => s.SerializeObject<GBACrash_Mode7_TileFrames>(TileSetFrames, x => x.TileSetFramesBlockLength = TileSetFramesBlockLength, name: nameof(TileSetFrames)));
             ObjPalette = s.DoAt(ObjPalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBACrash_Mode7_ObjData>(ObjData, name: nameof(ObjData)));
-            ObjTileSet = s.DoAt(ObjTileSetPointer, () => s.SerializeObject<GBACrash_TileSet>(ObjTileSet, name: nameof(ObjTileSet)));
+
+            var animSetsCount = LevelType == 0 ? 41 : 0;
+
+            AnimSets = s.DoAt(AnimSetsPointer, () => s.SerializeObjectArray<GBACrash_Mode7_AnimSet>(AnimSets, animSetsCount, name: nameof(AnimSets)));
+            ObjGraphics = s.DoAt(ObjGraphicsPointer, () => s.SerializeObject<GBACrash_Mode7_ObjGraphics>(ObjGraphics, x => x.AnimSets = AnimSets, name: nameof(ObjGraphics)));
         }
     }
 }
