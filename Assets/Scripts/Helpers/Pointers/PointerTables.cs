@@ -890,6 +890,7 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x081d6b58,
                         [GBACrash_Pointer.Mode7_TilePalette_0] = 0x081d6cc4,
                         [GBACrash_Pointer.Mode7_TilePalette_1] = 0x081d6ec4,
+                        [GBACrash_Pointer.Mode7_Crash2_Type0_BG1] = 0x080cfc7c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

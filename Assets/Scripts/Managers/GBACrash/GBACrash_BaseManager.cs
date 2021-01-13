@@ -184,23 +184,53 @@ namespace R1Engine
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
 
-            var maps = new Unity_Map[]
+            Unity_Map[] maps = null;
+
+            if (context.Settings.EngineVersion == EngineVersion.GBACrash_Crash2)
             {
-                new Unity_Map
+                if (levelInfo.LevelType == 0)
                 {
-                    Width = tileSetFrames.Width,
-                    Height = tileSetFrames.Height,
-                    TileSet = new Unity_TileSet[]
+                    const ushort skyWidth = 38;
+                    const ushort skyHeight = 9;
+
+                    var waterPadding = Enumerable.Range(0, tileSetFrames.Width * skyHeight).Select(t => new Unity_Tile(new MapTile()));
+
+                    maps = new Unity_Map[]
                     {
-                        LoadMode7FramesTileSet(tileSetFrames, rom.Mode7_TilePalette)
-                    },
-                    MapTiles = Enumerable.Range(0, tileSetFrames.Width * tileSetFrames.Height).Select(t => new Unity_Tile(new MapTile()
-                    {
-                        TileMapY = (ushort)t
-                    })).ToArray(),
-                    Type = Unity_Map.MapType.Graphics,
+                        // Sky
+                        new Unity_Map
+                        {
+                            Width = skyWidth,
+                            Height = skyHeight,
+                            TileSet = new Unity_TileSet[]
+                            {
+                                LoadGenericTileSet(rom.Mode7_Crash2_Type0_BG1, rom.Mode7_TilePalette, 1)
+                            },
+                            MapTiles = Enumerable.Range(0, skyWidth * skyHeight).Select(t => new Unity_Tile(new MapTile()
+                            {
+                                TileMapY = (ushort)t
+                            })).ToArray(),
+                            Type = Unity_Map.MapType.Graphics,
+                        },
+
+                        // Water
+                        new Unity_Map
+                        {
+                            Width = tileSetFrames.Width,
+                            Height = (ushort)(tileSetFrames.Height + skyHeight),
+                            TileSet = new Unity_TileSet[]
+                            {
+                                LoadMode7FramesTileSet(tileSetFrames, rom.Mode7_TilePalette, true)
+                            },
+                            MapTiles = waterPadding.Concat(Enumerable.Range(0, tileSetFrames.Width * tileSetFrames.Height).Select(t => new Unity_Tile(new MapTile()
+                            {
+                                TileMapY = (ushort)(t + 1)
+                            }))).ToArray(),
+                            Type = Unity_Map.MapType.Graphics,
+                        }
+                    };
                 }
-            };
+            }
 
             var objmanager = new Unity_ObjectManager(context);
 
@@ -259,11 +289,25 @@ namespace R1Engine
             return new Unity_TileSet(tex, CellSize);
         }
 
-        public Unity_TileSet LoadMode7FramesTileSet(GBACrash_Mode7_TileFrames tileFrames, RGBA5551Color[] pal)
+        public Unity_TileSet LoadGenericTileSet(byte[] tileSet, RGBA5551Color[] pal, int palIndex)
         {
             var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
-            var tex = Util.ToTileSetTexture(tileFrames.TileFrames.SelectMany(x => x.TileSet).ToArray(), palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false);
+            var tex = Util.ToTileSetTexture(tileSet, palettes[palIndex], Util.TileEncoding.Linear_4bpp, CellSize, false);
+
+            return new Unity_TileSet(tex, CellSize);
+        }
+
+        public Unity_TileSet LoadMode7FramesTileSet(GBACrash_Mode7_TileFrames tileFrames, RGBA5551Color[] pal, bool prependTransparent)
+        {
+            var palettes = Util.ConvertAndSplitGBAPalette(pal);
+
+            var completeTileSet = tileFrames.TileFrames.SelectMany(x => x.TileSet).ToArray();
+
+            if (prependTransparent)
+                completeTileSet = new byte[32].Concat(completeTileSet).ToArray();
+
+            var tex = Util.ToTileSetTexture(completeTileSet, palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false);
 
             var length = tileFrames.Width * tileFrames.Height;
 
@@ -272,7 +316,7 @@ namespace R1Engine
                 AnimatedTiles = Enumerable.Range(0, length).Select(t => new Unity_AnimatedTile
                 {
                     AnimationSpeed = 1,
-                    TileIndices = Enumerable.Range(0, tileFrames.TileFrames.Length).Select(f => f * length + t).ToArray()
+                    TileIndices = Enumerable.Range(0, tileFrames.TileFrames.Length).Select(f => f * length + t + (prependTransparent ? 1 : 0)).ToArray()
                 }).ToArray()
             };
         }

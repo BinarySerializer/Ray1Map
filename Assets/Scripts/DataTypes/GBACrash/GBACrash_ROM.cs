@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -38,6 +39,7 @@ namespace R1Engine
         // Mode7
         public GBACrash_Mode7_LevelInfo[] Mode7_LevelInfos { get; set; }
         public RGBA5551Color[] Mode7_TilePalette { get; set; }
+        public byte[] Mode7_Crash2_Type0_BG1 { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -69,6 +71,8 @@ namespace R1Engine
 
                 GBACrash_Pointer palPointer = CurrentMode7LevelInfo.LevelType == 0 ? GBACrash_Pointer.Mode7_TilePalette_0 : GBACrash_Pointer.Mode7_TilePalette_1;
                 Mode7_TilePalette = s.DoAt(pointerTable[palPointer], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_TilePalette, 256, name: nameof(Mode7_TilePalette)));
+
+                Mode7_Crash2_Type0_BG1 = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_Crash2_Type0_BG1], () => s.SerializeArray<byte>(Mode7_Crash2_Type0_BG1, 38 * 9 * 32, name: nameof(Mode7_Crash2_Type0_BG1)));
             }
             else if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Isometric)
             {

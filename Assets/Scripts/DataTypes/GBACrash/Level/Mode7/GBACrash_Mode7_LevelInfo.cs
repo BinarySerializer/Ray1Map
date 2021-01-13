@@ -5,7 +5,7 @@
         public uint LevelType { get; set; } // 0 or 1 since only two types are available per game
         public Pointer TileSetFramesPointer { get; set; }
         public uint TileSetFramesBlockLength { get; set; }
-        public uint Uint_0C { get; set; } // Always 0
+        public uint BackgroundIndex { get; set; }
         public Pointer ObjPalettePointer { get; set; }
         public Pointer Pointer_14 { get; set; }
         public Pointer Pointer_18 { get; set; }
@@ -26,7 +26,7 @@
             LevelType = s.Serialize<uint>(LevelType, name: nameof(LevelType));
             TileSetFramesPointer = s.SerializePointer(TileSetFramesPointer, name: nameof(TileSetFramesPointer));
             TileSetFramesBlockLength = s.Serialize<uint>(TileSetFramesBlockLength, name: nameof(TileSetFramesBlockLength));
-            Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
+            BackgroundIndex = s.Serialize<uint>(BackgroundIndex, name: nameof(BackgroundIndex));
             ObjPalettePointer = s.SerializePointer(ObjPalettePointer, name: nameof(ObjPalettePointer));
             Pointer_14 = s.SerializePointer(Pointer_14, name: nameof(Pointer_14));
             Pointer_18 = s.SerializePointer(Pointer_18, name: nameof(Pointer_18));
