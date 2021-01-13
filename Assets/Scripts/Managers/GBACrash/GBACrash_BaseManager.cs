@@ -234,12 +234,13 @@ namespace R1Engine
                 }
             }
 
-            var objmanager = new Unity_ObjectManager(context);
+            var objmanager = new Unity_ObjectManager_GBACrashMode7(context, LoadMode7AnimSets(levelInfo));
+            var objects = levelInfo.ObjData.Objects.Select(x => new Unity_Object_GBACrashMode7(objmanager, x));
 
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
-                eventData: new List<Unity_Object>(),
+                eventData: new List<Unity_Object>(objects),
                 cellSize: CellSize);
         }
 
@@ -454,6 +455,13 @@ namespace R1Engine
             )).ToArray())).ToArray();
         }
 
+        public Unity_ObjectManager_GBACrashMode7.AnimSet[] LoadMode7AnimSets(GBACrash_Mode7_LevelInfo level)
+        {
+            var pal = Util.ConvertAndSplitGBAPalette(level.ObjPalette);
+
+            return level.AnimSets.Select(animSet => new Unity_ObjectManager_GBACrashMode7.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation(GetMode7AnimFrames(animSet, i, pal).Select(frame => frame.CreateSprite()).ToArray())).ToArray())).ToArray();
+        }
+
         public Texture2D[] GetAnimFrames(GBACrash_AnimSet animSet, int animIndex, byte[] tileSet, Color[] pal)
         {
             var shapes = TileShapes;
@@ -514,6 +522,23 @@ namespace R1Engine
                 }
 
                 output[frameIndex] = frameCache[frame];
+            }
+
+            return output;
+        }
+
+        public Texture2D[] GetMode7AnimFrames(GBACrash_Mode7_AnimSet animSet, int animIndex, Color[][] pal)
+        {
+            var anim = animSet.Animations[animIndex];
+            var frames = animSet.ObjFrames.Skip(anim.FrameIndex).Take(anim.FramesCount).ToArray();
+
+            var output = new Texture2D[frames.Length];
+
+            for (int frameIndex = 0; frameIndex < frames.Length; frameIndex++)
+            {
+                var frame = frames[frameIndex];
+
+                output[frameIndex] = Util.ToTileSetTexture(frame.TileSet, pal[animSet.PaletteIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: frame.Width);
             }
 
             return output;
