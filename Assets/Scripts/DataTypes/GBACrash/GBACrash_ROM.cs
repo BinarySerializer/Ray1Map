@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
-using UnityEngine;
 
 namespace R1Engine
 {
     public class GBACrash_ROM : GBA_ROMBase
     {
+        public bool SerializeAll { get; set; } // Set before serializing
+
         public GBACrash_LocTable LocTable { get; set; }
         public GBACrash_LevelInfo[] LevelInfos { get; set; }
 
@@ -65,20 +66,10 @@ namespace R1Engine
                     LevelInfos[i] = s.SerializeObject<GBACrash_LevelInfo>(LevelInfos[i], x => x.LevInfo = i == levInfo.LevelIndex ? levInfo : null, name: $"{nameof(LevelInfos)}[{i}]");
             });
 
-            if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Mode7)
-            {
-                Mode7_LevelInfos = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_LevelInfo], () => s.SerializeObjectArray<GBACrash_Mode7_LevelInfo>(Mode7_LevelInfos, 7, name: nameof(Mode7_LevelInfos)));
-
-                GBACrash_Pointer palPointer = CurrentMode7LevelInfo.LevelType == 0 ? GBACrash_Pointer.Mode7_TilePalette_0 : GBACrash_Pointer.Mode7_TilePalette_1;
-                Mode7_TilePalette = s.DoAt(pointerTable[palPointer], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_TilePalette, 256, name: nameof(Mode7_TilePalette)));
-
-                Mode7_Crash2_Type0_BG1 = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_Crash2_Type0_BG1], () => s.SerializeArray<byte>(Mode7_Crash2_Type0_BG1, 38 * 9 * 32, name: nameof(Mode7_Crash2_Type0_BG1)));
-            }
-            else if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Isometric)
-            {
-                throw new NotImplementedException();
-            }
-            else
+            if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Normal ||
+                CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Normal_Vehicle_0 ||
+                CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Normal_Vehicle_1 ||
+                SerializeAll)
             {
                 AnimSets = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_AnimSets], () => s.SerializeObjectArray<GBACrash_AnimSet>(AnimSets, manager.AnimSetsCount, name: nameof(AnimSets)));
 
@@ -86,6 +77,31 @@ namespace R1Engine
                     x.TileOffset + (x.TileShapes.Select(t => (manager.TileShapes[t.ShapeIndex].x * manager.TileShapes[t.ShapeIndex].y) / 2).Sum())).Max();
                 ObjTileSet = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_ObjTileSet], () => s.SerializeArray<byte>(ObjTileSet, tileSetLength, name: nameof(ObjTileSet)));
                 ObjPalettes = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_ObjPalettes], () => s.SerializeObjectArray<GBACrash_ObjPal>(ObjPalettes, AnimSets.SelectMany(x => x.Animations).Max(x => x.PaletteIndex) + 1, name: nameof(ObjPalettes)));
+            }
+
+            if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Mode7 || SerializeAll)
+            {
+                s.DoAt(pointerTable[GBACrash_Pointer.Mode7_LevelInfo], () =>
+                {
+                    if (Mode7_LevelInfos == null)
+                        Mode7_LevelInfos = new GBACrash_Mode7_LevelInfo[7];
+
+                    var index3D = CurrentMapInfo.Index3D;
+
+                    for (int i = 0; i < Mode7_LevelInfos.Length; i++)
+                        Mode7_LevelInfos[i] = s.SerializeObject<GBACrash_Mode7_LevelInfo>(Mode7_LevelInfos[i], x => x.SerializeData = i == index3D || SerializeAll, name: $"{nameof(Mode7_LevelInfos)}[{i}]");
+                });
+
+                GBACrash_Pointer palPointer = CurrentMode7LevelInfo.LevelType == 0 ? GBACrash_Pointer.Mode7_TilePalette_0 : GBACrash_Pointer.Mode7_TilePalette_1;
+                Mode7_TilePalette = s.DoAt(pointerTable[palPointer], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_TilePalette, 256, name: nameof(Mode7_TilePalette)));
+
+                if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash2 && CurrentMode7LevelInfo.LevelType == 0)
+                    Mode7_Crash2_Type0_BG1 = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_Crash2_Type0_BG1], () => s.SerializeArray<byte>(Mode7_Crash2_Type0_BG1, 38 * 9 * 32, name: nameof(Mode7_Crash2_Type0_BG1)));
+            }
+
+            if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Isometric || SerializeAll)
+            {
+
             }
         }
     }

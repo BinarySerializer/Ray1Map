@@ -2,6 +2,8 @@
 {
     public class GBACrash_Mode7_LevelInfo : R1Serializable
     {
+        public bool SerializeData { get; set; } // Set before serializing
+
         public uint LevelType { get; set; } // 0 or 1 since only two types are available per game
         public Pointer TileSetFramesPointer { get; set; }
         public uint TileSetFramesBlockLength { get; set; }
@@ -38,6 +40,9 @@
             Uint_28 = s.Serialize<uint>(Uint_28, name: nameof(Uint_28));
             Uint_2C = s.Serialize<uint>(Uint_2C, name: nameof(Uint_2C));
             Uint_30 = s.Serialize<uint>(Uint_30, name: nameof(Uint_30));
+
+            if (!SerializeData)
+                return;
 
             TileSetFrames = s.DoAt(TileSetFramesPointer, () => s.SerializeObject<GBACrash_Mode7_TileFrames>(TileSetFrames, x => x.TileSetFramesBlockLength = TileSetFramesBlockLength, name: nameof(TileSetFrames)));
             ObjPalette = s.DoAt(ObjPalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));

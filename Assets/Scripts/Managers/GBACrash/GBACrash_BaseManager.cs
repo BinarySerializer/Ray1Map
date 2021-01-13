@@ -38,11 +38,11 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context, (s, d) => d.SerializeAll = true);
 
                 await UniTask.WaitForEndOfFrame();
 
-                // Enumerate every anim set
+                // Enumerate every 2D anim set
                 for (int animSetIndex = 0; animSetIndex < rom.AnimSets.Length; animSetIndex++)
                 {
                     var animSet = rom.AnimSets[animSetIndex];
@@ -74,7 +74,7 @@ namespace R1Engine
                                 }
 
                                 // Save gif
-                                collection.Write(Path.Combine(outputDir, $"{animSetIndex} - {animIndex}.gif"));
+                                collection.Write(Path.Combine(outputDir, "2D", $"{animSetIndex} - {animIndex}.gif"));
                             }
                         }
                         else
@@ -83,12 +83,14 @@ namespace R1Engine
 
                             foreach (var tex in frames)
                             {
-                                Util.ByteArrayToFile(Path.Combine(outputDir, $"{animSetIndex}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                                Util.ByteArrayToFile(Path.Combine(outputDir, "2D", $"{animSetIndex}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
                                 frameIndex++;
                             }
                         }
                     }
                 }
+
+                // TODO: Export Mode7 and Isometric animations
             }
         }
 
