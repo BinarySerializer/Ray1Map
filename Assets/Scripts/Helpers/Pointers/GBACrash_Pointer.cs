@@ -13,5 +13,7 @@
         Mode7_TilePalette_0,
         Mode7_TilePalette_1,
         Mode7_Crash2_Type0_BG1,
+        Mode7_Crash2_Type0_SharkAnimations,
+        Mode7_Crash2_Type0_SharkFrames,
     }
 }

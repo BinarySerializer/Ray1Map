@@ -1,4 +1,7 @@
-﻿namespace R1Engine
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace R1Engine
 {
     public class GBACrash_Mode7_LevelInfo : R1Serializable
     {
@@ -24,6 +27,10 @@
         public GBACrash_Mode7_ObjData ObjData { get; set; }
         public GBACrash_Mode7_AnimSet[] AnimSets { get; set; }
         public GBACrash_Mode7_ObjGraphics ObjGraphics { get; set; }
+
+        public GBACrash_Mode7_AnimSet AnimSet_Shark { get; set; }
+
+        public IEnumerable<GBACrash_Mode7_AnimSet> GetAllAnimSets => LevelType == 0 ? AnimSets.Append(AnimSet_Shark) : AnimSets;
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -51,7 +58,21 @@
             var animSetsCount = LevelType == 0 ? 41 : 0;
 
             AnimSets = s.DoAt(AnimSetsPointer, () => s.SerializeObjectArray<GBACrash_Mode7_AnimSet>(AnimSets, animSetsCount, name: nameof(AnimSets)));
-            ObjGraphics = s.DoAt(ObjGraphicsPointer, () => s.SerializeObject<GBACrash_Mode7_ObjGraphics>(ObjGraphics, x => x.AnimSets = AnimSets, name: nameof(ObjGraphics)));
+
+            if (LevelType == 0)
+            {
+                var pointerTable = PointerTables.GBACrash_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+
+                AnimSet_Shark = s.SerializeObject<GBACrash_Mode7_AnimSet>(AnimSet_Shark, x =>
+                {
+                    x.SerializeValues = false;
+                    x.AnimationsPointer = pointerTable[GBACrash_Pointer.Mode7_Crash2_Type0_SharkAnimations];
+                    x.FrameOffsetsPointer = pointerTable[GBACrash_Pointer.Mode7_Crash2_Type0_SharkFrames];
+                    x.PaletteIndex = 0x12; // Tile pal 2
+                }, name: nameof(AnimSet_Shark));
+            }
+
+            ObjGraphics = s.DoAt(ObjGraphicsPointer, () => s.SerializeObject<GBACrash_Mode7_ObjGraphics>(ObjGraphics, x => x.AnimSets = GetAllAnimSets.ToArray(), name: nameof(ObjGraphics)));
         }
     }
 }

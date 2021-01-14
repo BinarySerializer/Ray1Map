@@ -237,7 +237,7 @@ namespace R1Engine
                 }
             }
 
-            var objmanager = new Unity_ObjectManager_GBACrashMode7(context, LoadMode7AnimSets(levelInfo));
+            var objmanager = new Unity_ObjectManager_GBACrashMode7(context, LoadMode7AnimSets(levelInfo, rom.Mode7_TilePalette));
             var objects = levelInfo.ObjData.Objects.Select(x => new Unity_Object_GBACrashMode7(objmanager, x));
 
             return new Unity_Level(
@@ -472,11 +472,11 @@ namespace R1Engine
             )).ToArray())).ToArray();
         }
 
-        public Unity_ObjectManager_GBACrashMode7.AnimSet[] LoadMode7AnimSets(GBACrash_Mode7_LevelInfo level)
+        public Unity_ObjectManager_GBACrashMode7.AnimSet[] LoadMode7AnimSets(GBACrash_Mode7_LevelInfo level, RGBA5551Color[] tilePal)
         {
-            var pal = Util.ConvertAndSplitGBAPalette(level.ObjPalette);
+            var pal = Util.ConvertAndSplitGBAPalette(level.ObjPalette.Concat(tilePal).ToArray());
 
-            return level.AnimSets.Select(animSet => new Unity_ObjectManager_GBACrashMode7.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation(GetMode7AnimFrames(animSet, i, pal).Select(frame => frame.CreateSprite()).ToArray())).ToArray())).ToArray();
+            return level.GetAllAnimSets.Select(animSet => new Unity_ObjectManager_GBACrashMode7.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation(GetMode7AnimFrames(animSet, i, pal).Select(frame => frame.CreateSprite()).ToArray())).ToArray())).ToArray();
         }
 
         public Texture2D[] GetAnimFrames(GBACrash_AnimSet animSet, int animIndex, byte[] tileSet, Color[] pal)

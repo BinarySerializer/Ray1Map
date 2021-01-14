@@ -23,7 +23,7 @@ namespace R1Engine
                     {
                         var offset = animSet.FrameOffsets[frameIndex];
 
-                        var pointer = animSet.Index == 0 ? new Pointer(offset, Offset.file) : baseOffset + offset;
+                        var pointer = offset > 0x08000000 ? new Pointer(offset, Offset.file) : baseOffset + offset;
 
                         var frame = s.DoAt(pointer, () => s.SerializeObject<GBACrash_Mode7_ObjFrame>(default, name: $"{nameof(AnimSets)}[{animSetIndex}].{nameof(animSet.ObjFrames)}[{frameIndex}]"));
 
