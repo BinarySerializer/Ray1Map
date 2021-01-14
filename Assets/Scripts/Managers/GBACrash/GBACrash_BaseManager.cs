@@ -667,10 +667,20 @@ namespace R1Engine
                 MapType = mapType;
                 DisplayName = $"{displayName} - {mapType}";
             }
+            public LevInfo(GBACrash_MapInfo.GBACrash_MapType specialMapType, int index3D, string displayName)
+            {
+                LevelIndex = -1;
+                MapIndex = -1;
+                SpecialMapType = specialMapType;
+                Index3D = index3D;
+                DisplayName = displayName;
+            }
 
             public int LevelIndex { get; }
             public int MapIndex { get; }
             public Type MapType { get; }
+            public GBACrash_MapInfo.GBACrash_MapType SpecialMapType { get; }
+            public int Index3D { get; }
 
             public string DisplayName { get; set; }
 

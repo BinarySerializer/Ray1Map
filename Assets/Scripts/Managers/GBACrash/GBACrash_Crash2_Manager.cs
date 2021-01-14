@@ -52,6 +52,10 @@
             new LevInfo(28, 0, "N. Tropy - Part 1"), 
             new LevInfo(28, 1, "N. Tropy - Part 2"), 
             new LevInfo(28, 2, "N. Tropy - Part 3"), 
+
+            // Duplicates of Mode7 level 2 - probably here since the Mode7 array was copies from the previous game which has 7 entries
+            new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Mode7, 5, "Mode7 - Duplicate Level 5"), 
+            new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Mode7, 6, "Mode7 - Duplicate Level 6"), 
         };
     }
 }

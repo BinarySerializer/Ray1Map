@@ -17,14 +17,19 @@ namespace R1Engine
 
                 var manager = (GBACrash_BaseManager)Context.Settings.GetGameManager;
                 var levInfo = manager.LevInfos[Context.Settings.Level];
-                var levelInfo = LevelInfos[levInfo.LevelIndex];
 
-                if (levInfo.MapType == GBACrash_BaseManager.LevInfo.Type.Normal)
-                    map = levelInfo.LevelData.Maps[levInfo.MapIndex];
+                if (levInfo.LevelIndex == -1)
+                    map = new GBACrash_MapInfo
+                    {
+                        MapType = levInfo.SpecialMapType,
+                        Index3D = (ushort)levInfo.Index3D
+                    };
+                else if (levInfo.MapType == GBACrash_BaseManager.LevInfo.Type.Normal)
+                    map = LevelInfos[levInfo.LevelIndex].LevelData.Maps[levInfo.MapIndex];
                 else if (levInfo.MapType == GBACrash_BaseManager.LevInfo.Type.Bonus)
-                    map = levelInfo.LevelData.BonusMap;
+                    map = LevelInfos[levInfo.LevelIndex].LevelData.BonusMap;
                 else
-                    map = levelInfo.LevelData.ChallengeMap;
+                    map = LevelInfos[levInfo.LevelIndex].LevelData.ChallengeMap;
 
                 return map;
             }
