@@ -12,7 +12,7 @@ namespace R1Engine
             ObjManager = objManager;
             Object = obj;
 
-            AnimSetIndex = obj.ObjType_0;
+            AnimSetIndex = obj.ObjType_Normal;
         }
 
         public Unity_ObjectManager_GBACrashMode7 ObjManager { get; }
@@ -49,7 +49,7 @@ namespace R1Engine
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_{Object.ObjType_0}";
+        public override string PrimaryName => $"Type_{Object.ObjType_Normal}";
         public override string SecondaryName => null;
 
         public override bool CanBeLinkedToGroup => true;
@@ -102,8 +102,8 @@ namespace R1Engine
 
             public ushort Type
             {
-                get => Obj.Object.ObjType_0;
-                set => Obj.Object.ObjType_0 = (byte)value;
+                get => Obj.Object.ObjType_Normal;
+                set => Obj.Object.ObjType_Normal = (byte)value;
             }
 
             public int DES

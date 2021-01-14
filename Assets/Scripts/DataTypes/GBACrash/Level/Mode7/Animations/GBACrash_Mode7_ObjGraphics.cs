@@ -15,6 +15,12 @@ namespace R1Engine
             {
                 var animSet = AnimSets[animSetIndex];
 
+                if (animSet.FrameOffsets == null)
+                {
+                    animSet.ObjFrames = new GBACrash_Mode7_ObjFrame[0];
+                    continue;
+                }
+
                 if (animSet.ObjFrames == null)
                 {
                     var frames = new List<GBACrash_Mode7_ObjFrame>();

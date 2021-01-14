@@ -876,6 +876,8 @@ namespace R1Engine
                         [GBACrash_Pointer.Map2D_AnimSets] = 0x084a3634,
                         [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bd144,
                         [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a2684,
+
+                        [GBACrash_Pointer.Mode7_LevelInfo] = 0x081736a8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAUS:

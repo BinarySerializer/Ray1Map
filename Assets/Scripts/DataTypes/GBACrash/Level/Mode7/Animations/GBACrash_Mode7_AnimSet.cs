@@ -54,12 +54,16 @@ namespace R1Engine
 
                     while (true)
                     {
-                        var anim = s.SerializeObject<GBACrash_Mode7_Animation>(default, name: $"{nameof(Animations)}[{index++}]");
+                        var anim = s.SerializeObject<GBACrash_Mode7_Animation>(default, name: $"{nameof(Animations)}[{index}]");
 
-                        if (anim.FrameIndex != currentFrameIndex || anim.FramesCount > 999)
+                        // Hack to stop reading since we don't have a count
+                        if ((anim.FrameIndex != currentFrameIndex && index != 0) || anim.FramesCount > 999 || anim.Ushort_00 == 5684)
                             break;
 
-                        currentFrameIndex += anim.FramesCount;
+                        if (!(index == 0 && anim.FrameIndex != 0))
+                            currentFrameIndex += anim.FramesCount;
+                        index++;
+
                         anims.Add(anim);
                     }
 
