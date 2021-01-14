@@ -32,12 +32,12 @@ namespace R1Engine
 
         public override Vector3 Position
         {
-            get => new Vector3(Object.XPos, Object.ZPos, Object.YPos);
+            get => new Vector3(Object.XPos, Object.ZPos, -Object.YPos);
             set
             {
                 Object.XPos = (int)value.x;
                 Object.ZPos = (int)value.y;
-                Object.YPos = (int)value.z;
+                Object.YPos = -(int)value.z;
             }
         }
 
