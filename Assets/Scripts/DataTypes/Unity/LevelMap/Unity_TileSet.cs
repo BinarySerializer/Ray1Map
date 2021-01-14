@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -83,6 +84,23 @@ namespace R1Engine
             Tiles = new Unity_TileTexture[]
             {
                 TextureHelpers.CreateTexture2D(cellSize, cellSize, true, true).CreateTile()
+            };
+        }
+
+        /// <summary>
+        /// Creates a tileset with a single colored tile
+        /// </summary>
+        public Unity_TileSet(int cellSize, Color color) 
+        {
+            var tex = TextureHelpers.CreateTexture2D(cellSize, cellSize);
+
+            tex.SetPixels(Enumerable.Repeat(color, cellSize * cellSize).ToArray());
+
+            tex.Apply();
+
+            Tiles = new Unity_TileTexture[]
+            {
+                tex.CreateTile()
             };
         }
 

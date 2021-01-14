@@ -56,7 +56,7 @@ namespace R1Engine
                     {
                         var anim = s.SerializeObject<GBACrash_Mode7_Animation>(default, name: $"{nameof(Animations)}[{index++}]");
 
-                        if (anim.FrameIndex != currentFrameIndex)
+                        if (anim.FrameIndex != currentFrameIndex || anim.FramesCount > 999)
                             break;
 
                         currentFrameIndex += anim.FramesCount;

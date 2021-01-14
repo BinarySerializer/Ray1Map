@@ -314,7 +314,7 @@ namespace R1Engine
                     TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
                 }
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBAIsometric)
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBAIsometric || s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBACrash)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {

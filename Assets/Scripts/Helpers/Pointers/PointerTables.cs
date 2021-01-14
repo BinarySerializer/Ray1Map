@@ -888,11 +888,16 @@ namespace R1Engine
                         [GBACrash_Pointer.Map2D_ObjPalettes] = 0x0846d1d4,
 
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x081d6b58,
-                        [GBACrash_Pointer.Mode7_TilePalette_0] = 0x081d6cc4,
-                        [GBACrash_Pointer.Mode7_TilePalette_1] = 0x081d6ec4,
+                        [GBACrash_Pointer.Mode7_TilePalette_Type0] = 0x081d6cc4,
+                        [GBACrash_Pointer.Mode7_TilePalette_Type1_Flames] = 0x081d7a34, // Full palette at 0x081d6ec4
+
                         [GBACrash_Pointer.Mode7_Crash2_Type0_BG1] = 0x080cfc7c,
                         [GBACrash_Pointer.Mode7_Crash2_Type0_SharkAnimations] = 0x081d73dc,
                         [GBACrash_Pointer.Mode7_Crash2_Type0_SharkFrames] = 0x081d7430,
+
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileMaps] = 0x081d7af4,
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSetLengths] = 0x081d7aa4,
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSets] = 0x081d7a54,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

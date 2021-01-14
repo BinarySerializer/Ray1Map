@@ -186,8 +186,8 @@ namespace R1Engine
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
 
-            const int width = 240;
-            const int height = 160;
+            const int width = 240 / CellSize;
+            const int height = 160 / CellSize;
 
             Unity_Map[] maps = null;
 
@@ -231,6 +231,40 @@ namespace R1Engine
                             {
                                 TileMapY = (ushort)(t + 1)
                             }))).ToArray(),
+                            Type = Unity_Map.MapType.Graphics,
+                        }
+                    };
+                }
+                else
+                {
+                    maps = new Unity_Map[]
+                    {
+                        // Space (just make it all black for now since the stars appear to be generated dynamically)
+                        new Unity_Map
+                        {
+                            Width = width,
+                            Height = height,
+                            TileSet = new Unity_TileSet[]
+                            {
+                                new Unity_TileSet(CellSize, Color.black), 
+                            },
+                            MapTiles = Enumerable.Range(0, width * height).Select(t => new Unity_Tile(new MapTile())).ToArray(),
+                            Type = Unity_Map.MapType.Graphics,
+                        },
+
+                        // Fire
+                        new Unity_Map
+                        {
+                            Width = width,
+                            Height = height,
+                            TileSet = new Unity_TileSet[]
+                            {
+                                LoadMode7FramesTileSet(rom.Mode7_Crash2_Type1_FlamesTileMaps, rom.Mode7_Crash2_Type1_FlamesTileSets, rom.Mode7_TilePalette)
+                            },
+                            MapTiles = Enumerable.Range(0, width * height).Select(t => new Unity_Tile(new MapTile()
+                            {
+                                TileMapY = (ushort)t
+                            })).ToArray(),
                             Type = Unity_Map.MapType.Graphics,
                         }
                     };
@@ -337,6 +371,49 @@ namespace R1Engine
                 {
                     AnimationSpeed = 1,
                     TileIndices = Enumerable.Range(0, tileFrames.TileFrames.Length).Select(f => f * length + t + (prependTransparent ? 1 : 0)).ToArray()
+                }).ToArray()
+            };
+        }
+
+        public Unity_TileSet LoadMode7FramesTileSet(MapTile[][] tileMaps, byte[][] tileSets, RGBA5551Color[] pal)
+        {
+            var palettes = Util.ConvertAndSplitGBAPalette(pal);
+
+            const int width = 240 / CellSize;
+            const int height = 160 / CellSize;
+            int framesCount = tileMaps.Length;
+
+            var tex = TextureHelpers.CreateTexture2D(width * CellSize, height * CellSize * framesCount);
+
+            for (int frameIndex = 0; frameIndex < framesCount; frameIndex++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        var mapTile = tileMaps[frameIndex][y * width + x];
+
+                        tex.FillInTile(
+                            imgData: tileSets[frameIndex],
+                            imgDataOffset: mapTile.TileMapY * 0x20,
+                            pal: palettes[mapTile.PaletteIndex],
+                            encoding: Util.TileEncoding.Linear_4bpp,
+                            tileWidth: CellSize,
+                            flipTextureY: false,
+                            tileX: x * CellSize,
+                            tileY: y * CellSize + frameIndex * height * CellSize,
+                            flipTileX: mapTile.HorizontalFlip,
+                            flipTileY: mapTile.VerticalFlip);
+                    }
+                }
+            }
+
+            return new Unity_TileSet(tex, CellSize)
+            {
+                AnimatedTiles = Enumerable.Range(0, width * height).Select(t => new Unity_AnimatedTile
+                {
+                    AnimationSpeed = 2,
+                    TileIndices = Enumerable.Range(0, framesCount).Select(f => f * width * height + t + 0).ToArray()
                 }).ToArray()
             };
         }
