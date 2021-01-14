@@ -29,10 +29,6 @@ namespace R1Engine
             {
                 public Animation(Sprite[] sprites)
                 {
-                    // TODO: Correct animations with different sized frames
-                    var pivotX = sprites.Max(x => x.rect.width) / 2;
-                    var pivotY = sprites.Max(x => x.rect.height) / 2;
-
                     AnimFrames = sprites;
                     ObjAnimation = new Unity_ObjAnimation()
                     {
@@ -41,8 +37,10 @@ namespace R1Engine
                             new Unity_ObjAnimationPart()
                             {
                                 ImageIndex = x,
-                                XPosition = 0,
-                                YPosition =0 
+
+                                // Center the frame
+                                XPosition = - (int)(AnimFrames[x].rect.width / 2),
+                                YPosition = - (int)(AnimFrames[x].rect.height / 2)
                             }
                         })).ToArray()
                     };
