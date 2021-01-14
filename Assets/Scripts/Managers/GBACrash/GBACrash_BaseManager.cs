@@ -274,6 +274,16 @@ namespace R1Engine
             var objmanager = new Unity_ObjectManager_GBACrashMode7(context, LoadMode7AnimSets(levelInfo, rom.Mode7_TilePalette));
             var objects = levelInfo.ObjData.Objects.Select(x => new Unity_Object_GBACrashMode7(objmanager, x));
 
+            // Spawn the shark
+            if (context.Settings.EngineVersion == EngineVersion.GBACrash_Crash2 && levelInfo.LevelType == 0)
+                objects = objects.Append(new Unity_Object_GBACrashMode7(objmanager, new GBACrash_Mode7_Object()
+                {
+                    ObjType_0 = (byte)(objmanager.AnimSets.Length - 1)
+                }));
+
+            // Spawn the main character
+            objects = objects.Append(new Unity_Object_GBACrashMode7(objmanager, new GBACrash_Mode7_Object()));
+
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
