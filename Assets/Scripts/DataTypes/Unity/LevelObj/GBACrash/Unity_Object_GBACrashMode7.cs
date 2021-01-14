@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBACrashMode7 : Unity_Object
+    public class Unity_Object_GBACrashMode7 : Unity_Object_3D
     {
         public Unity_Object_GBACrashMode7(Unity_ObjectManager_GBACrashMode7 objManager, GBACrash_Mode7_Object obj)
         {
@@ -28,6 +28,17 @@ namespace R1Engine
         {
             get => (short)Object.YPos;
             set => Object.YPos = value;
+        }
+
+        public override Vector3 Position
+        {
+            get => new Vector3(Object.XPos, Object.ZPos, Object.YPos);
+            set
+            {
+                Object.XPos = (int)value.x;
+                Object.ZPos = (int)value.y;
+                Object.YPos = (int)value.z;
+            }
         }
 
         public override string DebugText => String.Empty;

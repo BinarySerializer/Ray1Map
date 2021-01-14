@@ -186,6 +186,9 @@ namespace R1Engine
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
 
+            const int width = 240;
+            const int height = 160;
+
             Unity_Map[] maps = null;
 
             if (context.Settings.EngineVersion == EngineVersion.GBACrash_Crash2)
@@ -241,6 +244,20 @@ namespace R1Engine
                 maps: maps,
                 objManager: objmanager,
                 eventData: new List<Unity_Object>(objects),
+                // TODO: Get this to work
+                //isometricData: new Unity_IsometricData
+                //{
+                //    CollisionWidth = width,
+                //    CollisionHeight = height,
+                //    TilesWidth = width,
+                //    TilesHeight = height,
+                //    Collision = Enumerable.Range(0, width * height).Select(x => new Unity_IsometricCollisionTile()).ToArray(),
+                //    Scale = new Vector3(1f, 3f / Mathf.Cos(Mathf.Deg2Rad * 45f), 1f / Mathf.Sin(Mathf.Deg2Rad * 45f)) / 2f,
+                //    ViewAngle = Quaternion.Euler(45f, 0f, 0f),
+                //    CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionHeight / 2f,
+                //    CalculateXDisplacement = () => LevelEditorData.Level.IsometricData.CollisionWidth / 2f,
+                //    ObjectScale = new Vector3(8, 24, 8)
+                //},
                 cellSize: CellSize);
         }
 
