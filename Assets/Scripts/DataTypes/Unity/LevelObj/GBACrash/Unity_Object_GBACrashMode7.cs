@@ -86,7 +86,7 @@ namespace R1Engine
         public bool FreezeFrame { get; set; }
 
         public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
-        public override int AnimSpeed => 4; // TODO: Fix
+        public override int AnimSpeed => 4;
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Animation?.AnimFrames;
