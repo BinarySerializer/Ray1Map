@@ -24,6 +24,7 @@ namespace R1Engine
 
         // Serialized from pointers
         public GBACrash_Mode7_TileFrames TileSetFrames { get; set; }
+        public GBACrash_Mode7_Background Crash1_Background { get; set; }
         public RGBA5551Color[] ObjPalette { get; set; }
         public GBACrash_Mode7_ObjData ObjData { get; set; }
         public GBACrash_Mode7_AnimSet[] AnimSets { get; set; }
@@ -62,6 +63,9 @@ namespace R1Engine
                 x.TileSetFramesBlockLength = TileSetFramesBlockLength;
                 x.HasPaletteIndices = LevelType == 0 && s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1;
             }, name: nameof(TileSetFrames)));
+
+            Crash1_Background = s.DoAt(Crash1_BackgroundPointer, () => s.SerializeObject<GBACrash_Mode7_Background>(Crash1_Background, name: nameof(Crash1_Background)));
+
             ObjPalette = s.DoAt(ObjPalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBACrash_Mode7_ObjData>(ObjData, name: nameof(ObjData)));
 

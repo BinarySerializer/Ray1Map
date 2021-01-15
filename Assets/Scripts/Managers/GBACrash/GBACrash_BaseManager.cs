@@ -249,21 +249,37 @@ namespace R1Engine
                 // Air
                 else
                 {
+                    var paddingHeight = levelInfo.Crash1_Background.Height; // Note: It should be slightly less, but we can only change it in steps by cellsize (8) which would be too much
+                    var cloudsPadding = Enumerable.Range(0, tileSetFrames.Width * paddingHeight).Select(t => new Unity_Tile(new MapTile()));
+
                     maps = new Unity_Map[]
                     {
+                        // Sky
+                        new Unity_Map()
+                        {
+                            Width = levelInfo.Crash1_Background.Width,
+                            Height = levelInfo.Crash1_Background.Height,
+                            TileSet = new Unity_TileSet[]
+                            {
+                                LoadMode7BackgroundTileSet(levelInfo.Crash1_Background)
+                            },
+                            MapTiles = levelInfo.Crash1_Background.TileMap.Select(t => new Unity_Tile(t)).ToArray(),
+                            Type = Unity_Map.MapType.Graphics,
+                        }, 
+
                         // Clouds
                         new Unity_Map
                         {
                             Width = tileSetFrames.Width,
-                            Height = tileSetFrames.Height,
+                            Height = (ushort)(tileSetFrames.Height + paddingHeight),
                             TileSet = new Unity_TileSet[]
                             {
-                                LoadMode7FramesTileSet(tileSetFrames, tilePal, false)
+                                LoadMode7FramesTileSet(tileSetFrames, tilePal, true)
                             },
-                            MapTiles = Enumerable.Range(0, tileSetFrames.Width * tileSetFrames.Height).Select(t => new Unity_Tile(new MapTile()
+                            MapTiles = cloudsPadding.Concat(Enumerable.Range(0, tileSetFrames.Width * tileSetFrames.Height).Select(t => new Unity_Tile(new MapTile()
                             {
-                                TileMapY = (ushort)t
-                            })).ToArray(),
+                                TileMapY = (ushort)(t + 1)
+                            }))).ToArray(),
                             Type = Unity_Map.MapType.Graphics,
                         }
                     };
@@ -518,6 +534,23 @@ namespace R1Engine
                     TileIndices = Enumerable.Range(0, framesCount).Select(f => f * width * height + t + 0).ToArray()
                 }).ToArray()
             };
+        }
+
+        public Unity_TileSet LoadMode7BackgroundTileSet(GBACrash_Mode7_Background background)
+        {
+            var pal = Util.ConvertAndSplitGBAPalette(background.Palette);
+
+            int[] paletteIndices = new int[background.TileSetCount];
+
+            for (var tileIndex = 0; tileIndex < background.TileMap.Length; tileIndex++)
+            {
+                var mt = background.TileMap[tileIndex];
+                paletteIndices[mt.TileMapY] = BitHelpers.ExtractBits(background.PaletteIndices[Mathf.FloorToInt(tileIndex / 2f)], 4, tileIndex % 2 == 0 ? 0 : 4);
+            }
+
+            var tex = Util.ToTileSetTexture(background.TileSet, pal[0], Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: x => pal[paletteIndices[x]]);
+
+            return new Unity_TileSet(tex, CellSize);
         }
 
         public Unity_Tile[] GetTileMap(GBACrash_MapLayer layer, GBACrash_MapData2DDataBlock.GBACrash_TileLayerData tileLayerData, bool is8bit = false, int tileSetLength = 0, bool isCollision = false)
