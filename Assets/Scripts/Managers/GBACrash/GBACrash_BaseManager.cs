@@ -421,7 +421,8 @@ namespace R1Engine
             if (levelInfo.LevelType == 0)
                 objects = objects.Append(new Unity_Object_GBACrashMode7(objmanager, new GBACrash_Mode7_Object()
                 {
-                    ObjType_Normal = (byte)(objmanager.AnimSets.Length - 1)
+                    ObjType_Normal = (byte)(objmanager.AnimSets.Length - 1),
+                    ZPos = -5 // Have it start a bit behind the player
                 }));
 
             // Spawn the main character (always type 0)
