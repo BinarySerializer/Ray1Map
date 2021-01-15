@@ -191,6 +191,9 @@ namespace R1Engine
 
             var tilePal = context.Settings.EngineVersion == EngineVersion.GBACrash_Crash1 ? levelInfo.TileSetFrames.Palette : rom.Mode7_TilePalette;
 
+            if (context.Settings.EngineVersion == EngineVersion.GBACrash_Crash1 && levelInfo.LevelType == 0)
+                tilePal = tilePal.Take(256 - 16).Concat(rom.Mode7_Crash1_Type0_TilePalette_0F).ToArray(); // Over last palette
+
             Unity_Map[] maps = null;
 
             if (context.Settings.EngineVersion == EngineVersion.GBACrash_Crash1)
@@ -351,8 +354,8 @@ namespace R1Engine
             var objmanager = new Unity_ObjectManager_GBACrashMode7(context, LoadMode7AnimSets(levelInfo, tilePal));
             var objects = levelInfo.ObjData.Objects.Select(x => new Unity_Object_GBACrashMode7(objmanager, x));
 
-            // Spawn the shark
-            if (context.Settings.EngineVersion == EngineVersion.GBACrash_Crash2 && levelInfo.LevelType == 0)
+            // Spawn the chase object for type 0
+            if (levelInfo.LevelType == 0)
                 objects = objects.Append(new Unity_Object_GBACrashMode7(objmanager, new GBACrash_Mode7_Object()
                 {
                     ObjType_Normal = (byte)(objmanager.AnimSets.Length - 1)

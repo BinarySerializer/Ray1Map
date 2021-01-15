@@ -878,6 +878,10 @@ namespace R1Engine
                         [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a2684,
 
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x081736a8,
+
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x081789a0,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x081789d0,
+                        [GBACrash_Pointer.Mode7_Crash1_Type0_TilePalette_0F] = 0x08178bbc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAUS:
@@ -894,8 +898,8 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_TilePalette_Type1_Flames] = 0x081d7a34, // Full palette at 0x081d6ec4
 
                         [GBACrash_Pointer.Mode7_Crash2_Type0_BG1] = 0x080cfc7c,
-                        [GBACrash_Pointer.Mode7_Crash2_Type0_SharkAnimations] = 0x081d73dc,
-                        [GBACrash_Pointer.Mode7_Crash2_Type0_SharkFrames] = 0x081d7430,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x081d73dc,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x081d7430,
 
                         [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileMaps] = 0x081d7af4,
                         [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSetLengths] = 0x081d7aa4,

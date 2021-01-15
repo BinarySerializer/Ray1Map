@@ -29,9 +29,9 @@ namespace R1Engine
         public GBACrash_Mode7_AnimSet[] AnimSets { get; set; }
         public GBACrash_Mode7_ObjGraphics ObjGraphics { get; set; }
 
-        public GBACrash_Mode7_AnimSet AnimSet_Shark { get; set; }
+        public GBACrash_Mode7_AnimSet AnimSet_Chase { get; set; } // Bear in Crash 1, Shark in Crash 2
 
-        public IEnumerable<GBACrash_Mode7_AnimSet> GetAllAnimSets => LevelType == 0 && Context.Settings.EngineVersion == EngineVersion.GBACrash_Crash2 ? AnimSets.Append(AnimSet_Shark) : AnimSets;
+        public IEnumerable<GBACrash_Mode7_AnimSet> GetAllAnimSets => LevelType == 0 ? AnimSets.Append(AnimSet_Chase) : AnimSets;
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -76,17 +76,17 @@ namespace R1Engine
 
             AnimSets = s.DoAt(AnimSetsPointer, () => s.SerializeObjectArray<GBACrash_Mode7_AnimSet>(AnimSets, animSetsCount, name: nameof(AnimSets)));
 
-            if (LevelType == 0 && s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash2)
+            if (LevelType == 0)
             {
                 var pointerTable = PointerTables.GBACrash_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
-                AnimSet_Shark = s.SerializeObject<GBACrash_Mode7_AnimSet>(AnimSet_Shark, x =>
+                AnimSet_Chase = s.SerializeObject<GBACrash_Mode7_AnimSet>(AnimSet_Chase, x =>
                 {
                     x.SerializeValues = false;
-                    x.AnimationsPointer = pointerTable[GBACrash_Pointer.Mode7_Crash2_Type0_SharkAnimations];
-                    x.FrameOffsetsPointer = pointerTable[GBACrash_Pointer.Mode7_Crash2_Type0_SharkFrames];
-                    x.PaletteIndex = 0x12; // Tile pal 2
-                }, name: nameof(AnimSet_Shark));
+                    x.AnimationsPointer = pointerTable[GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations];
+                    x.FrameOffsetsPointer = pointerTable[GBACrash_Pointer.Mode7_Type0_ChaseObjFrames];
+                    x.PaletteIndex = (uint)(s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1 ? 0x1F : 0x12); // Tile pal 0x0F and 0x02
+                }, name: nameof(AnimSet_Chase));
             }
 
             ObjGraphics = s.DoAt(ObjGraphicsPointer, () => s.SerializeObject<GBACrash_Mode7_ObjGraphics>(ObjGraphics, x => x.AnimSets = GetAllAnimSets.ToArray(), name: nameof(ObjGraphics)));

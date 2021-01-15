@@ -14,8 +14,9 @@
         Mode7_TilePalette_Type1_Flames,
 
         Mode7_Crash2_Type0_BG1,
-        Mode7_Crash2_Type0_SharkAnimations,
-        Mode7_Crash2_Type0_SharkFrames,
+        Mode7_Type0_ChaseObjAnimations,
+        Mode7_Type0_ChaseObjFrames,
+        Mode7_Crash1_Type0_TilePalette_0F,
 
         Mode7_Crash2_Type1_FlamesTileMaps,
         Mode7_Crash2_Type1_FlamesTileSetLengths,

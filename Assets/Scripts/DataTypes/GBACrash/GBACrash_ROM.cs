@@ -44,6 +44,7 @@ namespace R1Engine
         // Mode7
         public GBACrash_Mode7_LevelInfo[] Mode7_LevelInfos { get; set; }
         public RGBA5551Color[] Mode7_TilePalette { get; set; }
+        public RGBA5551Color[] Mode7_Crash1_Type0_TilePalette_0F { get; set; }
         public byte[] Mode7_Crash2_Type0_BG1 { get; set; }
         public Pointer[] Mode7_Crash2_Type1_FlamesTileMapsPointers { get; set; }
         public MapTile[][] Mode7_Crash2_Type1_FlamesTileMaps { get; set; }
@@ -106,6 +107,10 @@ namespace R1Engine
                     GBACrash_Pointer palPointer = CurrentMode7LevelInfo.LevelType == 0 ? GBACrash_Pointer.Mode7_TilePalette_Type0 : GBACrash_Pointer.Mode7_TilePalette_Type1_Flames;
 
                     Mode7_TilePalette = s.DoAt(pointerTable[palPointer], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_TilePalette, CurrentMode7LevelInfo.LevelType == 0 ? 256 : 16, name: nameof(Mode7_TilePalette)));
+                }
+                else if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1 && CurrentMode7LevelInfo.LevelType == 0)
+                {
+                    Mode7_Crash1_Type0_TilePalette_0F = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_Crash1_Type0_TilePalette_0F], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_Crash1_Type0_TilePalette_0F, 16, name: nameof(Mode7_Crash1_Type0_TilePalette_0F)));
                 }
 
                 if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash2 && CurrentMode7LevelInfo.LevelType == 0)
