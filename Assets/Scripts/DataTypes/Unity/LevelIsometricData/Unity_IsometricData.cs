@@ -107,6 +107,7 @@ namespace R1Engine
 
         public Unity_IsometricCollisionTile GetCollisionTile(int x, int y) {
             int ind = y * CollisionWidth + x;
+            if(Collision == null) return null;
             if(ind >= Collision.Length) return null;
             return Collision[ind];
         }

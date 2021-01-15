@@ -432,19 +432,19 @@ namespace R1Engine
                 objManager: objmanager,
                 eventData: new List<Unity_Object>(objects),
                 // TODO: Get this to work
-                //isometricData: new Unity_IsometricData
-                //{
-                //    CollisionWidth = width,
-                //    CollisionHeight = height,
-                //    TilesWidth = width,
-                //    TilesHeight = height,
-                //    Collision = Enumerable.Range(0, width * height).Select(x => new Unity_IsometricCollisionTile()).ToArray(),
-                //    Scale = new Vector3(1f, 3f / Mathf.Cos(Mathf.Deg2Rad * 45f), 1f / Mathf.Sin(Mathf.Deg2Rad * 45f)) / 2f,
-                //    ViewAngle = Quaternion.Euler(45f, 0f, 0f),
-                //    CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionHeight / 2f,
-                //    CalculateXDisplacement = () => LevelEditorData.Level.IsometricData.CollisionWidth / 2f,
-                //    ObjectScale = new Vector3(8, 24, 8)
-                //},
+                isometricData: new Unity_IsometricData
+                {
+                    CollisionWidth = 0,
+                    CollisionHeight = 0,
+                    TilesWidth = 38,
+                    TilesHeight = 24,
+                    Collision = null,
+                    Scale = Vector3.one / 2,
+                    ViewAngle = Quaternion.identity,
+                    CalculateYDisplacement = () => 0,
+                    CalculateXDisplacement = () => 0,
+                    ObjectScale = new Vector3(1,1,0.5f) * CellSize
+                },
                 cellSize: CellSize);
         }
 
