@@ -6,7 +6,7 @@
         public Pointer MapData2DPointer { get; set; }
         public GBACrash_MapType MapType { get; set; }
         public uint Uint_0C { get; set; } // Set to 1 for certain bonus maps
-        public ushort Index3D { get; set; } // For Mode7 and isometric levels
+        public short Index3D { get; set; } // For Mode7 and isometric levels
         public byte Byte_12 { get; set; }
         public byte Byte_13 { get; set; }
 
@@ -21,7 +21,7 @@
             MapData2DPointer = s.SerializePointer(MapData2DPointer, name: nameof(MapData2DPointer));
             MapType = s.Serialize<GBACrash_MapType>(MapType, name: nameof(MapType));
             Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
-            Index3D = s.Serialize<ushort>(Index3D, name: nameof(Index3D));
+            Index3D = s.Serialize<short>(Index3D, name: nameof(Index3D));
             Byte_12 = s.Serialize<byte>(Byte_12, name: nameof(Byte_12));
             Byte_13 = s.Serialize<byte>(Byte_13, name: nameof(Byte_13));
 

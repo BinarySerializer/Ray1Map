@@ -62,7 +62,7 @@ namespace R1Engine
             }
 
             // Export Mode7 animations
-            for (int mode7Level = 0; mode7Level < 7; mode7Level++)
+            for (short mode7Level = 0; mode7Level < 7; mode7Level++)
             {
                 var exportedAnimSets = new HashSet<Pointer>();
 
@@ -454,7 +454,7 @@ namespace R1Engine
 
         public async UniTask<Unity_Level> LoadIsometricAsync(Context context, GBACrash_ROM rom)
         {
-            var levelInfo = rom.Isometric_LevelInfos[4];
+            var levelInfo = rom.CurrentIsometricLevelInfo;
 
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
@@ -463,13 +463,13 @@ namespace R1Engine
 
             var maps = levelInfo.MapLayers.Select((map, i) => new Unity_Map
             {
-                Width = map.Width,
-                Height = map.Height,
+                Width = (ushort)(map.Width * 2),
+                Height = (ushort)(map.Height * 2),
                 TileSet = new Unity_TileSet[]
                 {
                     tileSet,
                 },
-                MapTiles = GetIsometricTileMap(map),
+                MapTiles = GetIsometricTileMap(map, levelInfo.MapTiles),
                 Type = Unity_Map.MapType.Graphics,
             }).Reverse().ToArray();
 
@@ -780,9 +780,9 @@ namespace R1Engine
             return tileMap;
         }
 
-        public Unity_Tile[] GetIsometricTileMap(GBACrash_Isometric_MapLayer mapLayer)
+        public Unity_Tile[] GetIsometricTileMap(GBACrash_Isometric_MapLayer mapLayer, MapTile[] mapTiles)
         {
-            var tileMap = new Unity_Tile[mapLayer.Width * mapLayer.Height];
+            var tileMap = new Unity_Tile[mapLayer.Width * 2 * mapLayer.Height * 2];
 
             for (int y = 0; y < mapLayer.Height; y++)
             {
@@ -803,28 +803,42 @@ namespace R1Engine
                     {
                         for (int i = 0; i < cmd.Length; i++)
                         {
-                            setTile(cmd.Param, i, cmd.Length); // TODO: Fix
+                            setTile(cmd.Param, i, cmd.Length);
                             x++;
                         }
                     }
                     else
                     {
-                        setTile(0, 0, 0); // TODO: Fix
+                        setTile(0, 0, 0);
                         x++;
                     }
 
                     void setTile(ushort value, int index, int length)
                     {
-                        tileMap[y * mapLayer.Width + x] = new Unity_Tile(new MapTile()
+                        var actualX = x * 2;
+                        var actualY = y * 2;
+
+                        setTileAt(0, 0, mapTiles[value * 4 + 0]);
+                        setTileAt(1, 0, mapTiles[value * 4 + 1]);
+                        setTileAt(0, 1, mapTiles[value * 4 + 2]);
+                        setTileAt(1, 1, mapTiles[value * 4 + 3]);
+
+                        void setTileAt(int offX, int offY, MapTile tile)
                         {
-                            TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 0) // TODO: Fix
-                        })
-                        {
-                            DebugText = $"CMD: {cmd.Type}{Environment.NewLine}" +
-                                        $"Value: {value}{Environment.NewLine}" +
-                                        $"Index: {index}{Environment.NewLine}" +
-                                        $"Length: {length}{Environment.NewLine}"
-                        };
+                            var outputX = actualX + offX;
+                            var outputY = actualY + offY;
+
+                            tileMap[outputY * mapLayer.Width * 2 + outputX] = new Unity_Tile(tile)
+                            {
+                                DebugText = $"CMD: {cmd.Type}{Environment.NewLine}" +
+                                            $"Value: {value}{Environment.NewLine}" +
+                                            $"Index: {index}{Environment.NewLine}" +
+                                            $"Length: {length}{Environment.NewLine}" +
+                                            $"Tile: {tile.TileMapY}{Environment.NewLine}" +
+                                            $"FlipX: {tile.HorizontalFlip}{Environment.NewLine}" +
+                                            $"FlipY: {tile.VerticalFlip}{Environment.NewLine}"
+                            };
+                        }
                     }
                 }
             }
@@ -952,7 +966,7 @@ namespace R1Engine
                 MapType = mapType;
                 DisplayName = $"{displayName} - {mapType}";
             }
-            public LevInfo(GBACrash_MapInfo.GBACrash_MapType specialMapType, int index3D, string displayName)
+            public LevInfo(GBACrash_MapInfo.GBACrash_MapType specialMapType, short index3D, string displayName)
             {
                 LevelIndex = -1;
                 MapIndex = -1;
@@ -965,7 +979,7 @@ namespace R1Engine
             public int MapIndex { get; }
             public Type MapType { get; }
             public GBACrash_MapInfo.GBACrash_MapType SpecialMapType { get; }
-            public int Index3D { get; }
+            public short Index3D { get; }
 
             public string DisplayName { get; set; }
 

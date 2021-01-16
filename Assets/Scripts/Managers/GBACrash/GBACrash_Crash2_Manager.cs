@@ -56,6 +56,11 @@
             // Duplicates of Mode7 level 2 - probably here since the Mode7 array was copies from the previous game which has 7 entries
             new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Mode7, 5, "Mode7 - Duplicate Level 5"), 
             new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Mode7, 6, "Mode7 - Duplicate Level 6"), 
+
+            new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 0 - 4, "Isometric - Test"), 
+            new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 1 - 4, "Isometric - Prototype"), 
+            new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 2 - 4, "Isometric - Standin"), 
+            new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 3 - 4, "Isometric - Demo"), 
         };
     }
 }

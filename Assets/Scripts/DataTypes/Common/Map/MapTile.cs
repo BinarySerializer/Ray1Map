@@ -314,7 +314,7 @@ namespace R1Engine
                     TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
                 }
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBAIsometric || s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBACrash)
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBAIsometric)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
@@ -352,6 +352,18 @@ namespace R1Engine
                         CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
                         break;
                 }
+            }
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBACrash)
+            {
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    TileMapY = (ushort)bitFunc(TileMapY, Is8Bpp ? 14 : 10, name: nameof(TileMapY));
+                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+
+                    if (!Is8Bpp)
+                        PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                });
             }
         }
 

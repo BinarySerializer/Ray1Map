@@ -14,7 +14,7 @@ namespace R1Engine
         public ushort TileSetCount_Total { get; set; }
         public ushort TileSetCount_4bpp { get; set; }
         public Pointer TileSetPointer { get; set; }
-        public Pointer Pointer_10 { get; set; }
+        public Pointer MapTilesPointer { get; set; }
         public Pointer[] MapLayerPointers { get; set; }
         public Pointer TilePalettePointer { get; set; }
 
@@ -37,6 +37,7 @@ namespace R1Engine
         public string Name { get; set; }
         
         public GBACrash_Isometric_TileSet TileSet { get; set; }
+        public MapTile[] MapTiles { get; set; }
         public GBACrash_Isometric_MapLayer[] MapLayers { get; set; }
         public RGBA5551Color[] TilePalette { get; set; }
         
@@ -47,15 +48,13 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            SerializeData = true; // TODO: Remove
-
             NamePointer = s.SerializePointer(NamePointer, name: nameof(NamePointer));
             MapWidth = s.Serialize<ushort>(MapWidth, name: nameof(MapWidth));
             MapHeight = s.Serialize<ushort>(MapHeight, name: nameof(MapHeight));
             TileSetCount_Total = s.Serialize<ushort>(TileSetCount_Total, name: nameof(TileSetCount_Total));
             TileSetCount_4bpp = s.Serialize<ushort>(TileSetCount_4bpp, name: nameof(TileSetCount_4bpp));
             TileSetPointer = s.SerializePointer(TileSetPointer, name: nameof(TileSetPointer));
-            Pointer_10 = s.SerializePointer(Pointer_10, name: nameof(Pointer_10));
+            MapTilesPointer = s.SerializePointer(MapTilesPointer, name: nameof(MapTilesPointer));
             MapLayerPointers = s.SerializePointerArray(MapLayerPointers, 4, name: nameof(MapLayerPointers));
             TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
             UnkWidth = s.Serialize<ushort>(UnkWidth, name: nameof(UnkWidth));
@@ -89,6 +88,8 @@ namespace R1Engine
             for (int i = 0; i < MapLayers.Length; i++)
                 MapLayers[i] = s.DoAt(MapLayerPointers[i], () => s.SerializeObject<GBACrash_Isometric_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
 
+            var mapTilesLength = MapLayers.SelectMany(x => x.TileMapRows).SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
+            MapTiles = s.DoAt(MapTilesPointer, () => s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.Is8Bpp = true, name: nameof(MapTiles)));
             TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
 
             Pointer_2C_Data = s.DoAt(Pointer_2C, () => s.SerializeArray<ushort>(Pointer_2C_Data, UnkWidth * UnkHeight, name: nameof(Pointer_2C_Data)));

@@ -19,7 +19,7 @@ namespace R1Engine
                     map = new GBACrash_MapInfo
                     {
                         MapType = CurrentLevInfo.SpecialMapType,
-                        Index3D = (ushort)CurrentLevInfo.Index3D
+                        Index3D = CurrentLevInfo.Index3D
                     };
                 else if (CurrentLevInfo.MapType == GBACrash_BaseManager.LevInfo.Type.Normal)
                     map = LevelInfos[CurrentLevInfo.LevelIndex].LevelData.Maps[CurrentLevInfo.MapIndex];
@@ -32,6 +32,7 @@ namespace R1Engine
             }
         }
         public GBACrash_Mode7_LevelInfo CurrentMode7LevelInfo => Mode7_LevelInfos[CurrentMapInfo.Index3D];
+        public GBACrash_Isometric_LevelInfo CurrentIsometricLevelInfo => Isometric_LevelInfos[CurrentMapInfo.Index3D + 4];
 
         // 2D
         public GBACrash_AnimSet[] AnimSets { get; set; }
@@ -156,9 +157,7 @@ namespace R1Engine
                     var index3D = CurrentMapInfo.Index3D;
 
                     for (int i = 0; i < Isometric_LevelInfos.Length; i++)
-                        Isometric_LevelInfos[i] = s.SerializeObject<GBACrash_Isometric_LevelInfo>(Isometric_LevelInfos[i], x => x.SerializeData = i == index3D, name: $"{nameof(Isometric_LevelInfos)}[{i}]");
-
-
+                        Isometric_LevelInfos[i] = s.SerializeObject<GBACrash_Isometric_LevelInfo>(Isometric_LevelInfos[i], x => x.SerializeData = i == index3D + 4, name: $"{nameof(Isometric_LevelInfos)}[{i}]");
                 });
             }
         }
