@@ -18,11 +18,12 @@ namespace R1Engine
         public Pointer[] MapLayerPointers { get; set; }
         public Pointer TilePalettePointer { get; set; }
 
-        public ushort UnkWidth { get; set; }
-        public ushort UnkHeight { get; set; }
-        public Pointer Pointer_2C { get; set; } // Ushort array, UnkWidth * UnkHeight
-        public Pointer Pointer_30 { get; set; } // Pointer_2C ushorts reference 12 byte structs here
-        public Pointer Pointer_34 { get; set; } // Structs of size 0x28 with function pointers, referenced from Pointer_30 structs
+        public ushort CollisionWidth { get; set; }
+        public ushort CollisionHeight { get; set; }
+        public Pointer CollisionMapPointer { get; set; }
+        public Pointer CollisionTilesPointer { get; set; }
+        public Pointer CollisionTypePointers { get; set; }
+
         public Pointer Pointer_38 { get; set; }
         public Pointer Pointer_3C { get; set; }
         public Pointer Pointer_40 { get; set; }
@@ -41,9 +42,10 @@ namespace R1Engine
         public GBACrash_Isometric_MapLayer[] MapLayers { get; set; }
         public RGBA5551Color[] TilePalette { get; set; }
         
-        public ushort[] Pointer_2C_Data { get; set; }
-        public GBACrash_Isometric_UnkStruct_1[] Pointer_30_Structs { get; set; }
-        public GBACrash_Isometric_UnkStruct_2[] Pointer_34_Structs { get; set; }
+        public ushort[] CollisionMap { get; set; }
+        public GBACrash_Isometric_CollisionTile[] CollisionTiles { get; set; }
+        public GBACrash_Isometric_CollisionType[] CollisionTypes { get; set; }
+
         public GBACrash_Isometric_UnkStruct_0[] Pointer_4C_Structs { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -57,11 +59,11 @@ namespace R1Engine
             MapTilesPointer = s.SerializePointer(MapTilesPointer, name: nameof(MapTilesPointer));
             MapLayerPointers = s.SerializePointerArray(MapLayerPointers, 4, name: nameof(MapLayerPointers));
             TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
-            UnkWidth = s.Serialize<ushort>(UnkWidth, name: nameof(UnkWidth));
-            UnkHeight = s.Serialize<ushort>(UnkHeight, name: nameof(UnkHeight));
-            Pointer_2C = s.SerializePointer(Pointer_2C, name: nameof(Pointer_2C));
-            Pointer_30 = s.SerializePointer(Pointer_30, name: nameof(Pointer_30));
-            Pointer_34 = s.SerializePointer(Pointer_34, name: nameof(Pointer_34));
+            CollisionWidth = s.Serialize<ushort>(CollisionWidth, name: nameof(CollisionWidth));
+            CollisionHeight = s.Serialize<ushort>(CollisionHeight, name: nameof(CollisionHeight));
+            CollisionMapPointer = s.SerializePointer(CollisionMapPointer, name: nameof(CollisionMapPointer));
+            CollisionTilesPointer = s.SerializePointer(CollisionTilesPointer, name: nameof(CollisionTilesPointer));
+            CollisionTypePointers = s.SerializePointer(CollisionTypePointers, name: nameof(CollisionTypePointers));
             Pointer_38 = s.SerializePointer(Pointer_38, name: nameof(Pointer_38));
             Pointer_3C = s.SerializePointer(Pointer_3C, name: nameof(Pointer_3C));
             Pointer_40 = s.SerializePointer(Pointer_40, name: nameof(Pointer_40));
@@ -92,9 +94,9 @@ namespace R1Engine
             MapTiles = s.DoAt(MapTilesPointer, () => s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.Is8Bpp = true, name: nameof(MapTiles)));
             TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
 
-            Pointer_2C_Data = s.DoAt(Pointer_2C, () => s.SerializeArray<ushort>(Pointer_2C_Data, UnkWidth * UnkHeight, name: nameof(Pointer_2C_Data)));
-            Pointer_30_Structs = s.DoAt(Pointer_30, () => s.SerializeObjectArray<GBACrash_Isometric_UnkStruct_1>(Pointer_30_Structs, Pointer_2C_Data.Max() + 1, name: nameof(Pointer_30_Structs)));
-            Pointer_34_Structs = s.DoAt(Pointer_34, () => s.SerializeObjectArray<GBACrash_Isometric_UnkStruct_2>(Pointer_34_Structs, Pointer_30_Structs.Max(x => x.Pointer_34_StructsIndex) + 1, name: nameof(Pointer_34_Structs)));
+            CollisionMap = s.DoAt(CollisionMapPointer, () => s.SerializeArray<ushort>(CollisionMap, CollisionWidth * CollisionHeight, name: nameof(CollisionMap)));
+            CollisionTiles = s.DoAt(CollisionTilesPointer, () => s.SerializeObjectArray<GBACrash_Isometric_CollisionTile>(CollisionTiles, CollisionMap.Max() + 1, name: nameof(CollisionTiles)));
+            CollisionTypes = s.DoAt(CollisionTypePointers, () => s.SerializeObjectArray<GBACrash_Isometric_CollisionType>(CollisionTypes, CollisionTiles.Max(x => x.TypeIndex) + 1, name: nameof(CollisionTypes)));
 
             s.DoAt(Pointer_4C, () =>
             {
@@ -138,44 +140,6 @@ namespace R1Engine
             XPos_1 = s.Serialize<short>(XPos_1, name: nameof(XPos_1));
             YPos_0 = s.Serialize<short>(YPos_0, name: nameof(YPos_0));
             YPos_1 = s.Serialize<short>(YPos_1, name: nameof(YPos_1));
-        }
-    }
-    public class GBACrash_Isometric_UnkStruct_1 : R1Serializable
-    {
-        public byte Byte_00 { get; set; }
-        public byte Byte_01 { get; set; }
-        public short Short_02 { get; set; }
-        public int Pointer_34_StructsIndex { get; set; }
-        public byte Byte_08 { get; set; }
-        public byte Byte_09 { get; set; }
-        public byte Byte_0A { get; set; }
-        public byte Byte_0B { get; set; }
-
-        public override void SerializeImpl(SerializerObject s)
-        {
-            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
-            Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-            Short_02 = s.Serialize<short>(Short_02, name: nameof(Short_02));
-            Pointer_34_StructsIndex = s.Serialize<int>(Pointer_34_StructsIndex, name: nameof(Pointer_34_StructsIndex));
-            Byte_08 = s.Serialize<byte>(Byte_08, name: nameof(Byte_08));
-            Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
-            Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
-            Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
-        }
-    }
-    public class GBACrash_Isometric_UnkStruct_2 : R1Serializable
-    {
-        public Pointer FunctionPointer_0 { get; set; }
-        public Pointer FunctionPointer_1 { get; set; }
-        public Pointer FunctionPointer_2 { get; set; }
-        public byte[] Bytes_10 { get; set; }
-
-        public override void SerializeImpl(SerializerObject s)
-        {
-            FunctionPointer_0 = s.SerializePointer(FunctionPointer_0, name: nameof(FunctionPointer_0));
-            FunctionPointer_1 = s.SerializePointer(FunctionPointer_1, name: nameof(FunctionPointer_1));
-            FunctionPointer_2 = s.SerializePointer(FunctionPointer_2, name: nameof(FunctionPointer_2));
-            Bytes_10 = s.SerializeArray<byte>(Bytes_10, 28, name: nameof(Bytes_10));
         }
     }
 }

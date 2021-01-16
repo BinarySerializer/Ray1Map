@@ -480,7 +480,19 @@ namespace R1Engine
                 maps: maps,
                 objManager: new Unity_ObjectManager(context),
                 eventData: new List<Unity_Object>(),
-                cellSize: CellSize);
+                cellSize: CellSize,
+                isometricData: new Unity_IsometricData()
+                {
+                    CollisionWidth = levelInfo.CollisionWidth,
+                    CollisionHeight = levelInfo.CollisionHeight,
+                    TilesWidth = levelInfo.MapWidth * CellSize,
+                    TilesHeight = levelInfo.MapHeight * CellSize,
+                    Collision = levelInfo.CollisionMap.Select(c => new Unity_IsometricCollisionTile()
+                    {
+                        Height = levelInfo.CollisionTiles[c].Height
+                    }).ToArray(),
+                    Scale = new Vector3(Mathf.Sqrt(8), 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(8))
+                });
         }
 
         public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit)
