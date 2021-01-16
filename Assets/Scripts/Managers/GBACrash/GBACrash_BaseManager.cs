@@ -454,7 +454,7 @@ namespace R1Engine
 
         public async UniTask<Unity_Level> LoadIsometricAsync(Context context, GBACrash_ROM rom)
         {
-            var levelInfo = rom.Isometric_LevelInfos[5];
+            var levelInfo = rom.Isometric_LevelInfos[4];
 
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
@@ -637,43 +637,24 @@ namespace R1Engine
 
         public Unity_TileSet LoadIsometricTileSet(GBACrash_Isometric_TileSet tileSet, RGBA5551Color[] tilePal)
         {
-            // TODO: Fix
-
             var pal = Util.ConvertGBAPalette(tilePal);
 
-            const int wrap = 32;
+            // The game converts the 4bpp tileset to an 8bpp tileset using the convert data
 
-            int tilesX = Math.Min((int)tileSet.TileSetCount_Total, wrap);
-            int tilesY = Mathf.CeilToInt(tileSet.TileSetCount_Total / (float)wrap);
-
-            var tex = TextureHelpers.CreateTexture2D(tilesX * CellSize, tilesY * CellSize);
+            var convertedTileSet = new byte[tileSet.TileSetCount_4bpp * 0x40];
 
             for (int i = 0; i < tileSet.TileSetCount_4bpp; i++)
-                fillTile(i, i, tileSet.TileSet_4bpp, true);
-
-            for (int i = 0; i < tileSet.TileSetCount_Total - tileSet.TileSetCount_4bpp; i++)
-                fillTile(tileSet.TileSetCount_4bpp + i, i, tileSet.TileSet_8bpp, false);
-
-
-            void fillTile(int totalIndex, int localIndex, byte[] imgData, bool is4bit)
             {
-                int tileY = ((totalIndex / wrap)) * CellSize;
-                int tileX = (totalIndex % wrap) * CellSize;
+                var convertData = tileSet.TileSet_4bpp_ConvertDatas[tileSet.TileSet_4bpp_ConvertIndexTable[i]];
 
-                tex.FillInTile(
-                    imgData: imgData,
-                    imgDataOffset: localIndex * (is4bit ? 0x20 : 0x40),
-                    pal: pal,
-                    encoding: is4bit ? Util.TileEncoding.Linear_4bpp : Util.TileEncoding.Linear_8bpp,
-                    tileWidth: CellSize,
-                    flipTextureY: false,
-                    tileX: tileX,
-                    tileY: tileY,
-                    flipTileX: false,
-                    flipTileY: false);
+                for (int j = 0; j < 64; j++)
+                {
+                    var b = convertData.Data[BitHelpers.ExtractBits(tileSet.TileSet_4bpp[i * 0x20 + Mathf.FloorToInt(j / 2f)], 4, j % 2 == 0 ? 0 : 4)];
+                    convertedTileSet[i * 0x40 + j] = b;
+                }
             }
 
-            tex.Apply();
+            var tex = Util.ToTileSetTexture(convertedTileSet.Concat(tileSet.TileSet_8bpp).ToArray(), pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
 
             return new Unity_TileSet(tex, CellSize);
         }
@@ -812,9 +793,9 @@ namespace R1Engine
                 {
                     if (cmd.Type == 3)
                     {
-                        foreach (var param in cmd.Params)
+                        for (var i = 0; i < cmd.Params.Length; i++)
                         {
-                            setTile(param);
+                            setTile(cmd.Params[i], i, cmd.Params.Length);
                             x++;
                         }
                     }
@@ -822,23 +803,29 @@ namespace R1Engine
                     {
                         for (int i = 0; i < cmd.Length; i++)
                         {
-                            setTile(cmd.Param); // TODO: Fix
+                            setTile(cmd.Param, i, cmd.Length); // TODO: Fix
                             x++;
                         }
                     }
                     else
                     {
-                        setTile(0); // TODO: Fix
+                        setTile(0, 0, 0); // TODO: Fix
                         x++;
                     }
-                }
 
-                void setTile(ushort value)
-                {
-                    tileMap[y * mapLayer.Width + x] = new Unity_Tile(new MapTile()
+                    void setTile(ushort value, int index, int length)
                     {
-                        TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 0) // TODO: Fix
-                    });
+                        tileMap[y * mapLayer.Width + x] = new Unity_Tile(new MapTile()
+                        {
+                            TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 0) // TODO: Fix
+                        })
+                        {
+                            DebugText = $"CMD: {cmd.Type}{Environment.NewLine}" +
+                                        $"Value: {value}{Environment.NewLine}" +
+                                        $"Index: {index}{Environment.NewLine}" +
+                                        $"Length: {length}{Environment.NewLine}"
+                        };
+                    }
                 }
             }
 
