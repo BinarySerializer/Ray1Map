@@ -647,10 +647,15 @@ namespace R1Engine
             {
                 var convertData = tileSet.TileSet_4bpp_ConvertDatas[tileSet.TileSet_4bpp_ConvertIndexTable[i]];
 
-                for (int j = 0; j < 64; j++)
+                for (int y = 0; y < 8; y++)
                 {
-                    var b = convertData.Data[BitHelpers.ExtractBits(tileSet.TileSet_4bpp[i * 0x20 + Mathf.FloorToInt(j / 2f)], 4, j % 2 == 0 ? 0 : 4)];
-                    convertedTileSet[i * 0x40 + j] = b;
+                    for (int x = 0; x < 8; x++)
+                    {
+                        var index = y * 8 + x;
+
+                        var b = convertData.Data[BitHelpers.ExtractBits(tileSet.TileSet_4bpp[i * 0x20 + Mathf.FloorToInt(index / 2f)], 4, index % 2 == 0 ? 0 : 4)];
+                        convertedTileSet[i * 0x40 + (y * 8 + (8 - x - 1))] = b;
+                    }
                 }
             }
 
@@ -809,7 +814,7 @@ namespace R1Engine
                     }
                     else
                     {
-                        setTile(0, 0, 0);
+                        setTile(cmd.Length, 0, 1);
                         x++;
                     }
 
