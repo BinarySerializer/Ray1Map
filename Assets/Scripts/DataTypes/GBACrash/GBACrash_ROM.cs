@@ -58,6 +58,9 @@ namespace R1Engine
             return tilePal;
         }
 
+        // Isometric
+        public GBACrash_Isometric_LevelInfo[] Isometric_LevelInfos { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize ROM header
@@ -145,7 +148,18 @@ namespace R1Engine
 
             if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Isometric)
             {
+                s.DoAt(pointerTable[GBACrash_Pointer.Isometric_LevelInfo], () =>
+                {
+                    if (Isometric_LevelInfos == null)
+                        Isometric_LevelInfos = new GBACrash_Isometric_LevelInfo[7];
 
+                    var index3D = CurrentMapInfo.Index3D;
+
+                    for (int i = 0; i < Isometric_LevelInfos.Length; i++)
+                        Isometric_LevelInfos[i] = s.SerializeObject<GBACrash_Isometric_LevelInfo>(Isometric_LevelInfos[i], x => x.SerializeData = i == index3D, name: $"{nameof(Isometric_LevelInfos)}[{i}]");
+
+
+                });
             }
         }
     }

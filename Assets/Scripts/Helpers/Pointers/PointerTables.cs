@@ -904,6 +904,8 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileMaps] = 0x081d7af4,
                         [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSetLengths] = 0x081d7aa4,
                         [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSets] = 0x081d7a54,
+
+                        [GBACrash_Pointer.Isometric_LevelInfo] = 0x086bf00c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

@@ -155,7 +155,7 @@ namespace R1Engine
             if (map.MapType == GBACrash_MapInfo.GBACrash_MapType.Mode7)
                 return await LoadMode7Async(context, rom);
             else if (map.MapType == GBACrash_MapInfo.GBACrash_MapType.Isometric)
-                throw new NotImplementedException();
+                return await LoadIsometricAsync(context, rom);
             else
                 return await Load2DAsync(context, rom);
         }
@@ -414,6 +414,9 @@ namespace R1Engine
                 }
             }
 
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
             var objmanager = new Unity_ObjectManager_GBACrashMode7(context, LoadMode7AnimSets(levelInfo, tilePal));
             var objects = levelInfo.ObjData.Objects.Select(x => new Unity_Object_GBACrashMode7(objmanager, x));
 
@@ -446,6 +449,37 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = new Vector3(1,1,0.5f) * CellSize
                 },
+                cellSize: CellSize);
+        }
+
+        public async UniTask<Unity_Level> LoadIsometricAsync(Context context, GBACrash_ROM rom)
+        {
+            var levelInfo = rom.Isometric_LevelInfos[5];
+
+            Controller.DetailedState = "Loading maps & tilesets";
+            await Controller.WaitIfNecessary();
+
+            var tileSet = LoadIsometricTileSet(levelInfo.TileSet, levelInfo.TilePalette);
+
+            var maps = levelInfo.MapLayers.Select((map, i) => new Unity_Map
+            {
+                Width = map.Width,
+                Height = map.Height,
+                TileSet = new Unity_TileSet[]
+                {
+                    tileSet,
+                },
+                MapTiles = GetIsometricTileMap(map),
+                Type = Unity_Map.MapType.Graphics,
+            }).Reverse().ToArray();
+
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
+            return new Unity_Level(
+                maps: maps,
+                objManager: new Unity_ObjectManager(context),
+                eventData: new List<Unity_Object>(),
                 cellSize: CellSize);
         }
 
@@ -601,6 +635,49 @@ namespace R1Engine
             return new Unity_TileSet(tex, CellSize);
         }
 
+        public Unity_TileSet LoadIsometricTileSet(GBACrash_Isometric_TileSet tileSet, RGBA5551Color[] tilePal)
+        {
+            // TODO: Fix
+
+            var pal = Util.ConvertGBAPalette(tilePal);
+
+            const int wrap = 32;
+
+            int tilesX = Math.Min((int)tileSet.TileSetCount_Total, wrap);
+            int tilesY = Mathf.CeilToInt(tileSet.TileSetCount_Total / (float)wrap);
+
+            var tex = TextureHelpers.CreateTexture2D(tilesX * CellSize, tilesY * CellSize);
+
+            for (int i = 0; i < tileSet.TileSetCount_4bpp; i++)
+                fillTile(i, i, tileSet.TileSet_4bpp, true);
+
+            for (int i = 0; i < tileSet.TileSetCount_Total - tileSet.TileSetCount_4bpp; i++)
+                fillTile(tileSet.TileSetCount_4bpp + i, i, tileSet.TileSet_8bpp, false);
+
+
+            void fillTile(int totalIndex, int localIndex, byte[] imgData, bool is4bit)
+            {
+                int tileY = ((totalIndex / wrap)) * CellSize;
+                int tileX = (totalIndex % wrap) * CellSize;
+
+                tex.FillInTile(
+                    imgData: imgData,
+                    imgDataOffset: localIndex * (is4bit ? 0x20 : 0x40),
+                    pal: pal,
+                    encoding: is4bit ? Util.TileEncoding.Linear_4bpp : Util.TileEncoding.Linear_8bpp,
+                    tileWidth: CellSize,
+                    flipTextureY: false,
+                    tileX: tileX,
+                    tileY: tileY,
+                    flipTileX: false,
+                    flipTileY: false);
+            }
+
+            tex.Apply();
+
+            return new Unity_TileSet(tex, CellSize);
+        }
+
         public Unity_Tile[] GetTileMap(GBACrash_MapLayer layer, GBACrash_MapData2DDataBlock.GBACrash_TileLayerData tileLayerData, bool is8bit = false, int tileSetLength = 0, bool isCollision = false)
         {
             var tileMap = new Unity_Tile[layer.MapWidth * layer.MapHeight];
@@ -716,6 +793,52 @@ namespace R1Engine
                                         $"TileIndex: {tileIndex}{Environment.NewLine}"
                         };
                     }
+                }
+            }
+
+            return tileMap;
+        }
+
+        public Unity_Tile[] GetIsometricTileMap(GBACrash_Isometric_MapLayer mapLayer)
+        {
+            var tileMap = new Unity_Tile[mapLayer.Width * mapLayer.Height];
+
+            for (int y = 0; y < mapLayer.Height; y++)
+            {
+                var chunk = mapLayer.TileMapRows[y];
+                var x = 0;
+
+                foreach (var cmd in chunk.Commands)
+                {
+                    if (cmd.Type == 3)
+                    {
+                        foreach (var param in cmd.Params)
+                        {
+                            setTile(param);
+                            x++;
+                        }
+                    }
+                    else if (cmd.Type == 2)
+                    {
+                        for (int i = 0; i < cmd.Length; i++)
+                        {
+                            setTile(cmd.Param); // TODO: Fix
+                            x++;
+                        }
+                    }
+                    else
+                    {
+                        setTile(0); // TODO: Fix
+                        x++;
+                    }
+                }
+
+                void setTile(ushort value)
+                {
+                    tileMap[y * mapLayer.Width + x] = new Unity_Tile(new MapTile()
+                    {
+                        TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 0) // TODO: Fix
+                    });
                 }
             }
 

@@ -21,5 +21,7 @@
         Mode7_Crash2_Type1_FlamesTileMaps,
         Mode7_Crash2_Type1_FlamesTileSetLengths,
         Mode7_Crash2_Type1_FlamesTileSets,
+
+        Isometric_LevelInfo,
     }
 }
