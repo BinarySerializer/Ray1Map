@@ -23,6 +23,7 @@
         Mode7_Crash2_Type1_FlamesTileSets,
 
         Isometric_LevelInfo,
+        Isometric_ObjectDatas,
         
         Isometric_Characters,
         Isometric_CharacterIcons,
