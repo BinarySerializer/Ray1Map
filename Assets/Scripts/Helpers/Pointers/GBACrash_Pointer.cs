@@ -24,6 +24,7 @@
 
         Isometric_LevelInfo,
         Isometric_ObjectDatas,
+        Isometric_ObjAnimations,
         
         Isometric_Characters,
         Isometric_CharacterIcons,

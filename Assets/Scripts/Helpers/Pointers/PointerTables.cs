@@ -907,6 +907,7 @@ namespace R1Engine
 
                         [GBACrash_Pointer.Isometric_LevelInfo] = 0x086bf00c,
                         [GBACrash_Pointer.Isometric_ObjectDatas] = 0x086bf274,
+                        [GBACrash_Pointer.Isometric_ObjAnimations] = 0x086d4744,
 
                         [GBACrash_Pointer.Isometric_Characters] = 0x086d4c6c,
                         [GBACrash_Pointer.Isometric_CharacterIcons] = 0x086cada8,

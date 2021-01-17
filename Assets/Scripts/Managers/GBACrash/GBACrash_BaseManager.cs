@@ -99,7 +99,27 @@ namespace R1Engine
                 }
             }
 
-            // TODO: Export Isometric animations
+            // Export isometric animations
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 0, null));
+
+                var pal = Util.CreateDummyPalette(256, wrap: 16).Select(x => x.GetColor()).ToArray().Split(16, 16).ToArray();
+
+                // Enumerate every animation
+                for (var i = 1; i < rom.Isometric_ObjAnimations.Length; i++)
+                {
+                    await UniTask.WaitForEndOfFrame();
+
+                    var frames = GetIsometricAnimFrames(rom.Isometric_ObjAnimations[i], pal);
+
+                    exportAnim(frames, 4, "Isometric", $"{i}", $"0");
+                }
+            }
 
             Debug.Log($"Finished export");
 
@@ -982,6 +1002,17 @@ namespace R1Engine
 
                 output[frameIndex] = Util.ToTileSetTexture(frame.TileSet, pal[animSet.PaletteIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: frame.Width);
             }
+
+            return output;
+        }
+
+        public Texture2D[] GetIsometricAnimFrames(GBACrash_Isometric_Animation anim, Color[][] palette)
+        {
+            var output = new Texture2D[anim.AnimFrames.Length];
+            var pal = anim.Palette != null ? Util.ConvertGBAPalette(anim.Palette) : palette[anim.PaletteIndex];
+
+            for (int frameIndex = 0; frameIndex < anim.AnimFrames.Length; frameIndex++)
+                output[frameIndex] = Util.ToTileSetTexture(anim.AnimFrames[frameIndex], pal, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: anim.Width / CellSize);
 
             return output;
         }
