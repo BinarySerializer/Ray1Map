@@ -4,7 +4,7 @@
 		public byte[] Data { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			s.SerializeArray<byte>(Data, ResourceSize, name: nameof(Data));
+			Data = s.SerializeArray<byte>(Data, ResourceSize, name: nameof(Data));
 		}
 	}
 }
