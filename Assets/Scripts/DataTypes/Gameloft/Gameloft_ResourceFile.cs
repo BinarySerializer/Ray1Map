@@ -41,7 +41,7 @@
                 if (i > 0) startOffset += Offsets[i - 1];
                 size = Offsets[i] - (i > 0 ? Offsets[i - 1] : 0);
                 startOffset += 1;
-                size -= 1;
+                if(size > 0) size -= 1;
             } else {
                 startOffset += Offsets[i];
                 size = Offsets[i+1] - Offsets[i];
