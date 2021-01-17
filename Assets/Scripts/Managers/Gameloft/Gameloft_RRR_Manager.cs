@@ -2,5 +2,50 @@
 {
     public class Gameloft_RRR_Manager : Gameloft_BaseManager
     {
-    }
+		public override string[] ResourceFiles => new string[] {
+			"d1",
+			"d2",
+			"d3",
+			"d4",
+			"l0a01",
+			"l0a02",
+			"l0a03",
+			"l0a04",
+			"l0a05",
+			"l0a06",
+			"l0a07",
+			"l0a08",
+			"l0b",
+			"s",
+			"s1",
+			"s2",
+			"s3",
+			"s4",
+			"s5",
+			"s6",
+			"s7",
+			"s8",
+			"t0",
+			"t1",
+			"t2",
+			"ts0",
+			"ts1",
+			"ts2",
+		};
+
+		public override string[] SingleResourceFiles => new string[] {
+			"u",
+			"sp",
+			"spp",
+			"lj21",
+			"lj22",
+			"lj23",
+			"lj41",
+			"lj42",
+			"lj43",
+			"lj44",
+			"g",
+			"cp",
+		};
+	}
 }
