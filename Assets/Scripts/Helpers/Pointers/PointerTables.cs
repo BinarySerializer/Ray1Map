@@ -906,6 +906,10 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSets] = 0x081d7a54,
 
                         [GBACrash_Pointer.Isometric_LevelInfo] = 0x086bf00c,
+                        [GBACrash_Pointer.Isometric_ObjectDatas] = 0x086bf274,
+
+                        [GBACrash_Pointer.Isometric_Characters] = 0x086d4c6c,
+                        [GBACrash_Pointer.Isometric_CharacterIcons] = 0x086cada8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

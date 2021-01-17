@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -61,6 +62,9 @@ namespace R1Engine
 
         // Isometric
         public GBACrash_Isometric_LevelInfo[] Isometric_LevelInfos { get; set; }
+        public GBACrash_Isometric_ObjectData[] Isometric_ObjectDatas { get; set; }
+        public GBACrash_Isometric_CharacterInfo[] Isometric_CharacterInfos { get; set; }
+        public GBACrash_Isometric_CharacterIcon[] Isometric_CharacterIcons { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -149,16 +153,29 @@ namespace R1Engine
 
             if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Isometric)
             {
+                var index3D = CurrentMapInfo.Index3D;
+
                 s.DoAt(pointerTable[GBACrash_Pointer.Isometric_LevelInfo], () =>
                 {
                     if (Isometric_LevelInfos == null)
                         Isometric_LevelInfos = new GBACrash_Isometric_LevelInfo[7];
 
-                    var index3D = CurrentMapInfo.Index3D;
 
                     for (int i = 0; i < Isometric_LevelInfos.Length; i++)
                         Isometric_LevelInfos[i] = s.SerializeObject<GBACrash_Isometric_LevelInfo>(Isometric_LevelInfos[i], x => x.SerializeData = i == index3D + 4, name: $"{nameof(Isometric_LevelInfos)}[{i}]");
                 });
+
+                s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjectDatas], () =>
+                {
+                    if (Isometric_ObjectDatas == null)
+                        Isometric_ObjectDatas = new GBACrash_Isometric_ObjectData[7];
+
+                    for (int i = 0; i < Isometric_ObjectDatas.Length; i++)
+                        Isometric_ObjectDatas[i] = s.SerializeObject<GBACrash_Isometric_ObjectData>(Isometric_ObjectDatas[i], x => x.SerializeData = i == index3D + 4, name: $"{nameof(Isometric_ObjectDatas)}[{i}]");
+                });
+
+                Isometric_CharacterInfos = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_Characters], () => s.SerializeObjectArray<GBACrash_Isometric_CharacterInfo>(Isometric_CharacterInfos, 12, name: nameof(Isometric_CharacterInfos)));
+                Isometric_CharacterIcons = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_CharacterIcons], () => s.SerializeObjectArray<GBACrash_Isometric_CharacterIcon>(Isometric_CharacterIcons, 11, name: nameof(Isometric_CharacterIcons)));
             }
         }
     }

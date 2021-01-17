@@ -28,6 +28,7 @@ namespace R1Engine
         {
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
+            new GameAction("Export isometric character icons", false, true, (input, output) => ExportIsometricCharacterIcons(settings, output)),
         };
 
         public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
@@ -140,6 +141,28 @@ namespace R1Engine
                         Util.ByteArrayToFile(Path.Combine(modeDir, $"{animSetName}", $"{animName}", $"{frameIndex}.png"), tex.EncodeToPNG());
                         frameIndex++;
                     }
+                }
+            }
+        }
+
+        public async UniTask ExportIsometricCharacterIcons(GameSettings settings, string outputDir)
+        {
+            // Export 2D animations
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 0, null));
+
+                // Enumerate every character
+                for (int i = 0; i < rom.Isometric_CharacterIcons.Length; i++)
+                {
+                    var pal = Util.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
+                    var tex = Util.ToTileSetTexture(rom.Isometric_CharacterIcons[i].TileSet.TileSet, pal, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: 2);
+
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{i:00}_{rom.Isometric_CharacterInfos[i].Name}.png"), tex.EncodeToPNG());
                 }
             }
         }
@@ -435,7 +458,6 @@ namespace R1Engine
                 maps: maps,
                 objManager: objmanager,
                 eventData: new List<Unity_Object>(objects),
-                // TODO: Get this to work
                 isometricData: new Unity_IsometricData
                 {
                     CollisionWidth = 0,
