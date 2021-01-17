@@ -85,5 +85,10 @@ namespace R1Engine
 
         GBACrash_Crash1,
         GBACrash_Crash2,
+
+        // Gameloft
+
+        Gameloft_RRR,
+        Gameloft_RK,
     }
 }

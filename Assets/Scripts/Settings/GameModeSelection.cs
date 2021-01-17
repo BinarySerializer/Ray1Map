@@ -369,5 +369,11 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBACrash_Crash2_Manager))]
         Crash2GBAUS,
+
+        // Gameloft
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile)", typeof(Gameloft_RRR_Manager))]
+        RaymanRavingRabbidsMobile,
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile,
     }
 }

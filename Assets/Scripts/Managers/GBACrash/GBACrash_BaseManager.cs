@@ -991,7 +991,7 @@ namespace R1Engine
             }
         }
 
-        public Vector2[] TileShapes { get; } = new Vector2[]
+        public Vector2Int[] TileShapes { get; } = new Vector2Int[]
         {
             new Vector2Int(0x08, 0x08), 
             new Vector2Int(0x10, 0x10), 

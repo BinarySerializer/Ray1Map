@@ -12,6 +12,7 @@
         GBARRR,
         GBAIsometric,
         GBC,
-        GBACrash
+        GBACrash,
+        Gameloft
     }
 }
