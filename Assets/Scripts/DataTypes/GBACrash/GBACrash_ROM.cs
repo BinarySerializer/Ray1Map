@@ -61,6 +61,8 @@ namespace R1Engine
 
         // Isometric
         public GBACrash_Isometric_LevelInfo[] Isometric_LevelInfos { get; set; }
+        public GBACrash_Isometric_CharacterInfo[] Isometric_CharacterInfos { get; set; }
+        public GBACrash_Isometric_CharacterIcon[] Isometric_CharacterIcons { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -159,6 +161,9 @@ namespace R1Engine
                     for (int i = 0; i < Isometric_LevelInfos.Length; i++)
                         Isometric_LevelInfos[i] = s.SerializeObject<GBACrash_Isometric_LevelInfo>(Isometric_LevelInfos[i], x => x.SerializeData = i == index3D + 4, name: $"{nameof(Isometric_LevelInfos)}[{i}]");
                 });
+
+                Isometric_CharacterInfos = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_Characters], () => s.SerializeObjectArray<GBACrash_Isometric_CharacterInfo>(Isometric_CharacterInfos, 12, name: nameof(Isometric_CharacterInfos)));
+                Isometric_CharacterIcons = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_CharacterIcons], () => s.SerializeObjectArray<GBACrash_Isometric_CharacterIcon>(Isometric_CharacterIcons, 11, name: nameof(Isometric_CharacterIcons)));
             }
         }
     }
