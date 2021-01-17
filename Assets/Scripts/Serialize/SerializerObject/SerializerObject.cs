@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -99,6 +100,41 @@ namespace R1Engine
 
         public abstract T[] SerializeArray<T>(T[] obj, long count, string name = null);
         public abstract T[] SerializeObjectArray<T>(T[] obj, long count, Action<T> onPreSerialize = null, string name = null) where T : R1Serializable, new();
+        
+        public T[] SerializeObjectArrayUntil<T>(T[] obj, Func<T, bool> conditionCheckFunc, bool includeLastObj = false, Action<T> onPreSerialize = null, string name = null) 
+            where T : R1Serializable, new()
+        {
+            if (obj == null)
+            {
+                var objects = new List<T>();
+                var index = 0;
+
+                while (true)
+                {
+                    var serializedObj = SerializeObject<T>(default, onPreSerialize: onPreSerialize, name: $"{name}[{index++}]");
+
+                    if (conditionCheckFunc(serializedObj))
+                    {
+                        if (includeLastObj)
+                            objects.Add(serializedObj);
+
+                        break;
+                    }
+
+                    objects.Add(serializedObj);
+                }
+
+                obj = objects.ToArray();
+            }
+            else
+            {
+                SerializeObjectArray<T>(obj, obj.Length, onPreSerialize: onPreSerialize, name: name);
+            }
+
+            return obj;
+        }
+
+
         public abstract Pointer[] SerializePointerArray(Pointer[] obj, long count, Pointer anchor = null, bool allowInvalid = false, string name = null);
         public abstract Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, long count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) where T : R1Serializable, new();
 
