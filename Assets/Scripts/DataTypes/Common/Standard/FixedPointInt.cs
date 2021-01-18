@@ -19,6 +19,10 @@
 			}
 		}
 		public static implicit operator float(FixedPointInt d) => d.AsFloat;
+		public static implicit operator FixedPointInt(float d) => new FixedPointInt()
+        {
+			AsFloat = d
+        };
 
 		public override void SerializeImpl(SerializerObject s) {
 			Value = s.Serialize<int>(Value, name: nameof(Value));

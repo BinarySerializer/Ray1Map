@@ -20,24 +20,27 @@ namespace R1Engine
 
         public int ObjAnimIndex { get; set; }
 
+        public float Height { get; set; }
+
         public override short XPosition
         {
-            get => (short)Object.XPos;
-            set => Object.XPos = value;
+            get => (short)Object.XPos.AsFloat;
+            set => Object.XPos.AsFloat = value;
         }
         public override short YPosition
         {
-            get => (short)Object.YPos;
-            set => Object.YPos = value;
+            get => (short)Object.YPos.AsFloat;
+            set => Object.YPos.AsFloat = value;
         }
 
         public override Vector3 Position
         {
-            get => new Vector3(Object.XPos, Object.YPos, 0);
+            get => new Vector3(Object.XPos, Object.YPos, Height);
             set
             {
-                Object.XPos = (int)value.x;
-                Object.YPos = (int)value.y;
+                Object.XPos = value.x;
+                Object.YPos = value.y;
+                Height = value.z;
             }
         }
 
@@ -51,7 +54,7 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBACrashIsometric.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault(ObjAnimIndex);
 
-        public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
+        public override Unity_ObjAnimation CurrentAnimation => Sprites?.Count < 1 ? null : GraphicsData?.Animation;
         public override int AnimSpeed => GraphicsData?.AnimSpeed ?? 0;
         public override int? GetAnimIndex => ObjAnimIndex;
         protected override int GetSpriteID => 0;
