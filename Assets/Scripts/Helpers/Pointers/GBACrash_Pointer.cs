@@ -28,5 +28,13 @@
         
         Isometric_Characters,
         Isometric_CharacterIcons,
+
+        Isometric_ObjPalette_0,
+        Isometric_ObjPalette_1,
+        Isometric_ObjPalette_2,
+        Isometric_ObjPalette_4,
+        Isometric_ObjPalette_11,
+        Isometric_ObjPalette_12,
+        Isometric_ObjPalette_13,
     }
 }

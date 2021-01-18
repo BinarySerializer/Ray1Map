@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -34,6 +34,7 @@ namespace R1Engine
         }
         public GBACrash_Mode7_LevelInfo CurrentMode7LevelInfo => Mode7_LevelInfos[CurrentMapInfo.Index3D];
         public GBACrash_Isometric_LevelInfo CurrentIsometricLevelInfo => Isometric_LevelInfos[CurrentMapInfo.Index3D + 4];
+        public GBACrash_Isometric_ObjectData CurrentIsometricObjData => Isometric_ObjectDatas[CurrentMapInfo.Index3D + 4];
 
         // 2D
         public GBACrash_AnimSet[] AnimSets { get; set; }
@@ -66,6 +67,27 @@ namespace R1Engine
         public GBACrash_Isometric_CharacterInfo[] Isometric_CharacterInfos { get; set; }
         public GBACrash_Isometric_CharacterIcon[] Isometric_CharacterIcons { get; set; }
         public GBACrash_Isometric_Animation[] Isometric_ObjAnimations { get; set; }
+        public RGBA5551Color[] Isometric_ObjPalette_0 { get; set; }
+        public RGBA5551Color[] Isometric_ObjPalette_1 { get; set; }
+        public RGBA5551Color[] Isometric_ObjPalette_2 { get; set; }
+        public RGBA5551Color[] Isometric_ObjPalette_4 { get; set; }
+        public RGBA5551Color[] Isometric_ObjPalette_11 { get; set; }
+        public RGBA5551Color[] Isometric_ObjPalette_12 { get; set; }
+        public RGBA5551Color[] Isometric_ObjPalette_13 { get; set; }
+        public RGBA5551Color[] Isometric_GetObjPalette =>
+            Isometric_ObjPalette_0.
+                Concat(Isometric_ObjPalette_1).
+                Concat(Isometric_ObjPalette_2).
+                Concat(Enumerable.Repeat(new RGBA5551Color(), 16* 1)).
+                Concat(Isometric_ObjPalette_4).
+                Concat(Enumerable.Repeat(new RGBA5551Color(), 16 * 6)).
+                Concat(Isometric_ObjPalette_11).
+                Concat(Isometric_ObjPalette_12).
+                Concat(Isometric_ObjPalette_13).
+                Concat(Enumerable.Repeat(new RGBA5551Color(), 16 * 2)).
+                ToArray();
+        public GBACrash_Isometric_Animation[] Isometric_AdditionalAnimations { get; set; }
+        public IEnumerable<GBACrash_Isometric_Animation> Isometric_GetAnimations => Isometric_ObjAnimations.Concat(Isometric_AdditionalAnimations);
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -178,6 +200,31 @@ namespace R1Engine
                 Isometric_CharacterInfos = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_Characters], () => s.SerializeObjectArray<GBACrash_Isometric_CharacterInfo>(Isometric_CharacterInfos, 12, name: nameof(Isometric_CharacterInfos)));
                 Isometric_CharacterIcons = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_CharacterIcons], () => s.SerializeObjectArray<GBACrash_Isometric_CharacterIcon>(Isometric_CharacterIcons, 11, name: nameof(Isometric_CharacterIcons)));
                 Isometric_ObjAnimations = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjAnimations], () => s.SerializeObjectArray<GBACrash_Isometric_Animation>(Isometric_ObjAnimations, 22, name: nameof(Isometric_ObjAnimations)));
+
+                Isometric_ObjPalette_0 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_0], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_0, 16, name: nameof(Isometric_ObjPalette_0)));
+                Isometric_ObjPalette_1 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_1], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_1, 16, name: nameof(Isometric_ObjPalette_1)));
+                Isometric_ObjPalette_2 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_2], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_2, 16, name: nameof(Isometric_ObjPalette_2)));
+                Isometric_ObjPalette_4 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_4], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_4, 16, name: nameof(Isometric_ObjPalette_4)));
+                Isometric_ObjPalette_11 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_11], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_11, 16, name: nameof(Isometric_ObjPalette_11)));
+                Isometric_ObjPalette_12 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_12], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_12, 16, name: nameof(Isometric_ObjPalette_12)));
+                Isometric_ObjPalette_13 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_13], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_13, 16, name: nameof(Isometric_ObjPalette_13)));
+
+                // TODO: Support EU version
+                // These animations are all hard-coded from functions:
+                Isometric_AdditionalAnimations = new GBACrash_Isometric_Animation[]
+                {
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086cc610, Offset.file), 0x03, 4, 4, 2), // Green barrel
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086cc61c, Offset.file), 0x03, 4, 4, 2), // Laser beam
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4af8, Offset.file), 0x06, 4, 4, 1), // Crate breaks
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b50, Offset.file), 0x07, 4, 4, 1), // Checkpoint breaks
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b94, Offset.file), 0x18, 8, 4, 0), // Checkpoint text
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b10, Offset.file), 0x08, 4, 4, 2), // Nitro explosion
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b30, Offset.file), 0x08, 4, 4, 2), // Nitro switch
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4680, Offset.file), 0x0E, 4, 4, 0), // Wumpa HUD
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b6c, Offset.file), 0x0A, 8, 8, new Pointer(0x087e7ed8, Offset.file)), // Crystal collected
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d46f0, Offset.file), 0x03, 4, 4, new Pointer(0x087db040, Offset.file)), // Multiplayer base
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4ff4, Offset.file), 0x0A, 2, 2, new Pointer(0x087f4918, Offset.file)), // Multiplayer items
+                };
             }
         }
     }

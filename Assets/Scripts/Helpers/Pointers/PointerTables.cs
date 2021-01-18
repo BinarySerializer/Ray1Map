@@ -911,6 +911,14 @@ namespace R1Engine
 
                         [GBACrash_Pointer.Isometric_Characters] = 0x086d4c6c,
                         [GBACrash_Pointer.Isometric_CharacterIcons] = 0x086cada8,
+
+                        [GBACrash_Pointer.Isometric_ObjPalette_0] = 0x087d639c,
+                        [GBACrash_Pointer.Isometric_ObjPalette_1] = 0x087db6d8,
+                        [GBACrash_Pointer.Isometric_ObjPalette_2] = 0x087db6f8,
+                        [GBACrash_Pointer.Isometric_ObjPalette_4] = 0x087db718,
+                        [GBACrash_Pointer.Isometric_ObjPalette_11] = 0x087db738,
+                        [GBACrash_Pointer.Isometric_ObjPalette_12] = 0x087db758,
+                        [GBACrash_Pointer.Isometric_ObjPalette_13] = 0x087db778,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:
