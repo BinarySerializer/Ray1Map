@@ -547,7 +547,8 @@ namespace R1Engine
                     TilesWidth = levelInfo.MapWidth * CellSize,
                     TilesHeight = levelInfo.MapHeight * CellSize,
                     Collision = mirroredCollision,
-                    Scale = new Vector3(Mathf.Sqrt(16), 2f / Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(16))
+                    Scale = new Vector3(Mathf.Sqrt(16), 2f / Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(16)),
+                    ObjectScale = Vector3.one / 5.33f
                 });
         }
 

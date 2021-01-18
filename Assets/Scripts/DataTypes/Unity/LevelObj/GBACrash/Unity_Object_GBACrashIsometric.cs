@@ -35,11 +35,11 @@ namespace R1Engine
 
         public override Vector3 Position
         {
-            get => new Vector3(Object.XPos, Object.YPos, Height);
+            get => new Vector3(Object.YPos, Object.XPos, Height);
             set
             {
-                Object.XPos = value.x;
-                Object.YPos = value.y;
+                Object.YPos.AsFloat = value.x;
+                Object.XPos.AsFloat = value.y;
                 Height = value.z;
             }
         }
