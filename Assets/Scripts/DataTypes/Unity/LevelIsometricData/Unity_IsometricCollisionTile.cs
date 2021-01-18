@@ -11,7 +11,7 @@ namespace R1Engine
         public CollisionType Type { get; set; }
         public AdditionalTypeFlags AddType { get; set; }
         public ShapeType Shape { get; set; }
-        public int Height { get; set; }
+        public float Height { get; set; }
         public string DebugText { get; set; }
         #endregion
 

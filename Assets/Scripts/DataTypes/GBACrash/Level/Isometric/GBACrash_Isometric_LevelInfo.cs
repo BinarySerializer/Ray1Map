@@ -30,8 +30,8 @@ namespace R1Engine
         public Pointer Pointer_44 { get; set; }
         public Pointer Pointer_48 { get; set; }
         public Pointer Pointer_4C { get; set; }
-        public uint UnkXPos { get; set; }
-        public uint UnkYPos { get; set; }
+        public FixedPointInt UnkXPos { get; set; }
+        public FixedPointInt UnkYPos { get; set; }
 
         // Serialized from pointers
 
@@ -70,8 +70,8 @@ namespace R1Engine
             Pointer_44 = s.SerializePointer(Pointer_44, name: nameof(Pointer_44));
             Pointer_48 = s.SerializePointer(Pointer_48, name: nameof(Pointer_48));
             Pointer_4C = s.SerializePointer(Pointer_4C, name: nameof(Pointer_4C));
-            UnkXPos = s.Serialize<uint>(UnkXPos, name: nameof(UnkXPos));
-            UnkYPos = s.Serialize<uint>(UnkYPos, name: nameof(UnkYPos));
+            UnkXPos = s.SerializeObject<FixedPointInt>(UnkXPos, name: nameof(UnkXPos));
+            UnkYPos = s.SerializeObject<FixedPointInt>(UnkYPos, name: nameof(UnkYPos));
 
             Name = s.DoAt(NamePointer, () => s.SerializeString(Name, name: nameof(Name)));
 

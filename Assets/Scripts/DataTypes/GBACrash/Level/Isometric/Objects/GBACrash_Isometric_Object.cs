@@ -4,15 +4,15 @@
     {
         public GBACrash_Isometric_ObjType ObjType { get; set; }
         public GBACrash_Isometric_ObjType ObjType_TimeTrial { get; set; }
-        public int XPos { get; set; }
-        public int YPos { get; set; }
+        public FixedPointInt XPos { get; set; }
+        public FixedPointInt YPos { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             ObjType = s.Serialize<GBACrash_Isometric_ObjType>(ObjType, name: nameof(ObjType));
             ObjType_TimeTrial = s.Serialize<GBACrash_Isometric_ObjType>(ObjType_TimeTrial, name: nameof(ObjType_TimeTrial));
-            XPos = s.Serialize<int>(XPos, name: nameof(XPos));
-            YPos = s.Serialize<int>(YPos, name: nameof(YPos));
+            XPos = s.SerializeObject<FixedPointInt>(XPos, name: nameof(XPos));
+            YPos = s.SerializeObject<FixedPointInt>(YPos, name: nameof(YPos));
         }
 
         public enum GBACrash_Isometric_ObjType

@@ -518,6 +518,17 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
+            float minHeight = Mathf.Min(0, levelInfo.CollisionMap.Min(c => levelInfo.CollisionTiles[c].Height.AsFloat)); // TODO: include in height displacement calculation
+            var collision = levelInfo.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
+                Height = (levelInfo.CollisionTiles[c].Height - minHeight) * 3 // TODO: fix scale
+            }).ToArray();
+            var mirroredCollision = new Unity_IsometricCollisionTile[levelInfo.CollisionWidth * levelInfo.CollisionHeight];
+            for (int x = 0; x < levelInfo.CollisionWidth; x++) {
+                for (int y = 0; y < levelInfo.CollisionHeight; y++) {
+                    mirroredCollision[x * levelInfo.CollisionHeight + y] = collision[y * levelInfo.CollisionWidth + x];
+                }
+            }
+
             return new Unity_Level(
                 maps: maps,
                 objManager: new Unity_ObjectManager(context),
@@ -525,15 +536,12 @@ namespace R1Engine
                 cellSize: CellSize,
                 isometricData: new Unity_IsometricData()
                 {
-                    CollisionWidth = levelInfo.CollisionWidth,
-                    CollisionHeight = levelInfo.CollisionHeight,
+                    CollisionWidth = levelInfo.CollisionHeight,
+                    CollisionHeight = levelInfo.CollisionWidth,
                     TilesWidth = levelInfo.MapWidth * CellSize,
                     TilesHeight = levelInfo.MapHeight * CellSize,
-                    Collision = levelInfo.CollisionMap.Select(c => new Unity_IsometricCollisionTile()
-                    {
-                        Height = levelInfo.CollisionTiles[c].Height
-                    }).ToArray(),
-                    Scale = new Vector3(Mathf.Sqrt(8), 1f / Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(8))
+                    Collision = mirroredCollision,
+                    Scale = new Vector3(Mathf.Sqrt(16), 2f / Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(16))
                 });
         }
 
