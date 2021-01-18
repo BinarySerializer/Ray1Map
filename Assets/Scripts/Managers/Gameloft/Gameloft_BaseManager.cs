@@ -132,7 +132,7 @@ namespace R1Engine
                 }
                 if (restype == ResourceType.Graphics) {
                     //Debug.Log($"Reading {resf.Offset.file.filePath} - {i}");
-                    var graphics = resf.SerializeResource<Gameloft_Graphics>(s,default,i, name: $"Graphics_{resf.Offset.file.filePath}_{i}");
+                    var graphics = resf.SerializeResource<Gameloft_Puppet>(s,default,i, name: $"Graphics_{resf.Offset.file.filePath}_{i}");
                     for (int j = 0; j < graphics.ImagesCount; j++) {
                         var id = graphics.ImageDescriptors[j];
                         var pal = graphics.Palettes[id.Palette];

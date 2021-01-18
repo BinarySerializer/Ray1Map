@@ -2,22 +2,22 @@
 
 namespace R1Engine
 {
-	public class Gameloft_Graphics : Gameloft_Resource {
+	public class Gameloft_Puppet : Gameloft_Resource {
 		public byte[] Header { get; set; }
 		public ushort ImagesCount { get; set; }
 		public ImageDescriptor[] ImageDescriptors { get; set; }
-		public ushort Count2 { get; set; }
-		public Struct2[] Structs2 { get; set; }
-		public ushort Count3 { get; set; }
-		public Struct3[] Structs3 { get; set; }
-		public Struct3_2[] Structs3_2 { get; set; }
-		public ushort Count4 { get; set; }
-		public Struct4[] Structs4 { get; set; }
-		public ushort Count5 { get; set; }
-		public Struct5[] Structs5 { get; set; }
+		public ushort LayersCount { get; set; }
+		public AnimationLayer[] Layers { get; set; }
+		public ushort LayerGroupsCount { get; set; }
+		public AnimationLayerGroup[] LayerGroups { get; set; }
+		public AnimationLayerGroup_Dimensions[] LayerGroupsDimensions { get; set; }
+		public ushort FramesCount { get; set; }
+		public AnimationFrame[] Frames { get; set; }
+		public ushort AnimationsCount { get; set; }
+		public Animation[] Animations { get; set; }
 
 		public ushort ColorFormat { get; set; }
-		public int PaletteCount { get; set; }
+		public int PalettesCount { get; set; }
 		public PaletteBlock[] Palettes { get; set; }
 		public ushort ImageFormat { get; set; }
 		public Image[] Images { get; set; }
@@ -28,20 +28,20 @@ namespace R1Engine
 			Header = s.SerializeArray<byte>(Header, 6, name: nameof(Header));
 			ImagesCount = s.Serialize<ushort>(ImagesCount, name: nameof(ImagesCount));
 			ImageDescriptors = s.SerializeObjectArray<ImageDescriptor>(ImageDescriptors, ImagesCount, onPreSerialize: id => id.HasPalette = HasMultiplePalettes, name: nameof(ImageDescriptors));
-			PaletteCount = ImageDescriptors.Max(id => id.Palette) + 1;
-			Count2 = s.Serialize<ushort>(Count2, name: nameof(Count2));
-			Structs2 = s.SerializeObjectArray<Struct2>(Structs2, Count2, name: nameof(Structs2));
-			Count3 = s.Serialize<ushort>(Count3, name: nameof(Count3));
-			Structs3 = s.SerializeObjectArray<Struct3>(Structs3, Count3, name: nameof(Structs3));
-			Structs3_2 = s.SerializeObjectArray<Struct3_2>(Structs3_2, Count3, name: nameof(Structs3_2));
-			Count4 = s.Serialize<ushort>(Count4, name: nameof(Count4));
-			Structs4 = s.SerializeObjectArray<Struct4>(Structs4, Count4, name: nameof(Structs4));
-			Count5 = s.Serialize<ushort>(Count5, name: nameof(Count5));
-			Structs5 = s.SerializeObjectArray<Struct5>(Structs5, Count5, name: nameof(Structs5));
+			PalettesCount = ImageDescriptors.Max(id => id.Palette) + 1;
+			LayersCount = s.Serialize<ushort>(LayersCount, name: nameof(LayersCount));
+			Layers = s.SerializeObjectArray<AnimationLayer>(Layers, LayersCount, name: nameof(Layers));
+			LayerGroupsCount = s.Serialize<ushort>(LayerGroupsCount, name: nameof(LayerGroupsCount));
+			LayerGroups = s.SerializeObjectArray<AnimationLayerGroup>(LayerGroups, LayerGroupsCount, name: nameof(LayerGroups));
+			LayerGroupsDimensions = s.SerializeObjectArray<AnimationLayerGroup_Dimensions>(LayerGroupsDimensions, LayerGroupsCount, name: nameof(LayerGroupsDimensions));
+			FramesCount = s.Serialize<ushort>(FramesCount, name: nameof(FramesCount));
+			Frames = s.SerializeObjectArray<AnimationFrame>(Frames, FramesCount, name: nameof(Frames));
+			AnimationsCount = s.Serialize<ushort>(AnimationsCount, name: nameof(AnimationsCount));
+			Animations = s.SerializeObjectArray<Animation>(Animations, AnimationsCount, name: nameof(Animations));
 
 			if (ImagesCount > 0) {
 				ColorFormat = s.Serialize<ushort>(ColorFormat, name: nameof(ColorFormat));
-				Palettes = s.SerializeObjectArray<PaletteBlock>(Palettes, PaletteCount, onPreSerialize: pb => pb.ColorFormat = ColorFormat, name: nameof(Palettes));
+				Palettes = s.SerializeObjectArray<PaletteBlock>(Palettes, PalettesCount, onPreSerialize: pb => pb.ColorFormat = ColorFormat, name: nameof(Palettes));
 				ImageFormat = s.Serialize<ushort>(ImageFormat, name: nameof(ImageFormat));
 				Images = s.SerializeObjectArray<Image>(Images, ImagesCount, name: nameof(Images));
 			}
@@ -90,49 +90,69 @@ namespace R1Engine
 				Height = s.Serialize<byte>(Height, name: nameof(Height));
 			}
 		}
-		public class Struct2 : R1Serializable {
-			public byte[] Struct2Bytes { get; set; }
+		public class AnimationLayer : R1Serializable {
+			public byte ImageIndex { get; set; }
+			public sbyte XPosition { get; set; }
+			public sbyte YPosition { get; set; }
+			public byte Flags { get; set; } // 0 = flip hor, 1 = flip ver
 
 			public override void SerializeImpl(SerializerObject s) {
-				Struct2Bytes = s.SerializeArray<byte>(Struct2Bytes, 4, name: nameof(Struct2Bytes));
+				ImageIndex = s.Serialize<byte>(ImageIndex, name: nameof(ImageIndex));
+				XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
+				YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));
+				Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 			}
 		}
-		public class Struct3 : R1Serializable {
-			public byte Key { get; set; }
-			public byte Struct3Unused { get; set; }
-			public ushort Value { get; set; }
+		public class AnimationLayerGroup : R1Serializable {
+			public byte Length { get; set; }
+			public byte LayerGroupUnusedByte { get; set; }
+			public ushort StartIndex { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Key = s.Serialize<byte>(Key, name: nameof(Key));
-				Struct3Unused = s.Serialize<byte>(Struct3Unused, name: nameof(Struct3Unused));
-				Value = s.Serialize<ushort>(Value, name: nameof(Value));
+				Length = s.Serialize<byte>(Length, name: nameof(Length));
+				LayerGroupUnusedByte = s.Serialize<byte>(LayerGroupUnusedByte, name: nameof(LayerGroupUnusedByte));
+				StartIndex = s.Serialize<ushort>(StartIndex, name: nameof(StartIndex));
 			}
 		}
-		public class Struct3_2 : R1Serializable {
-			public byte[] Struct3Bytes { get; set; }
+		public class AnimationLayerGroup_Dimensions : R1Serializable {
+			public sbyte XPosition { get; set; }
+			public sbyte YPosition { get; set; }
+			public byte Width { get; set; }
+			public byte Height { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Struct3Bytes = s.SerializeArray<byte>(Struct3Bytes, 4, name: nameof(Struct3Bytes));
+				XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
+				YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));
+				Width = s.Serialize<byte>(Width, name: nameof(Width));
+				Height = s.Serialize<byte>(Height, name: nameof(Height));
 			}
 		}
-		public class Struct4 : R1Serializable {
-			public byte[] Struct4Bytes { get; set; }
+		public class AnimationFrame : R1Serializable {
+			public byte Struct3Index { get; set; }
+			public byte Duration { get; set; }
+			public sbyte XPosition { get; set; }
+			public sbyte YPosition { get; set; }
+			public byte Flags { get; set; } // 0 = flip hor, 1 = flip ver
 
 			public override void SerializeImpl(SerializerObject s) {
-				Struct4Bytes = s.SerializeArray<byte>(Struct4Bytes, 5, name: nameof(Struct4Bytes));
+				Struct3Index = s.Serialize<byte>(Struct3Index, name: nameof(Struct3Index));
+				Duration = s.Serialize<byte>(Duration, name: nameof(Duration));
+				XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
+				YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));
+				Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 			}
 		}
-		public class Struct5 : R1Serializable {
-			public byte Key { get; set; }
-			public byte Struct5Unused { get; set; }
-			public ushort Value { get; set; }
+		public class Animation : R1Serializable {
+			public byte Length { get; set; }
+			public byte AnimationUnusedByte { get; set; }
+			public ushort FrameIndex { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Key = s.Serialize<byte>(Key, name: nameof(Key));
+				Length = s.Serialize<byte>(Length, name: nameof(Length));
 				if (s.GameSettings.EngineVersion >= EngineVersion.Gameloft_RK) {
-					Struct5Unused = s.Serialize<byte>(Struct5Unused, name: nameof(Struct5Unused));
+					AnimationUnusedByte = s.Serialize<byte>(AnimationUnusedByte, name: nameof(AnimationUnusedByte));
 				}
-				Value = s.Serialize<ushort>(Value, name: nameof(Value));
+				FrameIndex = s.Serialize<ushort>(FrameIndex, name: nameof(FrameIndex));
 			}
 		}
 		public class Image : R1Serializable {
