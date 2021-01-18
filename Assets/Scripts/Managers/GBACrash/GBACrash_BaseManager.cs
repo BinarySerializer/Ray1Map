@@ -110,12 +110,14 @@ namespace R1Engine
 
                 var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
 
+                var animations = rom.Isometric_GetAnimations.ToArray();
+
                 // Enumerate every animation
-                for (var i = 1; i < rom.Isometric_ObjAnimations.Length; i++)
+                for (var i = 1; i < animations.Length; i++)
                 {
                     await UniTask.WaitForEndOfFrame();
 
-                    var frames = GetIsometricAnimFrames(rom.Isometric_ObjAnimations[i], pal);
+                    var frames = GetIsometricAnimFrames(animations[i], pal);
 
                     exportAnim(frames, 4, "Isometric", $"{i}", $"0");
                 }
@@ -497,6 +499,7 @@ namespace R1Engine
         public async UniTask<Unity_Level> LoadIsometricAsync(Context context, GBACrash_ROM rom)
         {
             var levelInfo = rom.CurrentIsometricLevelInfo;
+            var objData = rom.CurrentIsometricObjData;
 
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
@@ -518,10 +521,13 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
+            var objManager = new Unity_ObjectManager_GBACrashIsometric(context, LoadIsometricAnimations(rom));
+            var objects = objData.Objects.Select(x => new Unity_Object_GBACrashIsometric(x, objManager));
+
             return new Unity_Level(
                 maps: maps,
                 objManager: new Unity_ObjectManager(context),
-                eventData: new List<Unity_Object>(),
+                eventData: new List<Unity_Object>(objects),
                 cellSize: CellSize,
                 isometricData: new Unity_IsometricData()
                 {
@@ -924,6 +930,15 @@ namespace R1Engine
                 )).ToArray();
         }
 
+        public Unity_ObjectManager_GBACrashIsometric.GraphicsData[] LoadIsometricAnimations(GBACrash_ROM rom)
+        {
+            var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
+
+            return rom.Isometric_GetAnimations.Select(anim => new Unity_ObjectManager_GBACrashIsometric.GraphicsData(
+                animFrames: GetIsometricAnimFrames(anim, pal).Select(x => x.CreateSprite()).ToArray(),
+                animSpeed: 4)).ToArray();
+        }
+
         public Texture2D[] GetAnimFrames(GBACrash_AnimSet animSet, int animIndex, byte[] tileSet, Color[] pal)
         {
             var shapes = TileShapes;
@@ -1008,6 +1023,9 @@ namespace R1Engine
 
         public Texture2D[] GetIsometricAnimFrames(GBACrash_Isometric_Animation anim, Color[][] palette)
         {
+            if (anim.AnimFrames[0] == null)
+                return new Texture2D[0];
+
             var output = new Texture2D[anim.AnimFrames.Length];
             var pal = anim.Palette != null ? Util.ConvertGBAPalette(anim.Palette) : palette[anim.PaletteIndex];
 

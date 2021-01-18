@@ -37,7 +37,12 @@ namespace R1Engine
 
             Flags = s.Serialize<int>(Flags, name: nameof(Flags));
 
-            if (FramesCountPointer == 0)
+            SerializeData(s);
+        }
+
+        public void SerializeData(SerializerObject s)
+        {
+            if (FramesCountPointer == 0 && FramesCount == 0)
             {
                 FramesPointers = new Pointer[]
                 {
@@ -46,17 +51,20 @@ namespace R1Engine
             }
             else
             {
-                switch (FramesCountPointer)
+                if (FramesCount == 0)
                 {
-                    // EU
-                    case 0x02000578: FramesCount = 0x0A; break;
-                    case 0x02000574: FramesCount = 0x0E; break;
-                    case 0x0200057c: FramesCount = 0x0A; break;
-                    case 0x02000580: FramesCount = 0x0A; break;
-                    case 0x02000588: FramesCount = 0x02; break;
-                    case 0x02000584: FramesCount = 0x0F; break;
+                    switch (FramesCountPointer)
+                    {
+                        // EU
+                        case 0x02000578: FramesCount = 0x0A; break;
+                        case 0x02000574: FramesCount = 0x0E; break;
+                        case 0x0200057c: FramesCount = 0x0A; break;
+                        case 0x02000580: FramesCount = 0x0A; break;
+                        case 0x02000588: FramesCount = 0x02; break;
+                        case 0x02000584: FramesCount = 0x0F; break;
 
-                    default: throw new ArgumentOutOfRangeException(nameof(FramesCountPointer), FramesCountPointer, null);
+                        default: throw new ArgumentOutOfRangeException(nameof(FramesCountPointer), FramesCountPointer, null);
+                    }
                 }
 
                 FramesPointers = s.DoAt(FramesPointer, () => s.SerializePointerArray(FramesPointers, FramesCount, name: nameof(FramesPointer)));
@@ -70,6 +78,37 @@ namespace R1Engine
 
             for (int i = 0; i < AnimFrames.Length; i++)
                 AnimFrames[i] = s.DoAt(FramesPointers[i], () => s.SerializeArray<byte>(AnimFrames[i], (Width * Height) / 2, name: $"{nameof(AnimFrames)}[{i}]"));
+        }
+
+        public static GBACrash_Isometric_Animation CrateAndSerialize(SerializerObject s, Pointer framesPointer, int framesCount, int width, int height, int palIndex)
+        {
+            var anim = new GBACrash_Isometric_Animation
+            {
+                Width = width * 8,
+                Height = height * 8,
+                FramesPointer = framesPointer,
+                PaletteIndex = palIndex,
+                FramesCount = framesCount,
+            };
+
+            anim.SerializeData(s);
+
+            return anim;
+        }
+        public static GBACrash_Isometric_Animation CrateAndSerialize(SerializerObject s, Pointer framesPointer, int framesCount, int width, int height, Pointer palPointer)
+        {
+            var anim = new GBACrash_Isometric_Animation
+            {
+                Width = width * 8,
+                Height = height * 8,
+                FramesPointer = framesPointer,
+                PalettePointer = palPointer,
+                FramesCount = framesCount,
+            };
+
+            anim.SerializeData(s);
+
+            return anim;
         }
     }
 }
