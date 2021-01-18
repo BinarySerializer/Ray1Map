@@ -108,7 +108,7 @@ namespace R1Engine
                 // Read the rom
                 var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 0, null));
 
-                var pal = Util.CreateDummyPalette(256, wrap: 16).Select(x => x.GetColor()).ToArray().Split(16, 16).ToArray();
+                var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
 
                 // Enumerate every animation
                 for (var i = 1; i < rom.Isometric_ObjAnimations.Length; i++)
