@@ -868,6 +868,24 @@ namespace R1Engine
         public static Dictionary<GBACrash_Pointer, Pointer> GBACrash_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
             switch (gameMode) 
             {
+                // Crash 1
+
+                case GameModeSelection.Crash1GBAEU:
+                    return new Dictionary<GBACrash_Pointer, uint>() {
+                        [GBACrash_Pointer.LevelInfo] = 0x0816c86c,
+                        [GBACrash_Pointer.Localization] = 0x081730d8,
+
+                        [GBACrash_Pointer.Map2D_AnimSets] = 0x084a5610,
+                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bf120,
+                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a4660,
+
+                        [GBACrash_Pointer.Mode7_LevelInfo] = 0x08175558,
+
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x0817a850,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x0817a880,
+                        [GBACrash_Pointer.Mode7_Crash1_Type0_TilePalette_0F] = 0x0817aa6c,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.Crash1GBAUS:
                     return new Dictionary<GBACrash_Pointer, uint>() {
                         [GBACrash_Pointer.LevelInfo] = 0x0816c3ac,
@@ -882,6 +900,77 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x081789a0,
                         [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x081789d0,
                         [GBACrash_Pointer.Mode7_Crash1_Type0_TilePalette_0F] = 0x08178bbc,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.Crash1GBAJP:
+                    return new Dictionary<GBACrash_Pointer, uint>() {
+                        [GBACrash_Pointer.LevelInfo] = 0x0816e5f0,
+                        //[GBACrash_Pointer.Localization] = ,
+
+                        [GBACrash_Pointer.Map2D_AnimSets] = 0x084a6408,
+                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bfcf8,
+                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a5438,
+
+                        [GBACrash_Pointer.Mode7_LevelInfo] = 0x0817601c,
+
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x0817b314,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x0817b344,
+                        [GBACrash_Pointer.Mode7_Crash1_Type0_TilePalette_0F] = 0x0817b530,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                // Crash 2
+
+                case GameModeSelection.Crash2GBAEU:
+                    return new Dictionary<GBACrash_Pointer, uint>() {
+                        [GBACrash_Pointer.LevelInfo] = 0x081d0430,
+                        [GBACrash_Pointer.Localization] = 0x081d3984, // TODO: Pointers for other languages
+
+                        [GBACrash_Pointer.Map2D_AnimSets] = 0x084768c4,
+                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082b3914,
+                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x08475d14,
+
+                        [GBACrash_Pointer.Mode7_LevelInfo] = 0x081df698,
+                        [GBACrash_Pointer.Mode7_TilePalette_Type0] = 0x081df804,
+                        [GBACrash_Pointer.Mode7_TilePalette_Type1_Flames] = 0x081e0574,
+
+                        [GBACrash_Pointer.Mode7_Crash2_Type0_BG1] = 0x080cfd1c,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x081dff1c,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x081dff70,
+
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileMaps] = 0x081e0634,
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSetLengths] = 0x081e05e4,
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSets] = 0x081e0594,
+
+                        [GBACrash_Pointer.Isometric_LevelInfo] = 0x086c214c,
+                        [GBACrash_Pointer.Isometric_ObjectDatas] = 0x086c23b4,
+                        [GBACrash_Pointer.Isometric_ObjAnimations] = 0x086d786c,
+
+                        [GBACrash_Pointer.Isometric_Characters] = 0x086d7d94,
+                        [GBACrash_Pointer.Isometric_CharacterIcons] = 0x086cdee8,
+
+                        [GBACrash_Pointer.Isometric_ObjPalette_0] = 0x087d946c,
+                        [GBACrash_Pointer.Isometric_ObjPalette_1] = 0x087de7a8,
+                        [GBACrash_Pointer.Isometric_ObjPalette_2] = 0x087de7c8,
+                        [GBACrash_Pointer.Isometric_ObjPalette_4] = 0x087de7e8,
+                        [GBACrash_Pointer.Isometric_ObjPalette_11] = 0x087de808,
+                        [GBACrash_Pointer.Isometric_ObjPalette_12] = 0x087de828,
+                        [GBACrash_Pointer.Isometric_ObjPalette_13] = 0x087de848,
+
+                        [GBACrash_Pointer.Isometric_AdditionalAnim0_Frames] = 0x086cf750,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim1_Frames] = 0x086cf75c,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim2_Frames] = 0x086d7c20,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim3_Frames] = 0x086d7c78,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim4_Frames] = 0x086d7cbc,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim5_Frames] = 0x086d7c38,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim6_Frames] = 0x086d7c58,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim7_Frames] = 0x086d77c0,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim8_Frames] = 0x086d7c94,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim9_Frames] = 0x086d7830,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim10_Frames] = 0x086d80c4,
+
+                        [GBACrash_Pointer.Isometric_AdditionalAnim8_Palette] = 0x087eafa8,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087de7c8,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087f79e8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAUS:
@@ -919,6 +1008,76 @@ namespace R1Engine
                         [GBACrash_Pointer.Isometric_ObjPalette_11] = 0x087db738,
                         [GBACrash_Pointer.Isometric_ObjPalette_12] = 0x087db758,
                         [GBACrash_Pointer.Isometric_ObjPalette_13] = 0x087db778,
+
+                        [GBACrash_Pointer.Isometric_AdditionalAnim0_Frames] = 0x086cc610,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim1_Frames] = 0x086cc61c,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim2_Frames] = 0x086d4af8,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim3_Frames] = 0x086d4b50,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim4_Frames] = 0x086d4b94,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim5_Frames] = 0x086d4b10,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim6_Frames] = 0x086d4b30,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim7_Frames] = 0x086d4680,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim8_Frames] = 0x086d4b6c,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim9_Frames] = 0x086d46f0,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim10_Frames] = 0x086d4ff4,
+
+                        [GBACrash_Pointer.Isometric_AdditionalAnim8_Palette] = 0x087e7ed8,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087db040,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087f4918,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.Crash2GBAJP:
+                    return new Dictionary<GBACrash_Pointer, uint>() {
+                        [GBACrash_Pointer.LevelInfo] = 0x081c46a8,
+                        //[GBACrash_Pointer.Localization] = ,
+
+                        [GBACrash_Pointer.Map2D_AnimSets] = 0x08460b80,
+                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x0829d9d0,
+                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x0845ffd0,
+
+                        [GBACrash_Pointer.Mode7_LevelInfo] = 0x081c9434,
+                        [GBACrash_Pointer.Mode7_TilePalette_Type0] = 0x081c95a0,
+                        [GBACrash_Pointer.Mode7_TilePalette_Type1_Flames] = 0x081ca310,
+
+                        [GBACrash_Pointer.Mode7_Crash2_Type0_BG1] = 0x080d2928,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x081c9cb8,
+                        [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x081c9d0c,
+
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileMaps] = 0x081ca3d0,
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSetLengths] = 0x081ca380,
+                        [GBACrash_Pointer.Mode7_Crash2_Type1_FlamesTileSets] = 0x081ca330,
+
+                        [GBACrash_Pointer.Isometric_LevelInfo] = 0x086b1ee4,
+                        [GBACrash_Pointer.Isometric_ObjectDatas] = 0x086b214c,
+                        [GBACrash_Pointer.Isometric_ObjAnimations] = 0x086c760c,
+
+                        [GBACrash_Pointer.Isometric_Characters] = 0x086c7b34,
+                        [GBACrash_Pointer.Isometric_CharacterIcons] = 0x086bdc70,
+
+                        [GBACrash_Pointer.Isometric_ObjPalette_0] = 0x087c91e4,
+                        [GBACrash_Pointer.Isometric_ObjPalette_1] = 0x087ce880,
+                        [GBACrash_Pointer.Isometric_ObjPalette_2] = 0x087ce8a0,
+                        [GBACrash_Pointer.Isometric_ObjPalette_4] = 0x087ce8c0,
+                        [GBACrash_Pointer.Isometric_ObjPalette_11] = 0x087ce8e0,
+                        [GBACrash_Pointer.Isometric_ObjPalette_12] = 0x087ce900,
+                        [GBACrash_Pointer.Isometric_ObjPalette_13] = 0x087ce920,
+
+                        [GBACrash_Pointer.Isometric_AdditionalAnim0_Frames] = 0x086bf4d8,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim1_Frames] = 0x086bf4e4,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim2_Frames] = 0x086c79c0,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim3_Frames] = 0x086c7a18,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim4_Frames] = 0x086c7a5c,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim5_Frames] = 0x086c79d8,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim6_Frames] = 0x086c79f8,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim7_Frames] = 0x086c7548,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim8_Frames] = 0x086c7a34,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim9_Frames] = 0x086c75b8,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim10_Frames] = 0x086c7e64,
+
+                        [GBACrash_Pointer.Isometric_AdditionalAnim8_Palette] = 0x087db080,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087ce8a0,
+                        [GBACrash_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087e7ac0,
+
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

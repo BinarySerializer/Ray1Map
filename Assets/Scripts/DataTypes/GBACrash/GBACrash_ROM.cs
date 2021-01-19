@@ -100,7 +100,9 @@ namespace R1Engine
             // Get the current lev info
             var manager = (GBACrash_BaseManager)s.GameSettings.GetGameManager;
 
-            LocTable = s.DoAt(pointerTable[GBACrash_Pointer.Localization], () => s.SerializeObject<GBACrash_LocTable>(LocTable, name: nameof(LocTable)));
+            if (pointerTable.ContainsKey(GBACrash_Pointer.Localization))
+                LocTable = s.DoAt(pointerTable[GBACrash_Pointer.Localization], () => s.SerializeObject<GBACrash_LocTable>(LocTable, name: nameof(LocTable)));
+
             s.Context.StoreObject(GBACrash_BaseManager.LocTableID, LocTable);
 
             s.DoAt(pointerTable[GBACrash_Pointer.LevelInfo], () =>
@@ -209,21 +211,20 @@ namespace R1Engine
                 Isometric_ObjPalette_12 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_12], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_12, 16, name: nameof(Isometric_ObjPalette_12)));
                 Isometric_ObjPalette_13 = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_ObjPalette_13], () => s.SerializeObjectArray<RGBA5551Color>(Isometric_ObjPalette_13, 16, name: nameof(Isometric_ObjPalette_13)));
 
-                // TODO: Support EU version
                 // These animations are all hard-coded from functions:
                 Isometric_AdditionalAnimations = new GBACrash_Isometric_Animation[]
                 {
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086cc610, Offset.file), 0x03, 4, 4, 2), // Green barrel
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086cc61c, Offset.file), 0x03, 4, 4, 2), // Laser beam
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4af8, Offset.file), 0x06, 4, 4, 1), // Crate breaks
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b50, Offset.file), 0x07, 4, 4, 1), // Checkpoint breaks
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b94, Offset.file), 0x18, 8, 4, 0), // Checkpoint text
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b10, Offset.file), 0x08, 4, 4, 2), // Nitro explosion
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b30, Offset.file), 0x08, 4, 4, 2), // Nitro switch
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4680, Offset.file), 0x0E, 4, 4, 0), // Wumpa HUD
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4b6c, Offset.file), 0x0A, 8, 8, new Pointer(0x087e7ed8, Offset.file)), // Crystal collected
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d46f0, Offset.file), 0x03, 4, 4, new Pointer(0x087db040, Offset.file)), // Multiplayer base
-                    GBACrash_Isometric_Animation.CrateAndSerialize(s, new Pointer(0x086d4ff4, Offset.file), 0x0A, 2, 2, new Pointer(0x087f4918, Offset.file)), // Multiplayer items
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim0_Frames], 0x03, 4, 4, 2), // Green barrel
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim1_Frames], 0x03, 4, 4, 2), // Laser beam
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim2_Frames], 0x06, 4, 4, 1), // Crate breaks
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim3_Frames], 0x07, 4, 4, 1), // Checkpoint breaks
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim4_Frames], 0x18, 8, 4, 0), // Checkpoint text
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim5_Frames], 0x08, 4, 4, 2), // Nitro explosion
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim6_Frames], 0x08, 4, 4, 2), // Nitro switch
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim7_Frames], 0x0E, 4, 4, 0), // Wumpa HUD
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim8_Frames], 0x0A, 8, 8, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim8_Palette]), // Crystal collected
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim9_Frames], 0x03, 4, 4, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim9_Palette]), // Multiplayer base
+                    GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim10_Frames], 0x0A, 2, 2, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim10_Palette]), // Multiplayer item
                 };
             }
         }

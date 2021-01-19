@@ -566,9 +566,38 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
   </tr>
-    <tr>
+  <tr>
     <td class="tg-yw4l">Rayman Raving Rabbids (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+</table>
+
+### Supported Games (Crash GBA)
+
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Crash Bandicoot: The Huge Adventure (GBA)</td>
+    <td class="tg-yw4l">EU, US, JP</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Crash Bandicoot 2: N-Tranced (GBA)</td>
+    <td class="tg-yw4l">EU, US, JP</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>

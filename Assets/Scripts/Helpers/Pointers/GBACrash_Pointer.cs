@@ -36,5 +36,21 @@
         Isometric_ObjPalette_11,
         Isometric_ObjPalette_12,
         Isometric_ObjPalette_13,
+
+        Isometric_AdditionalAnim0_Frames,
+        Isometric_AdditionalAnim1_Frames,
+        Isometric_AdditionalAnim2_Frames,
+        Isometric_AdditionalAnim3_Frames,
+        Isometric_AdditionalAnim4_Frames,
+        Isometric_AdditionalAnim5_Frames,
+        Isometric_AdditionalAnim6_Frames,
+        Isometric_AdditionalAnim7_Frames,
+        Isometric_AdditionalAnim8_Frames,
+        Isometric_AdditionalAnim9_Frames,
+        Isometric_AdditionalAnim10_Frames,
+        
+        Isometric_AdditionalAnim8_Palette,
+        Isometric_AdditionalAnim9_Palette,
+        Isometric_AdditionalAnim10_Palette,
     }
 }

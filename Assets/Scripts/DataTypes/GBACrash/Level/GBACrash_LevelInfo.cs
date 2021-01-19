@@ -21,7 +21,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             LocIndex_LevelName = s.Serialize<uint>(LocIndex_LevelName, name: nameof(LocIndex_LevelName));
-            s.Log($"LevelName: {s.Context.GetStoredObject<GBACrash_LocTable>(GBACrash_BaseManager.LocTableID).Strings[LocIndex_LevelName]}");
+            s.Log($"LevelName: {s.Context.GetStoredObject<GBACrash_LocTable>(GBACrash_BaseManager.LocTableID)?.Strings[LocIndex_LevelName]}");
             LevelTheme = s.Serialize<uint>(LevelTheme, name: nameof(LevelTheme));
 
             Time_Sapphire = s.SerializeObject<GBACrash_Time>(Time_Sapphire, name: nameof(Time_Sapphire));

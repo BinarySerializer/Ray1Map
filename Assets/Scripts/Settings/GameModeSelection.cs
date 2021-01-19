@@ -364,15 +364,29 @@ namespace R1Engine
 
         // Crash Bandicoot GBA
 
-        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash1, Game.GBACrash_Crash1, "Crash Bandicoot: The Huge Adventure (GBA - US)", typeof(GBACrash_Crash1_Manager))]
+        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash1, Game.GBACrash_Crash1, "Crash Bandicoot XS (GBA - EU)", typeof(GBACrash_Crash1_Manager))]
+        Crash1GBAEU,
+
+        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash1, Game.GBACrash_Crash1, "Crash Bandicoot The Huge Adventure (GBA - US)", typeof(GBACrash_Crash1_Manager))]
         Crash1GBAUS,
+
+        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash1, Game.GBACrash_Crash1, "Crash Bandicoot Advance (GBA - JP)", typeof(GBACrash_Crash1_Manager))]
+        Crash1GBAJP,
+
+        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBACrash_Crash2_Manager))]
+        Crash2GBAEU,
 
         [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBACrash_Crash2_Manager))]
         Crash2GBAUS,
 
+        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBACrash_Crash2_Manager))]
+        Crash2GBAJP,
+
         // Gameloft
+
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile)", typeof(Gameloft_RRR_Manager))]
         RaymanRavingRabbidsMobile,
+
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile)", typeof(Gameloft_RK_Manager))]
         RaymanKartMobile,
     }
