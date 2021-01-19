@@ -6,12 +6,14 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBACrashIsometric : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBACrashIsometric(Context context, GraphicsData[] graphicsDatas) : base(context)
+        public Unity_ObjectManager_GBACrashIsometric(Context context, GraphicsData[] graphicsDatas, GBACrash_Isometric_LevelInfo level) : base(context)
         {
             GraphicsDatas = graphicsDatas;
+            Level = level;
         }
 
         public GraphicsData[] GraphicsDatas { get; }
+        public GBACrash_Isometric_LevelInfo Level { get; }
 
         public override void InitObjects(Unity_Level level)
         {
@@ -21,18 +23,25 @@ namespace R1Engine
             {
                 var obj = objects[i];
 
-                obj.Height = 0; // TODO: Set based on the height of the current tile
+                const float scale = 64f / 12;
+
+                var collY = obj.Object.YPos * scale;
+                var collX = obj.Object.XPos * scale;
+                obj.Height = - Level.CollisionTiles[Level.CollisionMap[Mathf.RoundToInt(collY * Level.CollisionWidth + collX)]].Height / scale;
+
+                if (i == 0)
+                    continue;
 
                 var prevObjIndex = i - 1;
                 var prevObj = objects[prevObjIndex];
 
-                if (0 < i && obj.Object.XPos.Value == prevObj.Object.XPos.Value && obj.Object.YPos.Value == prevObj.Object.YPos.Value)
+                if (obj.Object.XPos.Value == prevObj.Object.XPos.Value && obj.Object.YPos.Value == prevObj.Object.YPos.Value)
                 {
                     while (true)
                     {
                         obj.Object.XPos.Value += 0x100;
                         obj.Object.YPos.Value += 0x100;
-                        obj.Height += 0x1000;
+                        obj.Height -= 0x1000 / scale;
 
                         if (prevObj.Object.XPos.Value != objects[prevObjIndex - 1].Object.XPos.Value || prevObj.Object.YPos.Value != objects[prevObjIndex - 1].Object.YPos.Value)
                             break;

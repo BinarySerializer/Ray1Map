@@ -539,12 +539,12 @@ namespace R1Engine
             float tileWidth = Mathf.Sqrt(12);
             float heightScale = 32f / Mathf.Cos(Mathf.Deg2Rad * 30f);
 
-            var objManager = new Unity_ObjectManager_GBACrashIsometric(context, LoadIsometricAnimations(rom));
+            var objManager = new Unity_ObjectManager_GBACrashIsometric(context, LoadIsometricAnimations(rom), levelInfo);
             var objects = objData.Objects.Select(x => new Unity_Object_GBACrashIsometric(x, objManager));
 
             return new Unity_Level(
                 maps: maps,
-                objManager: new Unity_ObjectManager(context),
+                objManager: objManager,
                 eventData: new List<Unity_Object>(objects),
                 cellSize: CellSize,
                 isometricData: new Unity_IsometricData()
