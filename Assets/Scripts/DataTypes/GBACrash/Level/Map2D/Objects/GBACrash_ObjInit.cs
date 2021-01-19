@@ -191,17 +191,17 @@ namespace R1Engine
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 7;
                         break;
-                    case GBACrash_Crash2_ObjType.BouncyPlatform_46:
+                    case GBACrash_Crash2_ObjType.Platform_Bouncy_46:
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 4;
                         obj.FreezeFrame = true;
                         break;
-                    case GBACrash_Crash2_ObjType.BouncyPlatform_47:
+                    case GBACrash_Crash2_ObjType.Platform_Bouncy_47:
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 5;
                         obj.FreezeFrame = true;
                         break;
-                    case GBACrash_Crash2_ObjType.BouncyPlatform_48:
+                    case GBACrash_Crash2_ObjType.Platform_Bouncy_48:
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 6;
                         obj.FreezeFrame = true;
@@ -449,6 +449,282 @@ namespace R1Engine
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+            }
+            else if (engineVersion == EngineVersion.GBACrash_Crash1)
+            {
+                switch ((GBACrash_Crash1_ObjType)obj.Object.ObjType)
+                {
+                    case GBACrash_Crash1_ObjType.Crash:
+                        obj.AnimSetIndex = 0;
+                        obj.AnimIndex = 18;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_1:
+                        break;
+                    case GBACrash_Crash1_ObjType.Crash_Underwater:
+                        obj.AnimSetIndex = 1;
+                        obj.AnimIndex = 31;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_3:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_4:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_5:
+                        break;
+                    case GBACrash_Crash1_ObjType.Wumpa:
+                        obj.AnimSetIndex = 35;
+                        obj.AnimIndex = 1;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crystal:
+                        obj.AnimSetIndex = 37;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Gem_Clear:
+                        obj.AnimSetIndex = 32;
+                        obj.AnimIndex = 1;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_9:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_10:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_11:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_12:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_13:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_14:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_15:
+                        break;
+                    case GBACrash_Crash1_ObjType.TimeTrialClock:
+                        obj.AnimSetIndex = 36;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_17:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_18:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_19:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_20:
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Normal:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 22;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Checkpoint:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 26;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_AkuAku:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 23;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Switch:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 3;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Up:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 24;
+                        obj.FreezeFrame = true;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Outline:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 21;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_NitroSwitch:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 4;
+                        obj.FreezeFrame = true;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Iron:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 32;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_IronUp:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 2;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Life:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 28;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Nitro:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 5;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_QuestionMark:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Bounce:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 25;
+                        obj.FreezeFrame = true;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_34:
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_TNT:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 17;
+                        break;
+                    case GBACrash_Crash1_ObjType.Crate_Slot:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 7;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_37:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_38:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_39:
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_40:
+                        obj.AnimSetIndex = 13;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_41:
+                        obj.AnimSetIndex = 11;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_42:
+                        obj.AnimSetIndex = 10;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_43:
+                        obj.AnimSetIndex = 14;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_44:
+                        obj.AnimSetIndex = 12;
+                        obj.AnimIndex = 3;
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_45:
+                        obj.AnimSetIndex = 15;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_46:
+                        obj.AnimSetIndex = 17;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_47:
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_48:
+                        obj.AnimSetIndex = 5;
+                        obj.AnimIndex = 2;
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_49:
+                        obj.AnimSetIndex = 4;
+                        obj.AnimIndex = 1;
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_50:
+                        obj.AnimSetIndex = 3;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_51:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_52:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_53:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_54:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_55:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_56:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_57:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_58:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_59:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_60:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_61:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_62:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_63:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_64:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_65:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_66:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_67:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_68:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_69:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_70:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_71:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_72:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_73:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_74:
+                        break;
+                    case GBACrash_Crash1_ObjType.Enemy_75:
+                        obj.AnimSetIndex = 6;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_76:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_77:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_78:
+                        break;
+                    case GBACrash_Crash1_ObjType.Platform_Moving_79:
+                        obj.AnimSetIndex = 39;
+                        obj.AnimIndex = 1;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_80:
+                        break;
+                    case GBACrash_Crash1_ObjType.Exit_RedGem:
+                        obj.AnimSetIndex = 39;
+                        obj.AnimIndex = 11;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_82:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_83:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_84:
+                        break;
+                    case GBACrash_Crash1_ObjType.Exit_Level:
+                        obj.AnimSetIndex = 39;
+                        obj.AnimIndex = 4;
+                        break;
+                    case GBACrash_Crash1_ObjType.Exit_Bonus:
+                        obj.AnimSetIndex = 39;
+                        obj.AnimIndex = 5;
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_87:
+                        break;
+                    case GBACrash_Crash1_ObjType.Type_88:
+                        break;
+                    case GBACrash_Crash1_ObjType.Gem:
+                        obj.AnimSetIndex = 32;
+                        obj.AnimIndex = 1;
+                        break;
+                    case GBACrash_Crash1_ObjType.Flame:
+                        obj.AnimSetIndex = 44;
+                        obj.AnimIndex = 0;
+                        break;
+                    case GBACrash_Crash1_ObjType.Seaweed:
+                        obj.AnimSetIndex = 45;
+                        obj.AnimIndex = 0;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                if (obj.AnimSetIndex == 0 && obj.AnimIndex == 0)
+                    Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
             }
         }
     }

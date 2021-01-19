@@ -5,7 +5,7 @@
         public GBACrash_BaseManager.LevInfo LevInfo { get; set; } // Set before serializing if it's the current level
 
         public uint LocIndex_LevelName { get; set; }
-        public uint LevelTheme { get; set; } // For the level music among some other hard-coded checks
+        public uint LevelTheme { get; set; } // Used to set the music, warp room preview & tile palette modifications
         public GBACrash_Time Time_Sapphire { get; set; }
         public GBACrash_Time Time_Gold { get; set; }
         public GBACrash_Time Time_Platinum { get; set; }

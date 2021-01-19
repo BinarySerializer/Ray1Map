@@ -248,7 +248,12 @@ namespace R1Engine
                         },
                         MapTiles = GetTileMap(x, map.MapData2D.DataBlock.TileLayerDatas[i], i == 3, x.TileSet.TileSet.Length / 32),
                         Type = Unity_Map.MapType.Graphics,
-                        Layer = i == 2 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
+                        Layer = x.LayerPrio == (4 - map.MapData2D.MapLayers.Count(y => y != null)) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
+                        Alpha = i == 2 && map.Alpha_BG3 < 0x10 && map.Alpha_BG3 != 0 
+                            ? map.Alpha_BG3 / 16f 
+                            : i == 1 && map.Alpha_BG2 < 0x10 && map.Alpha_BG2 != 0 
+                                ? map.Alpha_BG2 / 16f 
+                                : (float?)null
                     },
                     Prio = x.LayerPrio
                 };
