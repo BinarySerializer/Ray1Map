@@ -524,9 +524,10 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            float minHeight = Mathf.Min(0, levelInfo.CollisionMap.Min(c => levelInfo.CollisionTiles[c].Height.AsFloat)); // TODO: include in height displacement calculation
+            float minHeight = Mathf.Min(0, levelInfo.CollisionMap.Min(c => levelInfo.CollisionTiles[c].Height.AsFloat));
             var collision = levelInfo.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
-                Height = (levelInfo.CollisionTiles[c].Height - minHeight) * 3 // TODO: fix scale
+                DebugText = $"Height: {(levelInfo.CollisionTiles[c].Height - minHeight)}",
+                Height = (levelInfo.CollisionTiles[c].Height - minHeight)
             }).ToArray();
             var mirroredCollision = new Unity_IsometricCollisionTile[levelInfo.CollisionWidth * levelInfo.CollisionHeight];
             for (int x = 0; x < levelInfo.CollisionWidth; x++) {
@@ -534,6 +535,9 @@ namespace R1Engine
                     mirroredCollision[x * levelInfo.CollisionHeight + y] = collision[y * levelInfo.CollisionWidth + x];
                 }
             }
+            // TODO: fix scale
+            float tileWidth = Mathf.Sqrt(12);
+            float heightScale = 32f / Mathf.Cos(Mathf.Deg2Rad * 30f);
 
             var objManager = new Unity_ObjectManager_GBACrashIsometric(context, LoadIsometricAnimations(rom));
             var objects = objData.Objects.Select(x => new Unity_Object_GBACrashIsometric(x, objManager));
@@ -547,11 +551,14 @@ namespace R1Engine
                 {
                     CollisionWidth = levelInfo.CollisionHeight,
                     CollisionHeight = levelInfo.CollisionWidth,
-                    TilesWidth = levelInfo.MapWidth * CellSize,
-                    TilesHeight = levelInfo.MapHeight * CellSize,
+                    TilesWidth = levelInfo.MapWidth,
+                    TilesHeight = levelInfo.MapHeight,
                     Collision = mirroredCollision,
-                    Scale = new Vector3(Mathf.Sqrt(16), 2f / Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(16)),
-                    ObjectScale = Vector3.one / 5.33f
+                    Scale = new Vector3(tileWidth, heightScale, tileWidth),
+                    CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionWidth + LevelEditorData.Level.IsometricData.CollisionHeight + (minHeight * heightScale / tileWidth),
+                    // X/Z dimensions: the diagonal of one collision tile is 12 graphics tiles. Height is 6 which matches 12 * sin(30 deg)
+                    // Height: a 0,1875 is 6 tiles => 6/0.1875 = 32 => viewed at an angle, so divide by cos(angle)
+                    ObjectScale = Vector3.one * 12/64f
                 });
         }
 

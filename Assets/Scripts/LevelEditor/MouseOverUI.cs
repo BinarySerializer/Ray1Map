@@ -40,8 +40,13 @@ namespace R1Engine
                 textGraphic.enabled = true;
 
                 textCollision.text = $"{e.ObjData.PrimaryName}{(string.IsNullOrEmpty(e.ObjData.SecondaryName) ? "" : $" | {e.ObjData.SecondaryName}")}";
-                textGraphic.text = $"Pos: ({e.ObjData.XPosition}, {e.ObjData.YPosition}){Environment.NewLine}" +
-                                   $"Pivot: ({e.ObjData.Pivot.x}, {e.ObjData.Pivot.y})";
+                if (LevelEditorData.Level.IsometricData != null && e.ObjData is Unity_Object_3D) {
+                    textGraphic.text = $"Pos: ({((Unity_Object_3D)e.ObjData).Position}){Environment.NewLine}" +
+                                       $"Pivot: ({e.ObjData.Pivot.x}, {e.ObjData.Pivot.y})";
+                } else {
+                    textGraphic.text = $"Pos: ({e.ObjData.XPosition}, {e.ObjData.YPosition}){Environment.NewLine}" +
+                                       $"Pivot: ({e.ObjData.Pivot.x}, {e.ObjData.Pivot.y})";
+                }
 
                 // Set debug text
                 Controller.obj.tempDebugText.text = Settings.ShowDebugInfo 
@@ -94,6 +99,12 @@ namespace R1Engine
                 }
                 if (LevelEditorData.Level.IsometricData != null && c3d != null) {
                     textCollision.text = $"Collision: {c3d.Type} | Add: {c3d.AddType} | Shape: {c3d.Shape}";
+
+                    textGraphic.enabled = true;
+                    // Set debug text
+                    Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
+                        ? c3d.DebugText
+                        : String.Empty;
                 }
             }
         }
