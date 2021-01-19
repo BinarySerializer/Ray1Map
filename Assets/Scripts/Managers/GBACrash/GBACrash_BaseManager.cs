@@ -99,27 +99,30 @@ namespace R1Engine
                 }
             }
 
-            // Export isometric animations
-            using (var context = new Context(settings))
+            if (settings.EngineVersion == EngineVersion.GBACrash_Crash2)
             {
-                // Load the files
-                await LoadFilesAsync(context);
-
-                // Read the rom
-                var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 0, null));
-
-                var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
-
-                var animations = rom.Isometric_GetAnimations.ToArray();
-
-                // Enumerate every animation
-                for (var i = 1; i < animations.Length; i++)
+                // Export isometric animations
+                using (var context = new Context(settings))
                 {
-                    await UniTask.WaitForEndOfFrame();
+                    // Load the files
+                    await LoadFilesAsync(context);
 
-                    var frames = GetIsometricAnimFrames(animations[i], pal);
+                    // Read the rom
+                    var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 0, null));
 
-                    exportAnim(frames, 4, "Isometric", $"{i}", $"0");
+                    var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
+
+                    var animations = rom.Isometric_GetAnimations.ToArray();
+
+                    // Enumerate every animation
+                    for (var i = 1; i < animations.Length; i++)
+                    {
+                        await UniTask.WaitForEndOfFrame();
+
+                        var frames = GetIsometricAnimFrames(animations[i], pal);
+
+                        exportAnim(frames, 4, "Isometric", $"{i}", $"0");
+                    }
                 }
             }
 
