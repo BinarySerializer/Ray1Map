@@ -531,7 +531,9 @@ namespace R1Engine
 
             float minHeight = Mathf.Min(0, levelInfo.CollisionMap.Min(c => levelInfo.CollisionTiles[c].Height.AsFloat));
             var collision = levelInfo.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
-                DebugText = $"Height: {(levelInfo.CollisionTiles[c].Height - minHeight)}",
+                DebugText = $"Height: {(levelInfo.CollisionTiles[c].Height - minHeight)}{Environment.NewLine}" +
+                $"Tile index: {c}{Environment.NewLine}" +
+                $"Offset: {levelInfo.CollisionTiles[c].Offset}",
                 Height = (levelInfo.CollisionTiles[c].Height - minHeight)
             }).ToArray();
             var mirroredCollision = new Unity_IsometricCollisionTile[levelInfo.CollisionWidth * levelInfo.CollisionHeight];

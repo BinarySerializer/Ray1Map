@@ -18,16 +18,18 @@ namespace R1Engine
         public override void InitObjects(Unity_Level level)
         {
             var objects = level.EventData.Cast<Unity_Object_GBACrashIsometric>().ToArray();
+            float minHeight = Mathf.Min(0, Level.CollisionMap.Min(c => Level.CollisionTiles[c].Height.AsFloat));
+            const float scale = 64f / 12;
 
             for (int i = 0; i < objects.Length; i++)
             {
                 var obj = objects[i];
 
-                const float scale = 64f / 12;
-
-                var collY = obj.Object.YPos * scale;
-                var collX = obj.Object.XPos * scale;
-                obj.Height = - Level.CollisionTiles[Level.CollisionMap[Mathf.RoundToInt(collY * Level.CollisionWidth + collX)]].Height / scale;
+                var collY = Mathf.FloorToInt(obj.Object.YPos * scale);
+                var collX = Mathf.FloorToInt(obj.Object.XPos * scale);
+                /*var collY = (((long)obj.Object.YPos.Value) * 0x15555556) >> 0x2a;
+                var collX = (((long)obj.Object.XPos.Value) * 0x15555556) >> 0x2a;*/
+                obj.Height = (Level.CollisionTiles[Level.CollisionMap[collY * Level.CollisionWidth + collX]].Height - minHeight) / scale;
 
                 if (i == 0)
                     continue;
