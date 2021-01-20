@@ -181,11 +181,12 @@ namespace R1Engine
                 // Read the rom
                 var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 0, null));
 
+                var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
+
                 // Enumerate every character
                 for (int i = 0; i < rom.Isometric_CharacterIcons.Length; i++)
                 {
-                    var pal = Util.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
-                    var tex = Util.ToTileSetTexture(rom.Isometric_CharacterIcons[i].TileSet.TileSet, pal, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: 2);
+                    var tex = Util.ToTileSetTexture(rom.Isometric_CharacterIcons[i].TileSet.TileSet, pal[rom.Isometric_CharacterIcons[i].PaletteIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: 2);
 
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"{i:00}_{rom.Isometric_CharacterInfos[i].Name}.png"), tex.EncodeToPNG());
                 }
