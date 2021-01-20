@@ -625,9 +625,11 @@ namespace R1Engine
             RGBA5551Color[][] animatedPalettes = null;
             byte[] modifiedPaletteIndices = null;
 
+            // Debug.Log($"Theme: {levelTheme}");
+
             if (engineVersion == EngineVersion.GBACrash_Crash2)
             {
-                if (levelTheme == 1 || levelTheme == 9)
+                if (levelTheme == 1 || levelTheme == 9) // Egyptian
                 {
                     var anim = new byte[][]
                     {
@@ -641,7 +643,7 @@ namespace R1Engine
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal);
                 }
-                else if (levelTheme == 0)
+                else if (levelTheme == 0) // Arabian
                 {
                     var anim = new byte[][]
                     {
@@ -653,7 +655,7 @@ namespace R1Engine
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal);
                 }
-                // TODO: Theme 2 uses a different palette animation system
+                // TODO: Theme 2 (Volcanic) uses a different palette animation system
             }
             // TODO: Check Crash 1
 
@@ -762,7 +764,7 @@ namespace R1Engine
         public RGBA5551Color[][] GetAnimatedPalettes(byte[][] paletteAnimations, RGBA5551Color[] palette)
         {
             // Get the lowest common multiple
-            var length = paletteAnimations.Length == 1 ? paletteAnimations.Length : Util.LCM(paletteAnimations.Select(y => y.Length).ToArray());
+            var length = paletteAnimations.Length == 1 ? paletteAnimations[0].Length : Util.LCM(paletteAnimations.Select(y => y.Length).ToArray());
 
             var output = new RGBA5551Color[length - 1][];
 
