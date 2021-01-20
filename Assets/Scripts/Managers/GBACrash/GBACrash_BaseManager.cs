@@ -624,10 +624,32 @@ namespace R1Engine
             // Some levels use animated tile palettes based on the level theme. These are all hard-coded in the level load function.
             RGBA5551Color[][] animatedPalettes = null;
             byte[] modifiedPaletteIndices = null;
+            var animSpeed = 0;
+            bool isReversed = false;
 
-            // Debug.Log($"Theme: {levelTheme}");
+            Debug.Log($"Theme: {levelTheme}");
 
-            if (engineVersion == EngineVersion.GBACrash_Crash2)
+            if (engineVersion == EngineVersion.GBACrash_Crash1)
+            {
+                if (levelTheme == 1 || levelTheme == 6) // Jungle
+                {
+                    var anim = new byte[][]
+                    {
+                        // 0x0816c35e
+                        new byte[] { 0x39, 0x3a, 0x3d, 0x3e, 0x75, 0x82, 0xbc, 0xea, 0xfc },
+                        // 0x0816c370
+                        new byte[] { 0x51, 0x52, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0xf1 }, // Speed on this one is slightly different
+                    };
+
+                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+
+                    animatedPalettes = GetAnimatedPalettes(anim, pal);
+
+                    isReversed = true;
+                    animSpeed = 2;
+                }
+            }
+            else if (engineVersion == EngineVersion.GBACrash_Crash2)
             {
                 if (levelTheme == 1 || levelTheme == 9) // Egyptian
                 {
@@ -641,7 +663,9 @@ namespace R1Engine
 
                     modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
 
-                    animatedPalettes = GetAnimatedPalettes(anim, pal);
+                    animatedPalettes = GetAnimatedPalettes(anim, pal).Reverse().ToArray(); // The animation is reversed
+
+                    animSpeed = 4;
                 }
                 else if (levelTheme == 0) // Arabian
                 {
@@ -654,10 +678,11 @@ namespace R1Engine
                     modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal);
+
+                    animSpeed = 4;
                 }
                 // TODO: Theme 2 (Volcanic) uses a different palette animation system
             }
-            // TODO: Check Crash 1
 
             var additionalTiles = new List<Texture2D>();
             var tileAnimations = new List<Unity_AnimatedTile>();
@@ -667,6 +692,9 @@ namespace R1Engine
 
             if (animatedPalettes != null)
             {
+                if (isReversed)
+                    animatedPalettes = animatedPalettes.Reverse().ToArray();
+
                 // Convert palettes
                 var animatedPalettes_4 = animatedPalettes.Select(x => Util.ConvertAndSplitGBAPalette(x)).ToArray();
                 var animatedPalettes_8 = animatedPalettes.Select(x => Util.ConvertGBAPalette(x)).ToArray();
@@ -698,11 +726,11 @@ namespace R1Engine
                     // Add animation for the tile
                     tileAnimations.Add(new Unity_AnimatedTile
                     {
-                        AnimationSpeed = 3,
+                        AnimationSpeed = animSpeed,
                         TileIndices = new int[]
                         {
                             tileIndex
-                        }.Concat(Enumerable.Range(totalTilesCount + additionalTiles.Count, animatedPalettes.Length).Reverse()).ToArray()
+                        }.Concat(Enumerable.Range(totalTilesCount + additionalTiles.Count, animatedPalettes.Length)).ToArray()
                     });
 
                     // Create a new tile for every animated palette frame
