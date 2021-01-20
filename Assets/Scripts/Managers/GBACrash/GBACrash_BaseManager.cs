@@ -216,17 +216,31 @@ namespace R1Engine
             Controller.DetailedState = "Loading tilesets";
             await Controller.WaitIfNecessary();
 
+            // Load tilemaps
+            var tileMaps = map.MapData2D.MapLayers.Select((x, i) =>
+            {
+                if (x == null)
+                    return null;
+
+                return GetTileMap(x, map.MapData2D.DataBlock.TileLayerDatas[i], i == 3, x.TileSet.TileSet.Length / 32);
+            }).ToArray();
+
+
             var tileSets = new Dictionary<GBACrash_TileSet, Unity_TileSet>();
 
-            for (int i = 0; i < map.MapData2D.MapLayers.Length; i++)
+            foreach (var tileSetGroup in map.MapData2D.MapLayers.GroupBy(x => x?.TileSet).Where(x => x?.Key != null))
             {
-                var l = map.MapData2D.MapLayers[i];
-
-                if (l == null)
-                    continue;
-
-                if (!tileSets.ContainsKey(l.TileSet))
-                    tileSets.Add(l.TileSet, LoadTileSet(l.TileSet.TileSet, map.TilePalette2D, i == 3, context.Settings.EngineVersion, rom.LevelInfos[rom.CurrentLevInfo.LevelIndex].LevelTheme));
+                tileSets.Add(tileSetGroup.Key, LoadTileSet(
+                    tileSet: tileSetGroup.Key.TileSet, 
+                    pal: map.TilePalette2D, 
+                    is8bit: map.MapData2D.MapLayers[3]?.TileSet == tileSetGroup.Key, 
+                    engineVersion: context.Settings.EngineVersion, 
+                    levelTheme: rom.LevelInfos[rom.CurrentLevInfo.LevelIndex].LevelTheme, 
+                    mapTiles_4: map.MapData2D.MapLayers.Select((x, i) => new
+                    {
+                        Tiles = tileMaps[i],
+                        TileSet = x?.TileSet
+                    }).Where(x => x.TileSet == tileSetGroup.Key).SelectMany(x => x.Tiles.Select(t => t.Data))));
             }
 
             Controller.DetailedState = "Loading maps";
@@ -247,7 +261,7 @@ namespace R1Engine
                         {
                             tileSets[x.TileSet]
                         },
-                        MapTiles = GetTileMap(x, map.MapData2D.DataBlock.TileLayerDatas[i], i == 3, x.TileSet.TileSet.Length / 32),
+                        MapTiles = tileMaps[i],
                         Type = Unity_Map.MapType.Graphics,
                         Layer = x.LayerPrio == (4 - map.MapData2D.MapLayers.Count(y => y != null)) && i != 3 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
                         Alpha = i == 2 && map.Alpha_BG3 < 0x10 && map.Alpha_BG3 != 0 
@@ -577,9 +591,10 @@ namespace R1Engine
                 });
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme, IEnumerable<MapTile> mapTiles_4)
         {
             Texture2D tex;
+            var paletteIndices = new byte[tileSet.Length / 0x20];
 
             if (is8bit)
             { 
@@ -589,36 +604,10 @@ namespace R1Engine
             {
                 var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
-                const int wrap = 32;
-                int tilesetLength = tileSet.Length / 0x20;
+                foreach (var m in mapTiles_4)
+                    paletteIndices[m.TileMapY] = m.PaletteIndex;
 
-                int tilesX = Math.Min((tilesetLength * palettes.Length), wrap);
-                int tilesY = Mathf.CeilToInt((tilesetLength * palettes.Length) / (float)wrap);
-
-                tex = TextureHelpers.CreateTexture2D(tilesX * CellSize, tilesY * CellSize);
-
-                for (int palIndex = 0; palIndex < palettes.Length; palIndex++)
-                {
-                    var totalIndex = tilesetLength * palIndex;
-
-                    for (int i = 0; i < tilesetLength; i++)
-                    {
-                        int tileY = (((i + totalIndex) / wrap)) * CellSize;
-                        int tileX = ((i + totalIndex) % wrap) * CellSize;
-
-                        tex.FillInTile(
-                            imgData: tileSet,
-                            imgDataOffset: i * 0x20,
-                            pal: palettes[palIndex],
-                            encoding: Util.TileEncoding.Linear_4bpp,
-                            tileWidth: CellSize,
-                            flipTextureY: false,
-                            tileX: tileX,
-                            tileY: tileY);
-                    }
-                }
-
-                tex.Apply();
+                tex = Util.ToTileSetTexture(tileSet, palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: x => palettes[paletteIndices[x]]);
             }
 
             // Some levels use animated tile palettes based on the level theme. These are all hard-coded in the level load function.
@@ -688,7 +677,7 @@ namespace R1Engine
             var tileAnimations = new List<Unity_AnimatedTile>();
             var tileSize = is8bit ? 0x40 : 0x20;
             var tilesCount = tileSet.Length / tileSize;
-            var totalTilesCount = tilesCount * (is8bit ? 1 : 16);
+            var totalTilesCount = tilesCount;
 
             if (animatedPalettes != null)
             {
@@ -702,7 +691,7 @@ namespace R1Engine
                 for (int tileIndex = 0; tileIndex < totalTilesCount; tileIndex++)
                 {
                     var actualTileIndex = tileIndex % tilesCount;
-                    var tilePalette = tileIndex / tilesCount;
+                    var tilePalette = paletteIndices[tileIndex];
 
                     // Check if the tile uses any of the animated colors
                     var bytes = tileSet.Skip(tileSize * actualTileIndex).Take(tileSize);
@@ -1060,7 +1049,8 @@ namespace R1Engine
                         {
                             mapTile = new MapTile()
                             {
-                                TileMapY = (ushort)(BitHelpers.ExtractBits(tileIndex, 10, 0) + (tileSetLength * BitHelpers.ExtractBits(tileIndex, 4, 12))),
+                                TileMapY = (ushort)BitHelpers.ExtractBits(tileIndex, 10, 0),
+                                PaletteIndex = (byte)BitHelpers.ExtractBits(tileIndex, 4, 12),
                                 HorizontalFlip = BitHelpers.ExtractBits(tileIndex, 1, 10) == 1,
                                 VerticalFlip = BitHelpers.ExtractBits(tileIndex, 1, 11) == 1,
                             };
