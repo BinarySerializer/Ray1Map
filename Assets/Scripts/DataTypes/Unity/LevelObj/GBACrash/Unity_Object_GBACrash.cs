@@ -89,7 +89,7 @@ namespace R1Engine
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => Animation?.AnimHitBox;
 
         public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
-        public override int AnimSpeed => FreezeFrame ? 0 : Animation?.CrashAnim.AnimSpeed ?? 0;
+        public override int AnimSpeed => FreezeFrame ? 0 : (Animation?.CrashAnim.AnimSpeed + 1) ?? 0;
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Animation?.AnimFrames;
