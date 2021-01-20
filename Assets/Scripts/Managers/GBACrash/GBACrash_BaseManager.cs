@@ -616,8 +616,9 @@ namespace R1Engine
             var animSpeed = 0;
             bool isReversed = false;
 
-            Debug.Log($"Theme: {levelTheme}");
+            //Debug.Log($"Theme: {levelTheme}");
 
+            // NOTE: Speeds might not be correct
             if (engineVersion == EngineVersion.GBACrash_Crash1)
             {
                 if (levelTheme == 1 || levelTheme == 6) // Jungle
@@ -636,6 +637,50 @@ namespace R1Engine
 
                     isReversed = true;
                     animSpeed = 2;
+                }
+                else if (levelTheme == 2) // Sewer
+                {
+                    var anim = new byte[][]
+                    {
+                        // 0x0816c354
+                        new byte[] { 0xb1, 0xb2, 0xb3, 0xb4, 0xb5 },
+                    };
+
+                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+
+                    animatedPalettes = GetAnimatedPalettes(anim, pal);
+
+                    animSpeed = 5;
+                }
+                else if (levelTheme == 3) // Underwater
+                {
+                    var anim = new byte[][]
+                    {
+                        // 0x0816c382
+                        new byte[] { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f },
+                    };
+
+                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+
+                    animatedPalettes = GetAnimatedPalettes(anim, pal);
+
+                    isReversed = true;
+                    animSpeed = 4;
+                }
+                else if (levelTheme == 5) // Space
+                {
+                    var anim = new byte[][]
+                    {
+                        // 0x0816c3a2
+                        new byte[] { 0x97, 0xb4, 0xf7, 0xf8, 0xff },
+                    };
+
+                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+
+                    animatedPalettes = GetAnimatedPalettes(anim, pal);
+
+                    isReversed = true;
+                    animSpeed = 3;
                 }
             }
             else if (engineVersion == EngineVersion.GBACrash_Crash2)
