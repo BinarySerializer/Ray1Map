@@ -240,7 +240,7 @@ namespace R1Engine
                     {
                         Tiles = tileMaps[i],
                         TileSet = x?.TileSet
-                    }).Where(x => x.TileSet == tileSetGroup.Key).SelectMany(x => x.Tiles.Select(t => t.Data))));
+                    }).Where(x => x.TileSet == tileSetGroup.Key).SelectMany(x => x.Tiles.Select(t => t.Data)).ToArray()));
             }
 
             Controller.DetailedState = "Loading maps";
@@ -591,10 +591,15 @@ namespace R1Engine
                 });
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme, IEnumerable<MapTile> mapTiles_4)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme, MapTile[] mapTiles_4)
         {
             Texture2D tex;
-            var paletteIndices = new byte[tileSet.Length / 0x20];
+            var additionalTiles = new List<Texture2D>();
+            var tileSize = is8bit ? 0x40 : 0x20;
+            var paletteIndices = Enumerable.Range(0, tileSet.Length / tileSize).Select(x => new List<byte>()).ToArray();
+            var tilesCount = tileSet.Length / tileSize;
+            var tileSetPaletteIndices = new List<byte>();
+            var originalTileSetIndices = new List<int>();
 
             if (is8bit)
             { 
@@ -605,9 +610,50 @@ namespace R1Engine
                 var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
                 foreach (var m in mapTiles_4)
-                    paletteIndices[m.TileMapY] = m.PaletteIndex;
+                {
+                    if (!paletteIndices[m.TileMapY].Contains(m.PaletteIndex))
+                        paletteIndices[m.TileMapY].Add(m.PaletteIndex);
+                }
 
-                tex = Util.ToTileSetTexture(tileSet, palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: x => palettes[paletteIndices[x]]);
+                tex = Util.ToTileSetTexture(tileSet, palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: x =>
+                {
+                    var p = paletteIndices[x].ElementAtOrDefault(0);
+                    tileSetPaletteIndices.Add(p);
+                    return palettes[p];
+                });
+
+                // Add additional tiles for tiles with multiple palettes
+                for (int tileIndex = 0; tileIndex < paletteIndices.Length; tileIndex++)
+                {
+                    for (int palIndex = 1; palIndex < paletteIndices[tileIndex].Count; palIndex++)
+                    {
+                        var p = paletteIndices[tileIndex][palIndex];
+
+                        var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+
+                        // Create a new tile
+                        tileTex.FillInTile(
+                            imgData: tileSet,
+                            imgDataOffset: tileSize * tileIndex,
+                            pal: palettes[p],
+                            encoding: Util.TileEncoding.Linear_4bpp,
+                            tileWidth: CellSize,
+                            flipTextureY: false,
+                            tileX: 0,
+                            tileY: 0);
+
+                        // Modify all tiles where this is used
+                        foreach (MapTile t in mapTiles_4.Where(x => x.TileMapY == tileIndex && x.PaletteIndex == p))
+                        {
+                            t.TileMapY = (ushort)(tilesCount + additionalTiles.Count);
+                        }
+
+                        // Add to additional tiles list
+                        additionalTiles.Add(tileTex);
+                        tileSetPaletteIndices.Add(p);
+                        originalTileSetIndices.Add(tileIndex);
+                    }
+                }
             }
 
             // Some levels use animated tile palettes based on the level theme. These are all hard-coded in the level load function.
@@ -718,11 +764,8 @@ namespace R1Engine
                 // TODO: Theme 2 (Volcanic) uses a different palette animation system
             }
 
-            var additionalTiles = new List<Texture2D>();
             var tileAnimations = new List<Unity_AnimatedTile>();
-            var tileSize = is8bit ? 0x40 : 0x20;
-            var tilesCount = tileSet.Length / tileSize;
-            var totalTilesCount = tilesCount;
+            var additionalPalTilesCount = additionalTiles.Count;
 
             if (animatedPalettes != null)
             {
@@ -733,13 +776,14 @@ namespace R1Engine
                 var animatedPalettes_4 = animatedPalettes.Select(x => Util.ConvertAndSplitGBAPalette(x)).ToArray();
                 var animatedPalettes_8 = animatedPalettes.Select(x => Util.ConvertGBAPalette(x)).ToArray();
 
-                for (int tileIndex = 0; tileIndex < totalTilesCount; tileIndex++)
+                for (int tileIndex = 0; tileIndex < tilesCount + additionalPalTilesCount; tileIndex++)
                 {
-                    var actualTileIndex = tileIndex % tilesCount;
-                    var tilePalette = paletteIndices[tileIndex];
+                    var originalTileIndex = tileIndex >= tilesCount ? originalTileSetIndices[tileIndex - tilesCount] : tileIndex;
+
+                    var tilePalette = is8bit ? 0 : tileSetPaletteIndices[tileIndex];
 
                     // Check if the tile uses any of the animated colors
-                    var bytes = tileSet.Skip(tileSize * actualTileIndex).Take(tileSize);
+                    var bytes = tileSet.Skip(tileSize * originalTileIndex).Take(tileSize);
 
                     // If the tile doesn't contain an animated color we ignore it
                     if (is8bit)
@@ -764,7 +808,7 @@ namespace R1Engine
                         TileIndices = new int[]
                         {
                             tileIndex
-                        }.Concat(Enumerable.Range(totalTilesCount + additionalTiles.Count, animatedPalettes.Length)).ToArray()
+                        }.Concat(Enumerable.Range(tilesCount + additionalTiles.Count, animatedPalettes.Length)).ToArray()
                     });
 
                     // Create a new tile for every animated palette frame
@@ -775,7 +819,7 @@ namespace R1Engine
                         // Create a new tile
                         tileTex.FillInTile(
                             imgData: tileSet,
-                            imgDataOffset: tileSize * actualTileIndex,
+                            imgDataOffset: tileSize * originalTileIndex,
                             pal: is8bit ? animatedPalettes_8[animFrame] : animatedPalettes_4[animFrame][tilePalette],
                             encoding: is8bit ? Util.TileEncoding.Linear_8bpp : Util.TileEncoding.Linear_4bpp,
                             tileWidth: CellSize,
@@ -790,7 +834,7 @@ namespace R1Engine
             }
 
             // Create the tile array
-            var tiles = new Unity_TileTexture[totalTilesCount + additionalTiles.Count];
+            var tiles = new Unity_TileTexture[tilesCount + additionalTiles.Count];
 
             // Keep track of the index
             var index = 0;
@@ -800,7 +844,7 @@ namespace R1Engine
             {
                 for (int x = 0; x < tex.width; x += CellSize)
                 {
-                    if (index >= totalTilesCount)
+                    if (index >= tilesCount)
                         break;
 
                     // Create a tile
