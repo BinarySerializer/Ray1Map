@@ -226,7 +226,7 @@ namespace R1Engine
                     continue;
 
                 if (!tileSets.ContainsKey(l.TileSet))
-                    tileSets.Add(l.TileSet, LoadTileSet(l.TileSet.TileSet, map.TilePalette2D, i == 3));
+                    tileSets.Add(l.TileSet, LoadTileSet(l.TileSet.TileSet, map.TilePalette2D, i == 3, context.Settings.EngineVersion, rom.LevelInfos[rom.CurrentLevInfo.LevelIndex].LevelTheme));
             }
 
             Controller.DetailedState = "Loading maps";
@@ -249,7 +249,7 @@ namespace R1Engine
                         },
                         MapTiles = GetTileMap(x, map.MapData2D.DataBlock.TileLayerDatas[i], i == 3, x.TileSet.TileSet.Length / 32),
                         Type = Unity_Map.MapType.Graphics,
-                        Layer = x.LayerPrio == (4 - map.MapData2D.MapLayers.Count(y => y != null)) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
+                        Layer = x.LayerPrio == (4 - map.MapData2D.MapLayers.Count(y => y != null)) && i != 3 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
                         Alpha = i == 2 && map.Alpha_BG3 < 0x10 && map.Alpha_BG3 != 0 
                             ? map.Alpha_BG3 / 16f 
                             : i == 1 && map.Alpha_BG2 < 0x10 && map.Alpha_BG2 != 0 
@@ -543,7 +543,7 @@ namespace R1Engine
                     mirroredCollision[x * levelInfo.CollisionHeight + y] = collision[y * levelInfo.CollisionWidth + x];
                 }
             }
-            // TODO: fix scale
+
             // X/Z dimensions: the diagonal of one collision tile is 12 graphics tiles. Height is 6 which matches 12 * sin(30 deg).
             // Height: a 0,1875 is 6 tiles => 6/0.1875 = 32 => viewed at an angle, so divide by cos(angle)
             float tileDiagonal = 12/2f;
@@ -577,7 +577,7 @@ namespace R1Engine
                 });
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme)
         {
             Texture2D tex;
 
@@ -590,8 +590,7 @@ namespace R1Engine
                 var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
                 const int wrap = 32;
-                const int tileSize = 32;
-                int tilesetLength = tileSet.Length / tileSize;
+                int tilesetLength = tileSet.Length / 0x20;
 
                 int tilesX = Math.Min((tilesetLength * palettes.Length), wrap);
                 int tilesY = Mathf.CeilToInt((tilesetLength * palettes.Length) / (float)wrap);
@@ -609,7 +608,7 @@ namespace R1Engine
 
                         tex.FillInTile(
                             imgData: tileSet,
-                            imgDataOffset: i * tileSize,
+                            imgDataOffset: i * 0x20,
                             pal: palettes[palIndex],
                             encoding: Util.TileEncoding.Linear_4bpp,
                             tileWidth: CellSize,
@@ -622,7 +621,178 @@ namespace R1Engine
                 tex.Apply();
             }
 
-            return new Unity_TileSet(tex, CellSize);
+            // Some levels use animated tile palettes based on the level theme. These are all hard-coded in the level load function.
+            RGBA5551Color[][] animatedPalettes = null;
+            byte[] modifiedPaletteIndices = null;
+
+            if (engineVersion == EngineVersion.GBACrash_Crash2)
+            {
+                if (levelTheme == 1 || levelTheme == 9)
+                {
+                    var anim = new byte[][]
+                    {
+                        // 0x081d26ea
+                        new byte[] { 0xfb, 0xfc, 0xfd, 0xfe, 0xff },
+                        // 0x081d26f4
+                        new byte[] { 0x22, 0x23, 0x24 },
+                    };
+
+                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+
+                    animatedPalettes = GetAnimatedPalettes(anim, pal);
+                }
+                else if (levelTheme == 0)
+                {
+                    var anim = new byte[][]
+                    {
+                        // 0x081d26e0
+                        new byte[] { 0xf3, 0xf4, 0xf5, 0xf6, 0xf7 },
+                    };
+
+                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+
+                    animatedPalettes = GetAnimatedPalettes(anim, pal);
+                }
+                // TODO: Theme 2 uses a different palette animation system
+            }
+            // TODO: Check Crash 1
+
+            var additionalTiles = new List<Texture2D>();
+            var tileAnimations = new List<Unity_AnimatedTile>();
+            var tileSize = is8bit ? 0x40 : 0x20;
+            var tilesCount = tileSet.Length / tileSize;
+            var totalTilesCount = tilesCount * (is8bit ? 1 : 16);
+
+            if (animatedPalettes != null)
+            {
+                // Convert palettes
+                var animatedPalettes_4 = animatedPalettes.Select(x => Util.ConvertAndSplitGBAPalette(x)).ToArray();
+                var animatedPalettes_8 = animatedPalettes.Select(x => Util.ConvertGBAPalette(x)).ToArray();
+
+                for (int tileIndex = 0; tileIndex < totalTilesCount; tileIndex++)
+                {
+                    var actualTileIndex = tileIndex % tilesCount;
+                    var tilePalette = tileIndex / tilesCount;
+
+                    // Check if the tile uses any of the animated colors
+                    var bytes = tileSet.Skip(tileSize * actualTileIndex).Take(tileSize);
+
+                    // If the tile doesn't contain an animated color we ignore it
+                    if (is8bit)
+                    {
+                        if (!bytes.Any(x => modifiedPaletteIndices.Contains(x)))
+                            continue;
+                    }
+                    else
+                    {
+                        if (!bytes.SelectMany(x => new int[]
+                        {
+                            BitHelpers.ExtractBits(x, 4, 0),
+                            BitHelpers.ExtractBits(x, 4, 4),
+                        }).Any(x => modifiedPaletteIndices.Contains((byte)(x + tilePalette * 16))))
+                            continue;
+                    }
+
+                    // Add animation for the tile
+                    tileAnimations.Add(new Unity_AnimatedTile
+                    {
+                        AnimationSpeed = 3,
+                        TileIndices = new int[]
+                        {
+                            tileIndex
+                        }.Concat(Enumerable.Range(totalTilesCount + additionalTiles.Count, animatedPalettes.Length).Reverse()).ToArray()
+                    });
+
+                    // Create a new tile for every animated palette frame
+                    for (int animFrame = 0; animFrame < animatedPalettes.Length; animFrame++)
+                    {
+                        var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+
+                        // Create a new tile
+                        tileTex.FillInTile(
+                            imgData: tileSet,
+                            imgDataOffset: tileSize * actualTileIndex,
+                            pal: is8bit ? animatedPalettes_8[animFrame] : animatedPalettes_4[animFrame][tilePalette],
+                            encoding: is8bit ? Util.TileEncoding.Linear_8bpp : Util.TileEncoding.Linear_4bpp,
+                            tileWidth: CellSize,
+                            flipTextureY: false,
+                            tileX: 0,
+                            tileY: 0);
+
+                        // Add to additional tiles list
+                        additionalTiles.Add(tileTex);
+                    }
+                }
+            }
+
+            // Create the tile array
+            var tiles = new Unity_TileTexture[totalTilesCount + additionalTiles.Count];
+
+            // Keep track of the index
+            var index = 0;
+
+            // Add every normal tile
+            for (int y = 0; y < tex.height; y += CellSize)
+            {
+                for (int x = 0; x < tex.width; x += CellSize)
+                {
+                    if (index >= totalTilesCount)
+                        break;
+
+                    // Create a tile
+                    tiles[index++] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
+                }
+            }
+
+            // Add additional tiles
+            foreach (Texture2D t in additionalTiles)
+                tiles[index++] = t.CreateTile();
+
+            //Debug.Log($"Count: {tilesCount}");
+            //Debug.Log($"TotalCount: {totalTilesCount}");
+            //Debug.Log($"AnimFrames: {animatedPalettes?.Length}");
+            //Debug.Log($"Tiles: {tiles.Length}");
+
+            return new Unity_TileSet(tiles)
+            {
+                AnimatedTiles = tileAnimations.Count == 0 ? null : tileAnimations.ToArray()
+            };
+        }
+
+        public RGBA5551Color[][] GetAnimatedPalettes(byte[][] paletteAnimations, RGBA5551Color[] palette)
+        {
+            // Get the lowest common multiple
+            var length = paletteAnimations.Length == 1 ? paletteAnimations.Length : Util.LCM(paletteAnimations.Select(y => y.Length).ToArray());
+
+            var output = new RGBA5551Color[length - 1][];
+
+            // Shift colors and create new palettes for every frame
+            for (int i = 0; i < length - 1; i++)
+            {
+                int frame = i + 1;
+                var newPal = new RGBA5551Color[palette.Length];
+
+                // Set to original palette
+                for (int j = 0; j < newPal.Length; j++)
+                    newPal[j] = palette[j];
+
+                foreach (var anim in paletteAnimations)
+                {
+                    int shift = frame % anim.Length;
+                    if (shift > 0)
+                    {
+                        for (int k = 0; k < anim.Length; k++)
+                        {
+                            int targetK = (k + shift) % anim.Length;
+                            newPal[anim[targetK]] = palette[anim[k]];
+                        }
+                    }
+                }
+
+                output[i] = newPal;
+            }
+
+            return output;
         }
 
         public Unity_TileSet LoadGenericTileSet(byte[] tileSet, RGBA5551Color[] pal, int palIndex)
