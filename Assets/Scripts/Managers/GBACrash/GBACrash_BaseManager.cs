@@ -544,11 +544,18 @@ namespace R1Engine
                 }
             }
             // TODO: fix scale
-            float tileWidth = Mathf.Sqrt(12);
-            float heightScale = 32f / Mathf.Cos(Mathf.Deg2Rad * 30f);
+            // X/Z dimensions: the diagonal of one collision tile is 12 graphics tiles. Height is 6 which matches 12 * sin(30 deg).
+            // Height: a 0,1875 is 6 tiles => 6/0.1875 = 32 => viewed at an angle, so divide by cos(angle)
+            float tileDiagonal = 12/2f;
+            float tileWidth = Mathf.Sqrt(tileDiagonal * tileDiagonal/2);
+            float heightScale = 32f / Mathf.Cos(Mathf.Deg2Rad * 30f) / 2f;
 
             var objManager = new Unity_ObjectManager_GBACrashIsometric(context, LoadIsometricAnimations(rom), levelInfo);
             var objects = objData.Objects.Select(x => new Unity_Object_GBACrashIsometric(x, objManager));
+
+
+            float w = levelInfo.MapWidth * 0.5f;
+            float h = levelInfo.MapHeight * 0.5f;
 
             return new Unity_Level(
                 maps: maps,
@@ -563,9 +570,9 @@ namespace R1Engine
                     TilesHeight = levelInfo.MapHeight,
                     Collision = mirroredCollision,
                     Scale = new Vector3(tileWidth, heightScale, tileWidth),
-                    CalculateYDisplacement = () => LevelEditorData.Level.IsometricData.CollisionWidth + LevelEditorData.Level.IsometricData.CollisionHeight + (minHeight * heightScale / tileWidth),
-                    // X/Z dimensions: the diagonal of one collision tile is 12 graphics tiles. Height is 6 which matches 12 * sin(30 deg)
-                    // Height: a 0,1875 is 6 tiles => 6/0.1875 = 32 => viewed at an angle, so divide by cos(angle)
+                    // Multiply X & Y displacement by 2 as it is divided by 2 later
+                    CalculateXDisplacement = () => w - 16 * levelInfo.XPosition * 2,
+                    CalculateYDisplacement = () => h - 16 * levelInfo.YPosition * 2 + (minHeight * heightScale * 2 * Mathf.Cos(Mathf.Deg2Rad * 30f)),
                     ObjectScale = Vector3.one * 12/64f
                 });
         }
