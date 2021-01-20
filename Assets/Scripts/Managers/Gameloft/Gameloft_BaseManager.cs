@@ -72,6 +72,7 @@ namespace R1Engine
         public void ExportResourceFile(Gameloft_ResourceFile resf, SerializerObject s, string outputDir) {
             for (int i = 0; i < resf.ResourcesCount; i++) {
                 var res = resf.SerializeResource<Gameloft_DummyResource>(s, default, i, name: $"Resource_{i}");
+                if(res == null) continue;
                 var restype = ResourceType.Other;
                 if (res.Data.Length >= 5) {
                     using (Reader reader = new Reader(new MemoryStream(res.Data), isLittleEndian: false)) {
@@ -109,6 +110,7 @@ namespace R1Engine
         public void ExportGraphicsResourceFile(Gameloft_ResourceFile resf, SerializerObject s, string outputDir) {
             for (int i = 0; i < resf.ResourcesCount; i++) {
                 var res = resf.SerializeResource<Gameloft_DummyResource>(s, default, i, name: $"Resource_{i}");
+                if (res == null) continue;
                 var restype = ResourceType.Other;
                 if (res.Data.Length >= 5) {
                     using (Reader reader = new Reader(new MemoryStream(res.Data), isLittleEndian: false)) {

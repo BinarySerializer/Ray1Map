@@ -46,6 +46,7 @@
                 startOffset += Offsets[i];
                 size = Offsets[i+1] - Offsets[i];
             }
+            if(size <= 0) return null;
             s.DoAt(startOffset, () => {
                 if (startOffset.FileOffset + size > s.CurrentLength) size = s.CurrentLength - startOffset.FileOffset;
                 t = s.SerializeObject<T>(t, onPreSerialize: obj => obj.ResourceSize = size, name: name);
