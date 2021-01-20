@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -9,8 +10,8 @@ namespace R1Engine
 		public ushort LayersCount { get; set; }
 		public AnimationLayer[] Layers { get; set; }
 		public ushort LayerGroupsCount { get; set; }
-		public AnimationLayerGroup[] LayerGroups { get; set; }
-		public AnimationLayerGroup_Dimensions[] LayerGroupsDimensions { get; set; }
+		public AnimationLayerGroupGraphics[] LayerGroupsGraphics { get; set; }
+		public AnimationLayerGroupCollision[] LayerGroupsCollision { get; set; }
 		public ushort FramesCount { get; set; }
 		public AnimationFrame[] Frames { get; set; }
 		public ushort AnimationsCount { get; set; }
@@ -32,8 +33,8 @@ namespace R1Engine
 			LayersCount = s.Serialize<ushort>(LayersCount, name: nameof(LayersCount));
 			Layers = s.SerializeObjectArray<AnimationLayer>(Layers, LayersCount, name: nameof(Layers));
 			LayerGroupsCount = s.Serialize<ushort>(LayerGroupsCount, name: nameof(LayerGroupsCount));
-			LayerGroups = s.SerializeObjectArray<AnimationLayerGroup>(LayerGroups, LayerGroupsCount, name: nameof(LayerGroups));
-			LayerGroupsDimensions = s.SerializeObjectArray<AnimationLayerGroup_Dimensions>(LayerGroupsDimensions, LayerGroupsCount, name: nameof(LayerGroupsDimensions));
+			LayerGroupsGraphics = s.SerializeObjectArray<AnimationLayerGroupGraphics>(LayerGroupsGraphics, LayerGroupsCount, name: nameof(LayerGroupsGraphics));
+			LayerGroupsCollision = s.SerializeObjectArray<AnimationLayerGroupCollision>(LayerGroupsCollision, LayerGroupsCount, name: nameof(LayerGroupsCollision));
 			FramesCount = s.Serialize<ushort>(FramesCount, name: nameof(FramesCount));
 			Frames = s.SerializeObjectArray<AnimationFrame>(Frames, FramesCount, name: nameof(Frames));
 			AnimationsCount = s.Serialize<ushort>(AnimationsCount, name: nameof(AnimationsCount));
@@ -94,16 +95,29 @@ namespace R1Engine
 			public byte ImageIndex { get; set; }
 			public sbyte XPosition { get; set; }
 			public sbyte YPosition { get; set; }
-			public byte Flags { get; set; } // 0 = flip hor, 1 = flip ver
+			public Flag Flags { get; set; } // 0 = flip hor, 1 = flip ver
+
+			[Flags]
+			public enum Flag : byte {
+				HorizontalFlip = 1 << 0,
+				VerticalFlip = 1 << 1,
+				Bit2 = 1 << 2,
+				Bit3 = 1 << 3,
+				Bit4 = 1 << 4,
+				Bit5 = 1 << 5,
+				Bit6 = 1 << 6,
+				Bit7 = 1 << 7,
+			}
+
 
 			public override void SerializeImpl(SerializerObject s) {
 				ImageIndex = s.Serialize<byte>(ImageIndex, name: nameof(ImageIndex));
 				XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
 				YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));
-				Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
+				Flags = s.Serialize<Flag>(Flags, name: nameof(Flags));
 			}
 		}
-		public class AnimationLayerGroup : R1Serializable {
+		public class AnimationLayerGroupGraphics : R1Serializable {
 			public byte Length { get; set; }
 			public byte LayerGroupUnusedByte { get; set; }
 			public ushort StartIndex { get; set; }
@@ -114,7 +128,7 @@ namespace R1Engine
 				StartIndex = s.Serialize<ushort>(StartIndex, name: nameof(StartIndex));
 			}
 		}
-		public class AnimationLayerGroup_Dimensions : R1Serializable {
+		public class AnimationLayerGroupCollision : R1Serializable {
 			public sbyte XPosition { get; set; }
 			public sbyte YPosition { get; set; }
 			public byte Width { get; set; }
@@ -128,18 +142,30 @@ namespace R1Engine
 			}
 		}
 		public class AnimationFrame : R1Serializable {
-			public byte Struct3Index { get; set; }
+			public byte LayerGroupIndex { get; set; }
 			public byte Duration { get; set; }
 			public sbyte XPosition { get; set; }
 			public sbyte YPosition { get; set; }
-			public byte Flags { get; set; } // 0 = flip hor, 1 = flip ver
+			public Flag Flags { get; set; } // 0 = flip hor, 1 = flip ver
+
+			[Flags]
+			public enum Flag : byte {
+				HorizontalFlip = 1 << 0,
+				VerticalFlip = 1 << 1,
+				Bit2 = 1 << 2,
+				Bit3 = 1 << 3,
+				Bit4 = 1 << 4,
+				Bit5 = 1 << 5,
+				Bit6 = 1 << 6,
+				Bit7 = 1 << 7,
+			}
 
 			public override void SerializeImpl(SerializerObject s) {
-				Struct3Index = s.Serialize<byte>(Struct3Index, name: nameof(Struct3Index));
+				LayerGroupIndex = s.Serialize<byte>(LayerGroupIndex, name: nameof(LayerGroupIndex));
 				Duration = s.Serialize<byte>(Duration, name: nameof(Duration));
 				XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
 				YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));
-				Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
+				Flags = s.Serialize<Flag>(Flags, name: nameof(Flags));
 			}
 		}
 		public class Animation : R1Serializable {
