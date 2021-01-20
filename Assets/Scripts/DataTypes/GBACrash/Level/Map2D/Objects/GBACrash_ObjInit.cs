@@ -563,7 +563,10 @@ namespace R1Engine
                         obj.AnimIndex = 25;
                         obj.FreezeFrame = true;
                         break;
-                    case GBACrash_Crash1_ObjType.Type_34:
+                    case GBACrash_Crash1_ObjType.Crate_Locked:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 6;
+                        obj.FreezeFrame = true;
                         break;
                     case GBACrash_Crash1_ObjType.Crate_TNT:
                         obj.AnimSetIndex = 31;
@@ -607,7 +610,9 @@ namespace R1Engine
                         obj.AnimSetIndex = 17;
                         obj.AnimIndex = 0;
                         break;
-                    case GBACrash_Crash1_ObjType.Type_47:
+                    case GBACrash_Crash1_ObjType.Enemy_47:
+                        obj.AnimSetIndex = 16;
+                        obj.AnimIndex = 0;
                         break;
                     case GBACrash_Crash1_ObjType.Enemy_48:
                         obj.AnimSetIndex = 5;
@@ -625,7 +630,9 @@ namespace R1Engine
                         break;
                     case GBACrash_Crash1_ObjType.Type_52:
                         break;
-                    case GBACrash_Crash1_ObjType.Type_53:
+                    case GBACrash_Crash1_ObjType.Enemy_53:
+                        obj.AnimSetIndex = 9;
+                        obj.AnimIndex = 0;
                         break;
                     case GBACrash_Crash1_ObjType.Type_54:
                         break;
@@ -647,15 +654,25 @@ namespace R1Engine
                         break;
                     case GBACrash_Crash1_ObjType.Type_63:
                         break;
-                    case GBACrash_Crash1_ObjType.Type_64:
+                    case GBACrash_Crash1_ObjType.Enemy_64:
+                        obj.AnimSetIndex = 23;
+                        obj.AnimIndex = 1;
                         break;
-                    case GBACrash_Crash1_ObjType.Type_65:
+                    case GBACrash_Crash1_ObjType.Enemy_65:
+                        obj.AnimSetIndex = 22;
+                        obj.AnimIndex = 0;
                         break;
-                    case GBACrash_Crash1_ObjType.Type_66:
+                    case GBACrash_Crash1_ObjType.Enemy_66:
+                        obj.AnimSetIndex = 20;
+                        obj.AnimIndex = 1;
                         break;
-                    case GBACrash_Crash1_ObjType.Type_67:
+                    case GBACrash_Crash1_ObjType.Enemy_67:
+                        obj.AnimSetIndex = 21;
+                        obj.AnimIndex = 0;
                         break;
-                    case GBACrash_Crash1_ObjType.Type_68:
+                    case GBACrash_Crash1_ObjType.Enemy_68:
+                        obj.AnimSetIndex = 19;
+                        obj.AnimIndex = 1;
                         break;
                     case GBACrash_Crash1_ObjType.Type_69:
                         break;
@@ -675,7 +692,10 @@ namespace R1Engine
                         break;
                     case GBACrash_Crash1_ObjType.Type_76:
                         break;
-                    case GBACrash_Crash1_ObjType.Type_77:
+                    case GBACrash_Crash1_ObjType.Enemy_77:
+                        obj.AnimSetIndex = 18;
+                        obj.AnimIndex = 0;
+                        obj.FreezeFrame = true;
                         break;
                     case GBACrash_Crash1_ObjType.Type_78:
                         break;
@@ -691,9 +711,13 @@ namespace R1Engine
                         break;
                     case GBACrash_Crash1_ObjType.Type_82:
                         break;
-                    case GBACrash_Crash1_ObjType.Type_83:
+                    case GBACrash_Crash1_ObjType.Exit_GreenGem:
+                        obj.AnimSetIndex = 39;
+                        obj.AnimIndex = 10;
                         break;
-                    case GBACrash_Crash1_ObjType.Type_84:
+                    case GBACrash_Crash1_ObjType.Exit_BlueGem:
+                        obj.AnimSetIndex = 39;
+                        obj.AnimIndex = 9;
                         break;
                     case GBACrash_Crash1_ObjType.Exit_Level:
                         obj.AnimSetIndex = 39;
