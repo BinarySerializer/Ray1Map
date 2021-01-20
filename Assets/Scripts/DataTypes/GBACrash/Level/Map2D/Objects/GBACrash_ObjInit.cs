@@ -5,8 +5,10 @@ namespace R1Engine
 {
     public static class GBACrash_ObjInit
     {
-        public static void InitObj(EngineVersion engineVersion, Unity_Object_GBACrash obj)
+        public static void InitObj(EngineVersion engineVersion, GameModeSelection gameMode, Unity_Object_GBACrash obj)
         {
+            bool isJp = gameMode == GameModeSelection.Crash1GBAJP || gameMode == GameModeSelection.Crash2GBAJP;
+
             if (engineVersion == EngineVersion.GBACrash_Crash2)
             {
                 switch ((GBACrash_Crash2_ObjType)obj.Object.ObjType)
@@ -112,7 +114,7 @@ namespace R1Engine
                         break;
                     case GBACrash_Crash2_ObjType.Crate_Nitro:
                         obj.AnimSetIndex = 23;
-                        obj.AnimIndex = 5;
+                        obj.AnimIndex = (byte)(isJp ? 36 : 5);
                         break;
                     case GBACrash_Crash2_ObjType.Crate_QuestionMark:
                         obj.AnimSetIndex = 23;
@@ -130,7 +132,7 @@ namespace R1Engine
                         break;
                     case GBACrash_Crash2_ObjType.Crate_TNT:
                         obj.AnimSetIndex = 23;
-                        obj.AnimIndex = 17;
+                        obj.AnimIndex = (byte)(isJp ? 37 : 17);
                         break;
                     case GBACrash_Crash2_ObjType.Crate_Slot:
                         obj.AnimSetIndex = 23;
@@ -552,7 +554,7 @@ namespace R1Engine
                         break;
                     case GBACrash_Crash1_ObjType.Crate_Nitro:
                         obj.AnimSetIndex = 31;
-                        obj.AnimIndex = 5;
+                        obj.AnimIndex = (byte)(isJp ? 36 : 5);
                         break;
                     case GBACrash_Crash1_ObjType.Crate_QuestionMark:
                         obj.AnimSetIndex = 31;
@@ -570,7 +572,7 @@ namespace R1Engine
                         break;
                     case GBACrash_Crash1_ObjType.Crate_TNT:
                         obj.AnimSetIndex = 31;
-                        obj.AnimIndex = 17;
+                        obj.AnimIndex = (byte)(isJp ? 37 : 17);
                         break;
                     case GBACrash_Crash1_ObjType.Crate_Slot:
                         obj.AnimSetIndex = 31;

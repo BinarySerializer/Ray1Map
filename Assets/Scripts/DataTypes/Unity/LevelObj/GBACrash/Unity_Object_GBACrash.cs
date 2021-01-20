@@ -13,7 +13,7 @@ namespace R1Engine
             Object = obj;
 
             // Init the object
-            GBACrash_ObjInit.InitObj(ObjManager.Context.Settings.EngineVersion, this);
+            GBACrash_ObjInit.InitObj(ObjManager.Context.Settings.EngineVersion, ObjManager.Context.Settings.GameModeSelection, this);
 
             // Set link group
             if (IsLinked)
