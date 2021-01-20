@@ -22,9 +22,7 @@ namespace R1Engine.Serialize {
 				structs[type] = new Dictionary<Pointer, R1Serializable>();
 			}
 			if (!structs[type].ContainsKey(pointer)) {
-				if (serializable.Size != 0) {
-					structs[type][pointer] = serializable;
-				}
+				structs[type][pointer] = serializable;
 			} else {
 				UnityEngine.Debug.LogWarning("Duplicate pointer " + pointer + " for type " + type);
 			}

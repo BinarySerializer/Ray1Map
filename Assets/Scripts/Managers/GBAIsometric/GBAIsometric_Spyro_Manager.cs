@@ -294,8 +294,9 @@ namespace R1Engine
             };
         }
 
-        public Unity_IsometricData GetIsometricData(Context context, GBAIsometric_Spyro_Collision3DMapData collisionData, int width, int height, int groupWidth, int groupHeight)
-        {
+        public Unity_IsometricData GetIsometricData(Context context, GBAIsometric_Spyro_Collision3DMapData collisionData, int width, int height, int groupWidth, int groupHeight) {
+            float tileDiagonal = 8 / 2f; // 8 Tiles, divide by 2 as 1 tile = half unit
+            float tileWidth = Mathf.Sqrt(tileDiagonal * tileDiagonal / 2); // Side of square = sqrt(diagonal^2 / 2)
             return new Unity_IsometricData()
             {
                 CollisionWidth = collisionData.Width,
@@ -303,7 +304,7 @@ namespace R1Engine
                 TilesWidth = width * groupWidth,
                 TilesHeight = height * groupHeight,
                 Collision = collisionData.Collision.Select(c => GetCollisionTile(context, c)).ToArray(),
-                Scale = new Vector3(Mathf.Sqrt(8), 1f/Mathf.Cos(Mathf.Deg2Rad * 30f), Mathf.Sqrt(8)) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
+                Scale = new Vector3(tileWidth, 1f/Mathf.Cos(Mathf.Deg2Rad * 30f), tileWidth) // Height = 1.15 tiles, Length of the diagonal of 1 block = 8 tiles
             };
         }
 
