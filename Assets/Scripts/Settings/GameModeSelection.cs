@@ -384,10 +384,22 @@ namespace R1Engine
 
         // Gameloft
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile)", typeof(Gameloft_RRR_Manager))]
-        RaymanRavingRabbidsMobile,
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, low res)", typeof(Gameloft_RRR_Manager))]
+        RaymanRavingRabbidsMobile_LowRes,
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile)", typeof(Gameloft_RK_Manager))]
-        RaymanKartMobile,
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, high res)", typeof(Gameloft_RRRHighRes_Manager))]
+        RaymanRavingRabbidsMobile_HighRes,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 240x400)", typeof(Gameloft_RRRHighRes_Manager))]
+        RaymanRavingRabbidsMobile_240x400,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 128x160)", typeof(Gameloft_RK_128x160_Manager))]
+        RaymanKartMobile_128x160,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x208)", typeof(Gameloft_RK_128x160_Manager))]
+        RaymanKartMobile_176x208,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 240x320)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_240x320,
     }
 }

@@ -291,8 +291,8 @@ namespace R1Engine
                         ImageIndex = l.ImageIndex,
                         IsFlippedHorizontally = frameFlipX ^ flipX,
                         IsFlippedVertically = frameFlipY ^ flipY,
-                        XPosition = f.XPosition + (frameFlipX ? -1 : 1) * l.XPosition,
-                        YPosition = f.YPosition + (frameFlipY ? -1 : 1) * l.YPosition,
+                        XPosition = f.XPosition + (frameFlipX ? -1 : 1) * l.XPosition + (frameFlipX ? -puppet.ImageDescriptors[l.ImageIndex].Width : 0),
+                        YPosition = f.YPosition + (frameFlipY ? -1 : 1) * l.YPosition + (frameFlipY ? -puppet.ImageDescriptors[l.ImageIndex].Height : 0),
                     };
                 }
                 return parts;
@@ -320,7 +320,7 @@ namespace R1Engine
             // Add animations
             foreach (var a in puppet.Animations) {
                 var unityAnim = new Unity_ObjAnimation {
-                    AnimSpeed = 1,
+                    AnimSpeed = 4,
                 };
 
                 var frames = new List<Unity_ObjAnimationFrame>();
@@ -419,8 +419,8 @@ namespace R1Engine
                             
                             // For gif
                             collection.Add(frameImg);
-                            collection[frameIndex].AnimationDelay = anim.AnimSpeeds[frameIndex]*2;
-                            collection[frameIndex].AnimationTicksPerSecond = 60;
+                            collection[frameIndex].AnimationDelay = anim.AnimSpeeds[frameIndex];
+                            collection[frameIndex].AnimationTicksPerSecond = 10;
                             collection[frameIndex].Trim();
                             collection[frameIndex].GifDisposeMethod = GifDisposeMethod.Background;
 
