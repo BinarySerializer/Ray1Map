@@ -33,7 +33,7 @@ namespace R1Engine
                 var collX = (((long)obj.Object.XPos.Value) * 0x15555556) >> 0x2a;*/
                 obj.Height = (Level.CollisionTiles[Level.CollisionMap[collY * Level.CollisionWidth + collX]].Height - minHeight) / scale;
 
-                if (i == 0)
+                if (i == 0 || !(obj is Unity_Object_GBACrashIsometric_Obj))
                     continue;
 
                 var prevObjIndex = i - 1;
