@@ -7,10 +7,12 @@ namespace R1Engine
 {
     public class Unity_Object_GBACrash : Unity_Object
     {
-        public Unity_Object_GBACrash(Unity_ObjectManager_GBACrash objManager, GBACrash_Object obj)
+        public Unity_Object_GBACrash(Unity_ObjectManager_GBACrash objManager, GBACrash_Object obj, int objGroupIndex, int objIndex)
         {
             ObjManager = objManager;
             Object = obj;
+            ObjGroupIndex = objGroupIndex;
+            ObjIndex = objIndex;
 
             // Init the object
             GBACrash_ObjInit.InitObj(ObjManager.Context.Settings.EngineVersion, ObjManager.Context.Settings.GameModeSelection, this);
@@ -19,6 +21,9 @@ namespace R1Engine
             if (IsLinked)
                 EditorLinkGroup = ObjParams?.ElementAtOrDefault(4) ?? 0;
         }
+
+        public int ObjGroupIndex { get; }
+        public int ObjIndex { get; }
 
         public Unity_ObjectManager_GBACrash ObjManager { get; }
         public GBACrash_Object Object { get; set; }
@@ -37,7 +42,9 @@ namespace R1Engine
             set => Object.YPos = value;
         }
 
-        public override string DebugText => $"Params: {Util.ByteArrayToHexString(ObjParams)}{Environment.NewLine}";
+        public override string DebugText => $"Params: {Util.ByteArrayToHexString(ObjParams)}{Environment.NewLine}" +
+                                            $"Group: {ObjGroupIndex}{Environment.NewLine}" +
+                                            $"Index: {ObjIndex}{Environment.NewLine}";
 
         public byte[] ObjParams => ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex);
 

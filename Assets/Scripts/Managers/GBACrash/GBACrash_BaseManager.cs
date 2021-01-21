@@ -285,7 +285,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var objmanager = new Unity_ObjectManager_GBACrash(context, LoadAnimSets(rom), map);
-            var objects = map.MapData2D.ObjData.ObjGroups.SelectMany(x => x.Objects.Reverse()).Select(x => new Unity_Object_GBACrash(objmanager, x));
+            var objects = map.MapData2D.ObjData.ObjGroups.SelectMany((x, groupIndex) => x.Objects.Reverse().Select((obj, i) => new Unity_Object_GBACrash(objmanager, obj, groupIndex, i)));
 
             return new Unity_Level(
                 maps: maps,
