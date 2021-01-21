@@ -661,20 +661,37 @@ namespace R1Engine
                                 transformOrigin.y = selectedHeight;
                                 //Debug.Log(transformOrigin);
                                 Vector3 transformedSelectedPos = SelectedEvent.transform.rotation * selectedPosition + transformOrigin;
-
-                                // Move event on the plane at the selected position height
-                                Plane plane = new Plane(Vector3.up, transformedSelectedPos);
-                                Ray ray = editor.cam.camera3D.ScreenPointToRay(Input.mousePosition);
-                                float dist;
-                                if (plane.Raycast(ray, out dist)) {
-                                    Vector3 mouseWorldPos = ray.GetPoint(dist);
-                                    Vector3 diff = transformedSelectedPos - transformOrigin;
-                                    Vector3 scaledObjectPos = mouseWorldPos - diff;
-                                    scaledObjectPos.y = selectedHeight + addSelectedHeight;
-                                    Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, new Vector3(1f / isometricObjectScale.x, 1f / isometricObjectScale.y, 1f / isometricObjectScale.z));
-                                    Vector3 newPos = new Vector3(unscaledPos.x, -unscaledPos.z, unscaledPos.y);
-                                    obj.Position = newPos;
-                                    //Debug.Log(mouseWorldPos + " - " + newPos);
+                                bool isDifferentPlane = editor.cam.camera3D.orthographic && editor.cam.camera3D.transform.rotation == Quaternion.identity;
+                                if (isDifferentPlane) {
+                                    // Move event on the plane at the selected position height
+                                    Plane plane = new Plane(Vector3.forward, transformedSelectedPos);
+                                    Ray ray = editor.cam.camera3D.ScreenPointToRay(Input.mousePosition);
+                                    float dist;
+                                    if (plane.Raycast(ray, out dist)) {
+                                        Vector3 mouseWorldPos = ray.GetPoint(dist);
+                                        Vector3 diff = transformedSelectedPos - transformOrigin;
+                                        Vector3 scaledObjectPos = mouseWorldPos - diff;
+                                        //scaledObjectPos.y = selectedHeight + addSelectedHeight;
+                                        Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, new Vector3(1f / isometricObjectScale.x, 1f / isometricObjectScale.y, 1f / isometricObjectScale.z));
+                                        Vector3 newPos = new Vector3(unscaledPos.x, -unscaledPos.z, unscaledPos.y);
+                                        obj.Position = newPos;
+                                        //Debug.Log(mouseWorldPos + " - " + newPos);
+                                    }
+                                } else {
+                                    // Move event on the plane at the selected position height
+                                    Plane plane = new Plane(Vector3.up, transformedSelectedPos);
+                                    Ray ray = editor.cam.camera3D.ScreenPointToRay(Input.mousePosition);
+                                    float dist;
+                                    if (plane.Raycast(ray, out dist)) {
+                                        Vector3 mouseWorldPos = ray.GetPoint(dist);
+                                        Vector3 diff = transformedSelectedPos - transformOrigin;
+                                        Vector3 scaledObjectPos = mouseWorldPos - diff;
+                                        scaledObjectPos.y = selectedHeight + addSelectedHeight;
+                                        Vector3 unscaledPos = Vector3.Scale(scaledObjectPos, new Vector3(1f / isometricObjectScale.x, 1f / isometricObjectScale.y, 1f / isometricObjectScale.z));
+                                        Vector3 newPos = new Vector3(unscaledPos.x, -unscaledPos.z, unscaledPos.y);
+                                        obj.Position = newPos;
+                                        //Debug.Log(mouseWorldPos + " - " + newPos);
+                                    }
                                 }
                             }
                         } else {
