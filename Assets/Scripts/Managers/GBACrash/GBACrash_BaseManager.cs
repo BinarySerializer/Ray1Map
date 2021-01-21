@@ -1229,8 +1229,8 @@ namespace R1Engine
             return rom.AnimSets.Select(animSet => new Unity_ObjectManager_GBACrash.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBACrash.AnimSet.Animation(
                 animFrameFunc: () => GetAnimFrames(animSet, i, rom.ObjTileSet, Util.ConvertGBAPalette(rom.ObjPalettes[anim.PaletteIndex].Palette)).Select(frame => frame.CreateSprite()).ToArray(),
                 crashAnim: anim,
-                xPos: anim.RenderBox.X,
-                yPos: anim.RenderBox.Y
+                xPos: animSet.GetMinX(i),
+                yPos: animSet.GetMinY(i)
             )).ToArray())).ToArray();
         }
 
@@ -1264,11 +1264,13 @@ namespace R1Engine
 
             var output = new Texture2D[frames.Length];
 
-            var minX = anim.RenderBox.X;
-            var minY = anim.RenderBox.Y;
+            var minX = animSet.GetMinX(animIndex);
+            var minY = animSet.GetMinY(animIndex);
+            var maxX = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].XPos + shapes[f.TileShapes[x].ShapeIndex].x)).Max();
+            var maxY = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].YPos + shapes[f.TileShapes[x].ShapeIndex].y)).Max();
 
-            var width = anim.RenderBox.Width + 1;
-            var height = anim.RenderBox.Height + 1;
+            var width = maxX - minX;
+            var height = maxY - minY;
 
             var frameCache = new Dictionary<GBACrash_AnimationFrame, Texture2D>();
 
