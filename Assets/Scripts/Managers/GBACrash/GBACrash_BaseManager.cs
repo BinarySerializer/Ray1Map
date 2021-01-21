@@ -574,9 +574,22 @@ namespace R1Engine
             float tileWidth = Mathf.Sqrt(tileDiagonal * tileDiagonal/2);
             float heightScale = 32f / Mathf.Cos(Mathf.Deg2Rad * 30f) / 2f;
 
+            // Create the object manager and load animations
             var objManager = new Unity_ObjectManager_GBACrashIsometric(context, LoadIsometricAnimations(rom), levelInfo);
-            var objects = objData.Objects.Select(x => new Unity_Object_GBACrashIsometric(x, objManager));
 
+            // Load normal objects
+            var objects = objData.Objects.Select(x => (Unity_Object_BaseGBACrashIsometric)new Unity_Object_GBACrashIsometric_Obj(x, objManager));
+
+            // Load target objects
+            var index = objData.Objects.Length;
+
+            foreach (var targetObj in objData.TargetObjects)
+            {
+                objects = objects.Append(new Unity_Object_GBACrashIsometric_TargetObj(targetObj, objManager, index + 1));
+                objects = objects.Append(new Unity_Object_GBACrashIsometric_TargetObjTarget(targetObj, objManager));
+
+                index += 2;
+            }
 
             float w = levelInfo.MapWidth * 0.5f;
             float h = levelInfo.MapHeight * 0.5f;

@@ -1,59 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBACrashIsometric : Unity_Object_3D
+    public abstract class Unity_Object_BaseGBACrashIsometric : Unity_Object_3D
     {
-        public Unity_Object_GBACrashIsometric(GBACrash_Isometric_Object obj, Unity_ObjectManager_GBACrashIsometric objManager)
+        protected Unity_Object_BaseGBACrashIsometric(Unity_ObjectManager_GBACrashIsometric objManager)
         {
-            Object = obj;
             ObjManager = objManager;
 
             _prevTimeTrialMode = Settings.GBACrash_TimeTrialMode;
-            UpdateAnimIndex();
         }
 
-        public void UpdateAnimIndex() => ObjAnimIndex = (int)(Settings.GBACrash_TimeTrialMode && Object.ObjType_TimeTrial != GBACrash_Isometric_Object.GBACrash_Isometric_ObjType.None ? Object.ObjType_TimeTrial : Object.ObjType);
+        public abstract void UpdateAnimIndex();
 
-        public GBACrash_Isometric_Object Object { get; }
         public Unity_ObjectManager_GBACrashIsometric ObjManager { get; }
 
         public int ObjAnimIndex { get; set; }
 
+        public abstract FixedPointInt XPos { get; set; }
+        public abstract FixedPointInt YPos { get; set; }
         public float Height { get; set; }
 
         public override short XPosition
         {
-            get => (short)Object.XPos.AsFloat;
-            set => Object.XPos.AsFloat = value;
+            get => (short)XPos.AsFloat;
+            set => XPos.AsFloat = value;
         }
         public override short YPosition
         {
-            get => (short)Object.YPos.AsFloat;
-            set => Object.YPos.AsFloat = value;
+            get => (short)YPos.AsFloat;
+            set => YPos.AsFloat = value;
         }
 
         public override Vector3 Position
         {
-            get => new Vector3(Object.YPos, Object.XPos, Height);
+            get => new Vector3(YPos, XPos, Height);
             set
             {
-                Object.YPos.AsFloat = value.x;
-                Object.XPos.AsFloat = value.y;
+                YPos.AsFloat = value.x;
+                XPos.AsFloat = value.y;
                 Height = value.z;
             }
         }
 
-        public override string DebugText => $"ObjType_TimeTrial: {Object.ObjType_TimeTrial}{Environment.NewLine}";
-
-        public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
-
-        public override string PrimaryName => $"Type_{(int)Object.ObjType}";
-        public override string SecondaryName => $"{Object.ObjType}";
 
         public bool _prevTimeTrialMode;
         public override void OnUpdate()
@@ -86,29 +78,25 @@ namespace R1Engine
             public GBACrashIsometric_UIState(string displayName, int animIndex) : base(displayName, animIndex) { }
 
             public override void Apply(Unity_Object obj) {
-                var rrrObj = (Unity_Object_GBACrashIsometric)obj;
+                var rrrObj = (Unity_Object_GBACrashIsometric_Obj)obj;
                 rrrObj.ObjAnimIndex = AnimIndex;
             }
 
-            public override bool IsCurrentState(Unity_Object obj) => AnimIndex == ((Unity_Object_GBACrashIsometric)obj).ObjAnimIndex;
+            public override bool IsCurrentState(Unity_Object obj) => AnimIndex == ((Unity_Object_GBACrashIsometric_Obj)obj).ObjAnimIndex;
         }
         #endregion
 
         #region LegacyEditorWrapper
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
-            public LegacyEditorWrapper(Unity_Object_GBACrashIsometric obj)
+            public LegacyEditorWrapper(Unity_Object_BaseGBACrashIsometric obj)
             {
                 Obj = obj;
             }
 
-            private Unity_Object_GBACrashIsometric Obj { get; }
+            private Unity_Object_BaseGBACrashIsometric Obj { get; }
 
-            public ushort Type
-            {
-                get => (ushort)Obj.Object.ObjType;
-                set => Obj.Object.ObjType = (GBACrash_Isometric_Object.GBACrash_Isometric_ObjType)value;
-            }
+            public ushort Type { get; set; }
 
             public int DES
             {

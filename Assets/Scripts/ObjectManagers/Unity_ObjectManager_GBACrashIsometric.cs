@@ -17,7 +17,7 @@ namespace R1Engine
 
         public override void InitObjects(Unity_Level level)
         {
-            var objects = level.EventData.Cast<Unity_Object_GBACrashIsometric>().ToArray();
+            var objects = level.EventData.Cast<Unity_Object_BaseGBACrashIsometric>().ToArray();
             float minHeight = Mathf.Min(0, Level.CollisionMap.Min(c => Level.CollisionTiles[c].Height.AsFloat));
             const float scale = 64f / 12;
 
@@ -25,8 +25,10 @@ namespace R1Engine
             {
                 var obj = objects[i];
 
-                var collY = Mathf.FloorToInt(obj.Object.YPos * scale);
-                var collX = Mathf.FloorToInt(obj.Object.XPos * scale);
+                obj.UpdateAnimIndex();
+
+                var collY = Mathf.FloorToInt(obj.YPos * scale);
+                var collX = Mathf.FloorToInt(obj.XPos * scale);
                 /*var collY = (((long)obj.Object.YPos.Value) * 0x15555556) >> 0x2a;
                 var collX = (((long)obj.Object.XPos.Value) * 0x15555556) >> 0x2a;*/
                 obj.Height = (Level.CollisionTiles[Level.CollisionMap[collY * Level.CollisionWidth + collX]].Height - minHeight) / scale;
@@ -37,15 +39,15 @@ namespace R1Engine
                 var prevObjIndex = i - 1;
                 var prevObj = objects[prevObjIndex];
 
-                if (obj.Object.XPos.Value == prevObj.Object.XPos.Value && obj.Object.YPos.Value == prevObj.Object.YPos.Value)
+                if (obj.XPos.Value == prevObj.XPos.Value && obj.YPos.Value == prevObj.YPos.Value)
                 {
                     while (true)
                     {
-                        obj.Object.XPos.Value += 0x100;
-                        obj.Object.YPos.Value += 0x100;
+                        obj.XPos.Value += 0x100;
+                        obj.YPos.Value += 0x100;
                         obj.Height -= 0x1000 / scale;
 
-                        if (prevObj.Object.XPos.Value != objects[prevObjIndex - 1].Object.XPos.Value || prevObj.Object.YPos.Value != objects[prevObjIndex - 1].Object.YPos.Value)
+                        if (prevObj.XPos.Value != objects[prevObjIndex - 1].XPos.Value || prevObj.YPos.Value != objects[prevObjIndex - 1].YPos.Value)
                             break;
 
                         prevObjIndex--;
