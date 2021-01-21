@@ -9,6 +9,7 @@ namespace R1Engine
         {
             Object = obj;
             LinkIndex = linkIndex;
+            FlipHorizontally = Object.XPos.Value - Object.TargetXPos.Value != 0;
         }
 
         public int LinkIndex { get; }
@@ -29,6 +30,8 @@ namespace R1Engine
             get => Object.YPos;
             set => Object.YPos = value;
         }
+
+        public override bool FlipHorizontally { get; }
 
         public override R1Serializable SerializableData => Object;
 
