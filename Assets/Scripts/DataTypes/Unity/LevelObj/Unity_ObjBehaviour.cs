@@ -32,7 +32,7 @@ namespace R1Engine
             ObjData.IsVisible && 
             // Obj is on current map layer
             (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
-        public int Layer => (ObjData.GetLayer(Index) ?? Index) * 256;
+        public int Layer => (ObjData.GetLayer(Index) ?? Index) * 128;
 
         public bool HasInitialized { get; set; }
         private int CurrentFrame { get; set; } = -1;
