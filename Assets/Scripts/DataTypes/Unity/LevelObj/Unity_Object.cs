@@ -59,6 +59,9 @@ namespace R1Engine
         }
         public virtual bool IsDisabled => Settings.LoadFromMemory && !IsActive;
 
+        // Events
+        public virtual void OnUpdate() { }
+
         // Animations
         public virtual Unity_ObjAnimationCollisionPart[] ObjCollision => new Unity_ObjAnimationCollisionPart[0];
         public abstract Unity_ObjAnimation CurrentAnimation { get; }

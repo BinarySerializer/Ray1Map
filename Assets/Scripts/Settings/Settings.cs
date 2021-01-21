@@ -112,6 +112,7 @@ namespace R1Engine {
         public static bool Screenshot_ShowDefaultObj { get; set; }
         public static bool HideUnusedLinks { get; set; } = true;
         public static bool LoadIsometricMapLayer { get; set; } = true;
+        public static bool GBACrash_TimeTrialMode { get; set; }
 
         public static bool ShowGridMap { get; set; }
 
@@ -238,6 +239,7 @@ namespace R1Engine {
             Screenshot_ShowDefaultObj = s.SerializeBool("Screenshot_ShowDefaultObj", Screenshot_ShowDefaultObj);
             HideUnusedLinks = s.SerializeBool("HideUnusedLinks", HideUnusedLinks);
             LoadIsometricMapLayer = s.SerializeBool("LoadIsometricMapLayer", LoadIsometricMapLayer);
+            GBACrash_TimeTrialMode = s.SerializeBool("GBACrash_TimeTrialMode", GBACrash_TimeTrialMode);
             ShowGridMap = s.SerializeBool("ShowGridMap", ShowGridMap);
 
             ShowDefaultObjIcons = s.SerializeBool("ShowDefaultObjIcons", ShowDefaultObjIcons);

@@ -12,8 +12,11 @@ namespace R1Engine
             ObjManager = objManager;
             Object = obj;
 
-            AnimSetIndex = obj.ObjType_Normal;
+            _prevTimeTrialMode = Settings.GBACrash_TimeTrialMode;
+            UpdateAnimIndex();
         }
+
+        public void UpdateAnimIndex() => AnimSetIndex = (int)(Settings.GBACrash_TimeTrialMode ? Object.ObjType_TimeTrial : Object.ObjType_Normal);
 
         public Unity_ObjectManager_GBACrashMode7 ObjManager { get; }
         public GBACrash_Mode7_Object Object { get; set; }
@@ -26,8 +29,8 @@ namespace R1Engine
 
         public override short YPosition
         {
-            get => (short)Object.YPos;
-            set => Object.YPos = value;
+            get => (short)Object.ZPos;
+            set => Object.ZPos = value;
         }
 
         public override Vector3 Position
@@ -41,7 +44,7 @@ namespace R1Engine
             }
         }
 
-        public override string DebugText => String.Empty;
+        public override string DebugText => $"ObjType_TimeTrial0: {Object.ObjType_TimeTrial}{Environment.NewLine}";
 
         public Unity_ObjectManager_GBACrashMode7.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBACrashMode7.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
@@ -55,6 +58,16 @@ namespace R1Engine
         public override bool CanBeLinkedToGroup => true;
 
         public override ObjectType Type => AnimSetIndex == -1 ? ObjectType.Trigger : ObjectType.Object;
+
+        public bool _prevTimeTrialMode;
+        public override void OnUpdate()
+        {
+            if (_prevTimeTrialMode == Settings.GBACrash_TimeTrialMode)
+                return;
+
+            _prevTimeTrialMode = Settings.GBACrash_TimeTrialMode;
+            UpdateAnimIndex();
+        }
 
         private int _animSetIndex;
         private byte _animIndex;

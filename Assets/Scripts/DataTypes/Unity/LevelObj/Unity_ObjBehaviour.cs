@@ -261,6 +261,9 @@ namespace R1Engine
 
             UpdateTimer = 0.0f;
 
+            // Update object
+            ObjData.OnUpdate();
+
             defaultRenderer.enabled = true;
 
             bool frameUpdated = false;

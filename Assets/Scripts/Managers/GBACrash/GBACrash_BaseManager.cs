@@ -493,6 +493,8 @@ namespace R1Engine
                 objects = objects.Append(new Unity_Object_GBACrashMode7(objmanager, new GBACrash_Mode7_Object()
                 {
                     ObjType_Normal = (byte)(objmanager.AnimSets.Length - 1),
+                    ObjType_TimeTrial = (byte)(objmanager.AnimSets.Length - 1),
+                    ObjType_Unknown = (byte)(objmanager.AnimSets.Length - 1),
                     ZPos = -5 // Have it start a bit behind the player
                 }));
 

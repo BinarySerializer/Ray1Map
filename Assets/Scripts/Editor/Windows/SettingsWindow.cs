@@ -217,6 +217,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.LoadIsometricMapLayer = EditorField("Isometric: Load map layer", Settings.LoadIsometricMapLayer);
 
+        Settings.GBACrash_TimeTrialMode = EditorField("GBACrash: Time trial mode", Settings.GBACrash_TimeTrialMode);
+
         // Editor Tools
         if (Application.isPlaying && Controller.LoadState == Controller.State.Finished) {
             var lvl = LevelEditorData.Level;
