@@ -12,8 +12,11 @@ namespace R1Engine
             Object = obj;
             ObjManager = objManager;
 
-            ObjAnimIndex = (int)obj.ObjType;
+            _prevTimeTrialMode = Settings.GBACrash_TimeTrialMode;
+            UpdateAnimIndex();
         }
+
+        public void UpdateAnimIndex() => ObjAnimIndex = (int)(Settings.GBACrash_TimeTrialMode && Object.ObjType_TimeTrial != GBACrash_Isometric_Object.GBACrash_Isometric_ObjType.None ? Object.ObjType_TimeTrial : Object.ObjType);
 
         public GBACrash_Isometric_Object Object { get; }
         public Unity_ObjectManager_GBACrashIsometric ObjManager { get; }
@@ -44,13 +47,23 @@ namespace R1Engine
             }
         }
 
-        public override string DebugText => String.Empty;
+        public override string DebugText => $"ObjType_TimeTrial: {Object.ObjType_TimeTrial}{Environment.NewLine}";
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{(int)Object.ObjType}";
         public override string SecondaryName => $"{Object.ObjType}";
+
+        public bool _prevTimeTrialMode;
+        public override void OnUpdate()
+        {
+            if (_prevTimeTrialMode == Settings.GBACrash_TimeTrialMode)
+                return;
+
+            _prevTimeTrialMode = Settings.GBACrash_TimeTrialMode;
+            UpdateAnimIndex();
+        }
 
         public Unity_ObjectManager_GBACrashIsometric.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault(ObjAnimIndex);
 
