@@ -34,6 +34,9 @@ namespace R1Engine
 
         public IEnumerable<GBACrash_Mode7_AnimSet> GetAllAnimSets => LevelType == 0 ? AnimSets.Append(AnimSet_Chase) : AnimSets;
 
+        // The special frames for the blimp and N. Gin in Crash 1. Animations are at 0x0817a534 and 0x0817a60c. These are stored as 4-bit graphics, but get converted to 8-bit in memory.
+        public GBACrash_Mode7_SpecialFrames SpecialFrames { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             LevelType = s.Serialize<uint>(LevelType, name: nameof(LevelType));
@@ -80,10 +83,10 @@ namespace R1Engine
 
             AnimSets = s.DoAt(AnimSetsPointer, () => s.SerializeObjectArray<GBACrash_Mode7_AnimSet>(AnimSets, animSetsCount, name: nameof(AnimSets)));
 
+            var pointerTable = PointerTables.GBACrash_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+
             if (LevelType == 0)
             {
-                var pointerTable = PointerTables.GBACrash_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
-
                 AnimSet_Chase = s.SerializeObject<GBACrash_Mode7_AnimSet>(AnimSet_Chase, x =>
                 {
                     x.SerializeValues = false;
@@ -94,6 +97,13 @@ namespace R1Engine
             }
 
             ObjGraphics = s.DoAt(ObjGraphicsPointer, () => s.SerializeObject<GBACrash_Mode7_ObjGraphics>(ObjGraphics, x => x.AnimSets = GetAllAnimSets.ToArray(), name: nameof(ObjGraphics)));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1 && LevelType == 1)
+                // Load the blimp
+                SpecialFrames = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_Crash1_Type1_SpecialFrame], () => s.SerializeObject<GBACrash_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 4, name: nameof(SpecialFrames)));
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1 && LevelType == 2)
+                // Load N. Gin
+                SpecialFrames = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_Crash1_Type2_SpecialFrame], () => s.SerializeObject<GBACrash_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 1, name: nameof(SpecialFrames)));
         }
     }
 }

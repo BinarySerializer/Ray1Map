@@ -884,6 +884,9 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x0817a850,
                         [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x0817a880,
                         [GBACrash_Pointer.Mode7_Crash1_Type0_TilePalette_0F] = 0x0817aa6c,
+
+                        [GBACrash_Pointer.Mode7_Crash1_Type1_SpecialFrame] = 0x08167ad4,
+                        [GBACrash_Pointer.Mode7_Crash1_Type2_SpecialFrame] = 0x08169ae8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash1GBAUS:
@@ -900,6 +903,9 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x081789a0,
                         [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x081789d0,
                         [GBACrash_Pointer.Mode7_Crash1_Type0_TilePalette_0F] = 0x08178bbc,
+
+                        [GBACrash_Pointer.Mode7_Crash1_Type1_SpecialFrame] = 0x08167614,
+                        [GBACrash_Pointer.Mode7_Crash1_Type2_SpecialFrame] = 0x08169628,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash1GBAJP:
@@ -916,6 +922,9 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_Type0_ChaseObjAnimations] = 0x0817b314,
                         [GBACrash_Pointer.Mode7_Type0_ChaseObjFrames] = 0x0817b344,
                         [GBACrash_Pointer.Mode7_Crash1_Type0_TilePalette_0F] = 0x0817b530,
+
+                        [GBACrash_Pointer.Mode7_Crash1_Type1_SpecialFrame] = 0x0816980c,
+                        [GBACrash_Pointer.Mode7_Crash1_Type2_SpecialFrame] = 0x0816b820,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 // Crash 2

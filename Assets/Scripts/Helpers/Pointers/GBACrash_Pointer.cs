@@ -18,6 +18,9 @@
         Mode7_Type0_ChaseObjFrames,
         Mode7_Crash1_Type0_TilePalette_0F,
 
+        Mode7_Crash1_Type1_SpecialFrame,
+        Mode7_Crash1_Type2_SpecialFrame,
+
         Mode7_Crash2_Type1_FlamesTileMaps,
         Mode7_Crash2_Type1_FlamesTileSetLengths,
         Mode7_Crash2_Type1_FlamesTileSets,

@@ -96,6 +96,14 @@ namespace R1Engine
                             exportAnim(frames, 4, "Mode7", $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}", $"{animIndex}");
                         }
                     }
+
+                    // Export special frames
+                    if (levInfo.SpecialFrames != null && !exportedAnimSets.Contains(levInfo.SpecialFrames.Offset))
+                    {
+                        exportedAnimSets.Add(levInfo.SpecialFrames.Offset);
+
+                        exportAnim(GetMode7SpecialAnimFrames(levInfo.SpecialFrames), 4, "Mode7", $"0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}", $"0");
+                    }
                 }
             }
 
@@ -488,14 +496,14 @@ namespace R1Engine
             var objmanager = new Unity_ObjectManager_GBACrashMode7(context, LoadMode7AnimSets(levelInfo, tilePal));
             var objects = levelInfo.ObjData.Objects.Select(x => new Unity_Object_GBACrashMode7(objmanager, x));
 
-            // Spawn the chase object for type 0
-            if (levelInfo.LevelType == 0)
+            // Spawn the chase object for type 0 or special object for Crash 1 (blimp or N. Gin) // TODO: Spawn blimps at correct positions - array at 0x0817a420?
+            if (levelInfo.LevelType == 0 || context.Settings.EngineVersion == EngineVersion.GBACrash_Crash1)
                 objects = objects.Append(new Unity_Object_GBACrashMode7(objmanager, new GBACrash_Mode7_Object()
                 {
                     ObjType_Normal = (byte)(objmanager.AnimSets.Length - 1),
                     ObjType_TimeTrial = (byte)(objmanager.AnimSets.Length - 1),
                     ObjType_Unknown = (byte)(objmanager.AnimSets.Length - 1),
-                    ZPos = -5 // Have it start a bit behind the player
+                    ZPos = -50 // Have it start a bit behind the player
                 }));
 
             // Spawn the main character (always type 0)
@@ -1240,9 +1248,20 @@ namespace R1Engine
         {
             var pal = Util.ConvertAndSplitGBAPalette(level.ObjPalette.Concat(tilePal).ToArray());
 
-            return level.GetAllAnimSets.Select(animSet => new Unity_ObjectManager_GBACrashMode7.AnimSet(
+            var animSets = level.GetAllAnimSets.Select(animSet => new Unity_ObjectManager_GBACrashMode7.AnimSet(
                 animations: animSet.Animations?.Select((anim, i) => new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation(GetMode7AnimFrames(animSet, i, pal).Select(frame => frame.CreateSprite()).ToArray())).ToArray() ?? new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation[0]
-                )).ToArray();
+            ));
+
+            // Load special frames animation
+            if (level.SpecialFrames != null)
+            {
+                animSets = animSets.Append(new Unity_ObjectManager_GBACrashMode7.AnimSet(new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation[]
+                {
+                    new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation(GetMode7SpecialAnimFrames(level.SpecialFrames).Select(x => x.CreateSprite()).ToArray()),
+                }));
+            }
+
+            return animSets.ToArray();
         }
 
         public Unity_ObjectManager_GBACrashIsometric.GraphicsData[] LoadIsometricAnimations(GBACrash_ROM rom)
@@ -1333,6 +1352,46 @@ namespace R1Engine
                 var frame = frames[frameIndex];
 
                 output[frameIndex] = Util.ToTileSetTexture(frame.TileSet, pal[animSet.PaletteIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: frame.Width);
+            }
+
+            return output;
+        }
+
+        public Texture2D[] GetMode7SpecialAnimFrames(GBACrash_Mode7_SpecialFrames frames)
+        {
+            var output = new Texture2D[frames.FramesCount];
+            var palette = Util.ConvertAndSplitGBAPalette(frames.Palette);
+            var tileSet = new byte[0];
+
+            for (int i = 0; i < frames.FramesCount; i++)
+            {
+                var frame = frames.Frames[i];
+
+                var tex = TextureHelpers.CreateTexture2D(frames.Width * CellSize, frames.Height * CellSize);
+
+                tileSet = tileSet.Concat(frame.TileSet).ToArray();
+
+                for (int y = 0; y < frames.Height; y++)
+                {
+                    for (int x = 0; x < frames.Width; x++)
+                    {
+                        var tile = frame.TileMap[y * frames.Width + x];
+
+                        tex.FillInTile(
+                            imgData: tileSet,
+                            imgDataOffset: tile.TileMapY * 0x20,
+                            pal: palette[tile.PaletteIndex],
+                            encoding: Util.TileEncoding.Linear_4bpp,
+                            tileWidth: CellSize,
+                            flipTextureY: true,
+                            tileX: x * CellSize,
+                            tileY: y * CellSize);
+                    }
+                }
+
+                tex.Apply();
+
+                output[i] = tex;
             }
 
             return output;
