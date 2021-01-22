@@ -14,8 +14,8 @@
         // Serialized from pointers
 
         public GBACrash_Isometric_Position[] StartPositions { get; set; }
-        public GBACrash_Isometric_Position[] MultiplayerFlags { get; set; } // The game does * 0x3000 + 0x1800 on these positions
-        public GBACrash_Isometric_Position[] MultiplayerCrowns { get; set; } // The game does << 8 on these positions
+        public GBACrash_Isometric_MultiplayerFlag[] MultiplayerFlags { get; set; } // The game does * 0x3000 + 0x1800 on these positions
+        public GBACrash_Isometric_MultiplayerCrown[] MultiplayerCrowns { get; set; } // The game does << 8 on these positions
         public GBACrash_Isometric_Object[] Objects { get; set; }
         public GBACrash_Isometric_TargetObject[] TargetObjects { get; set; }
 
@@ -31,8 +31,8 @@
                 return;
 
             StartPositions = s.DoAt(StartPositionsPointer, () => s.SerializeObjectArray<GBACrash_Isometric_Position>(StartPositions, IsMultiplayer ? 2 : 1, name: nameof(StartPositions)));
-            MultiplayerFlags = s.DoAt(MultiplayerFlagsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_Position>(MultiplayerFlags, x => x.XPos.Value == 0, name: nameof(MultiplayerFlags)));
-            MultiplayerCrowns = s.DoAt(MultiplayerCrownsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_Position>(MultiplayerCrowns, x => x.XPos.Value == 0, name: nameof(MultiplayerCrowns)));
+            MultiplayerFlags = s.DoAt(MultiplayerFlagsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_MultiplayerFlag>(MultiplayerFlags, x => x.XPos == 0, name: nameof(MultiplayerFlags)));
+            MultiplayerCrowns = s.DoAt(MultiplayerCrownsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_MultiplayerCrown>(MultiplayerCrowns, x => x.XPos == 0, name: nameof(MultiplayerCrowns)));
             Objects =  s.DoAt(ObjectsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_Object>(Objects, x => x.ObjType == GBACrash_Isometric_Object.GBACrash_Isometric_ObjType.Invalid, name: nameof(Objects)));
             TargetObjects = s.DoAt(TargetObjectsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_TargetObject>(TargetObjects, x => x.ObjType == GBACrash_Isometric_TargetObject.GBACrash_Isometric_TargetObjType.Invalid, name: nameof(TargetObjects)));
 
