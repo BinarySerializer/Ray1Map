@@ -564,8 +564,11 @@ namespace R1Engine
             var collision = levelInfo.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
                 DebugText = $"Height: {(levelInfo.CollisionTiles[c].Height - minHeight)}{Environment.NewLine}" +
                 $"Tile index: {c}{Environment.NewLine}" +
-                $"Offset: {levelInfo.CollisionTiles[c].Offset}",
-                Height = (levelInfo.CollisionTiles[c].Height - minHeight)
+                $"Offset: {levelInfo.CollisionTiles[c].Offset}{Environment.NewLine}" +
+                $"Type: {levelInfo.CollisionTiles[c].TypeIndex}{Environment.NewLine}" +
+                $"Shape: {levelInfo.CollisionTiles[c].Shape}",
+                Height = (levelInfo.CollisionTiles[c].Height - minHeight),
+                Type = (Unity_IsometricCollisionTile.CollisionType)levelInfo.CollisionTiles[c].TypeIndex
             }).ToArray();
             var mirroredCollision = new Unity_IsometricCollisionTile[levelInfo.CollisionWidth * levelInfo.CollisionHeight];
             for (int x = 0; x < levelInfo.CollisionWidth; x++) {
