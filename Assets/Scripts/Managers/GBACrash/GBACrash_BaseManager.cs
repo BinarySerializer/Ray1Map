@@ -1078,9 +1078,92 @@ namespace R1Engine
                 }
             }
 
-            var tex = Util.ToTileSetTexture(convertedTileSet.Concat(tileSet.TileSet_8bpp).ToArray(), pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
+            var completeTileSet = convertedTileSet.Concat(tileSet.TileSet_8bpp).ToArray();
 
-            return new Unity_TileSet(tex, CellSize);
+            var tex = Util.ToTileSetTexture(completeTileSet, pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
+
+            // Palette animation
+            var palIndices = new byte[] { 0x61, 0x86, 0x96 };
+            var animatedPalettes = GetAnimatedPalettes(new byte[][]
+            {
+                palIndices.Reverse().ToArray()
+            }, tilePal);
+
+            var additionalTiles = new List<Texture2D>();
+            var tileAnimations = new List<Unity_AnimatedTile>();
+            var tilesCount = tileSet.TileSetCount_Total;
+            const int tileSize = 0x40;
+            const int animSpeed = 3; // Note: Might not be correct
+
+            var animatedPalettes_8 = animatedPalettes.Select(x => Util.ConvertGBAPalette(x)).ToArray();
+
+            for (int tileIndex = 0; tileIndex < tilesCount; tileIndex++)
+            {
+                // Check if the tile uses any of the animated colors
+                var bytes = completeTileSet.Skip(tileSize * tileIndex).Take(tileSize);
+
+                // If the tile doesn't contain an animated color we ignore it
+                if (!bytes.Any(x => palIndices.Contains(x)))
+                    continue;
+
+                // Add animation for the tile
+                tileAnimations.Add(new Unity_AnimatedTile
+                {
+                    AnimationSpeed = animSpeed,
+                    TileIndices = new int[]
+                    {
+                        tileIndex
+                    }.Concat(Enumerable.Range(tilesCount + additionalTiles.Count, animatedPalettes.Length)).ToArray()
+                });
+
+                // Create a new tile for every animated palette frame
+                for (int animFrame = 0; animFrame < animatedPalettes.Length; animFrame++)
+                {
+                    var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+
+                    // Create a new tile
+                    tileTex.FillInTile(
+                        imgData: completeTileSet,
+                        imgDataOffset: tileSize * tileIndex,
+                        pal: animatedPalettes_8[animFrame],
+                        encoding: Util.TileEncoding.Linear_8bpp,
+                        tileWidth: CellSize,
+                        flipTextureY: false,
+                        tileX: 0,
+                        tileY: 0);
+
+                    // Add to additional tiles list
+                    additionalTiles.Add(tileTex);
+                }
+            }
+
+            // Create the tile array
+            var tiles = new Unity_TileTexture[tilesCount + additionalTiles.Count];
+
+            // Keep track of the index
+            var finalTileIndex = 0;
+
+            // Add every normal tile
+            for (int y = 0; y < tex.height; y += CellSize)
+            {
+                for (int x = 0; x < tex.width; x += CellSize)
+                {
+                    if (finalTileIndex >= tilesCount)
+                        break;
+
+                    // Create a tile
+                    tiles[finalTileIndex++] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
+                }
+            }
+
+            // Add additional tiles
+            foreach (Texture2D t in additionalTiles)
+                tiles[finalTileIndex++] = t.CreateTile();
+
+            return new Unity_TileSet(tiles)
+            {
+                AnimatedTiles = tileAnimations.Count == 0 ? null : tileAnimations.ToArray()
+            };
         }
 
         public Unity_Tile[] GetTileMap(GBACrash_MapLayer layer, GBACrash_MapData2DDataBlock.GBACrash_TileLayerData tileLayerData, bool is8bit = false, int tileSetLength = 0, bool isCollision = false)
