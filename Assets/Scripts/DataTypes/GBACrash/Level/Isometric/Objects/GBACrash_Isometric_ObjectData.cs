@@ -3,8 +3,9 @@
     public class GBACrash_Isometric_ObjectData : R1Serializable
     {
         public bool SerializeData { get; set; } // Set before serializing
+        public bool IsMultiplayer { get; set; } // Set before serializing
 
-        public Pointer Pointer_00 { get; set; } // 8 byte structs
+        public Pointer StartPositionsPointer { get; set; }
         public Pointer Pointer_04 { get; set; }
         public Pointer Pointer_08 { get; set; }
         public Pointer ObjectsPointer { get; set; }
@@ -12,6 +13,7 @@
 
         // Serialized from pointers
 
+        public GBACrash_Isometric_Position[] StartPositions { get; set; }
         public GBACrash_Isometric_Object[] Objects { get; set; }
         public GBACrash_Isometric_TargetObject[] TargetObjects { get; set; }
 
@@ -21,7 +23,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Pointer_00 = s.SerializePointer(Pointer_00, name: nameof(Pointer_00));
+            StartPositionsPointer = s.SerializePointer(StartPositionsPointer, name: nameof(StartPositionsPointer));
             Pointer_04 = s.SerializePointer(Pointer_04, name: nameof(Pointer_04));
             Pointer_08 = s.SerializePointer(Pointer_08, name: nameof(Pointer_08));
             ObjectsPointer = s.SerializePointer(ObjectsPointer, name: nameof(ObjectsPointer));
@@ -30,6 +32,7 @@
             if (!SerializeData)
                 return;
 
+            StartPositions = s.DoAt(StartPositionsPointer, () => s.SerializeObjectArray<GBACrash_Isometric_Position>(StartPositions, IsMultiplayer ? 2 : 1, name: nameof(StartPositions)));
             Objects =  s.DoAt(ObjectsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_Object>(Objects, x => x.ObjType == GBACrash_Isometric_Object.GBACrash_Isometric_ObjType.Invalid, name: nameof(Objects)));
             TargetObjects = s.DoAt(TargetObjectsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_TargetObject>(TargetObjects, x => x.ObjType == GBACrash_Isometric_TargetObject.GBACrash_Isometric_TargetObjType.Invalid, name: nameof(TargetObjects)));
 

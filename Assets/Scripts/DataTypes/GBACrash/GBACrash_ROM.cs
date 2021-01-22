@@ -196,7 +196,11 @@ namespace R1Engine
                         Isometric_ObjectDatas = new GBACrash_Isometric_ObjectData[7];
 
                     for (int i = 0; i < Isometric_ObjectDatas.Length; i++)
-                        Isometric_ObjectDatas[i] = s.SerializeObject<GBACrash_Isometric_ObjectData>(Isometric_ObjectDatas[i], x => x.SerializeData = i == index3D + 4, name: $"{nameof(Isometric_ObjectDatas)}[{i}]");
+                        Isometric_ObjectDatas[i] = s.SerializeObject<GBACrash_Isometric_ObjectData>(Isometric_ObjectDatas[i], x =>
+                        {
+                            x.SerializeData = i == index3D + 4;
+                            x.IsMultiplayer = i < 4;
+                        }, name: $"{nameof(Isometric_ObjectDatas)}[{i}]");
                 });
 
                 Isometric_CharacterInfos = s.DoAt(pointerTable[GBACrash_Pointer.Isometric_Characters], () => s.SerializeObjectArray<GBACrash_Isometric_CharacterInfo>(Isometric_CharacterInfos, 12, name: nameof(Isometric_CharacterInfos)));

@@ -591,6 +591,10 @@ namespace R1Engine
                 index += 2;
             }
 
+            // Load start positions
+            for (int i = 0; i < objData.StartPositions.Length; i++)
+                objects = objects.Append(new Unity_Object_GBACrashIsometric_StartPos(objData.StartPositions[i], i, objManager));
+
             float w = levelInfo.MapWidth * 0.5f;
             float h = levelInfo.MapHeight * 0.5f;
 
