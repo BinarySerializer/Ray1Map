@@ -6,8 +6,8 @@ namespace R1Engine
     {
         public int Width { get; set; }
         public int Height { get; set; }
-        public int XPos { get; set; } // What is this for?
-        public int YPos { get; set; } // What is this for?
+        public FixedPointInt XPos { get; set; } // What is this for?
+        public FixedPointInt YPos { get; set; } // What is this for?
         public Pointer FramesPointer { get; set; }
         public uint FramesCountPointer { get; set; } // This points to memory since a portion of the rom is copied to memory for faster reading
         public Pointer PalettePointer { get; set; }
@@ -25,8 +25,8 @@ namespace R1Engine
         {
             Width = s.Serialize<int>(Width, name: nameof(Width));
             Height = s.Serialize<int>(Height, name: nameof(Height));
-            XPos = s.Serialize<int>(XPos, name: nameof(XPos));
-            YPos = s.Serialize<int>(YPos, name: nameof(YPos));
+            XPos = s.SerializeObject<FixedPointInt>(XPos, name: nameof(XPos));
+            YPos = s.SerializeObject<FixedPointInt>(YPos, name: nameof(YPos));
             FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
             FramesCountPointer = s.Serialize<uint>(FramesCountPointer, name: nameof(FramesCountPointer));
 

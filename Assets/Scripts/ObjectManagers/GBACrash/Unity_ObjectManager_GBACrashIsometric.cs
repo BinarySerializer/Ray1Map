@@ -45,7 +45,7 @@ namespace R1Engine
                     {
                         obj.XPos.Value += 0x100;
                         obj.YPos.Value += 0x100;
-                        obj.Height -= 0x1000 / scale;
+                        obj.Height += ((0x1000 / (float)(1 << 16))) / scale;
 
                         if (prevObj.XPos.Value != objects[prevObjIndex - 1].XPos.Value || prevObj.YPos.Value != objects[prevObjIndex - 1].YPos.Value)
                             break;
