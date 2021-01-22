@@ -114,6 +114,8 @@ namespace R1Engine {
         public static bool LoadIsometricMapLayer { get; set; } = true;
         public static bool GBACrash_TimeTrialMode { get; set; }
 
+        public static bool Screenshot_RayWikiMode { get; set; }
+
         public static bool ShowGridMap { get; set; }
 
         private const string editorPrefsPrefix = "Ray1Map.";
@@ -240,6 +242,7 @@ namespace R1Engine {
             HideUnusedLinks = s.SerializeBool("HideUnusedLinks", HideUnusedLinks);
             LoadIsometricMapLayer = s.SerializeBool("LoadIsometricMapLayer", LoadIsometricMapLayer);
             GBACrash_TimeTrialMode = s.SerializeBool("GBACrash_TimeTrialMode", GBACrash_TimeTrialMode);
+            Screenshot_RayWikiMode = s.SerializeBool("Screenshot_RayWikiMode", Screenshot_RayWikiMode);
             ShowGridMap = s.SerializeBool("ShowGridMap", ShowGridMap);
 
             ShowDefaultObjIcons = s.SerializeBool("ShowDefaultObjIcons", ShowDefaultObjIcons);

@@ -133,6 +133,8 @@ namespace R1Engine
         {
             LevelEditorData.ObjManager.InitObjects(LevelEditorData.Level);
 
+            InitializeEventsForRayWikiScreenshot();
+
             // Initialize links
             InitializeEventLinks();
 
@@ -180,6 +182,95 @@ namespace R1Engine
             infoEta.options = LevelEditorData.ObjManager.LegacyETANames.Select(x => new Dropdown.OptionData(x)).ToList();
 
             hasLoaded = true;
+        }
+
+        public void InitializeEventsForRayWikiScreenshot()
+        {
+            if (!Settings.Screenshot_RayWikiMode)
+                return;
+            
+            // Get common properties
+            var objManager = LevelEditorData.ObjManager;
+            var settings = objManager.Context.Settings;
+            var objects = Controller.obj.levelController.Objects;
+            var level = LevelEditorData.Level;
+
+            if (settings.MajorEngineVersion == MajorEngineVersion.GBC)
+            {
+                // Object types to hide
+                var hideTypes = new Dictionary<Game, byte?[]>()
+                {
+                    [Game.GBC_R1] = new GBC_R1_ActorID[]
+                    {
+                        GBC_R1_ActorID.LavaWater_0,
+                        GBC_R1_ActorID.LavaWater_1,
+                        GBC_R1_ActorID.Pilot,
+                        GBC_R1_ActorID.FireStorm,
+                        GBC_R1_ActorID.DarkBeam,
+                        GBC_R1_ActorID.BigFireBall,
+                        GBC_R1_ActorID.DarkBeam,
+                        GBC_R1_ActorID.FireMine,
+                        GBC_R1_ActorID.Lightning,
+                    }.Select(x => (byte?)x).ToArray()
+                };
+
+                // Hide specified types
+                foreach (var obj in objects.Where(x => hideTypes[settings.Game].Contains(((Unity_Object_GBC)x.ObjData).Actor.ActorID)))
+                    obj.IsEnabled = false;
+
+                // Hide any object linked to Rayman and change his default animation
+                var mainObj = objManager.GetMainObject(level.EventData);
+                if (mainObj != null && (objManager.Context.Settings.Game == Game.GBC_R1 || objManager.Context.Settings.Game == Game.GBC_R2))
+                {
+                    // Modify the animation for Rayman so that he's visible on frame 0
+                    ((Unity_Object_GBC)mainObj).ActionIndex = 0;
+
+                    foreach (var l in mainObj.Links)
+                        objects[l].IsEnabled = false;
+
+                }
+
+                // Enumerate every captor and modify links
+                foreach (var captor in objects.Where(x => ((Unity_Object_GBC)x.ObjData).IsTrigger))
+                {
+                    var newLinks = new List<GBC_GameObjectLink>();
+                    var linkIndex = 0;
+
+                    // Enumerate every link
+                    foreach (var l in captor.ObjData.Links)
+                    {
+                        var linkedObj = (Unity_Object_GBC)objects[l].ObjData;
+
+                        // If the linked object is a music activator we link what that in turn is linked to
+                        if (settings.Game == Game.GBC_R1 && linkedObj.Actor.ActorID == 98)
+                        {
+                            // Add the links
+                            newLinks.AddRange(linkedObj.Actor.Links);
+
+                            // Hide the object
+                            objects[l].IsEnabled = false;
+                        }
+                        // If it links to a checkpoint we remove the link
+                        else if (settings.Game == Game.GBC_R1 && linkedObj.Actor.ActorID == 89)
+                        {
+                            // Do nothing
+                        }
+                        else
+                        {
+                            newLinks.Add(((Unity_Object_GBC)captor.ObjData).Actor.Links[linkIndex]);
+                        }
+
+                        linkIndex++;
+                    }
+
+                    // Update the links
+                    ((Unity_Object_GBC)captor.ObjData).Actor.Links = newLinks.ToArray();
+
+                    // If the captor isn't linked to anything which is enabled then we hide it
+                    if (!captor.ObjData.Links.Any(x => objects[x].IsEnabled))
+                        captor.IsEnabled = false;
+                }
+            }
         }
 
         protected void InitializeEventLinks()

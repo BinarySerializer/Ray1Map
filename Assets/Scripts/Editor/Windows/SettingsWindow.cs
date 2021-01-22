@@ -360,6 +360,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.Screenshot_ShowDefaultObj = EditorField("Show default object", Settings.Screenshot_ShowDefaultObj);
 
+        Settings.Screenshot_RayWikiMode = EditorField("RayWiki mode", Settings.Screenshot_RayWikiMode);
+
         // Serialization
 
         DrawHeader("Serialization");
