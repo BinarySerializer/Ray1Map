@@ -6,26 +6,24 @@
         public bool IsMultiplayer { get; set; } // Set before serializing
 
         public Pointer StartPositionsPointer { get; set; }
-        public Pointer Pointer_04 { get; set; }
-        public Pointer Pointer_08 { get; set; }
+        public Pointer MultiplayerFlagsPointer { get; set; }
+        public Pointer MultiplayerCrownsPointer { get; set; }
         public Pointer ObjectsPointer { get; set; }
         public Pointer TargetObjectsPointer { get; set; }
 
         // Serialized from pointers
 
         public GBACrash_Isometric_Position[] StartPositions { get; set; }
+        public GBACrash_Isometric_Position[] MultiplayerFlags { get; set; } // The game does * 0x3000 + 0x1800 on these positions
+        public GBACrash_Isometric_Position[] MultiplayerCrowns { get; set; } // The game does << 8 on these positions
         public GBACrash_Isometric_Object[] Objects { get; set; }
         public GBACrash_Isometric_TargetObject[] TargetObjects { get; set; }
-
-        // Most of these appear to be related to multiplayer data
-        public Struct_04[] Structs_04 { get; set; }
-        public Struct_08[] Structs_08 { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             StartPositionsPointer = s.SerializePointer(StartPositionsPointer, name: nameof(StartPositionsPointer));
-            Pointer_04 = s.SerializePointer(Pointer_04, name: nameof(Pointer_04));
-            Pointer_08 = s.SerializePointer(Pointer_08, name: nameof(Pointer_08));
+            MultiplayerFlagsPointer = s.SerializePointer(MultiplayerFlagsPointer, name: nameof(MultiplayerFlagsPointer));
+            MultiplayerCrownsPointer = s.SerializePointer(MultiplayerCrownsPointer, name: nameof(MultiplayerCrownsPointer));
             ObjectsPointer = s.SerializePointer(ObjectsPointer, name: nameof(ObjectsPointer));
             TargetObjectsPointer = s.SerializePointer(TargetObjectsPointer, name: nameof(TargetObjectsPointer));
 
@@ -33,34 +31,11 @@
                 return;
 
             StartPositions = s.DoAt(StartPositionsPointer, () => s.SerializeObjectArray<GBACrash_Isometric_Position>(StartPositions, IsMultiplayer ? 2 : 1, name: nameof(StartPositions)));
+            MultiplayerFlags = s.DoAt(MultiplayerFlagsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_Position>(MultiplayerFlags, x => x.XPos.Value == 0, name: nameof(MultiplayerFlags)));
+            MultiplayerCrowns = s.DoAt(MultiplayerCrownsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_Position>(MultiplayerCrowns, x => x.XPos.Value == 0, name: nameof(MultiplayerCrowns)));
             Objects =  s.DoAt(ObjectsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_Object>(Objects, x => x.ObjType == GBACrash_Isometric_Object.GBACrash_Isometric_ObjType.Invalid, name: nameof(Objects)));
             TargetObjects = s.DoAt(TargetObjectsPointer, () => s.SerializeObjectArrayUntil<GBACrash_Isometric_TargetObject>(TargetObjects, x => x.ObjType == GBACrash_Isometric_TargetObject.GBACrash_Isometric_TargetObjType.Invalid, name: nameof(TargetObjects)));
 
-            Structs_04 = s.DoAt(Pointer_04, () => s.SerializeObjectArrayUntil<Struct_04>(Structs_04, x => x.Int_00 == 0, name: nameof(Structs_04)));
-            Structs_08 = s.DoAt(Pointer_08, () => s.SerializeObjectArrayUntil<Struct_08>(Structs_08, x => x.Int_00 == 0, name: nameof(Structs_08)));
-        }
-
-        public class Struct_04 : R1Serializable
-        {
-            public int Int_00 { get; set; }
-            public int Int_04 { get; set; }
-
-            public override void SerializeImpl(SerializerObject s)
-            {
-                Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
-                Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));
-            }
-        }
-        public class Struct_08 : R1Serializable
-        {
-            public int Int_00 { get; set; }
-            public int Int_04 { get; set; }
-
-            public override void SerializeImpl(SerializerObject s)
-            {
-                Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
-                Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));
-            }
         }
     }
 }

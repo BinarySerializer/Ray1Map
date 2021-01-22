@@ -595,6 +595,20 @@ namespace R1Engine
             for (int i = 0; i < objData.StartPositions.Length; i++)
                 objects = objects.Append(new Unity_Object_GBACrashIsometric_StartPos(objData.StartPositions[i], i, objManager));
 
+            // Load multiplayer flags
+            objects = objData.MultiplayerFlags.Aggregate(objects, (current, o) => current.Append(new Unity_Object_GBACrashIsometric_MultiplayerFlag(new GBACrash_Isometric_Position()
+            {
+                XPos = new FixedPointInt() { Value = o.XPos.Value * 0x3000 + 0x1800 }, 
+                YPos = new FixedPointInt() { Value = o.YPos.Value * 0x3000 + 0x1800 },
+            }, objManager)));
+
+            // Load multiplayer crowns
+            objects = objData.MultiplayerCrowns.Aggregate(objects, (current, o) => current.Append(new Unity_Object_GBACrashIsometric_MultiplayerCrown(new GBACrash_Isometric_Position()
+            {
+                XPos = new FixedPointInt() { Value = o.XPos.Value << 8 }, 
+                YPos = new FixedPointInt() { Value = o.YPos.Value << 8 },
+            }, objManager)));
+
             float w = levelInfo.MapWidth * 0.5f;
             float h = levelInfo.MapHeight * 0.5f;
 
