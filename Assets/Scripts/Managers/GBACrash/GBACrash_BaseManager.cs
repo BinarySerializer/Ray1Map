@@ -57,7 +57,7 @@ namespace R1Engine
                         var anim = animSet.Animations[animIndex];
                         var frames = GetAnimFrames(animSet, animIndex, rom.ObjTileSet, Util.ConvertGBAPalette(rom.ObjPalettes[anim.PaletteIndex].Palette));
 
-                        exportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}");
+                        exportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}", false);
                     }
                 }
             }
@@ -93,7 +93,7 @@ namespace R1Engine
                             await UniTask.WaitForEndOfFrame();
                             var frames = GetMode7AnimFrames(animSet, animIndex, pal);
 
-                            exportAnim(frames, 4, "Mode7", $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}", $"{animIndex}");
+                            exportAnim(frames, 4, "Mode7", $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}", $"{animIndex}", true);
                         }
                     }
 
@@ -102,7 +102,7 @@ namespace R1Engine
                     {
                         exportedAnimSets.Add(levInfo.SpecialFrames.Offset);
 
-                        exportAnim(GetMode7SpecialAnimFrames(levInfo.SpecialFrames), 4, "Mode7", $"0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}", $"0");
+                        exportAnim(GetMode7SpecialAnimFrames(levInfo.SpecialFrames), 4, "Mode7", $"0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}", $"0", true);
                     }
                 }
             }
@@ -129,7 +129,7 @@ namespace R1Engine
 
                         var frames = GetIsometricAnimFrames(animations[i], pal);
 
-                        exportAnim(frames, 4, "Isometric", $"{i}", $"0");
+                        exportAnim(frames, 4, "Isometric", $"{i}", $"0", true);
                     }
                 }
             }
@@ -137,7 +137,7 @@ namespace R1Engine
             Debug.Log($"Finished export");
 
             // Helper for exporting an animation
-            void exportAnim(IEnumerable<Texture2D> frames, int speed, string modeName, string animSetName, string animName)
+            void exportAnim(IList<Texture2D> frames, int speed, string modeName, string animSetName, string animName, bool center)
             {
                 var modeDir = Path.Combine(outputDir, modeName);
 
@@ -149,14 +149,20 @@ namespace R1Engine
                     {
                         int index = 0;
 
+                        var maxWidth = frames.Max(x => x.width);
+                        var maxHeight = frames.Max(x => x.height);
+
                         foreach (var frameTex in frames)
                         {
                             var img = frameTex.ToMagickImage();
                             collection.Add(img);
                             collection[index].AnimationDelay = speed;
                             collection[index].AnimationTicksPerSecond = 60;
-                            collection[index].Trim();
 
+                            if (center)
+                                collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
+
+                            collection[index].Trim();
                             collection[index].GifDisposeMethod = GifDisposeMethod.Background;
                             index++;
                         }
