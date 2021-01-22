@@ -27,7 +27,7 @@ namespace R1Engine
             public ActorModel(int index, GBC_Action[] actions, Unity_ObjGraphics graphics)
             {
                 Index = index;
-                Actions = actions;
+                Actions = actions.OrderBy(x => x.ActionID).ToArray();
                 Graphics = graphics;
 
                 for (int i = 0; i < (Actions?.Length ?? 0); i++)
