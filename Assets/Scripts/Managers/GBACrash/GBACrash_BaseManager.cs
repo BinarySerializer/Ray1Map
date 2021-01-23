@@ -1696,7 +1696,7 @@ namespace R1Engine
             {
                 LevelIndex = levelIndex;
                 MapType = mapType;
-                DisplayName = $"{displayName} - {mapType}";
+                DisplayName = $"{displayName} - {mapType.ToString().Replace("Challenge", "Gem Route")}";
             }
             public LevInfo(GBACrash_MapInfo.GBACrash_MapType specialMapType, short index3D, string displayName)
             {

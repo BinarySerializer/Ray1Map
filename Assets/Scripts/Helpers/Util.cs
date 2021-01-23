@@ -297,6 +297,24 @@ namespace R1Engine
             JsonHelpers.SerializeToFile(jsonObj, Path.Combine(outDir, $"{dirName.Substring(name.Length + 1)}.json"));
         }
 
+        public static void OutputGBACrashJSONLevelListForWeb(GameModeSelection mode)
+        {
+            // Helper for getting a line
+            string getLine(int world, int level, string nameInternal, string name) => $"    {{ \"world\": {world}, \"level\": {level}, \"nameInternal\": \"{nameInternal}\", \"name\": \"{name}\" }},";
+
+            StringBuilder str = new StringBuilder();
+
+            var manager = (GBACrash_BaseManager)new GameSettings(mode, "", 0, 0).GetGameManager;
+
+            for (var i = 0; i < manager.LevInfos.Length; i++)
+            {
+                var lev = manager.LevInfos[i];
+                str.AppendLine(getLine(0, i, lev.LevelIndex != -1 ? lev.LevelIndex.ToString() : null, lev.DisplayName));
+            }
+
+            str.ToString().CopyToClipboard();
+        }
+
         public static void RenameFilesToUpper(string inputDir)
         {
             foreach (var file in Directory.GetFiles(inputDir, "*", SearchOption.AllDirectories))

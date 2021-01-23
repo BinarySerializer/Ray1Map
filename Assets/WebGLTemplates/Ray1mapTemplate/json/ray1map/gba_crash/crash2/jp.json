@@ -1,0 +1,88 @@
+{
+  "name": "Crash Bandicoot: Advance 2 (GBA - JP)",
+  "mode": "Crash2GBAJP",
+  "folder": "gba_crash/crash2_jp",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/Crash2\/World1.gif",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/Crash2\/World2.gif",
+			"level": 11
+		},
+		{
+			"image": ".\/img\/icon\/Crash2\/World3.gif",
+			"level": 20
+		},
+		{
+			"image": ".\/img\/icon\/Crash2\/World4.gif",
+			"level": 29
+		},
+		{
+			"image": ".\/img\/icon\/Crash2\/World5.gif",
+			"level": 39
+		},
+		{
+			"image": ".\/img\/icon\/Crash2\/Multiplayer.gif",
+			"level": 45
+		}
+	],
+  "levels": [
+    { "world": 0, "level": 50, "nameInternal": "", "name": "World Map" },
+
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "Island Intro" },
+    { "world": 0, "level": 1, "nameInternal": "1", "name": "Prints of Persia" },
+    { "world": 0, "level": 2, "nameInternal": "1", "name": "Prints of Persia - Bonus" },
+    { "world": 0, "level": 3, "nameInternal": "2", "name": "Lagoony Tunes" },
+    { "world": 0, "level": 4, "nameInternal": "Single", "name": "Globe Trottin'" },
+    { "world": 0, "level": 5, "nameInternal": "4", "name": "Pharaoh's Funhouse" },
+    { "world": 0, "level": 6, "nameInternal": "4", "name": "Pharaoh's Funhouse - Bonus" },
+    { "world": 0, "level": 7, "nameInternal": "5", "name": "Runaway Rug" },
+    { "world": 0, "level": 8, "nameInternal": "5", "name": "Runaway Rug - Bonus" },
+    { "world": 0, "level": 36, "nameInternal": "24", "name": "Evil Crunch" },
+
+    { "world": 0, "level": 9, "nameInternal": "6", "name": "Tiki Torture" },
+    { "world": 0, "level": 10, "nameInternal": "6", "name": "Tiki Torture - Bonus" },
+    { "world": 0, "level": 11, "nameInternal": "7", "name": "Hoppin' Coffins" },
+    { "world": 0, "level": 12, "nameInternal": "7", "name": "Hoppin' Coffins - Bonus" },
+    { "world": 0, "level": 13, "nameInternal": "Double", "name": "Barrel Roll" },
+    { "world": 0, "level": 14, "nameInternal": "9", "name": "Flockful of Seagulls" },
+    { "world": 0, "level": 15, "nameInternal": "10", "name": "Magma Mania" },
+    { "world": 0, "level": 16, "nameInternal": "10", "name": "Magma Mania - Bonus" },
+    { "world": 0, "level": 37, "nameInternal": "25", "name": "Evil Coco" },
+
+    { "world": 0, "level": 17, "nameInternal": "11", "name": "Run from the Sun" },
+    { "world": 0, "level": 18, "nameInternal": "12", "name": "Now it's Istanbul" },
+    { "world": 0, "level": 19, "nameInternal": "12", "name": "Now it's Istanbul - Bonus" },
+    { "world": 0, "level": 20, "nameInternal": "13", "name": "Mister Lava Lava" },
+    { "world": 0, "level": 21, "nameInternal": "13", "name": "Mister Lava Lava - Bonus" },
+    { "world": 0, "level": 22, "nameInternal": "14", "name": "Water Logged" },
+    { "world": 0, "level": 23, "nameInternal": "15", "name": "Slip-n-slidin' Sphinx" },
+    { "world": 0, "level": 24, "nameInternal": "15", "name": "Slip-n-slidin' Sphinx - Bonus" },
+    { "world": 0, "level": 38, "nameInternal": "26", "name": "Fake Crash" },
+
+    { "world": 0, "level": 25, "nameInternal": "Triple", "name": "Rocks can Roll" },
+    { "world": 0, "level": 26, "nameInternal": "17", "name": "Rock the Casaba" },
+    { "world": 0, "level": 27, "nameInternal": "17", "name": "Rock the Casaba - Bonus" },
+    { "world": 0, "level": 28, "nameInternal": "18", "name": "Eruption Disruption" },
+    { "world": 0, "level": 29, "nameInternal": "18", "name": "Eruption Disruption - Bonus" },
+    { "world": 0, "level": 30, "nameInternal": "19", "name": "Spaced Out" },
+    { "world": 0, "level": 31, "nameInternal": "20", "name": "King too Uncommon" },
+    { "world": 0, "level": 32, "nameInternal": "20", "name": "King too Uncommon - Bonus" },
+    { "world": 0, "level": 39, "nameInternal": "27", "name": "N. Trance - Part 1" },
+    { "world": 0, "level": 40, "nameInternal": "27", "name": "N. Trance - Part 2" },
+
+    { "world": 0, "level": 33, "nameInternal": "21", "name": "Wild Nile Ride" },
+    { "world": 0, "level": 34, "nameInternal": "22", "name": "101 Arabian Kites" },
+    { "world": 0, "level": 35, "nameInternal": "23", "name": "Fire Walker" },
+    { "world": 0, "level": 41, "nameInternal": "28", "name": "N. Tropy - Part 1" },
+    { "world": 0, "level": 42, "nameInternal": "28", "name": "N. Tropy - Part 2" },
+    { "world": 0, "level": 43, "nameInternal": "28", "name": "N. Tropy - Part 3" },
+
+    { "world": 0, "level": 46, "nameInternal": "Test", "name": "(Multiplayer) Double Cross" },
+    { "world": 0, "level": 47, "nameInternal": "Prototype", "name": "(Multiplayer) Five Points" },
+    { "world": 0, "level": 48, "nameInternal": "Standin", "name": "(Multiplayer) Long Trail" },
+    { "world": 0, "level": 49, "nameInternal": "Demo", "name": "(Multiplayer) Ring Master" }
+  ]
+}
