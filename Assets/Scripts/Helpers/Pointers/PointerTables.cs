@@ -873,7 +873,7 @@ namespace R1Engine
                 case GameModeSelection.Crash1GBAEU:
                     return new Dictionary<GBACrash_Pointer, uint>() {
                         [GBACrash_Pointer.LevelInfo] = 0x0816c86c,
-                        [GBACrash_Pointer.Localization] = 0x081730d8,
+                        [GBACrash_Pointer.Localization] = 0x087e5e34,
 
                         [GBACrash_Pointer.Map2D_AnimSets] = 0x084a5610,
                         [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bf120,
@@ -944,7 +944,7 @@ namespace R1Engine
                 case GameModeSelection.Crash2GBAEU:
                     return new Dictionary<GBACrash_Pointer, uint>() {
                         [GBACrash_Pointer.LevelInfo] = 0x081d0430,
-                        [GBACrash_Pointer.Localization] = 0x081d3984, // TODO: Pointers for other languages
+                        [GBACrash_Pointer.Localization] = 0x087ff064,
 
                         [GBACrash_Pointer.Map2D_AnimSets] = 0x084768c4,
                         [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082b3914,

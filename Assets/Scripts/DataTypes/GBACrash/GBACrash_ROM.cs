@@ -7,7 +7,8 @@ namespace R1Engine
     {
         public GBACrash_BaseManager.LevInfo CurrentLevInfo { get; set; } // Set before serializing
 
-        public GBACrash_LocTable LocTable { get; set; }
+        public Pointer[] LocTablePointers { get; set; }
+        public GBACrash_LocTable[] LocTables { get; set; }
         public GBACrash_LevelInfo[] LevelInfos { get; set; }
 
         public GBACrash_MapInfo CurrentMapInfo
@@ -105,9 +106,25 @@ namespace R1Engine
             var manager = (GBACrash_BaseManager)s.GameSettings.GetGameManager;
 
             if (pointerTable.ContainsKey(GBACrash_Pointer.Localization))
-                LocTable = s.DoAt(pointerTable[GBACrash_Pointer.Localization], () => s.SerializeObject<GBACrash_LocTable>(LocTable, name: nameof(LocTable)));
+            {
+                var multipleLanguages = s.GameSettings.GameModeSelection == GameModeSelection.Crash1GBAEU || s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAEU;
 
-            s.Context.StoreObject(GBACrash_BaseManager.LocTableID, LocTable);
+                if (multipleLanguages)
+                    LocTablePointers = s.DoAt(pointerTable[GBACrash_Pointer.Localization], () => s.SerializePointerArray(LocTablePointers, 6, name: nameof(LocTablePointers)));
+                else
+                    LocTablePointers = new Pointer[]
+                    {
+                        pointerTable[GBACrash_Pointer.Localization]
+                    };
+
+                if (LocTables == null)
+                    LocTables = new GBACrash_LocTable[LocTablePointers.Length];
+
+                for (int i = 0; i < LocTables.Length; i++)
+                    LocTables[i] = s.DoAt(LocTablePointers[i], () => s.SerializeObject<GBACrash_LocTable>(LocTables[i], name: $"{nameof(LocTables)}[{i}]"));
+            }
+
+            s.Context.StoreObject(GBACrash_BaseManager.LocTableID, LocTables?.FirstOrDefault());
 
             s.DoAt(pointerTable[GBACrash_Pointer.LevelInfo], () =>
             {

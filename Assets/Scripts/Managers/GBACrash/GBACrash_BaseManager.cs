@@ -332,7 +332,8 @@ namespace R1Engine
                 eventData: new List<Unity_Object>(objects),
                 cellSize: CellSize,
                 getCollisionTypeGraphicFunc: x => ((GBACrash_Crash2_CollisionType)x).GetCollisionTypeGraphic(),
-                getCollisionTypeNameFunc: x => ((GBACrash_Crash2_CollisionType)x).ToString());
+                getCollisionTypeNameFunc: x => ((GBACrash_Crash2_CollisionType)x).ToString(),
+                localization: LoadLocalization(rom));
         }
 
         public async UniTask<Unity_Level> LoadMode7Async(Context context, GBACrash_ROM rom)
@@ -557,7 +558,8 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = new Vector3(1,1,0.5f) * CellSize
                 },
-                cellSize: CellSize);
+                cellSize: CellSize,
+                localization: LoadLocalization(rom));
         }
 
         public async UniTask<Unity_Level> LoadIsometricAsync(Context context, GBACrash_ROM rom)
@@ -663,7 +665,8 @@ namespace R1Engine
                     CalculateXDisplacement = () => w - 16 * levelInfo.XPosition * 2,
                     CalculateYDisplacement = () => h - 16 * levelInfo.YPosition * 2 + (minHeight * heightScale * 2 * Mathf.Cos(Mathf.Deg2Rad * 30f)),
                     ObjectScale = Vector3.one * 12/64f
-                });
+                },
+                localization: LoadLocalization(rom));
         }
 
         public async UniTask<Unity_Level> LoadWorldMapAsync(Context context, GBACrash_ROM rom)
@@ -721,7 +724,8 @@ namespace R1Engine
                 maps: maps,
                 objManager: objmanager,
                 eventData: new List<Unity_Object>(objects),
-                cellSize: CellSize);
+                cellSize: CellSize,
+                localization: LoadLocalization(rom));
         }
 
         public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme, MapTile[] mapTiles_4)
@@ -1685,6 +1689,25 @@ namespace R1Engine
                 output[frameIndex] = Util.ToTileSetTexture(anim.AnimFrames[frameIndex], pal, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: anim.Width / CellSize);
 
             return output;
+        }
+
+        public Dictionary<string, string[]> LoadLocalization(GBACrash_ROM rom)
+        {
+            var langages = new string[]
+            {
+                "English",
+                "French",
+                "German",
+                "Spanish",
+                "Italian",
+                "Dutch"
+            };
+
+            return rom.LocTables?.Select((x, i) => new
+            {
+                Lang = langages[i],
+                Strings = x.Strings
+            }).ToDictionary(x => x.Lang, x => x.Strings);
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
