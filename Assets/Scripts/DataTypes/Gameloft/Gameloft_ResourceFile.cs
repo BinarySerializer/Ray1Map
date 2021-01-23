@@ -51,7 +51,7 @@
                 if (startOffset.FileOffset + size > s.CurrentLength) size = s.CurrentLength - startOffset.FileOffset;
                 t = s.SerializeObject<T>(t, onPreSerialize: obj => obj.ResourceSize = size, name: name);
                 if (s.CurrentPointer != startOffset + size) {
-                    UnityEngine.Debug.LogWarning($"{typeof(T)} @ {startOffset} - Resource {i}: Serialized size: {(s.CurrentPointer - startOffset)} != ResourceSize: {size}");
+                    UnityEngine.Debug.LogWarning($"{typeof(T)} @ {startOffset} - Resource {i}: Serialized size: {(s.CurrentPointer - startOffset)}/{(s.CurrentPointer - startOffset):X8} != ResourceSize: {size}");
                 }
             });
             return t;

@@ -14,7 +14,7 @@ namespace R1Engine
         public abstract string[] ResourceFiles { get; }
         public abstract string[] SingleResourceFiles { get; }
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public virtual GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
         });
@@ -447,12 +447,12 @@ namespace R1Engine
             throw new NotImplementedException();
         }
 
-        public async UniTask LoadFilesAsync(Context context) {
+        public virtual async UniTask LoadFilesAsync(Context context) {
             await UniTask.CompletedTask;
             throw new NotImplementedException();
         }
 
-		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
+		public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
             await UniTask.CompletedTask;
             throw new NotImplementedException();
 		}
