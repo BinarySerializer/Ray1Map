@@ -29,6 +29,7 @@ namespace R1Engine
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
             new GameAction("Export isometric character icons", false, true, (input, output) => ExportIsometricCharacterIcons(settings, output)),
+            new GameAction("Export level icons", false, true, (input, output) => ExportLevelIcons(settings, output)),
         };
 
         public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
@@ -186,7 +187,6 @@ namespace R1Engine
 
         public async UniTask ExportIsometricCharacterIcons(GameSettings settings, string outputDir)
         {
-            // Export 2D animations
             using (var context = new Context(settings))
             {
                 // Load the files
@@ -203,6 +203,26 @@ namespace R1Engine
                     var tex = Util.ToTileSetTexture(rom.Isometric_CharacterIcons[i].TileSet.TileSet, pal[rom.Isometric_CharacterIcons[i].PaletteIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: 2);
 
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"{i:00}_{rom.Isometric_CharacterInfos[i].Name}.png"), tex.EncodeToPNG());
+                }
+            }
+        }
+
+        public async UniTask ExportLevelIcons(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBACrash_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBACrash_MapInfo.GBACrash_MapType.WorldMap, 0, null));
+
+                // Enumerate every level icon
+                for (int i = 0; i < rom.WorldMap_Crash1_LevelIcons.Length; i++)
+                {
+                    var tex = rom.WorldMap_Crash1_LevelIcons[i].ToTexture2D();
+
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{i}.png"), tex.EncodeToPNG());
                 }
             }
         }

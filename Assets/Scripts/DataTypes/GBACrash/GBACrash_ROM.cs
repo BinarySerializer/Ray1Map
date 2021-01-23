@@ -91,6 +91,7 @@ namespace R1Engine
 
         // WorldMap
         public GBACrash_WorldMap_Data WorldMap { get; set; }
+        public GBACrash_WorldMap_Crash1_LevelIcon[] WorldMap_Crash1_LevelIcons { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -238,7 +239,11 @@ namespace R1Engine
 
             if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.WorldMap)
             {
-                WorldMap = s.DoAt(pointerTable[GBACrash_Pointer.WorldMap], () => s.SerializeObject(WorldMap, name: nameof(WorldMap)));
+                if (pointerTable.ContainsKey(GBACrash_Pointer.WorldMap))
+                    WorldMap = s.DoAt(pointerTable[GBACrash_Pointer.WorldMap], () => s.SerializeObject(WorldMap, name: nameof(WorldMap)));
+
+                if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1)
+                    WorldMap_Crash1_LevelIcons = s.DoAt(pointerTable[GBACrash_Pointer.WorldMap_Crash1_LevelIcons], () => s.SerializeObjectArray<GBACrash_WorldMap_Crash1_LevelIcon>(WorldMap_Crash1_LevelIcons, 10, name: nameof(WorldMap_Crash1_LevelIcons)));
             }
         }
     }
