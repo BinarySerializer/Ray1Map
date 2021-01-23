@@ -197,6 +197,33 @@
 			]
 		},
 		{
+			"name": "Crash Bandicoot games",
+			"games": [
+				{
+					"title": "Crash Bandicoot: The Huge Adventure",
+					"viewer": "ray1map",
+					"json": "gba_crash\/crash1",
+					"image": ".\/img\/logo\/crash1.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_isometric/crash1_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_isometric/crash1_us" },
+						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "gba_isometric/crash1_jp" }
+					]
+				},
+				{
+					"title": "Crash Bandicoot 2: N-Tranced",
+					"viewer": "ray1map",
+					"json": "gba_crash\/crash2",
+					"image": ".\/img\/logo\/crash2.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_isometric/crash2_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_isometric/crash2_us" },
+						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "gba_isometric/crash2_jp" }
+					]
+				}
+			]
+		},
+		{
 			"name": "Spyro games",
 			"games": [
 				{

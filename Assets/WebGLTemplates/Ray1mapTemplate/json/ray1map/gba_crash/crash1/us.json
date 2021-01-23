@@ -1,0 +1,77 @@
+{
+  "name": "Crash Bandicoot: The Huge Adventure (GBA - US)",
+  "mode": "Crash1GBAUS",
+  "folder": "gba_crash/crash1_us",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/Crash1\/World1.gif",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/Crash1\/World2.gif",
+			"level": 13
+		},
+		{
+			"image": ".\/img\/icon\/Crash1\/World3.gif",
+			"level": 26
+		},
+		{
+			"image": ".\/img\/icon\/Crash1\/World4.gif",
+			"level": 38
+		}
+	],
+  "levels": [
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "Jungle Jam" },
+    { "world": 0, "level": 1, "nameInternal": "0", "name": "Jungle Jam - Bonus" },
+    { "world": 0, "level": 2, "nameInternal": "1", "name": "Shipwrecked" },
+    { "world": 0, "level": 3, "nameInternal": "2", "name": "Temple of Boom" },
+    { "world": 0, "level": 4, "nameInternal": "2", "name": "Temple of Boom - Bonus" },
+    { "world": 0, "level": 5, "nameInternal": "2", "name": "Temple of Boom - Gem Route" },
+    { "world": 0, "level": 6, "nameInternal": "3", "name": "Frostbite Cavern - Part 1" },
+    { "world": 0, "level": 7, "nameInternal": "3", "name": "Frostbite Cavern - Part 2" },
+    { "world": 0, "level": 8, "nameInternal": "3", "name": "Frostbite Cavern - Part 3" },
+    { "world": 0, "level": 9, "nameInternal": "3", "name": "Frostbite Cavern - Bonus" },
+    { "world": 0, "level": 10, "nameInternal": "4", "name": "Just in Slime" },
+    { "world": 0, "level": 11, "nameInternal": "4", "name": "Just in Slime - Bonus" },
+    { "world": 0, "level": 43, "nameInternal": "20", "name": "Dingodile" },
+
+    { "world": 0, "level": 12, "nameInternal": "5", "name": "Snow Crash - Part 1" },
+    { "world": 0, "level": 13, "nameInternal": "5", "name": "Snow Crash - Part 2" },
+    { "world": 0, "level": 14, "nameInternal": "5", "name": "Snow Crash - Part 3" },
+    { "world": 0, "level": 15, "nameInternal": "5", "name": "Snow Crash - Bonus" },
+    { "world": 0, "level": 16, "nameInternal": "5", "name": "Snow Crash - Gem Route" },
+    { "world": 0, "level": 17, "nameInternal": "6", "name": "Rocket Racket" },
+    { "world": 0, "level": 18, "nameInternal": "7", "name": "Just Hangin'" },
+    { "world": 0, "level": 19, "nameInternal": "7", "name": "Just Hangin' - Bonus" },
+    { "world": 0, "level": 20, "nameInternal": "7", "name": "Just Hangin' - Gem Route" },
+    { "world": 0, "level": 21, "nameInternal": "8", "name": "Shark Attack" },
+    { "world": 0, "level": 22, "nameInternal": "9", "name": "Ruined" },
+    { "world": 0, "level": 23, "nameInternal": "9", "name": "Ruined - Bonus" },
+    { "world": 0, "level": 44, "nameInternal": "21", "name": "N. Gin" },
+
+    { "world": 0, "level": 24, "nameInternal": "10", "name": "Snow Job - Part 1" },
+    { "world": 0, "level": 25, "nameInternal": "10", "name": "Snow Job - Part 2" },
+    { "world": 0, "level": 26, "nameInternal": "10", "name": "Snow Job - Part 3" },
+    { "world": 0, "level": 27, "nameInternal": "10", "name": "Snow Job - Bonus" },
+    { "world": 0, "level": 28, "nameInternal": "11", "name": "Ace of Space" },
+    { "world": 0, "level": 29, "nameInternal": "11", "name": "Ace of Space - Bonus" },
+    { "world": 0, "level": 30, "nameInternal": "11", "name": "Ace of Space - Gem Route" },
+    { "world": 0, "level": 31, "nameInternal": "12", "name": "Sunken City" },
+    { "world": 0, "level": 32, "nameInternal": "13", "name": "Down the Hole" },
+    { "world": 0, "level": 33, "nameInternal": "13", "name": "Down the Hole - Bonus" },
+    { "world": 0, "level": 34, "nameInternal": "14", "name": "Blimp Bonanza" },
+    { "world": 0, "level": 45, "nameInternal": "22", "name": "Tiny" },
+
+    { "world": 0, "level": 35, "nameInternal": "15", "name": "Star to Finish" },
+    { "world": 0, "level": 36, "nameInternal": "15", "name": "Star to Finish - Bonus" },
+    { "world": 0, "level": 37, "nameInternal": "16", "name": "Air Supply" },
+    { "world": 0, "level": 38, "nameInternal": "17", "name": "No-fly Zone" },
+    { "world": 0, "level": 39, "nameInternal": "18", "name": "Drip, drip, drip" },
+    { "world": 0, "level": 40, "nameInternal": "18", "name": "Drip, drip, drip - Bonus" },
+    { "world": 0, "level": 41, "nameInternal": "19", "name": "Final Countdown" },
+    { "world": 0, "level": 42, "nameInternal": "19", "name": "Final Countdown - Bonus" },
+    { "world": 0, "level": 46, "nameInternal": "23", "name": "Neo Cortex" },
+    
+    { "world": 0, "level": 47, "nameInternal": "24", "name": "Mega-mix" }
+  ]
+}
