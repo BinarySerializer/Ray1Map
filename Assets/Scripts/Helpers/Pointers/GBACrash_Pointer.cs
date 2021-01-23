@@ -25,6 +25,8 @@
         Mode7_Crash2_Type1_FlamesTileSetLengths,
         Mode7_Crash2_Type1_FlamesTileSets,
 
+        Mode7_Crash1_PolarDeathPalette,
+
         Isometric_LevelInfo,
         Isometric_ObjectDatas,
         Isometric_ObjAnimations,

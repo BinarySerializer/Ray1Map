@@ -32,6 +32,8 @@ namespace R1Engine
 
         public GBACrash_Mode7_AnimSet AnimSet_Chase { get; set; } // Bear in Crash 1, Shark in Crash 2
 
+        public RGBA5551Color[] Crash1_PolarDeathPalette { get; set; }
+
         public IEnumerable<GBACrash_Mode7_AnimSet> GetAllAnimSets => LevelType == 0 ? AnimSets.Append(AnimSet_Chase) : AnimSets;
 
         // The special frames for the blimp and N. Gin in Crash 1. Animations are at 0x0817a534 and 0x0817a60c. These are stored as 4-bit graphics, but get converted to 8-bit in memory.
@@ -104,6 +106,9 @@ namespace R1Engine
             else if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1 && LevelType == 2)
                 // Load N. Gin
                 SpecialFrames = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_Crash1_Type2_SpecialFrame], () => s.SerializeObject<GBACrash_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 1, name: nameof(SpecialFrames)));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBACrash_Crash1)
+                Crash1_PolarDeathPalette = s.DoAt(pointerTable[GBACrash_Pointer.Mode7_Crash1_PolarDeathPalette], () => s.SerializeObjectArray<RGBA5551Color>(Crash1_PolarDeathPalette, 16, name: nameof(Crash1_PolarDeathPalette)));
         }
     }
 }

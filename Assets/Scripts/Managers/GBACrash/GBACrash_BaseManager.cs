@@ -80,10 +80,13 @@ namespace R1Engine
 
                     var tilePal = rom.Mode7_GetTilePal(levInfo);
                     var pal = Util.ConvertAndSplitGBAPalette(levInfo.ObjPalette.Concat(tilePal).ToArray());
+                    var animSetIndex = -1;
 
                     // Enumerate every anim set
                     foreach (var animSet in levInfo.GetAllAnimSets)
                     {
+                        animSetIndex++;
+
                         if (animSet?.Animations == null || exportedAnimSets.Contains(animSet.AnimationsPointer))
                             continue;
 
@@ -92,7 +95,7 @@ namespace R1Engine
                         for (int animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
                         {
                             await UniTask.WaitForEndOfFrame();
-                            var frames = GetMode7AnimFrames(animSet, animIndex, pal);
+                            var frames = GetMode7AnimFrames(animSet, animSetIndex, animIndex, pal, levInfo);
 
                             exportAnim(frames, 4, "Mode7", $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}", $"{animIndex}", true);
                         }
@@ -1516,8 +1519,8 @@ namespace R1Engine
         {
             var pal = Util.ConvertAndSplitGBAPalette(level.ObjPalette.Concat(tilePal).ToArray());
 
-            var animSets = level.GetAllAnimSets.Select(animSet => new Unity_ObjectManager_GBACrashMode7.AnimSet(
-                animations: animSet.Animations?.Select((anim, i) => new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation(GetMode7AnimFrames(animSet, i, pal).Select(frame => frame.CreateSprite()).ToArray())).ToArray() ?? new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation[0]
+            var animSets = level.GetAllAnimSets.Select((animSet, animSetIndex) => new Unity_ObjectManager_GBACrashMode7.AnimSet(
+                animations: animSet.Animations?.Select((anim, i) => new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation(GetMode7AnimFrames(animSet, animSetIndex, i, pal, level).Select(frame => frame.CreateSprite()).ToArray())).ToArray() ?? new Unity_ObjectManager_GBACrashMode7.AnimSet.Animation[0]
             ));
 
             // Load special frames animation
@@ -1608,8 +1611,13 @@ namespace R1Engine
             return output;
         }
 
-        public Texture2D[] GetMode7AnimFrames(GBACrash_Mode7_AnimSet animSet, int animIndex, Color[][] pal)
+        public Texture2D[] GetMode7AnimFrames(GBACrash_Mode7_AnimSet animSet, int animSetIndex, int animIndex, Color[][] pal, GBACrash_Mode7_LevelInfo levInfo)
         {
+            var palette = pal;
+
+            if (levInfo.Context.Settings.EngineVersion == EngineVersion.GBACrash_Crash1 && animSetIndex == 0 && animIndex == 5)
+                palette = Util.ConvertAndSplitGBAPalette(levInfo.Crash1_PolarDeathPalette);
+
             var anim = animSet.Animations[animIndex];
             var frames = animSet.ObjFrames.Skip(anim.FrameIndex).Take(anim.FramesCount).ToArray();
 
@@ -1619,7 +1627,7 @@ namespace R1Engine
             {
                 var frame = frames[frameIndex];
 
-                output[frameIndex] = Util.ToTileSetTexture(frame.TileSet, pal[animSet.PaletteIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: frame.Width);
+                output[frameIndex] = Util.ToTileSetTexture(frame.TileSet, palette[animSet.PaletteIndex], Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: frame.Width);
             }
 
             return output;

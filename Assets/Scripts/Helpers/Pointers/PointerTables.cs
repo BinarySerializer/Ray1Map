@@ -888,6 +888,8 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_Crash1_Type1_SpecialFrame] = 0x08167ad4,
                         [GBACrash_Pointer.Mode7_Crash1_Type2_SpecialFrame] = 0x08169ae8,
 
+                        [GBACrash_Pointer.Mode7_Crash1_PolarDeathPalette] = 0x0817a728,
+
                         [GBACrash_Pointer.WorldMap_Crash1_LevelIcons] = 0x0816c5a0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
@@ -909,6 +911,8 @@ namespace R1Engine
                         [GBACrash_Pointer.Mode7_Crash1_Type1_SpecialFrame] = 0x08167614,
                         [GBACrash_Pointer.Mode7_Crash1_Type2_SpecialFrame] = 0x08169628,
 
+                        [GBACrash_Pointer.Mode7_Crash1_PolarDeathPalette] = 0x08178878,
+
                         [GBACrash_Pointer.WorldMap_Crash1_LevelIcons] = 0x0816c0e0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
@@ -929,6 +933,8 @@ namespace R1Engine
 
                         [GBACrash_Pointer.Mode7_Crash1_Type1_SpecialFrame] = 0x0816980c,
                         [GBACrash_Pointer.Mode7_Crash1_Type2_SpecialFrame] = 0x0816b820,
+
+                        [GBACrash_Pointer.Mode7_Crash1_PolarDeathPalette] = 0x0817b1ec,
 
                         [GBACrash_Pointer.WorldMap_Crash1_LevelIcons] = 0x0816e324,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
