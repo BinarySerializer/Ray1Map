@@ -50,7 +50,13 @@ namespace R1Engine
         public override int? GetAnimIndex => 0;
         protected override int GetSpriteID => 0;
         public override IList<Sprite> Sprites => null;
-        protected override bool IsUIStateArrayUpToDate => false;
-        protected override void RecalculateUIStates() => UIStates = new UIState[0];
+
+        protected bool UIStates_HasInitialized { get; set; }
+        protected override bool IsUIStateArrayUpToDate => UIStates_HasInitialized;
+        protected override void RecalculateUIStates()
+        {
+            UIStates_HasInitialized = true;
+            UIStates = new UIState[0];
+        }
     }
 }

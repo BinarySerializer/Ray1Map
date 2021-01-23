@@ -78,8 +78,8 @@ namespace R1Engine
             public GBACrashIsometric_UIState(string displayName, int animIndex) : base(displayName, animIndex) { }
 
             public override void Apply(Unity_Object obj) {
-                var rrrObj = (Unity_Object_GBACrashIsometric_Obj)obj;
-                rrrObj.ObjAnimIndex = AnimIndex;
+                var crashObj = (Unity_Object_GBACrashIsometric_Obj)obj;
+                crashObj.ObjAnimIndex = AnimIndex;
             }
 
             public override bool IsCurrentState(Unity_Object obj) => AnimIndex == ((Unity_Object_GBACrashIsometric_Obj)obj).ObjAnimIndex;

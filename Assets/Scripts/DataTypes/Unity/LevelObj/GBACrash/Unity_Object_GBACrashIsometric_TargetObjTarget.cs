@@ -33,5 +33,11 @@ namespace R1Engine
 
         public override ObjectType Type => ObjectType.Waypoint;
         public override bool IsEditor => true;
+
+        protected override void RecalculateUIStates()
+        {
+            UIStates_HasInitialized = true;
+            UIStates = new UIState[0];
+        }
     }
 }

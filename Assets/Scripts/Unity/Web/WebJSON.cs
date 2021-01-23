@@ -136,6 +136,10 @@ public class WebJSON {
 		// SNES
 		public int? SNES_GraphicsGroupIndex { get; set; }
 		public string[] SNES_GraphicsGroupNames { get; set; }
+
+		// GBA Crash
+		public int? GBACrash_AnimSetIndex { get; set; }
+		public string[] GBACrash_AnimSetNames { get; set; }
 	}
 	public class Layer {
 		public int Index { get; set; }
