@@ -980,6 +980,8 @@ namespace R1Engine
                         [GBACrash_Pointer.Isometric_AdditionalAnim8_Palette] = 0x087eafa8,
                         [GBACrash_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087de7c8,
                         [GBACrash_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087f79e8,
+
+                        [GBACrash_Pointer.WorldMap] = 0x081e3924,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAUS:
@@ -1033,6 +1035,8 @@ namespace R1Engine
                         [GBACrash_Pointer.Isometric_AdditionalAnim8_Palette] = 0x087e7ed8,
                         [GBACrash_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087db040,
                         [GBACrash_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087f4918,
+
+                        [GBACrash_Pointer.WorldMap] = 0x081dade4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAJP:
@@ -1087,6 +1091,7 @@ namespace R1Engine
                         [GBACrash_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087ce8a0,
                         [GBACrash_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087e7ac0,
 
+                        [GBACrash_Pointer.WorldMap] = 0x081cd6bc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

@@ -1,11 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
 {
     public class GBACrash_ObjData : R1Serializable
     {
-        public ushort Ushort_00 { get; set; }
+        public ushort ObjectsCount { get; set; }
         public ushort ObjGroupsCount { get; set; }
         public Pointer ObjGroupsPointer { get; set; }
         public Pointer ObjParamsOffsetsPointer { get; set; }
@@ -15,20 +16,26 @@ namespace R1Engine
         // Serialized from pointers
 
         public GBACrash_ObjGroups[] ObjGroups { get; set; }
+        public GBACrash_Object[] Objects { get; set; }
+        public IEnumerable<GBACrash_Object> GetObjects => ObjGroupsCount == 0 ? Objects : ObjGroups.SelectMany(x => x.Objects);
         public ushort[] ObjParamsOffsets { get; set; }
         public byte[][] ObjParams { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Ushort_00 = s.Serialize<ushort>(Ushort_00, name: nameof(Ushort_00));
+            ObjectsCount = s.Serialize<ushort>(ObjectsCount, name: nameof(ObjectsCount));
             ObjGroupsCount = s.Serialize<ushort>(ObjGroupsCount, name: nameof(ObjGroupsCount));
             ObjGroupsPointer = s.SerializePointer(ObjGroupsPointer, name: nameof(ObjGroupsPointer));
             ObjParamsOffsetsPointer = s.SerializePointer(ObjParamsOffsetsPointer, name: nameof(ObjParamsOffsetsPointer));
             ObjParamsPointer = s.SerializePointer(ObjParamsPointer, name: nameof(ObjParamsPointer));
             Pointer_10 = s.SerializePointer(Pointer_10, name: nameof(Pointer_10));
 
-            ObjGroups = s.DoAt(ObjGroupsPointer, () => s.SerializeObjectArray<GBACrash_ObjGroups>(ObjGroups, ObjGroupsCount, name: nameof(ObjGroups)));
-            ObjParamsOffsets = s.DoAt(ObjParamsOffsetsPointer, () => s.SerializeArray<ushort>(ObjParamsOffsets, ObjGroups.SelectMany(x => x.Objects).Max(x => x.ObjParamsIndex) + 1, name: nameof(ObjParamsOffsets)));
+            if (ObjGroupsCount == 0)
+                Objects = s.DoAt(ObjGroupsPointer, () => s.SerializeObjectArray<GBACrash_Object>(Objects, ObjectsCount, name: nameof(Objects)));
+            else
+                ObjGroups = s.DoAt(ObjGroupsPointer, () => s.SerializeObjectArray<GBACrash_ObjGroups>(ObjGroups, ObjGroupsCount, name: nameof(ObjGroups)));
+            
+            ObjParamsOffsets = s.DoAt(ObjParamsOffsetsPointer, () => s.SerializeArray<ushort>(ObjParamsOffsets, GetObjects.Max(x => x.ObjParamsIndex) + 1, name: nameof(ObjParamsOffsets)));
 
             s.DoAt(ObjParamsPointer, () =>
             {

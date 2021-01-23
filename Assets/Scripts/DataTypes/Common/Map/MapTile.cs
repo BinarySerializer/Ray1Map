@@ -46,6 +46,7 @@ namespace R1Engine
         public GBA_TileType GBATileType { get; set; } = GBA_TileType.Normal;
         public GBC_TileType GBCTileType { get; set; } = GBC_TileType.Full;
         public bool Is8Bpp { get; set; }
+        public bool GBACrash_IsWorldMap8bpp { get; set; }
         public bool IsFirstBlock { get; set; }
 
         public GBARRR_MapBlock.MapType GBARRRType { get; set; }
@@ -357,11 +358,11 @@ namespace R1Engine
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
-                    TileMapY = (ushort)bitFunc(TileMapY, Is8Bpp ? 14 : 10, name: nameof(TileMapY));
+                    TileMapY = (ushort)bitFunc(TileMapY, GBACrash_IsWorldMap8bpp ? 12 : Is8Bpp ? 14 : 10, name: nameof(TileMapY));
                     HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                     VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
 
-                    if (!Is8Bpp)
+                    if (!Is8Bpp && !GBACrash_IsWorldMap8bpp)
                         PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
             }

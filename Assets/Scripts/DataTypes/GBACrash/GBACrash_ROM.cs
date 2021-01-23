@@ -89,6 +89,9 @@ namespace R1Engine
         public GBACrash_Isometric_Animation[] Isometric_AdditionalAnimations { get; set; }
         public IEnumerable<GBACrash_Isometric_Animation> Isometric_GetAnimations => Isometric_ObjAnimations.Concat(Isometric_AdditionalAnimations);
 
+        // WorldMap
+        public GBACrash_WorldMap_Data WorldMap { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize ROM header
@@ -116,7 +119,8 @@ namespace R1Engine
 
             if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Normal ||
                 CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Normal_Vehicle_0 ||
-                CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Normal_Vehicle_1)
+                CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Normal_Vehicle_1 ||
+                CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.WorldMap)
             {
                 AnimSets = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_AnimSets], () => s.SerializeObjectArray<GBACrash_AnimSet>(AnimSets, manager.AnimSetsCount, name: nameof(AnimSets)));
 
@@ -230,6 +234,11 @@ namespace R1Engine
                     GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim9_Frames], 0x03, 4, 4, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim9_Palette]), // Multiplayer base
                     GBACrash_Isometric_Animation.CrateAndSerialize(s, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim10_Frames], 0x0A, 2, 2, pointerTable[GBACrash_Pointer.Isometric_AdditionalAnim10_Palette]), // Multiplayer item
                 };
+            }
+
+            if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.WorldMap)
+            {
+                WorldMap = s.DoAt(pointerTable[GBACrash_Pointer.WorldMap], () => s.SerializeObject(WorldMap, name: nameof(WorldMap)));
             }
         }
     }

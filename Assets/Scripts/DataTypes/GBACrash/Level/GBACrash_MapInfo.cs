@@ -39,6 +39,8 @@
             // 3D
             Mode7 = 3, // The water and space levels
             Isometric = 4, // The atlasphere levels
+
+            WorldMap = 0xFF // Not actually a part of the value, but we add it here as it uses a separate format
         }
     }
 }

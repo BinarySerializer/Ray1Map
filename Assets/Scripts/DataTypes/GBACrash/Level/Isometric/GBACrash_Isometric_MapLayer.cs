@@ -4,6 +4,8 @@ namespace R1Engine
 {
     public class GBACrash_Isometric_MapLayer : R1Serializable
     {
+        public bool IsWorldMap { get; set; } // Set before serializing
+
         public ushort Width { get; set; }
         public ushort Height { get; set; }
         public uint[] TileMapRowOffsets { get; set; }
@@ -14,13 +16,14 @@ namespace R1Engine
         {
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
-            TileMapRowOffsets = s.SerializeArray<uint>(TileMapRowOffsets, Height, name: nameof(TileMapRowOffsets));
+
+            TileMapRowOffsets = s.SerializeArray<uint>(TileMapRowOffsets, IsWorldMap ? Width : Height, name: nameof(TileMapRowOffsets));
 
             if (TileMapRows == null)
                 TileMapRows = new GBACrash_Isometric_TileMapRow[TileMapRowOffsets.Length];
 
             for (int i = 0; i < TileMapRows.Length; i++)
-                TileMapRows[i] = s.DoAt(s.CurrentPointer + TileMapRowOffsets[i] * 2, () => s.SerializeObject<GBACrash_Isometric_TileMapRow>(TileMapRows[i], x => x.Width = Width, name: $"{nameof(TileMapRows)}[{i}]"));
+                TileMapRows[i] = s.DoAt(s.CurrentPointer + TileMapRowOffsets[i] * 2, () => s.SerializeObject<GBACrash_Isometric_TileMapRow>(TileMapRows[i], x => x.Width = (IsWorldMap ? Height : Width), name: $"{nameof(TileMapRows)}[{i}]"));
         }
 
         public class GBACrash_Isometric_TileMapRow : R1Serializable

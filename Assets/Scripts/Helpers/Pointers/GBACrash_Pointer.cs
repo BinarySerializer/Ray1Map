@@ -55,5 +55,7 @@
         Isometric_AdditionalAnim8_Palette,
         Isometric_AdditionalAnim9_Palette,
         Isometric_AdditionalAnim10_Palette,
+
+        WorldMap,
     }
 }

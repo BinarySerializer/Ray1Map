@@ -55,7 +55,19 @@ namespace R1Engine
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{(int)Object.ObjType}";
-        public override string SecondaryName => ObjManager.Context.Settings.EngineVersion == EngineVersion.GBACrash_Crash1 ? $"{(GBACrash_Crash1_ObjType)Object.ObjType}" : $"{(GBACrash_Crash2_ObjType)Object.ObjType}";
+        public override string SecondaryName
+        {
+            get
+            {
+                if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBACrash_Crash1)
+                    return $"{(GBACrash_Crash1_ObjType)Object.ObjType}";
+
+                if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBACrash_Crash2 && ObjManager.MapType == GBACrash_MapInfo.GBACrash_MapType.WorldMap)
+                    return $"{(GBACrash_Crash2_WorldMap_ObjType)Object.ObjType}";
+
+                return $"{(GBACrash_Crash2_ObjType)Object.ObjType}";
+            }
+        }
 
         public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & 2) != 0;
         public override bool FlipVertically => (ObjParams?.FirstOrDefault() & 4) != 0;

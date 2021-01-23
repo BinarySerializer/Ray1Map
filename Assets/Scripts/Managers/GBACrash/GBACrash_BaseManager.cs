@@ -219,6 +219,8 @@ namespace R1Engine
                 return await LoadMode7Async(context, rom);
             else if (map.MapType == GBACrash_MapInfo.GBACrash_MapType.Isometric)
                 return await LoadIsometricAsync(context, rom);
+            else if (map.MapType == GBACrash_MapInfo.GBACrash_MapType.WorldMap)
+                return await LoadWorldMapAsync(context, rom);
             else
                 return await Load2DAsync(context, rom);
         }
@@ -298,7 +300,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBACrash(context, LoadAnimSets(rom), map);
+            var objmanager = new Unity_ObjectManager_GBACrash(context, LoadAnimSets(rom), map.MapData2D.ObjData, map.MapType);
             var objects = map.MapData2D.ObjData.ObjGroups.SelectMany((x, groupIndex) => x.Objects.Reverse().Select((obj, i) => new Unity_Object_GBACrash(objmanager, obj, groupIndex, i)));
 
             return new Unity_Level(
@@ -639,6 +641,64 @@ namespace R1Engine
                     CalculateYDisplacement = () => h - 16 * levelInfo.YPosition * 2 + (minHeight * heightScale * 2 * Mathf.Cos(Mathf.Deg2Rad * 30f)),
                     ObjectScale = Vector3.one * 12/64f
                 });
+        }
+
+        public async UniTask<Unity_Level> LoadWorldMapAsync(Context context, GBACrash_ROM rom)
+        {
+            var map = rom.WorldMap;
+
+            Controller.DetailedState = "Loading tilesets";
+            await Controller.WaitIfNecessary();
+
+            // Load tilemaps
+            var tileMaps = map.MapLayers.Select((x, i) =>
+            {
+                if (x == null)
+                    return null;
+
+                return GetWorldMapTileMap(x.TileMap, x.MapTiles);
+            }).ToArray();
+
+            var tileSet4bpp = LoadTileSet(map.TileSets.TileSet4bpp.TileSet, map.TilePalette, false, context.Settings.EngineVersion, 0xFF, tileMaps.Take(3).Where(x => x != null).SelectMany(x => x).Select(x => x.Data).ToArray());
+            var tileSet8bpp = LoadTileSet(map.TileSets.TileSet8bpp.TileSet, map.TilePalette, true, context.Settings.EngineVersion, 0xFF, null);
+
+            Controller.DetailedState = "Loading maps";
+            await Controller.WaitIfNecessary();
+
+            var maps = map.MapLayers.Select((x, i) =>
+            {
+                if (x == null)
+                    return null;
+
+                return new
+                {
+                    Map = new Unity_Map
+                    {
+                        Width = (ushort)(x.TileMap.Width * 2),
+                        Height = (ushort)(x.TileMap.Height * 2),
+                        TileSet = new Unity_TileSet[]
+                        {
+                            i == 3 ? tileSet8bpp : tileSet4bpp
+                        },
+                        MapTiles = tileMaps[i],
+                        Type = Unity_Map.MapType.Graphics,
+                        Layer = Unity_Map.MapLayer.Middle,
+                    },
+                    Prio = x.LayerPrio
+                };
+            }).Where(x => x != null).OrderByDescending(x => x.Prio).Select(x => x.Map).ToArray();
+
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
+            var objmanager = new Unity_ObjectManager_GBACrash(context, LoadAnimSets(rom), map.ObjData, GBACrash_MapInfo.GBACrash_MapType.WorldMap);
+            var objects = map.ObjData.Objects.Select(obj => new Unity_Object_GBACrash(objmanager, obj, -1, -1));
+
+            return new Unity_Level(
+                maps: maps,
+                objManager: objmanager,
+                eventData: new List<Unity_Object>(objects),
+                cellSize: CellSize);
         }
 
         public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme, MapTile[] mapTiles_4)
@@ -1327,6 +1387,71 @@ namespace R1Engine
                     void setTile(ushort value, int index, int length)
                     {
                         var actualX = x * 2;
+                        var actualY = y * 2;
+
+                        setTileAt(0, 0, mapTiles[value * 4 + 0]);
+                        setTileAt(1, 0, mapTiles[value * 4 + 1]);
+                        setTileAt(0, 1, mapTiles[value * 4 + 2]);
+                        setTileAt(1, 1, mapTiles[value * 4 + 3]);
+
+                        void setTileAt(int offX, int offY, MapTile tile)
+                        {
+                            var outputX = actualX + offX;
+                            var outputY = actualY + offY;
+
+                            tileMap[outputY * mapLayer.Width * 2 + outputX] = new Unity_Tile(tile)
+                            {
+                                DebugText = $"CMD: {cmd.Type}{Environment.NewLine}" +
+                                            $"Value: {value}{Environment.NewLine}" +
+                                            $"Index: {index}{Environment.NewLine}" +
+                                            $"Length: {length}{Environment.NewLine}" +
+                                            $"Tile: {tile.TileMapY}{Environment.NewLine}" +
+                                            $"FlipX: {tile.HorizontalFlip}{Environment.NewLine}" +
+                                            $"FlipY: {tile.VerticalFlip}{Environment.NewLine}"
+                            };
+                        }
+                    }
+                }
+            }
+
+            return tileMap;
+        }
+        public Unity_Tile[] GetWorldMapTileMap(GBACrash_Isometric_MapLayer mapLayer, MapTile[] mapTiles)
+        {
+            var tileMap = new Unity_Tile[mapLayer.Width * 2 * mapLayer.Height * 2];
+
+            for (int columnIndex = 0; columnIndex < mapLayer.Width; columnIndex++)
+            {
+                var column = mapLayer.TileMapRows[columnIndex];
+                var y = 0;
+
+                foreach (var cmd in column.Commands)
+                {
+                    if (cmd.Type == 3)
+                    {
+                        for (var i = 0; i < cmd.Params.Length; i++)
+                        {
+                            setTile(cmd.Params[i], i, cmd.Params.Length);
+                            y++;
+                        }
+                    }
+                    else if (cmd.Type == 2)
+                    {
+                        for (int i = 0; i < cmd.Length; i++)
+                        {
+                            setTile(cmd.Param, i, cmd.Length);
+                            y++;
+                        }
+                    }
+                    else
+                    {
+                        setTile(cmd.Length, 0, 1);
+                        y++;
+                    }
+
+                    void setTile(ushort value, int index, int length)
+                    {
+                        var actualX = columnIndex * 2;
                         var actualY = y * 2;
 
                         setTileAt(0, 0, mapTiles[value * 4 + 0]);

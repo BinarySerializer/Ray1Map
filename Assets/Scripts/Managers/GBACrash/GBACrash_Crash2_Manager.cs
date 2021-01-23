@@ -61,6 +61,8 @@
             new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 1 - 4, "Isometric - Prototype"), 
             new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 2 - 4, "Isometric - Standin"), 
             new LevInfo(GBACrash_MapInfo.GBACrash_MapType.Isometric, 3 - 4, "Isometric - Demo"), 
+
+            new LevInfo(GBACrash_MapInfo.GBACrash_MapType.WorldMap, 0, "World Map"), 
         };
     }
 }
