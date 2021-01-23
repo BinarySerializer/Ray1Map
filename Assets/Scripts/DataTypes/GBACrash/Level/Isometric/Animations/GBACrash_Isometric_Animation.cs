@@ -53,17 +53,47 @@ namespace R1Engine
             {
                 if (FramesCount == 0)
                 {
-                    switch (FramesCountPointer)
+                    if (s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAUS)
                     {
-                        // EU
-                        case 0x02000578: FramesCount = 0x0A; break;
-                        case 0x02000574: FramesCount = 0x0E; break;
-                        case 0x0200057c: FramesCount = 0x0A; break;
-                        case 0x02000580: FramesCount = 0x0A; break;
-                        case 0x02000588: FramesCount = 0x02; break;
-                        case 0x02000584: FramesCount = 0x0F; break;
+                        switch (FramesCountPointer)
+                        {
+                            case 0x02000578: FramesCount = 0x0A; break;
+                            case 0x02000574: FramesCount = 0x0E; break;
+                            case 0x0200057c: FramesCount = 0x0A; break;
+                            case 0x02000580: FramesCount = 0x0A; break;
+                            case 0x02000588: FramesCount = 0x02; break;
+                            case 0x02000584: FramesCount = 0x0F; break;
 
-                        default: throw new ArgumentOutOfRangeException(nameof(FramesCountPointer), FramesCountPointer, null);
+                            default: throw new ArgumentOutOfRangeException(nameof(FramesCountPointer), FramesCountPointer, null);
+                        }
+                    }
+                    else if (s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAEU)
+                    {
+                        switch (FramesCountPointer)
+                        {
+                            case 0x0200058C: FramesCount = 0x0A; break;
+                            case 0x02000588: FramesCount = 0x0E; break;
+                            case 0x02000590: FramesCount = 0x0A; break;
+                            case 0x02000594: FramesCount = 0x0A; break;
+                            case 0x0200059C: FramesCount = 0x02; break;
+                            case 0x02000598: FramesCount = 0x0F; break;
+
+                            default: throw new ArgumentOutOfRangeException(nameof(FramesCountPointer), FramesCountPointer, null);
+                        }
+                    }
+                    else if (s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAJP)
+                    {
+                        switch (FramesCountPointer)
+                        {
+                            case 0x0200059C: FramesCount = 0x0A; break;
+                            case 0x02000598: FramesCount = 0x0E; break;
+                            case 0x020005A0: FramesCount = 0x0A; break;
+                            case 0x020005A4: FramesCount = 0x0A; break;
+                            case 0x020005AC: FramesCount = 0x02; break;
+                            case 0x020005A8: FramesCount = 0x0F; break;
+
+                            default: throw new ArgumentOutOfRangeException(nameof(FramesCountPointer), FramesCountPointer, null);
+                        }
                     }
                 }
 
