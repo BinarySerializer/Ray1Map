@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     public class Gameloft_ResourceFile : R1Serializable
     {
@@ -31,7 +33,7 @@
             }*/
         }
 
-        public T SerializeResource<T>(SerializerObject s, T t, int i, string name) where T : Gameloft_Resource, new() {
+        public T SerializeResource<T>(SerializerObject s, T t, int i, Action<T> onPreSerialize = null, string name = null) where T : Gameloft_Resource, new() {
             if (i >= ResourcesCount) {
                 throw new System.Exception($"{typeof(T)}: Resource number {i} too high for file {Offset.file.filePath} (max {ResourcesCount})");
             }
@@ -49,7 +51,10 @@
             if(size <= 0) return null;
             s.DoAt(startOffset, () => {
                 if (startOffset.FileOffset + size > s.CurrentLength) size = s.CurrentLength - startOffset.FileOffset;
-                t = s.SerializeObject<T>(t, onPreSerialize: obj => obj.ResourceSize = size, name: name);
+                t = s.SerializeObject<T>(t, onPreSerialize: obj => {
+                    obj.ResourceSize = size;
+                    onPreSerialize?.Invoke(obj);
+                }, name: name);
                 if (s.CurrentPointer != startOffset + size) {
                     UnityEngine.Debug.LogWarning($"{typeof(T)} @ {startOffset} - Resource {i}: Serialized size: {(s.CurrentPointer - startOffset)}/{(s.CurrentPointer - startOffset):X8} != ResourceSize: {size}");
                 }

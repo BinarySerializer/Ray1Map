@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class Gameloft_RRRHighRes_Manager : Gameloft_RRR_Manager
     {
@@ -48,5 +50,10 @@
 			"lj44",
 			"g",
 		};
+
+		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+		{
+			new GameInfo_World(0, Enumerable.Range(1, 7).ToArray()),
+		});
 	}
 }
