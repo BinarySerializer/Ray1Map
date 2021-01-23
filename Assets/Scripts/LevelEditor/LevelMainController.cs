@@ -224,6 +224,9 @@ namespace R1Engine
         {
             var onFinished = new List<Action>();
 
+            // Force update event controller
+            controllerEvents.ForceUpdate();
+
             // Hide unused links and show gendoors
             foreach (var e in Objects)
             {

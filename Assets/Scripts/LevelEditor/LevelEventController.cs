@@ -909,6 +909,12 @@ namespace R1Engine
             }
         }
 
+        public void ForceUpdate()
+        {
+            Update();
+            LateUpdate();
+        }
+
         private void ClearInfoWindow() {
             infoName.text = "";
             infoAnimIndex.text = "";
