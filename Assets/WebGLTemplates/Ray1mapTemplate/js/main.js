@@ -1069,6 +1069,11 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 				fillSelectorList(graphicsSelector, obj.GBAIsometric_AnimSetNames);
 				graphicsSelector.prop("selectedIndex", obj.GBAIsometric_AnimSetIndex);
 				graphicsLabel.text("Animation Set");
+			} else if(obj.hasOwnProperty("GBACrash_AnimSetNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.GBACrash_AnimSetNames);
+				graphicsSelector.prop("selectedIndex", obj.GBACrash_AnimSetIndex);
+				graphicsLabel.text("Animation Set");
 			} else if(obj.hasOwnProperty("SNES_GraphicsGroupNames")) {
 				hasGraphics = true;
 				fillSelectorList(graphicsSelector, obj.SNES_GraphicsGroupNames);
@@ -1103,6 +1108,9 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			} else if(obj.hasOwnProperty("GBAIsometric_AnimSetNames")) {
 				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.GBAIsometric_AnimSetIndex);
+			} else if(obj.hasOwnProperty("GBACrash_AnimSetNames")) {
+				hasGraphics = true;
+				graphicsSelector.prop("selectedIndex", obj.GBACrash_AnimSetIndex);
 			} else if(obj.hasOwnProperty("SNES_GraphicsGroupNames")) {
 				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.SNES_GraphicsGroupIndex);
@@ -1289,6 +1297,9 @@ function sendObject() {
 		} else if(currentObject.hasOwnProperty("GBAIsometric_AnimSetNames")) {
 			jsonObj.Object.GBAIsometric_AnimSetIndex = graphicsSelector.prop("selectedIndex");
 			graphicsSelector.prop("selectedIndex", currentObject.GBAIsometric_AnimSetIndex);
+		} else if(currentObject.hasOwnProperty("GBACrash_AnimSetNames")) {
+			jsonObj.Object.GBACrash_AnimSetIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", currentObject.GBACrash_AnimSetIndex);
 		} else if(currentObject.hasOwnProperty("SNES_GraphicsGroupNames")) {
 			jsonObj.Object.SNES_GraphicsGroupIndex = graphicsSelector.prop("selectedIndex");
 			graphicsSelector.prop("selectedIndex", currentObject.SNES_GraphicsGroupIndex);
@@ -1414,6 +1425,9 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	// GBAIsometric
 	if(newObj.hasOwnProperty("GBAIsometric_AnimSetIndex")) oldObj.GBAIsometric_AnimSetIndex = newObj.GBAIsometric_AnimSetIndex;
 
+	// GBACrash
+	if(newObj.hasOwnProperty("GBACrash_AnimSetIndex")) oldObj.GBACrash_AnimSetIndex = newObj.GBACrash_AnimSetIndex;
+
 	// SNES
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupIndex")) oldObj.SNES_GraphicsGroupIndex = newObj.SNES_GraphicsGroupIndex;
 
@@ -1428,6 +1442,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBA_ActorModelNames")) oldObj.GBA_ActorModelNames = newObj.GBA_ActorModelNames;
 	if(newObj.hasOwnProperty("GBC_ActorModelNames")) oldObj.GBC_ActorModelNames = newObj.GBC_ActorModelNames;
 	if(newObj.hasOwnProperty("GBAIsometric_AnimSetNames")) oldObj.GBAIsometric_AnimSetNames = newObj.GBAIsometric_AnimSetNames;
+	if(newObj.hasOwnProperty("GBACrash_AnimSetNames")) oldObj.GBACrash_AnimSetNames = newObj.GBACrash_AnimSetNames;
 	if(newObj.hasOwnProperty("GBARRR_AnimationGroupNames")) oldObj.GBARRR_AnimationGroupNames = newObj.GBARRR_AnimationGroupNames;
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupNames")) oldObj.SNES_GraphicsGroupNames = newObj.SNES_GraphicsGroupNames;
 }
