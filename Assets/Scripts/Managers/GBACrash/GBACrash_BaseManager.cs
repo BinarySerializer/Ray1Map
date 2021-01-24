@@ -1519,7 +1519,28 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBACrash.AnimSet[] LoadAnimSets(GBACrash_ROM rom)
         {
-            return rom.AnimSets.Select(animSet => new Unity_ObjectManager_GBACrash.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBACrash.AnimSet.Animation(
+            IEnumerable<GBACrash_AnimSet> animSets = rom.AnimSets;
+
+            // Create an anim set for Fake Crash
+            if (rom.Context.Settings.EngineVersion == EngineVersion.GBACrash_Crash2)
+            {
+                var crash = rom.AnimSets[0];
+
+                animSets = animSets.Append(new GBACrash_AnimSet
+                {
+                    Animations = crash.Animations.Select(x => new GBACrash_Animation
+                    {
+                        HitBox = x.HitBox,
+                        RenderBox = x.RenderBox,
+                        PaletteIndex = 5,
+                        AnimSpeed = x.AnimSpeed,
+                        FrameTable = x.FrameTable
+                    }).ToArray(),
+                    AnimationFrames = crash.AnimationFrames
+                });
+            }
+
+            return animSets.Select(animSet => new Unity_ObjectManager_GBACrash.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBACrash.AnimSet.Animation(
                 animFrameFunc: () => GetAnimFrames(animSet, i, rom.ObjTileSet, Util.ConvertGBAPalette(rom.ObjPalettes[anim.PaletteIndex].Palette)).Select(frame => frame.CreateSprite()).ToArray(),
                 crashAnim: anim,
                 xPos: animSet.GetMinX(i),

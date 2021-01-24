@@ -412,8 +412,8 @@ namespace R1Engine
                             obj.AnimSetIndex = 31;
                             obj.AnimIndex = 9;
                             break;
-                        case GBACrash_Crash2_ObjType.Boss_FakeCrash: // TODO: Should use a different palette
-                            obj.AnimSetIndex = 0;
+                        case GBACrash_Crash2_ObjType.Boss_FakeCrash:
+                            obj.AnimSetIndex = 49;
                             obj.AnimIndex = 18;
                             break;
                         case GBACrash_Crash2_ObjType.Platform_Horizontal_90:
