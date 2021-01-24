@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using R1Engine.Serialize;
@@ -1720,6 +1721,43 @@ namespace R1Engine
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+
+        public void GetAvailableCollisionTypes(GBACrash_ROM rom)
+        {
+            var handledTypes = new HashSet<ushort>();
+
+            foreach (var level in rom.LevelInfos)
+            {
+                foreach (var map in level.LevelData.Maps)
+                    handleMap(map);
+
+                handleMap(level.LevelData.BonusMap);
+                handleMap(level.LevelData.ChallengeMap);
+
+                void handleMap(GBACrash_MapInfo map)
+                {
+                    if (map?.MapData2D == null)
+                        return;
+
+                    var collisionTiles = GetTileMap(map.MapData2D.CollisionLayer, map.MapData2D.DataBlock.CollisionLayerData, false, isCollision: true);
+
+                    foreach (var c in collisionTiles.Select(x => x.Data.CollisionType))
+                    {
+                        if (handledTypes.Contains(c))
+                            continue;
+
+                        handledTypes.Add(c);
+                    }
+                }
+            }
+
+            var str = new StringBuilder();
+
+            foreach (var c in handledTypes.OrderBy(x => BitHelpers.ExtractBits(x, 8, 8)).ThenBy(x => BitHelpers.ExtractBits(x, 8, 0)))
+                str.AppendLine($"Type: {BitHelpers.ExtractBits(c, 8, 8):00}, Shape: {BitHelpers.ExtractBits(c, 8, 0):00}, Value: {c}");
+
+            str.ToString().CopyToClipboard();
+        }
 
         public class LevInfo
         {
