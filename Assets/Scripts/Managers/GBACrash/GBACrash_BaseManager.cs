@@ -264,7 +264,6 @@ namespace R1Engine
                 return GetTileMap(x, map.MapData2D.DataBlock.TileLayerDatas[i], i == 3, x.TileSet.TileSet.Length / 32);
             }).ToArray();
 
-
             var tileSets = new Dictionary<GBACrash_TileSet, Unity_TileSet>();
 
             foreach (var tileSetGroup in map.MapData2D.MapLayers.GroupBy(x => x?.TileSet).Where(x => x?.Key != null))
@@ -589,11 +588,11 @@ namespace R1Engine
 
             float minHeight = Mathf.Min(0, levelInfo.CollisionMap.Min(c => levelInfo.CollisionTiles[c].Height.AsFloat));
             var collision = levelInfo.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
-                DebugText = $"Height: {(levelInfo.CollisionTiles[c].Height - minHeight)}{Environment.NewLine}" +
+                DebugText = Settings.ShowDebugInfo ? ($"Height: {(levelInfo.CollisionTiles[c].Height - minHeight)}{Environment.NewLine}" +
                 $"Tile index: {c}{Environment.NewLine}" +
                 $"Offset: {levelInfo.CollisionTiles[c].Offset}{Environment.NewLine}" +
                 $"Type: {levelInfo.CollisionTiles[c].TypeIndex}{Environment.NewLine}" +
-                $"Shape: {levelInfo.CollisionTiles[c].Shape}",
+                $"Shape: {levelInfo.CollisionTiles[c].Shape}") : null,
                 Height = (levelInfo.CollisionTiles[c].Height - minHeight),
                 Type = (Unity_IsometricCollisionTile.CollisionType)levelInfo.CollisionTiles[c].TypeIndex
             }).ToArray();
@@ -795,7 +794,7 @@ namespace R1Engine
 
             // Some levels use animated tile palettes based on the level theme. These are all hard-coded in the level load function.
             RGBA5551Color[][] animatedPalettes = null;
-            byte[] modifiedPaletteIndices = null;
+            HashSet<byte> modifiedPaletteIndices = null;
             var animSpeed = 0;
             bool isReversed = false;
 
@@ -814,7 +813,7 @@ namespace R1Engine
                         new byte[] { 0x51, 0x52, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0xf1 }, // Speed on this one is slightly different
                     };
 
-                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+                    modifiedPaletteIndices = new HashSet<byte>(anim.SelectMany(x => x));
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal);
 
@@ -829,7 +828,7 @@ namespace R1Engine
                         new byte[] { 0xb1, 0xb2, 0xb3, 0xb4, 0xb5 },
                     };
 
-                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+                    modifiedPaletteIndices = new HashSet<byte>(anim.SelectMany(x => x));
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal);
 
@@ -843,7 +842,7 @@ namespace R1Engine
                         new byte[] { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f },
                     };
 
-                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+                    modifiedPaletteIndices = new HashSet<byte>(anim.SelectMany(x => x));
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal);
 
@@ -858,7 +857,7 @@ namespace R1Engine
                         new byte[] { 0x97, 0xb4, 0xf7, 0xf8, 0xff },
                     };
 
-                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+                    modifiedPaletteIndices = new HashSet<byte>(anim.SelectMany(x => x));
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal);
 
@@ -878,7 +877,7 @@ namespace R1Engine
                         new byte[] { 0x22, 0x23, 0x24 },
                     };
 
-                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+                    modifiedPaletteIndices = new HashSet<byte>(anim.SelectMany(x => x));
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal).Reverse().ToArray(); // The animation is reversed
 
@@ -892,7 +891,7 @@ namespace R1Engine
                         new byte[] { 0xf3, 0xf4, 0xf5, 0xf6, 0xf7 },
                     };
 
-                    modifiedPaletteIndices = anim.SelectMany(x => x).ToArray();
+                    modifiedPaletteIndices = new HashSet<byte>(anim.SelectMany(x => x));
 
                     animatedPalettes = GetAnimatedPalettes(anim, pal);
 
@@ -920,23 +919,27 @@ namespace R1Engine
                     var tilePalette = is8bit ? 0 : tileSetPaletteIndices[tileIndex];
 
                     // Check if the tile uses any of the animated colors
-                    var bytes = tileSet.Skip(tileSize * originalTileIndex).Take(tileSize);
-
                     // If the tile doesn't contain an animated color we ignore it
-                    if (is8bit)
-                    {
-                        if (!bytes.Any(x => modifiedPaletteIndices.Contains(x)))
-                            continue;
+                    bool containsAnimatedPalette = false;
+                    for (int i = tileSize * originalTileIndex; i < tileSize * originalTileIndex + tileSize; i++) {
+                        if (is8bit) {
+                            if (modifiedPaletteIndices.Contains(tileSet[i])) {
+                                containsAnimatedPalette = true;
+                                break;
+                            }
+                        } else {
+                            var palInd = tilePalette * 16;
+                            if (modifiedPaletteIndices.Contains((byte)(palInd + (tileSet[i] & 0xF)))) {
+                                containsAnimatedPalette = true;
+                                break;
+                            }
+                            if (modifiedPaletteIndices.Contains((byte)(palInd + (tileSet[i] >> 4)))) {
+                                containsAnimatedPalette = true;
+                                break;
+                            }
+                        }
                     }
-                    else
-                    {
-                        if (!bytes.SelectMany(x => new int[]
-                        {
-                            BitHelpers.ExtractBits(x, 4, 0),
-                            BitHelpers.ExtractBits(x, 4, 4),
-                        }).Any(x => modifiedPaletteIndices.Contains((byte)(x + tilePalette * 16))))
-                            continue;
-                    }
+                    if(!containsAnimatedPalette) continue;
 
                     // Add animation for the tile
                     tileAnimations.Add(new Unity_AnimatedTile
@@ -1178,6 +1181,7 @@ namespace R1Engine
             {
                 palIndices.Reverse().ToArray()
             }, tilePal);
+            var palIndicesLookup = new HashSet<byte>(palIndices);
 
             var additionalTiles = new List<Texture2D>();
             var tileAnimations = new List<Unity_AnimatedTile>();
@@ -1190,11 +1194,17 @@ namespace R1Engine
             for (int tileIndex = 0; tileIndex < tilesCount; tileIndex++)
             {
                 // Check if the tile uses any of the animated colors
-                var bytes = completeTileSet.Skip(tileSize * tileIndex).Take(tileSize);
 
+                // Check if the tile uses any of the animated colors
                 // If the tile doesn't contain an animated color we ignore it
-                if (!bytes.Any(x => palIndices.Contains(x)))
-                    continue;
+                bool containsAnimatedPalette = false;
+                for (int i = tileSize * tileIndex; i < tileSize * tileIndex + tileSize; i++) {
+                    if (palIndicesLookup.Contains(completeTileSet[i])) {
+                        containsAnimatedPalette = true;
+                        break;
+                    }
+                }
+                if (!containsAnimatedPalette) continue;
 
                 // Add animation for the tile
                 tileAnimations.Add(new Unity_AnimatedTile
@@ -1367,9 +1377,9 @@ namespace R1Engine
 
                         tileMap[tileMapIndex] = new Unity_Tile(mapTile)
                         {
-                            DebugText = $"CMD: {cmd}{Environment.NewLine}" +
+                            DebugText = Settings.ShowDebugInfo ? ($"CMD: {cmd}{Environment.NewLine}" +
                                         $"Index: {blockIndex}{Environment.NewLine}" +
-                                        $"TileIndex: {tileIndex}{Environment.NewLine}"
+                                        $"TileIndex: {tileIndex}{Environment.NewLine}") : null
                         };
                     }
                 }
@@ -1381,20 +1391,23 @@ namespace R1Engine
         public Unity_Tile[] GetIsometricTileMap(GBACrash_Isometric_MapLayer mapLayer, MapTile[] mapTiles)
         {
             var tileMap = new Unity_Tile[mapLayer.Width * 2 * mapLayer.Height * 2];
+            int actualX = 0, actualY = 0;
+            byte cmdType = 0;
 
-            for (int y = 0; y < mapLayer.Height; y++)
-            {
+            for (int y = 0; y < mapLayer.Height; y++) {
+                actualY = y * 2;
+                actualX = 0;
                 var chunk = mapLayer.TileMapRows[y];
-                var x = 0;
+                //var x = 0;
 
                 foreach (var cmd in chunk.Commands)
                 {
+                    cmdType = cmd.Type;
                     if (cmd.Type == 3)
                     {
                         for (var i = 0; i < cmd.Params.Length; i++)
                         {
                             setTile(cmd.Params[i], i, cmd.Params.Length);
-                            x++;
                         }
                     }
                     else if (cmd.Type == 2)
@@ -1402,43 +1415,37 @@ namespace R1Engine
                         for (int i = 0; i < cmd.Length; i++)
                         {
                             setTile(cmd.Param, i, cmd.Length);
-                            x++;
                         }
                     }
                     else
                     {
                         setTile(cmd.Length, 0, 1);
-                        x++;
-                    }
-
-                    void setTile(ushort value, int index, int length)
-                    {
-                        var actualX = x * 2;
-                        var actualY = y * 2;
-
-                        setTileAt(0, 0, mapTiles[value * 4 + 0]);
-                        setTileAt(1, 0, mapTiles[value * 4 + 1]);
-                        setTileAt(0, 1, mapTiles[value * 4 + 2]);
-                        setTileAt(1, 1, mapTiles[value * 4 + 3]);
-
-                        void setTileAt(int offX, int offY, MapTile tile)
-                        {
-                            var outputX = actualX + offX;
-                            var outputY = actualY + offY;
-
-                            tileMap[outputY * mapLayer.Width * 2 + outputX] = new Unity_Tile(tile)
-                            {
-                                DebugText = $"CMD: {cmd.Type}{Environment.NewLine}" +
-                                            $"Value: {value}{Environment.NewLine}" +
-                                            $"Index: {index}{Environment.NewLine}" +
-                                            $"Length: {length}{Environment.NewLine}" +
-                                            $"Tile: {tile.TileMapY}{Environment.NewLine}" +
-                                            $"FlipX: {tile.HorizontalFlip}{Environment.NewLine}" +
-                                            $"FlipY: {tile.VerticalFlip}{Environment.NewLine}"
-                            };
-                        }
                     }
                 }
+            }
+
+            void setTile(ushort value, int index, int length) {
+                var val = value * 4;
+
+                setTileAt(0, 0, mapTiles[val + 0], index, length, value);
+                setTileAt(1, 0, mapTiles[val + 1], index, length, value);
+                setTileAt(0, 1, mapTiles[val + 2], index, length, value);
+                setTileAt(1, 1, mapTiles[val + 3], index, length, value);
+                actualX += 2;
+            }
+
+            void setTileAt(int offX, int offY, MapTile tile, int index, int length, ushort value) {
+                var outputX = actualX + offX;
+                var outputY = actualY + offY;
+                tileMap[outputY * mapLayer.Width * 2 + outputX] = new Unity_Tile(tile) {
+                    /*DebugText = $"CMD: {cmdType}{Environment.NewLine}" +
+                                $"Value: {value}{Environment.NewLine}" +
+                                $"Index: {index}{Environment.NewLine}" +
+                                $"Length: {length}{Environment.NewLine}" +
+                                $"Tile: {tile.TileMapY}{Environment.NewLine}" +
+                                $"FlipX: {tile.HorizontalFlip}{Environment.NewLine}" +
+                                $"FlipY: {tile.VerticalFlip}{Environment.NewLine}"*/
+                };
             }
 
             return tileMap;
@@ -1493,13 +1500,13 @@ namespace R1Engine
 
                             tileMap[outputY * mapLayer.Width * 2 + outputX] = new Unity_Tile(tile)
                             {
-                                DebugText = $"CMD: {cmd.Type}{Environment.NewLine}" +
+                                DebugText = Settings.ShowDebugInfo ? ($"CMD: {cmd.Type}{Environment.NewLine}" +
                                             $"Value: {value}{Environment.NewLine}" +
                                             $"Index: {index}{Environment.NewLine}" +
                                             $"Length: {length}{Environment.NewLine}" +
                                             $"Tile: {tile.TileMapY}{Environment.NewLine}" +
                                             $"FlipX: {tile.HorizontalFlip}{Environment.NewLine}" +
-                                            $"FlipY: {tile.VerticalFlip}{Environment.NewLine}"
+                                            $"FlipY: {tile.VerticalFlip}{Environment.NewLine}") : null
                             };
                         }
                     }

@@ -1517,10 +1517,10 @@ namespace R1Engine
                         var tiles_8 = i != null ? mapBlock?.Tiles_8[i.Value].Tiles : null;
                         var col_8 = col_16 != null ? collisionBlock?.Tiles_8[col_16.TileIndices[index]].Tiles : null;
 
-                        setTileAt(actualX + offX + 0, actualY + offY + 0, tiles_8?[0], col_8?[0].CollisionType, $"{i}-0");
-                        setTileAt(actualX + offX + 1, actualY + offY + 0, tiles_8?[1], col_8?[1].CollisionType, $"{i}-1");
-                        setTileAt(actualX + offX + 0, actualY + offY + 1, tiles_8?[2], col_8?[2].CollisionType, $"{i}-2");
-                        setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8?[3], col_8?[3].CollisionType, $"{i}-3");
+                        setTileAt(actualX + offX + 0, actualY + offY + 0, tiles_8?[0], col_8?[0].CollisionType, Settings.ShowDebugInfo ? ($"{i}-0") : null);
+                        setTileAt(actualX + offX + 1, actualY + offY + 0, tiles_8?[1], col_8?[1].CollisionType, Settings.ShowDebugInfo ? ($"{i}-1") : null);
+                        setTileAt(actualX + offX + 0, actualY + offY + 1, tiles_8?[2], col_8?[2].CollisionType, Settings.ShowDebugInfo ? ($"{i}-2") : null);
+                        setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8?[3], col_8?[3].CollisionType, Settings.ShowDebugInfo ? ($"{i}-3") : null);
                     }
 
                     void setTileAt(int tileX, int tileY, MapTile tile, ushort? collisionType, string debugString)

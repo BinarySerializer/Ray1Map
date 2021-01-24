@@ -431,7 +431,7 @@ namespace R1Engine
                 AddType = GetAddType(),
                 Shape = GetShapeType(),
                 Type = GetCollisionType(),
-                DebugText = $"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}"
+                DebugText = Settings.ShowDebugInfo ? ($"LayerInfo:{block.Layer1:X1}{block.Layer2:X1}{block.Layer3:X1} Shape:{block.Shape} Type:{block.Type} Add:{block.AddType}") : null,
             };
         }
 
@@ -497,7 +497,7 @@ namespace R1Engine
                     },
                     MapTiles = GetMapTiles(x, tileSets[tileSetData].GBAIsometric_BaseLength).Select(t => new Unity_Tile(t)
                     {
-                        DebugText = $"Combined tiles: {t.CombinedTiles?.Length}",
+                        DebugText = Settings.ShowDebugInfo ? $"Combined tiles: {t.CombinedTiles?.Length}" : null,
                         CombinedTiles = t.CombinedTiles?.Select(ct => new Unity_Tile(ct)).ToArray()
                     }).ToArray()
                 };
