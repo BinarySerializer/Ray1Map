@@ -43,6 +43,8 @@ namespace R1Engine
                     throw new NotImplementedException();
                 }
             }
+
+            s.Goto(baseOffset + BlockLength);
         }
     }
 }
