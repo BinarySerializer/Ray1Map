@@ -14,7 +14,9 @@ namespace R1Engine
         public GBACrash_Isometric_Object Object { get; }
 
         public override string DebugText => $"ObjType_TimeTrial: {Object.ObjType_TimeTrial}{Environment.NewLine}" +
-                                            $"Height: {Height}{Environment.NewLine}";
+                                            $"Height: {Height}{Environment.NewLine}" +
+                                            $"AnimX: {GraphicsData?.CrashAnim?.XPos?.AsFloat}{Environment.NewLine}" +
+                                            $"AnimY: {GraphicsData?.CrashAnim?.YPos?.AsFloat}{Environment.NewLine}";
 
         public override FixedPointInt XPos
         {

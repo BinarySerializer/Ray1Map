@@ -55,14 +55,21 @@ namespace R1Engine
                     }
                 }
             }
+
+            //foreach (Unity_Object_BaseGBACrashIsometric obj in objects)
+            //{
+            //    obj.XPos.Value += obj.GraphicsData?.CrashAnim?.XPos?.Value / 2 ?? 0;
+            //    obj.YPos.Value += obj.GraphicsData?.CrashAnim?.YPos?.Value / 2 ?? 0;
+            //}
         }
 
         public class GraphicsData
         {
-            public GraphicsData(Sprite[] animFrames, byte animSpeed)
+            public GraphicsData(Sprite[] animFrames, byte animSpeed, GBACrash_Isometric_Animation crashAnim)
             {
                 AnimFrames = animFrames;
                 AnimSpeed = animSpeed;
+                CrashAnim = crashAnim;
 
                 Animation = new Unity_ObjAnimation()
                 {
@@ -82,6 +89,7 @@ namespace R1Engine
 
             public Sprite[] AnimFrames { get; }
             public byte AnimSpeed { get; }
+            public GBACrash_Isometric_Animation CrashAnim { get; }
 
             public Unity_ObjAnimation Animation { get; }
         }

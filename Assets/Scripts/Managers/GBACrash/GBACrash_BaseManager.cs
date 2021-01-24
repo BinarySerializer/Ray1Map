@@ -1574,7 +1574,8 @@ namespace R1Engine
 
             return rom.Isometric_GetAnimations.Select(anim => new Unity_ObjectManager_GBACrashIsometric.GraphicsData(
                 animFrames: GetIsometricAnimFrames(anim, pal).Select(x => x.CreateSprite()).ToArray(),
-                animSpeed: 4)).ToArray();
+                animSpeed: 4,
+                crashAnim: anim)).ToArray();
         }
 
         public Texture2D[] GetAnimFrames(GBACrash_AnimSet animSet, int animIndex, byte[] tileSet, Color[] pal)
