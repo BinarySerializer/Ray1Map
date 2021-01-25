@@ -49,8 +49,8 @@ namespace R1Engine
 			await UniTask.CompletedTask;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GeometryPath, context);
 			var ind = context.Settings.Level * 2;
-			var mesh1 = resf.SerializeResource<Gameloft_Mesh>(context.Deserializer, default, ind, name: $"Mesh_{ind}");
-			var mesh2 = resf.SerializeResource<Gameloft_Mesh>(context.Deserializer, default, ind+1, name: $"Mesh_{ind+1}");
+			var mesh1 = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind, name: $"Mesh_{ind}");
+			var mesh2 = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind+1, name: $"Mesh_{ind+1}");
 
 			throw new NotImplementedException();
 		}
