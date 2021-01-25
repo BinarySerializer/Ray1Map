@@ -4,14 +4,14 @@ using System.Linq;
 namespace R1Engine
 {
 	public class Gameloft_Level3D : Gameloft_Resource {
-		public ushort VerticesCount { get; set; }
-		public Vertex[] Vertices { get; set; }
-		public byte ObjectsCount { get; set; }
+		public ushort Structs0Count { get; set; }
+		public Struct0[] Structs0 { get; set; }
+		public byte Structs12Count { get; set; }
 		public byte BM_Byte0 { get; set; }
 		public bool BM_Bool1 { get; set; }
 		public byte BM_Byte2 { get; set; }
 		public byte BM_Byte3 { get; set; }
-		public byte[] BM_VertexBytes { get; set; } // verticesCount - 1. Related to edges?
+		public byte[] BM_Struct0Bytes { get; set; } // Struct0Count - 1
 		public byte RoadTextureID_Night { get; set; } // Resource ID in the RoadTexturesID
 		public byte RoadTextureID_Day { get; set; }
 		public byte aW { get; set; }
@@ -45,25 +45,33 @@ namespace R1Engine
 		public byte Structs2Count { get; set; }
 		public Struct2[] Structs2 { get; set; }
 		public BackgroundLayer[] BackgroundLayers { get; set; }
-		public byte[][] bs_Vertex_BackgroundIndex { get; set; } // Each byte is an index to a Struct3/aU
+		public byte[][] bs_Struct0_BackgroundIndex { get; set; } // Each byte is an index to a Struct3/aU
 		public byte Structs4Count { get; set; }
 		public Struct4[] Structs4 { get; set; }
 		public byte Structs5Count { get; set; }
 		public Struct5[] Structs5 { get; set; }
 		public ushort Structs6Count { get; set; }
 		public Struct6[] Structs6 { get; set; }
-
-		public LastStruct[] Objects { get; set; }
+		public ushort Structs7Count { get; set; }
+		public Struct7[] Structs7 { get; set; }
+		public ushort Structs8Count { get; set; }
+		public Struct8[] Structs8 { get; set; }
+		public ushort cF { get; set; }
+		public Struct9[] cI { get; set; }
+		public Struct10[] cJ { get; set; }
+		public byte Structs11Count { get; set; }
+		public Struct11[] Structs11 { get; set; }
+		public Struct12[] Structs12 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			VerticesCount = s.Serialize<ushort>(VerticesCount, name: nameof(VerticesCount));
-			Vertices = s.SerializeObjectArray<Vertex>(Vertices, VerticesCount, name: nameof(Vertices));
-			ObjectsCount = s.Serialize<byte>(ObjectsCount, name: nameof(ObjectsCount));
+			Structs0Count = s.Serialize<ushort>(Structs0Count, name: nameof(Structs0Count));
+			Structs0 = s.SerializeObjectArray<Struct0>(Structs0, Structs0Count, name: nameof(Structs0));
+			Structs12Count = s.Serialize<byte>(Structs12Count, name: nameof(Structs12Count));
 			BM_Byte0 = s.Serialize<byte>(BM_Byte0, name: nameof(BM_Byte0));
 			BM_Bool1 = s.Serialize<bool>(BM_Bool1, name: nameof(BM_Bool1));
 			BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
 			BM_Byte3 = s.Serialize<byte>(BM_Byte3, name: nameof(BM_Byte3));
-			BM_VertexBytes = s.SerializeArray<byte>(BM_VertexBytes, VerticesCount - 1, name: nameof(BM_VertexBytes));
+			BM_Struct0Bytes = s.SerializeArray<byte>(BM_Struct0Bytes, Structs0Count - 1, name: nameof(BM_Struct0Bytes));
 			RoadTextureID_Night = s.Serialize<byte>(RoadTextureID_Night, name: nameof(RoadTextureID_Night));
 			RoadTextureID_Day = s.Serialize<byte>(RoadTextureID_Day, name: nameof(RoadTextureID_Day));
 			aW = s.Serialize<byte>(aW, name: nameof(aW));
@@ -97,9 +105,9 @@ namespace R1Engine
 			Structs2Count = s.Serialize<byte>(Structs2Count, name: nameof(Structs2Count));
 			Structs2 = s.SerializeObjectArray<Struct2>(Structs2, Structs2Count, name: nameof(Structs2));
 			BackgroundLayers = s.SerializeObjectArray<BackgroundLayer>(BackgroundLayers, aUCount, name: nameof(BackgroundLayers));
-			bs_Vertex_BackgroundIndex = s.SerializeArraySize<byte[],byte>(bs_Vertex_BackgroundIndex, name: nameof(bs_Vertex_BackgroundIndex));
-			for (int i = 0; i < bs_Vertex_BackgroundIndex.Length; i++) {
-				bs_Vertex_BackgroundIndex[i] = s.SerializeArray<byte>(bs_Vertex_BackgroundIndex[i], VerticesCount, name: $"{nameof(bs_Vertex_BackgroundIndex)}[{i}]");
+			bs_Struct0_BackgroundIndex = s.SerializeArraySize<byte[],byte>(bs_Struct0_BackgroundIndex, name: nameof(bs_Struct0_BackgroundIndex));
+			for (int i = 0; i < bs_Struct0_BackgroundIndex.Length; i++) {
+				bs_Struct0_BackgroundIndex[i] = s.SerializeArray<byte>(bs_Struct0_BackgroundIndex[i], Structs0Count, name: $"{nameof(bs_Struct0_BackgroundIndex)}[{i}]");
 			}
 			Structs4Count = s.Serialize<byte>(Structs4Count, name: nameof(Structs4Count));
 			Structs4 = s.SerializeObjectArray<Struct4>(Structs4, Structs4Count, name: nameof(Structs4));
@@ -107,99 +115,19 @@ namespace R1Engine
 			Structs5 = s.SerializeObjectArray<Struct5>(Structs5, Structs5Count, name: nameof(Structs5));
 			Structs6Count = s.Serialize<ushort>(Structs6Count, name: nameof(Structs6Count));
 			Structs6 = s.SerializeObjectArray<Struct6>(Structs6, Structs6Count, name: nameof(Structs6));
-			/* TODO:
-			bl();
-			bo();
-			bp();*/
-			/*
-			
-  
-  private static void bl() throws Exception {
-    byte b = 0;
-    cu = (short)b.readShort();
-    if (cu > 0) {
-      cv = new short[cu][][];
-      cw = new int[cu];
-      for (byte b1 = 0; b1 < cu; b1++) {
-        byte b3 = (byte)b.readUByte();
-        cv[b1] = new short[b3][];
-        cw[b1] = b.readShort();
-        for (byte b2 = 0; b2 < (cv[b1]).length; b2++) {
-          byte b4;
-          if ((b4 = (byte)b.readUByte()) == 0) {
-            b = 4;
-          } else if (b4 == 1) {
-            b = 5;
-          } else if (b4 == 5) {
-            b = 7;
-          } else if (b4 == 2) {
-            b = 7;
-          } else if (b4 == 3) {
-            b = 5;
-          } 
-          cv[b1][b2] = new short[b];
-          cv[b1][b2][0] = (short)b4;
-          for (byte b5 = 1; b5 < (cv[b1][b2]).length; b5++) {
-            if (b4 == 0) {
-              cv[b1][b2][0 + b5] = (short)b.readUByte();
-            } else {
-              cv[b1][b2][0 + b5] = (short)b.readShort();
-            } 
-          } 
-        } 
-      } 
-    } 
-  }
-  
-  private static void bo() throws Exception {
-    cE = (short)b.readShort();
-    if (cE > 0) {
-      cG = new byte[cE];
-      cH = new short[cE];
-      for (byte b = 0; b < cE; b++) {
-        cG[b] = (byte)b.readUByte();
-        cH[b] = (short)(1 * b.readShort());
-      } 
-    } 
-    cF = (short)b.readShort();
-    if (cF > 0) {
-      cI = new short[cF];
-      cK = new int[cF];
-      byte b;
-      for (b = 0; b < cF; b++) {
-        cI[b] = (short)b.readShort();
-        if (S[5] == 2 && (cI[b] & 0x7000) == 24576)
-          cK[b] = 12288; 
-        if (S[5] == 3 && (cI[b] & 0x7000) == 24576)
-          cK[b] = 12288; 
-      } 
-      cJ = new short[VerticesCount];
-      for (b = 0; b < VerticesCount; b++)
-        cJ[b] = (short)b.readShort(); 
-    } 
-  }
-  
-  private static void bp() throws Exception {
-    cf = (byte)b.readUByte();
-    cg = new short[cf];
-    ch = new int[cf];
-    ci = new int[cf];
-    cj = new byte[cf];
-    ck = new short[cf];
-    for (byte b = 0; b < cf; b++) {
-      cg[b] = (short)b.readShort();
-      ck[b] = (short)b.readShort();
-      cj[b] = (byte)b.readUByte();
-      ch[b] = 0xFF000000 | b.readUByte() << 16 | (b.readUByte() & 0xFF) << 8 | b.readUByte() & 0xFF;
-      ci[b] = 0xFF000000 | b.readUByte() << 16 | (b.readUByte() & 0xFF) << 8 | b.readUByte() & 0xFF;
-    } 
-  }
-			*/
-
-			//Objects = s.SerializeObjectArray<LastStruct>(Objects, ObjectsCount, name: nameof(Objects));
+			Structs7Count = s.Serialize<ushort>(Structs7Count, name: nameof(Structs7Count));
+			Structs7 = s.SerializeObjectArray<Struct7>(Structs7, Structs7Count, name: nameof(Structs7));
+			Structs8Count = s.Serialize<ushort>(Structs8Count, name: nameof(Structs8Count));
+			Structs8 = s.SerializeObjectArray<Struct8>(Structs8, Structs8Count, name: nameof(Structs8));
+			cF = s.Serialize<ushort>(cF, name: nameof(cF));
+			cI = s.SerializeObjectArray<Struct9>(cI, cF, name: nameof(cI));
+			if(cF > 0) cJ = s.SerializeObjectArray<Struct10>(cJ, Structs0Count, name: nameof(cJ));
+			Structs11Count = s.Serialize<byte>(Structs11Count, name: nameof(Structs11Count));
+			Structs11 = s.SerializeObjectArray<Struct11>(Structs11, Structs11Count, name: nameof(Structs11));
+			Structs12 = s.SerializeObjectArray<Struct12>(Structs12, Structs12Count, name: nameof(Structs12));
 		}
 
-		public class Vertex : R1Serializable {
+		public class Struct0 : R1Serializable {
 			public sbyte XPosition { get; set; }
 			public sbyte YPosition { get; set; }
 			public byte Flags1 { get; set; }
@@ -324,13 +252,102 @@ namespace R1Engine
 			}
 		}
 
+		public class Struct7 : R1Serializable {
+			public byte Count { get; set; }
+			public short Short1 { get; set; }
+			public Entry[] Entries { get; set; }
 
-		public class LastStruct : R1Serializable {
-			public byte VertexIndex { get; set; }
+			public override void SerializeImpl(SerializerObject s) {
+				Count = s.Serialize<byte>(Count, name: nameof(Count));
+				Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+				Entries = s.SerializeObjectArray<Entry>(Entries, Count, name: nameof(Entries));
+			}
+			public class Entry : R1Serializable {
+				public byte Type { get; set; }
+				public short[] Shorts { get; set; }
+				public byte[] Bytes { get; set; }
+
+				public override void SerializeImpl(SerializerObject s) {
+					Type = s.Serialize<byte>(Type, name: nameof(Type));
+					if (Type == 0) {
+						Bytes = s.SerializeArray<byte>(Bytes, GetLength()-1, name: nameof(Bytes));
+					} else {
+						Shorts = s.SerializeArray<short>(Shorts, GetLength()-1, name: nameof(Shorts));
+					}
+				}
+
+				public int GetLength() {
+					switch (Type) {
+						case 0: return 4;
+						case 1: return 5;
+						case 2: return 7;
+						case 3: return 5;
+						case 5: return 7;
+						default: return 0;
+					}
+				}
+			}
+		}
+
+
+		public class Struct8 : R1Serializable {
+			public byte Byte0 { get; set; }
+			public short Short1 { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				Byte0 = s.Serialize<byte>(Byte0, name: nameof(Byte0));
+				Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+			}
+		}
+		public class Struct9 : R1Serializable {
+			public short Struct8Index { get; set; }
+			public int Int0 { get; set; }
+			public int Int1 { get; set; }
+			public int Int2 { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				s.SerializeBitValues<short>(bitFunc => {
+					Struct8Index = (short)bitFunc(Struct8Index, 11, name: nameof(Struct8Index));
+					Int0 = bitFunc(Int0, 1, name: nameof(Int0));
+					Int1 = bitFunc(Int1, 3, name: nameof(Int1));
+					Int2 = bitFunc(Int2, 1, name: nameof(Int2));
+				});
+			}
+		}
+		public class Struct10 : R1Serializable {
+			public short cI_Index { get; set; }
+			public int Count { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				s.SerializeBitValues<short>(bitFunc => {
+					cI_Index = (short)bitFunc(cI_Index, 11, name: nameof(cI_Index));
+					Count = bitFunc(Count, 5, name: nameof(Count));
+				});
+			}
+		}
+		public class Struct11 : R1Serializable {
+			public short Short0 { get; set; }
+			public short Short2 { get; set; }
+			public byte Byte4 { get; set; }
+			public RGB888Color Color5 { get; set; }
+			public RGB888Color Color8 { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				Short0 = s.Serialize<short>(Short0, name: nameof(Short0));
+				Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
+				Byte4 = s.Serialize<byte>(Byte4, name: nameof(Byte4));
+				Color5 = s.SerializeObject<RGB888Color>(Color5, name: nameof(Color5));
+				Color8 = s.SerializeObject<RGB888Color>(Color8, name: nameof(Color8));
+			}
+		}
+
+
+		public class Struct12 : R1Serializable {
+			public byte Struct0Index { get; set; }
 			public short Unknown { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				VertexIndex = s.Serialize<byte>(VertexIndex, name: nameof(VertexIndex));
+				Struct0Index = s.Serialize<byte>(Struct0Index, name: nameof(Struct0Index));
 				Unknown = s.Serialize<short>(Unknown, name: nameof(Unknown));
 			}
 		}
