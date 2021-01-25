@@ -113,36 +113,42 @@ namespace R1Engine
 			bp();*/
 			/*
 			
-  private static void bn() throws Exception {
-    int i;
-    if ((i = b.readShort()) > 0) {
-      cy = new int[i];
-      cz = new int[i];
-      cA = new short[i];
-      cB = new byte[i];
-      cx = new short[i][];
-      cC = new short[i];
-      cD = new byte[i];
-      for (byte b = 0; b < i; b++) {
-        byte b1 = (byte)b.readUByte();
-        byte b2 = (byte)b.readUByte();
-        short s = (short)(byte)b.readUByte();
-        if (b1 != -1 || b2 != -1) {
-          cx[b] = new short[3];
-          cx[b][0] = (short)b1;
-          cx[b][1] = (short)b2;
-          cx[b][2] = (s >= 0) ? s : 0;
+  
+  private static void bl() throws Exception {
+    byte b = 0;
+    cu = (short)b.readShort();
+    if (cu > 0) {
+      cv = new short[cu][][];
+      cw = new int[cu];
+      for (byte b1 = 0; b1 < cu; b1++) {
+        byte b3 = (byte)b.readUByte();
+        cv[b1] = new short[b3][];
+        cw[b1] = b.readShort();
+        for (byte b2 = 0; b2 < (cv[b1]).length; b2++) {
+          byte b4;
+          if ((b4 = (byte)b.readUByte()) == 0) {
+            b = 4;
+          } else if (b4 == 1) {
+            b = 5;
+          } else if (b4 == 5) {
+            b = 7;
+          } else if (b4 == 2) {
+            b = 7;
+          } else if (b4 == 3) {
+            b = 5;
+          } 
+          cv[b1][b2] = new short[b];
+          cv[b1][b2][0] = (short)b4;
+          for (byte b5 = 1; b5 < (cv[b1][b2]).length; b5++) {
+            if (b4 == 0) {
+              cv[b1][b2][0 + b5] = (short)b.readUByte();
+            } else {
+              cv[b1][b2][0 + b5] = (short)b.readShort();
+            } 
+          } 
         } 
-        cy[b] = b.readShort();
-        cz[b] = b.readShort();
-        cA[b] = (short)b.readShort();
-        cB[b] = (byte)b.readUByte();
-        cC[b] = (short)b.readShort();
-        cD[b] = (byte)b.readUByte();
       } 
     } 
-    ao = new Image[20 + i][][];
-    an = new byte[20 + i][][];
   }
   
   private static void bo() throws Exception {
