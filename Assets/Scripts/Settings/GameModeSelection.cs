@@ -401,5 +401,8 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 240x320)", typeof(Gameloft_RK_Manager))]
         RaymanKartMobile_240x320,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 320x240)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_320x240,
     }
 }

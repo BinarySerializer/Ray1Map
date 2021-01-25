@@ -30,7 +30,8 @@ namespace R1Engine
 			"20",
 		};
 
-		public virtual string GeometryPath => "20";
+		public virtual string GetLevelPath(GameSettings settings) => "20";
+		public virtual int GetLevelResourceIndex(GameSettings settings) => settings.Level;
 
 		public override string[] SingleResourceFiles => new string[] {
 			"s"
@@ -42,15 +43,15 @@ namespace R1Engine
 		});
 
 		public override async UniTask LoadFilesAsync(Context context) {
-			await context.AddLinearSerializedFileAsync(GeometryPath);
+			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
 		}
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			await UniTask.CompletedTask;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GeometryPath, context);
-			var ind = context.Settings.Level * 2;
-			var mesh1 = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind, name: $"Mesh_{ind}");
-			var mesh2 = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind+1, name: $"Mesh_{ind+1}");
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
+			var ind = GetLevelResourceIndex(context.Settings) * 2;
+			var level1 = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind, name: $"Level_{ind}");
+			var level2 = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind+1, name: $"Level_{ind+1}");
 
 			throw new NotImplementedException();
 		}

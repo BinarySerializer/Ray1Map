@@ -29,7 +29,8 @@ namespace R1Engine
 		public bool bp { get; set; }
 		public short bJ { get; set; }
 		public short bK { get; set; }
-		public byte[] bytes_afterBK { get; set; }
+		public RGB888Color Color_afterbK_0 { get; set; }
+		public RGB888Color Color_afterbK_1 { get; set; }
 		public byte bL { get; set; }
 		public RGB888Color Color_bH { get; set; }
 		public RGB888Color Color_bI { get; set; }
@@ -39,6 +40,16 @@ namespace R1Engine
 		public RGB888Color Color_dk { get; set; }
 		public byte dl { get; set; }
 		public byte dm { get; set; }
+
+		// Lowres only?
+		public RGB888Color Color_dq { get; set; }
+		public RGB888Color Color_dr { get; set; }
+		public RGB888Color Color_ds { get; set; }
+		public RGB888Color Color_dt { get; set; }
+		public RGB888Color Color_du { get; set; }
+		public short dx { get; set; }
+		public short dw { get; set; }
+		public short dv { get; set; }
 
 		public ushort Structs1Count { get; set; }
 		public Struct1[] Structs1 { get; set; }
@@ -72,8 +83,10 @@ namespace R1Engine
 			BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
 			BM_Byte3 = s.Serialize<byte>(BM_Byte3, name: nameof(BM_Byte3));
 			BM_Struct0Bytes = s.SerializeArray<byte>(BM_Struct0Bytes, Structs0Count - 1, name: nameof(BM_Struct0Bytes));
-			RoadTextureID_Night = s.Serialize<byte>(RoadTextureID_Night, name: nameof(RoadTextureID_Night));
-			RoadTextureID_Day = s.Serialize<byte>(RoadTextureID_Day, name: nameof(RoadTextureID_Day));
+			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240) {
+				RoadTextureID_Night = s.Serialize<byte>(RoadTextureID_Night, name: nameof(RoadTextureID_Night));
+				RoadTextureID_Day = s.Serialize<byte>(RoadTextureID_Day, name: nameof(RoadTextureID_Day));
+			}
 			aW = s.Serialize<byte>(aW, name: nameof(aW));
 			aUCount = s.Serialize<byte>(aUCount, name: nameof(aUCount));
 			bB = s.Serialize<byte>(bB, name: nameof(bB));
@@ -89,7 +102,8 @@ namespace R1Engine
 			bp = s.Serialize<bool>(bp, name: nameof(bp));
 			bJ = s.Serialize<short>(bJ, name: nameof(bJ));
 			bK = s.Serialize<short>(bK, name: nameof(bK));
-			bytes_afterBK = s.SerializeArray<byte>(bytes_afterBK, 6, name: nameof(bytes_afterBK));
+			Color_afterbK_0 = s.SerializeObject<RGB888Color>(Color_afterbK_0, name: nameof(Color_afterbK_0));
+			Color_afterbK_1 = s.SerializeObject<RGB888Color>(Color_afterbK_1, name: nameof(Color_afterbK_1));
 			bL = s.Serialize<byte>(bL, name: nameof(bL));
 			Color_bH = s.SerializeObject<RGB888Color>(Color_bH, name: nameof(Color_bH));
 			Color_bI = s.SerializeObject<RGB888Color>(Color_bI, name: nameof(Color_bI));
@@ -99,6 +113,16 @@ namespace R1Engine
 				Color_dk = s.SerializeObject<RGB888Color>(Color_dk, name: nameof(Color_dk));
 				dl = s.Serialize<byte>(dl, name: nameof(dl));
 				dm = s.Serialize<byte>(dm, name: nameof(dm));
+			}
+			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
+				Color_dq = s.SerializeObject<RGB888Color>(Color_dq, name: nameof(Color_dq));
+				Color_dr = s.SerializeObject<RGB888Color>(Color_dr, name: nameof(Color_dr));
+				Color_ds = s.SerializeObject<RGB888Color>(Color_ds, name: nameof(Color_ds));
+				Color_dt = s.SerializeObject<RGB888Color>(Color_dt, name: nameof(Color_dt));
+				Color_du = s.SerializeObject<RGB888Color>(Color_du, name: nameof(Color_du));
+				dx = s.Serialize<short>(dx, name: nameof(dx));
+				dw = s.Serialize<short>(dw, name: nameof(dw));
+				dv = s.Serialize<short>(dv, name: nameof(dv));
 			}
 			Structs1Count = s.Serialize<ushort>(Structs1Count, name: nameof(Structs1Count));
 			Structs1 = s.SerializeObjectArray<Struct1>(Structs1, Structs1Count, name: nameof(Structs1));
@@ -327,6 +351,12 @@ namespace R1Engine
 		}
 		public class Struct11 : R1Serializable {
 			public short Short0 { get; set; }
+
+			// Lowres only
+			public byte cg0 { get; set; }
+			public byte cg1 { get; set; }
+			public Entry[] Entries { get; set; }
+
 			public short Short2 { get; set; }
 			public byte Byte4 { get; set; }
 			public RGB888Color Color5 { get; set; }
@@ -334,10 +364,25 @@ namespace R1Engine
 
 			public override void SerializeImpl(SerializerObject s) {
 				Short0 = s.Serialize<short>(Short0, name: nameof(Short0));
+				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
+					cg0 = s.Serialize<byte>(cg0, name: nameof(cg0));
+					cg1 = s.Serialize<byte>(cg1, name: nameof(cg1));
+					Entries = s.SerializeObjectArray<Entry>(Entries, 3, name: nameof(Entries));
+				}
 				Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
 				Byte4 = s.Serialize<byte>(Byte4, name: nameof(Byte4));
 				Color5 = s.SerializeObject<RGB888Color>(Color5, name: nameof(Color5));
 				Color8 = s.SerializeObject<RGB888Color>(Color8, name: nameof(Color8));
+			}
+
+			public class Entry : R1Serializable {
+				public byte ci { get; set; }
+				public short cj { get; set; }
+
+				public override void SerializeImpl(SerializerObject s) {
+					ci = s.Serialize<byte>(ci, name: nameof(ci));
+					cj = s.Serialize<short>(cj, name: nameof(cj));
+				}
 			}
 		}
 

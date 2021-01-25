@@ -1,6 +1,11 @@
-﻿namespace R1Engine
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+using System;
+using System.Linq;
+
+namespace R1Engine
 {
-	public class Gameloft_RK_128x160_Manager : Gameloft_BaseManager {
+	public class Gameloft_RK_128x160_Manager : Gameloft_RK_Manager {
 		public override string[] ResourceFiles => new string[] {
 			"0",
 			"1",
@@ -33,6 +38,9 @@
 			"28",
 			"29",
 		};
+
+		public override string GetLevelPath(GameSettings settings) => (22+settings.Level).ToString();
+		public override int GetLevelResourceIndex(GameSettings settings) => 0;
 
 		public override string[] SingleResourceFiles => new string[] {
 		};
