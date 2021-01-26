@@ -2,18 +2,20 @@
 {
     public class GBA_Data : R1Serializable
     {
+        // Common
         public GBA_OffsetTable UiOffsetTable { get; set; }
-
         public GBA_Scene Scene { get; set; }
-
         public GBA_PlayField MenuLevelPlayfield { get; set; }
 
+        // Mad Trax
         public GBA_PlayField MadTraxPlayField_BG { get; set; }
         public GBA_PlayField MadTraxPlayField_FG { get; set; }
         public GBA_Palette MadTraxPalette { get; set; }
 
+        // Shanghai
         public GBA_Shanghai_Scene Shanghai_Scene { get; set; }
 
+        // Milan
         public GBA_Milan_SceneList Milan_SceneList { get; set; }
 
         /// <summary>

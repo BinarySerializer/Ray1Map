@@ -49,7 +49,7 @@ namespace R1Engine
                 if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
                     Index_Unknown = s.Serialize<byte>(Index_Unknown, name: nameof(Index_Unknown));
 
-                Byte_04 = s.Serialize<byte>((byte)Byte_04, name: nameof(Byte_04));
+                Byte_04 = s.Serialize<byte>((byte)Byte_04, name: nameof(Byte_04)); // Byte_04 & 0xF == palette count
                 AnimationsCount = s.Serialize<byte>((byte)AnimationsCount, name: nameof(AnimationsCount));
                 Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
 

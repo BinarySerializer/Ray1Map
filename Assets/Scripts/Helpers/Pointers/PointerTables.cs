@@ -235,6 +235,11 @@ namespace R1Engine
                         [GBA_Pointer.Vignette] = 0x0820ED94,
                         [GBA_Pointer.VignettePalettes] = 0x080B37C0,
 
+                        [GBA_Pointer.R3SinglePak_OffsetTable] = 0x087fbea0,
+                        [GBA_Pointer.R3SinglePak_Palette] = 0x080d95b4,
+                        [GBA_Pointer.R3SinglePak_TileSet] = 0x080d97b4,
+                        [GBA_Pointer.R3SinglePak_TileMap] = 0x080dd5b4,
+
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Rayman3GBAUS:
@@ -255,6 +260,11 @@ namespace R1Engine
                         [GBA_Pointer.Localization] = 0x080F20C0,
                         [GBA_Pointer.Vignette] = 0x0845FE3C,
                         [GBA_Pointer.VignettePalettes] = 0x080DC46A,
+
+                        [GBA_Pointer.R3SinglePak_OffsetTable] = 0x089f7e90,
+                        [GBA_Pointer.R3SinglePak_Palette] = 0x082b2d20,
+                        [GBA_Pointer.R3SinglePak_TileSet] = 0x082b2f20,
+                        [GBA_Pointer.R3SinglePak_TileMap] = 0x082b7520,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Rayman3GBAMadTraxEU:

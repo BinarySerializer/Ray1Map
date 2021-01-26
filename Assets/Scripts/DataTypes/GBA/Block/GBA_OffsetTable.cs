@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -21,11 +22,22 @@ namespace R1Engine
         /// <returns>The pointer</returns>
         public Pointer GetPointer(int index, bool isRelativeOffset = false)
         {
+            if (index >= OffsetsCount)
+                throw new Exception($"Invalid offset index {index}, length is {OffsetsCount}");
+
             UsedOffsets[index] = true;
-            var pointerTable = PointerTables.GBA_PointerTable(Offset.Context, Context.GetFile(((GBA_Manager)Offset.Context.Settings.GetGameManager).GetROMFilePath(Context)));
+
+            var manager = (GBA_Manager)Offset.Context.Settings.GetGameManager;
+            var pointerTable = PointerTables.GBA_PointerTable(Offset.Context, Context.GetFile(manager.GetROMFilePath(Context)));
+
+            var root = pointerTable[GBA_Pointer.UiOffsetTable];
+
+            if (manager.GetLevelType(Context) == GBA_Manager.LevelType.R3SinglePak)
+                root = pointerTable[GBA_Pointer.R3SinglePak_OffsetTable];
+
             if (Context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                 if (Block == null) {
-                    return pointerTable[GBA_Pointer.UiOffsetTable] + Offsets[index];
+                    return root + Offsets[index];
                 } else {
                     if (Block.DecompressedBlockOffset != null) {
                         return Block.DecompressedBlockOffset + Offsets[index];
@@ -38,7 +50,7 @@ namespace R1Engine
                 if (isRelativeOffset && Block != null) {
                     return Block.Offset + Offsets[index];
                 } else {
-                    return pointerTable[GBA_Pointer.UiOffsetTable] + (Offsets[index] * 4);
+                    return root + (Offsets[index] * 4);
                 }
             }
         }

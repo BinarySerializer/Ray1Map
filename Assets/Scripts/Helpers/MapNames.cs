@@ -98,6 +98,7 @@ namespace R1Engine
                         
                         [8] = "Menu",
                         [9] = "GameCube",
+                        [10] = "Single Pak",
                     };
                 case Game.GBARRR_RavingRabbids:
                     return new Dictionary<int, string>() {

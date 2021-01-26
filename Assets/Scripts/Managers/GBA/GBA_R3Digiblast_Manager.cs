@@ -8,6 +8,7 @@ namespace R1Engine
         public override string GetROMFilePath(Context context) => $"Rayman";
 
         public override int DLCLevelCount => 0;
+        public override bool HasR3SinglePakLevel => false;
 
         public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
         public override GBA_LocLanguageTable LoadLocalizationTable(Context context) => null;

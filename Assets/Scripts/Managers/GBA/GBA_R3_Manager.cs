@@ -29,12 +29,87 @@ namespace R1Engine
         };
 
         public override int DLCLevelCount => 10;
+        public override bool HasR3SinglePakLevel => true;
 
         public override int[] AdditionalSprites4bpp => Enumerable.Range(70, 91 - 70).Concat(Enumerable.Range(92, 117 - 92)).Concat(Enumerable.Range(119, 126 - 119)).ToArray();
         public override int[] AdditionalSprites8bpp => new int[]
         {
             118
         };
+
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        {
+            if (GetLevelType(context) != LevelType.R3SinglePak)
+                return await base.LoadAsync(context, loadTextures);
+
+            Controller.DetailedState = $"Loading data";
+            await Controller.WaitIfNecessary();
+
+            // Get the rom
+            var rom = FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context);
+
+            Controller.DetailedState = $"Loading background";
+            await Controller.WaitIfNecessary();
+
+            var pal = Util.ConvertGBAPalette(rom.R3SinglePak_Palette, transparentIndex: null);
+            var tileSetTex = Util.ToTileSetTexture(rom.R3SinglePak_TileSet, pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
+
+            // Create the background map
+            var map = new Unity_Map
+            {
+                Width = 32,
+                Height = 32,
+                TileSet = new Unity_TileSet[]
+                {
+                    new Unity_TileSet(tileSetTex, CellSize), 
+                },
+                MapTiles = rom.R3SinglePak_TileMap.Select(x => new Unity_Tile(new MapTile()
+                {
+                    TileMapY = x
+                })).ToArray(),
+                Type = Unity_Map.MapType.Graphics,
+            };
+
+            Controller.DetailedState = $"Loading puppets";
+            await Controller.WaitIfNecessary();
+
+            // Create dummy actor models from the puppets, with one action for every animation
+            var actorModels = rom.R3SinglePak_Puppets.Select((x, i) => new Unity_ObjectManager_GBA.ModelData(
+                index: i,
+                actions: Enumerable.Range(0, x.AnimationsCount).Select(animIndex => new GBA_Action()
+                {
+                    AnimationIndex = (ushort)animIndex
+                }).ToArray(),
+                puppets: new Unity_ObjGraphics[]
+                {
+                    GetCommonDesign(x, false, null)
+                })).ToArray();
+
+            // Create an object manager
+            var objManager = new Unity_ObjectManager_GBA(context, actorModels);
+
+            // Create a single dummy game object
+            var obj = new Unity_Object_GBA(new GBA_Actor()
+            {
+                Type = GBA_Actor.ActorType.Actor,
+                ActorModel = new GBA_ActorModel(),
+                XPos = 128,
+                YPos = 128
+            }, objManager);
+
+            // Return the level
+            return new Unity_Level(
+                maps: new Unity_Map[]
+                {
+                    map
+                }, 
+                objManager: objManager,
+                eventData: new List<Unity_Object>()
+                {
+                    obj
+                },
+                cellSize: CellSize);
+        }
 
         // TODO: Find the way the game gets the vignette offsets
         public override async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)

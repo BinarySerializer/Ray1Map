@@ -1,19 +1,28 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBA_ROM : GBA_ROMBase
     {
+        // Game data
         public GBA_Data Data { get; set; }
-
-        // Each pointer leads to a small index list. They all begin with 0x00, so read until next 0x00? - probably irrelevant
-        public Pointer[] UnkPointerTable { get; set; }
 
         // Contains general info about levels, but not anything map related
         public GBA_R3_SceneInfo[] LevelInfo { get; set; }
 
+        // Localization
         public GBA_LocLanguageTable Localization { get; set; }
         public GBA_Milan_LocTable Milan_Localization { get; set; }
 
+        // Actor type data
         public GBA_ActorTypeTableEntry[] ActorTypeTable { get; set; }
+
+        // Rayman 3 Single Pak
+        public GBA_OffsetTable R3SinglePak_OffsetTable { get; set; }
+        public GBA_Puppet[] R3SinglePak_Puppets { get; set; }
+        public RGBA5551Color[] R3SinglePak_Palette { get; set; }
+        public byte[] R3SinglePak_TileSet { get; set; }
+        public ushort[] R3SinglePak_TileMap { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -28,9 +37,11 @@
 
             // Get the pointer table
             var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.file);
+            var lvlType = manager.GetLevelType(s.Context);
 
             // Serialize the offset table
-            s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data)));
+            if (lvlType != GBA_Manager.LevelType.R3SinglePak)
+                s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data)));
 
             // Serialize level info
             if (pointerTable.ContainsKey(GBA_Pointer.LevelInfo))
@@ -48,6 +59,20 @@
             // Serialize actor type data
             if (pointerTable.ContainsKey(GBA_Pointer.ActorTypeTable))
                 ActorTypeTable = s.DoAt(pointerTable[GBA_Pointer.ActorTypeTable], () => s.SerializeObjectArray<GBA_ActorTypeTableEntry>(ActorTypeTable, manager.ActorTypeTableLength, name: nameof(ActorTypeTable)));
+
+            if (lvlType == GBA_Manager.LevelType.R3SinglePak)
+            {
+                R3SinglePak_OffsetTable = s.DoAt(pointerTable[GBA_Pointer.R3SinglePak_OffsetTable], () => s.SerializeObject<GBA_OffsetTable>(R3SinglePak_OffsetTable, name: nameof(R3SinglePak_OffsetTable)));
+                R3SinglePak_Palette = s.DoAt(pointerTable[GBA_Pointer.R3SinglePak_Palette], () => s.SerializeObjectArray<RGBA5551Color>(R3SinglePak_Palette, 256, name: nameof(R3SinglePak_Palette)));
+                R3SinglePak_TileMap = s.DoAt(pointerTable[GBA_Pointer.R3SinglePak_TileMap], () => s.SerializeArray<ushort>(R3SinglePak_TileMap, 0x400, name: nameof(R3SinglePak_TileMap)));
+                R3SinglePak_TileSet = s.DoAt(pointerTable[GBA_Pointer.R3SinglePak_TileSet], () => s.SerializeArray<byte>(R3SinglePak_TileSet, (R3SinglePak_TileMap.Max() + 1) * 0x40, name: nameof(R3SinglePak_TileSet)));
+
+                if (R3SinglePak_Puppets == null)
+                    R3SinglePak_Puppets = new GBA_Puppet[R3SinglePak_OffsetTable.OffsetsCount];
+
+                for (int i = 0; i < R3SinglePak_Puppets.Length; i++)
+                    R3SinglePak_Puppets[i] = s.DoAt(R3SinglePak_OffsetTable.GetPointer(i), () => s.SerializeObject<GBA_Puppet>(R3SinglePak_Puppets[i], name: $"{nameof(R3SinglePak_Puppets)}[{i}]"));
+            }
         }
     }
 }

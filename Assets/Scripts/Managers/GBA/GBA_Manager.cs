@@ -23,9 +23,11 @@ namespace R1Engine
             // Add menu maps
             output.Add(new GameInfo_World(output.Count, MenuLevels));
 
-            // Add DLC maps if available
-            if (DLCLevelCount > 0)
-                output.Add(new GameInfo_World(output.Count, Enumerable.Range(0, DLCLevelCount).ToArray()));
+            // Add DLC maps
+            output.Add(new GameInfo_World(output.Count, Enumerable.Range(0, DLCLevelCount).ToArray()));
+
+            if (HasR3SinglePakLevel)
+                output.Add(new GameInfo_World(output.Count, new int[1]));
 
             return GameInfo_Volume.SingleVolume(output.ToArray());
         }
@@ -37,8 +39,11 @@ namespace R1Engine
             if (context.Settings.World == worlds && MenuLevels.Any())
                 return LevelType.Menu;
 
-            if (context.Settings.World == (worlds + 1) && DLCLevelCount > 0)
+            if (context.Settings.World == worlds + 1)
                 return LevelType.DLC;
+
+            if (context.Settings.World == worlds + 2 && HasR3SinglePakLevel)
+                return LevelType.R3SinglePak;
 
             return LevelType.Game;
         }
@@ -51,6 +56,7 @@ namespace R1Engine
         public int LevelCount => WorldLevels.Select(x => x.Count()).Sum();
         public abstract int[] MenuLevels { get; }
         public abstract int DLCLevelCount { get; }
+        public virtual bool HasR3SinglePakLevel => false;
         public abstract int[] AdditionalSprites4bpp { get; }
         public abstract int[] AdditionalSprites8bpp { get; }
 
@@ -1348,7 +1354,8 @@ namespace R1Engine
         {
             Game,
             Menu,
-            DLC
+            DLC,
+            R3SinglePak
         }
 
         protected class TilesetInfo

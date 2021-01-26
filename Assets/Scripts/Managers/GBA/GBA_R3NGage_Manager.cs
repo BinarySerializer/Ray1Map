@@ -30,6 +30,7 @@ namespace R1Engine
         };
 
         public override int DLCLevelCount => 0;
+        public override bool HasR3SinglePakLevel => false;
 
         public override int[] AdditionalSprites4bpp => Enumerable.Range(79, 103 - 79).Concat(Enumerable.Range(104, 131 - 104)).Concat(Enumerable.Range(133, 140 - 133)).ToArray();
 
