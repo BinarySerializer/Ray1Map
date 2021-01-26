@@ -428,6 +428,12 @@
       "name": "(Multiplayer) Steal n’ Spider"
     },
     {
+      "world": 10,
+      "level": 0,
+      "nameInternal": "",
+      "name": "(Multiplayer) Single Pak"
+    },
+    {
       "world": 9,
       "level": 0,
       "nameInternal": "map.000",
