@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Numerics;
 using UnityEngine;
 
 namespace R1Engine
 {
     // Matches https://www.coranac.com/tonc/text/regobj.htm
-    public class GBA_AnimationChannel : R1Serializable {
+    public class GBA_AnimationChannel : R1Serializable, ICloneable {
         public ushort Attr0 { get; set; }
         public ushort Attr1 { get; set; }
         public ushort Attr2 { get; set; }
@@ -252,5 +251,8 @@ namespace R1Engine
             }
             return UnityEngine.Vector2.one;
         }
+
+        public GBA_AnimationChannel CloneObj() => (GBA_AnimationChannel)MemberwiseClone();
+        public object Clone() => MemberwiseClone();
     }
 }

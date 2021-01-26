@@ -14,6 +14,8 @@ namespace R1Engine
             ObjManager = objManager;
             InitialXPos = actor.XPos;
             InitialYPos = actor.YPos;
+
+            OverrideAnimIndex = actor.OverridePaletteIndex;
         }
 
         public GBA_Actor Actor { get; }
@@ -322,6 +324,8 @@ namespace R1Engine
             }
             if (ModelData?.Puppets != null) 
             {
+                var additionalAnimIndex = 0;
+
                 for (int puppetIndex = 0; puppetIndex < ModelData.Puppets.Length; puppetIndex++)
                 {
                     for (int i = 0; i < ModelData.Puppets[puppetIndex].Animations.Count; i++)
@@ -329,7 +333,14 @@ namespace R1Engine
                         if (usedAnims.Contains(i) && puppetIndex == 0) 
                             continue;
 
-                        uiStates.Add(new GBA_UIState($"Animation {(ModelData.Puppets.Length > 1 ? $"{puppetIndex}-" : String.Empty)}{i}", animIndex: i, puppetIndex: puppetIndex));
+                        string name;
+
+                        if (ModelData.Puppets[puppetIndex].Animations[i].IsAdditionalAnimation)
+                            name = $"Added animation {additionalAnimIndex++}";
+                        else
+                            name = $"Animation {(ModelData.Puppets.Length > 1 ? $"{puppetIndex}-" : String.Empty)}{i}";
+
+                        uiStates.Add(new GBA_UIState(name, animIndex: i, puppetIndex: puppetIndex));
                     }
                 }
             }

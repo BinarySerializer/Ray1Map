@@ -60,6 +60,8 @@ namespace R1Engine
         public abstract int[] AdditionalSprites4bpp { get; }
         public abstract int[] AdditionalSprites8bpp { get; }
 
+        public virtual ModifiedActorState[] ModifiedActorStates => new ModifiedActorState[0];
+
         public virtual GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Compressed Blocks", false, true, (input, output) => ExportAllCompressedBlocksAsync(settings, output)),
@@ -376,7 +378,7 @@ namespace R1Engine
 
             try
             {
-                var commonDesign = GetCommonDesign(spr, is8bit, data);
+                var commonDesign = GetCommonDesign(spr, is8bit, data, new GBA_Animation[0]);
 
                 // Convert Texture2D to MagickImage
                 sprites = commonDesign.Sprites.Select(x => x.ToMagickImage()).ToArray();
@@ -1002,7 +1004,7 @@ namespace R1Engine
         public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0], data));
         public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager)) ?? new Unity_Object_GBA[0];
         public virtual Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray();
-        public virtual Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data)
+        public virtual Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data, GBA_Animation[] additionalAnimations)
         {
             var puppet = (GBA_Puppet)puppetBlock;
 
@@ -1098,11 +1100,12 @@ namespace R1Engine
             }
 
             // Add animations
-            foreach (var a in puppet.Animations) 
+            foreach (var a in puppet.Animations.Concat(additionalAnimations)) 
             {
                 var unityAnim = new Unity_ObjAnimation
                 {
-                    AnimSpeed = (byte) (1 + (a.Flags & 0xF))
+                    AnimSpeed = (byte) (1 + (a.Flags & 0xF)),
+                    IsAdditionalAnimation = des.Animations.Count >= puppet.Animations.Length
                 };
 
                 var frames = new List<Unity_ObjAnimationFrame>();
@@ -1123,10 +1126,13 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBA.ModelData[] LoadActorModels(Context context, IEnumerable<GBA_Actor> actors, GBA_Data data)
         {
+            var allActors = actors.ToArray();
+
             var graphicsData = new List<Unity_ObjectManager_GBA.ModelData>();
             var cachedPuppets = new Dictionary<GBA_BaseBlock, Unity_ObjGraphics>();
+            var modifiedActorStates = ModifiedActorStates;
 
-            foreach (var actor in actors)
+            foreach (var actor in allActors)
             {
                 // Make sure the model hasn't already been loaded
                 if (graphicsData.Any(x => x.Index == actor.Index_ActorModel))
@@ -1141,9 +1147,66 @@ namespace R1Engine
                 var loadedPuppets = new Unity_ObjGraphics[modelPuppets.Length];
 
                 for (int i = 0; i < modelPuppets.Length; i++)
-                    loadedPuppets[i] = cachedPuppets.ContainsKey(modelPuppets[i]) ? cachedPuppets[modelPuppets[i]] : cachedPuppets[modelPuppets[i]] = GetCommonDesign(modelPuppets[i], false, data); // TODO: Don't always assume it's 4-bit!
+                {
+                    if (!cachedPuppets.ContainsKey(modelPuppets[i]))
+                    {
+                        List<GBA_Animation> additionalAnimations = new List<GBA_Animation>();
+                        var handledModifiedActorStates = new List<ModifiedActorState>();
+
+                        foreach (var a in allActors.Where(x => x.ActorModel?.GetPuppets[i] == modelPuppets[i]))
+                        {
+                            // Create additional animations for modified actor states
+                            foreach (var modifiedActorState in modifiedActorStates.Where(x => x.ActorID == a.ActorID))
+                            {
+                                if (handledModifiedActorStates.Contains(modifiedActorState))
+                                    continue;
+
+                                handledModifiedActorStates.Add(modifiedActorState);
+
+                                var anims = ((GBA_Puppet)modelPuppets[i]).Animations;
+                                var baseAnim = anims[modifiedActorState.AnimIndex];
+
+                                additionalAnimations.Add(new GBA_Animation
+                                {
+                                    Flags = baseAnim.Flags,
+                                    Byte_01 = baseAnim.Byte_01,
+                                    AffineMatricesIndex = baseAnim.AffineMatricesIndex,
+                                    Byte_03 = baseAnim.Byte_03,
+                                    LayersPerFrame = baseAnim.LayersPerFrame,
+                                    Milan_Ushort_02 = baseAnim.Milan_Ushort_02,
+                                    Milan_Int_06 = baseAnim.Milan_Int_06,
+                                    Milan_LayerOffsets = baseAnim.Milan_LayerOffsets,
+                                    FrameCount = baseAnim.FrameCount,
+                                    Layers = baseAnim.Layers.Select(frame => frame.Select(layer =>
+                                    {
+                                        var newLayer = layer.CloneObj();
+                                        newLayer.PaletteIndex = modifiedActorState.NewPaletteIndex;
+                                        return newLayer;
+                                    }).ToArray()).ToArray()
+                                });
+
+                                // Set override anim index
+                                modifiedActorState.NewOverrideAnimIndex = anims.Length + additionalAnimations.Count - 1;
+                            }
+                        }
+
+                        cachedPuppets[modelPuppets[i]] = GetCommonDesign(modelPuppets[i], false, data, additionalAnimations.ToArray());
+                    }
+
+                    loadedPuppets[i] = cachedPuppets[modelPuppets[i]];
+                }
 
                 graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.Index_ActorModel, context.Settings.GBA_IsMilan ? actor.ActorModel.Milan_Actions.Blocks.Select(y => y.Action).ToArray() : actor.ActorModel.Actions, loadedPuppets, actor.ActorModel.Milan_ActorID));
+            }
+
+            // Set override animation indexes for actors
+            foreach (var actor in allActors)
+            {
+                foreach (var modifiedActorState in modifiedActorStates)
+                {
+                    if (actor.ActorID == modifiedActorState.ActorID && actor.ActionIndex == modifiedActorState.ActionIndex)
+                        actor.OverridePaletteIndex = modifiedActorState.NewOverrideAnimIndex;
+                }
             }
 
             return graphicsData.ToArray();
@@ -1372,6 +1435,24 @@ namespace R1Engine
             public bool Is8bpp { get; }
             public GBA_Palette[] TilePalettes { get; }
             public GBA_AnimatedTileKit[] AnimatedTilekits { get; }
+        }
+
+        public class ModifiedActorState
+        {
+            public ModifiedActorState(int actorId, int actionIndex, int animIndex, int newPaletteIndex)
+            {
+                ActorID = actorId;
+                ActionIndex = actionIndex;
+                AnimIndex = animIndex;
+                NewPaletteIndex = newPaletteIndex;
+            }
+
+            public int ActorID { get; }
+            public int ActionIndex { get; }
+            public int AnimIndex { get; }
+            public int NewPaletteIndex { get; }
+
+            public int? NewOverrideAnimIndex { get; set; }
         }
     }
 }

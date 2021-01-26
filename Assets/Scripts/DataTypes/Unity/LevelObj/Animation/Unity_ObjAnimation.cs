@@ -12,5 +12,6 @@
 
         public int? AnimSpeed { get; set; }
         public int[] AnimSpeeds { get; set; }
+        public bool IsAdditionalAnimation { get; set; }
     }
 }

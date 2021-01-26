@@ -56,6 +56,8 @@
         public ushort Milan_CaptorIndicesCount { get; set; }
         public ushort[] Milan_CaptorIndices { get; set; }
 
+        public int? OverridePaletteIndex { get; set; } // Not a serialized property - use this to force the actor to use a specific animation index when loaded
+
         #endregion
 
         #region Parsed

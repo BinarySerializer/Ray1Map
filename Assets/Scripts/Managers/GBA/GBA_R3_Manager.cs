@@ -37,6 +37,15 @@ namespace R1Engine
             118
         };
 
+        public override ModifiedActorState[] ModifiedActorStates => new ModifiedActorState[]
+        {
+            new ModifiedActorState(12, 7, 10, 1), // Big blue Lum
+            new ModifiedActorState(12, 3, 0, 1), // Blue Lum
+            new ModifiedActorState(12, 4, 3, 1), // White Lum
+            new ModifiedActorState(21, 1, 2, 1), // Sphere
+            new ModifiedActorState(20, 3, 0, 1), // Sphere base
+        };
+
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             if (GetLevelType(context) != LevelType.R3SinglePak)
@@ -82,7 +91,7 @@ namespace R1Engine
                 }).ToArray(),
                 puppets: new Unity_ObjGraphics[]
                 {
-                    GetCommonDesign(x, false, null)
+                    GetCommonDesign(x, false, null, new GBA_Animation[0])
                 })).ToArray();
 
             // Create an object manager

@@ -20,10 +20,10 @@ namespace R1Engine
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
 
-        public override Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data)
+        public override Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data, GBA_Animation[] additionalAnimations)
         {
             if (puppetBlock is GBA_Puppet)
-                return base.GetCommonDesign(puppetBlock, is8bit, data);
+                return base.GetCommonDesign(puppetBlock, is8bit, data, additionalAnimations);
 
             var puppet = (GBA_BatmanVengeance_Puppet)puppetBlock;
 
