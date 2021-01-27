@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -31,6 +30,23 @@ namespace R1Engine
         public Dictionary<int, GBAIsometric_RHR_AnimPattern[]> Patterns { get; set; }
         public ushort[] TileIndices { get; set; }
         public bool Is8Bit => BitHelpers.ExtractBits(Flags, 1, 1) == 1;
+
+        public RGBA5551Color[][] AlternativePalettes { get; set; }
+        public RGBA5551Color[][] GetAllPalettes
+        {
+            get
+            {
+                var pal = new RGBA5551Color[][]
+                {
+                    Palette
+                };
+
+                if (AlternativePalettes != null)
+                    pal = pal.Concat(AlternativePalettes).ToArray();
+
+                return pal;
+            }
+        }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -107,6 +123,17 @@ namespace R1Engine
                     }
                 });
             }*/
+        }
+
+        public void SerializeAlternativePalettes(SerializerObject s, uint[] pointers)
+        {
+            if (AlternativePalettes == null)
+                AlternativePalettes = new RGBA5551Color[pointers.Length][];
+
+            for (int i = 0; i < AlternativePalettes.Length; i++)
+                AlternativePalettes[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObjectArray<RGBA5551Color>(AlternativePalettes[i], Is8Bit ? 256 : 16, name: $"{nameof(AlternativePalettes)}[{i}]"));
+
+            //PaletteHelpers.ExportPalette(Path.Combine(s.Context.BasePath, $"{Name}.png"), Palette.Concat(AlternativePalettes.SelectMany(x => x)).ToArray(), optionalWrap: Is8Bit ? 256 : 16);
         }
     }
 }

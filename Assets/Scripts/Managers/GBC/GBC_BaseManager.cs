@@ -377,6 +377,8 @@ namespace R1Engine
             var scene = level.Scene;
             var playField = scene.PlayField;
 
+            //Debug.Log($"Linked levels: {String.Join(", ", level.LinkedLevels.Select(x => level.LinkedLevelsStartIndex - 1 + x).Select(x => level.DependencyTable.Dependencies[x]).Select(x => sceneList.DependencyTable.Dependencies.FindItemIndex(d => d.GBC_Pointer.Pointer == x.GBC_Pointer.Pointer && d.GBC_Pointer.MemoryBank == x.GBC_Pointer.MemoryBank)))}");
+
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
 

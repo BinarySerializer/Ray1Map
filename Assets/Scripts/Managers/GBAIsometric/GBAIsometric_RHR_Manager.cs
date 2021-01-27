@@ -75,29 +75,35 @@ namespace R1Engine
             if (animSet == null) 
                 return;
 
-            string outPath = Path.Combine(outputPath, animSet.Name);
-
             Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
+            var pal = animSet.GetAllPalettes;
 
             for (int a = 0; a < animSet.Animations.Length; a++) 
             {
-                if(a % 10 == 0) 
+                if (a % 10 == 0)
                     await Controller.WaitIfNecessary();
 
                 var anim = animSet.Animations[a];
 
-                var f = 0;
+                for (int p = 0; p < pal.Length; p++)
+                {
+                    string outPath = Path.Combine(outputPath, pal.Length > 1 ? $"{animSet.Name}_{p}" : animSet.Name);
 
-                foreach (var tex in GetAnimationFrames(context, animSet, anim, decompressedDictionary))
-                    Util.ByteArrayToFile(Path.Combine(outPath, $"{a}-{anim.Speed}", $"{f++}.png"), tex.EncodeToPNG());
+                    var f = 0;
+
+                    foreach (var tex in GetAnimationFrames(context, animSet, anim, decompressedDictionary, pal[p]))
+                        Util.ByteArrayToFile(Path.Combine(outPath, $"{a}-{anim.Speed}", $"{f++}.png"), tex.EncodeToPNG());
+                }
             }
         }
-        public IEnumerable<Texture2D> GetAnimationFrames(Context context, GBAIsometric_RHR_AnimSet animSet, GBAIsometric_RHR_Animation anim, Dictionary<ushort, byte[]> decompressedDictionary)
+        public IEnumerable<Texture2D> GetAnimationFrames(Context context, GBAIsometric_RHR_AnimSet animSet, GBAIsometric_RHR_Animation anim, Dictionary<ushort, byte[]> decompressedDictionary, RGBA5551Color[] palette)
         {
             SerializerObject s = context.Deserializer;
 
             var startFrame = anim.StartFrameIndex;
             var frameCount = anim.FrameCount;
+
+            Color[] pal = Util.ConvertGBAPalette(palette);
 
             for (int f = 0; f < frameCount; f++)
             {
@@ -112,8 +118,6 @@ namespace R1Engine
                 else
                 {
                     var patIndex = frame.PatternIndex;
-
-                    Color[] pal = Util.ConvertGBAPalette(animSet.Palette);
 
                     int curTile = frame.TileIndicesIndex;
 
@@ -541,11 +545,17 @@ namespace R1Engine
             foreach (var animSet in rom.GetAllAnimSets().OrderBy(x => x.Offset))
             {
                 Dictionary<ushort, byte[]> decompressedDictionary = new Dictionary<ushort, byte[]>();
-                yield return new Unity_ObjectManager_GBAIsometricRHR.AnimSet(animSet.Offset, animSet.Animations.Select(x =>
+                var pal = animSet.GetAllPalettes;
+
+                for (int i = 0; i < pal.Length; i++)
                 {
-                    return new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => GetAnimationFrames(rom.Context, animSet, x, decompressedDictionary).Select(f => f.CreateSprite()).ToArray(),
-                        x.Speed, -animSet.PivotX, -animSet.PivotY);
-                }).ToArray(), animSet.Name);
+                    var p = i;
+
+                    yield return new Unity_ObjectManager_GBAIsometricRHR.AnimSet(animSet.Offset, animSet.Animations.Select(x =>
+                    {
+                        return new Unity_ObjectManager_GBAIsometricRHR.AnimSet.Animation(() => GetAnimationFrames(rom.Context, animSet, x, decompressedDictionary, pal[p]).Select(f => f.CreateSprite()).ToArray(), x.Speed, -animSet.PivotX, -animSet.PivotY);
+                    }).ToArray(), pal.Length > 1 ? $"{animSet.Name}_{i}" : animSet.Name);
+                }
             }
 
             var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();

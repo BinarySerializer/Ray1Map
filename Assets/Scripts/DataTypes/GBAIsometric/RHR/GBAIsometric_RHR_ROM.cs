@@ -129,6 +129,12 @@ namespace R1Engine
 
                 for (int i = 0; i < Portraits.Length; i++)
                     Portraits[i] = s.DoAt(PortraitPointers[i], () => s.SerializeObject<GBAIsometric_RHR_AnimSet>(Portraits[i], name: $"{nameof(Portraits)}[{i}]"));
+
+                // Serialize alternative anim set palettes
+                var alternativeAnimSetPalettes = AlternativeAnimSetPalettes[s.GameSettings.GameModeSelection];
+
+                foreach (GBAIsometric_RHR_AnimSet animSet in GetAllAnimSets().Where(x => alternativeAnimSetPalettes.ContainsKey(x.Name)))
+                    animSet.SerializeAlternativePalettes(s, alternativeAnimSetPalettes[animSet.Name]);
             }
             else
             {
@@ -585,5 +591,60 @@ namespace R1Engine
                 return d;
             }
         }
+        public Dictionary<GameModeSelection, Dictionary<string, uint[]>> AlternativeAnimSetPalettes => new Dictionary<GameModeSelection, Dictionary<string, uint[]>>()
+        {
+            [GameModeSelection.RaymanHoodlumsRevengeUS] = new Dictionary<string, uint[]>()
+            {
+                ["teensieAnimSet"] = new uint[]
+                {
+                    0x08415aac,
+                    0x08415acc,
+                    0x08415aec,
+                    0x08415b0c,
+                    0x08415b2c
+                },
+                ["raymanAnimSet"] = new uint[]
+                {
+                    0x080f9ab8,
+                    0x080f9cb8,
+                    0x080f9eb8,
+                },
+                ["globoxAnimSet"] = new uint[]
+                {
+                    0x08202124,
+                    0x08202144,
+                },
+                ["cloneAnimSet"] = new uint[]
+                {
+                    0x085ccf48,
+                },
+            },
+            [GameModeSelection.RaymanHoodlumsRevengeEU] = new Dictionary<string, uint[]>()
+            {
+                ["teensieAnimSet"] = new uint[]
+                {
+                    0x08415b50,
+                    0x08415b70,
+                    0x08415b90,
+                    0x08415bB0,
+                    0x08415bD0
+                },
+                ["raymanAnimSet"] = new uint[]
+                {
+                    0x080f9b5c,
+                    0x080f9d5c,
+                    0x080f9f5c,
+                },
+                ["globoxAnimSet"] = new uint[]
+                {
+                    0x082021c8,
+                    0x082021e8,
+                },
+                ["cloneAnimSet"] = new uint[]
+                {
+                    0x085ce480,
+                },
+            }
+        };
     }
 }
