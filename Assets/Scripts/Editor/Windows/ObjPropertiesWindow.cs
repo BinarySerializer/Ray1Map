@@ -43,11 +43,17 @@ public class ObjPropertiesWindow : UnityWindow
             {
                 DrawHeader("Editor fields");
 
+                if (selectedObj.ObjData.LegacyWrapper != null)
+                {
+                    var des = EditorField("DES", selectedObj.ObjData.LegacyWrapper.DES, LevelEditorData.ObjManager.LegacyDESNames);
+
+                    if (des != selectedObj.ObjData.LegacyWrapper.DES)
+                        selectedObj.ObjData.LegacyWrapper.DES = des;
+                }
+
                 selectedObj.ObjData.CurrentUIState = EditorField("State", selectedObj.ObjData.CurrentUIState, selectedObj.ObjData.UIStateNames);
 
                 selectedObj.IsEnabled = EditorField("Is Enabled", selectedObj.IsEnabled);
-
-                // TODO: Add DES/ETA drop-down, add state drop-down, show cmds as string
 
                 DrawHeader("Object data");
 
