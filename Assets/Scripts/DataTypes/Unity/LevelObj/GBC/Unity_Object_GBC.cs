@@ -90,7 +90,7 @@ namespace R1Engine
                 if (Actor.IsCaptor)
                     return $"Captor";
 
-                if (ObjManager.Context.Settings.Game == Game.GBC_R1)
+                if (ObjManager.Context.Settings.Game == Game.GBC_R1 || ObjManager.Context.Settings.Game == Game.GBC_R2)
                 {
                     var actorName = ((GBC_R1_ActorID)Actor.ActorID).ToString();
 
