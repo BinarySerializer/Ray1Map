@@ -211,23 +211,60 @@ namespace R1Engine
                         GBC_R1_ActorID.DarkBeam,
                         GBC_R1_ActorID.FireMine,
                         GBC_R1_ActorID.Lightning,
-                    }.Select(x => (byte?)x).ToArray()
+                    }.Select(x => (byte?)x).ToArray(),
+                    [Game.GBC_R2] = new byte?[]
+                    {
+                        119, // Pirate shot
+                        93, // Lava
+                        96, // Pilot
+                    }
+                };
+
+                // Object types to remove links for
+                var removeLinksTypes = new Dictionary<Game, byte?[]>()
+                {
+                    [Game.GBC_R1] = new byte?[0],
+                    [Game.GBC_R2] = new byte?[]
+                    {
+                        115, // Mask
+                    }
+                };
+
+                // Objects to change the action for
+                var actionChanges = new Dictionary<Game, Dictionary<byte?, byte>>()
+                {
+                    [Game.GBC_R1] = new Dictionary<byte?, byte>()
+                    {
+                        [0] = 2, // Rayman
+                    },
+                    [Game.GBC_R2] = new Dictionary<byte?, byte>()
+                    {
+                        [0] = 2, // Rayman
+                        [118] = 3, // Pirate
+                    }
                 };
 
                 // Hide specified types
                 foreach (var obj in objects.Where(x => hideTypes[settings.Game].Contains(((Unity_Object_GBC)x.ObjData).Actor.ActorID)))
                     obj.IsEnabled = false;
 
-                // Hide any object linked to Rayman and change his default animation
+                // Hide any object linked to Rayman
                 var mainObj = objManager.GetMainObject(level.EventData);
                 if (mainObj != null && (objManager.Context.Settings.Game == Game.GBC_R1 || objManager.Context.Settings.Game == Game.GBC_R2))
                 {
-                    // Modify the animation for Rayman so that he's visible on frame 0
-                    ((Unity_Object_GBC)mainObj).ActionIndex = 0;
-
                     foreach (var l in mainObj.Links)
                         objects[l].IsEnabled = false;
+                }
 
+                // Remove links for specified types
+                foreach (var obj in objects.Select(x => (Unity_Object_GBC)x.ObjData).Where(x => removeLinksTypes[settings.Game].Contains(x.Actor.ActorID)))
+                    obj.Actor.Links = new GBC_GameObjectLink[0];
+
+                // Modify actor actions
+                foreach (var obj in objects.Select(x => (Unity_Object_GBC)x.ObjData))
+                {
+                    if (obj.Actor.ActorID != null && actionChanges[settings.Game].ContainsKey(obj.Actor.ActorID))
+                        obj.Actor.ActionID = actionChanges[settings.Game][obj.Actor.ActorID];
                 }
 
                 // Enumerate every captor and modify links
@@ -241,7 +278,7 @@ namespace R1Engine
                     {
                         var linkedObj = (Unity_Object_GBC)objects[l].ObjData;
 
-                        // If the linked object is a music activator we link what that in turn is linked to
+                        // If the linked object is a music activator we link what that in turn is linked to in Rayman 1
                         if (settings.Game == Game.GBC_R1 && linkedObj.Actor.ActorID == 98)
                         {
                             // Add the links
@@ -250,7 +287,7 @@ namespace R1Engine
                             // Hide the object
                             objects[l].IsEnabled = false;
                         }
-                        // If it links to a checkpoint we remove the link
+                        // If it links to a checkpoint we remove the link in Rayman 1
                         else if (settings.Game == Game.GBC_R1 && linkedObj.Actor.ActorID == 89)
                         {
                             // Do nothing
