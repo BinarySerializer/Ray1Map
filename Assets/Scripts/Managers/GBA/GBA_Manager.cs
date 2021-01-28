@@ -1028,7 +1028,7 @@ namespace R1Engine
             var numPalettes = is8bit ? 1 : puppet.Palette.Palette.Length / 16;
 
             // Add sprites for each palette
-            var pal_split = Util.ConvertAndSplitGBAPalette((RGBA5551Color[])pal);
+            var pal_split = Util.ConvertAndSplitGBAPalette(pal);
             for (int palIndex = 0; palIndex < numPalettes; palIndex++)
             {
                 var tileSetTex = Util.ToTileSetTexture(tileSet, pal_split[palIndex], Util.TileEncoding.Linear_4bpp, CellSize, false, flipTileY: true);

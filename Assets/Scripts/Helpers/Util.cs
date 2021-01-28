@@ -701,7 +701,7 @@ namespace R1Engine
                 return LCM(numbers[i], LCM(numbers, i + 1));
         }
 
-        public static Color[] ConvertGBAPalette(IEnumerable<RGBA5551Color> palette, int? transparentIndex = 0) => palette.Select((x, i) => {
+        public static Color[] ConvertGBAPalette(IEnumerable<BaseColor> palette, int? transparentIndex = 0) => palette.Select((x, i) => {
             Color c = x.GetColor();
             if (!transparentIndex.HasValue || i != transparentIndex.Value) {
                 c.a = 1f;
@@ -710,7 +710,7 @@ namespace R1Engine
             }
             return c;
         }).ToArray();
-        public static Color[][] ConvertAndSplitGBAPalette(RGBA5551Color[] palette, bool firstTransparent = true)
+        public static Color[][] ConvertAndSplitGBAPalette(BaseColor[] palette, bool firstTransparent = true)
             => palette
             .Split(palette.Length / 16, 16)
             .Select(p => ConvertGBAPalette(p, transparentIndex: firstTransparent ? (int?)0 : null))
