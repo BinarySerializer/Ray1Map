@@ -1353,7 +1353,9 @@ namespace R1Engine
                         {
                             mapTile = new MapTile()
                             {
-                                CollisionType = (ushort)tileIndex
+                                GBACrash_CollisionShape = (MapTile.GBACrash_CollisionTileShape)BitHelpers.ExtractBits(tileIndex, 7, 0),
+                                GBACrash_UnknownCollisionFlag = BitHelpers.ExtractBits(tileIndex, 1, 7) == 1, // Only used in Crash 1
+                                CollisionType = (ushort)BitHelpers.ExtractBits(tileIndex, 8, 8),
                             };
                         }
                         else if (is8bit)
@@ -1746,8 +1748,9 @@ namespace R1Engine
 
         public void GetAvailableCollisionTypes(GBACrash_ROM rom)
         {
-            var handledTypes = new HashSet<ushort>();
+            var handledTypes = new HashSet<KeyValuePair<ushort, int>>();
 
+            var levelIndex = 0;
             foreach (var level in rom.LevelInfos)
             {
                 foreach (var map in level.LevelData.Maps)
@@ -1765,18 +1768,20 @@ namespace R1Engine
 
                     foreach (var c in collisionTiles.Select(x => x.Data.CollisionType))
                     {
-                        if (handledTypes.Contains(c))
+                        if (handledTypes.Any(x => x.Key == c))
                             continue;
 
-                        handledTypes.Add(c);
+                        handledTypes.Add(new KeyValuePair<ushort, int>(c, levelIndex));
                     }
                 }
+
+                levelIndex++;
             }
 
             var str = new StringBuilder();
 
-            foreach (var c in handledTypes.OrderBy(x => BitHelpers.ExtractBits(x, 8, 8)).ThenBy(x => BitHelpers.ExtractBits(x, 8, 0)))
-                str.AppendLine($"Type: {BitHelpers.ExtractBits(c, 8, 8):00}, Shape: {BitHelpers.ExtractBits(c, 8, 0):00}, Value: {c}");
+            foreach (var c in handledTypes.OrderBy(x => BitHelpers.ExtractBits(x.Key, 8, 8)).ThenBy(x => BitHelpers.ExtractBits(x.Key, 8, 0)))
+                str.AppendLine($"Type: {BitHelpers.ExtractBits(c.Key, 8, 8):00}, Shape: {BitHelpers.ExtractBits(c.Key, 8, 0):00}, Value: {c.Key:0000}, Level: {c.Value:00}");
 
             str.ToString().CopyToClipboard();
         }

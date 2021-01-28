@@ -638,12 +638,15 @@
         public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBACrash_Crash2_CollisionType collisionType) {
             switch (collisionType) 
             {
-                case GBACrash_Crash2_CollisionType.None: return Unity_MapCollisionTypeGraphic.None;
                 case GBACrash_Crash2_CollisionType.Solid: return Unity_MapCollisionTypeGraphic.Solid;
-                case GBACrash_Crash2_CollisionType.Hill_Slight_Left_1: return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
-                case GBACrash_Crash2_CollisionType.Hill_Slight_Left_2: return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2;
-                case GBACrash_Crash2_CollisionType.Hill_Slight_Right_1: return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
-                case GBACrash_Crash2_CollisionType.Hill_Slight_Right_2: return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
+                case GBACrash_Crash2_CollisionType.Damage: return Unity_MapCollisionTypeGraphic.Damage;
+                case GBACrash_Crash2_CollisionType.Rails_Left: return Unity_MapCollisionTypeGraphic.Direction_DownLeft;
+                case GBACrash_Crash2_CollisionType.Slippery: return Unity_MapCollisionTypeGraphic.Slippery;
+                case GBACrash_Crash2_CollisionType.Hang: return Unity_MapCollisionTypeGraphic.Climb_Hang;
+                case GBACrash_Crash2_CollisionType.Move_Left: return Unity_MapCollisionTypeGraphic.Direction_Left;
+                case GBACrash_Crash2_CollisionType.Rails_Right: return Unity_MapCollisionTypeGraphic.Direction_DownRight;
+                case GBACrash_Crash2_CollisionType.Rope: return Unity_MapCollisionTypeGraphic.Climb;
+                case GBACrash_Crash2_CollisionType.Move_Right: return Unity_MapCollisionTypeGraphic.Direction_Right;
                 default: return Unity_MapCollisionTypeGraphic.Unknown0;
             }
         }

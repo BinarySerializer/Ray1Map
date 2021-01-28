@@ -38,6 +38,9 @@ namespace R1Engine
         public byte GBC_BankNumber { get; set; }
         public byte GBC_Unused { get; set; }
 
+        public bool GBACrash_UnknownCollisionFlag { get; set; }
+        public GBACrash_CollisionTileShape? GBACrash_CollisionShape { get; set; }
+        public bool UsesCollisionShape => GBACrash_CollisionShape != null;
 
         #endregion
 
@@ -64,6 +67,35 @@ namespace R1Engine
             BGMapTileNumbers,
             BGMapAttributes,
             Collision
+        }
+
+        public enum GBACrash_CollisionTileShape
+        {
+            None = 0,
+            
+            Hill_Left = 1,
+            Hill_Right = 2,
+
+            Hill_Half_Left_1 = 3,
+
+            Hill_Half_Left_2 = 5,
+
+            Hill_Half_Right_1 = 6,
+            Hill_Half_Right_2 = 7,
+
+            Hill_Third_Left_1 = 8,
+
+            Hill_Third_Left_2 = 10,
+
+            Hill_Third_Left_3 = 12,
+
+            Hill_Third_Right_1 = 13,
+            Hill_Third_Right_2 = 14,
+            Hill_Third_Right_3 = 15,
+
+            Solid = 43,
+
+            Unknown_46 = 46, // Crash 1 only
         }
 
         public bool SNES_Is8PxTile { get; set; } // True for normal 8x8 tiles, otherwise a 16x16 tile which consists of 4 8x8 tiles
