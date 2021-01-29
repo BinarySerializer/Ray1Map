@@ -7,10 +7,7 @@ namespace R1Engine
     {
         public GBACrash_BaseManager.LevInfo CurrentLevInfo { get; set; } // Set before serializing
 
-        public Pointer[] LocTablePointers { get; set; }
-        public GBACrash_LocTable[] LocTables { get; set; }
-        public GBACrash_LevelInfo[] LevelInfos { get; set; }
-
+        // Helpers
         public GBACrash_MapInfo CurrentMapInfo
         {
             get
@@ -37,10 +34,13 @@ namespace R1Engine
         public GBACrash_Isometric_LevelInfo CurrentIsometricLevelInfo => Isometric_LevelInfos[CurrentMapInfo.Index3D + 4];
         public GBACrash_Isometric_ObjectData CurrentIsometricObjData => Isometric_ObjectDatas[CurrentMapInfo.Index3D + 4];
 
+        // Common
+        public Pointer[] LocTablePointers { get; set; }
+        public GBACrash_LocTable[] LocTables { get; set; }
+        public GBACrash_LevelInfo[] LevelInfos { get; set; }
+
         // 2D
-        public GBACrash_AnimSet[] AnimSets { get; set; }
-        public byte[] ObjTileSet { get; set; }
-        public GBACrash_ObjPal[] ObjPalettes { get; set; }
+        public GBACrash_Map2D_Graphics Map2D_Graphics { get; set; }
 
         // Mode7
         public GBACrash_Mode7_LevelInfo[] Mode7_LevelInfos { get; set; }
@@ -140,12 +140,7 @@ namespace R1Engine
                 CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Normal_Vehicle_1 ||
                 CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.WorldMap)
             {
-                AnimSets = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_AnimSets], () => s.SerializeObjectArray<GBACrash_AnimSet>(AnimSets, manager.AnimSetsCount, name: nameof(AnimSets)));
-
-                var tileSetLength = (long)AnimSets.SelectMany(x => x.AnimationFrames).Select(x =>
-                    x.TileOffset + (x.TileShapes.Select(t => (manager.TileShapes[t.ShapeIndex].x * manager.TileShapes[t.ShapeIndex].y) / 2).Sum())).Max();
-                ObjTileSet = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_ObjTileSet], () => s.SerializeArray<byte>(ObjTileSet, tileSetLength, name: nameof(ObjTileSet)));
-                ObjPalettes = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_ObjPalettes], () => s.SerializeObjectArray<GBACrash_ObjPal>(ObjPalettes, AnimSets.SelectMany(x => x.Animations).Max(x => x.PaletteIndex) + 1, name: nameof(ObjPalettes)));
+                Map2D_Graphics = s.DoAt(pointerTable[GBACrash_Pointer.Map2D_Graphics], () => s.SerializeObject<GBACrash_Map2D_Graphics>(Map2D_Graphics, name: nameof(Map2D_Graphics)));
             }
 
             if (CurrentMapInfo.MapType == GBACrash_MapInfo.GBACrash_MapType.Mode7)

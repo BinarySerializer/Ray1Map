@@ -18,7 +18,6 @@ namespace R1Engine
 
         public abstract LevInfo[] LevInfos { get; }
         public abstract int LocTableCount { get; }
-        public abstract int AnimSetsCount { get; }
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
@@ -47,9 +46,9 @@ namespace R1Engine
                 await UniTask.WaitForEndOfFrame();
 
                 // Enumerate every anim set
-                for (int animSetIndex = 0; animSetIndex < rom.AnimSets.Length; animSetIndex++)
+                for (int animSetIndex = 0; animSetIndex < rom.Map2D_Graphics.AnimSets.Length; animSetIndex++)
                 {
-                    var animSet = rom.AnimSets[animSetIndex];
+                    var animSet = rom.Map2D_Graphics.AnimSets[animSetIndex];
 
                     // Enumerate every animation
                     for (var animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
@@ -57,7 +56,7 @@ namespace R1Engine
                         await UniTask.WaitForEndOfFrame();
 
                         var anim = animSet.Animations[animIndex];
-                        var frames = GetAnimFrames(animSet, animIndex, rom.ObjTileSet, Util.ConvertGBAPalette(rom.ObjPalettes[anim.PaletteIndex].Palette));
+                        var frames = GetAnimFrames(animSet, animIndex, rom.Map2D_Graphics.TileSet, Util.ConvertGBAPalette(rom.Map2D_Graphics.Palettes[anim.PaletteIndex].Palette));
 
                         exportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}", false);
                     }
@@ -1521,12 +1520,12 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBACrash.AnimSet[] LoadAnimSets(GBACrash_ROM rom)
         {
-            IEnumerable<GBACrash_AnimSet> animSets = rom.AnimSets;
+            IEnumerable<GBACrash_AnimSet> animSets = rom.Map2D_Graphics.AnimSets;
 
             // Create an anim set for Fake Crash
             if (rom.Context.Settings.EngineVersion == EngineVersion.GBACrash_Crash2)
             {
-                var crash = rom.AnimSets[0];
+                var crash = rom.Map2D_Graphics.AnimSets[0];
 
                 animSets = animSets.Append(new GBACrash_AnimSet
                 {
@@ -1543,7 +1542,7 @@ namespace R1Engine
             }
 
             return animSets.Select(animSet => new Unity_ObjectManager_GBACrash.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBACrash.AnimSet.Animation(
-                animFrameFunc: () => GetAnimFrames(animSet, i, rom.ObjTileSet, Util.ConvertGBAPalette(rom.ObjPalettes[anim.PaletteIndex].Palette)).Select(frame => frame.CreateSprite()).ToArray(),
+                animFrameFunc: () => GetAnimFrames(animSet, i, rom.Map2D_Graphics.TileSet, Util.ConvertGBAPalette(rom.Map2D_Graphics.Palettes[anim.PaletteIndex].Palette)).Select(frame => frame.CreateSprite()).ToArray(),
                 crashAnim: anim,
                 xPos: animSet.GetMinX(i),
                 yPos: animSet.GetMinY(i)
@@ -1582,7 +1581,7 @@ namespace R1Engine
 
         public Texture2D[] GetAnimFrames(GBACrash_AnimSet animSet, int animIndex, byte[] tileSet, Color[] pal)
         {
-            var shapes = TileShapes;
+            var shapes = GBACrash_AnimSet.TileShapes;
 
             var anim = animSet.Animations[animIndex];
             var frames = anim.FrameTable.Select(x => animSet.AnimationFrames[x]).ToArray();
@@ -1825,21 +1824,5 @@ namespace R1Engine
                 Challenge
             }
         }
-
-        public Vector2Int[] TileShapes { get; } = new Vector2Int[]
-        {
-            new Vector2Int(0x08, 0x08), 
-            new Vector2Int(0x10, 0x10), 
-            new Vector2Int(0x20, 0x20), 
-            new Vector2Int(0x40, 0x40), 
-            new Vector2Int(0x10, 0x08), 
-            new Vector2Int(0x20, 0x08), 
-            new Vector2Int(0x20, 0x10), 
-            new Vector2Int(0x40, 0x20), 
-            new Vector2Int(0x08, 0x10), 
-            new Vector2Int(0x08, 0x20), 
-            new Vector2Int(0x10, 0x20), 
-            new Vector2Int(0x20, 0x40), 
-        };
     }
 }

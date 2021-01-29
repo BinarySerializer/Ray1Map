@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -34,5 +35,21 @@ namespace R1Engine
             for (int i = 0; i < AnimationFrames.Length; i++)
                 AnimationFrames[i] = s.DoAt(FramePointers[i], () => s.SerializeObject<GBACrash_AnimationFrame>(AnimationFrames[i], name: $"{nameof(AnimationFrames)}[{i}]"));
         }
+
+        public static Vector2Int[] TileShapes { get; } = new Vector2Int[]
+        {
+            new Vector2Int(0x08, 0x08),
+            new Vector2Int(0x10, 0x10),
+            new Vector2Int(0x20, 0x20),
+            new Vector2Int(0x40, 0x40),
+            new Vector2Int(0x10, 0x08),
+            new Vector2Int(0x20, 0x08),
+            new Vector2Int(0x20, 0x10),
+            new Vector2Int(0x40, 0x20),
+            new Vector2Int(0x08, 0x10),
+            new Vector2Int(0x08, 0x20),
+            new Vector2Int(0x10, 0x20),
+            new Vector2Int(0x20, 0x40),
+        };
     }
 }

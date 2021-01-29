@@ -4,7 +4,6 @@
     {
         public override LevInfo[] LevInfos => Levels;
         public override int LocTableCount => 191;
-        public override int AnimSetsCount => 49;
 
         public static LevInfo[] Levels = new LevInfo[]
         {

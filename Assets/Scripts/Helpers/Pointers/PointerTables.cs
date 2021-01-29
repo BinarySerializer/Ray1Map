@@ -885,9 +885,7 @@ namespace R1Engine
                         [GBACrash_Pointer.LevelInfo] = 0x0816c86c,
                         [GBACrash_Pointer.Localization] = 0x087e5e34,
 
-                        [GBACrash_Pointer.Map2D_AnimSets] = 0x084a5610,
-                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bf120,
-                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a4660,
+                        [GBACrash_Pointer.Map2D_Graphics] = 0x084a5600,
 
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x08175558,
 
@@ -908,9 +906,7 @@ namespace R1Engine
                         [GBACrash_Pointer.LevelInfo] = 0x0816c3ac,
                         [GBACrash_Pointer.Localization] = 0x08172c18,
 
-                        [GBACrash_Pointer.Map2D_AnimSets] = 0x084a3634,
-                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bd144,
-                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a2684,
+                        [GBACrash_Pointer.Map2D_Graphics] = 0x084a3624,
 
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x081736a8,
 
@@ -931,9 +927,7 @@ namespace R1Engine
                         [GBACrash_Pointer.LevelInfo] = 0x0816e5f0,
                         //[GBACrash_Pointer.Localization] = ,
 
-                        [GBACrash_Pointer.Map2D_AnimSets] = 0x084a6408,
-                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082bfcf8,
-                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x084a5438,
+                        [GBACrash_Pointer.Map2D_Graphics] = 0x084a63f8,
 
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x0817601c,
 
@@ -956,9 +950,7 @@ namespace R1Engine
                         [GBACrash_Pointer.LevelInfo] = 0x081d0430,
                         [GBACrash_Pointer.Localization] = 0x087ff064,
 
-                        [GBACrash_Pointer.Map2D_AnimSets] = 0x084768c4,
-                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082b3914,
-                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x08475d14,
+                        [GBACrash_Pointer.Map2D_Graphics] = 0x084768b4,
 
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x081df698,
                         [GBACrash_Pointer.Mode7_TilePalette_Type0] = 0x081df804,
@@ -1011,9 +1003,7 @@ namespace R1Engine
                         [GBACrash_Pointer.LevelInfo] = 0x081d2714,
                         [GBACrash_Pointer.Localization] = 0x081d5c04,
 
-                        [GBACrash_Pointer.Map2D_AnimSets] = 0x0846dd84,
-                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x082aadd4,
-                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x0846d1d4,
+                        [GBACrash_Pointer.Map2D_Graphics] = 0x0846dd74,
 
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x081d6b58,
                         [GBACrash_Pointer.Mode7_TilePalette_Type0] = 0x081d6cc4,
@@ -1066,9 +1056,7 @@ namespace R1Engine
                         [GBACrash_Pointer.LevelInfo] = 0x081c46a8,
                         //[GBACrash_Pointer.Localization] = ,
 
-                        [GBACrash_Pointer.Map2D_AnimSets] = 0x08460b80,
-                        [GBACrash_Pointer.Map2D_ObjTileSet] = 0x0829d9d0,
-                        [GBACrash_Pointer.Map2D_ObjPalettes] = 0x0845ffd0,
+                        [GBACrash_Pointer.Map2D_Graphics] = 0x08460b70,
 
                         [GBACrash_Pointer.Mode7_LevelInfo] = 0x081c9434,
                         [GBACrash_Pointer.Mode7_TilePalette_Type0] = 0x081c95a0,
