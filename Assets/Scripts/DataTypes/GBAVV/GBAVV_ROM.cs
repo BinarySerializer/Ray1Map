@@ -31,8 +31,9 @@ namespace R1Engine
             }
         }
         public GBAVV_Mode7_LevelInfo CurrentMode7LevelInfo => Mode7_LevelInfos[CurrentMapInfo.Index3D];
-        public GBAVV_Isometric_MapData CurrentIsometricMapData => Isometric_MapDatas[CurrentMapInfo.Index3D + 4];
-        public GBAVV_Isometric_ObjectData CurrentIsometricObjData => Isometric_ObjectDatas[CurrentMapInfo.Index3D + 4];
+        public GBAVV_Isometric_MapData CurrentIsometricMapData => Isometric_MapDatas[CurrentIsometricIndex];
+        public GBAVV_Isometric_ObjectData CurrentIsometricObjData => Isometric_ObjectDatas[CurrentIsometricIndex];
+        public int CurrentIsometricIndex => CurrentMapInfo.Index3D + 4;
 
         // Common
         public Pointer[] LocTablePointers { get; set; }

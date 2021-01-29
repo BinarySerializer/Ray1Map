@@ -563,15 +563,15 @@ namespace R1Engine
 
         public async UniTask<Unity_Level> LoadIsometricAsync(Context context, GBAVV_ROM rom)
         {
-            var levelInfo = rom.CurrentIsometricMapData;
+            var mapData = rom.CurrentIsometricMapData;
             var objData = rom.CurrentIsometricObjData;
 
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
 
-            var tileSet = LoadIsometricTileSet(levelInfo.TileSet, levelInfo.TilePalette);
+            var tileSet = LoadIsometricTileSet(mapData.TileSet, mapData.TilePalette);
 
-            var maps = levelInfo.MapLayers.Select((map, i) => new Unity_Map
+            var maps = mapData.MapLayers.Select((map, i) => new Unity_Map
             {
                 Width = (ushort)(map.Width * 2),
                 Height = (ushort)(map.Height * 2),
@@ -579,27 +579,28 @@ namespace R1Engine
                 {
                     tileSet,
                 },
-                MapTiles = GetIsometricTileMap(map, levelInfo.MapTiles),
+                MapTiles = GetIsometricTileMap(map, mapData.MapTiles),
                 Type = Unity_Map.MapType.Graphics,
+                Layer = i == 0 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
             }).Reverse().ToArray();
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            float minHeight = Mathf.Min(0, levelInfo.CollisionMap.Min(c => levelInfo.CollisionTiles[c].Height.AsFloat));
-            var collision = levelInfo.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
-                DebugText = Settings.ShowDebugInfo ? ($"Height: {(levelInfo.CollisionTiles[c].Height - minHeight)}{Environment.NewLine}" +
+            float minHeight = Mathf.Min(0, mapData.CollisionMap.Min(c => mapData.CollisionTiles[c].Height.AsFloat));
+            var collision = mapData.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
+                DebugText = Settings.ShowDebugInfo ? ($"Height: {(mapData.CollisionTiles[c].Height - minHeight)}{Environment.NewLine}" +
                 $"Tile index: {c}{Environment.NewLine}" +
-                $"Offset: {levelInfo.CollisionTiles[c].Offset}{Environment.NewLine}" +
-                $"Type: {levelInfo.CollisionTiles[c].TypeIndex}{Environment.NewLine}" +
-                $"Shape: {levelInfo.CollisionTiles[c].Shape}") : null,
-                Height = (levelInfo.CollisionTiles[c].Height - minHeight),
-                Type = (Unity_IsometricCollisionTile.CollisionType)levelInfo.CollisionTiles[c].TypeIndex
+                $"Offset: {mapData.CollisionTiles[c].Offset}{Environment.NewLine}" +
+                $"Type: {mapData.CollisionTiles[c].TypeIndex}{Environment.NewLine}" +
+                $"Shape: {mapData.CollisionTiles[c].Shape}") : null,
+                Height = (mapData.CollisionTiles[c].Height - minHeight),
+                Type = (Unity_IsometricCollisionTile.CollisionType)GetIsometricCollisionType(rom.CurrentIsometricIndex, mapData.CollisionTiles[c].TypeIndex)
             }).ToArray();
-            var mirroredCollision = new Unity_IsometricCollisionTile[levelInfo.CollisionWidth * levelInfo.CollisionHeight];
-            for (int x = 0; x < levelInfo.CollisionWidth; x++) {
-                for (int y = 0; y < levelInfo.CollisionHeight; y++) {
-                    mirroredCollision[x * levelInfo.CollisionHeight + y] = collision[y * levelInfo.CollisionWidth + x];
+            var mirroredCollision = new Unity_IsometricCollisionTile[mapData.CollisionWidth * mapData.CollisionHeight];
+            for (int x = 0; x < mapData.CollisionWidth; x++) {
+                for (int y = 0; y < mapData.CollisionHeight; y++) {
+                    mirroredCollision[x * mapData.CollisionHeight + y] = collision[y * mapData.CollisionWidth + x];
                 }
             }
 
@@ -610,7 +611,7 @@ namespace R1Engine
             float heightScale = 32f / Mathf.Cos(Mathf.Deg2Rad * 30f) / 2f;
 
             // Create the object manager and load animations
-            var objManager = new Unity_ObjectManager_GBAVVIsometric(context, LoadIsometricAnimations(rom), levelInfo);
+            var objManager = new Unity_ObjectManager_GBAVVIsometric(context, LoadIsometricAnimations(rom), mapData);
 
             // Load normal objects
             var objects = objData.Objects.Select(x => (Unity_Object_BaseGBAVVIsometric)new Unity_Object_GBAVVIsometric_Obj(x, objManager));
@@ -644,8 +645,8 @@ namespace R1Engine
                 YPos = new FixedPointInt() { Value = o.YPos << 8 },
             }, objManager)));
 
-            float w = levelInfo.MapWidth * 0.5f;
-            float h = levelInfo.MapHeight * 0.5f;
+            float w = mapData.MapWidth * 0.5f;
+            float h = mapData.MapHeight * 0.5f;
 
             return new Unity_Level(
                 maps: maps,
@@ -654,15 +655,15 @@ namespace R1Engine
                 cellSize: CellSize,
                 isometricData: new Unity_IsometricData()
                 {
-                    CollisionWidth = levelInfo.CollisionHeight,
-                    CollisionHeight = levelInfo.CollisionWidth,
-                    TilesWidth = levelInfo.MapWidth,
-                    TilesHeight = levelInfo.MapHeight,
+                    CollisionWidth = mapData.CollisionHeight,
+                    CollisionHeight = mapData.CollisionWidth,
+                    TilesWidth = mapData.MapWidth,
+                    TilesHeight = mapData.MapHeight,
                     Collision = mirroredCollision,
                     Scale = new Vector3(tileWidth, heightScale, tileWidth),
                     // Multiply X & Y displacement by 2 as it is divided by 2 later
-                    CalculateXDisplacement = () => w - 16 * levelInfo.XPosition * 2,
-                    CalculateYDisplacement = () => h - 16 * levelInfo.YPosition * 2 + (minHeight * heightScale * 2 * Mathf.Cos(Mathf.Deg2Rad * 30f)),
+                    CalculateXDisplacement = () => w - 16 * mapData.XPosition * 2,
+                    CalculateYDisplacement = () => h - 16 * mapData.YPosition * 2 + (minHeight * heightScale * 2 * Mathf.Cos(Mathf.Deg2Rad * 30f)),
                     ObjectScale = Vector3.one * 12/64f
                 },
                 localization: LoadLocalization(rom));
@@ -725,6 +726,112 @@ namespace R1Engine
                 eventData: new List<Unity_Object>(objects),
                 cellSize: CellSize,
                 localization: LoadLocalization(rom));
+        }
+
+        public byte GetIsometricCollisionType(int level, int index)
+        {
+            switch (level)
+            {
+                case 0:
+                    switch (index)
+                    {
+                        case 0: return 0;
+                        case 1: return 1;
+                        case 2: return 2;
+                    }
+                    break;
+                case 1:
+                    switch (index)
+                    {
+                        case 0: return 0;
+                        case 1: return 3;
+                        case 2: return 1;
+                        case 3: return 4;
+                        case 4: return 5;
+                    }
+                    break;
+                case 2:
+                    switch (index)
+                    {
+                        case 0: return 0;
+                        case 1: return 3;
+                    }
+                    break;
+                case 3:
+                    switch (index)
+                    {
+                        case 0: return 0;
+                        case 1: return 6;
+                        case 2: return 7;
+                        case 3: return 8;
+                        case 4: return 9;
+                        case 5: return 10;
+                        case 6: return 11;
+                    }
+                    break;
+                case 4:
+                    switch (index)
+                    {
+                        case 0: return 0;
+                        case 1: return 12;
+                        case 2: return 13;
+                        case 3: return 1;
+                        case 4: return 14;
+                        case 5: return 15;
+                        case 6: return 16;
+                        case 7: return 17;
+                        case 8: return 18;
+                        case 9: return 19;
+                        case 10: return 20;
+                        case 11: return 21;
+                        case 12: return 22;
+                        case 13: return 23;
+                        case 14: return 24;
+                        case 15: return 25;
+                        case 16: return 26;
+                    }
+                    break;
+                case 5:
+                    switch (index)
+                    {
+                        case 0: return 0;
+                        case 1: return 27;
+                        case 2: return 12;
+                        case 3: return 13;
+                        case 4: return 26;
+                        case 5: return 28;
+                        case 6: return 1;
+                        case 7: return 29;
+                        case 8: return 30;
+                        case 9: return 19;
+                        case 10: return 31;
+                        case 11: return 32;
+                        case 12: return 24;
+                        case 13: return 21;
+                    }
+                    break;
+                case 6:
+                    switch (index)
+                    {
+                        case 0: return 0;
+                        case 1: return 1;
+                        case 2: return 24;
+                        case 3: return 17;
+                        case 4: return 28;
+                        case 5: return 32;
+                        case 6: return 33;
+                        case 7: return 25;
+                        case 8: return 26;
+                        case 9: return 34;
+                        case 10: return 12;
+                        case 11: return 19;
+                        case 12: return 21;
+                        case 13: return 35;
+                    }
+                    break;
+            }
+
+            throw new Exception($"Invalid collision type {index} in level {level}");
         }
 
         public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme, MapTile[] mapTiles_4)
@@ -1783,6 +1890,39 @@ namespace R1Engine
                 str.AppendLine($"Type: {BitHelpers.ExtractBits(c.Key, 8, 8):00}, Shape: {BitHelpers.ExtractBits(c.Key, 8, 0):00}, Value: {c.Key:0000}, Level: {c.Value:00}");
 
             str.ToString().CopyToClipboard();
+        }
+
+        public void GetCommonIsometricCollisionIndices(IEnumerable<GBAVV_Isometric_CollisionType[]> types)
+        {
+            var commonTypes = new List<KeyValuePair<Pointer, byte[]>>();
+
+            var levelIndex = 0;
+
+            var output = new StringBuilder();
+
+            foreach (var levelTypes in types)
+            {
+                output.AppendLine($"case {levelIndex}:");
+                output.AppendLine($"    switch (index)");
+                output.AppendLine($"    {{");
+
+                var tIndex = 0;
+                foreach (var t in levelTypes)
+                {
+                    if (!commonTypes.Any(x => x.Key == t.FunctionPointer_0 && x.Value.SequenceEqual(t.Bytes_10)))
+                        commonTypes.Add(new KeyValuePair<Pointer, byte[]>(t.FunctionPointer_0, t.Bytes_10));
+
+                    output.AppendLine($"        case {tIndex}: return {commonTypes.FindIndex(x => x.Key == t.FunctionPointer_0 && x.Value.SequenceEqual(t.Bytes_10))};");
+                    tIndex++;
+                }
+
+                output.AppendLine($"    }}");
+                output.AppendLine($"    break;");
+
+                levelIndex++;
+            }
+
+            output.ToString().CopyToClipboard();
         }
 
         public class LevInfo
