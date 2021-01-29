@@ -138,8 +138,8 @@ public class WebJSON {
 		public string[] SNES_GraphicsGroupNames { get; set; }
 
 		// GBA Crash
-		public int? GBACrash_AnimSetIndex { get; set; }
-		public string[] GBACrash_AnimSetNames { get; set; }
+		public int? GBAVV_AnimSetIndex { get; set; }
+		public string[] GBAVV_AnimSetNames { get; set; }
 	}
 	public class Layer {
 		public int Index { get; set; }

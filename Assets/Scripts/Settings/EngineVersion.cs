@@ -78,13 +78,11 @@ namespace R1Engine
         GBC_R1,
         GBC_R1_Palm,
         GBC_R1_PocketPC,
-        //GBC_R1_PalmDemo,
-        //GBC_R1_PocketPCDemo,
 
-        // GBA Crash
+        // GBA VV
 
-        GBACrash_Crash1,
-        GBACrash_Crash2,
+        GBAVV_Crash1,
+        GBAVV_Crash2,
 
         // Gameloft
 

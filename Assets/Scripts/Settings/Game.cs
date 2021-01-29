@@ -63,10 +63,10 @@
         GBC_DD,
         GBC_Mowgli,
 
-        // GBA Crash
+        // GBA Vicarious Visions
 
-        GBACrash_Crash1,
-        GBACrash_Crash2,
+        GBAVV_Crash1,
+        GBAVV_Crash2,
 
         // Gameloft
 

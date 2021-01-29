@@ -44,10 +44,10 @@ namespace R1Engine
                 case Game.GBC_R2:
                     return Rayman2GBCNames;
 
-                case Game.GBACrash_Crash1:
+                case Game.GBAVV_Crash1:
                     return Crash1GBANames;
 
-                case Game.GBACrash_Crash2:
+                case Game.GBAVV_Crash2:
                     return Crash2GBANames;
 
                 case Game.R1_Mapper:
@@ -880,10 +880,10 @@ namespace R1Engine
         };
 
         private static Dictionary<int, Dictionary<int, string>> Crash1GBANames { get; } = new Dictionary<int, Dictionary<int, string>>() {
-            [0] = GBACrash_Crash1_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
+            [0] = GBAVV_Crash1_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
         private static Dictionary<int, Dictionary<int, string>> Crash2GBANames { get; } = new Dictionary<int, Dictionary<int, string>>() {
-            [0] = GBACrash_Crash2_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
+            [0] = GBAVV_Crash2_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
     }
 }

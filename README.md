@@ -576,7 +576,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
   </tr>
 </table>
 
-### Supported Games (Crash GBA)
+### Supported Games (GBA Vicarious Visions)
 
 <table class="tg">
   <tr>

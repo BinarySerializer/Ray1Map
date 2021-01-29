@@ -362,24 +362,24 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_Mowgli, "Mowgli's Wild Adventure (GBC - EU/US)", typeof(GBC_Mowgli_Manager))]
         MowgliGBC,
 
-        // Crash Bandicoot GBA
+        // GBA Vicarious Visions
 
-        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash1, Game.GBACrash_Crash1, "Crash Bandicoot XS (GBA - EU)", typeof(GBACrash_Crash1_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot XS (GBA - EU)", typeof(GBAVV_Crash1_Manager))]
         Crash1GBAEU,
 
-        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash1, Game.GBACrash_Crash1, "Crash Bandicoot The Huge Adventure (GBA - US)", typeof(GBACrash_Crash1_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot The Huge Adventure (GBA - US)", typeof(GBAVV_Crash1_Manager))]
         Crash1GBAUS,
 
-        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash1, Game.GBACrash_Crash1, "Crash Bandicoot Advance (GBA - JP)", typeof(GBACrash_Crash1_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot Advance (GBA - JP)", typeof(GBAVV_Crash1_Manager))]
         Crash1GBAJP,
 
-        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBACrash_Crash2_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBAVV_Crash2_Manager))]
         Crash2GBAEU,
 
-        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBACrash_Crash2_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBAVV_Crash2_Manager))]
         Crash2GBAUS,
 
-        [GameMode(MajorEngineVersion.GBACrash, EngineVersion.GBACrash_Crash2, Game.GBACrash_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBACrash_Crash2_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBAVV_Crash2_Manager))]
         Crash2GBAJP,
 
         // Gameloft

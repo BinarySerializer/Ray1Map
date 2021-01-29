@@ -333,21 +333,21 @@ public class WebCommunicator : MonoBehaviour {
 						webObj.SNES_GraphicsGroupNames = snesObj.ObjManager.GraphicsGroups.Select((g, i) => g.Name).ToArray();
 					break;
 
-				case Unity_Object_GBACrash crashObj:
+				case Unity_Object_GBAVV crashObj:
 					if (crashObj.AnimSetIndex != -1)
                     {
-                        webObj.GBACrash_AnimSetIndex = crashObj.AnimSetIndex;
+                        webObj.GBAVV_AnimSetIndex = crashObj.AnimSetIndex;
                         if (includeLists)
-                            webObj.GBACrash_AnimSetNames = crashObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
+                            webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
                     }
 					break;
 
-				case Unity_Object_GBACrashMode7 crashObj:
+				case Unity_Object_GBAVVMode7 crashObj:
 					if (crashObj.AnimSetIndex != -1)
                     {
-                        webObj.GBACrash_AnimSetIndex = crashObj.AnimSetIndex;
+                        webObj.GBAVV_AnimSetIndex = crashObj.AnimSetIndex;
                         if (includeLists)
-                            webObj.GBACrash_AnimSetNames = crashObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
+                            webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
                     }
 					break;
             }
@@ -681,15 +681,15 @@ public class WebCommunicator : MonoBehaviour {
 					refreshObjectLists = true;
 				}
 				break;
-			case Unity_Object_GBACrash crashObj:
-				if (msg.GBACrash_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBACrash_AnimSetIndex.Value) {
-                    crashObj.AnimSetIndex = msg.GBACrash_AnimSetIndex.Value;
+			case Unity_Object_GBAVV crashObj:
+				if (msg.GBAVV_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBAVV_AnimSetIndex.Value) {
+                    crashObj.AnimSetIndex = msg.GBAVV_AnimSetIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
-			case Unity_Object_GBACrashMode7 crashObj:
-				if (msg.GBACrash_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBACrash_AnimSetIndex.Value) {
-                    crashObj.AnimSetIndex = msg.GBACrash_AnimSetIndex.Value;
+			case Unity_Object_GBAVVMode7 crashObj:
+				if (msg.GBAVV_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBAVV_AnimSetIndex.Value) {
+                    crashObj.AnimSetIndex = msg.GBAVV_AnimSetIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;

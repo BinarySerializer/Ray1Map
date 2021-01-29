@@ -297,14 +297,14 @@ namespace R1Engine
             JsonHelpers.SerializeToFile(jsonObj, Path.Combine(outDir, $"{dirName.Substring(name.Length + 1)}.json"));
         }
 
-        public static void OutputGBACrashJSONLevelListForWeb(GameModeSelection mode)
+        public static void OutputGBAVVJSONLevelListForWeb(GameModeSelection mode)
         {
             // Helper for getting a line
             string getLine(int world, int level, string nameInternal, string name) => $"    {{ \"world\": {world}, \"level\": {level}, \"nameInternal\": \"{nameInternal}\", \"name\": \"{name}\" }},";
 
             StringBuilder str = new StringBuilder();
 
-            var manager = (GBACrash_BaseManager)new GameSettings(mode, "", 0, 0).GetGameManager;
+            var manager = (GBAVV_BaseManager)new GameSettings(mode, "", 0, 0).GetGameManager;
 
             for (var i = 0; i < manager.LevInfos.Length; i++)
             {

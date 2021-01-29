@@ -38,9 +38,9 @@ namespace R1Engine
         public byte GBC_BankNumber { get; set; }
         public byte GBC_Unused { get; set; }
 
-        public bool GBACrash_UnknownCollisionFlag { get; set; }
-        public GBACrash_CollisionTileShape? GBACrash_CollisionShape { get; set; }
-        public bool UsesCollisionShape => GBACrash_CollisionShape != null;
+        public bool GBAVV_UnknownCollisionFlag { get; set; }
+        public GBAVV_CollisionTileShape? GBAVV_CollisionShape { get; set; }
+        public bool UsesCollisionShape => GBAVV_CollisionShape != null;
 
         #endregion
 
@@ -49,7 +49,7 @@ namespace R1Engine
         public GBA_TileType GBATileType { get; set; } = GBA_TileType.Normal;
         public GBC_TileType GBCTileType { get; set; } = GBC_TileType.Full;
         public bool Is8Bpp { get; set; }
-        public bool GBACrash_IsWorldMap8bpp { get; set; }
+        public bool GBAVV_IsWorldMap8bpp { get; set; }
         public bool IsFirstBlock { get; set; }
 
         public GBARRR_MapBlock.MapType GBARRRType { get; set; }
@@ -69,7 +69,7 @@ namespace R1Engine
             Collision
         }
 
-        public enum GBACrash_CollisionTileShape
+        public enum GBAVV_CollisionTileShape
         {
             None = 0,
             
@@ -386,15 +386,15 @@ namespace R1Engine
                         break;
                 }
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBACrash)
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBAVV)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
-                    TileMapY = (ushort)bitFunc(TileMapY, GBACrash_IsWorldMap8bpp ? 12 : Is8Bpp ? 14 : 10, name: nameof(TileMapY));
+                    TileMapY = (ushort)bitFunc(TileMapY, GBAVV_IsWorldMap8bpp ? 12 : Is8Bpp ? 14 : 10, name: nameof(TileMapY));
                     HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                     VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
 
-                    if (!Is8Bpp && !GBACrash_IsWorldMap8bpp)
+                    if (!Is8Bpp && !GBAVV_IsWorldMap8bpp)
                         PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
             }
