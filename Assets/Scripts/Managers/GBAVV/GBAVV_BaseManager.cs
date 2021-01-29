@@ -586,6 +586,7 @@ namespace R1Engine
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
+            int baseType = (int)Unity_IsometricCollisionTile.CollisionType.GBAVV_0;
 
             float minHeight = Mathf.Min(0, mapData.CollisionMap.Min(c => mapData.CollisionTiles[c].Height.AsFloat));
             var collision = mapData.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
@@ -595,7 +596,7 @@ namespace R1Engine
                 $"Type: {mapData.CollisionTiles[c].TypeIndex}{Environment.NewLine}" +
                 $"Shape: {mapData.CollisionTiles[c].Shape}") : null,
                 Height = (mapData.CollisionTiles[c].Height - minHeight),
-                Type = (Unity_IsometricCollisionTile.CollisionType)GetIsometricCollisionType(rom.CurrentIsometricIndex, mapData.CollisionTiles[c].TypeIndex)
+                Type = (Unity_IsometricCollisionTile.CollisionType)(baseType+GetIsometricCollisionType(rom.CurrentIsometricIndex, mapData.CollisionTiles[c].TypeIndex))
             }).ToArray();
             var mirroredCollision = new Unity_IsometricCollisionTile[mapData.CollisionWidth * mapData.CollisionHeight];
             for (int x = 0; x < mapData.CollisionWidth; x++) {

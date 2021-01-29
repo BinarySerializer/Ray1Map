@@ -53,7 +53,7 @@ namespace R1Engine
 
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
 		{
-			new GameInfo_World(0, Enumerable.Range(1, 7).ToArray()),
+			new GameInfo_World(0, Enumerable.Range(0, 7).ToArray()),
 		});
 	}
 }

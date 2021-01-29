@@ -55,10 +55,10 @@ namespace R1Engine
 
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
 		{
-			new GameInfo_World(0, Enumerable.Range(1, 8).ToArray()),
+			new GameInfo_World(0, Enumerable.Range(0, 8).ToArray()),
 		});
 
-		public string GetLevelPath(GameSettings settings) => $"l0a0{settings.Level}";
+		public string GetLevelPath(GameSettings settings) => $"l0a0{settings.Level+1}";
 
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));

@@ -78,8 +78,15 @@ namespace R1Engine
             gao.transform.SetParent(parent.transform);
             gao.transform.localScale = Vector3.one;
             gao.transform.localPosition = new Vector3(x + 0.5f, 0, -y - 0.5f);
+            
+            Color color;
 
-            var color = new Color(CollisionColors[Type].r, CollisionColors[Type].g, CollisionColors[Type].b);
+            if (CollisionColors.ContainsKey(Type)) {
+                color = new Color(CollisionColors[Type].r, CollisionColors[Type].g, CollisionColors[Type].b);
+            } else {
+                UnityEngine.Random.InitState((int)Type);
+                color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
+            }
             if ((x + y) % 2 == 1) {
                 float h, s, v;
                 Color.RGBToHSV(color, out h, out s, out v);
@@ -196,6 +203,46 @@ namespace R1Engine
             Type_5,
             Type_6,
             Type_7,
+
+            // GBAVV
+
+            GBAVV_0,
+            GBAVV_1,
+            GBAVV_2,
+            GBAVV_3,
+            GBAVV_4,
+            GBAVV_5,
+            GBAVV_6,
+            GBAVV_7,
+            GBAVV_8,
+            GBAVV_9,
+            GBAVV_10,
+            GBAVV_11,
+            GBAVV_12,
+            GBAVV_13,
+            GBAVV_14,
+            GBAVV_15,
+            GBAVV_16,
+            GBAVV_17,
+            GBAVV_18,
+            GBAVV_19,
+            GBAVV_20,
+            GBAVV_21,
+            GBAVV_22,
+            GBAVV_23,
+            GBAVV_24,
+            GBAVV_25,
+            GBAVV_26,
+            GBAVV_27,
+            GBAVV_28,
+            GBAVV_29,
+            GBAVV_30,
+            GBAVV_31,
+            GBAVV_32,
+            GBAVV_33,
+            GBAVV_34,
+            GBAVV_35,
+            GBAVV_36,
         }
 
         public enum ShapeType : int {

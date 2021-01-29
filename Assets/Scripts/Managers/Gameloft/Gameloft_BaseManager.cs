@@ -385,7 +385,7 @@ namespace R1Engine
                     if (frameImgSize.x == 0 || frameImgSize.y == 0) continue;
 
                     using (MagickImageCollection collection = new MagickImageCollection()) {
-                        int index = 0;
+                        //int index = 0;
 
                         foreach (var frame in anim.Frames) {
                             var frameImg = new MagickImage(new byte[frameImgSize.x * frameImgSize.y * 4], new PixelReadSettings(frameImgSize.x, frameImgSize.y, StorageType.Char, PixelMapping.ABGR));
