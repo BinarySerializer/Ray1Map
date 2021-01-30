@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System;
+using R1Engine.Serialize;
 using System.Linq;
 using UnityEngine;
 
@@ -6,14 +7,16 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBAVVIsometric : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAVVIsometric(Context context, GraphicsData[] graphicsDatas, GBAVV_Isometric_MapData mapData) : base(context)
+        public Unity_ObjectManager_GBAVVIsometric(Context context, GraphicsData[] graphicsDatas, GBAVV_Isometric_MapData mapData, Func<int, int> getCommonCollisionTypeFunc) : base(context)
         {
             GraphicsDatas = graphicsDatas;
             MapData = mapData;
+            GetCommonCollisionTypeFunc = getCommonCollisionTypeFunc;
         }
 
         public GraphicsData[] GraphicsDatas { get; }
         public GBAVV_Isometric_MapData MapData { get; }
+        public Func<int, int> GetCommonCollisionTypeFunc { get; }
 
         public override void InitObjects(Unity_Level level)
         {

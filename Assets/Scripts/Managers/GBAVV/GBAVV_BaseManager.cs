@@ -614,7 +614,7 @@ namespace R1Engine
             float heightScale = 32f / Mathf.Cos(Mathf.Deg2Rad * 30f) / 2f;
 
             // Create the object manager and load animations
-            var objManager = new Unity_ObjectManager_GBAVVIsometric(context, LoadIsometricAnimations(rom), mapData);
+            var objManager = new Unity_ObjectManager_GBAVVIsometric(context, LoadIsometricAnimations(rom), mapData, x => GetIsometricCollisionType(rom.CurrentIsometricIndex, x));
 
             // Load normal objects
             var objects = objData.Objects.Select(x => (Unity_Object_BaseGBAVVIsometric)new Unity_Object_GBAVVIsometric_Obj(x, objManager));
