@@ -30,18 +30,71 @@ namespace R1Engine
 
                 obj.UpdateAnimIndex();
 
-                var collY = Mathf.FloorToInt(obj.YPos * scale);
-                var collX = Mathf.FloorToInt(obj.XPos * scale);
+                float yScaled = obj.YPos * scale;
+                float xScaled = obj.XPos * scale;
+                var collY = Mathf.FloorToInt(yScaled);
+                var collX = Mathf.FloorToInt(xScaled);
                 /*var collY = (((long)obj.YPos.Value) * 0x15555556) >> 0x2a;
                 var collX = (((long)obj.XPos.Value) * 0x15555556) >> 0x2a;*/
-                obj.Height = (MapData.CollisionTiles[MapData.CollisionMap[collY * MapData.CollisionWidth + collX]].Height - minHeight) / scale;
-
+                var tile = MapData.CollisionTiles[MapData.CollisionMap[collY * MapData.CollisionWidth + collX]];
+                obj.Height = (tile.Height - minHeight) / scale;
 
                 int baseType = (int)Unity_IsometricCollisionTile.CollisionType.GBAVV_0;
-                // TODO: Access GBAVV_BaseManager.GetIsometricCollisionType(level, typeIndex) here so we can get the type, see GBAVV_BaseManager:601
-                // Based on that determine if the block is diagonal
-                // Then check the shape, and only then add the additional height if the object is on the right part of the block
-                //obj.Height += MapData.CollisionTypes[MapData.CollisionTiles[MapData.CollisionMap[collY * MapData.CollisionWidth + collX]].TypeIndex].AdditionalHeight / scale;
+                var type = (Unity_IsometricCollisionTile.CollisionType)(baseType+GetCommonCollisionTypeFunc(tile.TypeIndex));
+
+                switch (type) {
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_12:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_17:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_19:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_21:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_22:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_24:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_26:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_28:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_32:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_35:
+                        // Diagonal
+                        bool isHigh = false;
+                        switch (tile.Shape % 4) {
+                            case 0: // bottom is higher (high x & y)
+                                isHigh = (yScaled - collY) + (xScaled - collX) >= 1f;
+                                break;
+                            case 1: // left is higher (high y, low x)
+                                isHigh = (yScaled - collY) + (1f - (xScaled - collX)) >= 1f;
+                                break;
+                            case 2: // top is higher (low x & y)
+                                isHigh = (1f - (yScaled - collY)) + (1f - (xScaled - collX)) >= 1f;
+                                break;
+                            case 3: // right is higher (low y, high x)
+                                isHigh = (1f - (yScaled - collY)) + (xScaled - collX) >= 1f;
+                                break;
+                        }
+                        if(isHigh)
+                            obj.Height += MapData.CollisionTypes[tile.TypeIndex].AdditionalHeight / scale;
+                        break;
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_1:
+                        // Ramp
+                        float x = (xScaled - collX);
+                        float y = (yScaled - collY);
+                        float rampHeight = 0.1875f;
+                        switch (tile.Shape % 4) {
+                            case 0: // down left is higher (high y)
+                                obj.Height += (1-Mathf.Sqrt(1 - y*y)) * rampHeight / scale;
+                                break;
+                            case 1: // up left is higher (low x)
+                                obj.Height += (1 - Mathf.Sqrt(1 - (1 - x) * (1 - x))) * rampHeight / scale;
+                                break;
+                            case 2: // up right is higher (low y)
+                                obj.Height += (1 - Mathf.Sqrt(1 - (1 - y) * (1 - y))) * rampHeight / scale;
+                                break;
+                            case 3: // down right is higher (high x)
+                                obj.Height += (1 - Mathf.Sqrt(1 - x*x)) * rampHeight / scale;
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
 
                 if (i == 0 || !(obj is Unity_Object_GBAVVIsometric_Obj))
                     continue;
