@@ -25,8 +25,8 @@ namespace R1Engine
         {
             Width = s.Serialize<int>(Width, name: nameof(Width));
             Height = s.Serialize<int>(Height, name: nameof(Height));
-            XPos = s.SerializeObject<FixedPointInt>(XPos, name: nameof(XPos));
-            YPos = s.SerializeObject<FixedPointInt>(YPos, name: nameof(YPos));
+            XPos = s.SerializeObject<FixedPointInt>(XPos, onPreSerialize: fpi => fpi.PointPosition = 12, name: nameof(XPos));
+            YPos = s.SerializeObject<FixedPointInt>(YPos, onPreSerialize: fpi => fpi.PointPosition = 12, name: nameof(YPos));
             FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
             FramesCountPointer = s.Serialize<uint>(FramesCountPointer, name: nameof(FramesCountPointer));
 

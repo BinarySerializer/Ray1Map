@@ -18,7 +18,7 @@
 				Value = (int)(value * divisor);
 			}
 		}
-		public static implicit operator float(FixedPointInt d) => d.AsFloat;
+		public static implicit operator float(FixedPointInt d) => d?.AsFloat ?? 0f;
 
 		public override void SerializeImpl(SerializerObject s) {
 			Value = s.Serialize<int>(Value, name: nameof(Value));

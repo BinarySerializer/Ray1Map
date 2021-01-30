@@ -590,6 +590,8 @@ namespace R1Engine
 
             float minHeight = Mathf.Min(0, mapData.CollisionMap.Min(c => mapData.CollisionTiles[c].Height.AsFloat));
             var collision = mapData.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {
+                GBAVV_Rotation = mapData.CollisionTiles[c].Shape % 4,
+                GBAVV_AdditionalHeight = mapData.CollisionTypes[mapData.CollisionTiles[c].TypeIndex].AdditionalHeight,
                 DebugText = Settings.ShowDebugInfo ? ($"Height: {(mapData.CollisionTiles[c].Height - minHeight)}{Environment.NewLine}" +
                 $"Tile index: {c}{Environment.NewLine}" +
                 $"Offset: {mapData.CollisionTiles[c].Offset}{Environment.NewLine}" +
@@ -729,7 +731,7 @@ namespace R1Engine
                 localization: LoadLocalization(rom));
         }
 
-        public byte GetIsometricCollisionType(int level, int index)
+        public static byte GetIsometricCollisionType(int level, int index)
         {
             switch (level)
             {

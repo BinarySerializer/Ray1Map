@@ -29,9 +29,16 @@ namespace R1Engine
 
                 var collY = Mathf.FloorToInt(obj.YPos * scale);
                 var collX = Mathf.FloorToInt(obj.XPos * scale);
-                /*var collY = (((long)obj.Object.YPos.Value) * 0x15555556) >> 0x2a;
-                var collX = (((long)obj.Object.XPos.Value) * 0x15555556) >> 0x2a;*/
+                /*var collY = (((long)obj.YPos.Value) * 0x15555556) >> 0x2a;
+                var collX = (((long)obj.XPos.Value) * 0x15555556) >> 0x2a;*/
                 obj.Height = (MapData.CollisionTiles[MapData.CollisionMap[collY * MapData.CollisionWidth + collX]].Height - minHeight) / scale;
+
+
+                int baseType = (int)Unity_IsometricCollisionTile.CollisionType.GBAVV_0;
+                // TODO: Access GBAVV_BaseManager.GetIsometricCollisionType(level, typeIndex) here so we can get the type, see GBAVV_BaseManager:601
+                // Based on that determine if the block is diagonal
+                // Then check the shape, and only then add the additional height if the object is on the right part of the block
+                //obj.Height += MapData.CollisionTypes[MapData.CollisionTiles[MapData.CollisionMap[collY * MapData.CollisionWidth + collX]].TypeIndex].AdditionalHeight / scale;
 
                 if (i == 0 || !(obj is Unity_Object_GBAVVIsometric_Obj))
                     continue;
@@ -80,8 +87,10 @@ namespace R1Engine
                             ImageIndex = x,
 
                             // Center the frame
-                            XPosition = - (int)(AnimFrames[x].rect.width / 2),
-                            YPosition = - (int)(AnimFrames[x].rect.height / 2)
+                            XPosition = (int)(crashAnim.XPos * 16f),
+                            YPosition = (int)(crashAnim.YPos * 16f),
+                            /*XPosition = - (int)(AnimFrames[x].rect.width / 2),
+                            YPosition = - (int)(AnimFrames[x].rect.height / 2)*/
                         }
                     })).ToArray()
                 };

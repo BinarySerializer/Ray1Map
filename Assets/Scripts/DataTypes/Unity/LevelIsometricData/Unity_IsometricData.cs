@@ -47,22 +47,29 @@ namespace R1Engine
                     mfs.Add(block.GetGameObject(parent,x,y,mat,Collision,CollisionWidth, CollisionHeight, addMfs));
                 }
             }
-            CombineVisualMeshes(parent, mfs.ToArray(), addMfs.ToArray(), mat);
+            CombineVisualMeshes(parent, mfs.ToArray(), addMfs.ToArray(), mat, Collision?.Select(c => c.GetMeshTriangleCount()).ToArray());
             parent.transform.localScale = Scale;
             return parent;
         }
-        public void CombineVisualMeshes(GameObject parent, MeshFilter[] mfs, MeshFilter[] addMfs, Material mat) {
-            int numCombinedMeshes = Mathf.CeilToInt(mfs.Length / (float)2000);
-            for (int m = 0; m < numCombinedMeshes; m++) {
-                int mfInd = 2000 * m;
-                GameObject gao = new GameObject($"3D Collision - Visual - Mesh {m}");
+        public void CombineVisualMeshes(GameObject parent, MeshFilter[] mfs, MeshFilter[] addMfs, Material mat, int[] triangleCount) {
+            int currentMesh = 0;
+            int currentMF = 0;
+            while (currentMF < mfs.Length) {
+                int currentTriCount = 0;
+                int startMF = currentMF;
+                while (currentMF < mfs.Length && currentTriCount < 24000) {
+                    currentTriCount += triangleCount[currentMF];
+                    currentMF++;
+                }
+                int currentMFCount = currentMF - startMF;
+                GameObject gao = new GameObject($"3D Collision - Visual - Mesh {currentMesh}");
                 gao.layer = LayerMask.NameToLayer("3D Collision");
                 gao.transform.SetParent(parent.transform);
                 gao.transform.localPosition = Vector3.zero;
                 MeshFilter mf = gao.AddComponent<MeshFilter>();
-                CombineInstance[] combine = new CombineInstance[Mathf.Min(2000, mfs.Length - mfInd)];
+                CombineInstance[] combine = new CombineInstance[currentMFCount];
                 for (int i = 0; i < combine.Length; i++) {
-                    var ind = i + mfInd;
+                    var ind = i + startMF;
                     combine[i].mesh = mfs[ind].sharedMesh;
                     combine[i].transform = Matrix4x4.Translate(mfs[ind].transform.localPosition);
                 }
@@ -70,6 +77,7 @@ namespace R1Engine
                 mf.mesh.CombineMeshes(combine);
                 MeshRenderer mr = gao.AddComponent<MeshRenderer>();
                 mr.sharedMaterial = mat;
+                currentMesh++;
             }
             int numCombinedAddMeshes = Mathf.CeilToInt(addMfs.Length / (float)2000);
             for (int m = 0; m < numCombinedAddMeshes; m++) {

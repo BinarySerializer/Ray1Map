@@ -13,6 +13,8 @@ namespace R1Engine
         public ShapeType Shape { get; set; }
         public float Height { get; set; }
         public string DebugText { get; set; }
+        public int? GBAVV_Rotation { get; set; }
+        public float? GBAVV_AdditionalHeight { get; set; }
         #endregion
 
         #region Methods
@@ -70,6 +72,26 @@ namespace R1Engine
             }
         }
 
+        public int GetMeshTriangleCount() {
+            switch (Type) {
+                case CollisionType.GBAVV_12:
+                case CollisionType.GBAVV_17:
+                case CollisionType.GBAVV_19:
+                case CollisionType.GBAVV_21:
+                case CollisionType.GBAVV_22:
+                case CollisionType.GBAVV_24:
+                case CollisionType.GBAVV_26:
+                case CollisionType.GBAVV_28:
+                case CollisionType.GBAVV_32:
+                case CollisionType.GBAVV_35:
+                    return 16; // Box with top split into 2
+                case CollisionType.GBAVV_1:
+                    return 12 + 12 * (1+5); // 5 parts
+                default:
+                    return 12; // Box
+            }
+        }
+
         public MeshFilter GetGameObject(GameObject parent, int x, int y, Material mat, Unity_IsometricCollisionTile[] collisionData, int levelWidth, int levelHeight, List<MeshFilter> addMeshes) {
             GameObject gao = new GameObject();
             gao.name = DebugText;
@@ -95,15 +117,34 @@ namespace R1Engine
             }
 
             MeshFilter mf = gao.AddComponent<MeshFilter>();
-            switch (Shape) {
-                case ShapeType.SlopeUpRight:
-                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height + 1, Height + 1, Height, Height, color: color);
+            switch (Type) {
+                case CollisionType.GBAVV_12:
+                case CollisionType.GBAVV_17:
+                case CollisionType.GBAVV_19:
+                case CollisionType.GBAVV_21:
+                case CollisionType.GBAVV_22:
+                case CollisionType.GBAVV_24:
+                case CollisionType.GBAVV_26:
+                case CollisionType.GBAVV_28:
+                case CollisionType.GBAVV_32:
+                case CollisionType.GBAVV_35:
+                    mf.mesh = GeometryHelpers.CreateDoubleSplitBox(1, Height, (GBAVV_AdditionalHeight ?? 0f) + Height, GBAVV_Rotation ?? 0, color: color);
                     break;
-                case ShapeType.SlopeUpLeft:
-                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height + 1, Height, Height, Height + 1, color: color);
+                case CollisionType.GBAVV_1:
+                    mf.mesh = GeometryHelpers.CreateRamp(1, Height, Height + 0.1875f, 5, GBAVV_Rotation ?? 0, color: color);
                     break;
                 default:
-                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, Height, Height, Height, color: color);
+                    switch (Shape) {
+                        case ShapeType.SlopeUpRight:
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height + 1, Height + 1, Height, Height, color: color);
+                            break;
+                        case ShapeType.SlopeUpLeft:
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height + 1, Height, Height, Height + 1, color: color);
+                            break;
+                        default:
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, Height, Height, Height, color: color);
+                            break;
+                    }
                     break;
             }
             /*MeshRenderer mr = gao.AddComponent<MeshRenderer>();
@@ -148,14 +189,14 @@ namespace R1Engine
         public GameObject GetGameObjectCollider(GameObject parent, int x, int y) {
             GameObject gao = new GameObject();
             gao.name = $"{x},{y}";
-
+            float height = Height + (GBAVV_AdditionalHeight ?? 0);
             gao.layer = LayerMask.NameToLayer("3D Collision");
             gao.transform.SetParent(parent.transform);
             gao.transform.localScale = Vector3.one;
             gao.transform.localPosition = new Vector3(x + 0.5f, 0, -y - 0.5f);
             BoxCollider bc = gao.AddComponent<BoxCollider>();
-            bc.center = Vector3.up * Height / 2f;
-            bc.size = new Vector3(1f,Height,1f);
+            bc.center = Vector3.up * height / 2f;
+            bc.size = new Vector3(1f,height,1f);
             return gao;
         }
         #endregion
