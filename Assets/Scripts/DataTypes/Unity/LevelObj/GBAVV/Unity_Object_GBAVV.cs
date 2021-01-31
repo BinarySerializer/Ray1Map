@@ -18,8 +18,10 @@ namespace R1Engine
             GBAVV_ObjInit.InitObj(ObjManager.Context.Settings.EngineVersion, ObjManager.Context.Settings.GameModeSelection, this);
 
             // Set link group
-            if (IsLinked)
+            if (IsLinked_4)
                 EditorLinkGroup = ObjParams?.ElementAtOrDefault(4) ?? 0;
+            if (IsLinked_6)
+                EditorLinkGroup = ObjParams?.ElementAtOrDefault(6) + 0xFF ?? 0;
         }
 
         public int ObjGroupIndex { get; }
@@ -28,7 +30,8 @@ namespace R1Engine
         public Unity_ObjectManager_GBAVV ObjManager { get; }
         public GBAVV_Map2D_Object Object { get; set; }
 
-        public bool IsLinked { get; set; }
+        public bool IsLinked_4 { get; set; }
+        public bool IsLinked_6 { get; set; }
 
         public override short XPosition
         {

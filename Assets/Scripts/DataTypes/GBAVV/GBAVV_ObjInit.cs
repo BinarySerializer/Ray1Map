@@ -134,6 +134,7 @@ namespace R1Engine
                         case GBAVV_Map2D_Crash2_ObjType.Crate_Switch:
                             obj.AnimSetIndex = 23;
                             obj.AnimIndex = 3;
+                            obj.IsLinked_6 = true;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Crate_Up:
                             obj.AnimSetIndex = 23;
@@ -143,6 +144,7 @@ namespace R1Engine
                         case GBAVV_Map2D_Crash2_ObjType.Crate_Outline:
                             obj.AnimSetIndex = 23;
                             obj.AnimIndex = 21;
+                            obj.IsLinked_6 = true;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Crate_NitroSwitch:
                             obj.AnimSetIndex = 23;
@@ -299,7 +301,7 @@ namespace R1Engine
                         case GBAVV_Map2D_Crash2_ObjType.Enemy_59:
                             obj.AnimSetIndex = 10;
                             obj.AnimIndex = 1;
-                            obj.IsLinked = true;
+                            obj.IsLinked_4 = true;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Enemy_60:
                             obj.AnimSetIndex = 11;
@@ -332,13 +334,13 @@ namespace R1Engine
                         case GBAVV_Map2D_Crash2_ObjType.Door_67:
                             obj.AnimSetIndex = 37;
                             obj.AnimIndex = 1;
-                            obj.IsLinked = true;
+                            obj.IsLinked_4 = true;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Switch_68:
                             obj.AnimSetIndex = 37;
                             obj.AnimIndex = 0;
                             obj.FreezeFrame = true;
-                            obj.IsLinked = true;
+                            obj.IsLinked_4 = true;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Platform_69:
                             obj.AnimSetIndex = 31;
@@ -356,7 +358,7 @@ namespace R1Engine
                         case GBAVV_Map2D_Crash2_ObjType.Block:
                             obj.AnimSetIndex = 37;
                             obj.AnimIndex = 4;
-                            obj.IsLinked = true;
+                            obj.IsLinked_4 = true;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Enemy_74:
                             obj.AnimSetIndex = 37;
@@ -431,11 +433,11 @@ namespace R1Engine
                         case GBAVV_Map2D_Crash2_ObjType.Door_93:
                             obj.AnimSetIndex = 37;
                             obj.AnimIndex = 6;
-                            obj.IsLinked = true;
+                            obj.IsLinked_4 = true;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Trigger_Door:
                             obj.AnimSetIndex = -1;
-                            obj.IsLinked = true;
+                            obj.IsLinked_4 = true;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Crate_IronCheckpoint:
                             obj.AnimSetIndex = 23;
@@ -585,6 +587,7 @@ namespace R1Engine
                     case GBAVV_Map2D_Crash1_ObjType.Crate_Switch:
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 3;
+                        obj.IsLinked_6 = true;
                         break;
                     case GBAVV_Map2D_Crash1_ObjType.Crate_Up:
                         obj.AnimSetIndex = 31;
@@ -594,6 +597,7 @@ namespace R1Engine
                     case GBAVV_Map2D_Crash1_ObjType.Crate_Outline:
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 21;
+                            obj.IsLinked_6 = true;
                         break;
                     case GBAVV_Map2D_Crash1_ObjType.Crate_NitroSwitch:
                         obj.AnimSetIndex = 31;
