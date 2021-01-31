@@ -30,6 +30,9 @@ namespace R1Engine
 
                 obj.UpdateAnimIndex();
 
+                if (obj is Unity_Object_GBAVVIsometric_TargetObjTarget)
+                    continue;
+
                 float yScaled = obj.YPos * scale;
                 float xScaled = obj.XPos * scale;
                 var collY = Mathf.FloorToInt(yScaled);
@@ -95,6 +98,9 @@ namespace R1Engine
                     default:
                         break;
                 }
+
+                if (obj is Unity_Object_GBAVVIsometric_TargetObj t)
+                    objects[t.LinkIndex].Height = t.Height;
 
                 if (i == 0 || !(obj is Unity_Object_GBAVVIsometric_Obj))
                     continue;
