@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('../fonts/icomoon/icomoon.eot?4wtl4c');
-  src:  url('../fonts/icomoon/icomoon.eot?4wtl4c#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon/icomoon.ttf?4wtl4c') format('truetype'),
-    url('../fonts/icomoon/icomoon.woff?4wtl4c') format('woff'),
-    url('../fonts/icomoon/icomoon.svg?4wtl4c#icomoon') format('svg');
+  src:  url('../fonts/icomoon/icomoon.eot?efes2c');
+  src:  url('../fonts/icomoon/icomoon.eot?efes2c#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon/icomoon.ttf?efes2c') format('truetype'),
+    url('../fonts/icomoon/icomoon.woff?efes2c') format('woff'),
+    url('../fonts/icomoon/icomoon.svg?efes2c#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -27,6 +27,9 @@
 
 .icon-plus1:before {
   content: "\e94a";
+}
+.icon-timer:before {
+  content: "\e94d";
 }
 .icon-grid_on:before {
   content: "\e94c";
@@ -51,6 +54,9 @@
 }
 .icon-visibility:before {
   content: "\e90f";
+}
+.icon-stopwatch:before {
+  content: "\e94e";
 }
 .icon-arrow-shuffle:before {
   content: "\e949";

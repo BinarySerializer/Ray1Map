@@ -412,6 +412,13 @@ function handleMessage_settings(msg) {
 		$("#btn-animateTiles").removeClass("removed-button");
 		selectButton($("#btn-animateTiles"), msg.AnimateTiles);
 	}
+	if(msg.hasOwnProperty("CanUseCrashTimeTrialMode") && msg.CanUseCrashTimeTrialMode) {
+		$("#btn-crashTimeTrialMode").removeClass("removed-button");
+		selectButton($("#btn-crashTimeTrialMode"), msg.CrashTimeTrialMode);
+	} else {
+		$("#btn-crashTimeTrialMode").addClass("removed-button");
+		$("#btn-crashTimeTrialMode").addClass("disabled-button");
+	}
 	selectButton($("#btn-showEditorObjects"), msg.ShowEditorObjects);
 	selectButton($("#btn-showAlwaysObjects"), msg.ShowAlwaysObjects);
 	selectButton($("#btn-showRayman"), msg.ShowRayman);
@@ -1528,7 +1535,8 @@ function sendSettings() {
 			AnimateTiles: $("#btn-animateTiles").hasClass("selected"),
 			StateSwitchingMode: global_settings.StateSwitchingMode,
 			Palette: paletteSelector.prop("selectedIndex"),
-			FreeCameraMode: $("#btn-freeCameraMode").hasClass("selected")
+			FreeCameraMode: $("#btn-freeCameraMode").hasClass("selected"),
+			CrashTimeTrialMode: $("#btn-crashTimeTrialMode").hasClass("selected")
 		}
 	}
 	if($("#btn-showAlwaysObjects").length) jsonObj.Settings.ShowAlwaysObjects = $("#btn-showAlwaysObjects").hasClass("selected");

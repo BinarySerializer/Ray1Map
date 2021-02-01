@@ -54,8 +54,11 @@ public class WebJSON {
 		public bool? ShowGridMap { get; set; }
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 
+		public bool? CrashTimeTrialMode { get; set; }
+
 		public bool? CanUseFreeCameraMode { get; set; }
 		public bool? CanUseStateSwitchingMode { get; set; }
+		public bool? CanUseCrashTimeTrialMode { get; set; }
 		public bool? HasAnimatedTiles { get; set; }
 		
 		public Layer[] Layers { get; set; }

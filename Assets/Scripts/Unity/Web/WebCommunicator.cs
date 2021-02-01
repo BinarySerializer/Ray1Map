@@ -402,11 +402,13 @@ public class WebCommunicator : MonoBehaviour {
 			ShowRayman = Settings.ShowRayman,
 			StateSwitchingMode = Settings.StateSwitchingMode,
 			ShowGridMap = Settings.ShowGridMap,
+			CrashTimeTrialMode = Settings.GBAVV_Crash_TimeTrialMode
 		};
 
 		// Add layers
 		var c = LevelEditorData.MainContext;
 		s.CanUseStateSwitchingMode = (c?.Settings?.MajorEngineVersion == MajorEngineVersion.Rayman1) == true;
+		s.CanUseCrashTimeTrialMode = (c?.Settings?.EngineVersion == EngineVersion.GBAVV_Crash1 || c?.Settings?.EngineVersion == EngineVersion.GBAVV_Crash2) == true;
 		var lvl = LevelEditorData.Level;
 		if (Controller.obj?.levelController?.controllerTilemap != null) {
 			var tc = Controller.obj?.levelController?.controllerTilemap;
@@ -514,6 +516,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.ShowDebugInfo.HasValue) Settings.ShowDebugInfo = msg.ShowDebugInfo.Value;
 		if (msg.StateSwitchingMode.HasValue) Settings.StateSwitchingMode = msg.StateSwitchingMode.Value;
 		if (msg.ShowGridMap.HasValue) Settings.ShowGridMap = msg.ShowGridMap.Value;
+		if (msg.CrashTimeTrialMode.HasValue) Settings.GBAVV_Crash_TimeTrialMode = msg.CrashTimeTrialMode.Value;
 
 		if (msg.Layers != null && msg.Layers.Length > 0) {
 			var lvl = LevelEditorData.Level;

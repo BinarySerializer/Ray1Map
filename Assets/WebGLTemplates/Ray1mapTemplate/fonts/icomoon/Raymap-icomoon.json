@@ -60,7 +60,7 @@
           "prevSize": 16,
           "code": 59659,
           "name": "globe1",
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 11,
@@ -109,7 +109,7 @@
           "name": "brush, paint",
           "prevSize": 16,
           "code": 59708,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -117,7 +117,7 @@
           "name": "hash, number",
           "prevSize": 16,
           "code": 59689,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 10,
@@ -183,7 +183,7 @@
           "name": "document-file-numbers",
           "prevSize": 32,
           "code": 59691,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -191,7 +191,7 @@
           "name": "document-file-numbers1",
           "prevSize": 32,
           "code": 59692,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -199,7 +199,7 @@
           "name": "file-numbers",
           "prevSize": 32,
           "code": 59693,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 4,
@@ -207,7 +207,7 @@
           "name": "file-numbers1",
           "prevSize": 32,
           "code": 59694,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 9,
@@ -299,7 +299,7 @@
           "name": "type, typography, text, font",
           "prevSize": 16,
           "code": 59690,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 8,
@@ -349,7 +349,7 @@
           "prevSize": 16,
           "code": 59685,
           "name": "wind",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -357,7 +357,7 @@
           "prevSize": 16,
           "code": 59686,
           "name": "windy",
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 7,
@@ -421,7 +421,7 @@
           "prevSize": 32,
           "code": 59717,
           "name": "gamepad1",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -429,7 +429,7 @@
           "name": "camera-2, movie, video, record, film",
           "prevSize": 32,
           "code": 59668,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 6,
@@ -493,11 +493,19 @@
       "selection": [
         {
           "order": 1,
+          "id": 7,
+          "prevSize": 24,
+          "code": 59725,
+          "name": "timer",
+          "tempChar": ""
+        },
+        {
+          "order": 1,
           "id": 6,
           "prevSize": 24,
           "code": 59724,
           "name": "grid_on",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -505,7 +513,7 @@
           "prevSize": 24,
           "code": 59723,
           "name": "add",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -513,7 +521,7 @@
           "prevSize": 24,
           "code": 59716,
           "name": "videogame_asset",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -521,7 +529,7 @@
           "prevSize": 24,
           "code": 59703,
           "name": "camera_alt",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -529,7 +537,7 @@
           "name": "3d_rotation",
           "prevSize": 24,
           "code": 59702,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -537,7 +545,7 @@
           "name": "fullscreen",
           "prevSize": 24,
           "code": 59656,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -545,7 +553,7 @@
           "name": "remove_red_eye, visibility",
           "prevSize": 24,
           "code": 59663,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 5,
@@ -565,6 +573,21 @@
       "height": 1024,
       "prevSize": 24,
       "icons": [
+        {
+          "id": 7,
+          "paths": [
+            "M512 854q124 0 211-88t87-212-87-211-211-87-211 87-87 211 87 212 211 88zM812 316q34 44 59 113t25 125q0 158-112 271t-272 113-272-113-112-271 112-271 272-113q54 0 125 26t115 60l60-62q32 26 60 60zM470 598v-256h84v256h-84zM640 42v86h-256v-86h256z"
+          ],
+          "attrs": [
+            {}
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "tags": [
+            "timer"
+          ],
+          "grid": 24
+        },
         {
           "id": 6,
           "paths": [
@@ -685,7 +708,7 @@
           "prevSize": 20,
           "code": 59714,
           "name": "game-controller",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -693,7 +716,7 @@
           "name": "help",
           "prevSize": 20,
           "code": 59710,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -701,7 +724,7 @@
           "prevSize": 20,
           "code": 59666,
           "name": "location-pin",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 0,
@@ -717,7 +740,7 @@
           "name": "flow-tree",
           "prevSize": 20,
           "code": 59654,
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 4,
@@ -820,11 +843,19 @@
       "selection": [
         {
           "order": 1,
+          "id": 39,
+          "prevSize": 24,
+          "code": 59726,
+          "name": "stopwatch",
+          "tempChar": ""
+        },
+        {
+          "order": 1,
           "id": 38,
           "prevSize": 24,
           "code": 59721,
           "name": "arrow-shuffle",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -832,7 +863,7 @@
           "name": "arrow-repeat",
           "prevSize": 24,
           "code": 59718,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -840,7 +871,7 @@
           "name": "arrow-sync",
           "prevSize": 24,
           "code": 59719,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -848,7 +879,7 @@
           "name": "refresh",
           "prevSize": 24,
           "code": 59720,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -856,7 +887,7 @@
           "prevSize": 24,
           "code": 59713,
           "name": "info-large",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -864,7 +895,7 @@
           "name": "cog",
           "prevSize": 24,
           "code": 59709,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -872,7 +903,7 @@
           "prevSize": 24,
           "code": 59704,
           "name": "camera-outline",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -880,7 +911,7 @@
           "prevSize": 24,
           "code": 59705,
           "name": "image-outline",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -888,7 +919,7 @@
           "prevSize": 24,
           "code": 59706,
           "name": "image",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 4,
@@ -896,7 +927,7 @@
           "prevSize": 24,
           "code": 59707,
           "name": "camera",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -904,7 +935,7 @@
           "prevSize": 24,
           "code": 59653,
           "name": "world",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -912,7 +943,7 @@
           "name": "input-checked-outline",
           "prevSize": 24,
           "code": 59695,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -920,7 +951,7 @@
           "name": "tick-outline",
           "prevSize": 24,
           "code": 59696,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -928,7 +959,7 @@
           "name": "input-checked",
           "prevSize": 24,
           "code": 59697,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 4,
@@ -936,7 +967,7 @@
           "name": "tick",
           "prevSize": 24,
           "code": 59698,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -944,7 +975,7 @@
           "prevSize": 24,
           "code": 59688,
           "name": "video-outline",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -952,7 +983,7 @@
           "prevSize": 24,
           "code": 59687,
           "name": "media-play-outline",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -960,7 +991,7 @@
           "name": "lightbulb",
           "prevSize": 24,
           "code": 59683,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -968,7 +999,7 @@
           "prevSize": 24,
           "code": 59681,
           "name": "flash-outline",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -976,7 +1007,7 @@
           "prevSize": 24,
           "code": 59682,
           "name": "flash",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -984,7 +1015,7 @@
           "name": "media-fast-forward",
           "prevSize": 24,
           "code": 59669,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -992,7 +1023,7 @@
           "name": "media-play",
           "prevSize": 24,
           "code": 59670,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -1000,7 +1031,7 @@
           "name": "media-record1",
           "prevSize": 24,
           "code": 59671,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 4,
@@ -1008,7 +1039,7 @@
           "name": "media-stop",
           "prevSize": 24,
           "code": 59672,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 5,
@@ -1016,7 +1047,7 @@
           "name": "media-rewind",
           "prevSize": 24,
           "code": 59673,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 6,
@@ -1024,7 +1055,7 @@
           "name": "media-pause",
           "prevSize": 24,
           "code": 59674,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 7,
@@ -1032,7 +1063,7 @@
           "name": "film2",
           "prevSize": 24,
           "code": 59675,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 8,
@@ -1040,7 +1071,7 @@
           "name": "video1",
           "prevSize": 24,
           "code": 59676,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1048,7 +1079,7 @@
           "name": "media-record",
           "prevSize": 24,
           "code": 59677,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1056,7 +1087,7 @@
           "name": "adjust-brightness",
           "prevSize": 24,
           "code": 59678,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1064,7 +1095,7 @@
           "prevSize": 24,
           "code": 59667,
           "name": "pin",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1072,7 +1103,7 @@
           "name": "eye",
           "prevSize": 24,
           "code": 59664,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1080,7 +1111,7 @@
           "name": "cancel",
           "prevSize": 24,
           "code": 59665,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1088,7 +1119,7 @@
           "prevSize": 24,
           "code": 59662,
           "name": "globe",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1096,7 +1127,7 @@
           "name": "user",
           "prevSize": 24,
           "code": 59655,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 0,
@@ -1112,7 +1143,7 @@
           "name": "flow-merge",
           "prevSize": 24,
           "code": 59657,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -1120,7 +1151,7 @@
           "name": "flow-children",
           "prevSize": 24,
           "code": 59658,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1128,7 +1159,7 @@
           "prevSize": 24,
           "code": 59649,
           "name": "times",
-          "tempChar": ""
+          "tempChar": ""
         }
       ],
       "id": 3,
@@ -1148,6 +1179,25 @@
       "height": 1024,
       "prevSize": 24,
       "icons": [
+        {
+          "id": 39,
+          "paths": [
+            "M828.331 379.819c4.437-2.048 8.789-4.608 12.501-8.32l21.333-21.333c16.683-16.683 16.683-43.648 0-60.331s-43.648-16.683-60.331 0l-21.333 21.333c-2.176 2.176-3.285 4.907-4.907 7.381-59.179-55.979-136.021-93.44-221.397-102.827 0.043-0.811 0.469-1.536 0.469-2.389v-42.667h42.667c23.467 0 42.667-19.2 42.667-42.667s-19.2-42.667-42.667-42.667h-170.667c-23.467 0-42.667 19.2-42.667 42.667s19.2 42.667 42.667 42.667h42.667v42.667c0 0.853 0.427 1.579 0.512 2.432-192.256 20.992-341.845 183.765-341.845 381.568 0 212.096 171.904 384 384 384s384-171.904 384-384c0-80.811-25.088-155.648-67.669-217.515zM512 896c-164.651 0-298.667-133.973-298.667-298.667s134.016-298.667 298.667-298.667 298.667 133.973 298.667 298.667-134.016 298.667-298.667 298.667z",
+            "M554.667 554.667v-85.333c0-23.467-19.2-42.667-42.667-42.667s-42.667 19.2-42.667 42.667v128c0 23.467 19.2 42.667 42.667 42.667h128c23.467 0 42.667-19.2 42.667-42.667s-19.2-42.667-42.667-42.667h-85.333z",
+            "M512 341.333c-141.312 0-256 114.688-256 256s114.688 256 256 256 256-114.688 256-256-114.688-256-256-256zM512 810.667c-117.632 0-213.333-95.701-213.333-213.333s95.701-213.333 213.333-213.333 213.333 95.701 213.333 213.333-95.701 213.333-213.333 213.333z"
+          ],
+          "attrs": [
+            {},
+            {},
+            {}
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "tags": [
+            "stopwatch"
+          ],
+          "grid": 24
+        },
         {
           "id": 38,
           "paths": [
@@ -1803,7 +1853,7 @@
           "prevSize": 28,
           "code": 59715,
           "name": "gamepad",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1811,7 +1861,7 @@
           "prevSize": 28,
           "code": 59712,
           "name": "info",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1819,7 +1869,7 @@
           "name": "paint-brush",
           "prevSize": 28,
           "code": 59711,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1827,7 +1877,7 @@
           "name": "commenting-o",
           "prevSize": 28,
           "code": 59699,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -1835,7 +1885,7 @@
           "name": "commenting",
           "prevSize": 28,
           "code": 59700,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -1843,7 +1893,7 @@
           "name": "comment-o",
           "prevSize": 28,
           "code": 59701,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1851,7 +1901,7 @@
           "name": "lightbulb-o",
           "prevSize": 28,
           "code": 59684,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1859,7 +1909,7 @@
           "name": "video-camera",
           "prevSize": 28,
           "code": 59679,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -1867,7 +1917,7 @@
           "name": "film1",
           "prevSize": 28,
           "code": 59680,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 0,
@@ -1883,7 +1933,7 @@
           "name": "minus",
           "prevSize": 28,
           "code": 59660,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1891,7 +1941,7 @@
           "name": "plus",
           "prevSize": 28,
           "code": 59661,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1899,7 +1949,7 @@
           "prevSize": 28,
           "code": 59648,
           "name": "chevron-right",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -1907,7 +1957,7 @@
           "prevSize": 28,
           "code": 59650,
           "name": "chevron-left",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -1915,7 +1965,7 @@
           "prevSize": 28,
           "code": 59651,
           "name": "chevron-down",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 4,
@@ -1923,7 +1973,7 @@
           "prevSize": 28,
           "code": 59652,
           "name": "chevron-up",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 0,
@@ -3505,7 +3555,7 @@
           "id": 213,
           "prevSize": 16,
           "code": 59860,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "contrast",
@@ -4006,7 +4056,7 @@
           "id": 296,
           "prevSize": 16,
           "code": 59943,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "ligatures": "volume-low, volume3",
