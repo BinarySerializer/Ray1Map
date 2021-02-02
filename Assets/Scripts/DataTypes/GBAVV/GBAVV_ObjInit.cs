@@ -5,7 +5,7 @@ namespace R1Engine
 {
     public static class GBAVV_ObjInit
     {
-        public static void InitObj(EngineVersion engineVersion, GameModeSelection gameMode, Unity_Object_GBAVV obj)
+        public static void InitObj(EngineVersion engineVersion, GameModeSelection gameMode, Unity_Object_GBAVV obj, short objType)
         {
             bool isJp = gameMode == GameModeSelection.Crash1GBAJP || gameMode == GameModeSelection.Crash2GBAJP;
 
@@ -13,7 +13,7 @@ namespace R1Engine
             {
                 if (obj.ObjManager.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
                 {
-                    switch ((GBAVV_Crash2_WorldMap_ObjType)obj.Object.ObjType)
+                    switch ((GBAVV_Crash2_WorldMap_ObjType)objType)
                     {
                         case GBAVV_Crash2_WorldMap_ObjType.LevelPortal:
                             obj.AnimSetIndex = 0x2F;
@@ -60,7 +60,7 @@ namespace R1Engine
                 }
                 else
                 {
-                    switch ((GBAVV_Map2D_Crash2_ObjType)obj.Object.ObjType)
+                    switch ((GBAVV_Map2D_Crash2_ObjType)objType)
                     {
                         case GBAVV_Map2D_Crash2_ObjType.Crash:
                             switch (obj.ObjManager.MapType)
@@ -189,14 +189,17 @@ namespace R1Engine
                             obj.AnimSetIndex = 23;
                             obj.AnimIndex = 7;
                             break;
-                        case GBAVV_Map2D_Crash2_ObjType.Type_29:
-                            Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                        case GBAVV_Map2D_Crash2_ObjType.Crate_Time1:
+                            obj.AnimSetIndex = 23;
+                            obj.AnimIndex = 14;
                             break;
-                        case GBAVV_Map2D_Crash2_ObjType.Type_30:
-                            Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                        case GBAVV_Map2D_Crash2_ObjType.Crate_Time2:
+                            obj.AnimSetIndex = 23;
+                            obj.AnimIndex = 15;
                             break;
-                        case GBAVV_Map2D_Crash2_ObjType.Type_31:
-                            Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                        case GBAVV_Map2D_Crash2_ObjType.Crate_Time3:
+                            obj.AnimSetIndex = 23;
+                            obj.AnimIndex = 16;
                             break;
                         case GBAVV_Map2D_Crash2_ObjType.Type_32:
                             Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
@@ -506,7 +509,7 @@ namespace R1Engine
             }
             else if (engineVersion == EngineVersion.GBAVV_Crash1)
             {
-                switch ((GBAVV_Map2D_Crash1_ObjType)obj.Object.ObjType)
+                switch ((GBAVV_Map2D_Crash1_ObjType)objType)
                 {
                     case GBAVV_Map2D_Crash1_ObjType.Crash:
                         obj.AnimSetIndex = 0;
@@ -642,11 +645,17 @@ namespace R1Engine
                         obj.AnimSetIndex = 31;
                         obj.AnimIndex = 7;
                         break;
-                    case GBAVV_Map2D_Crash1_ObjType.Type_37:
+                    case GBAVV_Map2D_Crash1_ObjType.Crate_Time1:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 14;
                         break;
-                    case GBAVV_Map2D_Crash1_ObjType.Type_38:
+                    case GBAVV_Map2D_Crash1_ObjType.Crate_Time2:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 15;
                         break;
-                    case GBAVV_Map2D_Crash1_ObjType.Type_39:
+                    case GBAVV_Map2D_Crash1_ObjType.Crate_Time3:
+                        obj.AnimSetIndex = 31;
+                        obj.AnimIndex = 16;
                         break;
                     case GBAVV_Map2D_Crash1_ObjType.Enemy_40:
                         obj.AnimSetIndex = 13;

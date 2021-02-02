@@ -40,9 +40,10 @@
         Crate_TNT = 27,
         Crate_Slot = 28,
 
-        Type_29 = 29,
-        Type_30 = 30,
-        Type_31 = 31,
+        Crate_Time1 = 29,
+        Crate_Time2 = 30,
+        Crate_Time3 = 31,
+        
         Type_32 = 32,
         Platform_Horizontal_33 = 33,
         Type_34 = 34,

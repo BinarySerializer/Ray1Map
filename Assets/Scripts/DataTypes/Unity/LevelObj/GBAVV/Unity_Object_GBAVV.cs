@@ -13,9 +13,10 @@ namespace R1Engine
             Object = obj;
             ObjGroupIndex = objGroupIndex;
             ObjIndex = objIndex;
+            _prevTimeTrialMode = Settings.GBAVV_Crash_TimeTrialMode;
 
             // Init the object
-            GBAVV_ObjInit.InitObj(ObjManager.Context.Settings.EngineVersion, ObjManager.Context.Settings.GameModeSelection, this);
+            InitObj();
 
             // Set link group
             if (IsLinked_4)
@@ -26,6 +27,16 @@ namespace R1Engine
 
         public int ObjGroupIndex { get; }
         public int ObjIndex { get; }
+
+        public void InitObj()
+        {
+            var objType = Object.ObjType;
+
+            if (Settings.GBAVV_Crash_TimeTrialMode && (ObjParams?.ElementAtOrDefault(0) & 0x20) != 0)
+                objType = (short)ObjParams?.ElementAtOrDefault(4);
+
+            GBAVV_ObjInit.InitObj(ObjManager.Context.Settings.EngineVersion, ObjManager.Context.Settings.GameModeSelection, this, objType);
+        }
 
         public Unity_ObjectManager_GBAVV ObjManager { get; }
         public GBAVV_Map2D_Object Object { get; set; }
@@ -78,6 +89,16 @@ namespace R1Engine
         public override bool CanBeLinkedToGroup => true;
 
         public override ObjectType Type => AnimSetIndex == -1 ? ObjectType.Trigger : ObjectType.Object;
+
+        public bool _prevTimeTrialMode;
+        public override void OnUpdate()
+        {
+            if (_prevTimeTrialMode == Settings.GBAVV_Crash_TimeTrialMode)
+                return;
+
+            _prevTimeTrialMode = Settings.GBAVV_Crash_TimeTrialMode;
+            InitObj();
+        }
 
         private int _animSetIndex;
         private byte _animIndex;

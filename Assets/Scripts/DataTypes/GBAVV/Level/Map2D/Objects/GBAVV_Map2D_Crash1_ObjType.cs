@@ -42,9 +42,9 @@
         Crate_Locked = 34,
         Crate_TNT = 35,
         Crate_Slot = 36,
-        Type_37 = 37,
-        Type_38 = 38,
-        Type_39 = 39,
+        Crate_Time1 = 37,
+        Crate_Time2 = 38,
+        Crate_Time3 = 39,
 
         Enemy_40 = 40,
         Enemy_41 = 41,
