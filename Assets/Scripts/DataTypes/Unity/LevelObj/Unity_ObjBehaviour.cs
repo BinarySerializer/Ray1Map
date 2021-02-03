@@ -574,9 +574,9 @@ namespace R1Engine
                         if (boxCollider3D != null) {
                             b = part.sprite?.bounds ?? b;
                             var scl = part.transform.localScale;
-                            if(part.flipX) scl.x = scl.x * -1;
-                            if(part.flipY) scl.y = scl.y * -1;
-                            b = new Bounds((part.transform.localPosition + b.center) * LevelEditorData.Level.PixelsPerUnit, Vector3.Scale(b.size, scl) * LevelEditorData.Level.PixelsPerUnit);
+                            if (part.flipX) scl.x = scl.x * -1;
+                            if (part.flipY) scl.y = scl.y * -1;
+                            b = new Bounds((part.transform.localPosition + Vector3.Scale(b.center, scl)) * LevelEditorData.Level.PixelsPerUnit, Vector3.Scale(b.size, scl) * LevelEditorData.Level.PixelsPerUnit);
                         } else {
                             b = new Bounds(transform.InverseTransformPoint(b.center) * LevelEditorData.Level.PixelsPerUnit, transform.InverseTransformVector(b.size) * LevelEditorData.Level.PixelsPerUnit);
                         }

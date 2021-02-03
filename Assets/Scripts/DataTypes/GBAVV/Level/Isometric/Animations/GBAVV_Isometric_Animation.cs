@@ -116,6 +116,8 @@ namespace R1Engine
             {
                 Width = width * 8,
                 Height = height * 8,
+                XPos = (FixedPointInt)(-width * 4 / 16f),
+                YPos = (FixedPointInt)(-height * 4 / 16f),
                 FramesPointer = framesPointer,
                 PaletteIndex = palIndex,
                 FramesCount = framesCount,
@@ -131,6 +133,8 @@ namespace R1Engine
             {
                 Width = width * 8,
                 Height = height * 8,
+                XPos = (FixedPointInt)(-width * 4 / 16f),
+                YPos = (FixedPointInt)(-height * 4 / 16f),
                 FramesPointer = framesPointer,
                 PalettePointer = palPointer,
                 FramesCount = framesCount,

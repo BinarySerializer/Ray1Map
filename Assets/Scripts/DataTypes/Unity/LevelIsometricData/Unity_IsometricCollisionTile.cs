@@ -74,6 +74,11 @@ namespace R1Engine
 
         public int GetMeshTriangleCount() {
             switch (Type) {
+                case CollisionType.GBAVV_4:
+                    return 12; // Regular slope
+                case CollisionType.GBAVV_5:
+                    return 6; // Regular slope corner
+                case CollisionType.GBAVV_6:
                 case CollisionType.GBAVV_12:
                 case CollisionType.GBAVV_17:
                 case CollisionType.GBAVV_19:
@@ -118,6 +123,31 @@ namespace R1Engine
 
             MeshFilter mf = gao.AddComponent<MeshFilter>();
             switch (Type) {
+                case CollisionType.GBAVV_4:
+                    // Regular slope
+                    float AddHeight = Height + 0.1875f;
+                    switch (GBAVV_Rotation) {
+                        case 0:
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, Height, AddHeight, AddHeight, color: color);
+                            break;
+                        case 1:
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, AddHeight, Height, Height, AddHeight, color: color);
+                            break;
+                        case 2:
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, AddHeight, AddHeight, Height, Height, color: color);
+                            break;
+                        case 3:
+                            mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, AddHeight, AddHeight, Height, color: color);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case CollisionType.GBAVV_5: // Regular slope corner
+                    // TODO
+                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, Height, Height, Height, color: color);
+                    break;
+                case CollisionType.GBAVV_6:
                 case CollisionType.GBAVV_12:
                 case CollisionType.GBAVV_17:
                 case CollisionType.GBAVV_19:

@@ -20,6 +20,10 @@
 		}
 		public static implicit operator float(FixedPointInt d) => d?.AsFloat ?? 0f;
 
+		public static explicit operator FixedPointInt(float f) => new FixedPointInt() {
+			AsFloat = f
+		};
+
 		public override void SerializeImpl(SerializerObject s) {
 			Value = s.Serialize<int>(Value, name: nameof(Value));
 			s.Log($"Value as float: {AsFloat}");
