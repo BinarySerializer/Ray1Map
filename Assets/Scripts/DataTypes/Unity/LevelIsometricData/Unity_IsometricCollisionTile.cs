@@ -73,6 +73,7 @@ namespace R1Engine
         }
 
         public int GetMeshTriangleCount() {
+            const int numParts = 5;
             switch (Type) {
                 case CollisionType.GBAVV_4:
                     return 12; // Regular slope
@@ -90,8 +91,10 @@ namespace R1Engine
                 case CollisionType.GBAVV_32:
                 case CollisionType.GBAVV_35:
                     return 16; // Box with top split into 2
+                case CollisionType.GBAVV_34:
+                    return 12 + 1 * numParts * numParts * 2 + numParts * 3;
                 case CollisionType.GBAVV_1:
-                    return 12 + 12 * (1+5); // 5 parts
+                    return 12 + 12 * (1+numParts);
                 default:
                     return 12; // Box
             }
@@ -159,6 +162,9 @@ namespace R1Engine
                 case CollisionType.GBAVV_32:
                 case CollisionType.GBAVV_35:
                     mf.mesh = GeometryHelpers.CreateDoubleSplitBox(1, Height, (GBAVV_AdditionalHeight ?? 0f) + Height, GBAVV_Rotation ?? 0, color: color);
+                    break;
+                case CollisionType.GBAVV_34:
+                    mf.mesh = GeometryHelpers.CreateRampCornerOutward(1, Height, Height + 0.1875f, 5, GBAVV_Rotation ?? 0, color: color);
                     break;
                 case CollisionType.GBAVV_1:
                     mf.mesh = GeometryHelpers.CreateRamp(1, Height, Height + 0.1875f, 5, GBAVV_Rotation ?? 0, color: color);
