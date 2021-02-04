@@ -181,8 +181,11 @@ public class WebCommunicator : MonoBehaviour {
 		} else if (highlightedCollision_ != null && highlightedCollision_.Length > 0) {
 			selectionJSON.Highlight.Collision = highlightedCollision_
 				.Where(c => c != null)
-				.Select(c => new WebJSON.Collision() { Type = LevelEditorData.Level.GetCollisionTypeNameFunc(c.Data?.CollisionType ?? 0) })
-				.Where(c => c.Type != "Empty" && c.Type != "None") // Filter out empty types
+				.Select(c => new WebJSON.Collision() {
+					Type = LevelEditorData.Level.GetCollisionTypeNameFunc(c.Data?.CollisionType ?? 0),
+					Shape = c.Data?.GBAVV_CollisionShape?.ToString()
+				})
+				.Where(c => c.Type != "Empty" && c.Type != "None" && !(c.Type == "Solid" && c.Shape == "None")) // Filter out empty types
 				.ToArray();
 			if(selectionJSON.Highlight.Collision?.Length == 0)
 				selectionJSON.Highlight.Collision = null;

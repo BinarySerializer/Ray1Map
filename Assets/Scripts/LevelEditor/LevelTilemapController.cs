@@ -50,6 +50,7 @@ namespace R1Engine
         public Tile[] CollisionTiles;
         public Tile[] CollisionTilesHD;
         Dictionary<Unity_MapCollisionTypeGraphic, Tile> CurrentCollisionIcons = new Dictionary<Unity_MapCollisionTypeGraphic, Tile>();
+        Dictionary<Unity_MapCollisionTypeGraphic, Dictionary<MapTile.GBAVV_CollisionTileShape, Tile>> CurrentCollisionIconsShaped = new Dictionary<Unity_MapCollisionTypeGraphic, Dictionary<MapTile.GBAVV_CollisionTileShape, Tile>>();
 
         // Infro tracked for when switching between template and normal level
         private Vector3 previousCameraPosNormal;
@@ -210,7 +211,8 @@ namespace R1Engine
                 if(!map.Type.HasFlag(Unity_Map.MapType.Collision)) continue;
                 for (int y = 0; y < map.Height; y++) {
                     for (int x = 0; x < map.Width; x++) {
-                        var collisionIndex = map.MapTiles[y * map.Width + x].Data.CollisionType;
+                        var t = map.MapTiles[y * map.Width + x];
+                        var collisionIndex = t.Data.CollisionType;
 
                         // Get the collision index
                         var collisionType = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionIndex);
@@ -220,8 +222,13 @@ namespace R1Engine
                             ((CurrentCollisionIcons[collisionType].sprite?.name.Contains("Unknown") ?? false) || collisionType.ToString().Contains("Unknown")))
                             unsupportedTiles.Add(collisionIndex);
 
-                        // Set the collision tile
-                        CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons.TryGetItem(collisionType));
+                        if (t.Data.UsesCollisionShape && t.Data.GBAVV_CollisionShape.Value != MapTile.GBAVV_CollisionTileShape.Solid) {
+                            // Set the collision tile
+                            CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), GetShapedCollisionTile(collisionType, t.Data.GBAVV_CollisionShape.Value));
+                        } else {
+                            // Set the collision tile
+                            CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons.TryGetItem(collisionType));
+                        }
                     }
                 }
             }
@@ -606,6 +613,125 @@ namespace R1Engine
             if (applyTexture) tex.Apply();
         }
 
+        public void SetCollisionTileRendererAtPos(int x, int y, int mapIndex, Unity_Tile newTile, bool setNull = true) {
+            if (CollisionTilemaps[mapIndex] == null) return;
+            if(setNull) CollisionTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), null);
+            var type = LevelEditorData.Level.GetCollisionTypeGraphicFunc(newTile.Data.CollisionType);
+            if (CurrentCollisionIcons.ContainsKey(type)) {
+                CollisionTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
+            }
+        }
+
+        public Tile GetShapedCollisionTile(Unity_MapCollisionTypeGraphic type, MapTile.GBAVV_CollisionTileShape shape) {
+            if (type == Unity_MapCollisionTypeGraphic.Solid && shape == MapTile.GBAVV_CollisionTileShape.None) return null;
+            var t = CurrentCollisionIcons.TryGetItem(type);
+            if (shape == MapTile.GBAVV_CollisionTileShape.Solid) return t;
+            if (t == null) return t;
+            if (CurrentCollisionIconsShaped.ContainsKey(type) && CurrentCollisionIconsShaped[type].ContainsKey(shape)) {
+                return CurrentCollisionIconsShaped[type][shape];
+            }
+            Tile newT = ScriptableObject.CreateInstance<Tile>();
+            Texture2D tex = TextureHelpers.CreateTexture2D((int)t.sprite.textureRect.width, (int)t.sprite.textureRect.height);
+            Color[] pixels = t.sprite.texture.GetPixels((int)t.sprite.textureRect.x, (int)t.sprite.textureRect.y, tex.width, tex.height);
+            float alpha = 0.4f;
+            switch (shape) {
+                case MapTile.GBAVV_CollisionTileShape.None:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Left:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (x + y > (tex.width + tex.height) / 2) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Half_Left_1:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (x + (y- tex.height / 2) * 2 > (tex.width + tex.height) / 2 && y >= tex.height / 2) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Half_Left_2:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (y >= tex.height / 2 || x + y*2 > (tex.width + tex.height) / 2) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+
+                case MapTile.GBAVV_CollisionTileShape.Hill_Half_Right_2:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if ((tex.width - 1 - x) + (y - tex.height / 2) * 2 > (tex.width + tex.height) / 2 && y >= tex.height / 2) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Half_Right_1:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (y >= tex.height / 2 || (tex.width - 1 - x) + y * 2 > (tex.width + tex.height) / 2) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Right:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if ((tex.width-1-x) + y > (tex.width + tex.height) / 2) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            tex.SetPixel(x, y, Color.clear);
+                        }
+                    }
+                    break;
+            }
+            tex.Apply();
+            newT.sprite = Sprite.Create(tex, new Rect(0,0,tex.width,tex.height), new Vector2(0.5f, 0.5f), t.sprite.pixelsPerUnit);
+            newT.sprite.name = t.sprite.name;
+            if (!CurrentCollisionIconsShaped.ContainsKey(type)) CurrentCollisionIconsShaped[type] = new Dictionary<MapTile.GBAVV_CollisionTileShape, Tile>();
+            CurrentCollisionIconsShaped[type][shape] = newT;
+            return newT;
+        }
+
         public void SetTileAtPos(int x, int y, Unity_Tile newTile, bool applyTexture = true) 
         {
             var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
@@ -614,12 +740,7 @@ namespace R1Engine
 
             // Update tile graphics
             for (int i = 0; i < CollisionTilemaps.Length; i++) {
-                if(CollisionTilemaps[i] == null) continue;
-                CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), null);
-                var type = LevelEditorData.Level.GetCollisionTypeGraphicFunc(newTile.Data.CollisionType);
-                if (CurrentCollisionIcons.ContainsKey(type)) {
-                    CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
-                }
+                SetCollisionTileRendererAtPos(x,y,i,newTile);
             }
             for (int i = 0; i < GraphicsTilemaps.Length; i++) {
                 if (GraphicsTilemaps[i] == null) continue;
