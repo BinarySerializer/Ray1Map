@@ -679,7 +679,84 @@ namespace R1Engine
                         }
                     }
                     break;
-
+                case MapTile.GBAVV_CollisionTileShape.Hill_Third_Left_1:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (x + (y - tex.height * (2 / 3f)) * 3 > (tex.width + tex.height) / 2 && y >= tex.height * (2 / 3f)) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Third_Left_2:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (y >= tex.height * (2 / 3f) ||
+                                (x + (y - tex.height * (1 / 3f)) * 3 > (tex.width + tex.height) / 2
+                                && y >= tex.height * (1 / 3f))) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Third_Left_3:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (y >= tex.height * (1 / 3f) ||
+                                (x + y * 3 > (tex.width + tex.height) / 2)) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Third_Right_3:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if ((tex.width - 1 - x) + (y - tex.height * (2 / 3f)) * 3 > (tex.width + tex.height) / 2 && y >= tex.height * (2/3f)) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Third_Right_2:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (y >= tex.height * (2 / 3f) ||
+                                ((tex.width - 1 - x) + (y - tex.height * (1 / 3f)) * 3 > (tex.width + tex.height) / 2
+                                && y >= tex.height * (1 / 3f))) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
+                case MapTile.GBAVV_CollisionTileShape.Hill_Third_Right_1:
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            var pix = pixels[y * tex.width + x];
+                            if (y >= tex.height * (1 / 3f) ||
+                                ((tex.width - 1 - x) + y * 3 > (tex.width + tex.height) / 2)) {
+                                tex.SetPixel(x, y, pix);
+                            } else {
+                                tex.SetPixel(x, y, new Color(pix.r, pix.g, pix.b, pix.a * alpha));
+                            }
+                        }
+                    }
+                    break;
                 case MapTile.GBAVV_CollisionTileShape.Hill_Half_Right_2:
                     for (int y = 0; y < tex.height; y++) {
                         for (int x = 0; x < tex.width; x++) {
