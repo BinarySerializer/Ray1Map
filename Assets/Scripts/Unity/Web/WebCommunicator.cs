@@ -337,6 +337,9 @@ public class WebCommunicator : MonoBehaviour {
 					break;
 
 				case Unity_Object_GBAVV crashObj:
+					if (crashObj.ObjParams?.Any() == true)
+					    webObj.GBAVV_ObjParams = Util.ByteArrayToHexString(crashObj.ObjParams);
+
 					if (crashObj.AnimSetIndex != -1)
                     {
                         webObj.GBAVV_AnimSetIndex = crashObj.AnimSetIndex;

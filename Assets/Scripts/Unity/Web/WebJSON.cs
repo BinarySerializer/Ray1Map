@@ -140,7 +140,8 @@ public class WebJSON {
 		public int? SNES_GraphicsGroupIndex { get; set; }
 		public string[] SNES_GraphicsGroupNames { get; set; }
 
-		// GBA Crash
+		// GBA VV
+		public string GBAVV_ObjParams { get; set; }
 		public int? GBAVV_AnimSetIndex { get; set; }
 		public string[] GBAVV_AnimSetNames { get; set; }
 	}
