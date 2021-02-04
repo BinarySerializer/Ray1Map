@@ -140,17 +140,24 @@ namespace R1Engine
                 AnimSpeed = animSpeed;
                 CrashAnim = crashAnim;
 
+                var x = crashAnim.XPos;
+                var y = crashAnim.YPos;
+
+                // Fix for the exit animation
+                if (y.Value == 0)
+                    y = x;
+
                 Animation = new Unity_ObjAnimation()
                 {
-                    Frames = Enumerable.Range(0, AnimFrames.Length).Select(x => new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
+                    Frames = Enumerable.Range(0, AnimFrames.Length).Select(frameIndex => new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
                     {
                         new Unity_ObjAnimationPart()
                         {
-                            ImageIndex = x,
+                            ImageIndex = frameIndex,
 
                             // Center the frame
-                            XPosition = (int)(crashAnim.XPos * 16f),
-                            YPosition = (int)(crashAnim.YPos * 16f),
+                            XPosition = (int)(x * 16f),
+                            YPosition = (int)(y * 16f),
                             /*XPosition = - (int)(AnimFrames[x].rect.width / 2),
                             YPosition = - (int)(AnimFrames[x].rect.height / 2)*/
                         }
