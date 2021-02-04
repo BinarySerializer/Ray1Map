@@ -1464,7 +1464,8 @@ namespace R1Engine
                             {
                                 GBAVV_CollisionShape = (MapTile.GBAVV_CollisionTileShape)BitHelpers.ExtractBits(tileIndex, 7, 0),
                                 GBAVV_UnknownCollisionFlag = BitHelpers.ExtractBits(tileIndex, 1, 7) == 1, // Only used in Crash 1
-                                CollisionType = (ushort)BitHelpers.ExtractBits(tileIndex, 8, 8),
+                                CollisionType = (ushort)BitHelpers.ExtractBits(tileIndex, 4, 8),
+                                GBAVV_UnknownData = (byte)BitHelpers.ExtractBits(tileIndex, 4, 12), // Only used in Crash 1 - set for tiles under diagonal ones
                             };
                         }
                         else if (is8bit)

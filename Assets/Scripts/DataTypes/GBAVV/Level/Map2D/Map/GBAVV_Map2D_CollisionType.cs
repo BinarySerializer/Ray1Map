@@ -12,8 +12,5 @@
         Rails_Right = 8,
         Rope = 9,
         Move_Right = 10,
-
-        Unknown_48 = 48, // Crash 1
-        Unknown_53 = 53, // Crash 1
     }
 }

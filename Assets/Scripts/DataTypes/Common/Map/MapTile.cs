@@ -39,6 +39,7 @@ namespace R1Engine
         public byte GBC_Unused { get; set; }
 
         public bool GBAVV_UnknownCollisionFlag { get; set; }
+        public byte GBAVV_UnknownData { get; set; }
         public GBAVV_CollisionTileShape? GBAVV_CollisionShape { get; set; }
         public bool UsesCollisionShape => GBAVV_CollisionShape != null;
 
@@ -95,7 +96,7 @@ namespace R1Engine
 
             Solid = 43,
 
-            Unknown_46 = 46, // Crash 1 only
+            Unknown_46 = 46, // Crash 1 only - used for section where you crawl under some solid tiles, such as Temple of Doom
         }
 
         public bool SNES_Is8PxTile { get; set; } // True for normal 8x8 tiles, otherwise a 16x16 tile which consists of 4 8x8 tiles
