@@ -1828,7 +1828,7 @@ namespace R1Engine
             var pal = anim.Palette != null ? Util.ConvertGBAPalette(anim.Palette) : palette[anim.PaletteIndex];
 
             for (int frameIndex = 0; frameIndex < anim.AnimFrames.Length; frameIndex++)
-                output[frameIndex] = Util.ToTileSetTexture(anim.AnimFrames[frameIndex], pal, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: anim.Width / CellSize);
+                output[frameIndex] = Util.ToTileSetTexture(anim.AnimFrames[frameIndex], pal, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: anim.Width / CellSize, flipX: anim.IsFlipped);
 
             return output;
         }

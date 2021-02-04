@@ -33,12 +33,12 @@
             Crystal = 12,
             Gem = 13,
             Exit = 14,
-            Type_15 = 15,
-            Type_16 = 16,
+            Crate_QuestionMark_Multiplayer = 15,
+            Crate_Nitro_Multiplayer = 16,
             LaserGate_Left = 17,
             LaserGate_Right = 18,
-            Type_19 = 19,
-            Type_20 = 20,
+            LaserGate_Left_Flipped = 19,
+            LaserGate_Right_Flipped = 20,
             TutorialMessage = 21,
         }
     }

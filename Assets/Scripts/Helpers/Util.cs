@@ -483,7 +483,7 @@ namespace R1Engine
             File.WriteAllLines(Path.Combine(outputDir, "blocks_log.txt"), log);
         }
 
-        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, TileEncoding encoding, int tileWidth, bool flipY, int wrap = 32, Func<int, Color[]> getPalFunc = null, bool flipTileX = false, bool flipTileY = false)
+        public static Texture2D ToTileSetTexture(byte[] imgData, Color[] pal, TileEncoding encoding, int tileWidth, bool flipY, int wrap = 32, Func<int, Color[]> getPalFunc = null, bool flipTileX = false, bool flipTileY = false, bool flipX = false)
         {
             int bpp;
 
@@ -521,6 +521,7 @@ namespace R1Engine
                     encoding: encoding, 
                     tileWidth: tileWidth, 
                     flipTextureY: flipY, 
+                    flipTextureX: flipX, 
                     tileX: tileX, 
                     tileY: tileY, 
                     flipTileX: flipTileX, 
@@ -532,7 +533,7 @@ namespace R1Engine
             return tex;
         }
 
-        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, TileEncoding encoding, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false)
+        public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, TileEncoding encoding, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false, bool flipTextureX = false)
         {
             bool reverseOrder = (encoding == TileEncoding.Linear_4bpp_ReverseOrder);
 
@@ -547,6 +548,10 @@ namespace R1Engine
 
                 for (int x = 0; x < tileWidth; x++) {
                     var xx = tileX + x;
+
+                    if (flipTextureX)
+                        xx = tex.width - xx - 1;
+
                     if (xx < 0 || xx >= tex.width) continue;
                     Color c;
 

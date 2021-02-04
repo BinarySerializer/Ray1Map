@@ -12,7 +12,7 @@ namespace R1Engine
         public uint FramesCountPointer { get; set; } // This points to memory since a portion of the rom is copied to memory for faster reading
         public Pointer PalettePointer { get; set; }
         public int PaletteIndex { get; set; }
-        public int Flags { get; set; }
+        public bool IsFlipped { get; set; }
 
         // Serialized from pointers
 
@@ -35,7 +35,8 @@ namespace R1Engine
             else
                 PaletteIndex = s.Serialize<int>(PaletteIndex, name: nameof(PaletteIndex));
 
-            Flags = s.Serialize<int>(Flags, name: nameof(Flags));
+            IsFlipped = s.Serialize<bool>(IsFlipped, name: nameof(IsFlipped));
+            s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
 
             SerializeData(s);
         }
