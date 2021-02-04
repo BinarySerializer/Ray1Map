@@ -18,9 +18,8 @@ namespace R1Engine
         #endregion
 
         #region Methods
-        void AddFence(GameObject gao, AdditionalTypeFlags type, Material mat, Color color, float height, List<MeshFilter> addMeshes) {
+        void AddFence(GameObject gao, AdditionalTypeFlags type, Material mat, Color color, float height, List<MeshFilter> addMeshes, float fenceHeight = 4f) {
             int numBars = 3;
-            float fenceHeight = 4f;
             for (int i = 0; i < numBars; i++) {
                 GameObject sgao = new GameObject($"Fence {i}");
                 sgao.layer = LayerMask.NameToLayer("3D Collision");
@@ -75,27 +74,34 @@ namespace R1Engine
         public int GetMeshTriangleCount() {
             const int numParts = 5;
             switch (Type) {
-                case CollisionType.GBAVV_4:
+                case CollisionType.GBAVV_Slope_4:
                     return 12; // Regular slope
-                case CollisionType.GBAVV_5:
+                case CollisionType.GBAVV_SlopeCorner_5:
                     return 12; // Regular slope corner
-                case CollisionType.GBAVV_6:
-                case CollisionType.GBAVV_12:
-                case CollisionType.GBAVV_17:
-                case CollisionType.GBAVV_19:
-                case CollisionType.GBAVV_21:
-                case CollisionType.GBAVV_22:
-                case CollisionType.GBAVV_24:
-                case CollisionType.GBAVV_26:
-                case CollisionType.GBAVV_28:
-                case CollisionType.GBAVV_32:
-                case CollisionType.GBAVV_35:
+                case CollisionType.GBAVV_Corner_6:
+                case CollisionType.GBAVV_Corner_12:
+                case CollisionType.GBAVV_Corner_17:
+                case CollisionType.GBAVV_Corner_19:
+                case CollisionType.GBAVV_Corner_21:
+                case CollisionType.GBAVV_Corner_22:
+                case CollisionType.GBAVV_Corner_24:
+                case CollisionType.GBAVV_Corner_25:
+                case CollisionType.GBAVV_Corner_26:
+                case CollisionType.GBAVV_Corner_28:
+                case CollisionType.GBAVV_Corner_30:
+                case CollisionType.GBAVV_Corner_32:
+                case CollisionType.GBAVV_Corner_35:
                     return 16; // Box with top split into 2
-                case CollisionType.GBAVV_33: // Corner inward
+                case CollisionType.GBAVV_Ramp_CornerInward_2:
+                case CollisionType.GBAVV_Ramp_CornerInward_15:
+                case CollisionType.GBAVV_Ramp_CornerInward_33: // Corner inward
+                case CollisionType.GBAVV_Ramp_CornerInward_29:
                     return 12 + 1 * numParts * numParts * 2 + numParts;
-                case CollisionType.GBAVV_34: // Corner outward
+                case CollisionType.GBAVV_Ramp_CornerOutward_20:
+                case CollisionType.GBAVV_Ramp_CornerOutward_34: // Corner outward
+                case CollisionType.GBAVV_Ramp_CornerOutward_31:
                     return 12 + 1 * numParts * numParts * 2 + numParts * 3;
-                case CollisionType.GBAVV_1:
+                case CollisionType.GBAVV_Ramp_1:
                     return 12 + 12 * (1+numParts);
                 default:
                     return 12; // Box
@@ -128,7 +134,7 @@ namespace R1Engine
 
             MeshFilter mf = gao.AddComponent<MeshFilter>();
             switch (Type) {
-                case CollisionType.GBAVV_4:
+                case CollisionType.GBAVV_Slope_4:
                     // Regular slope
                     float AddHeight = Height + 0.1875f;
                     switch (GBAVV_Rotation) {
@@ -148,31 +154,52 @@ namespace R1Engine
                             break;
                     }
                     break;
-                case CollisionType.GBAVV_5: // Regular slope corner
+                case CollisionType.GBAVV_SlopeCorner_5: // Regular slope corner
                     // TODO
                     mf.mesh = GeometryHelpers.CreateSlopeCornerOutward(1, Height, Height + 0.1875f, GBAVV_Rotation ?? 0, color: color);
                     break;
-                case CollisionType.GBAVV_6:
-                case CollisionType.GBAVV_12:
-                case CollisionType.GBAVV_17:
-                case CollisionType.GBAVV_19:
-                case CollisionType.GBAVV_21:
-                case CollisionType.GBAVV_22:
-                case CollisionType.GBAVV_24:
-                case CollisionType.GBAVV_26:
-                case CollisionType.GBAVV_28:
-                case CollisionType.GBAVV_32:
-                case CollisionType.GBAVV_35:
+                case CollisionType.GBAVV_Corner_6:
+                case CollisionType.GBAVV_Corner_12:
+                case CollisionType.GBAVV_Corner_17:
+                case CollisionType.GBAVV_Corner_19:
+                case CollisionType.GBAVV_Corner_21:
+                case CollisionType.GBAVV_Corner_22:
+                case CollisionType.GBAVV_Corner_24:
+                case CollisionType.GBAVV_Corner_25:
+                case CollisionType.GBAVV_Corner_26:
+                case CollisionType.GBAVV_Corner_28:
+                case CollisionType.GBAVV_Corner_30:
+                case CollisionType.GBAVV_Corner_32:
+                case CollisionType.GBAVV_Corner_35:
                     mf.mesh = GeometryHelpers.CreateDoubleSplitBox(1, Height, (GBAVV_AdditionalHeight ?? 0f) + Height, GBAVV_Rotation ?? 0, color: color);
                     break;
-                case CollisionType.GBAVV_33: // Corner inward
+                case CollisionType.GBAVV_Ramp_CornerInward_2:
+                case CollisionType.GBAVV_Ramp_CornerInward_15:
+                case CollisionType.GBAVV_Ramp_CornerInward_29:
+                case CollisionType.GBAVV_Ramp_CornerInward_33: // Corner inward
                     mf.mesh = GeometryHelpers.CreateRampCornerInward(1, Height, Height + 0.1875f, 5, GBAVV_Rotation ?? 0, color: color);
                     break;
-                case CollisionType.GBAVV_34: // Corner outward
+                case CollisionType.GBAVV_Ramp_CornerOutward_20:
+                case CollisionType.GBAVV_Ramp_CornerOutward_31:
+                case CollisionType.GBAVV_Ramp_CornerOutward_34: // Corner outward
                     mf.mesh = GeometryHelpers.CreateRampCornerOutward(1, Height, Height + 0.1875f, 5, GBAVV_Rotation ?? 0, color: color);
                     break;
-                case CollisionType.GBAVV_1:
+                case CollisionType.GBAVV_Ramp_1:
                     mf.mesh = GeometryHelpers.CreateRamp(1, Height, Height + 0.1875f, 5, GBAVV_Rotation ?? 0, color: color);
+                    break;
+                case CollisionType.GBAVV_Fence_13:
+                case CollisionType.GBAVV_Fence_16:
+                case CollisionType.GBAVV_Fence_18:
+                case CollisionType.GBAVV_Fence_23:
+                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, Height, Height, Height, color: color);
+                    var addType = AdditionalTypeFlags.FenceDownRight;
+                    switch ((GBAVV_Rotation ?? 0) % 4) {
+                        case 0: addType = AdditionalTypeFlags.FenceDownRight; break;
+                        case 1: addType = AdditionalTypeFlags.FenceDownLeft; break;
+                        case 2: addType = AdditionalTypeFlags.FenceUpLeft; break;
+                        case 3: addType = AdditionalTypeFlags.FenceUpRight; break;
+                    }
+                    AddFence(gao, addType, mat, color, Height, addMeshes, fenceHeight: (GBAVV_AdditionalHeight ?? 0));
                     break;
                 default:
                     switch (Shape) {
@@ -190,7 +217,6 @@ namespace R1Engine
             }
             /*MeshRenderer mr = gao.AddComponent<MeshRenderer>();
             mr.sharedMaterial = mat;*/
-
             if (AddType.HasFlag(AdditionalTypeFlags.FenceUpLeft_RHR)) {
                 var neighborBlock = x > 0 ? collisionData[y * levelWidth + (x - 1)] : null;
                 var maxHeight = Math.Max(Height, neighborBlock?.Height ?? 0);
@@ -288,42 +314,42 @@ namespace R1Engine
 
             // GBAVV
 
-            GBAVV_0,
-            GBAVV_1,
-            GBAVV_2,
+            GBAVV_Solid_0,
+            GBAVV_Ramp_1,
+            GBAVV_Ramp_CornerInward_2,
             GBAVV_3,
-            GBAVV_4,
-            GBAVV_5,
-            GBAVV_6,
+            GBAVV_Slope_4,
+            GBAVV_SlopeCorner_5,
+            GBAVV_Corner_6,
             GBAVV_7,
             GBAVV_8,
             GBAVV_9,
             GBAVV_10,
             GBAVV_11,
-            GBAVV_12,
-            GBAVV_13,
+            GBAVV_Corner_12,
+            GBAVV_Fence_13,
             GBAVV_14,
-            GBAVV_15,
-            GBAVV_16,
-            GBAVV_17,
-            GBAVV_18,
-            GBAVV_19,
-            GBAVV_20,
-            GBAVV_21,
-            GBAVV_22,
-            GBAVV_23,
-            GBAVV_24,
-            GBAVV_25,
-            GBAVV_26,
-            GBAVV_27,
-            GBAVV_28,
-            GBAVV_29,
-            GBAVV_30,
-            GBAVV_31,
-            GBAVV_32,
-            GBAVV_33,
-            GBAVV_34,
-            GBAVV_35,
+            GBAVV_Ramp_CornerInward_15,
+            GBAVV_Fence_16,
+            GBAVV_Corner_17,
+            GBAVV_Fence_18,
+            GBAVV_Corner_19,
+            GBAVV_Ramp_CornerOutward_20,
+            GBAVV_Corner_21,
+            GBAVV_Corner_22,
+            GBAVV_Fence_23,
+            GBAVV_Corner_24,
+            GBAVV_Corner_25,
+            GBAVV_Corner_26,
+            GBAVV_Solid_27,
+            GBAVV_Corner_28,
+            GBAVV_Ramp_CornerInward_29,
+            GBAVV_Corner_30,
+            GBAVV_Ramp_CornerOutward_31,
+            GBAVV_Corner_32,
+            GBAVV_Ramp_CornerInward_33,
+            GBAVV_Ramp_CornerOutward_34,
+            GBAVV_Corner_35,
             GBAVV_36,
         }
 
@@ -375,6 +401,37 @@ namespace R1Engine
             [CollisionType.Type_5] = new Color(78 / 255f, 126 / 255f, 145 / 255f),
             [CollisionType.Type_6] = new Color(95 / 255f, 78 / 255f, 145 / 255f),
             [CollisionType.Type_7] = new Color(138 / 255f, 78 / 255f, 145 / 255f),
+
+            // Crash
+            [CollisionType.GBAVV_Solid_0] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Solid_27] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Slope_4] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_SlopeCorner_5] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_6] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_12] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_17] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_19] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_21] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_22] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_24] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_25] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_26] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_28] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_30] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_32] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Corner_35] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Ramp_CornerInward_2] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Ramp_CornerInward_15] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Ramp_CornerInward_29] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Ramp_CornerInward_33] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Ramp_CornerOutward_20] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Ramp_CornerOutward_31] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Ramp_CornerOutward_34] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Ramp_1] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Fence_13] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Fence_16] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Fence_18] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
+            [CollisionType.GBAVV_Fence_23] = new Color(88 / 255f, 98 / 255f, 115 / 255f),
         };
     }
 }

@@ -586,7 +586,7 @@ namespace R1Engine
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
-            int baseType = (int)Unity_IsometricCollisionTile.CollisionType.GBAVV_0;
+            int baseType = (int)Unity_IsometricCollisionTile.CollisionType.GBAVV_Solid_0;
 
             float minHeight = Mathf.Min(0, mapData.CollisionMap.Min(c => mapData.CollisionTiles[c].Height.AsFloat));
             var collision = mapData.CollisionMap.Select(c => new Unity_IsometricCollisionTile() {

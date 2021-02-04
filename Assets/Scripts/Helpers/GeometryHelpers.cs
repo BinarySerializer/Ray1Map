@@ -755,7 +755,7 @@ namespace R1Engine {
                     float curHeight = height2 + (height2 - height1) * sin;
                     Vector3 p0v = Quaternion.Euler(0, j * 90f / parts, 0) * new Vector3(0, curHeight, zSize - zSize * cos);
                     vertices.Add(p0v); // Ramp
-                    Vector3 p0n = Quaternion.Euler((parts - i) * 90f / parts, j * 90f / parts, 0) * Vector3.back;
+                    Vector3 p0n = Quaternion.Euler(i * 90f / parts, j * 90f / parts, 0) * Vector3.up;
                     normals.Add(p0n); // Ramp
                     if (j > 0 && i > 0) {
                         triangles.Add(vertStartIndex + (j - 1) * (parts + 1) + i);

@@ -42,20 +42,20 @@ namespace R1Engine
                 var tile = MapData.CollisionTiles[MapData.CollisionMap[collY * MapData.CollisionWidth + collX]];
                 obj.Height = (tile.Height - minHeight) / scale;
 
-                int baseType = (int)Unity_IsometricCollisionTile.CollisionType.GBAVV_0;
+                int baseType = (int)Unity_IsometricCollisionTile.CollisionType.GBAVV_Solid_0;
                 var type = (Unity_IsometricCollisionTile.CollisionType)(baseType+GetCommonCollisionTypeFunc(tile.TypeIndex));
 
                 switch (type) {
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_12:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_17:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_19:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_21:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_22:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_24:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_26:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_28:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_32:
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_35:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_12:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_17:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_19:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_21:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_22:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_24:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_26:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_28:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_32:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Corner_35:
                         // Diagonal
                         bool isHigh = false;
                         switch (tile.Shape % 4) {
@@ -75,7 +75,7 @@ namespace R1Engine
                         if(isHigh)
                             obj.Height += MapData.CollisionTypes[tile.TypeIndex].AdditionalHeight / scale;
                         break;
-                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_1:
+                    case Unity_IsometricCollisionTile.CollisionType.GBAVV_Ramp_1:
                         // Ramp
                         float x = (xScaled - collX);
                         float y = (yScaled - collY);
