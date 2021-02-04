@@ -364,6 +364,88 @@ namespace R1Engine {
             return mesh;
         }
 
+        public static Mesh CreateSlopeCornerOutward(float sz, float height1, float height2, int rot, Color? color = null) {
+            Mesh mesh = new Mesh();
+
+            float xSize = sz;
+            float zSize = sz;
+            float rotate = 90f * rot;
+            Quaternion rotq = Quaternion.Euler(0, rotate, 0);
+            Vector3 center = new Vector3(0.5f * xSize, 0, 0.5f * zSize);
+
+            // Main
+            Vector3 up = Vector3.up;
+            Vector3 down = Vector3.down;
+            Vector3 front = Vector3.forward;
+            Vector3 back = Vector3.back;
+            Vector3 left = Vector3.left;
+            Vector3 right = Vector3.right;
+            Vector3 p0 = new Vector3(0, 0, zSize);
+            Vector3 p1 = new Vector3(xSize, 0, zSize);
+            Vector3 p2 = new Vector3(xSize, 0, 0);
+            Vector3 p3 = new Vector3(0, 0, 0);
+            Vector3 p4 = new Vector3(0, height1, zSize);
+            Vector3 p5 = new Vector3(xSize, height1, zSize);
+            Vector3 p6 = new Vector3(xSize, height1, 0);
+            Vector3 p7 = new Vector3(0, height2, 0);
+            Vector3 normal1 = Vector3.Cross(p5 - p6, p5 - p7).normalized;
+            Vector3 normal2 = Vector3.Cross(p5 - p7, p5 - p4).normalized;
+
+            Vector3[] vertices = new Vector3[] {
+                p0, p1, p2, p3,
+                p7, p4, p0, p3,
+                p4, p5, p1, p0,
+                p6, p7, p3, p2,
+                p5, p6, p2, p1,
+                p7, p6, p5,
+                p7, p4, p5,
+            };
+            Vector3[] normals = new Vector3[] {
+                down, down, down, down,
+                left, left, left, left,
+                front, front, front, front,
+                back, back, back, back,
+                right, right, right, right,
+                normal1, normal1, normal1,
+                normal2, normal2, normal2
+            };
+            int[] triangles = new int[] {
+                3, 1, 0,
+                3, 2, 1,
+                3 + 4 * 1, 1 + 4 * 1, 0 + 4 * 1,
+                3 + 4 * 1, 2 + 4 * 1, 1 + 4 * 1,
+                3 + 4 * 2, 1 + 4 * 2, 0 + 4 * 2,
+                3 + 4 * 2, 2 + 4 * 2, 1 + 4 * 2,
+                3 + 4 * 3, 1 + 4 * 3, 0 + 4 * 3,
+                3 + 4 * 3, 2 + 4 * 3, 1 + 4 * 3,
+                3 + 4 * 4, 1 + 4 * 4, 0 + 4 * 4,
+                3 + 4 * 4, 2 + 4 * 4, 1 + 4 * 4,
+                2 + 4 * 5, 1 + 4 * 5, 0 + 4 * 5,
+                4 + 4 * 5, 5 + 4 * 5, 3 + 4 * 5,
+            };
+
+            for (int i = 0; i < vertices.Length; i++) {
+                vertices[i] = rotq * (vertices[i] - center);
+                normals[i] = rotq * normals[i];
+            }
+
+            mesh.vertices = vertices;
+            mesh.normals = normals;
+            //mesh.uv = uvs;
+            mesh.triangles = triangles;
+
+            if (color.HasValue) {
+                Color[] cols = new Color[vertices.Length];
+                for (int i = 0; i < cols.Length; i++) {
+                    cols[i] = color.Value;
+                }
+                mesh.colors = cols;
+            }
+
+            mesh.RecalculateBounds();
+            return mesh;
+        }
+
 
         public static Mesh CreateRamp(float sz, float height1, float height2, int parts, int rot, Color? color = null) {
             Mesh mesh = new Mesh();
@@ -489,6 +571,124 @@ namespace R1Engine {
             return mesh;
         }
 
+        public static Mesh CreateRampCornerInward(float sz, float height1, float height2, int parts, int rot, Color? color = null) {
+            Mesh mesh = new Mesh();
+
+            float xSize = sz;
+            float zSize = sz;
+            float rotate = 90f * (1 + rot);
+            Quaternion rotq = Quaternion.Euler(0, rotate, 0);
+            Vector3 center = new Vector3(0.5f * xSize, 0, 0.5f * zSize);
+
+            List<Vector3> vertices = new List<Vector3>();
+            List<Vector3> normals = new List<Vector3>();
+            List<int> triangles = new List<int>();
+
+            // Main
+            Vector3 up = Vector3.up;
+            Vector3 down = Vector3.down;
+            Vector3 front = Vector3.forward;
+            Vector3 back = Vector3.back;
+            Vector3 left = Vector3.left;
+            Vector3 right = Vector3.right;
+            Vector3 p0 = new Vector3(0, 0, zSize);
+            Vector3 p1 = new Vector3(xSize, 0, zSize);
+            Vector3 p2 = new Vector3(xSize, 0, 0);
+            Vector3 p3 = new Vector3(0, 0, 0);
+            Vector3 p4 = new Vector3(0, height1, zSize);
+            Vector3 p5 = new Vector3(xSize, height1, zSize);
+            Vector3 p6 = new Vector3(xSize, height1, 0);
+            Vector3 p7 = new Vector3(0, height1, 0);
+            Vector3 heightDiff = new Vector3(0, height2 - height1, 0);
+
+            const int vertStartIndex = 5 * 4; // Fill 5 extra sides
+            vertices.AddRange(new Vector3[] {
+                p0, p1, p2, p3,
+                p7, p4, p0, p3,
+                p4 + heightDiff, p5 + heightDiff, p1, p0,
+                p6, p7, p3, p2,
+                p5 + heightDiff, p6 + heightDiff, p2, p1,
+            });
+            normals.AddRange(new Vector3[] {
+                down, down, down, down,
+                left, left, left, left,
+                front, front, front, front,
+                back, back, back, back,
+                right, right, right, right,
+            });
+            triangles.AddRange(new int[] {
+                3, 1, 0,
+                3, 2, 1,
+                3 + 4 * 1, 1 + 4 * 1, 0 + 4 * 1,
+                3 + 4 * 1, 2 + 4 * 1, 1 + 4 * 1,
+                3 + 4 * 2, 1 + 4 * 2, 0 + 4 * 2,
+                3 + 4 * 2, 2 + 4 * 2, 1 + 4 * 2,
+                3 + 4 * 3, 1 + 4 * 3, 0 + 4 * 3,
+                3 + 4 * 3, 2 + 4 * 3, 1 + 4 * 3,
+                3 + 4 * 4, 1 + 4 * 4, 0 + 4 * 4,
+                3 + 4 * 4, 2 + 4 * 4, 1 + 4 * 4,
+            });
+
+
+            for (int j = 0; j < parts + 1; j++) {
+                for (int i = 0; i < parts + 1; i++) {
+                    float cos = Mathf.Cos(Mathf.Deg2Rad * (-90f + (i / (float)parts) * 90f));
+                    float sin = Mathf.Sin(Mathf.Deg2Rad * (-90f + (i / (float)parts) * 90f));
+                    float curHeight = height2 + (height2 - height1) * sin;
+                    Vector3 p0v = Quaternion.Euler(0, j * 90f / parts, 0) * new Vector3(0, curHeight, zSize * cos);
+                    vertices.Add(p0v); // Ramp
+                    Vector3 p0n = Quaternion.Euler((parts - i) * 90f / parts, j * 90f / parts, 0) * Vector3.back;
+                    normals.Add(p0n); // Ramp
+                    if (j > 0 && i > 0) {
+                        triangles.Add(vertStartIndex + (j - 1) * (parts + 1) + (i - 1));
+                        triangles.Add(vertStartIndex + (j - 1) * (parts + 1) + i);
+                        triangles.Add(vertStartIndex + j * (parts + 1) + (i - 1));
+
+                        triangles.Add(vertStartIndex + j * (parts + 1) + i);
+                        triangles.Add(vertStartIndex + j * (parts + 1) + (i - 1));
+                        triangles.Add(vertStartIndex + (j - 1) * (parts + 1) + i);
+                    }
+                }
+            }
+            // Top
+            vertices.Add(p5 + heightDiff);
+            normals.Add(up);
+            int currentIndex = vertStartIndex + (parts + 1) * (parts + 1);
+            for (int i = 0; i < parts + 1; i++) {
+                vertices.Add(vertices[vertStartIndex + i * (parts + 1) + parts]);
+                normals.Add(up);
+            }
+            for (int i = 0; i < parts; i++) {
+                triangles.Add(currentIndex);
+                triangles.Add(currentIndex + i + 2);
+                triangles.Add(currentIndex + i + 1);
+            }
+            currentIndex += parts + 2;
+
+            Vector3[] vertArray = vertices.ToArray();
+            Vector3[] normalArray = normals.ToArray();
+
+            for (int i = 0; i < vertArray.Length; i++) {
+                vertArray[i] = rotq * (vertArray[i] - center);
+                normalArray[i] = rotq * normalArray[i];
+            }
+
+            mesh.vertices = vertArray;
+            mesh.normals = normalArray;
+            //mesh.uv = uvs;
+            mesh.SetTriangles(triangles, 0);
+
+            if (color.HasValue) {
+                Color[] cols = new Color[vertArray.Length];
+                for (int i = 0; i < cols.Length; i++) {
+                    cols[i] = color.Value;
+                }
+                mesh.colors = cols;
+            }
+
+            mesh.RecalculateBounds();
+            return mesh;
+        }
 
         public static Mesh CreateRampCornerOutward(float sz, float height1, float height2, int parts, int rot, Color? color = null) {
             Mesh mesh = new Mesh();
@@ -497,6 +697,7 @@ namespace R1Engine {
             float zSize = sz;
             float rotate = 90f * (1 + rot);
             Quaternion rotq = Quaternion.Euler(0, rotate, 0);
+            Vector3 center = new Vector3(0.5f * xSize, 0, 0.5f * zSize);
 
             List<Vector3> vertices = new List<Vector3>();
             List<Vector3> normals = new List<Vector3>();
@@ -609,7 +810,7 @@ namespace R1Engine {
             Vector3[] normalArray = normals.ToArray();
 
             for (int i = 0; i < vertArray.Length; i++) {
-                vertArray[i] = rotq * (vertArray[i] - new Vector3(0.5f * xSize, 0, 0.5f * zSize));
+                vertArray[i] = rotq * (vertArray[i] - center);
                 normalArray[i] = rotq * normalArray[i];
             }
 
@@ -629,6 +830,7 @@ namespace R1Engine {
             mesh.RecalculateBounds();
             return mesh;
         }
+
 
         #region Textures
         public static Texture2D CreateDummyTexture() {

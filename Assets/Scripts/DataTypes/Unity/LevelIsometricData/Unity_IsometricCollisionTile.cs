@@ -78,7 +78,7 @@ namespace R1Engine
                 case CollisionType.GBAVV_4:
                     return 12; // Regular slope
                 case CollisionType.GBAVV_5:
-                    return 6; // Regular slope corner
+                    return 12; // Regular slope corner
                 case CollisionType.GBAVV_6:
                 case CollisionType.GBAVV_12:
                 case CollisionType.GBAVV_17:
@@ -91,7 +91,9 @@ namespace R1Engine
                 case CollisionType.GBAVV_32:
                 case CollisionType.GBAVV_35:
                     return 16; // Box with top split into 2
-                case CollisionType.GBAVV_34:
+                case CollisionType.GBAVV_33: // Corner inward
+                    return 12 + 1 * numParts * numParts * 2 + numParts;
+                case CollisionType.GBAVV_34: // Corner outward
                     return 12 + 1 * numParts * numParts * 2 + numParts * 3;
                 case CollisionType.GBAVV_1:
                     return 12 + 12 * (1+numParts);
@@ -148,7 +150,7 @@ namespace R1Engine
                     break;
                 case CollisionType.GBAVV_5: // Regular slope corner
                     // TODO
-                    mf.mesh = GeometryHelpers.CreateBoxDifferentHeights(1, Height, Height, Height, Height, color: color);
+                    mf.mesh = GeometryHelpers.CreateSlopeCornerOutward(1, Height, Height + 0.1875f, GBAVV_Rotation ?? 0, color: color);
                     break;
                 case CollisionType.GBAVV_6:
                 case CollisionType.GBAVV_12:
@@ -163,7 +165,10 @@ namespace R1Engine
                 case CollisionType.GBAVV_35:
                     mf.mesh = GeometryHelpers.CreateDoubleSplitBox(1, Height, (GBAVV_AdditionalHeight ?? 0f) + Height, GBAVV_Rotation ?? 0, color: color);
                     break;
-                case CollisionType.GBAVV_34:
+                case CollisionType.GBAVV_33: // Corner inward
+                    mf.mesh = GeometryHelpers.CreateRampCornerInward(1, Height, Height + 0.1875f, 5, GBAVV_Rotation ?? 0, color: color);
+                    break;
+                case CollisionType.GBAVV_34: // Corner outward
                     mf.mesh = GeometryHelpers.CreateRampCornerOutward(1, Height, Height + 0.1875f, 5, GBAVV_Rotation ?? 0, color: color);
                     break;
                 case CollisionType.GBAVV_1:
