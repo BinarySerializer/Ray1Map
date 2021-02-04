@@ -893,6 +893,9 @@ function getObjVars(obj) {
 	// GBC
 	if(obj.hasOwnProperty("GBC_XlateID")) objVars.push({"Name": "XlateID", "Value": obj.GBC_XlateID});
 
+	// GBAVV
+	if(obj.hasOwnProperty("GBAVV_ObjParams")) objVars.push({"Name": "ObjParams", "Value": obj.GBAVV_ObjParams});
+
 	return objVars;
 }
 
@@ -1434,6 +1437,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 
 	// GBAVV
 	if(newObj.hasOwnProperty("GBAVV_AnimSetIndex")) oldObj.GBAVV_AnimSetIndex = newObj.GBAVV_AnimSetIndex;
+	if(newObj.hasOwnProperty("GBAVV_ObjParams")) oldObj.GBAVV_ObjParams = newObj.GBAVV_ObjParams;
 
 	// SNES
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupIndex")) oldObj.SNES_GraphicsGroupIndex = newObj.SNES_GraphicsGroupIndex;
