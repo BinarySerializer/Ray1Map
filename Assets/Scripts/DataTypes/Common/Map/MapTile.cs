@@ -399,6 +399,10 @@ namespace R1Engine
                         PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
             }
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Gameloft)
+            {
+                TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
+            }
         }
 
         public MapTile CloneObj() => (MapTile)Clone();

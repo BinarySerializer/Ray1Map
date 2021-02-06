@@ -1,7 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -84,7 +86,10 @@ namespace R1Engine
 		}
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
-			await UniTask.CompletedTask;
+
+			Controller.DetailedState = "Loading data";
+			await Controller.WaitIfNecessary();
+
 			var s = context.Deserializer;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
 			var lh0 = resf.SerializeResource<Gameloft_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
@@ -98,12 +103,62 @@ namespace R1Engine
 			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
 			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.Settings), context);
 			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
-			var tileSet_f = GetPuppetImages(ts_f); // Tile textures. Tile i = tileset_f[i][0]
-			var tileSet_b = GetPuppetImages(ts_b); 
-			
-			// TODO: create maps (dimensions are in lh0-2, data is in l0-2), level object, objManager etc
+			var tileSet_f = GetPuppetImages(ts_f, false);
+			var tileSet_b = GetPuppetImages(ts_b, false);
 
-			throw new NotImplementedException();
+			const int cellSize = 20;
+
+            // Load maps
+			var maps = new Unity_Map[]
+			{
+				// Background
+				new Unity_Map
+                {
+                    Width = lh0.Width,
+                    Height = lh0.Height,
+                    TileSet = new Unity_TileSet[]
+                    {
+						new Unity_TileSet(tileSet_b.Select(x => x[0].CreateTile()).ToArray())
+                    },
+                    MapTiles = l0.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
+                    Type = Unity_Map.MapType.Graphics,
+					Layer = Unity_Map.MapLayer.Back
+                },
+				// Foreground
+				new Unity_Map
+                {
+                    Width = lh1.Width,
+                    Height = lh1.Height,
+                    TileSet = new Unity_TileSet[]
+                    {
+						new Unity_TileSet(tileSet_f.Select(x => x[0].CreateTile()).ToArray())
+                    },
+                    MapTiles = l1.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
+                    Type = Unity_Map.MapType.Graphics,
+                },
+				// Collision
+				new Unity_Map
+                {
+                    Width = lh2.Width,
+                    Height = lh2.Height,
+                    TileSet = new Unity_TileSet[]
+                    {
+						new Unity_TileSet(cellSize), 
+                    },
+                    MapTiles = l2.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
+                    Type = Unity_Map.MapType.Collision,
+                }
+            };
+
+			// Load objects
+			var objManager = new Unity_ObjectManager(context); // TODO: Replace with Gameloft manager
+
+			// Return level
+			return new Unity_Level(
+                maps: maps,
+                objManager: objManager,
+                eventData: new List<Unity_Object>(),
+                cellSize: cellSize);
 		}
 	}
 }

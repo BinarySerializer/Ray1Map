@@ -115,7 +115,7 @@ namespace R1Engine
             }
         }
 
-        public Texture2D[][] GetPuppetImages(Gameloft_Puppet puppet) {
+        public Texture2D[][] GetPuppetImages(Gameloft_Puppet puppet, bool flipY = true) {
             Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
             for (int i = 0; i < puppet.ImagesCount; i++) {
                 var id = puppet.ImageDescriptors[i];
@@ -126,7 +126,7 @@ namespace R1Engine
                     Texture2D tex = TextureHelpers.CreateTexture2D(id.Width, id.Height);
                     for (int y = 0; y < tex.height; y++) {
                         for (int x = 0; x < tex.width; x++) {
-                            tex.SetPixel(x, tex.height - 1 - y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
+                            tex.SetPixel(x, flipY ? tex.height - 1 - y : y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
                         }
                     }
                     tex.Apply();
