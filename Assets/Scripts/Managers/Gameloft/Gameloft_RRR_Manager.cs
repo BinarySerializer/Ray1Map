@@ -158,6 +158,8 @@ namespace R1Engine
                 maps: maps,
                 objManager: objManager,
                 eventData: new List<Unity_Object>(),
+				defaultMap: 1,
+				defaultCollisionMap: 2,
                 cellSize: cellSize);
 		}
 	}

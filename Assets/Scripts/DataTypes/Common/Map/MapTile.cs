@@ -401,7 +401,11 @@ namespace R1Engine
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Gameloft)
             {
-                TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
+                s.SerializeBitValues<byte>(bitFunc =>
+                {
+                    TileMapY = (ushort)bitFunc(TileMapY, 7, name: nameof(TileMapY));
+                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                });
             }
         }
 
