@@ -58,21 +58,51 @@ namespace R1Engine
 			new GameInfo_World(0, Enumerable.Range(0, 8).ToArray()),
 		});
 
+		public virtual int[] TileSetIndices => new int[] {
+			0,
+			0,
+			0,
+			1,
+			1,
+			1,
+			2,
+			2
+		};
+
+		public virtual int GetTileSetIndex(GameSettings settings) {
+			return TileSetIndices[settings.Level];
+		}
+
 		public string GetLevelPath(GameSettings settings) => $"l0a0{settings.Level+1}";
+		public string GetBackgroundTileSetPath(GameSettings settings) => $"ts{GetTileSetIndex(settings)}";
+		public string GetForegroundTileSetPath(GameSettings settings) => $"t{GetTileSetIndex(settings)}";
 
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
+			await context.AddLinearSerializedFileAsync(GetBackgroundTileSetPath(context.Settings));
+			await context.AddLinearSerializedFileAsync(GetForegroundTileSetPath(context.Settings));
 		}
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			await UniTask.CompletedTask;
+			var s = context.Deserializer;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
-			var lh0 = resf.SerializeResource<Gameloft_MapLayerHeader>(context.Deserializer, default, 0, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
-			var lh1 = resf.SerializeResource<Gameloft_MapLayerHeader>(context.Deserializer, default, 1, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
-			var lh2 = resf.SerializeResource<Gameloft_MapLayerHeader>(context.Deserializer, default, 2, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
-			var l0 = resf.SerializeResource<Gameloft_MapLayerData>(context.Deserializer, default, 3, onPreSerialize: o => o.Header = lh0, name: "Layer0");
-			var l1 = resf.SerializeResource<Gameloft_MapLayerData>(context.Deserializer, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
-			var l2 = resf.SerializeResource<Gameloft_MapLayerData>(context.Deserializer, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
+			var lh0 = resf.SerializeResource<Gameloft_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
+			var lh1 = resf.SerializeResource<Gameloft_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
+			var lh2 = resf.SerializeResource<Gameloft_MapLayerHeader>(s, default, 2, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
+			var l0 = resf.SerializeResource<Gameloft_MapLayerData>(s, default, 3, onPreSerialize: o => o.Header = lh0, name: "Layer0");
+			var l1 = resf.SerializeResource<Gameloft_MapLayerData>(s, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
+			var l2 = resf.SerializeResource<Gameloft_MapLayerData>(s, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
+			
+			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.Settings), context);
+			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
+			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.Settings), context);
+			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
+			var tileSet_f = GetPuppetImages(ts_f); // Tile textures. Tile i = tileset_f[i][0]
+			var tileSet_b = GetPuppetImages(ts_b); 
+			
+			// TODO: create maps (dimensions are in lh0-2, data is in l0-2), level object, objManager etc
+
 			throw new NotImplementedException();
 		}
 	}

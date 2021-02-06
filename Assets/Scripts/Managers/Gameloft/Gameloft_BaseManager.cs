@@ -115,7 +115,7 @@ namespace R1Engine
             }
         }
 
-        public void ExportPuppet(Gameloft_Puppet puppet, string outputDir, ExportMethod exportMethod) {
+        public Texture2D[][] GetPuppetImages(Gameloft_Puppet puppet) {
             Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
             for (int i = 0; i < puppet.ImagesCount; i++) {
                 var id = puppet.ImageDescriptors[i];
@@ -126,13 +126,18 @@ namespace R1Engine
                     Texture2D tex = TextureHelpers.CreateTexture2D(id.Width, id.Height);
                     for (int y = 0; y < tex.height; y++) {
                         for (int x = 0; x < tex.width; x++) {
-                            tex.SetPixel(x,tex.height-1-y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
+                            tex.SetPixel(x, tex.height - 1 - y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
                         }
                     }
                     tex.Apply();
                     texs[i][p] = tex;
                 }
             }
+            return texs;
+        }
+
+        public void ExportPuppet(Gameloft_Puppet puppet, string outputDir, ExportMethod exportMethod) {
+            Texture2D[][] texs = GetPuppetImages(puppet);
             Texture2D[][] layerGroupTexs = new Texture2D[puppet.LayerGroupsCount][];
             if (exportMethod == ExportMethod.LayerGroups || exportMethod == ExportMethod.Animations) {
                 for (int i = 0; i < puppet.LayerGroupsGraphics.Length; i++) {

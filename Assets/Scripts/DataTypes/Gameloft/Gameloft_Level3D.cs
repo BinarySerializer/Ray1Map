@@ -240,14 +240,14 @@ namespace R1Engine
 
 		public class Struct5 : R1Serializable {
 			public byte Struct4Index { get; set; }
-			public byte Byte1 { get; set; }
-			public byte Byte2 { get; set; }
+			public byte Min { get; set; }
+			public byte Max { get; set; } // If between min & max, or if max < min && smaller than max or larger than min, it uses Struct4 with that index
 			public byte Byte3 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Struct4Index = s.Serialize<byte>(Struct4Index, name: nameof(Struct4Index));
-				Byte1 = s.Serialize<byte>(Byte1, name: nameof(Byte1));
-				Byte2 = s.Serialize<byte>(Byte2, name: nameof(Byte2));
+				Min = s.Serialize<byte>(Min, name: nameof(Min));
+				Max = s.Serialize<byte>(Max, name: nameof(Max));
 				Byte3 = s.Serialize<byte>(Byte3, name: nameof(Byte3));
 			}
 		}
