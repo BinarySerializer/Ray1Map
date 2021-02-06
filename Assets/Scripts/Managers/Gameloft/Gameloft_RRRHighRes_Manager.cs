@@ -51,6 +51,16 @@ namespace R1Engine
 			"g",
 		};
 
+		public override int[] TileSetIndices => new int[] {
+			0,
+			0,
+			0,
+			1,
+			1,
+			2,
+			2
+		};
+
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
 		{
 			new GameInfo_World(0, Enumerable.Range(0, 7).ToArray()),

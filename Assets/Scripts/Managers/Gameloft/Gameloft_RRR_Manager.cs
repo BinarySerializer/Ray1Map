@@ -64,7 +64,7 @@ namespace R1Engine
 			0,
 			0,
 			0,
-			1,
+			0,
 			1,
 			1,
 			2,
@@ -105,13 +105,14 @@ namespace R1Engine
 			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
 			var tileSet_f = GetPuppetImages(ts_f, false);
 			var tileSet_b = GetPuppetImages(ts_b, false);
-
-			const int cellSize = 20;
+			
+			int cellSize = tileSet_f[0][0].width;
 
 			// Pad foreground tileset with transparent tiles
 			var tileset_f_padding = Enumerable.Repeat(TextureHelpers.CreateTexture2D(cellSize, cellSize, clear: true, applyClear: true).CreateTile(), 128 - tileSet_f.Length);
+			var tileset_b_padding = Enumerable.Repeat(TextureHelpers.CreateTexture2D(cellSize, cellSize, clear: true, applyClear: true).CreateTile(), 128 - tileSet_b.Length);
 
-            // Load maps
+			// Load maps
 			var maps = new Unity_Map[]
 			{
 				// Background
@@ -121,7 +122,7 @@ namespace R1Engine
                     Height = lh0.Height,
                     TileSet = new Unity_TileSet[]
                     {
-						new Unity_TileSet(tileSet_b.Select(x => x[0].CreateTile()).ToArray())
+						new Unity_TileSet(tileSet_b.Select(x => x[0].CreateTile()).Concat(tileset_b_padding).ToArray())
                     },
                     MapTiles = l0.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
                     Type = Unity_Map.MapType.Graphics,
