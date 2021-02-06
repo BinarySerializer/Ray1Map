@@ -108,6 +108,9 @@ namespace R1Engine
 
 			const int cellSize = 20;
 
+			// Pad foreground tileset with transparent tiles
+			var tileset_f_padding = Enumerable.Repeat(TextureHelpers.CreateTexture2D(cellSize, cellSize, clear: true, applyClear: true).CreateTile(), 128 - tileSet_f.Length);
+
             // Load maps
 			var maps = new Unity_Map[]
 			{
@@ -131,7 +134,7 @@ namespace R1Engine
                     Height = lh1.Height,
                     TileSet = new Unity_TileSet[]
                     {
-						new Unity_TileSet(tileSet_f.Select(x => x[0].CreateTile()).ToArray())
+						new Unity_TileSet(tileSet_f.Select(x => x[0].CreateTile()).Concat(tileset_f_padding).ToArray())
                     },
                     MapTiles = l1.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
                     Type = Unity_Map.MapType.Graphics,

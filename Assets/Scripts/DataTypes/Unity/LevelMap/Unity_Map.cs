@@ -99,11 +99,6 @@ namespace R1Engine
                 {
                     tileIndex = 4082;
                 }
-                // Treat tile index 127 as 0
-                else if (settings.EngineVersion == EngineVersion.Gameloft_RRR && tileIndex == 127)
-                {
-                    tileIndex = 0;
-                }
                 else
                 {
                     Debug.LogWarning($"Out of bounds tile with index {tileIndex} in {settings.GameModeSelection} - {settings.World}{settings.Level}");
