@@ -875,20 +875,8 @@ namespace R1Engine
             if (Controller.LoadState != Controller.State.Finished) return;
 
             // Enforce layer visibility
-            if (IsLayerVisible != null) {
-                for (int i = 0; i < IsLayerVisible.Length; i++) {
-                    if (GraphicsTilemaps != null && GraphicsTilemaps[i] != null) {
-                        if (GraphicsTilemaps[i].gameObject.activeSelf != IsLayerVisible[i]) {
-                            GraphicsTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
-                        }
-                    }
-                    if (CollisionTilemaps != null && CollisionTilemaps[i] != null) {
-                        if (CollisionTilemaps[i].gameObject.activeSelf != IsLayerVisible[i]) {
-                            CollisionTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
-                        }
-                    }
-                }
-            }
+            UpdateMapLayersVisibility();
+
             if (Settings.ShowGridMap != tilemapGrid.gameObject.activeSelf) {
                 tilemapGrid.gameObject.SetActive(Settings.ShowGridMap);
             }
@@ -935,6 +923,30 @@ namespace R1Engine
                 }
                 if (changedTile)
                     tex.Apply();
+            }
+        }
+
+        public void UpdateMapLayersVisibility()
+        {
+            if (IsLayerVisible != null)
+            {
+                for (int i = 0; i < IsLayerVisible.Length; i++)
+                {
+                    if (GraphicsTilemaps != null && GraphicsTilemaps[i] != null)
+                    {
+                        if (GraphicsTilemaps[i].gameObject.activeSelf != IsLayerVisible[i])
+                        {
+                            GraphicsTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
+                        }
+                    }
+                    if (CollisionTilemaps != null && CollisionTilemaps[i] != null)
+                    {
+                        if (CollisionTilemaps[i].gameObject.activeSelf != IsLayerVisible[i])
+                        {
+                            CollisionTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
+                        }
+                    }
+                }
             }
         }
 

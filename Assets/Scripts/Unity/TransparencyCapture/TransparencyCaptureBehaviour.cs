@@ -39,7 +39,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		return screenshotBytes;
 	}
 
-	public async UniTask<byte[]> CaptureFulllevel(bool isTransparent) {
+	public async UniTask<byte[]> CaptureFulllevel(bool isTransparent, RectInt? rect = null) {
 		if (isTransparent) {
 			Controller.obj.levelController.controllerTilemap.backgroundTint.gameObject.SetActive(false);
 		}
@@ -105,7 +105,11 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			camSettings[cam].Apply(cam);
 		}
 		ec.enabled = true;
-		try {
+		try 
+        {
+			if (rect != null)
+				lScreenshot = lScreenshot.Crop(rect.Value, true);
+
 			screenshotBytes = lScreenshot.EncodeToPNG();
 		} finally {
 			Object.DestroyImmediate(lScreenshot);

@@ -175,6 +175,7 @@ namespace R1Engine
             }
         }
 
+        public RectInt? ScreenshotRect { get; set; }
         public async void ConvertLevelToPNG() => await ConvertLevelToPNGAsync();
         public async UniTask ConvertLevelToPNGAsync() 
         {
@@ -330,7 +331,7 @@ namespace R1Engine
             }
 
             TransparencyCaptureBehaviour tcb = Camera.main.GetComponent<TransparencyCaptureBehaviour>();
-            byte[] result = await tcb.CaptureFulllevel(false);
+            byte[] result = await tcb.CaptureFulllevel(false, ScreenshotRect);
 
             foreach (var a in onFinished)
                 a?.Invoke();

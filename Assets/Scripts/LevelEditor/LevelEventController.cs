@@ -308,6 +308,279 @@ namespace R1Engine
                         captor.IsEnabled = false;
                 }
             }
+            else if (settings.Game == Game.GBA_Rayman3)
+            {
+                var layerOverrides = new Dictionary<int, bool[]>()
+                {
+                    [5] = new bool[] {  }, // Garish Gears
+                    [6] = new bool[] { false }, // Hoodlum Hideout 1
+                    [7] = new bool[] { false }, // Hoodlum Hideout 2
+                    [9] = new bool[] {  }, // Vertigo Wastes 1
+                    [10] = new bool[] { true, true, true, false }, // Vertigo Wastes 2
+                    [13] = new bool[] { false, true, true }, // Jano
+                    [14] = new bool[] { false, true, true }, // Prickly Passage 1
+                    [15] = new bool[] { false, true, true }, // Prickly Passage 2
+                    [17] = new bool[] {  }, // River of Fire 1
+                    [18] = new bool[] {  }, // River of Fire 2
+                    [19] = new bool[] {  }, // River of Fire 3
+                    [20] = new bool[] {  }, // The Underlands 1
+                    [21] = new bool[] {  }, // The Underlands 2
+                    [22] = new bool[] {  }, // Boulder Brink 1
+                    [23] = new bool[] { true, true, true, false }, // Boulder Brink 2
+                    [24] = new bool[] {  }, // Den of Rocky
+                    [25] = new bool[] { false, true, true }, // Wretched Ruin 1
+                    [26] = new bool[] { false, true, true }, // Wretched Ruin 2
+                    [27] = new bool[] { false, true, true }, // Wicked Flow 1
+                    [28] = new bool[] {  }, // Wicked Flow 2
+                    [30] = new bool[] { false, true, true }, // Creeping Chaos 1
+                    [31] = new bool[] { false, true, true }, // Creeping Chaos 2
+                    [32] = new bool[] { false, true, true }, // Scaleman's Keep
+                    [33] = new bool[] { false, true, true }, // The Mettleworks 1
+                    [34] = new bool[] { false, true, true }, // The Mettleworks 2
+                    [36] = new bool[] { false, true, true }, // Razor Slide 1
+                    [37] = new bool[] { false, true, true }, // Razor Slide 2
+                    [38] = new bool[] {  }, // Heart of the Ancients 1
+                    [39] = new bool[] {  }, // Heart of the Ancients 2
+                    [40] = new bool[] { false, true, true }, // Mega Havoc 1
+                    [41] = new bool[] {  }, // Mega Havoc 2
+                    [42] = new bool[] {  }, // Mega Havoc 3
+                    [43] = new bool[] { false, true, true }, // Mega Havoc 4
+                    [44] = new bool[] { false, true, true }, // Lum Challenge
+                    [45] = new bool[] { false, true }, // Ly's Punch Challenge 1
+                    [46] = new bool[] { false, true }, // Ly's Punch Challenge 2
+                    [47] = new bool[] { false, true }, // Ly's Punch Challenge 3
+                    [49] = new bool[] { false, true, true }, // Ly Power 2
+                    [50] = new bool[] { false, true }, // Ly Power 3
+                    [51] = new bool[] { false, true }, // Ly Power 4
+                    [52] = new bool[] {  }, // Ly Power 5
+                    [53] = new bool[] { false, true, true }, // Ly Power 6
+                    [55] = new bool[] { false, true }, // Haunted Dreams
+                    [56] = new bool[] { false, true, true }, // Magmacosm
+                    [57] = new bool[] { false, true, true }, // Pirate Stronghold
+                    [58] = new bool[] {  }, // World map
+
+                    [100] = new bool[] { false }, // GCN 1
+                    [102] = new bool[] {  }, // GCN 3
+                    [104] = new bool[] { true, true, true, false }, // GCN 5
+                    [105] = new bool[] {  }, // GCN 6
+                    [107] = new bool[] { false, true, true }, // GCN 8
+                    [108] = new bool[] {  }, // GCN 9
+                    [109] = new bool[] {  }, // GCN 10
+                };
+                var tileLayers = new Dictionary<int, bool[]>()
+                {
+                    [9] = new bool[] { true }, // Vertigo Wastes 1
+                    [10] = new bool[] { true }, // Vertigo Wastes 2
+                    [19] = new bool[] { true }, // River of Fire 3
+                    [20] = new bool[] { true }, // The Underlands 1
+                    [21] = new bool[] { true }, // The Underlands 2
+                    [22] = new bool[] { true }, // Boulder Brink 1
+                    [23] = new bool[] { true }, // Boulder Brink 2
+                    [28] = new bool[] { true }, // Wicked Flow 2
+                    [38] = new bool[] { true }, // Heart of the Ancients 1
+                    [41] = new bool[] { true }, // Mega Havoc 2
+                    [42] = new bool[] { true }, // Mega Havoc 3
+                    [52] = new bool[] { true }, // Ly Power 5
+                    [102] = new bool[] { true }, // GCN 3
+                    [104] = new bool[] { true }, // GCN 5
+                    [105] = new bool[] { true }, // GCN 6
+                    [108] = new bool[] { true }, // GCN 9
+                    [109] = new bool[] { true }, // GCN 10
+                };
+                var texFrames = new Dictionary<int, RectInt>();
+
+                // Version specific values
+                if (settings.EngineVersion == EngineVersion.GBA_R3_NGage)
+                {
+                    layerOverrides.Add(8, new bool[] { false, true }); // Ly's Punch Challenge 1
+                    layerOverrides.Add(16, new bool[] { false, true }); // Free Falling
+                    layerOverrides.Add(35, new bool[] { false, true, true }); // Falling Down
+
+                    layerOverrides.Add(60, new bool[] { false, true }); // N-Gage multiplayer 2
+                    layerOverrides.Add(61, new bool[] { false, true, true }); // N-Gage multiplayer 3
+                    layerOverrides.Add(62, new bool[] { false, true }); // N-Gage multiplayer 4
+                    layerOverrides.Add(63, new bool[] { false, true }); // N-Gage multiplayer 5
+                    layerOverrides.Add(65, new bool[] { false, true, true }); // N-Gage multiplayer 7
+                    layerOverrides.Add(66, new bool[] { false, true }); // N-Gage multiplayer 8
+                    layerOverrides.Add(67, new bool[] { false, true }); // N-Gage multiplayer 9
+                    layerOverrides.Add(68, new bool[] { false, true, true }); // N-Gage multiplayer 10
+
+                    texFrames.Add(38, new RectInt(0, 0, 184, 208)); // Heart of the Ancients 1
+                    texFrames.Add(58, new RectInt(0, 0, 392, 208)); // World map
+                }
+                else
+                {
+                    layerOverrides.Add(4, new bool[] { true, false, false, false, false, false }); // Swamps 1
+                    layerOverrides.Add(8, new bool[] { true, false, false }); // Magma Mayhem 1
+                    layerOverrides.Add(16, new bool[] { true, false, false, false, false, false }); // Swamps 2
+                    layerOverrides.Add(35, new bool[] { true, false, false }); // Magma Mayhem 2
+
+                    layerOverrides.Add(59, new bool[] { true, false, false }); // Multiplayer 1
+                    layerOverrides.Add(60, new bool[] { true, false, false }); // Multiplayer 2
+                    layerOverrides.Add(61, new bool[] { false, true, true }); // Multiplayer 3
+                    layerOverrides.Add(62, new bool[] { false, true }); // Multiplayer 4
+                    layerOverrides.Add(63, new bool[] { false, true }); // Multiplayer 5
+                    layerOverrides.Add(64, new bool[] { false, true, true }); // Multiplayer 6
+
+                    texFrames.Add(5, new RectInt(0, 8, 688, 168 - 8)); // Garish Gears
+                    texFrames.Add(24, new RectInt(0, 0, 248, 192)); // Den of Rocky
+                    texFrames.Add(38, new RectInt(0, 0, 288, 160)); // Heart of the Ancients 1
+                    texFrames.Add(58, new RectInt(0, 0, 464, 160)); // World map
+                    texFrames.Add(60, new RectInt(0, 0, 800, 800)); // Multiplayer 2
+
+                    texFrames.Add(101, new RectInt(0, 0, 8000, 240)); // GCN 2
+                }
+
+                if (settings.EngineVersion == EngineVersion.GBA_R3_Proto)
+                {
+                    layerOverrides[19] = new bool[] { false, true, true }; // River of Fire 3
+                    tileLayers.Remove(19); // River of Fire 3
+
+                    texFrames.Remove(24); // Den of Rocky
+
+                    layerOverrides[45] = new bool[] { false, false, true }; // Ly's Punch Challenge 1
+                    layerOverrides[50] = new bool[] { false, false, true }; // Ly Power 3
+                }
+
+                var tilemapController = Controller.obj.levelController.controllerTilemap;
+                var lvl = settings.Level;
+
+                if (settings.World == 9) // GCN
+                    lvl += 100;
+
+                if (settings.EngineVersion == EngineVersion.GBA_R3_Proto)
+                {
+                    // Two levels are swapped
+                    if (settings.Level == 17 || settings.Level == 18 || settings.Level == 19)
+                        lvl += 10;
+                    else if (settings.Level == 27 || settings.Level == 28 || settings.Level == 29)
+                        lvl -= 10;
+
+                    // Ly's Punch Challenge 3 is missing
+                    if (settings.Level > 46)
+                        lvl++;
+                }
+
+                /*
+                if (settings.World >= 9 || settings.Level == 103) // Use this to stop the screenshot enumeration
+                    throw new Exception();
+                */
+
+                // Set screenshot rect
+                if (texFrames.ContainsKey(lvl))
+                    Controller.obj.levelController.ScreenshotRect = texFrames[lvl];
+
+                // Show/hide layers
+                if (!layerOverrides.ContainsKey(lvl))
+                {
+                    // Default to hide the first layers
+                    tilemapController.IsLayerVisible[0] = false;
+                    tilemapController.IsLayerVisible[1] = false;
+                }
+                else
+                {
+                    for (int i = 0; i < layerOverrides[lvl].Length; i++)
+                        tilemapController.IsLayerVisible[i] = layerOverrides[lvl][i];
+                }
+
+                // Tile layers
+                if (tileLayers.ContainsKey(lvl))
+                {
+                    for (int i = 0; i < tileLayers[lvl].Length; i++)
+                        tilemapController.SetGraphicsLayerTiled(i, tileLayers[lvl][i]);
+                }
+
+                // Update tile map layers
+                tilemapController.UpdateMapLayersVisibility();
+
+                var hideObj = new GBA_R3_ActorID[]
+                {
+                    GBA_R3_ActorID.FloatingBarrelSplash,
+                    GBA_R3_ActorID.PlumSplash,
+                    GBA_R3_ActorID.Effect_Sparkles,
+                    GBA_R3_ActorID.CaptureFlag_Flag,
+                }.Select(x => (byte)x).ToArray();
+                var stateModifications = new Tuple<GBA_R3_ActorID, byte, byte>[]
+                {
+                    new Tuple<GBA_R3_ActorID, byte, byte>(GBA_R3_ActorID.Cage, 5, 5),
+                    new Tuple<GBA_R3_ActorID, byte, byte>(GBA_R3_ActorID.FloatingBarrel, 7, 2),
+                    new Tuple<GBA_R3_ActorID, byte, byte>(GBA_R3_ActorID.Plum, 3, 5),
+                    new Tuple<GBA_R3_ActorID, byte, byte>(GBA_R3_ActorID.Balloon, 0, 0),
+                };
+                var removeLinksTypes = new GBA_R3_ActorID[]
+                {
+                    GBA_R3_ActorID.Keg,
+                    GBA_R3_ActorID.Boss_Machine,
+                    GBA_R3_ActorID.Rayman_WaterSki,
+                    GBA_R3_ActorID.Platform_Falling2,
+                    GBA_R3_ActorID.Bridge_Falling,
+                    GBA_R3_ActorID.Climbable_Falling,
+                    GBA_R3_ActorID.RedShell,
+                    GBA_R3_ActorID.Rayman_Flag2p,
+                    GBA_R3_ActorID.Rayman_Flag4p,
+                    GBA_R3_ActorID.CaptureFlag_Base,
+                    GBA_R3_ActorID.CaptureFlag_Flag,
+                }.Select(x => (byte)x).ToArray();
+
+                // Enumerate every object
+                foreach (var obj in objects)
+                {
+                    // Force update object
+                    obj.ForceUpdate();
+
+                    var gbaObj = (Unity_Object_GBA)obj.ObjData;
+
+                    // Hide
+                    if ((obj.ObjData.IsAlways && gbaObj.XPosition == 0 && gbaObj.YPosition == 0) || hideObj.Contains(gbaObj.Actor.ActorID))
+                        obj.IsEnabled = false;
+
+                    // Modify animation
+                    var mod = stateModifications.FirstOrDefault(x => (byte)x.Item1 == gbaObj.Actor.ActorID && x.Item2 == gbaObj.Actor.ActionIndex);
+
+                    if (mod != null)
+                        gbaObj.OverrideAnimIndex = mod.Item3;
+
+                    // Move object into view
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Murfy && gbaObj.YPosition < 20)
+                        gbaObj.YPosition += 20;
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Pirate_Red && gbaObj.YPosition <= 87)
+                        gbaObj.YPosition = 87;
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Keg && gbaObj.YPosition <= 32)
+                        gbaObj.YPosition = 32;
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.ChasingBoulder && gbaObj.YPosition <= 62)
+                        gbaObj.YPosition = 62;
+                    
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Boss_Grolgoth && settings.EngineVersion == EngineVersion.GBA_R3_NGage && settings.Level == 38)
+                    {
+                        gbaObj.XPosition = 137;
+                        gbaObj.YPosition = 90;
+                    }
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Boss_Grolgoth && settings.EngineVersion == EngineVersion.GBA_R3_NGage && settings.Level == 39)
+                    {
+                        gbaObj.XPosition = 380;
+                        gbaObj.YPosition = 105;
+                    }
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Rayman_WorldMap && settings.EngineVersion == EngineVersion.GBA_R3_NGage && settings.Level == 58)
+                    {
+                        gbaObj.XPosition = 170;
+                        gbaObj.YPosition = 115;
+                    }
+                    if (gbaObj.Actor.ActorID == (byte)GBA_R3_ActorID.Keg && settings.EngineVersion == EngineVersion.GBA_R3_NGage && settings.Level == 5)
+                    {
+                        gbaObj.XPosition = 122;
+                        gbaObj.YPosition = 184;
+                    }
+                    
+                    // Remove links
+                    if (removeLinksTypes.Contains(gbaObj.Actor.ActorID))
+                    {
+                        gbaObj.Actor.Link_0 = 0xFF;
+                        gbaObj.Actor.Link_1 = 0xFF;
+                        gbaObj.Actor.Link_2 = 0xFF;
+                        gbaObj.Actor.Link_3 = 0xFF;
+                    }
+                }
+            }
         }
 
         protected void InitializeEventLinks()
