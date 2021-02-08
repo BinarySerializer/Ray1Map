@@ -55,6 +55,8 @@ namespace R1Engine
 			"cp",
 		};
 
+		public string ObjectsFilePath => "l0b";
+
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
 		{
 			new GameInfo_World(0, Enumerable.Range(0, 8).ToArray()),
@@ -83,6 +85,7 @@ namespace R1Engine
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
 			await context.AddLinearSerializedFileAsync(GetBackgroundTileSetPath(context.Settings));
 			await context.AddLinearSerializedFileAsync(GetForegroundTileSetPath(context.Settings));
+			await context.AddLinearSerializedFileAsync(ObjectsFilePath);
 		}
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
@@ -105,6 +108,8 @@ namespace R1Engine
 			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
 			var tileSet_f = GetPuppetImages(ts_f, false);
 			var tileSet_b = GetPuppetImages(ts_b, false);
+			resf = FileFactory.Read<Gameloft_ResourceFile>(ObjectsFilePath, context);
+			var objs = resf.SerializeResource<Gameloft_Objects>(s, default, context.Settings.Level * 2, name: "Objects");
 			
 			int cellSize = tileSet_f[0][0].width;
 
@@ -161,7 +166,7 @@ namespace R1Engine
 			return new Unity_Level(
                 maps: maps,
                 objManager: objManager,
-                eventData: new List<Unity_Object>(),
+                eventData: objs.Objects.Select((o,i) => (Unity_Object)(new Unity_Object_GameloftRRR(objManager,o,0,i))).ToList(),
 				defaultMap: 1,
 				defaultCollisionMap: 2,
                 cellSize: cellSize);
