@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-	public class Gameloft_MapLayerHeader : Gameloft_Resource {
+	public class Gameloft_RRR_MapLayerHeader : Gameloft_Resource {
 		public ushort Width { get; set; }
 		public ushort Height { get; set; }
 		public LayerType Type { get; set; } // Set in onPreSerialize

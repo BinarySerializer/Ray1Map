@@ -1,15 +1,15 @@
 ﻿namespace R1Engine
 {
-	public class Gameloft_MapLayerData : Gameloft_Resource {
-		public Gameloft_MapLayerHeader Header { get; set; } // Set in onPreSerialize
+	public class Gameloft_RRR_MapLayerData : Gameloft_Resource {
+		public Gameloft_RRR_MapLayerHeader Header { get; set; } // Set in onPreSerialize
 		public MapTile[] TileMap { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			switch (Header.Type) {
-				case Gameloft_MapLayerHeader.LayerType.Graphics:
+				case Gameloft_RRR_MapLayerHeader.LayerType.Graphics:
                     TileMap = s.SerializeObjectArray<MapTile>(TileMap, Header.Width * Header.Height, name: nameof(TileMap));
 					break;
-				case Gameloft_MapLayerHeader.LayerType.Collision:
+				case Gameloft_RRR_MapLayerHeader.LayerType.Collision:
 
 					if (TileMap == null)
 						TileMap = new MapTile[Header.Width * Header.Height];

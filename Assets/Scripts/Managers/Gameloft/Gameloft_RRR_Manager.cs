@@ -56,6 +56,7 @@ namespace R1Engine
 		};
 
 		public string ObjectsFilePath => "l0b";
+		public string FixFilePath => "d2";
 
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
 		{
@@ -80,12 +81,46 @@ namespace R1Engine
 		public string GetLevelPath(GameSettings settings) => $"l0a0{settings.Level+1}";
 		public string GetBackgroundTileSetPath(GameSettings settings) => $"ts{GetTileSetIndex(settings)}";
 		public string GetForegroundTileSetPath(GameSettings settings) => $"t{GetTileSetIndex(settings)}";
+		public string GetPuppetPath(int i) => i > 0 ?  $"s{i}" : i == 0 ? "d1" : "s";
 
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
 			await context.AddLinearSerializedFileAsync(GetBackgroundTileSetPath(context.Settings));
 			await context.AddLinearSerializedFileAsync(GetForegroundTileSetPath(context.Settings));
 			await context.AddLinearSerializedFileAsync(ObjectsFilePath);
+			await context.AddLinearSerializedFileAsync(FixFilePath);
+			for (int i = -1; i < 9; i++) {
+				await context.AddLinearSerializedFileAsync(GetPuppetPath(i));
+			}
+		}
+
+		public Dictionary<string, string[]> LoadLocalization(Context context) {
+			var langages = new string[]
+			{
+				"English"
+			};
+			var s = context.Deserializer;
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
+			var loc = resf.SerializeResource<Gameloft_RRR_LocalizationTable>(s, default, 3, name: "Localization");
+
+			return loc.LanguageTables.Select((x, i) => new {
+				Lang = langages[i],
+				Strings = x.Strings
+			}).ToDictionary(x => x.Lang, x => x.Strings);
+		}
+
+		public Gameloft_Puppet[] LoadPuppets(Context context) {
+			var s = context.Deserializer;
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
+			var resl = resf.SerializeResource<Gameloft_RRR_PuppetResourceList>(s, default, 2, name: "ResourceList");
+
+			Gameloft_Puppet[] puppets = new Gameloft_Puppet[resl.ResourceList.Length];
+			for (int i = 0; i < puppets.Length; i++) {
+				var rref = resl.ResourceList[i];
+				resf = FileFactory.Read<Gameloft_ResourceFile>(GetPuppetPath(rref.FileID), context);
+				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, rref.ResourceID, name: $"Puppets[{i}]");
+			}
+			return puppets;
 		}
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
@@ -95,12 +130,12 @@ namespace R1Engine
 
 			var s = context.Deserializer;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
-			var lh0 = resf.SerializeResource<Gameloft_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
-			var lh1 = resf.SerializeResource<Gameloft_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
-			var lh2 = resf.SerializeResource<Gameloft_MapLayerHeader>(s, default, 2, onPreSerialize: o => o.Type = Gameloft_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
-			var l0 = resf.SerializeResource<Gameloft_MapLayerData>(s, default, 3, onPreSerialize: o => o.Header = lh0, name: "Layer0");
-			var l1 = resf.SerializeResource<Gameloft_MapLayerData>(s, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
-			var l2 = resf.SerializeResource<Gameloft_MapLayerData>(s, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
+			var lh0 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
+			var lh1 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
+			var lh2 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 2, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
+			var l0 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 3, onPreSerialize: o => o.Header = lh0, name: "Layer0");
+			var l1 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
+			var l2 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
 			
 			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.Settings), context);
 			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
@@ -109,7 +144,7 @@ namespace R1Engine
 			var tileSet_f = GetPuppetImages(ts_f, false);
 			var tileSet_b = GetPuppetImages(ts_b, false);
 			resf = FileFactory.Read<Gameloft_ResourceFile>(ObjectsFilePath, context);
-			var objs = resf.SerializeResource<Gameloft_Objects>(s, default, context.Settings.Level * 2, name: "Objects");
+			var objs = resf.SerializeResource<Gameloft_RRR_Objects>(s, default, context.Settings.Level * 2, name: "Objects");
 			
 			int cellSize = tileSet_f[0][0].width;
 
@@ -161,12 +196,15 @@ namespace R1Engine
 
 			// Load objects
 			var objManager = new Unity_ObjectManager(context); // TODO: Replace with Gameloft manager
+			var puppets = LoadPuppets(context);
+			var graphics = puppets.Select(p => GetCommonDesign(p)).ToArray();
 
 			// Return level
 			return new Unity_Level(
                 maps: maps,
                 objManager: objManager,
-                eventData: objs.Objects.Select((o,i) => (Unity_Object)(new Unity_Object_GameloftRRR(objManager,o,0,i))).ToList(),
+                eventData: objs.Objects.Select((o,i) => (Unity_Object)(new Unity_Object_GameloftRRR(objManager,o))).ToList(),
+				localization: LoadLocalization(context),
 				defaultMap: 1,
 				defaultCollisionMap: 2,
                 cellSize: cellSize);

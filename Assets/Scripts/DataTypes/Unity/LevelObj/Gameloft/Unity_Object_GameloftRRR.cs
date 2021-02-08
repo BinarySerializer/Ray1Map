@@ -7,37 +7,38 @@ namespace R1Engine
 {
     public class Unity_Object_GameloftRRR : Unity_Object
     {
-        public Unity_Object_GameloftRRR(Unity_ObjectManager objManager, Gameloft_Objects.Object obj, int objGroupIndex, int objIndex)
+        public Unity_Object_GameloftRRR(Unity_ObjectManager objManager, Gameloft_RRR_Objects.Object obj)
         {
             ObjManager = objManager;
             Object = obj;
         }
 
         public Unity_ObjectManager ObjManager { get; }
-        public Gameloft_Objects.Object Object { get; set; }
-
-        public bool IsLinked_4 { get; set; }
-        public bool IsLinked_6 { get; set; }
+        public Gameloft_RRR_Objects.Object Object { get; set; }
 
         public override short XPosition
         {
-            get => Object.Shorts[1];
-            set => Object.Shorts[1] = value;
+            get => Object.XPosition;
+            set => Object.XPosition = value;
         }
 
         public override short YPosition
         {
-            get => Object.Shorts[2];
-            set => Object.Shorts[2] = value;
+            get => Object.YPosition;
+            set => Object.YPosition = value;
         }
 
-        public override string DebugText => $"Params: {string.Join(", ",Object.Shorts.Skip(3).Select((s, i) => $"{i}: {s}"))}";
+        public override string DebugText =>
+            $"AnimIndex: {Object.AnimationIndex}{Environment.NewLine}" +
+            $"Unknown: {Object.Unknown}{Environment.NewLine}" +
+            $"Flags: {Object.Flags}{Environment.NewLine}" +
+            $"Params: {string.Join(", ",Object.Shorts.Select(s => $"{s}"))}";
 
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => null;//new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_{(int)Object.Shorts[0]}";
+        public override string PrimaryName => $"Type_{Object.Type}";
         public override string SecondaryName
         {
             get
@@ -46,7 +47,7 @@ namespace R1Engine
             }
         }
 
-        public override bool FlipHorizontally => false;
+        public override bool FlipHorizontally => (Object.Flags & 1) == 1;
         public override bool FlipVertically => false;
 
         public override bool CanBeLinkedToGroup => true;
