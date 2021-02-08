@@ -109,18 +109,20 @@ namespace R1Engine
 			}).ToDictionary(x => x.Lang, x => x.Strings);
 		}
 
-		public Gameloft_Puppet[] LoadPuppets(Context context) {
+		public Unity_ObjectManager_GameloftRRR.PuppetData[] LoadPuppets(Context context) {
 			var s = context.Deserializer;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
 			var resl = resf.SerializeResource<Gameloft_RRR_PuppetResourceList>(s, default, 2, name: "ResourceList");
 
 			Gameloft_Puppet[] puppets = new Gameloft_Puppet[resl.ResourceList.Length];
+			var models = new Unity_ObjectManager_GameloftRRR.PuppetData[resl.ResourceList.Length];
 			for (int i = 0; i < puppets.Length; i++) {
 				var rref = resl.ResourceList[i];
 				resf = FileFactory.Read<Gameloft_ResourceFile>(GetPuppetPath(rref.FileID), context);
 				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, rref.ResourceID, name: $"Puppets[{i}]");
+				models[i] = new Unity_ObjectManager_GameloftRRR.PuppetData(i, rref, GetCommonDesign(puppets[i]));
 			}
-			return puppets;
+			return models;
 		}
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
@@ -195,9 +197,7 @@ namespace R1Engine
             };
 
 			// Load objects
-			var objManager = new Unity_ObjectManager(context); // TODO: Replace with Gameloft manager
-			var puppets = LoadPuppets(context);
-			var graphics = puppets.Select(p => GetCommonDesign(p)).ToArray();
+			var objManager = new Unity_ObjectManager_GameloftRRR(context, LoadPuppets(context));
 
 			// Return level
 			return new Unity_Level(
