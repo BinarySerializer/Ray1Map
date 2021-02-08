@@ -910,7 +910,7 @@ namespace R1Engine
                         Width = map.Width,
                         Height = map.Height,
                         MapTiles = mapData.Select(x => new Unity_Tile(x)).ToArray(),
-                        Layer = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
+                        Layer = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7 && context.Settings.EngineVersion != EngineVersion.GBA_R3_MadTrax) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
                     };
                     if (map.ShouldSetBGAlphaBlending) {
                         maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;

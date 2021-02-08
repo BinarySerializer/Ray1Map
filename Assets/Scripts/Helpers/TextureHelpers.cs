@@ -81,5 +81,22 @@ namespace R1Engine
             img.Flip();
             return img;
         }
+
+        public static Texture2D Crop(this Texture2D tex, RectInt rect, bool destroyTex, bool flipY = true)
+        {
+            var newTex = CreateTexture2D(rect.width - rect.x, rect.height - rect.y);
+
+            if (flipY)
+                rect.y = tex.height - rect.height - rect.y;
+
+            newTex.SetPixels(tex.GetPixels(rect.x, rect.y, rect.width, rect.height));
+
+            newTex.Apply();
+
+            if (destroyTex)
+                Object.DestroyImmediate(tex);
+
+            return newTex;
+        }
     }
 }
