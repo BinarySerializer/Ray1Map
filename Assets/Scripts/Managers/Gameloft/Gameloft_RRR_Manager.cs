@@ -112,15 +112,23 @@ namespace R1Engine
 		public Unity_ObjectManager_GameloftRRR.PuppetData[] LoadPuppets(Context context) {
 			var s = context.Deserializer;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
+			var modl = resf.SerializeResource<Gameloft_RRR_ObjectModelList>(s, default, 1, name: "ObjectModelList");
 			var resl = resf.SerializeResource<Gameloft_RRR_PuppetResourceList>(s, default, 2, name: "ResourceList");
 
 			Gameloft_Puppet[] puppets = new Gameloft_Puppet[resl.ResourceList.Length];
-			var models = new Unity_ObjectManager_GameloftRRR.PuppetData[resl.ResourceList.Length];
 			for (int i = 0; i < puppets.Length; i++) {
 				var rref = resl.ResourceList[i];
 				resf = FileFactory.Read<Gameloft_ResourceFile>(GetPuppetPath(rref.FileID), context);
 				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, rref.ResourceID, name: $"Puppets[{i}]");
-				models[i] = new Unity_ObjectManager_GameloftRRR.PuppetData(i, rref, GetCommonDesign(puppets[i]));
+			}
+			var models = new Unity_ObjectManager_GameloftRRR.PuppetData[modl.Models.Length];
+			for (int i = 0; i < models.Length; i++) {
+				var mod = modl.Models[i];
+				if (mod.ResourceReferenceID != -1) {
+					models[i] = new Unity_ObjectManager_GameloftRRR.PuppetData(i, resl.ResourceList[mod.ResourceReferenceID], GetCommonDesign(puppets[mod.ResourceReferenceID]));
+				} else {
+					models[i] = new Unity_ObjectManager_GameloftRRR.PuppetData(i, null, null);
+				}
 			}
 			return models;
 		}

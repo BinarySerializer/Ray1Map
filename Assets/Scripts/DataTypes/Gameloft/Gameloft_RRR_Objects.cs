@@ -15,7 +15,7 @@
 			public short Type { get; set; }
 			public short XPosition { get; set; }
 			public short YPosition { get; set; }
-			public short Unknown { get; set; }
+			public short ObjectID { get; set; }
 			public short AnimationIndex { get; set; }
 			public short Flags { get; set; }
 
@@ -27,7 +27,7 @@
 				Type = s.Serialize<short>(Type, name: nameof(Type));
 				XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
 				YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
-				Unknown = s.Serialize<short>(Unknown, name: nameof(Unknown));
+				ObjectID = s.Serialize<short>(ObjectID, name: nameof(ObjectID));
 				AnimationIndex = s.Serialize<short>(AnimationIndex, name: nameof(AnimationIndex));
 				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
 

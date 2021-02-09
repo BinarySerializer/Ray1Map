@@ -30,7 +30,7 @@ namespace R1Engine
 
         public override string DebugText =>
             $"AnimIndex: {Object.AnimationIndex}{Environment.NewLine}" +
-            $"Unknown: {Object.Unknown}{Environment.NewLine}" +
+            $"ObjectID: {Object.ObjectID}{Environment.NewLine}" +
             $"Flags: {Object.Flags}{Environment.NewLine}" +
             $"Params: {string.Join(", ",Object.Shorts.Select(s => $"{s}"))}";
 
