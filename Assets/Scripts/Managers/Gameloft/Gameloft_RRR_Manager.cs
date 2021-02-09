@@ -63,32 +63,30 @@ namespace R1Engine
 			new GameInfo_World(0, Enumerable.Range(0, 8).ToArray()),
 		});
 
-		public virtual int[] TileSetIndices => new int[] {
-			0,
-			0,
-			0,
-			0,
-			1,
-			1,
-			2,
-			2
-		};
 
-		public virtual int GetTileSetIndex(GameSettings settings) {
-			return TileSetIndices[settings.Level];
+
+		public Gameloft_RRR_LevelList LoadLevelList(Context context) {
+			var s = context.Deserializer;
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
+			return resf.SerializeResource<Gameloft_RRR_LevelList>(s, default, 0, name: "LevelList");
+		}
+
+		public virtual int GetWorldIndex(GameSettings settings, Gameloft_RRR_LevelList levelList) {
+			return levelList.Levels[settings.Level].World;
 		}
 
 		public string GetLevelPath(GameSettings settings) => $"l0a0{settings.Level+1}";
-		public string GetBackgroundTileSetPath(GameSettings settings) => $"ts{GetTileSetIndex(settings)}";
-		public string GetForegroundTileSetPath(GameSettings settings) => $"t{GetTileSetIndex(settings)}";
+		public string GetBackgroundTileSetPath(GameSettings settings, Gameloft_RRR_LevelList levelList) => $"ts{GetWorldIndex(settings, levelList)}";
+		public string GetForegroundTileSetPath(GameSettings settings, Gameloft_RRR_LevelList levelList) => $"t{GetWorldIndex(settings, levelList)}";
 		public string GetPuppetPath(int i) => i > 0 ?  $"s{i}" : i == 0 ? "d1" : "s";
 
 		public override async UniTask LoadFilesAsync(Context context) {
-			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
-			await context.AddLinearSerializedFileAsync(GetBackgroundTileSetPath(context.Settings));
-			await context.AddLinearSerializedFileAsync(GetForegroundTileSetPath(context.Settings));
-			await context.AddLinearSerializedFileAsync(ObjectsFilePath);
 			await context.AddLinearSerializedFileAsync(FixFilePath);
+			var levelList = LoadLevelList(context);
+			await context.AddLinearSerializedFileAsync(GetBackgroundTileSetPath(context.Settings, levelList));
+			await context.AddLinearSerializedFileAsync(GetForegroundTileSetPath(context.Settings, levelList));
+			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
+			await context.AddLinearSerializedFileAsync(ObjectsFilePath);
 			for (int i = -1; i < 9; i++) {
 				await context.AddLinearSerializedFileAsync(GetPuppetPath(i));
 			}
@@ -139,6 +137,9 @@ namespace R1Engine
 			await Controller.WaitIfNecessary();
 
 			var s = context.Deserializer;
+			var levelList = LoadLevelList(context);
+
+
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
 			var lh0 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
 			var lh1 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
@@ -147,9 +148,9 @@ namespace R1Engine
 			var l1 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
 			var l2 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
 			
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.Settings), context);
+			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.Settings, levelList), context);
 			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.Settings), context);
+			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.Settings, levelList), context);
 			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
 			var tileSet_f = GetPuppetImages(ts_f, false);
 			var tileSet_b = GetPuppetImages(ts_b, false);
