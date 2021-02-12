@@ -213,7 +213,7 @@ namespace R1Engine
                         HitSprite = def.HitSprite,
 
                         PS1Demo_Unk1 = new byte[40],
-                        CollisionTypes = new R1Jaguar_TileCollisionType[5],
+                        CollisionTypes = new R1_TileCollisionType[5],
 
                         CMD_Contexts = new R1_EventData.CommandContext[]
                         {

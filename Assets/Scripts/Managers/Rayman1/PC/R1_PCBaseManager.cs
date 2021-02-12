@@ -1585,7 +1585,7 @@ namespace R1Engine
                     r1Event.PS1Demo_Unk1 = new byte[40];
 
                 if (r1Event.CollisionTypes == null)
-                    r1Event.CollisionTypes = new R1Jaguar_TileCollisionType[5];
+                    r1Event.CollisionTypes = new R1_TileCollisionType[5];
 
                 if (r1Event.CMD_Contexts == null)
                     r1Event.CMD_Contexts = new R1_EventData.CommandContext[]

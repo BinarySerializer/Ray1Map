@@ -121,7 +121,7 @@ namespace R1Engine
 
         public R1_EventType Type { get; set; }
 
-        public R1Jaguar_TileCollisionType[] CollisionTypes { get; set; }
+        public R1_TileCollisionType[] CollisionTypes { get; set; }
 
         public byte Byte_67 { get; set; }
 
@@ -383,7 +383,7 @@ namespace R1Engine
             if (IsPCFormat(s.GameSettings))
                 Type = s.Serialize<R1_EventType>(Type, name: nameof(Type));
 
-            CollisionTypes = s.SerializeArray<R1Jaguar_TileCollisionType>(CollisionTypes, s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3 ? 5 : 1, name: nameof(CollisionTypes));
+            CollisionTypes = s.SerializeArray<R1_TileCollisionType>(CollisionTypes, s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3 ? 5 : 1, name: nameof(CollisionTypes));
             Byte_67 = s.Serialize<byte>(Byte_67, name: nameof(Byte_67));
 
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
@@ -576,7 +576,7 @@ namespace R1Engine
             {
                 new CommandContext()
             };
-            CollisionTypes = new R1Jaguar_TileCollisionType[5];
+            CollisionTypes = new R1_TileCollisionType[5];
 
             Commands = new R1_EventCommandCollection()
             {
@@ -651,7 +651,7 @@ namespace R1Engine
             {
                 new CommandContext()
             };
-            CollisionTypes = new R1Jaguar_TileCollisionType[5];
+            CollisionTypes = new R1_TileCollisionType[5];
 
             Commands = new R1_EventCommandCollection()
             {
