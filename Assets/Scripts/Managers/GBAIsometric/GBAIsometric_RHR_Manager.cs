@@ -518,6 +518,9 @@ namespace R1Engine
 
                 // Add waypoints
                 allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_Object)new Unity_Object_GBAIsometricRHRWaypoint(x, objManager)));
+
+                // Add child objects
+                allObjects.AddRange(levelData.Objects.SelectMany((x, i) => CreateChildObjects(x, objManager)));
             }
 
             Controller.DetailedState = $"Loading localization";
@@ -537,6 +540,31 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: loc,
                 isometricData: isometricData);
+        }
+
+        public IEnumerable<Unity_Object_GBAIsometricRHR> CreateChildObjects(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometricRHR objManager)
+        {
+            if (obj.ObjectType == 60 || obj.ObjectType == 61 || obj.ObjectType == 69 || // gate1NE1
+                obj.ObjectType == 62 || obj.ObjectType == 70 || // gate1NW1
+                obj.ObjectType == 63 || obj.ObjectType == 71 || // gate2NE1
+                obj.ObjectType == 64 || obj.ObjectType == 72 || // gate2NW1
+                obj.ObjectType == 65 || obj.ObjectType == 73 || // gate3NE1
+                obj.ObjectType == 66 || obj.ObjectType == 74 || // gate3NW1
+                obj.ObjectType == 67 || obj.ObjectType == 75 || // gate4NE1
+                obj.ObjectType == 68 || obj.ObjectType == 76) // gate4NW1
+                yield return new Unity_Object_GBAIsometricRHR(createClone(), objManager, true, 4);
+
+            // Helper for creating a clone
+            GBAIsometric_Object createClone() => new GBAIsometric_Object()
+            {
+                XPosition = obj.XPosition,
+                YPosition = obj.YPosition,
+                Height = obj.Height,
+                ObjectType = obj.ObjectType,
+                WaypointIndex = obj.WaypointIndex,
+                WaypointCount = obj.WaypointCount,
+                LinkIndex = obj.LinkIndex,
+            };
         }
 
         public IEnumerable<Unity_ObjectManager_GBAIsometricRHR.AnimSet> GetAnimSets(Context context, GBAIsometric_RHR_ROM rom)

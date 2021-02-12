@@ -7,14 +7,15 @@ namespace R1Engine
 {
     public class Unity_Object_GBAIsometricRHR : Unity_Object_3D
     {
-        public Unity_Object_GBAIsometricRHR(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometricRHR objManager)
+        public Unity_Object_GBAIsometricRHR(GBAIsometric_Object obj, Unity_ObjectManager_GBAIsometricRHR objManager, bool isChildObj = false, byte? animIndex = null)
         {
             Object = obj;
             ObjManager = objManager;
+            IsChildObj = isChildObj;
 
             var type = ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
             AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.Data?.AnimSetPointer?.pointer);
-            AnimIndex = type?.Data?.AnimationIndex ?? 0;
+            AnimIndex = animIndex ?? type?.Data?.AnimationIndex ?? 0;
         }
 
         public GBAIsometric_Object Object { get; }
@@ -61,6 +62,7 @@ namespace R1Engine
         public Unity_ObjectManager_GBAIsometricRHR.AnimSet AnimSet => ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
 
         public bool IsWaypoint => ObjManager.Context.Settings.EngineVersion != EngineVersion.GBAIsometric_RHR && Object.ObjectType == 0;
+        public bool IsChildObj { get; }
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
@@ -69,6 +71,7 @@ namespace R1Engine
         public override string SecondaryName => null;
 
         public override bool IsEditor => IsWaypoint;
+        public override bool IsAlways => IsChildObj;
         public override ObjectType Type => IsWaypoint ? ObjectType.Waypoint : ObjectType.Object;
 
         public override bool CanBeLinked => true;
