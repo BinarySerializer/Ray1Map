@@ -4,8 +4,8 @@ using System.Linq;
 namespace R1Engine
 {
 	public class Gameloft_Level3D : Gameloft_Resource {
-		public ushort Structs0Count { get; set; }
-		public Struct0[] Structs0 { get; set; }
+		public ushort TrackLength { get; set; }
+		public TrackBlock[] TrackBlocks { get; set; }
 		public byte Structs12Count { get; set; }
 		public byte BM_Byte0 { get; set; }
 		public bool BM_Bool1 { get; set; }
@@ -18,9 +18,9 @@ namespace R1Engine
 		public byte aUCount { get; set; }
 		public byte bB { get; set; }
 		public RGB888Color Color_bC { get; set; }
-		public RGB888Color Color_bD { get; set; }
+		public RGB888Color Color_bD_Road1 { get; set; }
 		public RGB888Color Color_bA { get; set; }
-		public RGB888Color Color_bE { get; set; }
+		public RGB888Color Color_bE_Road2 { get; set; }
 		public RGB888Color Color_bF { get; set; }
 		public short bG { get; set; }
 		public short aU_2 { get; set; }
@@ -71,18 +71,18 @@ namespace R1Engine
 		public Struct9[] cI { get; set; }
 		public Struct10[] cJ { get; set; }
 		public byte Structs11Count { get; set; }
-		public Struct11[] Structs11 { get; set; }
+		public Type[] Types { get; set; }
 		public Struct12[] Structs12 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			Structs0Count = s.Serialize<ushort>(Structs0Count, name: nameof(Structs0Count));
-			Structs0 = s.SerializeObjectArray<Struct0>(Structs0, Structs0Count, name: nameof(Structs0));
+			TrackLength = s.Serialize<ushort>(TrackLength, name: nameof(TrackLength));
+			TrackBlocks = s.SerializeObjectArray<TrackBlock>(TrackBlocks, TrackLength, name: nameof(TrackBlocks));
 			Structs12Count = s.Serialize<byte>(Structs12Count, name: nameof(Structs12Count));
 			BM_Byte0 = s.Serialize<byte>(BM_Byte0, name: nameof(BM_Byte0));
 			BM_Bool1 = s.Serialize<bool>(BM_Bool1, name: nameof(BM_Bool1));
 			BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
 			BM_Byte3 = s.Serialize<byte>(BM_Byte3, name: nameof(BM_Byte3));
-			BM_Struct0Bytes = s.SerializeArray<byte>(BM_Struct0Bytes, Structs0Count - 1, name: nameof(BM_Struct0Bytes));
+			BM_Struct0Bytes = s.SerializeArray<byte>(BM_Struct0Bytes, TrackLength - 1, name: nameof(BM_Struct0Bytes));
 			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240) {
 				RoadTextureID_Night = s.Serialize<byte>(RoadTextureID_Night, name: nameof(RoadTextureID_Night));
 				RoadTextureID_Day = s.Serialize<byte>(RoadTextureID_Day, name: nameof(RoadTextureID_Day));
@@ -91,9 +91,9 @@ namespace R1Engine
 			aUCount = s.Serialize<byte>(aUCount, name: nameof(aUCount));
 			bB = s.Serialize<byte>(bB, name: nameof(bB));
 			Color_bC = s.SerializeObject<RGB888Color>(Color_bC, name: nameof(Color_bC));
-			Color_bD = s.SerializeObject<RGB888Color>(Color_bD, name: nameof(Color_bD));
+			Color_bD_Road1 = s.SerializeObject<RGB888Color>(Color_bD_Road1, name: nameof(Color_bD_Road1));
 			Color_bA = s.SerializeObject<RGB888Color>(Color_bA, name: nameof(Color_bA));
-			Color_bE = s.SerializeObject<RGB888Color>(Color_bE, name: nameof(Color_bE));
+			Color_bE_Road2 = s.SerializeObject<RGB888Color>(Color_bE_Road2, name: nameof(Color_bE_Road2));
 			Color_bF = s.SerializeObject<RGB888Color>(Color_bF, name: nameof(Color_bF));
 			bG = s.Serialize<short>(bG, name: nameof(bG));
 			aU_2 = s.Serialize<short>(aU_2, name: nameof(aU_2));
@@ -131,7 +131,7 @@ namespace R1Engine
 			BackgroundLayers = s.SerializeObjectArray<BackgroundLayer>(BackgroundLayers, aUCount, name: nameof(BackgroundLayers));
 			bs_Struct0_BackgroundIndex = s.SerializeArraySize<byte[],byte>(bs_Struct0_BackgroundIndex, name: nameof(bs_Struct0_BackgroundIndex));
 			for (int i = 0; i < bs_Struct0_BackgroundIndex.Length; i++) {
-				bs_Struct0_BackgroundIndex[i] = s.SerializeArray<byte>(bs_Struct0_BackgroundIndex[i], Structs0Count, name: $"{nameof(bs_Struct0_BackgroundIndex)}[{i}]");
+				bs_Struct0_BackgroundIndex[i] = s.SerializeArray<byte>(bs_Struct0_BackgroundIndex[i], TrackLength, name: $"{nameof(bs_Struct0_BackgroundIndex)}[{i}]");
 			}
 			Structs4Count = s.Serialize<byte>(Structs4Count, name: nameof(Structs4Count));
 			Structs4 = s.SerializeObjectArray<Struct4>(Structs4, Structs4Count, name: nameof(Structs4));
@@ -145,25 +145,38 @@ namespace R1Engine
 			Structs8 = s.SerializeObjectArray<Struct8>(Structs8, Structs8Count, name: nameof(Structs8));
 			cF = s.Serialize<ushort>(cF, name: nameof(cF));
 			cI = s.SerializeObjectArray<Struct9>(cI, cF, name: nameof(cI));
-			if(cF > 0) cJ = s.SerializeObjectArray<Struct10>(cJ, Structs0Count, name: nameof(cJ));
+			if(cF > 0) cJ = s.SerializeObjectArray<Struct10>(cJ, TrackLength, name: nameof(cJ));
 			Structs11Count = s.Serialize<byte>(Structs11Count, name: nameof(Structs11Count));
-			Structs11 = s.SerializeObjectArray<Struct11>(Structs11, Structs11Count, name: nameof(Structs11));
+			Types = s.SerializeObjectArray<Type>(Types, Structs11Count, name: nameof(Types));
 			Structs12 = s.SerializeObjectArray<Struct12>(Structs12, Structs12Count, name: nameof(Structs12));
 		}
 
-		public class Struct0 : R1Serializable {
-			public sbyte XPosition { get; set; }
-			public sbyte YPosition { get; set; }
-			public byte Flags1 { get; set; }
-			public byte Flags2 { get; set; }
+		public class TrackBlock : R1Serializable {
+			public sbyte DeltaRotation { get; set; }
+			public sbyte DeltaHeight { get; set; }
+			public byte Type { get; set; }
+			public TurnFlags Flags { get; set; }
 			public short Unknown { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
-				YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));
-				Flags1 = s.Serialize<byte>(Flags1, name: nameof(Flags1));
-				Flags2 = s.Serialize<byte>(Flags2, name: nameof(Flags2));
+				DeltaRotation = s.Serialize<sbyte>(DeltaRotation, name: nameof(DeltaRotation));
+				DeltaHeight = s.Serialize<sbyte>(DeltaHeight, name: nameof(DeltaHeight));
+				Type = s.Serialize<byte>(Type, name: nameof(Type));
+				Flags = s.Serialize<TurnFlags>(Flags, name: nameof(Flags));
 				Unknown = s.Serialize<short>(Unknown, name: nameof(Unknown));
+			}
+
+			[Flags]
+			public enum TurnFlags : byte {
+				None,
+				Flag0 = 1 << 0,
+				Effect = 1 << 1, // Snow in Frozen Highway, Rain in Murky Swamp, Bubbles in Shipwreck Track
+				DrawRocksOnRight = 1 << 2,
+				DrawRocksOnLeft = 1 << 3,
+				Flag4 = 1 << 4,
+				TurnRight = 1 << 5,
+				TurnLeft = 1 << 6,
+				Flag7 = 1 << 7
 			}
 		}
 
@@ -278,12 +291,18 @@ namespace R1Engine
 
 		public class Struct7 : R1Serializable {
 			public byte Count { get; set; }
-			public short Short1 { get; set; }
+			public ushort UShort1 { get; set; }
+			public ushort UShort2 { get; set; }
+			public ushort UShort3 { get; set; }
 			public Entry[] Entries { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<byte>(Count, name: nameof(Count));
-				Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+				s.SerializeBitValues<ushort>(bitFunc => {
+					UShort1 = (ushort)bitFunc(UShort1, 7, name: nameof(UShort1));
+					UShort2 = (ushort)bitFunc(UShort2, 7, name: nameof(UShort2));
+					UShort3 = (ushort)bitFunc(UShort3, 2, name: nameof(UShort3));
+				});
 				Entries = s.SerializeObjectArray<Entry>(Entries, Count, name: nameof(Entries));
 			}
 			public class Entry : R1Serializable {
@@ -349,7 +368,7 @@ namespace R1Engine
 				});
 			}
 		}
-		public class Struct11 : R1Serializable {
+		public class Type : R1Serializable {
 			public short Short0 { get; set; }
 
 			// Lowres only
@@ -359,7 +378,7 @@ namespace R1Engine
 
 			public short Short2 { get; set; }
 			public byte Byte4 { get; set; }
-			public RGB888Color Color5 { get; set; }
+			public RGB888Color ColorGround { get; set; }
 			public RGB888Color Color8 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
@@ -371,7 +390,7 @@ namespace R1Engine
 				}
 				Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
 				Byte4 = s.Serialize<byte>(Byte4, name: nameof(Byte4));
-				Color5 = s.SerializeObject<RGB888Color>(Color5, name: nameof(Color5));
+				ColorGround = s.SerializeObject<RGB888Color>(ColorGround, name: nameof(ColorGround));
 				Color8 = s.SerializeObject<RGB888Color>(Color8, name: nameof(Color8));
 			}
 
