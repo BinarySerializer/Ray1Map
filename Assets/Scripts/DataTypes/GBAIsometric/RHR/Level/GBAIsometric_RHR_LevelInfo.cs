@@ -8,9 +8,9 @@ namespace R1Engine
 
         public Pointer<GBAIsometric_RHR_LevelData> LevelDataPointer { get; set; }
 
-        public short MurfyStampScore1 { get; set; }
-        public short MurfyStampScore2 { get; set; }
-        public short MurfyStampScore3 { get; set; }
+        public ushort MurfyStampScore1 { get; set; }
+        public ushort MurfyStampScore2 { get; set; }
+        public ushort MurfyStampScore3 { get; set; }
 
         public short Short_0A { get; set; }
 
@@ -37,9 +37,9 @@ namespace R1Engine
         {
             LevelDataPointer = s.SerializePointer<GBAIsometric_RHR_LevelData>(LevelDataPointer, resolve: SerializeData, name: nameof(LevelDataPointer));
 
-            MurfyStampScore1 = s.Serialize<short>(MurfyStampScore1, name: nameof(MurfyStampScore1));
-            MurfyStampScore2 = s.Serialize<short>(MurfyStampScore2, name: nameof(MurfyStampScore2));
-            MurfyStampScore3 = s.Serialize<short>(MurfyStampScore3, name: nameof(MurfyStampScore3));
+            MurfyStampScore1 = s.Serialize<ushort>(MurfyStampScore1, name: nameof(MurfyStampScore1));
+            MurfyStampScore2 = s.Serialize<ushort>(MurfyStampScore2, name: nameof(MurfyStampScore2));
+            MurfyStampScore3 = s.Serialize<ushort>(MurfyStampScore3, name: nameof(MurfyStampScore3));
 
             Short_0A = s.Serialize<short>(Short_0A, name: nameof(Short_0A));
             Short_0C = s.Serialize<ushort>(Short_0C, name: nameof(Short_0C));
