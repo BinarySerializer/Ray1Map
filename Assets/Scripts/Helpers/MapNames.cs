@@ -50,6 +50,9 @@ namespace R1Engine
                 case Game.GBAVV_Crash2:
                     return Crash2GBANames;
 
+                case Game.Gameloft_RK:
+                    return RaymanKartNames;
+
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
                 case Game.R1_60Levels:
@@ -876,6 +879,29 @@ namespace R1Engine
 
                 [42] = "Time attack map", // 32
                 [43] = "World map", // -1
+            },
+        };
+
+
+
+        private static Dictionary<int, Dictionary<int, string>> RaymanKartNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [0] = "Dreamy Forest - Easy",
+                [1] = "Dreamy Forest - Hard",
+                [2] = "Rockslide Race - Easy",
+                [3] = "Rockslide Race - Hard",
+                [4] = "Sanctuary of Fire - Easy",
+                [5] = "Sanctuary of Fire - Hard",
+                [6] = "Frozen Highway - Easy",
+                [7] = "Frozen Highway - Hard",
+                [8] = "Shipwreck Track - Easy",
+                [9] = "Shipwreck Track - Hard",
+                [10] = "Murky Swamp - Easy",
+                [11] = "Murky Swamp - Hard",
+                [12] = "Moonlight Pass - Easy",
+                [13] = "Moonlight Pass - Hard",
+                [14] = "Rabbid Battlefield - Easy",
+                [15] = "Rabbid Battlefield - Hard",
             },
         };
 

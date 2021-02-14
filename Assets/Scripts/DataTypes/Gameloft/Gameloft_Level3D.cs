@@ -11,9 +11,9 @@ namespace R1Engine
 		public bool BM_Bool1 { get; set; }
 		public byte BM_Byte2 { get; set; }
 		public byte BM_Byte3 { get; set; }
-		public byte[] BM_Struct0Bytes { get; set; } // Struct0Count - 1
-		public byte RoadTextureID_Night { get; set; } // Resource ID in the RoadTexturesID
-		public byte RoadTextureID_Day { get; set; }
+		public TrackMapping[] MapSpriteMapping { get; set; } // Struct0Count - 1
+		public byte RoadTextureID_0 { get; set; } // Resource ID in the RoadTexturesID
+		public byte RoadTextureID_1 { get; set; }
 		public byte aW { get; set; }
 		public byte aUCount { get; set; }
 		public byte bB { get; set; }
@@ -32,12 +32,12 @@ namespace R1Engine
 		public RGB888Color Color_afterbK_0 { get; set; }
 		public RGB888Color Color_afterbK_1 { get; set; }
 		public byte bL { get; set; }
-		public RGB888Color Color_bH { get; set; }
-		public RGB888Color Color_bI { get; set; }
+		public RGB888Color Color_bH_TunnelDark { get; set; }
+		public RGB888Color Color_bI_TunnelLight { get; set; }
 		public byte byte_afterBI { get; set; }
 
-		public RGB888Color Color_dj { get; set; }
-		public RGB888Color Color_dk { get; set; }
+		public RGB888Color Color_dj_BridgeDark { get; set; }
+		public RGB888Color Color_dk_BridgeLight { get; set; }
 		public byte dl { get; set; }
 		public byte dm { get; set; }
 
@@ -65,11 +65,11 @@ namespace R1Engine
 		public Struct6[] Structs6 { get; set; }
 		public ushort Structs7Count { get; set; }
 		public Struct7[] Structs7 { get; set; }
-		public ushort Structs8Count { get; set; }
-		public Struct8[] Structs8 { get; set; }
+		public ushort TrackObjectsCount { get; set; }
+		public TrackObject[] TrackObjects { get; set; }
 		public ushort cF { get; set; }
-		public Struct9[] cI { get; set; }
-		public Struct10[] cJ { get; set; }
+		public TrackObjectInstance[] TrackObjectInstances { get; set; }
+		public TrackObjectCollection[] TrackObjectCollections { get; set; }
 		public byte Structs11Count { get; set; }
 		public Type[] Types { get; set; }
 		public Struct12[] Structs12 { get; set; }
@@ -82,10 +82,10 @@ namespace R1Engine
 			BM_Bool1 = s.Serialize<bool>(BM_Bool1, name: nameof(BM_Bool1));
 			BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
 			BM_Byte3 = s.Serialize<byte>(BM_Byte3, name: nameof(BM_Byte3));
-			BM_Struct0Bytes = s.SerializeArray<byte>(BM_Struct0Bytes, TrackLength - 1, name: nameof(BM_Struct0Bytes));
+			MapSpriteMapping = s.SerializeObjectArray<TrackMapping>(MapSpriteMapping, TrackLength - 1, name: nameof(MapSpriteMapping));
 			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240) {
-				RoadTextureID_Night = s.Serialize<byte>(RoadTextureID_Night, name: nameof(RoadTextureID_Night));
-				RoadTextureID_Day = s.Serialize<byte>(RoadTextureID_Day, name: nameof(RoadTextureID_Day));
+				RoadTextureID_0 = s.Serialize<byte>(RoadTextureID_0, name: nameof(RoadTextureID_0));
+				RoadTextureID_1 = s.Serialize<byte>(RoadTextureID_1, name: nameof(RoadTextureID_1));
 			}
 			aW = s.Serialize<byte>(aW, name: nameof(aW));
 			aUCount = s.Serialize<byte>(aUCount, name: nameof(aUCount));
@@ -105,12 +105,12 @@ namespace R1Engine
 			Color_afterbK_0 = s.SerializeObject<RGB888Color>(Color_afterbK_0, name: nameof(Color_afterbK_0));
 			Color_afterbK_1 = s.SerializeObject<RGB888Color>(Color_afterbK_1, name: nameof(Color_afterbK_1));
 			bL = s.Serialize<byte>(bL, name: nameof(bL));
-			Color_bH = s.SerializeObject<RGB888Color>(Color_bH, name: nameof(Color_bH));
-			Color_bI = s.SerializeObject<RGB888Color>(Color_bI, name: nameof(Color_bI));
+			Color_bH_TunnelDark = s.SerializeObject<RGB888Color>(Color_bH_TunnelDark, name: nameof(Color_bH_TunnelDark));
+			Color_bI_TunnelLight = s.SerializeObject<RGB888Color>(Color_bI_TunnelLight, name: nameof(Color_bI_TunnelLight));
 			byte_afterBI = s.Serialize<byte>(byte_afterBI, name: nameof(byte_afterBI));
 			if (BitHelpers.ExtractBits(aW, 1, 2) == 1) {
-				Color_dj = s.SerializeObject<RGB888Color>(Color_dj, name: nameof(Color_dj));
-				Color_dk = s.SerializeObject<RGB888Color>(Color_dk, name: nameof(Color_dk));
+				Color_dj_BridgeDark = s.SerializeObject<RGB888Color>(Color_dj_BridgeDark, name: nameof(Color_dj_BridgeDark));
+				Color_dk_BridgeLight = s.SerializeObject<RGB888Color>(Color_dk_BridgeLight, name: nameof(Color_dk_BridgeLight));
 				dl = s.Serialize<byte>(dl, name: nameof(dl));
 				dm = s.Serialize<byte>(dm, name: nameof(dm));
 			}
@@ -141,11 +141,11 @@ namespace R1Engine
 			Structs6 = s.SerializeObjectArray<Struct6>(Structs6, Structs6Count, name: nameof(Structs6));
 			Structs7Count = s.Serialize<ushort>(Structs7Count, name: nameof(Structs7Count));
 			Structs7 = s.SerializeObjectArray<Struct7>(Structs7, Structs7Count, name: nameof(Structs7));
-			Structs8Count = s.Serialize<ushort>(Structs8Count, name: nameof(Structs8Count));
-			Structs8 = s.SerializeObjectArray<Struct8>(Structs8, Structs8Count, name: nameof(Structs8));
+			TrackObjectsCount = s.Serialize<ushort>(TrackObjectsCount, name: nameof(TrackObjectsCount));
+			TrackObjects = s.SerializeObjectArray<TrackObject>(TrackObjects, TrackObjectsCount, name: nameof(TrackObjects));
 			cF = s.Serialize<ushort>(cF, name: nameof(cF));
-			cI = s.SerializeObjectArray<Struct9>(cI, cF, name: nameof(cI));
-			if(cF > 0) cJ = s.SerializeObjectArray<Struct10>(cJ, TrackLength, name: nameof(cJ));
+			TrackObjectInstances = s.SerializeObjectArray<TrackObjectInstance>(TrackObjectInstances, cF, name: nameof(TrackObjectInstances));
+			if(cF > 0) TrackObjectCollections = s.SerializeObjectArray<TrackObjectCollection>(TrackObjectCollections, TrackLength, name: nameof(TrackObjectCollections));
 			Structs11Count = s.Serialize<byte>(Structs11Count, name: nameof(Structs11Count));
 			Types = s.SerializeObjectArray<Type>(Types, Structs11Count, name: nameof(Types));
 			Structs12 = s.SerializeObjectArray<Struct12>(Structs12, Structs12Count, name: nameof(Structs12));
@@ -177,6 +177,32 @@ namespace R1Engine
 				TurnRight = 1 << 5,
 				TurnLeft = 1 << 6,
 				Flag7 = 1 << 7
+			}
+		}
+
+		public class TrackMapping : R1Serializable {
+			public byte YDelta { get; set; }
+			public byte XDelta { get; set; }
+			public bool YDeltaSign { get; set; }
+			public bool XDeltaSign { get; set; }
+
+			public UnityEngine.Vector2Int Vector2 {
+				get {
+					int y = YDelta;
+					int x = XDelta;
+					if (XDeltaSign) x = -x;
+					if (YDeltaSign) y = -y;
+					return new UnityEngine.Vector2Int(x,y);
+				}
+			}
+
+			public override void SerializeImpl(SerializerObject s) {
+				s.SerializeBitValues<byte>(bitFunc => {
+					YDelta = (byte)bitFunc(YDelta, 3, name: nameof(YDelta));
+					XDelta = (byte)bitFunc(XDelta, 3, name: nameof(XDelta));
+					YDeltaSign = bitFunc(YDeltaSign ? 1 : 0, 1, name: nameof(YDeltaSign)) == 1;
+					XDeltaSign = bitFunc(XDeltaSign ? 1 : 0, 1, name: nameof(XDeltaSign)) == 1;
+				});
 			}
 		}
 
@@ -333,37 +359,37 @@ namespace R1Engine
 		}
 
 
-		public class Struct8 : R1Serializable {
-			public byte Byte0 { get; set; }
-			public short Short1 { get; set; }
+		public class TrackObject : R1Serializable {
+			public byte ObjectType { get; set; }
+			public short XPosition { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Byte0 = s.Serialize<byte>(Byte0, name: nameof(Byte0));
-				Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+				ObjectType = s.Serialize<byte>(ObjectType, name: nameof(ObjectType));
+				XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
 			}
 		}
-		public class Struct9 : R1Serializable {
-			public short Struct8Index { get; set; }
+		public class TrackObjectInstance : R1Serializable {
+			public short TrackObjectIndex { get; set; }
 			public int Int0 { get; set; }
 			public int Int1 { get; set; }
 			public int Int2 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				s.SerializeBitValues<short>(bitFunc => {
-					Struct8Index = (short)bitFunc(Struct8Index, 11, name: nameof(Struct8Index));
-					Int0 = bitFunc(Int0, 1, name: nameof(Int0));
-					Int1 = bitFunc(Int1, 3, name: nameof(Int1));
-					Int2 = bitFunc(Int2, 1, name: nameof(Int2));
+					TrackObjectIndex = (short)bitFunc(TrackObjectIndex, 11, name: nameof(TrackObjectIndex));
+					Int0 = bitFunc(Int0, 5, name: nameof(Int0));
+					//Int1 = bitFunc(Int1, 3, name: nameof(Int1));
+					//Int2 = bitFunc(Int2, 1, name: nameof(Int2));
 				});
 			}
 		}
-		public class Struct10 : R1Serializable {
-			public short cI_Index { get; set; }
+		public class TrackObjectCollection : R1Serializable {
+			public short InstanceIndex { get; set; }
 			public int Count { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				s.SerializeBitValues<short>(bitFunc => {
-					cI_Index = (short)bitFunc(cI_Index, 11, name: nameof(cI_Index));
+					InstanceIndex = (short)bitFunc(InstanceIndex, 11, name: nameof(InstanceIndex));
 					Count = bitFunc(Count, 5, name: nameof(Count));
 				});
 			}
