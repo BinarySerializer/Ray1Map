@@ -71,6 +71,7 @@ namespace R1Engine
         GBAIsometric_Spyro1, // Season of Ice
         GBAIsometric_Spyro2, // Season of Flame
         GBAIsometric_Spyro3, // Spyro's Adventure/Attack of the Rhynocs
+        GBAIsometric_Tron2,
         GBAIsometric_RHR,
 
         // GBC

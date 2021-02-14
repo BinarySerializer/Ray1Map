@@ -379,6 +379,10 @@ namespace R1Engine
                     case 0x0803BE29: return Spyro2_102;
                 }
             }
+            else if (settings.EngineVersion == EngineVersion.GBAIsometric_Tron2)
+            {
+                return (x, y) => x.AnimSetIndex = 0;
+            }
 
             return (x, y) => x.AnimSetIndex = -1;
         }

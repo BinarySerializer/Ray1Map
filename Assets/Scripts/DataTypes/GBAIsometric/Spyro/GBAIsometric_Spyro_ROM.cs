@@ -63,7 +63,8 @@ namespace R1Engine
             s.Context.StoreObject(nameof(DataTable), DataTable);
 
             // Serialize the localization data
-            Localization = s.SerializeObject<GBAIsometric_Spyro_Localization>(Localization, name: nameof(Localization));
+            if (s.GameSettings.EngineVersion != EngineVersion.GBAIsometric_Tron2)
+                Localization = s.SerializeObject<GBAIsometric_Spyro_Localization>(Localization, name: nameof(Localization));
 
             var id = GetLevelDataID(s.GameSettings);
 
@@ -71,7 +72,7 @@ namespace R1Engine
             LevelData = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelData), () => s.SerializeObject(LevelData, x =>
             {
                 x.Length = manager.LevelDataCount;
-                x.UesPointerArray = true;
+                x.UsesPointerArray = true;
                 x.Is2D = false;
                 x.SerializeDataForID = s.GameSettings.World != 0 ? -1 : id;
             }, name: nameof(LevelData)));
@@ -83,7 +84,7 @@ namespace R1Engine
                 LevelData_Spyro2_Agent9 = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9], () => s.SerializeObject(LevelData_Spyro2_Agent9, x =>
                 {
                     x.Length = 4;
-                    x.UesPointerArray = false;
+                    x.UsesPointerArray = false;
                     x.Is2D = true;
                     x.SerializeDataForID = s.GameSettings.World != 1 ? -1 : id;
                     x.AssignIDAsIndex = true;
@@ -112,7 +113,7 @@ namespace R1Engine
                 LevelData_Spyro3_Agent9 = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData_Spyro3_Agent9], () => s.SerializeObject(LevelData_Spyro3_Agent9, x =>
                 {
                     x.Length = 4;
-                    x.UesPointerArray = true;
+                    x.UsesPointerArray = true;
                     x.Is2D = true;
                     x.SerializeDataForID = s.GameSettings.World != 1 ? -1 : id;
                 }, name: nameof(LevelData_Spyro3_Agent9)));
@@ -127,7 +128,7 @@ namespace R1Engine
                 LevelData_Spyro3_SgtByrd = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData_Spyro3_SgtByrd], () => s.SerializeObject(LevelData_Spyro3_SgtByrd, x =>
                 {
                     x.Length = 13;
-                    x.UesPointerArray = true;
+                    x.UsesPointerArray = true;
                     x.Is2D = true;
                     x.SerializeDataForID = s.GameSettings.World != 2 && s.GameSettings.World != 3 ? -1 : id;
                 }, name: nameof(LevelData_Spyro3_SgtByrd)));

@@ -26,7 +26,7 @@ namespace R1Engine
 
             Map = MapIndex.DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro_SpriteMap>(Map, name: nameof(Map)));
             TileSet = TileSetIndex.DoAtBlock(size => s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
-            Palette = PaletteIndex.DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Palette, 16, name: nameof(Palette)));
+            Palette = PaletteIndex.DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Palette, size / 2, name: nameof(Palette)));
         }
 
         public Texture2D ToTexture2D()

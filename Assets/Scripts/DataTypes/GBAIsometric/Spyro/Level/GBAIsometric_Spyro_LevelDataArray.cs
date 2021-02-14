@@ -3,7 +3,7 @@
     public class GBAIsometric_Spyro_LevelDataArray : R1Serializable
     {
         // Set before serializing
-        public bool UesPointerArray { get; set; }
+        public bool UsesPointerArray { get; set; }
         public bool Is2D { get; set; }
         public int Length { get; set; }
         public int SerializeDataForID { get; set; }
@@ -13,7 +13,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (UesPointerArray)
+            if (UsesPointerArray)
             {
                 var pointers = s.SerializePointerArray(default, Length, name: $"{nameof(LevelData)}Pointers");
 

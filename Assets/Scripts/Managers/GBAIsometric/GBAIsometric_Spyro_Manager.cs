@@ -197,7 +197,7 @@ namespace R1Engine
 
         public async UniTask ExportAnimSetAsync(string outputPath, GBAIsometric_Spyro_AnimSet animSet, Color[][][] pal)
         {
-            if (animSet == null)
+            if (animSet?.AnimGroupsPointer == null)
                 return;
 
             for (int a = 0; a < animSet.AnimBlock.Animations.Length; a++)
@@ -507,7 +507,7 @@ namespace R1Engine
         {
             var langages = GetLanguages.ToArray();
 
-            return rom.Localization.LocBlocks?.Select((x, i) => new
+            return rom.Localization?.LocBlocks?.Select((x, i) => new
             {
                 Lang = langages[i],
                 Strings = x.Strings
@@ -525,13 +525,13 @@ namespace R1Engine
             {
                 var animSetIndex = index;
 
-                yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock.Animations.Select((x, i) =>
+                yield return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet(animSet, animSet.AnimBlock?.Animations.Select((x, i) =>
                 {
                     return new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation(
                         animFrameFunc: () => GetAnimationFrames(animSet, x, animSetPalettes[animSetIndex][Mathf.Clamp(i, 0, animSetPalettes[animSetIndex].Length - 1)]).Select(f => f.CreateSprite()).ToArray(),
                         animSpeed: x.AnimSpeed,
                         positions: GetFramePositions(x));
-                }).ToArray());
+                }).ToArray() ?? new Unity_ObjectManager_GBAIsometricSpyro.AnimSet.Animation[0]);
 
                 index++;
             }
@@ -542,7 +542,7 @@ namespace R1Engine
         {
             var animSetPalettes = new Color[rom.AnimSets.Length][][][];
 
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 || context.Settings.EngineVersion == EngineVersion.GBAIsometric_Tron2)
             {
                 var objPal = rom.GetLevelData(context.Settings).ObjPalette;
                 var pal = Util.ConvertAndSplitGBAPalette(objPal);

@@ -24,6 +24,9 @@ namespace R1Engine
             FrameImagesIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(FrameImagesIndex, name: nameof(FrameImagesIndex));
             s.Serialize<ushort>(default, name: "Padding");
 
+            if (AnimGroupsPointer == null)
+                return;
+
             TileSet = TileSetIndex.DoAtBlock(size => s.SerializeArray<byte>(TileSet, size, name: nameof(TileSet)));
             AnimBlock = AnimBlockIndex.DoAtBlock(size =>
             {

@@ -870,6 +870,28 @@ namespace R1Engine
                         [GBAIsometric_Spyro_Pointer.QuestItems] = 0x081c009c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.Tron2KillerAppEU:
+                case GameModeSelection.Tron2KillerAppUS:
+                    return new Dictionary<GBAIsometric_Spyro_Pointer, uint>() {
+                        [GBAIsometric_Spyro_Pointer.DataTable] = 0x0812534c,
+
+                        //[GBAIsometric_Spyro_Pointer.LocalizationBlockIndices] = ,
+                        //[GBAIsometric_Spyro_Pointer.LocalizationDecompressionBlockIndices] = ,
+                        //[GBAIsometric_Spyro_Pointer.LocTables] = ,
+
+                        [GBAIsometric_Spyro_Pointer.ObjectTypes] = 0x0812c5f8,
+                        [GBAIsometric_Spyro_Pointer.AnimSets] = 0x0812bff8,
+
+                        [GBAIsometric_Spyro_Pointer.PortraitSprites] = 0x08124410 + 16, // First one is null
+                        //[GBAIsometric_Spyro_Pointer.DialogEntries] = ,
+
+                        //[GBAIsometric_Spyro_Pointer.LevelNameInfos] = ,
+
+                        [GBAIsometric_Spyro_Pointer.LevelObjects] = 0x08131ffc + 4, // First one is null
+
+                        [GBAIsometric_Spyro_Pointer.LevelData] = 0x08131d34,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

@@ -54,6 +54,7 @@
         GBAIsometric_Spyro1,
         GBAIsometric_Spyro2,
         GBAIsometric_Spyro3,
+        GBAIsometric_Tron2,
         GBAIsometric_RHR,
 
         // GBC
