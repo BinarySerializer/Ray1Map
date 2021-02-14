@@ -319,5 +319,18 @@ namespace R1Engine
 
             return bg.ToTexture(context);
         }
+
+        /*
+
+        World info table: (x, y, up, down, left, right)
+        36 00 B5 00 02 00 01 00 01 00 02 00 // Jungle
+        5E 00 7E 00 02 00 01 00 07 00 03 00 // Music
+        A3 00 5D 00 03 00 03 00 02 00 05 00 // Mountain
+        1C 01 A2 00 06 00 04 00 05 00 06 00 // Image
+        E6 00 73 00 03 00 04 00 03 00 04 00 // Cave
+        2D 01 55 00 06 00 04 00 04 00 06 00 // Cake
+        23 00 5F 00 07 00 02 00 07 00 02 00 // Present (Breakout?)
+
+        */
     }
 }

@@ -66,7 +66,6 @@ namespace R1Engine
         #region Event Data
 
         public byte[] PS1Demo_Unk1 { get; set; }
-        public uint PS1Demo_Unk2 { get; set; }
         public uint PS1_Unk1 { get; set; }
 
         public CommandContext[] CMD_Contexts { get; set; }
@@ -94,7 +93,7 @@ namespace R1Engine
         public short InitialYPosition { get; set; }
 
         public bool PS1Demo_IsFlipped { get; set; }
-        public byte PS1Demo_Unk4 { get; set; }
+        public byte PS1Demo_Padding { get; set; }
         public short SpeedX { get; set; }
         public short SpeedY { get; set; }
 
@@ -288,8 +287,8 @@ namespace R1Engine
                     PS1Demo_Unk1 = s.SerializeArray<byte>(PS1Demo_Unk1, 40, name: nameof(PS1Demo_Unk1));
 
                     EventIndex = s.Serialize<short>(EventIndex, name: nameof(EventIndex));
-
-                    PS1Demo_Unk2 = s.Serialize<uint>(PS1Demo_Unk2, name: nameof(PS1Demo_Unk2));
+                    ScreenXPosition = s.Serialize<short>(ScreenXPosition, name: nameof(ScreenXPosition));
+                    ScreenYPosition = s.Serialize<short>(ScreenYPosition, name: nameof(ScreenYPosition));
                 }
                 else
                 {
@@ -349,8 +348,8 @@ namespace R1Engine
 
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
             {
-                PS1Demo_IsFlipped = s.Serialize<bool>(PS1Demo_IsFlipped, name: nameof(PS1Demo_IsFlipped));
-                PS1Demo_Unk4 = s.Serialize<byte>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
+                PS1Demo_IsFlipped = s.Serialize<bool>(PS1Demo_IsFlipped, name: nameof(PS1Demo_IsFlipped)); // This is stored as a short in the game, but used as a bool
+                PS1Demo_Padding = s.Serialize<byte>(PS1Demo_Padding, name: nameof(PS1Demo_Padding));
             }
 
             SpeedX = s.Serialize<short>(SpeedX, name: nameof(SpeedX));

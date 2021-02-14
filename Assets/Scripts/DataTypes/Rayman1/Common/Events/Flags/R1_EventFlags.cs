@@ -20,15 +20,15 @@ namespace R1Engine
         IsCollectible = 1 << 9, // Indicates if the event can be collected and thus not respawn again
         Flag_0A = 1 << 10,
         Flag_0B = 1 << 11,
-        Flag_0C = 1 << 12,
-        Flag_0D = 1 << 13,
+        MoveX = 1 << 12, // Indicates if the object x position should be changed by SpeedX in MOVE_OBJECT
+        MoveY = 1 << 13, // Indicates if the object y position should be changed by SpeedY in MOVE_OBJECT
         IsSpecialPlatform = 1 << 14, // Indicates if DO_SPECIAL_PLATFORM should be called
         DoCmds = 1 << 15, // Indicates if commands should be read for the event, otherwise the command is set to 30 (NOP)
 
-        IsBType = 1 << 16, // Block?
+        CheckBTyp = 1 << 16, // Indicates if the object reacts to block types (tile collision), thus calling calc_btyp
         Flag_11 = 1 << 17,
         Flag_12 = 1 << 18,
-        Flag_13 = 1 << 19,
+        CanJump = 1 << 19, // Indicates if obj_jump gets called when on a ressort (spring) block
         Flag_14 = 1 << 20,
         Flag_15 = 1 << 21,
         Flag_16 = 1 << 22,
