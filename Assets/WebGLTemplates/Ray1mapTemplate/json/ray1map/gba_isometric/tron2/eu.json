@@ -1,0 +1,27 @@
+{
+  "name": "TRON 2.0: Killer App (GBA)",
+  "mode": "Tron2KillerAppEU",
+  "folder": "gba_isometric/tron2_eu",
+  "levels": [
+    { "world": 0, "level": 1, "nameInternal": "1", "name": "Map 1" },
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Map 3" },
+    { "world": 0, "level": 7, "nameInternal": "7", "name": "Map 7" },
+    { "world": 0, "level": 9, "nameInternal": "9", "name": "Map 9" },
+    { "world": 0, "level": 10, "nameInternal": "10", "name": "Map 10" },
+    { "world": 0, "level": 14, "nameInternal": "14", "name": "Map 14" },
+    { "world": 0, "level": 20, "nameInternal": "20", "name": "Map 20" },
+    { "world": 0, "level": 22, "nameInternal": "22", "name": "Map 22" },
+    { "world": 0, "level": 23, "nameInternal": "23", "name": "Map 23" },
+    { "world": 0, "level": 24, "nameInternal": "24", "name": "Map 24" },
+    { "world": 0, "level": 26, "nameInternal": "26", "name": "Map 26" },
+    { "world": 0, "level": 28, "nameInternal": "28", "name": "Map 28" },
+    { "world": 0, "level": 33, "nameInternal": "33", "name": "Map 33" },
+    { "world": 0, "level": 36, "nameInternal": "36", "name": "Map 36" },
+    { "world": 0, "level": 37, "nameInternal": "37", "name": "Map 37" },
+    { "world": 0, "level": 39, "nameInternal": "39", "name": "Map 39" },
+    { "world": 0, "level": 40, "nameInternal": "40", "name": "Map 40" },
+    { "world": 0, "level": 46, "nameInternal": "46", "name": "Map 46" },
+    { "world": 0, "level": 47, "nameInternal": "47", "name": "Map 47" },
+    { "world": 0, "level": 49, "nameInternal": "49", "name": "Map 49" }
+  ]
+}

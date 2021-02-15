@@ -303,7 +303,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro3, Game.GBAIsometric_Spyro3, "Spyro: Attack of the Rhynocs (GBA - US)", typeof(GBAIsometric_Spyro3US_Manager))]
         SpyroAdventureUS,
 
-        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Tron2, Game.GBAIsometric_Tron2, "TRON 2.0: Killer App (GBA - EU)", typeof(GBAIsometric_RHR_Manager))]
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Tron2, Game.GBAIsometric_Tron2, "TRON 2.0: Killer App (GBA - EU)", typeof(GBAIsometric_Tron2_Manager))]
         Tron2KillerAppEU,
 
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Tron2, Game.GBAIsometric_Tron2, "TRON 2.0: Killer App (GBA - US)", typeof(GBAIsometric_Tron2_Manager))]

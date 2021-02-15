@@ -416,6 +416,15 @@
 					"versions": [
 						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/surfs_up_eu1" }
 					]
+				},
+				{
+					"title": "TRON 2.0: Killer App",
+					"viewer": "ray1map",
+					"json": "gba_isometric\/tron2",
+					"image": ".\/img\/logo\/tron2.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba_isometric/tron2_eu" }
+					]
 				}
 			]
 		}
