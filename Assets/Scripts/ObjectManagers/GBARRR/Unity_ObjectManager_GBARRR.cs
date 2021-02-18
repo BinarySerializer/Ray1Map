@@ -13,6 +13,12 @@ namespace R1Engine
             GraphicsDatas = graphicsDatas;
         }
 
+        public override void InitObjects(Unity_Level level)
+        {
+            foreach (var obj in level.EventData.Cast<Unity_Object_GBARRR>().Where(x => x.Object.ObjectType == GBARRR_ObjectType.Gate || x.Object.ObjectType == GBARRR_ObjectType.DoorTrigger))
+                obj.LinkIndex = level.EventData.Cast<Unity_Object_GBARRR>().FindItemIndex(x => x.Object.RuntimeStateIndex == obj.Object.RuntimeStateIndex && x != obj && (x.Object.ObjectType == GBARRR_ObjectType.Gate || x.Object.ObjectType == GBARRR_ObjectType.DoorTrigger));
+        }
+
         public override int InitLinkGroups(IList<Unity_Object> objects)
         {
             var links = new Dictionary<int, List<Unity_Object_GBARRR>>();

@@ -194,6 +194,7 @@ namespace R1Engine
             var settings = objManager.Context.Settings;
             var objects = Controller.obj.levelController.Objects;
             var level = LevelEditorData.Level;
+            var tilemapController = Controller.obj.levelController.controllerTilemap;
 
             if (settings.MajorEngineVersion == MajorEngineVersion.GBC)
             {
@@ -442,7 +443,6 @@ namespace R1Engine
                     layerOverrides[50] = new bool[] { false, false, true }; // Ly Power 3
                 }
 
-                var tilemapController = Controller.obj.levelController.controllerTilemap;
                 var lvl = settings.Level;
 
                 if (settings.World == 9) // GCN
@@ -579,6 +579,119 @@ namespace R1Engine
                         gbaObj.Actor.Link_2 = 0xFF;
                         gbaObj.Actor.Link_3 = 0xFF;
                     }
+                }
+            }
+            else if (settings.EngineVersion == EngineVersion.GBARRR && settings.World < 5)
+            //else if (settings.EngineVersion == EngineVersion.GBARRR)
+            {
+                /*
+                if (settings.World >= 5) // Use this to stop the screenshot enumeration
+                    throw new Exception();
+                */
+
+                // Modify stompable pencils
+                var pencils = objects.Select(x => (Unity_Object_GBARRR)x.ObjData).Where(x => x.Object.ObjectType == GBARRR_ObjectType.StompablePencil).ToArray();
+
+                foreach (var p in pencils)
+                {
+                    // Modify the pencil frame
+                    p.ForceFrame = 2;
+
+                    // Create 5 duplicates
+                    for (int i = 1; i < 6; i++)
+                    {
+                        objects.Add(AddEvent(new Unity_Object_GBARRR(new GBARRR_Object
+                        {
+                            YPosition = (short)(p.YPosition + (32 * i)),
+                            XPosition = p.XPosition,
+                            ObjectType = GBARRR_ObjectType.StompablePencil,
+                            Data1 = new byte[4]
+                        }, p.ObjManager)
+                        {
+                            AnimationGroupIndex = p.AnimationGroupIndex,
+                            AnimIndex = p.AnimIndex,
+                        }));
+                    }
+                }
+
+                // Hide Murfy and Ly
+                foreach (var o in objects.Where(x => ((Unity_Object_GBARRR)x.ObjData).Object.ObjectType == GBARRR_ObjectType.Friend))
+                    o.IsEnabled = false;
+
+                // Modify the frame for some animations
+                var newFrames = new Dictionary<int, int>()
+                {
+                    [331] = 10,
+                    [651] = 11,
+                    [653] = 11,
+                    [711] = 7,
+                    [714] = 10,
+                };
+
+                foreach (var o in objects.Select(x => (Unity_Object_GBARRR)x.ObjData).Where(x => newFrames.ContainsKey(x.GraphicsData?.BlockIndex ?? -1)))
+                    o.ForceFrame = newFrames[o.GraphicsData.BlockIndex];
+
+                // Hide the background layers
+                if (settings.Level != 29 && settings.Level != 31)
+                {
+                    tilemapController.IsLayerVisible[0] = false;
+                    tilemapController.IsLayerVisible[1] = false;
+                }
+                else
+                {
+                    tilemapController.IsLayerVisible[1] = false;
+                    tilemapController.IsLayerVisible[3] = false;
+                    tilemapController.SetGraphicsLayerTiled(0, true);
+                }
+
+                // Update tile map layers
+                tilemapController.UpdateMapLayersVisibility();
+
+                // Set frames
+                var texFrames = new Dictionary<int, RectInt>()
+                {
+                    [1] = new RectInt(0, 40, 1024, 672),
+                    [6] = new RectInt(0, 200, 1024, 448),
+                    [11] = new RectInt(0, 320, 1024, 448),
+                    [14] = new RectInt(0, 0, 2496, 2016),
+                    [15] = new RectInt(0, 768, 2176, 1248),
+                    [16] = new RectInt(72, 184, 952, 392),
+                    [22] = new RectInt(0, 320, 1024, 384),
+                    [26] = new RectInt(0, 0, 3720, 2048),
+                    [27] = new RectInt(24, 224, 944, 536),
+                    [29] = new RectInt(0, 0, 405, 280),
+                    [31] = new RectInt(0, 0, 405, 280),
+                };
+                
+                if (texFrames.ContainsKey(settings.Level))
+                    Controller.obj.levelController.ScreenshotRect = texFrames[settings.Level];
+
+                // Remove links from editor objects
+                foreach (var o in objects.Select(x => (Unity_Object_GBARRR)x.ObjData).Where(x => x.IsEditor))
+                    o.Object.LinkGroup = 0;
+
+                // Hide all editor objects while still showing one-way links
+                foreach (var o in objects.Where(x => x.ObjData.IsEditor))
+                    o.IsEnabled = false;
+
+                // Force all one-way links to show
+                foreach (var o in objects)
+                    o.ForceShowOneWayLinks = true;
+
+                // Handle Boss Prison
+                if (settings.Level == 1)
+                {
+                    // Move the boss
+                    objects[4].ObjData.XPosition = 640;
+                    objects[4].ObjData.YPosition = 264;
+                    ((Unity_Object_GBARRR)objects[4].ObjData).Object.Data1[3] = 0xFF;
+
+                    // Change the rock to pink Rabbid
+                    objects[3].ObjData.XPosition = 838;
+                    objects[3].ObjData.YPosition = 280;
+                    ((Unity_Object_GBARRR)objects[3].ObjData).AnimationGroupIndex = 47;
+                    ((Unity_Object_GBARRR)objects[3].ObjData).AnimIndex = 2;
+                    ((Unity_Object_GBARRR)objects[3].ObjData).Object.Data1[3] = 0xFF;
                 }
             }
         }

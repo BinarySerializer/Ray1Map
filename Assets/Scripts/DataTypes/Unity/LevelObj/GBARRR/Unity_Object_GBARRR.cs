@@ -76,6 +76,16 @@ namespace R1Engine
         }
 
         public override bool CanBeLinkedToGroup => true;
+        public override bool CanBeLinked => LinkIndex != null;
+        public int? LinkIndex { get; set; }
+        public override IEnumerable<int> Links
+        {
+            get
+            {
+                if (LinkIndex != null && LinkIndex != -1)
+                    yield return LinkIndex.Value;
+            }
+        }
 
         public override string PrimaryName => $"Type_{(byte)Object.ObjectType}";
         public override string SecondaryName {
@@ -155,6 +165,19 @@ namespace R1Engine
                 }
                 return objCollision;
             }
+        }
+
+        public int? ForceFrame { get; set; }
+        protected override bool ShouldUpdateFrame()
+        {
+            if (ForceFrame != null)
+            {
+                AnimationFrame = ForceFrame.Value;
+                AnimationFrameFloat = ForceFrame.Value;
+                return false;
+            }
+
+            return true;
         }
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;

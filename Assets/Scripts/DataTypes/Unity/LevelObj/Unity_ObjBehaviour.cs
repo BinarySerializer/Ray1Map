@@ -32,6 +32,7 @@ namespace R1Engine
             ObjData.IsVisible && 
             // Obj is on current map layer
             (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
+        public bool ForceShowOneWayLinks { get; set; } // Used for some screenshots
         public int Layer => (ObjData.GetLayer(Index) ?? Index) * 128;
 
         public bool HasInitialized { get; set; }
@@ -707,8 +708,7 @@ namespace R1Engine
             // Update one-way link lines
             if (oneWayLinkLines != null)
                 for (var i = 0; i < oneWayLinkLines.Length; i++)
-                    oneWayLinkLines[i].enabled = enableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked &&
-                                                 connectedOneWayLinkLines[i];
+                    oneWayLinkLines[i].enabled = (enableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked && connectedOneWayLinkLines[i]) || ForceShowOneWayLinks;
 
             HasInitialized = true;
         }
