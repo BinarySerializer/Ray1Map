@@ -24,6 +24,7 @@ namespace R1Engine
 			"l0a08",
 			"l0b",
 			"s",
+			"s0",
 			"s1",
 			"s2",
 			"s3",
@@ -78,7 +79,7 @@ namespace R1Engine
 		public string GetLevelPath(GameSettings settings) => $"l0a0{settings.Level+1}";
 		public string GetBackgroundTileSetPath(GameSettings settings, Gameloft_RRR_LevelList levelList) => $"ts{GetWorldIndex(settings, levelList)}";
 		public string GetForegroundTileSetPath(GameSettings settings, Gameloft_RRR_LevelList levelList) => $"t{GetWorldIndex(settings, levelList)}";
-		public string GetPuppetPath(int i) => i > 0 ?  $"s{i}" : i == 0 ? "d1" : "s";
+		public string GetPuppetPath(int i) => i >= 0 ?  $"s{i}" : "s";
 
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(FixFilePath);
