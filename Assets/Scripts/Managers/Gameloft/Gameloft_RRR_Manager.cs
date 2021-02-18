@@ -208,12 +208,23 @@ namespace R1Engine
 
 			// Load objects
 			var objManager = new Unity_ObjectManager_GameloftRRR(context, LoadPuppets(context), objs.Objects);
+			var unityObjs = objs.Objects.Select((o, i) => (Unity_Object)(new Unity_Object_GameloftRRR(objManager, o))).ToList();
+
+			// Set palette index for loops
+			var world = GetWorldIndex(context.Settings, levelList);
+			if (world == 2) {
+				foreach (var uo in unityObjs) {
+					if (((Unity_Object_GameloftRRR)uo).Object.Type == 8) {
+						((Unity_Object_GameloftRRR)uo).PaletteIndex = 1;
+					}
+				}
+			}
 
 			// Return level
 			return new Unity_Level(
                 maps: maps,
                 objManager: objManager,
-                eventData: objs.Objects.Select((o,i) => (Unity_Object)(new Unity_Object_GameloftRRR(objManager,o))).ToList(),
+                eventData: unityObjs,
 				localization: LoadLocalization(context),
 				defaultMap: 1,
 				defaultCollisionMap: 2,

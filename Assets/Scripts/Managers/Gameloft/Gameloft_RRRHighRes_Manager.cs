@@ -39,8 +39,6 @@ namespace R1Engine
 			"u",
 			"sc",
 			"st",
-			"sp",
-			"spp",
 			"lj21",
 			"lj22",
 			"lj23",

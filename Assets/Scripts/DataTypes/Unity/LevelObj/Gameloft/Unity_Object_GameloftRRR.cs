@@ -62,8 +62,9 @@ namespace R1Engine
 		public override Unity_ObjAnimation CurrentAnimation => PuppetData?.Puppet?.Animations?.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? 0;
         public override int? GetAnimIndex => OverrideAnimIndex ?? Object.AnimationIndex;
-        protected override int GetSpriteID => Object.Type;
-        public override IList<Sprite> Sprites => PuppetData?.Puppet?.Sprites;
+        public int PaletteIndex { get; set; } = 0;
+        protected override int GetSpriteID => Object.Type + (PaletteIndex << 16);
+        public override IList<Sprite> Sprites => PuppetData?.Puppet?.Sprites[PaletteIndex];
 
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper {
@@ -88,15 +89,18 @@ namespace R1Engine
                 set => Obj.Object.Type = (short)value;
             }
 
-            public byte Etat { get; set; }
+            public byte Etat {
+                get => (byte)Obj.PaletteIndex;
+                set => Obj.PaletteIndex = value;
+            }
 
             public byte SubEtat {
                 get => (byte)Obj.Object.AnimationIndex;
                 set => Obj.Object.AnimationIndex = value;
             }
 
-            public int EtatLength => 0;
-            public int SubEtatLength => Obj.PuppetData?.Puppet?.Animations?.Count ?? 0;
+            public int EtatLength => Obj.PuppetData?.Puppet?.Sprites?.Length ?? 0;
+            public int SubEtatLength => Obj.PuppetData?.Puppet?.Animations?.Length ?? 0;
 
             public byte OffsetBX { get; set; }
 
@@ -119,16 +123,21 @@ namespace R1Engine
 
         protected class GameloftRRR_UIState : UIState
         {
-            public GameloftRRR_UIState(string displayName, int animIndex) : base(displayName, animIndex) { }
+            public int PaletteIndex { get; set; }
+
+            public GameloftRRR_UIState(string displayName, int animIndex, int paletteIndex) : base(displayName, animIndex) {
+                PaletteIndex = paletteIndex;   
+            }
 
             public override void Apply(Unity_Object obj)
             {
                 ((Unity_Object_GameloftRRR)obj).Object.AnimationIndex = (short)AnimIndex;
+                ((Unity_Object_GameloftRRR)obj).PaletteIndex = PaletteIndex;
             }
 
             public override bool IsCurrentState(Unity_Object obj)
             {
-                return AnimIndex == ((Unity_Object_GameloftRRR)obj).Object.AnimationIndex;
+                return AnimIndex == ((Unity_Object_GameloftRRR)obj).Object.AnimationIndex && PaletteIndex == ((Unity_Object_GameloftRRR)obj).PaletteIndex;
             }
         }
 
@@ -137,10 +146,14 @@ namespace R1Engine
             UIStates_PuppetIndex = Object.Type;
 
             List<UIState> uiStates = new List<UIState>();
-            int count = (PuppetData?.Puppet?.Animations?.Count ?? 0);
+            int count = (PuppetData?.Puppet?.Animations?.Length ?? 0);
+            int paletteCount = (PuppetData?.Puppet?.Sprites?.Length ?? 1);
 
-            for (int i = 0; i < count; i++)
-                uiStates.Add(new GameloftRRR_UIState($"Animation {i}", animIndex: i));
+            for (int i = 0; i < count; i++) {
+                for (int p = 0; p < paletteCount; p++) {
+                    uiStates.Add(new GameloftRRR_UIState($"Animation {i}-{p}", animIndex: i, p));
+                }
+            }
 
             UIStates = uiStates.ToArray();
         }

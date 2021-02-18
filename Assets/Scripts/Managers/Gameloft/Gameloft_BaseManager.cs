@@ -49,6 +49,18 @@ namespace R1Engine
                     });
                     await Controller.WaitIfNecessary();
                 }
+                foreach (var filePath in SingleResourceFiles) {
+                    var f = await context.AddLinearSerializedFileAsync(filePath);
+                    SerializerObject s = context.Deserializer;
+                    s.DoAt(f.StartPointer, () => {
+                        try {
+                            var bytes = s.SerializeArray<byte>(default, s.CurrentLength, name: f.filePath);
+                            ExportResourceFileData(bytes,"data", Path.Combine(outputDir, filePath), exportMethod);
+                        } catch (Exception ex) {
+                            Debug.LogError(ex);
+                        }
+                    });
+                }
             }
         }
 
@@ -114,6 +126,44 @@ namespace R1Engine
                 }
             }
         }
+
+        public void ExportResourceFileData(byte[] data, string filename, string outputDir, ExportMethod exportMethod) {
+            if (data == null) return;
+            var restype = ResourceType.Other;
+            if (data.Length >= 5) {
+                using (Reader reader = new Reader(new MemoryStream(data), isLittleEndian: false)) {
+                    if (reader.ReadUInt32() == 0x89504E47) {
+                        restype = ResourceType.PNG;
+                    }
+                    reader.BaseStream.Position = 0;
+                    if (reader.ReadUInt32() == 0x4D546864) {
+                        restype = ResourceType.MIDI;
+                    }
+                    reader.BaseStream.Position = 0;
+                    if (reader.ReadUInt16() == 0xDF03) {
+                        restype = ResourceType.Puppet;
+                    }
+                    reader.BaseStream.Position = 0;
+                    if (reader.ReadUInt32() == 0x52494646) {
+                        restype = ResourceType.WAV;
+                    }
+                    reader.BaseStream.Position = 0;
+                }
+            }
+            string extension = "dat";
+            switch (restype) {
+                case ResourceType.Puppet: extension = "puppet"; break;
+                case ResourceType.MIDI: extension = "mid"; break;
+                case ResourceType.PNG: extension = "png"; break;
+                case ResourceType.WAV: extension = "wav"; break;
+            }
+            switch (exportMethod) {
+                case ExportMethod.Resources:
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{filename}.{extension}"), data);
+                    break;
+            }
+        }
+
 
         public Texture2D[][] GetPuppetImages(Gameloft_Puppet puppet, bool flipY = true) {
             Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
@@ -251,17 +301,28 @@ namespace R1Engine
             }
         }
 
-        public virtual Unity_ObjGraphics GetCommonDesign(Gameloft_Puppet puppet) {
+
+        public class Unity_Gameloft_ObjGraphics {
+            public Sprite[][] Sprites;
+            public Unity_ObjAnimation[] Animations;
+        }
+
+        public virtual Unity_Gameloft_ObjGraphics GetCommonDesign(Gameloft_Puppet puppet) {
             // Create the design
-            var des = new Unity_ObjGraphics {
-                Sprites = new List<Sprite>(),
-                Animations = new List<Unity_ObjAnimation>(),
+            var des = new Unity_Gameloft_ObjGraphics {
             };
 
-            if (puppet == null)
+            if (puppet == null) {
+                des.Sprites = new Sprite[0][];
+                des.Animations = new Unity_ObjAnimation[0];
                 return des;
+            }
 
             Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
+            des.Sprites = new Sprite[puppet.Palettes.Max(p => p.PaletteCount)][];
+            for(int p = 0; p < des.Sprites.Length; p++) {
+                des.Sprites[p] = new Sprite[puppet.ImagesCount];
+            }
             for (int i = 0; i < puppet.ImagesCount; i++) {
                 var id = puppet.ImageDescriptors[i];
                 var pal = puppet.Palettes[id.Palette];
@@ -276,8 +337,11 @@ namespace R1Engine
                     }
                     tex.Apply();
                     texs[i][p] = tex;
+                    des.Sprites[p][i] = tex.CreateSprite();
                 }
-                des.Sprites.Add(texs[i][0].CreateSprite());
+                for (int p = 0; p < des.Sprites.Length; p++) {
+                    if(des.Sprites[p][i] == null) des.Sprites[p][i] = des.Sprites[0][i];
+                }
             }
 
 
@@ -323,7 +387,9 @@ namespace R1Engine
             }
 
             // Add animations
-            foreach (var a in puppet.Animations) {
+            des.Animations = new Unity_ObjAnimation[puppet.Animations.Length];
+            for(int j = 0; j < puppet.Animations.Length; j++) {
+                var a = puppet.Animations[j];
                 var unityAnim = new Unity_ObjAnimation {
                     AnimSpeed = 4,
                 };
@@ -343,7 +409,7 @@ namespace R1Engine
 
                 unityAnim.Frames = frames.ToArray();
                 unityAnim.AnimSpeeds = Enumerable.Range(a.FrameIndex, a.Length).Select(f => (int)puppet.Frames[f].Duration).ToArray();
-                des.Animations.Add(unityAnim);
+                des.Animations[j] = unityAnim;
             }
 
             return des;
@@ -351,99 +417,102 @@ namespace R1Engine
 
 
         protected void ExportAnimations(Gameloft_Puppet spr, string outputDir) {
-            MagickImage[] sprites = null;
+            MagickImage[][] sprites = null;
 
             try {
                 var commonDesign = GetCommonDesign(spr);
 
                 // Convert Texture2D to MagickImage
-                sprites = commonDesign.Sprites.Select(x => x.ToMagickImage()).ToArray();
+                sprites = commonDesign.Sprites.Select(x => x.Select(i => i?.ToMagickImage()).ToArray()).ToArray();
 
-                var animIndex = 0;
 
                 // Export every animation
-                foreach (var anim in commonDesign.Animations) {
-                    var frameIndex = 0;
-                    /*var animDir = Path.Combine(outputDir, $"{animIndex}-{anim.AnimSpeed}");
-                    Directory.CreateDirectory(animDir);*/
-                    Directory.CreateDirectory(outputDir);
-                    if (anim.Frames == null || anim.Frames.Length == 0) continue;
+                for (int p = 0; p < sprites.Length; p++) {
+                    var animIndex = 0;
+                    foreach (var anim in commonDesign.Animations) {
+                        var frameIndex = 0;
+                        /*var animDir = Path.Combine(outputDir, $"{animIndex}-{anim.AnimSpeed}");
+                        Directory.CreateDirectory(animDir);*/
+                        Directory.CreateDirectory(outputDir);
+                        if (anim.Frames == null || anim.Frames.Length == 0) continue;
 
-                    Vector2Int min = new Vector2Int();
-                    Vector2Int max = new Vector2Int();
-                    foreach (var frame in anim.Frames) {
-                        foreach (var layer in frame.SpriteLayers) {
-                            var sprite = commonDesign.Sprites[layer.ImageIndex];
-                            Vector2Int size = new Vector2Int((int)sprite.textureRect.width, (int)sprite.textureRect.height);
-                            Vector2Int pos = new Vector2Int(layer.XPosition, layer.YPosition);
-                            int x = pos.x;
-                            int y = pos.y;
-                            if (x < min.x) min.x = x;
-                            if (y < min.y) min.y = y;
-                            int maxX = Mathf.CeilToInt(pos.x + size.x);
-                            int maxY = Mathf.CeilToInt(pos.y + size.y);
-                            if (maxX > max.x) max.x = maxX;
-                            if (maxY > max.y) max.y = maxY;
-                        }
-                    }
-                    Vector2Int frameImgSize = max - min;
-                    if (frameImgSize.x == 0 || frameImgSize.y == 0) continue;
-
-                    using (MagickImageCollection collection = new MagickImageCollection()) {
-                        //int index = 0;
-
+                        Vector2Int min = new Vector2Int();
+                        Vector2Int max = new Vector2Int();
                         foreach (var frame in anim.Frames) {
-                            var frameImg = new MagickImage(new byte[frameImgSize.x * frameImgSize.y * 4], new PixelReadSettings(frameImgSize.x, frameImgSize.y, StorageType.Char, PixelMapping.ABGR));
-                            frameImg.FilterType = FilterType.Point;
-                            frameImg.Interpolate = PixelInterpolateMethod.Nearest;
-                            int layerIndex = 0;
                             foreach (var layer in frame.SpriteLayers) {
-                                if (layer.ImageIndex >= sprites.Length) {
-                                    Debug.LogWarning($"Out of bounds sprite index {layer.ImageIndex}/{sprites.Length}");
-                                    continue;
+                                var sprite = commonDesign.Sprites[p][layer.ImageIndex] ?? commonDesign.Sprites[0][layer.ImageIndex];
+                                Vector2Int size = new Vector2Int((int)sprite.textureRect.width, (int)sprite.textureRect.height);
+                                Vector2Int pos = new Vector2Int(layer.XPosition, layer.YPosition);
+                                int x = pos.x;
+                                int y = pos.y;
+                                if (x < min.x) min.x = x;
+                                if (y < min.y) min.y = y;
+                                int maxX = Mathf.CeilToInt(pos.x + size.x);
+                                int maxY = Mathf.CeilToInt(pos.y + size.y);
+                                if (maxX > max.x) max.x = maxX;
+                                if (maxY > max.y) max.y = maxY;
+                            }
+                        }
+                        Vector2Int frameImgSize = max - min;
+                        if (frameImgSize.x == 0 || frameImgSize.y == 0) continue;
+
+                        using (MagickImageCollection collection = new MagickImageCollection()) {
+                            //int index = 0;
+
+                            foreach (var frame in anim.Frames) {
+                                var frameImg = new MagickImage(new byte[frameImgSize.x * frameImgSize.y * 4], new PixelReadSettings(frameImgSize.x, frameImgSize.y, StorageType.Char, PixelMapping.ABGR));
+                                frameImg.FilterType = FilterType.Point;
+                                frameImg.Interpolate = PixelInterpolateMethod.Nearest;
+                                int layerIndex = 0;
+                                foreach (var layer in frame.SpriteLayers) {
+                                    if (layer.ImageIndex >= sprites[0].Length) {
+                                        Debug.LogWarning($"Out of bounds sprite index {layer.ImageIndex}/{sprites[0].Length}");
+                                        continue;
+                                    }
+
+                                    MagickImage img = (MagickImage)(sprites[p][layer.ImageIndex] ?? sprites[0][layer.ImageIndex]).Clone();
+                                    Vector2 size = new Vector2(img.Width, img.Height);
+                                    img.FilterType = FilterType.Point;
+                                    img.Interpolate = PixelInterpolateMethod.Nearest;
+                                    img.BackgroundColor = MagickColors.Transparent;
+                                    if (layer.IsFlippedHorizontally)
+                                        img.Flop();
+
+                                    if (layer.IsFlippedVertically)
+                                        img.Flip();
+                                    Vector2 pos = new Vector2(layer.XPosition, layer.YPosition);
+                                    frameImg.Composite(img,
+                                        Mathf.RoundToInt(pos.x) - min.x,
+                                        Mathf.RoundToInt(pos.y) - min.y, CompositeOperator.Over);
+                                    layerIndex++;
                                 }
 
-                                MagickImage img = (MagickImage)sprites[layer.ImageIndex].Clone();
-                                Vector2 size = new Vector2(img.Width, img.Height);
-                                img.FilterType = FilterType.Point;
-                                img.Interpolate = PixelInterpolateMethod.Nearest;
-                                img.BackgroundColor = MagickColors.Transparent;
-                                if (layer.IsFlippedHorizontally)
-                                    img.Flop();
+                                //frameImg.Write(Path.Combine(animDir, $"{frameIndex}.png"), MagickFormat.Png);
 
-                                if (layer.IsFlippedVertically)
-                                    img.Flip();
-                                Vector2 pos = new Vector2(layer.XPosition, layer.YPosition);
-                                frameImg.Composite(img,
-                                    Mathf.RoundToInt(pos.x) - min.x,
-                                    Mathf.RoundToInt(pos.y) - min.y, CompositeOperator.Over);
-                                layerIndex++;
+                                // For gif
+                                collection.Add(frameImg);
+                                collection[frameIndex].AnimationDelay = anim.AnimSpeeds[frameIndex];
+                                collection[frameIndex].AnimationTicksPerSecond = 10;
+                                collection[frameIndex].Trim();
+                                collection[frameIndex].GifDisposeMethod = GifDisposeMethod.Background;
+
+                                frameIndex++;
                             }
 
-                            //frameImg.Write(Path.Combine(animDir, $"{frameIndex}.png"), MagickFormat.Png);
-                            
-                            // For gif
-                            collection.Add(frameImg);
-                            collection[frameIndex].AnimationDelay = anim.AnimSpeeds[frameIndex];
-                            collection[frameIndex].AnimationTicksPerSecond = 10;
-                            collection[frameIndex].Trim();
-                            collection[frameIndex].GifDisposeMethod = GifDisposeMethod.Background;
-
-                            frameIndex++;
+                            // Save gif
+                            collection.Write(Path.Combine(outputDir, $"{animIndex}_{p}-{anim.AnimSpeed}.gif"));
                         }
 
-                        // Save gif
-                        collection.Write(Path.Combine(outputDir, $"{animIndex}-{anim.AnimSpeed}.gif"));
+                        animIndex++;
                     }
-
-                    animIndex++;
                 }
             } catch (Exception ex) {
                 Debug.LogError($"Message: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
             } finally {
-                if (sprites != null && sprites.Length > 0)
+                if (sprites != null)
                     foreach (var s in sprites)
-                        s?.Dispose();
+                        foreach(var i in s)
+                            i?.Dispose();
             }
         }
 

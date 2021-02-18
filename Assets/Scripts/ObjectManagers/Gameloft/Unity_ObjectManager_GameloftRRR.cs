@@ -27,7 +27,7 @@ namespace R1Engine
 
         public class PuppetData
         {
-            public PuppetData(int index, Gameloft_RRR_PuppetResourceList.ResourceReference puppetReference, Unity_ObjGraphics puppet, string name = null)
+            public PuppetData(int index, Gameloft_RRR_PuppetResourceList.ResourceReference puppetReference, Gameloft_BaseManager.Unity_Gameloft_ObjGraphics puppet, string name = null)
             {
                 Index = index;
                 PuppetReference = puppetReference;
@@ -39,7 +39,7 @@ namespace R1Engine
 
             public Gameloft_RRR_PuppetResourceList.ResourceReference PuppetReference { get; }
 
-            public Unity_ObjGraphics Puppet { get; }
+            public Gameloft_BaseManager.Unity_Gameloft_ObjGraphics Puppet { get; }
 
             public string Name { get; }
 
