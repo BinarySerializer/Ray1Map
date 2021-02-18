@@ -6,12 +6,19 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GameloftRRR : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GameloftRRR(Context context, PuppetData[] puppets) : base(context)
+        public Unity_ObjectManager_GameloftRRR(Context context, PuppetData[] puppets, Gameloft_RRR_Objects.Object[] objects) : base(context)
         {
             Puppets = puppets;
+            ObjectIDDictionary = new Dictionary<short, int>();
+            for(int i = 0; i < objects.Length; i++) {
+                if (objects[i].ObjectID != 0) {
+                    ObjectIDDictionary[objects[i].ObjectID] = i;
+                }
+            }
         }
 
         public PuppetData[] Puppets { get; }
+        public Dictionary<short, int> ObjectIDDictionary { get; set; }
 
         public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.OfType<Unity_Object_GameloftRRR>().FindItem(x => x.Object.Type == 0);
 

@@ -206,7 +206,7 @@ namespace R1Engine
             };
 
 			// Load objects
-			var objManager = new Unity_ObjectManager_GameloftRRR(context, LoadPuppets(context));
+			var objManager = new Unity_ObjectManager_GameloftRRR(context, LoadPuppets(context), objs.Objects);
 
 			// Return level
 			return new Unity_Level(

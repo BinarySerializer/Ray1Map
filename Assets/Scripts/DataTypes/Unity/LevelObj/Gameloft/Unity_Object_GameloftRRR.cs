@@ -45,9 +45,21 @@ namespace R1Engine
         public override bool FlipHorizontally => (Object.Flags & 1) == 1;
         public override bool FlipVertically => false;
 
-        public override bool CanBeLinkedToGroup => true;
+        public override bool CanBeLinkedToGroup => false;
+		public override bool CanBeLinked => true;
+		public override IEnumerable<int> Links {
+            get {
+                foreach (var s in Object.Shorts) {
+                    if (s > 10 && ObjManager.ObjectIDDictionary.ContainsKey(s)) yield return ObjManager.ObjectIDDictionary[s];
+                }
+                /*if (Object.Shorts.Length > 0) {
+                    && Object.Shorts[0] != 0 && ObjManager.ObjectIDDictionary.ContainsKey(Object.Shorts[0])) {
+                    yield return ObjManager.ObjectIDDictionary[Object.Shorts[0]];
+                }*/
+            }
+        }
 
-        public override Unity_ObjAnimation CurrentAnimation => PuppetData?.Puppet?.Animations?.ElementAtOrDefault(AnimationIndex ?? -1);
+		public override Unity_ObjAnimation CurrentAnimation => PuppetData?.Puppet?.Animations?.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? 0;
         public override int? GetAnimIndex => OverrideAnimIndex ?? Object.AnimationIndex;
         protected override int GetSpriteID => Object.Type;
