@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -45,6 +46,31 @@ namespace R1Engine
 
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
+			foreach (var fileIndex in Enumerable.Range(0, PuppetCount).Select(i => GetPuppetFileIndex(i)).Distinct()) {
+				await context.AddLinearSerializedFileAsync(fileIndex.ToString());
+			}
+		}
+
+		public virtual int BasePuppetsResourceFile => 10;
+		public virtual int PuppetsPerResourceFile => 15;
+
+		public virtual int GetPuppetFileIndex(int puppetIndex) => BasePuppetsResourceFile + puppetIndex / PuppetsPerResourceFile;
+		public virtual int GetPuppetResourceIndex(int puppetIndex) => puppetIndex % PuppetsPerResourceFile;
+		public virtual int PuppetCount => 60;
+
+		public virtual Unity_ObjectManager_GameloftRK.PuppetData[] LoadPuppets(Context context) {
+
+			var s = context.Deserializer;
+			Gameloft_Puppet[] puppets = new Gameloft_Puppet[PuppetCount];
+			Unity_ObjectManager_GameloftRK.PuppetData[] models = new Unity_ObjectManager_GameloftRK.PuppetData[PuppetCount];
+			for (int i = 0; i < PuppetCount; i++) {
+				int fileIndex = GetPuppetFileIndex(i);
+				int resIndex = GetPuppetResourceIndex(i);
+				var resf = FileFactory.Read<Gameloft_ResourceFile>(fileIndex.ToString(), context);
+				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, resIndex, name: $"Puppets[{i}]");
+				models[i] = new Unity_ObjectManager_GameloftRK.PuppetData(i, fileIndex, resIndex, GetCommonDesign(puppets[i]));
+			}
+			return models;
 		}
 
 		public void CreateTrackMesh(Gameloft_Level3D level) {
@@ -196,6 +222,8 @@ namespace R1Engine
 			g_mf.mesh = groundMesh;
 			g_mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
 
+			gaoParent.transform.localScale = Vector3.one * 8;
+
 		}
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
@@ -205,6 +233,10 @@ namespace R1Engine
 			var level = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind, name: $"Level_{ind}");
 
 			CreateTrackMesh(level);
+
+			// Load objects
+			var objManager = new Unity_ObjectManager_GameloftRK(context, LoadPuppets(context));
+			List<Unity_Object> objs = new List<Unity_Object>();
 
 			UnityEngine.Debug.Log("Sum rotation: " + level.TrackBlocks.Sum(o => o.DeltaRotation));
 			UnityEngine.Debug.Log("Sum height: " + level.TrackBlocks.Sum(o => o.DeltaHeight));
@@ -234,7 +266,11 @@ namespace R1Engine
 					var blk = level.TrackObjectInstances[ci_ind];
 					var s8Ind = blk.TrackObjectIndex;
 					var s8 = level.TrackObjects[s8Ind];
-					var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+					var pos = sphere.transform.TransformPoint(new Vector3(s8.XPosition * 0.001f, 0.1f, (blk.Int0 - 6) / 12));
+					objs.Add(new Unity_Object_GameloftRK(objManager, s8, level.Structs6[s8.ObjectType]) {
+						Position = new Vector3(pos.x, -pos.z, pos.y)					
+					});
+					/*var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 					cube.transform.SetParent(sphere.transform);
 					cube.transform.localPosition = new Vector3(s8.XPosition * 0.001f, 1, (blk.Int0 - 6) / 12);
 					cube.transform.localRotation = Quaternion.identity;
@@ -242,7 +278,7 @@ namespace R1Engine
 					cube.gameObject.name = s8.ObjectType.ToString();
 					UnityEngine.Random.InitState((int)s8.ObjectType);
 					var cubecol = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
-					cube.GetComponent<Renderer>().material.color = cubecol;
+					cube.GetComponent<Renderer>().material.color = cubecol;*/
 				}
 
 				curPos += Quaternion.Euler(0,curAngle,0) * Vector3.forward;
@@ -272,7 +308,40 @@ namespace R1Engine
 				var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);*/
 				curBlockIndex++;
 			}
-			throw new NotImplementedException();
+
+			// Load objects
+			var unityObjs = objs;
+
+			// Return level
+			return new Unity_Level(
+				maps: new Unity_Map[] {
+					new Unity_Map() {
+						TileSet = new Unity_TileSet[] {
+							new Unity_TileSet(8)
+						},
+						
+					}
+				},
+				objManager: objManager,
+				isometricData: new Unity_IsometricData {
+					CollisionWidth = 0,
+					CollisionHeight = 0,
+					TilesWidth = 38,
+					TilesHeight = 24,
+					Collision = null,
+					Scale = Vector3.one * 8,
+					ViewAngle = Quaternion.identity,
+					CalculateYDisplacement = () => 0,
+					CalculateXDisplacement = () => 0,
+					ObjectScale = Vector3.one,
+				},
+				eventData: unityObjs,
+				//localization: LoadLocalization(context),
+				defaultMap: 0,
+				defaultCollisionMap: 0,
+				cellSize: 8);
+
+			///throw new NotImplementedException();
 		}
 	}
 }

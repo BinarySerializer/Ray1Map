@@ -292,8 +292,8 @@ namespace R1Engine
 		}
 
 		public class Struct6 : R1Serializable {
-			public byte Byte0 { get; set; }
-			public byte Byte1 { get; set; }
+			public byte PuppetIndex { get; set; }
+			public byte AnimationIndex { get; set; }
 			public byte Byte2 { get; set; }
 			public short Short3 { get; set; }
 			public short Short5 { get; set; }
@@ -303,8 +303,8 @@ namespace R1Engine
 			public byte Byte12 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Byte0 = s.Serialize<byte>(Byte0, name: nameof(Byte0));
-				Byte1 = s.Serialize<byte>(Byte1, name: nameof(Byte1));
+				PuppetIndex = s.Serialize<byte>(PuppetIndex, name: nameof(PuppetIndex));
+				AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
 				Byte2 = s.Serialize<byte>(Byte2, name: nameof(Byte2));
 				Short3 = s.Serialize<short>(Short3, name: nameof(Short3));
 				Short5 = s.Serialize<short>(Short5, name: nameof(Short5));

@@ -199,7 +199,7 @@ namespace R1Engine
                         }
                     }
                 }
-                if (!LevelEditorData.Level.Maps[0].Type.HasFlag(Unity_Map.MapType.Collision)) {
+                if (LevelEditorData.Level.Maps.Length > 0 && !LevelEditorData.Level.Maps[0].Type.HasFlag(Unity_Map.MapType.Collision)) {
                     Destroy(CollisionTilemaps[0].gameObject);
                     CollisionTilemaps[0] = null;
                 }
@@ -282,11 +282,13 @@ namespace R1Engine
                     ConfigureGraphicsMapLayer(i);
                 }
             }
-            if (!lvl.Maps[0].Type.HasFlag(Unity_Map.MapType.Graphics)) {
-                Destroy(GraphicsTilemaps[0].gameObject);
-                GraphicsTilemaps[0] = null;
-            } else {
-                ConfigureGraphicsMapLayer(0);
+            if (lvl.Maps.Length > 0) {
+                if (!lvl.Maps[0].Type.HasFlag(Unity_Map.MapType.Graphics)) {
+                    Destroy(GraphicsTilemaps[0].gameObject);
+                    GraphicsTilemaps[0] = null;
+                } else {
+                    ConfigureGraphicsMapLayer(0);
+                }
             }
             animatedTiles = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[GraphicsTilemaps.Length];
             for (int mapIndex = 0; mapIndex < lvl.Maps.Length; mapIndex++) {
@@ -407,6 +409,7 @@ namespace R1Engine
         private void CreateTilemapFull() {
             var lvl = LevelEditorData.Level;
             int mapWidth = 16;
+            if(lvl.Maps.Length == 0) return;
             int mapHeight = Mathf.CeilToInt(lvl.Maps[LevelEditorData.CurrentMap].TileSet[0].Tiles.Length / (float)mapWidth);
 
             int cellSize = LevelEditorData.Level.CellSize;

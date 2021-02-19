@@ -43,8 +43,10 @@ namespace R1Engine
             Sectors = sectors;
             IsometricData = isometricData;
 
-            MaxWidth = Maps.Max(m => m.Width);
-            MaxHeight = Maps.Max(m => m.Height);
+            if (Maps?.Length > 0) {
+                MaxWidth = Maps.Max(m => m.Width);
+                MaxHeight = Maps.Max(m => m.Height);
+            }
 
             GridMap = new Unity_Map
             {
