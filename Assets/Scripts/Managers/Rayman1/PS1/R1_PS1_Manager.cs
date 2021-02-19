@@ -286,13 +286,11 @@ namespace R1Engine
             long currentOffset = 0;
             Pointer getCurrentBlockPointer()
             {
-                var p = offset + (1 * 4) + currentOffset;
-
                 // Align by 4
-                if (p.AbsoluteOffset % 4 != 0)
-                    p += 4 - p.AbsoluteOffset % 4;
+                if (currentOffset % 4 != 0)
+                    currentOffset += 4 - currentOffset % 4;
 
-                return p;
+                return offset + (1 * 4) + currentOffset;
             }
 
             originalBlock.EventCount = (byte)events.Length;
