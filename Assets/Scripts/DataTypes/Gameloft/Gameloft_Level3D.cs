@@ -228,8 +228,8 @@ namespace R1Engine
 			public short Short2 { get; set; }
 			public short Short4 { get; set; }
 			public short Short6 { get; set; }
-			public short Short8 { get; set; }
-			public short ShortA { get; set; }
+			public short Min { get; set; }
+			public short Max { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Byte0 = s.Serialize<byte>(Byte0, name: nameof(Byte0));
@@ -237,8 +237,8 @@ namespace R1Engine
 				Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
 				Short4 = s.Serialize<short>(Short4, name: nameof(Short4));
 				Short6 = s.Serialize<short>(Short6, name: nameof(Short6));
-				Short8 = s.Serialize<short>(Short8, name: nameof(Short8));
-				ShortA = s.Serialize<short>(ShortA, name: nameof(ShortA));
+				Min = s.Serialize<short>(Min, name: nameof(Min));
+				Max = s.Serialize<short>(Max, name: nameof(Max));
 			}
 		}
 
@@ -395,7 +395,7 @@ namespace R1Engine
 			}
 		}
 		public class Type : R1Serializable {
-			public short Short0 { get; set; }
+			public short Flags { get; set; }
 
 			// Lowres only
 			public byte cg0 { get; set; }
@@ -408,7 +408,7 @@ namespace R1Engine
 			public RGB888Color Color8 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Short0 = s.Serialize<short>(Short0, name: nameof(Short0));
+				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
 				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
 					cg0 = s.Serialize<byte>(cg0, name: nameof(cg0));
 					cg1 = s.Serialize<byte>(cg1, name: nameof(cg1));

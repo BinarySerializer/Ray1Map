@@ -47,11 +47,164 @@ namespace R1Engine
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
 		}
 
+		public void CreateTrackMesh(Gameloft_Level3D level) {
+			Vector3 curPos = Vector3.zero;
+			float curAngle = 0f;
+			float curHeight = 0f;
+			float roadSize = 1f;
+			float groundSize = 2f;
+			float groundDisplacement = -0.2f;
+
+			var t = level.TrackBlocks;
+
+			// Road
+			Vector3[] verticesRoad = new Vector3[(t.Length) * 8];
+			Vector3[] normalsRoad = new Vector3[verticesRoad.Length];
+			Vector2[] uvsRoad = new Vector2[verticesRoad.Length];
+			Color[] colorsRoad = new Color[verticesRoad.Length];
+			int[] trianglesRoad = new int[(t.Length) * 12];
+
+			// Ground
+			Vector3[] verticesGround = new Vector3[(t.Length) * 8];
+			Vector3[] normalsGround = new Vector3[verticesGround.Length];
+			Vector2[] uvsGround = new Vector2[verticesGround.Length];
+			Color[] colorsGround = new Color[verticesGround.Length];
+			int[] trianglesGround = new int[(t.Length) * 12];
+
+			for (int i = 0; i < t.Length; i++) {
+				var curBlock = t[i];
+				float roadWidthFactor = ((level.Types[curBlock.Type].Flags & 1) == 1 ? level.Types[curBlock.Type].Short2 : 1000) / 1000f;
+				float roadSizeCur = roadSize * roadWidthFactor;
+
+				Quaternion q = Quaternion.Euler(0, curAngle, 0);
+				var curPosH = curPos + Vector3.up * curHeight;
+				verticesRoad[(i * 8) + 0] = curPosH + q * Vector3.left * roadSizeCur;
+				verticesRoad[(i * 8) + 1] = curPosH + q * Vector3.right * roadSizeCur;
+				verticesRoad[(i * 8) + 2] = curPosH + q * Vector3.left * roadSizeCur;
+				verticesRoad[(i * 8) + 3] = curPosH + q * Vector3.right * roadSizeCur;
+
+				verticesGround[(i * 8) + 0] = curPosH + q * Vector3.left * groundSize;
+				verticesGround[(i * 8) + 1] = curPosH + q * Vector3.right * groundSize;
+				verticesGround[(i * 8) + 2] = curPosH + q * Vector3.left * groundSize;
+				verticesGround[(i * 8) + 3] = curPosH + q * Vector3.right * groundSize;
+
+				curPos += q * Vector3.forward;
+				curHeight += curBlock.DeltaHeight * 0.05f;
+				curAngle -= curBlock.DeltaRotation;
+
+				q = Quaternion.Euler(0, curAngle, 0);
+				curPosH = curPos + Vector3.up * curHeight;
+				verticesRoad[(i * 8) + 4] = curPosH + q * Vector3.left * roadSizeCur;
+				verticesRoad[(i * 8) + 5] = curPosH + q * Vector3.right * roadSizeCur;
+				verticesRoad[(i * 8) + 6] = curPosH + q * Vector3.left * roadSizeCur;
+				verticesRoad[(i * 8) + 7] = curPosH + q * Vector3.right * roadSizeCur;
+
+				verticesGround[(i * 8) + 4] = curPosH + q * Vector3.left * groundSize;
+				verticesGround[(i * 8) + 5] = curPosH + q * Vector3.right * groundSize;
+				verticesGround[(i * 8) + 6] = curPosH + q * Vector3.left * groundSize;
+				verticesGround[(i * 8) + 7] = curPosH + q * Vector3.right * groundSize;
+
+				// Up
+				trianglesRoad[(i * 12) + 0] = (i * 8) + 0;
+				trianglesRoad[(i * 12) + 1] = (i * 8) + 4;
+				trianglesRoad[(i * 12) + 2] = (i * 8) + 1;
+				trianglesRoad[(i * 12) + 3] = (i * 8) + 1;
+				trianglesRoad[(i * 12) + 4] = (i * 8) + 4;
+				trianglesRoad[(i * 12) + 5] = (i * 8) + 5;
+				// Down
+				trianglesRoad[(i * 12) + 6] = (i * 8) + 2;
+				trianglesRoad[(i * 12) + 7] = (i * 8) + 3;
+				trianglesRoad[(i * 12) + 8] = (i * 8) + 7;
+				trianglesRoad[(i * 12) + 9] = (i * 8) + 2;
+				trianglesRoad[(i * 12) + 10] = (i * 8) + 7;
+				trianglesRoad[(i * 12) + 11] = (i * 8) + 6;
+
+				// Up
+				trianglesGround[(i * 12) + 0] = (i * 8) + 0;
+				trianglesGround[(i * 12) + 1] = (i * 8) + 4;
+				trianglesGround[(i * 12) + 2] = (i * 8) + 1;
+				trianglesGround[(i * 12) + 3] = (i * 8) + 1;
+				trianglesGround[(i * 12) + 4] = (i * 8) + 4;
+				trianglesGround[(i * 12) + 5] = (i * 8) + 5;
+				// Down
+				trianglesGround[(i * 12) + 6] = (i * 8) + 2;
+				trianglesGround[(i * 12) + 7] = (i * 8) + 3;
+				trianglesGround[(i * 12) + 8] = (i * 8) + 7;
+				trianglesGround[(i * 12) + 9] = (i * 8) + 2;
+				trianglesGround[(i * 12) + 10] = (i * 8) + 7;
+				trianglesGround[(i * 12) + 11] = (i * 8) + 6;
+
+				// Test colors
+				var roadCol = (level.Types[curBlock.Type].Flags & 1) == 1 ? (level.Color_dk_BridgeLight ?? level.Types[curBlock.Type].ColorGround).GetColor() : Color.blue;
+				colorsRoad[(i * 8) + 0] = roadCol;
+				colorsRoad[(i * 8) + 1] = roadCol;
+				colorsRoad[(i * 8) + 4] = roadCol;
+				colorsRoad[(i * 8) + 5] = roadCol;
+
+				colorsRoad[(i * 8) + 2] = Color.red;
+				colorsRoad[(i * 8) + 3] = Color.red;
+				colorsRoad[(i * 8) + 6] = Color.red;
+				colorsRoad[(i * 8) + 7] = Color.red;
+
+				// Ground colors
+				var groundCol = (level.Types[curBlock.Type].Flags & 1) == 1 ? level.Types[curBlock.Type].Color8.GetColor() : level.Types[curBlock.Type].ColorGround.GetColor();
+				colorsGround[(i * 8) + 0] = groundCol;
+				colorsGround[(i * 8) + 1] = groundCol;
+				colorsGround[(i * 8) + 4] = groundCol;
+				colorsGround[(i * 8) + 5] = groundCol;
+				colorsGround[(i * 8) + 2] = groundCol;
+				colorsGround[(i * 8) + 3] = groundCol;
+				colorsGround[(i * 8) + 6] = groundCol;
+				colorsGround[(i * 8) + 7] = groundCol;
+
+				// Normals
+				//normalsRoad[(i * 8) + 0] =
+			}
+
+			GameObject gaoParent = new GameObject();
+			gaoParent.transform.position = Vector3.zero;
+
+			// Road
+			Mesh roadMesh = new Mesh();
+			roadMesh.vertices = verticesRoad;
+			roadMesh.triangles = trianglesRoad;
+			roadMesh.colors = colorsRoad;
+			roadMesh.RecalculateNormals();
+			GameObject gao = new GameObject("Road mesh");
+			MeshFilter mf = gao.AddComponent<MeshFilter>();
+			MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+			gao.layer = LayerMask.NameToLayer("3D Collision");
+			gao.transform.SetParent(gaoParent.transform);
+			gao.transform.localScale = Vector3.one;
+			gao.transform.localPosition = Vector3.zero;
+			mf.mesh = roadMesh;
+			mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+
+			// Ground
+			Mesh groundMesh = new Mesh();
+			groundMesh.vertices = verticesGround;
+			groundMesh.triangles = trianglesGround;
+			groundMesh.colors = colorsGround;
+			groundMesh.RecalculateNormals();
+			GameObject g_gao = new GameObject("Ground mesh");
+			MeshFilter g_mf = g_gao.AddComponent<MeshFilter>();
+			MeshRenderer g_mr = g_gao.AddComponent<MeshRenderer>();
+			g_gao.layer = LayerMask.NameToLayer("3D Collision");
+			g_gao.transform.SetParent(gaoParent.transform);
+			g_gao.transform.localScale = Vector3.one;
+			g_gao.transform.localPosition = Vector3.zero + Vector3.up * groundDisplacement;
+			g_mf.mesh = groundMesh;
+			g_mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+
+		}
+
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			await UniTask.CompletedTask;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
 			var ind = GetLevelResourceIndex(context.Settings);
 			var level = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind, name: $"Level_{ind}");
+
+			CreateTrackMesh(level);
 
 			UnityEngine.Debug.Log("Sum rotation: " + level.TrackBlocks.Sum(o => o.DeltaRotation));
 			UnityEngine.Debug.Log("Sum height: " + level.TrackBlocks.Sum(o => o.DeltaHeight));
@@ -60,10 +213,10 @@ namespace R1Engine
 			float curHeight = 0f;
 			int curBlockIndex = 0;
 			foreach (var o in level.TrackBlocks) {
-				var sphere = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				var sphere = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Cube);
 				sphere.transform.position = curPos + Vector3.up * curHeight;
 				sphere.transform.rotation = Quaternion.Euler(0, curAngle, 0);
-				sphere.transform.localScale = new Vector3((level.Types[o.Type].Short2 > 0 ? level.Types[o.Type].Short2 : 1000) / 1000f, 1, 1);
+				//sphere.transform.localScale = new Vector3((level.Types[o.Type].Short2 > 0 ? level.Types[o.Type].Short2 : 1000) / 1000f, 1, 1);
 
 				var str12 = level.Structs12?.Where(s12 => s12.Struct0Index == curBlockIndex);
 				if (str12 != null) {
@@ -95,12 +248,12 @@ namespace R1Engine
 				curPos += Quaternion.Euler(0,curAngle,0) * Vector3.forward;
 				curHeight += o.DeltaHeight * 0.05f;
 				curAngle -= o.DeltaRotation;
-				sphere.gameObject.name = $"{o.Type} | {o.Flags} | {o.Unknown}";
+				sphere.gameObject.name = $"{curBlockIndex}: {o.Type} | {o.Flags} | {o.Unknown} | {level.Types[o.Type].Flags}";
 
 				/*UnityEngine.Random.InitState((int)o.Unknown);
 				var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);*/
-				var color = level.Types[o.Type].ColorGround.GetColor();
-				sphere.GetComponent<Renderer>().material.color = color;
+				//var color = level.Types[o.Type].ColorGround.GetColor();
+				//sphere.GetComponent<Renderer>().material.color = color;
 				//sphere.GetComponent<Renderer>().enabled = false;
 				curBlockIndex++;
 			}
