@@ -728,6 +728,7 @@ function formatOpenSpaceTextR3(text) {
 }
 function formatText(text) {
 	let orgText = text;
+	if(text === null) return "";
 	if (formattedTexts[text]!==undefined) {
 		// Regexes are expen$ive - RTS
 		return formattedTexts[text];

@@ -165,7 +165,7 @@ namespace R1Engine
                 return i == -1 ? 0 : i;
             }
             set {
-                if (value == CurrentUIState || UIStates == null || value >= UIStates.Length)
+                if (value == CurrentUIState || UIStates == null || value >= UIStates.Length || value < 0)
                     return;
 
                 UIStates[value]?.Apply(this);
