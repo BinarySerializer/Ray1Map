@@ -284,7 +284,16 @@ namespace R1Engine
         public void UpdateAndFillDataBlock(Pointer offset, R1_PS1_EventBlock originalBlock, R1_EventData[] events, byte[] eventLinkingTable, GameSettings settings)
         {
             long currentOffset = 0;
-            Pointer getCurrentBlockPointer() => offset + (1 * 4) + currentOffset;
+            Pointer getCurrentBlockPointer()
+            {
+                var p = offset + (1 * 4) + currentOffset;
+
+                // Align by 4
+                if (p.AbsoluteOffset % 4 != 0)
+                    p += 4 - p.AbsoluteOffset % 4;
+
+                return p;
+            }
 
             originalBlock.EventCount = (byte)events.Length;
             originalBlock.EventsPointer = getCurrentBlockPointer();
