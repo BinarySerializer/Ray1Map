@@ -29,7 +29,7 @@
                 MapLayers = new GBAVV_WorldMap_MapLayer[MapLayerPointers.Length];
 
             for (int i = 0; i < MapLayers.Length; i++)
-                MapLayers[i] = s.DoAt(MapLayerPointers[i], () => s.SerializeObject<GBAVV_WorldMap_MapLayer>(MapLayers[i], x => x.Is8bpp = i == 3, name: $"{nameof(MapLayers)}[{i}]"));
+                MapLayers[i] = s.DoAt(MapLayerPointers[i], () => s.SerializeObject<GBAVV_WorldMap_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
 
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Map2D_ObjData>(ObjData, name: nameof(ObjData)));
             TileSets = s.DoAt(TileSetsPointer, () => s.SerializeObject<GBAVV_WorldMap_TileSets>(TileSets, name: nameof(TileSets)));

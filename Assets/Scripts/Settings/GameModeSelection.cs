@@ -388,6 +388,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBAVV_Crash2_Manager))]
         Crash2GBAJP,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Fusion, Game.GBAVV_CrashFusion, "Crash Bandicoot Purple Ripto's Rampage (GBA - US)", typeof(GBAVV_CrashFusionUS_Manager))]
+        CrashFusionGBAUS,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, low res)", typeof(Gameloft_RRR_Manager))]

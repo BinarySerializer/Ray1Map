@@ -4,8 +4,6 @@ namespace R1Engine
 {
     public class GBAVV_WorldMap_MapLayer : R1Serializable
     {
-        public bool Is8bpp { get; set; } // Set before serializing
-
         public Pointer MapTilesPointer { get; set; }
         public Pointer TileMapPointer { get; set; }
         public uint LayerPrio { get; set; }
@@ -30,8 +28,16 @@ namespace R1Engine
             Uint_18 = s.Serialize<uint>(Uint_18, name: nameof(Uint_18));
 
             TileMap = s.DoAt(TileMapPointer, () => s.SerializeObject<GBAVV_Isometric_MapLayer>(TileMap, x => x.IsWorldMap = true, name: nameof(TileMap)));
-            var mapTilesLength = TileMap.TileMapRows.SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
-            MapTiles = s.DoAt(MapTilesPointer, () => s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.GBAVV_IsWorldMap8bpp = Is8bpp, name: nameof(MapTiles)));
+
+            s.DoAt(MapTilesPointer, () =>
+            {
+                var mapTilesLength = TileMap.TileMapRows.SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
+
+                s.DoEncodedIf(new GBA_LZSSEncoder(), s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion, () =>
+                {
+                    MapTiles = s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.GBAVV_IsWorldMap = true, name: nameof(MapTiles));
+                });
+            });
         }
     }
 }

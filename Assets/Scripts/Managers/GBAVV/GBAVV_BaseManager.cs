@@ -17,7 +17,7 @@ namespace R1Engine
         public string GetROMFilePath => "ROM.gba";
 
         public abstract LevInfo[] LevInfos { get; }
-        public abstract int LocTableCount { get; }
+        public virtual int LocTableCount => 0;
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
@@ -32,7 +32,7 @@ namespace R1Engine
             new GameAction("Export level icons", false, true, (input, output) => ExportLevelIcons(settings, output)),
         };
 
-        public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
+        public virtual async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
         {
             // Export 2D animations
             using (var context = new Context(settings))
@@ -41,7 +41,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(0, 0, null));
+                var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
 
                 await UniTask.WaitForEndOfFrame();
 
@@ -56,57 +56,66 @@ namespace R1Engine
                         await UniTask.WaitForEndOfFrame();
 
                         var anim = animSet.Animations[animIndex];
-                        var frames = GetAnimFrames(animSet, animIndex, rom.Map2D_Graphics.TileSet, Util.ConvertGBAPalette(rom.Map2D_Graphics.Palettes[anim.PaletteIndex].Palette));
+                        var frames = GetAnimFrames(animSet, animIndex, rom.Map2D_Graphics.TileSet, rom.Map2D_Graphics.Palettes);
 
-                        exportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}", false);
+                        if (!frames.Any())
+                            continue;
+
+                        if (context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion)
+                            ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex}_0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex}_{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
+                        else
+                            ExportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}", false, saveAsGif, outputDir);
                     }
                 }
             }
 
             // Export Mode7 animations
-            for (short mode7Level = 0; mode7Level < 7; mode7Level++)
+            if (settings.EngineVersion != EngineVersion.GBAVV_Fusion)
             {
-                var exportedAnimSets = new HashSet<Pointer>();
-
-                using (var context = new Context(settings))
+                for (short mode7Level = 0; mode7Level < 7; mode7Level++)
                 {
-                    // Load the files
-                    await LoadFilesAsync(context);
+                    var exportedAnimSets = new HashSet<Pointer>();
 
-                    // Read the rom
-                    var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBAVV_MapInfo.GBAVV_MapType.Mode7, mode7Level, null));
-
-                    var levInfo = rom.CurrentMode7LevelInfo;
-
-                    var tilePal = rom.Mode7_GetTilePal(levInfo);
-                    var pal = Util.ConvertAndSplitGBAPalette(levInfo.ObjPalette.Concat(tilePal).ToArray());
-                    var animSetIndex = -1;
-
-                    // Enumerate every anim set
-                    foreach (var animSet in levInfo.GetAllAnimSets)
+                    using (var context = new Context(settings))
                     {
-                        animSetIndex++;
+                        // Load the files
+                        await LoadFilesAsync(context);
 
-                        if (animSet?.Animations == null || exportedAnimSets.Contains(animSet.AnimationsPointer))
-                            continue;
+                        // Read the rom
+                        var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new LevInfo(GBAVV_MapInfo.GBAVV_MapType.Mode7, mode7Level, null));
 
-                        exportedAnimSets.Add(animSet.AnimationsPointer);
+                        var levInfo = rom.CurrentMode7LevelInfo;
 
-                        for (int animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
+                        var tilePal = rom.Mode7_GetTilePal(levInfo);
+                        var pal = Util.ConvertAndSplitGBAPalette(levInfo.ObjPalette.Concat(tilePal).ToArray());
+                        var animSetIndex = -1;
+
+                        // Enumerate every anim set
+                        foreach (var animSet in levInfo.GetAllAnimSets)
                         {
-                            await UniTask.WaitForEndOfFrame();
-                            var frames = GetMode7AnimFrames(animSet, animSetIndex, animIndex, pal, levInfo);
+                            animSetIndex++;
 
-                            exportAnim(frames, 4, "Mode7", $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}", $"{animIndex}", true);
+                            if (animSet?.Animations == null || exportedAnimSets.Contains(animSet.AnimationsPointer))
+                                continue;
+
+                            exportedAnimSets.Add(animSet.AnimationsPointer);
+
+                            for (int animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
+                            {
+                                await UniTask.WaitForEndOfFrame();
+                                var frames = GetMode7AnimFrames(animSet, animSetIndex, animIndex, pal, levInfo);
+
+                                ExportAnim(frames, 4, "Mode7", $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}", $"{animIndex}", true, saveAsGif, outputDir);
+                            }
                         }
-                    }
 
-                    // Export special frames
-                    if (levInfo.SpecialFrames != null && !exportedAnimSets.Contains(levInfo.SpecialFrames.Offset))
-                    {
-                        exportedAnimSets.Add(levInfo.SpecialFrames.Offset);
+                        // Export special frames
+                        if (levInfo.SpecialFrames != null && !exportedAnimSets.Contains(levInfo.SpecialFrames.Offset))
+                        {
+                            exportedAnimSets.Add(levInfo.SpecialFrames.Offset);
 
-                        exportAnim(GetMode7SpecialAnimFrames(levInfo.SpecialFrames), 4, "Mode7", $"0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}", $"0", true);
+                            ExportAnim(GetMode7SpecialAnimFrames(levInfo.SpecialFrames), 4, "Mode7", $"0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}", $"0", true, saveAsGif, outputDir);
+                        }
                     }
                 }
             }
@@ -133,57 +142,56 @@ namespace R1Engine
 
                         var frames = GetIsometricAnimFrames(animations[i], pal);
 
-                        exportAnim(frames, 4, "Isometric", $"{i}", $"0", true);
+                        ExportAnim(frames, 4, "Isometric", $"{i}", $"0", true, saveAsGif, outputDir);
                     }
                 }
             }
 
             Debug.Log($"Finished export");
+        }
 
-            // Helper for exporting an animation
-            void exportAnim(IList<Texture2D> frames, int speed, string modeName, string animSetName, string animName, bool center)
+        protected void ExportAnim(IList<Texture2D> frames, int speed, string modeName, string animSetName, string animName, bool center, bool saveAsGif, string outputDir)
+        {
+            var modeDir = Path.Combine(outputDir, modeName);
+
+            Directory.CreateDirectory(modeDir);
+
+            if (saveAsGif)
             {
-                var modeDir = Path.Combine(outputDir, modeName);
-
-                Directory.CreateDirectory(modeDir);
-
-                if (saveAsGif)
+                using (MagickImageCollection collection = new MagickImageCollection())
                 {
-                    using (MagickImageCollection collection = new MagickImageCollection())
+                    int index = 0;
+
+                    var maxWidth = frames.Max(x => x.width);
+                    var maxHeight = frames.Max(x => x.height);
+
+                    foreach (var frameTex in frames)
                     {
-                        int index = 0;
+                        var img = frameTex.ToMagickImage();
+                        collection.Add(img);
+                        collection[index].AnimationDelay = speed;
+                        collection[index].AnimationTicksPerSecond = 60;
 
-                        var maxWidth = frames.Max(x => x.width);
-                        var maxHeight = frames.Max(x => x.height);
+                        if (center)
+                            collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
 
-                        foreach (var frameTex in frames)
-                        {
-                            var img = frameTex.ToMagickImage();
-                            collection.Add(img);
-                            collection[index].AnimationDelay = speed;
-                            collection[index].AnimationTicksPerSecond = 60;
-
-                            if (center)
-                                collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
-
-                            collection[index].Trim();
-                            collection[index].GifDisposeMethod = GifDisposeMethod.Background;
-                            index++;
-                        }
-
-                        // Save gif
-                        collection.Write(Path.Combine(modeDir, $"{animSetName} - {animName}.gif"));
+                        collection[index].Trim();
+                        collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                        index++;
                     }
+
+                    // Save gif
+                    collection.Write(Path.Combine(modeDir, $"{animSetName} - {animName}.gif"));
                 }
-                else
-                {
-                    var frameIndex = 0;
+            }
+            else
+            {
+                var frameIndex = 0;
 
-                    foreach (var tex in frames)
-                    {
-                        Util.ByteArrayToFile(Path.Combine(modeDir, $"{animSetName}", $"{animName}", $"{frameIndex}.png"), tex.EncodeToPNG());
-                        frameIndex++;
-                    }
+                foreach (var tex in frames)
+                {
+                    Util.ByteArrayToFile(Path.Combine(modeDir, $"{animSetName}", $"{animName}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                    frameIndex++;
                 }
             }
         }
@@ -230,7 +238,7 @@ namespace R1Engine
             }
         }
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
@@ -674,7 +682,7 @@ namespace R1Engine
 
         public async UniTask<Unity_Level> LoadWorldMapAsync(Context context, GBAVV_ROM rom)
         {
-            var map = rom.WorldMap;
+            var map = rom.CurrentWorldMapData;
 
             Controller.DetailedState = "Loading tilesets";
             await Controller.WaitIfNecessary();
@@ -1631,7 +1639,7 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBAVV.AnimSet[] LoadAnimSets(GBAVV_ROM rom)
         {
-            IEnumerable<GBAVV_Map2D_AnimSet> animSets = rom.Map2D_Graphics.AnimSets;
+            IEnumerable<GBAVV_Map2D_AnimSet> animSets = rom.Map2D_Graphics?.AnimSets ?? new GBAVV_Map2D_AnimSet[0];
 
             // Create an anim set for Fake Crash
             if (rom.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
@@ -1646,14 +1654,14 @@ namespace R1Engine
                         RenderBox = x.RenderBox,
                         PaletteIndex = 5,
                         AnimSpeed = x.AnimSpeed,
-                        FrameTable = x.FrameTable
+                        FrameIndexTable = x.FrameIndexTable
                     }).ToArray(),
                     AnimationFrames = crash.AnimationFrames
                 });
             }
 
             return animSets.Select(animSet => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
-                animFrameFunc: () => GetAnimFrames(animSet, i, rom.Map2D_Graphics.TileSet, Util.ConvertGBAPalette(rom.Map2D_Graphics.Palettes[anim.PaletteIndex].Palette)).Select(frame => frame.CreateSprite()).ToArray(),
+                animFrameFunc: () => GetAnimFrames(animSet, i, rom.Map2D_Graphics.TileSet, rom.Map2D_Graphics.Palettes).Select(frame => frame.CreateSprite()).ToArray(),
                 crashAnim: anim,
                 xPos: animSet.GetMinX(i),
                 yPos: animSet.GetMinY(i)
@@ -1690,22 +1698,24 @@ namespace R1Engine
                 crashAnim: anim)).ToArray();
         }
 
-        public Texture2D[] GetAnimFrames(GBAVV_Map2D_AnimSet animSet, int animIndex, byte[] tileSet, Color[] pal)
+        public Texture2D[] GetAnimFrames(GBAVV_Map2D_AnimSet animSet, int animIndex, byte[] tileSet, GBAVV_Map2D_ObjPal[] palettes)
         {
-            var shapes = GBAVV_Map2D_AnimSet.TileShapes;
-
+            // Get properties
+            var shapes = TileShapes;
             var anim = animSet.Animations[animIndex];
-            var frames = anim.FrameTable.Select(x => animSet.AnimationFrames[x]).ToArray();
+            var frames = anim.FrameIndexTable.Select(x => animSet.AnimationFrames[x]).ToArray();
+            var pal = palettes != null ? Util.ConvertGBAPalette(palettes[anim.PaletteIndex].Palette) : Util.ConvertGBAPalette(anim.Fusion_Palette);
 
-            if (!frames.Any())
+            // Return empty animation if there are no frames
+            if (!frames.Any(x => x.TilesCount > 0))
                 return new Texture2D[0];
 
             var output = new Texture2D[frames.Length];
 
             var minX = animSet.GetMinX(animIndex);
             var minY = animSet.GetMinY(animIndex);
-            var maxX = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].XPos + shapes[f.TileShapes[x].ShapeIndex].x)).Max();
-            var maxY = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].YPos + shapes[f.TileShapes[x].ShapeIndex].y)).Max();
+            var maxX = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].XPos + shapes[f.GetTileShape(x)].x)).Max();
+            var maxY = frames.SelectMany(f => Enumerable.Range(0, f.TilesCount).Select(x => f.TilePositions[x].YPos + shapes[f.GetTileShape(x)].y)).Max();
 
             var width = maxX - minX;
             var height = maxY - minY;
@@ -1724,7 +1734,7 @@ namespace R1Engine
 
                     for (int i = 0; i < frame.TilesCount; i++)
                     {
-                        var shape = shapes[frame.TileShapes[i].ShapeIndex];
+                        var shape = shapes[frame.GetTileShape(i)];
                         var pos = frame.TilePositions[i];
 
                         for (int y = 0; y < shape.y; y += 8)
@@ -1732,7 +1742,7 @@ namespace R1Engine
                             for (int x = 0; x < shape.x; x += 8)
                             {
                                 tex.FillInTile(
-                                    imgData: tileSet,
+                                    imgData: tileSet ?? frame.Fusion_TileSet,
                                     imgDataOffset: offset,
                                     pal: pal,
                                     encoding: Util.TileEncoding.Linear_4bpp,
@@ -1938,6 +1948,7 @@ namespace R1Engine
                 MapType = Type.Normal;
                 DisplayName = displayName;
             }
+            public LevInfo(int levelIndex, string displayName) : this(levelIndex, 0, displayName) { }
             public LevInfo(int levelIndex, Type mapType, string displayName)
             {
                 LevelIndex = levelIndex;
@@ -1968,5 +1979,21 @@ namespace R1Engine
                 Challenge
             }
         }
+
+        public static Vector2Int[] TileShapes { get; } = new Vector2Int[]
+        {
+            new Vector2Int(0x08, 0x08),
+            new Vector2Int(0x10, 0x10),
+            new Vector2Int(0x20, 0x20),
+            new Vector2Int(0x40, 0x40),
+            new Vector2Int(0x10, 0x08),
+            new Vector2Int(0x20, 0x08),
+            new Vector2Int(0x20, 0x10),
+            new Vector2Int(0x40, 0x20),
+            new Vector2Int(0x08, 0x10),
+            new Vector2Int(0x08, 0x20),
+            new Vector2Int(0x10, 0x20),
+            new Vector2Int(0x20, 0x40),
+        };
     }
 }

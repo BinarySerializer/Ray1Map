@@ -40,7 +40,7 @@ namespace R1Engine
                     XPos = xPos;
                     YPos = yPos;
 
-                    AnimHitBox = new Unity_ObjAnimationCollisionPart[]
+                    AnimHitBox = CrashAnim.HitBox == null ? new Unity_ObjAnimationCollisionPart[0] : new Unity_ObjAnimationCollisionPart[]
                     {
                         new Unity_ObjAnimationCollisionPart()
                         {

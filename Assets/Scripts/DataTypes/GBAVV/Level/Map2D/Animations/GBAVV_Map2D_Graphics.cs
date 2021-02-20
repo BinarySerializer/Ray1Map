@@ -17,18 +17,32 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            AnimSetsPointer = s.SerializePointer(AnimSetsPointer, name: nameof(AnimSetsPointer));
-            TileSetPointer = s.SerializePointer(TileSetPointer, name: nameof(TileSetPointer));
-            PalettesPointer = s.SerializePointer(PalettesPointer, name: nameof(PalettesPointer));
-            AnimSetsCount = s.Serialize<ushort>(AnimSetsCount, name: nameof(AnimSetsCount));
-            PalettesCount = s.Serialize<ushort>(PalettesCount, name: nameof(PalettesCount));
+            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_Fusion)
+            {
+                AnimSetsPointer = s.SerializePointer(AnimSetsPointer, name: nameof(AnimSetsPointer));
+                TileSetPointer = s.SerializePointer(TileSetPointer, name: nameof(TileSetPointer));
+                PalettesPointer = s.SerializePointer(PalettesPointer, name: nameof(PalettesPointer));
+                AnimSetsCount = s.Serialize<ushort>(AnimSetsCount, name: nameof(AnimSetsCount));
+                PalettesCount = s.Serialize<ushort>(PalettesCount, name: nameof(PalettesCount));
 
-            AnimSets = s.DoAt(AnimSetsPointer, () => s.SerializeObjectArray<GBAVV_Map2D_AnimSet>(AnimSets, AnimSetsCount, name: nameof(AnimSets)));
+                AnimSets = s.DoAt(AnimSetsPointer, () => s.SerializeObjectArray<GBAVV_Map2D_AnimSet>(AnimSets, AnimSetsCount, name: nameof(AnimSets)));
 
-            var tileSetLength = AnimSets.SelectMany(x => x.AnimationFrames).Select(x =>
-                x.TileOffset + (x.TileShapes.Select(t => (GBAVV_Map2D_AnimSet.TileShapes[t.ShapeIndex].x * GBAVV_Map2D_AnimSet.TileShapes[t.ShapeIndex].y) / 2).Sum())).Max();
-            TileSet = s.DoAt(TileSetPointer, () => s.SerializeArray<byte>(TileSet, tileSetLength, name: nameof(TileSet)));
-            Palettes = s.DoAt(PalettesPointer, () => s.SerializeObjectArray<GBAVV_Map2D_ObjPal>(Palettes, PalettesCount, name: nameof(Palettes)));
+                var tileSetLength = AnimSets.SelectMany(x => x.AnimationFrames).Select(x =>
+                    x.TileOffset + (x.TileShapes.Select(t => (GBAVV_BaseManager.TileShapes[t.ShapeIndex].x * GBAVV_BaseManager.TileShapes[t.ShapeIndex].y) / 2).Sum())).Max();
+                TileSet = s.DoAt(TileSetPointer, () => s.SerializeArray<byte>(TileSet, tileSetLength, name: nameof(TileSet)));
+                Palettes = s.DoAt(PalettesPointer, () => s.SerializeObjectArray<GBAVV_Map2D_ObjPal>(Palettes, PalettesCount, name: nameof(Palettes)));
+            }
+            else
+            {
+                // Since animation sets are referenced directly in Fusion there is no array
+                var pointers = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).AnimSetPointers;
+
+                if (AnimSets == null)
+                    AnimSets = new GBAVV_Map2D_AnimSet[pointers.Length];
+
+                for (int i = 0; i < pointers.Length; i++)
+                    AnimSets[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Map2D_AnimSet>(AnimSets[i], name: $"{nameof(AnimSets)}[{i}]"));
+            }
         }
     }
 }

@@ -84,6 +84,7 @@ namespace R1Engine
 
         GBAVV_Crash1,
         GBAVV_Crash2,
+        GBAVV_Fusion,
 
         // Gameloft
 

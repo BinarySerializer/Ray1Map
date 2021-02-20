@@ -50,6 +50,9 @@ namespace R1Engine
                 case Game.GBAVV_Crash2:
                     return Crash2GBANames;
 
+                case Game.GBAVV_CrashFusion:
+                    return CrashFusionGBANames;
+
                 case Game.Gameloft_RK:
                     return RaymanKartNames;
 
@@ -910,6 +913,9 @@ namespace R1Engine
         };
         private static Dictionary<int, Dictionary<int, string>> Crash2GBANames { get; } = new Dictionary<int, Dictionary<int, string>>() {
             [0] = GBAVV_Crash2_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
+        };
+        private static Dictionary<int, Dictionary<int, string>> CrashFusionGBANames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = GBAVV_CrashFusion_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
     }
 }
