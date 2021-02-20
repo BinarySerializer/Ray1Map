@@ -70,9 +70,9 @@ namespace R1Engine
 		public ushort cF { get; set; }
 		public TrackObjectInstance[] TrackObjectInstances { get; set; }
 		public TrackObjectCollection[] TrackObjectCollections { get; set; }
-		public byte Structs11Count { get; set; }
+		public byte TypesCount { get; set; }
 		public Type[] Types { get; set; }
-		public Struct12[] Structs12 { get; set; }
+		public Lum[] Lums { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			TrackLength = s.Serialize<ushort>(TrackLength, name: nameof(TrackLength));
@@ -146,9 +146,9 @@ namespace R1Engine
 			cF = s.Serialize<ushort>(cF, name: nameof(cF));
 			TrackObjectInstances = s.SerializeObjectArray<TrackObjectInstance>(TrackObjectInstances, cF, name: nameof(TrackObjectInstances));
 			if(cF > 0) TrackObjectCollections = s.SerializeObjectArray<TrackObjectCollection>(TrackObjectCollections, TrackLength, name: nameof(TrackObjectCollections));
-			Structs11Count = s.Serialize<byte>(Structs11Count, name: nameof(Structs11Count));
-			Types = s.SerializeObjectArray<Type>(Types, Structs11Count, name: nameof(Types));
-			Structs12 = s.SerializeObjectArray<Struct12>(Structs12, Structs12Count, name: nameof(Structs12));
+			TypesCount = s.Serialize<byte>(TypesCount, name: nameof(TypesCount));
+			Types = s.SerializeObjectArray<Type>(Types, TypesCount, name: nameof(Types));
+			Lums = s.SerializeObjectArray<Lum>(Lums, Structs12Count, name: nameof(Lums));
 		}
 
 		public class TrackBlock : R1Serializable {
@@ -436,13 +436,13 @@ namespace R1Engine
 		}
 
 
-		public class Struct12 : R1Serializable {
-			public byte Struct0Index { get; set; }
-			public short Unknown { get; set; }
+		public class Lum : R1Serializable {
+			public byte TrackBlockIndex { get; set; }
+			public short XPosition { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Struct0Index = s.Serialize<byte>(Struct0Index, name: nameof(Struct0Index));
-				Unknown = s.Serialize<short>(Unknown, name: nameof(Unknown));
+				TrackBlockIndex = s.Serialize<byte>(TrackBlockIndex, name: nameof(TrackBlockIndex));
+				XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
 			}
 		}
 	}

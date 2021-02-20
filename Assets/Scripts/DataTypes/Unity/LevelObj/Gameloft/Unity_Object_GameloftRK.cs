@@ -31,6 +31,9 @@ namespace R1Engine
         public override short YPosition { get; set; }
 
         public override string DebugText => $"ObjectType: {Object.ObjectType}{Environment.NewLine}" +
+            $"FlagUnknown: {Instance.FlagUnknown}{Environment.NewLine}" +
+            $"DisplaySprite: {Instance.DisplaySprite}{Environment.NewLine}" +
+            $"HasCollision: {Instance.HasCollision}{Environment.NewLine}" +
             $"FlagLast: {Instance.FlagLast}{Environment.NewLine}";
 
 

@@ -250,14 +250,16 @@ namespace R1Engine
 				sphere.transform.rotation = Quaternion.Euler(0, curAngle, 0);
 				//sphere.transform.localScale = new Vector3((level.Types[o.Type].Short2 > 0 ? level.Types[o.Type].Short2 : 1000) / 1000f, 1, 1);
 
-				var str12 = level.Structs12?.Where(s12 => s12.Struct0Index == curBlockIndex);
-				if (str12 != null) {
-					foreach (var s12 in str12) {
-						var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-						cube.transform.SetParent(sphere.transform);
-						cube.transform.localPosition = new Vector3(s12.Unknown * 0.005f,2,0);
-						cube.transform.localRotation = Quaternion.identity;
-						cube.transform.localScale = Vector3.one * 0.5f;
+				var lumsForCurrentBlock = level.Lums?.Where(s12 => s12.TrackBlockIndex == curBlockIndex);
+				if (lumsForCurrentBlock != null) {
+					foreach (var lum in lumsForCurrentBlock) {
+						var pos = sphere.transform.TransformPoint(new Vector3(lum.XPosition * 0.001f, 0.05f, 0));
+						// TODO: Add Lum object here. As waypoint? As lum/coin (load puppet first)?
+						// Maybe have a system for objects with custom puppets, so player puppets can be displayed? 
+						/*objs.Add(new Unity_Object_GameloftRK(objManager, s8, level.ObjectTypes[s8.ObjectType]) {
+							Position = new Vector3(pos.x, -pos.z, pos.y),
+							Instance = blk
+						});*/
 					}
 				}
 				var cj = level.TrackObjectCollections[curBlockIndex];
