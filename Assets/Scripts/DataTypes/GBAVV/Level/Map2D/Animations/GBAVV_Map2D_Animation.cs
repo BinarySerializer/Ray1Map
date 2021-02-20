@@ -4,8 +4,8 @@
     {
         public Pointer FrameTablePointer { get; set; }
 
-        public AnimRect HitBox { get; set; }
-        public AnimRect RenderBox { get; set; }
+        public GBAVV_Map2D_AnimationRect HitBox { get; set; }
+        public GBAVV_Map2D_AnimationRect RenderBox { get; set; }
 
         public byte PaletteIndex { get; set; }
         public byte AnimSpeed { get; set; } // Speed + 1, except for Fusion
@@ -33,7 +33,7 @@
                 FrameTablePointer = s.SerializePointer(FrameTablePointer, name: nameof(FrameTablePointer));
                 Fusion_FrameIndexTablePointer = s.SerializePointer(Fusion_FrameIndexTablePointer, name: nameof(Fusion_FrameIndexTablePointer));
                 Fusion_PalettePointer = s.SerializePointer(Fusion_PalettePointer, name: nameof(Fusion_PalettePointer));
-                RenderBox = s.SerializeObject<AnimRect>(RenderBox, name: nameof(RenderBox)); // Hitbox?
+                RenderBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(RenderBox, name: nameof(RenderBox)); // Hitbox?
                 Fusion_Ushort_12 = s.Serialize<ushort>(Fusion_Ushort_12, name: nameof(Fusion_Ushort_12));
                 AnimSpeed = s.Serialize<byte>(AnimSpeed, name: nameof(AnimSpeed));
                 FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
@@ -46,8 +46,8 @@
             else
             {
                 Fusion_FrameIndexTablePointer = s.SerializePointer(Fusion_FrameIndexTablePointer, name: nameof(Fusion_FrameIndexTablePointer));
-                HitBox = s.SerializeObject<AnimRect>(HitBox, name: nameof(HitBox));
-                RenderBox = s.SerializeObject<AnimRect>(RenderBox, name: nameof(RenderBox));
+                HitBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(HitBox, name: nameof(HitBox));
+                RenderBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(RenderBox, name: nameof(RenderBox));
                 PaletteIndex = s.Serialize<byte>(PaletteIndex, name: nameof(PaletteIndex));
                 AnimSpeed = s.Serialize<byte>(AnimSpeed, name: nameof(AnimSpeed));
                 FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
@@ -56,37 +56,6 @@
             }
 
             FrameIndexTable = s.DoAt(Fusion_FrameIndexTablePointer, () => s.SerializeArray<ushort>(FrameIndexTable, FramesCount, name: nameof(FrameIndexTable)));
-        }
-
-        public class AnimRect : R1Serializable
-        {
-            public short X { get; set; }
-            public short Y { get; set; }
-            public short Width { get; set; }
-            public short Height { get; set; }
-
-            public override void SerializeImpl(SerializerObject s)
-            {
-                X = s.Serialize<short>(X, name: nameof(X));
-                Y = s.Serialize<short>(Y, name: nameof(Y));
-
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
-                {
-                    Width = s.Serialize<sbyte>((sbyte)Width, name: nameof(Width));
-                    Height = s.Serialize<sbyte>((sbyte)Height, name: nameof(Height));
-                    s.Serialize<ushort>(default, name: "Padding");
-                }
-                else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2)
-                {
-                    Width = s.Serialize<short>(Width, name: nameof(Width));
-                    Height = s.Serialize<short>(Height, name: nameof(Height));
-                }
-                else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion)
-                {
-                    Width = s.Serialize<sbyte>((sbyte)Width, name: nameof(Width));
-                    Height = s.Serialize<sbyte>((sbyte)Height, name: nameof(Height));
-                }
-            }
         }
     }
 }

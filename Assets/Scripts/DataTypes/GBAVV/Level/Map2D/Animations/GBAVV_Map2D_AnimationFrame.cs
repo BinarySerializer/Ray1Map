@@ -15,9 +15,9 @@ namespace R1Engine
         public short Fusion_Short_0A { get; set; }
         public byte[] Fusion_Data_0C { get; set; }
         public byte[] Fusion_Data_11 { get; set; }
-        public Pointer Fusion_Pointer_14 { get; set; } // These always lead to 8 bytes - hitboxes?
-        public Pointer Fusion_Pointer_18 { get; set; }
-        public Pointer Fusion_Pointer_1C { get; set; }
+        public Pointer Fusion_Pointer_14 { get; set; } // 8 bytes
+        public Pointer Fusion_HitBox1Pointer { get; set; }
+        public Pointer Fusion_HitBox2Pointer { get; set; }
         public byte[] Fusion_Data_20 { get; set; }
 
         // Serialized from pointers
@@ -26,6 +26,8 @@ namespace R1Engine
 
         // Fusion
         public byte[] Fusion_TileSet { get; set; }
+        public GBAVV_Map2D_AnimationRect Fusion_HitBox1 { get; set; }
+        public GBAVV_Map2D_AnimationRect Fusion_HitBox2 { get; set; }
 
         // Helpers
         public int GetTileShape(int index)
@@ -48,14 +50,17 @@ namespace R1Engine
                 TilesCount = s.Serialize<byte>(TilesCount, name: nameof(TilesCount));
                 Fusion_Data_11 = s.SerializeArray<byte>(Fusion_Data_11, 3, name: nameof(Fusion_Data_11));
                 Fusion_Pointer_14 = s.SerializePointer(Fusion_Pointer_14, name: nameof(Fusion_Pointer_14));
-                Fusion_Pointer_18 = s.SerializePointer(Fusion_Pointer_18, name: nameof(Fusion_Pointer_18));
-                Fusion_Pointer_1C = s.SerializePointer(Fusion_Pointer_1C, name: nameof(Fusion_Pointer_1C));
+                Fusion_HitBox1Pointer = s.SerializePointer(Fusion_HitBox1Pointer, name: nameof(Fusion_HitBox1Pointer));
+                Fusion_HitBox2Pointer = s.SerializePointer(Fusion_HitBox2Pointer, name: nameof(Fusion_HitBox2Pointer));
                 Fusion_Data_20 = s.SerializeArray<byte>(Fusion_Data_20, 12, name: nameof(Fusion_Data_20));
 
                 TilePositions = s.DoAt(TilePositionsPointer, () => s.SerializeObjectArray<TilePosition>(TilePositions, TilesCount, name: nameof(TilePositions)));
 
                 if (TilePositions != null)
                     Fusion_TileSet = s.DoAt(Fusion_TileSetPointer, () => s.SerializeArray<byte>(Fusion_TileSet, TilePositions.Select(x => GBAVV_BaseManager.TileShapes[x.ShapeIndex]).Sum(x => x.x * x.y / 2), name: nameof(Fusion_TileSet)));
+
+                Fusion_HitBox1 = s.DoAt(Fusion_HitBox1Pointer, () => s.SerializeObject<GBAVV_Map2D_AnimationRect>(Fusion_HitBox1, name: nameof(Fusion_HitBox1)));
+                Fusion_HitBox2 = s.DoAt(Fusion_HitBox2Pointer, () => s.SerializeObject<GBAVV_Map2D_AnimationRect>(Fusion_HitBox2, name: nameof(Fusion_HitBox2)));
             }
             else
             {
