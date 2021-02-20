@@ -266,9 +266,11 @@ namespace R1Engine
 					var blk = level.TrackObjectInstances[ci_ind];
 					var s8Ind = blk.TrackObjectIndex;
 					var s8 = level.TrackObjects[s8Ind];
-					var pos = sphere.transform.TransformPoint(new Vector3(s8.XPosition * 0.001f, 0.1f, (blk.Int0 - 6) / 12));
-					objs.Add(new Unity_Object_GameloftRK(objManager, s8, level.Structs6[s8.ObjectType]) {
-						Position = new Vector3(pos.x, -pos.z, pos.y)					
+					var type = level.ObjectTypes[s8.ObjectType];
+					var pos = sphere.transform.TransformPoint(new Vector3(s8.XPosition * 0.001f, 0.05f + type.YPosition * 0.002f, 0));
+					objs.Add(new Unity_Object_GameloftRK(objManager, s8, level.ObjectTypes[s8.ObjectType]) {
+						Position = new Vector3(pos.x, -pos.z, pos.y),
+						Instance = blk
 					});
 					/*var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 					cube.transform.SetParent(sphere.transform);
@@ -330,7 +332,7 @@ namespace R1Engine
 					TilesHeight = 24,
 					Collision = null,
 					Scale = Vector3.one * 8,
-					ViewAngle = Quaternion.identity,
+					ViewAngle = Quaternion.Euler(90,0,0),
 					CalculateYDisplacement = () => 0,
 					CalculateXDisplacement = () => 0,
 					ObjectScale = Vector3.one,

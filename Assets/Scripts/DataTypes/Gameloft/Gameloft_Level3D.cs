@@ -61,8 +61,8 @@ namespace R1Engine
 		public Struct4[] Structs4 { get; set; }
 		public byte Structs5Count { get; set; }
 		public Struct5[] Structs5 { get; set; }
-		public ushort Structs6Count { get; set; }
-		public Struct6[] Structs6 { get; set; }
+		public ushort ObjectTypesCount { get; set; }
+		public ObjectType[] ObjectTypes { get; set; }
 		public ushort Structs7Count { get; set; }
 		public Struct7[] Structs7 { get; set; }
 		public ushort TrackObjectsCount { get; set; }
@@ -137,8 +137,8 @@ namespace R1Engine
 			Structs4 = s.SerializeObjectArray<Struct4>(Structs4, Structs4Count, name: nameof(Structs4));
 			Structs5Count = s.Serialize<byte>(Structs5Count, name: nameof(Structs5Count));
 			Structs5 = s.SerializeObjectArray<Struct5>(Structs5, Structs5Count, name: nameof(Structs5));
-			Structs6Count = s.Serialize<ushort>(Structs6Count, name: nameof(Structs6Count));
-			Structs6 = s.SerializeObjectArray<Struct6>(Structs6, Structs6Count, name: nameof(Structs6));
+			ObjectTypesCount = s.Serialize<ushort>(ObjectTypesCount, name: nameof(ObjectTypesCount));
+			ObjectTypes = s.SerializeObjectArray<ObjectType>(ObjectTypes, ObjectTypesCount, name: nameof(ObjectTypes));
 			Structs7Count = s.Serialize<ushort>(Structs7Count, name: nameof(Structs7Count));
 			Structs7 = s.SerializeObjectArray<Struct7>(Structs7, Structs7Count, name: nameof(Structs7));
 			TrackObjectsCount = s.Serialize<ushort>(TrackObjectsCount, name: nameof(TrackObjectsCount));
@@ -291,11 +291,11 @@ namespace R1Engine
 			}
 		}
 
-		public class Struct6 : R1Serializable {
+		public class ObjectType : R1Serializable {
 			public byte PuppetIndex { get; set; }
 			public byte AnimationIndex { get; set; }
-			public byte Byte2 { get; set; }
-			public short Short3 { get; set; }
+			public byte PaletteIndex { get; set; }
+			public short YPosition { get; set; }
 			public short Short5 { get; set; }
 			public short Short7 { get; set; }
 			public byte Byte9 { get; set; }
@@ -305,8 +305,8 @@ namespace R1Engine
 			public override void SerializeImpl(SerializerObject s) {
 				PuppetIndex = s.Serialize<byte>(PuppetIndex, name: nameof(PuppetIndex));
 				AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
-				Byte2 = s.Serialize<byte>(Byte2, name: nameof(Byte2));
-				Short3 = s.Serialize<short>(Short3, name: nameof(Short3));
+				PaletteIndex = s.Serialize<byte>(PaletteIndex, name: nameof(PaletteIndex));
+				YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
 				Short5 = s.Serialize<short>(Short5, name: nameof(Short5));
 				Short7 = s.Serialize<short>(Short7, name: nameof(Short7));
 				Byte9 = s.Serialize<byte>(Byte9, name: nameof(Byte9));
@@ -370,16 +370,20 @@ namespace R1Engine
 		}
 		public class TrackObjectInstance : R1Serializable {
 			public short TrackObjectIndex { get; set; }
-			public int Int0 { get; set; }
-			public int Int1 { get; set; }
-			public int Int2 { get; set; }
+			public bool FlipX { get; set; }
+			public bool FlagUnknown { get; set; }
+			public bool DisplaySprite { get; set; }
+			public bool HasCollision { get; set; }
+			public bool FlagLast { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				s.SerializeBitValues<short>(bitFunc => {
 					TrackObjectIndex = (short)bitFunc(TrackObjectIndex, 11, name: nameof(TrackObjectIndex));
-					Int0 = bitFunc(Int0, 5, name: nameof(Int0));
-					//Int1 = bitFunc(Int1, 3, name: nameof(Int1));
-					//Int2 = bitFunc(Int2, 1, name: nameof(Int2));
+					FlipX = bitFunc(FlipX ? 1 : 0, 1, name: nameof(FlipX)) == 1;
+					FlagUnknown = bitFunc(FlagUnknown ? 1 : 0, 1, name: nameof(FlagUnknown)) == 1;
+					DisplaySprite = bitFunc(DisplaySprite ? 1 : 0, 1, name: nameof(DisplaySprite)) == 1;
+					HasCollision = bitFunc(HasCollision ? 1 : 0, 1, name: nameof(HasCollision)) == 1;
+					FlagLast = bitFunc(FlagLast ? 1 : 0, 1, name: nameof(FlagLast)) == 1;
 				});
 			}
 		}

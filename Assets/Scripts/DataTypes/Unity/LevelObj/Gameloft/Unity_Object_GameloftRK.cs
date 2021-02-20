@@ -7,18 +7,20 @@ namespace R1Engine
 {
     public class Unity_Object_GameloftRK : Unity_Object_3D
     {
-        public Unity_Object_GameloftRK(Unity_ObjectManager_GameloftRK objManager, Gameloft_Level3D.TrackObject obj, Gameloft_Level3D.Struct6 type)
+        public Unity_Object_GameloftRK(Unity_ObjectManager_GameloftRK objManager, Gameloft_Level3D.TrackObject obj, Gameloft_Level3D.ObjectType type)
         {
             ObjManager = objManager;
             Object = obj;
-            Type = type;
+            ObjType = type;
             PuppetIndex = type.PuppetIndex;
             AnimIndex = type.AnimationIndex;
+            PaletteIndex = type.PaletteIndex;
         }
 
         public Unity_ObjectManager_GameloftRK ObjManager { get; }
         public Gameloft_Level3D.TrackObject Object { get; set; }
-        public Gameloft_Level3D.Struct6 Type { get; set; }
+        public Gameloft_Level3D.TrackObjectInstance Instance { get; set; }
+        public Gameloft_Level3D.ObjectType ObjType { get; set; }
 
         public int PuppetIndex { get; set; }
         public int AnimIndex { get; set; }
@@ -28,7 +30,8 @@ namespace R1Engine
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }
 
-        public override string DebugText => "";
+        public override string DebugText => $"ObjectType: {Object.ObjectType}{Environment.NewLine}" +
+            $"FlagLast: {Instance.FlagLast}{Environment.NewLine}";
 
 
         public override R1Serializable SerializableData => Object;
@@ -38,7 +41,7 @@ namespace R1Engine
         public override string SecondaryName => PuppetData?.Name;
         public Unity_ObjectManager_GameloftRK.PuppetData PuppetData => ObjManager.Puppets.ElementAtOrDefault(PuppetIndex);
 
-        public override bool FlipHorizontally => false;//(Object.Flags & 1) == 1;
+        public override bool FlipHorizontally => Instance.FlipX;
         public override bool FlipVertically => false;
 
         public override bool CanBeLinkedToGroup => false;
