@@ -45,6 +45,7 @@ namespace R1Engine
         public Pointer[] LocTablePointers { get; set; }
         public GBAVV_LocTable[] LocTables { get; set; }
         public GBAVV_LevelInfo[] LevelInfos { get; set; }
+        public GBAVV_Script[] Scripts { get; set; }
 
         // 2D
         public GBAVV_Map2D_Graphics Map2D_Graphics { get; set; }
@@ -141,6 +142,17 @@ namespace R1Engine
                 for (int i = 0; i < LevelInfos.Length; i++)
                     LevelInfos[i] = s.SerializeObject<GBAVV_LevelInfo>(LevelInfos[i], x => x.LevInfo = i == CurrentLevInfo.LevelIndex ? CurrentLevInfo : null, name: $"{nameof(LevelInfos)}[{i}]");
             });
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion)
+            {
+                var pointers = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).ScriptPointers;
+
+                if (Scripts == null)
+                    Scripts = new GBAVV_Script[pointers.Length];
+
+                for (int i = 0; i < pointers.Length; i++)
+                    Scripts[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
+            }
 
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal ||
                 CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_0 ||

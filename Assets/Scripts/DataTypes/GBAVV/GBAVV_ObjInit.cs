@@ -5,11 +5,11 @@ namespace R1Engine
 {
     public static class GBAVV_ObjInit
     {
-        public static void InitObj(EngineVersion engineVersion, GameModeSelection gameMode, Unity_Object_GBAVV obj, short objType)
+        public static void InitObj(GameSettings settings, Unity_Object_GBAVV obj, short objType)
         {
-            bool isJp = gameMode == GameModeSelection.Crash1GBAJP || gameMode == GameModeSelection.Crash2GBAJP;
+            bool isJp = settings.GameModeSelection == GameModeSelection.Crash1GBAJP || settings.GameModeSelection == GameModeSelection.Crash2GBAJP;
 
-            if (engineVersion == EngineVersion.GBAVV_Crash2)
+            if (settings.EngineVersion == EngineVersion.GBAVV_Crash2)
             {
                 if (obj.ObjManager.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
                 {
@@ -507,7 +507,7 @@ namespace R1Engine
                     }
                 }
             }
-            else if (engineVersion == EngineVersion.GBAVV_Crash1)
+            else if (settings.EngineVersion == EngineVersion.GBAVV_Crash1)
             {
                 switch ((GBAVV_Map2D_Crash1_ObjType)objType)
                 {
@@ -859,6 +859,17 @@ namespace R1Engine
 
                 if (obj.AnimSetIndex == 0 && obj.AnimIndex == 0)
                     Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+            }
+            else if (settings.EngineVersion == EngineVersion.GBAVV_Fusion)
+            {
+                var init = ((GBAVV_Fusion_Manager)settings.GetGameManager).ObjTypeInitInfos[obj.Object.ObjType];
+
+                if (init.AnimSetIndex == -1 || init.AnimIndex == -1)
+                    Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+
+                obj.AnimSetIndex = init.AnimSetIndex;
+                obj.AnimIndex = (byte)init.AnimIndex;
+                obj.ScriptIndex = obj.ObjManager.Scripts?.FindItemIndex(x => x.Name == init.ScriptName) ?? -1;
             }
         }
     }
