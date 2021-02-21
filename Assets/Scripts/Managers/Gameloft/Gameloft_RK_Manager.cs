@@ -73,7 +73,7 @@ namespace R1Engine
 			return models;
 		}
 
-		public void CreateTrackMesh(Gameloft_Level3D level) {
+		public void CreateTrackMesh(Gameloft_RK_Level level) {
 			Vector3 curPos = Vector3.zero;
 			float curAngle = 0f;
 			float curHeight = 0f;
@@ -226,11 +226,124 @@ namespace R1Engine
 
 		}
 
+
+		public void Create3DObject(Gameloft_RK_Level level, int objIndex) {
+
+
+			GameObject gaoParent = new GameObject();
+			gaoParent.transform.position = Vector3.zero;
+			float currentPos = 0;
+
+			var o = level.Objects3D[objIndex];
+
+			Mesh m = new Mesh();
+			Color currentColor = Color.white;
+			int curCount = 0;
+			List<Vector3> vertices = new List<Vector3>();
+			List<int> triangles = new List<int>();
+			List<Color> colors = new List<Color>();
+			Vector3 pt0, pt1, pt2;
+			int curTri = 0;
+
+			foreach (var c in o.Commands) {
+				switch (c.Type) {
+					case Gameloft_RK_Level.Object3D.Command.CommandType.Color:
+						currentColor = c.Color.GetColor();
+						break;
+					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawTriangle:
+						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri);
+						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri);
+						pt2 = new Vector3(c.Positions[2].X, c.Positions[2].Y, curTri);
+						vertices.Add(pt0 / 1000f);
+						vertices.Add(pt2 / 1000f);
+						vertices.Add(pt1 / 1000f);
+						//Controller.print(expectedNormal);
+						colors.Add(currentColor);
+						colors.Add(currentColor);
+						colors.Add(currentColor);
+
+						// Clockwise winding order
+						Vector3 expectedNormal = Vector3.Cross(pt1 - pt0, pt2 - pt1);
+						if (expectedNormal.z >= 0) {
+							triangles.Add(curCount);
+							triangles.Add(curCount + 1);
+							triangles.Add(curCount + 2);
+						} else {
+							triangles.Add(curCount);
+							triangles.Add(curCount + 2);
+							triangles.Add(curCount + 1);
+						}
+						curCount += 3;
+						curTri -= 1;
+						break;
+					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawLine:
+						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri);
+						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri);
+						var diff = pt1 - pt0;
+						var lineThickness = (Quaternion.Euler(0,0,90) * diff).normalized * 5;
+						vertices.Add((pt0 - lineThickness) / 1000f);
+						vertices.Add((pt0 + lineThickness) / 1000f);
+						vertices.Add((pt1 - lineThickness) / 1000f);
+						vertices.Add((pt1 + lineThickness) / 1000f);
+						colors.Add(currentColor);
+						colors.Add(currentColor);
+						colors.Add(currentColor);
+						colors.Add(currentColor);
+						triangles.Add(curCount);
+						triangles.Add(curCount + 1);
+						triangles.Add(curCount + 2);
+						triangles.Add(curCount + 1);
+						triangles.Add(curCount + 3);
+						triangles.Add(curCount + 2);
+						curTri -= 1;
+						curCount += 4;
+						break;
+					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawRectangle:
+						vertices.Add(new Vector3(c.Rectangle.X, c.Rectangle.Y, curTri) / 1000f);
+						vertices.Add(new Vector3(c.Rectangle.X, c.Rectangle.Y + c.Rectangle.Height, curTri) / 1000f);
+						vertices.Add(new Vector3(c.Rectangle.X + c.Rectangle.Width, c.Rectangle.Y, curTri) / 1000f);
+						vertices.Add(new Vector3(c.Rectangle.X + c.Rectangle.Width, c.Rectangle.Y + c.Rectangle.Height, curTri) / 1000f);
+						colors.Add(currentColor);
+						colors.Add(currentColor);
+						colors.Add(currentColor);
+						colors.Add(currentColor);
+						triangles.Add(curCount);
+						triangles.Add(curCount + 1);
+						triangles.Add(curCount + 2);
+						triangles.Add(curCount + 1);
+						triangles.Add(curCount + 3);
+						triangles.Add(curCount + 2);
+						curCount += 4;
+						curTri -= 1;
+						break;
+				}
+			}
+			{
+
+				m.SetVertices(vertices);
+				m.SetColors(colors);
+				m.SetTriangles(triangles, 0);
+				m.RecalculateNormals();
+				GameObject gao = new GameObject();
+				MeshFilter mf = gao.AddComponent<MeshFilter>();
+				MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+				gao.layer = LayerMask.NameToLayer("3D Collision");
+				gao.transform.SetParent(gaoParent.transform);
+				gao.transform.localScale = new Vector3(1,1,0.1f);
+				gao.transform.localPosition = new Vector3(0, 0, objIndex * 5000) / 1000f;
+				mf.mesh = m;
+				mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+			}
+			gaoParent.transform.localScale = Vector3.one * 8;
+			gaoParent.transform.name = objIndex.ToString();
+
+		}
+
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			await UniTask.CompletedTask;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
 			var ind = GetLevelResourceIndex(context.Settings);
-			var level = resf.SerializeResource<Gameloft_Level3D>(context.Deserializer, default, ind, name: $"Level_{ind}");
+			var level = resf.SerializeResource<Gameloft_RK_Level>(context.Deserializer, default, ind, name: $"Level_{ind}");
 
 			CreateTrackMesh(level);
 
@@ -244,11 +357,15 @@ namespace R1Engine
 			float curAngle = 0f;
 			float curHeight = 0f;
 			int curBlockIndex = 0;
+			GameObject gaoParent = new GameObject();
+			gaoParent.transform.position = Vector3.zero;
+			gaoParent.transform.localRotation = Quaternion.identity;
+			gaoParent.transform.localScale = Vector3.one * 8;
+			for(int i = 0; i < level.Objects3D.Length; i++) Create3DObject(level, i);
 			foreach (var o in level.TrackBlocks) {
 				var sphere = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Cube);
 				sphere.transform.position = curPos + Vector3.up * curHeight;
 				sphere.transform.rotation = Quaternion.Euler(0, curAngle, 0);
-				//sphere.transform.localScale = new Vector3((level.Types[o.Type].Short2 > 0 ? level.Types[o.Type].Short2 : 1000) / 1000f, 1, 1);
 
 				var lumsForCurrentBlock = level.Lums?.Where(s12 => s12.TrackBlockIndex == curBlockIndex);
 				if (lumsForCurrentBlock != null) {
@@ -274,27 +391,13 @@ namespace R1Engine
 						Position = new Vector3(pos.x, -pos.z, pos.y),
 						Instance = blk
 					});
-					/*var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-					cube.transform.SetParent(sphere.transform);
-					cube.transform.localPosition = new Vector3(s8.XPosition * 0.001f, 1, (blk.Int0 - 6) / 12);
-					cube.transform.localRotation = Quaternion.identity;
-					cube.transform.localScale = Vector3.one * 0.5f;
-					cube.gameObject.name = s8.ObjectType.ToString();
-					UnityEngine.Random.InitState((int)s8.ObjectType);
-					var cubecol = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
-					cube.GetComponent<Renderer>().material.color = cubecol;*/
 				}
 
 				curPos += Quaternion.Euler(0,curAngle,0) * Vector3.forward;
 				curHeight += o.DeltaHeight * 0.05f;
 				curAngle -= o.DeltaRotation;
 				sphere.gameObject.name = $"{curBlockIndex}: {o.Type} | {o.Flags} | {o.Unknown} | {level.Types[o.Type].Flags}";
-
-				/*UnityEngine.Random.InitState((int)o.Unknown);
-				var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);*/
-				//var color = level.Types[o.Type].ColorGround.GetColor();
-				//sphere.GetComponent<Renderer>().material.color = color;
-				//sphere.GetComponent<Renderer>().enabled = false;
+				sphere.gameObject.transform.SetParent(gaoParent.transform);
 				curBlockIndex++;
 			}
 
