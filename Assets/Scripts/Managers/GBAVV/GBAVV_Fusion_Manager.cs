@@ -94,7 +94,8 @@ namespace R1Engine
             // Enumerate every script
             foreach (var script in scripts)
             {
-                script.TranslatedString(str, animSets);
+                foreach (var line in script.TranslatedString(animSets))
+                    str.AppendLine(line);
 
                 str.AppendLine();
             }

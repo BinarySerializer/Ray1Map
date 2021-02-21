@@ -40,8 +40,10 @@ namespace R1Engine
             }
         }
 
-        public void TranslatedString(StringBuilder str, GBAVV_Map2D_AnimSet[] animSets)
+        public List<string> TranslatedString(GBAVV_Map2D_AnimSet[] animSets)
         {
+            var output = new List<string>();
+
             var depth = 0;
 
             void logCMD(GBAVV_ScriptCommand cmd, string parsedText)
@@ -50,7 +52,7 @@ namespace R1Engine
                 // log($"CMD: {cmd.PrimaryCommandType:00}-{cmd.SecondaryCommandType:00} -> {parsedText}");
             }
             string getLogPrefix() => new string(' ', depth * 2);
-            void log(string logStr, Pointer p = null) => str.AppendLine($"{getLogPrefix()}{logStr}{(p != null ? $" // 0x{p.AbsoluteOffset:X8}" : "")}");
+            void log(string logStr, Pointer p = null) => output.Add($"{getLogPrefix()}{logStr}{(p != null ? $" // 0x{p.AbsoluteOffset:X8}" : "")}");
             void logSubScript(GBAVV_Script scr)
             {
                 log($"{scr.DisplayName}();", scr.Offset);
@@ -148,6 +150,8 @@ namespace R1Engine
 
             depth--;
             log("}");
+
+            return output;
         }
     }
 }
