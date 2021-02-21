@@ -1948,7 +1948,10 @@ namespace R1Engine
                 MapType = Type.Normal;
                 DisplayName = displayName;
             }
-            public LevInfo(int levelIndex, string displayName) : this(levelIndex, 0, displayName) { }
+            public LevInfo(int levelIndex, string displayName, FusionType fusionType = FusionType.Normal) : this(levelIndex, 0, displayName)
+            {
+                Fusion_Type = fusionType;
+            }
             public LevInfo(int levelIndex, Type mapType, string displayName)
             {
                 LevelIndex = levelIndex;
@@ -1969,6 +1972,7 @@ namespace R1Engine
             public Type MapType { get; }
             public GBAVV_MapInfo.GBAVV_MapType SpecialMapType { get; }
             public short Index3D { get; }
+            public FusionType Fusion_Type { get; }
 
             public string DisplayName { get; set; }
 
@@ -1977,6 +1981,13 @@ namespace R1Engine
                 Normal,
                 Bonus,
                 Challenge
+            }
+
+            public enum FusionType
+            {
+                Normal,
+                TimedLevel,
+                LevIntInt,
             }
         }
 

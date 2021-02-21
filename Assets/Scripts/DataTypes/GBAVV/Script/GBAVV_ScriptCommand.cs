@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Collections.Generic;
+
+namespace R1Engine
 {
     public class GBAVV_ScriptCommand : R1Serializable
     {
@@ -7,8 +9,6 @@
         public uint Param { get; set; }
         public Pointer ParamPointer { get; set; }
 
-        public CommandType Type => (CommandType)(PrimaryCommandType * 100 + SecondaryCommandType);
-
         // Params
         public string Name { get; set; }
         public GBAVV_Script ReferencedScript { get; set; }
@@ -16,6 +16,13 @@
         public GBAVV_Map2D_Animation Animation { get; set; }
         public GBAVV_ConditionalScriptReference ConditionalScriptReference { get; set; }
         public GBAVV_Movement Movement { get; set; }
+
+        // Helper properties
+        public CommandType Type => (CommandType)(PrimaryCommandType * 100 + SecondaryCommandType);
+        public string NormalizedName => $"{Name.Replace("\"", "")}";
+        public string DisplayName => $"{NormalizedName}{(NameCounts[NormalizedName] > 1 ? $"_{NameIndex}" : "")}";
+        public int NameIndex { get; set; } // Some scripts share the same name
+        private static Dictionary<string, int> NameCounts { get; } = new Dictionary<string, int>();
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -35,6 +42,12 @@
             {
                 case CommandType.Name:
                     Name = s.DoAt(ParamPointer, () => s.SerializeString(Name, name: nameof(Name)));
+
+                    if (!NameCounts.ContainsKey(NormalizedName))
+                        NameCounts[NormalizedName] = 0;
+
+                    NameIndex = NameCounts[NormalizedName];
+                    NameCounts[NormalizedName]++;
                     break;
 
                 case CommandType.Script:
@@ -46,7 +59,7 @@
                     break;
 
                 case CommandType.Animation:
-                case CommandType.AddAnimation:
+                case CommandType.SecondaryAnimation:
                     Animation = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Map2D_Animation>(Animation, name: nameof(Animation)));
                     break;
 
@@ -87,7 +100,7 @@
             ConditionalScript = 0818,
             Movement_X = 0829,
             Movement_Y = 0830,
-            AddAnimation = 0863,
+            SecondaryAnimation = 0863,
             //UnknownParams = 0871, // Pointer to 3 integers
 
             DialogPortrait = 1000

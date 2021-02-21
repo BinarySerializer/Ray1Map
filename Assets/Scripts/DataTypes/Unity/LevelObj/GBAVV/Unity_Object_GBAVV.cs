@@ -71,7 +71,7 @@ namespace R1Engine
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => Script?.Name != null ? $"{Script.Name.Replace("Script", "")}" : $"Type_{(int)Object.ObjType}";
+        public override string PrimaryName => Script?.DisplayName != null ? $"{Script.DisplayName.Replace("Script", "")}" : $"Type_{(int)Object.ObjType}";
         public override string SecondaryName
         {
             get

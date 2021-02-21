@@ -869,7 +869,7 @@ namespace R1Engine
 
                 obj.AnimSetIndex = init.AnimSetIndex;
                 obj.AnimIndex = (byte)init.AnimIndex;
-                obj.ScriptIndex = obj.ObjManager.Scripts?.FindItemIndex(x => x.Name == init.ScriptName) ?? -1;
+                obj.ScriptIndex = obj.ObjManager.Scripts?.FindItemIndex(x => x.DisplayName == init.ScriptName) ?? -1;
             }
         }
     }

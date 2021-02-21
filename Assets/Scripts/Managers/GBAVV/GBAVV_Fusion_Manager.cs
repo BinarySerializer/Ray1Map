@@ -50,10 +50,10 @@ namespace R1Engine
                     // Serialize the script
                     var script = s.DoAt(new Pointer((uint)getPointer(i), offset.file), () => s.SerializeObject<GBAVV_Script>(default));
 
-                    // If the command count is too high we ignore it
-                    if (script.Commands.Length >= 199)
+                    // If the script is invalid we ignore it
+                    if (!script.IsValid)
                     {
-                        Debug.Log($"Skipping script {script.Name}");
+                        Debug.Log($"Skipping script {script.DisplayName}");
                         continue;
                     }
 
@@ -80,6 +80,12 @@ namespace R1Engine
 
         public void LogParsedScripts(SerializerObject s, IEnumerable<Pointer> scriptPointers)
         {
+            // Load the animations
+            var graphics = new GBAVV_Map2D_Graphics();
+            graphics.Init(s.Context.FilePointer(GetROMFilePath));
+            graphics.SerializeImpl(s);
+            var animSets = graphics.AnimSets;
+
             var str = new StringBuilder();
 
             // Start by parsing every script
@@ -88,7 +94,7 @@ namespace R1Engine
             // Enumerate every script
             foreach (var script in scripts)
             {
-                script.TranslatedString(str);
+                script.TranslatedString(str, animSets);
 
                 str.AppendLine();
             }
@@ -260,15 +266,15 @@ namespace R1Engine
             new LevInfo(2, "Grin and Bear it"),
             new LevInfo(3, "Grin and Bear it"),
             new LevInfo(4, "Grin and Bear it"),
-            new LevInfo(5, "Sheep Stampede"),
-            new LevInfo(6, "Sheep Stampede"),
+            new LevInfo(5, "Sheep Stampede", LevInfo.FusionType.TimedLevel),
+            new LevInfo(6, "Sheep Stampede", LevInfo.FusionType.TimedLevel),
             new LevInfo(7, "Tanks for the Memories"),
             new LevInfo(8, "Tanks for the Memories"),
-            new LevInfo(9, "Chopper Stopper"),
-            new LevInfo(10, "Chopper Stopper"),
-            new LevInfo(11, "Bonus: Crate Smash"),
-            new LevInfo(12, "Bonus: Crate Smash"),
-            new LevInfo(13, "Bonus: Crate Smash"),
+            new LevInfo(9, "Chopper Stopper", LevInfo.FusionType.LevIntInt),
+            new LevInfo(10, "Chopper Stopper", LevInfo.FusionType.LevIntInt),
+            new LevInfo(11, "Bonus: Crate Smash", LevInfo.FusionType.TimedLevel),
+            new LevInfo(12, "Bonus: Crate Smash", LevInfo.FusionType.TimedLevel),
+            new LevInfo(13, "Bonus: Crate Smash", LevInfo.FusionType.TimedLevel),
             new LevInfo(14, "Bonus: Freefallin'"),
             new LevInfo(15, "Bonus: Freefallin'"),
             new LevInfo(16, "Bonus: Crunch Time"),
@@ -414,9 +420,9 @@ namespace R1Engine
             new ObjTypeInit(8, 35, null), // 16
             new ObjTypeInit(8, 26, null), // 17
             new ObjTypeInit(8, 24, null), // 18
-            new ObjTypeInit(8, 11, null), // 19
-            new ObjTypeInit(8, 11, null), // 20
-            new ObjTypeInit(8, 11, null), // 21
+            new ObjTypeInit(8, 11, null), // 19 // TODO: Fix
+            new ObjTypeInit(8, 11, null), // 20 // TODO: Fix
+            new ObjTypeInit(8, 13, null), // 21
             new ObjTypeInit(8, 25, null), // 22
             new ObjTypeInit(8, 7, null), // 23
             new ObjTypeInit(8, 31, null), // 24
@@ -725,11 +731,6 @@ namespace R1Engine
             0x0806F028, // instructionsJump110
             0x0806F098, // instructionsBridgeFight111
             0x0807619C, // movie_credits
-            0x080764F8, // World1_BossBeat_CS
-            0x08076A80, // World4_BossBeat_CS
-            0x08076B7C, // World5_CS
-            0x08076C0C, // World5_BossBeat_CS
-            0x08076C9C, // allMovie
             0x08076CF0, // waitForPagedText
             0x0807875C, // platformMoveVertUpScript
             0x08078810, // platformBouncyMoveLeftScript

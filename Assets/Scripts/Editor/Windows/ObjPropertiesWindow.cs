@@ -92,7 +92,7 @@ public class ObjPropertiesWindow : UnityWindow
                         {
                             // TODO: Cache the commands, but make sure to update if modified
                             var str = new StringBuilder();
-                            vv.Script.TranslatedString(str);
+                            vv.Script.TranslatedString(str, LevelEditorData.MainContext.GetMainFileObject<GBAVV_ROM>(new GBAVV_CrashFusionUS_Manager().GetROMFilePath).Map2D_Graphics.AnimSets);
 
                             // TODO: Better way to get height?
                             EditorGUI.TextArea(GetNextRect(ref YPos, height: 200), str.ToString());

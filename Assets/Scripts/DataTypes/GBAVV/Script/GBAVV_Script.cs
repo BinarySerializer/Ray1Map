@@ -7,8 +7,11 @@ namespace R1Engine
 {
     public class GBAVV_Script : R1Serializable
     {
+        public bool IsValid { get; set; } = true;
+
         public GBAVV_ScriptCommand[] Commands { get; set; }
 
+        public string DisplayName => Commands?.FirstOrDefault()?.DisplayName;
         public string Name => Commands?.FirstOrDefault()?.Name;
 
         public override void SerializeImpl(SerializerObject s)
@@ -21,10 +24,13 @@ namespace R1Engine
                 do
                 {
                     cmds.Add(s.SerializeObject<GBAVV_ScriptCommand>(default, name: $"{nameof(Commands)}[{index++}]"));
-                } while (cmds.Last().Type != GBAVV_ScriptCommand.CommandType.Terminator && index < 200);
+                } while (cmds.Last().Type != GBAVV_ScriptCommand.CommandType.Terminator && index < 100);
 
-                if (index == 200)
+                if (index == 100 || cmds.Any(x => x.PrimaryCommandType >= 100))
+                {
                     Debug.Log($"Invalid script at {Offset}");
+                    IsValid = false;
+                }
 
                 Commands = cmds.ToArray();
             }
@@ -34,22 +40,36 @@ namespace R1Engine
             }
         }
 
-        public void TranslatedString(StringBuilder str)
+        public void TranslatedString(StringBuilder str, GBAVV_Map2D_AnimSet[] animSets)
         {
             var depth = 0;
 
-            void logCMD(GBAVV_ScriptCommand cmd, string parsedText) => log($"CMD: {cmd.PrimaryCommandType:00}-{cmd.SecondaryCommandType:00} -> {parsedText}");
+            void logCMD(GBAVV_ScriptCommand cmd, string parsedText)
+            {
+                log($"unknownCMD_{cmd.PrimaryCommandType:00}_{cmd.SecondaryCommandType:00}({parsedText});");
+                // log($"CMD: {cmd.PrimaryCommandType:00}-{cmd.SecondaryCommandType:00} -> {parsedText}");
+            }
             string getLogPrefix() => new string(' ', depth * 2);
-            void log(string logStr) => str.AppendLine($"{getLogPrefix()}{logStr}");
+            void log(string logStr, Pointer p = null) => str.AppendLine($"{getLogPrefix()}{logStr}{(p != null ? $" // 0x{p.AbsoluteOffset:X8}" : "")}");
             void logSubScript(GBAVV_Script scr)
             {
-                log($"{scr.Name}();");
+                log($"{scr.DisplayName}();", scr.Offset);
 
                 /*
                 depth++;
                 logScript(cmd.ReferencedScript);
                 depth--;
                 */
+            }
+            string getAnimString(Pointer p)
+            {
+                if (p == null)
+                    return $"null";
+
+                var animSetIndex = animSets.FindItemIndex(x => x.Animations.Any(a => a.Offset == p));
+                var animIndex = animSets.ElementAtOrDefault(animSetIndex)?.Animations.FindItemIndex(x => x.Offset == p) ?? -1;
+
+                return $"Animations[{animSetIndex}][{animIndex}]";
             }
 
             // Log every command
@@ -58,7 +78,7 @@ namespace R1Engine
                 switch (cmd.Type)
                 {
                     case GBAVV_ScriptCommand.CommandType.Name:
-                        log($"{cmd.Name}() [0x{Offset.AbsoluteOffset:X8}]");
+                        log($"{cmd.DisplayName}()", Offset);
                         log("{");
                         depth++;
                         break;
@@ -84,7 +104,7 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.Animation:
-                        log($"Animation = 0x{cmd.ParamPointer.AbsoluteOffset:X8};");
+                        log($"Animation = {getAnimString(cmd.ParamPointer)};", cmd.ParamPointer);
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.IsEnabled:
@@ -107,21 +127,21 @@ namespace R1Engine
                         log($"move{(cmd.Type == GBAVV_ScriptCommand.CommandType.Movement_X ? "X" : "Y")}(speed: {cmd.Movement.Speed}, param_2: {cmd.Movement.Param_1}, param_3: {cmd.Movement.Param_2});");
                         break;
 
-                    case GBAVV_ScriptCommand.CommandType.AddAnimation:
-                        log($"addAnimation(0x{cmd.ParamPointer.AbsoluteOffset:X8});");
+                    case GBAVV_ScriptCommand.CommandType.SecondaryAnimation:
+                        log($"SecondaryAnimation = {getAnimString(cmd.ParamPointer)};", cmd.ParamPointer);
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.DialogPortrait:
-                        log($"Portrait = 0x{cmd.ParamPointer.AbsoluteOffset:X8};");
+                        log($"Portrait = {getAnimString(cmd.ParamPointer)};", cmd.ParamPointer);
                         break;
 
                     default:
-                        if (cmd.ParamPointer != null)
+                        if (cmd.ParamPointer != null) // ROM pointer
                             logCMD(cmd, $"0x{cmd.ParamPointer.AbsoluteOffset:X8}");
-                        else if (cmd.Param >= GBA_ROMBase.Address_WRAM && cmd.Param < GBA_ROMBase.Address_WRAM + 0x40000)
+                        else if (cmd.Param >= GBA_ROMBase.Address_WRAM && cmd.Param < GBA_ROMBase.Address_WRAM + 0x40000) // RAM pointer
                             logCMD(cmd, $"0x{cmd.Param:X8}");
-                        else
-                            logCMD(cmd, $"{cmd.Param}");
+                        else // Value
+                            logCMD(cmd, $"{(int)cmd.Param}");
                         break;
                 }
             }
