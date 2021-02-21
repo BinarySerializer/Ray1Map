@@ -62,7 +62,7 @@ namespace R1Engine
                             continue;
 
                         if (context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion)
-                            ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex}_0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex}_{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
+                            ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex} 0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex} 0x{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
                         else
                             ExportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}", false, saveAsGif, outputDir);
                     }

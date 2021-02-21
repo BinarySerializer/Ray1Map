@@ -60,6 +60,8 @@ namespace R1Engine
                                             $"Group: {ObjGroupIndex}{Environment.NewLine}" +
                                             $"Index: {ObjIndex}{Environment.NewLine}";
 
+        public override int? GetLayer(int index) => ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? (int?)-index : null;
+
         public byte[] ObjParams => ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex);
 
         public Unity_ObjectManager_GBAVV.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
@@ -87,8 +89,8 @@ namespace R1Engine
             }
         }
 
-        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & 2) != 0;
-        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & 4) != 0;
+        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? 1 : 2)) != 0;
+        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? 2 : 4)) != 0;
 
         public override bool CanBeLinkedToGroup => true;
 

@@ -46,6 +46,7 @@
                     break;
 
                 case CommandType.Animation:
+                case CommandType.AddAnimation:
                     Animation = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Map2D_Animation>(Animation, name: nameof(Animation)));
                     break;
 
@@ -86,6 +87,8 @@
             ConditionalScript = 0818,
             Movement_X = 0829,
             Movement_Y = 0830,
+            AddAnimation = 0863,
+            //UnknownParams = 0871, // Pointer to 3 integers
 
             DialogPortrait = 1000
         }

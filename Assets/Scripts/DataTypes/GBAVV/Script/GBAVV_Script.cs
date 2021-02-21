@@ -107,6 +107,10 @@ namespace R1Engine
                         log($"move{(cmd.Type == GBAVV_ScriptCommand.CommandType.Movement_X ? "X" : "Y")}(speed: {cmd.Movement.Speed}, param_2: {cmd.Movement.Param_1}, param_3: {cmd.Movement.Param_2});");
                         break;
 
+                    case GBAVV_ScriptCommand.CommandType.AddAnimation:
+                        log($"addAnimation(0x{cmd.ParamPointer.AbsoluteOffset:X8});");
+                        break;
+
                     case GBAVV_ScriptCommand.CommandType.DialogPortrait:
                         log($"Portrait = 0x{cmd.ParamPointer.AbsoluteOffset:X8};");
                         break;

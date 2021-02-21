@@ -16,6 +16,7 @@ namespace R1Engine
             //LogParsedScripts(context.Deserializer, ScriptPointers.Select(x => new Pointer(x, context.GetFile(GetROMFilePath))));
             //LogLevelInfos(FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]));
             //LogObjTypeInit(context.Deserializer);
+            //LogObjTypeInit(context.Deserializer, new ObjTypeInitCreation[0]);
             return base.LoadAsync(context, loadTextures);
         }
 
@@ -195,11 +196,44 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
 
+        private void LogObjTypeInit(SerializerObject s, params ObjTypeInitCreation[] types)
+        {
+            var str = new StringBuilder();
+
+            // Load the animations
+            var graphics = new GBAVV_Map2D_Graphics();
+            graphics.Init(s.Context.FilePointer(GetROMFilePath));
+            graphics.SerializeImpl(s);
+            var animSets = graphics.AnimSets;
+
+            foreach (var t in types)
+            {
+                var animSetIndex = animSets.FindItemIndex(x => x.Animations.Any(a => a.Offset.AbsoluteOffset == t.AnimPointer));
+                var animIndex = animSets.ElementAtOrDefault(animSetIndex)?.Animations.FindItemIndex(x => x.Offset.AbsoluteOffset == t.AnimPointer) ?? -1;
+
+                str.AppendLine($"new ObjTypeInit({animSetIndex}, {animIndex}, null), // {t.ObjType}");
+            }
+
+            str.ToString().CopyToClipboard();
+        }
+
         public abstract int ObjTypesCount { get; }
         public abstract uint ObjTypesPointer { get; }
         public abstract ObjTypeInit[] ObjTypeInitInfos { get; }
         public abstract uint[] AnimSetPointers { get; }
         public abstract uint[] ScriptPointers { get; }
+
+        private class ObjTypeInitCreation
+        {
+            public ObjTypeInitCreation(int objType, uint animPointer)
+            {
+                ObjType = objType;
+                AnimPointer = animPointer;
+            }
+
+            public int ObjType { get; }
+            public uint AnimPointer { get; }
+        }
 
         public class ObjTypeInit
         {
@@ -367,41 +401,41 @@ namespace R1Engine
             new ObjTypeInit(6, 69, null), // 3
             new ObjTypeInit(6, 72, null), // 4
             new ObjTypeInit(6, 88, null), // 5
-            new ObjTypeInit(-1, -1, null), // 6
+            new ObjTypeInit(4, 14, null), // 6
             new ObjTypeInit(6, 98, null), // 7
             new ObjTypeInit(6, 106, null), // 8
             new ObjTypeInit(6, 118, null), // 9
-            new ObjTypeInit(-1, -1, null), // 10
-            new ObjTypeInit(-1, -1, null), // 11
-            new ObjTypeInit(-1, -1, null), // 12
-            new ObjTypeInit(-1, -1, null), // 13
-            new ObjTypeInit(-1, -1, null), // 14
-            new ObjTypeInit(-1, -1, null), // 15
-            new ObjTypeInit(-1, -1, null), // 16
-            new ObjTypeInit(-1, -1, null), // 17
-            new ObjTypeInit(-1, -1, null), // 18
-            new ObjTypeInit(-1, -1, null), // 19
-            new ObjTypeInit(-1, -1, null), // 20
-            new ObjTypeInit(-1, -1, null), // 21
-            new ObjTypeInit(-1, -1, null), // 22
-            new ObjTypeInit(-1, -1, null), // 23
-            new ObjTypeInit(-1, -1, null), // 24
-            new ObjTypeInit(-1, -1, null), // 25
-            new ObjTypeInit(-1, -1, null), // 26
-            new ObjTypeInit(-1, -1, null), // 27
-            new ObjTypeInit(-1, -1, null), // 28
-            new ObjTypeInit(-1, -1, null), // 29
-            new ObjTypeInit(-1, -1, null), // 30
+            new ObjTypeInit(13, 5, null), // 10
+            new ObjTypeInit(8, 23, null), // 11
+            new ObjTypeInit(8, 9, null), // 12
+            new ObjTypeInit(8, 17, null), // 13
+            new ObjTypeInit(8, 3, null), // 14
+            new ObjTypeInit(8, 4, null), // 15
+            new ObjTypeInit(8, 35, null), // 16
+            new ObjTypeInit(8, 26, null), // 17
+            new ObjTypeInit(8, 24, null), // 18
+            new ObjTypeInit(8, 11, null), // 19
+            new ObjTypeInit(8, 11, null), // 20
+            new ObjTypeInit(8, 11, null), // 21
+            new ObjTypeInit(8, 25, null), // 22
+            new ObjTypeInit(8, 7, null), // 23
+            new ObjTypeInit(8, 31, null), // 24
+            new ObjTypeInit(8, 38, null), // 25
+            new ObjTypeInit(8, 23, null), // 26
+            new ObjTypeInit(8, 9, null), // 27
+            new ObjTypeInit(8, 31, null), // 28
+            new ObjTypeInit(8, 7, null), // 29
+            new ObjTypeInit(8, 24, null), // 30
             new ObjTypeInit(-1, -1, null), // 31
             new ObjTypeInit(-1, -1, null), // 32
             new ObjTypeInit(-1, -1, null), // 33
-            new ObjTypeInit(-1, -1, null), // 34
-            new ObjTypeInit(-1, -1, null), // 35
-            new ObjTypeInit(-1, -1, null), // 36
+            new ObjTypeInit(9, 0, null), // 34
+            new ObjTypeInit(9, 3, null), // 35
+            new ObjTypeInit(9, 57, null), // 36
             new ObjTypeInit(0, 126, "fruitSpawnerScript"), // 37
-            new ObjTypeInit(-1, -1, null), // 38
-            new ObjTypeInit(-1, -1, null), // 39
-            new ObjTypeInit(-1, -1, null), // 40
+            new ObjTypeInit(9, 0, null), // 38
+            new ObjTypeInit(9, 0, null), // 39
+            new ObjTypeInit(18, 11, null), // 40
             new ObjTypeInit(0, 0, "geckoPatrolScript"), // 41
             new ObjTypeInit(0, 157, "labAssPatrolScript"), // 42
             new ObjTypeInit(0, 10, "rhynocJunglePatrolScript"), // 43
@@ -443,7 +477,7 @@ namespace R1Engine
             new ObjTypeInit(0, 75, "batGhost2FlyerScript"), // 79
             new ObjTypeInit(0, 173, "riptoBossScript"), // 80
             new ObjTypeInit(0, 187, "tinyTankBossScript"), // 81
-            new ObjTypeInit(-1, -1, null), // 82
+            new ObjTypeInit(0, 201, null), // 82
             new ObjTypeInit(0, 75, "riptoBatScript"), // 83
             new ObjTypeInit(0, 215, "dropBombPlane"), // 84
             new ObjTypeInit(0, 220, "gulpBossScript"), // 85
@@ -464,14 +498,14 @@ namespace R1Engine
             new ObjTypeInit(9, 12, "platformMoveScript"), // 100
             new ObjTypeInit(9, 12, "platformScript"), // 101
             new ObjTypeInit(9, 12, "platformMoveVertDownScript"), // 102
-            new ObjTypeInit(-1, -1, null), // 103
-            new ObjTypeInit(-1, -1, null), // 104
-            new ObjTypeInit(-1, -1, null), // 105
-            new ObjTypeInit(-1, -1, null), // 106
-            new ObjTypeInit(-1, -1, null), // 107
-            new ObjTypeInit(-1, -1, null), // 108
-            new ObjTypeInit(-1, -1, null), // 109
-            new ObjTypeInit(-1, -1, null), // 110
+            new ObjTypeInit(9, 20, null), // 103
+            new ObjTypeInit(9, 25, null), // 104
+            new ObjTypeInit(9, 21, null), // 105
+            new ObjTypeInit(9, 18, null), // 106
+            new ObjTypeInit(9, 22, null), // 107
+            new ObjTypeInit(9, 15, null), // 108
+            new ObjTypeInit(9, 34, null), // 109
+            new ObjTypeInit(9, 18, null), // 110
             new ObjTypeInit(11, 4, "genericNPC"), // 111
             new ObjTypeInit(11, 2, "genericNPC"), // 112
             new ObjTypeInit(11, 1, "genericNPC"), // 113
@@ -514,12 +548,12 @@ namespace R1Engine
             new ObjTypeInit(0, 233, "groundFenceVertScript"), // 150
             new ObjTypeInit(0, 235, "groundFenceHorScript"), // 151
             new ObjTypeInit(0, 237, "electricFloorScript"), // 152
-            new ObjTypeInit(-1, -1, null), // 153
+            new ObjTypeInit(0, 167, null), // 153
             new ObjTypeInit(0, 169, "wallPieceScript"), // 154
-            new ObjTypeInit(-1, -1, null), // 155
+            new ObjTypeInit(9, 40, null), // 155
             new ObjTypeInit(9, 42, null), // 156
-            new ObjTypeInit(-1, -1, null), // 157
-            new ObjTypeInit(-1, -1, null), // 158
+            new ObjTypeInit(9, 40, null), // 157
+            new ObjTypeInit(9, 40, null), // 158
             new ObjTypeInit(0, 16, "triggerGenericScript"), // 159
             new ObjTypeInit(0, 17, "triggerRightScript"), // 160
             new ObjTypeInit(0, 18, "triggerLeftScript"), // 161
@@ -552,7 +586,7 @@ namespace R1Engine
             new ObjTypeInit(3, 23, null), // 188
             new ObjTypeInit(-1, -1, null), // 189
             new ObjTypeInit(4, 29, "breakoutRhynocScript"), // 190
-            new ObjTypeInit(-1, -1, null), // 191
+            new ObjTypeInit(4, 37, null), // 191
             new ObjTypeInit(4, 26, "breakoutLabAssShooterScript"), // 192
             new ObjTypeInit(4, 40, "breakoutRhynocShieldScript"), // 193
             new ObjTypeInit(4, 35, "breakoutLabAssProjectileScript"), // 194
@@ -560,8 +594,8 @@ namespace R1Engine
             new ObjTypeInit(4, 45, "breakoutWallOnScript"), // 196
             new ObjTypeInit(4, 43, "breakoutRhynocBallScript"), // 197
             new ObjTypeInit(12, 4, null), // 198
-            new ObjTypeInit(-1, -1, null), // 199
-            new ObjTypeInit(-1, -1, null), // 200
+            new ObjTypeInit(7, 7, null), // 199
+            new ObjTypeInit(16, 6, null), // 200
             new ObjTypeInit(12, 4, null), // 201
             new ObjTypeInit(12, 5, null), // 202
             new ObjTypeInit(12, 6, null), // 203
@@ -602,7 +636,7 @@ namespace R1Engine
             new ObjTypeInit(12, 42, null), // 238
             new ObjTypeInit(12, 43, null), // 239
             new ObjTypeInit(12, 37, null), // 240
-            new ObjTypeInit(-1, -1, null), // 241
+            new ObjTypeInit(6, 121, null), // 241
             new ObjTypeInit(4, 29, "globalController"), // 242
             new ObjTypeInit(-1, -1, null), // 243
         };

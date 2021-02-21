@@ -143,6 +143,14 @@ namespace R1Engine
                     LevelInfos[i] = s.SerializeObject<GBAVV_LevelInfo>(LevelInfos[i], x => x.LevInfo = i == CurrentLevInfo.LevelIndex ? CurrentLevInfo : null, name: $"{nameof(LevelInfos)}[{i}]");
             });
 
+            if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal ||
+                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_0 ||
+                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_1 ||
+                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
+            {
+                Map2D_Graphics = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics, name: nameof(Map2D_Graphics)));
+            }
+
             if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion)
             {
                 var pointers = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).ScriptPointers;
@@ -152,14 +160,6 @@ namespace R1Engine
 
                 for (int i = 0; i < pointers.Length; i++)
                     Scripts[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
-            }
-
-            if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal ||
-                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_0 ||
-                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_1 ||
-                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
-            {
-                Map2D_Graphics = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics, name: nameof(Map2D_Graphics)));
             }
 
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Mode7)
