@@ -3,10 +3,10 @@ using System.Linq;
 
 namespace R1Engine
 {
-	public class Gameloft_Level3D : Gameloft_Resource {
+	public class Gameloft_RK_Level : Gameloft_Resource {
 		public ushort TrackLength { get; set; }
 		public TrackBlock[] TrackBlocks { get; set; }
-		public byte Structs12Count { get; set; }
+		public byte LumsCount { get; set; }
 		public byte BM_Byte0 { get; set; }
 		public bool BM_Bool1 { get; set; }
 		public byte BM_Byte2 { get; set; }
@@ -56,18 +56,18 @@ namespace R1Engine
 		public byte Structs2Count { get; set; }
 		public Struct2[] Structs2 { get; set; }
 		public BackgroundLayer[] BackgroundLayers { get; set; }
-		public byte[][] bs_Struct0_BackgroundIndex { get; set; } // Each byte is an index to a Struct3/aU
+		public byte[][] TrackBackgroundIndices { get; set; } // Each byte is an index to a Struct3/aU
 		public byte Structs4Count { get; set; }
 		public Struct4[] Structs4 { get; set; }
 		public byte Structs5Count { get; set; }
 		public Struct5[] Structs5 { get; set; }
 		public ushort ObjectTypesCount { get; set; }
 		public ObjectType[] ObjectTypes { get; set; }
-		public ushort Structs7Count { get; set; }
-		public Struct7[] Structs7 { get; set; }
+		public ushort Objects3DCount { get; set; }
+		public Object3D[] Objects3D { get; set; }
 		public ushort TrackObjectsCount { get; set; }
 		public TrackObject[] TrackObjects { get; set; }
-		public ushort cF { get; set; }
+		public ushort TrackObjectInstancesCount { get; set; }
 		public TrackObjectInstance[] TrackObjectInstances { get; set; }
 		public TrackObjectCollection[] TrackObjectCollections { get; set; }
 		public byte TypesCount { get; set; }
@@ -77,7 +77,7 @@ namespace R1Engine
 		public override void SerializeImpl(SerializerObject s) {
 			TrackLength = s.Serialize<ushort>(TrackLength, name: nameof(TrackLength));
 			TrackBlocks = s.SerializeObjectArray<TrackBlock>(TrackBlocks, TrackLength, name: nameof(TrackBlocks));
-			Structs12Count = s.Serialize<byte>(Structs12Count, name: nameof(Structs12Count));
+			LumsCount = s.Serialize<byte>(LumsCount, name: nameof(LumsCount));
 			BM_Byte0 = s.Serialize<byte>(BM_Byte0, name: nameof(BM_Byte0));
 			BM_Bool1 = s.Serialize<bool>(BM_Bool1, name: nameof(BM_Bool1));
 			BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
@@ -129,9 +129,9 @@ namespace R1Engine
 			Structs2Count = s.Serialize<byte>(Structs2Count, name: nameof(Structs2Count));
 			Structs2 = s.SerializeObjectArray<Struct2>(Structs2, Structs2Count, name: nameof(Structs2));
 			BackgroundLayers = s.SerializeObjectArray<BackgroundLayer>(BackgroundLayers, aUCount, name: nameof(BackgroundLayers));
-			bs_Struct0_BackgroundIndex = s.SerializeArraySize<byte[],byte>(bs_Struct0_BackgroundIndex, name: nameof(bs_Struct0_BackgroundIndex));
-			for (int i = 0; i < bs_Struct0_BackgroundIndex.Length; i++) {
-				bs_Struct0_BackgroundIndex[i] = s.SerializeArray<byte>(bs_Struct0_BackgroundIndex[i], TrackLength, name: $"{nameof(bs_Struct0_BackgroundIndex)}[{i}]");
+			TrackBackgroundIndices = s.SerializeArraySize<byte[],byte>(TrackBackgroundIndices, name: nameof(TrackBackgroundIndices));
+			for (int i = 0; i < TrackBackgroundIndices.Length; i++) {
+				TrackBackgroundIndices[i] = s.SerializeArray<byte>(TrackBackgroundIndices[i], TrackLength, name: $"{nameof(TrackBackgroundIndices)}[{i}]");
 			}
 			Structs4Count = s.Serialize<byte>(Structs4Count, name: nameof(Structs4Count));
 			Structs4 = s.SerializeObjectArray<Struct4>(Structs4, Structs4Count, name: nameof(Structs4));
@@ -139,16 +139,16 @@ namespace R1Engine
 			Structs5 = s.SerializeObjectArray<Struct5>(Structs5, Structs5Count, name: nameof(Structs5));
 			ObjectTypesCount = s.Serialize<ushort>(ObjectTypesCount, name: nameof(ObjectTypesCount));
 			ObjectTypes = s.SerializeObjectArray<ObjectType>(ObjectTypes, ObjectTypesCount, name: nameof(ObjectTypes));
-			Structs7Count = s.Serialize<ushort>(Structs7Count, name: nameof(Structs7Count));
-			Structs7 = s.SerializeObjectArray<Struct7>(Structs7, Structs7Count, name: nameof(Structs7));
+			Objects3DCount = s.Serialize<ushort>(Objects3DCount, name: nameof(Objects3DCount));
+			Objects3D = s.SerializeObjectArray<Object3D>(Objects3D, Objects3DCount, name: nameof(Objects3D));
 			TrackObjectsCount = s.Serialize<ushort>(TrackObjectsCount, name: nameof(TrackObjectsCount));
 			TrackObjects = s.SerializeObjectArray<TrackObject>(TrackObjects, TrackObjectsCount, name: nameof(TrackObjects));
-			cF = s.Serialize<ushort>(cF, name: nameof(cF));
-			TrackObjectInstances = s.SerializeObjectArray<TrackObjectInstance>(TrackObjectInstances, cF, name: nameof(TrackObjectInstances));
-			if(cF > 0) TrackObjectCollections = s.SerializeObjectArray<TrackObjectCollection>(TrackObjectCollections, TrackLength, name: nameof(TrackObjectCollections));
+			TrackObjectInstancesCount = s.Serialize<ushort>(TrackObjectInstancesCount, name: nameof(TrackObjectInstancesCount));
+			TrackObjectInstances = s.SerializeObjectArray<TrackObjectInstance>(TrackObjectInstances, TrackObjectInstancesCount, name: nameof(TrackObjectInstances));
+			if(TrackObjectInstancesCount > 0) TrackObjectCollections = s.SerializeObjectArray<TrackObjectCollection>(TrackObjectCollections, TrackLength, name: nameof(TrackObjectCollections));
 			TypesCount = s.Serialize<byte>(TypesCount, name: nameof(TypesCount));
 			Types = s.SerializeObjectArray<Type>(Types, TypesCount, name: nameof(Types));
-			Lums = s.SerializeObjectArray<Lum>(Lums, Structs12Count, name: nameof(Lums));
+			Lums = s.SerializeObjectArray<Lum>(Lums, LumsCount, name: nameof(Lums));
 		}
 
 		public class TrackBlock : R1Serializable {
@@ -315,12 +315,12 @@ namespace R1Engine
 			}
 		}
 
-		public class Struct7 : R1Serializable {
+		public class Object3D : R1Serializable {
 			public byte Count { get; set; }
 			public ushort UShort1 { get; set; }
 			public ushort UShort2 { get; set; }
 			public ushort UShort3 { get; set; }
-			public Entry[] Entries { get; set; }
+			public Command[] Commands { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<byte>(Count, name: nameof(Count));
@@ -329,30 +329,93 @@ namespace R1Engine
 					UShort2 = (ushort)bitFunc(UShort2, 7, name: nameof(UShort2));
 					UShort3 = (ushort)bitFunc(UShort3, 2, name: nameof(UShort3));
 				});
-				Entries = s.SerializeObjectArray<Entry>(Entries, Count, name: nameof(Entries));
+				Commands = s.SerializeObjectArray<Command>(Commands, Count, name: nameof(Commands));
 			}
-			public class Entry : R1Serializable {
-				public byte Type { get; set; }
+			public class Command : R1Serializable {
+				public CommandType Type { get; set; }
 				public short[] Shorts { get; set; }
-				public byte[] Bytes { get; set; }
+
+				public RGB888Color Color { get; set; }
+				public Position[] Positions { get; set; }
+				public AABB Rectangle { get; set; }
+				public Unknown5 Unknown5Object { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
-					Type = s.Serialize<byte>(Type, name: nameof(Type));
-					if (Type == 0) {
-						Bytes = s.SerializeArray<byte>(Bytes, GetLength()-1, name: nameof(Bytes));
-					} else {
-						Shorts = s.SerializeArray<short>(Shorts, GetLength()-1, name: nameof(Shorts));
+					Type = s.Serialize<CommandType>(Type, name: nameof(Type));
+					switch (Type) {
+						case CommandType.Color:
+							Color = s.SerializeObject<RGB888Color>(Color, name: nameof(Color));
+							break;
+						case CommandType.DrawTriangle:
+							Positions = s.SerializeObjectArray<Position>(Positions, 3, name: nameof(Positions));
+							break;
+						case CommandType.DrawLine:
+							Positions = s.SerializeObjectArray<Position>(Positions, 2, name: nameof(Positions));
+							break;
+						case CommandType.DrawRectangle:
+							Rectangle = s.SerializeObject<AABB>(Rectangle, name: nameof(Rectangle));
+							break;
+						case CommandType.Unknown5:
+							Unknown5Object = s.SerializeObject<Unknown5>(Unknown5Object, name: nameof(Unknown5Object));
+							break;
 					}
 				}
 
 				public int GetLength() {
 					switch (Type) {
-						case 0: return 4;
-						case 1: return 5;
-						case 2: return 7;
-						case 3: return 5;
-						case 5: return 7;
+						case CommandType.Color: return 3;
+						case CommandType.DrawRectangle: return 4;
+						case CommandType.DrawTriangle: return 6;
+						case CommandType.DrawLine: return 4;
+						case CommandType.Unknown5: return 6;
 						default: return 0;
+					}
+				}
+
+				public enum CommandType : byte {
+					Color = 0,
+					DrawRectangle = 1,
+					DrawTriangle = 2,
+					DrawLine = 3,
+					Unknown5 = 5,
+				}
+
+				public class Position : R1Serializable {
+					public short X { get; set; }
+					public short Y { get; set; }
+					public override void SerializeImpl(SerializerObject s) {
+						X = s.Serialize<short>(X, name: nameof(X));
+						Y = s.Serialize<short>(Y, name: nameof(Y));
+					}
+				}
+				public class AABB : R1Serializable {
+					public short X { get; set; }
+					public short Y { get; set; }
+					public short Width { get; set; }
+					public short Height { get; set; }
+
+					public override void SerializeImpl(SerializerObject s) {
+						X = s.Serialize<short>(X, name: nameof(X));
+						Y = s.Serialize<short>(Y, name: nameof(Y));
+						Width = s.Serialize<short>(Width, name: nameof(Width));
+						Height = s.Serialize<short>(Height, name: nameof(Height));
+					}
+				}
+				public class Unknown5 : R1Serializable {
+					public short XPosition { get; set; }
+					public short Short2 { get; set; }
+					public short Short4 { get; set; }
+					public short Short6 { get; set; }
+					public short RotationMin { get; set; }
+					public short RotationMax { get; set; }
+
+					public override void SerializeImpl(SerializerObject s) {
+						XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
+						Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
+						Short4 = s.Serialize<short>(Short4, name: nameof(Short4));
+						Short6 = s.Serialize<short>(Short6, name: nameof(Short6));
+						RotationMin = s.Serialize<short>(RotationMin, name: nameof(RotationMin));
+						RotationMax = s.Serialize<short>(RotationMax, name: nameof(RotationMax));
 					}
 				}
 			}

@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class Unity_Object_GameloftRK : Unity_Object_3D
     {
-        public Unity_Object_GameloftRK(Unity_ObjectManager_GameloftRK objManager, Gameloft_Level3D.TrackObject obj, Gameloft_Level3D.ObjectType type)
+        public Unity_Object_GameloftRK(Unity_ObjectManager_GameloftRK objManager, Gameloft_RK_Level.TrackObject obj, Gameloft_RK_Level.ObjectType type)
         {
             ObjManager = objManager;
             Object = obj;
@@ -18,9 +18,9 @@ namespace R1Engine
         }
 
         public Unity_ObjectManager_GameloftRK ObjManager { get; }
-        public Gameloft_Level3D.TrackObject Object { get; set; }
-        public Gameloft_Level3D.TrackObjectInstance Instance { get; set; }
-        public Gameloft_Level3D.ObjectType ObjType { get; set; }
+        public Gameloft_RK_Level.TrackObject Object { get; set; }
+        public Gameloft_RK_Level.TrackObjectInstance Instance { get; set; }
+        public Gameloft_RK_Level.ObjectType ObjType { get; set; }
 
         public int PuppetIndex { get; set; }
         public int AnimIndex { get; set; }
