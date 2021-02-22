@@ -25,7 +25,8 @@ namespace R1Engine
             Texture2D background = null, 
             Texture2D parallaxBackground = null,
             Unity_Sector[] sectors = null,
-            Unity_IsometricData isometricData = null)
+            Unity_IsometricData isometricData = null,
+            int? cellSizeOverrideCollision = null)
         {
             Maps = maps;
             ObjManager = objManager;
@@ -42,10 +43,11 @@ namespace R1Engine
             ParallaxBackground = parallaxBackground;
             Sectors = sectors;
             IsometricData = isometricData;
+            CellSizeOverrideCollision = cellSizeOverrideCollision;
 
             if (Maps?.Length > 0) {
-                MaxWidth = Maps.Max(m => m.Width);
-                MaxHeight = Maps.Max(m => m.Height);
+                MaxWidth = Maps.Max(m => CellSizeOverrideCollision != null && m.Type == Unity_Map.MapType.Collision ? (ushort)(m.Width / (CellSize / CellSizeOverrideCollision)) : m.Width);
+                MaxHeight = Maps.Max(m => CellSizeOverrideCollision != null && m.Type == Unity_Map.MapType.Collision ? (ushort)(m.Height / (CellSize / CellSizeOverrideCollision)) : m.Height);
             }
 
             GridMap = new Unity_Map

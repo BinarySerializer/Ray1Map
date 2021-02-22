@@ -87,7 +87,7 @@ namespace R1Engine
 
                         // Set debug text
                         Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
-                            ? $"{String.Join(Environment.NewLine, t.Select(x => x?.DebugText))}{Environment.NewLine}" +
+                            ? $"{String.Join(Environment.NewLine, t.Concat(c).Select(x => x?.DebugText))}{Environment.NewLine}" +
                               $"PC_TransparencyMode: {String.Join(", ", t.Select(x => x?.Data?.PC_TransparencyMode))}{Environment.NewLine}" +
                               $"PC_Unk1: {String.Join(", ", t.Select(x => x?.Data?.PC_Unk1))}{Environment.NewLine}" +
                               $"PC_Unk2: {String.Join(", ", t.Select(x => x?.Data?.PC_Unk2))}{Environment.NewLine}" +

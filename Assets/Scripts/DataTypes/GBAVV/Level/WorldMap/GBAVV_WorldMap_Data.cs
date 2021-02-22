@@ -4,7 +4,7 @@
     {
         public Pointer TilePalettePointer { get; set; }
         public Pointer[] MapLayerPointers { get; set; }
-        public Pointer Pointer_14 { get; set; } // Compressed data - tilemap of size 0x80 x 0x80 - but all tiles are 0 - maybe collision?
+        public Pointer MapCollisionPointer { get; set; }
         public Pointer ObjDataPointer { get; set; }
         public Pointer TileSetsPointer { get; set; }
 
@@ -14,12 +14,13 @@
         public GBAVV_WorldMap_MapLayer[] MapLayers { get; set; }
         public GBAVV_Map2D_ObjData ObjData { get; set; }
         public GBAVV_WorldMap_TileSets TileSets { get; set; }
+        public GBAVV_Fusion_MapCollisionSector Fusion_Collision { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
             MapLayerPointers = s.SerializePointerArray(MapLayerPointers, 4, name: nameof(MapLayerPointers));
-            Pointer_14 = s.SerializePointer(Pointer_14, name: nameof(Pointer_14));
+            MapCollisionPointer = s.SerializePointer(MapCollisionPointer, name: nameof(MapCollisionPointer));
             ObjDataPointer = s.SerializePointer(ObjDataPointer, name: nameof(ObjDataPointer));
             TileSetsPointer = s.SerializePointer(TileSetsPointer, name: nameof(TileSetsPointer));
 
@@ -33,6 +34,9 @@
 
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Map2D_ObjData>(ObjData, name: nameof(ObjData)));
             TileSets = s.DoAt(TileSetsPointer, () => s.SerializeObject<GBAVV_WorldMap_TileSets>(TileSets, name: nameof(TileSets)));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion) // In Crash 2 the collision is a compressed tilemap, but it's empty so we ignore it
+                Fusion_Collision = s.DoAt(MapCollisionPointer, () => s.SerializeObject<GBAVV_Fusion_MapCollisionSector>(Fusion_Collision, name: nameof(Fusion_Collision)));
         }
     }
 }

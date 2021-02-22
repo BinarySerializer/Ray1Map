@@ -4,20 +4,22 @@ namespace R1Engine
 {
     public class GBAVV_Time : R1Serializable
     {
-        public int CentiSeconds { get; set; }
+        public int Value { get; set; }
         public TimeSpan Time
         {
             get
             {
-                var seconds = CentiSeconds / 10;
-                var centiSeconds = CentiSeconds % 10;
-                return new TimeSpan(0, 0, 0, seconds, centiSeconds * 10);
+                var v = Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? 60 : 10;
+
+                var seconds = Value / v;
+                var centiSeconds = Value % v;
+                return new TimeSpan(0, 0, 0, seconds, centiSeconds * v);
             }
         }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            CentiSeconds = s.Serialize<int>(CentiSeconds, name: nameof(CentiSeconds));
+            Value = s.Serialize<int>(Value, name: nameof(Value));
             s.Log($"Time: {Time:g}");
         }
     }

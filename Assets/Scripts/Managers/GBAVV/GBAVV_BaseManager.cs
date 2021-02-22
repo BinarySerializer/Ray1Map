@@ -725,18 +725,83 @@ namespace R1Engine
                 };
             }).Where(x => x != null).OrderByDescending(x => x.Prio).Select(x => x.Map).ToArray();
 
+            // Load collision
+            if (map.Fusion_Collision != null)
+            {
+                var w = map.Fusion_Collision.Int_08;
+                var h = map.Fusion_Collision.Int_0C;
+
+                var c = Enumerable.Range(0, w * h).Select(x => new Unity_Tile(new MapTile())).ToArray();
+
+                handleCollision(map.Fusion_Collision);
+
+                void handleCollision(GBAVV_Fusion_MapCollisionSector mapCollision)
+                {
+                    // Draw every line
+                    foreach (var line in mapCollision.CollisionLines ?? new GBAVV_Fusion_MapCollisionLine[0])
+                    {
+                        // Get vectors for the points
+                        Vector2 p1 = new Vector2(line.X1, line.Y1);
+                        Vector2 p2 = new Vector2(line.X2, line.Y2);
+
+                        Vector2 t = p1;
+                        float frac = 1 / Mathf.Sqrt(Mathf.Pow(p2.x - p1.x, 2) + Mathf.Pow(p2.y - p1.y, 2));
+
+                        float ctr = 0;
+
+                        // Draw every "pixel"
+                        while ((int)t.x != (int)p2.x || (int)t.y != (int)p2.y)
+                        {
+                            // Get new point
+                            t = Vector2.Lerp(p1, p2, ctr);
+                            
+                            ctr += frac;
+
+                            var index = (int)t.y * w + (int)t.x;
+
+                            // Make sure the index isn't out of bounds
+                            if (index >= c.Length)
+                            {
+                                Debug.LogWarning($"Index ({index}) >= {c.Length}");
+                            }
+                            else
+                            {
+                                c[index].Data.CollisionType = 15; // TODO: Multiple collision types
+                                c[index].DebugText = $"Direction: {line.Direction} - 0x{line.Pointer_14.AbsoluteOffset:X8}{Environment.NewLine}";
+                            }
+                        }
+                    }
+
+                    foreach (var mc in mapCollision.SubSectors.Where(x => x != null))
+                        handleCollision(mc);
+                }
+
+                maps = maps.Append(new Unity_Map()
+                {
+                    Width = (ushort)w,
+                    Height = (ushort)h,
+                    TileSet = new Unity_TileSet[0],
+                    MapTiles = c,
+                    Type = Unity_Map.MapType.Collision,
+                }).ToArray();
+            }
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
             var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts);
-            var objects = map.ObjData.Objects.Select(obj => new Unity_Object_GBAVV(objmanager, obj, -1, -1));
+            var objects = new List<Unity_Object>();
+
+            if (map.ObjData?.Objects != null)
+                objects.AddRange(map.ObjData.Objects.Select(obj => new Unity_Object_GBAVV(objmanager, obj, -1, -1)));
 
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
-                eventData: new List<Unity_Object>(objects),
+                eventData: objects,
                 cellSize: CellSize,
-                localization: LoadLocalization(rom));
+                localization: LoadLocalization(rom),
+                cellSizeOverrideCollision: 1);
         }
 
         public static byte GetIsometricCollisionType(int level, int index)
@@ -1986,8 +2051,11 @@ namespace R1Engine
             public enum FusionType
             {
                 Normal,
-                TimedLevel,
+                LevTime,
+                LevInt,
                 LevIntInt,
+                IntLevel,
+                Unknown
             }
         }
 
