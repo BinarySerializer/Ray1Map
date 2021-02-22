@@ -2,6 +2,7 @@
 using R1Engine;
 using System;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ public class ObjPropertiesWindow : UnityWindow
 
     protected UnityWindowSerializer Serializer { get; set; }
 
-    public bool R1_CmdPanelOpen { get; set; }
+    public bool CmdPanelOpen { get; set; }
     public bool LocPanelOpen { get; set; }
 
     protected override UniTask UpdateEditorFieldsAsync() 
@@ -71,9 +72,9 @@ public class ObjPropertiesWindow : UnityWindow
 
                     if (selectedObjData is Unity_Object_R1 r1)
                     {
-                        R1_CmdPanelOpen = EditorGUI.Foldout(GetNextRect(ref YPos), R1_CmdPanelOpen, "Commands");
+                        CmdPanelOpen = EditorGUI.Foldout(GetNextRect(ref YPos), CmdPanelOpen, "Commands");
 
-                        if (R1_CmdPanelOpen)
+                        if (CmdPanelOpen)
                         {
                             // TODO: Cache the commands, but make sure to update if modified
                             var cmdLines = r1.EventData.Commands?.ToTranslatedStrings(r1.EventData.LabelOffsets);
@@ -81,6 +82,19 @@ public class ObjPropertiesWindow : UnityWindow
                             if (cmdLines?.Any() == true)
                                 // TODO: Better way to get height?
                                 EditorGUI.TextArea(GetNextRect(ref YPos, height: cmdLines.Length * 15 + 2), String.Join(Environment.NewLine, cmdLines));
+                        }
+                    }
+                    if (selectedObjData is Unity_Object_GBAVV vv && vv.Script != null)
+                    {
+                        CmdPanelOpen = EditorGUI.Foldout(GetNextRect(ref YPos), CmdPanelOpen, "Script");
+
+                        if (CmdPanelOpen)
+                        {
+                            // TODO: Cache the commands, but make sure to update if modified
+                            var lines = vv.Script.TranslatedString(LevelEditorData.MainContext.GetMainFileObject<GBAVV_ROM>(new GBAVV_CrashFusionUS_Manager().GetROMFilePath).Map2D_Graphics.AnimSets);
+
+                            // TODO: Better way to get height?
+                            EditorGUI.TextArea(GetNextRect(ref YPos, height: lines.Count * 15 + 2), String.Join(Environment.NewLine, lines));
                         }
                     }
 

@@ -68,6 +68,7 @@
 
         GBAVV_Crash1,
         GBAVV_Crash2,
+        GBAVV_CrashFusion,
 
         // Gameloft
 

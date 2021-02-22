@@ -20,6 +20,11 @@ namespace R1Engine
                         MapType = CurrentLevInfo.SpecialMapType,
                         Index3D = CurrentLevInfo.Index3D
                     };
+                else if (Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion)
+                    map = new GBAVV_MapInfo()
+                    {
+                        MapType = GBAVV_MapInfo.GBAVV_MapType.WorldMap
+                    };
                 else if (CurrentLevInfo.MapType == GBAVV_BaseManager.LevInfo.Type.Normal)
                     map = LevelInfos[CurrentLevInfo.LevelIndex].LevelData.Maps[CurrentLevInfo.MapIndex];
                 else if (CurrentLevInfo.MapType == GBAVV_BaseManager.LevInfo.Type.Bonus)
@@ -34,11 +39,13 @@ namespace R1Engine
         public GBAVV_Isometric_MapData CurrentIsometricMapData => Isometric_MapDatas[CurrentIsometricIndex];
         public GBAVV_Isometric_ObjectData CurrentIsometricObjData => Isometric_ObjectDatas[CurrentIsometricIndex];
         public int CurrentIsometricIndex => CurrentMapInfo.Index3D + 4;
+        public GBAVV_WorldMap_Data CurrentWorldMapData => WorldMap_Crash2 ?? LevelInfos[CurrentLevInfo.LevelIndex].Fusion_MapData;
 
         // Common
         public Pointer[] LocTablePointers { get; set; }
         public GBAVV_LocTable[] LocTables { get; set; }
         public GBAVV_LevelInfo[] LevelInfos { get; set; }
+        public GBAVV_Script[] Scripts { get; set; }
 
         // 2D
         public GBAVV_Map2D_Graphics Map2D_Graphics { get; set; }
@@ -92,7 +99,7 @@ namespace R1Engine
         public IEnumerable<GBAVV_Isometric_Animation> Isometric_GetAnimations => Isometric_ObjAnimations.Concat(Isometric_AdditionalAnimations);
 
         // WorldMap
-        public GBAVV_WorldMap_Data WorldMap { get; set; }
+        public GBAVV_WorldMap_Data WorldMap_Crash2 { get; set; }
         public GBAVV_WorldMap_Crash1_LevelIcon[] WorldMap_Crash1_LevelIcons { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -127,7 +134,7 @@ namespace R1Engine
 
             s.Context.StoreObject(GBAVV_BaseManager.LocTableID, LocTables?.FirstOrDefault());
 
-            s.DoAt(pointerTable[GBAVV_Pointer.LevelInfo], () =>
+            s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
             {
                 if (LevelInfos == null)
                     LevelInfos = new GBAVV_LevelInfo[manager.LevInfos.Max(x => x.LevelIndex) + 1];
@@ -141,7 +148,18 @@ namespace R1Engine
                 CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_1 ||
                 CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
             {
-                Map2D_Graphics = s.DoAt(pointerTable[GBAVV_Pointer.Map2D_Graphics], () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics, name: nameof(Map2D_Graphics)));
+                Map2D_Graphics = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics, name: nameof(Map2D_Graphics)));
+            }
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion)
+            {
+                var pointers = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).ScriptPointers;
+
+                if (Scripts == null)
+                    Scripts = new GBAVV_Script[pointers.Length];
+
+                for (int i = 0; i < pointers.Length; i++)
+                    Scripts[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
             }
 
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Mode7)
@@ -252,8 +270,7 @@ namespace R1Engine
 
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
             {
-                if (pointerTable.ContainsKey(GBAVV_Pointer.WorldMap))
-                    WorldMap = s.DoAt(pointerTable[GBAVV_Pointer.WorldMap], () => s.SerializeObject(WorldMap, name: nameof(WorldMap)));
+                WorldMap_Crash2 = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.WorldMap_Crash2), () => s.SerializeObject<GBAVV_WorldMap_Data>(WorldMap_Crash2, name: nameof(WorldMap_Crash2)));
 
                 if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
                     WorldMap_Crash1_LevelIcons = s.DoAt(pointerTable[GBAVV_Pointer.WorldMap_Crash1_LevelIcons], () => s.SerializeObjectArray<GBAVV_WorldMap_Crash1_LevelIcon>(WorldMap_Crash1_LevelIcons, 10, name: nameof(WorldMap_Crash1_LevelIcons)));

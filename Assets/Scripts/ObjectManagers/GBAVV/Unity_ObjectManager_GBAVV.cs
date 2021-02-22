@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using R1Engine.Serialize;
 using UnityEngine;
@@ -7,17 +8,19 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBAVV : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAVV(Context context, AnimSet[] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType) : base(context)
+        public Unity_ObjectManager_GBAVV(Context context, AnimSet[] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType, GBAVV_Script[] scripts = null) : base(context)
         {
             AnimSets = animSets;
             ObjData = objData;
             MapType = mapType;
+            Scripts = scripts;
         }
         
         public AnimSet[] AnimSets { get; }
         public GBAVV_Map2D_ObjData ObjData { get; }
         public GBAVV_MapInfo.GBAVV_MapType MapType { get; }
         public byte[][] ObjParams => ObjData.ObjParams;
+        public GBAVV_Script[] Scripts { get; }
 
         public override string[] LegacyDESNames => AnimSets.Select((x, i) => i.ToString()).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
@@ -40,7 +43,7 @@ namespace R1Engine
                     XPos = xPos;
                     YPos = yPos;
 
-                    AnimHitBox = new Unity_ObjAnimationCollisionPart[]
+                    AnimHitBox = CrashAnim.HitBox == null ? new Unity_ObjAnimationCollisionPart[0] : new Unity_ObjAnimationCollisionPart[]
                     {
                         new Unity_ObjAnimationCollisionPart()
                         {
@@ -64,15 +67,48 @@ namespace R1Engine
 
                 public Unity_ObjAnimation ObjAnimation => Anim ?? (Anim = new Unity_ObjAnimation()
                 {
-                    Frames = Enumerable.Range(0, AnimFrames.Length).Select(x => new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
+                    Frames = Enumerable.Range(0, AnimFrames.Length).Select(x =>
                     {
-                        new Unity_ObjAnimationPart()
+                        Unity_ObjAnimationCollisionPart[] c = null;
+
+                        if (CrashAnim.Fusion_AnimSet != null)
                         {
-                            ImageIndex = x,
-                            XPosition = XPos,
-                            YPosition = YPos
+                            IEnumerable<Unity_ObjAnimationCollisionPart> cc = new Unity_ObjAnimationCollisionPart[0];
+
+                            var frame = CrashAnim.Fusion_AnimSet.AnimationFrames[CrashAnim.FrameIndexTable[x]];
+
+                            if (frame.Fusion_HitBox1 != null)
+                                cc = cc.Append(new Unity_ObjAnimationCollisionPart()
+                                {
+                                    Type = Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox,
+                                    XPosition = frame.Fusion_HitBox1.X,
+                                    YPosition = frame.Fusion_HitBox1.Y,
+                                    Width = frame.Fusion_HitBox1.Width + 1,
+                                    Height = frame.Fusion_HitBox1.Height + 1,
+                                });
+                            if (frame.Fusion_HitBox2 != null)
+                                cc = cc.Append(new Unity_ObjAnimationCollisionPart()
+                                {
+                                    Type = Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox,
+                                    XPosition = frame.Fusion_HitBox2.X,
+                                    YPosition = frame.Fusion_HitBox2.Y,
+                                    Width = frame.Fusion_HitBox2.Width + 1,
+                                    Height = frame.Fusion_HitBox2.Height + 1,
+                                });
+
+                            c = cc.ToArray();
                         }
-                    })).ToArray()
+
+                        return new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[]
+                        {
+                            new Unity_ObjAnimationPart()
+                            {
+                                ImageIndex = x,
+                                XPosition = XPos,
+                                YPosition = YPos
+                            }
+                        }, c);
+                    }).ToArray()
                 });
 
                 public Unity_ObjAnimationCollisionPart[] AnimHitBox { get; } 

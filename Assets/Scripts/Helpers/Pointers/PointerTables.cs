@@ -1017,7 +1017,7 @@ namespace R1Engine
                         [GBAVV_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087de7c8,
                         [GBAVV_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087f79e8,
 
-                        [GBAVV_Pointer.WorldMap] = 0x081e3924,
+                        [GBAVV_Pointer.WorldMap_Crash2] = 0x081e3924,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAUS:
@@ -1070,7 +1070,7 @@ namespace R1Engine
                         [GBAVV_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087db040,
                         [GBAVV_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087f4918,
 
-                        [GBAVV_Pointer.WorldMap] = 0x081dade4,
+                        [GBAVV_Pointer.WorldMap_Crash2] = 0x081dade4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAJP:
@@ -1123,7 +1123,13 @@ namespace R1Engine
                         [GBAVV_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087ce8a0,
                         [GBAVV_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087e7ac0,
 
-                        [GBAVV_Pointer.WorldMap] = 0x081cd6bc,
+                        [GBAVV_Pointer.WorldMap_Crash2] = 0x081cd6bc,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.CrashFusionGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x08087380,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

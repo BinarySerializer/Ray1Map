@@ -56,7 +56,7 @@
         Isometric_AdditionalAnim9_Palette,
         Isometric_AdditionalAnim10_Palette,
 
-        WorldMap,
+        WorldMap_Crash2,
         WorldMap_Crash1_LevelIcons,
     }
 }

@@ -35,7 +35,7 @@ namespace R1Engine
             if (Settings.GBAVV_Crash_TimeTrialMode && (ObjParams?.ElementAtOrDefault(0) & 0x20) != 0)
                 objType = (short)ObjParams?.ElementAtOrDefault(4);
 
-            GBAVV_ObjInit.InitObj(ObjManager.Context.Settings.EngineVersion, ObjManager.Context.Settings.GameModeSelection, this, objType);
+            GBAVV_ObjInit.InitObj(ObjManager.Context.Settings, this, objType);
         }
 
         public Unity_ObjectManager_GBAVV ObjManager { get; }
@@ -60,15 +60,18 @@ namespace R1Engine
                                             $"Group: {ObjGroupIndex}{Environment.NewLine}" +
                                             $"Index: {ObjIndex}{Environment.NewLine}";
 
+        public override int? GetLayer(int index) => ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? (int?)-index : null;
+
         public byte[] ObjParams => ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex);
 
         public Unity_ObjectManager_GBAVV.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBAVV.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
+        public GBAVV_Script Script => ObjManager.Scripts?.ElementAtOrDefault(ScriptIndex);
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_{(int)Object.ObjType}";
+        public override string PrimaryName => Script?.DisplayName != null ? $"{Script.DisplayName.Replace("Script", "")}" : $"Type_{(int)Object.ObjType}";
         public override string SecondaryName
         {
             get
@@ -79,12 +82,15 @@ namespace R1Engine
                 if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2 && ObjManager.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
                     return $"{(GBAVV_Crash2_WorldMap_ObjType)Object.ObjType}";
 
-                return $"{(GBAVV_Map2D_Crash2_ObjType)Object.ObjType}";
+                if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
+                    return $"{(GBAVV_Map2D_Crash2_ObjType)Object.ObjType}";
+
+                return null;
             }
         }
 
-        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & 2) != 0;
-        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & 4) != 0;
+        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? 1 : 2)) != 0;
+        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? 2 : 4)) != 0;
 
         public override bool CanBeLinkedToGroup => true;
 
@@ -128,6 +134,7 @@ namespace R1Engine
         }
 
         public bool FreezeFrame { get; set; }
+        public int ScriptIndex { get; set; }
 
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => Animation?.AnimHitBox;
 
