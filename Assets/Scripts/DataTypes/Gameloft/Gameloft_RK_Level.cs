@@ -207,15 +207,15 @@ namespace R1Engine
 		}
 
 		public class Struct1 : R1Serializable {
-			public short XPosition { get; set; }
-			public short YPosition { get; set; }
+			public short Width { get; set; }
+			public short Height { get; set; }
 			public byte Byte2 { get; set; }
 			public byte Count { get; set; }
 			public short[] Unknown { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
-				YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
+				Width = s.Serialize<short>(Width, name: nameof(Width));
+				Height = s.Serialize<short>(Height, name: nameof(Height));
 				Byte2 = s.Serialize<byte>(Byte2, name: nameof(Byte2));
 				Count = s.Serialize<byte>(Count, name: nameof(Count));
 				Unknown = s.SerializeArray<short>(Unknown, Count, name: nameof(Unknown));
@@ -434,6 +434,7 @@ namespace R1Engine
 		public class TrackObjectInstance : R1Serializable {
 			public short TrackObjectIndex { get; set; }
 			public bool FlipX { get; set; }
+			public int ObjType { get; set; }
 			public bool FlagUnknown { get; set; }
 			public bool DisplaySprite { get; set; }
 			public bool HasCollision { get; set; }
@@ -443,9 +444,10 @@ namespace R1Engine
 				s.SerializeBitValues<short>(bitFunc => {
 					TrackObjectIndex = (short)bitFunc(TrackObjectIndex, 11, name: nameof(TrackObjectIndex));
 					FlipX = bitFunc(FlipX ? 1 : 0, 1, name: nameof(FlipX)) == 1;
-					FlagUnknown = bitFunc(FlagUnknown ? 1 : 0, 1, name: nameof(FlagUnknown)) == 1;
+					ObjType = bitFunc(ObjType, 3, name: nameof(ObjType));
+					/*FlagUnknown = bitFunc(FlagUnknown ? 1 : 0, 1, name: nameof(FlagUnknown)) == 1;
 					DisplaySprite = bitFunc(DisplaySprite ? 1 : 0, 1, name: nameof(DisplaySprite)) == 1;
-					HasCollision = bitFunc(HasCollision ? 1 : 0, 1, name: nameof(HasCollision)) == 1;
+					HasCollision = bitFunc(HasCollision ? 1 : 0, 1, name: nameof(HasCollision)) == 1;*/
 					FlagLast = bitFunc(FlagLast ? 1 : 0, 1, name: nameof(FlagLast)) == 1;
 				});
 			}

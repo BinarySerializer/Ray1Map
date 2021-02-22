@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace R1Engine
-{
-    public class Unity_Object_GameloftRK : Unity_Object_3D
-    {
-        public Unity_Object_GameloftRK(Unity_ObjectManager_GameloftRK objManager, Gameloft_RK_Level.TrackObject obj, Gameloft_RK_Level.ObjectType type)
-        {
+namespace R1Engine {
+    public class Unity_Object_GameloftRK : Unity_Object_3D {
+        public Unity_Object_GameloftRK(Unity_ObjectManager_GameloftRK objManager, Gameloft_RK_Level.TrackObject obj, Gameloft_RK_Level.ObjectType type) {
             ObjManager = objManager;
             Object = obj;
             ObjType = type;
@@ -31,10 +28,8 @@ namespace R1Engine
         public override short YPosition { get; set; }
 
         public override string DebugText => $"ObjectType: {Object.ObjectType}{Environment.NewLine}" +
-            $"FlagUnknown: {Instance.FlagUnknown}{Environment.NewLine}" +
-            $"DisplaySprite: {Instance.DisplaySprite}{Environment.NewLine}" +
-            $"HasCollision: {Instance.HasCollision}{Environment.NewLine}" +
-            $"FlagLast: {Instance.FlagLast}{Environment.NewLine}";
+            $"ObjType: {Instance.ObjType}{Environment.NewLine}" +
+            $"TrackObjIndex: {Instance.TrackObjectIndex}{Environment.NewLine}";
 
 
         public override R1Serializable SerializableData => Object;

@@ -33,6 +33,7 @@ namespace R1Engine
 		};
 
 		public virtual string GetLevelPath(GameSettings settings) => "20";
+		public virtual string GetRoadTexturesPath(GameSettings settings) => "2";
 		public virtual int GetLevelResourceIndex(GameSettings settings) => settings.Level;
 
 		public override string[] SingleResourceFiles => new string[] {
@@ -46,6 +47,7 @@ namespace R1Engine
 
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
+			await context.AddLinearSerializedFileAsync(GetRoadTexturesPath(context.Settings));
 			foreach (var fileIndex in Enumerable.Range(0, PuppetCount).Select(i => GetPuppetFileIndex(i)).Distinct()) {
 				await context.AddLinearSerializedFileAsync(fileIndex.ToString());
 			}
@@ -56,16 +58,32 @@ namespace R1Engine
 
 		public virtual int GetPuppetFileIndex(int puppetIndex) => BasePuppetsResourceFile + puppetIndex / PuppetsPerResourceFile;
 		public virtual int GetPuppetResourceIndex(int puppetIndex) => puppetIndex % PuppetsPerResourceFile;
-		public virtual int PuppetCount => 60;
+		public virtual PuppetReference[] PuppetReferences => Enumerable.Range(0,PuppetCount-2).Select(pi => new PuppetReference() {
+			FileIndex = GetPuppetFileIndex(pi),
+			ResourceIndex = GetPuppetResourceIndex(pi)
+		}).Append(new PuppetReference() {
+			FileIndex = GetPuppetFileIndex(PuppetCount-3),
+			ResourceIndex = GetPuppetResourceIndex(PuppetCount-3) + 1
+		}).Append(new PuppetReference() {
+			FileIndex = GetPuppetFileIndex(PuppetCount - 3),
+			ResourceIndex = GetPuppetResourceIndex(PuppetCount - 3) + 2
+		}).ToArray();
+		public virtual int PuppetCount => 62;
+
+		public class PuppetReference {
+			public int FileIndex { get; set; }
+			public int ResourceIndex { get; set; }
+		}
 
 		public virtual Unity_ObjectManager_GameloftRK.PuppetData[] LoadPuppets(Context context) {
 
 			var s = context.Deserializer;
-			Gameloft_Puppet[] puppets = new Gameloft_Puppet[PuppetCount];
-			Unity_ObjectManager_GameloftRK.PuppetData[] models = new Unity_ObjectManager_GameloftRK.PuppetData[PuppetCount];
-			for (int i = 0; i < PuppetCount; i++) {
-				int fileIndex = GetPuppetFileIndex(i);
-				int resIndex = GetPuppetResourceIndex(i);
+			var refs = PuppetReferences;
+			Gameloft_Puppet[] puppets = new Gameloft_Puppet[refs.Length];
+			Unity_ObjectManager_GameloftRK.PuppetData[] models = new Unity_ObjectManager_GameloftRK.PuppetData[refs.Length];
+			for (int i = 0; i < refs.Length; i++) {
+				int fileIndex = refs[i].FileIndex;
+				int resIndex = refs[i].ResourceIndex;
 				var resf = FileFactory.Read<Gameloft_ResourceFile>(fileIndex.ToString(), context);
 				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, resIndex, name: $"Puppets[{i}]");
 				models[i] = new Unity_ObjectManager_GameloftRK.PuppetData(i, fileIndex, resIndex, GetCommonDesign(puppets[i]));
@@ -73,22 +91,36 @@ namespace R1Engine
 			return models;
 		}
 
-		public void CreateTrackMesh(Gameloft_RK_Level level) {
+		public class MeshInProgress {
+			public List<Vector3> vertices = new List<Vector3>();
+			public List<Vector3> normals = new List<Vector3>();
+			public List<Vector2> uvs = new List<Vector2>();
+			public List<Color> colors = new List<Color>();
+			public List<int> triangles = new List<int>();
+		}
+
+		public void CreateTrackMesh(Gameloft_RK_Level level, Context context) {
+			// Load road textures
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.Settings), context);
+			var roadTex0 = resf.SerializeResource<Gameloft_Puppet>(context.Deserializer, default, level.RoadTextureID_0, name: $"RoadTexture0");
+			var roadTex1 = resf.SerializeResource<Gameloft_Puppet>(context.Deserializer, default, level.RoadTextureID_1, name: $"RoadTexture1");
+
+
 			Vector3 curPos = Vector3.zero;
 			float curAngle = 0f;
 			float curHeight = 0f;
 			float roadSize = 1f;
 			float groundSize = 2f;
 			float groundDisplacement = -0.2f;
+			var heightMultiplier = 0.025f;
 
 			var t = level.TrackBlocks;
 
 			// Road
-			Vector3[] verticesRoad = new Vector3[(t.Length) * 8];
-			Vector3[] normalsRoad = new Vector3[verticesRoad.Length];
-			Vector2[] uvsRoad = new Vector2[verticesRoad.Length];
-			Color[] colorsRoad = new Color[verticesRoad.Length];
-			int[] trianglesRoad = new int[(t.Length) * 12];
+			var road0 = new MeshInProgress();
+			var road1 = new MeshInProgress();
+			var bridge = new MeshInProgress();
+			MeshInProgress[] roadMeshes = new MeshInProgress[] { road0, road1, bridge };
 
 			// Ground
 			Vector3[] verticesGround = new Vector3[(t.Length) * 8];
@@ -101,13 +133,15 @@ namespace R1Engine
 				var curBlock = t[i];
 				float roadWidthFactor = ((level.Types[curBlock.Type].Flags & 1) == 1 ? level.Types[curBlock.Type].Short2 : 1000) / 1000f;
 				float roadSizeCur = roadSize * roadWidthFactor;
-
+				bool isBridge = (level.Types[curBlock.Type].Flags & 1) == 1;
+				var road = isBridge ? bridge : i % 2 == 0 ? road0 : road1;
+				int roadVertexCount = road.vertices.Count;
 				Quaternion q = Quaternion.Euler(0, curAngle, 0);
 				var curPosH = curPos + Vector3.up * curHeight;
-				verticesRoad[(i * 8) + 0] = curPosH + q * Vector3.left * roadSizeCur;
-				verticesRoad[(i * 8) + 1] = curPosH + q * Vector3.right * roadSizeCur;
-				verticesRoad[(i * 8) + 2] = curPosH + q * Vector3.left * roadSizeCur;
-				verticesRoad[(i * 8) + 3] = curPosH + q * Vector3.right * roadSizeCur;
+				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
 
 				verticesGround[(i * 8) + 0] = curPosH + q * Vector3.left * groundSize;
 				verticesGround[(i * 8) + 1] = curPosH + q * Vector3.right * groundSize;
@@ -115,15 +149,15 @@ namespace R1Engine
 				verticesGround[(i * 8) + 3] = curPosH + q * Vector3.right * groundSize;
 
 				curPos += q * Vector3.forward;
-				curHeight += curBlock.DeltaHeight * 0.05f;
+				curHeight += curBlock.DeltaHeight * heightMultiplier;
 				curAngle -= curBlock.DeltaRotation;
 
 				q = Quaternion.Euler(0, curAngle, 0);
 				curPosH = curPos + Vector3.up * curHeight;
-				verticesRoad[(i * 8) + 4] = curPosH + q * Vector3.left * roadSizeCur;
-				verticesRoad[(i * 8) + 5] = curPosH + q * Vector3.right * roadSizeCur;
-				verticesRoad[(i * 8) + 6] = curPosH + q * Vector3.left * roadSizeCur;
-				verticesRoad[(i * 8) + 7] = curPosH + q * Vector3.right * roadSizeCur;
+				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
 
 				verticesGround[(i * 8) + 4] = curPosH + q * Vector3.left * groundSize;
 				verticesGround[(i * 8) + 5] = curPosH + q * Vector3.right * groundSize;
@@ -131,19 +165,19 @@ namespace R1Engine
 				verticesGround[(i * 8) + 7] = curPosH + q * Vector3.right * groundSize;
 
 				// Up
-				trianglesRoad[(i * 12) + 0] = (i * 8) + 0;
-				trianglesRoad[(i * 12) + 1] = (i * 8) + 4;
-				trianglesRoad[(i * 12) + 2] = (i * 8) + 1;
-				trianglesRoad[(i * 12) + 3] = (i * 8) + 1;
-				trianglesRoad[(i * 12) + 4] = (i * 8) + 4;
-				trianglesRoad[(i * 12) + 5] = (i * 8) + 5;
+				road.triangles.Add(roadVertexCount + 0);
+				road.triangles.Add(roadVertexCount + 4);
+				road.triangles.Add(roadVertexCount + 1);
+				road.triangles.Add(roadVertexCount + 1);
+				road.triangles.Add(roadVertexCount + 4);
+				road.triangles.Add(roadVertexCount + 5);
 				// Down
-				trianglesRoad[(i * 12) + 6] = (i * 8) + 2;
-				trianglesRoad[(i * 12) + 7] = (i * 8) + 3;
-				trianglesRoad[(i * 12) + 8] = (i * 8) + 7;
-				trianglesRoad[(i * 12) + 9] = (i * 8) + 2;
-				trianglesRoad[(i * 12) + 10] = (i * 8) + 7;
-				trianglesRoad[(i * 12) + 11] = (i * 8) + 6;
+				road.triangles.Add(roadVertexCount + 2);
+				road.triangles.Add(roadVertexCount + 3);
+				road.triangles.Add(roadVertexCount + 7);
+				road.triangles.Add(roadVertexCount + 2);
+				road.triangles.Add(roadVertexCount + 7);
+				road.triangles.Add(roadVertexCount + 6);
 
 				// Up
 				trianglesGround[(i * 12) + 0] = (i * 8) + 0;
@@ -161,16 +195,26 @@ namespace R1Engine
 				trianglesGround[(i * 12) + 11] = (i * 8) + 6;
 
 				// Test colors
-				var roadCol = (level.Types[curBlock.Type].Flags & 1) == 1 ? (level.Color_dk_BridgeLight ?? level.Types[curBlock.Type].ColorGround).GetColor() : Color.blue;
-				colorsRoad[(i * 8) + 0] = roadCol;
-				colorsRoad[(i * 8) + 1] = roadCol;
-				colorsRoad[(i * 8) + 4] = roadCol;
-				colorsRoad[(i * 8) + 5] = roadCol;
+				var roadCol = isBridge ? (level.Color_dk_BridgeLight ?? level.Types[curBlock.Type].ColorGround).GetColor() : Color.white;
+				road.colors.Add(roadCol);
+				road.colors.Add(roadCol);
+				road.colors.Add(Color.grey);
+				road.colors.Add(Color.grey);
 
-				colorsRoad[(i * 8) + 2] = Color.red;
-				colorsRoad[(i * 8) + 3] = Color.red;
-				colorsRoad[(i * 8) + 6] = Color.red;
-				colorsRoad[(i * 8) + 7] = Color.red;
+				road.colors.Add(roadCol);
+				road.colors.Add(roadCol);
+				road.colors.Add(Color.grey);
+				road.colors.Add(Color.grey);
+
+				// UVs
+				road.uvs.Add(new Vector2(0, 1));
+				road.uvs.Add(new Vector2(2, 1));
+				road.uvs.Add(new Vector2(0, 1));
+				road.uvs.Add(new Vector2(2, 1));
+				road.uvs.Add(new Vector2(0, 0));
+				road.uvs.Add(new Vector2(2, 0));
+				road.uvs.Add(new Vector2(0, 0));
+				road.uvs.Add(new Vector2(2, 0));
 
 				// Ground colors
 				var groundCol = (level.Types[curBlock.Type].Flags & 1) == 1 ? level.Types[curBlock.Type].Color8.GetColor() : level.Types[curBlock.Type].ColorGround.GetColor();
@@ -191,20 +235,32 @@ namespace R1Engine
 			gaoParent.transform.position = Vector3.zero;
 
 			// Road
-			Mesh roadMesh = new Mesh();
-			roadMesh.vertices = verticesRoad;
-			roadMesh.triangles = trianglesRoad;
-			roadMesh.colors = colorsRoad;
-			roadMesh.RecalculateNormals();
-			GameObject gao = new GameObject("Road mesh");
-			MeshFilter mf = gao.AddComponent<MeshFilter>();
-			MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-			gao.layer = LayerMask.NameToLayer("3D Collision");
-			gao.transform.SetParent(gaoParent.transform);
-			gao.transform.localScale = Vector3.one;
-			gao.transform.localPosition = Vector3.zero;
-			mf.mesh = roadMesh;
-			mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+			foreach (var road in roadMeshes) {
+				Mesh roadMesh = new Mesh();
+				roadMesh.SetVertices(road.vertices);
+				roadMesh.SetTriangles(road.triangles, 0);
+				roadMesh.SetColors(road.colors);
+				roadMesh.SetUVs(0, road.uvs);
+				roadMesh.RecalculateNormals();
+				GameObject gao = new GameObject("Road mesh");
+				MeshFilter mf = gao.AddComponent<MeshFilter>();
+				MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+				gao.layer = LayerMask.NameToLayer("3D Collision");
+				gao.transform.SetParent(gaoParent.transform);
+				gao.transform.localScale = Vector3.one;
+				gao.transform.localPosition = Vector3.zero;
+				mf.mesh = roadMesh;
+				mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+				if (road != bridge) {
+					Texture2D tex = null;
+					if (road == road0) tex = GetPuppetImages(roadTex0)?[0][0];
+					if (road == road1) tex = GetPuppetImages(roadTex1)?[0][0];
+					if (tex != null) {
+						tex.wrapModeU = TextureWrapMode.Mirror;
+						mr.material.SetTexture("_MainTex", tex);
+					}
+				}
+			}
 
 			// Ground
 			Mesh groundMesh = new Mesh();
@@ -220,22 +276,13 @@ namespace R1Engine
 			g_gao.transform.localScale = Vector3.one;
 			g_gao.transform.localPosition = Vector3.zero + Vector3.up * groundDisplacement;
 			g_mf.mesh = groundMesh;
-			g_mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+			g_mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
 
 			gaoParent.transform.localScale = Vector3.one * 8;
 
 		}
 
-
-		public void Create3DObject(Gameloft_RK_Level level, int objIndex) {
-
-
-			GameObject gaoParent = new GameObject();
-			gaoParent.transform.position = Vector3.zero;
-			float currentPos = 0;
-
-			var o = level.Objects3D[objIndex];
-
+		public Mesh GetObject3DMesh(Gameloft_RK_Level.Object3D o) {
 			Mesh m = new Mesh();
 			Color currentColor = Color.white;
 			int curCount = 0;
@@ -244,6 +291,7 @@ namespace R1Engine
 			List<Color> colors = new List<Color>();
 			Vector3 pt0, pt1, pt2;
 			int curTri = 0;
+
 
 			foreach (var c in o.Commands) {
 				switch (c.Type) {
@@ -279,8 +327,15 @@ namespace R1Engine
 					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawLine:
 						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri);
 						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri);
+						if (c.Positions[1].Y > 0 && BitHelpers.ExtractBits(c.Positions[1].Y, 1, 14) == 1) {
+							var newY = BitHelpers.ExtractBits(c.Positions[1].Y, 14, 0);
+							pt1 = new Vector3(c.Positions[1].X, newY, curTri + 10000);
+						}
 						var diff = pt1 - pt0;
-						var lineThickness = (Quaternion.Euler(0,0,90) * diff).normalized * 5;
+						var lineThickness = (Quaternion.Euler(0, 0, 90) * diff).normalized * 5;
+						if (lineThickness.x == 0 && lineThickness.y == 0) {
+							lineThickness = new Vector3(1,1,0) * 5f;
+						}
 						vertices.Add((pt0 - lineThickness) / 1000f);
 						vertices.Add((pt0 + lineThickness) / 1000f);
 						vertices.Add((pt1 - lineThickness) / 1000f);
@@ -318,26 +373,14 @@ namespace R1Engine
 						break;
 				}
 			}
-			{
-
-				m.SetVertices(vertices);
-				m.SetColors(colors);
-				m.SetTriangles(triangles, 0);
-				m.RecalculateNormals();
-				GameObject gao = new GameObject();
-				MeshFilter mf = gao.AddComponent<MeshFilter>();
-				MeshRenderer mr = gao.AddComponent<MeshRenderer>();
-				gao.layer = LayerMask.NameToLayer("3D Collision");
-				gao.transform.SetParent(gaoParent.transform);
-				gao.transform.localScale = new Vector3(1,1,0.1f);
-				gao.transform.localPosition = new Vector3(0, 0, objIndex * 5000) / 1000f;
-				mf.mesh = m;
-				mr.material = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
-			}
-			gaoParent.transform.localScale = Vector3.one * 8;
-			gaoParent.transform.name = objIndex.ToString();
-
+			m.SetVertices(vertices);
+			m.SetColors(colors);
+			m.SetTriangles(triangles, 0);
+			m.RecalculateNormals();
+			return m;
 		}
+
+
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			await UniTask.CompletedTask;
@@ -345,9 +388,10 @@ namespace R1Engine
 			var ind = GetLevelResourceIndex(context.Settings);
 			var level = resf.SerializeResource<Gameloft_RK_Level>(context.Deserializer, default, ind, name: $"Level_{ind}");
 
-			CreateTrackMesh(level);
+			CreateTrackMesh(level, context);
 
 			// Load objects
+			Mesh[] meshes = level.Objects3D.Select(o => GetObject3DMesh(o)).ToArray();
 			var objManager = new Unity_ObjectManager_GameloftRK(context, LoadPuppets(context));
 			List<Unity_Object> objs = new List<Unity_Object>();
 
@@ -361,7 +405,7 @@ namespace R1Engine
 			gaoParent.transform.position = Vector3.zero;
 			gaoParent.transform.localRotation = Quaternion.identity;
 			gaoParent.transform.localScale = Vector3.one * 8;
-			for(int i = 0; i < level.Objects3D.Length; i++) Create3DObject(level, i);
+			var heightMultiplier = 0.025f;
 			foreach (var o in level.TrackBlocks) {
 				var sphere = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Cube);
 				sphere.transform.position = curPos + Vector3.up * curHeight;
@@ -386,15 +430,36 @@ namespace R1Engine
 					var s8Ind = blk.TrackObjectIndex;
 					var s8 = level.TrackObjects[s8Ind];
 					var type = level.ObjectTypes[s8.ObjectType];
-					var pos = sphere.transform.TransformPoint(new Vector3(s8.XPosition * 0.001f, 0.05f + type.YPosition * 0.002f, 0));
-					objs.Add(new Unity_Object_GameloftRK(objManager, s8, level.ObjectTypes[s8.ObjectType]) {
-						Position = new Vector3(pos.x, -pos.z, pos.y),
-						Instance = blk
-					});
+					var pos = sphere.transform.TransformPoint(new Vector3(s8.XPosition * 0.001f, 0.05f + type.YPosition * 0.001f, 0));
+					if(blk.ObjType == 4) continue;
+					// TODO: Create obj types 4. These are hardcoded it seems.
+					// Usually they don't show up, but if Byte2 == 2, they show up as speed boosts
+					if (blk.ObjType == 5) {
+						GameObject gp = new GameObject();
+						gp.transform.position = Vector3.zero;
+						var m = meshes[blk.TrackObjectIndex];
+						GameObject gao = new GameObject();
+						MeshFilter mf = gao.AddComponent<MeshFilter>();
+						MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+						gao.layer = LayerMask.NameToLayer("3D Collision");
+						gao.transform.SetParent(gp.transform);
+						gao.transform.localScale = new Vector3(blk.FlipX ? -1 : 1, 1, 0.1f);
+						gao.transform.localRotation = Quaternion.Euler(0, curAngle, 0);
+						gao.transform.localPosition = sphere.transform.position;
+						mf.mesh = m;
+						mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+						gp.transform.localScale = Vector3.one * 8;
+						gp.transform.name = s8.ObjectType.ToString();
+					} else {
+						objs.Add(new Unity_Object_GameloftRK(objManager, s8, type) {
+							Position = new Vector3(pos.x, -pos.z, pos.y),
+							Instance = blk
+						});
+					}
 				}
 
 				curPos += Quaternion.Euler(0,curAngle,0) * Vector3.forward;
-				curHeight += o.DeltaHeight * 0.05f;
+				curHeight += o.DeltaHeight * heightMultiplier;
 				curAngle -= o.DeltaRotation;
 				sphere.gameObject.name = $"{curBlockIndex}: {o.Type} | {o.Flags} | {o.Unknown} | {level.Types[o.Type].Flags}";
 				sphere.gameObject.transform.SetParent(gaoParent.transform);

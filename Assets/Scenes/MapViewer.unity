@@ -2275,6 +2275,7 @@ MonoBehaviour:
   additiveMaterial: {fileID: 2100000, guid: 21adcdf655be5494f98451d29d5667d6, type: 2}
   isometricCollisionMaterial: {fileID: 2100000, guid: aac7422f067747f4c822967af4261022,
     type: 2}
+  unlitMaterial: {fileID: 2100000, guid: 03b032e3282292c4a9657be2258899d8, type: 2}
 --- !u!114 &172781304
 MonoBehaviour:
   m_ObjectHideFlags: 0
