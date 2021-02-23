@@ -476,10 +476,10 @@ namespace R1Engine
 			public byte cg1 { get; set; }
 			public Entry[] Entries { get; set; }
 
-			public short Short2 { get; set; }
+			public short Width { get; set; }
 			public byte Byte4 { get; set; }
 			public RGB888Color ColorGround { get; set; }
-			public RGB888Color Color8 { get; set; }
+			public RGB888Color ColorAbyss { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
@@ -488,10 +488,10 @@ namespace R1Engine
 					cg1 = s.Serialize<byte>(cg1, name: nameof(cg1));
 					Entries = s.SerializeObjectArray<Entry>(Entries, 3, name: nameof(Entries));
 				}
-				Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
+				Width = s.Serialize<short>(Width, name: nameof(Width));
 				Byte4 = s.Serialize<byte>(Byte4, name: nameof(Byte4));
 				ColorGround = s.SerializeObject<RGB888Color>(ColorGround, name: nameof(ColorGround));
-				Color8 = s.SerializeObject<RGB888Color>(Color8, name: nameof(Color8));
+				ColorAbyss = s.SerializeObject<RGB888Color>(ColorAbyss, name: nameof(ColorAbyss));
 			}
 
 			public class Entry : R1Serializable {

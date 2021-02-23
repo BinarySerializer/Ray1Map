@@ -109,9 +109,11 @@ namespace R1Engine
 			Vector3 curPos = Vector3.zero;
 			float curAngle = 0f;
 			float curHeight = 0f;
-			float roadSize = 1f;
-			float groundSize = 2f;
-			float groundDisplacement = -0.2f;
+			float roadSizeFactor = 1f;
+			float groundDisplacement = 0f;
+			float abyssDisplacement = 0f;
+			float abyssDepth = 0.5f;
+			float abyssSize = 3f;
 			var heightMultiplier = 0.025f;
 
 			var t = level.TrackBlocks;
@@ -123,30 +125,50 @@ namespace R1Engine
 			MeshInProgress[] roadMeshes = new MeshInProgress[] { road0, road1, bridge };
 
 			// Ground
-			Vector3[] verticesGround = new Vector3[(t.Length) * 8];
-			Vector3[] normalsGround = new Vector3[verticesGround.Length];
-			Vector2[] uvsGround = new Vector2[verticesGround.Length];
-			Color[] colorsGround = new Color[verticesGround.Length];
-			int[] trianglesGround = new int[(t.Length) * 12];
+			var ground = new MeshInProgress();
+			var abyss = new MeshInProgress();
 
 			for (int i = 0; i < t.Length; i++) {
 				var curBlock = t[i];
-				float roadWidthFactor = ((level.Types[curBlock.Type].Flags & 1) == 1 ? level.Types[curBlock.Type].Short2 : 1000) / 1000f;
-				float roadSizeCur = roadSize * roadWidthFactor;
-				bool isBridge = (level.Types[curBlock.Type].Flags & 1) == 1;
+				bool isBridge = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 0) == 1;
+				bool useRoadWidth = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 1) == 1
+					|| BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 2) == 1;
+
+				bool previousUseAbyss = i > 0 && (BitHelpers.ExtractBits(level.Types[t[i-1].Type].Flags, 1, 1) == 1
+					|| BitHelpers.ExtractBits(level.Types[t[i - 1].Type].Flags, 1, 2) == 1);
+				bool nextUseAbyss = i < t.Length-1 && (BitHelpers.ExtractBits(level.Types[t[i + 1].Type].Flags, 1, 1) == 1
+					|| BitHelpers.ExtractBits(level.Types[t[i + 1].Type].Flags, 1, 2) == 1);
+				float roadWidth = (useRoadWidth ? level.Types[curBlock.Type].Width : 3000) / 1000f;
+				float totalRoadWidth = roadWidth * roadSizeFactor;
+				float roadSizeCur = Mathf.Min(1.1f,totalRoadWidth);
+				float groundSizeCur = totalRoadWidth;
 				var road = isBridge ? bridge : i % 2 == 0 ? road0 : road1;
 				int roadVertexCount = road.vertices.Count;
+				int groundVertexCount = ground.vertices.Count;
+				int abyssVertexCount = abyss.vertices.Count;
 				Quaternion q = Quaternion.Euler(0, curAngle, 0);
 				var curPosH = curPos + Vector3.up * curHeight;
 				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
-				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
 				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
 				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
 
-				verticesGround[(i * 8) + 0] = curPosH + q * Vector3.left * groundSize;
-				verticesGround[(i * 8) + 1] = curPosH + q * Vector3.right * groundSize;
-				verticesGround[(i * 8) + 2] = curPosH + q * Vector3.left * groundSize;
-				verticesGround[(i * 8) + 3] = curPosH + q * Vector3.right * groundSize;
+				ground.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.left * groundSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.left * groundSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.right * groundSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.right * groundSizeCur);
+
+				if (useRoadWidth) {
+					var curAbyssDepth = (previousUseAbyss ? Vector3.down * abyssDepth : Vector3.zero);
+					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
+					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
+					abyss.vertices.Add(curPosH + q * Vector3.right * abyssSize + curAbyssDepth);
+					abyss.vertices.Add(curPosH + q * Vector3.right * abyssSize + curAbyssDepth);
+				}
 
 				curPos += q * Vector3.forward;
 				curHeight += curBlock.DeltaHeight * heightMultiplier;
@@ -155,77 +177,119 @@ namespace R1Engine
 				q = Quaternion.Euler(0, curAngle, 0);
 				curPosH = curPos + Vector3.up * curHeight;
 				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
-				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
 				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
 				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+				road.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
 
-				verticesGround[(i * 8) + 4] = curPosH + q * Vector3.left * groundSize;
-				verticesGround[(i * 8) + 5] = curPosH + q * Vector3.right * groundSize;
-				verticesGround[(i * 8) + 6] = curPosH + q * Vector3.left * groundSize;
-				verticesGround[(i * 8) + 7] = curPosH + q * Vector3.right * groundSize;
+				ground.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.left * groundSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.left * groundSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.right * groundSizeCur);
+				ground.vertices.Add(curPosH + q * Vector3.right * groundSizeCur);
+
+				if (useRoadWidth) {
+					var curAbyssDepth = (nextUseAbyss ? Vector3.down * abyssDepth : Vector3.zero);
+					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
+					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
+					abyss.vertices.Add(curPosH + q * Vector3.right * abyssSize + curAbyssDepth);
+					abyss.vertices.Add(curPosH + q * Vector3.right * abyssSize + curAbyssDepth);
+				}
 
 				// Up
 				road.triangles.Add(roadVertexCount + 0);
 				road.triangles.Add(roadVertexCount + 4);
-				road.triangles.Add(roadVertexCount + 1);
-				road.triangles.Add(roadVertexCount + 1);
+				road.triangles.Add(roadVertexCount + 2);
+				road.triangles.Add(roadVertexCount + 2);
 				road.triangles.Add(roadVertexCount + 4);
-				road.triangles.Add(roadVertexCount + 5);
-				// Down
-				road.triangles.Add(roadVertexCount + 2);
-				road.triangles.Add(roadVertexCount + 3);
-				road.triangles.Add(roadVertexCount + 7);
-				road.triangles.Add(roadVertexCount + 2);
-				road.triangles.Add(roadVertexCount + 7);
 				road.triangles.Add(roadVertexCount + 6);
+				// Down
+				road.triangles.Add(roadVertexCount + 0 + 1);
+				road.triangles.Add(roadVertexCount + 2 + 1);
+				road.triangles.Add(roadVertexCount + 4 + 1);
+				road.triangles.Add(roadVertexCount + 2 + 1);
+				road.triangles.Add(roadVertexCount + 6 + 1);
+				road.triangles.Add(roadVertexCount + 4 + 1);
 
 				// Up
-				trianglesGround[(i * 12) + 0] = (i * 8) + 0;
-				trianglesGround[(i * 12) + 1] = (i * 8) + 4;
-				trianglesGround[(i * 12) + 2] = (i * 8) + 1;
-				trianglesGround[(i * 12) + 3] = (i * 8) + 1;
-				trianglesGround[(i * 12) + 4] = (i * 8) + 4;
-				trianglesGround[(i * 12) + 5] = (i * 8) + 5;
+				ground.triangles.Add(groundVertexCount + 0);
+				ground.triangles.Add(groundVertexCount + 4);
+				ground.triangles.Add(groundVertexCount + 8);
+				ground.triangles.Add(groundVertexCount + 4);
+				ground.triangles.Add(groundVertexCount + 12);
+				ground.triangles.Add(groundVertexCount + 8);
+				ground.triangles.Add(groundVertexCount + 2 + 0);
+				ground.triangles.Add(groundVertexCount + 2 + 8);
+				ground.triangles.Add(groundVertexCount + 2 + 4);
+				ground.triangles.Add(groundVertexCount + 2 + 4);
+				ground.triangles.Add(groundVertexCount + 2 + 8);
+				ground.triangles.Add(groundVertexCount + 2 + 12);
 				// Down
-				trianglesGround[(i * 12) + 6] = (i * 8) + 2;
-				trianglesGround[(i * 12) + 7] = (i * 8) + 3;
-				trianglesGround[(i * 12) + 8] = (i * 8) + 7;
-				trianglesGround[(i * 12) + 9] = (i * 8) + 2;
-				trianglesGround[(i * 12) + 10] = (i * 8) + 7;
-				trianglesGround[(i * 12) + 11] = (i * 8) + 6;
+				ground.triangles.Add(groundVertexCount + 1 + 0);
+				ground.triangles.Add(groundVertexCount + 1 + 8);
+				ground.triangles.Add(groundVertexCount + 1 + 4);
+				ground.triangles.Add(groundVertexCount + 1 + 4);
+				ground.triangles.Add(groundVertexCount + 1 + 8);
+				ground.triangles.Add(groundVertexCount + 1 + 12);
+				ground.triangles.Add(groundVertexCount + 1 + 2 + 0);
+				ground.triangles.Add(groundVertexCount + 1 + 2 + 4);
+				ground.triangles.Add(groundVertexCount + 1 + 2 + 8);
+				ground.triangles.Add(groundVertexCount + 1 + 2 + 4);
+				ground.triangles.Add(groundVertexCount + 1 + 2 + 12);
+				ground.triangles.Add(groundVertexCount + 1 + 2 + 8);
+
+				if (useRoadWidth) {
+					// Up
+					abyss.triangles.Add(abyssVertexCount + 0);
+					abyss.triangles.Add(abyssVertexCount + 4);
+					abyss.triangles.Add(abyssVertexCount + 2);
+					abyss.triangles.Add(abyssVertexCount + 2);
+					abyss.triangles.Add(abyssVertexCount + 4);
+					abyss.triangles.Add(abyssVertexCount + 6);
+					// Down
+					abyss.triangles.Add(abyssVertexCount + 0 + 1);
+					abyss.triangles.Add(abyssVertexCount + 2 + 1);
+					abyss.triangles.Add(abyssVertexCount + 4 + 1);
+					abyss.triangles.Add(abyssVertexCount + 2 + 1);
+					abyss.triangles.Add(abyssVertexCount + 6 + 1);
+					abyss.triangles.Add(abyssVertexCount + 4 + 1);
+				}
 
 				// Test colors
 				var roadCol = isBridge ? (level.Color_dk_BridgeLight ?? level.Types[curBlock.Type].ColorGround).GetColor() : Color.white;
 				road.colors.Add(roadCol);
-				road.colors.Add(roadCol);
 				road.colors.Add(Color.grey);
+				road.colors.Add(roadCol);
 				road.colors.Add(Color.grey);
 
 				road.colors.Add(roadCol);
-				road.colors.Add(roadCol);
 				road.colors.Add(Color.grey);
+				road.colors.Add(roadCol);
 				road.colors.Add(Color.grey);
 
 				// UVs
 				road.uvs.Add(new Vector2(0, 1));
-				road.uvs.Add(new Vector2(2, 1));
 				road.uvs.Add(new Vector2(0, 1));
 				road.uvs.Add(new Vector2(2, 1));
+				road.uvs.Add(new Vector2(2, 1));
+				road.uvs.Add(new Vector2(0, 0));
 				road.uvs.Add(new Vector2(0, 0));
 				road.uvs.Add(new Vector2(2, 0));
-				road.uvs.Add(new Vector2(0, 0));
 				road.uvs.Add(new Vector2(2, 0));
 
 				// Ground colors
-				var groundCol = (level.Types[curBlock.Type].Flags & 1) == 1 ? level.Types[curBlock.Type].Color8.GetColor() : level.Types[curBlock.Type].ColorGround.GetColor();
-				colorsGround[(i * 8) + 0] = groundCol;
-				colorsGround[(i * 8) + 1] = groundCol;
-				colorsGround[(i * 8) + 4] = groundCol;
-				colorsGround[(i * 8) + 5] = groundCol;
-				colorsGround[(i * 8) + 2] = groundCol;
-				colorsGround[(i * 8) + 3] = groundCol;
-				colorsGround[(i * 8) + 6] = groundCol;
-				colorsGround[(i * 8) + 7] = groundCol;
+				var groundCol = level.Types[curBlock.Type].ColorGround.GetColor();
+				for(int j = 0; j < 16; j++) ground.colors.Add(groundCol);
+
+				if (useRoadWidth) {
+					Color colorFog = level.Color_bE_Road2.GetColor();
+					Color colorAbyss = level.Types[curBlock.Type].ColorAbyss.GetColor();
+					var abyssCol = Color.Lerp(colorAbyss, colorFog, curHeight / 4f);
+					for (int j = 0; j < 8; j++) abyss.colors.Add(abyssCol);
+				}
+
 
 				// Normals
 				//normalsRoad[(i * 8) + 0] =
@@ -263,20 +327,41 @@ namespace R1Engine
 			}
 
 			// Ground
-			Mesh groundMesh = new Mesh();
-			groundMesh.vertices = verticesGround;
-			groundMesh.triangles = trianglesGround;
-			groundMesh.colors = colorsGround;
-			groundMesh.RecalculateNormals();
-			GameObject g_gao = new GameObject("Ground mesh");
-			MeshFilter g_mf = g_gao.AddComponent<MeshFilter>();
-			MeshRenderer g_mr = g_gao.AddComponent<MeshRenderer>();
-			g_gao.layer = LayerMask.NameToLayer("3D Collision");
-			g_gao.transform.SetParent(gaoParent.transform);
-			g_gao.transform.localScale = Vector3.one;
-			g_gao.transform.localPosition = Vector3.zero + Vector3.up * groundDisplacement;
-			g_mf.mesh = groundMesh;
-			g_mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+			{
+				Mesh groundMesh = new Mesh();
+				groundMesh.SetVertices(ground.vertices);
+				groundMesh.SetTriangles(ground.triangles, 0);
+				groundMesh.SetColors(ground.colors);
+				groundMesh.RecalculateNormals();
+				GameObject gao = new GameObject("Ground mesh");
+				MeshFilter mf = gao.AddComponent<MeshFilter>();
+				MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+				gao.layer = LayerMask.NameToLayer("3D Collision");
+				gao.transform.SetParent(gaoParent.transform);
+				gao.transform.localScale = Vector3.one;
+				gao.transform.localPosition = Vector3.zero + Vector3.up * groundDisplacement;
+				mf.mesh = groundMesh;
+				mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+			}
+
+
+			// Abyss
+			{
+				Mesh abyssMesh = new Mesh();
+				abyssMesh.SetVertices(abyss.vertices);
+				abyssMesh.SetTriangles(abyss.triangles, 0);
+				abyssMesh.SetColors(abyss.colors);
+				abyssMesh.RecalculateNormals();
+				GameObject gao = new GameObject("Abyss mesh");
+				MeshFilter mf = gao.AddComponent<MeshFilter>();
+				MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+				gao.layer = LayerMask.NameToLayer("3D Collision");
+				gao.transform.SetParent(gaoParent.transform);
+				gao.transform.localScale = Vector3.one;
+				gao.transform.localPosition = Vector3.zero + Vector3.up * abyssDisplacement;
+				mf.mesh = abyssMesh;
+				mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+			}
 
 			gaoParent.transform.localScale = Vector3.one * 8;
 
