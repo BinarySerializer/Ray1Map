@@ -53,6 +53,9 @@ namespace R1Engine
         Dictionary<Unity_MapCollisionTypeGraphic, Dictionary<MapTile.GBAVV_CollisionTileShape, Tile>> CurrentCollisionIconsShaped = new Dictionary<Unity_MapCollisionTypeGraphic, Dictionary<MapTile.GBAVV_CollisionTileShape, Tile>>();
 
         public LineRenderer[] CollisionLines;
+        public GameObject collisionLinesGraphics;
+        public GameObject collisionLinesCollision;
+        public BoxCollider2D[] CollisionLinesCollision;
 
         // Infro tracked for when switching between template and normal level
         private Vector3 previousCameraPosNormal;
@@ -185,6 +188,7 @@ namespace R1Engine
                     LineRenderer lr = new GameObject("CollisionLine").AddComponent<LineRenderer>();
                     lr.sortingLayerName = "Types";
                     lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
+                    lr.gameObject.transform.SetParent(collisionLinesGraphics.transform);
                     lr.material = Controller.obj.levelEventController.linkLineMaterial;
                     lr.material.color = x.LineColor;
                     lr.positionCount = 2;
@@ -197,6 +201,21 @@ namespace R1Engine
                     });
 
                     return lr;
+                }).ToArray();
+
+                CollisionLinesCollision = level.CollisionLines.Select((x,i) => {
+                    BoxCollider2D bc = new GameObject("CollisionLine").AddComponent<BoxCollider2D>();
+                    bc.gameObject.layer = LayerMask.NameToLayer("Collision Lines");
+                    bc.gameObject.name = i.ToString();
+                    Vector3 pos0 = new Vector3(x.Pos_0.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_0.y / LevelEditorData.Level.PixelsPerUnit));
+                    Vector3 pos1 = new Vector3(x.Pos_1.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_1.y / LevelEditorData.Level.PixelsPerUnit));
+                    bc.gameObject.transform.SetParent(collisionLinesCollision.transform);
+                    bc.gameObject.transform.localPosition = Vector3.Lerp(pos0, pos1, 0.5f);
+                    float angle = Mathf.Atan2(pos1.y - pos0.y, pos1.x - pos0.x) * Mathf.Rad2Deg;
+                    bc.gameObject.transform.localRotation = Quaternion.Euler(0,0,angle);
+                    bc.size = new Vector2((pos1-pos0).magnitude,0.2f);
+
+                    return bc;
                 }).ToArray();
             }
         }

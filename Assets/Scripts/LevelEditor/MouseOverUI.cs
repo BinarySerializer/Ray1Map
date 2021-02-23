@@ -34,6 +34,7 @@ namespace R1Engine
             var t = selector?.highlightedTile;
             var c = selector?.highlightedCollision;
             var c3d = selector?.highlightedCollision3D;
+            var cl = selector?.highlightedCollisionLine;
 
             // Mouse over object
             if (e != null) {
@@ -104,6 +105,15 @@ namespace R1Engine
                     // Set debug text
                     Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
                         ? c3d.DebugText
+                        : String.Empty;
+                }
+                if (LevelEditorData.Level.CollisionLines != null && cl != null) {
+                    textCollision.text = $"Collision: {cl.Pos_0} - {cl.Pos_1} | Color: {cl.LineColor}";
+
+                    textGraphic.enabled = true;
+                    // Set debug text
+                    Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
+                        ? cl.DebugText
                         : String.Empty;
                 }
             }
