@@ -52,6 +52,8 @@ namespace R1Engine
         Dictionary<Unity_MapCollisionTypeGraphic, Tile> CurrentCollisionIcons = new Dictionary<Unity_MapCollisionTypeGraphic, Tile>();
         Dictionary<Unity_MapCollisionTypeGraphic, Dictionary<MapTile.GBAVV_CollisionTileShape, Tile>> CurrentCollisionIconsShaped = new Dictionary<Unity_MapCollisionTypeGraphic, Dictionary<MapTile.GBAVV_CollisionTileShape, Tile>>();
 
+        public LineRenderer[] CollisionLines;
+
         // Infro tracked for when switching between template and normal level
         private Vector3 previousCameraPosNormal;
         private Vector3 previousCameraPosTemplate = new Vector3(0, 0, -10f);
@@ -173,6 +175,29 @@ namespace R1Engine
                 IsometricCollision = level.IsometricData.GetCollisionVisualGameObject(isometricCollisionMaterial);
                 IsometricCollision.SetActive(Settings.ShowCollision);
                 level.IsometricData.GetCollisionCollidersGameObject();
+            }
+
+            // Create collision lines
+            if (level.CollisionLines != null)
+            {
+                CollisionLines = level.CollisionLines.Select(x =>
+                {
+                    LineRenderer lr = new GameObject("CollisionLine").AddComponent<LineRenderer>();
+                    lr.sortingLayerName = "Types";
+                    lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
+                    lr.material = Controller.obj.levelEventController.linkLineMaterial;
+                    lr.material.color = x.LineColor;
+                    lr.positionCount = 2;
+                    lr.widthMultiplier = 0.095f;
+
+                    lr.SetPositions(new Vector3[]
+                    {
+                        new Vector3(x.Pos_0.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_0.y / LevelEditorData.Level.PixelsPerUnit)), 
+                        new Vector3(x.Pos_1.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_1.y / LevelEditorData.Level.PixelsPerUnit)), 
+                    });
+
+                    return lr;
+                }).ToArray();
             }
         }
 

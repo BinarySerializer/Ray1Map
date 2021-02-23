@@ -725,13 +725,19 @@ namespace R1Engine
                 };
             }).Where(x => x != null).OrderByDescending(x => x.Prio).Select(x => x.Map).ToArray();
 
+            List<Unity_CollisionLine> collisionLines = null;
+
             // Load collision
             if (map.Fusion_Collision != null)
             {
+                collisionLines = new List<Unity_CollisionLine>();
+
+                /*
                 var w = map.Fusion_Collision.Int_08;
                 var h = map.Fusion_Collision.Int_0C;
 
                 var c = Enumerable.Range(0, w * h).Select(x => new Unity_Tile(new MapTile())).ToArray();
+                */
 
                 handleCollision(map.Fusion_Collision);
 
@@ -744,6 +750,14 @@ namespace R1Engine
                         Vector2 p1 = new Vector2(line.X1, line.Y1);
                         Vector2 p2 = new Vector2(line.X2, line.Y2);
 
+                        collisionLines.Add(new Unity_CollisionLine()
+                        {
+                            Pos_0 = p1,
+                            Pos_1 = p2,
+                            LineColor = new Color(168, 50, 1f / line.Direction)
+                        });
+
+                        /*
                         Vector2 t = p1;
                         float frac = 1 / Mathf.Sqrt(Mathf.Pow(p2.x - p1.x, 2) + Mathf.Pow(p2.y - p1.y, 2));
 
@@ -770,12 +784,14 @@ namespace R1Engine
                                 c[index].DebugText = $"Direction: {line.Direction} - 0x{line.Pointer_14.AbsoluteOffset:X8}{Environment.NewLine}";
                             }
                         }
+                        */
                     }
 
                     foreach (var mc in mapCollision.SubSectors.Where(x => x != null))
                         handleCollision(mc);
                 }
 
+                /*
                 maps = maps.Append(new Unity_Map()
                 {
                     Width = (ushort)w,
@@ -784,6 +800,7 @@ namespace R1Engine
                     MapTiles = c,
                     Type = Unity_Map.MapType.Collision,
                 }).ToArray();
+                */
             }
 
             Controller.DetailedState = "Loading objects";
@@ -801,7 +818,8 @@ namespace R1Engine
                 eventData: objects,
                 cellSize: CellSize,
                 localization: LoadLocalization(rom),
-                cellSizeOverrideCollision: 1);
+                //cellSizeOverrideCollision: 1,
+                collisionLines: collisionLines?.ToArray());
         }
 
         public static byte GetIsometricCollisionType(int level, int index)

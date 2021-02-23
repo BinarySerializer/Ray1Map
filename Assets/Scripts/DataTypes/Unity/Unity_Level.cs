@@ -26,7 +26,8 @@ namespace R1Engine
             Texture2D parallaxBackground = null,
             Unity_Sector[] sectors = null,
             Unity_IsometricData isometricData = null,
-            int? cellSizeOverrideCollision = null)
+            int? cellSizeOverrideCollision = null,
+            Unity_CollisionLine[] collisionLines = null)
         {
             Maps = maps;
             ObjManager = objManager;
@@ -44,6 +45,7 @@ namespace R1Engine
             Sectors = sectors;
             IsometricData = isometricData;
             CellSizeOverrideCollision = cellSizeOverrideCollision;
+            CollisionLines = collisionLines;
 
             if (Maps?.Length > 0) {
                 MaxWidth = Maps.Max(m => CellSizeOverrideCollision != null && m.Type == Unity_Map.MapType.Collision ? (ushort)(m.Width / (CellSize / CellSizeOverrideCollision)) : m.Width);
@@ -97,6 +99,8 @@ namespace R1Engine
         public Unity_Sector[] Sectors { get; }
 
         public Unity_IsometricData IsometricData { get; }
+
+        public Unity_CollisionLine[] CollisionLines { get; }
 
         #endregion
 
