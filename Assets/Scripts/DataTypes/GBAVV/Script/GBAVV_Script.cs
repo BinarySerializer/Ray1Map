@@ -24,8 +24,8 @@ namespace R1Engine
                 do
                 {
                     cmds.Add(s.SerializeObject<GBAVV_ScriptCommand>(default, name: $"{nameof(Commands)}[{index++}]"));
-                } while (cmds.Last().Type != GBAVV_ScriptCommand.CommandType.Terminator && index < 100);
-
+                } while (!(cmds[cmds.Count - 1].Type == GBAVV_ScriptCommand.CommandType.Return && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfInputCheck && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfField08) && index < 100);
+                
                 if (index == 100 || cmds.Any(x => x.PrimaryCommandType >= 100))
                 {
                     Debug.Log($"Invalid script at {Offset}");
@@ -45,6 +45,7 @@ namespace R1Engine
             var output = new List<string>();
 
             var depth = 0;
+            var scriptIndex = 0;
 
             void logCMD(GBAVV_ScriptCommand cmd, string parsedText)
             {
@@ -73,10 +74,11 @@ namespace R1Engine
 
                 return $"Animations[{animSetIndex}][{animIndex}]";
             }
-
-            // Log every command
-            foreach (var cmd in Commands)
+            void logScriptCMD()
             {
+                var cmd = Commands[scriptIndex];
+                scriptIndex++;
+
                 switch (cmd.Type)
                 {
                     case GBAVV_ScriptCommand.CommandType.Name:
@@ -89,12 +91,38 @@ namespace R1Engine
                         logSubScript(cmd.ReferencedScript);
                         break;
 
-                    case GBAVV_ScriptCommand.CommandType.Terminator:
+                    case GBAVV_ScriptCommand.CommandType.SkipNextIfInputCheck:
+                        log($"if (checkInputs({cmd.Input.AsArgs()}) == false)");
+                        depth++;
+                        logScriptCMD();
+                        depth--;
+                        break;
+
+                    case GBAVV_ScriptCommand.CommandType.SkipNextIfField08:
+                        log($"if (field_0x8 == false)");
+                        depth++;
+                        logScriptCMD();
+                        depth--;
+                        break;
+
+                    case GBAVV_ScriptCommand.CommandType.Reset:
+                        logSubScript(this);
+                        break;
+
+                    case GBAVV_ScriptCommand.CommandType.Return:
                         log($"return;");
                         break;
 
+                    case GBAVV_ScriptCommand.CommandType.SetUnknownInputData:
+                        log($"InputData = ({cmd.Input.AsArgs()});");
+                        break;
+
                     case GBAVV_ScriptCommand.CommandType.Wait:
-                        log($"wait({cmd.Param});");
+                        log($"wait({cmd.Param})");
+                        break;
+
+                    case GBAVV_ScriptCommand.CommandType.WaitWhileInputCheck:
+                        log($"waitWhile(checkInputs({cmd.Input.AsArgs()}) == true)");
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.Dialog:
@@ -126,11 +154,15 @@ namespace R1Engine
 
                     case GBAVV_ScriptCommand.CommandType.Movement_X:
                     case GBAVV_ScriptCommand.CommandType.Movement_Y:
-                        log($"move{(cmd.Type == GBAVV_ScriptCommand.CommandType.Movement_X ? "X" : "Y")}(speed: {cmd.Movement.Speed}, param_2: {cmd.Movement.Param_1}, param_3: {cmd.Movement.Param_2});");
+                        log($"move{(cmd.Type == GBAVV_ScriptCommand.CommandType.Movement_X ? "X" : "Y")}({cmd.Movement.Speed}, {cmd.Movement.Param_1}, {cmd.Movement.Param_2});");
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.SecondaryAnimation:
                         log($"SecondaryAnimation = {getAnimString(cmd.ParamPointer)};", cmd.ParamPointer);
+                        break;
+
+                    case GBAVV_ScriptCommand.CommandType.PlaySound:
+                        log($"playSound({cmd.Sound.AsArgs()});");
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.DialogPortrait:
@@ -147,6 +179,10 @@ namespace R1Engine
                         break;
                 }
             }
+
+            // Log every command
+            while (scriptIndex < Commands.Length)
+                logScriptCMD();
 
             depth--;
             log("}");
