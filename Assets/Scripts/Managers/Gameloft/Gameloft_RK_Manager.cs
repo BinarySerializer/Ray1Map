@@ -299,9 +299,9 @@ namespace R1Engine
 						currentColor = c.Color.GetColor();
 						break;
 					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawTriangle:
-						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri);
-						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri);
-						pt2 = new Vector3(c.Positions[2].X, c.Positions[2].Y, curTri);
+						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri + c.Positions[0].Z * 10000);
+						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri + c.Positions[1].Z * 10000);
+						pt2 = new Vector3(c.Positions[2].X, c.Positions[2].Y, curTri + c.Positions[2].Z * 10000);
 						vertices.Add(pt0 / 1000f);
 						vertices.Add(pt2 / 1000f);
 						vertices.Add(pt1 / 1000f);
@@ -316,21 +316,25 @@ namespace R1Engine
 							triangles.Add(curCount);
 							triangles.Add(curCount + 1);
 							triangles.Add(curCount + 2);
+							// Back
+							triangles.Add(curCount);
+							triangles.Add(curCount + 2);
+							triangles.Add(curCount + 1);
 						} else {
 							triangles.Add(curCount);
 							triangles.Add(curCount + 2);
 							triangles.Add(curCount + 1);
+							// Back
+							triangles.Add(curCount);
+							triangles.Add(curCount + 1);
+							triangles.Add(curCount + 2);
 						}
 						curCount += 3;
 						curTri -= 1;
 						break;
 					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawLine:
-						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri);
-						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri);
-						if (c.Positions[1].Y > 0 && BitHelpers.ExtractBits(c.Positions[1].Y, 1, 14) == 1) {
-							var newY = BitHelpers.ExtractBits(c.Positions[1].Y, 14, 0);
-							pt1 = new Vector3(c.Positions[1].X, newY, curTri + 10000);
-						}
+						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri + c.Positions[0].Z * 10000);
+						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri + c.Positions[1].Z * 10000);
 						var diff = pt1 - pt0;
 						var lineThickness = (Quaternion.Euler(0, 0, 90) * diff).normalized * 5;
 						if (lineThickness.x == 0 && lineThickness.y == 0) {
@@ -350,6 +354,13 @@ namespace R1Engine
 						triangles.Add(curCount + 1);
 						triangles.Add(curCount + 3);
 						triangles.Add(curCount + 2);
+						// Backfaces
+						triangles.Add(curCount);
+						triangles.Add(curCount + 2);
+						triangles.Add(curCount + 1);
+						triangles.Add(curCount + 1);
+						triangles.Add(curCount + 2);
+						triangles.Add(curCount + 3);
 						curTri -= 1;
 						curCount += 4;
 						break;
@@ -368,6 +379,13 @@ namespace R1Engine
 						triangles.Add(curCount + 1);
 						triangles.Add(curCount + 3);
 						triangles.Add(curCount + 2);
+						// Backfaces
+						triangles.Add(curCount);
+						triangles.Add(curCount + 2);
+						triangles.Add(curCount + 1);
+						triangles.Add(curCount + 1);
+						triangles.Add(curCount + 2);
+						triangles.Add(curCount + 3);
 						curCount += 4;
 						curTri -= 1;
 						break;
@@ -404,7 +422,6 @@ namespace R1Engine
 			GameObject gaoParent = new GameObject();
 			gaoParent.transform.position = Vector3.zero;
 			gaoParent.transform.localRotation = Quaternion.identity;
-			gaoParent.transform.localScale = Vector3.one * 8;
 			var heightMultiplier = 0.025f;
 			foreach (var o in level.TrackBlocks) {
 				var sphere = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -431,7 +448,7 @@ namespace R1Engine
 					var s8 = level.TrackObjects[s8Ind];
 					var type = level.ObjectTypes[s8.ObjectType];
 					var pos = sphere.transform.TransformPoint(new Vector3(s8.XPosition * 0.001f, 0.05f + type.YPosition * 0.001f, 0));
-					if(blk.ObjType == 4) continue;
+					//if(blk.ObjType == 4) continue;
 					// TODO: Create obj types 4. These are hardcoded it seems.
 					// Usually they don't show up, but if Byte2 == 2, they show up as speed boosts
 					if (blk.ObjType == 5) {
@@ -465,6 +482,7 @@ namespace R1Engine
 				sphere.gameObject.transform.SetParent(gaoParent.transform);
 				curBlockIndex++;
 			}
+			gaoParent.transform.localScale = Vector3.one * 8;
 
 			curPos = Vector3.zero + Vector3.up * 100;
 			//curAngle = 0;

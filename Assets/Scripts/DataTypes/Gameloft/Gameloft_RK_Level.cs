@@ -21,8 +21,8 @@ namespace R1Engine
 		public RGB888Color Color_bD_Road1 { get; set; }
 		public RGB888Color Color_bA { get; set; }
 		public RGB888Color Color_bE_Road2 { get; set; }
-		public RGB888Color Color_bF { get; set; }
-		public short bG { get; set; }
+		public RGB888Color Color_bF_Fog { get; set; }
+		public short bG_FogAmount { get; set; }
 		public short aU_2 { get; set; }
 		public byte N { get; set; }
 		public byte gF { get; set; }
@@ -32,8 +32,8 @@ namespace R1Engine
 		public RGB888Color Color_afterbK_0 { get; set; }
 		public RGB888Color Color_afterbK_1 { get; set; }
 		public byte bL { get; set; }
-		public RGB888Color Color_bH_TunnelDark { get; set; }
-		public RGB888Color Color_bI_TunnelLight { get; set; }
+		public RGB888Color Color_bH_Wall0 { get; set; }
+		public RGB888Color Color_bI_Wall1 { get; set; }
 		public byte byte_afterBI { get; set; }
 
 		public RGB888Color Color_dj_BridgeDark { get; set; }
@@ -51,16 +51,16 @@ namespace R1Engine
 		public short dw { get; set; }
 		public short dv { get; set; }
 
-		public ushort Structs1Count { get; set; }
-		public Struct1[] Structs1 { get; set; }
+		public ushort TriggerObjectsCount { get; set; }
+		public TriggerObject[] TriggerObjects { get; set; }
 		public byte Structs2Count { get; set; }
 		public Struct2[] Structs2 { get; set; }
 		public BackgroundLayer[] BackgroundLayers { get; set; }
 		public byte[][] TrackBackgroundIndices { get; set; } // Each byte is an index to a Struct3/aU
-		public byte Structs4Count { get; set; }
-		public Struct4[] Structs4 { get; set; }
-		public byte Structs5Count { get; set; }
-		public Struct5[] Structs5 { get; set; }
+		public byte BackgroundGradientsCount { get; set; }
+		public BackgroundGradient[] BackgroundGradients { get; set; }
+		public byte TrackGradientMapsCount { get; set; }
+		public TrackGradientMap[] TrackGradientMaps { get; set; }
 		public ushort ObjectTypesCount { get; set; }
 		public ObjectType[] ObjectTypes { get; set; }
 		public ushort Objects3DCount { get; set; }
@@ -94,8 +94,8 @@ namespace R1Engine
 			Color_bD_Road1 = s.SerializeObject<RGB888Color>(Color_bD_Road1, name: nameof(Color_bD_Road1));
 			Color_bA = s.SerializeObject<RGB888Color>(Color_bA, name: nameof(Color_bA));
 			Color_bE_Road2 = s.SerializeObject<RGB888Color>(Color_bE_Road2, name: nameof(Color_bE_Road2));
-			Color_bF = s.SerializeObject<RGB888Color>(Color_bF, name: nameof(Color_bF));
-			bG = s.Serialize<short>(bG, name: nameof(bG));
+			Color_bF_Fog = s.SerializeObject<RGB888Color>(Color_bF_Fog, name: nameof(Color_bF_Fog));
+			bG_FogAmount = s.Serialize<short>(bG_FogAmount, name: nameof(bG_FogAmount));
 			aU_2 = s.Serialize<short>(aU_2, name: nameof(aU_2));
 			N = s.Serialize<byte>(N, name: nameof(N));
 			gF = s.Serialize<byte>(gF, name: nameof(gF));
@@ -105,8 +105,8 @@ namespace R1Engine
 			Color_afterbK_0 = s.SerializeObject<RGB888Color>(Color_afterbK_0, name: nameof(Color_afterbK_0));
 			Color_afterbK_1 = s.SerializeObject<RGB888Color>(Color_afterbK_1, name: nameof(Color_afterbK_1));
 			bL = s.Serialize<byte>(bL, name: nameof(bL));
-			Color_bH_TunnelDark = s.SerializeObject<RGB888Color>(Color_bH_TunnelDark, name: nameof(Color_bH_TunnelDark));
-			Color_bI_TunnelLight = s.SerializeObject<RGB888Color>(Color_bI_TunnelLight, name: nameof(Color_bI_TunnelLight));
+			Color_bH_Wall0 = s.SerializeObject<RGB888Color>(Color_bH_Wall0, name: nameof(Color_bH_Wall0));
+			Color_bI_Wall1 = s.SerializeObject<RGB888Color>(Color_bI_Wall1, name: nameof(Color_bI_Wall1));
 			byte_afterBI = s.Serialize<byte>(byte_afterBI, name: nameof(byte_afterBI));
 			if (BitHelpers.ExtractBits(aW, 1, 2) == 1) {
 				Color_dj_BridgeDark = s.SerializeObject<RGB888Color>(Color_dj_BridgeDark, name: nameof(Color_dj_BridgeDark));
@@ -124,8 +124,8 @@ namespace R1Engine
 				dw = s.Serialize<short>(dw, name: nameof(dw));
 				dv = s.Serialize<short>(dv, name: nameof(dv));
 			}
-			Structs1Count = s.Serialize<ushort>(Structs1Count, name: nameof(Structs1Count));
-			Structs1 = s.SerializeObjectArray<Struct1>(Structs1, Structs1Count, name: nameof(Structs1));
+			TriggerObjectsCount = s.Serialize<ushort>(TriggerObjectsCount, name: nameof(TriggerObjectsCount));
+			TriggerObjects = s.SerializeObjectArray<TriggerObject>(TriggerObjects, TriggerObjectsCount, name: nameof(TriggerObjects));
 			Structs2Count = s.Serialize<byte>(Structs2Count, name: nameof(Structs2Count));
 			Structs2 = s.SerializeObjectArray<Struct2>(Structs2, Structs2Count, name: nameof(Structs2));
 			BackgroundLayers = s.SerializeObjectArray<BackgroundLayer>(BackgroundLayers, aUCount, name: nameof(BackgroundLayers));
@@ -133,10 +133,10 @@ namespace R1Engine
 			for (int i = 0; i < TrackBackgroundIndices.Length; i++) {
 				TrackBackgroundIndices[i] = s.SerializeArray<byte>(TrackBackgroundIndices[i], TrackLength, name: $"{nameof(TrackBackgroundIndices)}[{i}]");
 			}
-			Structs4Count = s.Serialize<byte>(Structs4Count, name: nameof(Structs4Count));
-			Structs4 = s.SerializeObjectArray<Struct4>(Structs4, Structs4Count, name: nameof(Structs4));
-			Structs5Count = s.Serialize<byte>(Structs5Count, name: nameof(Structs5Count));
-			Structs5 = s.SerializeObjectArray<Struct5>(Structs5, Structs5Count, name: nameof(Structs5));
+			BackgroundGradientsCount = s.Serialize<byte>(BackgroundGradientsCount, name: nameof(BackgroundGradientsCount));
+			BackgroundGradients = s.SerializeObjectArray<BackgroundGradient>(BackgroundGradients, BackgroundGradientsCount, name: nameof(BackgroundGradients));
+			TrackGradientMapsCount = s.Serialize<byte>(TrackGradientMapsCount, name: nameof(TrackGradientMapsCount));
+			TrackGradientMaps = s.SerializeObjectArray<TrackGradientMap>(TrackGradientMaps, TrackGradientMapsCount, name: nameof(TrackGradientMaps));
 			ObjectTypesCount = s.Serialize<ushort>(ObjectTypesCount, name: nameof(ObjectTypesCount));
 			ObjectTypes = s.SerializeObjectArray<ObjectType>(ObjectTypes, ObjectTypesCount, name: nameof(ObjectTypes));
 			Objects3DCount = s.Serialize<ushort>(Objects3DCount, name: nameof(Objects3DCount));
@@ -206,19 +206,19 @@ namespace R1Engine
 			}
 		}
 
-		public class Struct1 : R1Serializable {
+		public class TriggerObject : R1Serializable {
 			public short Width { get; set; }
 			public short Height { get; set; }
-			public byte Byte2 { get; set; }
+			public byte Flags { get; set; } // 0 = jump, 1 = speed boost, 2 = Water, 5 = also speedup apparently?
 			public byte Count { get; set; }
-			public short[] Unknown { get; set; }
+			public short[] Parameters { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Width = s.Serialize<short>(Width, name: nameof(Width));
 				Height = s.Serialize<short>(Height, name: nameof(Height));
-				Byte2 = s.Serialize<byte>(Byte2, name: nameof(Byte2));
+				Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 				Count = s.Serialize<byte>(Count, name: nameof(Count));
-				Unknown = s.SerializeArray<short>(Unknown, Count, name: nameof(Unknown));
+				Parameters = s.SerializeArray<short>(Parameters, Count, name: nameof(Parameters));
 			}
 		}
 
@@ -258,33 +258,33 @@ namespace R1Engine
 			}
 		}
 
-		public class Struct4 : R1Serializable {
+		public class BackgroundGradient : R1Serializable {
 			public byte Count { get; set; }
-			public KeyValue[] KeyValues { get; set; }
+			public Key[] Keys { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<byte>(Count, name: nameof(Count));
-				KeyValues = s.SerializeObjectArray<KeyValue>(KeyValues, Count, name: nameof(KeyValues));
+				Keys = s.SerializeObjectArray<Key>(Keys, Count, name: nameof(Keys));
 			}
-			public class KeyValue : R1Serializable {
-				public short Short { get; set; }
+			public class Key : R1Serializable {
+				public short Position { get; set; } // 100 is top of screen, 80 is middle
 				public RGB888Color Color { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
-					Short = s.Serialize<short>(Short, name: nameof(Short));
+					Position = s.Serialize<short>(Position, name: nameof(Position));
 					Color = s.SerializeObject<RGB888Color>(Color, name: nameof(Color));
 				}
 			}
 		}
 
-		public class Struct5 : R1Serializable {
-			public byte Struct4Index { get; set; }
+		public class TrackGradientMap : R1Serializable {
+			public byte BackgroundGradientIndex { get; set; }
 			public byte Min { get; set; }
 			public byte Max { get; set; } // If between min & max, or if max < min && smaller than max or larger than min, it uses Struct4 with that index
 			public byte Byte3 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				Struct4Index = s.Serialize<byte>(Struct4Index, name: nameof(Struct4Index));
+				BackgroundGradientIndex = s.Serialize<byte>(BackgroundGradientIndex, name: nameof(BackgroundGradientIndex));
 				Min = s.Serialize<byte>(Min, name: nameof(Min));
 				Max = s.Serialize<byte>(Max, name: nameof(Max));
 				Byte3 = s.Serialize<byte>(Byte3, name: nameof(Byte3));
@@ -338,7 +338,7 @@ namespace R1Engine
 				public RGB888Color Color { get; set; }
 				public Position[] Positions { get; set; }
 				public AABB Rectangle { get; set; }
-				public Unknown5 Unknown5Object { get; set; }
+				public Arc Unknown5Object { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					Type = s.Serialize<CommandType>(Type, name: nameof(Type));
@@ -346,17 +346,17 @@ namespace R1Engine
 						case CommandType.Color:
 							Color = s.SerializeObject<RGB888Color>(Color, name: nameof(Color));
 							break;
+						case CommandType.DrawRectangle:
+							Rectangle = s.SerializeObject<AABB>(Rectangle, name: nameof(Rectangle));
+							break;
 						case CommandType.DrawTriangle:
 							Positions = s.SerializeObjectArray<Position>(Positions, 3, name: nameof(Positions));
 							break;
 						case CommandType.DrawLine:
 							Positions = s.SerializeObjectArray<Position>(Positions, 2, name: nameof(Positions));
 							break;
-						case CommandType.DrawRectangle:
-							Rectangle = s.SerializeObject<AABB>(Rectangle, name: nameof(Rectangle));
-							break;
-						case CommandType.Unknown5:
-							Unknown5Object = s.SerializeObject<Unknown5>(Unknown5Object, name: nameof(Unknown5Object));
+						case CommandType.FillArc:
+							Unknown5Object = s.SerializeObject<Arc>(Unknown5Object, name: nameof(Unknown5Object));
 							break;
 					}
 				}
@@ -367,7 +367,7 @@ namespace R1Engine
 						case CommandType.DrawRectangle: return 4;
 						case CommandType.DrawTriangle: return 6;
 						case CommandType.DrawLine: return 4;
-						case CommandType.Unknown5: return 6;
+						case CommandType.FillArc: return 6;
 						default: return 0;
 					}
 				}
@@ -377,15 +377,19 @@ namespace R1Engine
 					DrawRectangle = 1,
 					DrawTriangle = 2,
 					DrawLine = 3,
-					Unknown5 = 5,
+					FillArc = 5,
 				}
 
 				public class Position : R1Serializable {
 					public short X { get; set; }
 					public short Y { get; set; }
+					public short Z { get; set; }
 					public override void SerializeImpl(SerializerObject s) {
 						X = s.Serialize<short>(X, name: nameof(X));
-						Y = s.Serialize<short>(Y, name: nameof(Y));
+						s.SerializeBitValues<short>(bitFunc => {
+							Y = (short)bitFunc(Y, 14, name: nameof(Y));
+							Z = (short)bitFunc(Z, 1, name: nameof(Z));
+						});
 					}
 				}
 				public class AABB : R1Serializable {
@@ -401,21 +405,22 @@ namespace R1Engine
 						Height = s.Serialize<short>(Height, name: nameof(Height));
 					}
 				}
-				public class Unknown5 : R1Serializable {
+				public class Arc : R1Serializable {
+					// http://jdrawing.sourceforge.net/doc/0.3/api/org/jdrawing/graphics/FillArc.html
 					public short XPosition { get; set; }
-					public short Short2 { get; set; }
-					public short Short4 { get; set; }
-					public short Short6 { get; set; }
-					public short RotationMin { get; set; }
-					public short RotationMax { get; set; }
+					public short YPosition { get; set; }
+					public short Width { get; set; }
+					public short Height { get; set; }
+					public short StartAngle { get; set; }
+					public short ArcAngle { get; set; }
 
 					public override void SerializeImpl(SerializerObject s) {
 						XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
-						Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
-						Short4 = s.Serialize<short>(Short4, name: nameof(Short4));
-						Short6 = s.Serialize<short>(Short6, name: nameof(Short6));
-						RotationMin = s.Serialize<short>(RotationMin, name: nameof(RotationMin));
-						RotationMax = s.Serialize<short>(RotationMax, name: nameof(RotationMax));
+						YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
+						Width = s.Serialize<short>(Width, name: nameof(Width));
+						Height = s.Serialize<short>(Height, name: nameof(Height));
+						StartAngle = s.Serialize<short>(StartAngle, name: nameof(StartAngle));
+						ArcAngle = s.Serialize<short>(ArcAngle, name: nameof(ArcAngle));
 					}
 				}
 			}
