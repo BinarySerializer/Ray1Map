@@ -477,7 +477,7 @@ namespace R1Engine
 
                     // Remove unused collision layers
                     for (int i = anim.Frames[frame].CollisionLayers.Length; i < animCollisionRenderers.Length; i++) {
-                        animCollisionRenderers[i].sprite = null;
+                        //animCollisionRenderers[i].sprite = null;
                         animCollisionRenderers[i].enabled = false;
                     }
                 }
