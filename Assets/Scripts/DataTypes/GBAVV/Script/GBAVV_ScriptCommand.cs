@@ -183,7 +183,7 @@ namespace R1Engine
                 Param_4 = s.Serialize<int>(Param_4, name: nameof(Param_4));
             }
 
-            public string AsArgs() => $"{Param_0}, {Param_1}, {Param_2}, {Param_3}, {Param_4}";
+            public string[] GetArgs() => new string[] { $"{Param_0}", $"{Param_1}", $"{Param_2}", $"{Param_3}", $"{Param_4}" };
         }
 
         public class GBAVV_Sound : R1Serializable
@@ -199,7 +199,7 @@ namespace R1Engine
                 Param_2 = s.Serialize<int>(Param_2, name: nameof(Param_2));
             }
 
-            public string AsArgs() => $"{Param_0}, {Param_1}, {Param_2}";
+            public string[] GetArgs() => new string[] { $"{Param_0}", $"{Param_1}", $"{Param_2}" };
         }
 
         public class GBAVV_ObjSpawn : R1Serializable
@@ -217,7 +217,7 @@ namespace R1Engine
                 Param_3 = s.Serialize<int>(Param_3, name: nameof(Param_3));
             }
 
-            public string AsArgs() => $"{Param_0}, {Param_1}, {Param_2}, {Param_3}";
+            public string[] GetArgs() => new string[] { $"{Param_0}", $"{Param_1}", $"{Param_2}", $"{Param_3}" };
         }
     }
 }
