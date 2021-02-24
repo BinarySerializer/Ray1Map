@@ -9,7 +9,7 @@ namespace R1Engine
         {
             get
             {
-                var v = Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? 60 : 10;
+                var v = Context.Settings.GBAVV_IsFusion ? 60 : 10;
 
                 var seconds = Value / v;
                 var centiSeconds = Value % v;

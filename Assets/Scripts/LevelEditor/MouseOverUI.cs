@@ -108,7 +108,7 @@ namespace R1Engine
                         : String.Empty;
                 }
                 if (LevelEditorData.Level.CollisionLines != null && cl != null) {
-                    textCollision.text = $"Collision: {cl.Pos_0} - {cl.Pos_1} | Color: {cl.LineColor}";
+                    textCollision.text = $"Collision: {cl.Pos_0} - {cl.Pos_1} | Type: {cl.TypeName} | Color: {cl.LineColor}";
 
                     textGraphic.enabled = true;
                     // Set debug text

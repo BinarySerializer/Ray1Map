@@ -47,11 +47,7 @@ namespace R1Engine
             var depth = 0;
             var scriptIndex = 0;
 
-            void logCMD(GBAVV_ScriptCommand cmd, string parsedText)
-            {
-                log($"unknownCMD_{cmd.PrimaryCommandType:00}_{cmd.SecondaryCommandType:00}({parsedText});");
-                // log($"CMD: {cmd.PrimaryCommandType:00}-{cmd.SecondaryCommandType:00} -> {parsedText}");
-            }
+            void logUnknownCMD(GBAVV_ScriptCommand cmd, string parsedText) => log($"unknownCMD_{cmd.PrimaryCommandType:00}_{cmd.SecondaryCommandType:00}({parsedText});");
             string getLogPrefix() => new string(' ', depth * 2);
             void log(string logStr, Pointer p = null) => output.Add($"{getLogPrefix()}{logStr}{(p != null ? $" // 0x{p.AbsoluteOffset:X8}" : "")}");
             void logSubScript(GBAVV_Script scr)
@@ -72,7 +68,7 @@ namespace R1Engine
                 var animSetIndex = animSets.FindItemIndex(x => x.Animations.Any(a => a.Offset == p));
                 var animIndex = animSets.ElementAtOrDefault(animSetIndex)?.Animations.FindItemIndex(x => x.Offset == p) ?? -1;
 
-                return $"Animations[{animSetIndex}][{animIndex}]";
+                return animIndex == -1 ? $"0x{p.AbsoluteOffset:X8}" : $"Animations[{animSetIndex}][{animIndex}]";
             }
             void logScriptCMD()
             {
@@ -161,6 +157,10 @@ namespace R1Engine
                         log($"SecondaryAnimation = {getAnimString(cmd.ParamPointer)};", cmd.ParamPointer);
                         break;
 
+                    case GBAVV_ScriptCommand.CommandType.SpawnObject:
+                        log($"spawnObject({cmd.ObjSpawn.AsArgs()});");
+                        break;
+
                     case GBAVV_ScriptCommand.CommandType.PlaySound:
                         log($"playSound({cmd.Sound.AsArgs()});");
                         break;
@@ -171,11 +171,11 @@ namespace R1Engine
 
                     default:
                         if (cmd.ParamPointer != null) // ROM pointer
-                            logCMD(cmd, $"0x{cmd.ParamPointer.AbsoluteOffset:X8}");
+                            logUnknownCMD(cmd, getAnimString(cmd.ParamPointer));
                         else if (cmd.Param >= GBA_ROMBase.Address_WRAM && cmd.Param < GBA_ROMBase.Address_WRAM + 0x40000) // RAM pointer
-                            logCMD(cmd, $"0x{cmd.Param:X8}");
+                            logUnknownCMD(cmd, $"0x{cmd.Param:X8}");
                         else // Value
-                            logCMD(cmd, $"{(int)cmd.Param}");
+                            logUnknownCMD(cmd, $"{(int)cmd.Param}");
                         break;
                 }
             }

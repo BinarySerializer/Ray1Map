@@ -17,7 +17,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_Fusion)
+            if (!s.GameSettings.GBAVV_IsFusion)
             {
                 AnimSetsPointer = s.SerializePointer(AnimSetsPointer, name: nameof(AnimSetsPointer));
                 TileSetPointer = s.SerializePointer(TileSetPointer, name: nameof(TileSetPointer));

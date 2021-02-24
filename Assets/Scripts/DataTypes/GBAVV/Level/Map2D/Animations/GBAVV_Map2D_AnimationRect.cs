@@ -23,7 +23,7 @@
                 Width = s.Serialize<short>(Width, name: nameof(Width));
                 Height = s.Serialize<short>(Height, name: nameof(Height));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion)
+            else if (s.GameSettings.GBAVV_IsFusion)
             {
                 Width = s.Serialize<sbyte>((sbyte)Width, name: nameof(Width));
                 Height = s.Serialize<sbyte>((sbyte)Height, name: nameof(Height));

@@ -2,6 +2,8 @@
 {
     public class GBAVV_WorldMap_Data : R1Serializable
     {
+        public bool SerializeData { get; set; } = true; // Set before serializing
+
         public Pointer TilePalettePointer { get; set; }
         public Pointer[] MapLayerPointers { get; set; }
         public Pointer MapCollisionPointer { get; set; }
@@ -24,6 +26,9 @@
             ObjDataPointer = s.SerializePointer(ObjDataPointer, name: nameof(ObjDataPointer));
             TileSetsPointer = s.SerializePointer(TileSetsPointer, name: nameof(TileSetsPointer));
 
+            if (!SerializeData)
+                return;
+
             TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
 
             if (MapLayers == null)
@@ -35,7 +40,7 @@
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Map2D_ObjData>(ObjData, name: nameof(ObjData)));
             TileSets = s.DoAt(TileSetsPointer, () => s.SerializeObject<GBAVV_WorldMap_TileSets>(TileSets, name: nameof(TileSets)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion) // In Crash 2 the collision is a compressed tilemap, but it's empty so we ignore it
+            if (s.GameSettings.GBAVV_IsFusion) // In Crash 2 the collision is a compressed tilemap, but it's empty so we ignore it
                 Fusion_Collision = s.DoAt(MapCollisionPointer, () => s.SerializeObject<GBAVV_Fusion_MapCollisionSector>(Fusion_Collision, name: nameof(Fusion_Collision)));
         }
     }

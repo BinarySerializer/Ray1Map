@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using ImageMagick;
+using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Cysharp.Threading.Tasks;
-using ImageMagick;
-using R1Engine.Serialize;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
@@ -61,7 +62,7 @@ namespace R1Engine
                         if (!frames.Any())
                             continue;
 
-                        if (context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion)
+                        if (context.Settings.GBAVV_IsFusion)
                             ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex} 0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex} 0x{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
                         else
                             ExportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}", false, saveAsGif, outputDir);
@@ -70,7 +71,7 @@ namespace R1Engine
             }
 
             // Export Mode7 animations
-            if (settings.EngineVersion != EngineVersion.GBAVV_Fusion)
+            if (!settings.GBAVV_IsFusion)
             {
                 for (short mode7Level = 0; mode7Level < 7; mode7Level++)
                 {
@@ -719,7 +720,7 @@ namespace R1Engine
                         },
                         MapTiles = tileMaps[i],
                         Type = Unity_Map.MapType.Graphics,
-                        Layer = Unity_Map.MapLayer.Middle,
+                        Layer = x.LayerPrio == 0 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
                     },
                     Prio = x.LayerPrio
                 };
@@ -731,76 +732,37 @@ namespace R1Engine
             if (map.Fusion_Collision != null)
             {
                 collisionLines = new List<Unity_CollisionLine>();
+                var dummyCollision = new GBAVV_Fusion_MapCollisionLineData();
 
-                /*
-                var w = map.Fusion_Collision.Int_08;
-                var h = map.Fusion_Collision.Int_0C;
+                addCollision(map.Fusion_Collision);
 
-                var c = Enumerable.Range(0, w * h).Select(x => new Unity_Tile(new MapTile())).ToArray();
-                */
-
-                handleCollision(map.Fusion_Collision);
-
-                void handleCollision(GBAVV_Fusion_MapCollisionSector mapCollision)
+                void addCollision(GBAVV_Fusion_MapCollisionSector mapCollision)
                 {
-                    // Draw every line
+                    // Add every line
                     foreach (var line in mapCollision.CollisionLines ?? new GBAVV_Fusion_MapCollisionLine[0])
                     {
                         // Get vectors for the points
                         Vector2 p1 = new Vector2(line.X1, line.Y1);
                         Vector2 p2 = new Vector2(line.X2, line.Y2);
 
+                        var c = line.CollisionData ?? dummyCollision;
+
+                        // Add the line
                         collisionLines.Add(new Unity_CollisionLine()
                         {
                             Pos_0 = p1,
                             Pos_1 = p2,
-                            LineColor = new Color(168, 50, 1f / line.Direction)
+                            LineColor = c.GetColor(),
+                            TypeName = c.GetCollisionType().ToString(),
+                            DebugText = $"Direction: {line.Direction}{Environment.NewLine}" +
+                                        $"Data: {(c.Data != null ? Util.ByteArrayToHexString(c.Data) : "")}{Environment.NewLine}"
                         });
-
-                        /*
-                        Vector2 t = p1;
-                        float frac = 1 / Mathf.Sqrt(Mathf.Pow(p2.x - p1.x, 2) + Mathf.Pow(p2.y - p1.y, 2));
-
-                        float ctr = 0;
-
-                        // Draw every "pixel"
-                        while ((int)t.x != (int)p2.x || (int)t.y != (int)p2.y)
-                        {
-                            // Get new point
-                            t = Vector2.Lerp(p1, p2, ctr);
-                            
-                            ctr += frac;
-
-                            var index = (int)t.y * w + (int)t.x;
-
-                            // Make sure the index isn't out of bounds
-                            if (index >= c.Length)
-                            {
-                                Debug.LogWarning($"Index ({index}) >= {c.Length}");
-                            }
-                            else
-                            {
-                                c[index].Data.CollisionType = 15; // TODO: Multiple collision types
-                                c[index].DebugText = $"Direction: {line.Direction} - 0x{line.Pointer_14.AbsoluteOffset:X8}{Environment.NewLine}";
-                            }
-                        }
-                        */
                     }
 
+                    // Add every sub-sector
                     foreach (var mc in mapCollision.SubSectors.Where(x => x != null))
-                        handleCollision(mc);
+                        addCollision(mc);
                 }
-
-                /*
-                maps = maps.Append(new Unity_Map()
-                {
-                    Width = (ushort)w,
-                    Height = (ushort)h,
-                    TileSet = new Unity_TileSet[0],
-                    MapTiles = c,
-                    Type = Unity_Map.MapType.Collision,
-                }).ToArray();
-                */
             }
 
             Controller.DetailedState = "Loading objects";
@@ -818,7 +780,6 @@ namespace R1Engine
                 eventData: objects,
                 cellSize: CellSize,
                 localization: LoadLocalization(rom),
-                //cellSizeOverrideCollision: 1,
                 collisionLines: collisionLines?.ToArray());
         }
 

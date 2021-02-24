@@ -30,7 +30,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_Fusion)
+            if (!s.GameSettings.GBAVV_IsFusion)
             {
                 LocIndex_LevelName = s.Serialize<uint>(LocIndex_LevelName, name: nameof(LocIndex_LevelName));
                 s.Log($"LevelName: {s.Context.GetStoredObject<GBAVV_LocTable>(GBAVV_BaseManager.LocTableID)?.Strings[LocIndex_LevelName]}");
@@ -48,7 +48,11 @@
 
                 LevelData = s.DoAt(LevelDataPointer, () => s.SerializeObject<GBAVV_LevelData>(LevelData, x => x.LevInfo = LevInfo, name: nameof(LevelData)));
             }
-            else
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpyroFusion)
+            {
+                Fusion_MapData = s.SerializeObject<GBAVV_WorldMap_Data>(Fusion_MapData, x => x.SerializeData = LevInfo != null, name: nameof(Fusion_MapData));
+            }
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashFusion)
             {
                 Fusion_LevelNamePointer = s.SerializePointer(Fusion_LevelNamePointer, name: nameof(Fusion_LevelNamePointer));
                 Fusion_MapDataPointer = s.SerializePointer(Fusion_MapDataPointer, name: nameof(Fusion_MapDataPointer));

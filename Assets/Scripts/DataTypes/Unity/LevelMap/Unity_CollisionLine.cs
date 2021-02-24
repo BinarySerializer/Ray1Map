@@ -7,6 +7,7 @@ namespace R1Engine
         public Vector2 Pos_0 { get; set; }
         public Vector2 Pos_1 { get; set; }
         public Color LineColor { get; set; }
+        public string TypeName { get; set; }
         public string DebugText { get; set; }
     }
 }

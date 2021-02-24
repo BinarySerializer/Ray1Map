@@ -20,7 +20,7 @@ namespace R1Engine
                         MapType = CurrentLevInfo.SpecialMapType,
                         Index3D = CurrentLevInfo.Index3D
                     };
-                else if (Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion)
+                else if (Context.Settings.GBAVV_IsFusion)
                     map = new GBAVV_MapInfo()
                     {
                         MapType = GBAVV_MapInfo.GBAVV_MapType.WorldMap
@@ -151,7 +151,7 @@ namespace R1Engine
                 Map2D_Graphics = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics, name: nameof(Map2D_Graphics)));
             }
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion)
+            if (s.GameSettings.GBAVV_IsFusion)
             {
                 var pointers = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).ScriptPointers;
 

@@ -17,10 +17,11 @@ namespace R1Engine
         public GBAVV_Map2D_Animation Animation { get; set; }
         public GBAVV_ConditionalScriptReference ConditionalScriptReference { get; set; }
         public GBAVV_Movement Movement { get; set; }
+        public GBAVV_ObjSpawn ObjSpawn { get; set; }
         public GBAVV_Sound Sound { get; set; }
 
         // Helper properties
-        public CommandType Type => (CommandType)(PrimaryCommandType * 100 + SecondaryCommandType);
+        public CommandType Type { get; set; }
         public string NormalizedName => $"{Name.Replace("\"", "")}";
         public string DisplayName => $"{NormalizedName}{(NameCounts[NormalizedName] > 1 ? $"_{NameIndex}" : "")}";
         public int NameIndex { get; set; } // Some scripts share the same name
@@ -31,6 +32,8 @@ namespace R1Engine
             PrimaryCommandType = s.Serialize<int>(PrimaryCommandType, name: nameof(PrimaryCommandType));
             SecondaryCommandType = s.Serialize<int>(SecondaryCommandType, name: nameof(SecondaryCommandType));
             Param = s.Serialize<uint>(Param, name: nameof(Param));
+
+            Type = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
 
             // If the param is a valid pointer to the ROM we parse the pointer
             if (Param >= GBA_ROMBase.Address_ROM && Param < GBA_ROMBase.Address_ROM + s.CurrentLength)
@@ -80,6 +83,10 @@ namespace R1Engine
                     Movement = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Movement>(Movement, name: nameof(Movement)));
                     break;
 
+                case CommandType.SpawnObject:
+                    ObjSpawn = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_ObjSpawn>(ObjSpawn, name: nameof(ObjSpawn)));
+                    break;
+
                 case CommandType.PlaySound:
                     Sound = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Sound>(Sound, name: nameof(Sound)));
                     break;
@@ -94,6 +101,7 @@ namespace R1Engine
                 case CommandType.IsFlipped:
                 case CommandType.IsEnabled:
                 case CommandType.Return:
+                case CommandType.Unknown:
                 default:
                     break;
             }
@@ -101,29 +109,31 @@ namespace R1Engine
 
         public enum CommandType
         {
-            Name = 0501,
-            Script = 0502,
-            SkipNextIfInputCheck = 0503,
-            SkipNextIfField08 = 0504,
-            Reset = 0505,
-            Return = 0506,
-            SetUnknownInputData = 0507,
-            Wait = 0508,
-            // 0509 is a duplicate of 0510, but never used
-            WaitWhileInputCheck = 0510,
+            Unknown,
 
-            Dialog = 0702,
+            Name,
+            Script,
+            SkipNextIfInputCheck,
+            SkipNextIfField08,
+            Reset,
+            Return,
+            SetUnknownInputData,
+            Wait,
+            WaitWhileInputCheck,
 
-            IsFlipped = 0800,
-            Animation = 0807,
-            IsEnabled = 0815,
-            ConditionalScript = 0818,
-            Movement_X = 0829,
-            Movement_Y = 0830,
-            SecondaryAnimation = 0863,
-            PlaySound = 0871,
+            Dialog,
 
-            DialogPortrait = 1000
+            IsFlipped,
+            Animation,
+            IsEnabled,
+            ConditionalScript,
+            Movement_X,
+            Movement_Y,
+            SpawnObject,
+            SecondaryAnimation,
+            PlaySound,
+
+            DialogPortrait
         }
 
         public class GBAVV_ConditionalScriptReference : R1Serializable
@@ -190,6 +200,24 @@ namespace R1Engine
             }
 
             public string AsArgs() => $"{Param_0}, {Param_1}, {Param_2}";
+        }
+
+        public class GBAVV_ObjSpawn : R1Serializable
+        {
+            public int Param_0 { get; set; }
+            public int Param_1 { get; set; }
+            public int Param_2 { get; set; }
+            public int Param_3 { get; set; }
+
+            public override void SerializeImpl(SerializerObject s)
+            {
+                Param_0 = s.Serialize<int>(Param_0, name: nameof(Param_0));
+                Param_1 = s.Serialize<int>(Param_1, name: nameof(Param_1));
+                Param_2 = s.Serialize<int>(Param_2, name: nameof(Param_2));
+                Param_3 = s.Serialize<int>(Param_3, name: nameof(Param_3));
+            }
+
+            public string AsArgs() => $"{Param_0}, {Param_1}, {Param_2}, {Param_3}";
         }
     }
 }

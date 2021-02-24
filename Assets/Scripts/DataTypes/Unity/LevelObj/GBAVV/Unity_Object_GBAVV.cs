@@ -60,12 +60,24 @@ namespace R1Engine
                                             $"Group: {ObjGroupIndex}{Environment.NewLine}" +
                                             $"Index: {ObjIndex}{Environment.NewLine}";
 
-        public override int? GetLayer(int index) => ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? (int?)-index : null;
+        public override int? GetLayer(int index) => ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashFusion ? (int?)-index : null;
 
         public byte[] ObjParams => ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex);
 
         public Unity_ObjectManager_GBAVV.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
-        public Unity_ObjectManager_GBAVV.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
+        public Unity_ObjectManager_GBAVV.AnimSet.Animation Animation
+        {
+            get
+            {
+                var anim = AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
+
+                if (anim?.AnimFrames.Length == 0)
+                    return null;
+                
+                return anim;
+            }
+        }
+
         public GBAVV_Script Script => ObjManager.Scripts?.ElementAtOrDefault(ScriptIndex);
 
         public override R1Serializable SerializableData => Object;
@@ -89,8 +101,8 @@ namespace R1Engine
             }
         }
 
-        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? 1 : 2)) != 0;
-        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Fusion ? 2 : 4)) != 0;
+        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.GBAVV_IsFusion ? 1 : 2)) != 0;
+        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.GBAVV_IsFusion ? 2 : 4)) != 0;
 
         public override bool CanBeLinkedToGroup => true;
 

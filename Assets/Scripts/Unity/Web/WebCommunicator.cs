@@ -187,9 +187,7 @@ public class WebCommunicator : MonoBehaviour {
 			selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
 				// TODO: Replace with highlighted line properties
 				new WebJSON.Collision() {
-					Type = highlightedCollision3D_.Type.ToString(),
-					Shape = highlightedCollision3D_.Shape != Unity_IsometricCollisionTile.ShapeType.None ? highlightedCollision3D_.Shape.ToString() : null,
-					AdditionalType = highlightedCollision3D_.AddType != Unity_IsometricCollisionTile.AdditionalTypeFlags.None ? highlightedCollision3D_.AddType.ToString() : null
+					Type = highlightedCollisionLine_.TypeName,
 				}
 			};
 		} else if (highlightedCollision_ != null && highlightedCollision_.Length > 0) {

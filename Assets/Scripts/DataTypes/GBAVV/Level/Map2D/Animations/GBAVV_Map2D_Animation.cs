@@ -28,7 +28,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion)
+            if (s.GameSettings.GBAVV_IsFusion)
             {
                 FrameTablePointer = s.SerializePointer(FrameTablePointer, name: nameof(FrameTablePointer));
                 Fusion_FrameIndexTablePointer = s.SerializePointer(Fusion_FrameIndexTablePointer, name: nameof(Fusion_FrameIndexTablePointer));

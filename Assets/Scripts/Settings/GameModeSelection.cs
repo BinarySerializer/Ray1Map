@@ -388,8 +388,11 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBAVV_Crash2_Manager))]
         Crash2GBAJP,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Fusion, Game.GBAVV_CrashFusion, "Crash Bandicoot Purple Ripto's Rampage (GBA - US)", typeof(GBAVV_CrashFusionUS_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashFusion, Game.GBAVV_CrashFusion, "Crash Bandicoot Purple Ripto's Rampage (GBA - US)", typeof(GBAVV_CrashFusionUS_Manager))]
         CrashFusionGBAUS,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpyroFusion, Game.GBAVV_SpyroFusion, "Spyro Orange The Cortex Conspiracy (GBA - US)", typeof(GBAVV_SpyroFusionUS_Manager))]
+        SpyroFusionGBAUS,
 
         // Gameloft
 

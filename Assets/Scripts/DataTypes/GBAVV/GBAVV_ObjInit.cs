@@ -860,7 +860,7 @@ namespace R1Engine
                 if (obj.AnimSetIndex == 0 && obj.AnimIndex == 0)
                     Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
             }
-            else if (settings.EngineVersion == EngineVersion.GBAVV_Fusion)
+            else if (settings.GBAVV_IsFusion)
             {
                 var init = ((GBAVV_Fusion_Manager)settings.GetGameManager).ObjTypeInitInfos[obj.Object.ObjType];
 

@@ -1132,6 +1132,12 @@ namespace R1Engine
                         [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.SpyroFusionGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x080628d8,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

@@ -38,7 +38,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Fusion)
+            if (s.GameSettings.GBAVV_IsFusion)
             {
                 Fusion_SelfPointer = s.SerializePointer(Fusion_SelfPointer, name: nameof(Fusion_SelfPointer));
                 Fusion_FramesPointer = s.SerializePointer(Fusion_FramesPointer, name: nameof(Fusion_FramesPointer));
