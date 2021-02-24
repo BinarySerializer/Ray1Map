@@ -338,7 +338,7 @@ namespace R1Engine
 				public RGB888Color Color { get; set; }
 				public Position[] Positions { get; set; }
 				public AABB Rectangle { get; set; }
-				public Arc Unknown5Object { get; set; }
+				public Arc FillArc { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					Type = s.Serialize<CommandType>(Type, name: nameof(Type));
@@ -356,7 +356,7 @@ namespace R1Engine
 							Positions = s.SerializeObjectArray<Position>(Positions, 2, name: nameof(Positions));
 							break;
 						case CommandType.FillArc:
-							Unknown5Object = s.SerializeObject<Arc>(Unknown5Object, name: nameof(Unknown5Object));
+							FillArc = s.SerializeObject<Arc>(FillArc, name: nameof(FillArc));
 							break;
 					}
 				}

@@ -22,6 +22,7 @@ public class WebCommunicator : MonoBehaviour {
 
 	Unity_Tile[] highlightedCollision_;
 	Unity_IsometricCollisionTile highlightedCollision3D_;
+	Unity_CollisionLine highlightedCollisionLine_;
 	Unity_ObjBehaviour highlightedObject_;
 	Unity_ObjBehaviour selectedObject_;
 	int x_, y_;
@@ -62,18 +63,22 @@ public class WebCommunicator : MonoBehaviour {
 
 			var hlCollision3D = hl.highlightedCollision3D;
 			var hlCollision = hl.highlightedCollision;
+			var hlCollisionLine = hl.highlightedCollisionLine;
 			if (!Settings.ShowCollision) {
+				hlCollisionLine = null;
 				hlCollision3D = null;
 				hlCollision = null;
 			}
 			if (highlightedObject_ != hl.highlightedObject ||
 				(highlightedCollision3D_ != hlCollision3D ||
+				highlightedCollisionLine_ != hlCollisionLine ||
 				(highlightedCollision_ != hlCollision &&
 				(highlightedCollision_ == null || hlCollision == null ||
 				!highlightedCollision_.SequenceEqual(hlCollision))))) {
 				highlightedObject_ = hl.highlightedObject;
 				highlightedCollision_ = hlCollision;
 				highlightedCollision3D_ = hlCollision3D;
+				highlightedCollisionLine_ = hlCollisionLine;
 				Send(GetHighlightMessageJSON());
 			}
 
@@ -172,6 +177,15 @@ public class WebCommunicator : MonoBehaviour {
 		// Collision
 		if (highlightedCollision3D_ != null) {
 			selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
+				new WebJSON.Collision() {
+					Type = highlightedCollision3D_.Type.ToString(),
+					Shape = highlightedCollision3D_.Shape != Unity_IsometricCollisionTile.ShapeType.None ? highlightedCollision3D_.Shape.ToString() : null,
+					AdditionalType = highlightedCollision3D_.AddType != Unity_IsometricCollisionTile.AdditionalTypeFlags.None ? highlightedCollision3D_.AddType.ToString() : null
+				}
+			};
+		} else if(highlightedCollisionLine_ != null) {
+			selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
+				// TODO: Replace with highlighted line properties
 				new WebJSON.Collision() {
 					Type = highlightedCollision3D_.Type.ToString(),
 					Shape = highlightedCollision3D_.Shape != Unity_IsometricCollisionTile.ShapeType.None ? highlightedCollision3D_.Shape.ToString() : null,

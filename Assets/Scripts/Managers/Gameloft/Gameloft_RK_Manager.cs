@@ -133,11 +133,10 @@ namespace R1Engine
 				bool isBridge = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 0) == 1;
 				bool useRoadWidth = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 1) == 1
 					|| BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 2) == 1;
+				bool drawAbyss = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 3) == 1;
 
-				bool previousUseAbyss = i > 0 && (BitHelpers.ExtractBits(level.Types[t[i-1].Type].Flags, 1, 1) == 1
-					|| BitHelpers.ExtractBits(level.Types[t[i - 1].Type].Flags, 1, 2) == 1);
-				bool nextUseAbyss = i < t.Length-1 && (BitHelpers.ExtractBits(level.Types[t[i + 1].Type].Flags, 1, 1) == 1
-					|| BitHelpers.ExtractBits(level.Types[t[i + 1].Type].Flags, 1, 2) == 1);
+				bool previousUseAbyss = i > 0 && BitHelpers.ExtractBits(level.Types[t[i-1].Type].Flags, 1, 3) == 1;
+				bool nextUseAbyss = i < t.Length-1 && BitHelpers.ExtractBits(level.Types[t[i + 1].Type].Flags, 1, 3) == 1;
 				float roadWidth = (useRoadWidth ? level.Types[curBlock.Type].Width : 3000) / 1000f;
 				float totalRoadWidth = roadWidth * roadSizeFactor;
 				float roadSizeCur = Mathf.Min(1.1f,totalRoadWidth);
@@ -162,7 +161,7 @@ namespace R1Engine
 				ground.vertices.Add(curPosH + q * Vector3.right * groundSizeCur);
 				ground.vertices.Add(curPosH + q * Vector3.right * groundSizeCur);
 
-				if (useRoadWidth) {
+				if (drawAbyss) {
 					var curAbyssDepth = (previousUseAbyss ? Vector3.down * abyssDepth : Vector3.zero);
 					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
 					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
@@ -190,7 +189,7 @@ namespace R1Engine
 				ground.vertices.Add(curPosH + q * Vector3.right * groundSizeCur);
 				ground.vertices.Add(curPosH + q * Vector3.right * groundSizeCur);
 
-				if (useRoadWidth) {
+				if (drawAbyss) {
 					var curAbyssDepth = (nextUseAbyss ? Vector3.down * abyssDepth : Vector3.zero);
 					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
 					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
@@ -240,7 +239,7 @@ namespace R1Engine
 				ground.triangles.Add(groundVertexCount + 1 + 2 + 12);
 				ground.triangles.Add(groundVertexCount + 1 + 2 + 8);
 
-				if (useRoadWidth) {
+				if (drawAbyss) {
 					// Up
 					abyss.triangles.Add(abyssVertexCount + 0);
 					abyss.triangles.Add(abyssVertexCount + 4);
@@ -283,11 +282,12 @@ namespace R1Engine
 				var groundCol = level.Types[curBlock.Type].ColorGround.GetColor();
 				for(int j = 0; j < 16; j++) ground.colors.Add(groundCol);
 
-				if (useRoadWidth) {
-					Color colorFog = level.Color_bE_Road2.GetColor();
+				if (drawAbyss) {
+					//Color colorFog = level.Color_bE_Road2.GetColor();
 					Color colorAbyss = level.Types[curBlock.Type].ColorAbyss.GetColor();
-					var abyssCol = Color.Lerp(colorAbyss, colorFog, curHeight / 4f);
-					for (int j = 0; j < 8; j++) abyss.colors.Add(abyssCol);
+					//var abyssCol = Color.Lerp(colorAbyss, colorFog, curHeight / 4f);
+					//var abyssCol = level.Color_bF_Fog.GetColor();
+					for (int j = 0; j < 8; j++) abyss.colors.Add(colorAbyss);
 				}
 
 
@@ -472,6 +472,31 @@ namespace R1Engine
 						triangles.Add(curCount + 2);
 						triangles.Add(curCount + 3);
 						curCount += 4;
+						curTri -= 1;
+						break;
+					case Gameloft_RK_Level.Object3D.Command.CommandType.FillArc:
+						var arc = c.FillArc;
+						int numSegments = 15;
+						Vector3[] verts = new Vector3[numSegments +1];
+						for (int i = 0; i < numSegments; i++) {
+							verts[i] = Quaternion.Euler(0, 0, arc.StartAngle + (i/(float)numSegments)*arc.ArcAngle) * Vector3.right;
+							triangles.Add(curCount);
+							triangles.Add(curCount + i + 1);
+							triangles.Add(curCount + i + 2);
+							triangles.Add(curCount);
+							triangles.Add(curCount + i + 2);
+							triangles.Add(curCount + i + 1);
+						}
+						verts[numSegments] = Quaternion.Euler(0, 0, arc.StartAngle + arc.ArcAngle) * Vector3.right;
+						var center = new Vector3(arc.XPosition + arc.Width / 2f, arc.YPosition + arc.Height / 2f, curTri) / 1000f;
+						var factor = new Vector3(arc.Width / 2f, arc.Height / 2f, 0) / 1000f;
+						vertices.Add(center);
+						colors.Add(currentColor);
+						foreach (var vert in verts) {
+							vertices.Add(center + Vector3.Scale(factor, vert));
+							colors.Add(currentColor);
+						}
+						curCount += verts.Length + 1;
 						curTri -= 1;
 						break;
 				}
