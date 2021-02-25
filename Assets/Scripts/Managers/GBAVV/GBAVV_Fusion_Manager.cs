@@ -124,10 +124,13 @@ namespace R1Engine
             var str = new StringBuilder();
 
             var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetFile(GetROMFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
+            var orderedPointers = initFunctionPointers.OrderBy(x => x.AbsoluteOffset).ToArray(); ;
 
             // Enumerate every obj init function
             for (int i = 0; i < initFunctionPointers.Length; i++)
             {
+                var nextPointer = orderedPointers.ElementAtOrDefault(orderedPointers.FindItemIndex(x => x == initFunctionPointers[i]) + 1);
+
                 s.DoAt(initFunctionPointers[i], () =>
                 {
                     var foundPointer = false;
@@ -135,6 +138,9 @@ namespace R1Engine
                     // Try and read every int as a pointer until we get a valid one 20 times
                     for (int j = 0; j < 20; j++)
                     {
+                        if (nextPointer != null && s.CurrentPointer.AbsoluteOffset >= nextPointer.AbsoluteOffset)
+                            break;
+
                         var p = s.SerializePointer(default);
 
                         // First we check if the pointer leads directly to an animation
@@ -435,8 +441,8 @@ namespace R1Engine
             new ObjTypeInit(8, 35, null), // 16
             new ObjTypeInit(8, 26, null), // 17
             new ObjTypeInit(8, 24, null), // 18
-            new ObjTypeInit(8, 11, null), // 19 // TODO: Fix
-            new ObjTypeInit(8, 11, null), // 20 // TODO: Fix
+            new ObjTypeInit(8, 11, null), // 19
+            new ObjTypeInit(8, 11, null), // 20
             new ObjTypeInit(8, 13, null), // 21
             new ObjTypeInit(8, 25, null), // 22
             new ObjTypeInit(8, 7, null), // 23
@@ -1293,7 +1299,7 @@ namespace R1Engine
             new ObjTypeInit(1, 123, "bunny"), // 98
             new ObjTypeInit(1, 130, "sheepShoot"), // 99
             new ObjTypeInit(1, 53, "sheepRun"), // 100
-            new ObjTypeInit(1, 45, "sheepChaseSpawn"), // 101
+            new ObjTypeInit(-1, -1, null), // 101
             new ObjTypeInit(1, 76, "walkerLabAssFloater"), // 102
             new ObjTypeInit(1, 132, null), // 103
             new ObjTypeInit(13, 0, "genericNPC"), // 104
@@ -1460,17 +1466,17 @@ namespace R1Engine
             new ObjTypeInit(21, 41, null), // 265
             new ObjTypeInit(21, 52, "chaseWall"), // 266
             new ObjTypeInit(21, 46, "topDownPortalFail"), // 267
-            new ObjTypeInit(4, 29, "breakoutRhynocScript"), // 268
+            new ObjTypeInit(-1, -1, null), // 268
             new ObjTypeInit(4, 29, "breakoutRhynocScript"), // 269
-            new ObjTypeInit(24, 26, null), // 270
+            new ObjTypeInit(-1, -1, null), // 270
             new ObjTypeInit(4, 26, "breakoutLabAssShooterScript"), // 271
             new ObjTypeInit(4, 40, "breakoutRhynocShieldScript"), // 272
             new ObjTypeInit(4, 35, "breakoutLabAssProjectileScript"), // 273
             new ObjTypeInit(4, 29, "breakoutLabAssScript"), // 274
             new ObjTypeInit(4, 43, "breakoutRhynocBallScript"), // 275
-            new ObjTypeInit(1, 14, "crushRunStartScript"), // 276
+            new ObjTypeInit(-1, -1, null), // 276
             new ObjTypeInit(4, 29, "globalController"), // 277
-            new ObjTypeInit(1, 137, "bouncySheep"), // 278
+            new ObjTypeInit(-1, -1, null), // 278
             new ObjTypeInit(15, 7, null), // 279
             new ObjTypeInit(1, 137, "bouncySheep"), // 280
             new ObjTypeInit(24, 26, null), // 281

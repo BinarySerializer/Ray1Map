@@ -720,7 +720,7 @@ namespace R1Engine
                         },
                         MapTiles = tileMaps[i],
                         Type = Unity_Map.MapType.Graphics,
-                        Layer = x.LayerPrio == 0 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
+                        Layer = Unity_Map.MapLayer.Middle,
                     },
                     Prio = x.LayerPrio
                 };

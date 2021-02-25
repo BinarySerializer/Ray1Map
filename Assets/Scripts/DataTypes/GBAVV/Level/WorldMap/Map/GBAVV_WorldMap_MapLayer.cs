@@ -10,7 +10,6 @@ namespace R1Engine
         public uint ScrollX { get; set; }
         public uint ScrollY { get; set; }
         public uint Uint_14 { get; set; }
-        public uint Uint_18 { get; set; }
 
         // Serialized from pointers
 
@@ -25,7 +24,6 @@ namespace R1Engine
             ScrollX = s.Serialize<uint>(ScrollX, name: nameof(ScrollX));
             ScrollY = s.Serialize<uint>(ScrollY, name: nameof(ScrollY));
             Uint_14 = s.Serialize<uint>(Uint_14, name: nameof(Uint_14));
-            Uint_18 = s.Serialize<uint>(Uint_18, name: nameof(Uint_18));
 
             TileMap = s.DoAt(TileMapPointer, () => s.SerializeObject<GBAVV_Isometric_MapLayer>(TileMap, x => x.IsWorldMap = true, name: nameof(TileMap)));
 

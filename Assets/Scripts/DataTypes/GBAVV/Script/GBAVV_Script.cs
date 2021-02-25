@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace R1Engine
@@ -41,6 +40,31 @@ namespace R1Engine
             }
         }
 
+        public List<string> TranslatedStringAll(GBAVV_Map2D_AnimSet[] animSets, List<string> list = null)
+        {
+            var output = list ?? new List<string>();
+            var foundScripts = new HashSet<GBAVV_Script>();
+
+            translateScript(this);
+
+            void translateScript(GBAVV_Script s)
+            {
+                if (s == null || foundScripts.Contains(s))
+                    return;
+
+                foundScripts.Add(s);
+
+                s.TranslatedString(animSets, output);
+
+                output.Add(String.Empty);
+
+                foreach (var ss in s.Commands.Select(x => x.ReferencedScript ?? x.ConditionalScriptReference?.Script))
+                    translateScript(ss);
+            }
+
+            return output;
+        }
+
         public List<string> TranslatedString(GBAVV_Map2D_AnimSet[] animSets, List<string> list = null)
         {
             var output = list ?? new List<string>();
@@ -51,7 +75,7 @@ namespace R1Engine
             void log(string logStr) => output.Add($"{getLogPrefix()}{logStr}");
             void logCommand(string cmdName, params string[] values) => log($"{cmdName}{(values.Any() ? " " : "")}{getParams(values)};");
             void logUnknownCommand(GBAVV_ScriptCommand cmd, string parsedText) => logCommand($"CMD_{cmd.PrimaryCommandType:00}_{cmd.SecondaryCommandType:00}", parsedText);
-            string getLogPrefix() => new string(' ', depth * 2);
+            string getLogPrefix() => new string('\t', depth);
             string getParams(string[] values) => String.Join(", ", values);
             string getAnimString(Pointer p)
             {
@@ -88,7 +112,7 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.SkipNextIfField08:
-                        log($"if (!field_0x8)");
+                        log($"IF (!field_0x8)");
                         depth++;
                         logScriptCMD();
                         depth--;

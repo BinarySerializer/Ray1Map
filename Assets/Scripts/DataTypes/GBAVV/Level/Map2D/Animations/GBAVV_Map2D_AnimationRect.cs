@@ -14,8 +14,8 @@
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
             {
-                Width = s.Serialize<sbyte>((sbyte)Width, name: nameof(Width));
-                Height = s.Serialize<sbyte>((sbyte)Height, name: nameof(Height));
+                Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
+                Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
                 s.Serialize<ushort>(default, name: "Padding");
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2)
@@ -25,8 +25,8 @@
             }
             else if (s.GameSettings.GBAVV_IsFusion)
             {
-                Width = s.Serialize<sbyte>((sbyte)Width, name: nameof(Width));
-                Height = s.Serialize<sbyte>((sbyte)Height, name: nameof(Height));
+                Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
+                Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
             }
         }
     }
