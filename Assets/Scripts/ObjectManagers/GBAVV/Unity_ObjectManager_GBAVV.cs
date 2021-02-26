@@ -8,12 +8,13 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBAVV : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAVV(Context context, AnimSet[] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType, GBAVV_Script[] scripts = null) : base(context)
+        public Unity_ObjectManager_GBAVV(Context context, AnimSet[] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType, GBAVV_Script[] scripts = null, GBAVV_Map2D_AnimSet[] animSetObjects = null) : base(context)
         {
             AnimSets = animSets;
             ObjData = objData;
             MapType = mapType;
             Scripts = scripts;
+            AnimSetObjects = animSetObjects;
         }
         
         public AnimSet[] AnimSets { get; }
@@ -21,7 +22,8 @@ namespace R1Engine
         public GBAVV_MapInfo.GBAVV_MapType MapType { get; }
         public byte[][] ObjParams => ObjData.ObjParams;
         public GBAVV_Script[] Scripts { get; }
-
+        public GBAVV_Map2D_AnimSet[] AnimSetObjects { get; }
+        
         public override string[] LegacyDESNames => AnimSets.Select((x, i) => i.ToString()).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
 

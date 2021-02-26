@@ -88,6 +88,7 @@ namespace R1Engine
         }
 
         public GBAVV_Script Script => ObjManager.Scripts?.ElementAtOrDefault(ScriptIndex);
+        public string[] GetTranslatedScript => Script.TranslatedStringAll(ObjManager.AnimSetObjects).ToArray();
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
