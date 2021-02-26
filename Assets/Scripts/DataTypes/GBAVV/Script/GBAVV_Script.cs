@@ -139,7 +139,7 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.Dialog:
-                        logCommand($"DISPLAY", $"\"{cmd.Dialog.Item.Text.Replace("\n", @"\n")}\"");
+                        logCommand($"DISPLAY", $"\"{cmd.Dialog.Items[0].Text.Replace("\n", @"\n")}\"");
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.IsFlipped:

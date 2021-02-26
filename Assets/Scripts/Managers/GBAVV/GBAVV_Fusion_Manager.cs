@@ -108,7 +108,7 @@ namespace R1Engine
             var str = new StringBuilder();
 
             for (int i = 0; i < rom.LevelInfos.Length; i++)
-                str.AppendLine($"new LevInfo({i}, \"{rom.LevelInfos[i].Fusion_LevelName.Item.Text}\"),");
+                str.AppendLine($"new LevInfo({i}, \"{rom.LevelInfos[i].Fusion_LevelName.Items[0].Text}\"),");
 
             str.ToString().CopyToClipboard();
         }
@@ -249,6 +249,7 @@ namespace R1Engine
         public abstract uint[] AnimSetPointers { get; }
         public abstract uint[] ScriptPointers { get; }
         public abstract Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands { get; }
+        public virtual int LanguagesCount => 1;
 
         private class ObjTypeInitCreation
         {

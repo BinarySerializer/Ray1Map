@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -152,6 +153,7 @@ namespace R1Engine
             new LevInfo(130, "Crash 2 Test Level : Tiki Torture"),
         };
 
+        public override int ObjTypesCount => 244;
         public override ObjTypeInit[] ObjTypeInitInfos { get; } = new ObjTypeInit[]
         {
             new ObjTypeInit(-1, -1, null), // 0
@@ -430,9 +432,407 @@ namespace R1Engine
         };
     }
 
+    public class GBAVV_CrashFusionEU_Manager : GBAVV_CrashFusion_Manager
+    {
+        public override uint ObjTypesPointer => throw new NotImplementedException();
+
+        public override uint[] AnimSetPointers => new uint[]
+        {
+            0x08293C68,
+            0x082C86A0,
+            0x082D2F34,
+            0x082D4E04,
+            0x082D8360,
+            0x082DCBD4,
+            0x082E59BC,
+            0x08310C4C,
+            0x08312A60,
+            0x08316A94,
+            0x08321024,
+            0x08321914,
+            0x0832A798,
+            0x0833490C,
+            0x0833604C,
+            0x0833699C,
+            0x08337434,
+            0x083393E0,
+            0x083397A8
+        };
+
+        public override uint[] ScriptPointers => new uint[]
+        {
+            0x0806A5E4, // genericNPC
+            0x0806A638, // talkToVictim
+            0x0806A928, // script_waitForInputOrTime
+            0x0806E414, // notFound
+            0x0806E60C, // waitForPagedText
+            0x0806E674, // missing
+            0x0806E6BC, // crunch01
+            0x0806E71C, // moneybags02
+            0x0806E77C, // blinky03
+            0x0806E7DC, // blinky25
+            0x0806E838, // coco04
+            0x0806E894, // coco05
+            0x0806E8F4, // professor06
+            0x0806E954, // moneybags07
+            0x0806E9B4, // moneybags08
+            0x0806EA14, // moneybags09
+            0x0806EA74, // moneybags10
+            0x0806EAD4, // crunch11
+            0x0806EB34, // crunch12
+            0x0806EB94, // crunch13
+            0x0806EBF4, // crunch14
+            0x0806EC54, // agent9_15
+            0x0806ECB4, // sgtbyrd16
+            0x0806ED14, // hunter17
+            0x0806ED74, // moneybags18
+            0x0806EDD4, // moneybags19
+            0x0806EE34, // moneybags20
+            0x0806EE94, // moneybags21
+            0x0806EEF4, // moneybags22
+            0x0806EF54, // bianca23
+            0x0806EFB4, // fakeCrash24
+            0x0806F044, // warpHelp50
+            0x0806F0B0, // crystalBarrierHelp51
+            0x0806F110, // bonusHelp52
+            0x0806F174, // crystalHelp53
+            0x0806F1D4, // HUDHelp54
+            0x0806F238, // barrierHelp55
+            0x0806F298, // wumpaHelp56
+            0x0806F2F8, // jumpHelp57
+            0x0806F35C, // returnHelp58
+            0x0806F3C0, // findingHelp59
+            0x0806F42C, // instructionsPolar100
+            0x0806F4F8, // instructionsChopper101
+            0x0806F620, // instructionsTank102
+            0x0806F750, // instructionsWumpaShoot103
+            0x0806F820, // instructionsWeightlift104
+            0x0806F8BC, // instructionsSmash105
+            0x0806F92C, // instructionsDeflection106
+            0x0806FA58, // instructionsJetpack107
+            0x0806FB28, // instructionsBatAttack108
+            0x0806FC50, // instructionsTube109
+            0x0806FD18, // instructionsJump110
+            0x0806FD88, // instructionsBridgeFight111
+            0x08090088, // movie_credits
+            0x08090BDC, // waitForPagedText
+            0x08092648, // platformMoveVertUpScript
+            0x080926FC, // platformBouncyMoveLeftScript
+            0x0809277C, // platformMoveLeftScript
+            0x0809280C, // platformMoveLeftSlowScript
+            0x08092930, // "resettime"
+            0x08092A20, // "doit"
+            0x08092B10, // torpedoSpawnerScript
+            0x08092B78, // mineGoRight
+            0x08092BF0, // "check"
+            0x08092CE0, // mineCheck
+            0x08092D78, // "n"
+            0x08092E68, // "outside"
+            0x08092F58, // mineMoveLeftSlowScript
+            0x08092FE4, // spotlightFire
+            0x080930E4, // spotlightMoveRight
+            0x0809313C, // spotlightMoveLeft
+            0x08093190, // spotlightMoveUp
+            0x080931E8, // spotlightMoveDown
+            0x0809327C, // patrol
+            0x08093378, // breakoutBasicPatrol
+            0x080933FC, // breakoutBasicHitWall
+            0x08093668, // platformScript
+            0x080936A0, // platformScriptIron
+            0x08093700, // platformMoveVertDownScript
+            0x080937A8, // platformBouncyMoveScript
+            0x08093830, // platformMoveScript
+            0x080938C8, // platformMoveSlowScript
+            0x08093948, // wumpaBarrierScript
+            0x0809397C, // triggerPolarScript
+            0x080939C0, // triggerGenericScript
+            0x080939FC, // triggerUpScript
+            0x08093A3C, // triggerDownScript
+            0x08093A7C, // triggerLeftScript
+            0x08093ABC, // triggerRightScript
+            0x08093B24, // lavaSpurtScript
+            0x08093C3C, // lavaSpurtSpawnerScript
+            0x08093CA8, // floorSpearsWhackerScript
+            0x08093D54, // floorSpikesWhackerScript
+            0x08093DF0, // wallSpikesWhackerScript
+            0x08093E98, // groundFenceHorScript
+            0x08093F1C, // groundFenceVertScript
+            0x08093F9C, // arcticTotemScript
+            0x08093FD0, // flameHeadScript
+            0x0809405C, // torpedoSpawnFlip
+            0x080940BC, // torpedoSpawnStartScript
+            0x0809413C, // "move2"
+            0x0809422C, // "move"
+            0x0809431C, // torpedoScript
+            0x080943F0, // mineGoLeft
+            0x0809443C, // mineStartScript
+            0x080944D0, // "b"
+            0x080945C0, // "go"
+            0x080946B0, // mineMoveSlowScript
+            0x08094740, // fruitSpawnerScript
+            0x080947A8, // electricWallScript
+            0x08094834, // icicleScript
+            0x080948A4, // "fall"
+            0x08094994, // icicleFallingScript
+            0x08094A50, // "playsfx"
+            0x08094B40, // lavaFountainScript
+            0x08094B98, // "sfx"
+            0x08094C88, // swingingAxeScript
+            0x08094CF8, // "destroy"
+            0x08094DE8, // nitroScript
+            0x08094E40, // wallPieceScript
+            0x08094F50, // wallPiece2Script
+            0x08095068, // dropBombScript
+            0x0809516C, // tinyDropBombScript
+            0x080952A8, // "drop"
+            0x08095398, // dropBombPlane
+            0x08095440, // spotlightScript
+            0x080954B0, // spotlightLeftRightScript
+            0x0809552C, // energyBall
+            0x08095624, // electricFloorScript
+            0x08095680, // breakoutLabAssProjectileScript
+            0x08095740, // "InnerLoop"
+            0x08095830, // globalController
+            0x080958D8, // breakoutLabAssShooterScript
+            0x08095968, // breakoutLabAssScript
+            0x080959FC, // breakoutRhynocShieldScript
+            0x08095AA4, // breakoutRhynocBallScript
+            0x08095B34, // breakoutRhynocScript
+            0x08095BCC, // breakoutWallOnScript
+            0x08095C14, // beatBoss
+            0x08095C54, // nitroExplode
+            0x08095CE0, // energyBallDestroyed
+            0x08095D58, // stepLeft
+            0x08095DA0, // stepRight
+            0x08095DE8, // stepDown
+            0x08095E20, // newWave
+            0x08095E58, // genericDeathScript
+            0x08095F34, // DieAndDropBallScript
+            0x08095F7C, // genericDrop
+            0x08095FDC, // genericTurnRightAndDrop
+            0x08096024, // genericTurnLeftAndDrop
+            0x0809606C, // breakoutWallOffScript
+            0x080960F0, // genericTurnLeftScript
+            0x08096144, // genericTurnRightScript
+            0x080961CC, // "patrol"
+            0x080962BC, // geckoTurnRightScript
+            0x08096318, // "patrol"
+            0x08096408, // labAssTurnRightScript
+            0x0809646C, // "patrol"
+            0x0809655C, // goatTurnRightScript
+            0x080965B4, // "patrol"
+            0x080966A4, // sealTurnRightScript
+            0x08096700, // "patrol"
+            0x080967F0, // polarTurnRightScript
+            0x08096850, // "patrol"
+            0x08096940, // rhynocTurnRightCastleScript
+            0x0809699C, // "patrol"
+            0x08096A8C, // rhynocTurnRightScript
+            0x08096AEC, // "patrol"
+            0x08096BDC, // rhynocIceTurnRightScript
+            0x08096C84, // "WaitingForKill"
+            0x08096D74, // rhynocRockScript
+            0x08096E54, // tankGuyFlamerRightScript
+            0x08096F40, // "patrol"
+            0x0809703C, // penguinTurnRightScript
+            0x080970F8, // "patrol"
+            0x080971E8, // infernoTurnRightScript
+            0x0809724C, // batUp
+            0x080972EC, // rhynocFlyerMoveUpScript
+            0x080973C4, // rhynocIceFlyerMoveUpScript
+            0x0809749C, // rhynocFireFlyerMoveUpScript
+            0x08097590, // "attack"
+            0x08097680, // "patrol"
+            0x08097770, // sharkeyTurnRightScript
+            0x080977D4, // sheepGoRight
+            0x08097878, // gulpRight
+            0x08097920, // riptoDies
+            0x080979D8, // riptoShootScript
+            0x08097B08, // riptoBossBatWaveScript
+            0x08097C84, // riptoBoss2ndWaveScript
+            0x08097DD8, // riptoBoss3rdWaveScript
+            0x08098144, // SpyroScript
+            0x080981F0, // "patrol"
+            0x080982E0, // geckoTurnLeftScript
+            0x08098350, // "patrol"
+            0x08098440, // geckoPatrolScript
+            0x080984D8, // "patrol"
+            0x080985C8, // labAssTurnLeftScript
+            0x08098628, // "patrol"
+            0x08098718, // labAssPatrolScript
+            0x080987B8, // "patrol"
+            0x080988A8, // goatTurnLeftScript
+            0x0809890C, // "patrol"
+            0x080989FC, // goatPatrolScript
+            0x08098A84, // "patrol"
+            0x08098B74, // sealTurnLeftScript
+            0x08098BD4, // "patrol"
+            0x08098CC4, // sealPatrolScript
+            0x08098D58, // "patrol"
+            0x08098E48, // polarTurnLeftScript
+            0x08098EAC, // "patrol"
+            0x08098F9C, // polarbearPatrolScript
+            0x08099038, // "patrol"
+            0x08099128, // rhynocTurnLeftCastleScript
+            0x08099190, // rhynocCastlePatrolScript
+            0x08099234, // "patrol"
+            0x08099324, // rhynocTurnLeftScript
+            0x0809938C, // rhynocJunglePatrolScript
+            0x0809943C, // "patrol"
+            0x0809952C, // rhynocIceTurnLeftScript
+            0x08099590, // rhynocIcePatrolScript
+            0x08099640, // rhynocThrowScript
+            0x0809974C, // tankGuy1StaticScript
+            0x080997F0, // tankGuy1BStaticScript
+            0x08099890, // tankGuyFlamerExplodeScript
+            0x08099928, // tankGuyFlamerDownScript
+            0x08099A24, // "doit"
+            0x08099B14, // wumpaShootGuy1Script
+            0x08099B84, // "doit"
+            0x08099C74, // wumpaShootGuy1FasterScript
+            0x08099CE8, // "patrol"
+            0x08099DD8, // penguinTurnLeftScript
+            0x08099E38, // penguinAttackScript
+            0x08099EF4, // "patrol"
+            0x08099FE4, // infernoTurnLeftScript
+            0x0809A054, // infernoLabAssAttackScript
+            0x0809A118, // "patrol"
+            0x0809A208, // infernoLabAssWhackerScript
+            0x0809A2DC, // "fire1"
+            0x0809A3D4, // "fire2"
+            0x0809A4C4, // "shoot"
+            0x0809A5B4, // infernoLabAssShooterScript
+            0x0809A66C, // batDown
+            0x0809A6DC, // batFlyerScript
+            0x0809A7B4, // rhynocFlyerMoveDownScript
+            0x0809A888, // "fly"
+            0x0809A978, // rhynocJungleFlyerScript
+            0x0809AA3C, // rhynocIceFlyerMoveDownScript
+            0x0809AB08, // "fly"
+            0x0809ABF8, // rhynocIceFlyerScript
+            0x0809ACB0, // rhynocFireFlyerMoveDownScript
+            0x0809AD7C, // "fly"
+            0x0809AE6C, // rhynocFireFlyerScript
+            0x0809AF1C, // "attack"
+            0x0809B00C, // "patrol"
+            0x0809B0FC, // sharkeyTurnLeftScript
+            0x0809B14C, // sharkeyPatrolScript
+            0x0809B1D4, // "attackL"
+            0x0809B2D0, // "attackR"
+            0x0809B3C0, // wormWhackerScript
+            0x0809B464, // "patrol"
+            0x0809B554, // venusWhackerScript
+            0x0809B630, // "go"
+            0x0809B720, // sheepTopdownScript
+            0x0809B7A4, // sheepSpawnerScript
+            0x0809B824, // chuteGuyScript
+            0x0809B908, // chuteGuyShieldScript
+            0x0809BA34, // chuteGuyFasterScript
+            0x0809BB10, // chuteGuyFasterShieldScript
+            0x0809BC38, // chuteGuyShooterScript
+            0x0809BD44, // chuteGuyShooterShieldScript
+            0x0809BE94, // chuteGuyShooterFasterScript
+            0x0809BF9C, // chuteGuyShooterFasterShieldScript
+            0x0809C0F8, // "wave one"
+            0x0809C20C, // "wave mini-two"
+            0x0809C310, // "wave two"
+            0x0809C410, // "wave three"
+            0x0809C500, // tinyTankBossScript
+            0x0809C5D4, // riptoBatScript
+            0x0809C68C, // riptoBat2Script
+            0x0809C740, // batGhostFlyerScript
+            0x0809C800, // batGhost2FlyerScript
+            0x0809C8B4, // gulpJumpStart
+            0x0809C908, // gulpLeft
+            0x0809C9AC, // gulpBossScript
+            0x0809CA10, // trigger1
+            0x0809CA54, // trigger2
+            0x0809CA8C, // trigger3
+            0x0809CAC4, // trigger4
+            0x0809CB04, // trigger5
+            0x0809CB58, // broadcastTriggerGulp
+            0x0809CBC0, // broadcastTrigger1
+            0x0809CC28, // broadcastTrigger2
+            0x0809CC90, // broadcastTrigger3
+            0x0809CCF8, // broadcastTrigger4
+            0x0809CD60, // broadcastTrigger5
+            0x0809CDC4, // "attack!"
+            0x0809CECC, // "attack2"
+            0x0809CFC8, // "attack3"
+            0x0809D0B8, // riptoBossScript
+            0x0809D170, // riptoTakeHit
+            0x0809D1E0, // riptoShoot2Script
+            0x0809D2F0, // ninaCage
+            0x0809D334, // spyroNina
+            0x0809D3C0, // "walkSlower"
+            0x0809D4CC, // "walkFaster"
+            0x0809D5BC, // "walk"
+            0x0809D6AC, // ninaRun
+            0x0809D790, // "left"
+            0x0809D894, // "right"
+            0x0809D984, // spunInto
+            0x0809DA78, // jumpedOnGecko
+            0x0809DB24, // jumpedOnLabAss
+            0x0809DBD0, // jumpedOnGoat
+            0x0809DC84, // jumpedOnSeal
+            0x0809DD3C, // jumpedOnPolar
+            0x0809DDF0, // jumpedOnRhynocCastle
+            0x0809DE78, // jumpedOnRhynoc
+            0x0809DF10, // jumpedOnIceRhynoc
+            0x0809DFAC, // jumpedOnRhynocThrower
+            0x0809E044, // tankGuy1Destroyed
+            0x0809E0B8, // tankGuy1BDestroyed
+            0x0809E144, // tankGuyFlamerLeftScript
+            0x0809E234, // sheepDie
+            0x0809E2B0, // jumpedOnPenguin
+            0x0809E374, // jumpedOnInferno
+            0x0809E408, // jumpedOnVenus
+            0x0809E48C, // sheepDead
+            0x0809E510, // sheepGoLeft
+            0x0809E594, // chuteHitPod
+            0x0809E600, // chuteFall
+            0x0809E6DC, // chuteShooter
+            0x0809E744, // chuteShooterFall
+            0x0809E828, // chuteShooterFasterFall
+            0x0809E908, // chuteShooterFaster
+            0x0809E96C, // tinyHasShieldUp
+            0x0809E9B0, // "blowup"
+            0x0809EAAC, // "takehit"
+            0x0809EB9C, // tinyTakeHit
+            0x0809EC4C, // tinyTankBombScript
+            0x0809ED70, // tinyShootGun
+            0x0809EE6C, // riptoBatHit
+            0x0809EEC0, // riptoBatDie
+            0x0809EF00, // batGhostExplode
+            0x0809EF78, // batGhostDie
+            0x0809EFE0, // gulpIsInvulnerable
+            0x0809F034, // gulpShoot1
+            0x0809F124, // "wave1"
+            0x0809F234, // "one"
+            0x0809F33C, // "two"
+            0x0809F42C, // "other"
+            0x0809F51C, // trigger1Spawn
+            0x0809F580, // trigger2Spawn
+            0x0809F5E4, // trigger3Spawn
+            0x0809F648, // trigger4Spawn
+            0x0809F6BC, // trigger5Spawn
+            0x0809F6FC, // spawnGulp
+            0x0809F730, // beatRiptoBoss
+            0x0809F770, // ninaCageFall
+            0x0809F820, // spyroNinaMoveDown
+            0x0809F898, // ninaJump
+            0x0809F94C, // ninaStop
+            0x0809F9F0, // tankGuyFlamerUpScript
+            0x0809FAD0, // gulpDie
+            0x0809FB30, // gulpShoot2
+            0x0809FBD4, // flipMe
+        };
+
+        public override int LanguagesCount => 5;
+    }
+
     public class GBAVV_CrashFusionUS_Manager : GBAVV_CrashFusion_Manager
     {
-        public override int ObjTypesCount => 244;
         public override uint ObjTypesPointer => 0x08011144;
 
         public override uint[] AnimSetPointers => new uint[]
@@ -825,6 +1225,403 @@ namespace R1Engine
             0x08085BE4, // gulpDie
             0x08085C44, // gulpShoot2
             0x08085CE8, // flipMe
+        };
+    }
+
+    public class GBAVV_CrashFusionJP_Manager : GBAVV_CrashFusion_Manager
+    {
+        public override uint ObjTypesPointer => throw new NotImplementedException();
+
+        public override uint[] AnimSetPointers => new uint[]
+        {
+            0x0827D0DC,
+            0x082B1B14,
+            0x082BC388,
+            0x082BE258,
+            0x082C17B4,
+            0x082C6028,
+            0x082CEE10,
+            0x082FA0A0,
+            0x082FBEB4,
+            0x082FFEE8,
+            0x0830A478,
+            0x0830AD68,
+            0x08313BEC,
+            0x0831DD60,
+            0x0831F4A0,
+            0x0831FDF0,
+            0x08320888,
+            0x08322834,
+            0x08322BFC
+        };
+
+        public override uint[] ScriptPointers => new uint[]
+        {
+            0x0806C674, // genericNPC
+            0x0806C6C8, // talkToVictim
+            0x0806C9B8, // script_waitForInputOrTime
+            0x080704A4, // notFound
+            0x0807069C, // waitForPagedText
+            0x08070704, // missing
+            0x0807074C, // crunch01
+            0x080707AC, // moneybags02
+            0x0807080C, // blinky03
+            0x0807086C, // blinky25
+            0x080708C8, // coco04
+            0x08070924, // coco05
+            0x08070984, // professor06
+            0x080709E4, // moneybags07
+            0x08070A44, // moneybags08
+            0x08070AA4, // moneybags09
+            0x08070B04, // moneybags10
+            0x08070B64, // crunch11
+            0x08070BC4, // crunch12
+            0x08070C24, // crunch13
+            0x08070C84, // crunch14
+            0x08070CE4, // agent9_15
+            0x08070D44, // sgtbyrd16
+            0x08070DA4, // hunter17
+            0x08070E04, // moneybags18
+            0x08070E64, // moneybags19
+            0x08070EC4, // moneybags20
+            0x08070F24, // moneybags21
+            0x08070F84, // moneybags22
+            0x08070FE4, // bianca23
+            0x08071044, // fakeCrash24
+            0x080710D4, // warpHelp50
+            0x08071140, // crystalBarrierHelp51
+            0x080711A0, // bonusHelp52
+            0x08071204, // crystalHelp53
+            0x08071264, // HUDHelp54
+            0x080712C8, // barrierHelp55
+            0x08071328, // wumpaHelp56
+            0x08071388, // jumpHelp57
+            0x080713EC, // returnHelp58
+            0x08071450, // findingHelp59
+            0x080714BC, // instructionsPolar100
+            0x08071588, // instructionsChopper101
+            0x080716B0, // instructionsTank102
+            0x080717E0, // instructionsWumpaShoot103
+            0x080718B0, // instructionsWeightlift104
+            0x0807194C, // instructionsSmash105
+            0x080719BC, // instructionsDeflection106
+            0x08071AE8, // instructionsJetpack107
+            0x08071BB8, // instructionsBatAttack108
+            0x08071CE0, // instructionsTube109
+            0x08071DA8, // instructionsJump110
+            0x08071E18, // instructionsBridgeFight111
+            0x080794FC, // movie_credits
+            0x0807A050, // waitForPagedText
+            0x0807BABC, // platformMoveVertUpScript
+            0x0807BB70, // platformBouncyMoveLeftScript
+            0x0807BBF0, // platformMoveLeftScript
+            0x0807BC80, // platformMoveLeftSlowScript
+            0x0807BDA4, // "resettime"
+            0x0807BE94, // "doit"
+            0x0807BF84, // torpedoSpawnerScript
+            0x0807BFEC, // mineGoRight
+            0x0807C064, // "check"
+            0x0807C154, // mineCheck
+            0x0807C1EC, // "n"
+            0x0807C2DC, // "outside"
+            0x0807C3CC, // mineMoveLeftSlowScript
+            0x0807C458, // spotlightFire
+            0x0807C558, // spotlightMoveRight
+            0x0807C5B0, // spotlightMoveLeft
+            0x0807C604, // spotlightMoveUp
+            0x0807C65C, // spotlightMoveDown
+            0x0807C6F0, // patrol
+            0x0807C7EC, // breakoutBasicPatrol
+            0x0807C870, // breakoutBasicHitWall
+            0x0807CADC, // platformScript
+            0x0807CB14, // platformScriptIron
+            0x0807CB74, // platformMoveVertDownScript
+            0x0807CC1C, // platformBouncyMoveScript
+            0x0807CCA4, // platformMoveScript
+            0x0807CD3C, // platformMoveSlowScript
+            0x0807CDBC, // wumpaBarrierScript
+            0x0807CDF0, // triggerPolarScript
+            0x0807CE34, // triggerGenericScript
+            0x0807CE70, // triggerUpScript
+            0x0807CEB0, // triggerDownScript
+            0x0807CEF0, // triggerLeftScript
+            0x0807CF30, // triggerRightScript
+            0x0807CF98, // lavaSpurtScript
+            0x0807D0B0, // lavaSpurtSpawnerScript
+            0x0807D11C, // floorSpearsWhackerScript
+            0x0807D1C8, // floorSpikesWhackerScript
+            0x0807D264, // wallSpikesWhackerScript
+            0x0807D30C, // groundFenceHorScript
+            0x0807D390, // groundFenceVertScript
+            0x0807D410, // arcticTotemScript
+            0x0807D444, // flameHeadScript
+            0x0807D4D0, // torpedoSpawnFlip
+            0x0807D530, // torpedoSpawnStartScript
+            0x0807D5B0, // "move2"
+            0x0807D6A0, // "move"
+            0x0807D790, // torpedoScript
+            0x0807D864, // mineGoLeft
+            0x0807D8B0, // mineStartScript
+            0x0807D944, // "b"
+            0x0807DA34, // "go"
+            0x0807DB24, // mineMoveSlowScript
+            0x0807DBB4, // fruitSpawnerScript
+            0x0807DC1C, // electricWallScript
+            0x0807DCA8, // icicleScript
+            0x0807DD18, // "fall"
+            0x0807DE08, // icicleFallingScript
+            0x0807DEC4, // "playsfx"
+            0x0807DFB4, // lavaFountainScript
+            0x0807E00C, // "sfx"
+            0x0807E0FC, // swingingAxeScript
+            0x0807E16C, // "destroy"
+            0x0807E25C, // nitroScript
+            0x0807E2B4, // wallPieceScript
+            0x0807E3C4, // wallPiece2Script
+            0x0807E4DC, // dropBombScript
+            0x0807E5E0, // tinyDropBombScript
+            0x0807E71C, // "drop"
+            0x0807E80C, // dropBombPlane
+            0x0807E8B4, // spotlightScript
+            0x0807E924, // spotlightLeftRightScript
+            0x0807E9A0, // energyBall
+            0x0807EA98, // electricFloorScript
+            0x0807EAF4, // breakoutLabAssProjectileScript
+            0x0807EBB4, // "InnerLoop"
+            0x0807ECA4, // globalController
+            0x0807ED4C, // breakoutLabAssShooterScript
+            0x0807EDDC, // breakoutLabAssScript
+            0x0807EE70, // breakoutRhynocShieldScript
+            0x0807EF18, // breakoutRhynocBallScript
+            0x0807EFA8, // breakoutRhynocScript
+            0x0807F040, // breakoutWallOnScript
+            0x0807F088, // beatBoss
+            0x0807F0C8, // nitroExplode
+            0x0807F154, // energyBallDestroyed
+            0x0807F1CC, // stepLeft
+            0x0807F214, // stepRight
+            0x0807F25C, // stepDown
+            0x0807F294, // newWave
+            0x0807F2CC, // genericDeathScript
+            0x0807F3A8, // DieAndDropBallScript
+            0x0807F3F0, // genericDrop
+            0x0807F450, // genericTurnRightAndDrop
+            0x0807F498, // genericTurnLeftAndDrop
+            0x0807F4E0, // breakoutWallOffScript
+            0x0807F564, // genericTurnLeftScript
+            0x0807F5B8, // genericTurnRightScript
+            0x0807F640, // "patrol"
+            0x0807F730, // geckoTurnRightScript
+            0x0807F78C, // "patrol"
+            0x0807F87C, // labAssTurnRightScript
+            0x0807F8E0, // "patrol"
+            0x0807F9D0, // goatTurnRightScript
+            0x0807FA28, // "patrol"
+            0x0807FB18, // sealTurnRightScript
+            0x0807FB74, // "patrol"
+            0x0807FC64, // polarTurnRightScript
+            0x0807FCC4, // "patrol"
+            0x0807FDB4, // rhynocTurnRightCastleScript
+            0x0807FE10, // "patrol"
+            0x0807FF00, // rhynocTurnRightScript
+            0x0807FF60, // "patrol"
+            0x08080050, // rhynocIceTurnRightScript
+            0x080800F8, // "WaitingForKill"
+            0x080801E8, // rhynocRockScript
+            0x080802C8, // tankGuyFlamerRightScript
+            0x080803B4, // "patrol"
+            0x080804B0, // penguinTurnRightScript
+            0x0808056C, // "patrol"
+            0x0808065C, // infernoTurnRightScript
+            0x080806C0, // batUp
+            0x08080760, // rhynocFlyerMoveUpScript
+            0x08080838, // rhynocIceFlyerMoveUpScript
+            0x08080910, // rhynocFireFlyerMoveUpScript
+            0x08080A04, // "attack"
+            0x08080AF4, // "patrol"
+            0x08080BE4, // sharkeyTurnRightScript
+            0x08080C48, // sheepGoRight
+            0x08080CEC, // gulpRight
+            0x08080D94, // riptoDies
+            0x08080E4C, // riptoShootScript
+            0x08080F7C, // riptoBossBatWaveScript
+            0x080810F8, // riptoBoss2ndWaveScript
+            0x0808124C, // riptoBoss3rdWaveScript
+            0x080815B8, // SpyroScript
+            0x08081664, // "patrol"
+            0x08081754, // geckoTurnLeftScript
+            0x080817C4, // "patrol"
+            0x080818B4, // geckoPatrolScript
+            0x0808194C, // "patrol"
+            0x08081A3C, // labAssTurnLeftScript
+            0x08081A9C, // "patrol"
+            0x08081B8C, // labAssPatrolScript
+            0x08081C2C, // "patrol"
+            0x08081D1C, // goatTurnLeftScript
+            0x08081D80, // "patrol"
+            0x08081E70, // goatPatrolScript
+            0x08081EF8, // "patrol"
+            0x08081FE8, // sealTurnLeftScript
+            0x08082048, // "patrol"
+            0x08082138, // sealPatrolScript
+            0x080821CC, // "patrol"
+            0x080822BC, // polarTurnLeftScript
+            0x08082320, // "patrol"
+            0x08082410, // polarbearPatrolScript
+            0x080824AC, // "patrol"
+            0x0808259C, // rhynocTurnLeftCastleScript
+            0x08082604, // rhynocCastlePatrolScript
+            0x080826A8, // "patrol"
+            0x08082798, // rhynocTurnLeftScript
+            0x08082800, // rhynocJunglePatrolScript
+            0x080828B0, // "patrol"
+            0x080829A0, // rhynocIceTurnLeftScript
+            0x08082A04, // rhynocIcePatrolScript
+            0x08082AB4, // rhynocThrowScript
+            0x08082BC0, // tankGuy1StaticScript
+            0x08082C64, // tankGuy1BStaticScript
+            0x08082D04, // tankGuyFlamerExplodeScript
+            0x08082D9C, // tankGuyFlamerDownScript
+            0x08082E98, // "doit"
+            0x08082F88, // wumpaShootGuy1Script
+            0x08082FF8, // "doit"
+            0x080830E8, // wumpaShootGuy1FasterScript
+            0x0808315C, // "patrol"
+            0x0808324C, // penguinTurnLeftScript
+            0x080832AC, // penguinAttackScript
+            0x08083368, // "patrol"
+            0x08083458, // infernoTurnLeftScript
+            0x080834C8, // infernoLabAssAttackScript
+            0x0808358C, // "patrol"
+            0x0808367C, // infernoLabAssWhackerScript
+            0x08083750, // "fire1"
+            0x08083848, // "fire2"
+            0x08083938, // "shoot"
+            0x08083A28, // infernoLabAssShooterScript
+            0x08083AE0, // batDown
+            0x08083B50, // batFlyerScript
+            0x08083C28, // rhynocFlyerMoveDownScript
+            0x08083CFC, // "fly"
+            0x08083DEC, // rhynocJungleFlyerScript
+            0x08083EB0, // rhynocIceFlyerMoveDownScript
+            0x08083F7C, // "fly"
+            0x0808406C, // rhynocIceFlyerScript
+            0x08084124, // rhynocFireFlyerMoveDownScript
+            0x080841F0, // "fly"
+            0x080842E0, // rhynocFireFlyerScript
+            0x08084390, // "attack"
+            0x08084480, // "patrol"
+            0x08084570, // sharkeyTurnLeftScript
+            0x080845C0, // sharkeyPatrolScript
+            0x08084648, // "attackL"
+            0x08084744, // "attackR"
+            0x08084834, // wormWhackerScript
+            0x080848D8, // "patrol"
+            0x080849C8, // venusWhackerScript
+            0x08084AA4, // "go"
+            0x08084B94, // sheepTopdownScript
+            0x08084C18, // sheepSpawnerScript
+            0x08084C98, // chuteGuyScript
+            0x08084D7C, // chuteGuyShieldScript
+            0x08084EA8, // chuteGuyFasterScript
+            0x08084F84, // chuteGuyFasterShieldScript
+            0x080850AC, // chuteGuyShooterScript
+            0x080851B8, // chuteGuyShooterShieldScript
+            0x08085308, // chuteGuyShooterFasterScript
+            0x08085410, // chuteGuyShooterFasterShieldScript
+            0x0808556C, // "wave one"
+            0x08085680, // "wave mini-two"
+            0x08085784, // "wave two"
+            0x08085884, // "wave three"
+            0x08085974, // tinyTankBossScript
+            0x08085A48, // riptoBatScript
+            0x08085B00, // riptoBat2Script
+            0x08085BB4, // batGhostFlyerScript
+            0x08085C74, // batGhost2FlyerScript
+            0x08085D28, // gulpJumpStart
+            0x08085D7C, // gulpLeft
+            0x08085E20, // gulpBossScript
+            0x08085E84, // trigger1
+            0x08085EC8, // trigger2
+            0x08085F00, // trigger3
+            0x08085F38, // trigger4
+            0x08085F78, // trigger5
+            0x08085FCC, // broadcastTriggerGulp
+            0x08086034, // broadcastTrigger1
+            0x0808609C, // broadcastTrigger2
+            0x08086104, // broadcastTrigger3
+            0x0808616C, // broadcastTrigger4
+            0x080861D4, // broadcastTrigger5
+            0x08086238, // "attack!"
+            0x08086340, // "attack2"
+            0x0808643C, // "attack3"
+            0x0808652C, // riptoBossScript
+            0x080865E4, // riptoTakeHit
+            0x08086654, // riptoShoot2Script
+            0x08086764, // ninaCage
+            0x080867A8, // spyroNina
+            0x08086834, // "walkSlower"
+            0x08086940, // "walkFaster"
+            0x08086A30, // "walk"
+            0x08086B20, // ninaRun
+            0x08086C04, // "left"
+            0x08086D08, // "right"
+            0x08086DF8, // spunInto
+            0x08086EEC, // jumpedOnGecko
+            0x08086F98, // jumpedOnLabAss
+            0x08087044, // jumpedOnGoat
+            0x080870F8, // jumpedOnSeal
+            0x080871B0, // jumpedOnPolar
+            0x08087264, // jumpedOnRhynocCastle
+            0x080872EC, // jumpedOnRhynoc
+            0x08087384, // jumpedOnIceRhynoc
+            0x08087420, // jumpedOnRhynocThrower
+            0x080874B8, // tankGuy1Destroyed
+            0x0808752C, // tankGuy1BDestroyed
+            0x080875B8, // tankGuyFlamerLeftScript
+            0x080876A8, // sheepDie
+            0x08087724, // jumpedOnPenguin
+            0x080877E8, // jumpedOnInferno
+            0x0808787C, // jumpedOnVenus
+            0x08087900, // sheepDead
+            0x08087984, // sheepGoLeft
+            0x08087A08, // chuteHitPod
+            0x08087A74, // chuteFall
+            0x08087B50, // chuteShooter
+            0x08087BB8, // chuteShooterFall
+            0x08087C9C, // chuteShooterFasterFall
+            0x08087D7C, // chuteShooterFaster
+            0x08087DE0, // tinyHasShieldUp
+            0x08087E24, // "blowup"
+            0x08087F20, // "takehit"
+            0x08088010, // tinyTakeHit
+            0x080880C0, // tinyTankBombScript
+            0x080881E4, // tinyShootGun
+            0x080882E0, // riptoBatHit
+            0x08088334, // riptoBatDie
+            0x08088374, // batGhostExplode
+            0x080883EC, // batGhostDie
+            0x08088454, // gulpIsInvulnerable
+            0x080884A8, // gulpShoot1
+            0x08088598, // "wave1"
+            0x080886A8, // "one"
+            0x080887B0, // "two"
+            0x080888A0, // "other"
+            0x08088990, // trigger1Spawn
+            0x080889F4, // trigger2Spawn
+            0x08088A58, // trigger3Spawn
+            0x08088ABC, // trigger4Spawn
+            0x08088B30, // trigger5Spawn
+            0x08088B70, // spawnGulp
+            0x08088BA4, // beatRiptoBoss
+            0x08088BE4, // ninaCageFall
+            0x08088C94, // spyroNinaMoveDown
+            0x08088D0C, // ninaJump
+            0x08088DC0, // ninaStop
+            0x08088E64, // tankGuyFlamerUpScript
+            0x08088F44, // gulpDie
+            0x08088FA4, // gulpShoot2
+            0x08089048, // flipMe
         };
     }
 }
