@@ -60,7 +60,16 @@ namespace R1Engine
                                             $"Group: {ObjGroupIndex}{Environment.NewLine}" +
                                             $"Index: {ObjIndex}{Environment.NewLine}";
 
-        public override int? GetLayer(int index) => ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashFusion ? (int?)-index : null;
+        public override int? GetLayer(int index)
+        {
+            if (!ObjManager.Context.Settings.GBAVV_IsFusion)
+                return null;
+
+            if (Object.ObjType <= 10)
+                return 0;
+
+            return -index;
+        }
 
         public byte[] ObjParams => ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex);
 
