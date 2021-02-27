@@ -165,25 +165,69 @@ namespace R1Engine
         }
 
 
-        public Texture2D[][] GetPuppetImages(Gameloft_Puppet puppet, bool flipY = true) {
-            Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
-            for (int i = 0; i < puppet.ImagesCount; i++) {
-                var id = puppet.ImageDescriptors[i];
-                var pal = puppet.Palettes[id.Palette];
-                byte[] imageData = puppet.Images[i].Convert(puppet.ImageFormat, id.Width, id.Height, pal.PaletteLength);
-                texs[i] = new Texture2D[pal.PaletteCount];
-                for (int p = 0; p < pal.PaletteCount; p++) {
-                    Texture2D tex = TextureHelpers.CreateTexture2D(id.Width, id.Height);
-                    for (int y = 0; y < tex.height; y++) {
-                        for (int x = 0; x < tex.width; x++) {
-                            tex.SetPixel(x, flipY ? tex.height - 1 - y : y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
+        public Texture2D[][] GetPuppetImages(Gameloft_Puppet puppet, bool flipY = true, bool allowTransparent = true) {
+            if (puppet.ImageData != null) {
+                var imageBlock = puppet.ImageData;
+                Color[,] pixels = new Color[imageBlock.Width, imageBlock.Height];
+                int bpp = imageBlock.BitsPerPixel;
+                int bytesPerRow = (imageBlock.Width * bpp + 7) / 8;
+                for (int y = 0; y < imageBlock.Height; y++) {
+                    int startOfRow = y * (bytesPerRow + 1) + 1;
+                    for (int x = 0; x < imageBlock.Width; x++) {
+                        int ind = 0;
+                        switch (bpp) {
+                            case 2:
+                            case 4:
+                                ind = BitHelpers.ExtractBits(imageBlock.Data[startOfRow + x / (8 / bpp)], bpp, 8 - ((x % (8/bpp)) + 1) * bpp);
+                                break;
+                            case 8:
+                            default:
+                                ind = imageBlock.Data[startOfRow + x];
+                                break;
+                        }
+                        if (ind == 0 && allowTransparent) {
+                            pixels[x, y] = Color.clear;
+                        } else {
+                            pixels[x, y] = imageBlock.Palette[ind].GetColor();
                         }
                     }
-                    tex.Apply();
-                    texs[i][p] = tex;
                 }
+                Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
+                for (int i = 0; i < puppet.ImagesCount; i++) {
+                    var id = puppet.ImageDescriptors[i];
+                    texs[i] = new Texture2D[1];
+                    texs[i][0] = TextureHelpers.CreateTexture2D(id.Width, id.Height);
+                    for (int y = 0; y < id.Height; y++) {
+                        for (int x = 0; x < id.Width; x++) {
+                            if (id.XPosition + x >= imageBlock.Width || id.YPosition + y >= imageBlock.Height) {
+                                throw new Exception($"Width or height out of bounds: id {i} @ puppet @ {puppet.Offset}");
+                            }
+                            texs[i][0].SetPixel(x, flipY ? id.Height - 1 - y : y, pixels[id.XPosition + x, id.YPosition + y]);
+                        }
+                    }
+                    texs[i][0].Apply();
+                }
+                return texs;
+            } else {
+                Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
+                for (int i = 0; i < puppet.ImagesCount; i++) {
+                    var id = puppet.ImageDescriptors[i];
+                    var pal = puppet.Palettes[id.Palette];
+                    byte[] imageData = puppet.Images[i].Convert(puppet.ImageFormat, id.Width, id.Height, pal.PaletteLength);
+                    texs[i] = new Texture2D[pal.PaletteCount];
+                    for (int p = 0; p < pal.PaletteCount; p++) {
+                        Texture2D tex = TextureHelpers.CreateTexture2D(id.Width, id.Height);
+                        for (int y = 0; y < tex.height; y++) {
+                            for (int x = 0; x < tex.width; x++) {
+                                tex.SetPixel(x, flipY ? tex.height - 1 - y : y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
+                            }
+                        }
+                        tex.Apply();
+                        texs[i][p] = tex;
+                    }
+                }
+                return texs;
             }
-            return texs;
         }
 
         public void ExportPuppet(Gameloft_Puppet puppet, string outputDir, ExportMethod exportMethod) {
@@ -317,33 +361,19 @@ namespace R1Engine
                 des.Animations = new Unity_ObjAnimation[0];
                 return des;
             }
-
-            Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
-            des.Sprites = new Sprite[puppet.Palettes.Max(p => p.PaletteCount)][];
+            Texture2D[][] texs = GetPuppetImages(puppet);
+            des.Sprites = new Sprite[texs.Max(t => t.Length)][];
             for(int p = 0; p < des.Sprites.Length; p++) {
-                des.Sprites[p] = new Sprite[puppet.ImagesCount];
+                des.Sprites[p] = new Sprite[texs.Length];
             }
-            for (int i = 0; i < puppet.ImagesCount; i++) {
-                var id = puppet.ImageDescriptors[i];
-                var pal = puppet.Palettes[id.Palette];
-                byte[] imageData = puppet.Images[i].Convert(puppet.ImageFormat, id.Width, id.Height, pal.PaletteLength);
-                texs[i] = new Texture2D[pal.PaletteCount];
-                for (int p = 0; p < pal.PaletteCount; p++) {
-                    Texture2D tex = TextureHelpers.CreateTexture2D(id.Width, id.Height);
-                    for (int y = 0; y < tex.height; y++) {
-                        for (int x = 0; x < tex.width; x++) {
-                            tex.SetPixel(x, tex.height - 1 - y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
-                        }
-                    }
-                    tex.Apply();
-                    texs[i][p] = tex;
-                    des.Sprites[p][i] = tex.CreateSprite();
+            for (int i = 0; i < texs.Length; i++) {
+                for (int j = 0; j < texs[i].Length; j++) {
+                    des.Sprites[j][i] = texs[i][j].CreateSprite();
                 }
-                for (int p = 0; p < des.Sprites.Length; p++) {
-                    if(des.Sprites[p][i] == null) des.Sprites[p][i] = des.Sprites[0][i];
+                for (int j = texs[i].Length; j < des.Sprites.Length; j++) {
+                    des.Sprites[j][i] = des.Sprites[0][i];
                 }
             }
-
 
             Unity_ObjAnimationPart[] GetPartsForFrame(
                 Gameloft_Puppet.Animation a,

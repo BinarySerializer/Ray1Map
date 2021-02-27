@@ -396,6 +396,12 @@ namespace R1Engine
 
         // Gameloft
 
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]
+        RaymanRavingRabbidsMobile_128x128_s40v2,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, cz)", typeof(Gameloft_RRR_128x128_cz_Manager))]
+        RaymanRavingRabbidsMobile_128x128_CZ,
+
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, low res)", typeof(Gameloft_RRR_Manager))]
         RaymanRavingRabbidsMobile_LowRes,
 

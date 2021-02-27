@@ -15,7 +15,7 @@ namespace R1Engine
 		public byte RoadTextureID_0 { get; set; } // Resource ID in the RoadTexturesID
 		public byte RoadTextureID_1 { get; set; }
 		public byte aW { get; set; }
-		public byte aUCount { get; set; }
+		public byte BackgroundLayersCount { get; set; }
 		public byte bB { get; set; }
 		public RGB888Color Color_bC { get; set; }
 		public RGB888Color Color_bD_Road1 { get; set; }
@@ -88,7 +88,7 @@ namespace R1Engine
 				RoadTextureID_1 = s.Serialize<byte>(RoadTextureID_1, name: nameof(RoadTextureID_1));
 			}
 			aW = s.Serialize<byte>(aW, name: nameof(aW));
-			aUCount = s.Serialize<byte>(aUCount, name: nameof(aUCount));
+			BackgroundLayersCount = s.Serialize<byte>(BackgroundLayersCount, name: nameof(BackgroundLayersCount));
 			bB = s.Serialize<byte>(bB, name: nameof(bB));
 			Color_bC = s.SerializeObject<RGB888Color>(Color_bC, name: nameof(Color_bC));
 			Color_bD_Road1 = s.SerializeObject<RGB888Color>(Color_bD_Road1, name: nameof(Color_bD_Road1));
@@ -128,7 +128,7 @@ namespace R1Engine
 			TriggerObjects = s.SerializeObjectArray<TriggerObject>(TriggerObjects, TriggerObjectsCount, name: nameof(TriggerObjects));
 			Structs2Count = s.Serialize<byte>(Structs2Count, name: nameof(Structs2Count));
 			Structs2 = s.SerializeObjectArray<Struct2>(Structs2, Structs2Count, name: nameof(Structs2));
-			BackgroundLayers = s.SerializeObjectArray<BackgroundLayer>(BackgroundLayers, aUCount, name: nameof(BackgroundLayers));
+			BackgroundLayers = s.SerializeObjectArray<BackgroundLayer>(BackgroundLayers, BackgroundLayersCount, name: nameof(BackgroundLayers));
 			TrackBackgroundIndices = s.SerializeArraySize<byte[],byte>(TrackBackgroundIndices, name: nameof(TrackBackgroundIndices));
 			for (int i = 0; i < TrackBackgroundIndices.Length; i++) {
 				TrackBackgroundIndices[i] = s.SerializeArray<byte>(TrackBackgroundIndices[i], TrackLength, name: $"{nameof(TrackBackgroundIndices)}[{i}]");
@@ -472,8 +472,8 @@ namespace R1Engine
 			public short Flags { get; set; }
 
 			// Lowres only
-			public byte cg0 { get; set; }
-			public byte cg1 { get; set; }
+			public byte RoadTexture0 { get; set; }
+			public byte RoadTexture1 { get; set; }
 			public Entry[] Entries { get; set; }
 
 			public short Width { get; set; }
@@ -484,8 +484,8 @@ namespace R1Engine
 			public override void SerializeImpl(SerializerObject s) {
 				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
 				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
-					cg0 = s.Serialize<byte>(cg0, name: nameof(cg0));
-					cg1 = s.Serialize<byte>(cg1, name: nameof(cg1));
+					RoadTexture0 = s.Serialize<byte>(RoadTexture0, name: nameof(RoadTexture0));
+					RoadTexture1 = s.Serialize<byte>(RoadTexture1, name: nameof(RoadTexture1));
 					Entries = s.SerializeObjectArray<Entry>(Entries, 3, name: nameof(Entries));
 				}
 				Width = s.Serialize<short>(Width, name: nameof(Width));

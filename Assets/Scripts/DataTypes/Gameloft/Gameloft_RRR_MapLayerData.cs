@@ -18,18 +18,22 @@
                     {
                         s.SerializeBitValues<byte>(bitFunc =>
                         {
-                            for (int j = 0; j < 4; j++) // 4 * 2 = 8 (2 bits per collision type)
-                            {
+							int bpt = 2; // bits per tile
+							if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x128_CZ) {
+								bpt = 1;
+							}
+							for (int j = 0; j < (8/bpt); j++) // 4 * 2 = 8 (2 bits per collision type)
+							{
 								if (i >= TileMap.Length)
 									break;
 
 								if (TileMap[i] == null)
-                                    TileMap[i] = new MapTile();
+									TileMap[i] = new MapTile();
 
-                                TileMap[i].CollisionType = (ushort)bitFunc(TileMap[i].CollisionType, 2, name: $"{nameof(TileMap)}[{i}]");
+								TileMap[i].CollisionType = (ushort)bitFunc(TileMap[i].CollisionType, bpt, name: $"{nameof(TileMap)}[{i}]");
 
 								i++;
-                            }
+							}
 						});
                     }
 

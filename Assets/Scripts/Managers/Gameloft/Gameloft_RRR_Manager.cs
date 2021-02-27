@@ -56,8 +56,14 @@ namespace R1Engine
 			"cp",
 		};
 
+		public virtual int[] HardcodedPuppetImageBufferIndices => null;
+
 		public string ObjectsFilePath => "l0b";
-		public string FixFilePath => "d2";
+		public virtual string FixFilePath => "d2";
+		public virtual int LevelListResourceIndex => 0;
+		public virtual int ObjectModelListResourceIndex => 1;
+		public virtual int ResourceListResourceIndex => 2;
+		public virtual int LocalizationResourceIndex => 3;
 
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
 		{
@@ -69,7 +75,7 @@ namespace R1Engine
 		public Gameloft_RRR_LevelList LoadLevelList(Context context) {
 			var s = context.Deserializer;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
-			return resf.SerializeResource<Gameloft_RRR_LevelList>(s, default, 0, name: "LevelList");
+			return resf.SerializeResource<Gameloft_RRR_LevelList>(s, default, LevelListResourceIndex, name: "LevelList");
 		}
 
 		public virtual int GetWorldIndex(GameSettings settings, Gameloft_RRR_LevelList levelList) {
@@ -100,7 +106,7 @@ namespace R1Engine
 			};
 			var s = context.Deserializer;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
-			var loc = resf.SerializeResource<Gameloft_RRR_LocalizationTable>(s, default, 3, name: "Localization");
+			var loc = resf.SerializeResource<Gameloft_RRR_LocalizationTable>(s, default, LocalizationResourceIndex, name: "Localization");
 
 			return loc.LanguageTables.Select((x, i) => new {
 				Lang = langages[i],
@@ -111,14 +117,23 @@ namespace R1Engine
 		public Unity_ObjectManager_GameloftRRR.PuppetData[] LoadPuppets(Context context) {
 			var s = context.Deserializer;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
-			var modl = resf.SerializeResource<Gameloft_RRR_ObjectModelList>(s, default, 1, name: "ObjectModelList");
-			var resl = resf.SerializeResource<Gameloft_RRR_PuppetResourceList>(s, default, 2, name: "ResourceList");
+			var modl = resf.SerializeResource<Gameloft_RRR_ObjectModelList>(s, default, ObjectModelListResourceIndex, name: "ObjectModelList");
+			var resl = resf.SerializeResource<Gameloft_RRR_PuppetResourceList>(s, default, ResourceListResourceIndex, name: "ResourceList");
 
 			Gameloft_Puppet[] puppets = new Gameloft_Puppet[resl.ResourceList.Length];
 			for (int i = 0; i < puppets.Length; i++) {
 				var rref = resl.ResourceList[i];
 				resf = FileFactory.Read<Gameloft_ResourceFile>(GetPuppetPath(rref.FileID), context);
-				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, rref.ResourceID, name: $"Puppets[{i}]");
+				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, rref.ResourceID, onPreSerialize: p => p.UseOtherPuppetImageData = rref.Byte3 < 0, name: $"Puppets[{i}]");
+			}
+			var hardcodedIndices = HardcodedPuppetImageBufferIndices;
+			if (hardcodedIndices != null) {
+				var puppetsWithImageData = puppets.Where(p => !p.UseOtherPuppetImageData).ToArray();
+				for (int i = 0; i < puppets.Length; i++) {
+					if (puppets[i].UseOtherPuppetImageData) {
+						puppets[i].ImageData = puppetsWithImageData[hardcodedIndices[i]].ImageData;
+					}
+				}
 			}
 			var models = new Unity_ObjectManager_GameloftRRR.PuppetData[modl.Models.Length];
 			for (int i = 0; i < models.Length; i++) {
@@ -132,6 +147,76 @@ namespace R1Engine
 			return models;
 		}
 
+		public virtual Unity_Map[] LoadMaps(Context context, Gameloft_RRR_LevelList levelList) {
+			var s = context.Deserializer;
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
+			var lh0 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
+			var lh1 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
+			var lh2 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 2, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
+			var l0 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 3, onPreSerialize: o => o.Header = lh0, name: "Layer0");
+			var l1 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
+			var l2 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
+			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.Settings, levelList), context);
+			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
+			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.Settings, levelList), context);
+			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
+			var tileSet_f = GetPuppetImages(ts_f, flipY: false, allowTransparent: true);
+			var tileSet_b = GetPuppetImages(ts_b, flipY: false, allowTransparent: false);
+
+
+			int cellSize = tileSet_f[0][0].width;
+
+			// Pad foreground tileset with transparent tiles
+			var tileset_f_padding = Enumerable.Repeat(TextureHelpers.CreateTexture2D(cellSize, cellSize, clear: true, applyClear: true).CreateTile(), 128 - tileSet_f.Length);
+			var tileset_b_padding = Enumerable.Repeat(TextureHelpers.CreateTexture2D(cellSize, cellSize, clear: true, applyClear: true).CreateTile(), 128 - tileSet_b.Length);
+
+
+			// Load maps
+			var maps = new Unity_Map[]
+			{
+				// Background
+				new Unity_Map
+				{
+					Width = lh0.Width,
+					Height = lh0.Height,
+					TileSet = new Unity_TileSet[]
+					{
+						new Unity_TileSet(tileSet_b.Select(x => x[0].CreateTile()).Concat(tileset_b_padding).ToArray())
+					},
+					MapTiles = l0.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
+					Type = Unity_Map.MapType.Graphics,
+					Layer = Unity_Map.MapLayer.Back
+				},
+				// Foreground
+				new Unity_Map
+				{
+					Width = lh1.Width,
+					Height = lh1.Height,
+					TileSet = new Unity_TileSet[]
+					{
+						new Unity_TileSet(tileSet_f.Select(x => x[0].CreateTile()).Concat(tileset_f_padding).ToArray())
+					},
+					MapTiles = l1.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
+					Type = Unity_Map.MapType.Graphics,
+				},
+				// Collision
+				new Unity_Map
+				{
+					Width = lh2.Width,
+					Height = lh2.Height,
+					TileSet = new Unity_TileSet[]
+					{
+						new Unity_TileSet(cellSize),
+					},
+					MapTiles = l2.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
+					Type = Unity_Map.MapType.Collision,
+				}
+			};
+
+			return maps;
+
+		}
+
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 
 			Controller.DetailedState = "Loading data";
@@ -140,71 +225,10 @@ namespace R1Engine
 			var s = context.Deserializer;
 			var levelList = LoadLevelList(context);
 
-
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
-			var lh0 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
-			var lh1 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
-			var lh2 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 2, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
-			var l0 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 3, onPreSerialize: o => o.Header = lh0, name: "Layer0");
-			var l1 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
-			var l2 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
+			var maps = LoadMaps(context, levelList);
 			
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.Settings, levelList), context);
-			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.Settings, levelList), context);
-			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
-			var tileSet_f = GetPuppetImages(ts_f, false);
-			var tileSet_b = GetPuppetImages(ts_b, false);
-			resf = FileFactory.Read<Gameloft_ResourceFile>(ObjectsFilePath, context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(ObjectsFilePath, context);
 			var objs = resf.SerializeResource<Gameloft_RRR_Objects>(s, default, context.Settings.Level * 2, name: "Objects");
-			
-			int cellSize = tileSet_f[0][0].width;
-
-			// Pad foreground tileset with transparent tiles
-			var tileset_f_padding = Enumerable.Repeat(TextureHelpers.CreateTexture2D(cellSize, cellSize, clear: true, applyClear: true).CreateTile(), 128 - tileSet_f.Length);
-			var tileset_b_padding = Enumerable.Repeat(TextureHelpers.CreateTexture2D(cellSize, cellSize, clear: true, applyClear: true).CreateTile(), 128 - tileSet_b.Length);
-
-			// Load maps
-			var maps = new Unity_Map[]
-			{
-				// Background
-				new Unity_Map
-                {
-                    Width = lh0.Width,
-                    Height = lh0.Height,
-                    TileSet = new Unity_TileSet[]
-                    {
-						new Unity_TileSet(tileSet_b.Select(x => x[0].CreateTile()).Concat(tileset_b_padding).ToArray())
-                    },
-                    MapTiles = l0.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
-                    Type = Unity_Map.MapType.Graphics,
-					Layer = Unity_Map.MapLayer.Back
-                },
-				// Foreground
-				new Unity_Map
-                {
-                    Width = lh1.Width,
-                    Height = lh1.Height,
-                    TileSet = new Unity_TileSet[]
-                    {
-						new Unity_TileSet(tileSet_f.Select(x => x[0].CreateTile()).Concat(tileset_f_padding).ToArray())
-                    },
-                    MapTiles = l1.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
-                    Type = Unity_Map.MapType.Graphics,
-                },
-				// Collision
-				new Unity_Map
-                {
-                    Width = lh2.Width,
-                    Height = lh2.Height,
-                    TileSet = new Unity_TileSet[]
-                    {
-						new Unity_TileSet(cellSize), 
-                    },
-                    MapTiles = l2.TileMap.Select(x => new Unity_Tile(x)).ToArray(),
-                    Type = Unity_Map.MapType.Collision,
-                }
-            };
 
 			// Load objects
 			var objManager = new Unity_ObjectManager_GameloftRRR(context, LoadPuppets(context), objs.Objects);
@@ -228,7 +252,7 @@ namespace R1Engine
 				localization: LoadLocalization(context),
 				defaultMap: 1,
 				defaultCollisionMap: 2,
-                cellSize: cellSize);
+                cellSize: (int)maps[0].TileSet[0].Tiles[0].rect.width);
 		}
 	}
 }

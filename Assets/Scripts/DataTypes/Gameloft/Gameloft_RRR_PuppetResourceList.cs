@@ -13,13 +13,13 @@
 			public sbyte FileID { get; set; }
 			public byte ResourceID { get; set; }
 			public byte Byte2 { get; set; }
-			public byte Byte3 { get; set; }
+			public sbyte Byte3 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				FileID = s.Serialize<sbyte>(FileID, name: nameof(FileID));
 				ResourceID = s.Serialize<byte>(ResourceID, name: nameof(ResourceID));
 				Byte2 = s.Serialize<byte>(Byte2, name: nameof(Byte2));
-				Byte3 = s.Serialize<byte>(Byte3, name: nameof(Byte3));
+				Byte3 = s.Serialize<sbyte>(Byte3, name: nameof(Byte3));
 			}
 		}
 	}

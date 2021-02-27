@@ -92,19 +92,40 @@ namespace R1Engine
 		}
 
 		public class MeshInProgress {
+			public string name;
 			public List<Vector3> vertices = new List<Vector3>();
 			public List<Vector3> normals = new List<Vector3>();
 			public List<Vector2> uvs = new List<Vector2>();
 			public List<Color> colors = new List<Color>();
 			public List<int> triangles = new List<int>();
+			public Texture2D texture;
+			public MeshInProgress(string name, Texture2D texture = null) {
+				this.name = name;
+				this.texture = texture;
+			}
 		}
 
 		public void CreateTrackMesh(Gameloft_RK_Level level, Context context) {
 			// Load road textures
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.Settings), context);
-			var roadTex0 = resf.SerializeResource<Gameloft_Puppet>(context.Deserializer, default, level.RoadTextureID_0, name: $"RoadTexture0");
-			var roadTex1 = resf.SerializeResource<Gameloft_Puppet>(context.Deserializer, default, level.RoadTextureID_1, name: $"RoadTexture1");
+			var roads = new MeshInProgress[level.Types.Length][];
+			Dictionary<int, Texture2D> textures = new Dictionary<int, Texture2D>();
+			for (int i = 0; i < level.Types.Length; i++) {
+				var roadTex0 = context.Settings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240 ? level.Types[i].RoadTexture0 : level.RoadTextureID_0;
+				var roadTex1 = context.Settings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240 ? level.Types[i].RoadTexture1 : level.RoadTextureID_1;
+				if (!textures.ContainsKey(roadTex0)) {
+					var roadTex = resf.SerializeResource<Gameloft_Puppet>(context.Deserializer, default, roadTex0, name: $"RoadTexture0");
+					textures[roadTex0] = GetPuppetImages(roadTex)?[0][0];
+				}
+				if (!textures.ContainsKey(roadTex1)) {
+					var roadTex = resf.SerializeResource<Gameloft_Puppet>(context.Deserializer, default, roadTex1, name: $"RoadTexture1");
+					textures[roadTex1] = GetPuppetImages(roadTex)?[0][0];
+				}
 
+				roads[i] = new MeshInProgress[2];
+				roads[i][0] = new MeshInProgress($"Road Type {i} - 0", textures[roadTex0]);
+				roads[i][1] = new MeshInProgress($"Road Type {i} - 1", textures[roadTex1]);
+			}
 
 			Vector3 curPos = Vector3.zero;
 			float curAngle = 0f;
@@ -119,14 +140,11 @@ namespace R1Engine
 			var t = level.TrackBlocks;
 
 			// Road
-			var road0 = new MeshInProgress();
-			var road1 = new MeshInProgress();
-			var bridge = new MeshInProgress();
-			MeshInProgress[] roadMeshes = new MeshInProgress[] { road0, road1, bridge };
+			var bridge = new MeshInProgress("Bridge");
 
 			// Ground
-			var ground = new MeshInProgress();
-			var abyss = new MeshInProgress();
+			var ground = new MeshInProgress("Ground");
+			var abyss = new MeshInProgress("Abyss");
 
 			for (int i = 0; i < t.Length; i++) {
 				var curBlock = t[i];
@@ -141,7 +159,7 @@ namespace R1Engine
 				float totalRoadWidth = roadWidth * roadSizeFactor;
 				float roadSizeCur = Mathf.Min(1.1f,totalRoadWidth);
 				float groundSizeCur = totalRoadWidth;
-				var road = isBridge ? bridge : i % 2 == 0 ? road0 : road1;
+				var road = isBridge ? bridge : roads[curBlock.Type][i%2];
 				int roadVertexCount = road.vertices.Count;
 				int groundVertexCount = ground.vertices.Count;
 				int abyssVertexCount = abyss.vertices.Count;
@@ -299,7 +317,7 @@ namespace R1Engine
 			gaoParent.transform.position = Vector3.zero;
 
 			// Road
-			foreach (var road in roadMeshes) {
+			foreach (var road in roads.SelectMany(r => r).Append(bridge)) {
 				Mesh roadMesh = new Mesh();
 				roadMesh.SetVertices(road.vertices);
 				roadMesh.SetTriangles(road.triangles, 0);
@@ -315,14 +333,9 @@ namespace R1Engine
 				gao.transform.localPosition = Vector3.zero;
 				mf.mesh = roadMesh;
 				mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
-				if (road != bridge) {
-					Texture2D tex = null;
-					if (road == road0) tex = GetPuppetImages(roadTex0)?[0][0];
-					if (road == road1) tex = GetPuppetImages(roadTex1)?[0][0];
-					if (tex != null) {
-						tex.wrapModeU = TextureWrapMode.Mirror;
-						mr.material.SetTexture("_MainTex", tex);
-					}
+				if (road.texture != null) {
+					road.texture.wrapModeU = TextureWrapMode.Mirror;
+					mr.material.SetTexture("_MainTex", road.texture);
 				}
 			}
 
@@ -367,7 +380,7 @@ namespace R1Engine
 
 		}
 
-		public Mesh GetObject3DMesh(Gameloft_RK_Level.Object3D o) {
+		public Mesh GetObject3DMesh(Gameloft_RK_Level.Object3D o, Gameloft_RK_Level.TrackBlock trkblk = null, bool flipX = false) {
 			Mesh m = new Mesh();
 			Color currentColor = Color.white;
 			int curCount = 0;
@@ -554,17 +567,18 @@ namespace R1Engine
 				for (int i = 0; i < cj.Count; i++) {
 					var ci_ind = cj.InstanceIndex + i;
 					var blk = level.TrackObjectInstances[ci_ind];
-					var s8Ind = blk.TrackObjectIndex;
-					var s8 = level.TrackObjects[s8Ind];
-					var type = level.ObjectTypes[s8.ObjectType];
-					var pos = sphere.transform.TransformPoint(new Vector3(s8.XPosition * 0.001f, 0.05f + type.YPosition * 0.001f, 0));
+					var toi = blk.TrackObjectIndex;
+					var to = level.TrackObjects[toi];
+					var type = level.ObjectTypes[to.ObjectType];
+					var pos = sphere.transform.TransformPoint(new Vector3(to.XPosition * 0.001f, 0.05f + type.YPosition * 0.001f, 0));
 					//if(blk.ObjType == 4) continue;
 					// TODO: Create obj types 4. These are hardcoded it seems.
 					// Usually they don't show up, but if Byte2 == 2, they show up as speed boosts
 					if (blk.ObjType == 5) {
-						GameObject gp = new GameObject();
+						GameObject gp = new GameObject($"TrackObjIndex: {blk.TrackObjectIndex}");
 						gp.transform.position = Vector3.zero;
-						var m = meshes[blk.TrackObjectIndex];
+						//var m = meshes[blk.TrackObjectIndex];
+						var m = GetObject3DMesh(level.Objects3D[blk.TrackObjectIndex], o, blk.FlipX);
 						GameObject gao = new GameObject();
 						MeshFilter mf = gao.AddComponent<MeshFilter>();
 						MeshRenderer mr = gao.AddComponent<MeshRenderer>();
@@ -576,9 +590,9 @@ namespace R1Engine
 						mf.mesh = m;
 						mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
 						gp.transform.localScale = Vector3.one * 8;
-						gp.transform.name = s8.ObjectType.ToString();
+						//gp.transform.name = s8.ObjectType.ToString();
 					} else {
-						objs.Add(new Unity_Object_GameloftRK(objManager, s8, type) {
+						objs.Add(new Unity_Object_GameloftRK(objManager, to, type) {
 							Position = new Vector3(pos.x, -pos.z, pos.y),
 							Instance = blk
 						});
