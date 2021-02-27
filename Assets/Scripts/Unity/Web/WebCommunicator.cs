@@ -358,7 +358,10 @@ public class WebCommunicator : MonoBehaviour {
                         if (includeLists)
                             webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
                     }
-					break;
+
+                    if (includeLists)
+                        webObj.R1_Commands = crashObj.GetTranslatedScript;
+                    break;
 
 				case Unity_Object_GBAVVMode7 crashObj:
 					if (crashObj.AnimSetIndex != -1)

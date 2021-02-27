@@ -91,10 +91,10 @@ public class ObjPropertiesWindow : UnityWindow
                         if (CmdPanelOpen)
                         {
                             // TODO: Cache the commands, but make sure to update if modified
-                            var lines = vv.Script.TranslatedStringAll(LevelEditorData.MainContext.GetMainFileObject<GBAVV_ROM>(new GBAVV_CrashFusionUS_Manager().GetROMFilePath).Map2D_Graphics.AnimSets);
+                            var lines = vv.GetTranslatedScript;
 
                             // TODO: Better way to get height?
-                            EditorGUI.TextArea(GetNextRect(ref YPos, height: lines.Count * 15 + 2), String.Join(Environment.NewLine, lines));
+                            EditorGUI.TextArea(GetNextRect(ref YPos, height: lines.Length * 15 + 2), String.Join(Environment.NewLine, lines));
                         }
                     }
 

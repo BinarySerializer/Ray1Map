@@ -1126,15 +1126,46 @@ namespace R1Engine
                         [GBAVV_Pointer.WorldMap_Crash2] = 0x081cd6bc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.CrashFusionGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x080a126c,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.CrashFusionGBAUS:
                     return new Dictionary<GBAVV_Pointer, uint>() {
                         [GBAVV_Pointer.LevelInfo] = 0x08087380,
                         [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.CrashFusionGBAJP:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0808a6e0,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SpyroFusionGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x08062b68,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.SpyroFusionGBAUS:
                     return new Dictionary<GBAVV_Pointer, uint>() {
                         [GBAVV_Pointer.LevelInfo] = 0x080628d8,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SpyroFusionGBAUS2:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x08062948,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SpyroFusionGBAJP:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x08064b48,
                         [GBAVV_Pointer.Map2D_Graphics] = 0x08000000, // Dummy pointer so the struct gets serialized
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 

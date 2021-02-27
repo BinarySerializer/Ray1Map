@@ -1,17 +1,20 @@
 ﻿namespace R1Engine
 {
-    // TODO: Support multi-language versions
     public class GBAVV_Fusion_LocalizedString : R1Serializable
     {
-        public Pointer LocalizationPointer { get; set; }
+        public Pointer[] LocalizationPointers { get; set; }
 
-        public GBAVV_LocalizedStringItem Item { get; set; }
+        public GBAVV_LocalizedStringItem[] Items { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            LocalizationPointer = s.SerializePointer(LocalizationPointer, name: nameof(LocalizationPointer));
+            LocalizationPointers = s.SerializePointerArray(LocalizationPointers, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).LanguagesCount, name: nameof(LocalizationPointers));
 
-            Item = s.DoAt(LocalizationPointer, () => s.SerializeObject<GBAVV_LocalizedStringItem>(Item, name: nameof(Item)));
+            if (Items == null)
+                Items = new GBAVV_LocalizedStringItem[LocalizationPointers.Length];
+
+            for (int i = 0; i < Items.Length; i++)
+                Items[i] = s.DoAt(LocalizationPointers[i], () => s.SerializeObject<GBAVV_LocalizedStringItem>(Items[i], name: $"{nameof(Items)}[{i}]"));
         }
 
         public class GBAVV_LocalizedStringItem : R1Serializable
