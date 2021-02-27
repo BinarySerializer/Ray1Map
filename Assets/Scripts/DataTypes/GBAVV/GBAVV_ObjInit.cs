@@ -7,7 +7,10 @@ namespace R1Engine
     {
         public static void InitObj(GameSettings settings, Unity_Object_GBAVV obj, short objType)
         {
-            bool isJp = settings.GameModeSelection == GameModeSelection.Crash1GBAJP || settings.GameModeSelection == GameModeSelection.Crash2GBAJP;
+            bool isJp = settings.GameModeSelection == GameModeSelection.Crash1GBAJP || 
+                        settings.GameModeSelection == GameModeSelection.Crash2GBAJP ||
+                        settings.GameModeSelection == GameModeSelection.CrashFusionGBAJP ||
+                        settings.GameModeSelection == GameModeSelection.SpyroFusionGBAJP;
 
             if (settings.EngineVersion == EngineVersion.GBAVV_Crash2)
             {
@@ -868,7 +871,7 @@ namespace R1Engine
                     Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
 
                 obj.AnimSetIndex = init.AnimSetIndex;
-                obj.AnimIndex = (byte)init.AnimIndex;
+                obj.AnimIndex = (byte)(isJp ? init.JPAnimIndex ?? init.AnimIndex : init.AnimIndex);
                 obj.ScriptIndex = obj.ObjManager.Scripts?.FindItemIndex(x => x.DisplayName == init.ScriptName) ?? -1;
             }
         }

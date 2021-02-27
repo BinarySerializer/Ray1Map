@@ -297,10 +297,10 @@ namespace R1Engine
             JsonHelpers.SerializeToFile(jsonObj, Path.Combine(outDir, $"{dirName.Substring(name.Length + 1)}.json"));
         }
 
-        public static void OutputGBAVVJSONLevelListForWeb(GameModeSelection mode)
+        public static void OutputGBAVVJSONLevelListForWeb(GameModeSelection mode, bool includeInternalName)
         {
             // Helper for getting a line
-            string getLine(int world, int level, string nameInternal, string name) => $"    {{ \"world\": {world}, \"level\": {level}, \"nameInternal\": \"{nameInternal}\", \"name\": \"{name}\" }},";
+            string getLine(int world, int level, string nameInternal, string name) => $"    {{ \"world\": {world}, \"level\": {level}, \"nameInternal\": \"{(includeInternalName ? nameInternal : null)}\", \"name\": \"{name}\" }},";
 
             StringBuilder str = new StringBuilder();
 

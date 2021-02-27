@@ -650,5 +650,15 @@
                 default: return Unity_MapCollisionTypeGraphic.Unknown0;
             }
         }
+
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this Gameloft_RRR_CollisionType collisionType) {
+            switch (collisionType) 
+            {
+                case Gameloft_RRR_CollisionType.None: return Unity_MapCollisionTypeGraphic.None;
+                case Gameloft_RRR_CollisionType.Solid: return Unity_MapCollisionTypeGraphic.Solid;
+                case Gameloft_RRR_CollisionType.Hangable: return Unity_MapCollisionTypeGraphic.Solid_Hangable;
+                default: return Unity_MapCollisionTypeGraphic.Unknown0;
+            }
+        }
     }
 }

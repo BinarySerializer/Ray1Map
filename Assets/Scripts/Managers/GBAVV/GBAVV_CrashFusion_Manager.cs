@@ -168,8 +168,8 @@ namespace R1Engine
             new ObjTypeInit(6, 118, null), // 9
             new ObjTypeInit(13, 5, null), // 10
             new ObjTypeInit(8, 23, null), // 11
-            new ObjTypeInit(8, 9, null), // 12
-            new ObjTypeInit(8, 17, null), // 13
+            new ObjTypeInit(8, 9, null, 10), // 12
+            new ObjTypeInit(8, 17, null, 22), // 13
             new ObjTypeInit(8, 3, null), // 14
             new ObjTypeInit(8, 4, null), // 15
             new ObjTypeInit(8, 35, null), // 16
@@ -183,7 +183,7 @@ namespace R1Engine
             new ObjTypeInit(8, 31, null), // 24
             new ObjTypeInit(8, 38, null), // 25
             new ObjTypeInit(8, 23, null), // 26
-            new ObjTypeInit(8, 9, null), // 27
+            new ObjTypeInit(8, 9, null, 10), // 27
             new ObjTypeInit(8, 31, null), // 28
             new ObjTypeInit(8, 7, null), // 29
             new ObjTypeInit(8, 24, null), // 30
@@ -294,7 +294,7 @@ namespace R1Engine
             new ObjTypeInit(0, 72, "lavaSpurtSpawnerScript"), // 135
             new ObjTypeInit(0, 74, "lavaSpurtScript"), // 136
             new ObjTypeInit(0, 85, "electricWallScript"), // 137
-            new ObjTypeInit(8, 36, "nitroScript"), // 138
+            new ObjTypeInit(8, 36, "nitroScript", 43), // 138
             new ObjTypeInit(0, 165, "mineStartScript"), // 139
             new ObjTypeInit(0, 79, "floorSpikesWhackerScript"), // 140
             new ObjTypeInit(0, 210, "wallPiece2Script"), // 141
@@ -399,7 +399,7 @@ namespace R1Engine
             new ObjTypeInit(12, 37, null), // 240
             new ObjTypeInit(6, 121, null), // 241
             new ObjTypeInit(4, 29, "globalController"), // 242
-            new ObjTypeInit(-1, -1, null), // 243
+            new ObjTypeInit(5, 9, null), // 243
         };
 
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands { get; } = new Dictionary<int, GBAVV_ScriptCommand.CommandType>()
