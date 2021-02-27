@@ -252,6 +252,8 @@ namespace R1Engine
 				localization: LoadLocalization(context),
 				defaultMap: 1,
 				defaultCollisionMap: 2,
+				getCollisionTypeGraphicFunc: x => ((Gameloft_RRR_CollisionType)x).GetCollisionTypeGraphic(),
+				getCollisionTypeNameFunc: x => ((Gameloft_RRR_CollisionType)x).ToString(),
                 cellSize: (int)maps[0].TileSet[0].Tiles[0].rect.width);
 		}
 	}
