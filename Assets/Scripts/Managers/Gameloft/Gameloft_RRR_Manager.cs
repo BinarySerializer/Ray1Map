@@ -236,10 +236,12 @@ namespace R1Engine
 
 			// Set palette index for loops
 			var world = GetWorldIndex(context.Settings, levelList);
-			if (world == 2) {
-				foreach (var uo in unityObjs) {
-					if (((Unity_Object_GameloftRRR)uo).Object.Type == 8) {
-						((Unity_Object_GameloftRRR)uo).PaletteIndex = 1;
+			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanRavingRabbidsMobile_208x208_s40v3) {
+				if (world == 2) {
+					foreach (var uo in unityObjs) {
+						if (((Unity_Object_GameloftRRR)uo).Object.Type == 8) {
+							((Unity_Object_GameloftRRR)uo).PaletteIndex = 1;
+						}
 					}
 				}
 			}

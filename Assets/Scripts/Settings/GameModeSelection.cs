@@ -414,11 +414,32 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]
         RaymanRavingRabbidsMobile_128x128_s40v2,
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, cz)", typeof(Gameloft_RRR_128x128_cz_Manager))]
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, CZ)", typeof(Gameloft_RRR_128x128_cz_Manager))]
         RaymanRavingRabbidsMobile_128x128_CZ,
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, low res)", typeof(Gameloft_RRR_Manager))]
-        RaymanRavingRabbidsMobile_LowRes,
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, Motorola)", typeof(Gameloft_RRR_Manager))]
+        RaymanRavingRabbidsMobile_128x128_Motorola,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x160, s40v2a)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]
+        RaymanRavingRabbidsMobile_128x160_s40v2a,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x160, Samsung SGH-J700/X660)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]
+        RaymanRavingRabbidsMobile_128x160_SamsungX660,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x160, Samsung E360/E370)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]
+        RaymanRavingRabbidsMobile_128x160_SamsungE360,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x160, Sony Ericsson)", typeof(Gameloft_RRR_Manager))]
+        RaymanRavingRabbidsMobile_128x160_SonyEricsson,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 176x208, s60v1)", typeof(Gameloft_RRR_Manager))]
+        RaymanRavingRabbidsMobile_176x208_s60v1,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 176x208, s60v2)", typeof(Gameloft_RRR_Manager))]
+        RaymanRavingRabbidsMobile_176x208_s60v2,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 208x208, s40v3)", typeof(Gameloft_RRR_Manager))]
+        RaymanRavingRabbidsMobile_208x208_s40v3,
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, high res)", typeof(Gameloft_RRRHighRes_Manager))]
         RaymanRavingRabbidsMobile_HighRes,

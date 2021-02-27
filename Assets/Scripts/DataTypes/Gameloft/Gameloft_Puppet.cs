@@ -31,6 +31,13 @@ namespace R1Engine
 		public bool HasImages => (Header[2] & 0x2) != 0;
 		public bool HasImageBuffer => (Header[5] & 0x20) != 0;
 
+		public static bool UseImageData(GameSettings s) {
+			return s.GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x128_s40v2 ||
+				s.GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x160_s40v2a ||
+				s.GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x160_SamsungX660 || 
+				s.GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x160_SamsungE360;
+		}
+
 		public override void SerializeImpl(SerializerObject s) {
 			Header = s.SerializeArray<byte>(Header, 6, name: nameof(Header));
 			ImagesCount = s.Serialize<ushort>(ImagesCount, name: nameof(ImagesCount));
@@ -50,7 +57,7 @@ namespace R1Engine
 			Animations = s.SerializeObjectArray<Animation>(Animations, AnimationsCount, name: nameof(Animations));
 
 			if (ImagesCount > 0) {
-				if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x128_s40v2) {
+				if (UseImageData(s.GameSettings)) {
 					ImageDataLength = s.Serialize<ushort>(ImageDataLength, name: nameof(ImageDataLength));
 					if(ImageDataLength > 0) {
 						ImageData = s.SerializeObject<ImageBlock>(ImageData, name: nameof(ImageData));
@@ -107,7 +114,7 @@ namespace R1Engine
 				if (HasPalette) {
 					Palette = s.Serialize<byte>(Palette, name: nameof(Palette));
 				}
-				if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x128_s40v2 && HasImageOffset) {
+				if (UseImageData(s.GameSettings) && HasImageOffset) {
 					XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
 					YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
 				}
