@@ -399,7 +399,7 @@ namespace R1Engine
             new ObjTypeInit(12, 37, null), // 240
             new ObjTypeInit(6, 121, null), // 241
             new ObjTypeInit(4, 29, "globalController"), // 242
-            new ObjTypeInit(-1, -1, null), // 243
+            new ObjTypeInit(5, 9, null), // 243
         };
 
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands { get; } = new Dictionary<int, GBAVV_ScriptCommand.CommandType>()

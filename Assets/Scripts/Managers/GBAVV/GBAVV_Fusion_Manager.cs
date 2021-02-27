@@ -17,6 +17,7 @@ namespace R1Engine
             //LogLevelInfos(FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]));
             //LogObjTypeInit(context.Deserializer);
             //LogObjTypeInit(context.Deserializer, new ObjTypeInitCreation[0]);
+            //await LogInvalidObjTypesAsync(context.Settings);
             return base.LoadAsync(context, loadTextures);
         }
 
@@ -238,6 +239,45 @@ namespace R1Engine
                 var animIndex = animSets.ElementAtOrDefault(animSetIndex)?.Animations.FindItemIndex(x => x.Offset.AbsoluteOffset == t.AnimPointer) ?? -1;
 
                 str.AppendLine($"new ObjTypeInit({animSetIndex}, {animIndex}, null), // {t.ObjType}");
+            }
+
+            str.ToString().CopyToClipboard();
+        }
+
+        public async UniTask LogInvalidObjTypesAsync(GameSettings settings)
+        {
+            var data = Enumerable.Range(0, ObjTypesCount).Select(x => new HashSet<int>()).ToArray();
+
+            for (int i = 0; i < LevInfos.Length; i++)
+            {
+                settings.Level = i;
+
+                using (var context = new Context(settings))
+                {
+                    await LoadFilesAsync(context);
+
+                    var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+                    var objects = rom.CurrentWorldMapData.ObjData?.GetObjects;
+
+                    if (objects == null)
+                        continue;
+
+                    foreach (var obj in objects)
+                    {
+                        var init = ObjTypeInitInfos[obj.ObjType];
+
+                        if (init.AnimIndex == -1)
+                            data[obj.ObjType].Add(i);
+                    }
+                }
+            }
+
+            var str = new StringBuilder();
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (data[i].Any())
+                    str.AppendLine($"{i:000}: {String.Join(", ", data[i].Select(x => LevInfos[x].LevelIndex))} ({String.Join(", ", data[i].Select(x => LevInfos[x].DisplayName))})");
             }
 
             str.ToString().CopyToClipboard();

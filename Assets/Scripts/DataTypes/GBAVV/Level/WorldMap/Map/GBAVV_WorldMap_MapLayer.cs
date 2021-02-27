@@ -9,7 +9,8 @@ namespace R1Engine
         public uint LayerPrio { get; set; }
         public uint ScrollX { get; set; }
         public uint ScrollY { get; set; }
-        public uint Uint_14 { get; set; }
+        public ushort Ushort_14 { get; set; }
+        public ushort Ushort_16 { get; set; }
 
         // Serialized from pointers
 
@@ -23,7 +24,8 @@ namespace R1Engine
             LayerPrio = s.Serialize<uint>(LayerPrio, name: nameof(LayerPrio));
             ScrollX = s.Serialize<uint>(ScrollX, name: nameof(ScrollX));
             ScrollY = s.Serialize<uint>(ScrollY, name: nameof(ScrollY));
-            Uint_14 = s.Serialize<uint>(Uint_14, name: nameof(Uint_14));
+            Ushort_14 = s.Serialize<ushort>(Ushort_14, name: nameof(Ushort_14));
+            Ushort_16 = s.Serialize<ushort>(Ushort_16, name: nameof(Ushort_16));
 
             TileMap = s.DoAt(TileMapPointer, () => s.SerializeObject<GBAVV_Isometric_MapLayer>(TileMap, x => x.IsWorldMap = true, name: nameof(TileMap)));
 

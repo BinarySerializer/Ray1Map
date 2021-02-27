@@ -212,7 +212,7 @@ namespace R1Engine
             new ObjTypeInit(1, 123, "bunny"), // 98
             new ObjTypeInit(1, 130, "sheepShoot"), // 99
             new ObjTypeInit(1, 53, "sheepRun"), // 100
-            new ObjTypeInit(-1, -1, null), // 101
+            new ObjTypeInit(1, 45, "sheepChaseSpawn"), // 101
             new ObjTypeInit(1, 76, "walkerLabAssFloater"), // 102
             new ObjTypeInit(1, 132, null), // 103
             new ObjTypeInit(13, 0, "genericNPC"), // 104
@@ -379,17 +379,17 @@ namespace R1Engine
             new ObjTypeInit(21, 41, null), // 265
             new ObjTypeInit(21, 52, "chaseWall"), // 266
             new ObjTypeInit(21, 46, "topDownPortalFail"), // 267
-            new ObjTypeInit(-1, -1, null), // 268
+            new ObjTypeInit(4, 20, null), // 268
             new ObjTypeInit(4, 29, "breakoutRhynocScript"), // 269
-            new ObjTypeInit(-1, -1, null), // 270
+            new ObjTypeInit(4, 37, null), // 270
             new ObjTypeInit(4, 26, "breakoutLabAssShooterScript"), // 271
             new ObjTypeInit(4, 40, "breakoutRhynocShieldScript"), // 272
             new ObjTypeInit(4, 35, "breakoutLabAssProjectileScript"), // 273
             new ObjTypeInit(4, 29, "breakoutLabAssScript"), // 274
             new ObjTypeInit(4, 43, "breakoutRhynocBallScript"), // 275
-            new ObjTypeInit(-1, -1, null), // 276
+            new ObjTypeInit(-1, -1, null), // 276 // Appears in most levels - Sparx?
             new ObjTypeInit(4, 29, "globalController"), // 277
-            new ObjTypeInit(-1, -1, null), // 278
+            new ObjTypeInit(6, 9, null), // 278
             new ObjTypeInit(15, 7, null), // 279
             new ObjTypeInit(1, 137, "bouncySheep"), // 280
             new ObjTypeInit(24, 26, null), // 281
