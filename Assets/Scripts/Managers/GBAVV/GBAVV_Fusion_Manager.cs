@@ -305,16 +305,18 @@ namespace R1Engine
 
         public class ObjTypeInit
         {
-            public ObjTypeInit(int animSetIndex, int animIndex, string scriptName)
+            public ObjTypeInit(int animSetIndex, int animIndex, string scriptName, int? jpAnimIndex = null)
             {
                 AnimSetIndex = animSetIndex;
                 AnimIndex = animIndex;
                 ScriptName = scriptName;
+                JPAnimIndex = jpAnimIndex;
             }
 
             public int AnimSetIndex { get; }
             public int AnimIndex { get; }
             public string ScriptName { get; }
+            public int? JPAnimIndex { get; }
         }
     }
 }
