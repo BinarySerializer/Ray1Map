@@ -220,6 +220,17 @@
 						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/crash2_us" },
 						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "gba_crash/crash2_jp" }
 					]
+				},
+				{
+					"title": "Crash Bandicoot Purple: Ripto's Rampage",
+					"viewer": "ray1map",
+					"json": "gba_crash\/crash_fusion",
+					"image": ".\/img\/logo\/crash_fusion.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/crash_fusion_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/crash_fusion_us" },
+						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "gba_crash/crash_fusion_jp" }
+					]
 				}
 			]
 		},
@@ -244,6 +255,18 @@
 					"versions": [
 						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_isometric/spyro3_eu" },
 						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_isometric/spyro3_us" }
+					]
+				},
+				{
+					"title": "Spyro Orange: The Cortex Conspiracy",
+					"viewer": "ray1map",
+					"json": "gba_crash\/spyro_fusion",
+					"image": ".\/img\/logo\/spyro_fusion.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/spyro_fusion_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US 1)", "folder": "gba_crash/spyro_fusion_us1" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US 2)", "folder": "gba_crash/spyro_fusion_us2" },
+						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "gba_crash/spyro_fusion_jp" }
 					]
 				}
 			]
