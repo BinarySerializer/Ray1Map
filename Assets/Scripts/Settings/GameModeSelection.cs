@@ -441,11 +441,17 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 208x208, s40v3)", typeof(Gameloft_RRR_Manager))]
         RaymanRavingRabbidsMobile_208x208_s40v3,
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, high res)", typeof(Gameloft_RRRHighRes_Manager))]
-        RaymanRavingRabbidsMobile_HighRes,
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 240x320, s40v3a)", typeof(Gameloft_RRRHighRes_Manager))]
+        RaymanRavingRabbidsMobile_240x320_s40v3a,
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 240x400)", typeof(Gameloft_RRRHighRes_Manager))]
-        RaymanRavingRabbidsMobile_240x400,
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 240x320, Samsung SGH-F400)", typeof(Gameloft_RRRHighRes_Manager))]
+        RaymanRavingRabbidsMobile_240x320_SamsungF400,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 240x320, Samsung SGH-D900)", typeof(Gameloft_RRRHighRes_Manager))]
+        RaymanRavingRabbidsMobile_240x320_SamsungD900,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 240x320, Samsung SGH-F480V)", typeof(Gameloft_RRRHighRes_Manager))]
+        RaymanRavingRabbidsMobile_240x320_SamsungF480V,
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 128x160)", typeof(Gameloft_RK_128x160_Manager))]
         RaymanKartMobile_128x160,
