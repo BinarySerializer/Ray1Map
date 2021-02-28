@@ -11,12 +11,6 @@
     },
     {
       "world": 0,
-      "level": 1,
-      "nameInternal": "l0a02",
-      "name": "Jungle 2"
-    },
-    {
-      "world": 0,
       "level": 2,
       "nameInternal": "l0a03",
       "name": "Jungle 3"
