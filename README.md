@@ -629,6 +629,32 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
   </tr>
 </table>
 
+### Supported Games (Gameloft)
+
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman Raving Rabbids (Mobile)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman Kart (Mobile)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+</table>
+
 ## Get Started
 NOTE: This project is currently in its early stages and may be unstable. Saving edits may corrupt your files for certain games, so make sure to back up your files first!
 
