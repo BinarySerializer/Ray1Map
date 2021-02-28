@@ -381,14 +381,21 @@ namespace R1Engine
 		}
 
 		public Mesh GetObject3DMesh(Gameloft_RK_Level.Object3D o, Gameloft_RK_Level.TrackBlock trkblk = null, bool flipX = false) {
-			Mesh m = new Mesh();
 			Color currentColor = Color.white;
 			int curCount = 0;
-			List<Vector3> vertices = new List<Vector3>();
-			List<int> triangles = new List<int>();
-			List<Color> colors = new List<Color>();
+			MeshInProgress mesh = new MeshInProgress($"3D Object {o.Offset}");
 			Vector3 pt0, pt1, pt2;
-			int curTri = 0;
+			Vector3 pt0n, pt1n, pt2n;
+			int curShape = 0;
+			Vector3 nextPos = Vector3.forward;
+			Quaternion nextAngle = Quaternion.identity;
+			var zMultiplier = 1000f;
+			var curShapeMultiplier = 0.1f;
+			if (trkblk != null) {
+				var heightMultiplier = 0.025f;
+				nextPos = new Vector3(0, trkblk.DeltaHeight * heightMultiplier, 1f);
+				nextAngle = Quaternion.Euler(0, trkblk.DeltaRotation * (flipX ? 1 : -1), 0);
+			}
 
 
 			foreach (var c in o.Commands) {
@@ -397,95 +404,105 @@ namespace R1Engine
 						currentColor = c.Color.GetColor();
 						break;
 					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawTriangle:
-						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri + c.Positions[0].Z * 10000);
-						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri + c.Positions[1].Z * 10000);
-						pt2 = new Vector3(c.Positions[2].X, c.Positions[2].Y, curTri + c.Positions[2].Z * 10000);
-						vertices.Add(pt0 / 1000f);
-						vertices.Add(pt2 / 1000f);
-						vertices.Add(pt1 / 1000f);
+						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curShape * curShapeMultiplier);
+						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curShape * curShapeMultiplier);
+						pt2 = new Vector3(c.Positions[2].X, c.Positions[2].Y, curShape * curShapeMultiplier);
+						pt0n = zMultiplier * nextPos + nextAngle * new Vector3(c.Positions[0].X, c.Positions[0].Y, curShape * curShapeMultiplier);
+						pt1n = zMultiplier * nextPos + nextAngle * new Vector3(c.Positions[1].X, c.Positions[1].Y, curShape * curShapeMultiplier);
+						pt2n = zMultiplier * nextPos + nextAngle * new Vector3(c.Positions[2].X, c.Positions[2].Y, curShape * curShapeMultiplier);
+						pt0 = Vector3.LerpUnclamped(pt0, pt0n, c.Positions[0].Z);
+						pt1 = Vector3.LerpUnclamped(pt1, pt1n, c.Positions[1].Z);
+						pt2 = Vector3.LerpUnclamped(pt2, pt2n, c.Positions[2].Z);
+						mesh.vertices.Add(pt0 / 1000f);
+						mesh.vertices.Add(pt2 / 1000f);
+						mesh.vertices.Add(pt1 / 1000f);
 						//Controller.print(expectedNormal);
-						colors.Add(currentColor);
-						colors.Add(currentColor);
-						colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
 
 						// Clockwise winding order
 						Vector3 expectedNormal = Vector3.Cross(pt1 - pt0, pt2 - pt1);
 						if (expectedNormal.z >= 0) {
-							triangles.Add(curCount);
-							triangles.Add(curCount + 1);
-							triangles.Add(curCount + 2);
+							mesh.triangles.Add(curCount);
+							mesh.triangles.Add(curCount + 1);
+							mesh.triangles.Add(curCount + 2);
 							// Back
-							triangles.Add(curCount);
-							triangles.Add(curCount + 2);
-							triangles.Add(curCount + 1);
+							mesh.triangles.Add(curCount);
+							mesh.triangles.Add(curCount + 2);
+							mesh.triangles.Add(curCount + 1);
 						} else {
-							triangles.Add(curCount);
-							triangles.Add(curCount + 2);
-							triangles.Add(curCount + 1);
+							mesh.triangles.Add(curCount);
+							mesh.triangles.Add(curCount + 2);
+							mesh.triangles.Add(curCount + 1);
 							// Back
-							triangles.Add(curCount);
-							triangles.Add(curCount + 1);
-							triangles.Add(curCount + 2);
+							mesh.triangles.Add(curCount);
+							mesh.triangles.Add(curCount + 1);
+							mesh.triangles.Add(curCount + 2);
 						}
 						curCount += 3;
-						curTri -= 1;
+						curShape -= 1;
 						break;
 					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawLine:
-						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curTri + c.Positions[0].Z * 10000);
-						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curTri + c.Positions[1].Z * 10000);
+						pt0 = new Vector3(c.Positions[0].X, c.Positions[0].Y, curShape * curShapeMultiplier);
+						pt1 = new Vector3(c.Positions[1].X, c.Positions[1].Y, curShape * curShapeMultiplier);
+						pt0n = zMultiplier * nextPos + nextAngle * new Vector3(c.Positions[0].X, c.Positions[0].Y, curShape * curShapeMultiplier);
+						pt1n = zMultiplier * nextPos + nextAngle * new Vector3(c.Positions[1].X, c.Positions[1].Y, curShape * curShapeMultiplier);
+						pt0 = Vector3.LerpUnclamped(pt0, pt0n, c.Positions[0].Z);
+						pt1 = Vector3.LerpUnclamped(pt1, pt1n, c.Positions[1].Z);
 						var diff = pt1 - pt0;
 						var lineThickness = (Quaternion.Euler(0, 0, 90) * diff).normalized * 5;
 						if (lineThickness.x == 0 && lineThickness.y == 0) {
 							lineThickness = new Vector3(1,1,0) * 5f;
 						}
-						vertices.Add((pt0 - lineThickness) / 1000f);
-						vertices.Add((pt0 + lineThickness) / 1000f);
-						vertices.Add((pt1 - lineThickness) / 1000f);
-						vertices.Add((pt1 + lineThickness) / 1000f);
-						colors.Add(currentColor);
-						colors.Add(currentColor);
-						colors.Add(currentColor);
-						colors.Add(currentColor);
-						triangles.Add(curCount);
-						triangles.Add(curCount + 1);
-						triangles.Add(curCount + 2);
-						triangles.Add(curCount + 1);
-						triangles.Add(curCount + 3);
-						triangles.Add(curCount + 2);
+						mesh.vertices.Add((pt0 - lineThickness) / 1000f);
+						mesh.vertices.Add((pt0 + lineThickness) / 1000f);
+						mesh.vertices.Add((pt1 - lineThickness) / 1000f);
+						mesh.vertices.Add((pt1 + lineThickness) / 1000f);
+						mesh.colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
+						mesh.triangles.Add(curCount);
+						mesh.triangles.Add(curCount + 1);
+						mesh.triangles.Add(curCount + 2);
+						mesh.triangles.Add(curCount + 1);
+						mesh.triangles.Add(curCount + 3);
+						mesh.triangles.Add(curCount + 2);
 						// Backfaces
-						triangles.Add(curCount);
-						triangles.Add(curCount + 2);
-						triangles.Add(curCount + 1);
-						triangles.Add(curCount + 1);
-						triangles.Add(curCount + 2);
-						triangles.Add(curCount + 3);
-						curTri -= 1;
+						mesh.triangles.Add(curCount);
+						mesh.triangles.Add(curCount + 2);
+						mesh.triangles.Add(curCount + 1);
+						mesh.triangles.Add(curCount + 1);
+						mesh.triangles.Add(curCount + 2);
+						mesh.triangles.Add(curCount + 3);
+						curShape -= 1;
 						curCount += 4;
 						break;
 					case Gameloft_RK_Level.Object3D.Command.CommandType.DrawRectangle:
-						vertices.Add(new Vector3(c.Rectangle.X, c.Rectangle.Y, curTri) / 1000f);
-						vertices.Add(new Vector3(c.Rectangle.X, c.Rectangle.Y + c.Rectangle.Height, curTri) / 1000f);
-						vertices.Add(new Vector3(c.Rectangle.X + c.Rectangle.Width, c.Rectangle.Y, curTri) / 1000f);
-						vertices.Add(new Vector3(c.Rectangle.X + c.Rectangle.Width, c.Rectangle.Y + c.Rectangle.Height, curTri) / 1000f);
-						colors.Add(currentColor);
-						colors.Add(currentColor);
-						colors.Add(currentColor);
-						colors.Add(currentColor);
-						triangles.Add(curCount);
-						triangles.Add(curCount + 1);
-						triangles.Add(curCount + 2);
-						triangles.Add(curCount + 1);
-						triangles.Add(curCount + 3);
-						triangles.Add(curCount + 2);
+						mesh.vertices.Add(new Vector3(c.Rectangle.X, c.Rectangle.Y, curShape * curShapeMultiplier) / 1000f);
+						mesh.vertices.Add(new Vector3(c.Rectangle.X, c.Rectangle.Y + c.Rectangle.Height, curShape * curShapeMultiplier) / 1000f);
+						mesh.vertices.Add(new Vector3(c.Rectangle.X + c.Rectangle.Width, c.Rectangle.Y, curShape * curShapeMultiplier) / 1000f);
+						mesh.vertices.Add(new Vector3(c.Rectangle.X + c.Rectangle.Width, c.Rectangle.Y + c.Rectangle.Height, curShape * curShapeMultiplier) / 1000f);
+						mesh.colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
+						mesh.colors.Add(currentColor);
+						mesh.triangles.Add(curCount);
+						mesh.triangles.Add(curCount + 1);
+						mesh.triangles.Add(curCount + 2);
+						mesh.triangles.Add(curCount + 1);
+						mesh.triangles.Add(curCount + 3);
+						mesh.triangles.Add(curCount + 2);
 						// Backfaces
-						triangles.Add(curCount);
-						triangles.Add(curCount + 2);
-						triangles.Add(curCount + 1);
-						triangles.Add(curCount + 1);
-						triangles.Add(curCount + 2);
-						triangles.Add(curCount + 3);
+						mesh.triangles.Add(curCount);
+						mesh.triangles.Add(curCount + 2);
+						mesh.triangles.Add(curCount + 1);
+						mesh.triangles.Add(curCount + 1);
+						mesh.triangles.Add(curCount + 2);
+						mesh.triangles.Add(curCount + 3);
 						curCount += 4;
-						curTri -= 1;
+						curShape -= 1;
 						break;
 					case Gameloft_RK_Level.Object3D.Command.CommandType.FillArc:
 						var arc = c.FillArc;
@@ -493,30 +510,32 @@ namespace R1Engine
 						Vector3[] verts = new Vector3[numSegments +1];
 						for (int i = 0; i < numSegments; i++) {
 							verts[i] = Quaternion.Euler(0, 0, arc.StartAngle + (i/(float)numSegments)*arc.ArcAngle) * Vector3.right;
-							triangles.Add(curCount);
-							triangles.Add(curCount + i + 1);
-							triangles.Add(curCount + i + 2);
-							triangles.Add(curCount);
-							triangles.Add(curCount + i + 2);
-							triangles.Add(curCount + i + 1);
+							mesh.triangles.Add(curCount);
+							mesh.triangles.Add(curCount + i + 1);
+							mesh.triangles.Add(curCount + i + 2);
+							mesh.triangles.Add(curCount);
+							mesh.triangles.Add(curCount + i + 2);
+							mesh.triangles.Add(curCount + i + 1);
 						}
+						curShape -= verts.Length;
 						verts[numSegments] = Quaternion.Euler(0, 0, arc.StartAngle + arc.ArcAngle) * Vector3.right;
-						var center = new Vector3(arc.XPosition + arc.Width / 2f, arc.YPosition + arc.Height / 2f, curTri) / 1000f;
+						var center = new Vector3(arc.XPosition + arc.Width / 2f, arc.YPosition + arc.Height / 2f, curShape * curShapeMultiplier) / 1000f;
 						var factor = new Vector3(arc.Width / 2f, arc.Height / 2f, 0) / 1000f;
-						vertices.Add(center);
-						colors.Add(currentColor);
+						mesh.vertices.Add(center);
+						mesh.colors.Add(currentColor);
 						foreach (var vert in verts) {
-							vertices.Add(center + Vector3.Scale(factor, vert));
-							colors.Add(currentColor);
+							mesh.vertices.Add(center + Vector3.Scale(factor, vert));
+							mesh.colors.Add(currentColor);
 						}
 						curCount += verts.Length + 1;
-						curTri -= 1;
+						curShape -= verts.Length;
 						break;
 				}
 			}
-			m.SetVertices(vertices);
-			m.SetColors(colors);
-			m.SetTriangles(triangles, 0);
+			Mesh m = new Mesh();
+			m.SetVertices(mesh.vertices);
+			m.SetColors(mesh.colors);
+			m.SetTriangles(mesh.triangles, 0);
 			m.RecalculateNormals();
 			return m;
 		}
@@ -584,7 +603,7 @@ namespace R1Engine
 						MeshRenderer mr = gao.AddComponent<MeshRenderer>();
 						gao.layer = LayerMask.NameToLayer("3D Collision");
 						gao.transform.SetParent(gp.transform);
-						gao.transform.localScale = new Vector3(blk.FlipX ? -1 : 1, 1, 0.1f);
+						gao.transform.localScale = new Vector3(blk.FlipX ? -1 : 1, 1, 1f);
 						gao.transform.localRotation = Quaternion.Euler(0, curAngle, 0);
 						gao.transform.localPosition = sphere.transform.position;
 						mf.mesh = m;
