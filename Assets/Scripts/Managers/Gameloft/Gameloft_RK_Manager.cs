@@ -110,6 +110,7 @@ namespace R1Engine
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.Settings), context);
 			var roads = new MeshInProgress[level.Types.Length][];
 			Dictionary<int, Texture2D> textures = new Dictionary<int, Texture2D>();
+			Dictionary<int, bool> textureIsTransparent = new Dictionary<int, bool>();
 			for (int i = 0; i < level.Types.Length; i++) {
 				var roadTex0 = context.Settings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240 ? level.Types[i].RoadTexture0 : level.RoadTextureID_0;
 				var roadTex1 = context.Settings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240 ? level.Types[i].RoadTexture1 : level.RoadTextureID_1;
@@ -125,6 +126,26 @@ namespace R1Engine
 				roads[i] = new MeshInProgress[2];
 				roads[i][0] = new MeshInProgress($"Road Type {i} - 0", textures[roadTex0]);
 				roads[i][1] = new MeshInProgress($"Road Type {i} - 1", textures[roadTex1]);
+				for(int j = 0; j < roads[i].Length; j++) {
+					var ogTex = roads[i][j].texture;
+					var roadTex = i == 0 ? roadTex0 : roadTex1;
+					if(textureIsTransparent.ContainsKey(roadTex) && textureIsTransparent[roadTex] == false) continue;
+					var pixels = ogTex.GetPixels();
+					bool corrected = false;
+					for (int p = 0; p < pixels.Length; p++) {
+						if (pixels[p].a < 1f) {
+							pixels[p] = level.Types[i].ColorGround.GetColor();
+							corrected = true;
+						}
+					}
+					if (corrected) {
+						var tex = TextureHelpers.CreateTexture2D(ogTex.width, ogTex.height);
+						tex.SetPixels(pixels);
+						tex.Apply();
+						roads[i][j].texture = tex;
+					}
+					textureIsTransparent[roadTex] = corrected;
+				}
 			}
 
 			Vector3 curPos = Vector3.zero;
