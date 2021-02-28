@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -310,6 +311,57 @@ namespace R1Engine
             {
                 var lev = manager.LevInfos[i];
                 str.AppendLine(getLine(0, i, lev.LevelIndex != -1 ? lev.LevelIndex.ToString() : null, lev.DisplayName));
+            }
+
+            str.ToString().CopyToClipboard();
+        }
+
+        public static async Task OutputGameloftRRRJSONForWebAsync(string dir)
+        {
+            var worlds = new string[]
+            {
+                "Jungle",
+                "Desert",
+                "Ship"
+            };
+
+            var str = new StringBuilder();
+
+            foreach (var mode in EnumHelpers.GetValues<GameModeSelection>().Where(x => x.ToString().StartsWith("RaymanRavingRabbidsMobile_")))
+            {
+                var values = mode.ToString().Split('_');
+
+                var worldCounts = new int[worlds.Length];
+
+                using (var context = new Context(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
+                {
+                    var m = (Gameloft_RRR_Manager)context.Settings.GetGameManager;
+                    await m.LoadFilesAsync(context);
+                    var levels = m.LoadLevelList(context);
+
+                    var attr = mode.GetAttribute<GameModeAttribute>();
+
+                    var folder = $"gameloft/rrr_{values[1]}_{values[2]}";
+
+                    var jsonObj = new
+                    {
+                        name = attr.DisplayName.ReplaceFirst(", ", " - "),
+                        mode = mode.ToString(),
+                        folder = folder,
+                        levels = levels.Levels.Select((lvl, i) => new
+                        {
+                            world = 0,
+                            level = i,
+                            nameInternal = m.GetLevelPath(i),
+                            name = $"{worlds[lvl.World]} {++worldCounts[lvl.World]}"
+                        }).ToArray()
+                    };
+
+                    var fileName = $"gameloft_{values[1]}_{values[2]}";
+                    JsonHelpers.SerializeToFile(jsonObj, Path.Combine(dir, fileName + ".json"));
+
+                    str.AppendLine($"{{ \"json\": \"{fileName}\", \"image\": \".\\/img\\/version\\/mobile.png\", \"name\": \"Mobile ({values[1]}, {values[2]})\", \"folder\": \"{folder}\" }},");
+                }
             }
 
             str.ToString().CopyToClipboard();

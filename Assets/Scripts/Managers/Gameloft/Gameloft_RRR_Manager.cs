@@ -82,7 +82,8 @@ namespace R1Engine
 			return levelList.Levels[settings.Level].World;
 		}
 
-		public string GetLevelPath(GameSettings settings) => $"l0a0{settings.Level+1}";
+		public string GetLevelPath(GameSettings settings) => GetLevelPath(settings.Level);
+		public string GetLevelPath(int level) => $"l0a0{level + 1}";
 		public string GetBackgroundTileSetPath(GameSettings settings, Gameloft_RRR_LevelList levelList) => $"ts{GetWorldIndex(settings, levelList)}";
 		public string GetForegroundTileSetPath(GameSettings settings, Gameloft_RRR_LevelList levelList) => $"t{GetWorldIndex(settings, levelList)}";
 		public string GetPuppetPath(int i) => i >= 0 ?  $"s{i}" : "s";

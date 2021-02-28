@@ -191,7 +191,21 @@
 					"image": ".\/img\/logo\/rrr.png",
 					"versions": [
 						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_rrr/rrr_eu" },
-						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_rrr/rrr_us" }
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_rrr/rrr_us" },
+						{ "json": "gameloft_128x128_s40v2", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x128, s40v2)", "folder": "gameloft/rrr_128x128_s40v2" },
+                        { "json": "gameloft_128x128_CZ", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x128, CZ)", "folder": "gameloft/rrr_128x128_CZ" },
+                        { "json": "gameloft_128x128_Motorola", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x128, Motorola)", "folder": "gameloft/rrr_128x128_Motorola" },
+                        { "json": "gameloft_128x160_s40v2a", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x160, s40v2a)", "folder": "gameloft/rrr_128x160_s40v2a" },
+                        { "json": "gameloft_128x160_SamsungX660", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x160, SamsungX660)", "folder": "gameloft/rrr_128x160_SamsungX660" },
+                        { "json": "gameloft_128x160_SamsungE360", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x160, SamsungE360)", "folder": "gameloft/rrr_128x160_SamsungE360" },
+                        { "json": "gameloft_128x160_SonyEricsson", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x160, SonyEricsson)", "folder": "gameloft/rrr_128x160_SonyEricsson" },
+                        { "json": "gameloft_176x208_s60v1", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x208, s60v1)", "folder": "gameloft/rrr_176x208_s60v1" },
+                        { "json": "gameloft_176x208_s60v2", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x208, s60v2)", "folder": "gameloft/rrr_176x208_s60v2" },
+                        { "json": "gameloft_208x208_s40v3", "image": ".\/img\/version\/mobile.png", "name": "Mobile (208x208, s40v3)", "folder": "gameloft/rrr_208x208_s40v3" },
+                        { "json": "gameloft_240x320_s40v3a", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, s40v3a)", "folder": "gameloft/rrr_240x320_s40v3a" },
+                        { "json": "gameloft_240x320_SamsungF400", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, SamsungF400)", "folder": "gameloft/rrr_240x320_SamsungF400" },
+                        { "json": "gameloft_240x320_SamsungD900", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, SamsungD900)", "folder": "gameloft/rrr_240x320_SamsungD900" },
+                        { "json": "gameloft_240x320_SamsungF480V", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, SamsungF480V)", "folder": "gameloft/rrr_240x320_SamsungF480V" }
 					]
 				}
 			]
