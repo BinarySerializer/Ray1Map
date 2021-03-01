@@ -28,6 +28,11 @@ namespace R1Engine
             set => Object.YPosition = value;
         }
 
+        public int PuppetIndex {
+            get => Object.Type;
+            set => Object.Type = (short)value;
+        }
+
         public override string DebugText =>
             $"AnimIndex: {Object.AnimationIndex}{Environment.NewLine}" +
             $"ObjectID: {Object.ObjectID}{Environment.NewLine}" +
@@ -38,9 +43,9 @@ namespace R1Engine
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_{Object.Type}";
+        public override string PrimaryName => $"Type_{PuppetIndex}";
         public override string SecondaryName => PuppetData?.Name;
-        public Unity_ObjectManager_GameloftRRR.PuppetData PuppetData => ObjManager.Puppets.ElementAtOrDefault(Object.Type);
+        public Unity_ObjectManager_GameloftRRR.PuppetData PuppetData => ObjManager.Puppets.ElementAtOrDefault(PuppetIndex);
 
         public override bool FlipHorizontally => (Object.Flags & 1) == 1;
         public override bool FlipVertically => false;
@@ -63,7 +68,7 @@ namespace R1Engine
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? 0;
         public override int? GetAnimIndex => OverrideAnimIndex ?? Object.AnimationIndex;
         public int PaletteIndex { get; set; } = 0;
-        protected override int GetSpriteID => Object.Type + (PaletteIndex << 16);
+        protected override int GetSpriteID => PuppetIndex + (PaletteIndex << 16);
         public override IList<Sprite> Sprites => PuppetData?.Puppet?.Sprites[PaletteIndex];
 
 
@@ -75,18 +80,18 @@ namespace R1Engine
             private Unity_Object_GameloftRRR Obj { get; }
 
             public ushort Type {
-                get => (ushort)Obj.Object.Type;
-                set => Obj.Object.Type = (short)value;
+                get => (ushort)Obj.PuppetIndex;
+                set => Obj.PuppetIndex = value;
             }
 
             public int DES {
-                get => Obj.Object.Type;
-                set => Obj.Object.Type = (short)value;
+                get => Obj.PuppetIndex;
+                set => Obj.PuppetIndex = value;
             }
 
             public int ETA {
-                get => Obj.Object.Type;
-                set => Obj.Object.Type = (short)value;
+                get => Obj.PuppetIndex;
+                set => Obj.PuppetIndex = value;
             }
 
             public byte Etat {
@@ -119,7 +124,7 @@ namespace R1Engine
         #region UI States
 
         protected int UIStates_PuppetIndex { get; set; } = -2;
-        protected override bool IsUIStateArrayUpToDate => Object.Type == UIStates_PuppetIndex;
+        protected override bool IsUIStateArrayUpToDate => PuppetIndex == UIStates_PuppetIndex;
 
         protected class GameloftRRR_UIState : UIState
         {
@@ -143,7 +148,7 @@ namespace R1Engine
 
         protected override void RecalculateUIStates()
         {
-            UIStates_PuppetIndex = Object.Type;
+            UIStates_PuppetIndex = PuppetIndex;
 
             List<UIState> uiStates = new List<UIState>();
             int count = (PuppetData?.Puppet?.Animations?.Length ?? 0);

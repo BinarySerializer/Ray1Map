@@ -371,6 +371,18 @@ public class WebCommunicator : MonoBehaviour {
                             webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.Select((x, i) => i.ToString()).ToArray();
                     }
 					break;
+
+				case Unity_Object_GameloftRRR glRRRObj:
+					if (glRRRObj.PuppetIndex != -1) {
+						webObj.Gameloft_PuppetIndex = glRRRObj.PuppetIndex;
+						if(includeLists)
+							webObj.Gameloft_PuppetNames = glRRRObj.ObjManager.Puppets.Select((x,i) => x.DisplayName).ToArray();
+					}
+					webObj.GameloftRRR_ObjectID = glRRRObj.Object.ObjectID;
+					if (glRRRObj?.Object?.Shorts != null) {
+						webObj.GameloftRRR_ObjectParams = string.Join(",", glRRRObj.Object.Shorts);
+					}
+					break;
             }
 		}
 		return webObj;
@@ -714,6 +726,12 @@ public class WebCommunicator : MonoBehaviour {
 			case Unity_Object_GBAVVMode7 crashObj:
 				if (msg.GBAVV_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBAVV_AnimSetIndex.Value) {
                     crashObj.AnimSetIndex = msg.GBAVV_AnimSetIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GameloftRRR glRRRObj:
+				if (msg.Gameloft_PuppetIndex.HasValue && glRRRObj?.PuppetIndex != msg.Gameloft_PuppetIndex.Value) {
+					glRRRObj.PuppetIndex = msg.Gameloft_PuppetIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;

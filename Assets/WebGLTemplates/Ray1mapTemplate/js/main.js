@@ -897,6 +897,10 @@ function getObjVars(obj) {
 	// GBAVV
 	if(obj.hasOwnProperty("GBAVV_ObjParams")) objVars.push({"Name": "ObjParams", "Value": obj.GBAVV_ObjParams});
 
+	// GBAVV
+	if(obj.hasOwnProperty("GameloftRRR_ObjectID")) objVars.push({"Name": "ObjectID", "Value": obj.GameloftRRR_ObjectID});
+	if(obj.hasOwnProperty("GameloftRRR_ObjectParams")) objVars.push({"Name": "Parameters", "Value": obj.GameloftRRR_ObjectParams});
+
 	return objVars;
 }
 
@@ -1090,6 +1094,11 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 				fillSelectorList(graphicsSelector, obj.SNES_GraphicsGroupNames);
 				graphicsSelector.prop("selectedIndex", obj.SNES_GraphicsGroupIndex);
 				graphicsLabel.text("Graphics Group");
+			} else if(obj.hasOwnProperty("Gameloft_PuppetNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.Gameloft_PuppetNames);
+				graphicsSelector.prop("selectedIndex", obj.Gameloft_PuppetIndex);
+				graphicsLabel.text("Puppet");
 			}
 			if(obj.hasOwnProperty("R1_ETANames")) {
 				hasGraphics2 = true;
@@ -1125,6 +1134,9 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			} else if(obj.hasOwnProperty("SNES_GraphicsGroupNames")) {
 				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.SNES_GraphicsGroupIndex);
+			} else if(obj.hasOwnProperty("Gameloft_PuppetNames")) {
+				hasGraphics = true;
+				graphicsSelector.prop("selectedIndex", obj.Gameloft_PuppetIndex);
 			}
 			if(obj.hasOwnProperty("R1_ETANames")) {
 				hasGraphics2 = true;
@@ -1314,6 +1326,9 @@ function sendObject() {
 		} else if(currentObject.hasOwnProperty("SNES_GraphicsGroupNames")) {
 			jsonObj.Object.SNES_GraphicsGroupIndex = graphicsSelector.prop("selectedIndex");
 			graphicsSelector.prop("selectedIndex", currentObject.SNES_GraphicsGroupIndex);
+		} else if(currentObject.hasOwnProperty("Gameloft_PuppetNames")) {
+			jsonObj.Object.Gameloft_PuppetIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", currentObject.Gameloft_PuppetIndex);
 		}
 		if(currentObject.hasOwnProperty("R1_ETANames")) {
 			jsonObj.Object.R1_ETAIndex = graphics2Selector.prop("selectedIndex");
@@ -1443,6 +1458,11 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	// SNES
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupIndex")) oldObj.SNES_GraphicsGroupIndex = newObj.SNES_GraphicsGroupIndex;
 
+	// Gameloft
+	if(newObj.hasOwnProperty("Gameloft_PuppetIndex")) oldObj.Gameloft_PuppetIndex = newObj.Gameloft_PuppetIndex;
+	if(newObj.hasOwnProperty("GameloftRRR_ObjectParams")) oldObj.GameloftRRR_ObjectParams = newObj.GameloftRRR_ObjectParams;
+	if(newObj.hasOwnProperty("GameloftRRR_ObjectID")) oldObj.GameloftRRR_ObjectID = newObj.GameloftRRR_ObjectID;
+
 
 	// Lists
 	if(newObj.hasOwnProperty("StateNames")) oldObj.StateNames = newObj.StateNames;
@@ -1457,6 +1477,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBAVV_AnimSetNames")) oldObj.GBAVV_AnimSetNames = newObj.GBAVV_AnimSetNames;
 	if(newObj.hasOwnProperty("GBARRR_AnimationGroupNames")) oldObj.GBARRR_AnimationGroupNames = newObj.GBARRR_AnimationGroupNames;
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupNames")) oldObj.SNES_GraphicsGroupNames = newObj.SNES_GraphicsGroupNames;
+	if(newObj.hasOwnProperty("Gameloft_PuppetNames")) oldObj.Gameloft_PuppetNames = newObj.Gameloft_PuppetNames;
 }
 function handleMessage_selection(msg) {
 	let selection = msg;

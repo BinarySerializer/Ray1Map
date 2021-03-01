@@ -144,6 +144,12 @@ public class WebJSON {
 		public string GBAVV_ObjParams { get; set; }
 		public int? GBAVV_AnimSetIndex { get; set; }
 		public string[] GBAVV_AnimSetNames { get; set; }
+
+		// Gameloft RRR
+		public int? Gameloft_PuppetIndex { get; set; }
+		public string[] Gameloft_PuppetNames { get; set; }
+		public string GameloftRRR_ObjectParams { get; set; }
+		public int GameloftRRR_ObjectID { get; set; }
 	}
 	public class Layer {
 		public int Index { get; set; }
