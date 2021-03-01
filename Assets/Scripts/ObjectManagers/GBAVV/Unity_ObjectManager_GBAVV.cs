@@ -16,13 +16,32 @@ namespace R1Engine
             Scripts = scripts;
             AnimSetObjects = animSetObjects;
             DialogScripts = dialogScripts?.ToDictionary(x => x.ID, x => x.Script);
+
+            // Set indices if there are multiple array
+            if (MultipleAnimSetArrays)
+            {
+                var index = 0;
+                var lookup = new List<(int, int)>();
+
+                for (var graphicsIndex = 0; graphicsIndex < AnimSets.Length; graphicsIndex++)
+                {
+                    for (int animSetIndex = 0; animSetIndex < AnimSets[graphicsIndex].Length; animSetIndex++)
+                    {
+                        AnimSets[graphicsIndex][animSetIndex].Index = index++;
+                        lookup.Add((graphicsIndex, animSetIndex));
+                    }
+                }
+
+                AnimSetsLookupTable = lookup.ToArray();
+            }
         }
         
         public AnimSet[][] AnimSets { get; }
+        public (int, int)[] AnimSetsLookupTable { get; }
         public bool MultipleAnimSetArrays => AnimSets.Length > 1;
         public GBAVV_Map2D_ObjData ObjData { get; }
         public GBAVV_MapInfo.GBAVV_MapType MapType { get; }
-        public byte[][] ObjParams => ObjData.ObjParams;
+        public byte[][] ObjParams => ObjData?.ObjParams;
         public GBAVV_Script[] Scripts { get; }
         public GBAVV_Map2D_AnimSet[] AnimSetObjects { get; }
         public Dictionary<int, GBAVV_Script> DialogScripts { get; }
@@ -38,6 +57,7 @@ namespace R1Engine
             }
 
             public Animation[] Animations { get; }
+            public int Index { get; set; }
 
             public class Animation
             {

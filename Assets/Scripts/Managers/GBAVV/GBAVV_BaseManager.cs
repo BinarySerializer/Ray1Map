@@ -825,12 +825,13 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            // TODO: Objects
+            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart);
+            var objects = map.Objects_Normal.Select(x => new Unity_Object_GBAVVNitroKart(objManager, x));
 
             return new Unity_Level(
                 maps: maps,
-                objManager: new Unity_ObjectManager(context),
-                eventData: new List<Unity_Object>(),
+                objManager: objManager,
+                eventData: new List<Unity_Object>(objects),
                 cellSize: CellSize,
                 localization: LoadLocalization(rom));
         }
@@ -1735,23 +1736,23 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBAVV.AnimSet[][] LoadAnimSets(GBAVV_ROM rom)
         {
-            Unity_ObjectManager_GBAVV.AnimSet.Animation convertAnim(GBAVV_Map2D_AnimSet animSet, GBAVV_Map2D_Animation anim, int i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
-                animFrameFunc: () => GetAnimFrames(animSet, i, rom.Map2D_Graphics.FirstOrDefault()?.TileSet, rom.Map2D_Graphics.FirstOrDefault()?.Palettes).Select(frame => frame.CreateSprite()).ToArray(),
+            Unity_ObjectManager_GBAVV.AnimSet.Animation convertAnim(GBAVV_Map2D_Graphics graphics, GBAVV_Map2D_AnimSet animSet, GBAVV_Map2D_Animation anim, int i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
+                animFrameFunc: () => GetAnimFrames(animSet, i, graphics?.TileSet, graphics?.Palettes).Select(frame => frame.CreateSprite()).ToArray(),
                 crashAnim: anim,
                 xPos: animSet.GetMinX(i),
                 yPos: animSet.GetMinY(i)
             );
 
-            Unity_ObjectManager_GBAVV.AnimSet convertAnimSet(GBAVV_Map2D_AnimSet animSet) => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Animations.Select((anim, i) => convertAnim(animSet, anim, i)).ToArray());
+            Unity_ObjectManager_GBAVV.AnimSet convertAnimSet(GBAVV_Map2D_Graphics graphics, GBAVV_Map2D_AnimSet animSet) => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Animations.Select((anim, i) => convertAnim(graphics, animSet, anim, i)).ToArray());
 
-            var animSets = rom.Map2D_Graphics?.Select(graphics => graphics.AnimSets.Select(convertAnimSet).ToArray()).ToArray() ?? new Unity_ObjectManager_GBAVV.AnimSet[0][];
+            var animSets = rom.Map2D_Graphics?.Select(graphics => graphics.AnimSets.Select(animSet => convertAnimSet(graphics, animSet)).ToArray()).ToArray() ?? new Unity_ObjectManager_GBAVV.AnimSet[0][];
 
             // Create an anim set for Fake Crash for Crash 2
             if (rom.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
             {
                 var crash = rom.Map2D_Graphics[0].AnimSets[0];
 
-                animSets[0] = animSets[0].Append(convertAnimSet(new GBAVV_Map2D_AnimSet
+                animSets[0] = animSets[0].Append(convertAnimSet(rom.Map2D_Graphics[0], new GBAVV_Map2D_AnimSet
                 {
                     Animations = crash.Animations.Select(x => new GBAVV_Map2D_Animation
                     {
