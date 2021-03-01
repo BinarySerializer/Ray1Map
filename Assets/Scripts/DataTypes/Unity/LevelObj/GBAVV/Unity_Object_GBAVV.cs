@@ -88,12 +88,25 @@ namespace R1Engine
         }
 
         public GBAVV_Script Script => ObjManager.Scripts?.ElementAtOrDefault(ScriptIndex);
-        public string[] GetTranslatedScript => Script?.TranslatedStringAll(ObjManager.AnimSetObjects).ToArray();
+        public GBAVV_Script DialogScript => ScriptHasDialog ? ObjManager.DialogScripts?.TryGetItem(ObjParams?.ElementAtOrDefault(8) ?? -1) : null;
+        public string ScriptName => DialogScript?.DisplayName ?? Script?.DisplayName;
+        public bool ScriptHasDialog => Script?.DisplayName == "genericNPC";
+        public string[] GetTranslatedScript
+        {
+            get
+            {
+                var list = Script?.TranslatedStringAll(ObjManager.AnimSetObjects);
+
+                DialogScript?.TranslatedStringAll(ObjManager.AnimSetObjects, list);
+
+                return list?.ToArray();
+            }
+        }
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => Script?.DisplayName != null ? $"{Script.DisplayName.Replace("Script", "")}" : $"Type_{(int)Object.ObjType}";
+        public override string PrimaryName => ScriptName != null ? $"{ScriptName.Replace("Script", "")}" : $"Type_{(int)Object.ObjType}";
         public override string SecondaryName
         {
             get

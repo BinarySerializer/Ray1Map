@@ -58,5 +58,7 @@
 
         WorldMap_Crash2,
         WorldMap_Crash1_LevelIcons,
+
+        FusionDialogScripts,
     }
 }

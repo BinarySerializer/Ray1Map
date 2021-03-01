@@ -774,7 +774,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics?.FirstOrDefault()?.AnimSets);
+            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics?.FirstOrDefault()?.AnimSets, rom.DialogScripts);
             var objects = new List<Unity_Object>();
 
             if (map.ObjData?.Objects != null)

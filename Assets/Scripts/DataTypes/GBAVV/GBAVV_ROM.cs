@@ -51,6 +51,7 @@ namespace R1Engine
         public GBAVV_LocTable[] LocTables { get; set; }
         public GBAVV_LevelInfo[] LevelInfos { get; set; }
         public GBAVV_Script[] Scripts { get; set; }
+        public GBAVV_DialogScript[] DialogScripts { get; set; }
 
         // 2D
         public GBAVV_Map2D_Graphics[] Map2D_Graphics { get; set; }
@@ -183,6 +184,8 @@ namespace R1Engine
 
                 for (int i = 0; i < pointers.Length; i++)
                     Scripts[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
+
+                DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.FusionDialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
             }
 
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Mode7)

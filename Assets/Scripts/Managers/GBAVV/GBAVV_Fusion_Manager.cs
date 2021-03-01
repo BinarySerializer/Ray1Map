@@ -289,6 +289,7 @@ namespace R1Engine
         public abstract uint[] AnimSetPointers { get; }
         public abstract uint[] ScriptPointers { get; }
         public abstract Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands { get; }
+        public abstract int DialogScriptsCount { get; }
         public virtual int LanguagesCount => 1;
 
         private class ObjTypeInitCreation

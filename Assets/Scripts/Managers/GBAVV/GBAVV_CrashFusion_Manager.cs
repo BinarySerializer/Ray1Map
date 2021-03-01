@@ -430,6 +430,7 @@ namespace R1Engine
             [1000] = GBAVV_ScriptCommand.CommandType.DialogPortrait
 
         };
+        public override int DialogScriptsCount => 48;
     }
 
     public class GBAVV_CrashFusionEU_Manager : GBAVV_CrashFusion_Manager
