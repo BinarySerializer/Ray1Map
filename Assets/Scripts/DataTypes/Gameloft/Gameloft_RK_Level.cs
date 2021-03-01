@@ -27,7 +27,7 @@ namespace R1Engine
 		public byte N { get; set; }
 		public byte gF { get; set; }
 		public bool bp { get; set; }
-		public short bJ { get; set; }
+		public short DefaultRoadWidth { get; set; }
 		public short bK { get; set; }
 		public RGB888Color Color_afterbK_0 { get; set; }
 		public RGB888Color Color_afterbK_1 { get; set; }
@@ -43,13 +43,13 @@ namespace R1Engine
 
 		// Lowres only?
 		public RGB888Color Color_dq { get; set; }
-		public RGB888Color Color_dr { get; set; }
+		public RGB888Color Color_Tunnel_0 { get; set; }
 		public RGB888Color Color_ds { get; set; }
-		public RGB888Color Color_dt { get; set; }
-		public RGB888Color Color_du { get; set; }
-		public short dx { get; set; }
-		public short dw { get; set; }
-		public short dv { get; set; }
+		public RGB888Color Color_Tunnel_1 { get; set; }
+		public RGB888Color Color_Tunnel_Front { get; set; }
+		public short Tunnel_Height { get; set; }
+		public short Tunnel_Height2 { get; set; }
+		public short Tunnel_WallThickness { get; set; }
 
 		public ushort TriggerObjectsCount { get; set; }
 		public TriggerObject[] TriggerObjects { get; set; }
@@ -100,7 +100,7 @@ namespace R1Engine
 			N = s.Serialize<byte>(N, name: nameof(N));
 			gF = s.Serialize<byte>(gF, name: nameof(gF));
 			bp = s.Serialize<bool>(bp, name: nameof(bp));
-			bJ = s.Serialize<short>(bJ, name: nameof(bJ));
+			DefaultRoadWidth = s.Serialize<short>(DefaultRoadWidth, name: nameof(DefaultRoadWidth));
 			bK = s.Serialize<short>(bK, name: nameof(bK));
 			Color_afterbK_0 = s.SerializeObject<RGB888Color>(Color_afterbK_0, name: nameof(Color_afterbK_0));
 			Color_afterbK_1 = s.SerializeObject<RGB888Color>(Color_afterbK_1, name: nameof(Color_afterbK_1));
@@ -116,13 +116,13 @@ namespace R1Engine
 			}
 			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
 				Color_dq = s.SerializeObject<RGB888Color>(Color_dq, name: nameof(Color_dq));
-				Color_dr = s.SerializeObject<RGB888Color>(Color_dr, name: nameof(Color_dr));
+				Color_Tunnel_0 = s.SerializeObject<RGB888Color>(Color_Tunnel_0, name: nameof(Color_Tunnel_0));
 				Color_ds = s.SerializeObject<RGB888Color>(Color_ds, name: nameof(Color_ds));
-				Color_dt = s.SerializeObject<RGB888Color>(Color_dt, name: nameof(Color_dt));
-				Color_du = s.SerializeObject<RGB888Color>(Color_du, name: nameof(Color_du));
-				dx = s.Serialize<short>(dx, name: nameof(dx));
-				dw = s.Serialize<short>(dw, name: nameof(dw));
-				dv = s.Serialize<short>(dv, name: nameof(dv));
+				Color_Tunnel_1 = s.SerializeObject<RGB888Color>(Color_Tunnel_1, name: nameof(Color_Tunnel_1));
+				Color_Tunnel_Front = s.SerializeObject<RGB888Color>(Color_Tunnel_Front, name: nameof(Color_Tunnel_Front));
+				Tunnel_Height = s.Serialize<short>(Tunnel_Height, name: nameof(Tunnel_Height));
+				Tunnel_Height2 = s.Serialize<short>(Tunnel_Height2, name: nameof(Tunnel_Height2));
+				Tunnel_WallThickness = s.Serialize<short>(Tunnel_WallThickness, name: nameof(Tunnel_WallThickness));
 			}
 			TriggerObjectsCount = s.Serialize<ushort>(TriggerObjectsCount, name: nameof(TriggerObjectsCount));
 			TriggerObjects = s.SerializeObjectArray<TriggerObject>(TriggerObjects, TriggerObjectsCount, name: nameof(TriggerObjects));

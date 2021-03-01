@@ -178,7 +178,7 @@ namespace R1Engine
 				bool nextUseAbyss = i < t.Length-1 && BitHelpers.ExtractBits(level.Types[t[i + 1].Type].Flags, 1, 3) == 1;
 				float roadWidth = (useRoadWidth ? level.Types[curBlock.Type].Width : 3000) / 1000f;
 				float totalRoadWidth = roadWidth * roadSizeFactor;
-				float roadSizeCur = Mathf.Min(1.1f,totalRoadWidth);
+				float roadSizeCur = Mathf.Min(level.DefaultRoadWidth / 1000f,totalRoadWidth);
 				float groundSizeCur = totalRoadWidth;
 				var road = isBridge ? bridge : roads[curBlock.Type][i%2];
 				int roadVertexCount = road.vertices.Count;
@@ -561,7 +561,143 @@ namespace R1Engine
 			return m;
 		}
 
+		public Mesh GetArchMesh(Gameloft_RK_Level level, int trackBlock) {
+			Color currentColor = Color.white;
+			Color frontColor = level.Color_Tunnel_Front.GetColor();
+			MeshInProgress mesh = new MeshInProgress($"Arch {trackBlock}");
+			Vector3 nextPos = Vector3.forward;
+			Quaternion nextAngle = Quaternion.identity;
+			var zMultiplier = 1000f;
+			var curBlock = level.TrackBlocks[trackBlock];
+			var heightMultiplier = 0.025f;
+			nextPos = new Vector3(0, curBlock.DeltaHeight * heightMultiplier, 1f);
+			nextAngle = Quaternion.Euler(0, -curBlock.DeltaRotation, 0);
 
+			bool useRoadWidth = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 1) == 1
+				|| BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 2) == 1;
+			var roadWidth = useRoadWidth ? level.DefaultRoadWidth/1.2f /*level.Types[curBlock.Type].Width*/ : level.DefaultRoadWidth;
+
+			currentColor = (trackBlock % 2 == 0 ? level.Color_Tunnel_0 : level.Color_Tunnel_1).GetColor();
+			var tw = roadWidth;
+			var tt = level.Tunnel_WallThickness;
+			var th = level.Tunnel_Height;
+			var th2 = level.Tunnel_Height2;
+			Vector3[] pts = new Vector3[] {
+				new Vector3((tw + tt), 0, 0),
+				new Vector3(tw, 0, 0),
+				new Vector3((tw + tt), th2, 0),
+				new Vector3(tw, th2, 0),
+
+				new Vector3(-(tw + tt), 0, 0),
+				new Vector3(-tw, 0, 0),
+				new Vector3(-(tw + tt), th2, 0),
+				new Vector3(-tw, th2, 0),
+
+				// Ceiling front
+				new Vector3(-tw, th, 0),
+				new Vector3(-tw, th2, 0),
+				new Vector3(tw, th, 0),
+				new Vector3(tw, th2, 0),
+
+				// Interior
+				new Vector3(tw, 0, 0),
+				new Vector3(tw, th, 0),
+				new Vector3(-tw, 0, 0),
+				new Vector3(-tw, th, 0),
+
+				// Exterior
+				new Vector3((tw + tt), 0, 0),
+				new Vector3((tw + tt), th2, 0),
+				new Vector3(-(tw + tt), 0, 0),
+				new Vector3(-(tw + tt), th2, 0),
+
+			};
+			var pts_n = pts.Select(p => zMultiplier * nextPos + nextAngle * p).ToArray();
+			int ptIndex, vertCount = 0;
+
+			// 2 pillars, 1 ceiling
+			for (int j = 0; j < 2; j++) {
+				var curPts = j == 0 ? pts : pts_n;
+				for (int i = 0; i < 3; i++) {
+					ptIndex = 4 * i;
+					vertCount = mesh.vertices.Count;
+
+					mesh.vertices.Add(curPts[ptIndex + 0] / 1000f);
+					mesh.vertices.Add(curPts[ptIndex + 1] / 1000f);
+					mesh.vertices.Add(curPts[ptIndex + 2] / 1000f);
+					mesh.vertices.Add(curPts[ptIndex + 3] / 1000f);
+
+					mesh.colors.Add(frontColor);
+					mesh.colors.Add(frontColor);
+					mesh.colors.Add(frontColor);
+					mesh.colors.Add(frontColor);
+
+					// Front
+					mesh.triangles.Add(vertCount + 0);
+					mesh.triangles.Add(vertCount + 2);
+					mesh.triangles.Add(vertCount + 1);
+					mesh.triangles.Add(vertCount + 2);
+					mesh.triangles.Add(vertCount + 3);
+					mesh.triangles.Add(vertCount + 1);
+					// Back
+					mesh.triangles.Add(vertCount + 0);
+					mesh.triangles.Add(vertCount + 1);
+					mesh.triangles.Add(vertCount + 2);
+					mesh.triangles.Add(vertCount + 3);
+					mesh.triangles.Add(vertCount + 2);
+					mesh.triangles.Add(vertCount + 1);
+				}
+			}
+
+			for (int j = 0; j < 2; j++) {
+				var col = j == 0 ? currentColor : frontColor;
+				var startInd = 12 + j*4;
+				// Interior / exterior
+				vertCount = mesh.vertices.Count;
+				mesh.vertices.Add(pts[startInd + 0] / 1000f); // Right
+				mesh.vertices.Add(pts[startInd + 1] / 1000f);
+				mesh.vertices.Add(pts_n[startInd + 0] / 1000f);
+				mesh.vertices.Add(pts_n[startInd + 1] / 1000f);
+
+				mesh.vertices.Add(pts[startInd + 2] / 1000f); // Left
+				mesh.vertices.Add(pts[startInd + 3] / 1000f);
+				mesh.vertices.Add(pts_n[startInd + 2] / 1000f);
+				mesh.vertices.Add(pts_n[startInd + 3] / 1000f);
+
+				mesh.vertices.Add(pts[startInd + 1] / 1000f); // Ceiling
+				mesh.vertices.Add(pts[startInd + 3] / 1000f);
+				mesh.vertices.Add(pts_n[startInd + 1] / 1000f);
+				mesh.vertices.Add(pts_n[startInd + 3] / 1000f);
+				for (int i = 0; i < 12; i++) mesh.colors.Add(col);
+				for (int i = 0; i < 3; i++) {
+					// Front
+					if (i % 2 == j) {
+						mesh.triangles.Add(vertCount + 4 * i + 0);
+						mesh.triangles.Add(vertCount + 4 * i + 2);
+						mesh.triangles.Add(vertCount + 4 * i + 1);
+						mesh.triangles.Add(vertCount + 4 * i + 2);
+						mesh.triangles.Add(vertCount + 4 * i + 3);
+						mesh.triangles.Add(vertCount + 4 * i + 1);
+					} else {
+						mesh.triangles.Add(vertCount + 4 * i + 0);
+						mesh.triangles.Add(vertCount + 4 * i + 1);
+						mesh.triangles.Add(vertCount + 4 * i + 2);
+						mesh.triangles.Add(vertCount + 4 * i + 3);
+						mesh.triangles.Add(vertCount + 4 * i + 2);
+						mesh.triangles.Add(vertCount + 4 * i + 1);
+					}
+				}
+			}
+
+
+
+			Mesh m = new Mesh();
+			m.SetVertices(mesh.vertices);
+			m.SetColors(mesh.colors);
+			m.SetTriangles(mesh.triangles, 0);
+			m.RecalculateNormals();
+			return m;
+		}
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			await UniTask.CompletedTask;
@@ -614,7 +750,25 @@ namespace R1Engine
 					//if(blk.ObjType == 4) continue;
 					// TODO: Create obj types 4. These are hardcoded it seems.
 					// Usually they don't show up, but if Byte2 == 2, they show up as speed boosts
-					if (blk.ObjType == 5) {
+					if (blk.ObjType == 1) {
+						if (blk.TrackObjectIndex < 2) {
+							GameObject gp = new GameObject($"TrackObjIndex: {blk.TrackObjectIndex}");
+							gp.transform.position = Vector3.zero;
+							//var m = meshes[blk.TrackObjectIndex];
+							var m = GetArchMesh(level, curBlockIndex);
+							GameObject gao = new GameObject();
+							MeshFilter mf = gao.AddComponent<MeshFilter>();
+							MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+							gao.layer = LayerMask.NameToLayer("3D Collision");
+							gao.transform.SetParent(gp.transform);
+							gao.transform.localScale = new Vector3(blk.FlipX ? -1 : 1, 1, 1f);
+							gao.transform.localRotation = Quaternion.Euler(0, curAngle, 0);
+							gao.transform.localPosition = sphere.transform.position;
+							mf.mesh = m;
+							mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+							gp.transform.localScale = Vector3.one * 8;
+						}
+					} else if (blk.ObjType == 5) {
 						GameObject gp = new GameObject($"TrackObjIndex: {blk.TrackObjectIndex}");
 						gp.transform.position = Vector3.zero;
 						//var m = meshes[blk.TrackObjectIndex];
