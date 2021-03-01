@@ -13,7 +13,7 @@ namespace R1Engine
         public string Name { get; set; }
         public GBAVV_Script ReferencedScript { get; set; }
         public GBAVV_Input Input { get; set; }
-        public GBAVV_Fusion_LocalizedString Dialog { get; set; }
+        public GBAVV_LocalizedString Dialog { get; set; }
         public GBAVV_Map2D_Animation Animation { get; set; }
         public GBAVV_ConditionalScriptReference ConditionalScriptReference { get; set; }
         public GBAVV_Movement Movement { get; set; }
@@ -66,7 +66,7 @@ namespace R1Engine
                     break;
 
                 case CommandType.Dialog:
-                    Dialog = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Fusion_LocalizedString>(Dialog, name: nameof(Dialog)));
+                    Dialog = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_LocalizedString>(Dialog, name: nameof(Dialog)));
                     break;
 
                 case CommandType.Animation:

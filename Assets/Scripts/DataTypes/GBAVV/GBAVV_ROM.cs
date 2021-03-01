@@ -25,6 +25,11 @@ namespace R1Engine
                     {
                         MapType = GBAVV_MapInfo.GBAVV_MapType.WorldMap
                     };
+                else if (Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart)
+                    map = new GBAVV_MapInfo()
+                    {
+                        MapType = GBAVV_MapInfo.GBAVV_MapType.Kart
+                    };
                 else if (CurrentLevInfo.MapType == GBAVV_BaseManager.LevInfo.Type.Normal)
                     map = LevelInfos[CurrentLevInfo.LevelIndex].LevelData.Maps[CurrentLevInfo.MapIndex];
                 else if (CurrentLevInfo.MapType == GBAVV_BaseManager.LevInfo.Type.Bonus)
@@ -40,15 +45,17 @@ namespace R1Engine
         public GBAVV_Isometric_ObjectData CurrentIsometricObjData => Isometric_ObjectDatas[CurrentIsometricIndex];
         public int CurrentIsometricIndex => CurrentMapInfo.Index3D + 4;
         public GBAVV_WorldMap_Data CurrentWorldMapData => WorldMap_Crash2 ?? LevelInfos[CurrentLevInfo.LevelIndex].Fusion_MapData;
+        public GBAVV_NitroKart_LevelInfo CurrentNitroKartLevelInfo => NitroKart_LevelInfos[CurrentLevInfo.LevelIndex];
 
         // Common
         public Pointer[] LocTablePointers { get; set; }
         public GBAVV_LocTable[] LocTables { get; set; }
         public GBAVV_LevelInfo[] LevelInfos { get; set; }
         public GBAVV_Script[] Scripts { get; set; }
+        public GBAVV_DialogScript[] DialogScripts { get; set; }
 
         // 2D
-        public GBAVV_Map2D_Graphics Map2D_Graphics { get; set; }
+        public GBAVV_Map2D_Graphics[] Map2D_Graphics { get; set; }
 
         // Mode7
         public GBAVV_Mode7_LevelInfo[] Mode7_LevelInfos { get; set; }
@@ -102,6 +109,10 @@ namespace R1Engine
         public GBAVV_WorldMap_Data WorldMap_Crash2 { get; set; }
         public GBAVV_WorldMap_Crash1_LevelIcon[] WorldMap_Crash1_LevelIcons { get; set; }
 
+        // Nitro Kart
+        public GBAVV_NitroKart_LevelMetaData[][] NitroKart_LevelMetaDatas { get; set; }
+        public GBAVV_NitroKart_LevelInfo[] NitroKart_LevelInfos { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize ROM header
@@ -146,9 +157,27 @@ namespace R1Engine
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal ||
                 CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_0 ||
                 CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_1 ||
-                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
+                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap ||
+                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Kart)
             {
-                Map2D_Graphics = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics, name: nameof(Map2D_Graphics)));
+                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart)
+                {
+                    if (Map2D_Graphics == null)
+                        Map2D_Graphics = new GBAVV_Map2D_Graphics[1];
+
+                    Map2D_Graphics[0] = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics[0], name: nameof(Map2D_Graphics)));
+                }
+                // Crash Nitro Kart has multiple graphics datas
+                else
+                {
+                    var pointers = ((GBAVV_NitroKart_Manager)s.GameSettings.GetGameManager).GraphicsDataPointers;
+
+                    if (Map2D_Graphics == null)
+                        Map2D_Graphics = new GBAVV_Map2D_Graphics[pointers.Length];
+
+                    for (int i = 0; i < pointers.Length; i++)
+                        Map2D_Graphics[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics[i], name: $"{nameof(Map2D_Graphics)}[{i}]"));
+                }
             }
 
             if (s.GameSettings.GBAVV_IsFusion)
@@ -160,6 +189,8 @@ namespace R1Engine
 
                 for (int i = 0; i < pointers.Length; i++)
                     Scripts[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
+
+                DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.FusionDialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
             }
 
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Mode7)
@@ -274,6 +305,27 @@ namespace R1Engine
 
                 if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
                     WorldMap_Crash1_LevelIcons = s.DoAt(pointerTable[GBAVV_Pointer.WorldMap_Crash1_LevelIcons], () => s.SerializeObjectArray<GBAVV_WorldMap_Crash1_LevelIcon>(WorldMap_Crash1_LevelIcons, 10, name: nameof(WorldMap_Crash1_LevelIcons)));
+            }
+
+            if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Kart)
+            {
+                s.DoAt(pointerTable[GBAVV_Pointer.NitroKart_LevelMetaDatas], () =>
+                {
+                    if (NitroKart_LevelMetaDatas == null)
+                        NitroKart_LevelMetaDatas = new GBAVV_NitroKart_LevelMetaData[5][];
+
+                    for (int i = 0; i < NitroKart_LevelMetaDatas.Length; i++)
+                        NitroKart_LevelMetaDatas[i] = s.SerializeObjectArray<GBAVV_NitroKart_LevelMetaData>(NitroKart_LevelMetaDatas[i], 9, name: $"{nameof(NitroKart_LevelMetaDatas)}[{i}]");
+                });
+
+                s.DoAt(pointerTable[GBAVV_Pointer.NitroKart_LevelInfos], () =>
+                {
+                    if (NitroKart_LevelInfos == null)
+                        NitroKart_LevelInfos = new GBAVV_NitroKart_LevelInfo[manager.LevInfos.Max(x => x.LevelIndex) + 1];
+
+                    for (int i = 0; i < NitroKart_LevelInfos.Length; i++)
+                        NitroKart_LevelInfos[i] = s.SerializeObject<GBAVV_NitroKart_LevelInfo>(NitroKart_LevelInfos[i], x => x.SerializeData = i == CurrentLevInfo.LevelIndex, name: $"{nameof(NitroKart_LevelInfos)}[{i}]");
+                });
             }
         }
     }

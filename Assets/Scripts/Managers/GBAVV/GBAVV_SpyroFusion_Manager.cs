@@ -423,6 +423,7 @@ namespace R1Engine
             [1000] = GBAVV_ScriptCommand.CommandType.DialogPortrait
 
         };
+        public override int DialogScriptsCount => 70;
     }
 
     public class GBAVV_SpyroFusionEU_Manager : GBAVV_SpyroFusion_Manager

@@ -19,6 +19,7 @@ namespace R1Engine
 
         public abstract LevInfo[] LevInfos { get; }
         public virtual int LocTableCount => 0;
+        public virtual int LanguagesCount => 1;
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
@@ -46,32 +47,38 @@ namespace R1Engine
 
                 await UniTask.WaitForEndOfFrame();
 
-                // Enumerate every anim set
-                for (int animSetIndex = 0; animSetIndex < rom.Map2D_Graphics.AnimSets.Length; animSetIndex++)
+                // Enumerate every graphics data
+                for (int graphicsIndex = 0; graphicsIndex < rom.Map2D_Graphics.Length; graphicsIndex++)
                 {
-                    var animSet = rom.Map2D_Graphics.AnimSets[animSetIndex];
+                    var graphicsData = rom.Map2D_Graphics[graphicsIndex];
 
-                    // Enumerate every animation
-                    for (var animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
+                    // Enumerate every anim set
+                    for (int animSetIndex = 0; animSetIndex < graphicsData.AnimSets.Length; animSetIndex++)
                     {
-                        await UniTask.WaitForEndOfFrame();
+                        var animSet = graphicsData.AnimSets[animSetIndex];
 
-                        var anim = animSet.Animations[animIndex];
-                        var frames = GetAnimFrames(animSet, animIndex, rom.Map2D_Graphics.TileSet, rom.Map2D_Graphics.Palettes);
+                        // Enumerate every animation
+                        for (var animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
+                        {
+                            await UniTask.WaitForEndOfFrame();
 
-                        if (!frames.Any())
-                            continue;
+                            var anim = animSet.Animations[animIndex];
+                            var frames = GetAnimFrames(animSet, animIndex, graphicsData.TileSet, graphicsData.Palettes);
 
-                        if (context.Settings.GBAVV_IsFusion)
-                            ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex} 0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex} 0x{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
-                        else
-                            ExportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}", false, saveAsGif, outputDir);
+                            if (!frames.Any())
+                                continue;
+
+                            if (context.Settings.GBAVV_IsFusion)
+                                ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex} 0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex} 0x{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
+                            else
+                                ExportAnim(frames, anim.AnimSpeed + 1, $"2D_{graphicsIndex} - 0x{graphicsData.Offset.AbsoluteOffset:X8}", $"{animSetIndex}", $"{animIndex}", false, saveAsGif, outputDir);
+                        }
                     }
                 }
             }
 
             // Export Mode7 animations
-            if (!settings.GBAVV_IsFusion)
+            if (!settings.GBAVV_IsFusion && settings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart)
             {
                 for (short mode7Level = 0; mode7Level < 7; mode7Level++)
                 {
@@ -253,6 +260,8 @@ namespace R1Engine
                 return await LoadIsometricAsync(context, rom);
             else if (map.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
                 return await LoadWorldMapAsync(context, rom);
+            else if (map.MapType == GBAVV_MapInfo.GBAVV_MapType.Kart)
+                return await LoadNitroKartAsync(context, rom);
             else
                 return await Load2DAsync(context, rom);
         }
@@ -768,7 +777,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics?.AnimSets);
+            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics?.FirstOrDefault()?.AnimSets, rom.DialogScripts);
             var objects = new List<Unity_Object>();
 
             if (map.ObjData?.Objects != null)
@@ -781,6 +790,50 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: LoadLocalization(rom),
                 collisionLines: collisionLines?.ToArray());
+        }
+
+        public async UniTask<Unity_Level> LoadNitroKartAsync(Context context, GBAVV_ROM rom)
+        {
+            var map = rom.CurrentNitroKartLevelInfo.MapData;
+
+            Controller.DetailedState = "Loading tilesets";
+            await Controller.WaitIfNecessary();
+
+            var mode7TileSetTex = Util.ToTileSetTexture(map.TileSet, Util.ConvertGBAPalette(map.TilePalette), Util.TileEncoding.Linear_8bpp, CellSize, false);
+            var mode7TileSet = new Unity_TileSet(mode7TileSetTex, CellSize);
+
+            Controller.DetailedState = "Loading maps";
+            await Controller.WaitIfNecessary();
+
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map
+                {
+                    Width = (ushort)(map.Mode7MapLayer.TileMap.Width * 2),
+                    Height = (ushort)(map.Mode7MapLayer.TileMap.Height * 2),
+                    TileSet = new Unity_TileSet[]
+                    {
+                        mode7TileSet
+                    },
+                    MapTiles = GetIsometricTileMap(map.Mode7MapLayer.TileMap, map.Mode7MapLayer.MapTiles),
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
+                    Layer = Unity_Map.MapLayer.Middle,
+                },
+                // TODO: Background layer(s)
+            };
+
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
+            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart);
+            var objects = map.Objects_Normal.Select(x => new Unity_Object_GBAVVNitroKart(objManager, x));
+
+            return new Unity_Level(
+                maps: maps,
+                objManager: objManager,
+                eventData: new List<Unity_Object>(objects),
+                cellSize: CellSize,
+                localization: LoadLocalization(rom));
         }
 
         public static byte GetIsometricCollisionType(int level, int index)
@@ -1681,16 +1734,25 @@ namespace R1Engine
             return tileMap;
         }
 
-        public Unity_ObjectManager_GBAVV.AnimSet[] LoadAnimSets(GBAVV_ROM rom)
+        public Unity_ObjectManager_GBAVV.AnimSet[][] LoadAnimSets(GBAVV_ROM rom)
         {
-            IEnumerable<GBAVV_Map2D_AnimSet> animSets = rom.Map2D_Graphics?.AnimSets ?? new GBAVV_Map2D_AnimSet[0];
+            Unity_ObjectManager_GBAVV.AnimSet.Animation convertAnim(GBAVV_Map2D_Graphics graphics, GBAVV_Map2D_AnimSet animSet, GBAVV_Map2D_Animation anim, int i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
+                animFrameFunc: () => GetAnimFrames(animSet, i, graphics?.TileSet, graphics?.Palettes).Select(frame => frame.CreateSprite()).ToArray(),
+                crashAnim: anim,
+                xPos: animSet.GetMinX(i),
+                yPos: animSet.GetMinY(i)
+            );
 
-            // Create an anim set for Fake Crash
+            Unity_ObjectManager_GBAVV.AnimSet convertAnimSet(GBAVV_Map2D_Graphics graphics, GBAVV_Map2D_AnimSet animSet) => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Animations.Select((anim, i) => convertAnim(graphics, animSet, anim, i)).ToArray());
+
+            var animSets = rom.Map2D_Graphics?.Select(graphics => graphics.AnimSets.Select(animSet => convertAnimSet(graphics, animSet)).ToArray()).ToArray() ?? new Unity_ObjectManager_GBAVV.AnimSet[0][];
+
+            // Create an anim set for Fake Crash for Crash 2
             if (rom.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
             {
-                var crash = rom.Map2D_Graphics.AnimSets[0];
+                var crash = rom.Map2D_Graphics[0].AnimSets[0];
 
-                animSets = animSets.Append(new GBAVV_Map2D_AnimSet
+                animSets[0] = animSets[0].Append(convertAnimSet(rom.Map2D_Graphics[0], new GBAVV_Map2D_AnimSet
                 {
                     Animations = crash.Animations.Select(x => new GBAVV_Map2D_Animation
                     {
@@ -1701,15 +1763,10 @@ namespace R1Engine
                         FrameIndexTable = x.FrameIndexTable
                     }).ToArray(),
                     AnimationFrames = crash.AnimationFrames
-                });
+                })).ToArray();
             }
 
-            return animSets.Select(animSet => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
-                animFrameFunc: () => GetAnimFrames(animSet, i, rom.Map2D_Graphics.TileSet, rom.Map2D_Graphics.Palettes).Select(frame => frame.CreateSprite()).ToArray(),
-                crashAnim: anim,
-                xPos: animSet.GetMinX(i),
-                yPos: animSet.GetMinY(i)
-            )).ToArray())).ToArray();
+            return animSets;
         }
 
         public Unity_ObjectManager_GBAVVMode7.AnimSet[] LoadMode7AnimSets(GBAVV_Mode7_LevelInfo level, RGBA5551Color[] tilePal)

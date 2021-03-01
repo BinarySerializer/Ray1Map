@@ -58,5 +58,10 @@
 
         WorldMap_Crash2,
         WorldMap_Crash1_LevelIcons,
+
+        FusionDialogScripts,
+
+        NitroKart_LevelMetaDatas,
+        NitroKart_LevelInfos,
     }
 }

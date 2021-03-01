@@ -388,6 +388,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBAVV_Crash2_Manager))]
         Crash2GBAJP,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (GBA - US)", typeof(GBAVV_NitroKartUS_Manager))]
+        CrashNitroKartUS,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashFusion, Game.GBAVV_CrashFusion, "Crash Bandicoot Fusion (GBA - EU)", typeof(GBAVV_CrashFusionEU_Manager))]
         CrashFusionGBAEU,
 
