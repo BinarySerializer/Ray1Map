@@ -9,16 +9,19 @@ namespace R1Engine
         public UInt24 TileOffset { get; set; } // Offset in the global tileset
         public byte TilesCount { get; set; }
 
+        // Nitro Kart
+        public Pointer NitroKart_Pointer_10 { get; set; } // 2 shorts, same as Fusion_Pointer_28?
+
         // Fusion
         public Pointer Fusion_TileSetPointer { get; set; }
-        public short Fusion_Short_08 { get; set; }
-        public short Fusion_Short_0A { get; set; }
-        public byte[] Fusion_Data_0C { get; set; }
+        public GBAVV_Map2D_AnimationRect RenderBox { get; set; }
         public byte[] Fusion_Data_11 { get; set; }
         public Pointer Fusion_Pointer_14 { get; set; } // 8 bytes
         public Pointer Fusion_HitBox1Pointer { get; set; }
         public Pointer Fusion_HitBox2Pointer { get; set; }
-        public byte[] Fusion_Data_20 { get; set; }
+        public Pointer Fusion_HitBox3Pointer { get; set; }
+        public Pointer Fusion_Pointer_24 { get; set; } // Always null
+        public Pointer Fusion_Pointer_28 { get; set; } // 2 shorts
 
         // Serialized from pointers
         public TilePosition[] TilePositions { get; set; }
@@ -28,6 +31,7 @@ namespace R1Engine
         public byte[] Fusion_TileSet { get; set; }
         public GBAVV_Map2D_AnimationRect Fusion_HitBox1 { get; set; }
         public GBAVV_Map2D_AnimationRect Fusion_HitBox2 { get; set; }
+        public GBAVV_Map2D_AnimationRect Fusion_HitBox3 { get; set; }
 
         // Helpers
         public int GetTileShape(int index)
@@ -44,15 +48,15 @@ namespace R1Engine
             {
                 TilePositionsPointer = s.SerializePointer(TilePositionsPointer, name: nameof(TilePositionsPointer));
                 Fusion_TileSetPointer = s.SerializePointer(Fusion_TileSetPointer, name: nameof(Fusion_TileSetPointer));
-                Fusion_Short_08 = s.Serialize<short>(Fusion_Short_08, name: nameof(Fusion_Short_08));
-                Fusion_Short_0A = s.Serialize<short>(Fusion_Short_0A, name: nameof(Fusion_Short_0A));
-                Fusion_Data_0C = s.SerializeArray<byte>(Fusion_Data_0C, 4, name: nameof(Fusion_Data_0C));
+                RenderBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(RenderBox, name: nameof(RenderBox));
                 TilesCount = s.Serialize<byte>(TilesCount, name: nameof(TilesCount));
-                Fusion_Data_11 = s.SerializeArray<byte>(Fusion_Data_11, 3, name: nameof(Fusion_Data_11));
+                Fusion_Data_11 = s.SerializeArray<byte>(Fusion_Data_11, 3, name: nameof(Fusion_Data_11)); // Padding?
                 Fusion_Pointer_14 = s.SerializePointer(Fusion_Pointer_14, name: nameof(Fusion_Pointer_14));
                 Fusion_HitBox1Pointer = s.SerializePointer(Fusion_HitBox1Pointer, name: nameof(Fusion_HitBox1Pointer));
                 Fusion_HitBox2Pointer = s.SerializePointer(Fusion_HitBox2Pointer, name: nameof(Fusion_HitBox2Pointer));
-                Fusion_Data_20 = s.SerializeArray<byte>(Fusion_Data_20, 12, name: nameof(Fusion_Data_20));
+                Fusion_HitBox3Pointer = s.SerializePointer(Fusion_HitBox3Pointer, name: nameof(Fusion_HitBox3Pointer));
+                Fusion_Pointer_24 = s.SerializePointer(Fusion_Pointer_24, name: nameof(Fusion_Pointer_24));
+                Fusion_Pointer_28 = s.SerializePointer(Fusion_Pointer_28, name: nameof(Fusion_Pointer_28));
 
                 TilePositions = s.DoAt(TilePositionsPointer, () => s.SerializeObjectArray<TilePosition>(TilePositions, TilesCount, name: nameof(TilePositions)));
 
@@ -61,6 +65,7 @@ namespace R1Engine
 
                 Fusion_HitBox1 = s.DoAt(Fusion_HitBox1Pointer, () => s.SerializeObject<GBAVV_Map2D_AnimationRect>(Fusion_HitBox1, name: nameof(Fusion_HitBox1)));
                 Fusion_HitBox2 = s.DoAt(Fusion_HitBox2Pointer, () => s.SerializeObject<GBAVV_Map2D_AnimationRect>(Fusion_HitBox2, name: nameof(Fusion_HitBox2)));
+                Fusion_HitBox3 = s.DoAt(Fusion_HitBox3Pointer, () => s.SerializeObject<GBAVV_Map2D_AnimationRect>(Fusion_HitBox3, name: nameof(Fusion_HitBox3)));
             }
             else
             {
@@ -69,7 +74,11 @@ namespace R1Engine
                 TileOffset = s.Serialize<UInt24>(TileOffset, name: nameof(TileOffset));
                 TilesCount = s.Serialize<byte>(TilesCount, name: nameof(TilesCount));
 
-                // TODO: Nitro Kart has a GBAVV_Map2D_AnimationRect followed by a pointer to structs with 2 shorts
+                if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart)
+                {
+                    RenderBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(RenderBox, name: nameof(RenderBox));
+                    NitroKart_Pointer_10 = s.SerializePointer(NitroKart_Pointer_10, name: nameof(NitroKart_Pointer_10));
+                }
 
                 TilePositions = s.DoAt(TilePositionsPointer, () => s.SerializeObjectArray<TilePosition>(TilePositions, TilesCount, name: nameof(TilePositions)));
                 TileShapes = s.DoAt(TileShapesPointer, () => s.SerializeObjectArray<TileShape>(TileShapes, TilesCount, name: nameof(TileShapes)));

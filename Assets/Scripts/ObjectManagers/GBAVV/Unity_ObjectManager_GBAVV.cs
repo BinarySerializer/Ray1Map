@@ -18,13 +18,14 @@ namespace R1Engine
         }
         
         public AnimSet[][] AnimSets { get; }
+        public bool MultipleAnimSetArrays => AnimSets.Length > 1;
         public GBAVV_Map2D_ObjData ObjData { get; }
         public GBAVV_MapInfo.GBAVV_MapType MapType { get; }
         public byte[][] ObjParams => ObjData.ObjParams;
         public GBAVV_Script[] Scripts { get; }
         public GBAVV_Map2D_AnimSet[] AnimSetObjects { get; }
         
-        public override string[] LegacyDESNames => AnimSets.Select((x, i) => i.ToString()).ToArray();
+        public override string[] LegacyDESNames => AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => MultipleAnimSetArrays ? $"{graphicsIndex}-{animSetIndex}" : $"{animSetIndex}")).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
 
         public class AnimSet
@@ -75,28 +76,29 @@ namespace R1Engine
 
                         if (CrashAnim.Fusion_AnimSet != null)
                         {
-                            IEnumerable<Unity_ObjAnimationCollisionPart> cc = new Unity_ObjAnimationCollisionPart[0];
+                            var cc = new List<Unity_ObjAnimationCollisionPart>();
+
+                            void addHitBox(GBAVV_Map2D_AnimationRect box, Unity_ObjAnimationCollisionPart.CollisionType type)
+                            {
+                                if (box == null)
+                                    return;
+
+                                cc.Add(new Unity_ObjAnimationCollisionPart()
+                                {
+                                    Type = type,
+                                    XPosition = box.X,
+                                    YPosition = box.Y,
+                                    Width = box.Width + 1, // TODO: Should the +1 be here? It appears to be needed for the render frame to match.
+                                    Height = box.Height + 1,
+                                });
+                            }
 
                             var frame = CrashAnim.Fusion_AnimSet.AnimationFrames[CrashAnim.FrameIndexTable[x]];
 
-                            if (frame.Fusion_HitBox1 != null)
-                                cc = cc.Append(new Unity_ObjAnimationCollisionPart()
-                                {
-                                    Type = Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox,
-                                    XPosition = frame.Fusion_HitBox1.X,
-                                    YPosition = frame.Fusion_HitBox1.Y,
-                                    Width = frame.Fusion_HitBox1.Width + 1,
-                                    Height = frame.Fusion_HitBox1.Height + 1,
-                                });
-                            if (frame.Fusion_HitBox2 != null)
-                                cc = cc.Append(new Unity_ObjAnimationCollisionPart()
-                                {
-                                    Type = Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox,
-                                    XPosition = frame.Fusion_HitBox2.X,
-                                    YPosition = frame.Fusion_HitBox2.Y,
-                                    Width = frame.Fusion_HitBox2.Width + 1,
-                                    Height = frame.Fusion_HitBox2.Height + 1,
-                                });
+                            // TODO: Fix collision types
+                            addHitBox(frame.Fusion_HitBox1, Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox);
+                            addHitBox(frame.Fusion_HitBox2, Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox);
+                            addHitBox(frame.Fusion_HitBox3, Unity_ObjAnimationCollisionPart.CollisionType.AttackBox);
 
                             c = cc.ToArray();
                         }

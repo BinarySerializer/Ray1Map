@@ -15,7 +15,6 @@
         // Fusion
         public Pointer Fusion_FrameIndexTablePointer { get; set; }
         public Pointer Fusion_PalettePointer { get; set; }
-        public ushort Fusion_Ushort_12 { get; set; } // Always 0
         public byte Fusion_Byte_16 { get; set; }
         public byte Fusion_Byte_17 { get; set; } // Always 0
 
@@ -34,7 +33,6 @@
                 Fusion_FrameIndexTablePointer = s.SerializePointer(Fusion_FrameIndexTablePointer, name: nameof(Fusion_FrameIndexTablePointer));
                 Fusion_PalettePointer = s.SerializePointer(Fusion_PalettePointer, name: nameof(Fusion_PalettePointer));
                 RenderBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(RenderBox, name: nameof(RenderBox)); // Hitbox?
-                Fusion_Ushort_12 = s.Serialize<ushort>(Fusion_Ushort_12, name: nameof(Fusion_Ushort_12));
                 AnimSpeed = s.Serialize<byte>(AnimSpeed, name: nameof(AnimSpeed));
                 FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
                 Fusion_Byte_16 = s.Serialize<byte>(Fusion_Byte_16, name: nameof(Fusion_Byte_16));
