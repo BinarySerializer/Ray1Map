@@ -19,6 +19,7 @@ namespace R1Engine
 
         public abstract LevInfo[] LevInfos { get; }
         public virtual int LocTableCount => 0;
+        public virtual int LanguagesCount => 1;
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
@@ -259,6 +260,8 @@ namespace R1Engine
                 return await LoadIsometricAsync(context, rom);
             else if (map.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
                 return await LoadWorldMapAsync(context, rom);
+            else if (map.MapType == GBAVV_MapInfo.GBAVV_MapType.Kart)
+                return await LoadNitroKartAsync(context, rom);
             else
                 return await Load2DAsync(context, rom);
         }
@@ -787,6 +790,49 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: LoadLocalization(rom),
                 collisionLines: collisionLines?.ToArray());
+        }
+
+        public async UniTask<Unity_Level> LoadNitroKartAsync(Context context, GBAVV_ROM rom)
+        {
+            var map = rom.CurrentNitroKartLevelInfo.MapData;
+
+            Controller.DetailedState = "Loading tilesets";
+            await Controller.WaitIfNecessary();
+
+            var mode7TileSetTex = Util.ToTileSetTexture(map.TileSet, Util.ConvertGBAPalette(map.TilePalette), Util.TileEncoding.Linear_8bpp, CellSize, false);
+            var mode7TileSet = new Unity_TileSet(mode7TileSetTex, CellSize);
+
+            Controller.DetailedState = "Loading maps";
+            await Controller.WaitIfNecessary();
+
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map
+                {
+                    Width = (ushort)(map.Mode7MapLayer.TileMap.Width * 2),
+                    Height = (ushort)(map.Mode7MapLayer.TileMap.Height * 2),
+                    TileSet = new Unity_TileSet[]
+                    {
+                        mode7TileSet
+                    },
+                    MapTiles = GetIsometricTileMap(map.Mode7MapLayer.TileMap, map.Mode7MapLayer.MapTiles),
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
+                    Layer = Unity_Map.MapLayer.Middle,
+                },
+                // TODO: Background layer(s)
+            };
+
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Objects
+
+            return new Unity_Level(
+                maps: maps,
+                objManager: new Unity_ObjectManager(context),
+                eventData: new List<Unity_Object>(),
+                cellSize: CellSize,
+                localization: LoadLocalization(rom));
         }
 
         public static byte GetIsometricCollisionType(int level, int index)

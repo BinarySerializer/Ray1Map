@@ -24,7 +24,7 @@
         public GBAVV_LevelData LevelData { get; set; }
 
         // Fusion
-        public GBAVV_Fusion_LocalizedString Fusion_LevelName { get; set; }
+        public GBAVV_LocalizedString Fusion_LevelName { get; set; }
         public GBAVV_WorldMap_Data Fusion_MapData { get; set; }
         public GBAVV_Fusion_MapInfo Fusion_MapInfo { get; set; }
 
@@ -59,7 +59,7 @@
                 Fusion_Pointer_08 = s.SerializePointer(Fusion_Pointer_08, name: nameof(Fusion_Pointer_08));
                 Fusion_Uint_0C = s.Serialize<uint>(Fusion_Uint_0C, name: nameof(Fusion_Uint_0C));
 
-                Fusion_LevelName = s.DoAt(Fusion_LevelNamePointer, () => s.SerializeObject<GBAVV_Fusion_LocalizedString>(Fusion_LevelName, name: nameof(Fusion_LevelName)));
+                Fusion_LevelName = s.DoAt(Fusion_LevelNamePointer, () => s.SerializeObject<GBAVV_LocalizedString>(Fusion_LevelName, name: nameof(Fusion_LevelName)));
 
                 if (LevInfo != null)
                 {

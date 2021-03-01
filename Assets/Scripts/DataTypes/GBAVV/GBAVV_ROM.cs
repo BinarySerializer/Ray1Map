@@ -45,6 +45,7 @@ namespace R1Engine
         public GBAVV_Isometric_ObjectData CurrentIsometricObjData => Isometric_ObjectDatas[CurrentIsometricIndex];
         public int CurrentIsometricIndex => CurrentMapInfo.Index3D + 4;
         public GBAVV_WorldMap_Data CurrentWorldMapData => WorldMap_Crash2 ?? LevelInfos[CurrentLevInfo.LevelIndex].Fusion_MapData;
+        public GBAVV_NitroKart_LevelInfo CurrentNitroKartLevelInfo => NitroKart_LevelInfos[CurrentLevInfo.LevelIndex];
 
         // Common
         public Pointer[] LocTablePointers { get; set; }
@@ -107,6 +108,10 @@ namespace R1Engine
         // WorldMap
         public GBAVV_WorldMap_Data WorldMap_Crash2 { get; set; }
         public GBAVV_WorldMap_Crash1_LevelIcon[] WorldMap_Crash1_LevelIcons { get; set; }
+
+        // Nitro Kart
+        public GBAVV_NitroKart_LevelMetaData[][] NitroKart_LevelMetaDatas { get; set; }
+        public GBAVV_NitroKart_LevelInfo[] NitroKart_LevelInfos { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -300,6 +305,27 @@ namespace R1Engine
 
                 if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
                     WorldMap_Crash1_LevelIcons = s.DoAt(pointerTable[GBAVV_Pointer.WorldMap_Crash1_LevelIcons], () => s.SerializeObjectArray<GBAVV_WorldMap_Crash1_LevelIcon>(WorldMap_Crash1_LevelIcons, 10, name: nameof(WorldMap_Crash1_LevelIcons)));
+            }
+
+            if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Kart)
+            {
+                s.DoAt(pointerTable[GBAVV_Pointer.NitroKart_LevelMetaDatas], () =>
+                {
+                    if (NitroKart_LevelMetaDatas == null)
+                        NitroKart_LevelMetaDatas = new GBAVV_NitroKart_LevelMetaData[5][];
+
+                    for (int i = 0; i < NitroKart_LevelMetaDatas.Length; i++)
+                        NitroKart_LevelMetaDatas[i] = s.SerializeObjectArray<GBAVV_NitroKart_LevelMetaData>(NitroKart_LevelMetaDatas[i], 9, name: $"{nameof(NitroKart_LevelMetaDatas)}[{i}]");
+                });
+
+                s.DoAt(pointerTable[GBAVV_Pointer.NitroKart_LevelInfos], () =>
+                {
+                    if (NitroKart_LevelInfos == null)
+                        NitroKart_LevelInfos = new GBAVV_NitroKart_LevelInfo[manager.LevInfos.Max(x => x.LevelIndex) + 1];
+
+                    for (int i = 0; i < NitroKart_LevelInfos.Length; i++)
+                        NitroKart_LevelInfos[i] = s.SerializeObject<GBAVV_NitroKart_LevelInfo>(NitroKart_LevelInfos[i], x => x.SerializeData = i == CurrentLevInfo.LevelIndex, name: $"{nameof(NitroKart_LevelInfos)}[{i}]");
+                });
             }
         }
     }

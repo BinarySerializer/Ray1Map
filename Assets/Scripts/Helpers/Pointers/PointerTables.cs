@@ -1128,7 +1128,8 @@ namespace R1Engine
 
                 case GameModeSelection.CrashNitroKartUS:
                     return new Dictionary<GBAVV_Pointer, uint>() {
-
+                        [GBAVV_Pointer.NitroKart_LevelMetaDatas] = 0x08062300,
+                        [GBAVV_Pointer.NitroKart_LevelInfos] = 0x080340c4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.CrashFusionGBAEU:
