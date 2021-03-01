@@ -1126,6 +1126,11 @@ namespace R1Engine
                         [GBAVV_Pointer.WorldMap_Crash2] = 0x081cd6bc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.CrashNitroKartUS:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.CrashFusionGBAEU:
                     return new Dictionary<GBAVV_Pointer, uint>() {
                         [GBAVV_Pointer.LevelInfo] = 0x080a126c,

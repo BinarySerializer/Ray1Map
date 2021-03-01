@@ -46,32 +46,38 @@ namespace R1Engine
 
                 await UniTask.WaitForEndOfFrame();
 
-                // Enumerate every anim set
-                for (int animSetIndex = 0; animSetIndex < rom.Map2D_Graphics.AnimSets.Length; animSetIndex++)
+                // Enumerate every graphics data
+                for (int graphicsIndex = 0; graphicsIndex < rom.Map2D_Graphics.Length; graphicsIndex++)
                 {
-                    var animSet = rom.Map2D_Graphics.AnimSets[animSetIndex];
+                    var graphicsData = rom.Map2D_Graphics[graphicsIndex];
 
-                    // Enumerate every animation
-                    for (var animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
+                    // Enumerate every anim set
+                    for (int animSetIndex = 0; animSetIndex < graphicsData.AnimSets.Length; animSetIndex++)
                     {
-                        await UniTask.WaitForEndOfFrame();
+                        var animSet = graphicsData.AnimSets[animSetIndex];
 
-                        var anim = animSet.Animations[animIndex];
-                        var frames = GetAnimFrames(animSet, animIndex, rom.Map2D_Graphics.TileSet, rom.Map2D_Graphics.Palettes);
+                        // Enumerate every animation
+                        for (var animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
+                        {
+                            await UniTask.WaitForEndOfFrame();
 
-                        if (!frames.Any())
-                            continue;
+                            var anim = animSet.Animations[animIndex];
+                            var frames = GetAnimFrames(animSet, animIndex, graphicsData.TileSet, graphicsData.Palettes);
 
-                        if (context.Settings.GBAVV_IsFusion)
-                            ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex} 0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex} 0x{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
-                        else
-                            ExportAnim(frames, anim.AnimSpeed + 1, "2D", $"{animSetIndex}", $"{animIndex}", false, saveAsGif, outputDir);
+                            if (!frames.Any())
+                                continue;
+
+                            if (context.Settings.GBAVV_IsFusion)
+                                ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex} 0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex} 0x{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
+                            else
+                                ExportAnim(frames, anim.AnimSpeed + 1, $"2D_{graphicsIndex} - 0x{graphicsData.Offset.AbsoluteOffset:X8}", $"{animSetIndex}", $"{animIndex}", false, saveAsGif, outputDir);
+                        }
                     }
                 }
             }
 
             // Export Mode7 animations
-            if (!settings.GBAVV_IsFusion)
+            if (!settings.GBAVV_IsFusion && settings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart)
             {
                 for (short mode7Level = 0; mode7Level < 7; mode7Level++)
                 {
@@ -768,7 +774,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics?.AnimSets);
+            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics?.FirstOrDefault()?.AnimSets);
             var objects = new List<Unity_Object>();
 
             if (map.ObjData?.Objects != null)
@@ -1681,16 +1687,25 @@ namespace R1Engine
             return tileMap;
         }
 
-        public Unity_ObjectManager_GBAVV.AnimSet[] LoadAnimSets(GBAVV_ROM rom)
+        public Unity_ObjectManager_GBAVV.AnimSet[][] LoadAnimSets(GBAVV_ROM rom)
         {
-            IEnumerable<GBAVV_Map2D_AnimSet> animSets = rom.Map2D_Graphics?.AnimSets ?? new GBAVV_Map2D_AnimSet[0];
+            Unity_ObjectManager_GBAVV.AnimSet.Animation convertAnim(GBAVV_Map2D_AnimSet animSet, GBAVV_Map2D_Animation anim, int i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
+                animFrameFunc: () => GetAnimFrames(animSet, i, rom.Map2D_Graphics.FirstOrDefault()?.TileSet, rom.Map2D_Graphics.FirstOrDefault()?.Palettes).Select(frame => frame.CreateSprite()).ToArray(),
+                crashAnim: anim,
+                xPos: animSet.GetMinX(i),
+                yPos: animSet.GetMinY(i)
+            );
 
-            // Create an anim set for Fake Crash
+            Unity_ObjectManager_GBAVV.AnimSet convertAnimSet(GBAVV_Map2D_AnimSet animSet) => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Animations.Select((anim, i) => convertAnim(animSet, anim, i)).ToArray());
+
+            var animSets = rom.Map2D_Graphics?.Select(graphics => graphics.AnimSets.Select(convertAnimSet).ToArray()).ToArray() ?? new Unity_ObjectManager_GBAVV.AnimSet[0][];
+
+            // Create an anim set for Fake Crash for Crash 2
             if (rom.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
             {
-                var crash = rom.Map2D_Graphics.AnimSets[0];
+                var crash = rom.Map2D_Graphics[0].AnimSets[0];
 
-                animSets = animSets.Append(new GBAVV_Map2D_AnimSet
+                animSets[0] = animSets[0].Append(convertAnimSet(new GBAVV_Map2D_AnimSet
                 {
                     Animations = crash.Animations.Select(x => new GBAVV_Map2D_Animation
                     {
@@ -1701,15 +1716,10 @@ namespace R1Engine
                         FrameIndexTable = x.FrameIndexTable
                     }).ToArray(),
                     AnimationFrames = crash.AnimationFrames
-                });
+                })).ToArray();
             }
 
-            return animSets.Select(animSet => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Animations.Select((anim, i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
-                animFrameFunc: () => GetAnimFrames(animSet, i, rom.Map2D_Graphics.TileSet, rom.Map2D_Graphics.Palettes).Select(frame => frame.CreateSprite()).ToArray(),
-                crashAnim: anim,
-                xPos: animSet.GetMinX(i),
-                yPos: animSet.GetMinY(i)
-            )).ToArray())).ToArray();
+            return animSets;
         }
 
         public Unity_ObjectManager_GBAVVMode7.AnimSet[] LoadMode7AnimSets(GBAVV_Mode7_LevelInfo level, RGBA5551Color[] tilePal)

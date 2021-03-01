@@ -8,7 +8,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBAVV : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAVV(Context context, AnimSet[] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType, GBAVV_Script[] scripts = null, GBAVV_Map2D_AnimSet[] animSetObjects = null) : base(context)
+        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType, GBAVV_Script[] scripts = null, GBAVV_Map2D_AnimSet[] animSetObjects = null) : base(context)
         {
             AnimSets = animSets;
             ObjData = objData;
@@ -17,7 +17,7 @@ namespace R1Engine
             AnimSetObjects = animSetObjects;
         }
         
-        public AnimSet[] AnimSets { get; }
+        public AnimSet[][] AnimSets { get; }
         public GBAVV_Map2D_ObjData ObjData { get; }
         public GBAVV_MapInfo.GBAVV_MapType MapType { get; }
         public byte[][] ObjParams => ObjData.ObjParams;

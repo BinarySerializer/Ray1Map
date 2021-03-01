@@ -46,13 +46,18 @@
             else
             {
                 Fusion_FrameIndexTablePointer = s.SerializePointer(Fusion_FrameIndexTablePointer, name: nameof(Fusion_FrameIndexTablePointer));
-                HitBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(HitBox, name: nameof(HitBox));
+
+                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart)
+                    HitBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(HitBox, name: nameof(HitBox));
+
                 RenderBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(RenderBox, name: nameof(RenderBox));
                 PaletteIndex = s.Serialize<byte>(PaletteIndex, name: nameof(PaletteIndex));
                 AnimSpeed = s.Serialize<byte>(AnimSpeed, name: nameof(AnimSpeed));
                 FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
                 Byte_13 = s.Serialize<byte>(Byte_13, name: nameof(Byte_13));
-                s.SerializeArray<byte>(new byte[4], 4, name: "Padding");
+
+                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart)
+                    s.SerializeArray<byte>(new byte[4], 4, name: "Padding");
             }
 
             FrameIndexTable = s.DoAt(Fusion_FrameIndexTablePointer, () => s.SerializeArray<ushort>(FrameIndexTable, FramesCount, name: nameof(FrameIndexTable)));

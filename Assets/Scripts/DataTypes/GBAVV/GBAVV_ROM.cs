@@ -25,6 +25,11 @@ namespace R1Engine
                     {
                         MapType = GBAVV_MapInfo.GBAVV_MapType.WorldMap
                     };
+                else if (Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart)
+                    map = new GBAVV_MapInfo()
+                    {
+                        MapType = GBAVV_MapInfo.GBAVV_MapType.Kart
+                    };
                 else if (CurrentLevInfo.MapType == GBAVV_BaseManager.LevInfo.Type.Normal)
                     map = LevelInfos[CurrentLevInfo.LevelIndex].LevelData.Maps[CurrentLevInfo.MapIndex];
                 else if (CurrentLevInfo.MapType == GBAVV_BaseManager.LevInfo.Type.Bonus)
@@ -48,7 +53,7 @@ namespace R1Engine
         public GBAVV_Script[] Scripts { get; set; }
 
         // 2D
-        public GBAVV_Map2D_Graphics Map2D_Graphics { get; set; }
+        public GBAVV_Map2D_Graphics[] Map2D_Graphics { get; set; }
 
         // Mode7
         public GBAVV_Mode7_LevelInfo[] Mode7_LevelInfos { get; set; }
@@ -146,9 +151,27 @@ namespace R1Engine
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal ||
                 CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_0 ||
                 CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_1 ||
-                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
+                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap ||
+                CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Kart)
             {
-                Map2D_Graphics = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics, name: nameof(Map2D_Graphics)));
+                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart)
+                {
+                    if (Map2D_Graphics == null)
+                        Map2D_Graphics = new GBAVV_Map2D_Graphics[1];
+
+                    Map2D_Graphics[0] = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics[0], name: nameof(Map2D_Graphics)));
+                }
+                // Crash Nitro Kart has multiple graphics datas
+                else
+                {
+                    var pointers = ((GBAVV_NitroKart_Manager)s.GameSettings.GetGameManager).GraphicsDataPointers;
+
+                    if (Map2D_Graphics == null)
+                        Map2D_Graphics = new GBAVV_Map2D_Graphics[pointers.Length];
+
+                    for (int i = 0; i < pointers.Length; i++)
+                        Map2D_Graphics[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Map2D_Graphics>(Map2D_Graphics[i], name: $"{nameof(Map2D_Graphics)}[{i}]"));
+                }
             }
 
             if (s.GameSettings.GBAVV_IsFusion)

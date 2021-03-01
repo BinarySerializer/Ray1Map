@@ -73,7 +73,7 @@ namespace R1Engine
 
         public byte[] ObjParams => ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex);
 
-        public Unity_ObjectManager_GBAVV.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
+        public Unity_ObjectManager_GBAVV.AnimSet AnimSet => ObjManager.AnimSets.FirstOrDefault()?.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBAVV.AnimSet.Animation Animation
         {
             get

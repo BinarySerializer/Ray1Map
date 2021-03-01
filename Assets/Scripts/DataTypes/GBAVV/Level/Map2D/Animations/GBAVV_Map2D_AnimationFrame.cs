@@ -69,6 +69,8 @@ namespace R1Engine
                 TileOffset = s.Serialize<UInt24>(TileOffset, name: nameof(TileOffset));
                 TilesCount = s.Serialize<byte>(TilesCount, name: nameof(TilesCount));
 
+                // TODO: Nitro Kart has a GBAVV_Map2D_AnimationRect followed by a pointer to structs with 2 shorts
+
                 TilePositions = s.DoAt(TilePositionsPointer, () => s.SerializeObjectArray<TilePosition>(TilePositions, TilesCount, name: nameof(TilePositions)));
                 TileShapes = s.DoAt(TileShapesPointer, () => s.SerializeObjectArray<TileShape>(TileShapes, TilesCount, name: nameof(TileShapes)));
             }
