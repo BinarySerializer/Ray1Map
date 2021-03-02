@@ -391,6 +391,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (GBA - US)", typeof(GBAVV_NitroKartUS_Manager))]
         CrashNitroKartUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart_NGage, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (N-Gage)", typeof(GBAVV_NitroKart_NGage_Manager))]
+        CrashNitroKartNGage,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashFusion, Game.GBAVV_CrashFusion, "Crash Bandicoot Fusion (GBA - EU)", typeof(GBAVV_CrashFusionEU_Manager))]
         CrashFusionGBAEU,
 

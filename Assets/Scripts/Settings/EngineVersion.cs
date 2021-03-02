@@ -85,6 +85,7 @@ namespace R1Engine
         GBAVV_Crash1,
         GBAVV_Crash2,
         GBAVV_CrashNitroKart,
+        GBAVV_CrashNitroKart_NGage,
         GBAVV_CrashFusion,
         GBAVV_SpyroFusion,
 
