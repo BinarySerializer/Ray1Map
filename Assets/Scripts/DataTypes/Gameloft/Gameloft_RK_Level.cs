@@ -296,7 +296,7 @@ namespace R1Engine
 			public byte AnimationIndex { get; set; }
 			public byte PaletteIndex { get; set; }
 			public short YPosition { get; set; }
-			public short Short5 { get; set; }
+			public short Width { get; set; }
 			public short Short7 { get; set; }
 			public byte Byte9 { get; set; }
 			public short Short10 { get; set; }
@@ -307,7 +307,7 @@ namespace R1Engine
 				AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
 				PaletteIndex = s.Serialize<byte>(PaletteIndex, name: nameof(PaletteIndex));
 				YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
-				Short5 = s.Serialize<short>(Short5, name: nameof(Short5));
+				Width = s.Serialize<short>(Width, name: nameof(Width));
 				Short7 = s.Serialize<short>(Short7, name: nameof(Short7));
 				Byte9 = s.Serialize<byte>(Byte9, name: nameof(Byte9));
 				Short10 = s.Serialize<short>(Short10, name: nameof(Short10));

@@ -55,20 +55,21 @@ namespace R1Engine
 
 		public virtual int BasePuppetsResourceFile => 10;
 		public virtual int PuppetsPerResourceFile => 15;
+		public virtual int PuppetCount => 62;
+		public virtual int ExtraPuppetsInLastFile => 2;
 
 		public virtual int GetPuppetFileIndex(int puppetIndex) => BasePuppetsResourceFile + puppetIndex / PuppetsPerResourceFile;
 		public virtual int GetPuppetResourceIndex(int puppetIndex) => puppetIndex % PuppetsPerResourceFile;
-		public virtual PuppetReference[] PuppetReferences => Enumerable.Range(0,PuppetCount-2).Select(pi => new PuppetReference() {
+		public virtual PuppetReference[] PuppetReferences => Enumerable.Range(0,PuppetCount-ExtraPuppetsInLastFile).Select(pi => new PuppetReference() {
 			FileIndex = GetPuppetFileIndex(pi),
 			ResourceIndex = GetPuppetResourceIndex(pi)
 		}).Append(new PuppetReference() {
-			FileIndex = GetPuppetFileIndex(PuppetCount-3),
-			ResourceIndex = GetPuppetResourceIndex(PuppetCount-3) + 1
+			FileIndex = GetPuppetFileIndex(PuppetCount- ExtraPuppetsInLastFile - 1),
+			ResourceIndex = GetPuppetResourceIndex(PuppetCount- ExtraPuppetsInLastFile - 1) + 1
 		}).Append(new PuppetReference() {
-			FileIndex = GetPuppetFileIndex(PuppetCount - 3),
-			ResourceIndex = GetPuppetResourceIndex(PuppetCount - 3) + 2
+			FileIndex = GetPuppetFileIndex(PuppetCount - ExtraPuppetsInLastFile - 1),
+			ResourceIndex = GetPuppetResourceIndex(PuppetCount - ExtraPuppetsInLastFile - 1) + 2
 		}).ToArray();
-		public virtual int PuppetCount => 62;
 
 		public class PuppetReference {
 			public int FileIndex { get; set; }
@@ -86,7 +87,7 @@ namespace R1Engine
 				int resIndex = refs[i].ResourceIndex;
 				var resf = FileFactory.Read<Gameloft_ResourceFile>(fileIndex.ToString(), context);
 				puppets[i] = resf.SerializeResource<Gameloft_Puppet>(s, default, resIndex, name: $"Puppets[{i}]");
-				models[i] = new Unity_ObjectManager_GameloftRK.PuppetData(i, fileIndex, resIndex, GetCommonDesign(puppets[i]));
+				models[i] = new Unity_ObjectManager_GameloftRK.PuppetData(i, fileIndex, resIndex, puppets[i], GetCommonDesign(puppets[i]));
 			}
 			return models;
 		}

@@ -56,6 +56,8 @@ namespace R1Engine
 			AnimationsCount = s.Serialize<ushort>(AnimationsCount, name: nameof(AnimationsCount));
 			Animations = s.SerializeObjectArray<Animation>(Animations, AnimationsCount, name: nameof(Animations));
 
+			if(s.CurrentPointer.AbsoluteOffset >= (Offset + ResourceSize).AbsoluteOffset) return;
+
 			if (ImagesCount > 0) {
 				if (UseImageData(s.GameSettings)) {
 					ImageDataLength = s.Serialize<ushort>(ImageDataLength, name: nameof(ImageDataLength));
