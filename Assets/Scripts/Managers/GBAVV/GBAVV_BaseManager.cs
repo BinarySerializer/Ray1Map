@@ -799,9 +799,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading tilesets";
             await Controller.WaitIfNecessary();
 
-            var mode7TileSetTex = Util.ToTileSetTexture(map.Mode7TileSet, Util.ConvertGBAPalette(map.TilePalette), Util.TileEncoding.Linear_8bpp, CellSize, false);
-            var mode7TileSet = new Unity_TileSet(mode7TileSetTex, CellSize);
-
+            var mode7TileSet = LoadTileSet(map.Mode7TileSet, map.TilePalette, true, context.Settings.EngineVersion, 0, null);
             var bgTileSet = LoadTileSet(map.BackgroundTileSet.TileSet, map.TilePalette, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray(), map.BackgroundTileAnimations);
 
             Controller.DetailedState = "Loading maps";
@@ -1200,6 +1198,22 @@ namespace R1Engine
                     animSpeed = 4;
                 }
                 // TODO: Theme 2 (Volcanic) uses a different palette animation system
+            }
+            else if (engineVersion == EngineVersion.GBAVV_CrashNitroKart)
+            {
+                if (is8bit)
+                {
+                    var anim = new byte[][]
+                    {
+                        new byte[] { 0xfb, 0xfc, 0xfd, 0xfe, 0xff },
+                    };
+
+                    modifiedPaletteIndices = new HashSet<byte>(anim.SelectMany(x => x));
+
+                    animatedPalettes = GetAnimatedPalettes(anim, pal);
+
+                    animSpeed = 2;
+                }
             }
 
             var additionalPalTilesCount = additionalTiles.Count;
