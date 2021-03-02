@@ -799,6 +799,10 @@ namespace R1Engine
             Controller.DetailedState = "Loading tilesets";
             await Controller.WaitIfNecessary();
 
+            // Set the collision type for the tiles
+            foreach (var t in map.Mode7MapLayer.MapTiles)
+                t.CollisionType = (ushort)map.Mode7TileSetCollision[t.TileMapY];
+
             var mode7TileSet = LoadTileSet(map.Mode7TileSet, map.TilePalette, true, context.Settings.EngineVersion, 0, null);
             var bgTileSet = LoadTileSet(map.BackgroundTileSet.TileSet, map.TilePalette, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray(), map.BackgroundTileAnimations);
 
@@ -847,7 +851,7 @@ namespace R1Engine
                         mode7TileSet
                     },
                     MapTiles = GetIsometricTileMap(map.Mode7MapLayer.TileMap, map.Mode7MapLayer.MapTiles),
-                    Type = Unity_Map.MapType.Graphics,
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                     Layer = Unity_Map.MapLayer.Middle,
                 },
                 getMap(map.BackgroundMapLayers[2]),
@@ -866,6 +870,8 @@ namespace R1Engine
                 objManager: objManager,
                 eventData: new List<Unity_Object>(objects),
                 cellSize: CellSize,
+                getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
+                getCollisionTypeNameFunc: x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
                 localization: LoadLocalization(rom));
         }
 

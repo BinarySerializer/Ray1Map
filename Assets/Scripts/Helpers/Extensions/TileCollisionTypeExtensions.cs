@@ -660,5 +660,29 @@
                 default: return Unity_MapCollisionTypeGraphic.Unknown0;
             }
         }
+
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBAVV_NitroKart_CollisionType collisionType) {
+            switch (collisionType) 
+            {
+                case GBAVV_NitroKart_CollisionType.None: return Unity_MapCollisionTypeGraphic.None;
+                case GBAVV_NitroKart_CollisionType.Solid_Full: return Unity_MapCollisionTypeGraphic.Solid;
+                case GBAVV_NitroKart_CollisionType.Solid_Ground_2: return Unity_MapCollisionTypeGraphic.Passthrough;
+                case GBAVV_NitroKart_CollisionType.Solid_Ground_3: return Unity_MapCollisionTypeGraphic.Passthrough;
+                case GBAVV_NitroKart_CollisionType.Slow_7: return Unity_MapCollisionTypeGraphic.Direction_Down;
+                case GBAVV_NitroKart_CollisionType.Slow_8: return Unity_MapCollisionTypeGraphic.Direction_Down;
+                case GBAVV_NitroKart_CollisionType.Slow_9: return Unity_MapCollisionTypeGraphic.Direction_Down;
+                case GBAVV_NitroKart_CollisionType.Slow_10: return Unity_MapCollisionTypeGraphic.Direction_Down;
+                case GBAVV_NitroKart_CollisionType.Slow_11: return Unity_MapCollisionTypeGraphic.Direction_Down;
+                case GBAVV_NitroKart_CollisionType.Slow_12: return Unity_MapCollisionTypeGraphic.EnemyDirection_Down;
+                case GBAVV_NitroKart_CollisionType.Slow_13: return Unity_MapCollisionTypeGraphic.EnemyDirection_Down;
+                case GBAVV_NitroKart_CollisionType.Slow_14: return Unity_MapCollisionTypeGraphic.EnemyDirection_Down;
+                case GBAVV_NitroKart_CollisionType.Slow_15: return Unity_MapCollisionTypeGraphic.EnemyDirection_Down;
+                case GBAVV_NitroKart_CollisionType.Water: return Unity_MapCollisionTypeGraphic.Water;
+                case GBAVV_NitroKart_CollisionType.Pit: return Unity_MapCollisionTypeGraphic.Cliff;
+                case GBAVV_NitroKart_CollisionType.SpeedBoost: return Unity_MapCollisionTypeGraphic.Race_SpeedUp;
+                case GBAVV_NitroKart_CollisionType.Jump: return Unity_MapCollisionTypeGraphic.Bounce;
+                default: return Unity_MapCollisionTypeGraphic.Unknown0;
+            }
+        }
     }
 }

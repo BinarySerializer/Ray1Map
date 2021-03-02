@@ -11,7 +11,7 @@
         public Pointer[] BackgroundMapLayerPointers { get; set; }
         public Pointer BackgroundTileAnimationsPointer { get; set; }
         public Pointer Mode7TileSetIntsPointer { get; set; }
-        public int Mode7TileSetLength { get; set; } // Collision?
+        public int Mode7TileSetLength { get; set; }
         public Pointer Objects_Normal_Pointer { get; set; }
         public Pointer Objects_TimeTrial_Pointer { get; set; }
         public Pointer Objects_Unknown_Pointer { get; set; }
@@ -26,7 +26,7 @@
         public GBAVV_WorldMap_MapLayer Mode7MapLayer { get; set; }
         public GBAVV_NitroKart_BackgroundMapLayer[] BackgroundMapLayers { get; set; }
         public GBAVV_NitroKart_TileAnimations BackgroundTileAnimations { get; set; }
-        public int[] Mode7TileSetInts { get; set; } // TODO: What is this?
+        public GBAVV_NitroKart_CollisionType[] Mode7TileSetCollision { get; set; }
         public GBAVV_NitroKart_Object[] Objects_Normal { get; set; }
         public GBAVV_NitroKart_Object[] Objects_TimeTrial { get; set; }
         public GBAVV_NitroKart_Object[] Objects_Unknown { get; set; } // For multiplayer/arcade? Usually same as normal.
@@ -62,7 +62,7 @@
                 BackgroundMapLayers[i] = s.DoAt(BackgroundMapLayerPointers[i], () => s.SerializeObject<GBAVV_NitroKart_BackgroundMapLayer>(BackgroundMapLayers[i], name: $"{nameof(BackgroundMapLayers)}[{i}]"));
 
             BackgroundTileAnimations = s.DoAt(BackgroundTileAnimationsPointer, () => s.SerializeObject<GBAVV_NitroKart_TileAnimations>(BackgroundTileAnimations, name: nameof(BackgroundTileAnimations)));
-            Mode7TileSetInts = s.DoAt(Mode7TileSetIntsPointer, () => s.SerializeArray<int>(Mode7TileSetInts, Mode7TileSetLength, name: nameof(Mode7TileSetInts)));
+            Mode7TileSetCollision = s.DoAt(Mode7TileSetIntsPointer, () => s.SerializeArray<GBAVV_NitroKart_CollisionType>(Mode7TileSetCollision, Mode7TileSetLength, name: nameof(Mode7TileSetCollision)));
             Objects_Normal = s.DoAt(Objects_Normal_Pointer, () => s.SerializeObjectArrayUntil(Objects_Normal, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_Normal)));
             Objects_TimeTrial = s.DoAt(Objects_TimeTrial_Pointer, () => s.SerializeObjectArrayUntil(Objects_TimeTrial, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_TimeTrial)));
             Objects_Unknown = s.DoAt(Objects_Unknown_Pointer, () => s.SerializeObjectArrayUntil(Objects_Unknown, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_Unknown)));
