@@ -20,12 +20,13 @@ namespace R1Engine
 
         public class PuppetData
         {
-            public PuppetData(int index, int resourceFileID, int resourceID, Gameloft_BaseManager.Unity_Gameloft_ObjGraphics puppet, string name = null)
+            public PuppetData(int index, int resourceFileID, int resourceID, Gameloft_Puppet puppetData, Gameloft_BaseManager.Unity_Gameloft_ObjGraphics puppet, string name = null)
             {
                 Index = index;
                 ResourceFileID = resourceFileID;
                 ResourceID = resourceID;
                 Puppet = puppet;
+                GameloftPuppetData = puppetData;
                 Name = name;
             }
 
@@ -35,6 +36,7 @@ namespace R1Engine
             public int ResourceID { get; }
 
             public Gameloft_BaseManager.Unity_Gameloft_ObjGraphics Puppet { get; }
+            public Gameloft_Puppet GameloftPuppetData { get; }
 
             public string Name { get; }
 

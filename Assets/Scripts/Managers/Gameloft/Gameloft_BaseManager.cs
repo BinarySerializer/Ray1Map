@@ -210,20 +210,29 @@ namespace R1Engine
                 return texs;
             } else {
                 Texture2D[][] texs = new Texture2D[puppet.ImagesCount][];
-                for (int i = 0; i < puppet.ImagesCount; i++) {
-                    var id = puppet.ImageDescriptors[i];
-                    var pal = puppet.Palettes[id.Palette];
-                    byte[] imageData = puppet.Images[i].Convert(puppet.ImageFormat, id.Width, id.Height, pal.PaletteLength);
-                    texs[i] = new Texture2D[pal.PaletteCount];
-                    for (int p = 0; p < pal.PaletteCount; p++) {
-                        Texture2D tex = TextureHelpers.CreateTexture2D(id.Width, id.Height);
-                        for (int y = 0; y < tex.height; y++) {
-                            for (int x = 0; x < tex.width; x++) {
-                                tex.SetPixel(x, flipY ? tex.height - 1 - y : y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
+                if (puppet.Images == null) {
+                    // Required for corrupt puppet in low-res Rayman Kart
+                    for (int i = 0; i < puppet.ImagesCount; i++) {
+                        var id = puppet.ImageDescriptors[i];
+                        texs[i] = new Texture2D[1];
+                        texs[i][0] = TextureHelpers.CreateTexture2D(id.Width, id.Height, clear: true, applyClear: true);
+                    }
+                } else {
+                    for (int i = 0; i < puppet.ImagesCount; i++) {
+                        var id = puppet.ImageDescriptors[i];
+                        var pal = puppet.Palettes[id.Palette];
+                        byte[] imageData = puppet.Images[i].Convert(puppet.ImageFormat, id.Width, id.Height, pal.PaletteLength);
+                        texs[i] = new Texture2D[pal.PaletteCount];
+                        for (int p = 0; p < pal.PaletteCount; p++) {
+                            Texture2D tex = TextureHelpers.CreateTexture2D(id.Width, id.Height);
+                            for (int y = 0; y < tex.height; y++) {
+                                for (int x = 0; x < tex.width; x++) {
+                                    tex.SetPixel(x, flipY ? tex.height - 1 - y : y, pal.Palettes[p][imageData[y * tex.width + x]].GetColor());
+                                }
                             }
+                            tex.Apply();
+                            texs[i][p] = tex;
                         }
-                        tex.Apply();
-                        texs[i][p] = tex;
                     }
                 }
                 return texs;
