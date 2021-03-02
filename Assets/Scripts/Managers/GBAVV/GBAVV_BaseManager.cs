@@ -799,11 +799,44 @@ namespace R1Engine
             Controller.DetailedState = "Loading tilesets";
             await Controller.WaitIfNecessary();
 
-            var mode7TileSetTex = Util.ToTileSetTexture(map.TileSet, Util.ConvertGBAPalette(map.TilePalette), Util.TileEncoding.Linear_8bpp, CellSize, false);
+            var mode7TileSetTex = Util.ToTileSetTexture(map.Mode7TileSet, Util.ConvertGBAPalette(map.TilePalette), Util.TileEncoding.Linear_8bpp, CellSize, false);
             var mode7TileSet = new Unity_TileSet(mode7TileSetTex, CellSize);
+
+            var bgTileSet = LoadTileSet(map.BackgroundTileSet.TileSet, map.TilePalette, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray());
 
             Controller.DetailedState = "Loading maps";
             await Controller.WaitIfNecessary();
+
+            Unity_Map getMap(GBAVV_NitroKart_BackgroundMapLayer m)
+            {
+                var width = (ushort)(m.Width / CellSize);
+                var height = (ushort)(m.Height / CellSize);
+
+                var tileMap = new Unity_Tile[width * height];
+
+                const int screenBlockWidth = 32;
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int screenblock = (x / screenBlockWidth) * 1024;
+                        tileMap[y * width + x] = new Unity_Tile(m.TileMap.MapTiles[y * screenBlockWidth + (x % screenBlockWidth) + screenblock]);
+                    }
+                }
+
+                return new Unity_Map
+                {
+                    Width = width,
+                    Height = height,
+                    TileSet = new Unity_TileSet[]
+                    {
+                        bgTileSet
+                    },
+                    MapTiles = tileMap,
+                    Type = Unity_Map.MapType.Graphics,
+                    Layer = Unity_Map.MapLayer.Middle,
+                };
+            }
 
             var maps = new Unity_Map[]
             {
@@ -816,10 +849,12 @@ namespace R1Engine
                         mode7TileSet
                     },
                     MapTiles = GetIsometricTileMap(map.Mode7MapLayer.TileMap, map.Mode7MapLayer.MapTiles),
-                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
+                    Type = Unity_Map.MapType.Graphics,
                     Layer = Unity_Map.MapLayer.Middle,
                 },
-                // TODO: Background layer(s)
+                getMap(map.BackgroundMapLayers[2]),
+                getMap(map.BackgroundMapLayers[1]),
+                getMap(map.BackgroundMapLayers[0]),
             };
 
             Controller.DetailedState = "Loading objects";
