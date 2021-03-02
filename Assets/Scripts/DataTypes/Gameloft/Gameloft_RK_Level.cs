@@ -32,6 +32,7 @@ namespace R1Engine
 		public RGB888Color Color_afterbK_0 { get; set; }
 		public RGB888Color Color_afterbK_1 { get; set; }
 		public byte bL { get; set; }
+		public byte LowResUnusedByteAfterbL { get; set; }
 		public RGB888Color Color_bH_Wall0 { get; set; }
 		public RGB888Color Color_bI_Wall1 { get; set; }
 		public byte byte_afterBI { get; set; }
@@ -77,13 +78,16 @@ namespace R1Engine
 		public override void SerializeImpl(SerializerObject s) {
 			TrackLength = s.Serialize<ushort>(TrackLength, name: nameof(TrackLength));
 			TrackBlocks = s.SerializeObjectArray<TrackBlock>(TrackBlocks, TrackLength, name: nameof(TrackBlocks));
-			LumsCount = s.Serialize<byte>(LumsCount, name: nameof(LumsCount));
-			BM_Byte0 = s.Serialize<byte>(BM_Byte0, name: nameof(BM_Byte0));
-			BM_Bool1 = s.Serialize<bool>(BM_Bool1, name: nameof(BM_Bool1));
-			BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
-			BM_Byte3 = s.Serialize<byte>(BM_Byte3, name: nameof(BM_Byte3));
-			MapSpriteMapping = s.SerializeObjectArray<TrackMapping>(MapSpriteMapping, TrackLength - 1, name: nameof(MapSpriteMapping));
-			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240) {
+			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+				LumsCount = s.Serialize<byte>(LumsCount, name: nameof(LumsCount));
+				BM_Byte0 = s.Serialize<byte>(BM_Byte0, name: nameof(BM_Byte0));
+				BM_Bool1 = s.Serialize<bool>(BM_Bool1, name: nameof(BM_Bool1));
+				BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
+				BM_Byte3 = s.Serialize<byte>(BM_Byte3, name: nameof(BM_Byte3));
+				MapSpriteMapping = s.SerializeObjectArray<TrackMapping>(MapSpriteMapping, TrackLength - 1, name: nameof(MapSpriteMapping));
+			}
+			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240 ||
+				s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
 				RoadTextureID_0 = s.Serialize<byte>(RoadTextureID_0, name: nameof(RoadTextureID_0));
 				RoadTextureID_1 = s.Serialize<byte>(RoadTextureID_1, name: nameof(RoadTextureID_1));
 			}
@@ -105,24 +109,29 @@ namespace R1Engine
 			Color_afterbK_0 = s.SerializeObject<RGB888Color>(Color_afterbK_0, name: nameof(Color_afterbK_0));
 			Color_afterbK_1 = s.SerializeObject<RGB888Color>(Color_afterbK_1, name: nameof(Color_afterbK_1));
 			bL = s.Serialize<byte>(bL, name: nameof(bL));
+			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
+				LowResUnusedByteAfterbL = s.Serialize<byte>(LowResUnusedByteAfterbL, name: nameof(LowResUnusedByteAfterbL));
+			}
 			Color_bH_Wall0 = s.SerializeObject<RGB888Color>(Color_bH_Wall0, name: nameof(Color_bH_Wall0));
 			Color_bI_Wall1 = s.SerializeObject<RGB888Color>(Color_bI_Wall1, name: nameof(Color_bI_Wall1));
 			byte_afterBI = s.Serialize<byte>(byte_afterBI, name: nameof(byte_afterBI));
-			if (BitHelpers.ExtractBits(aW, 1, 2) == 1) {
-				Color_dj_BridgeDark = s.SerializeObject<RGB888Color>(Color_dj_BridgeDark, name: nameof(Color_dj_BridgeDark));
-				Color_dk_BridgeLight = s.SerializeObject<RGB888Color>(Color_dk_BridgeLight, name: nameof(Color_dk_BridgeLight));
-				dl = s.Serialize<byte>(dl, name: nameof(dl));
-				dm = s.Serialize<byte>(dm, name: nameof(dm));
-			}
-			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
-				Color_dq = s.SerializeObject<RGB888Color>(Color_dq, name: nameof(Color_dq));
-				Color_Tunnel_0 = s.SerializeObject<RGB888Color>(Color_Tunnel_0, name: nameof(Color_Tunnel_0));
-				Color_ds = s.SerializeObject<RGB888Color>(Color_ds, name: nameof(Color_ds));
-				Color_Tunnel_1 = s.SerializeObject<RGB888Color>(Color_Tunnel_1, name: nameof(Color_Tunnel_1));
-				Color_Tunnel_Front = s.SerializeObject<RGB888Color>(Color_Tunnel_Front, name: nameof(Color_Tunnel_Front));
-				Tunnel_Height = s.Serialize<short>(Tunnel_Height, name: nameof(Tunnel_Height));
-				Tunnel_Height2 = s.Serialize<short>(Tunnel_Height2, name: nameof(Tunnel_Height2));
-				Tunnel_WallThickness = s.Serialize<short>(Tunnel_WallThickness, name: nameof(Tunnel_WallThickness));
+			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+				if (BitHelpers.ExtractBits(aW, 1, 2) == 1) {
+					Color_dj_BridgeDark = s.SerializeObject<RGB888Color>(Color_dj_BridgeDark, name: nameof(Color_dj_BridgeDark));
+					Color_dk_BridgeLight = s.SerializeObject<RGB888Color>(Color_dk_BridgeLight, name: nameof(Color_dk_BridgeLight));
+					dl = s.Serialize<byte>(dl, name: nameof(dl));
+					dm = s.Serialize<byte>(dm, name: nameof(dm));
+				}
+				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
+					Color_dq = s.SerializeObject<RGB888Color>(Color_dq, name: nameof(Color_dq));
+					Color_Tunnel_0 = s.SerializeObject<RGB888Color>(Color_Tunnel_0, name: nameof(Color_Tunnel_0));
+					Color_ds = s.SerializeObject<RGB888Color>(Color_ds, name: nameof(Color_ds));
+					Color_Tunnel_1 = s.SerializeObject<RGB888Color>(Color_Tunnel_1, name: nameof(Color_Tunnel_1));
+					Color_Tunnel_Front = s.SerializeObject<RGB888Color>(Color_Tunnel_Front, name: nameof(Color_Tunnel_Front));
+					Tunnel_Height = s.Serialize<short>(Tunnel_Height, name: nameof(Tunnel_Height));
+					Tunnel_Height2 = s.Serialize<short>(Tunnel_Height2, name: nameof(Tunnel_Height2));
+					Tunnel_WallThickness = s.Serialize<short>(Tunnel_WallThickness, name: nameof(Tunnel_WallThickness));
+				}
 			}
 			TriggerObjectsCount = s.Serialize<ushort>(TriggerObjectsCount, name: nameof(TriggerObjectsCount));
 			TriggerObjects = s.SerializeObjectArray<TriggerObject>(TriggerObjects, TriggerObjectsCount, name: nameof(TriggerObjects));
@@ -148,6 +157,9 @@ namespace R1Engine
 			if(TrackObjectInstancesCount > 0) TrackObjectCollections = s.SerializeObjectArray<TrackObjectCollection>(TrackObjectCollections, TrackLength, name: nameof(TrackObjectCollections));
 			TypesCount = s.Serialize<byte>(TypesCount, name: nameof(TypesCount));
 			Types = s.SerializeObjectArray<Type>(Types, TypesCount, name: nameof(Types));
+			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
+				LumsCount = s.Serialize<byte>(LumsCount, name: nameof(LumsCount));
+			}
 			Lums = s.SerializeObjectArray<Lum>(Lums, LumsCount, name: nameof(Lums));
 		}
 
@@ -295,6 +307,8 @@ namespace R1Engine
 			public byte PuppetIndex { get; set; }
 			public byte AnimationIndex { get; set; }
 			public byte PaletteIndex { get; set; }
+			public byte LowResbE0 { get; set; }
+			public byte LowResbE1 { get; set; }
 			public short YPosition { get; set; }
 			public short Width { get; set; }
 			public short Short7 { get; set; }
@@ -306,6 +320,10 @@ namespace R1Engine
 				PuppetIndex = s.Serialize<byte>(PuppetIndex, name: nameof(PuppetIndex));
 				AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
 				PaletteIndex = s.Serialize<byte>(PaletteIndex, name: nameof(PaletteIndex));
+				if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
+					LowResbE0 = s.Serialize<byte>(LowResbE0, name: nameof(LowResbE0));
+					LowResbE1 = s.Serialize<byte>(LowResbE1, name: nameof(LowResbE1));
+				}
 				YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
 				Width = s.Serialize<short>(Width, name: nameof(Width));
 				Short7 = s.Serialize<short>(Short7, name: nameof(Short7));
@@ -484,8 +502,10 @@ namespace R1Engine
 			public override void SerializeImpl(SerializerObject s) {
 				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
 				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
-					RoadTexture0 = s.Serialize<byte>(RoadTexture0, name: nameof(RoadTexture0));
-					RoadTexture1 = s.Serialize<byte>(RoadTexture1, name: nameof(RoadTexture1));
+					if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+						RoadTexture0 = s.Serialize<byte>(RoadTexture0, name: nameof(RoadTexture0));
+						RoadTexture1 = s.Serialize<byte>(RoadTexture1, name: nameof(RoadTexture1));
+					}
 					Entries = s.SerializeObjectArray<Entry>(Entries, 3, name: nameof(Entries));
 				}
 				Width = s.Serialize<short>(Width, name: nameof(Width));

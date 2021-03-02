@@ -456,6 +456,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 240x320, Samsung SGH-F480V)", typeof(Gameloft_RRRHighRes_Manager))]
         RaymanRavingRabbidsMobile_240x320_SamsungF480V,
 
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 128x128)", typeof(Gameloft_RK_128x128_Manager))]
+        RaymanKartMobile_128x128,
+
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 128x160)", typeof(Gameloft_RK_128x160_Manager))]
         RaymanKartMobile_128x160,
 
