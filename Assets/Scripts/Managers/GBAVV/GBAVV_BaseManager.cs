@@ -802,7 +802,7 @@ namespace R1Engine
             var mode7TileSetTex = Util.ToTileSetTexture(map.Mode7TileSet, Util.ConvertGBAPalette(map.TilePalette), Util.TileEncoding.Linear_8bpp, CellSize, false);
             var mode7TileSet = new Unity_TileSet(mode7TileSetTex, CellSize);
 
-            var bgTileSet = LoadTileSet(map.BackgroundTileSet.TileSet, map.TilePalette, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray());
+            var bgTileSet = LoadTileSet(map.BackgroundTileSet.TileSet, map.TilePalette, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray(), map.BackgroundTileAnimations);
 
             Controller.DetailedState = "Loading maps";
             await Controller.WaitIfNecessary();
@@ -977,7 +977,7 @@ namespace R1Engine
             throw new Exception($"Invalid collision type {index} in level {level}");
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme, MapTile[] mapTiles_4)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, uint levelTheme, MapTile[] mapTiles_4, GBAVV_NitroKart_TileAnimations nitroKartTileAnimations = null)
         {
             Texture2D tex;
             var additionalTiles = new List<Texture2D>();
@@ -986,6 +986,7 @@ namespace R1Engine
             var tilesCount = tileSet.Length / tileSize;
             var tileSetPaletteIndices = new List<byte>();
             var originalTileSetIndices = new List<int>();
+            var tileAnimations = new List<Unity_AnimatedTile>();
 
             if (is8bit)
             { 
@@ -1038,6 +1039,57 @@ namespace R1Engine
                         additionalTiles.Add(tileTex);
                         tileSetPaletteIndices.Add(p);
                         originalTileSetIndices.Add(tileIndex);
+                    }
+                }
+
+                // NOTE: Currently this does not support the same tile having multiple palettes, but it's not used in Nitro Kart
+                // Add Nitro Kart animated tiles
+                if (nitroKartTileAnimations != null)
+                {
+                    // Enumerate every animation
+                    foreach (var anim in nitroKartTileAnimations.Animations)
+                    {
+                        // Enumerate every tile
+                        for (int tileIndex = 0; tileIndex < anim.TilesCount; tileIndex++)
+                        {
+                            // Make sure the tile is used in the level
+                            if (mapTiles_4.All(x => x.TileMapY != anim.TileIndices[tileIndex]))
+                                continue;
+
+                            // Get the palette index
+                            var palIndex = mapTiles_4.First(x => x.TileMapY == anim.TileIndices[tileIndex]).PaletteIndex;
+
+                            var framesCount = anim.FramesCount - 1; // Don't include the first frame since that's already in the normal tileset
+
+                            // Enumerate every frame
+                            for (int frameIndex = 1; frameIndex < anim.FramesCount; frameIndex++)
+                            {
+                                var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+
+                                // Create a new tile
+                                tileTex.FillInTile(
+                                    imgData: anim.Frames[frameIndex].TileSet,
+                                    imgDataOffset: tileSize * tileIndex,
+                                    pal: palettes[palIndex],
+                                    encoding: Util.TileEncoding.Linear_4bpp,
+                                    tileWidth: CellSize,
+                                    flipTextureY: false,
+                                    tileX: 0,
+                                    tileY: 0);
+
+                                // Add to additional tiles list
+                                additionalTiles.Add(tileTex);
+                            }
+
+                            tileAnimations.Add(new Unity_AnimatedTile
+                            {
+                                AnimationSpeeds = anim.Frames.Select(x => x.Speed / 2f).ToArray(),
+                                TileIndices = new int[]
+                                {
+                                    anim.TileIndices[tileIndex]
+                                }.Concat(Enumerable.Range(tilesCount + additionalTiles.Count - framesCount, framesCount)).ToArray()
+                            });
+                        }
                     }
                 }
             }
@@ -1150,7 +1202,6 @@ namespace R1Engine
                 // TODO: Theme 2 (Volcanic) uses a different palette animation system
             }
 
-            var tileAnimations = new List<Unity_AnimatedTile>();
             var additionalPalTilesCount = additionalTiles.Count;
 
             if (animatedPalettes != null)

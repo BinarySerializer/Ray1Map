@@ -5,18 +5,18 @@
         public Pointer Mode7TileSetPointer { get; set; }
         public Pointer BackgroundTileSetPointer { get; set; }
         public Pointer TilePalettePointer { get; set; }
-        public Pointer UnknownPalettesPointer { get; set; } // Points to 3 pointers for first level, each with a palette (pal animations?)
+        public Pointer UnknownPalettesPointer { get; set; }
         public int Int_10 { get; set; } // 0 or 3
         public Pointer Mode7MapLayerPointer { get; set; }
         public Pointer[] BackgroundMapLayerPointers { get; set; }
-        public Pointer Pointer_24 { get; set; } // To null-terminated pointer array
+        public Pointer BackgroundTileAnimationsPointer { get; set; }
         public Pointer Mode7TileSetIntsPointer { get; set; }
-        public int Mode7TileSetLength { get; set; }
+        public int Mode7TileSetLength { get; set; } // Collision?
         public Pointer Objects_Normal_Pointer { get; set; }
         public Pointer Objects_TimeTrial_Pointer { get; set; }
         public Pointer Objects_Unknown_Pointer { get; set; }
-        public Pointer Pointer_3C { get; set; }
-        public Pointer Pointer_40 { get; set; }
+        public Pointer Pointer_3C { get; set; } // Usually leads to an empty struct
+        public Pointer Pointer_40 { get; set; } // Usually leads to an empty struct
 
         // Serialized from pointers
         public byte[] Mode7TileSet { get; set; }
@@ -25,6 +25,7 @@
         public GBAVV_NitroKart_UnknownPalettes UnknownPalettes { get; set; }
         public GBAVV_WorldMap_MapLayer Mode7MapLayer { get; set; }
         public GBAVV_NitroKart_BackgroundMapLayer[] BackgroundMapLayers { get; set; }
+        public GBAVV_NitroKart_TileAnimations BackgroundTileAnimations { get; set; }
         public int[] Mode7TileSetInts { get; set; } // TODO: What is this?
         public GBAVV_NitroKart_Object[] Objects_Normal { get; set; }
         public GBAVV_NitroKart_Object[] Objects_TimeTrial { get; set; }
@@ -39,7 +40,7 @@
             Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
             Mode7MapLayerPointer = s.SerializePointer(Mode7MapLayerPointer, name: nameof(Mode7MapLayerPointer));
             BackgroundMapLayerPointers = s.SerializePointerArray(BackgroundMapLayerPointers, 3, name: nameof(BackgroundMapLayerPointers));
-            Pointer_24 = s.SerializePointer(Pointer_24, name: nameof(Pointer_24));
+            BackgroundTileAnimationsPointer = s.SerializePointer(BackgroundTileAnimationsPointer, name: nameof(BackgroundTileAnimationsPointer));
             Mode7TileSetIntsPointer = s.SerializePointer(Mode7TileSetIntsPointer, name: nameof(Mode7TileSetIntsPointer));
             Mode7TileSetLength = s.Serialize<int>(Mode7TileSetLength, name: nameof(Mode7TileSetLength));
             Objects_Normal_Pointer = s.SerializePointer(Objects_Normal_Pointer, name: nameof(Objects_Normal_Pointer));
@@ -58,8 +59,9 @@
                 BackgroundMapLayers = new GBAVV_NitroKart_BackgroundMapLayer[BackgroundMapLayerPointers.Length];
 
             for (int i = 0; i < BackgroundMapLayers.Length; i++)
-                BackgroundMapLayers[i] = s.DoAt(BackgroundMapLayerPointers[i], () => s.SerializeObject(BackgroundMapLayers[i], name: $"{nameof(BackgroundMapLayers)}[{i}]"));
+                BackgroundMapLayers[i] = s.DoAt(BackgroundMapLayerPointers[i], () => s.SerializeObject<GBAVV_NitroKart_BackgroundMapLayer>(BackgroundMapLayers[i], name: $"{nameof(BackgroundMapLayers)}[{i}]"));
 
+            BackgroundTileAnimations = s.DoAt(BackgroundTileAnimationsPointer, () => s.SerializeObject<GBAVV_NitroKart_TileAnimations>(BackgroundTileAnimations, name: nameof(BackgroundTileAnimations)));
             Mode7TileSetInts = s.DoAt(Mode7TileSetIntsPointer, () => s.SerializeArray<int>(Mode7TileSetInts, Mode7TileSetLength, name: nameof(Mode7TileSetInts)));
             Objects_Normal = s.DoAt(Objects_Normal_Pointer, () => s.SerializeObjectArrayUntil(Objects_Normal, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_Normal)));
             Objects_TimeTrial = s.DoAt(Objects_TimeTrial_Pointer, () => s.SerializeObjectArrayUntil(Objects_TimeTrial, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_TimeTrial)));

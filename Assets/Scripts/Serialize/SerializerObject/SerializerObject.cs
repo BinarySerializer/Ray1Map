@@ -133,6 +133,37 @@ namespace R1Engine
 
             return obj;
         }
+        public Pointer[] SerializePointerArrayUntil(Pointer[] obj, Func<Pointer, bool> conditionCheckFunc, bool includeLastObj = false, string name = null) 
+        {
+            if (obj == null)
+            {
+                var objects = new List<Pointer>();
+                var index = 0;
+
+                while (true)
+                {
+                    var serializedObj = SerializePointer(default, name: $"{name}[{index++}]");
+
+                    if (conditionCheckFunc(serializedObj))
+                    {
+                        if (includeLastObj)
+                            objects.Add(serializedObj);
+
+                        break;
+                    }
+
+                    objects.Add(serializedObj);
+                }
+
+                obj = objects.ToArray();
+            }
+            else
+            {
+                SerializePointerArray(obj, obj.Length, name: name);
+            }
+
+            return obj;
+        }
 
 
         public abstract Pointer[] SerializePointerArray(Pointer[] obj, long count, Pointer anchor = null, bool allowInvalid = false, string name = null);

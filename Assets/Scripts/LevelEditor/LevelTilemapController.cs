@@ -940,8 +940,9 @@ namespace R1Engine
                 var map = LevelEditorData.Level.Maps[mapIndex];
                 Texture2D tex = GraphicsTilemaps[mapIndex].sprite.texture;
                 foreach (var animatedTile in animatedTiles[mapIndex].Keys) {
-                    var animSpeed = animatedTile.AnimationSpeed / 30f;
-                    foreach (var at in animatedTiles[mapIndex][animatedTile]) {
+                    foreach (var at in animatedTiles[mapIndex][animatedTile]) 
+                    {
+                        var animSpeed = (animatedTile.AnimationSpeeds?[at.tileIndex] ?? animatedTile.AnimationSpeed) / 30f;
                         //print("Updating " + at.x + " - " + at.y);
                         at.currentTimer += Time.deltaTime;
 
