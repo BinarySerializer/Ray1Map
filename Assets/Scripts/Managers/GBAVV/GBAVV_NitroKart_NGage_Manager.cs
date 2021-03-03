@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
+using System;
+using System.IO;
 
 namespace R1Engine
 {
@@ -36,9 +36,15 @@ namespace R1Engine
 
                     var append = includeAbsolutePointer ? $"_{offset.Pointer.AbsoluteOffset:X8}" : String.Empty;
 
-                    var bytes = s.DoAt(offset.Pointer, () => s.SerializeArray<byte>(default, offset.BlockLength, name: $"Block[{i}]"));
+                    s.DoAt(offset.Pointer, () =>
+                    {
+                        s.DoEncoded(new BriefLZEncoder(), () =>
+                        {
+                            var bytes = s.SerializeArray<byte>(default, s.CurrentLength, name: $"Block[{i}]");
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}{append}.dat"), bytes);
+                        });
+                    });
 
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}{append}.dat"), bytes);
                 }
             }
         }
