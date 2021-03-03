@@ -410,6 +410,7 @@ namespace R1Engine
                 Gameloft_Puppet.Animation a,
                 Gameloft_Puppet.AnimationFrame f,
                 Gameloft_Puppet.AnimationLayerGroupCollision c) {
+                if(c == null) return null;
                 if(c.Width == 0 || c.Height == 0) return new Unity_ObjAnimationCollisionPart[0];
                 var frameFlipX = f.Flags.HasFlag(Gameloft_Puppet.AnimationFrame.Flag.HorizontalFlip);
                 var frameFlipY = f.Flags.HasFlag(Gameloft_Puppet.AnimationFrame.Flag.VerticalFlip);
@@ -439,7 +440,7 @@ namespace R1Engine
                     var f = puppet.Frames[a.FrameIndex + i];
                     if(f.LayerGroupIndex >= puppet.LayerGroupsCount) continue;
                     var g = puppet.LayerGroupsGraphics[f.LayerGroupIndex];
-                    var c = puppet.LayerGroupsCollision[f.LayerGroupIndex];
+                    var c = puppet.LayerGroupsCollision?[f.LayerGroupIndex];
                     frames.Add(new Unity_ObjAnimationFrame(
                         GetPartsForFrame(a, f,g),
                         GetCollisionForFrame(a,f,c)

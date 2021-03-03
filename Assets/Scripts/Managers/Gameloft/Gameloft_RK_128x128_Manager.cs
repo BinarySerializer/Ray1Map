@@ -18,12 +18,21 @@ namespace R1Engine
 
 		public override string GetLevelPath(GameSettings settings) => (6).ToString();
 		public override int GetLevelResourceIndex(GameSettings settings) => settings.Level;
-		public override int BasePuppetsResourceFile => 10;
-		public override int PuppetsPerResourceFile => 10;
-		public override int PuppetCount => 64;
-		public override int ExtraPuppetsInLastFile => 4;
+		public override int BasePuppetsResourceFile => 3;
+		public override int PuppetsPerResourceFile => 16;
+		public override int PuppetCount => 16;
+		public override int ExtraPuppetsInLastFile => 0;
+
+		public override PuppetReference[] PuppetReferences => Enumerable.Range(0, PuppetCount - ExtraPuppetsInLastFile).Select(pi => new PuppetReference() {
+			FileIndex = GetPuppetFileIndex(pi),
+			ResourceIndex = pi == 8 ? 24 : GetPuppetResourceIndex(pi) // Hack. Index 8 is never used it seems, and it's not a puppet
+		}).ToArray();
 
 		public override string[] SingleResourceFiles => new string[] {
 		};
+		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+		{
+			new GameInfo_World(0, Enumerable.Range(0, 4).ToArray()),
+		});
 	}
 }

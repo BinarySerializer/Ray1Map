@@ -50,7 +50,9 @@ namespace R1Engine
 			Layers = s.SerializeObjectArray<AnimationLayer>(Layers, LayersCount, name: nameof(Layers));
 			LayerGroupsCount = s.Serialize<ushort>(LayerGroupsCount, name: nameof(LayerGroupsCount));
 			LayerGroupsGraphics = s.SerializeObjectArray<AnimationLayerGroupGraphics>(LayerGroupsGraphics, LayerGroupsCount, name: nameof(LayerGroupsGraphics));
-			LayerGroupsCollision = s.SerializeObjectArray<AnimationLayerGroupCollision>(LayerGroupsCollision, LayerGroupsCount, name: nameof(LayerGroupsCollision));
+			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+				LayerGroupsCollision = s.SerializeObjectArray<AnimationLayerGroupCollision>(LayerGroupsCollision, LayerGroupsCount, name: nameof(LayerGroupsCollision));
+			}
 			FramesCount = s.Serialize<ushort>(FramesCount, name: nameof(FramesCount));
 			Frames = s.SerializeObjectArray<AnimationFrame>(Frames, FramesCount, name: nameof(Frames));
 			AnimationsCount = s.Serialize<ushort>(AnimationsCount, name: nameof(AnimationsCount));
@@ -157,7 +159,9 @@ namespace R1Engine
 
 			public override void SerializeImpl(SerializerObject s) {
 				Length = s.Serialize<byte>(Length, name: nameof(Length));
-				LayerGroupUnusedByte = s.Serialize<byte>(LayerGroupUnusedByte, name: nameof(LayerGroupUnusedByte));
+				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+					LayerGroupUnusedByte = s.Serialize<byte>(LayerGroupUnusedByte, name: nameof(LayerGroupUnusedByte));
+				}
 				StartIndex = s.Serialize<ushort>(StartIndex, name: nameof(StartIndex));
 			}
 		}
@@ -208,7 +212,8 @@ namespace R1Engine
 
 			public override void SerializeImpl(SerializerObject s) {
 				Length = s.Serialize<byte>(Length, name: nameof(Length));
-				if (s.GameSettings.EngineVersion >= EngineVersion.Gameloft_RK) {
+				if (s.GameSettings.EngineVersion >= EngineVersion.Gameloft_RK
+					&& s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
 					AnimationUnusedByte = s.Serialize<byte>(AnimationUnusedByte, name: nameof(AnimationUnusedByte));
 				}
 				FrameIndex = s.Serialize<ushort>(FrameIndex, name: nameof(FrameIndex));

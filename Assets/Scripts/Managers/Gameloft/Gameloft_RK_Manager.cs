@@ -747,9 +747,7 @@ namespace R1Engine
 					var blk = level.TrackObjectInstances[ci_ind];
 					var toi = blk.TrackObjectIndex;
 					var to = level.TrackObjects[toi];
-					var type = level.ObjectTypes[to.ObjectType];
-					var pos = sphere.transform.TransformPoint(new Vector3(to.XPosition * 0.001f, 0.05f + type.YPosition * 0.001f, 0));
-					//if(blk.ObjType == 4) continue;
+					if(blk.ObjType == 4) continue;
 					// TODO: Create obj types 4. These are hardcoded it seems.
 					// Usually they don't show up, but if Byte2 == 2, they show up as speed boosts
 					if (blk.ObjType == 1) {
@@ -788,6 +786,9 @@ namespace R1Engine
 						gp.transform.localScale = Vector3.one * 8;
 						//gp.transform.name = s8.ObjectType.ToString();
 					} else {
+						var type = level.ObjectTypes[to.ObjectType];
+						var pos = sphere.transform.TransformPoint(new Vector3(to.XPosition * 0.001f, 0.05f + type.YPosition * 0.001f, 0));
+
 						objs.Add(new Unity_Object_GameloftRK(objManager, to, type) {
 							Position = new Vector3(pos.x, -pos.z, pos.y),
 							Instance = blk
@@ -806,7 +807,7 @@ namespace R1Engine
 
 			curPos = Vector3.zero + Vector3.up * 100;
 			//curAngle = 0;
-			for(int i = 0; i < level.MapSpriteMapping.Length; i++) {
+			for(int i = 0; i < level.MapSpriteMapping?.Length; i++) {
 				var b = level.MapSpriteMapping[i];
 				var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 				sphere.transform.position = curPos;
