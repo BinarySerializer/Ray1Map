@@ -31,7 +31,10 @@ namespace R1Engine
             // Obj is visible
             ObjData.IsVisible && 
             // Obj is on current map layer
-            (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
+            (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false)) &&
+            // Obj is in the currently selected group
+            IsInSelectedGroup;
+        public bool IsInSelectedGroup => ObjData.ObjectGroupIndex == null || LevelEditorData.SelectedObjectGroup == ObjData.ObjectGroupIndex;
         public bool ForceShowOneWayLinks { get; set; } // Used for some screenshots
         public int Layer => (ObjData.GetLayer(Index) ?? Index) * 128;
 

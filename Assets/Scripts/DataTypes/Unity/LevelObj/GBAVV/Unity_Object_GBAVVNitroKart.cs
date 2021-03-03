@@ -6,10 +6,11 @@ namespace R1Engine
 {
     public class Unity_Object_GBAVVNitroKart : Unity_Object
     {
-        public Unity_Object_GBAVVNitroKart(Unity_ObjectManager_GBAVV objManager, GBAVV_NitroKart_Object obj)
+        public Unity_Object_GBAVVNitroKart(Unity_ObjectManager_GBAVV objManager, GBAVV_NitroKart_Object obj, int? objectGroupIndex)
         {
             ObjManager = objManager;
             Object = obj;
+            ObjectGroupIndex = objectGroupIndex;
 
             // Init the object
             InitObj();
@@ -71,6 +72,7 @@ namespace R1Engine
         public override ObjectType Type => AnimSetIndex == -1 ? (IsWaypoint ? ObjectType.Waypoint : ObjectType.Trigger) : ObjectType.Object;
 
         public bool IsWaypoint { get; set; }
+        public override int? ObjectGroupIndex { get; }
 
         public void SetAnimation(int graphics, int animSet, byte anim)
         {

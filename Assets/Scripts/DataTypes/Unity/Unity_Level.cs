@@ -27,7 +27,8 @@ namespace R1Engine
             Unity_Sector[] sectors = null,
             Unity_IsometricData isometricData = null,
             int? cellSizeOverrideCollision = null,
-            Unity_CollisionLine[] collisionLines = null)
+            Unity_CollisionLine[] collisionLines = null,
+            string[] objectGroups = null)
         {
             Maps = maps;
             ObjManager = objManager;
@@ -46,6 +47,7 @@ namespace R1Engine
             IsometricData = isometricData;
             CellSizeOverrideCollision = cellSizeOverrideCollision;
             CollisionLines = collisionLines;
+            ObjectGroups = objectGroups;
 
             if (Maps?.Length > 0) {
                 MaxWidth = Maps.Max(m => CellSizeOverrideCollision != null && m.Type == Unity_Map.MapType.Collision ? (ushort)(m.Width / (CellSize / CellSizeOverrideCollision)) : m.Width);
@@ -101,6 +103,8 @@ namespace R1Engine
         public Unity_IsometricData IsometricData { get; }
 
         public Unity_CollisionLine[] CollisionLines { get; }
+
+        public string[] ObjectGroups { get; }
 
         #endregion
 

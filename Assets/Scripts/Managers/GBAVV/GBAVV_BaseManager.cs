@@ -863,13 +863,25 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart, graphics: rom.Map2D_Graphics, nitroKart_ObjTypeData: rom.NitroKart_ObjTypeData);
-            var objects = map.Objects_Normal.Select(x => new Unity_Object_GBAVVNitroKart(objManager, x));
+
+            var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
+
+            objGroups.Add((map.Objects_Normal, "Normal"));
+
+            if (map.Objects_TimeTrial_Pointer != map.Objects_Normal_Pointer)
+                objGroups.Add((map.Objects_TimeTrial, "Time Trial"));
+
+            if (map.Objects_BossRace_Pointer != map.Objects_Normal_Pointer)
+                objGroups.Add((map.Objects_BossRace, "Boss Race"));
+
+            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => new Unity_Object_GBAVVNitroKart(objManager, o, i)));
 
             return new Unity_Level(
                 maps: maps,
                 objManager: objManager,
                 eventData: new List<Unity_Object>(objects),
                 cellSize: CellSize,
+                objectGroups: objGroups.Select(x => x.Item2).ToArray(),
                 getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
                 localization: LoadLocalization(rom));

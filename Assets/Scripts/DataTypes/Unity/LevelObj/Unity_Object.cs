@@ -29,6 +29,7 @@ namespace R1Engine
         public virtual bool IsActive => true;
         public virtual bool CanBeLinkedToGroup => false;
         public virtual bool CanBeLinked => false;
+        public virtual int? ObjectGroupIndex => null;
 
         // Display properties
         public abstract string PrimaryName { get; } // Official

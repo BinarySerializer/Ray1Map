@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
 using UnityEngine;
 
 namespace R1Engine
@@ -32,6 +31,7 @@ namespace R1Engine
         public static bool[] ShowEventsForMaps { get; set; }
         public static bool ShowOnlyActiveSector { get; set; }
         public static int ActiveSector { get; set; }
+        public static int SelectedObjectGroup { get; set; }
 
         public static async UniTask InitAsync(GameSettings settings, bool loadAll = false)
         {

@@ -321,6 +321,9 @@ public class SettingsWindow : UnityWindow
                     for (int i = 0; i < LevelEditorData.ShowEventsForMaps.Length; i++)
                         LevelEditorData.ShowEventsForMaps[i] = EditorField($"Show objects for layer {i}", LevelEditorData.ShowEventsForMaps[i]);
 
+                if (LevelEditorData.Level.ObjectGroups != null)
+                    LevelEditorData.SelectedObjectGroup = EditorField("Object group", LevelEditorData.SelectedObjectGroup, LevelEditorData.Level.ObjectGroups);
+
                 if (LevelEditorData.Level?.Sectors != null) {
                     LevelEditorData.ShowOnlyActiveSector = EditorField("Show only active sector", LevelEditorData.ShowOnlyActiveSector);
 
