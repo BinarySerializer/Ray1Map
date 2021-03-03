@@ -372,6 +372,19 @@ public class WebCommunicator : MonoBehaviour {
                     }
 					break;
 
+                case Unity_Object_GBAVVNitroKart crashObj:
+                    if (crashObj.Object.ParamsPointer != null)
+                        webObj.GBAVV_ObjParams = $"0x{crashObj.Object.ParamsPointer.AbsoluteOffset:X8}";
+
+                    if (crashObj.AnimSetIndex != -1)
+                    {
+                        webObj.GBAVV_AnimSetIndex = crashObj.AnimSetIndex;
+                        if (includeLists)
+                            webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => crashObj.ObjManager.MultipleAnimSetArrays ? $"{graphicsIndex}-{animSetIndex}" : $"{animSetIndex}")).ToArray();
+                    }
+                    
+                    break;
+
 				case Unity_Object_GameloftRRR glRRRObj:
 					if (glRRRObj.PuppetIndex != -1) {
 						webObj.Gameloft_PuppetIndex = glRRRObj.PuppetIndex;
@@ -724,6 +737,12 @@ public class WebCommunicator : MonoBehaviour {
 				}
 				break;
 			case Unity_Object_GBAVVMode7 crashObj:
+				if (msg.GBAVV_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBAVV_AnimSetIndex.Value) {
+                    crashObj.AnimSetIndex = msg.GBAVV_AnimSetIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBAVVNitroKart crashObj:
 				if (msg.GBAVV_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBAVV_AnimSetIndex.Value) {
                     crashObj.AnimSetIndex = msg.GBAVV_AnimSetIndex.Value;
 					refreshObjectLists = true;

@@ -1,0 +1,38 @@
+{
+  "name": "Crash Bandicoot Bakusou! Nitro Cart (GBA - JP)",
+  "mode": "CrashNitroKartJP",
+  "folder": "gba_crash/crash_nitro_kart_jp",
+  "levels": [
+    { "world": 0, "level": 0, "nameInternal": "0", "name": "Terra Hub" },
+    { "world": 0, "level": 1, "nameInternal": "1", "name": "Inferno Island" },
+    { "world": 0, "level": 2, "nameInternal": "2", "name": "Jungle Boogie" },
+    { "world": 0, "level": 3, "nameInternal": "3", "name": "Tiny's Temple" },
+
+    { "world": 0, "level": 4, "nameInternal": "4", "name": "Barin Hub" },
+    { "world": 0, "level": 5, "nameInternal": "5", "name": "Meteor Gorge" },
+    { "world": 0, "level": 6, "nameInternal": "6", "name": "Barin Ruins" },
+    { "world": 0, "level": 7, "nameInternal": "7", "name": "Deep Sea Driving" },
+
+    { "world": 0, "level": 8, "nameInternal": "8", "name": "Fenomena Hub" },
+    { "world": 0, "level": 9, "nameInternal": "9", "name": "Out of Time" },
+    { "world": 0, "level": 10, "nameInternal": "10", "name": "Clockwork Wumpa" },
+    { "world": 0, "level": 11, "nameInternal": "11", "name": "Thunder Struck" },
+
+    { "world": 0, "level": 12, "nameInternal": "12", "name": "Teknee Hub" },
+    { "world": 0, "level": 13, "nameInternal": "13", "name": "Assembly Lane" },
+    { "world": 0, "level": 14, "nameInternal": "14", "name": "Android Alley" },
+    { "world": 0, "level": 15, "nameInternal": "15", "name": "Electron Avenue" },
+
+    { "world": 0, "level": 16, "nameInternal": "16", "name": "Velo's Citadel" },
+    { "world": 0, "level": 17, "nameInternal": "17", "name": "Velo's Challenge" },
+
+    { "world": 0, "level": 18, "nameInternal": "18", "name": "Battle 1 - Temple Turmoil" },
+    { "world": 0, "level": 19, "nameInternal": "19", "name": "Battle 2 - Frozen Frenzy" },
+    { "world": 0, "level": 20, "nameInternal": "20", "name": "Battle 3 - Desert Storm" },
+    { "world": 0, "level": 21, "nameInternal": "21", "name": "Battle 4 - Magnetic Mayhem" },
+    { "world": 0, "level": 22, "nameInternal": "22", "name": "Battle 5" },
+    { "world": 0, "level": 23, "nameInternal": "23", "name": "Battle 6" },
+    { "world": 0, "level": 24, "nameInternal": "24", "name": "Battle 7" },
+    { "world": 0, "level": 25, "nameInternal": "25", "name": "Battle 8" }
+  ]
+}

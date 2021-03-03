@@ -38,15 +38,13 @@ namespace R1Engine
             new LevInfo(16, "Velo's Citadel"),
             new LevInfo(17, "Velo's Challenge"),
 
-            // TODO: Names
-            new LevInfo(18, "Battle 1"),
-            new LevInfo(19, "Battle 2"),
-            new LevInfo(20, "Battle 3"),
-            new LevInfo(21, "Battle 4"),
+            new LevInfo(18, "Battle 1 - Temple Turmoil"),
+            new LevInfo(19, "Battle 2 - Frozen Frenzy"),
+            new LevInfo(20, "Battle 3 - Desert Storm"),
+            new LevInfo(21, "Battle 4 - Magnetic Mayhem"),
             new LevInfo(22, "Battle 5"),
             new LevInfo(23, "Battle 6"),
             new LevInfo(24, "Battle 7"),
-            new LevInfo(24, "Battle 7 (duplicate)"),
             new LevInfo(25, "Battle 8"),
         };
 

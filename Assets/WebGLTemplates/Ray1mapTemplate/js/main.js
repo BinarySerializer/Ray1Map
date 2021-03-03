@@ -897,7 +897,7 @@ function getObjVars(obj) {
 	// GBAVV
 	if(obj.hasOwnProperty("GBAVV_ObjParams")) objVars.push({"Name": "ObjParams", "Value": obj.GBAVV_ObjParams});
 
-	// GBAVV
+	// Gameloft
 	if(obj.hasOwnProperty("GameloftRRR_ObjectID")) objVars.push({"Name": "ObjectID", "Value": obj.GameloftRRR_ObjectID});
 	if(obj.hasOwnProperty("GameloftRRR_ObjectParams")) objVars.push({"Name": "Parameters", "Value": obj.GameloftRRR_ObjectParams});
 
