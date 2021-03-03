@@ -777,7 +777,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics?.FirstOrDefault()?.AnimSets, rom.DialogScripts);
+            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics, rom.DialogScripts);
             var objects = new List<Unity_Object>();
 
             if (map.ObjData?.Objects != null)
@@ -862,7 +862,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart);
+            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart, graphics: rom.Map2D_Graphics, nitroKart_ObjTypeData: rom.NitroKart_ObjTypeData);
             var objects = map.Objects_Normal.Select(x => new Unity_Object_GBAVVNitroKart(objManager, x));
 
             return new Unity_Level(

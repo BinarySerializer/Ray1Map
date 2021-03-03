@@ -1,8 +1,8 @@
 ﻿namespace R1Engine
 {
-    public class GBAVV_NitroKart_LevelMetaData : R1Serializable
+    public class GBAVV_NitroKart_HubWorldPortal : R1Serializable
     {
-        public int LevelID { get; set; } // The ID in the current world
+        public int LevelID { get; set; } // The ID in the current hub
         public Pointer NamePointer { get; set; }
         public int[] Data { get; set; }
 

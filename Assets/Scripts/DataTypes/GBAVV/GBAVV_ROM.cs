@@ -110,8 +110,9 @@ namespace R1Engine
         public GBAVV_WorldMap_Crash1_LevelIcon[] WorldMap_Crash1_LevelIcons { get; set; }
 
         // Nitro Kart
-        public GBAVV_NitroKart_LevelMetaData[][] NitroKart_LevelMetaDatas { get; set; }
+        public GBAVV_NitroKart_HubWorldPortal[][] NitroKart_LevelMetaDatas { get; set; }
         public GBAVV_NitroKart_LevelInfo[] NitroKart_LevelInfos { get; set; }
+        public GBAVV_NitroKart_ObjTypeData[] NitroKart_ObjTypeData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -312,10 +313,10 @@ namespace R1Engine
                 s.DoAt(pointerTable[GBAVV_Pointer.NitroKart_LevelMetaDatas], () =>
                 {
                     if (NitroKart_LevelMetaDatas == null)
-                        NitroKart_LevelMetaDatas = new GBAVV_NitroKart_LevelMetaData[5][];
+                        NitroKart_LevelMetaDatas = new GBAVV_NitroKart_HubWorldPortal[5][];
 
                     for (int i = 0; i < NitroKart_LevelMetaDatas.Length; i++)
-                        NitroKart_LevelMetaDatas[i] = s.SerializeObjectArray<GBAVV_NitroKart_LevelMetaData>(NitroKart_LevelMetaDatas[i], 9, name: $"{nameof(NitroKart_LevelMetaDatas)}[{i}]");
+                        NitroKart_LevelMetaDatas[i] = s.SerializeObjectArray<GBAVV_NitroKart_HubWorldPortal>(NitroKart_LevelMetaDatas[i], 9, name: $"{nameof(NitroKart_LevelMetaDatas)}[{i}]");
                 });
 
                 s.DoAt(pointerTable[GBAVV_Pointer.NitroKart_LevelInfos], () =>
@@ -326,6 +327,14 @@ namespace R1Engine
                     for (int i = 0; i < NitroKart_LevelInfos.Length; i++)
                         NitroKart_LevelInfos[i] = s.SerializeObject<GBAVV_NitroKart_LevelInfo>(NitroKart_LevelInfos[i], x => x.SerializeData = i == CurrentLevInfo.LevelIndex, name: $"{nameof(NitroKart_LevelInfos)}[{i}]");
                 });
+
+                var pointers = ((GBAVV_NitroKart_Manager)s.GameSettings.GetGameManager).ObjTypesDataPointers;
+
+                if (NitroKart_ObjTypeData == null)
+                    NitroKart_ObjTypeData = new GBAVV_NitroKart_ObjTypeData[pointers.Length];
+
+                for (int i = 0; i < pointers.Length; i++)
+                    NitroKart_ObjTypeData[i] = s.DoAt(pointers[i] == null ? null : new Pointer(pointers[i].Value, Offset.file), () => s.SerializeObject<GBAVV_NitroKart_ObjTypeData>(NitroKart_ObjTypeData[i], name: $"{nameof(NitroKart_ObjTypeData)}[{i}]"));
             }
         }
     }

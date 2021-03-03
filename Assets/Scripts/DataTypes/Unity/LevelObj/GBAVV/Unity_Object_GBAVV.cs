@@ -95,9 +95,10 @@ namespace R1Engine
         {
             get
             {
-                var list = Script?.TranslatedStringAll(ObjManager.AnimSetObjects);
+                var animSets = ObjManager.Graphics?.FirstOrDefault()?.AnimSets;
+                var list = Script?.TranslatedStringAll(animSets);
 
-                DialogScript?.TranslatedStringAll(ObjManager.AnimSetObjects, list);
+                DialogScript?.TranslatedStringAll(animSets, list);
 
                 return list?.ToArray();
             }

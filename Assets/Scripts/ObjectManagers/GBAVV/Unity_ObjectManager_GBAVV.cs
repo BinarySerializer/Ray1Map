@@ -8,14 +8,15 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBAVV : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType, GBAVV_Script[] scripts = null, GBAVV_Map2D_AnimSet[] animSetObjects = null, GBAVV_DialogScript[] dialogScripts = null) : base(context)
+        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType, GBAVV_Script[] scripts = null, GBAVV_Map2D_Graphics[] graphics = null, GBAVV_DialogScript[] dialogScripts = null, GBAVV_NitroKart_ObjTypeData[] nitroKart_ObjTypeData = null) : base(context)
         {
             AnimSets = animSets;
             ObjData = objData;
             MapType = mapType;
             Scripts = scripts;
-            AnimSetObjects = animSetObjects;
+            Graphics = graphics;
             DialogScripts = dialogScripts?.ToDictionary(x => x.ID, x => x.Script);
+            NitroKart_ObjTypeData = nitroKart_ObjTypeData;
 
             // Set indices if there are multiple array
             if (MultipleAnimSetArrays)
@@ -43,7 +44,8 @@ namespace R1Engine
         public GBAVV_MapInfo.GBAVV_MapType MapType { get; }
         public byte[][] ObjParams => ObjData?.ObjParams;
         public GBAVV_Script[] Scripts { get; }
-        public GBAVV_Map2D_AnimSet[] AnimSetObjects { get; }
+        public GBAVV_Map2D_Graphics[] Graphics { get; }
+        public GBAVV_NitroKart_ObjTypeData[] NitroKart_ObjTypeData { get; }
         public Dictionary<int, GBAVV_Script> DialogScripts { get; }
         
         public override string[] LegacyDESNames => AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => MultipleAnimSetArrays ? $"{graphicsIndex}-{animSetIndex}" : $"{animSetIndex}")).ToArray();

@@ -17,7 +17,18 @@ namespace R1Engine
 
         public void InitObj()
         {
-            GBAVV_ObjInit.InitObj(ObjManager.Context.Settings, this, Object.ObjType);
+            var typeData = ObjManager.NitroKart_ObjTypeData.ElementAtOrDefault(Object.ObjType);
+
+            if (typeData == null)
+            {
+                IsWaypoint = true;
+                SetAnimation(-1, -1, 0);
+            }
+            else
+            {
+                var graphicsIndex = ObjManager.Graphics.FindItemIndex(x => x.Offset == typeData.GraphicsDataPointer);
+                SetAnimation(graphicsIndex, typeData.AnimSetIndex, (byte)(typeData.AnimationIndices?.FirstOrDefault() ?? 0));
+            }
         }
 
         public Unity_ObjectManager_GBAVV ObjManager { get; }
@@ -55,7 +66,7 @@ namespace R1Engine
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{Object.ObjType}";
-        public override string SecondaryName => $"{(GBAVV_NitroKart_ObjType)Object.ObjType}";
+        public override string SecondaryName => null;
 
         public override ObjectType Type => AnimSetIndex == -1 ? (IsWaypoint ? ObjectType.Waypoint : ObjectType.Trigger) : ObjectType.Object;
 
