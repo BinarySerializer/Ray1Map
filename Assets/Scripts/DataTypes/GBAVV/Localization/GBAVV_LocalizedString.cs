@@ -2,16 +2,12 @@
 {
     public class GBAVV_LocalizedString : R1Serializable
     {
-        public int Int_00 { get; set; }
         public Pointer[] LocalizationPointers { get; set; }
 
         public GBAVV_LocalizedStringItem[] Items { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart)
-                Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
-
             LocalizationPointers = s.SerializePointerArray(LocalizationPointers, ((GBAVV_BaseManager)s.GameSettings.GetGameManager).LanguagesCount, name: nameof(LocalizationPointers));
 
             if (Items == null)

@@ -1126,10 +1126,23 @@ namespace R1Engine
                         [GBAVV_Pointer.WorldMap_Crash2] = 0x081cd6bc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.CrashNitroKartEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.NitroKart_LevelMetaDatas] = 0x0807905c,
+                        [GBAVV_Pointer.NitroKart_LevelInfos] = 0x0803642c,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.CrashNitroKartUS:
                     return new Dictionary<GBAVV_Pointer, uint>() {
                         [GBAVV_Pointer.NitroKart_LevelMetaDatas] = 0x08062300,
                         [GBAVV_Pointer.NitroKart_LevelInfos] = 0x080340c4,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.CrashNitroKartJP:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.NitroKart_LevelMetaDatas] = 0x08065f44,
+                        [GBAVV_Pointer.NitroKart_LevelInfos] = 0x08036e28,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.CrashFusionGBAEU:
