@@ -61,6 +61,8 @@ namespace R1Engine
 
                 case Game.Gameloft_RK:
                     return RaymanKartNames;
+                case Game.Gameloft_RK_LowRes:
+                    return RaymanKartLowResNames;
 
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
@@ -911,6 +913,15 @@ namespace R1Engine
                 [13] = "Moonlight Pass - Hard",
                 [14] = "Rabbid Battlefield - Easy",
                 [15] = "Rabbid Battlefield - Hard",
+            },
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> RaymanKartLowResNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [0] = "Dreamy Forest",
+                [1] = "Frozen Highway",
+                [2] = "Shipwreck Track",
+                [3] = "Sanctuary of Fire",
             },
         };
 

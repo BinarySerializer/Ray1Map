@@ -75,6 +75,7 @@
         // Gameloft
 
         Gameloft_RRR,
-        Gameloft_RK
+        Gameloft_RK,
+        Gameloft_RK_LowRes
     }
 }

@@ -112,7 +112,9 @@ namespace R1Engine
 			var roads = new MeshInProgress[level.Types.Length][];
 			Dictionary<int, Texture2D> textures = new Dictionary<int, Texture2D>();
 			Dictionary<int, bool> textureIsTransparent = new Dictionary<int, bool>();
-			bool useSingleRoadTexture = context.Settings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128 || context.Settings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240;
+			bool useSingleRoadTexture = context.Settings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128
+				|| context.Settings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128_s40v2
+				|| context.Settings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240;
 			for (int i = 0; i < level.Types.Length; i++) {
 				var roadTex0 = !useSingleRoadTexture ? level.Types[i].RoadTexture0 : level.RoadTextureID_0;
 				var roadTex1 = !useSingleRoadTexture ? level.Types[i].RoadTexture1 : level.RoadTextureID_1;

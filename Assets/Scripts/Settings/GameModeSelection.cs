@@ -460,8 +460,11 @@ namespace R1Engine
         RaymanRavingRabbidsMobile_240x320_SamsungF480V,
 
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 128x128)", typeof(Gameloft_RK_128x128_Manager))]
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK_LowRes, "Rayman Kart (Mobile, 128x128)", typeof(Gameloft_RK_128x128_Manager))]
         RaymanKartMobile_128x128,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK_LowRes, "Rayman Kart (Mobile, 128x128, s40v2)", typeof(Gameloft_RK_128x128_s40v2_Manager))]
+        RaymanKartMobile_128x128_s40v2,
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 128x160)", typeof(Gameloft_RK_128x160_Manager))]
         RaymanKartMobile_128x160,
