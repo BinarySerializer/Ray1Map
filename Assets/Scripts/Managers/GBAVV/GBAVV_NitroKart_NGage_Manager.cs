@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace R1Engine
@@ -12,26 +13,47 @@ namespace R1Engine
     {
         public string ExeFilePath => @"6rac.app";
         public string DataFilePath => @"data.gob";
+        public string StringsFilePath => @"strings.txt";
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => new GameInfo_Volume[0];
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output)),
+            new GameAction("Export Blocks (with filenames)", false, true, (input, output) => ExportBlocksAsync(settings, output, withFilenames: true)),
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
             new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output)),
         };
 
-        public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool includeAbsolutePointer = true)
+        public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool includeAbsolutePointer = true, bool withFilenames = false)
         {
+            Dictionary<uint, string> stringCRCdict = null;
+            if (withFilenames) {
+                using (var context = new Context(settings)) {
+                    var s = context.Deserializer;
+
+                    await LoadFilesAsync(context);
+                    // Load the exe
+                    var exe = context.FilePointer(ExeFilePath);
+                    uint[] polynomialData = null;
+                    s.DoAt(exe + 0x68c88, () => {
+                        polynomialData = s.SerializeArray<uint>(polynomialData, 256, name: nameof(polynomialData));
+                    });
+                    stringCRCdict = LoadStringCRCs(context, polynomialData);
+                }
+            }
             await DoAtBlocksAsync(settings, (s, i, offset) =>
             {
                 var append = includeAbsolutePointer ? $"_{offset.BlockPointer.AbsoluteOffset:X8}" : String.Empty;
 
                 var bytes = s.SerializeArray<byte>(default, s.CurrentLength, name: $"Block[{i}]");
 
-                Util.ByteArrayToFile(Path.Combine(outputDir, $"{i}{append}.dat"), bytes);
+                if (withFilenames && (stringCRCdict?.ContainsKey(offset.CRC) ?? false)) {
+                    Util.ByteArrayToFile(Path.Combine(outputDir, stringCRCdict[offset.CRC]), bytes);
+                } else {
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{i}{append}.dat"), bytes);
+                }
             });
         }
 
@@ -200,11 +222,43 @@ namespace R1Engine
             return output;
         }
 
+        public uint CalculateCRC(string str, uint[] polynomialData) {
+            byte[] buffer = Encoding.ASCII.GetBytes(str.ToUpper().Replace('\\', '/'));
+            uint crc = 0;
+            for (int i = 0; i < buffer.Length; i++) {
+                crc = polynomialData[(crc ^ buffer[i]) & 0xFF] ^ (crc >> 8);
+            }
+            return crc;
+        }
+        public Dictionary<uint, string> LoadStringCRCs(Context context, uint[] polynomialData) {
+            var s = context.Deserializer;
+            string[] strings = null;
+            Dictionary<uint, string> stringCRCs = new Dictionary<uint, string>();
+            s.DoAt(context.FilePointer(StringsFilePath), () => {
+                var longstring = s.SerializeString(default, length: s.CurrentLength, name: nameof(strings));
+                strings = longstring.Split('\n');
+            });
+            foreach(var str in strings) {
+                stringCRCs[CalculateCRC(str, polynomialData)] = str;
+            }
+            return stringCRCs;
+        }
+
         public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Load the data file
             var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
 
+            // Load the exe
+            var exe = context.FilePointer(ExeFilePath);
+            uint[] polynomialData = null;
+            var s = context.Deserializer;
+            s.DoAt(exe + 0x68c88, () => {
+                polynomialData = s.SerializeArray<uint>(polynomialData, 256, name: nameof(polynomialData));
+            });
+            UnityEngine.Debug.Log(CalculateCRC("snd/music.gax", polynomialData) + " - " + 454916686);
+            UnityEngine.Debug.Log(CalculateCRC("snd/fx.gax", polynomialData) + " - " + 3101288717);
+            var stringCRCdict = LoadStringCRCs(context, polynomialData);
             throw new NotImplementedException();
         }
 
@@ -214,6 +268,7 @@ namespace R1Engine
         {
             await context.AddLinearSerializedFileAsync(ExeFilePath);
             await context.AddLinearSerializedFileAsync(DataFilePath);
+            await context.AddLinearSerializedFileAsync(StringsFilePath);
         }
     }
 }
