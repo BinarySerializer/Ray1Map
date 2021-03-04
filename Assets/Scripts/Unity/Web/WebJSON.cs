@@ -149,7 +149,7 @@ public class WebJSON {
 		public int? Gameloft_PuppetIndex { get; set; }
 		public string[] Gameloft_PuppetNames { get; set; }
 		public string GameloftRRR_ObjectParams { get; set; }
-		public int GameloftRRR_ObjectID { get; set; }
+		public int? GameloftRRR_ObjectID { get; set; }
 	}
 	public class Layer {
 		public int Index { get; set; }
