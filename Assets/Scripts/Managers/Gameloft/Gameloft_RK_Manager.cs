@@ -106,15 +106,18 @@ namespace R1Engine
 			}
 		}
 
+		public static bool UseSingleRoadTexture(GameSettings s) => s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128
+				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128_s40v2
+				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240
+				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101;
+
 		public void CreateTrackMesh(Gameloft_RK_Level level, Context context) {
 			// Load road textures
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.Settings), context);
 			var roads = new MeshInProgress[level.Types.Length][];
 			Dictionary<int, Texture2D> textures = new Dictionary<int, Texture2D>();
 			Dictionary<int, bool> textureIsTransparent = new Dictionary<int, bool>();
-			bool useSingleRoadTexture = context.Settings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128
-				|| context.Settings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128_s40v2
-				|| context.Settings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240;
+			bool useSingleRoadTexture = UseSingleRoadTexture(context.Settings);
 			for (int i = 0; i < level.Types.Length; i++) {
 				var roadTex0 = !useSingleRoadTexture ? level.Types[i].RoadTexture0 : level.RoadTextureID_0;
 				var roadTex1 = !useSingleRoadTexture ? level.Types[i].RoadTexture1 : level.RoadTextureID_1;

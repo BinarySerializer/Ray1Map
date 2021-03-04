@@ -80,7 +80,8 @@ namespace R1Engine
 			TrackBlocks = s.SerializeObjectArray<TrackBlock>(TrackBlocks, TrackLength, name: nameof(TrackBlocks));
 			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
 				LumsCount = s.Serialize<byte>(LumsCount, name: nameof(LumsCount));
-				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2) {
+				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2
+					&& s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101) {
 					BM_Byte0 = s.Serialize<byte>(BM_Byte0, name: nameof(BM_Byte0));
 					BM_Bool1 = s.Serialize<bool>(BM_Bool1, name: nameof(BM_Bool1));
 					BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
@@ -88,9 +89,7 @@ namespace R1Engine
 					MapSpriteMapping = s.SerializeObjectArray<TrackMapping>(MapSpriteMapping, TrackLength - 1, name: nameof(MapSpriteMapping));
 				}
 			}
-			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240 ||
-				s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128 || 
-				s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128_s40v2) {
+			if (Gameloft_RK_Manager.UseSingleRoadTexture(s.GameSettings)) {
 				RoadTextureID_0 = s.Serialize<byte>(RoadTextureID_0, name: nameof(RoadTextureID_0));
 				RoadTextureID_1 = s.Serialize<byte>(RoadTextureID_1, name: nameof(RoadTextureID_1));
 			}
@@ -119,7 +118,8 @@ namespace R1Engine
 			Color_bI_Wall1 = s.SerializeObject<RGB888Color>(Color_bI_Wall1, name: nameof(Color_bI_Wall1));
 			byte_afterBI = s.Serialize<byte>(byte_afterBI, name: nameof(byte_afterBI));
 			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128 &&
-				s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2) {
+				s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2 &&
+				s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101) {
 				if (BitHelpers.ExtractBits(aW, 1, 2) == 1) {
 					Color_dj_BridgeDark = s.SerializeObject<RGB888Color>(Color_dj_BridgeDark, name: nameof(Color_dj_BridgeDark));
 					Color_dk_BridgeLight = s.SerializeObject<RGB888Color>(Color_dk_BridgeLight, name: nameof(Color_dk_BridgeLight));
@@ -506,8 +506,7 @@ namespace R1Engine
 			public override void SerializeImpl(SerializerObject s) {
 				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
 				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
-					if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128 && 
-						s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2) {
+					if (!Gameloft_RK_Manager.UseSingleRoadTexture(s.GameSettings)) {
 						RoadTexture0 = s.Serialize<byte>(RoadTexture0, name: nameof(RoadTexture0));
 						RoadTexture1 = s.Serialize<byte>(RoadTexture1, name: nameof(RoadTexture1));
 					}
