@@ -20,6 +20,7 @@ namespace R1Engine
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output)),
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
+            new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output)),
         };
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool includeAbsolutePointer = true)
@@ -65,6 +66,60 @@ namespace R1Engine
                 }
             });
         }
+        public async UniTask ExportTexturesAsync(GameSettings settings, string outputDir)
+        {
+            Color[] pal = null;
+
+            await DoAtBlocksAsync(settings, (s, i, offset) =>
+            {
+                // If the block is 64 bytes long we assume it's a palette
+                if (s.CurrentLength == 64)
+                {
+                    pal = Util.ConvertGBAPalette(s.SerializeObjectArray<RGBA5551Color>(default, 32, name: $"Pal[{i}]"), transparentIndex: null);
+                }
+                else
+                {
+                    // If we serialized a palette in the previous block we assume this block has the textures
+                    if (pal != null && s.CurrentLength % 0x1500 == 0)
+                    {
+                        var textures = s.SerializeObject<GBAVV_NitroKart_NGage_TexturesCollection>(default, name: $"TexturesCollection[{i}]");
+
+                        for (int j = 0; j < textures.Textures.Length; j++)
+                        {
+                            var texture = textures.Textures[j];
+                            var tex = TextureHelpers.CreateTexture2D(64, 64);
+
+                            for (int y = 0; y < 64; y++)
+                            {
+                                for (int x = 0; x < 64; x++)
+                                {
+                                    var off = y * 64 + x;
+                                    var palIndex = texture.Texture_64px[off] / 2;
+
+                                    // TODO: Fix the textures where the index is too high
+                                    if (palIndex >= pal.Length)
+                                    {
+                                        Debug.LogWarning($"Out of bounds palette index {palIndex} in texture {i}-{j} at offset {off}");
+                                        tex.SetPixel(x, 64 - y - 1, Color.clear);
+                                    }
+                                    else
+                                    {
+                                        tex.SetPixel(x, 64 - y - 1, pal[palIndex]);
+                                    }
+                                }
+                            }
+
+                            tex.Apply();
+
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{i} - {j}.png"), tex.EncodeToPNG());
+                        }
+                    }
+
+                    // Remove palette
+                    pal = null;
+                }
+            });
+        }
 
         public async UniTask DoAtBlocksAsync(GameSettings settings, Action<SerializerObject, int, GBAVV_NitroKart_NGage_DataFileEntry> action)
         {
@@ -83,7 +138,11 @@ namespace R1Engine
                     // Get the offset
                     var offset = data.DataFileEntries[i];
 
-                    s.DoAt(offset.BlockPointer, () => s.DoEncoded(new BriefLZEncoder(), () => action(s, i, offset)));
+                    s.DoAt(offset.BlockPointer, () => s.DoEncoded(new BriefLZEncoder(), () =>
+                    {
+                        action(s, i, offset);
+                        s.Goto(s.CurrentPointer.file.StartPointer + s.CurrentLength);
+                    }));
                 }
             }
         }
