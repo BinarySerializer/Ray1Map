@@ -12,6 +12,11 @@ namespace R1Engine
         // Nitro Kart
         public Pointer NitroKart_Pointer_10 { get; set; } // 2 shorts, same as Fusion_Pointer_28?
 
+        // Nitro Kart (N-Gage)
+        public Pointer NitroKart_NGage_ImageDataPointer { get; set; }
+        public int NitroKart_NGage_Width => RenderBox.Width + 2; // TODO: Why is this needed? Is it always +2 for a rect?
+        public int NitroKart_NGage_Height => RenderBox.Height + 2;
+
         // Fusion
         public Pointer Fusion_TileSetPointer { get; set; }
         public GBAVV_Map2D_AnimationRect RenderBox { get; set; }
@@ -26,6 +31,9 @@ namespace R1Engine
         // Serialized from pointers
         public TilePosition[] TilePositions { get; set; }
         public TileShape[] TileShapes { get; set; }
+
+        // Nitro Kart (N-Gage)
+        public byte[] NitroKart_NGage_ImageData { get; set; }
 
         // Fusion
         public byte[] Fusion_TileSet { get; set; }
@@ -66,6 +74,13 @@ namespace R1Engine
                 Fusion_HitBox1 = s.DoAt(Fusion_HitBox1Pointer, () => s.SerializeObject<GBAVV_Map2D_AnimationRect>(Fusion_HitBox1, name: nameof(Fusion_HitBox1)));
                 Fusion_HitBox2 = s.DoAt(Fusion_HitBox2Pointer, () => s.SerializeObject<GBAVV_Map2D_AnimationRect>(Fusion_HitBox2, name: nameof(Fusion_HitBox2)));
                 Fusion_HitBox3 = s.DoAt(Fusion_HitBox3Pointer, () => s.SerializeObject<GBAVV_Map2D_AnimationRect>(Fusion_HitBox3, name: nameof(Fusion_HitBox3)));
+            }
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            {
+                NitroKart_NGage_ImageDataPointer = s.SerializePointer(NitroKart_NGage_ImageDataPointer, name: nameof(NitroKart_NGage_ImageDataPointer));
+                RenderBox = s.SerializeObject<GBAVV_Map2D_AnimationRect>(RenderBox, name: nameof(RenderBox));
+
+                NitroKart_NGage_ImageData = s.DoAt(NitroKart_NGage_ImageDataPointer, () => s.SerializeArray<byte>(NitroKart_NGage_ImageData, NitroKart_NGage_Width * NitroKart_NGage_Height, name: nameof(NitroKart_NGage_ImageData)));
             }
             else
             {

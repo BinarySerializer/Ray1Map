@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ImageMagick;
 using UnityEngine;
 
 namespace R1Engine
@@ -824,14 +825,46 @@ namespace R1Engine
             Linear_8bpp,
         }
 
-        public static void CopyToClipboard(this string str)
+        public static void ExportAnim(IList<Texture2D> frames, int speed, bool center, bool saveAsGif, string outputDir, string primaryName, string secondaryName)
         {
-            TextEditor te = new TextEditor
+            if (saveAsGif)
             {
-                text = str
-            };
-            te.SelectAll();
-            te.Copy();
+                using (var collection = new MagickImageCollection())
+                {
+                    int index = 0;
+
+                    var maxWidth = frames.Max(x => x.width);
+                    var maxHeight = frames.Max(x => x.height);
+
+                    foreach (var frameTex in frames)
+                    {
+                        var img = frameTex.ToMagickImage();
+                        collection.Add(img);
+                        collection[index].AnimationDelay = speed;
+                        collection[index].AnimationTicksPerSecond = 60;
+
+                        if (center)
+                            collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
+
+                        collection[index].Trim();
+                        collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                        index++;
+                    }
+
+                    // Save gif
+                    collection.Write(Path.Combine(outputDir, $"{primaryName} - {secondaryName}.gif"));
+                }
+            }
+            else
+            {
+                var frameIndex = 0;
+
+                foreach (var tex in frames)
+                {
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{primaryName}", $"{secondaryName}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                    frameIndex++;
+                }
+            }
         }
     }
 }

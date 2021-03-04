@@ -98,7 +98,7 @@ namespace R1Engine
                     {
                         Unity_ObjAnimationCollisionPart[] c = null;
 
-                        if (CrashAnim.Fusion_AnimSet != null)
+                        if (CrashAnim.AnimSet != null)
                         {
                             var cc = new List<Unity_ObjAnimationCollisionPart>();
 
@@ -117,7 +117,7 @@ namespace R1Engine
                                 });
                             }
 
-                            var frame = CrashAnim.Fusion_AnimSet.AnimationFrames[CrashAnim.FrameIndexTable[x]];
+                            var frame = CrashAnim.AnimSet.AnimationFrames[CrashAnim.FrameIndexTable[x]];
 
                             // TODO: Fix collision types
                             addHitBox(frame.Fusion_HitBox1, Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox);

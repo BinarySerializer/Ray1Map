@@ -12,7 +12,7 @@
             X = s.Serialize<short>(X, name: nameof(X));
             Y = s.Serialize<short>(Y, name: nameof(Y));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 || s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 Width = s.Serialize<short>(Width, name: nameof(Width));
                 Height = s.Serialize<short>(Height, name: nameof(Height));

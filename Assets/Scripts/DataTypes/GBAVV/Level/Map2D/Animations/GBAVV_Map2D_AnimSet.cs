@@ -9,11 +9,11 @@ namespace R1Engine
         public ushort Ushort_08 { get; set; }
         public int AnimationsCount { get; set; }
 
-        // Fusion
-        public Pointer Fusion_SelfPointer { get; set; }
-        public Pointer Fusion_FramesPointer { get; set; }
-        public int Fusion_FramesCount { get; set; }
-        public int Fusion_Int_10 { get; set; }
+        // Fusion & Nitro Kart (N-Gage)
+        public Pointer SelfPointer { get; set; }
+        public Pointer FramesPointer { get; set; }
+        public int FramesCount { get; set; }
+        public int Int_10 { get; set; }
 
         // Serialized from pointers
         public GBAVV_Map2D_Animation[] Animations { get; set; }
@@ -22,32 +22,50 @@ namespace R1Engine
 
         public int GetMinX(int animIndex)
         {
-            var framesX = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x]).Where(x => x.TilesCount > 0)
-                .SelectMany(f => f.TilePositions.Select(x => x.XPos)).ToArray();
+            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            {
+                var framesX = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x].RenderBox.X).ToArray();
 
-            return framesX.Any() ? framesX.Min() : 0;
+                return framesX.Any() ? framesX.Min() : 0;
+            }
+            else
+            {
+                var framesX = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x]).Where(x => x.TilesCount > 0)
+                    .SelectMany(f => f.TilePositions.Select(x => x.XPos)).ToArray();
+
+                return framesX.Any() ? framesX.Min() : 0;
+            }
         }
 
         public int GetMinY(int animIndex)
         {
-            var framesY = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x]).Where(x => x.TilesCount > 0)
-                .SelectMany(f => f.TilePositions.Select(x => x.YPos)).ToArray();
+            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            {
+                var framesY = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x].RenderBox.Y).ToArray();
 
-            return framesY.Any() ? framesY.Min() : 0;
+                return framesY.Any() ? framesY.Min() : 0;
+            }
+            else
+            {
+                var framesY = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x]).Where(x => x.TilesCount > 0)
+                    .SelectMany(f => f.TilePositions.Select(x => x.YPos)).ToArray();
+
+                return framesY.Any() ? framesY.Min() : 0;
+            }
         }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.GBAVV_IsFusion)
+            if (s.GameSettings.GBAVV_IsFusion || s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
-                Fusion_SelfPointer = s.SerializePointer(Fusion_SelfPointer, name: nameof(Fusion_SelfPointer));
-                Fusion_FramesPointer = s.SerializePointer(Fusion_FramesPointer, name: nameof(Fusion_FramesPointer));
+                SelfPointer = s.SerializePointer(SelfPointer, name: nameof(SelfPointer));
+                FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
                 AnimationsCount = s.Serialize<int>(AnimationsCount, name: nameof(AnimationsCount));
-                Fusion_FramesCount = s.Serialize<int>(Fusion_FramesCount, name: nameof(Fusion_FramesCount));
-                Fusion_Int_10 = s.Serialize<int>(Fusion_Int_10, name: nameof(Fusion_Int_10));
+                FramesCount = s.Serialize<int>(FramesCount, name: nameof(FramesCount));
+                Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
                 Animations = s.SerializeObjectArray<GBAVV_Map2D_Animation>(Animations, AnimationsCount, name: nameof(Animations));
 
-                AnimationFrames = s.DoAt(Fusion_FramesPointer, () => s.SerializeObjectArray<GBAVV_Map2D_AnimationFrame>(AnimationFrames, Fusion_FramesCount, name: nameof(AnimationFrames)));
+                AnimationFrames = s.DoAt(FramesPointer, () => s.SerializeObjectArray<GBAVV_Map2D_AnimationFrame>(AnimationFrames, FramesCount, name: nameof(AnimationFrames)));
             }
             else
             {

@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using ImageMagick;
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
@@ -34,7 +33,7 @@ namespace R1Engine
             new GameAction("Export level icons", false, true, (input, output) => ExportLevelIcons(settings, output)),
         };
 
-        public virtual async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
+        public virtual async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
             // Export 2D animations
             using (var context = new Context(settings))
@@ -68,10 +67,28 @@ namespace R1Engine
                             if (!frames.Any())
                                 continue;
 
-                            if (context.Settings.GBAVV_IsFusion)
-                                ExportAnim(frames, anim.AnimSpeed, "2D", $"{animSetIndex} 0x{animSet.Offset.AbsoluteOffset:X8}", $"{animIndex} 0x{anim.Offset.AbsoluteOffset:X8}", false, saveAsGif, outputDir);
-                            else
-                                ExportAnim(frames, anim.AnimSpeed + 1, $"2D_{graphicsIndex} - 0x{graphicsData.Offset.AbsoluteOffset:X8}", $"{animSetIndex}", $"{animIndex}", false, saveAsGif, outputDir);
+                            var dirName = $"2D";
+                            var animSetName = $"{animSetIndex}";
+                            var animName = $"{animIndex}";
+
+                            if (rom.Map2D_Graphics.Length > 1)
+                                dirName += $"_{graphicsIndex}";
+
+                            if (includePointerInNames)
+                            {
+                                dirName += $" - 0x{graphicsData.Offset.AbsoluteOffset:X8}";
+                                animSetName += $" 0x{animSet.Offset.AbsoluteOffset:X8}";
+                                animName += $" 0x{anim.Offset.AbsoluteOffset:X8}";
+                            }
+
+                            Util.ExportAnim(
+                                frames: frames,
+                                speed: anim.GetAnimSpeed,
+                                center: false,
+                                saveAsGif: saveAsGif,
+                                outputDir: Path.Combine(outputDir, dirName),
+                                primaryName: animSetName,
+                                secondaryName: animName);
                         }
                     }
                 }
@@ -113,7 +130,14 @@ namespace R1Engine
                                 await UniTask.WaitForEndOfFrame();
                                 var frames = GetMode7AnimFrames(animSet, animSetIndex, animIndex, pal, levInfo);
 
-                                ExportAnim(frames, 4, "Mode7", $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}", $"{animIndex}", true, saveAsGif, outputDir);
+                                Util.ExportAnim(
+                                    frames: frames,
+                                    speed: 4,
+                                    center: true,
+                                    saveAsGif: saveAsGif,
+                                    outputDir: Path.Combine(outputDir, "Mode7"),
+                                    primaryName: $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}",
+                                    secondaryName: $"{animIndex}");
                             }
                         }
 
@@ -122,7 +146,14 @@ namespace R1Engine
                         {
                             exportedAnimSets.Add(levInfo.SpecialFrames.Offset);
 
-                            ExportAnim(GetMode7SpecialAnimFrames(levInfo.SpecialFrames), 4, "Mode7", $"0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}", $"0", true, saveAsGif, outputDir);
+                            Util.ExportAnim(
+                                frames: GetMode7SpecialAnimFrames(levInfo.SpecialFrames),
+                                speed: 4,
+                                center: true,
+                                saveAsGif: saveAsGif,
+                                outputDir: Path.Combine(outputDir, "Mode7"),
+                                primaryName: $"0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}",
+                                secondaryName: $"0");
                         }
                     }
                 }
@@ -150,58 +181,19 @@ namespace R1Engine
 
                         var frames = GetIsometricAnimFrames(animations[i], pal);
 
-                        ExportAnim(frames, 4, "Isometric", $"{i}", $"0", true, saveAsGif, outputDir);
+                        Util.ExportAnim(
+                            frames: frames, 
+                            speed: 4, 
+                            center: true, 
+                            saveAsGif: saveAsGif, 
+                            outputDir: Path.Combine(outputDir, "Isometric"), 
+                            primaryName: $"{i}", 
+                            secondaryName: $"0");
                     }
                 }
             }
 
             Debug.Log($"Finished export");
-        }
-
-        protected void ExportAnim(IList<Texture2D> frames, int speed, string modeName, string animSetName, string animName, bool center, bool saveAsGif, string outputDir)
-        {
-            var modeDir = Path.Combine(outputDir, modeName);
-
-            Directory.CreateDirectory(modeDir);
-
-            if (saveAsGif)
-            {
-                using (MagickImageCollection collection = new MagickImageCollection())
-                {
-                    int index = 0;
-
-                    var maxWidth = frames.Max(x => x.width);
-                    var maxHeight = frames.Max(x => x.height);
-
-                    foreach (var frameTex in frames)
-                    {
-                        var img = frameTex.ToMagickImage();
-                        collection.Add(img);
-                        collection[index].AnimationDelay = speed;
-                        collection[index].AnimationTicksPerSecond = 60;
-
-                        if (center)
-                            collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
-
-                        collection[index].Trim();
-                        collection[index].GifDisposeMethod = GifDisposeMethod.Background;
-                        index++;
-                    }
-
-                    // Save gif
-                    collection.Write(Path.Combine(modeDir, $"{animSetName} - {animName}.gif"));
-                }
-            }
-            else
-            {
-                var frameIndex = 0;
-
-                foreach (var tex in frames)
-                {
-                    Util.ByteArrayToFile(Path.Combine(modeDir, $"{animSetName}", $"{animName}", $"{frameIndex}.png"), tex.EncodeToPNG());
-                    frameIndex++;
-                }
-            }
         }
 
         public async UniTask ExportIsometricCharacterIcons(GameSettings settings, string outputDir)
@@ -1923,7 +1915,7 @@ namespace R1Engine
             var shapes = TileShapes;
             var anim = animSet.Animations[animIndex];
             var frames = anim.FrameIndexTable.Select(x => animSet.AnimationFrames[x]).ToArray();
-            var pal = palettes != null ? Util.ConvertGBAPalette(palettes[anim.PaletteIndex].Palette) : Util.ConvertGBAPalette(anim.Fusion_Palette);
+            var pal = palettes != null ? Util.ConvertGBAPalette(palettes[anim.PaletteIndex].Palette) : Util.ConvertGBAPalette(anim.Palette);
 
             // Return empty animation if there are no frames
             if (!frames.Any(x => x.TilesCount > 0))
