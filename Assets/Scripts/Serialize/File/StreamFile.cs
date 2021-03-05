@@ -7,6 +7,7 @@ namespace R1Engine.Serialize
     public class StreamFile : BinaryFile {
 		public uint length = 0;
 		private Stream stream;
+		public bool AllowLocalPointers { get; set; }
 
 		public StreamFile(string name, Stream stream, Context context) : base(context) {
 			filePath = name;
@@ -29,11 +30,8 @@ namespace R1Engine.Serialize
 
 		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) 
         {
-			// Get every memory mapped file
-			List<MemoryMappedFile> files = Context.MemoryMap.Files.OfType<MemoryMappedFile>().ToList();
-
-			// If there are no memory mapped files we assume the pointer leads to the stream file
-			if (!files.Any())
+			// If we allow local pointers we assume the pointer leads to the stream file
+			if (AllowLocalPointers)
             {
                 uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
 				if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset <= baseAddress + length)
@@ -43,6 +41,9 @@ namespace R1Engine.Serialize
             }
 			else
             {
+                // Get every memory mapped file
+                List<MemoryMappedFile> files = Context.MemoryMap.Files.OfType<MemoryMappedFile>().ToList();
+
 				files.Sort((a, b) => b.baseAddress.CompareTo(a.baseAddress));
                 return files.Select(f => f.GetPointerInThisFileOnly(serializedValue, anchor: anchor)).FirstOrDefault(p => p != null);
             }
