@@ -876,7 +876,19 @@ namespace R1Engine
                 objectGroups: objGroups.Select(x => x.Item2).ToArray(),
                 getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
-                localization: LoadLocalization(rom));
+                localization: LoadLocalization(rom),
+                isometricData: new Unity_IsometricData {
+                    CollisionWidth = 0,
+                    CollisionHeight = 0,
+                    TilesWidth = 0,
+                    TilesHeight = 0,
+                    Collision = null,
+                    Scale = Vector3.one / 2,
+                    ViewAngle = Quaternion.Euler(90,0,0),
+                    CalculateYDisplacement = () => 0,
+                    CalculateXDisplacement = () => 0,
+                    ObjectScale = Vector3.one * CellSize
+                });
         }
 
         public static byte GetIsometricCollisionType(int level, int index)

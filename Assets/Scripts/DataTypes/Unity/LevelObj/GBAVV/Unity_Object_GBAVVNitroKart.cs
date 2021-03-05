@@ -67,7 +67,9 @@ namespace R1Engine
             }
         }
 
-        public override string DebugText => null;
+		public override float Scale => 0.5f;
+
+		public override string DebugText => null;
 
         public Unity_ObjectManager_GBAVV.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndices.Item1)?.ElementAtOrDefault(AnimSetIndices.Item2);
         public Unity_ObjectManager_GBAVV.AnimSet.Animation Animation
