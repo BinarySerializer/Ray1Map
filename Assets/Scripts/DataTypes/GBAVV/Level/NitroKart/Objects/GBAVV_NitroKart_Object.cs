@@ -7,6 +7,7 @@
         public int Height { get; set; }
         public int ObjType { get; set; }
         public Pointer ParamsPointer { get; set; }
+        public byte[] NGage_Params { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -14,7 +15,11 @@
             YPos = s.Serialize<int>(YPos, name: nameof(YPos));
             Height = s.Serialize<int>(Height, name: nameof(Height));
             ObjType = s.Serialize<int>(ObjType, name: nameof(ObjType));
-            ParamsPointer = s.SerializePointer(ParamsPointer, name: nameof(ParamsPointer));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+                NGage_Params = s.SerializeArray<byte>(NGage_Params, 20, name: nameof(NGage_Params));
+            else
+                ParamsPointer = s.SerializePointer(ParamsPointer, name: nameof(ParamsPointer));
         }
     }
 }

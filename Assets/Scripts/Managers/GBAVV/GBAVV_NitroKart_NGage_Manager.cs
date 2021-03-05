@@ -15,7 +15,10 @@ namespace R1Engine
         public string DataFilePath => @"data.gob";
         public const uint ExeBaseAddress = 0x10000000 - 648;
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => new GameInfo_Volume[0];
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        {
+            new GameInfo_World(0, Enumerable.Range(0, 26).ToArray()), 
+        });
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {

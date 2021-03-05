@@ -6,12 +6,14 @@
         public int ObjectsCount { get; set; }
 
         // Serialized from pointers
-        // TODO: Objects (36 bytes each)
+        public GBAVV_NitroKart_Object[] Objects { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             ObjectsPointer = s.SerializePointer(ObjectsPointer, name: nameof(ObjectsPointer));
             ObjectsCount = s.Serialize<int>(ObjectsCount, name: nameof(ObjectsCount));
+
+            Objects = s.DoAt(ObjectsPointer, () => s.SerializeObjectArray<GBAVV_NitroKart_Object>(Objects, ObjectsCount, name: nameof(Objects)));
         }
     }
 }

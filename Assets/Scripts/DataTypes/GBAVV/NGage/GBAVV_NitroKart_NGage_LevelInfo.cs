@@ -2,6 +2,8 @@
 {
     public class GBAVV_NitroKart_NGage_LevelInfo : R1Serializable
     {
+        public bool SerializeData { get; set; } = true; // Set before serializing
+
         public Pointer PVSFilePathPointer { get; set; }
         public Pointer POPFilePathPointer { get; set; }
         public int Int_08 { get; set; }
@@ -31,6 +33,9 @@
             PVSFilePath = s.DoAt(PVSFilePathPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(PVSFilePath, name: nameof(PVSFilePath)));
             POPFilePath = s.DoAt(POPFilePathPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(POPFilePath, name: nameof(POPFilePath)));
             ParallaxBaseFilePath = s.DoAt(ParallaxBaseFilePathPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(ParallaxBaseFilePath, name: nameof(ParallaxBaseFilePath)));
+
+            if (!SerializeData)
+                return;
 
             PVS = PVSFilePath.DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_PVS>(PVS, name: nameof(PVS)));
             POP = POPFilePath.DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_POP>(POP, name: nameof(POP)));
