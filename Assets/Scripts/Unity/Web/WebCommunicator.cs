@@ -375,6 +375,8 @@ public class WebCommunicator : MonoBehaviour {
                 case Unity_Object_GBAVVNitroKart crashObj:
                     if (crashObj.Object.ParamsPointer != null)
                         webObj.GBAVV_ObjParams = $"0x{crashObj.Object.ParamsPointer.AbsoluteOffset:X8}";
+					else if (crashObj.Object.NGage_Params != null)
+                        webObj.GBAVV_ObjParams = Util.ByteArrayToHexString(crashObj.Object.NGage_Params);
 
                     if (crashObj.AnimSetIndex != -1)
                     {
