@@ -1,25 +1,29 @@
 ﻿using System;
+using System.IO;
 
 namespace R1Engine
 {
     public class GBAVV_NitroKart_NGage_FilePath : R1Serializable
     {
         // Set before serializing
-        public bool IsRelativePath { get; set; }
+        public string BasePath { get; set; }
         public long? StringLength { get; set; }
 
         public string FilePath { get; set; }
 
-        public void DoAtFile(Action action)
+        // Helpers
+        public string GetFullPath => BasePath != null ? Path.Combine(BasePath, FilePath) : FilePath;
+        public T DoAtFile<T>(Func<T> func) => DoAtFile(null, func);
+        public T DoAtFile<T>(string fileExtension, Func<T> func)
         {
-            if (IsRelativePath)
-                throw new Exception($"{nameof(DoAtFile)} can't be called on a relative path!");
-
             var manager = (GBAVV_NitroKart_NGage_Manager)Context.Settings.GetGameManager;
 
-            var absolutePath = FilePath;
+            var path = GetFullPath;
 
-            manager.DoAtBlock(Context, absolutePath, action);
+            if (fileExtension != null)
+                path += fileExtension;
+
+            return manager.DoAtBlock(Context, path, func);
         }
 
         public override void SerializeImpl(SerializerObject s)
