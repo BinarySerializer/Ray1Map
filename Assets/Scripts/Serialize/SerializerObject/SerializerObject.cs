@@ -64,7 +64,7 @@ namespace R1Engine
             return default;
         }
 
-        public abstract void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null);
+        public abstract void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null, bool allowLocalPointers = false);
         public abstract void DoEndian(BinaryFile.Endian endianness, Action action);
 
         public void DoEncodedIf(IStreamEncoder encoder, bool isEncoded, Action action, BinaryFile.Endian? endianness = null)

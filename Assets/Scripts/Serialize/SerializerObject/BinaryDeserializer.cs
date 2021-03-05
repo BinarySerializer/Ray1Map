@@ -461,7 +461,7 @@ namespace R1Engine
                 readers.Remove(file);
             }
         }
-        public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null) {
+        public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null, bool allowLocalPointers = false) {
             // Stream key
             string key = CurrentPointer.ToString() + "_decoded";
             // Decode the data into a stream
@@ -470,7 +470,8 @@ namespace R1Engine
                 // Add the stream
                 StreamFile sf = new StreamFile(key, memStream, Context)
                 {
-                    Endianness = endianness ?? currentFile.Endianness
+                    Endianness = endianness ?? currentFile.Endianness,
+                    AllowLocalPointers = allowLocalPointers
                 };
                 Context.AddFile(sf);
 

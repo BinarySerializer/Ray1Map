@@ -48,9 +48,9 @@ namespace R1Engine
         public override uint CurrentLength => CurrentSerializer.CurrentLength;
         public override Pointer CurrentPointer => CurrentSerializer.CurrentPointer;
         public override void Goto(Pointer offset) => CurrentSerializer.Goto(offset);
-        public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null) {
+        public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null, bool allowLocalPointers = false) {
             SwitchSerializer(Deserializer);
-            CurrentSerializer.DoEncoded(encoder, action, endianness);
+            CurrentSerializer.DoEncoded(encoder, action, endianness, allowLocalPointers);
         }
         public override void DoEndian(BinaryFile.Endian endianness, Action action) {
             CurrentSerializer.DoEndian(endianness, action);
