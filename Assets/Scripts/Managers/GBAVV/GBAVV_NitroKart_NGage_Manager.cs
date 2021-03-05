@@ -144,6 +144,59 @@ namespace R1Engine
             }
         }
 
+        public void FindObjTypeData(Context context)
+        {
+            var s = context.Deserializer;
+
+            var str = new StringBuilder();
+
+            var initFunctionPointers = s.DoAt(new Pointer(0x1001aa2c, s.Context.GetFile(ExeFilePath)), () => s.SerializePointerArray(default, 113));
+            var orderedPointers = initFunctionPointers.OrderBy(x => x.AbsoluteOffset).Distinct().ToArray();
+
+            // Enumerate every obj init function
+            for (int i = 0; i < initFunctionPointers.Length; i++)
+            {
+                var nextPointer = orderedPointers.ElementAtOrDefault(orderedPointers.FindItemIndex(x => x == initFunctionPointers[i]) + 1);
+
+                s.DoAt(initFunctionPointers[i], () =>
+                {
+                    s.Align();
+
+                    var foundPointer = false;
+
+                    // Try and read every int as a pointer until we get a valid one 25 times
+                    for (int j = 0; j < 25; j++)
+                    {
+                        if (nextPointer != null && s.CurrentPointer.AbsoluteOffset >= nextPointer.AbsoluteOffset)
+                            break;
+
+                        var p = s.SerializePointer(default, allowInvalid: true);
+
+                        s.DoAt(p, () =>
+                        {
+                            s.Goto(s.CurrentPointer + 20);
+                            var graphicsPointer = s.SerializePointer(default, allowInvalid: true);
+                            var gfxPath = s.DoAt(graphicsPointer, () => s.SerializeString(default));
+
+                            if (gfxPath?.EndsWith(".gfx") == true)
+                            {
+                                str.AppendLine($"0x{p.AbsoluteOffset:X8}, // {i}");
+                                foundPointer = true;
+                            }
+                        });
+
+                        if (foundPointer)
+                            return;
+                    }
+
+                    // No pointer found...
+                    str.AppendLine($"null, // {i}");
+                });
+            }
+
+            str.ToString().CopyToClipboard();
+        }
+
         public string GetBlockExportName(Context context, int i, uint crc, bool withFilenames, bool includeFileExtension)
         {
             // Get the CRC for every string
@@ -212,6 +265,20 @@ namespace R1Engine
             });
         }
 
+        public IEnumerable<(GBAVV_Map2D_AnimSet, string)> LoadGFX(Context context)
+        {
+            // Get all file paths
+            var paths = FilePaths;
+
+            // Enumerate every .gfx file
+            foreach (var gfxPath in paths.Where(x => x.EndsWith(".gfx")))
+            {
+                var s = context.Deserializer;
+
+                // Parse the animation set
+                yield return (DoAtBlock(context, gfxPath, () => s.SerializeObject<GBAVV_Map2D_AnimSet>(default, name: $"AnimSet_{Path.GetFileNameWithoutExtension(gfxPath)}")), gfxPath);
+            }
+        }
         public Texture2D[] GetAnimFrames(GBAVV_Map2D_AnimSet animSet, int animIndex)
         {
             // Get properties
@@ -264,6 +331,22 @@ namespace R1Engine
 
             return output;
         }
+        public Unity_ObjectManager_GBAVV.AnimSet[][] LoadAnimSets(IEnumerable<(GBAVV_Map2D_AnimSet, string)> animSets)
+        {
+            Unity_ObjectManager_GBAVV.AnimSet.Animation convertAnim(GBAVV_Map2D_AnimSet animSet, GBAVV_Map2D_Animation anim, int i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
+                animFrameFunc: () => GetAnimFrames(animSet, i).Select(frame => frame.CreateSprite()).ToArray(),
+                crashAnim: anim,
+                xPos: animSet.GetMinX(i),
+                yPos: animSet.GetMinY(i)
+            );
+
+            Unity_ObjectManager_GBAVV.AnimSet convertAnimSet((GBAVV_Map2D_AnimSet, string) animSet) => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Item1.Animations.Select((anim, i) => convertAnim(animSet.Item1, anim, i)).ToArray(), animSet.Item2);
+
+            return new Unity_ObjectManager_GBAVV.AnimSet[][]
+            {
+                animSets.Select(convertAnimSet).ToArray()
+            };
+        }
 
         public uint CalculateCRC(string str, uint[] polynomialData) 
         {
@@ -289,15 +372,70 @@ namespace R1Engine
             return context.GetStoredObject<Dictionary<uint, string>>(id);
         }
 
-        public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
+            //indObjTypeData(context);
+
             // Load the data file
             var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
 
             // Load the exe
             var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context);
 
-            throw new NotImplementedException();
+            var level = exe.LevelInfos[context.Settings.Level];
+            var pop = level.POP;
+
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
+            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(LoadGFX(context)), null, GBAVV_MapInfo.GBAVV_MapType.Kart, nitroKart_ObjTypeData: exe.NitroKart_ObjTypeData);
+
+            var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
+
+            objGroups.Add((pop.Objects_Normal.Objects, "Normal"));
+
+            if (pop.Objects_TimeTrial != pop.Objects_Normal)
+                objGroups.Add((pop.Objects_TimeTrial.Objects, "Time Trial"));
+
+            if (pop.Objects_BossRace != pop.Objects_Normal)
+                objGroups.Add((pop.Objects_BossRace.Objects, "Boss Race"));
+
+            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => new Unity_Object_GBAVVNitroKart(objManager, o, i)));
+
+            return new Unity_Level(
+                maps: new Unity_Map[]
+                {
+                    new Unity_Map()
+                    {
+                        Width = 1,
+                        Height = 1,
+                        TileSet = new Unity_TileSet[]
+                        {
+                            new Unity_TileSet(8, Color.clear), 
+                        },
+                        MapTiles = new Unity_Tile[]
+                        {
+                            new Unity_Tile(new MapTile()), 
+                        }
+                    }
+                },
+                objManager: objManager,
+                eventData: new List<Unity_Object>(objects),
+                cellSize: 8,
+                isometricData: new Unity_IsometricData
+                {
+                    CollisionWidth = 0,
+                    CollisionHeight = 0,
+                    TilesWidth = 1,
+                    TilesHeight = 1,
+                    Collision = null,
+                    Scale = Vector3.one / 2,
+                    ViewAngle = Quaternion.identity,
+                    CalculateYDisplacement = () => 0,
+                    CalculateXDisplacement = () => 0,
+                    ObjectScale = new Vector3(1, 1, 0.5f) * 8
+                },
+                objectGroups: objGroups.Select(x => x.Item2).ToArray());
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
@@ -943,6 +1081,123 @@ namespace R1Engine
             @"gfx\Barin02\garrow.bmp.tex",
             @"gfx\Barin02\B1DSurface03.pal",
             @"gfx\Barin02\B1DSurface03.tex",
+        };
+
+        public uint?[] ObjTypesDataPointers => new uint?[]
+        {
+            0x1008D660, // 0
+            0x1008D660, // 1
+            0x1008D660, // 2
+            null, // 3
+            null, // 4
+            null, // 5
+            null, // 6
+            null, // 7
+            null, // 8
+            null, // 9
+            null, // 10
+            null, // 11
+            null, // 12
+            0x1008D660, // 13
+            null, // 14
+            null, // 15
+            0x1008D660, // 16
+            0x1008D660, // 17
+            0x1008D660, // 18
+            0x1008D660, // 19
+            0x1008D660, // 20
+            0x1008D660, // 21
+            0x1008D660, // 22
+            0x1008D660, // 23
+            0x1008D660, // 24
+            0x1008D660, // 25
+            0x1008D660, // 26
+            0x1008D660, // 27
+            0x1008D660, // 28
+            0x1008D660, // 29
+            0x1008D660, // 30
+            null, // 31
+            null, // 32
+            null, // 33
+            0x1006867C, // 34
+            0x100686BC, // 35
+            0x100686FC, // 36
+            0x1006863C, // 37
+            0x100684FC, // 38
+            0x1006853C, // 39
+            0x1006873C, // 40
+            0x1006857C, // 41
+            0x100685BC, // 42
+            0x100685FC, // 43
+            0x10087B98, // 44
+            0x1008D660, // 45
+            0x1008D660, // 46
+            0x1008D660, // 47
+            0x1008D660, // 48
+            0x1008D660, // 49
+            0x1008D660, // 50
+            0x1008D660, // 51
+            0x1008D660, // 52
+            0x1008D660, // 53
+            0x1008D660, // 54
+            0x1008D660, // 55
+            0x1008D660, // 56
+            0x1008D660, // 57
+            0x1008D660, // 58
+            0x1008D660, // 59
+            0x1008D660, // 60
+            0x1008D660, // 61
+            0x1008D660, // 62
+            0x1008D660, // 63
+            0x1008D660, // 64
+            0x1008D660, // 65
+            0x1008D660, // 66
+            0x1008D660, // 67
+            0x1008D660, // 68
+            0x1008D660, // 69
+            0x1008D660, // 70
+            0x1008D660, // 71
+            0x1008D660, // 72
+            null, // 73
+            0x10087BF8, // 74
+            0x10087C28, // 75
+            0x10087C64, // 76
+            0x1008D660, // 77
+            0x1008D660, // 78
+            0x1008D660, // 79
+            0x1008D660, // 80
+            0x1008D660, // 81
+            0x1008D660, // 82
+            0x1008D660, // 83
+            0x1008D660, // 84
+            0x1008D660, // 85
+            null, // 86
+            null, // 87
+            null, // 88
+            null, // 89
+            null, // 90
+            null, // 91
+            null, // 92
+            null, // 93
+            null, // 94
+            null, // 95
+            null, // 96
+            null, // 97
+            null, // 98
+            null, // 99
+            0x1008D444, // 100
+            0x1008D480, // 101
+            0x1008D4B0, // 102
+            0x1008D570, // 103
+            0x1008D540, // 104
+            0x1008D5A0, // 105
+            0x1008D5D0, // 106
+            0x1008D600, // 107
+            0x1008D630, // 108
+            null, // 109
+            0x1008D660, // 110
+            0x1008D660, // 111
+            0x1008D660, // 112
         };
     }
 }

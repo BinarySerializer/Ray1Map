@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using R1Engine.Serialize;
 using UnityEngine;
@@ -19,24 +20,21 @@ namespace R1Engine
             NitroKart_ObjTypeData = nitroKart_ObjTypeData;
 
             // Set indices if there are multiple array
-            if (MultipleAnimSetArrays)
+            var index = 0;
+            var lookup = new List<(int, int)>();
+
+            for (var graphicsIndex = 0; graphicsIndex < AnimSets.Length; graphicsIndex++)
             {
-                var index = 0;
-                var lookup = new List<(int, int)>();
-
-                for (var graphicsIndex = 0; graphicsIndex < AnimSets.Length; graphicsIndex++)
+                for (int animSetIndex = 0; animSetIndex < AnimSets[graphicsIndex].Length; animSetIndex++)
                 {
-                    for (int animSetIndex = 0; animSetIndex < AnimSets[graphicsIndex].Length; animSetIndex++)
-                    {
-                        AnimSets[graphicsIndex][animSetIndex].Index = index++;
-                        lookup.Add((graphicsIndex, animSetIndex));
-                    }
+                    AnimSets[graphicsIndex][animSetIndex].Index = index++;
+                    lookup.Add((graphicsIndex, animSetIndex));
                 }
-
-                AnimSetsLookupTable = lookup.ToArray();
             }
+
+            AnimSetsLookupTable = lookup.ToArray();
         }
-        
+
         public AnimSet[][] AnimSets { get; }
         public (int, int)[] AnimSetsLookupTable { get; }
         public bool MultipleAnimSetArrays => AnimSets.Length > 1;
@@ -48,18 +46,21 @@ namespace R1Engine
         public GBAVV_NitroKart_ObjTypeData[] NitroKart_ObjTypeData { get; }
         public Dictionary<int, GBAVV_Script> DialogScripts { get; }
         
-        public override string[] LegacyDESNames => AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => MultipleAnimSetArrays ? $"{graphicsIndex}-{animSetIndex}" : $"{animSetIndex}")).ToArray();
+        public override string[] LegacyDESNames => AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => MultipleAnimSetArrays ? $"{graphicsIndex}-{animSet.GetDisplayName(animSetIndex)}" : $"{animSet.GetDisplayName(animSetIndex)}")).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
 
         public class AnimSet
         {
-            public AnimSet(Animation[] animations)
+            public AnimSet(Animation[] animations, string nGageFilePath = null)
             {
                 Animations = animations;
+                NGage_FilePath = nGageFilePath;
             }
 
             public Animation[] Animations { get; }
             public int Index { get; set; }
+            public string NGage_FilePath { get; }
+            public string GetDisplayName(int index) => NGage_FilePath != null ? Path.GetFileNameWithoutExtension(NGage_FilePath) : $"{index}";
 
             public class Animation
             {

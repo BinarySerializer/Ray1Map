@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBAVVNitroKart : Unity_Object
+    public class Unity_Object_GBAVVNitroKart : Unity_Object_3D
     {
         public Unity_Object_GBAVVNitroKart(Unity_ObjectManager_GBAVV objManager, GBAVV_NitroKart_Object obj, int? objectGroupIndex)
         {
@@ -18,7 +18,7 @@ namespace R1Engine
 
         public void InitObj()
         {
-            var typeData = ObjManager.NitroKart_ObjTypeData.ElementAtOrDefault(Object.ObjType);
+            var typeData = ObjManager.NitroKart_ObjTypeData?.ElementAtOrDefault(Object.ObjType);
 
             if (typeData == null)
             {
@@ -27,8 +27,17 @@ namespace R1Engine
             }
             else
             {
-                var graphicsIndex = ObjManager.Graphics.FindItemIndex(x => x.Offset == typeData.GraphicsDataPointer);
-                SetAnimation(graphicsIndex, typeData.AnimSetIndex, (byte)(typeData.AnimationIndices?.FirstOrDefault() ?? 0));
+                if (ObjManager.Context.Settings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
+                {
+                    var graphicsIndex = ObjManager.Graphics.FindItemIndex(x => x.Offset == typeData.GraphicsDataPointer);
+                    SetAnimation(graphicsIndex, typeData.AnimSetIndex, (byte)(typeData.AnimationIndices?.FirstOrDefault() ?? 0));
+
+                }
+                else
+                {
+                    var animSetIndex = ObjManager.AnimSets.FirstOrDefault()?.FindItemIndex(x => x.NGage_FilePath == typeData.NGage_GFXFilePath.FilePath) ?? -1;
+                    SetAnimation(0, animSetIndex, (byte)(typeData.AnimationIndices?.FirstOrDefault() ?? 0));
+                }
             }
         }
 
@@ -45,6 +54,17 @@ namespace R1Engine
         {
             get => (short)Object.YPos;
             set => Object.YPos = value;
+        }
+
+        public override Vector3 Position
+        {
+            get => new Vector3(Object.XPos, Object.YPos, Object.Height); 
+            set
+            {
+                Object.XPos = (int)value.x;
+                Object.YPos = (int)value.y;
+                Object.Height = (int)value.z;
+            }
         }
 
         public override string DebugText => null;

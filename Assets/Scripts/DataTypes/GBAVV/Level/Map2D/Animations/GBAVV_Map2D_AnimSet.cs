@@ -83,6 +83,9 @@ namespace R1Engine
                 for (int i = 0; i < AnimationFrames.Length; i++)
                     AnimationFrames[i] = s.DoAt(FramePointers[i], () => s.SerializeObject<GBAVV_Map2D_AnimationFrame>(AnimationFrames[i], name: $"{nameof(AnimationFrames)}[{i}]"));
             }
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+                s.Goto(Offset + s.CurrentLength);
         }
     }
 }

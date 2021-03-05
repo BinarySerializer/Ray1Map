@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_BackgroundLayer : R1Serializable
+    public class GBAVV_NitroKart_NGage_UnknownStruct : R1Serializable
     {
         public Pointer DataPointer { get; set; }
         public int DataLength { get; set; }

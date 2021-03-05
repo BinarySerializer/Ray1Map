@@ -19,6 +19,8 @@
         // Serialized from pointers
         public GBAVV_Map2D_Graphics GraphicsData { get; set; }
         public int[] AnimationIndices { get; set; }
+        public GBAVV_NitroKart_NGage_FilePath NGage_GFXFilePath { get; set; }
+        public GBAVV_Map2D_AnimSet NGage_GFX { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -28,7 +30,10 @@
             Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
             Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
             GraphicsDataPointer = s.SerializePointer(GraphicsDataPointer, name: nameof(GraphicsDataPointer));
-            AnimSetIndex = s.Serialize<int>(AnimSetIndex, name: nameof(AnimSetIndex));
+
+            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
+                AnimSetIndex = s.Serialize<int>(AnimSetIndex, name: nameof(AnimSetIndex));
+            
             Int_1C = s.Serialize<int>(Int_1C, name: nameof(Int_1C));
             AnimationIndicesPointer = s.SerializePointer(AnimationIndicesPointer, name: nameof(AnimationIndicesPointer));
             AnimationIndicesCount = s.Serialize<int>(AnimationIndicesCount, name: nameof(AnimationIndicesCount));
@@ -38,7 +43,17 @@
 
             // TODO: Some objects have additional data
 
-            GraphicsData = s.DoAt(GraphicsDataPointer, () => s.SerializeObject<GBAVV_Map2D_Graphics>(GraphicsData, name: nameof(GraphicsData)));
+            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
+            {
+                GraphicsData = s.DoAt(GraphicsDataPointer, () => s.SerializeObject<GBAVV_Map2D_Graphics>(GraphicsData, name: nameof(GraphicsData)));
+            }
+            else
+            {
+                NGage_GFXFilePath = s.DoAt(GraphicsDataPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(NGage_GFXFilePath, name: nameof(NGage_GFXFilePath)));
+
+                NGage_GFX = NGage_GFXFilePath.DoAtFile(() => s.SerializeObject<GBAVV_Map2D_AnimSet>(NGage_GFX, name: nameof(NGage_GFX)));
+            }
+
             AnimationIndices = s.DoAt(AnimationIndicesPointer, () => s.SerializeArray<int>(AnimationIndices, AnimationIndicesCount, name: nameof(AnimationIndices)));
         }
     }

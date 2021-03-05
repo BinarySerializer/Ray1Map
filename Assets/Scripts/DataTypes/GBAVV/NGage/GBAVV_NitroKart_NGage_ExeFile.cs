@@ -4,6 +4,7 @@
     {
         public uint[] CRCPolynomialData { get; set; }
         public GBAVV_NitroKart_NGage_LevelInfo[] LevelInfos { get; set; }
+        public GBAVV_NitroKart_ObjTypeData[] NitroKart_ObjTypeData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -18,8 +19,15 @@
 
                 for (int i = 0; i < LevelInfos.Length; i++)
                     LevelInfos[i] = s.SerializeObject<GBAVV_NitroKart_NGage_LevelInfo>(LevelInfos[i], x => x.SerializeData = i == s.GameSettings.Level, name: $"{nameof(LevelInfos)}[{i}]");
-
             });
+
+            var pointers = ((GBAVV_NitroKart_NGage_Manager)s.GameSettings.GetGameManager).ObjTypesDataPointers;
+
+            if (NitroKart_ObjTypeData == null)
+                NitroKart_ObjTypeData = new GBAVV_NitroKart_ObjTypeData[pointers.Length];
+
+            for (int i = 0; i < pointers.Length; i++)
+                NitroKart_ObjTypeData[i] = s.DoAt(pointers[i] == null ? null : new Pointer(pointers[i].Value, Offset.file), () => s.SerializeObject<GBAVV_NitroKart_ObjTypeData>(NitroKart_ObjTypeData[i], name: $"{nameof(NitroKart_ObjTypeData)}[{i}]"));
         }
     }
 }
