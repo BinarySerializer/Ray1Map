@@ -60,16 +60,21 @@ namespace R1Engine
 
 		public virtual int GetPuppetFileIndex(int puppetIndex) => BasePuppetsResourceFile + puppetIndex / PuppetsPerResourceFile;
 		public virtual int GetPuppetResourceIndex(int puppetIndex) => puppetIndex % PuppetsPerResourceFile;
-		public virtual PuppetReference[] PuppetReferences => Enumerable.Range(0,PuppetCount-ExtraPuppetsInLastFile).Select(pi => new PuppetReference() {
-			FileIndex = GetPuppetFileIndex(pi),
-			ResourceIndex = GetPuppetResourceIndex(pi)
-		}).Append(new PuppetReference() {
-			FileIndex = GetPuppetFileIndex(PuppetCount- ExtraPuppetsInLastFile - 1),
-			ResourceIndex = GetPuppetResourceIndex(PuppetCount- ExtraPuppetsInLastFile - 1) + 1
-		}).Append(new PuppetReference() {
-			FileIndex = GetPuppetFileIndex(PuppetCount - ExtraPuppetsInLastFile - 1),
-			ResourceIndex = GetPuppetResourceIndex(PuppetCount - ExtraPuppetsInLastFile - 1) + 2
-		}).ToArray();
+		public virtual PuppetReference[] PuppetReferences {
+			get {
+				var normalPuppets = Enumerable.Range(0, PuppetCount - ExtraPuppetsInLastFile).Select(pi => new PuppetReference() {
+					FileIndex = GetPuppetFileIndex(pi),
+					ResourceIndex = GetPuppetResourceIndex(pi)
+				});
+				for (int i = 0; i < ExtraPuppetsInLastFile; i++) {
+					normalPuppets = normalPuppets.Append(new PuppetReference() {
+						FileIndex = GetPuppetFileIndex(PuppetCount - ExtraPuppetsInLastFile - 1),
+						ResourceIndex = GetPuppetResourceIndex(PuppetCount - ExtraPuppetsInLastFile - 1) + i + 1
+					});
+				}
+				return normalPuppets.ToArray();
+			}
+		}
 
 		public class PuppetReference {
 			public int FileIndex { get; set; }

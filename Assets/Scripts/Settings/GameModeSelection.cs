@@ -481,8 +481,14 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 128x160, Sony Ericsson K500i)", typeof(Gameloft_RK_128x160_Manager))]
         RaymanKartMobile_128x160_K500i,
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x208)", typeof(Gameloft_RK_128x160_Manager))]
-        RaymanKartMobile_176x208,
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x208, s60v1/N3650)", typeof(Gameloft_RK_128x160_Manager))]
+        RaymanKartMobile_176x208_s60v1_N3650,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x208, s60v1/N7650)", typeof(Gameloft_RK_128x160_Manager))]
+        RaymanKartMobile_176x208_s60v1_N7650,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x208, s60v2/N70)", typeof(Gameloft_RK_128x160_Manager))]
+        RaymanKartMobile_176x208_s60v2_N70,
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 208x208, s40v3)", typeof(Gameloft_RK_Manager))]
         RaymanKartMobile_208x208_s40v3,

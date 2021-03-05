@@ -28,11 +28,6 @@ namespace R1Engine
 		public override int PuppetCount => 51;
 		public override int ExtraPuppetsInLastFile => 0;
 
-		public override PuppetReference[] PuppetReferences => Enumerable.Range(0, PuppetCount - ExtraPuppetsInLastFile).Select(pi => new PuppetReference() {
-			FileIndex = GetPuppetFileIndex(pi),
-			ResourceIndex = GetPuppetResourceIndex(pi) // Hack. Index 8 is never used it seems, and it's not a puppet
-		}).ToArray();
-
 		public override string[] SingleResourceFiles => new string[] {
 		};
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
