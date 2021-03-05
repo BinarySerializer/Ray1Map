@@ -852,7 +852,9 @@ namespace R1Engine
                     }
 
                     // Save gif
-                    collection.Write(Path.Combine(outputDir, $"{primaryName} - {secondaryName}.gif"));
+                    var path = Path.Combine(outputDir, $"{primaryName} - {secondaryName}.gif");
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                    collection.Write(path);
                 }
             }
             else

@@ -67,7 +67,7 @@ namespace R1Engine
                                 center: false,
                                 saveAsGif: saveAsGif,
                                 outputDir: outputDir,
-                                primaryName: $"{i}",
+                                primaryName: $"{GetBlockExportName(context, i, offset.CRC, true, false)}",
                                 secondaryName: $"{j}");
                         }
 
@@ -93,14 +93,14 @@ namespace R1Engine
                     // If the block is 64 bytes long we assume it's a palette
                     if (s.CurrentLength == 64)
                     {
-                        pal = Util.ConvertGBAPalette(s.SerializeObjectArray<RGBA5551Color>(default, 32, name: $"Pal[{i}]"), transparentIndex: null);
+                        pal = Util.ConvertGBAPalette(s.SerializeObject<GBAVV_NitroKart_NGage_PAL>(default, name: $"Pal[{i}]").Palette, transparentIndex: null);
                     }
                     else
                     {
                         // If we serialized a palette in the previous block we assume this block has the textures
                         if (pal != null && s.CurrentLength % 0x1500 == 0)
                         {
-                            var textures = s.SerializeObject<GBAVV_NitroKart_NGage_TEX>(default, name: $"TexturesCollection[{i}]");
+                            var textures = s.SerializeObject<GBAVV_NitroKart_NGage_TEX>(default, name: $"TEX[{i}]");
 
                             for (int j = 0; j < textures.Textures.Length; j++)
                             {
@@ -129,7 +129,8 @@ namespace R1Engine
 
                                 tex.Apply();
 
-                                Util.ByteArrayToFile(Path.Combine(outputDir, $"{i} - {j}.png"), tex.EncodeToPNG());
+                                var t = $"{i}";
+                                Util.ByteArrayToFile(Path.Combine(outputDir, $"{GetBlockExportName(context, i, offset.CRC, true, false)}{(textures.Textures.Length > 1 ? $" - {j}" : "")}.png"), tex.EncodeToPNG());
                             }
                         }
 
@@ -148,7 +149,7 @@ namespace R1Engine
             var fileName = withFilenames && (stringCrc?.ContainsKey(crc) ?? false) ? stringCrc[crc] : $"{i}.dat";
 
             if (!includeFileExtension)
-                return Path.GetFileNameWithoutExtension(fileName);
+                return Path.Combine(Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName));
             else
                 return fileName;
         }
@@ -339,6 +340,7 @@ namespace R1Engine
             @"gfx\dancemove02.gfx",
             @"gfx\dancemove04.gfx",
             @"gfx\dancemove05.gfx",
+            @"gfx\dancemove07.gfx",
             @"snd\music.gax",
             @"snd\fx.gax",
             @"gfx\placeholder.tex",
