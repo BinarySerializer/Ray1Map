@@ -5,8 +5,8 @@
         public Pointer Mode7TileSetPointer { get; set; }
         public Pointer BackgroundTileSetPointer { get; set; }
         public Pointer TilePalettePointer { get; set; }
-        public Pointer UnknownPalettesPointer { get; set; }
-        public int Int_10 { get; set; } // 0 or 3
+        public Pointer AdditionalTilePalettesPointer { get; set; }
+        public int AdditionalTilePalettesCount { get; set; }
         public Pointer Mode7MapLayerPointer { get; set; }
         public Pointer[] BackgroundMapLayerPointers { get; set; }
         public Pointer BackgroundTileAnimationsPointer { get; set; }
@@ -22,7 +22,8 @@
         public byte[] Mode7TileSet { get; set; }
         public GBAVV_Map2D_TileSet BackgroundTileSet { get; set; }
         public RGBA5551Color[] TilePalette { get; set; }
-        public GBAVV_NitroKart_UnknownPalettes UnknownPalettes { get; set; }
+        public Pointer[] AdditionalTilePalettePointers { get; set; }
+        public RGBA5551Color[][] AdditionalTilePalettes { get; set; }
         public GBAVV_WorldMap_MapLayer Mode7MapLayer { get; set; }
         public GBAVV_NitroKart_BackgroundMapLayer[] BackgroundMapLayers { get; set; }
         public GBAVV_NitroKart_TileAnimations BackgroundTileAnimations { get; set; }
@@ -36,8 +37,8 @@
             Mode7TileSetPointer = s.SerializePointer(Mode7TileSetPointer, name: nameof(Mode7TileSetPointer));
             BackgroundTileSetPointer = s.SerializePointer(BackgroundTileSetPointer, name: nameof(BackgroundTileSetPointer));
             TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
-            UnknownPalettesPointer = s.SerializePointer(UnknownPalettesPointer, name: nameof(UnknownPalettesPointer));
-            Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
+            AdditionalTilePalettesPointer = s.SerializePointer(AdditionalTilePalettesPointer, name: nameof(AdditionalTilePalettesPointer));
+            AdditionalTilePalettesCount = s.Serialize<int>(AdditionalTilePalettesCount, name: nameof(AdditionalTilePalettesCount));
             Mode7MapLayerPointer = s.SerializePointer(Mode7MapLayerPointer, name: nameof(Mode7MapLayerPointer));
             BackgroundMapLayerPointers = s.SerializePointerArray(BackgroundMapLayerPointers, 3, name: nameof(BackgroundMapLayerPointers));
             BackgroundTileAnimationsPointer = s.SerializePointer(BackgroundTileAnimationsPointer, name: nameof(BackgroundTileAnimationsPointer));
@@ -51,8 +52,16 @@
 
             Mode7TileSet = s.DoAt(Mode7TileSetPointer, () => s.SerializeArray<byte>(Mode7TileSet, Mode7TileSetLength * 0x40, name: nameof(Mode7TileSet)));
             BackgroundTileSet = s.DoAt(BackgroundTileSetPointer, () => s.SerializeObject<GBAVV_Map2D_TileSet>(BackgroundTileSet, name: nameof(BackgroundTileSet)));
+
             TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
-            UnknownPalettes = s.DoAt(UnknownPalettesPointer, () => s.SerializeObject<GBAVV_NitroKart_UnknownPalettes>(UnknownPalettes, name: nameof(UnknownPalettes)));
+            AdditionalTilePalettePointers = s.DoAt(AdditionalTilePalettesPointer, () => s.SerializePointerArray(AdditionalTilePalettePointers, AdditionalTilePalettesCount, name: nameof(AdditionalTilePalettePointers)));
+
+            if (AdditionalTilePalettes == null)
+                AdditionalTilePalettes = new RGBA5551Color[AdditionalTilePalettePointers.Length][];
+
+            for (int i = 0; i < AdditionalTilePalettes.Length; i++)
+                AdditionalTilePalettes[i] = s.DoAt(AdditionalTilePalettePointers[i], () => s.SerializeObjectArray<RGBA5551Color>(AdditionalTilePalettes[i], 256, name: $"{nameof(AdditionalTilePalettes)}[{i}]"));
+
             Mode7MapLayer = s.DoAt(Mode7MapLayerPointer, () => s.SerializeObject<GBAVV_WorldMap_MapLayer>(Mode7MapLayer, name: nameof(Mode7MapLayer)));
 
             if (BackgroundMapLayers == null)

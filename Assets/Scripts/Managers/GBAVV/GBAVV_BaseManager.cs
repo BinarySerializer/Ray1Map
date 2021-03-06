@@ -795,8 +795,13 @@ namespace R1Engine
             foreach (var t in map.Mode7MapLayer.MapTiles)
                 t.CollisionType = (ushort)map.Mode7TileSetCollision[t.TileMapY];
 
-            var mode7TileSet = LoadTileSet(map.Mode7TileSet, map.TilePalette, true, context.Settings.EngineVersion, 0, null);
-            var bgTileSet = LoadTileSet(map.BackgroundTileSet.TileSet, map.TilePalette, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray(), map.BackgroundTileAnimations);
+            var tilePalettes = map.AdditionalTilePalettesCount > 0 ? map.AdditionalTilePalettes : new RGBA5551Color[][]
+            {
+                map.TilePalette
+            };
+
+            var mode7TileSets = tilePalettes.Select(p => LoadTileSet(map.Mode7TileSet, p, true, context.Settings.EngineVersion, 0, null)).ToArray();
+            var bgTileSets = tilePalettes.Select(p => LoadTileSet(map.BackgroundTileSet.TileSet, p, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray(), map.BackgroundTileAnimations)).ToArray();
 
             Controller.DetailedState = "Loading maps";
             await Controller.WaitIfNecessary();
@@ -822,10 +827,7 @@ namespace R1Engine
                 {
                     Width = width,
                     Height = height,
-                    TileSet = new Unity_TileSet[]
-                    {
-                        bgTileSet
-                    },
+                    TileSet = bgTileSets,
                     MapTiles = tileMap,
                     Type = Unity_Map.MapType.Graphics,
                     Layer = Unity_Map.MapLayer.Middle,
@@ -838,10 +840,7 @@ namespace R1Engine
                 {
                     Width = (ushort)(map.Mode7MapLayer.TileMap.Width * 2),
                     Height = (ushort)(map.Mode7MapLayer.TileMap.Height * 2),
-                    TileSet = new Unity_TileSet[]
-                    {
-                        mode7TileSet
-                    },
+                    TileSet = mode7TileSets,
                     MapTiles = GetIsometricTileMap(map.Mode7MapLayer.TileMap, map.Mode7MapLayer.MapTiles),
                     Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                     Layer = Unity_Map.MapLayer.Middle,
