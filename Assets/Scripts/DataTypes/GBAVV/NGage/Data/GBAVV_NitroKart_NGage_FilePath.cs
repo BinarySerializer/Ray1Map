@@ -1,10 +1,18 @@
 ﻿using System;
 using System.IO;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
     public class GBAVV_NitroKart_NGage_FilePath : R1Serializable
     {
+        public GBAVV_NitroKart_NGage_FilePath() { }
+        public GBAVV_NitroKart_NGage_FilePath(Context context, string filePath)
+        {
+            Context = context;
+            FilePath = filePath;
+        }
+
         // Set before serializing
         public string BasePath { get; set; }
         public long? StringLength { get; set; }

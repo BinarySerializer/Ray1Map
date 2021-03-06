@@ -8,6 +8,9 @@
         public GBAVV_NitroKart_NGage_LevelInfo[] LevelInfos { get; set; }
         public GBAVV_NitroKart_ObjTypeData[] NitroKart_ObjTypeData { get; set; }
 
+        public GBAVV_NitroKart_NGage_S3D S3D_Podium { get; set; }
+        public GBAVV_NitroKart_NGage_S3D S3D_Warp { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             // TODO: Move pointers to pointer table so we can support the JP version
@@ -30,6 +33,9 @@
 
             for (int i = 0; i < pointers.Length; i++)
                 NitroKart_ObjTypeData[i] = s.DoAt(pointers[i] == null ? null : new Pointer(pointers[i].Value, Offset.file), () => s.SerializeObject<GBAVV_NitroKart_ObjTypeData>(NitroKart_ObjTypeData[i], name: $"{nameof(NitroKart_ObjTypeData)}[{i}]"));
+
+            S3D_Podium = new GBAVV_NitroKart_NGage_FilePath(s.Context, @"podium.s3d").DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_S3D>(S3D_Podium, name: nameof(S3D_Podium)));
+            S3D_Warp = new GBAVV_NitroKart_NGage_FilePath(s.Context, @"warp.s3d").DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_S3D>(S3D_Warp, name: nameof(S3D_Warp)));
         }
     }
 }

@@ -379,8 +379,8 @@ namespace R1Engine
 
         public GameObject CreatePVSGameObject(Context context, GBAVV_NitroKart_NGage_PVS pvs) {
             float scale = 8f;
-            Vector3 toVertex(GBAVV_NitroKart_NGage_PVS.Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
-            Vector2 toUV(GBAVV_NitroKart_NGage_PVS.UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
+            Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
+            Vector2 toUV(GBAVV_NitroKart_NGage_UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
             var palette = pvs.VertexColorsPalettes.Select(p => p.GetColor()).Select(c => new Color(c.r, c.g, c.b, 1f)).ToArray();
 
             Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
