@@ -17,15 +17,10 @@
         public int V2_Data1_Height { get; set; }
         public Pointer Data1_TriangleIndexPointer { get; set; }
         public Pointer Data1_VertexIndexPointer { get; set; }
-        public int V2_Data1And2Count { get; set; }
-        public Pointer V2_Data3Pointer { get; set; }
-        public int V2_Int_1C { get; set; }
-        public Pointer V2_Data4Pointer { get; set; }
-
         public int TexturesCount { get; set; }
         public Pointer TextureFilePathsPointer { get; set; }
-        public int Data5Count { get; set; }
-        public Pointer Data5Pointer { get; set; }
+        public int VertexColorPalettesCount { get; set; }
+        public Pointer VertexColorPalettesPointer { get; set; }
 
         // Serialized from pointers
         public GBAVV_NitroKart_NGage_FilePath[] TextureFilePaths { get; set; }
@@ -38,7 +33,8 @@
         public Triangle[] Triangles { get; set; }
         public Vertex[] Vertices { get; set; }
         public Vertex[] V1_Data4 { get; set; }
-        public byte[] Data5 { get; set; }
+        public RGBA8888Color[] VertexColorsPalettes { get; set; }
+        //public byte[] Data5 { get; set; }
         public byte[] V2_UnknownBytes { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -70,8 +66,8 @@
 
             TexturesCount = s.Serialize<int>(TexturesCount, name: nameof(TexturesCount));
             TextureFilePathsPointer = s.SerializePointer(TextureFilePathsPointer, anchor: fileStartPointer, name: nameof(TextureFilePathsPointer));
-            Data5Count = s.Serialize<int>(Data5Count, name: nameof(Data5Count));
-            Data5Pointer = s.SerializePointer(Data5Pointer, anchor: fileStartPointer, name: nameof(Data5Pointer));
+            VertexColorPalettesCount = s.Serialize<int>(VertexColorPalettesCount, name: nameof(VertexColorPalettesCount));
+            VertexColorPalettesPointer = s.SerializePointer(VertexColorPalettesPointer, anchor: fileStartPointer, name: nameof(VertexColorPalettesPointer));
             if (FileVersion == 2) {
                 V2_UnknownBytes = s.SerializeArray<byte>(V2_UnknownBytes, 4, name: nameof(V2_UnknownBytes));
             }
@@ -100,8 +96,8 @@
             {
                 V1_Data4 = s.DoAt(V1_Data4Pointer, () => s.SerializeObjectArray<Vertex>(V1_Data4, V1_Data4Count + 1, name: nameof(V1_Data4)));
             }
-            Data5 = s.DoAt(Data5Pointer, () => s.SerializeArray<byte>(Data5, Data5Count * 0x40, name: nameof(Data5)));
-
+            //Data5 = s.DoAt(Data5Pointer, () => s.SerializeArray<byte>(Data5, Data5Count * 0x40, name: nameof(Data5)));
+            VertexColorsPalettes = s.DoAt(VertexColorPalettesPointer, () => s.SerializeObjectArray<RGBA8888Color>(VertexColorsPalettes, 16 * VertexColorPalettesCount, name: nameof(VertexColorsPalettes)));
 
             s.Goto(Offset + s.CurrentLength);
         }
@@ -121,34 +117,32 @@
         public class Triangle : R1Serializable {
             public byte Byte_00 { get; set; }
             public byte TextureIndex { get; set; }
-            public byte Byte_02 { get; set; }
-            public byte Byte_03 { get; set; }
+            public ushort Flags { get; set; }
             public ushort Vertex0 { get; set; }
             public ushort Vertex1 { get; set; }
             public ushort Vertex2 { get; set; }
             public UV UV0 { get; set; }
             public UV UV1 { get; set; }
             public UV UV2 { get; set; }
-            public byte Unk0 { get; set; }
-            public byte Unk1 { get; set; }
-            public byte Unk2 { get; set; }
-            public byte Data5Index { get; set; }
+            public byte VertexColorIndex0 { get; set; }
+            public byte VertexColorIndex1 { get; set; }
+            public byte VertexColorIndex2 { get; set; }
+            public byte VertexColorPaletteIndex { get; set; }
 
             public override void SerializeImpl(SerializerObject s) {
                 Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
                 TextureIndex = s.Serialize<byte>(TextureIndex, name: nameof(TextureIndex));
-                Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
-                Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+                Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
                 Vertex0 = s.Serialize<ushort>(Vertex0, name: nameof(Vertex0));
                 Vertex1 = s.Serialize<ushort>(Vertex1, name: nameof(Vertex1));
                 Vertex2 = s.Serialize<ushort>(Vertex2, name: nameof(Vertex2));
                 UV0 = s.SerializeObject<UV>(UV0, name: nameof(UV0));
                 UV1 = s.SerializeObject<UV>(UV1, name: nameof(UV1));
                 UV2 = s.SerializeObject<UV>(UV2, name: nameof(UV2));
-                Unk0 = s.Serialize<byte>(Unk0, name: nameof(Unk0));
-                Unk1 = s.Serialize<byte>(Unk1, name: nameof(Unk1));
-                Unk2 = s.Serialize<byte>(Unk2, name: nameof(Unk2));
-                Data5Index = s.Serialize<byte>(Data5Index, name: nameof(Data5Index));
+                VertexColorIndex0 = s.Serialize<byte>(VertexColorIndex0, name: nameof(VertexColorIndex0));
+                VertexColorIndex1 = s.Serialize<byte>(VertexColorIndex1, name: nameof(VertexColorIndex1));
+                VertexColorIndex2 = s.Serialize<byte>(VertexColorIndex2, name: nameof(VertexColorIndex2));
+                VertexColorPaletteIndex = s.Serialize<byte>(VertexColorPaletteIndex, name: nameof(VertexColorPaletteIndex));
             }
         }
 

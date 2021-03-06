@@ -376,10 +376,12 @@ namespace R1Engine
             float scale = 8f;
             Vector3 toVertex(GBAVV_NitroKart_NGage_PVS.Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
             Vector2 toUV(GBAVV_NitroKart_NGage_PVS.UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
+            var palette = pvs.VertexColorsPalettes.Select(p => p.GetColor()).Select(c => new Color(c.r, c.g, c.b, 1f)).ToArray();
 
             Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
             foreach (var tri in pvs.Triangles) {
                 if (!meshes.ContainsKey(tri.TextureIndex)) {
+                    // TODO: Right now we're using texture 0. If animated (eg Fire in Tiny's Temple), it has more than 1 texture. Add AnimatedTextureComponent from Raymap for this
                     var texData = pvs.Textures[tri.TextureIndex].Textures[0].Texture_64px.Select(b => (byte)(b / 2)).ToArray();
                     var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).ToArray();
                     //TextureHelpers.CreateTexture2D(64,64);
@@ -401,12 +403,12 @@ namespace R1Engine
                 m.triangles.Add(vertCount + 0);
                 m.triangles.Add(vertCount + 2);
                 m.triangles.Add(vertCount + 1);
-                /*m.colors.Add(new Color(tri.Unk0 / 15f, tri.Unk1 / 15f, tri.Unk2 / 15f, 1f));
-                m.colors.Add(new Color(tri.Unk0 / 15f, tri.Unk1 / 15f, tri.Unk2 / 15f, 1f));
-                m.colors.Add(new Color(tri.Unk0 / 15f, tri.Unk1 / 15f, tri.Unk2 / 15f, 1f));*/
+                m.colors.Add(palette[16 * tri.VertexColorPaletteIndex + tri.VertexColorIndex0]);
+                m.colors.Add(palette[16 * tri.VertexColorPaletteIndex + tri.VertexColorIndex1]);
+                m.colors.Add(palette[16 * tri.VertexColorPaletteIndex + tri.VertexColorIndex2]);
             }
 
-            // Create test mesh
+            // Create GameObjects
             GameObject gaoParent = new GameObject();
             gaoParent.transform.position = Vector3.zero;
             foreach(var k in meshes.Keys) {
@@ -490,14 +492,14 @@ namespace R1Engine
                 {
                     CollisionWidth = 0,
                     CollisionHeight = 0,
-                    TilesWidth = 1,
-                    TilesHeight = 1,
+                    TilesWidth = 0,
+                    TilesHeight = 0,
                     Collision = null,
-                    Scale = Vector3.one / 2,
-                    ViewAngle = Quaternion.identity,
+                    Scale = Vector3.one,
+                    ViewAngle = Quaternion.Euler(90, 0, 0),
                     CalculateYDisplacement = () => 0,
                     CalculateXDisplacement = () => 0,
-                    ObjectScale = new Vector3(1, 1, 0.5f) * 8
+                    ObjectScale = Vector3.one * 8
                 },
                 objectGroups: objGroups.Select(x => x.Item2).ToArray());
         }
