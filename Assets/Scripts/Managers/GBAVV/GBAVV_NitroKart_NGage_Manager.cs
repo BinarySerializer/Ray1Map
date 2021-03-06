@@ -379,14 +379,19 @@ namespace R1Engine
             var palette = pvs.VertexColorsPalettes.Select(p => p.GetColor()).Select(c => new Color(c.r, c.g, c.b, 1f)).ToArray();
 
             Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
+            Dictionary<int, Texture2D[]> animatedTextures = new Dictionary<int, Texture2D[]>();
             foreach (var tri in pvs.Triangles) {
                 var key = tri.TextureIndex | (tri.BlendMode << 8) | (tri.Flags << 16);
                 if (!meshes.ContainsKey(key)) {
-                    // TODO: Right now we're using texture 0. If animated (eg Fire in Tiny's Temple), it has more than 1 texture. Add AnimatedTextureComponent from Raymap for this
-                    var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).Select((c, i) => (i == 0 && tri.BlendMode == 7) ? c : new Color(c.r, c.g, c.b, 1f)).ToArray();
-                    var texData = pvs.Textures[tri.TextureIndex].Textures[0].Texture_64px.Select(b => (byte)((b / 2) % palData.Length)).ToArray();
-                    var tex = Util.ToTileSetTexture(texData, palData, Util.TileEncoding.Linear_8bpp, 64,false);
-                    meshes[key] = new MeshInProgress($"Texture:{tri.TextureIndex} - BlendMode:{tri.BlendMode} - Flags:{tri.Flags}", tex);
+                    bool hasTransparentColor = tri.BlendMode == 7 || tri.BlendMode == 9;
+                    var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).Select((c, i) => (i == 0 && hasTransparentColor) ? c : new Color(c.r, c.g, c.b, 1f)).ToArray();
+                    Texture2D[] texs = new Texture2D[pvs.Textures[tri.TextureIndex].Textures.Length];
+                    for (int i = 0; i < texs.Length; i++) {
+                        var texData = pvs.Textures[tri.TextureIndex].Textures[i].Texture_64px.Select(b => (byte)((b / 2) % palData.Length)).ToArray();
+                        texs[i] = Util.ToTileSetTexture(texData, palData, Util.TileEncoding.Linear_8bpp, 64, false);
+                    }
+                    if(texs.Length > 1) animatedTextures.Add(key, texs);
+                    meshes[key] = new MeshInProgress($"Texture:{tri.TextureIndex} - BlendMode:{tri.BlendMode} - Flags:{tri.Flags}", texs[0]);
                 }
                 /*
                  *blend modes:
@@ -397,6 +402,7 @@ namespace R1Engine
 
                     7 - Transparent cutout
                     8 - Additive
+                    9 - Additive and transparent
 
                  flags:
                     32 = scrolling texture
@@ -427,6 +433,7 @@ namespace R1Engine
             gaoParent.transform.position = Vector3.zero;
             foreach(var k in meshes.Keys) {
                 var blendMode = BitHelpers.ExtractBits(k,8,8);
+                var flags = BitHelpers.ExtractBits(k, 16, 16);
                 var curMesh = meshes[k];
                 Mesh unityMesh = new Mesh();
                 unityMesh.SetVertices(curMesh.vertices);
@@ -447,6 +454,7 @@ namespace R1Engine
                         mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
                         break;
                     case 8:
+                    case 9:
                         mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
                         break;
                     default:
@@ -456,6 +464,16 @@ namespace R1Engine
                 if (curMesh.texture != null) {
                     curMesh.texture.wrapMode = TextureWrapMode.Repeat;
                     mr.material.SetTexture("_MainTex", curMesh.texture);
+                }
+                bool isScroll = BitHelpers.ExtractBits(flags, 1, 5) == 1;
+                if (isScroll || animatedTextures.ContainsKey(k)) {
+                    var animTex = gao.AddComponent<AnimatedTextureComponent>();
+                    animTex.material = mr.material;
+                    if(isScroll) animTex.scrollU = -1f;
+                    if (animatedTextures.ContainsKey(k)) {
+                        animTex.animatedTextureSpeed = 15;
+                        animTex.animatedTextures = animatedTextures[k];
+                    }
                 }
                 if (blendMode == 4) { // Collision
                     gao.SetActive(false);
