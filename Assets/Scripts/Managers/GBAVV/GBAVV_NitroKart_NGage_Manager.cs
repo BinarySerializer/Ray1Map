@@ -383,9 +383,8 @@ namespace R1Engine
                 var key = tri.TextureIndex | (tri.BlendMode << 8) | (tri.Flags << 16);
                 if (!meshes.ContainsKey(key)) {
                     // TODO: Right now we're using texture 0. If animated (eg Fire in Tiny's Temple), it has more than 1 texture. Add AnimatedTextureComponent from Raymap for this
-                    var texData = pvs.Textures[tri.TextureIndex].Textures[0].Texture_64px.Select(b => (byte)(b / 2)).ToArray();
-                    var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).Select((c,i) => (i == 0 && tri.BlendMode == 7) ? c : new Color(c.r, c.g, c.b, 1f)).ToArray();
-                    //TextureHelpers.CreateTexture2D(64,64);
+                    var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).Select((c, i) => (i == 0 && tri.BlendMode == 7) ? c : new Color(c.r, c.g, c.b, 1f)).ToArray();
+                    var texData = pvs.Textures[tri.TextureIndex].Textures[0].Texture_64px.Select(b => (byte)((b / 2) % palData.Length)).ToArray();
                     var tex = Util.ToTileSetTexture(texData, palData, Util.TileEncoding.Linear_8bpp, 64,false);
                     meshes[key] = new MeshInProgress($"Texture:{tri.TextureIndex} - BlendMode:{tri.BlendMode} - Flags:{tri.Flags}", tex);
                 }
