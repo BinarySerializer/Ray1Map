@@ -372,6 +372,68 @@ namespace R1Engine
             return context.GetStoredObject<Dictionary<uint, string>>(id);
         }
 
+        public GameObject CreatePVSGameObject(Context context, GBAVV_NitroKart_NGage_PVS pvs) {
+            float scale = 8f;
+            Vector3 toVertex(GBAVV_NitroKart_NGage_PVS.Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
+            Vector2 toUV(GBAVV_NitroKart_NGage_PVS.UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
+
+            Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
+            foreach (var tri in pvs.Triangles) {
+                if (!meshes.ContainsKey(tri.TextureIndex)) {
+                    var texData = pvs.Textures[tri.TextureIndex].Textures[0].Texture_64px.Select(b => (byte)(b / 2)).ToArray();
+                    var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).ToArray();
+                    //TextureHelpers.CreateTexture2D(64,64);
+                    var tex = Util.ToTileSetTexture(texData, palData, Util.TileEncoding.Linear_8bpp, 64,false);
+                    meshes[tri.TextureIndex] = new MeshInProgress($"Texture {tri.TextureIndex}", tex);
+                }
+                var m = meshes[tri.TextureIndex];
+                int vertCount = m.vertices.Count;
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex0]));
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex1]));
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex2]));
+                m.uvs.Add(toUV(tri.UV0));
+                m.uvs.Add(toUV(tri.UV1));
+                m.uvs.Add(toUV(tri.UV2));
+                m.triangles.Add(vertCount + 0);
+                m.triangles.Add(vertCount + 1);
+                m.triangles.Add(vertCount + 2);
+                // Backface
+                m.triangles.Add(vertCount + 0);
+                m.triangles.Add(vertCount + 2);
+                m.triangles.Add(vertCount + 1);
+                /*m.colors.Add(new Color(tri.Unk0 / 15f, tri.Unk1 / 15f, tri.Unk2 / 15f, 1f));
+                m.colors.Add(new Color(tri.Unk0 / 15f, tri.Unk1 / 15f, tri.Unk2 / 15f, 1f));
+                m.colors.Add(new Color(tri.Unk0 / 15f, tri.Unk1 / 15f, tri.Unk2 / 15f, 1f));*/
+            }
+
+            // Create test mesh
+            GameObject gaoParent = new GameObject();
+            gaoParent.transform.position = Vector3.zero;
+            foreach(var k in meshes.Keys) {
+                var curMesh = meshes[k];
+                Mesh unityMesh = new Mesh();
+                unityMesh.SetVertices(curMesh.vertices);
+                unityMesh.SetTriangles(curMesh.triangles, 0);
+                unityMesh.SetColors(curMesh.colors);
+                unityMesh.SetUVs(0, curMesh.uvs);
+                unityMesh.RecalculateNormals();
+                GameObject gao = new GameObject($"Mesh {k}");
+                MeshFilter mf = gao.AddComponent<MeshFilter>();
+                MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                gao.layer = LayerMask.NameToLayer("3D Collision");
+                gao.transform.SetParent(gaoParent.transform);
+                gao.transform.localScale = Vector3.one;
+                gao.transform.localPosition = Vector3.zero;
+                mf.mesh = unityMesh;
+                mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+                if (curMesh.texture != null) {
+                    curMesh.texture.wrapMode = TextureWrapMode.Repeat;
+                    mr.material.SetTexture("_MainTex", curMesh.texture);
+                }
+            }
+            return gaoParent;
+        }
+
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             //indObjTypeData(context);
@@ -384,6 +446,8 @@ namespace R1Engine
 
             var level = exe.LevelInfos[context.Settings.Level];
             var pop = level.POP;
+
+            CreatePVSGameObject(context, level.PVS);
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
