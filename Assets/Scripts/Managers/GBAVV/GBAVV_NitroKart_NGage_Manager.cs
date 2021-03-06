@@ -383,7 +383,7 @@ namespace R1Engine
             foreach (var tri in pvs.Triangles) {
                 var key = tri.TextureIndex | (tri.BlendMode << 8) | (tri.Flags << 16);
                 if (!meshes.ContainsKey(key)) {
-                    bool hasTransparentColor = tri.BlendMode == 7 || tri.BlendMode == 9;
+                    bool hasTransparentColor = tri.BlendMode == 6 || tri.BlendMode == 7 || tri.BlendMode == 9;
                     var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).Select((c, i) => (i == 0 && hasTransparentColor) ? c : new Color(c.r, c.g, c.b, 1f)).ToArray();
                     Texture2D[] texs = new Texture2D[pvs.Textures[tri.TextureIndex].Textures.Length];
                     for (int i = 0; i < texs.Length; i++) {
@@ -400,6 +400,7 @@ namespace R1Engine
                     3 - Transparent (0.5)
                     4 - Hidden (collision)
 
+                    6 - also transparent cutout
                     7 - Transparent cutout
                     8 - Additive
                     9 - Additive and transparent
@@ -450,6 +451,7 @@ namespace R1Engine
                 gao.transform.localPosition = Vector3.zero;
                 mf.mesh = unityMesh;
                 switch (blendMode) {
+                    case 6:
                     case 7:
                         mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
                         break;
