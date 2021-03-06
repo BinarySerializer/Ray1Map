@@ -115,7 +115,7 @@
         }
 
         public class Triangle : R1Serializable {
-            public byte Byte_00 { get; set; }
+            public byte BlendMode { get; set; }
             public byte TextureIndex { get; set; }
             public ushort Flags { get; set; }
             public ushort Vertex0 { get; set; }
@@ -130,7 +130,7 @@
             public byte VertexColorPaletteIndex { get; set; }
 
             public override void SerializeImpl(SerializerObject s) {
-                Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
+                BlendMode = s.Serialize<byte>(BlendMode, name: nameof(BlendMode));
                 TextureIndex = s.Serialize<byte>(TextureIndex, name: nameof(TextureIndex));
                 Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
                 Vertex0 = s.Serialize<ushort>(Vertex0, name: nameof(Vertex0));

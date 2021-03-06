@@ -380,15 +380,30 @@ namespace R1Engine
 
             Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
             foreach (var tri in pvs.Triangles) {
-                if (!meshes.ContainsKey(tri.TextureIndex)) {
+                var key = tri.TextureIndex | (tri.BlendMode << 8) | (tri.Flags << 16);
+                if (!meshes.ContainsKey(key)) {
                     // TODO: Right now we're using texture 0. If animated (eg Fire in Tiny's Temple), it has more than 1 texture. Add AnimatedTextureComponent from Raymap for this
                     var texData = pvs.Textures[tri.TextureIndex].Textures[0].Texture_64px.Select(b => (byte)(b / 2)).ToArray();
-                    var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).ToArray();
+                    var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).Select((c,i) => (i == 0 && tri.BlendMode == 7) ? c : new Color(c.r, c.g, c.b, 1f)).ToArray();
                     //TextureHelpers.CreateTexture2D(64,64);
                     var tex = Util.ToTileSetTexture(texData, palData, Util.TileEncoding.Linear_8bpp, 64,false);
-                    meshes[tri.TextureIndex] = new MeshInProgress($"Texture {tri.TextureIndex}", tex);
+                    meshes[key] = new MeshInProgress($"Texture:{tri.TextureIndex} - BlendMode:{tri.BlendMode} - Flags:{tri.Flags}", tex);
                 }
-                var m = meshes[tri.TextureIndex];
+                /*
+                 *blend modes:
+                    0 - Unlit
+                    1 - Vertex Color
+                    3 - Transparent (0.5)
+                    4 - Hidden (collision)
+
+                    7 - Transparent cutout
+                    8 - Additive
+
+                 flags:
+                    32 = scrolling texture
+                 */
+
+                var m = meshes[key];
                 int vertCount = m.vertices.Count;
                 m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex0]));
                 m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex1]));
@@ -412,6 +427,7 @@ namespace R1Engine
             GameObject gaoParent = new GameObject();
             gaoParent.transform.position = Vector3.zero;
             foreach(var k in meshes.Keys) {
+                var blendMode = BitHelpers.ExtractBits(k,8,8);
                 var curMesh = meshes[k];
                 Mesh unityMesh = new Mesh();
                 unityMesh.SetVertices(curMesh.vertices);
@@ -419,7 +435,7 @@ namespace R1Engine
                 unityMesh.SetColors(curMesh.colors);
                 unityMesh.SetUVs(0, curMesh.uvs);
                 unityMesh.RecalculateNormals();
-                GameObject gao = new GameObject($"Mesh {k}");
+                GameObject gao = new GameObject(curMesh.name);
                 MeshFilter mf = gao.AddComponent<MeshFilter>();
                 MeshRenderer mr = gao.AddComponent<MeshRenderer>();
                 gao.layer = LayerMask.NameToLayer("3D Collision");
@@ -427,10 +443,23 @@ namespace R1Engine
                 gao.transform.localScale = Vector3.one;
                 gao.transform.localPosition = Vector3.zero;
                 mf.mesh = unityMesh;
-                mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+                switch (blendMode) {
+                    case 7:
+                        mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
+                        break;
+                    case 8:
+                        mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+                        break;
+                    default:
+                        mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+                        break;
+                }
                 if (curMesh.texture != null) {
                     curMesh.texture.wrapMode = TextureWrapMode.Repeat;
                     mr.material.SetTexture("_MainTex", curMesh.texture);
+                }
+                if (blendMode == 4) { // Collision
+                    gao.SetActive(false);
                 }
             }
             return gaoParent;

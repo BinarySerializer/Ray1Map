@@ -81,7 +81,11 @@ namespace R1Engine
 
         public GameObject IsometricCollision { get; set; }
         public Material isometricCollisionMaterial;
+
+        // 3D Visual Materials
         public Material unlitMaterial;
+        public Material unlitTransparentCutoutMaterial;
+        public Material unlitAdditiveMaterial;
 
         public bool HasAnimatedTiles { get; private set; } = false;
 

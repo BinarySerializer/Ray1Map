@@ -2306,12 +2306,17 @@ MonoBehaviour:
   CollisionLines: []
   collisionLinesGraphics: {fileID: 1493175584}
   collisionLinesCollision: {fileID: 1380560023}
+  CollisionLinesCollision: []
   camMaxX: 1
   camMaxY: 1
   additiveMaterial: {fileID: 2100000, guid: 21adcdf655be5494f98451d29d5667d6, type: 2}
   isometricCollisionMaterial: {fileID: 2100000, guid: aac7422f067747f4c822967af4261022,
     type: 2}
   unlitMaterial: {fileID: 2100000, guid: 03b032e3282292c4a9657be2258899d8, type: 2}
+  unlitTransparentCutoutMaterial: {fileID: 2100000, guid: 7db5aead7b242a34489396b687e43a8e,
+    type: 2}
+  unlitAdditiveMaterial: {fileID: 2100000, guid: 910a7b4e4ce72d84aa744fced00c9adb,
+    type: 2}
 --- !u!114 &172781304
 MonoBehaviour:
   m_ObjectHideFlags: 0
