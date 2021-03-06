@@ -10,9 +10,9 @@ namespace R1Engine
         public Pointer TrianglesPointer { get; set; }
         public Pointer VerticesPointer { get; set; }
         public int[] TriangleCounts { get; set; }
-        public int[] Counts2 { get; set; }
+        public int[] VerticesCounts { get; set; }
         public int[] Counts3 { get; set; }
-        public int[] Counts4 { get; set; }
+        public int[] VerticesOffsets { get; set; }
         public int TexturesCount { get; set; }
         public Pointer TextureFilePathsPointer { get; set; }
 
@@ -22,20 +22,21 @@ namespace R1Engine
         public GBAVV_NitroKart_NGage_TEX[] Textures { get; set; }
         public GBAVV_NitroKart_NGage_PAL[] Palettes { get; set; }
 
-        public GBAVV_NitroKart_NGage_Triangle[] Triangles { get; set; }
-        public GBAVV_NitroKart_NGage_Vertex[] Vertices { get; set; }
+        public GBAVV_NitroKart_NGage_Triangle[][] Triangles { get; set; }
+        public uint VerticesUInt0 { get; set; }
+        public uint VerticesUInt1 { get; set; }
+        public GBAVV_NitroKart_NGage_Vertex[][] Vertices { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
-        {
+        public override void SerializeImpl(SerializerObject s) {
             Magic = s.SerializeString(Magic, 4, name: nameof(Magic));
             Width = s.Serialize<int>(Width, name: nameof(Width));
             Height = s.Serialize<int>(Height, name: nameof(Height));
             TrianglesPointer = s.SerializePointer(TrianglesPointer, name: nameof(TrianglesPointer));
             VerticesPointer = s.SerializePointer(VerticesPointer, name: nameof(VerticesPointer));
             TriangleCounts = s.SerializeArray<int>(TriangleCounts, 12, name: nameof(TriangleCounts));
-            Counts2 = s.SerializeArray<int>(Counts2, 12, name: nameof(Counts2));
+            VerticesCounts = s.SerializeArray<int>(VerticesCounts, 12, name: nameof(VerticesCounts));
             Counts3 = s.SerializeArray<int>(Counts3, 12, name: nameof(Counts3));
-            Counts4 = s.SerializeArray<int>(Counts4, 12, name: nameof(Counts4));
+            VerticesOffsets = s.SerializeArray<int>(VerticesOffsets, 12, name: nameof(VerticesOffsets));
             TexturesCount = s.Serialize<int>(TexturesCount, name: nameof(TexturesCount));
             TextureFilePathsPointer = s.SerializePointer(TextureFilePathsPointer, name: nameof(TextureFilePathsPointer));
 
@@ -43,15 +44,28 @@ namespace R1Engine
 
             if (Textures == null) Textures = new GBAVV_NitroKart_NGage_TEX[TexturesCount];
             if (Palettes == null) Palettes = new GBAVV_NitroKart_NGage_PAL[TexturesCount];
+            if (Triangles == null) Triangles = new GBAVV_NitroKart_NGage_Triangle[TexturesCount][];
+            if(Vertices == null) Vertices = new GBAVV_NitroKart_NGage_Vertex[TexturesCount][];
 
-            for (int i = 0; i < TexturesCount; i++)
-            {
+            for (int i = 0; i < TexturesCount; i++) {
                 Textures[i] = TextureFilePaths[i].DoAtFile(".tex", () => s.SerializeObject(Textures[i], name: $"{nameof(Textures)}[{i}]"));
                 Palettes[i] = TextureFilePaths[i].DoAtFile(".pal", () => s.SerializeObject(Palettes[i], name: $"{nameof(Palettes)}[{i}]"));
             }
 
-            Triangles = s.DoAt(TrianglesPointer, () => s.SerializeObjectArray<GBAVV_NitroKart_NGage_Triangle>(Triangles, TriangleCounts.Sum(), name: nameof(Triangles)));
-            Vertices = s.DoAt(VerticesPointer, () => s.SerializeObjectArray<GBAVV_NitroKart_NGage_Vertex>(Vertices, (Width * Height) / 6, name: nameof(Vertices)));
+            s.DoAt(TrianglesPointer, () => {
+                for (int i = 0; i < Triangles.Length; i++) {
+                    Triangles[i] = s.SerializeObjectArray<GBAVV_NitroKart_NGage_Triangle>(Triangles[i], TriangleCounts[i], name: $"{nameof(Triangles)}[{i}]");
+                }
+            });
+            s.DoAt(VerticesPointer, () => {
+                VerticesUInt0 = s.Serialize<uint>(VerticesUInt0, name: nameof(VerticesUInt0));
+                VerticesUInt1 = s.Serialize<uint>(VerticesUInt1, name: nameof(VerticesUInt1));
+
+                for (int i = 0; i < Vertices.Length; i++) {
+                    s.Goto(VerticesPointer + VerticesOffsets[i]);
+                    Vertices[i] = s.SerializeObjectArray<GBAVV_NitroKart_NGage_Vertex>(Vertices[i], VerticesCounts[i], name: $"{nameof(Vertices)}[{i}]");
+                }
+            });
 
             s.Goto(Offset + s.CurrentLength);
         }

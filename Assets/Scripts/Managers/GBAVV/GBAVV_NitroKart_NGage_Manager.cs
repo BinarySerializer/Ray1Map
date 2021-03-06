@@ -377,6 +377,117 @@ namespace R1Engine
             return context.GetStoredObject<Dictionary<uint, string>>(id);
         }
 
+        public GameObject CreateS3DGameObject(Context context, GBAVV_NitroKart_NGage_S3D s3d) {
+            float scale = 4096f;
+            Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
+            Vector2 toUV(GBAVV_NitroKart_NGage_UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
+            ///var palette = pvs.VertexColorsPalettes.Select(p => p.GetColor()).Select(c => new Color(c.r, c.g, c.b, 1f)).ToArray();
+
+
+            GameObject gaoParent = new GameObject();
+            gaoParent.transform.position = Vector3.zero;
+
+            for (int t = 0; t < s3d.TexturesCount; t++) {
+                Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
+                Dictionary<int, Texture2D[]> animatedTextures = new Dictionary<int, Texture2D[]>();
+                foreach (var tri in s3d.Triangles[t]) {
+                    var key = tri.TextureIndex | (tri.BlendMode << 8) | (tri.Flags << 16);
+                    if (!meshes.ContainsKey(key)) {
+                        var texs = LoadTextures(s3d.Textures[tri.TextureIndex], s3d.Palettes[tri.TextureIndex], tri.BlendMode, false);
+                        if (texs.Length > 1) animatedTextures.Add(key, texs);
+                        meshes[key] = new MeshInProgress($"Texture:{tri.TextureIndex} - BlendMode:{tri.BlendMode} - Flags:{tri.Flags}", texs[0]);
+                    }
+                    /*
+                     *blend modes:
+                        0 - Unlit
+                        1 - Vertex Color
+                        3 - Transparent (0.5)
+                        4 - Hidden (collision)
+
+                        6 - also transparent cutout
+                        7 - Transparent cutout
+                        8 - Additive
+                        9 - Additive and transparent
+
+                     flags:
+                        32 = scrolling texture
+                     */
+
+                    var m = meshes[key];
+                    int vertCount = m.vertices.Count;
+                    m.vertices.Add(toVertex(s3d.Vertices[t][tri.Vertex0]));
+                    m.vertices.Add(toVertex(s3d.Vertices[t][tri.Vertex1]));
+                    m.vertices.Add(toVertex(s3d.Vertices[t][tri.Vertex2]));
+                    m.uvs.Add(toUV(tri.UV0));
+                    m.uvs.Add(toUV(tri.UV1));
+                    m.uvs.Add(toUV(tri.UV2));
+                    m.triangles.Add(vertCount + 0);
+                    m.triangles.Add(vertCount + 1);
+                    m.triangles.Add(vertCount + 2);
+                    // Backface
+                    m.triangles.Add(vertCount + 0);
+                    m.triangles.Add(vertCount + 2);
+                    m.triangles.Add(vertCount + 1);
+                    /*m.colors.Add(palette[16 * tri.VertexColorPaletteIndex + tri.VertexColorIndex0]);
+                    m.colors.Add(palette[16 * tri.VertexColorPaletteIndex + tri.VertexColorIndex1]);
+                    m.colors.Add(palette[16 * tri.VertexColorPaletteIndex + tri.VertexColorIndex2]);*/
+                }
+
+                // Create GameObjects
+                foreach (var k in meshes.Keys) {
+                    var blendMode = BitHelpers.ExtractBits(k, 8, 8);
+                    var flags = BitHelpers.ExtractBits(k, 16, 16);
+                    var curMesh = meshes[k];
+                    Mesh unityMesh = new Mesh();
+                    unityMesh.SetVertices(curMesh.vertices);
+                    unityMesh.SetTriangles(curMesh.triangles, 0);
+                    unityMesh.SetColors(curMesh.colors);
+                    unityMesh.SetUVs(0, curMesh.uvs);
+                    unityMesh.RecalculateNormals();
+                    GameObject gao = new GameObject(curMesh.name);
+                    MeshFilter mf = gao.AddComponent<MeshFilter>();
+                    MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                    gao.layer = LayerMask.NameToLayer("3D Collision");
+                    gao.transform.SetParent(gaoParent.transform);
+                    gao.transform.localScale = Vector3.one;
+                    gao.transform.localPosition = Vector3.zero;
+                    mf.mesh = unityMesh;
+                    switch (blendMode) {
+                        case 6:
+                        case 7:
+                            mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
+                            break;
+                        case 8:
+                        case 9:
+                            mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+                            break;
+                        default:
+                            mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+                            break;
+                    }
+                    if (curMesh.texture != null) {
+                        curMesh.texture.wrapMode = TextureWrapMode.Repeat;
+                        mr.material.SetTexture("_MainTex", curMesh.texture);
+                    }
+                    bool isScroll = BitHelpers.ExtractBits(flags, 1, 5) == 1;
+                    if (isScroll || animatedTextures.ContainsKey(k)) {
+                        var animTex = gao.AddComponent<AnimatedTextureComponent>();
+                        animTex.material = mr.material;
+                        if (isScroll) animTex.scrollU = -1f;
+                        if (animatedTextures.ContainsKey(k)) {
+                            animTex.animatedTextureSpeed = 15;
+                            animTex.animatedTextures = animatedTextures[k];
+                        }
+                    }
+                    if (blendMode == 4) { // Collision
+                        gao.SetActive(false);
+                    }
+                }
+            }
+            return gaoParent;
+        }
+
+
         public GameObject CreatePVSGameObject(Context context, GBAVV_NitroKart_NGage_PVS pvs) {
             float scale = 8f;
             Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
@@ -492,6 +603,8 @@ namespace R1Engine
 
             // Load the exe
             var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context);
+            CreateS3DGameObject(context,exe.S3D_Warp);
+            CreateS3DGameObject(context, exe.S3D_Podium);
 
             var level = exe.LevelInfos[context.Settings.Level];
             var pop = level.POP;
