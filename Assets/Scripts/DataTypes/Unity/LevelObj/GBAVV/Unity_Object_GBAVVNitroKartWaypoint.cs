@@ -5,10 +5,11 @@ namespace R1Engine
 {
     public class Unity_Object_GBAVVNitroKartWaypoint : Unity_Object_3D
     {
-        public Unity_Object_GBAVVNitroKartWaypoint(GBAVV_NitroKart_TrackWaypoint obj, int? objectGroupIndex)
+        public Unity_Object_GBAVVNitroKartWaypoint(GBAVV_NitroKart_TrackWaypoint obj, int? objectGroupIndex, int trackDataIndex)
         {
             Object = obj;
             ObjectGroupIndex = objectGroupIndex;
+            TrackDataIndex = trackDataIndex;
             UIStates = new UIState[0];
         }
 
@@ -43,12 +44,14 @@ namespace R1Engine
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new DummyLegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Waypoint";
+        public override string PrimaryName => $"Waypoint_{TrackDataIndex + 1}";
         public override string SecondaryName => null;
 
         public override ObjectType Type => ObjectType.Waypoint;
+        public override bool IsEditor => true;
 
         public override int? ObjectGroupIndex { get; }
+        public int TrackDataIndex { get; }
 
         public override Unity_ObjAnimation CurrentAnimation => null;
         public override int AnimSpeed => 0;

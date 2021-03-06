@@ -869,21 +869,25 @@ namespace R1Engine
 
             var waypointsGroupIndex = 0;
 
-            void addTrackWaypoints(GBAVV_NitroKart_TrackWaypoint[] waypoints, string groupName)
+            void addTrackWaypoints(GBAVV_NitroKart_TrackWaypoint[] waypoints, string groupName, int trackDataIndex)
             {
                 if (waypoints == null)
                     return;
 
                 if (objGroups.Any(x => x.Item2 == groupName))
                 {
-                    objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(w, waypointsGroupIndex)));
+                    objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(w, waypointsGroupIndex, trackDataIndex)));
                     waypointsGroupIndex++;
                 }
             }
 
-            addTrackWaypoints(map.TrackData.TrackWaypoints_Normal, "Normal");
-            addTrackWaypoints(map.TrackData.TrackWaypoints_Normal, "Time Trial");
-            addTrackWaypoints(map.TrackData.TrackWaypoints_Normal, "Boss Race");
+            addTrackWaypoints(map.TrackData1.TrackWaypoints_Normal, "Normal", 0);
+            addTrackWaypoints(map.TrackData1.TrackWaypoints_Normal, "Time Trial", 0);
+            addTrackWaypoints(map.TrackData1.TrackWaypoints_Normal, "Boss Race", 0);
+            waypointsGroupIndex = 0;
+            addTrackWaypoints(map.TrackData2.TrackWaypoints_Normal, "Normal", 1);
+            addTrackWaypoints(map.TrackData2.TrackWaypoints_Normal, "Time Trial", 1);
+            addTrackWaypoints(map.TrackData2.TrackWaypoints_Normal, "Boss Race", 1);
 
             return new Unity_Level(
                 maps: maps,

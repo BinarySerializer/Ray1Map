@@ -85,56 +85,46 @@ namespace R1Engine
 
         public async UniTask ExportTexturesAsync(GameSettings settings, string outputDir)
         {
-            Color[] pal = null;
+            GBAVV_NitroKart_NGage_PAL pal = null;
 
             using (var context = new Context(settings))
             {
                 await LoadFilesAsync(context);
+
+                // Load the exe
+                var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context, onPreSerialize: (s, o) => o.SerializeAllData = true);
+
+                // Get the blend mode for each referenced texture
+                var blendModes = new Dictionary<uint, byte>();
+
+                foreach (var lev in exe.LevelInfos)
+                {
+                    var pvs = lev.PVS;
+
+                    foreach (var tri in pvs.Triangles)
+                        blendModes[CalculateCRC($"{pvs.TextureFilePaths[tri.TextureIndex].GetFullPath}.tex", exe.CRCPolynomialData)] = tri.BlendMode;
+                }
 
                 DoAtBlocks(context, (s, i, offset) =>
                 {
                     // If the block is 64 bytes long we assume it's a palette
                     if (s.CurrentLength == 64)
                     {
-                        pal = Util.ConvertGBAPalette(s.SerializeObject<GBAVV_NitroKart_NGage_PAL>(default, name: $"Pal[{i}]").Palette, transparentIndex: null);
+                        pal = s.SerializeObject<GBAVV_NitroKart_NGage_PAL>(default, name: $"Pal[{i}]");
                     }
                     else
                     {
                         // If we serialized a palette in the previous block we assume this block has the textures
                         if (pal != null && s.CurrentLength % 0x1500 == 0)
                         {
-                            var textures = s.SerializeObject<GBAVV_NitroKart_NGage_TEX>(default, name: $"TEX[{i}]");
+                            var texFile = s.SerializeObject<GBAVV_NitroKart_NGage_TEX>(default, name: $"TEX[{i}]");
 
-                            for (int j = 0; j < textures.Textures.Length; j++)
-                            {
-                                var texture = textures.Textures[j];
-                                var tex = TextureHelpers.CreateTexture2D(64, 64);
+                            byte blendMode = blendModes.TryGetItem(offset.CRC);
 
-                                for (int y = 0; y < 64; y++)
-                                {
-                                    for (int x = 0; x < 64; x++)
-                                    {
-                                        var off = y * 64 + x;
-                                        var palIndex = texture.Texture_64px[off] / 2;
+                            var textures = LoadTextures(texFile, pal, blendMode, true);
 
-                                        // TODO: Fix the textures where the index is too high
-                                        if (palIndex >= pal.Length)
-                                        {
-                                            Debug.LogWarning($"Out of bounds palette index {palIndex} in texture {i}-{j} at offset {off}");
-                                            tex.SetPixel(x, 64 - y - 1, Color.clear);
-                                        }
-                                        else
-                                        {
-                                            tex.SetPixel(x, 64 - y - 1, pal[palIndex]);
-                                        }
-                                    }
-                                }
-
-                                tex.Apply();
-
-                                var t = $"{i}";
-                                Util.ByteArrayToFile(Path.Combine(outputDir, $"{GetBlockExportName(context, i, offset.CRC, true, false)}{(textures.Textures.Length > 1 ? $" - {j}" : "")}.png"), tex.EncodeToPNG());
-                            }
+                            for (int j = 0; j < textures.Length; j++)
+                                Util.ByteArrayToFile(Path.Combine(outputDir, $"{GetBlockExportName(context, i, offset.CRC, true, false)}{(texFile.Textures.Length > 1 ? $" - {j}" : "")}.png"), textures[j].EncodeToPNG());
                         }
 
                         // Remove palette
@@ -348,6 +338,21 @@ namespace R1Engine
             };
         }
 
+        public Texture2D[] LoadTextures(GBAVV_NitroKart_NGage_TEX tex, GBAVV_NitroKart_NGage_PAL pal, byte blendMode, bool flipY)
+        {
+            bool hasTransparentColor = blendMode == 6 || blendMode == 7 || blendMode == 9;
+            var palData = pal.Palette.Select(p => p.GetColor()).Select((c, i) => (i == 0 && hasTransparentColor) ? c : new Color(c.r, c.g, c.b, 1f)).ToArray();
+
+            Texture2D[] texs = new Texture2D[tex.Textures.Length];
+            for (int i = 0; i < texs.Length; i++)
+            {
+                var texData = tex.Textures[i].Texture_64px.Select(b => (byte)((b / 2) % palData.Length)).ToArray();
+                texs[i] = Util.ToTileSetTexture(texData, palData, Util.TileEncoding.Linear_8bpp, 64, flipY);
+            }
+
+            return texs;
+        }
+
         public uint CalculateCRC(string str, uint[] polynomialData) 
         {
             // Normalize the file path and get the bytes
@@ -383,13 +388,7 @@ namespace R1Engine
             foreach (var tri in pvs.Triangles) {
                 var key = tri.TextureIndex | (tri.BlendMode << 8) | (tri.Flags << 16);
                 if (!meshes.ContainsKey(key)) {
-                    bool hasTransparentColor = tri.BlendMode == 6 || tri.BlendMode == 7 || tri.BlendMode == 9;
-                    var palData = pvs.Palettes[tri.TextureIndex].Palette.Select(p => p.GetColor()).Select((c, i) => (i == 0 && hasTransparentColor) ? c : new Color(c.r, c.g, c.b, 1f)).ToArray();
-                    Texture2D[] texs = new Texture2D[pvs.Textures[tri.TextureIndex].Textures.Length];
-                    for (int i = 0; i < texs.Length; i++) {
-                        var texData = pvs.Textures[tri.TextureIndex].Textures[i].Texture_64px.Select(b => (byte)((b / 2) % palData.Length)).ToArray();
-                        texs[i] = Util.ToTileSetTexture(texData, palData, Util.TileEncoding.Linear_8bpp, 64, false);
-                    }
+                    var texs = LoadTextures(pvs.Textures[tri.TextureIndex], pvs.Palettes[tri.TextureIndex], tri.BlendMode, false);
                     if(texs.Length > 1) animatedTextures.Add(key, texs);
                     meshes[key] = new MeshInProgress($"Texture:{tri.TextureIndex} - BlendMode:{tri.BlendMode} - Flags:{tri.Flags}", texs[0]);
                 }
@@ -518,21 +517,25 @@ namespace R1Engine
 
             var waypointsGroupIndex = 0;
 
-            void addTrackWaypoints(GBAVV_NitroKart_TrackWaypoint[] waypoints, string groupName)
+            void addTrackWaypoints(GBAVV_NitroKart_TrackWaypoint[] waypoints, string groupName, int trackDataIndex)
             {
                 if (waypoints == null)
                     return;
 
                 if (objGroups.Any(x => x.Item2 == groupName))
                 {
-                    objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(w, waypointsGroupIndex)));
+                    objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(w, waypointsGroupIndex, trackDataIndex)));
                     waypointsGroupIndex++;
                 }
             }
 
-            addTrackWaypoints(pop.TrackData.TrackWaypoints_Normal, "Normal");
-            addTrackWaypoints(pop.TrackData.TrackWaypoints_Normal, "Time Trial");
-            addTrackWaypoints(pop.TrackData.TrackWaypoints_Normal, "Boss Race");
+            addTrackWaypoints(pop.TrackData1.TrackWaypoints_Normal, "Normal", 0);
+            addTrackWaypoints(pop.TrackData1.TrackWaypoints_Normal, "Time Trial", 0);
+            addTrackWaypoints(pop.TrackData1.TrackWaypoints_Normal, "Boss Race", 0);
+            waypointsGroupIndex = 0;
+            addTrackWaypoints(pop.TrackData2.TrackWaypoints_Normal, "Normal", 1);
+            addTrackWaypoints(pop.TrackData2.TrackWaypoints_Normal, "Time Trial", 1);
+            addTrackWaypoints(pop.TrackData2.TrackWaypoints_Normal, "Boss Race", 1);
 
             return new Unity_Level(
                 maps: new Unity_Map[]
