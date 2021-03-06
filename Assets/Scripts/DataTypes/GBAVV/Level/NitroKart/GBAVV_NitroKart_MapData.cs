@@ -12,10 +12,8 @@
         public Pointer BackgroundTileAnimationsPointer { get; set; }
         public Pointer Mode7TileSetIntsPointer { get; set; }
         public int Mode7TileSetLength { get; set; }
-        public Pointer Objects_Normal_Pointer { get; set; }
-        public Pointer Objects_TimeTrial_Pointer { get; set; }
-        public Pointer Objects_BossRace_Pointer { get; set; }
-        public Pointer Pointer_3C { get; set; } // Usually leads to an empty struct
+        public GBAVV_NitroKart_Objects Objects { get; set; }
+        public Pointer TrackDataPointer { get; set; }
         public Pointer Pointer_40 { get; set; } // Usually leads to an empty struct
 
         // Serialized from pointers
@@ -28,9 +26,7 @@
         public GBAVV_NitroKart_BackgroundMapLayer[] BackgroundMapLayers { get; set; }
         public GBAVV_NitroKart_TileAnimations BackgroundTileAnimations { get; set; }
         public GBAVV_NitroKart_CollisionType[] Mode7TileSetCollision { get; set; }
-        public GBAVV_NitroKart_Object[] Objects_Normal { get; set; }
-        public GBAVV_NitroKart_Object[] Objects_TimeTrial { get; set; }
-        public GBAVV_NitroKart_Object[] Objects_BossRace { get; set; }
+        public GBAVV_NitroKart_TrackData TrackData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -44,10 +40,8 @@
             BackgroundTileAnimationsPointer = s.SerializePointer(BackgroundTileAnimationsPointer, name: nameof(BackgroundTileAnimationsPointer));
             Mode7TileSetIntsPointer = s.SerializePointer(Mode7TileSetIntsPointer, name: nameof(Mode7TileSetIntsPointer));
             Mode7TileSetLength = s.Serialize<int>(Mode7TileSetLength, name: nameof(Mode7TileSetLength));
-            Objects_Normal_Pointer = s.SerializePointer(Objects_Normal_Pointer, name: nameof(Objects_Normal_Pointer));
-            Objects_TimeTrial_Pointer = s.SerializePointer(Objects_TimeTrial_Pointer, name: nameof(Objects_TimeTrial_Pointer));
-            Objects_BossRace_Pointer = s.SerializePointer(Objects_BossRace_Pointer, name: nameof(Objects_BossRace_Pointer));
-            Pointer_3C = s.SerializePointer(Pointer_3C, name: nameof(Pointer_3C));
+            Objects = s.SerializeObject<GBAVV_NitroKart_Objects>(Objects, name: nameof(Objects));
+            TrackDataPointer = s.SerializePointer(TrackDataPointer, name: nameof(TrackDataPointer));
             Pointer_40 = s.SerializePointer(Pointer_40, name: nameof(Pointer_40));
 
             Mode7TileSet = s.DoAt(Mode7TileSetPointer, () => s.SerializeArray<byte>(Mode7TileSet, Mode7TileSetLength * 0x40, name: nameof(Mode7TileSet)));
@@ -72,9 +66,7 @@
 
             BackgroundTileAnimations = s.DoAt(BackgroundTileAnimationsPointer, () => s.SerializeObject<GBAVV_NitroKart_TileAnimations>(BackgroundTileAnimations, name: nameof(BackgroundTileAnimations)));
             Mode7TileSetCollision = s.DoAt(Mode7TileSetIntsPointer, () => s.SerializeArray<GBAVV_NitroKart_CollisionType>(Mode7TileSetCollision, Mode7TileSetLength, name: nameof(Mode7TileSetCollision)));
-            Objects_Normal = s.DoAt(Objects_Normal_Pointer, () => s.SerializeObjectArrayUntil(Objects_Normal, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_Normal)));
-            Objects_TimeTrial = s.DoAt(Objects_TimeTrial_Pointer, () => s.SerializeObjectArrayUntil(Objects_TimeTrial, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_TimeTrial)));
-            Objects_BossRace = s.DoAt(Objects_BossRace_Pointer, () => s.SerializeObjectArrayUntil(Objects_BossRace, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_BossRace)));
+            TrackData = s.DoAt(TrackDataPointer, () => s.SerializeObject<GBAVV_NitroKart_TrackData>(TrackData, name: nameof(TrackData)));
         }
     }
 }

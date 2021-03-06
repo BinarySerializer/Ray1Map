@@ -22,7 +22,6 @@ namespace R1Engine
 
             if (typeData == null)
             {
-                IsWaypoint = true;
                 SetAnimation(-1, -1, 0);
             }
             else
@@ -91,9 +90,8 @@ namespace R1Engine
         public override string PrimaryName => $"Type_{Object.ObjType}";
         public override string SecondaryName => null;
 
-        public override ObjectType Type => AnimSetIndex == -1 ? (IsWaypoint ? ObjectType.Waypoint : ObjectType.Trigger) : ObjectType.Object;
+        public override ObjectType Type => AnimSetIndex == -1 ? ObjectType.Trigger : ObjectType.Object;
 
-        public bool IsWaypoint { get; set; }
         public override int? ObjectGroupIndex { get; }
 
         public void SetAnimation(int graphics, int animSet, byte anim)

@@ -853,24 +853,42 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart, graphics: rom.Map2D_Graphics, nitroKart_ObjTypeData: rom.NitroKart_ObjTypeData);
+            Unity_ObjectManager_GBAVV objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart, graphics: rom.Map2D_Graphics, nitroKart_ObjTypeData: rom.NitroKart_ObjTypeData);
 
             var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
 
-            objGroups.Add((map.Objects_Normal, "Normal"));
+            objGroups.Add((map.Objects.Objects_Normal, "Normal"));
 
-            if (map.Objects_TimeTrial_Pointer != map.Objects_Normal_Pointer)
-                objGroups.Add((map.Objects_TimeTrial, "Time Trial"));
+            if (map.Objects.ObjectsPointer_TimeTrial != map.Objects.ObjectsPointer_Normal)
+                objGroups.Add((map.Objects.Objects_TimeTrial, "Time Trial"));
 
-            if (map.Objects_BossRace_Pointer != map.Objects_Normal_Pointer)
-                objGroups.Add((map.Objects_BossRace, "Boss Race"));
+            if (map.Objects.ObjectsPointer_BossRace != map.Objects.ObjectsPointer_Normal)
+                objGroups.Add((map.Objects.Objects_BossRace, "Boss Race"));
 
-            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => new Unity_Object_GBAVVNitroKart(objManager, o, i)));
+            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
+
+            var waypointsGroupIndex = 0;
+
+            void addTrackWaypoints(GBAVV_NitroKart_TrackWaypoint[] waypoints, string groupName)
+            {
+                if (waypoints == null)
+                    return;
+
+                if (objGroups.Any(x => x.Item2 == groupName))
+                {
+                    objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(w, waypointsGroupIndex)));
+                    waypointsGroupIndex++;
+                }
+            }
+
+            addTrackWaypoints(map.TrackData.TrackWaypoints_Normal, "Normal");
+            addTrackWaypoints(map.TrackData.TrackWaypoints_Normal, "Time Trial");
+            addTrackWaypoints(map.TrackData.TrackWaypoints_Normal, "Boss Race");
 
             return new Unity_Level(
                 maps: maps,
                 objManager: objManager,
-                eventData: new List<Unity_Object>(objects),
+                eventData: objects,
                 cellSize: CellSize,
                 objectGroups: objGroups.Select(x => x.Item2).ToArray(),
                 getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),

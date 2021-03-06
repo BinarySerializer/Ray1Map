@@ -506,15 +506,33 @@ namespace R1Engine
 
             var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
 
-            objGroups.Add((pop.Objects_Normal.Objects, "Normal"));
+            objGroups.Add((pop.Objects.Objects_Normal, "Normal"));
 
-            if (pop.Objects_TimeTrial != pop.Objects_Normal)
-                objGroups.Add((pop.Objects_TimeTrial.Objects, "Time Trial"));
+            if (pop.Objects.Objects_TimeTrial != pop.Objects.Objects_Normal)
+                objGroups.Add((pop.Objects.Objects_TimeTrial, "Time Trial"));
 
-            if (pop.Objects_BossRace != pop.Objects_Normal)
-                objGroups.Add((pop.Objects_BossRace.Objects, "Boss Race"));
+            if (pop.Objects.Objects_BossRace != pop.Objects.Objects_Normal)
+                objGroups.Add((pop.Objects.Objects_BossRace, "Boss Race"));
 
-            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => new Unity_Object_GBAVVNitroKart(objManager, o, i)));
+            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
+
+            var waypointsGroupIndex = 0;
+
+            void addTrackWaypoints(GBAVV_NitroKart_TrackWaypoint[] waypoints, string groupName)
+            {
+                if (waypoints == null)
+                    return;
+
+                if (objGroups.Any(x => x.Item2 == groupName))
+                {
+                    objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(w, waypointsGroupIndex)));
+                    waypointsGroupIndex++;
+                }
+            }
+
+            addTrackWaypoints(pop.TrackData.TrackWaypoints_Normal, "Normal");
+            addTrackWaypoints(pop.TrackData.TrackWaypoints_Normal, "Time Trial");
+            addTrackWaypoints(pop.TrackData.TrackWaypoints_Normal, "Boss Race");
 
             return new Unity_Level(
                 maps: new Unity_Map[]
@@ -534,7 +552,7 @@ namespace R1Engine
                     }
                 },
                 objManager: objManager,
-                eventData: new List<Unity_Object>(objects),
+                eventData: objects,
                 cellSize: 8,
                 isometricData: new Unity_IsometricData
                 {
