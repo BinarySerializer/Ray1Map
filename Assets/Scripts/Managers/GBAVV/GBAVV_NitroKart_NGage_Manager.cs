@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ImageMagick;
 using UnityEngine;
 
 namespace R1Engine
@@ -27,6 +28,7 @@ namespace R1Engine
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
             new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output)),
+            new GameAction("Export FLC as GIF", false, true, (input, output) => ExportFLCAsync(settings, output)),
         };
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool withFilenames = false)
@@ -131,6 +133,29 @@ namespace R1Engine
                         pal = null;
                     }
                 });
+            }
+        }
+
+        public async UniTask ExportFLCAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Enumerate every .flc file
+                foreach (var flcPath in FilePaths.Where(x => x.EndsWith(".flc")))
+                {
+                    var s = context.Deserializer;
+                    var flc = DoAtBlock(context, flcPath, () => s.SerializeObject<FLIC>(default, name: $"{Path.GetFileNameWithoutExtension(flcPath)}"));
+
+                    using (var collection = flc.ToMagickImageCollection())
+                    {
+                        // Save as gif
+                        var path = Path.Combine(outputDir, Path.GetDirectoryName(flcPath), $"{Path.GetFileNameWithoutExtension(flcPath)}.gif");
+                        Directory.CreateDirectory(Path.GetDirectoryName(path));
+                        collection.Write(path);
+                    }
+                }
             }
         }
 
