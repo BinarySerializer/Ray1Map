@@ -907,6 +907,9 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x0816c86c,
                         [GBAVV_Pointer.Localization] = 0x087e5e34,
 
+                        [GBAVV_Pointer.Crash1_CutsceneStrings] = 0x087e5e18,
+                        [GBAVV_Pointer.Crash1_CutsceneTable] = 0x0816d1f4,
+
                         [GBAVV_Pointer.Map2D_Graphics] = 0x084a5600,
 
                         [GBAVV_Pointer.Mode7_LevelInfo] = 0x08175558,
@@ -928,6 +931,9 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x0816c3ac,
                         [GBAVV_Pointer.Localization] = 0x08172c18,
 
+                        [GBAVV_Pointer.Crash1_CutsceneStrings] = 0x087e3ff0,
+                        [GBAVV_Pointer.Crash1_CutsceneTable] = 0x0816cd34,
+
                         [GBAVV_Pointer.Map2D_Graphics] = 0x084a3624,
 
                         [GBAVV_Pointer.Mode7_LevelInfo] = 0x081736a8,
@@ -947,7 +953,10 @@ namespace R1Engine
                 case GameModeSelection.Crash1GBAJP:
                     return new Dictionary<GBAVV_Pointer, uint>() {
                         [GBAVV_Pointer.LevelInfo] = 0x0816e5f0,
-                        //[GBAVV_Pointer.Localization] = ,
+                        [GBAVV_Pointer.Localization] = 0x08175530,
+
+                        [GBAVV_Pointer.Crash1_CutsceneStrings] = 0x087f0dc8,
+                        [GBAVV_Pointer.Crash1_CutsceneTable] = 0x0816ef78,
 
                         [GBAVV_Pointer.Map2D_Graphics] = 0x084a63f8,
 
@@ -971,6 +980,9 @@ namespace R1Engine
                     return new Dictionary<GBAVV_Pointer, uint>() {
                         [GBAVV_Pointer.LevelInfo] = 0x081d0430,
                         [GBAVV_Pointer.Localization] = 0x087ff064,
+
+                        [GBAVV_Pointer.Crash2_CutsceneTable] = 0x081e3ca4,
+                        [GBAVV_Pointer.Crash2_FLCTable] = 0x087ff2ec,
 
                         [GBAVV_Pointer.Map2D_Graphics] = 0x084768b4,
 
@@ -1025,6 +1037,9 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x081d2714,
                         [GBAVV_Pointer.Localization] = 0x081d5c04,
 
+                        [GBAVV_Pointer.Crash2_CutsceneTable] = 0x081db164,
+                        [GBAVV_Pointer.Crash2_FLCTable] = 0x087FC150,
+
                         [GBAVV_Pointer.Map2D_Graphics] = 0x0846dd74,
 
                         [GBAVV_Pointer.Mode7_LevelInfo] = 0x081d6b58,
@@ -1076,7 +1091,10 @@ namespace R1Engine
                 case GameModeSelection.Crash2GBAJP:
                     return new Dictionary<GBAVV_Pointer, uint>() {
                         [GBAVV_Pointer.LevelInfo] = 0x081c46a8,
-                        //[GBAVV_Pointer.Localization] = ,
+                        [GBAVV_Pointer.Localization] = 0x081c84b4,
+
+                        [GBAVV_Pointer.Crash2_CutsceneTable] = 0x081cda3c,
+                        [GBAVV_Pointer.Crash2_FLCTable] = 0x087ef3c0,
 
                         [GBAVV_Pointer.Map2D_Graphics] = 0x08460b70,
 

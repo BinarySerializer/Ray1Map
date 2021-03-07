@@ -6,6 +6,7 @@ namespace R1Engine
     public class GBAVV_ROM : GBA_ROMBase
     {
         public GBAVV_BaseManager.LevInfo CurrentLevInfo { get; set; } // Set before serializing
+        public bool SerializeFLC { get; set; } // Set before serializing
 
         // Helpers
         public GBAVV_MapInfo CurrentMapInfo
@@ -53,6 +54,11 @@ namespace R1Engine
         public GBAVV_LevelInfo[] LevelInfos { get; set; }
         public GBAVV_Script[] Scripts { get; set; }
         public GBAVV_DialogScript[] DialogScripts { get; set; }
+        public Pointer[] Crash1_CutsceneStringPointers { get; set; }
+        public GBAVV_Crash1_CutsceneStrings[] Crash1_CutsceneStrings { get; set; }
+        public GBAVV_Crash1_CutsceneEntry[] Crash1_CutsceneTable { get; set; }
+        public GBAVV_Crash2_CutsceneEntry[] Crash2_CutsceneTable { get; set; }
+        public GBAVV_Crash2_FLCTableEntry[] Crash2_FLCTable { get; set; }
 
         // 2D
         public GBAVV_Map2D_Graphics[] Map2D_Graphics { get; set; }
@@ -192,6 +198,29 @@ namespace R1Engine
                     Scripts[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
 
                 DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.FusionDialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
+            }
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
+            {
+                Crash1_CutsceneTable = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Crash1_CutsceneTable), () => s.SerializeObjectArray<GBAVV_Crash1_CutsceneEntry>(Crash1_CutsceneTable, 11, name: nameof(Crash1_CutsceneTable)));
+
+                Crash1_CutsceneStringPointers = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Crash1_CutsceneStrings), () => s.SerializePointerArray(Crash1_CutsceneStringPointers, 6, name: nameof(Crash1_CutsceneStringPointers)));
+
+                if (Crash1_CutsceneStrings == null)
+                    Crash1_CutsceneStrings = new GBAVV_Crash1_CutsceneStrings[Crash1_CutsceneStringPointers.Length];
+
+                for (int i = 0; i < Crash1_CutsceneStrings.Length; i++)
+                    Crash1_CutsceneStrings[i] = s.DoAt(Crash1_CutsceneStringPointers[i], () => s.SerializeObject<GBAVV_Crash1_CutsceneStrings>(Crash1_CutsceneStrings[i], x => x.CutsceneTable = Crash1_CutsceneTable, name: $"{nameof(Crash1_CutsceneStrings)}[{i}]"));
+            }
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2)
+            {
+                var isJp = s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAJP;
+
+                Crash2_CutsceneTable = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Crash2_CutsceneTable), () => s.SerializeObjectArray<GBAVV_Crash2_CutsceneEntry>(Crash2_CutsceneTable, isJp ? 55 : 54, name: nameof(Crash2_CutsceneTable)));
+
+                if (SerializeFLC)
+                    Crash2_FLCTable = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Crash2_FLCTable), () => s.SerializeObjectArray<GBAVV_Crash2_FLCTableEntry>(Crash2_FLCTable, isJp ? 25 : 24, name: nameof(Crash2_FLCTable)));
             }
 
             if (CurrentMapInfo.MapType == GBAVV_MapInfo.GBAVV_MapType.Mode7)

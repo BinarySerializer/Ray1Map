@@ -1,7 +1,36 @@
-﻿namespace R1Engine
+﻿using System.IO;
+using System.Linq;
+using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+
+namespace R1Engine
 {
     public class GBAVV_Crash2_Manager : GBAVV_BaseManager
     {
+        public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) =>
+                {
+                    d.CurrentLevInfo = LevInfos.First();
+                    d.SerializeFLC = true;
+                });
+
+                var index = 0;
+
+                // Enumerate every .flc entry
+                foreach (var entry in rom.Crash2_FLCTable)
+                {
+                    using (var collection = entry.FLC.ToMagickImageCollection())
+                        collection.Write(Path.Combine(outputDir, $"{index++}.gif"));
+                }
+            }
+        }
+
         public override LevInfo[] LevInfos => Levels;
         public override int LocTableCount => 191;
 
@@ -63,5 +92,10 @@
 
             new LevInfo(GBAVV_MapInfo.GBAVV_MapType.WorldMap, 0, "World Map"), 
         };
+    }
+
+    public class GBAVV_Crash2JP_Manager : GBAVV_Crash2_Manager
+    {
+        public override int LocTableCount => 202;
     }
 }

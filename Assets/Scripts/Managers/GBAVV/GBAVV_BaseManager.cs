@@ -31,7 +31,10 @@ namespace R1Engine
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
             new GameAction("Export isometric character icons", false, true, (input, output) => ExportIsometricCharacterIcons(settings, output)),
             new GameAction("Export level icons", false, true, (input, output) => ExportLevelIcons(settings, output)),
+            new GameAction("Export cutscenes", false, true, (input, output) => ExportCutscenesAsync(settings, output)),
         };
+
+        public virtual UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => UniTask.CompletedTask;
 
         public virtual async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
@@ -2099,10 +2102,21 @@ namespace R1Engine
                 "Dutch"
             };
 
-            return rom.LocTables?.Select((x, i) => new
+            if (rom.Context.Settings.GameModeSelection == GameModeSelection.Crash1GBAJP || rom.Context.Settings.GameModeSelection == GameModeSelection.Crash2GBAJP)
+                langages[0] = "Japanese";
+
+            return rom.LocTables?.Select((x, i) =>
             {
-                Lang = langages[i],
-                Strings = x.Strings
+                var str = x.Strings;
+
+                if (rom.Crash1_CutsceneStrings != null)
+                    str = str.Concat(rom.Crash1_CutsceneStrings[i].Cutscenes.SelectMany(c => c).Select(s => s?.String?.Text)).ToArray();
+
+                return new
+                {
+                    Lang = langages[i],
+                    Strings = str
+                };
             }).ToDictionary(x => x.Lang, x => x.Strings);
         }
 

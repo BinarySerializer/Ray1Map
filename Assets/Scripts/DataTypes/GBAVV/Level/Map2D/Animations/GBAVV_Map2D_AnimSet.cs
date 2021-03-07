@@ -22,7 +22,7 @@ namespace R1Engine
 
         public int GetMinX(int animIndex)
         {
-            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (Context?.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 var framesX = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x].RenderBox.X).ToArray();
 
@@ -39,7 +39,7 @@ namespace R1Engine
 
         public int GetMinY(int animIndex)
         {
-            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (Context?.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 var framesY = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x].RenderBox.Y).ToArray();
 

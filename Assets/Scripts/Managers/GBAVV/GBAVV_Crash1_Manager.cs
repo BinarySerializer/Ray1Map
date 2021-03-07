@@ -1,7 +1,53 @@
-﻿namespace R1Engine
+﻿using System.IO;
+using System.Linq;
+using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+using UnityEngine;
+
+namespace R1Engine
 {
     public class GBAVV_Crash1_Manager : GBAVV_BaseManager
     {
+        public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
+
+                for (int cutsceneIndex = 0; cutsceneIndex < rom.Crash1_CutsceneTable.Length; cutsceneIndex++)
+                {
+                    var c = rom.Crash1_CutsceneTable[cutsceneIndex];
+
+                    for (int frameIndex = 0; frameIndex < c.Frames.Length; frameIndex++)
+                    {
+                        var frame = c.Frames[frameIndex].Graphics;
+
+                        if (frame.ImageData == null)
+                            continue;
+
+                        var pal = Util.ConvertGBAPalette(frame.Palette, transparentIndex: null);
+
+                        var tex = TextureHelpers.CreateTexture2D(240, 160);
+
+                        for (int y = 0; y < tex.height; y++)
+                        {
+                            for (int x = 0; x < tex.width; x++)
+                            {
+                                tex.SetPixel(x, tex.height - y - 1, pal[frame.ImageData[y * tex.width + x]]);
+                            }
+                        }
+
+                        tex.Apply();
+
+                        Util.ByteArrayToFile(Path.Combine(outputDir, $"{cutsceneIndex}-{frameIndex}.png"), tex.EncodeToPNG());
+                    }
+                }
+            }
+        }
+
         public override LevInfo[] LevInfos => Levels;
         public override int LocTableCount => 70;
 
@@ -57,5 +103,10 @@
             new LevInfo(23, 0, "Neo Cortex"),
             new LevInfo(24, 0, "Mega-mix"),
         };
+    }
+
+    public class GBAVV_Crash1JP_Manager : GBAVV_Crash1_Manager
+    {
+        public override int LocTableCount => 73;
     }
 }

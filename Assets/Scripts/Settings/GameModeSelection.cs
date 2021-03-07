@@ -376,7 +376,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot The Huge Adventure (GBA - US)", typeof(GBAVV_Crash1_Manager))]
         Crash1GBAUS,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot Advance (GBA - JP)", typeof(GBAVV_Crash1_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot Advance (GBA - JP)", typeof(GBAVV_Crash1JP_Manager))]
         Crash1GBAJP,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBAVV_Crash2_Manager))]
@@ -385,7 +385,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBAVV_Crash2_Manager))]
         Crash2GBAUS,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBAVV_Crash2_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBAVV_Crash2JP_Manager))]
         Crash2GBAJP,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (GBA - EU)", typeof(GBAVV_NitroKartEU_Manager))]

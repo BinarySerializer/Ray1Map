@@ -5,6 +5,12 @@
         LevelInfo,
         Localization,
 
+        Crash1_CutsceneStrings,
+        Crash1_CutsceneTable,
+
+        Crash2_CutsceneTable,
+        Crash2_FLCTable,
+
         Map2D_Graphics,
 
         Mode7_LevelInfo,
