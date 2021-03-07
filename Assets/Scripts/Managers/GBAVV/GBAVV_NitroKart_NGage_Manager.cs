@@ -552,6 +552,15 @@ namespace R1Engine
                 unityMesh.SetUVs(0, curMesh.uvs);
                 unityMesh.RecalculateNormals();
                 GameObject gao = new GameObject(curMesh.name);
+
+                MeshCollider mc = gao.AddComponent<MeshCollider>();
+                Mesh colMesh = new Mesh();
+                colMesh.SetVertices(curMesh.vertices);
+                colMesh.SetTriangles(curMesh.triangles.Where((x,i) => i % 6 < 3).ToArray(), 0);
+                colMesh.RecalculateNormals();
+                mc.sharedMesh = colMesh;
+
+
                 MeshFilter mf = gao.AddComponent<MeshFilter>();
                 MeshRenderer mr = gao.AddComponent<MeshRenderer>();
                 gao.layer = LayerMask.NameToLayer("3D Collision");
@@ -559,7 +568,6 @@ namespace R1Engine
                 gao.transform.localScale = Vector3.one;
                 gao.transform.localPosition = Vector3.zero;
                 mf.mesh = unityMesh;
-                MeshCollider mc = gao.AddComponent<MeshCollider>();
                 switch (blendMode) {
                     case 6:
                     case 7:
