@@ -487,7 +487,6 @@ namespace R1Engine
             return gaoParent;
         }
 
-
         public GameObject CreatePVSGameObject(Context context, GBAVV_NitroKart_NGage_PVS pvs) {
             float scale = 8f;
             Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
@@ -596,15 +595,11 @@ namespace R1Engine
 
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
-            //indObjTypeData(context);
-
             // Load the data file
             var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
 
             // Load the exe
             var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context);
-            CreateS3DGameObject(context,exe.S3D_Warp);
-            CreateS3DGameObject(context, exe.S3D_Podium);
 
             var level = exe.LevelInfos[context.Settings.Level];
             var pop = level.POP;
@@ -627,6 +622,26 @@ namespace R1Engine
                 objGroups.Add((pop.Objects.Objects_BossRace, "Boss Race"));
 
             var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
+
+            void replaceObjWith3D(GBAVV_NitroKart_NGage_S3D s3d, int[] objTypes)
+            {
+                var toRemove = new HashSet<Unity_Object>();
+
+                foreach (var o in objects.OfType<Unity_Object_GBAVVNitroKart>().Where(x => objTypes.Contains(x.Object.ObjType)))
+                {
+                    var obj = CreateS3DGameObject(context, s3d);
+                    const float scale = 8f;
+                    obj.transform.position = new Vector3(o.Object.XPos / scale, o.Object.Height / scale, -o.Object.YPos / scale);
+                    toRemove.Add(o);
+                }
+
+                // Remove objects
+                foreach (var o in toRemove)
+                    objects.Remove(o);
+            }
+
+            replaceObjWith3D(exe.S3D_Warp, new ValueRange(0x56, 0x62).EnumerateRange().ToArray());
+            replaceObjWith3D(exe.S3D_Podium, new ValueRange(0x1F, 0x21).EnumerateRange().ToArray());
 
             var waypointsGroupIndex = 0;
 
