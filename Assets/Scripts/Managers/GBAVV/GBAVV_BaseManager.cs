@@ -882,12 +882,12 @@ namespace R1Engine
             }
 
             addTrackWaypoints(map.TrackData1.TrackWaypoints_Normal, "Normal", 0);
-            addTrackWaypoints(map.TrackData1.TrackWaypoints_Normal, "Time Trial", 0);
-            addTrackWaypoints(map.TrackData1.TrackWaypoints_Normal, "Boss Race", 0);
+            addTrackWaypoints(map.TrackData1.TrackWaypoints_TimeTrial, "Time Trial", 0);
+            addTrackWaypoints(map.TrackData1.TrackWaypoints_BossRace, "Boss Race", 0);
             waypointsGroupIndex = 0;
             addTrackWaypoints(map.TrackData2.TrackWaypoints_Normal, "Normal", 1);
-            addTrackWaypoints(map.TrackData2.TrackWaypoints_Normal, "Time Trial", 1);
-            addTrackWaypoints(map.TrackData2.TrackWaypoints_Normal, "Boss Race", 1);
+            addTrackWaypoints(map.TrackData2.TrackWaypoints_TimeTrial, "Time Trial", 1);
+            addTrackWaypoints(map.TrackData2.TrackWaypoints_BossRace, "Boss Race", 1);
 
             return new Unity_Level(
                 maps: maps,
