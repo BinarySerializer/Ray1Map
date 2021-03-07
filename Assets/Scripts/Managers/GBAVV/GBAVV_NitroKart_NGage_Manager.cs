@@ -559,6 +559,7 @@ namespace R1Engine
                 gao.transform.localScale = Vector3.one;
                 gao.transform.localPosition = Vector3.zero;
                 mf.mesh = unityMesh;
+                MeshCollider mc = gao.AddComponent<MeshCollider>();
                 switch (blendMode) {
                     case 6:
                     case 7:
@@ -623,7 +624,7 @@ namespace R1Engine
 
             var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
 
-            void replaceObjWith3D(GBAVV_NitroKart_NGage_S3D s3d, int[] objTypes)
+            void replaceObjWith3D(GBAVV_NitroKart_NGage_S3D s3d, int[] objTypes, Vector3? snapToFloorPosition = null)
             {
                 var toRemove = new HashSet<Unity_Object>();
 
@@ -631,7 +632,17 @@ namespace R1Engine
                 {
                     var obj = CreateS3DGameObject(context, s3d);
                     const float scale = 8f;
-                    obj.transform.position = new Vector3(o.Object.XPos / scale, o.Object.Height / scale, -o.Object.YPos / scale);
+                    var newPos = new Vector3(o.Object.XPos / scale, o.Object.Height / scale, -o.Object.YPos / scale);
+                    obj.transform.position =  newPos;
+                    if (snapToFloorPosition.HasValue) {
+                        Ray ray = new Ray(newPos + Vector3.up * 100, Vector3.down);
+                        var layerMask = 1 << LayerMask.NameToLayer("3D Collision");
+                        RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, layerMask, QueryTriggerInteraction.Ignore);
+                        if (hits?.Length > 0) {
+                            var hit = hits.OrderBy(h => Vector3.Distance(newPos, h.point)).First();
+                            obj.transform.position = hit.point + snapToFloorPosition.Value;
+                        }
+                    }
                     toRemove.Add(o);
                 }
 
@@ -640,30 +651,59 @@ namespace R1Engine
                     objects.Remove(o);
             }
 
-            replaceObjWith3D(exe.S3D_Warp, new ValueRange(0x56, 0x62).EnumerateRange().ToArray());
-            replaceObjWith3D(exe.S3D_Podium, new ValueRange(0x1F, 0x21).EnumerateRange().ToArray());
+            replaceObjWith3D(exe.S3D_Warp, new ValueRange(0x56, 0x62).EnumerateRange().ToArray(), snapToFloorPosition: Vector3.zero);
+            replaceObjWith3D(exe.S3D_Podium, new ValueRange(0x1F, 0x21).EnumerateRange().ToArray(), snapToFloorPosition: Vector3.zero);
 
             var waypointsGroupIndex = 0;
 
-            void addTrackWaypoints(GBAVV_NitroKart_TrackWaypoint[] waypoints, string groupName, int trackDataIndex)
+            void addTrackWaypoints(GBAVV_NitroKart_TrackWaypoint[] waypoints, string groupName, int trackDataIndex, bool snapToFloor = true)
             {
                 if (waypoints == null)
                     return;
 
                 if (objGroups.Any(x => x.Item2 == groupName))
                 {
-                    objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(w, waypointsGroupIndex, trackDataIndex)));
+                    Vector3 previousPos = Vector3.zero;
+                    var objCount = objects.Count;
+                    for (int i = 0; i < waypoints.Length; i++) {
+                        var w = new Unity_Object_GBAVVNitroKartWaypoint(waypoints[i], waypointsGroupIndex, trackDataIndex);
+                        w.LinkedWayPointIndex = objCount + ((i == waypoints.Length - 1) ? 0 : (i+1));
+                        if (snapToFloor) {
+                            const float scale = 8f;
+                            var convertedPos = new Vector3(w.Object.XPos, w.Height, -w.Object.YPos) / scale;
+                            Vector3 newPos = convertedPos;
+                            Ray ray = new Ray(convertedPos + Vector3.up * 100, Vector3.down);
+                            var layerMask = 1 << LayerMask.NameToLayer("3D Collision");
+                            RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, layerMask, QueryTriggerInteraction.Ignore);
+                            if (hits?.Length > 0) {
+                                RaycastHit hit = default;
+                                if (i == 0) {
+                                    hit = hits.OrderByDescending(h => h.distance).First(); // Take bottom most point
+                                } else {
+                                    hit = hits.OrderBy(h => Vector3.Distance(previousPos, h.point)/*h.distance*/).First(); // Take point closest to last waypoint
+                                }
+                                newPos = hit.point;
+                                Vector3 backConvertedPos = new Vector3(newPos.x, -newPos.z, newPos.y) * scale;
+                                w.Position = backConvertedPos;
+                            } else {
+                                Vector3 backConvertedPos = new Vector3(newPos.x, -newPos.z, previousPos.y) * scale;
+                                w.Position = backConvertedPos;
+                            }
+                            previousPos = newPos;
+                        }
+                        objects.Add(w);
+                    }
                     waypointsGroupIndex++;
                 }
             }
 
             addTrackWaypoints(pop.TrackData1.TrackWaypoints_Normal, "Normal", 0);
-            addTrackWaypoints(pop.TrackData1.TrackWaypoints_Normal, "Time Trial", 0);
-            addTrackWaypoints(pop.TrackData1.TrackWaypoints_Normal, "Boss Race", 0);
+            addTrackWaypoints(pop.TrackData1.TrackWaypoints_TimeTrial, "Time Trial", 0);
+            addTrackWaypoints(pop.TrackData1.TrackWaypoints_BossRace, "Boss Race", 0);
             waypointsGroupIndex = 0;
             addTrackWaypoints(pop.TrackData2.TrackWaypoints_Normal, "Normal", 1);
-            addTrackWaypoints(pop.TrackData2.TrackWaypoints_Normal, "Time Trial", 1);
-            addTrackWaypoints(pop.TrackData2.TrackWaypoints_Normal, "Boss Race", 1);
+            addTrackWaypoints(pop.TrackData2.TrackWaypoints_TimeTrial, "Time Trial", 1);
+            addTrackWaypoints(pop.TrackData2.TrackWaypoints_BossRace, "Boss Race", 1);
 
             return new Unity_Level(
                 maps: new Unity_Map[]

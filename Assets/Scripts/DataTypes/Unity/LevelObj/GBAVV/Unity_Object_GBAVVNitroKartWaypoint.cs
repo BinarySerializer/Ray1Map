@@ -3,10 +3,8 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBAVVNitroKartWaypoint : Unity_Object_3D
-    {
-        public Unity_Object_GBAVVNitroKartWaypoint(GBAVV_NitroKart_TrackWaypoint obj, int? objectGroupIndex, int trackDataIndex)
-        {
+    public class Unity_Object_GBAVVNitroKartWaypoint : Unity_Object_3D {
+        public Unity_Object_GBAVVNitroKartWaypoint(GBAVV_NitroKart_TrackWaypoint obj, int? objectGroupIndex, int trackDataIndex) {
             Object = obj;
             ObjectGroupIndex = objectGroupIndex;
             TrackDataIndex = trackDataIndex;
@@ -15,27 +13,36 @@ namespace R1Engine
 
         public GBAVV_NitroKart_TrackWaypoint Object { get; set; }
 
-        public override short XPosition
-        {
+        public override short XPosition {
             get => Object.XPos;
             set => Object.XPos = value;
         }
 
-        public override short YPosition
-        {
+        public override short YPosition {
             get => Object.YPos;
             set => Object.YPos = value;
         }
 
-        public override Vector3 Position
-        {
-            get => new Vector3(Object.XPos, Object.YPos, 0); 
-            set
-            {
+        public override Vector3 Position {
+            get => new Vector3(Object.XPos, Object.YPos, Height);
+            set {
                 Object.XPos = (short)value.x;
                 Object.YPos = (short)value.y;
+                Height = value.z;
             }
         }
+
+        public int? LinkedWayPointIndex { get; set; }
+
+        public override bool CanBeLinked => true;
+        public override IEnumerable<int> Links {
+            get {
+                if(LinkedWayPointIndex.HasValue)
+                    yield return LinkedWayPointIndex.Value;
+            }
+        }
+
+		public float Height { get; set; }
 
 		public override float Scale => 0.5f;
 
