@@ -26,7 +26,7 @@
         public RGBA5551Color[] Palette { get; set; }
 
         // Helpers
-        public int GetAnimSpeed => AnimSpeed + (Context.Settings.GBAVV_IsFusion ? 0 : 1);
+        public int GetAnimSpeed => AnimSpeed + 1;
 
         public override void SerializeImpl(SerializerObject s)
         {

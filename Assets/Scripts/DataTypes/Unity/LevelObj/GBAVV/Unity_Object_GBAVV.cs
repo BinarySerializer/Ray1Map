@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBAVV : Unity_Object
+    public class Unity_Object_GBAVV : Unity_Object_BaseGBAVV
     {
-        public Unity_Object_GBAVV(Unity_ObjectManager_GBAVV objManager, GBAVV_Map2D_Object obj, int objGroupIndex, int objIndex)
+        public Unity_Object_GBAVV(Unity_ObjectManager_GBAVV objManager, GBAVV_Map2D_Object obj, int objGroupIndex, int objIndex) : base(objManager)
         {
-            ObjManager = objManager;
             Object = obj;
             ObjGroupIndex = objGroupIndex;
             ObjIndex = objIndex;
@@ -33,12 +30,11 @@ namespace R1Engine
             var objType = Object.ObjType;
 
             if (Settings.GBAVV_Crash_TimeTrialMode && (ObjParams?.ElementAtOrDefault(0) & 0x20) != 0)
-                objType = (short)ObjParams?.ElementAtOrDefault(4);
+                objType = ObjParams?.ElementAtOrDefault(4) ?? Object.ObjType;
 
             GBAVV_ObjInit.InitObj(ObjManager.Context.Settings, this, objType);
         }
 
-        public Unity_ObjectManager_GBAVV ObjManager { get; }
         public GBAVV_Map2D_Object Object { get; set; }
 
         public bool IsLinked_4 { get; set; }
@@ -73,36 +69,8 @@ namespace R1Engine
 
         public byte[] ObjParams => ObjManager.ObjParams?.ElementAtOrDefault(Object.ObjParamsIndex);
 
-        public Unity_ObjectManager_GBAVV.AnimSet AnimSet => ObjManager.AnimSets.FirstOrDefault()?.ElementAtOrDefault(AnimSetIndex);
-        public Unity_ObjectManager_GBAVV.AnimSet.Animation Animation
-        {
-            get
-            {
-                var anim = AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
-
-                if (anim?.AnimFrames.Length == 0)
-                    return null;
-                
-                return anim;
-            }
-        }
-
-        public GBAVV_Script Script => ObjManager.Scripts?.ElementAtOrDefault(ScriptIndex);
-        public GBAVV_Script DialogScript => ScriptHasDialog ? ObjManager.DialogScripts?.TryGetItem(ObjParams?.ElementAtOrDefault(8) ?? -1) : null;
-        public string ScriptName => DialogScript?.DisplayName ?? Script?.DisplayName;
-        public bool ScriptHasDialog => Script?.DisplayName == "genericNPC";
-        public string[] GetTranslatedScript
-        {
-            get
-            {
-                var animSets = ObjManager.Graphics?.FirstOrDefault()?.AnimSets;
-                var list = Script?.TranslatedStringAll(animSets);
-
-                DialogScript?.TranslatedStringAll(animSets, list);
-
-                return list?.ToArray();
-            }
-        }
+        public override GBAVV_Script DialogScript => ScriptHasDialog ? ObjManager.DialogScripts?.TryGetItem(ObjParams?.ElementAtOrDefault(8) ?? -1) : null;
+        public override bool ScriptHasDialog => Script?.DisplayName == "genericNPC";
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
@@ -130,8 +98,6 @@ namespace R1Engine
 
         public override bool CanBeLinkedToGroup => true;
 
-        public override ObjectType Type => AnimSetIndex == -1 ? ObjectType.Trigger : ObjectType.Object;
-
         public bool _prevTimeTrialMode;
         public override void OnUpdate()
         {
@@ -141,44 +107,6 @@ namespace R1Engine
             _prevTimeTrialMode = Settings.GBAVV_Crash_TimeTrialMode;
             InitObj();
         }
-
-        private int _animSetIndex;
-        private byte _animIndex;
-
-        public int AnimSetIndex
-        {
-            get => _animSetIndex;
-            set
-            {
-                if (AnimSetIndex == -1)
-                    return;
-
-                _animSetIndex = value;
-                AnimIndex = 0;
-                FreezeFrame = false;
-            }
-        }
-
-        public byte AnimIndex
-        {
-            get => _animIndex;
-            set
-            {
-                _animIndex = value;
-                FreezeFrame = false;
-            }
-        }
-
-        public bool FreezeFrame { get; set; }
-        public int ScriptIndex { get; set; }
-
-        public override Unity_ObjAnimationCollisionPart[] ObjCollision => Animation?.AnimHitBox;
-
-        public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
-        public override int AnimSpeed => FreezeFrame ? 0 : (Animation?.CrashAnim.AnimSpeed + 1) ?? 0;
-        public override int? GetAnimIndex => AnimIndex;
-        protected override int GetSpriteID => AnimSetIndex;
-        public override IList<Sprite> Sprites => Animation?.AnimFrames;
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
@@ -232,39 +160,5 @@ namespace R1Engine
 
             public bool FollowEnabled { get; set; }
         }
-
-        #region UI States
-
-        protected int UIStates_AnimSetIndex { get; set; } = -2;
-        protected override bool IsUIStateArrayUpToDate => AnimSetIndex == UIStates_AnimSetIndex;
-
-        protected class GBAVV_UIState : UIState
-        {
-            public GBAVV_UIState(string displayName, byte animIndex) : base(displayName, animIndex) { }
-
-            public override void Apply(Unity_Object obj)
-            {
-                ((Unity_Object_GBAVV)obj).AnimIndex = (byte)AnimIndex;
-            }
-
-            public override bool IsCurrentState(Unity_Object obj)
-            {
-                return AnimIndex == ((Unity_Object_GBAVV)obj).AnimIndex;
-            }
-        }
-
-        protected override void RecalculateUIStates()
-        {
-            UIStates_AnimSetIndex = AnimSetIndex;
-
-            List<UIState> uiStates = new List<UIState>();
-
-            for (byte i = 0; i < (AnimSet?.Animations?.Length ?? 0); i++)
-                uiStates.Add(new GBAVV_UIState($"Animation {i}", animIndex: i));
-
-            UIStates = uiStates.ToArray();
-        }
-        
-        #endregion
     }
 }
