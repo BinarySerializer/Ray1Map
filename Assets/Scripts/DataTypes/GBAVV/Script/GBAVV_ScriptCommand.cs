@@ -4,6 +4,8 @@ namespace R1Engine
 {
     public class GBAVV_ScriptCommand : R1Serializable
     {
+        public bool SerializeFLC { get; set; } // Set before serializing
+
         public int PrimaryCommandType { get; set; }
         public int SecondaryCommandType { get; set; }
         public uint Param { get; set; }
@@ -19,6 +21,7 @@ namespace R1Engine
         public GBAVV_Movement Movement { get; set; }
         public GBAVV_ObjSpawn ObjSpawn { get; set; }
         public GBAVV_Sound Sound { get; set; }
+        public FLIC FLC { get; set; }
 
         // Helper properties
         public CommandType Type { get; set; }
@@ -66,11 +69,13 @@ namespace R1Engine
                     break;
 
                 case CommandType.Dialog:
+                case CommandType.Credits:
                     Dialog = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_LocalizedString>(Dialog, name: nameof(Dialog)));
                     break;
 
                 case CommandType.Animation:
                 case CommandType.SecondaryAnimation:
+                case CommandType.DialogPortrait:
                     Animation = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Map2D_Animation>(Animation, name: nameof(Animation)));
                     break;
 
@@ -91,7 +96,9 @@ namespace R1Engine
                     Sound = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Sound>(Sound, name: nameof(Sound)));
                     break;
 
-                case CommandType.DialogPortrait:
+                case CommandType.FLC:
+                    if (SerializeFLC)
+                        s.DoAt(ParamPointer, () => s.DoEncoded(new GBA_LZSSEncoder(), () => FLC = s.SerializeObject<FLIC>(FLC, name: nameof(FLC)), allowLocalPointers: true));
                     break;
 
                 // Do nothing
@@ -133,7 +140,11 @@ namespace R1Engine
             SecondaryAnimation,
             PlaySound,
 
-            DialogPortrait
+            DialogPortrait,
+
+            FLC,
+
+            Credits
         }
 
         public class GBAVV_ConditionalScriptReference : R1Serializable

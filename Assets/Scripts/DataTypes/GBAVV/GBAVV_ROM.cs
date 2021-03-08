@@ -187,6 +187,7 @@ namespace R1Engine
                 }
             }
 
+            // Serialize scripts
             var scriptPointers = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).ScriptPointers;
 
             if (scriptPointers != null)
@@ -195,7 +196,7 @@ namespace R1Engine
                     Scripts = new GBAVV_Script[scriptPointers.Length];
 
                 for (int i = 0; i < scriptPointers.Length; i++)
-                    Scripts[i] = s.DoAt(new Pointer(scriptPointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
+                    Scripts[i] = s.DoAt(new Pointer(scriptPointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], x => x.SerializeFLC = SerializeFLC, name: $"{nameof(Scripts)}[{i}]"));
 
                 DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Fusion_DialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
             }

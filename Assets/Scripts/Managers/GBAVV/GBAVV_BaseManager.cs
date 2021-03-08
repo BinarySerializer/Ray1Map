@@ -2166,7 +2166,7 @@ namespace R1Engine
                 var index = 0;
 
                 // Find strings from scripts
-                foreach (var script in rom.Scripts.SelectMany(x => x.Commands).Where(x => x.Type == GBAVV_ScriptCommand.CommandType.Dialog))
+                foreach (var script in rom.Scripts.SelectMany(x => x.Commands).Where(x => x.Dialog != null))
                 {
                     var dialog = script.Dialog;
 

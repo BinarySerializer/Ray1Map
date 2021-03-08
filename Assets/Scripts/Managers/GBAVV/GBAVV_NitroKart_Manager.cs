@@ -2,6 +2,7 @@
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -61,6 +62,34 @@ namespace R1Engine
             //FindDataInROM(context.Deserializer, context.FilePointer(GetROMFilePath));
             //FindObjTypeData(context);
             return base.LoadAsync(context, loadTextures);
+        }
+
+        public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) =>
+                {
+                    d.CurrentLevInfo = LevInfos.First();
+                    d.SerializeFLC = true;
+                });
+
+                // Enumerate every script
+                foreach (var script in rom.Scripts)
+                {
+                    var index = 0;
+
+                    // Enumerate every command which plays an FLC file
+                    foreach (var flc in script.Commands.Where(x => x.FLC != null))
+                    {
+                        using (var collection = flc.FLC.ToMagickImageCollection())
+                            collection.Write(Path.Combine(outputDir, $"{script.DisplayName}-{index++}.gif"));
+                    }
+                }
+            }
         }
 
         public void FindDataInROM(SerializerObject s, Pointer offset)
@@ -184,10 +213,13 @@ namespace R1Engine
 
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>()
         {
+            [0700] = GBAVV_ScriptCommand.CommandType.FLC,
+
             [0902] = GBAVV_ScriptCommand.CommandType.Script,
             [0907] = GBAVV_ScriptCommand.CommandType.Name,
             [0911] = GBAVV_ScriptCommand.CommandType.Return,
             
+            [1000] = GBAVV_ScriptCommand.CommandType.Credits,
             [1102] = GBAVV_ScriptCommand.CommandType.Dialog,
         };
     }

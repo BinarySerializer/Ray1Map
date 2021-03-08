@@ -8,6 +8,7 @@ namespace R1Engine
     public class GBAVV_Script : R1Serializable
     {
         public bool IsValid { get; set; } = true;
+        public bool SerializeFLC { get; set; } // Set before serializing
 
         public GBAVV_ScriptCommand[] Commands { get; set; }
 
@@ -23,7 +24,7 @@ namespace R1Engine
 
                 do
                 {
-                    cmds.Add(s.SerializeObject<GBAVV_ScriptCommand>(default, name: $"{nameof(Commands)}[{index++}]"));
+                    cmds.Add(s.SerializeObject<GBAVV_ScriptCommand>(default, x => x.SerializeFLC = SerializeFLC, name: $"{nameof(Commands)}[{index++}]"));
                 } while (!(cmds[cmds.Count - 1].Type == GBAVV_ScriptCommand.CommandType.Return && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfInputCheck && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfField08) && index < 100);
                 
                 if (index == 100 || cmds.Any(x => x.PrimaryCommandType >= 100))
@@ -36,7 +37,7 @@ namespace R1Engine
             }
             else
             {
-                Commands = s.SerializeObjectArray<GBAVV_ScriptCommand>(Commands, Commands.Length, name: nameof(Commands));
+                Commands = s.SerializeObjectArray<GBAVV_ScriptCommand>(Commands, Commands.Length, x => x.SerializeFLC = SerializeFLC, name: nameof(Commands));
             }
         }
 
@@ -139,6 +140,7 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.Dialog:
+                    case GBAVV_ScriptCommand.CommandType.Credits:
                         if (FileSystem.mode == FileSystem.Mode.Web)
                         {
                             var locIndex = locTable.TryGetItem(cmd.Dialog.Offset);
@@ -191,6 +193,10 @@ namespace R1Engine
 
                     case GBAVV_ScriptCommand.CommandType.DialogPortrait:
                         logCommand($"SET_PORTRAIT_ANIMATION", getAnimString(cmd.ParamPointer));
+                        break;
+
+                    case GBAVV_ScriptCommand.CommandType.FLC:
+                        logCommand($"PLAY_FLC", $"0x{cmd.Param:X8}");
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.Unknown:
