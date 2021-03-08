@@ -52,9 +52,9 @@ namespace R1Engine
             get
             {
                 var animSets = ObjManager.Graphics?.FirstOrDefault()?.AnimSets;
-                var list = Script?.TranslatedStringAll(animSets);
+                var list = Script?.TranslatedStringAll(animSets, ObjManager.LocPointerTable);
 
-                DialogScript?.TranslatedStringAll(animSets, list);
+                DialogScript?.TranslatedStringAll(animSets, ObjManager.LocPointerTable, list);
 
                 return list?.ToArray();
             }

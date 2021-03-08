@@ -187,17 +187,17 @@ namespace R1Engine
                 }
             }
 
-            if (s.GameSettings.GBAVV_IsFusion)
+            var scriptPointers = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).ScriptPointers;
+
+            if (scriptPointers != null)
             {
-                var pointers = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).ScriptPointers;
-
                 if (Scripts == null)
-                    Scripts = new GBAVV_Script[pointers.Length];
+                    Scripts = new GBAVV_Script[scriptPointers.Length];
 
-                for (int i = 0; i < pointers.Length; i++)
-                    Scripts[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
+                for (int i = 0; i < scriptPointers.Length; i++)
+                    Scripts[i] = s.DoAt(new Pointer(scriptPointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], name: $"{nameof(Scripts)}[{i}]"));
 
-                DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.FusionDialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
+                DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Fusion_DialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
             }
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)

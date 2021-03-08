@@ -5,6 +5,7 @@ using R1Engine.Serialize;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -235,6 +236,24 @@ public class SettingsWindow : UnityWindow
                 if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null) {
                     if (EditorButton("Copy event flag info"))
                         r1.GetEventFlagsDebugInfo().CopyToClipboard();
+                }
+                
+                if (LevelEditorData.ObjManager is Unity_ObjectManager_GBAVV vv && vv.Scripts != null) {
+                    if (EditorButton("Copy scripts"))
+                    {
+                        var str = new StringBuilder();
+
+                        // Enumerate every script
+                        foreach (var script in vv.Scripts)
+                        {
+                            foreach (var line in script.TranslatedString(vv.Graphics?.FirstOrDefault()?.AnimSets, vv.LocPointerTable))
+                                str.AppendLine(line);
+
+                            str.AppendLine();
+                        }
+
+                        str.ToString().CopyToClipboard();
+                    }
                 }
 
                 if (LevelEditorData.Level?.IsometricData != null) {

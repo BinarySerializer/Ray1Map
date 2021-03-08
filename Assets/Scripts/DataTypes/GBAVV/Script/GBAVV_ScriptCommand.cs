@@ -33,7 +33,7 @@ namespace R1Engine
             SecondaryCommandType = s.Serialize<int>(SecondaryCommandType, name: nameof(SecondaryCommandType));
             Param = s.Serialize<uint>(Param, name: nameof(Param));
 
-            Type = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
+            Type = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
 
             // If the param is a valid pointer to the ROM we parse the pointer
             if (Param >= GBA_ROMBase.Address_ROM && Param < GBA_ROMBase.Address_ROM + s.CurrentLength)

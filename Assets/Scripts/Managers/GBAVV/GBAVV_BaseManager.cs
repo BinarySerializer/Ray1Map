@@ -18,7 +18,11 @@ namespace R1Engine
 
         public abstract LevInfo[] LevInfos { get; }
         public virtual int LocTableCount => 0;
-        public virtual int LanguagesCount => 1;
+        public virtual string[] Languages => null;
+        public int DefaultLanguage => Languages?.FindItemIndex(x => x == "English") ?? -1;
+
+        public virtual Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>();
+        public virtual uint[] ScriptPointers => null;
 
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
@@ -332,10 +336,15 @@ namespace R1Engine
                 Type = Unity_Map.MapType.Collision,
             }).ToArray();
 
+            Controller.DetailedState = "Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(rom);
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.MapData2D.ObjData, map.MapType);
+            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.MapData2D.ObjData, map.MapType, locPointerTable: loc.Item2);
             var objects = map.MapData2D.ObjData.ObjGroups.SelectMany((x, groupIndex) => x.Objects.Reverse().Select((obj, i) => new Unity_Object_GBAVV(objmanager, obj, groupIndex, i)));
 
             return new Unity_Level(
@@ -345,7 +354,7 @@ namespace R1Engine
                 cellSize: CellSize,
                 getCollisionTypeGraphicFunc: x => ((GBAVV_Map2D_CollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBAVV_Map2D_CollisionType)x).ToString(),
-                localization: LoadLocalization(rom));
+                localization: loc.Item1);
         }
 
         public async UniTask<Unity_Level> LoadMode7Async(Context context, GBAVV_ROM rom)
@@ -534,6 +543,11 @@ namespace R1Engine
                 }
             }
 
+            Controller.DetailedState = "Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(rom);
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
@@ -571,7 +585,7 @@ namespace R1Engine
                     ObjectScale = new Vector3(1,1,0.5f) * CellSize
                 },
                 cellSize: CellSize,
-                localization: LoadLocalization(rom));
+                localization: loc.Item1);
         }
 
         public async UniTask<Unity_Level> LoadIsometricAsync(Context context, GBAVV_ROM rom)
@@ -596,6 +610,11 @@ namespace R1Engine
                 Type = Unity_Map.MapType.Graphics,
                 Layer = i == 0 ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
             }).Reverse().ToArray();
+
+            Controller.DetailedState = "Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(rom);
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
@@ -682,7 +701,7 @@ namespace R1Engine
                     CalculateYDisplacement = () => h - 16 * mapData.YPosition * 2 + (minHeight * heightScale * 2 * Mathf.Cos(Mathf.Deg2Rad * 30f)),
                     ObjectScale = Vector3.one * 12/64f
                 },
-                localization: LoadLocalization(rom));
+                localization: loc.Item1);
         }
 
         public async UniTask<Unity_Level> LoadWorldMapAsync(Context context, GBAVV_ROM rom)
@@ -769,10 +788,15 @@ namespace R1Engine
                 }
             }
 
+            Controller.DetailedState = "Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(rom);
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics, rom.DialogScripts);
+            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics, rom.DialogScripts, locPointerTable: loc.Item2);
             var objects = new List<Unity_Object>();
 
             if (map.ObjData?.Objects != null)
@@ -783,7 +807,7 @@ namespace R1Engine
                 objManager: objmanager,
                 eventData: objects,
                 cellSize: CellSize,
-                localization: LoadLocalization(rom),
+                localization: loc.Item1,
                 collisionLines: collisionLines?.ToArray());
         }
 
@@ -853,10 +877,15 @@ namespace R1Engine
                 getMap(map.BackgroundMapLayers[0]),
             };
 
+            Controller.DetailedState = "Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(rom);
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            Unity_ObjectManager_GBAVV objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart, graphics: rom.Map2D_Graphics, nitroKart_ObjTypeData: rom.NitroKart_ObjTypeData);
+            Unity_ObjectManager_GBAVV objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart, graphics: rom.Map2D_Graphics, nitroKart_ObjTypeData: rom.NitroKart_ObjTypeData, scripts: rom.Scripts, locPointerTable: loc.Item2);
 
             var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
 
@@ -900,7 +929,7 @@ namespace R1Engine
                 objectGroups: objGroups.Select(x => x.Item2).ToArray(),
                 getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
-                localization: LoadLocalization(rom),
+                localization: loc.Item1,
                 isometricData: new Unity_IsometricData {
                     CollisionWidth = 0,
                     CollisionHeight = 0,
@@ -2090,34 +2119,70 @@ namespace R1Engine
             return output;
         }
 
-        public Dictionary<string, string[]> LoadLocalization(GBAVV_ROM rom)
+        public (Dictionary<string, string[]>, Dictionary<Pointer, int>) LoadLocalization(GBAVV_ROM rom)
         {
-            var langages = new string[]
+            var settings = rom.Context.Settings;
+
+            if (settings.EngineVersion == EngineVersion.GBAVV_Crash1 || settings.EngineVersion == EngineVersion.GBAVV_Crash2)
             {
-                "English",
-                "French",
-                "German",
-                "Spanish",
-                "Italian",
-                "Dutch"
-            };
-
-            if (rom.Context.Settings.GameModeSelection == GameModeSelection.Crash1GBAJP || rom.Context.Settings.GameModeSelection == GameModeSelection.Crash2GBAJP)
-                langages[0] = "Japanese";
-
-            return rom.LocTables?.Select((x, i) =>
-            {
-                var str = x.Strings;
-
-                if (rom.Crash1_CutsceneStrings != null)
-                    str = str.Concat(rom.Crash1_CutsceneStrings[i].Cutscenes.SelectMany(c => c).Select(s => s?.String?.Text)).ToArray();
-
-                return new
+                var langages = new string[]
                 {
-                    Lang = langages[i],
-                    Strings = str
+                    "English",
+                    "French",
+                    "German",
+                    "Spanish",
+                    "Italian",
+                    "Dutch"
                 };
-            }).ToDictionary(x => x.Lang, x => x.Strings);
+
+                if (settings.GameModeSelection == GameModeSelection.Crash1GBAJP || settings.GameModeSelection == GameModeSelection.Crash2GBAJP)
+                    langages[0] = "Japanese";
+
+                return (rom.LocTables?.Select((x, i) =>
+                {
+                    var str = x.Strings;
+
+                    if (rom.Crash1_CutsceneStrings != null)
+                        str = str.Concat(rom.Crash1_CutsceneStrings[i].Cutscenes.SelectMany(c => c).Select(s => s?.String?.Text)).ToArray();
+
+                    return new
+                    {
+                        Lang = langages[i],
+                        Strings = str
+                    };
+                }).ToDictionary(x => x.Lang, x => x.Strings), null);
+            }
+            else if (rom.Scripts != null)
+            {
+                var languages = Languages;
+
+                var locTables = Enumerable.Range(0, languages.Length).Select(x => new
+                {
+                    Strings = new List<string>(),
+                    Index = x
+                }).ToArray();
+                var pointerTable = new Dictionary<Pointer, int>();
+
+                var index = 0;
+
+                // Find strings from scripts
+                foreach (var script in rom.Scripts.SelectMany(x => x.Commands).Where(x => x.Type == GBAVV_ScriptCommand.CommandType.Dialog))
+                {
+                    var dialog = script.Dialog;
+
+                    if (pointerTable.ContainsKey(dialog.Offset))
+                        continue;
+
+                    for (int i = 0; i < dialog.Items.Length; i++)
+                        locTables[i].Strings.Add(dialog.Items[i]?.Text);
+
+                    pointerTable[dialog.Offset] = index++;
+                }
+
+                return (locTables.ToDictionary(x => languages[x.Index], x => x.Strings.ToArray()), pointerTable);
+            }
+
+            return (null, null);
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

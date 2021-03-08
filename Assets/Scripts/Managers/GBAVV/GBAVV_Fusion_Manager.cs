@@ -13,7 +13,6 @@ namespace R1Engine
         public override UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             //FindDataInROM(context.Deserializer, context.FilePointer(GetROMFilePath));
-            //LogParsedScripts(context.Deserializer, ScriptPointers.Select(x => new Pointer(x, context.GetFile(GetROMFilePath))));
             //LogLevelInfos(FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]));
             //LogObjTypeInit(context.Deserializer);
             //LogObjTypeInit(context.Deserializer, new ObjTypeInitCreation[0]);
@@ -75,31 +74,6 @@ namespace R1Engine
 
             foreach (var (p, name) in foundScripts)
                 str.AppendLine($"0x{p:X8}, // {name}");
-
-            str.ToString().CopyToClipboard();
-        }
-
-        public void LogParsedScripts(SerializerObject s, IEnumerable<Pointer> scriptPointers)
-        {
-            // Load the animations
-            var graphics = new GBAVV_Map2D_Graphics();
-            graphics.Init(s.Context.FilePointer(GetROMFilePath));
-            graphics.SerializeImpl(s);
-            var animSets = graphics.AnimSets;
-
-            var str = new StringBuilder();
-
-            // Start by parsing every script
-            var scripts = scriptPointers.Select(x => s.DoAt(x, () => s.SerializeObject<GBAVV_Script>(default))).ToArray();
-
-            // Enumerate every script
-            foreach (var script in scripts)
-            {
-                foreach (var line in script.TranslatedString(animSets))
-                    str.AppendLine(line);
-
-                str.AppendLine();
-            }
 
             str.ToString().CopyToClipboard();
         }
@@ -287,9 +261,15 @@ namespace R1Engine
         public abstract uint ObjTypesPointer { get; }
         public abstract ObjTypeInit[] ObjTypeInitInfos { get; }
         public abstract uint[] AnimSetPointers { get; }
-        public abstract uint[] ScriptPointers { get; }
-        public abstract Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands { get; }
         public abstract int DialogScriptsCount { get; }
+        public override string[] Languages => new string[]
+        {
+            "English",
+            "French",
+            "German",
+            "Spanish",
+            "Italian",
+        };
 
         private class ObjTypeInitCreation
         {

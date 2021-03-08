@@ -821,8 +821,6 @@ namespace R1Engine
             0x080FE090, // genericTurnLeftScript
             0x080FE0E4, // genericTurnRightScript
         };
-
-        public override int LanguagesCount => 5;
     }
 
     public class GBAVV_SpyroFusionUS_Manager : GBAVV_SpyroFusion_Manager
@@ -1623,6 +1621,14 @@ namespace R1Engine
     public class GBAVV_SpyroFusionJP_Manager : GBAVV_SpyroFusion_Manager
     {
         public override uint ObjTypesPointer => throw new NotImplementedException();
+        public override string[] Languages => new string[]
+        {
+            "Japanese",
+            "French",
+            "German",
+            "Spanish",
+            "Italian",
+        };
 
         public override uint[] AnimSetPointers => new uint[]
         {

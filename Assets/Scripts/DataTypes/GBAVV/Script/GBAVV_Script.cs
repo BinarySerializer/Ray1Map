@@ -40,7 +40,7 @@ namespace R1Engine
             }
         }
 
-        public List<string> TranslatedStringAll(GBAVV_Map2D_AnimSet[] animSets, List<string> list = null)
+        public List<string> TranslatedStringAll(GBAVV_Map2D_AnimSet[] animSets, Dictionary<Pointer, int> locTable, List<string> list = null)
         {
             var output = list ?? new List<string>();
             var foundScripts = new HashSet<GBAVV_Script>();
@@ -54,7 +54,7 @@ namespace R1Engine
 
                 foundScripts.Add(s);
 
-                s.TranslatedString(animSets, output);
+                s.TranslatedString(animSets, locTable, output);
 
                 output.Add(String.Empty);
 
@@ -65,7 +65,7 @@ namespace R1Engine
             return output;
         }
 
-        public List<string> TranslatedString(GBAVV_Map2D_AnimSet[] animSets, List<string> list = null)
+        public List<string> TranslatedString(GBAVV_Map2D_AnimSet[] animSets, Dictionary<Pointer, int> locTable, List<string> list = null)
         {
             var output = list ?? new List<string>();
 
@@ -139,7 +139,16 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.Dialog:
-                        logCommand($"DISPLAY", $"\"{cmd.Dialog.Items[0].Text.Replace("\n", @"\n")}\"");
+                        if (FileSystem.mode == FileSystem.Mode.Web)
+                        {
+                            var locIndex = locTable.TryGetItem(cmd.Dialog.Offset);
+                            logCommand($"DISPLAY", $"<locId={locIndex}>Text[{locIndex}]</locId>");
+                        }
+                        else
+                        {
+                            logCommand($"DISPLAY", $"\"{cmd.Dialog.DefaultString.Replace("\n", @"\n")}\"");
+                        }
+
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.IsFlipped:

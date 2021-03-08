@@ -9,7 +9,15 @@ namespace R1Engine
 {
     public abstract class GBAVV_NitroKart_Manager : GBAVV_BaseManager
     {
-        public override int LanguagesCount => 6;
+        public override string[] Languages => new string[]
+        {
+            "Dutch",
+            "English",
+            "French",
+            "German",
+            "Italian",
+            "Spanish",
+        };
 
         public override LevInfo[] LevInfos => Levels;
 
@@ -174,7 +182,14 @@ namespace R1Engine
 
         public abstract uint[] GraphicsDataPointers { get; }
 
-        public abstract uint[] ScriptPointers { get; } // TODO: Parse these
+        public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>()
+        {
+            [0902] = GBAVV_ScriptCommand.CommandType.Script,
+            [0907] = GBAVV_ScriptCommand.CommandType.Name,
+            [0911] = GBAVV_ScriptCommand.CommandType.Return,
+            
+            [1102] = GBAVV_ScriptCommand.CommandType.Dialog,
+        };
     }
     public class GBAVV_NitroKartUS_Manager : GBAVV_NitroKart_Manager
     {
@@ -574,7 +589,15 @@ namespace R1Engine
     }
     public class GBAVV_NitroKartJP_Manager : GBAVV_NitroKart_Manager
     {
-        public override int LanguagesCount => 7;
+        public override string[] Languages => new string[]
+        {
+            "Japanese",
+            "English",
+            "French",
+            "German",
+            "Italian",
+            "Spanish",
+        };
 
         public override uint ObjTypesPointer => 0x08008344;
         public override uint?[] ObjTypesDataPointers => new uint?[]

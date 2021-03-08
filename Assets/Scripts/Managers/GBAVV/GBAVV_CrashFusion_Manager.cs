@@ -828,8 +828,6 @@ namespace R1Engine
             0x0809FB30, // gulpShoot2
             0x0809FBD4, // flipMe
         };
-
-        public override int LanguagesCount => 5;
     }
 
     public class GBAVV_CrashFusionUS_Manager : GBAVV_CrashFusion_Manager
@@ -1232,6 +1230,14 @@ namespace R1Engine
     public class GBAVV_CrashFusionJP_Manager : GBAVV_CrashFusion_Manager
     {
         public override uint ObjTypesPointer => throw new NotImplementedException();
+        public override string[] Languages => new string[]
+        {
+            "Japanese",
+            "French",
+            "German",
+            "Spanish",
+            "Italian",
+        };
 
         public override uint[] AnimSetPointers => new uint[]
         {
