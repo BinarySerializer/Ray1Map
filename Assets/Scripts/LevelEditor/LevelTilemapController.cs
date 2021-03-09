@@ -86,6 +86,7 @@ namespace R1Engine
         public Material unlitMaterial;
         public Material unlitTransparentCutoutMaterial;
         public Material unlitAdditiveMaterial;
+        public Material unlitTransparentMaterial;
 
         public bool HasAnimatedTiles { get; private set; } = false;
 

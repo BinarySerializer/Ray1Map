@@ -908,7 +908,14 @@ namespace R1Engine
 
                 if (objGroups.Any(x => x.Item2 == groupName))
                 {
-                    objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(w, waypointsGroupIndex, trackDataIndex)));
+
+                    var objCount = objects.Count;
+                    for (int i = 0; i < waypoints.Length; i++) {
+                        var w = new Unity_Object_GBAVVNitroKartWaypoint(objManager, waypoints[i], waypointsGroupIndex, trackDataIndex);
+                        w.LinkedWayPointIndex = objCount + ((i == waypoints.Length - 1) ? 0 : (i + 1));
+                        objects.Add(w);
+                    }
+                    //objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(objManager, w, waypointsGroupIndex, trackDataIndex)));
                     waypointsGroupIndex++;
                 }
             }

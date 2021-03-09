@@ -47,6 +47,7 @@ namespace R1Engine
         public GBAVV_NitroKart_ObjTypeData[] NitroKart_ObjTypeData { get; }
         public Dictionary<int, GBAVV_Script> DialogScripts { get; }
         public Dictionary<Pointer, int> LocPointerTable { get; }
+        public float? LevelWidthNitroKartNGage { get; set; }
 
         public override string[] LegacyDESNames => AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => MultipleAnimSetArrays ? $"{graphicsIndex}-{animSet.GetDisplayName(animSetIndex)}" : $"{animSet.GetDisplayName(animSetIndex)}")).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;

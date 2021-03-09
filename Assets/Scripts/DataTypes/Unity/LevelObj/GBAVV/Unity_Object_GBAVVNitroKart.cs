@@ -54,11 +54,21 @@ namespace R1Engine
 
         public override Vector3 Position
         {
-            get => new Vector3(Object.XPos, Object.YPos, Object.Height); 
+            get {
+                if (ObjManager.LevelWidthNitroKartNGage.HasValue) {
+                    return new Vector3(Object.XPos, ObjManager.LevelWidthNitroKartNGage.Value-Object.YPos, Object.Height);
+                } else {
+                    return new Vector3(Object.XPos, Object.YPos, Object.Height);
+                }
+            }
             set
             {
                 Object.XPos = (int)value.x;
-                Object.YPos = (int)value.y;
+                if (ObjManager.LevelWidthNitroKartNGage.HasValue) {
+                    Object.YPos = (int)(ObjManager.LevelWidthNitroKartNGage.Value - value.y);
+                } else {
+                    Object.YPos = (int)value.y;
+                }
                 Object.Height = (int)value.z;
             }
         }

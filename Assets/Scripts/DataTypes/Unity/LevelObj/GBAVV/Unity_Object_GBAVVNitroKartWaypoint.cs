@@ -4,12 +4,15 @@ using UnityEngine;
 namespace R1Engine
 {
     public class Unity_Object_GBAVVNitroKartWaypoint : Unity_Object_3D {
-        public Unity_Object_GBAVVNitroKartWaypoint(GBAVV_NitroKart_TrackWaypoint obj, int? objectGroupIndex, int trackDataIndex) {
+        public Unity_Object_GBAVVNitroKartWaypoint(Unity_ObjectManager_GBAVV objManager, GBAVV_NitroKart_TrackWaypoint obj, int? objectGroupIndex, int trackDataIndex) {
             Object = obj;
+            ObjManager = objManager;
             ObjectGroupIndex = objectGroupIndex;
             TrackDataIndex = trackDataIndex;
             UIStates = new UIState[0];
         }
+
+        public Unity_ObjectManager_GBAVV ObjManager { get; set;}
 
         public GBAVV_NitroKart_TrackWaypoint Object { get; set; }
 
@@ -23,11 +26,22 @@ namespace R1Engine
             set => Object.YPos = value;
         }
 
+
         public override Vector3 Position {
-            get => new Vector3(Object.XPos, Object.YPos, Height);
+            get {
+                if (ObjManager.LevelWidthNitroKartNGage.HasValue) {
+                    return new Vector3(Object.XPos, ObjManager.LevelWidthNitroKartNGage.Value - Object.YPos, Height);
+                } else {
+                    return new Vector3(Object.XPos, Object.YPos, Height);
+                }
+            }
             set {
                 Object.XPos = (short)value.x;
-                Object.YPos = (short)value.y;
+                if (ObjManager.LevelWidthNitroKartNGage.HasValue) {
+                    Object.YPos = (short)(ObjManager.LevelWidthNitroKartNGage.Value - value.y);
+                } else {
+                    Object.YPos = (short)value.y;
+                }
                 Height = value.z;
             }
         }

@@ -404,7 +404,7 @@ namespace R1Engine
 
         public GameObject CreateS3DGameObject(Context context, GBAVV_NitroKart_NGage_S3D s3d) {
             float scale = 4096f;
-            Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
+            Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, v.Y / scale);
             Vector2 toUV(GBAVV_NitroKart_NGage_UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
             ///var palette = pvs.VertexColorsPalettes.Select(p => p.GetColor()).Select(c => new Color(c.r, c.g, c.b, 1f)).ToArray();
 
@@ -478,6 +478,9 @@ namespace R1Engine
                     gao.transform.localPosition = Vector3.zero;
                     mf.mesh = unityMesh;
                     switch (blendMode) {
+                        case 3:
+                            mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentMaterial;
+                            break;
                         case 6:
                         case 7:
                             mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
@@ -514,7 +517,7 @@ namespace R1Engine
 
         public GameObject CreatePVSGameObject(Context context, GBAVV_NitroKart_NGage_PVS pvs) {
             float scale = 8f;
-            Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, -v.Y / scale);
+            Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, v.Y / scale);
             Vector2 toUV(GBAVV_NitroKart_NGage_UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
             var palette = pvs.VertexColorsPalettes.Select(p => p.GetColor()).Select(c => new Color(c.r, c.g, c.b, 1f)).ToArray();
 
@@ -573,7 +576,11 @@ namespace R1Engine
                 Mesh unityMesh = new Mesh();
                 unityMesh.SetVertices(curMesh.vertices);
                 unityMesh.SetTriangles(curMesh.triangles, 0);
-                unityMesh.SetColors(curMesh.colors);
+                if (blendMode == 3) {
+                    unityMesh.SetColors(curMesh.colors.Select(c => new Color(c.r, c.g, c.b, 0.5f)).ToArray());
+                } else {
+                    unityMesh.SetColors(curMesh.colors);
+                }
                 unityMesh.SetUVs(0, curMesh.uvs);
                 unityMesh.RecalculateNormals();
                 GameObject gao = new GameObject(curMesh.name);
@@ -581,7 +588,7 @@ namespace R1Engine
                 MeshCollider mc = gao.AddComponent<MeshCollider>();
                 Mesh colMesh = new Mesh();
                 colMesh.SetVertices(curMesh.vertices);
-                colMesh.SetTriangles(curMesh.triangles.Where((x,i) => i % 6 < 3).ToArray(), 0);
+                colMesh.SetTriangles(curMesh.triangles.Where((x,i) => i % 6 >= 3).ToArray(), 0);
                 colMesh.RecalculateNormals();
                 mc.sharedMesh = colMesh;
 
@@ -594,6 +601,9 @@ namespace R1Engine
                 gao.transform.localPosition = Vector3.zero;
                 mf.mesh = unityMesh;
                 switch (blendMode) {
+                    case 3:
+                        mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentMaterial;
+                        break;
                     case 6:
                     case 7:
                         mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
@@ -627,6 +637,10 @@ namespace R1Engine
             return gaoParent;
         }
 
+        public float GetLevelWidth(GBAVV_NitroKart_NGage_PVS pvs) {
+            return pvs.Vertices.Max(v => v.Y);
+        }
+
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Load the data file
@@ -638,12 +652,15 @@ namespace R1Engine
             var level = exe.LevelInfos[context.Settings.Level];
             var pop = level.POP;
 
-            CreatePVSGameObject(context, level.PVS);
+            var pvs = CreatePVSGameObject(context, level.PVS);
+            float levelWidth = GetLevelWidth(level.PVS);
+            pvs.transform.position = new Vector3(0,0,-levelWidth / 8f);
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
             var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(LoadGFX(context)), null, GBAVV_MapInfo.GBAVV_MapType.Kart, nitroKart_ObjTypeData: exe.NitroKart_ObjTypeData);
+            objManager.LevelWidthNitroKartNGage = levelWidth;
 
             var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
 
@@ -665,7 +682,8 @@ namespace R1Engine
                 {
                     var obj = CreateS3DGameObject(context, s3d);
                     const float scale = 8f;
-                    var newPos = new Vector3(o.Object.XPos / scale, o.Object.Height / scale, -o.Object.YPos / scale);
+                    var newPosPreConvert = o.Position;
+                    var newPos = new Vector3(newPosPreConvert.x / scale, newPosPreConvert.z / scale, -newPosPreConvert.y / scale);
                     obj.transform.position =  newPos;
                     if (snapToFloorPosition.HasValue) {
                         Ray ray = new Ray(newPos + Vector3.up * 100, Vector3.down);
@@ -699,11 +717,12 @@ namespace R1Engine
                     Vector3 previousPos = Vector3.zero;
                     var objCount = objects.Count;
                     for (int i = 0; i < waypoints.Length; i++) {
-                        var w = new Unity_Object_GBAVVNitroKartWaypoint(waypoints[i], waypointsGroupIndex, trackDataIndex);
+                        var w = new Unity_Object_GBAVVNitroKartWaypoint(objManager, waypoints[i], waypointsGroupIndex, trackDataIndex);
                         w.LinkedWayPointIndex = objCount + ((i == waypoints.Length - 1) ? 0 : (i+1));
                         if (snapToFloor) {
                             const float scale = 8f;
-                            var convertedPos = new Vector3(w.Object.XPos, w.Height, -w.Object.YPos) / scale;
+                            var posPreConvert = w.Position;
+                            var convertedPos = new Vector3(posPreConvert.x, posPreConvert.z, -posPreConvert.y) / scale;
                             Vector3 newPos = convertedPos;
                             Ray ray = new Ray(convertedPos + Vector3.up * 100, Vector3.down);
                             var layerMask = 1 << LayerMask.NameToLayer("3D Collision");

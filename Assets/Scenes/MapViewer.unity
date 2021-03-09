@@ -2317,6 +2317,8 @@ MonoBehaviour:
     type: 2}
   unlitAdditiveMaterial: {fileID: 2100000, guid: 910a7b4e4ce72d84aa744fced00c9adb,
     type: 2}
+  unlitTransparentMaterial: {fileID: 2100000, guid: dbe06e3111c2cc64a9c395ef27a5be32,
+    type: 2}
 --- !u!114 &172781304
 MonoBehaviour:
   m_ObjectHideFlags: 0
