@@ -7,8 +7,7 @@ namespace R1Engine
     /// <summary>
     /// Common level map data
     /// </summary>
-    public class Unity_Map
-    {
+    public class Unity_Map {
         #region Public Properties
 
         /// <summary>
@@ -51,6 +50,8 @@ namespace R1Engine
         public MapType Type { get; set; }
         public MapLayer Layer { get; set; } = MapLayer.Middle;
 
+        public FreeCameraSettings Settings3D { get; set; }
+
         [Flags]
         public enum MapType {
             None = 0,
@@ -63,7 +64,6 @@ namespace R1Engine
             Front,
             Overlay
         }
-
         #endregion
 
         #region Helper Methods
@@ -134,5 +134,22 @@ namespace R1Engine
         public Unity_Tile GetMapTile(int x, int y) => MapTiles.ElementAtOrDefault((Width * y) + x);
 
         #endregion
-    }
+
+        #region Free Camera Settings
+        public class FreeCameraSettings {
+            public Mode3D Mode { get; set; }
+            public Vector3? Position { get; set; }
+            public Vector3? PositionCollision { get; set; }
+            public Quaternion? Rotation { get; set; }
+            public Vector3? Scale { get; set; }
+            public int? SortingOrderGraphics { get; set; }
+            public int? SortingOrderCollision { get; set; }
+
+            public enum Mode3D {
+                Billboard,
+                FixedPosition
+            }
+        }
+		#endregion
+	}
 }

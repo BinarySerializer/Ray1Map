@@ -52,6 +52,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 		var cellSizeInUnits = cellSize / (float)LevelEditorData.Level.PixelsPerUnit;
 		Dictionary<Camera, CameraSettings> camSettings = new Dictionary<Camera, CameraSettings>();
 		EditorCam ec = Controller.obj?.levelController?.editor?.cam;
+		bool? prevFreeCameraMode = null;
 		ec.enabled = false;
 		List<Camera> cameras = new List<Camera>();
 		// Add main camera
@@ -96,15 +97,33 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			foreach (var obj in objects) {
 				obj.UpdatePosition3D();
 			}
+			// Now disable the tilemap controller & culling mask
+			prevFreeCameraMode = ec.FreeCameraMode;
+			ec.FreeCameraMode = false;
+			ec.UpdateCullingMask(ec.FreeCameraMode);
+			if (Controller.obj?.levelController?.controllerTilemap != null) {
+				Controller.obj.levelController.controllerTilemap.enabled = false;
+				Controller.obj.levelController.controllerTilemap.UpdateMapLayersVisibility();
+			}
 		}
 		await UniTask.WaitForEndOfFrame();
 		byte[] screenshotBytes = null;
 		var lScreenshot = zzTransparencyCapture.CaptureScreenshot(width * cellSize, height * cellSize, isTransparent, camera: cameras.ToArray());
 		
+		// Restore previous settings
 		foreach (var cam in cameras) {
 			camSettings[cam].Apply(cam);
 		}
+		if (prevFreeCameraMode.HasValue) {
+			ec.FreeCameraMode = prevFreeCameraMode.Value;
+			ec.UpdateCullingMask(ec.FreeCameraMode);
+			if (Controller.obj?.levelController?.controllerTilemap != null) {
+				Controller.obj.levelController.controllerTilemap.UpdateMapLayersVisibility();
+				Controller.obj.levelController.controllerTilemap.enabled = true;
+			}
+		}
 		ec.enabled = true;
+
 		try 
         {
 			if (rect != null)

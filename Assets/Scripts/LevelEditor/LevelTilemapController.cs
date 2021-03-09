@@ -238,20 +238,16 @@ namespace R1Engine
                     if (map.Type.HasFlag(Unity_Map.MapType.Collision)) {
                         CollisionTilemaps[i] = Instantiate<Tilemap>(CollisionTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, CollisionTilemaps[0].transform.parent);
                         CollisionTilemaps[i].gameObject.name = "Tilemap Collision " + i;
-                        if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
-                            Debug.Log($"Collision map {i} is in front");
-                            Tilemap tr = CollisionTilemaps[i];
-                            tr.GetComponent<TilemapRenderer>().sortingLayerName = "Types Front";
-                        } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
-                            Debug.Log($"Collision map {i} is in the back");
-                            Tilemap tr = CollisionTilemaps[i];
-                            tr.GetComponent<TilemapRenderer>().sortingLayerName = "Types Back";
-                        }
+                        ConfigureCollisionMapLayer(i);
                     }
                 }
-                if (LevelEditorData.Level.Maps.Length > 0 && !LevelEditorData.Level.Maps[0].Type.HasFlag(Unity_Map.MapType.Collision)) {
-                    Destroy(CollisionTilemaps[0].gameObject);
-                    CollisionTilemaps[0] = null;
+                if (lvl.Maps.Length > 0) {
+                    if (!lvl.Maps[0].Type.HasFlag(Unity_Map.MapType.Collision)) {
+                        Destroy(CollisionTilemaps[0].gameObject);
+                        CollisionTilemaps[0] = null;
+                    } else {
+                        ConfigureCollisionMapLayer(0);
+                    }
                 }
             }
 
@@ -289,15 +285,35 @@ namespace R1Engine
 
         private void ConfigureGraphicsMapLayer(int i) {
             var lvl = LevelEditorData.Level;
+            if (GraphicsTilemaps?[i] == null) return;
+            SpriteRenderer tr = GraphicsTilemaps[i];
             if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
-                Debug.Log($"Graphics map {i} is in front");
-                SpriteRenderer tr = GraphicsTilemaps[i];
+                //Debug.Log($"Graphics map {i} is in front");
                 tr.sortingLayerName = "Tiles Front";
             } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
-                Debug.Log($"Graphics map {i} is in the back");
-                SpriteRenderer tr = GraphicsTilemaps[i];
+                //Debug.Log($"Graphics map {i} is in the back");
                 tr.sortingLayerName = "Tiles Back";
+            } else {
+                tr.sortingLayerName = "Tiles";
             }
+            tr.sortingOrder = 0;
+        }
+
+        private void ConfigureCollisionMapLayer(int i) {
+            var lvl = LevelEditorData.Level;
+            if (CollisionTilemaps?[i] == null) return;
+            Tilemap t = CollisionTilemaps[i];
+            var tr = t.GetComponent<TilemapRenderer>();
+            if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
+                //Debug.Log($"Collision map {i} is in front");
+                tr.sortingLayerName = "Types Front";
+            } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
+                //Debug.Log($"Collision map {i} is in the back");
+                tr.sortingLayerName = "Types Back";
+            } else {
+                tr.sortingLayerName = "Types";
+            }
+            tr.sortingOrder = 0;
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
@@ -923,6 +939,110 @@ namespace R1Engine
             }
         }
 
+        public void UpdateMapSettings(int i) {
+            var map = LevelEditorData.Level.Maps[i];
+            bool enforcedVisibility = false;
+
+            if (LevelEditorData.Level.IsometricData != null) {
+                bool is3D = Controller.obj?.levelController?.editor?.cam?.FreeCameraMode ?? false;
+                if (map.Settings3D != null) {
+                    Vector3 pos;
+                    Vector3 posCol;
+                    Quaternion q;
+                    Vector3 scale;
+                    int sortingOrder = 0;
+                    int sortingOrderCol = 0;
+                    if (!is3D) {
+                        // Move map back into original position
+                        pos = new Vector3(0, 0, -i);
+                        posCol = pos;
+                        q = Quaternion.identity;
+                        scale = new Vector3(1,-1,1);
+                        if (GraphicsTilemaps?[i] != null) ConfigureGraphicsMapLayer(i);
+                        if (CollisionTilemaps?[i] != null) ConfigureCollisionMapLayer(i);
+                    } else {
+                        // Move map to desired position
+                        if (map.Settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.FixedPosition) {
+                            pos = map.Settings3D.Position ?? Vector3.zero;
+                            q = map.Settings3D.Rotation ?? Quaternion.identity;
+                            posCol = map.Settings3D.PositionCollision ?? pos;
+                            scale = map.Settings3D.Scale ?? Vector3.one;
+                            sortingOrder = map.Settings3D.SortingOrderGraphics ?? 0;
+                            sortingOrderCol = map.Settings3D.SortingOrderCollision ?? 0;
+                        } else if (map.Settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.Billboard) {
+                            pos = map.Settings3D.Position ?? Vector3.zero;
+                            posCol = map.Settings3D.PositionCollision ?? pos;
+                            q = map.Settings3D.Rotation ?? Quaternion.identity;
+                            scale = map.Settings3D.Scale ?? Vector3.one;
+                            sortingOrder = map.Settings3D.SortingOrderGraphics ?? 0;
+                            sortingOrderCol = map.Settings3D.SortingOrderCollision ?? 0;
+
+                            Camera cam = Controller.obj.levelEventController.editor.cam.camera3D;
+                            Quaternion lookRot = Quaternion.LookRotation(
+                                cam.transform.rotation * Vector3.forward,
+                                cam.transform.rotation * Vector3.up);
+                            q = lookRot * q;
+                            pos = cam.transform.TransformPoint(pos);
+                            posCol = cam.transform.TransformPoint(posCol);
+                        } else {
+                            pos = new Vector3(0, 0, -i);
+                            posCol = pos;
+                            q = Quaternion.identity;
+                            scale = Vector3.one;
+                        }
+                        if (map.Settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.FixedPosition
+                            || map.Settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.Billboard) {
+                            // Update sorting info
+                            if (GraphicsTilemaps?[i] != null) {
+                                GraphicsTilemaps[i].sortingLayerName = "Object Sprites";
+                                GraphicsTilemaps[i].sortingOrder = sortingOrder;
+                            }
+                            if (CollisionTilemaps?[i] != null) {
+                                var tr = CollisionTilemaps[i].GetComponent<TilemapRenderer>();
+                                tr.sortingLayerName = "Object Sprites";
+                                tr.sortingOrder = sortingOrderCol;
+                            }
+                        }
+                    }
+                    if (GraphicsTilemaps?[i] != null) {
+                        GraphicsTilemaps[i].transform.localPosition = pos;
+                        GraphicsTilemaps[i].transform.localRotation = q;
+                        GraphicsTilemaps[i].transform.localScale = scale;
+                    }
+                    if (CollisionTilemaps?[i] != null) {
+                        CollisionTilemaps[i].transform.localPosition = posCol;
+                        CollisionTilemaps[i].transform.localRotation = q;
+                        CollisionTilemaps[i].transform.localScale = scale;
+                    }
+                } else {
+                    if (is3D) {
+                        enforcedVisibility = true;
+                        if (GraphicsTilemaps?[i] != null) {
+                            if (GraphicsTilemaps[i].gameObject.activeSelf) GraphicsTilemaps[i].gameObject.SetActive(false);
+                        }
+                        if (CollisionTilemaps?[i] != null) {
+                            if (CollisionTilemaps[i].gameObject.activeSelf) CollisionTilemaps[i].gameObject.SetActive(false);
+                        }
+                    }
+                }
+            }
+            // Change map visibility
+            if (!enforcedVisibility) {
+                if (IsLayerVisible != null && IsLayerVisible.Length > i) {
+                    if (GraphicsTilemaps?[i] != null) {
+                        if (GraphicsTilemaps[i].gameObject.activeSelf != IsLayerVisible[i]) {
+                            GraphicsTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
+                        }
+                    }
+                    if (CollisionTilemaps?[i] != null) {
+                        if (CollisionTilemaps[i].gameObject.activeSelf != IsLayerVisible[i]) {
+                            CollisionTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
+                        }
+                    }
+                }
+            }
+        }
+
 		private void Update()
         {
             if (Controller.LoadState != Controller.State.Finished) return;
@@ -986,7 +1106,8 @@ namespace R1Engine
             {
                 for (int i = 0; i < IsLayerVisible.Length; i++)
                 {
-                    if (GraphicsTilemaps != null && GraphicsTilemaps[i] != null)
+                    UpdateMapSettings(i);
+                    /*if (GraphicsTilemaps != null && GraphicsTilemaps[i] != null)
                     {
                         if (GraphicsTilemaps[i].gameObject.activeSelf != IsLayerVisible[i])
                         {
@@ -999,7 +1120,7 @@ namespace R1Engine
                         {
                             CollisionTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
                         }
-                    }
+                    }*/
                 }
             }
         }

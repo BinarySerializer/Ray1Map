@@ -858,6 +858,11 @@ namespace R1Engine
                     MapTiles = tileMap,
                     Type = Unity_Map.MapType.Graphics,
                     Layer = Unity_Map.MapLayer.Middle,
+                    /*Settings3D = new Unity_Map.FreeCameraSettings() {
+                        Mode = Unity_Map.FreeCameraSettings.Mode3D.Billboard,
+                        Position = Vector3.forward * 50f,
+                        Scale = new Vector3(1,-1,1)
+                    }*/
                 };
             }
 
@@ -871,6 +876,14 @@ namespace R1Engine
                     MapTiles = GetIsometricTileMap(map.Mode7MapLayer.TileMap, map.Mode7MapLayer.MapTiles),
                     Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                     Layer = Unity_Map.MapLayer.Middle,
+                    Settings3D = new Unity_Map.FreeCameraSettings() {
+                        Mode = Unity_Map.FreeCameraSettings.Mode3D.FixedPosition,
+                        Position = Vector3.zero,
+                        //PositionCollision = Vector3.forward * 0.05f,
+                        Rotation = Quaternion.Euler(-90,0,0),
+                        SortingOrderGraphics = -2,
+                        SortingOrderCollision = -1
+                    }
                 },
                 getMap(map.BackgroundMapLayers[2]),
                 getMap(map.BackgroundMapLayers[1]),

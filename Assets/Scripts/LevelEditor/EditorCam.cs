@@ -194,9 +194,21 @@ namespace R1Engine {
                         _freeCameraMode = true;
                         cullingMask = Camera.main.cullingMask;
                         cullingMask2DOverlay = camera2DOverlay.cullingMask;
+                        UpdateCullingMask(_freeCameraMode);
                     }
                 }
             }
+        }
+
+        public void UpdateCullingMask(bool is3D) {
+            if (is3D) {
+                camera3D.cullingMask |= (1 << LayerMask.NameToLayer("Tiles"));
+                camera3D.cullingMask |= (1 << LayerMask.NameToLayer("Collision"));
+            } else {
+                camera3D.cullingMask &= ~(1 << LayerMask.NameToLayer("Tiles"));
+                camera3D.cullingMask &= ~(1 << LayerMask.NameToLayer("Collision"));
+            }
+
         }
 
         void UpdateFreeLook() {
@@ -213,6 +225,7 @@ namespace R1Engine {
                 Camera.main.cullingMask = cullingMask;
                 camera2DOverlay.cullingMask = cullingMask2DOverlay;
                 targetDirection = null;
+                UpdateCullingMask(_freeCameraMode);
                 return;
             }
             if (!targetDirection.HasValue) {
