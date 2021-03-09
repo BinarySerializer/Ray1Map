@@ -902,14 +902,7 @@ namespace R1Engine
                     MapTiles = GetIsometricTileMap(map.Mode7MapLayer.TileMap, map.Mode7MapLayer.MapTiles),
                     Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
                     Layer = Unity_Map.MapLayer.Middle,
-                    Settings3D = new Unity_Map.FreeCameraSettings() {
-                        Mode = Unity_Map.FreeCameraSettings.Mode3D.FixedPosition,
-                        Position = Vector3.zero,
-                        //PositionCollision = Vector3.forward * 0.05f,
-                        Rotation = Quaternion.Euler(-90,0,0),
-                        SortingOrderGraphics = -2,
-                        SortingOrderCollision = -1
-                    }
+                    Settings3D = Unity_Map.FreeCameraSettings.Mode7
                 },
                 getMap(map.BackgroundMapLayers[2]),
                 getMap(map.BackgroundMapLayers[1]),
@@ -976,18 +969,7 @@ namespace R1Engine
                 getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
                 localization: loc.Item1,
-                isometricData: new Unity_IsometricData {
-                    CollisionWidth = 0,
-                    CollisionHeight = 0,
-                    TilesWidth = 0,
-                    TilesHeight = 0,
-                    Collision = null,
-                    Scale = Vector3.one / 2,
-                    ViewAngle = Quaternion.Euler(90,0,0),
-                    CalculateYDisplacement = () => 0,
-                    CalculateXDisplacement = () => 0,
-                    ObjectScale = Vector3.one * CellSize
-                });
+                isometricData: Unity_IsometricData.Mode7(CellSize));
         }
 
         public static byte GetIsometricCollisionType(int level, int index)

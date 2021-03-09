@@ -149,6 +149,16 @@ namespace R1Engine
                 Billboard,
                 FixedPosition
             }
+
+            public static FreeCameraSettings Mode7 => new FreeCameraSettings()
+            {
+                Mode = Mode3D.FixedPosition,
+                Position = Vector3.zero,
+                //PositionCollision = Vector3.forward * 0.05f,
+                Rotation = Quaternion.Euler(-90, 0, 0),
+                SortingOrderGraphics = -2,
+                SortingOrderCollision = -1
+            };
         }
 		#endregion
 	}

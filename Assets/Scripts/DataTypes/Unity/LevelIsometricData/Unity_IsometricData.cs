@@ -120,5 +120,23 @@ namespace R1Engine
             return Collision[ind];
         }
         #endregion
+
+        #region Public Static Properties
+
+        public static Unity_IsometricData Mode7(int cellSize) => new Unity_IsometricData()
+        {
+            CollisionWidth = 0,
+            CollisionHeight = 0,
+            TilesWidth = 0,
+            TilesHeight = 0,
+            Collision = null,
+            Scale = Vector3.one / 2,
+            ViewAngle = Quaternion.Euler(90, 0, 0),
+            CalculateYDisplacement = () => 0,
+            CalculateXDisplacement = () => 0,
+            ObjectScale = Vector3.one * cellSize
+        };
+
+        #endregion
     }
 }

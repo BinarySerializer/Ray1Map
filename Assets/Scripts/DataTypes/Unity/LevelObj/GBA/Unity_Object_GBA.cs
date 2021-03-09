@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class Unity_Object_GBA : Unity_Object_3D
     {
-        public Unity_Object_GBA(GBA_Actor actor, Unity_ObjectManager_GBA objManager)
+        public Unity_Object_GBA(GBA_Actor actor, Unity_ObjectManager_GBA objManager, bool isMode7)
         {
             // Set properties
             Actor = actor;
@@ -16,6 +16,8 @@ namespace R1Engine
             InitialYPos = actor.YPos;
 
             OverrideAnimIndex = actor.OverridePaletteIndex;
+
+            Scale = isMode7 ? 0.5f : 1f;
         }
 
         public GBA_Actor Actor { get; }
@@ -73,6 +75,9 @@ namespace R1Engine
                 Actor.BoxMaxY = (short)(Actor.BoxMaxY - change);
             }
         }
+
+        public override float Scale { get; }
+
         public override Vector3 Position {
             get => new Vector3(Actor.XPos, Actor.YPos, Actor.Milan_Height);
             set {

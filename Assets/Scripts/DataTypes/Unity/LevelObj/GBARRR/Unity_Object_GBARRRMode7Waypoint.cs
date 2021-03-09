@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBARRRMode7Waypoint : Unity_Object
+    public class Unity_Object_GBARRRMode7Waypoint : Unity_Object_3D
     {
         public Unity_Object_GBARRRMode7Waypoint(GBARRR_Mode7Waypoint obj, Unity_ObjectManager objManager)
         {
@@ -29,7 +29,21 @@ namespace R1Engine
             set => Object.YPosition = value;
         }
 
-		public override ObjectType Type => ObjectType.Waypoint;
+        public float Height { get; set; }
+        public override float Scale => 0.5f;
+
+        public override Vector3 Position
+        {
+            get => new Vector3(Object.XPosition, Object.YPosition, Height);
+            set
+            {
+                Object.XPosition = (short)value.x;
+                Object.YPosition = (short)value.y;
+                Height = value.z;
+            }
+        }
+
+        public override ObjectType Type => ObjectType.Waypoint;
 		public override bool IsEditor => true;
 
 		public override string DebugText => String.Empty;

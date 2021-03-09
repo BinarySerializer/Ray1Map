@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBARRRMode7 : Unity_Object
+    public class Unity_Object_GBARRRMode7 : Unity_Object_3D
     {
         public Unity_Object_GBARRRMode7(GBARRR_Mode7Object obj, Unity_ObjectManager_GBARRRMode7 objManager, bool forceNoGraphics)
         {
@@ -32,6 +32,20 @@ namespace R1Engine
         {
             get => Object.YPosition;
             set => Object.YPosition = value;
+        }
+
+        public float Height { get; set; }
+		public override float Scale => 0.5f;
+
+        public override Vector3 Position
+        {
+            get => new Vector3(Object.XPosition, Object.YPosition, Height);
+            set
+            {
+                Object.XPosition = (short)value.x;
+                Object.YPosition = (short)value.y;
+                Height = value.z;
+            }
         }
 
         public bool ForceNoGraphics { get; }

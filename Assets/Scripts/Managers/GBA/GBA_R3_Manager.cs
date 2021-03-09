@@ -104,7 +104,7 @@ namespace R1Engine
                 ActorModel = new GBA_ActorModel(),
                 XPos = 128,
                 YPos = 128
-            }, objManager);
+            }, objManager, false);
 
             // Return the level
             return new Unity_Level(

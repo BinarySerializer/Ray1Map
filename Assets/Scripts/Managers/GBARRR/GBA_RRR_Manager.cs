@@ -1026,6 +1026,7 @@ namespace R1Engine
                         x.CollisionType = rom.Mode7_CollisionTypes[rom.Mode7_CollisionMapData[i]];
                         return new Unity_Tile(x);
                     }).ToArray(),
+                    Settings3D = Unity_Map.FreeCameraSettings.Mode7
                 };
                 var bg0 = new Unity_Map {
                     Type = Unity_Map.MapType.Graphics,
@@ -1084,7 +1085,8 @@ namespace R1Engine
                         ObjectType = GBARRR_Mode7Object.Mode7Type.Rayman,
                         XPosition = (short)rayPos.x,
                         YPosition = (short)rayPos.y
-                    }, objmanager, false)
+                    }, objmanager, false),
+                    isometricData: Unity_IsometricData.Mode7(CellSize)
                 );
             }
 
@@ -1147,6 +1149,7 @@ namespace R1Engine
                         x.CollisionType = cmap.MapTiles[i].Data.CollisionType;
                         return new Unity_Tile(x);
                     }).ToArray(),
+                    Settings3D = Unity_Map.FreeCameraSettings.Mode7
                 };
 
                 // Map data appears to be missing for these
@@ -1196,7 +1199,8 @@ namespace R1Engine
                     rayman: new Unity_Object_GBARRRMode7Unused(new GBARRR_Object(), o)
                     {
                         AnimationGroupIndex = 0
-                    }
+                    },
+                    isometricData: Unity_IsometricData.Mode7(CellSize)
                 );
             }
 

@@ -910,7 +910,8 @@ namespace R1Engine
                         Width = map.Width,
                         Height = map.Height,
                         MapTiles = mapData.Select(x => new Unity_Tile(x)).ToArray(),
-                        Layer = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7 && context.Settings.EngineVersion != EngineVersion.GBA_R3_MadTrax) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle
+                        Layer = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7 && context.Settings.EngineVersion != EngineVersion.GBA_R3_MadTrax) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
+                        Settings3D = map.StructType == GBA_TileLayer.Type.RotscaleLayerMode7 ? Unity_Map.FreeCameraSettings.Mode7 : null
                     };
                     if (map.ShouldSetBGAlphaBlending) {
                         maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;
@@ -939,6 +940,10 @@ namespace R1Engine
                         ObjectScale = new Vector3(8,24,8)
                     };
                 }
+            }
+            else if (playField?.StructType == GBA_PlayField.Type.PlayFieldMode7)
+            {
+                isometricData = Unity_IsometricData.Mode7(CellSize);
             }
 
             // Cache loaded tilesets
@@ -1002,7 +1007,7 @@ namespace R1Engine
         }
 
         public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0], data));
-        public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager)) ?? new Unity_Object_GBA[0];
+        public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager, scene?.PlayField?.StructType == GBA_PlayField.Type.PlayFieldMode7)) ?? new Unity_Object_GBA[0];
         public virtual Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray();
         public virtual Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data, GBA_Animation[] additionalAnimations)
         {
