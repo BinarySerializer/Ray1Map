@@ -262,14 +262,7 @@ namespace R1Engine
         public abstract ObjTypeInit[] ObjTypeInitInfos { get; }
         public abstract uint[] AnimSetPointers { get; }
         public abstract int DialogScriptsCount { get; }
-        public override string[] Languages => new string[]
-        {
-            "English",
-            "French",
-            "German",
-            "Spanish",
-            "Italian",
-        };
+        public abstract byte[] HardCodedScripts { get; }
 
         private class ObjTypeInitCreation
         {

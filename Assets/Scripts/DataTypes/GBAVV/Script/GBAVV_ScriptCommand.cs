@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
     public class GBAVV_ScriptCommand : R1Serializable
     {
+        public BinaryFile BaseFile { get; set; } // Set before serializing
         public bool SerializeFLC { get; set; } // Set before serializing
 
         public int PrimaryCommandType { get; set; }
@@ -39,9 +41,9 @@ namespace R1Engine
             Type = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
 
             // If the param is a valid pointer to the ROM we parse the pointer
-            if (Param >= GBA_ROMBase.Address_ROM && Param < GBA_ROMBase.Address_ROM + s.CurrentLength)
+            if (Param >= GBA_ROMBase.Address_ROM && Param < GBA_ROMBase.Address_ROM + 0x1000000)
             {
-                ParamPointer = new Pointer(Param, Offset.file);
+                ParamPointer = new Pointer(Param, BaseFile);
                 s.Log($"Param: {ParamPointer}");
             }
 
@@ -59,7 +61,11 @@ namespace R1Engine
                     break;
 
                 case CommandType.Script:
-                    ReferencedScript = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Script>(ReferencedScript, name: nameof(ReferencedScript)));
+                    ReferencedScript = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Script>(ReferencedScript, x =>
+                    {
+                        x.SerializeFLC = SerializeFLC;
+                        x.BaseFile = BaseFile;
+                    }, name: nameof(ReferencedScript)));
                     break;
 
                 case CommandType.SkipNextIfInputCheck:
@@ -80,7 +86,11 @@ namespace R1Engine
                     break;
 
                 case CommandType.ConditionalScript:
-                    ConditionalScriptReference = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_ConditionalScriptReference>(ConditionalScriptReference, name: nameof(ConditionalScriptReference)));
+                    ConditionalScriptReference = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_ConditionalScriptReference>(ConditionalScriptReference, x =>
+                    {
+                        x.SerializeFLC = SerializeFLC;
+                        x.BaseFile = BaseFile;
+                    }, name: nameof(ConditionalScriptReference)));
                     break;
 
                 case CommandType.Movement_X:
@@ -149,6 +159,9 @@ namespace R1Engine
 
         public class GBAVV_ConditionalScriptReference : R1Serializable
         {
+            public BinaryFile BaseFile { get; set; } // Set before serializing
+            public bool SerializeFLC { get; set; } // Set before serializing
+
             public int Condition { get; set; } // 1 = die, 3/6 = jumpedOn, 4/5 = spunInto, 7 = touch?, 57 = moveRight, 58 = moveLeft, 59 = moveUp, 60 = moveDown
             public Pointer ScriptPointer { get; set; }
 
@@ -159,7 +172,11 @@ namespace R1Engine
                 Condition = s.Serialize<int>(Condition, name: nameof(Condition));
                 ScriptPointer = s.SerializePointer(ScriptPointer, name: nameof(ScriptPointer));
 
-                Script = s.DoAt(ScriptPointer, () => s.SerializeObject<GBAVV_Script>(Script, name: nameof(Script)));
+                Script = s.DoAt(ScriptPointer, () => s.SerializeObject<GBAVV_Script>(Script, x =>
+                {
+                    x.SerializeFLC = SerializeFLC;
+                    x.BaseFile = BaseFile;
+                }, name: nameof(Script)));
             }
         }
 

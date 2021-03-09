@@ -53,6 +53,8 @@ namespace R1Engine
         public GBAVV_LocTable[] LocTables { get; set; }
         public GBAVV_LevelInfo[] LevelInfos { get; set; }
         public GBAVV_Script[] Scripts { get; set; }
+        public GBAVV_Script[] HardCodedScripts { get; set; }
+        public IEnumerable<GBAVV_Script> GetAllScripts => Scripts?.Concat(HardCodedScripts ?? new GBAVV_Script[0]);
         public GBAVV_DialogScript[] DialogScripts { get; set; }
         public Pointer[] Crash1_CutsceneStringPointers { get; set; }
         public GBAVV_Crash1_CutsceneStrings[] Crash1_CutsceneStrings { get; set; }
@@ -196,7 +198,18 @@ namespace R1Engine
                     Scripts = new GBAVV_Script[scriptPointers.Length];
 
                 for (int i = 0; i < scriptPointers.Length; i++)
-                    Scripts[i] = s.DoAt(new Pointer(scriptPointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], x => x.SerializeFLC = SerializeFLC, name: $"{nameof(Scripts)}[{i}]"));
+                    Scripts[i] = s.DoAt(new Pointer(scriptPointers[i], Offset.file), () => s.SerializeObject<GBAVV_Script>(Scripts[i], x =>
+                    {
+                        x.SerializeFLC = SerializeFLC;
+                        x.BaseFile = Offset.file;
+                    }, name: $"{nameof(Scripts)}[{i}]"));
+
+                if (s.GameSettings.GBAVV_IsFusion && HardCodedScripts == null)
+                    HardCodedScripts = s.DoAtBytes(((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).HardCodedScripts, nameof(HardCodedScripts), () => s.SerializeObjectArrayUntil<GBAVV_Script>(HardCodedScripts, x => s.CurrentPointer.FileOffset >= s.CurrentLength, onPreSerialize: x =>
+                    {
+                        x.SerializeFLC = SerializeFLC;
+                        x.BaseFile = Offset.file;
+                    }, includeLastObj: true, name: nameof(HardCodedScripts)));
 
                 DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Fusion_DialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
             }

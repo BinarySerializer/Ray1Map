@@ -249,6 +249,19 @@ namespace R1Engine
 
             return DoAt(Context.GetFile(key).StartPointer, () => SerializeObject<T>(default, onPreSerialize, name: name ?? key));
         }
+        public T DoAtBytes<T>(byte[] bytes, string key, Func<T> func)
+        {
+            if (bytes == null)
+                return default;
+
+            if (!Context.FileExists(key))
+            {
+                var typeStream = new MemoryStream(bytes);
+                Context.AddFile(new StreamFile(key, typeStream, Context));
+            }
+
+            return DoAt(Context.GetFile(key).StartPointer, func);
+        }
 
         public virtual UniTask FillCacheForRead(int length) => UniTask.CompletedTask;
 

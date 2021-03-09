@@ -38,7 +38,33 @@ namespace R1Engine
             new GameAction("Export cutscenes", false, true, (input, output) => ExportCutscenesAsync(settings, output)),
         };
 
-        public virtual UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => UniTask.CompletedTask;
+        public virtual async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) =>
+                {
+                    d.CurrentLevInfo = LevInfos.First();
+                    d.SerializeFLC = true;
+                });
+
+                // Enumerate every script
+                foreach (var script in rom.GetAllScripts)
+                {
+                    var index = 0;
+
+                    // Enumerate every command which plays an FLC file
+                    foreach (var flc in script.Commands.Where(x => x.FLC != null))
+                    {
+                        using (var collection = flc.FLC.ToMagickImageCollection())
+                            collection.Write(Path.Combine(outputDir, $"{script.DisplayName}-{index++}.gif"));
+                    }
+                }
+            }
+        }
 
         public virtual async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
@@ -796,7 +822,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.Scripts, rom.Map2D_Graphics, rom.DialogScripts, locPointerTable: loc.Item2);
+            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.ObjData, GBAVV_MapInfo.GBAVV_MapType.WorldMap, rom.GetAllScripts.ToArray(), rom.Map2D_Graphics, rom.DialogScripts, locPointerTable: loc.Item2);
             var objects = new List<Unity_Object>();
 
             if (map.ObjData?.Objects != null)
@@ -898,7 +924,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            Unity_ObjectManager_GBAVV objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart, graphics: rom.Map2D_Graphics, nitroKart_ObjTypeData: rom.NitroKart_ObjTypeData, scripts: rom.Scripts, locPointerTable: loc.Item2);
+            Unity_ObjectManager_GBAVV objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), null, GBAVV_MapInfo.GBAVV_MapType.Kart, graphics: rom.Map2D_Graphics, nitroKart_ObjTypeData: rom.NitroKart_ObjTypeData, scripts: rom.GetAllScripts.ToArray(), locPointerTable: loc.Item2);
 
             var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
 
@@ -2186,7 +2212,7 @@ namespace R1Engine
                 var index = 0;
 
                 // Find strings from scripts
-                foreach (var script in rom.Scripts.SelectMany(x => x.Commands).Where(x => x.Dialog != null))
+                foreach (var script in rom.GetAllScripts.SelectMany(x => x.Commands).Where(x => x.Dialog != null))
                 {
                     var dialog = script.Dialog;
 

@@ -12,7 +12,9 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            LocalizationPointers = s.SerializePointerArray(LocalizationPointers, ((GBAVV_BaseManager)s.GameSettings.GetGameManager).Languages.Length, name: nameof(LocalizationPointers));
+            var length = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).Languages.Length;
+
+            LocalizationPointers = s.SerializePointerArray(LocalizationPointers, length, name: nameof(LocalizationPointers));
 
             if (Items == null)
                 Items = new GBAVV_LocalizedStringItem[LocalizationPointers.Length];

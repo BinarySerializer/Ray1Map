@@ -64,34 +64,6 @@ namespace R1Engine
             return base.LoadAsync(context, loadTextures);
         }
 
-        public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
-        {
-            using (var context = new Context(settings))
-            {
-                await LoadFilesAsync(context);
-
-                // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, d) =>
-                {
-                    d.CurrentLevInfo = LevInfos.First();
-                    d.SerializeFLC = true;
-                });
-
-                // Enumerate every script
-                foreach (var script in rom.Scripts)
-                {
-                    var index = 0;
-
-                    // Enumerate every command which plays an FLC file
-                    foreach (var flc in script.Commands.Where(x => x.FLC != null))
-                    {
-                        using (var collection = flc.FLC.ToMagickImageCollection())
-                            collection.Write(Path.Combine(outputDir, $"{script.DisplayName}-{index++}.gif"));
-                    }
-                }
-            }
-        }
-
         public void FindDataInROM(SerializerObject s, Pointer offset)
         {
             // Read ROM as a uint array

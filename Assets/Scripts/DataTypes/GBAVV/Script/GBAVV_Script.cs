@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using R1Engine.Serialize;
 using UnityEngine;
 
 namespace R1Engine
@@ -8,6 +9,7 @@ namespace R1Engine
     public class GBAVV_Script : R1Serializable
     {
         public bool IsValid { get; set; } = true;
+        public BinaryFile BaseFile { get; set; } // Set before serializing
         public bool SerializeFLC { get; set; } // Set before serializing
 
         public GBAVV_ScriptCommand[] Commands { get; set; }
@@ -24,10 +26,14 @@ namespace R1Engine
 
                 do
                 {
-                    cmds.Add(s.SerializeObject<GBAVV_ScriptCommand>(default, x => x.SerializeFLC = SerializeFLC, name: $"{nameof(Commands)}[{index++}]"));
-                } while (!(cmds[cmds.Count - 1].Type == GBAVV_ScriptCommand.CommandType.Return && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfInputCheck && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfField08) && index < 100);
+                    cmds.Add(s.SerializeObject<GBAVV_ScriptCommand>(default, x =>
+                    {
+                        x.SerializeFLC = SerializeFLC;
+                        x.BaseFile = BaseFile;
+                    }, name: $"{nameof(Commands)}[{index++}]"));
+                } while (!(cmds[cmds.Count - 1].Type == GBAVV_ScriptCommand.CommandType.Return && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfInputCheck && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfField08) && index < 500);
                 
-                if (index == 100 || cmds.Any(x => x.PrimaryCommandType >= 100))
+                if (index == 500 || cmds.Any(x => x.PrimaryCommandType >= 100))
                 {
                     Debug.Log($"Invalid script at {Offset}");
                     IsValid = false;
@@ -37,7 +43,11 @@ namespace R1Engine
             }
             else
             {
-                Commands = s.SerializeObjectArray<GBAVV_ScriptCommand>(Commands, Commands.Length, x => x.SerializeFLC = SerializeFLC, name: nameof(Commands));
+                Commands = s.SerializeObjectArray<GBAVV_ScriptCommand>(Commands, Commands.Length, x =>
+                {
+                    x.SerializeFLC = SerializeFLC;
+                    x.BaseFile = BaseFile;
+                }, name: nameof(Commands));
             }
         }
 
@@ -106,7 +116,7 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.SkipNextIfInputCheck:
-                        log($"IF (!unknownFunction({getParams(cmd.Input.GetArgs())}))");
+                        log($"IF (!function({getParams(cmd.Input.GetArgs())}))");
                         depth++;
                         logScriptCMD();
                         depth--;
@@ -136,7 +146,7 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.WaitWhileInputCheck:
-                        logCommand($"WAIT_WHILE (unknownFunction({getParams(cmd.Input.GetArgs())}))");
+                        logCommand($"WAIT_WHILE (function({getParams(cmd.Input.GetArgs())}))");
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.Dialog:
