@@ -44,7 +44,7 @@ namespace R1Engine {
         public bool ToggleFreeCameraMode(bool freeCameraMode, bool setShowCollision = true) {
             bool wasFreeCameraMode = FreeCameraMode;
             FreeCameraMode = freeCameraMode;
-            if (setShowCollision && wasFreeCameraMode != FreeCameraMode) {
+            if (setShowCollision && wasFreeCameraMode != FreeCameraMode && LevelEditorData.Level?.IsometricData?.Collision != null) {
                 if (freeCameraMode) { // On enable free camera mode
                     storedCollisionSetting = Settings.ShowCollision;
                     Settings.ShowCollision = true;
