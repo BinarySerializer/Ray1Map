@@ -829,6 +829,7 @@ namespace R1Engine
                         {
                             CollisionType = (byte)x
                         })).ToArray(),
+                        Settings3D = scene?.PlayField?.StructType == GBA_PlayField.Type.PlayFieldMode7 ? Unity_Map.FreeCameraSettings.Mode7 : null
                     };
                 }
                 else

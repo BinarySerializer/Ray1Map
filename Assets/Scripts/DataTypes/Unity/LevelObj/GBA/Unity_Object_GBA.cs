@@ -17,7 +17,7 @@ namespace R1Engine
 
             OverrideAnimIndex = actor.OverridePaletteIndex;
 
-            Scale = isMode7 ? 0.5f : 1f;
+            Scale = isMode7 ? 0.25f : 1f;
         }
 
         public GBA_Actor Actor { get; }
