@@ -442,8 +442,8 @@ namespace R1Engine
                             if (layer.Rotation.HasValue && layer.Rotation.Value != 0) {
                                 /*Quaternion rotation = Quaternion.Euler(0, 0, layer.Rotation * 180f);*/
                                 //Vector3 rotationOrigin = Vector3.zero;
-
-                                animSpriteRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), layer.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
+                                var rotateAxis = transform.TransformDirection(Vector3.forward);
+                                animSpriteRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), rotateAxis, layer.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
                                 /*    Vector2 relativePos = pos - rotationOrigin;
                                 Vector2 rotatedPos = rotation * relativePos;
                                 prefabRenderers[i].transform.localRotation = rotation;
@@ -461,7 +461,8 @@ namespace R1Engine
 
                             // Then rotate
                             if (ObjData.Rotation.HasValue && ObjData.Rotation.Value != 0) {
-                                animSpriteRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), ObjData.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
+                                var rotateAxis = transform.TransformDirection(Vector3.forward);
+                                animSpriteRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), rotateAxis, ObjData.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
                             }
                         }
                     }
