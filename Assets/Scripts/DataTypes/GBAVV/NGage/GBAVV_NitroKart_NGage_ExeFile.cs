@@ -3,6 +3,7 @@
     public class GBAVV_NitroKart_NGage_ExeFile : R1Serializable
     {
         public bool SerializeAllData { get; set; } // Set before serializing
+        public bool SerializeGAX { get; set; } // Set before serializing
 
         public uint[] CRCPolynomialData { get; set; }
         public GBAVV_NitroKart_NGage_LevelInfo[] LevelInfos { get; set; }
@@ -12,6 +13,9 @@
         public GBAVV_NitroKart_NGage_S3D S3D_Warp { get; set; }
 
         public GBAVV_Script[] Scripts { get; set; }
+
+        public GBAVV_NitroKart_NGage_GAX GAX_Music { get; set; }
+        public GBAVV_NitroKart_NGage_GAX GAX_FX { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -53,6 +57,12 @@
                         x.SerializeFLC = false;
                         x.BaseFile = Offset.file;
                     }, name: $"{nameof(Scripts)}[{i}]"));
+            }
+
+            if (SerializeGAX)
+            {
+                GAX_Music = new GBAVV_NitroKart_NGage_FilePath(s.Context, @"snd\music.gax").DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_GAX>(GAX_Music, x => x.SongsCount = 24, name: nameof(GAX_Music)));
+                GAX_FX = new GBAVV_NitroKart_NGage_FilePath(s.Context, @"snd\fx.gax").DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_GAX>(GAX_FX, x => x.SongsCount = 1, name: nameof(GAX_FX)));
             }
         }
     }
