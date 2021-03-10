@@ -1437,8 +1437,11 @@ namespace R1Engine
             @"gfx\Barin02\garrow.bmp.tex",
             @"gfx\Barin02\B1DSurface03.pal",
             @"gfx\Barin02\B1DSurface03.tex",
+            @"gfx\Terra03\HH_wall0a.pal",
             @"gfx\Terra03\HH_wall0a.tex",
+            @"gfx\Terra03\TC_surface03.pal",
             @"gfx\Terra03\TC_surface03.tex",
+            @"gfx\Terra02\E2_D_Surface01_M.pal",
             @"gfx\Terra02\E2_D_Surface01_M.tex",
         };
 
