@@ -970,6 +970,7 @@ namespace R1Engine
             @"flc/evilEndWin02.flc",
             @"flc/evilEndWin03.flc",
             @"flc/evilEndWin04.flc",
+            @"flc/fakeCrash.flc",
             @"podium.s3d",
             @"warp.s3d",
             @"gfx\Terra01\TempStartline.tex",
@@ -1436,6 +1437,9 @@ namespace R1Engine
             @"gfx\Barin02\garrow.bmp.tex",
             @"gfx\Barin02\B1DSurface03.pal",
             @"gfx\Barin02\B1DSurface03.tex",
+            @"gfx\Terra03\HH_wall0a.tex",
+            @"gfx\Terra03\TC_surface03.tex",
+            @"gfx\Terra02\E2_D_Surface01_M.tex",
         };
 
         public uint?[] ObjTypesDataPointers => new uint?[]
