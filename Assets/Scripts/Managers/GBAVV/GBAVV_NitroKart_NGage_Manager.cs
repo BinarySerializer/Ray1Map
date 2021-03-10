@@ -29,6 +29,7 @@ namespace R1Engine
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
             new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output)),
             new GameAction("Export FLC as GIF", false, true, (input, output) => ExportFLCAsync(settings, output)),
+            new GameAction("Export Fonts", false, true, (input, output) => ExportFontsAsync(settings, output)),
         };
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool withFilenames = false)
@@ -155,6 +156,57 @@ namespace R1Engine
                         Directory.CreateDirectory(Path.GetDirectoryName(path));
                         collection.Write(path);
                     }
+                }
+            }
+        }
+
+        public async UniTask ExportFontsAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Enumerate every .flc file
+                foreach (var fniPath in FilePaths.Where(x => x.EndsWith(".fni")))
+                {
+                    var pathWithoutExt = Path.Combine(Path.GetDirectoryName(fniPath), Path.GetFileNameWithoutExtension(fniPath));
+                    var fncPath = $"{pathWithoutExt}.fnc";
+
+                    var s = context.Deserializer;
+                    var imgData = DoAtBlock(context, fniPath, () => s.SerializeArray<byte>(default, s.CurrentLength, name: $"{Path.GetFileNameWithoutExtension(fniPath)}"));
+                    var pal = DoAtBlock(context, fncPath, () => s.SerializeObject<GBAVV_NitroKart_NGage_PAL>(default, name: $"{Path.GetFileNameWithoutExtension(fncPath)}"));
+
+                    var palette = pal.Palette.Select((x, i) =>
+                    {
+                        if (i == 0)
+                            return Color.clear;
+
+                        var c = x.GetColor();
+                        return new Color(c.r, c.g, c.b);
+                    }).ToArray();
+
+                    var sizes = new Dictionary<int, Vector2Int>()
+                    {
+                        [0x10000] = new Vector2Int(256, 256),
+                        [0x8000] = new Vector2Int(128, 256),
+                        [0x4000] = new Vector2Int(128, 128),
+                    };
+
+                    var size = sizes[imgData.Length];
+
+                    var tex = TextureHelpers.CreateTexture2D(size.x, size.y);
+
+                    for (int y = 0; y < tex.height; y++)
+                    {
+                        for (int x = 0; x < tex.width; x++)
+                        {
+                            tex.SetPixel(x, tex.height - y - 1, palette[imgData[y * tex.width + x]]);
+                        }
+                    }
+
+                    tex.Apply();
+
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{pathWithoutExt}.png"), tex.EncodeToPNG());
                 }
             }
         }
