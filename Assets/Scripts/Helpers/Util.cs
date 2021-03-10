@@ -829,7 +829,7 @@ namespace R1Engine
         {
             if (saveAsGif)
             {
-                ExportAnimAsGif(frames, speed, center, Path.Combine(outputDir, $"{primaryName} - {secondaryName}.gif"));
+                ExportAnimAsGif(frames, speed, center, true, Path.Combine(outputDir, $"{primaryName} - {secondaryName}.gif"));
             }
             else
             {
@@ -842,7 +842,7 @@ namespace R1Engine
                 }
             }
         }
-        public static void ExportAnimAsGif(IList<Texture2D> frames, int speed, bool center, string filePath)
+        public static void ExportAnimAsGif(IList<Texture2D> frames, int speed, bool center, bool trim, string filePath)
         {
             using (var collection = new MagickImageCollection())
             {
@@ -861,7 +861,8 @@ namespace R1Engine
                     if (center)
                         collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
 
-                    collection[index].Trim();
+                    if (trim)
+                        collection[index].Trim();
                     collection[index].GifDisposeMethod = GifDisposeMethod.Background;
                     index++;
                 }

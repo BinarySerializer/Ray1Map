@@ -227,7 +227,7 @@ namespace R1Engine
                     var rle = DoAtBlock(context, rlePath, () => s.SerializeObject<GBAVV_NitroKart_NGage_RLE>(default, name: $"{Path.GetFileNameWithoutExtension(rlePath)}"));
                     var pal = DoAtBlock(context, palPath, () => s.SerializeObject<GBAVV_NitroKart_NGage_PAL>(default, name: $"{Path.GetFileNameWithoutExtension(palPath)}"));
                     
-                    Util.ExportAnimAsGif(rle.ToTextures(pal), 2, false, Path.Combine(outputDir, $"{pathWithoutExt}.gif"));
+                    Util.ExportAnimAsGif(rle.ToTextures(pal), 4, false, false, Path.Combine(outputDir, $"{pathWithoutExt}.gif"));
                 }
             }
         }
