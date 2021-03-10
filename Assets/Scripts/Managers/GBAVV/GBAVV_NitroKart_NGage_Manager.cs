@@ -1549,8 +1549,6 @@ namespace R1Engine
             @"gfx\Terra03\HH_wall0a.tex",
             @"gfx\Terra03\TC_surface03.pal",
             @"gfx\Terra03\TC_surface03.tex",
-            @"gfx\Terra02\E2_D_Surface01_M.pal",
-            @"gfx\Terra02\E2_D_Surface01_M.tex",
         };
 
         public override long ObjTypesCount => 113;
