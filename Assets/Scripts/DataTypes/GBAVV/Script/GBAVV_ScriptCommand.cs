@@ -12,6 +12,7 @@ namespace R1Engine
         public int SecondaryCommandType { get; set; }
         public uint Param { get; set; }
         public Pointer ParamPointer { get; set; }
+        public GBAVV_NitroKart_NGage_FilePath NGage_FilePath { get; set; }
 
         // Params
         public string Name { get; set; }
@@ -41,7 +42,7 @@ namespace R1Engine
             Type = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
 
             // If the param is a valid pointer to the ROM we parse the pointer
-            if (Param >= GBA_ROMBase.Address_ROM && Param < GBA_ROMBase.Address_ROM + 0x1000000)
+            if (Param >= BaseFile.baseAddress && Param < BaseFile.baseAddress + 0x1000000)
             {
                 ParamPointer = new Pointer(Param, BaseFile);
                 s.Log($"Param: {ParamPointer}");
@@ -107,8 +108,18 @@ namespace R1Engine
                     break;
 
                 case CommandType.FLC:
-                    if (SerializeFLC)
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+                    {
+                        NGage_FilePath = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(NGage_FilePath, name: nameof(NGage_FilePath)));
+
+                        if (SerializeFLC)
+                            FLC = NGage_FilePath.DoAtFile(() => s.SerializeObject<FLIC>(FLC, name: nameof(FLC)));
+                    }
+                    else if (SerializeFLC)
+                    {
                         s.DoAt(ParamPointer, () => s.DoEncoded(new GBA_LZSSEncoder(), () => FLC = s.SerializeObject<FLIC>(FLC, name: nameof(FLC)), allowLocalPointers: true));
+                    }
+
                     break;
 
                 // Do nothing

@@ -64,7 +64,7 @@ namespace R1Engine
             return base.LoadAsync(context, loadTextures);
         }
 
-        public void FindDataInROM(SerializerObject s, Pointer offset)
+        public virtual void FindDataInROM(SerializerObject s, Pointer offset)
         {
             // Read ROM as a uint array
             var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
@@ -124,7 +124,7 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
 
-        public void FindObjTypeData(Context context)
+        public virtual void FindObjTypeData(Context context)
         {
             var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (o, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
             var s = context.Deserializer;

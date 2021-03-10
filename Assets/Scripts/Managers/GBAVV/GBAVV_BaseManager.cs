@@ -29,7 +29,7 @@ namespace R1Engine
             new GameInfo_World(0, Enumerable.Range(0, LevInfos.Length).ToArray()),
         });
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public virtual GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
@@ -2182,40 +2182,44 @@ namespace R1Engine
             }
             else if (rom.Scripts != null)
             {
-                var languages = Languages;
-
-                var locTables = Enumerable.Range(0, languages.Length).Select(x => new
-                {
-                    Strings = new List<string>(),
-                    Index = x
-                }).ToArray();
-                var pointerTable = new Dictionary<Pointer, int>();
-
-                var index = 0;
-
-                // Find strings from scripts
-                foreach (var script in rom.GetAllScripts.SelectMany(x => x.Commands).Where(x => x.Dialog != null))
-                {
-                    var dialog = script.Dialog;
-
-                    if (pointerTable.ContainsKey(dialog.Offset))
-                        continue;
-
-                    for (int i = 0; i < dialog.Items.Length; i++)
-                        locTables[i].Strings.Add(dialog.Items[i]?.Text);
-
-                    pointerTable[dialog.Offset] = index++;
-                }
-
-                return (locTables.ToDictionary(x => languages[x.Index], x => x.Strings.ToArray()), pointerTable);
+                return LoadLocalization(rom.GetAllScripts);
             }
 
             return (null, null);
         }
+        public (Dictionary<string, string[]>, Dictionary<Pointer, int>) LoadLocalization(IEnumerable<GBAVV_Script> scripts)
+        {
+            var languages = Languages;
 
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
+            var locTables = Enumerable.Range(0, languages.Length).Select(x => new
+            {
+                Strings = new List<string>(),
+                Index = x
+            }).ToArray();
+            var pointerTable = new Dictionary<Pointer, int>();
 
-        public async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+            var index = 0;
+
+            // Find strings from scripts
+            foreach (var script in scripts.SelectMany(x => x.Commands).Where(x => x.Dialog != null))
+            {
+                var dialog = script.Dialog;
+
+                if (pointerTable.ContainsKey(dialog.Offset))
+                    continue;
+
+                for (int i = 0; i < dialog.Items.Length; i++)
+                    locTables[i].Strings.Add(dialog.Items[i]?.Text);
+
+                pointerTable[dialog.Offset] = index++;
+            }
+
+            return (locTables.ToDictionary(x => languages[x.Index], x => x.Strings.ToArray()), pointerTable);
+        }
+
+        public virtual UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
+
+        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
 
         public void GetAvailableCollisionTypes(GBAVV_ROM rom)
         {

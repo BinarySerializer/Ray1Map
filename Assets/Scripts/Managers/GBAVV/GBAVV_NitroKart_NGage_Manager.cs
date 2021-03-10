@@ -9,18 +9,22 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_Manager : IGameManager
+    public class GBAVV_NitroKart_NGage_Manager : GBAVV_NitroKart_Manager
     {
         public string ExeFilePath => @"6rac.app";
         public string DataFilePath => @"data.gob";
         public const uint ExeBaseAddress = 0x10000000 - 648;
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public override string[] Languages => new string[]
         {
-            new GameInfo_World(0, Enumerable.Range(0, 26).ToArray()), 
-        });
+            "English",
+            "French",
+            "German",
+            "Italian",
+            "Spanish",
+        };
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output)),
             new GameAction("Export Blocks (with filenames)", false, true, (input, output) => ExportBlocksAsync(settings, output, withFilenames: true)),
@@ -232,13 +236,46 @@ namespace R1Engine
             }
         }
 
-        public void FindObjTypeData(Context context)
+        public override void FindDataInROM(SerializerObject s, Pointer offset)
+        {
+            // Read ROM as a uint array
+            var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
+
+            // Helper for getting a pointer
+            long getPointer(int index) => ExeBaseAddress + index * 4;
+            bool isValidPointer(uint value) => value >= ExeBaseAddress && value < ExeBaseAddress + s.CurrentLength;
+
+            // Keep track of found data
+            var foundScripts = new List<Tuple<long, string>>();
+
+            // Find scripts by finding the name command which is always the first one
+            for (int i = 0; i < values.Length - 2; i++)
+            {
+                if (values[i] == 9 && values[i + 1] == 7 && isValidPointer(values[i + 2]))
+                {
+                    foundScripts.Add(new Tuple<long, string>(getPointer(i), s.DoAt(new Pointer(values[i + 2], s.CurrentPointer.file), () => s.SerializeString(default))));
+                }
+            }
+
+            // Log found data to clipboard
+            var str = new StringBuilder();
+
+            str.AppendLine();
+            str.AppendLine($"Scripts:");
+
+            foreach (var (p, name) in foundScripts)
+                str.AppendLine($"0x{p:X8}, // {name}");
+
+            str.ToString().CopyToClipboard();
+        }
+
+        public override void FindObjTypeData(Context context)
         {
             var s = context.Deserializer;
 
             var str = new StringBuilder();
 
-            var initFunctionPointers = s.DoAt(new Pointer(0x1001aa2c, s.Context.GetFile(ExeFilePath)), () => s.SerializePointerArray(default, 113));
+            var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetFile(ExeFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
             var orderedPointers = initFunctionPointers.OrderBy(x => x.AbsoluteOffset).Distinct().ToArray();
 
             // Enumerate every obj init function
@@ -714,7 +751,7 @@ namespace R1Engine
             return pvs.Vertices.Max(v => v.Y);
         }
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Load the data file
             var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);
@@ -729,10 +766,15 @@ namespace R1Engine
             float levelWidth = GetLevelWidth(level.PVS);
             pvs.transform.position = new Vector3(0,0,-levelWidth / 8f);
 
+            Controller.DetailedState = "Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(exe.Scripts);
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(LoadGFX(context)), null, GBAVV_MapInfo.GBAVV_MapType.Kart, nitroKart_ObjTypeData: exe.NitroKart_ObjTypeData);
+            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(LoadGFX(context)), null, GBAVV_MapInfo.GBAVV_MapType.Kart, nitroKart_ObjTypeData: exe.NitroKart_ObjTypeData, scripts: exe.Scripts, locPointerTable: loc.Item2);
             objManager.LevelWidthNitroKartNGage = levelWidth;
 
             var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
@@ -863,12 +905,13 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 8
                 },
-                objectGroups: objGroups.Select(x => x.Item2).ToArray());
+                objectGroups: objGroups.Select(x => x.Item2).ToArray(),
+                localization: loc.Item1);
         }
 
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
+        public override UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
-        public async UniTask LoadFilesAsync(Context context)
+        public override async UniTask LoadFilesAsync(Context context)
         {
             await context.AddMemoryMappedFile(ExeFilePath, ExeBaseAddress);
             await context.AddLinearSerializedFileAsync(DataFilePath);
@@ -1510,7 +1553,10 @@ namespace R1Engine
             @"gfx\Terra02\E2_D_Surface01_M.tex",
         };
 
-        public uint?[] ObjTypesDataPointers => new uint?[]
+        public override long ObjTypesCount => 113;
+        public override uint ObjTypesPointer => 0x1001aa2c;
+
+        public override uint?[] ObjTypesDataPointers => new uint?[]
         {
             0x1008D660, // 0
             0x1008D660, // 1
@@ -1625,6 +1671,51 @@ namespace R1Engine
             0x1008D660, // 110
             0x1008D660, // 111
             0x1008D660, // 112
+        };
+
+        public override uint[] GraphicsDataPointers => null;
+
+        public override uint[] ScriptPointers => new uint[]
+        {
+            0x10067804, // script_waitForInputOrTime
+            0x10083C54, // movie_intro
+            0x10083DC8, // movie_garage
+            0x10083E58, // movie_credits
+            0x10083F90, // movie_gameIntro
+            0x100845CC, // movie_earthBossIntro
+            0x100847F8, // movie_earthBossCrashWin
+            0x10084AAC, // movie_earthBossEvilWin
+            0x10084D00, // movie_barinBossIntro
+            0x10084F2C, // movie_barinBossCrashWin
+            0x10085180, // movie_barinBossEvilWin
+            0x10085450, // movie_fenomBossIntro
+            0x10085690, // movie_fenomBossCrashWin
+            0x10085914, // movie_fenomBossEvilWin
+            0x10085BC8, // movie_tekneeBossIntro
+            0x10085DB8, // movie_tekneeBossCrashWin
+            0x10085F30, // movie_tekneeBossEvilWin
+            0x10086088, // movie_veloBossIntro
+            0x100861B4, // movie_veloBossCrashWin
+            0x100865E0, // movie_veloBossEvilWin
+            0x10086824, // SCRIPT_pagedTextLoop
+            0x1008BB7C, // script_license
+            0x1008BBBC, // script_intro
+            0x1008BBFC, // script_credits
+            0x1008BC44, // script_earthBossIntro
+            0x1008BC90, // script_earthBossCrashWin
+            0x1008BCD8, // script_earthBossEvilWin
+            0x1008BD20, // script_barinBossIntro
+            0x1008BD6C, // script_barinBossCrashWin
+            0x1008BDB4, // script_barinBossEvilWin
+            0x1008BDFC, // script_fenomBossIntro
+            0x1008BE48, // script_fenomBossCrashWin
+            0x1008BE90, // script_fenomBossEvilWin
+            0x1008BED8, // script_tekneeBossIntro
+            0x1008BF24, // script_tekneeBossCrashWin
+            0x1008BF70, // script_tekneeBossEvilWin
+            0x1008BFB8, // script_veloBossIntro
+            0x1008C000, // script_veloBossCrashWin
+            0x1008C048, // script_veloBossEvilWin
         };
     }
 }

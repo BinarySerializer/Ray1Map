@@ -93,8 +93,8 @@ namespace R1Engine
                 if (p == null)
                     return $"NULL";
 
-                var animSetIndex = animSets.FindItemIndex(x => x.Animations.Any(a => a.Offset == p));
-                var animIndex = animSets.ElementAtOrDefault(animSetIndex)?.Animations.FindItemIndex(x => x.Offset == p) ?? -1;
+                var animSetIndex = animSets?.FindItemIndex(x => x.Animations.Any(a => a.Offset == p)) ?? -1;
+                var animIndex = animSets?.ElementAtOrDefault(animSetIndex)?.Animations.FindItemIndex(x => x.Offset == p) ?? -1;
 
                 return animIndex == -1 ? $"0x{p.AbsoluteOffset:X8}" : $"Animations[{animSetIndex}][{animIndex}]";
             }
@@ -206,7 +206,10 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.FLC:
-                        logCommand($"PLAY_FLC", $"0x{cmd.Param:X8}");
+                        if (Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+                            logCommand($"PLAY_FLC", $"\"{cmd.NGage_FilePath?.GetFullPath}\"");
+                        else
+                            logCommand($"PLAY_FLC", $"0x{cmd.Param:X8}");
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.Unknown:
