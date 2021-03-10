@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ImageMagick;
 using UnityEngine;
 
 namespace R1Engine
@@ -30,6 +29,7 @@ namespace R1Engine
             new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output)),
             new GameAction("Export FLC as GIF", false, true, (input, output) => ExportFLCAsync(settings, output)),
             new GameAction("Export Fonts", false, true, (input, output) => ExportFontsAsync(settings, output)),
+            new GameAction("Export Backgrounds", false, true, (input, output) => ExportBackgroundsAsync(settings, output)),
         };
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool withFilenames = false)
@@ -166,7 +166,7 @@ namespace R1Engine
             {
                 await LoadFilesAsync(context);
 
-                // Enumerate every .flc file
+                // Enumerate every .fni file
                 foreach (var fniPath in FilePaths.Where(x => x.EndsWith(".fni")))
                 {
                     var pathWithoutExt = Path.Combine(Path.GetDirectoryName(fniPath), Path.GetFileNameWithoutExtension(fniPath));
@@ -207,6 +207,27 @@ namespace R1Engine
                     tex.Apply();
 
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"{pathWithoutExt}.png"), tex.EncodeToPNG());
+                }
+            }
+        }
+
+        public async UniTask ExportBackgroundsAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Enumerate every .rle file
+                foreach (var rlePath in FilePaths.Where(x => x.EndsWith(".rle")))
+                {
+                    var pathWithoutExt = Path.Combine(Path.GetDirectoryName(rlePath), Path.GetFileNameWithoutExtension(rlePath));
+                    var palPath = $"{pathWithoutExt}.pal";
+
+                    var s = context.Deserializer;
+                    var rle = DoAtBlock(context, rlePath, () => s.SerializeObject<GBAVV_NitroKart_NGage_RLE>(default, name: $"{Path.GetFileNameWithoutExtension(rlePath)}"));
+                    var pal = DoAtBlock(context, palPath, () => s.SerializeObject<GBAVV_NitroKart_NGage_PAL>(default, name: $"{Path.GetFileNameWithoutExtension(palPath)}"));
+                    
+                    Util.ExportAnimAsGif(rle.ToTextures(pal), 2, false, Path.Combine(outputDir, $"{pathWithoutExt}.gif"));
                 }
             }
         }
@@ -1323,10 +1344,6 @@ namespace R1Engine
             @"gfx\Teknee03\T3_D_Surface03.pal",
             @"gfx\Teknee03\T3_D_Surface03b.tex",
             @"gfx\Teknee03\T3_D_Surface03b.pal",
-            @"gfx\porterTest\UI_Crown.tex",
-            @"gfx\porterTest\UI_Crown.pal",
-            @"gfx\porterTest\UI_Gate1.tex",
-            @"gfx\porterTest\UI_Gate1.pal",
             @"gfx\Teknee01\T1_D_Surface_G.tex",
             @"gfx\Teknee01\T1_D_Surface_G.pal",
             @"gfx\Teknee01\garrow.bmp.tex",
@@ -1457,8 +1474,6 @@ namespace R1Engine
             @"gfx\Fenom02\parallax0.rle",
             @"gfx\Fenom02\parallax1.pal",
             @"gfx\Fenom02\parallax1.rle",
-            @"gfx\Fenom02\parallax2.pal",
-            @"gfx\Fenom02\parallax2.rle",
             @"gfx\Teknee03\parallax0.pal",
             @"gfx\Teknee03\parallax0.rle",
             @"gfx\Teknee03\parallax1.pal",
@@ -1481,8 +1496,6 @@ namespace R1Engine
             @"gfx\veloBoss\parallax0.rle",
             @"gfx\veloBoss\parallax1.pal",
             @"gfx\veloBoss\parallax1.rle",
-            @"gfx\veloBoss\parallax2.pal",
-            @"gfx\veloBoss\parallax2.rle",
             @"gfx\Barin02\start.pal",
             @"gfx\Barin02\start.tex",
             @"gfx\Barin02\garrow.bmp.pal",

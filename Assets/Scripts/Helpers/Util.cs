@@ -829,33 +829,7 @@ namespace R1Engine
         {
             if (saveAsGif)
             {
-                using (var collection = new MagickImageCollection())
-                {
-                    int index = 0;
-
-                    var maxWidth = frames.Max(x => x.width);
-                    var maxHeight = frames.Max(x => x.height);
-
-                    foreach (var frameTex in frames)
-                    {
-                        var img = frameTex.ToMagickImage();
-                        collection.Add(img);
-                        collection[index].AnimationDelay = speed;
-                        collection[index].AnimationTicksPerSecond = 60;
-
-                        if (center)
-                            collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
-
-                        collection[index].Trim();
-                        collection[index].GifDisposeMethod = GifDisposeMethod.Background;
-                        index++;
-                    }
-
-                    // Save gif
-                    var path = Path.Combine(outputDir, $"{primaryName} - {secondaryName}.gif");
-                    Directory.CreateDirectory(Path.GetDirectoryName(path));
-                    collection.Write(path);
-                }
+                ExportAnimAsGif(frames, speed, center, Path.Combine(outputDir, $"{primaryName} - {secondaryName}.gif"));
             }
             else
             {
@@ -866,6 +840,35 @@ namespace R1Engine
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"{primaryName}", $"{secondaryName}", $"{frameIndex}.png"), tex.EncodeToPNG());
                     frameIndex++;
                 }
+            }
+        }
+        public static void ExportAnimAsGif(IList<Texture2D> frames, int speed, bool center, string filePath)
+        {
+            using (var collection = new MagickImageCollection())
+            {
+                int index = 0;
+
+                var maxWidth = frames.Max(x => x.width);
+                var maxHeight = frames.Max(x => x.height);
+
+                foreach (var frameTex in frames)
+                {
+                    var img = frameTex.ToMagickImage();
+                    collection.Add(img);
+                    collection[index].AnimationDelay = speed;
+                    collection[index].AnimationTicksPerSecond = 60;
+
+                    if (center)
+                        collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
+
+                    collection[index].Trim();
+                    collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                    index++;
+                }
+
+                // Save gif
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                collection.Write(filePath);
             }
         }
     }
