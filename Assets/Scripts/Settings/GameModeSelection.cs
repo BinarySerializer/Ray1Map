@@ -493,6 +493,24 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 208x208, s40v3)", typeof(Gameloft_RK_Manager))]
         RaymanKartMobile_208x208_s40v3,
 
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x220, Sony Ericsson K700i)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_176x220_K700i,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x220, Samsung SGH-ZV60)", typeof(Gameloft_RK_176x220_Manager))]
+        RaymanKartMobile_176x220_SamsungZV60,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x220, Samsung SGH-ZV10)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_176x220_SamsungZV10,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x220, RAZR V3/KRZR K1)", typeof(Gameloft_RK_128x160_Manager))]
+        RaymanKartMobile_176x220_RAZRV3,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 176x220, U8110/U8360)", typeof(Gameloft_RK_128x160_Manager))]
+        RaymanKartMobile_176x220_U8110,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK_HighResHalf, "Rayman Kart (Mobile, 176x220, KG800)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_176x220_KG800,
+
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 240x320)", typeof(Gameloft_RK_Manager))]
         RaymanKartMobile_240x320,
 

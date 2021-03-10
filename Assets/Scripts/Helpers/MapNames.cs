@@ -63,6 +63,8 @@ namespace R1Engine
                     return RaymanKartNames;
                 case Game.Gameloft_RK_LowRes:
                     return RaymanKartLowResNames;
+                case Game.Gameloft_RK_HighResHalf:
+                    return RaymanKartHighResHalfNames;
 
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
@@ -922,6 +924,18 @@ namespace R1Engine
                 [1] = "Frozen Highway",
                 [2] = "Shipwreck Track",
                 [3] = "Sanctuary of Fire",
+            },
+        };
+        private static Dictionary<int, Dictionary<int, string>> RaymanKartHighResHalfNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [0] = "Dreamy Forest - Easy",
+                [1] = "Dreamy Forest - Hard",
+                [2] = "Rockslide Race - Easy",
+                [3] = "Rockslide Race - Hard",
+                [4] = "Frozen Highway - Easy",
+                [5] = "Frozen Highway - Hard",
+                [6] = "Shipwreck Track - Easy",
+                [7] = "Shipwreck Track - Hard",
             },
         };
 

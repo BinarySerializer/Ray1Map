@@ -40,10 +40,18 @@ namespace R1Engine
 			"s"
 		};
 
-		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
-		{
-			new GameInfo_World(0, Enumerable.Range(0, 16).ToArray()),
-		});
+		public override GameInfo_Volume[] GetLevels(GameSettings settings) {
+			switch (settings.Game) {
+				case Game.Gameloft_RK_HighResHalf:
+					return GameInfo_Volume.SingleVolume(new GameInfo_World[] {
+						new GameInfo_World(0, Enumerable.Range(0, 8).ToArray()),
+					});
+				default:
+					return GameInfo_Volume.SingleVolume(new GameInfo_World[] {
+						new GameInfo_World(0, Enumerable.Range(0, 16).ToArray()),
+					});
+			}
+		}
 
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
