@@ -293,6 +293,8 @@ namespace R1Engine {
                 CameraControlsPerspective();
                 CameraControlsSpeed();
             }
+
+            MoveTrack();
         }
 
         #region Camera Controls
@@ -477,6 +479,65 @@ namespace R1Engine {
                         targetRot = Quaternion.LookRotation(center.Value - cam.transform.position, Vector3.up);
                     }
                 }
+            }
+        }
+
+        public bool IsTrackEnabled;
+        public void StartMovingTrack()
+        {
+            var manager = LevelEditorData.Level.TrackManager;
+
+            // Make sure track data is available
+            if (manager == null || !manager.IsAvailable(LevelEditorData.MainContext, LevelEditorData.Level))
+                return;
+
+            // Get the start position
+            var startPos = manager.GetStartPosition(LevelEditorData.Level);
+
+            // Set the start position
+            Vector3 isometricScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
+            camera3D.transform.position = Vector3.Scale(new Vector3(startPos.x, startPos.z, -startPos.y), isometricScale);
+
+            // TODO: Rotate and zoom in
+            // Toggle free camera mode
+            ToggleFreeCameraMode(true);
+
+            // Enable track
+            IsTrackEnabled = true;
+        }
+        public void StopMovingTrack()
+        {
+            // Disable track
+            IsTrackEnabled = false;
+        }
+        public void MoveTrack()
+        {
+            if (!IsTrackEnabled) 
+                return;
+            
+            var manager = LevelEditorData.Level.TrackManager;
+
+            // Get the current position
+            Vector3 isometricScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
+            var currentPos = new Vector3(camera3D.transform.position.x / isometricScale.x, -camera3D.transform.position.z / isometricScale.y, camera3D.transform.position.y / isometricScale.z);
+
+            // Check if we've reached the end
+            if (manager.HasReachedEnd(LevelEditorData.Level, currentPos))
+            {
+                IsTrackEnabled = false;
+            }
+            else
+            {
+                const float speed = 8f;
+
+                // Get the direction
+                var dir = manager.GetDirection(LevelEditorData.Level, currentPos);
+
+                // Set new position
+                camera3D.transform.position = new Vector3(
+                    camera3D.transform.position.x + dir.x * Time.deltaTime * speed, 
+                    camera3D.transform.position.y + dir.z * Time.deltaTime * speed, 
+                    camera3D.transform.position.z - dir.y * Time.deltaTime * speed);
             }
         }
     }

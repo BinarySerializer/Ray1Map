@@ -263,6 +263,22 @@ public class SettingsWindow : UnityWindow
                     }
                 }
 
+                if (LevelEditorData.Level.TrackManager != null) 
+                {
+                    var cam = Controller.obj?.levelController?.editor?.cam;
+
+                    if (cam.IsTrackEnabled)
+                    {
+                        if (EditorButton("Stop moving along track"))
+                            cam.StopMovingTrack();
+                    }
+                    else
+                    {
+                        if (EditorButton("Move along track"))
+                            cam.StartMovingTrack();
+                    }
+                }
+
                 if (Controller.obj?.levelController?.controllerTilemap != null) {
                     var tilemapController = Controller.obj.levelController.controllerTilemap;
 
