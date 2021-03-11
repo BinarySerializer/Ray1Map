@@ -1,0 +1,38 @@
+{
+  "name": "Crash Nitro Kart (N-Gage)",
+  "mode": "CrashNitroKartNGage",
+  "folder": "gba_crash/crash_nitro_kart_ngage",
+  "levels": [
+    { "world": 0, "level": 0, "nameInternal": "terraHub", "name": "Terra Hub" },
+    { "world": 0, "level": 1, "nameInternal": "terra01", "name": "Inferno Island" },
+    { "world": 0, "level": 2, "nameInternal": "terra02", "name": "Jungle Boogie" },
+    { "world": 0, "level": 3, "nameInternal": "terra03", "name": "Tiny's Temple" },
+
+    { "world": 0, "level": 4, "nameInternal": "barinHub", "name": "Barin Hub" },
+    { "world": 0, "level": 5, "nameInternal": "barin01", "name": "Meteor Gorge" },
+    { "world": 0, "level": 6, "nameInternal": "barin02", "name": "Barin Ruins" },
+    { "world": 0, "level": 7, "nameInternal": "barin03", "name": "Deep Sea Driving" },
+
+    { "world": 0, "level": 8, "nameInternal": "fenomHub", "name": "Fenomena Hub" },
+    { "world": 0, "level": 9, "nameInternal": "fenom01", "name": "Out of Time" },
+    { "world": 0, "level": 10, "nameInternal": "fenom02", "name": "Clockwork Wumpa" },
+    { "world": 0, "level": 11, "nameInternal": "fenom03", "name": "Thunder Struck" },
+
+    { "world": 0, "level": 12, "nameInternal": "tekneeHub", "name": "Teknee Hub" },
+    { "world": 0, "level": 13, "nameInternal": "teknee01", "name": "Assembly Lane" },
+    { "world": 0, "level": 14, "nameInternal": "teknee02", "name": "Android Alley" },
+    { "world": 0, "level": 15, "nameInternal": "teknee03", "name": "Electron Avenue" },
+
+    { "world": 0, "level": 16, "nameInternal": "citadelHub", "name": "Velo's Citadel" },
+    { "world": 0, "level": 17, "nameInternal": "veloBoss", "name": "Velo's Challenge" },
+
+    { "world": 0, "level": 18, "nameInternal": "crystalArena01", "name": "Battle 1 - Temple Turmoil" },
+    { "world": 0, "level": 19, "nameInternal": "crystalArena02", "name": "Battle 2 - Frozen Frenzy" },
+    { "world": 0, "level": 20, "nameInternal": "crystalArena03", "name": "Battle 3 - Desert Storm" },
+    { "world": 0, "level": 21, "nameInternal": "crystalArena04", "name": "Battle 4 - Magnetic Mayhem" },
+    { "world": 0, "level": 22, "nameInternal": "battleArena05", "name": "Battle 5" },
+    { "world": 0, "level": 23, "nameInternal": "battleArena06", "name": "Battle 6" },
+    { "world": 0, "level": 24, "nameInternal": "battleArena07", "name": "Battle 7" },
+    { "world": 0, "level": 25, "nameInternal": "battleArena08", "name": "Battle 8" }
+  ]
+}
