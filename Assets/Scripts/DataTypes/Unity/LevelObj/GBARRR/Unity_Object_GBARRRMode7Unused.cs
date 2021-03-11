@@ -30,7 +30,7 @@ namespace R1Engine
         }
 
         public float Height { get; set; }
-        public override float Scale => 0.5f;
+        public override float Scale => AnimationGroupIndex == 0 ? 0.25f : 0.5f;
 
         public override Vector3 Position
         {

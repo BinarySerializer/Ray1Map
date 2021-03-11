@@ -979,7 +979,7 @@ namespace R1Engine
 
                 var count = tex.height / height;
 
-                return new Unity_ObjectManager_GBARRRMode7Unused.GraphicsDataGroup(Enumerable.Range(0, count).Select(x => new Unity_ObjectManager_GBARRRMode7Unused.GraphicsData(tex.CreateSprite(new Rect(0, x * height, width, height)))).Reverse().ToArray(), blockIndex);
+                return new Unity_ObjectManager_GBARRRMode7Unused.GraphicsDataGroup(Enumerable.Range(0, count).Select(x => new Unity_ObjectManager_GBARRRMode7Unused.GraphicsData(tex.CreateSprite(new Rect(0, x * height, width, height), pivot: new Vector2(0.5f,0f)))).Reverse().ToArray(), blockIndex);
             }
         }
 
