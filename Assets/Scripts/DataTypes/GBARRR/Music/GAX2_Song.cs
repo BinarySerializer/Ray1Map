@@ -7,6 +7,8 @@ namespace R1Engine
 {
     public class GAX2_Song : R1Serializable
     {
+        public int? PredefinedSampleCount { get; set; } // Set in onPreSerialize
+
         public ushort NumChannels { get; set; }
         public ushort NumRowsPerPattern { get; set; }
         public ushort NumPatternsPerChannel { get; set; }
@@ -63,8 +65,11 @@ namespace R1Engine
                             for (int j = 0; j < Patterns[i].Length; j++) {
                                 s.DoAt(SequenceDataPointer + PatternTable[i][j].SequenceOffset, () => {
                                     Patterns[i][j] = s.SerializeObject<GAX2_Pattern>(Patterns[i][j], onPreSerialize: t => t.Duration = NumRowsPerPattern, name: $"{nameof(Patterns)}[{i}][{j}]");
-                                    instrumentCount = Math.Max(instrumentCount, Patterns[i][j].Rows.Max(cmd => cmd.Command == GAX2_PatternRow.Cmd.Note ? cmd.Instrument + 1 : 0));
-                                    instruments.AddRange(Patterns[i][j].Rows.Where(cmd => cmd.Command == GAX2_PatternRow.Cmd.Note).Select(cmd => (int)cmd.Instrument));
+                                    instrumentCount = Math.Max(instrumentCount, Patterns[i][j].Rows
+                                        .Max(cmd => (cmd.Command == GAX2_PatternRow.Cmd.Note || cmd.Command == GAX2_PatternRow.Cmd.NoteCompressed) ? cmd.Instrument + 1 : 0));
+                                    instruments.AddRange(Patterns[i][j].Rows
+                                        .Where(cmd => cmd.Command == GAX2_PatternRow.Cmd.Note || cmd.Command == GAX2_PatternRow.Cmd.NoteCompressed)
+                                        .Select(cmd => (int)cmd.Instrument));
                                 });
                             }
                         }
@@ -81,11 +86,11 @@ namespace R1Engine
                     s.Log(ParsedName + " - " + ParsedArtist);
                 });
                 s.DoAt(InstrumentSetPointer, () => {
-                    InstrumentSet = s.SerializePointerArray<GAX2_Instrument>(InstrumentSet, instrumentCount, resolve: true, name: nameof(InstrumentSet));
+                    InstrumentSet = s.SerializePointerArray<GAX2_Instrument>(InstrumentSet, PredefinedSampleCount ?? instrumentCount, resolve: true, name: nameof(InstrumentSet));
                 });
-                Samples = new GAX2_Sample[InstrumentIndices.Length];
-                for (int i = 0; i < InstrumentIndices.Length; i++) {
-                    int ind = InstrumentIndices[i];
+                Samples = new GAX2_Sample[PredefinedSampleCount ?? InstrumentIndices.Length];
+                for (int i = 0; i < Samples.Length; i++) {
+                    int ind = PredefinedSampleCount.HasValue ? i : InstrumentIndices[i];
                     var instr = InstrumentSet[ind].Value;
                     if (instr != null) {
                         s.DoAt(SampleSetPointer + (instr.Sample) * 8, () => {

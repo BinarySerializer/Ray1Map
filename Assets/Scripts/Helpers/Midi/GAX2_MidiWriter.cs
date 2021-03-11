@@ -57,6 +57,7 @@ namespace R1Engine {
                     GAX2_PatternRow cmd = gaxTrack.Rows[i];
                     switch (cmd.Command) {
                         case GAX2_PatternRow.Cmd.Note:
+                        case GAX2_PatternRow.Cmd.NoteCompressed:
                             if(cmd.Instrument == 250) continue;
                             if (exportSingleSoundfont) {
                                 if (song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.Sample >= 128) continue;

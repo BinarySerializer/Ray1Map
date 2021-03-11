@@ -62,7 +62,9 @@
             if (SerializeGAX)
             {
                 GAX_Music = new GBAVV_NitroKart_NGage_FilePath(s.Context, @"snd\music.gax").DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_GAX>(GAX_Music, x => x.SongsCount = 24, name: nameof(GAX_Music)));
-                GAX_FX = new GBAVV_NitroKart_NGage_FilePath(s.Context, @"snd\fx.gax").DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_GAX>(GAX_FX, x => x.SongsCount = 1, name: nameof(GAX_FX)));
+                GAX_FX = new GBAVV_NitroKart_NGage_FilePath(s.Context, @"snd\fx.gax").DoAtFile(() => s.SerializeObject<GBAVV_NitroKart_NGage_GAX>(GAX_FX, x => {
+                    x.SongsCount = 1; x.SamplesCount = 68;
+                }, name: nameof(GAX_FX)));
             }
         }
     }

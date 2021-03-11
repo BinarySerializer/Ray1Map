@@ -99,9 +99,6 @@ namespace R1Engine {
                         vol = (row.Effect == 12) ? (byte?)(0x10 + (row.Velocity >> 2)) : null;
                         rows[curRow++] = new XM_PatternRow(volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         break;
-                    case GAX2_PatternRow.Cmd.Unknown81:
-                        rows[curRow++] = new XM_PatternRow();
-                        break;
                     case GAX2_PatternRow.Cmd.RestSingle:
                         rows[curRow++] = new XM_PatternRow();
                         break;
@@ -119,6 +116,14 @@ namespace R1Engine {
                         } else {
                             int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
                             rows[curRow++] = new XM_PatternRow(note: row.Note, instrument: (byte)instr, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
+                        }
+                        break;
+                    case GAX2_PatternRow.Cmd.NoteCompressed:
+                        if (row.Instrument == 250) {
+                            rows[curRow++] = new XM_PatternRow(note: 97);
+                        } else {
+                            int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
+                            rows[curRow++] = new XM_PatternRow(note: row.Note, instrument: (byte)instr);
                         }
                         break;
                 }
