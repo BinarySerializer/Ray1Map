@@ -65,8 +65,8 @@ namespace R1Engine
                 Controller.LoadState = Controller.State.Initializing;
                 await Controller.WaitIfNecessary();
 
-                LevelEditorData.CurrentMap = LevelEditorData.Level.DefaultMap;
-                LevelEditorData.CurrentCollisionMap = LevelEditorData.Level.DefaultCollisionMap;
+                LevelEditorData.CurrentLayer = LevelEditorData.Level.DefaultLayer;
+                LevelEditorData.CurrentCollisionLayer = LevelEditorData.Level.DefaultCollisionLayer;
 
                 Controller.DetailedState = $"Initializing tile maps";
                 await Controller.WaitIfNecessary();
@@ -93,7 +93,7 @@ namespace R1Engine
                 {
                     // Set tiles
                     foreach (var tileItem in x.ModifiedTiles)
-                        controllerTilemap.SetTileAtPos(tileItem.XPos, tileItem.YPos, tileItem.Item);
+                        controllerTilemap.SetTileAtPos(tileItem.LayerIndex, tileItem.XPos, tileItem.YPos, tileItem.Item);
                 });
 
                 if (Settings.ScreenshotEnumeration)
@@ -127,8 +127,12 @@ namespace R1Engine
         {
             var tileSetIndex = 0;
 
+            var layer = LevelEditorData.Level.Layers[LevelEditorData.CurrentLayer] as Unity_Layer_Map;
+            if(layer == null) return;
+            var map = layer.Map;
+
             // Export every tile set
-            foreach (var tileSet in LevelEditorData.Level.Maps[LevelEditorData.CurrentMap].TileSet.Where(x => x?.Tiles?.Any(y => y != null) == true))
+            foreach (var tileSet in map.TileSet.Where(x => x?.Tiles?.Any(y => y != null) == true))
             {
                 // Get values
                 var tileCount = tileSet.Tiles.Length;

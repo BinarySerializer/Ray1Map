@@ -238,7 +238,11 @@ namespace R1Engine
             }
 
             // Convert levelData to common level format
-            var level = new Unity_Level(maps, objManager, levelEvents, rayman: new Unity_Object_R1(R1_EventData.GetRayman(context, levelEvents.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS)?.EventData), objManager));
+            var level = new Unity_Level(
+                maps: maps,
+                objManager: objManager,
+                eventData: levelEvents,
+                rayman: new Unity_Object_R1(R1_EventData.GetRayman(context, levelEvents.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS)?.EventData), objManager));
 
             Controller.DetailedState = $"Creating tileset";
             await Controller.WaitIfNecessary();

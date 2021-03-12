@@ -998,7 +998,7 @@ namespace R1Engine
                 maps: maps,
                 objManager: objManager,
                 eventData: actors,
-                defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision),
+                defaultCollisionLayer: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision),
                 localization: LoadLocalization(context),
                 cellSize: CellSize,
                 getCollisionTypeNameFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),

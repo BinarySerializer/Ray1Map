@@ -100,7 +100,7 @@ namespace R1Engine
             StopStopwatch();
             loadTimer.Stop();
 
-            var startEvent = LevelEditorData.Level.Rayman ?? LevelEditorData.Level.ObjManager.GetMainObject(LevelEditorData.Level.EventData);
+            var startEvent = LevelEditorData.Level.Rayman ?? LevelEditorData.Level.ObjManager?.GetMainObject(LevelEditorData.Level.EventData);
 
             if (startEvent != null)
                 Controller.obj.levelEventController.editor.cam.pos = new Vector3(startEvent.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(startEvent.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));

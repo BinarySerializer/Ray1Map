@@ -38,10 +38,14 @@ namespace R1Engine {
         /// </summary>
         /// <returns></returns>
         public Unity_Tile[] GetTiles() {
+            var layer = lvl.Layers[LevelEditorData.CurrentLayer] as Unity_Layer_Map;
+            if(layer == null) return null;
+            var map = layer.Map;
+
             var r = new List<Unity_Tile>();
             for (int y = (int)YStart; y <= YEnd; y++)
                 for (int x = (int)XStart; x <= XEnd; x++)
-                    r.Add(lvl.Maps[LevelEditorData.CurrentMap].MapTiles[x + y * lvl.Maps[LevelEditorData.CurrentMap].Width]);
+                    r.Add(map.MapTiles[x + y * map.Width]);
             return r.ToArray();
         }
 

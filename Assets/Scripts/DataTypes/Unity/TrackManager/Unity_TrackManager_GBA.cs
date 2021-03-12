@@ -71,10 +71,12 @@ namespace R1Engine
         public GBA_TileCollisionType? GetCollisionType(Unity_Level level, Vector3 pos)
         {
             // Get the collision map
-            var collisionMap = level.Maps.First(x => x.Type.HasFlag(Unity_Map.MapType.Collision));
+            var collisionLayer = level.Layers.FirstOrDefault(x => (x as Unity_Layer_Map)?.Map.Type.HasFlag(Unity_Map.MapType.Collision) ?? false);
+            var collisionMap = (collisionLayer as Unity_Layer_Map)?.Map;
+            if(collisionMap == null) return null;
 
             // Get the collision type from the current position
-            return (GBA_TileCollisionType?)collisionMap.MapTiles.ElementAtOrDefault(Mathf.FloorToInt(pos.y / 8) * LevelEditorData.Level.Maps[LevelEditorData.CurrentCollisionMap].Width + Mathf.FloorToInt(pos.x / 8))?.Data.CollisionType;
+            return (GBA_TileCollisionType?)collisionMap.MapTiles.ElementAtOrDefault(Mathf.FloorToInt(pos.y / 8) * collisionMap.Width + Mathf.FloorToInt(pos.x / 8))?.Data.CollisionType;
         }
     }
 }

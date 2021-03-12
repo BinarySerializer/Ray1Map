@@ -1079,7 +1079,7 @@ namespace R1Engine
                     cellSize: CellSize,
                     localization: loc,
                     eventData: mode7Objects,
-                    defaultMap: 0,
+                    defaultLayer: 0,
                     rayman: new Unity_Object_GBARRRMode7(new GBARRR_Mode7Object
                     {
                         ObjectType = GBARRR_Mode7Object.Mode7Type.Rayman,
@@ -1126,7 +1126,7 @@ namespace R1Engine
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
                     localization: loc,
-                    defaultMap: 0
+                    defaultLayer: 0
                 );
             }
 
@@ -1195,7 +1195,7 @@ namespace R1Engine
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
                     localization: loc,
-                    defaultMap: 0,
+                    defaultLayer: 0,
                     rayman: new Unity_Object_GBARRRMode7Unused(new GBARRR_Object(), o)
                     {
                         AnimationGroupIndex = 0
@@ -1299,8 +1299,8 @@ namespace R1Engine
                 getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                 cellSize: CellSize,
                 localization: loc,
-                defaultCollisionMap: 2,
-                defaultMap: 2
+                defaultCollisionLayer: 2,
+                defaultLayer: 2
             );
         }
 

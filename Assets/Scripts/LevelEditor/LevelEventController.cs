@@ -491,7 +491,7 @@ namespace R1Engine
                 }
 
                 // Update tile map layers
-                tilemapController.UpdateMapLayersVisibility();
+                tilemapController.UpdateLayersVisibility();
 
                 var hideObj = new GBA_R3_ActorID[]
                 {
@@ -645,7 +645,7 @@ namespace R1Engine
                 }
 
                 // Update tile map layers
-                tilemapController.UpdateMapLayersVisibility();
+                tilemapController.UpdateLayersVisibility();
 
                 // Set frames
                 var texFrames = new Dictionary<int, RectInt>()

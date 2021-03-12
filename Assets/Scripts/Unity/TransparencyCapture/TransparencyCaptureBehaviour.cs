@@ -103,7 +103,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			ec.UpdateCullingMask(ec.FreeCameraMode);
 			if (Controller.obj?.levelController?.controllerTilemap != null) {
 				Controller.obj.levelController.controllerTilemap.enabled = false;
-				Controller.obj.levelController.controllerTilemap.UpdateMapLayersVisibility();
+				Controller.obj.levelController.controllerTilemap.UpdateLayersVisibility();
 			}
 		}
 		await UniTask.WaitForEndOfFrame();
@@ -118,7 +118,7 @@ public class TransparencyCaptureBehaviour : MonoBehaviour
 			ec.FreeCameraMode = prevFreeCameraMode.Value;
 			ec.UpdateCullingMask(ec.FreeCameraMode);
 			if (Controller.obj?.levelController?.controllerTilemap != null) {
-				Controller.obj.levelController.controllerTilemap.UpdateMapLayersVisibility();
+				Controller.obj.levelController.controllerTilemap.UpdateLayersVisibility();
 				Controller.obj.levelController.controllerTilemap.enabled = true;
 			}
 		}

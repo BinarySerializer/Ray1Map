@@ -187,10 +187,12 @@ namespace R1Engine
 
             if (Controller.LoadState != Controller.State.Finished || LevelEditorData.Level == null) return;
 
-            var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
-        
+            int layerIndex = LevelEditorData.CurrentLayer;
+            var layer = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+
             //Tile editing
-            if (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions) {
+            if (layer != null && (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions)) {
+                var map = layer.Map;
                 // Get the tile under the mouse
                 Vector3 mousePositionTile = lvlController.controllerTilemap.MouseToTileCoords(mousePosition);
                 Vector2Int mouseTileInt = lvlController.controllerTilemap.MouseToTileInt(mousePosition);
@@ -314,17 +316,16 @@ namespace R1Engine
                                     int yi = 0;
                                     //"Paste" the selection
                                     for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
-                                        for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
-                                        {
+                                        for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
                                             var t = map.GetMapTile(x, y);
-                                            TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
+                                            TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y, layerIndex));
 
                                             var selectionTile = selection[xi, yi];
-                                            lvlController.controllerTilemap.SetTileAtPos(x, y, selectionTile);
+                                            lvlController.controllerTilemap.SetTileAtPos(layerIndex, x, y, selectionTile);
 
                                             t.HasPendingEdits = true;
 
-                                            TempTileHistory.Add(new Ray1MapEditorHistoryTile(selectionTile.CloneObj(), x, y));
+                                            TempTileHistory.Add(new Ray1MapEditorHistoryTile(selectionTile.CloneObj(), x, y, layerIndex));
 
                                             xi++;
                                             if (xi >= selection.GetLength(0))
@@ -353,13 +354,13 @@ namespace R1Engine
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
                                 for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
                                     var t = map.GetMapTile(x, y);
-                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y, layerIndex));
 
-                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, (ushort)currentType);
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(layerIndex, x, y, (ushort)currentType);
 
                                     t.HasPendingEdits = true;
 
-                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y));
+                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y, layerIndex));
                                 }
                             }
                         }
@@ -370,12 +371,12 @@ namespace R1Engine
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
                                 for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
                                     var t = map.GetMapTile(x, y);
-                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y, layerIndex));
 
-                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, 0);
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(layerIndex, x, y, 0);
                                     t.HasPendingEdits = true;
 
-                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y));
+                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y, layerIndex));
                                 }
                             }
                         }
@@ -387,8 +388,8 @@ namespace R1Engine
                     if (selection != null && !lvlTilemapController.focusedOnTemplate) {
                         int xi = 0;
                         int yi = 0;
-                        int w = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap].Width;
-                        int h = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap].Height;
+                        int w = map.Width;
+                        int h = map.Height;
                         int my = mouseTileInt.y;
                         int mx = mouseTileInt.x;
                         // "Paste" the selection
@@ -398,13 +399,13 @@ namespace R1Engine
                                 if (x>=0 && y>=0 && x<w && y<h)
                                 {
                                     var t = map.GetMapTile(x, y);
-                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y, layerIndex));
 
                                     //lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi]);
                                     
                                     t.HasPendingEdits = true;
 
-                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(selection[xi, yi].CloneObj(), x, y));
+                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(selection[xi, yi].CloneObj(), x, y, layerIndex));
                                 }
 
                                 xi++;
@@ -412,7 +413,7 @@ namespace R1Engine
                             xi = 0;
                             yi++;
                         }
-                        lvlController.controllerTilemap.SetTileBlockAtPos(mx, my, selection.GetLength(0), selection.GetLength(1), selection);
+                        lvlController.controllerTilemap.SetTileBlockAtPos(layerIndex, mx, my, selection.GetLength(0), selection.GetLength(1), selection);
                     }
                 }
 

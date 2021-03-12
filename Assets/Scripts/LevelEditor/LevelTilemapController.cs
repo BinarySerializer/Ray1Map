@@ -486,7 +486,10 @@ namespace R1Engine
             var lvl = LevelEditorData.Level;
             int mapWidth = 16;
             if(lvl.Maps.Length == 0) return;
-            int mapHeight = Mathf.CeilToInt(lvl.Maps[LevelEditorData.CurrentMap].TileSet[0].Tiles.Length / (float)mapWidth);
+            var layer = LevelEditorData.Level.Layers[LevelEditorData.CurrentLayer] as Unity_Layer_Map;
+            if(layer == null) return;
+            var map = layer.Map;
+            int mapHeight = Mathf.CeilToInt(map.TileSet[0].Tiles.Length / (float)mapWidth);
 
             int cellSize = LevelEditorData.Level.CellSize;
             Texture2D tex = TextureHelpers.CreateTexture2D(mapWidth * cellSize, mapHeight * cellSize);
@@ -494,8 +497,6 @@ namespace R1Engine
             // Refresh the full tilemap template for current map
             int xx = 0;
             int yy = 0;
-
-            var map = lvl.Maps[LevelEditorData.CurrentMap];
 
             foreach (Unity_TileTexture t in map.TileSet[0].Tiles) {
                 FillInTilePixels_Single(tex, t, xx, yy, false, false, cellSize);
@@ -596,7 +597,9 @@ namespace R1Engine
             if (LevelEditorData.Level == null)
                 return null;
 
-            var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
+            var layer = LevelEditorData.Level.Layers[LevelEditorData.CurrentLayer] as Unity_Layer_Map;
+            if (layer == null) return null;
+            var map = layer.Map;
 
             if (focusedOnTemplate)
             {
@@ -625,30 +628,26 @@ namespace R1Engine
             return u;
         }
 
-        public void SetTileBlockAtPos(int x, int y, int w, int h, Unity_Tile[] newTiles) {
+        public void SetTileBlockAtPos(int layerIndex, int x, int y, int w, int h, Unity_Tile[] newTiles) {
             for (int y1 = y; y1 < y1 + h; y1++) {
                 for (int x1 = x; x1 < x1 + w; x1++) {
-                    SetTileAtPos(x1, y1, newTiles[y1 * w + x1], applyTexture: false);
+                    SetTileAtPos(layerIndex, x1, y1, newTiles[y1 * w + x1], applyTexture: false);
                 }
             }
-            for (int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
-                var l = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
-                if (l?.Graphics != null) l.Graphics.sprite.texture.Apply();
-            }
+            var l = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+            if (l?.Graphics != null) l.Graphics.sprite.texture.Apply();
         }
-        public void SetTileBlockAtPos(int startX, int startY, int w, int h, Unity_Tile[,] newTiles) {
+        public void SetTileBlockAtPos(int layerIndex, int startX, int startY, int w, int h, Unity_Tile[,] newTiles) {
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    SetTileAtPos(startX + x, startY + y, newTiles[x,y], applyTexture: false);
+                    SetTileAtPos(layerIndex, startX + x, startY + y, newTiles[x,y], applyTexture: false);
                 }
             }
-            for (int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
-                var l = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
-                if (l?.Graphics == null) continue;
-                Texture2D tex = l.Graphics.sprite.texture;
-                tex.Apply();
-                //GraphicsTilemaps[i].sprite = Sprite.Create(tex, new Rect(0,0,tex.width, tex.height), new Vector2(0, 0), LevelEditorData.EditorManager.PixelsPerUnit, 0, SpriteMeshType.FullRect);
-            }
+            var l = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+            if (l?.Graphics == null) return;
+            Texture2D tex = l.Graphics.sprite.texture;
+            tex.Apply();
+            //GraphicsTilemaps[i].sprite = Sprite.Create(tex, new Rect(0,0,tex.width, tex.height), new Vector2(0, 0), LevelEditorData.EditorManager.PixelsPerUnit, 0, SpriteMeshType.FullRect);
         }
 
         private void FillInTilePixels(Texture2D tex, Unity_Tile t, Unity_Map map, int layerIndex, int x, int y, int cellSize, bool applyTexture = false, bool combined = false) {
@@ -896,22 +895,20 @@ namespace R1Engine
             return newT;
         }
 
-        public void SetTileAtPos(int x, int y, Unity_Tile newTile, bool applyTexture = true) 
-        {
-            var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
+        public void SetTileAtPos(int layerIndex, int x, int y, Unity_Tile newTile, bool applyTexture = true) {
+            var layer = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+            if (layer == null) return;
+            var map = layer.Map;
             if (y < 0 || y >= map.Height) return;
             if (x < 0 || x >= map.Width) return;
 
             // Update tile graphics
-            for (int i = 0; i < CollisionTilemaps.Length; i++) {
-                SetCollisionTileRendererAtPos(x,y,i,newTile);
-            }
-            for (int i = 0; i < GraphicsTilemaps.Length; i++) {
-                if (GraphicsTilemaps[i] == null) continue;
-                Texture2D tex = GraphicsTilemaps[i].sprite.texture;
+            if(layer.CollisionTilemap != null) SetCollisionTileRendererAtPos(x, y, layerIndex, newTile);
+            if (layer.Graphics != null) {
+                Texture2D tex = layer.Graphics.sprite.texture;
 
                 int cellSize = LevelEditorData.Level.CellSize;
-                FillInTilePixels(tex, newTile, map, i, x, y, cellSize, applyTexture: applyTexture);
+                FillInTilePixels(tex, newTile, map, layerIndex, x, y, cellSize, applyTexture: applyTexture);
             }
 
             // Get the tile to set
@@ -930,9 +927,10 @@ namespace R1Engine
                 destTile.Data.PC_TransparencyMode = map.TileSetTransparencyModes[(map.TileSetWidth * newTile.Data.TileMapY) + newTile.Data.TileMapX];
         }
 
-        public Unity_Tile SetTypeAtPos(int x, int y, ushort collisionType) 
-        {
-            var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
+        public Unity_Tile SetTypeAtPos(int layerIndex, int x, int y, ushort collisionType) {
+            var layer = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+            if (layer == null) return null;
+            var map = layer.Map;
 
             // Update tile graphics
             for (int i = 0; i < CollisionTilemaps.Length; i++) {
@@ -957,15 +955,18 @@ namespace R1Engine
             }
         }
 
-        public void UpdateMapLayerSettings(int i) {
-            var layer = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
-            if(layer == null) return;
-            var map = layer.Map;
+        public void UpdateLayer_Map_Texture(int i) {
+            var layer_map = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
+            var layer_texture = LevelEditorData.Level.Layers[i] as Unity_Layer_Texture;
+            SpriteRenderer graphics = layer_map?.Graphics ?? layer_texture?.Graphics;
+            var collision = layer_map?.Collision;
+            if(layer_map == null && layer_texture == null) return;
+            var map = layer_map?.Map;
             bool enforcedVisibility = false;
 
             if (LevelEditorData.Level.IsometricData != null) {
                 bool is3D = Controller.obj?.levelController?.editor?.cam?.FreeCameraMode ?? false;
-                var settings3D = map.Settings3D;
+                var settings3D = map?.Settings3D ?? layer_texture?.Settings3D;
                 if (settings3D != null) {
                     Vector3 pos;
                     Vector3 posCol;
@@ -979,8 +980,8 @@ namespace R1Engine
                         posCol = pos;
                         q = Quaternion.identity;
                         scale = new Vector3(1,-1,1);
-                        if (layer.Graphics != null) ConfigureGraphicsMapLayer(i);
-                        if (layer.Collision != null) ConfigureCollisionMapLayer(i);
+                        if (graphics != null) ConfigureGraphicsMapLayer(i);
+                        if (layer_map?.Collision != null) ConfigureCollisionMapLayer(i);
                     } else {
                         // Move map to desired position
                         if (settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.FixedPosition) {
@@ -1014,35 +1015,34 @@ namespace R1Engine
                         if (settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.FixedPosition
                             || settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.Billboard) {
                             // Update sorting info
-                            if (layer.Graphics != null) {
-                                layer.Graphics.sortingLayerName = "Object Sprites";
-                                layer.Graphics.sortingOrder = sortingOrder;
+                            if (graphics != null) {
+                                graphics.sortingLayerName = "Object Sprites";
+                                graphics.sortingOrder = sortingOrder;
                             }
-                            if (layer.Collision != null) {
-                                var tr = layer.Collision.GetComponent<TilemapRenderer>();
-                                tr.sortingLayerName = "Object Sprites";
-                                tr.sortingOrder = sortingOrderCol;
+                            if (layer_map?.Collision != null) {
+                                layer_map.Collision.sortingLayerName = "Object Sprites";
+                                layer_map.Collision.sortingOrder = sortingOrderCol;
                             }
                         }
                     }
-                    if (layer.Graphics != null) {
-                        layer.Graphics.transform.localPosition = pos;
-                        layer.Graphics.transform.localRotation = q;
-                        layer.Graphics.transform.localScale = scale;
+                    if (graphics != null) {
+                        graphics.transform.localPosition = pos;
+                        graphics.transform.localRotation = q;
+                        graphics.transform.localScale = scale;
                     }
-                    if (layer.Collision != null) {
-                        layer.Collision.transform.localPosition = posCol;
-                        layer.Collision.transform.localRotation = q;
-                        layer.Collision.transform.localScale = scale;
+                    if (layer_map?.Collision != null) {
+                        layer_map.Collision.transform.localPosition = posCol;
+                        layer_map.Collision.transform.localRotation = q;
+                        layer_map.Collision.transform.localScale = scale;
                     }
                 } else {
                     if (is3D) {
                         enforcedVisibility = true;
-                        if (layer.Graphics != null) {
-                            if (layer.Graphics.gameObject.activeSelf) layer.Graphics.gameObject.SetActive(false);
+                        if (graphics != null) {
+                            if (graphics.gameObject.activeSelf) graphics.gameObject.SetActive(false);
                         }
-                        if (layer.Collision != null) {
-                            if (layer.Collision.gameObject.activeSelf) layer.Collision.gameObject.SetActive(false);
+                        if (layer_map?.Collision != null) {
+                            if (layer_map.Collision.gameObject.activeSelf) layer_map.Collision.gameObject.SetActive(false);
                         }
                     }
                 }
@@ -1050,14 +1050,14 @@ namespace R1Engine
             // Change map visibility
             if (!enforcedVisibility) {
                 if (IsLayerVisible != null && IsLayerVisible.Length > i) {
-                    if (layer.Graphics != null) {
-                        if (layer.Graphics.gameObject.activeSelf != IsLayerVisible[i]) {
-                            layer.Graphics.gameObject.SetActive(IsLayerVisible[i]);
+                    if (graphics != null) {
+                        if (graphics.gameObject.activeSelf != IsLayerVisible[i]) {
+                            graphics.gameObject.SetActive(IsLayerVisible[i]);
                         }
                     }
-                    if (layer.Collision != null) {
-                        if (layer.Collision.gameObject.activeSelf != IsLayerVisible[i]) {
-                            layer.Collision.gameObject.SetActive(IsLayerVisible[i]);
+                    if (layer_map?.Collision != null) {
+                        if (layer_map.Collision.gameObject.activeSelf != IsLayerVisible[i]) {
+                            layer_map.Collision.gameObject.SetActive(IsLayerVisible[i]);
                         }
                     }
                 }
@@ -1069,7 +1069,7 @@ namespace R1Engine
             if (Controller.LoadState != Controller.State.Finished) return;
 
             // Enforce layer visibility
-            UpdateMapLayersVisibility();
+            UpdateLayersVisibility();
 
             if (Settings.ShowGridMap != tilemapGrid.gameObject.activeSelf) {
                 tilemapGrid.gameObject.SetActive(Settings.ShowGridMap);
@@ -1121,13 +1121,13 @@ namespace R1Engine
             }
         }
 
-        public void UpdateMapLayersVisibility()
+        public void UpdateLayersVisibility()
         {
             if (IsLayerVisible != null)
             {
                 for (int i = 0; i < IsLayerVisible.Length; i++)
                 {
-                    UpdateMapLayerSettings(i);
+                    UpdateLayer_Map_Texture(i);
                     /*if (GraphicsTilemaps != null && GraphicsTilemaps[i] != null)
                     {
                         if (GraphicsTilemaps[i].gameObject.activeSelf != IsLayerVisible[i])

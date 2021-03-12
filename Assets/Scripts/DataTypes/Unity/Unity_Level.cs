@@ -12,12 +12,13 @@ namespace R1Engine
     {
         #region Constructor
 
-        public Unity_Level(Unity_Map[] maps,
-            Unity_ObjectManager objManager, 
+        public Unity_Level(Unity_Layer[] layers = null,
+            Unity_Map[] maps = null,
+            Unity_ObjectManager objManager = null, 
             List<Unity_Object> eventData = null, 
             Unity_Object rayman = null, 
             IReadOnlyDictionary<string, string[]> localization = null, 
-            int defaultMap = 0, int defaultCollisionMap = 0, 
+            int defaultLayer = 0, int defaultCollisionLayer = -1, 
             int pixelsPerUnit = 16, 
             int cellSize = 16,
             Func<ushort, string> getCollisionTypeNameFunc = null,
@@ -32,12 +33,11 @@ namespace R1Engine
             Unity_TrackManager trackManager = null)
         {
             Maps = maps;
+            Layers = layers;
             ObjManager = objManager;
             EventData = eventData ?? new List<Unity_Object>();
             Rayman = rayman;
             Localization = localization;
-            DefaultMap = defaultMap;
-            DefaultCollisionMap = defaultCollisionMap == -1 ? 0 : defaultCollisionMap;
             PixelsPerUnit = pixelsPerUnit;
             CellSize = cellSize;
             GetCollisionTypeNameFunc = getCollisionTypeNameFunc ?? (x => ((R1_TileCollisionType)x).ToString());
@@ -50,6 +50,17 @@ namespace R1Engine
             CollisionLines = collisionLines;
             ObjectGroups = objectGroups;
             TrackManager = trackManager;
+
+            // Set default layers
+            if (Layers != null) {
+                DefaultLayer = defaultLayer;
+                DefaultCollisionLayer = defaultCollisionLayer == -1 ? DefaultLayer : defaultCollisionLayer;
+            } else {
+                InitializeDefaultLayers();
+                DefaultLayer = Layers.FindItemIndex(l => (l as Unity_Layer_Map)?.MapIndex == defaultLayer);
+                DefaultCollisionLayer = defaultCollisionLayer == -1 ? DefaultLayer : Layers.FindItemIndex(l => (l as Unity_Layer_Map)?.MapIndex == defaultCollisionLayer);
+            }
+
 
             if (Maps?.Length > 0) {
                 MaxWidth = Maps.Max(m => CellSizeOverrideCollision != null && m.Type == Unity_Map.MapType.Collision ? (ushort)(m.Width / (CellSize / CellSizeOverrideCollision)) : m.Width);
@@ -79,8 +90,8 @@ namespace R1Engine
         public int? CellSizeOverrideCollision { get; set; }
 
         // TODO: Replace this with toggle in editor
-        public int DefaultMap { get; }
-        public int DefaultCollisionMap { get; }
+        public int DefaultLayer { get; }
+        public int DefaultCollisionLayer { get; }
 
         public Unity_Map[] Maps { get; }
         public Unity_Map GridMap { get; }
@@ -205,7 +216,9 @@ namespace R1Engine
             int currentPalette = defaultPalette;
 
             // Enumerate each cell (PC only has 1 map per level)
-            var map = Maps[DefaultMap];
+            var layer = Layers[DefaultLayer] as Unity_Layer_Map;
+            if(layer == null) return;
+            var map = layer.Map;
             for (int cellY = 0; cellY < map.Height; cellY++)
             {
                 // Reset the palette on each row if we have a horizontal changer

@@ -497,10 +497,10 @@ namespace R1Engine
                 cellSize: CellSize,
                 getCollisionTypeNameFunc: collNameFunc,
                 getCollisionTypeGraphicFunc: collGraphicFunc,
-                defaultMap: 1,
+                defaultLayer: 1,
                 isometricData: isometricData,
                 localization: LoadLocalization(rom),
-                defaultCollisionMap: validMaps.Length - 1) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
+                defaultCollisionLayer: validMaps.Length - 1) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
         }
 
         public Dictionary<string, string[]> LoadLocalization(GBAIsometric_Spyro_ROM rom)

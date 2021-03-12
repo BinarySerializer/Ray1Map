@@ -852,8 +852,8 @@ namespace R1Engine
 				},
 				eventData: unityObjs,
 				//localization: LoadLocalization(context),
-				defaultMap: 0,
-				defaultCollisionMap: 0,
+				defaultLayer: 0,
+				defaultCollisionLayer: 0,
 				cellSize: 8);
 
 			///throw new NotImplementedException();

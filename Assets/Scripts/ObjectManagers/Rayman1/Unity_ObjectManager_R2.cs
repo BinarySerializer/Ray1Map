@@ -87,7 +87,9 @@ namespace R1Engine
             if (GameMemoryData.TileArrayOffset != null)
             {
                 currentOffset = GameMemoryData.TileArrayOffset;
-                var map = lvl.Maps[0];
+                var layerIndex = lvl.DefaultLayer;
+                var layer = lvl.Layers[layerIndex] as Unity_Layer_Map;
+                var map = layer.Map;
 
                 for (int y = 0; y < map.Height; y++)
                 {
@@ -112,7 +114,7 @@ namespace R1Engine
                         mapTile.HasPendingEdits = false;
 
                         if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
-                            Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
+                            Controller.obj.levelController.controllerTilemap.SetTileAtPos(layerIndex, x, y, mapTile);
 
                         currentOffset = s.CurrentPointer;
                     }

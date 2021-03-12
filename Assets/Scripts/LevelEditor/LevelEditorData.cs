@@ -26,8 +26,8 @@ namespace R1Engine
         public static int MaxWidth => Level.MaxWidth;
         public static int MaxHeight => Level.MaxHeight;
 
-        public static int CurrentMap { get; set; }
-        public static int CurrentCollisionMap { get; set; }
+        public static int CurrentLayer { get; set; }
+        public static int CurrentCollisionLayer { get; set; }
         public static bool[] ShowEventsForMaps { get; set; }
         public static bool ShowOnlyActiveSector { get; set; }
         public static int ActiveSector { get; set; }

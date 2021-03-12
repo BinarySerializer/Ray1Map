@@ -535,7 +535,12 @@ namespace R1Engine
 
             var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[levelData.LevelDefines.BG_0])?.ToTexture(true); 
 
-            Unity_Level level = new Unity_Level(maps, objManager, rayman: rayman, localization: loc, background: bg);
+            Unity_Level level = new Unity_Level(
+                maps: maps,
+                objManager: objManager,
+                rayman: rayman,
+                localization: loc,
+                background: bg);
 
             // Add the events
             for (var index = 0; index < levelData.Events.Length; index++)
