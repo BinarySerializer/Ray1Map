@@ -821,7 +821,7 @@ namespace R1Engine
             }
 
             // Create GameObjects
-            GameObject gaoParent = new GameObject();
+            GameObject gaoParent = new GameObject("Map");
             gaoParent.transform.position = Vector3.zero;
             foreach(var k in meshes.Keys) {
                 var blendMode = BitHelpers.ExtractBits(k,8,8);
@@ -933,13 +933,22 @@ namespace R1Engine
 
             var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
 
+            GameObject gao_3dObjParent = null;
+
             void replaceObjWith3D(GBAVV_NitroKart_NGage_S3D s3d, int[] objTypes, Vector3? snapToFloorPosition = null)
             {
                 var toRemove = new HashSet<Unity_Object>();
 
                 foreach (var o in objects.OfType<Unity_Object_GBAVVNitroKart>().Where(x => objTypes.Contains(x.Object.ObjType)))
                 {
+                    if (gao_3dObjParent == null) {
+                        gao_3dObjParent = new GameObject("3D Objects");
+                        gao_3dObjParent.transform.localPosition = Vector3.zero;
+                        gao_3dObjParent.transform.localRotation = Quaternion.identity;
+                        gao_3dObjParent.transform.localScale = Vector3.one;
+                    }
                     var obj = CreateS3DGameObject(context, s3d);
+                    obj.transform.SetParent(gao_3dObjParent.transform);
                     const float scale = 8f;
                     var newPosPreConvert = o.Position;
                     var newPos = new Vector3(newPosPreConvert.x / scale, newPosPreConvert.z / scale, -newPosPreConvert.y / scale);
@@ -1016,9 +1025,21 @@ namespace R1Engine
             addTrackWaypoints(pop.TrackData2.TrackWaypoints_TimeTrial, "Time Trial", 1);
             addTrackWaypoints(pop.TrackData2.TrackWaypoints_BossRace, "Boss Race", 1);
 
+            var layers = new List<Unity_Layer>();
+            layers.Add(new Unity_Layer_GameObject(true) {
+                Name = "Map",
+                Graphics = pvs
+            });
+            if (gao_3dObjParent != null) {
+                layers.Add(new Unity_Layer_GameObject(true) {
+                    Name = "3D Objects",
+                    Graphics = gao_3dObjParent
+                });
+            }
+
             return new Unity_Level(
-                maps: new Unity_Map[]
-                {
+                layers: layers.ToArray(),
+                /*maps: new Unity_Map[] {
                     new Unity_Map()
                     {
                         Width = 1,
@@ -1032,7 +1053,7 @@ namespace R1Engine
                             new Unity_Tile(new MapTile()), 
                         }
                     }
-                },
+                },*/
                 objManager: objManager,
                 eventData: objects,
                 cellSize: 8,

@@ -291,19 +291,23 @@ public class SettingsWindow : UnityWindow
                     if (LevelEditorData.Level?.Layers != null) {
                         for (int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
                             if (LevelEditorData.Level.Layers[i] != null) {
+                                bool canBeTiled = false;
                                 Sprite spr = null;
                                 bool wasTiled = false;
                                 var l = LevelEditorData.Level.Layers[i];
                                 switch (l) {
                                     case Unity_Layer_Map lm:
+                                        canBeTiled = true;
                                         spr = lm.Graphics?.sprite;
                                         wasTiled = lm.Graphics?.drawMode == SpriteDrawMode.Tiled;
                                         break;
                                     case Unity_Layer_Texture lt:
+                                        canBeTiled = true;
                                         spr = lt.Graphics?.sprite;
                                         wasTiled = lt.Graphics?.drawMode == SpriteDrawMode.Tiled;
                                         break;
                                 }
+                                if(!canBeTiled) continue;
                                 if (spr == null
                                     || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxWidth * tilemapController.CellSizeInUnits
                                     || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxHeight * tilemapController.CellSizeInUnits) {
@@ -336,9 +340,9 @@ public class SettingsWindow : UnityWindow
                         PalOptions = new string[]
                         {
                             "Auto"
-                        }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString())).ToArray();
+                        }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps?.Max(x => x.TileSet.Length) ?? 0).Select(x => x.ToString())).ToArray();
                     } else {
-                        PalOptions = Enumerable.Range(0, LevelEditorData.Level.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString()).ToArray();
+                        PalOptions = Enumerable.Range(0, LevelEditorData.Level.Maps?.Max(x => x.TileSet.Length) ?? 0).Select(x => x.ToString()).ToArray();
                     }
                 }
 

@@ -485,7 +485,7 @@ namespace R1Engine
         private void CreateTilemapFull() {
             var lvl = LevelEditorData.Level;
             int mapWidth = 16;
-            if(lvl.Maps.Length == 0) return;
+            if(lvl.Maps == null || lvl.Maps.Length == 0) return;
             var layer = LevelEditorData.Level.Layers[LevelEditorData.CurrentLayer] as Unity_Layer_Map;
             if(layer == null) return;
             var map = layer.Map;
@@ -956,18 +956,23 @@ namespace R1Engine
         }
 
         public void UpdateLayer_Map_Texture(int i) {
-            var layer_map = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
-            var layer_texture = LevelEditorData.Level.Layers[i] as Unity_Layer_Texture;
+            var layer = LevelEditorData.Level.Layers[i];
+            var layer_map = layer as Unity_Layer_Map;
+            var layer_texture = layer as Unity_Layer_Texture;
             SpriteRenderer graphics = layer_map?.Graphics ?? layer_texture?.Graphics;
             var collision = layer_map?.Collision;
-            if(layer_map == null && layer_texture == null) return;
             var map = layer_map?.Map;
             bool enforcedVisibility = false;
 
             if (LevelEditorData.Level.IsometricData != null) {
                 bool is3D = Controller.obj?.levelController?.editor?.cam?.FreeCameraMode ?? false;
                 var settings3D = map?.Settings3D ?? layer_texture?.Settings3D;
-                if (settings3D != null) {
+                if (!layer.ShowIn3DView) {
+                    if (is3D) {
+                        enforcedVisibility = true;
+                        layer.SetVisible(false);
+                    }
+                } else if (settings3D != null) {
                     Vector3 pos;
                     Vector3 posCol;
                     Quaternion q;
@@ -1035,31 +1040,12 @@ namespace R1Engine
                         layer_map.Collision.transform.localRotation = q;
                         layer_map.Collision.transform.localScale = scale;
                     }
-                } else {
-                    if (is3D) {
-                        enforcedVisibility = true;
-                        if (graphics != null) {
-                            if (graphics.gameObject.activeSelf) graphics.gameObject.SetActive(false);
-                        }
-                        if (layer_map?.Collision != null) {
-                            if (layer_map.Collision.gameObject.activeSelf) layer_map.Collision.gameObject.SetActive(false);
-                        }
-                    }
                 }
             }
             // Change map visibility
             if (!enforcedVisibility) {
                 if (IsLayerVisible != null && IsLayerVisible.Length > i) {
-                    if (graphics != null) {
-                        if (graphics.gameObject.activeSelf != IsLayerVisible[i]) {
-                            graphics.gameObject.SetActive(IsLayerVisible[i]);
-                        }
-                    }
-                    if (layer_map?.Collision != null) {
-                        if (layer_map.Collision.gameObject.activeSelf != IsLayerVisible[i]) {
-                            layer_map.Collision.gameObject.SetActive(IsLayerVisible[i]);
-                        }
-                    }
+                    layer.SetVisible(IsLayerVisible[i]);
                 }
             }
         }

@@ -16,5 +16,19 @@ namespace R1Engine {
 		// Additional data for the renderers
 		public int?[,][] TileIndexOverrides { get; set; }
 		public Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>> AnimatedTiles { get; set; }
+		public override bool ShowIn3DView { get => Map.Settings3D != null; }
+
+		public override void SetVisible(bool visible) {
+			if (Graphics != null) {
+				if (Graphics.gameObject.activeSelf != visible) {
+					Graphics.gameObject.SetActive(visible);
+				}
+			}
+			if (Collision != null) {
+				if (Collision.gameObject.activeSelf != visible) {
+					Collision.gameObject.SetActive(visible);
+				}
+			}
+		}
 	}
 }
