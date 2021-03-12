@@ -7,6 +7,7 @@ namespace R1Engine {
 		public GameObject Collision { get; set; }
 
 		public override bool ShowIn3DView { get; }
+		public override bool IsAnimated { get; }
 
 		public override void SetVisible(bool visible) {
 			if (Graphics != null) {

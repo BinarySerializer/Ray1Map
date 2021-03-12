@@ -1025,16 +1025,19 @@ namespace R1Engine
             addTrackWaypoints(pop.TrackData2.TrackWaypoints_TimeTrial, "Time Trial", 1);
             addTrackWaypoints(pop.TrackData2.TrackWaypoints_BossRace, "Boss Race", 1);
 
+            var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
             var layers = new List<Unity_Layer>();
             layers.Add(new Unity_Layer_GameObject(true) {
                 Name = "Map",
                 Graphics = pvs
             });
+            pvs.transform.SetParent(parent3d);
             if (gao_3dObjParent != null) {
                 layers.Add(new Unity_Layer_GameObject(true) {
                     Name = "3D Objects",
                     Graphics = gao_3dObjParent
                 });
+                gao_3dObjParent.transform.SetParent(parent3d);
             }
 
             for (int i = 0; i < level.ParallaxCount; i++)

@@ -87,7 +87,7 @@ namespace R1Engine
         public Material unlitAdditiveMaterial;
         public Material unlitTransparentMaterial;
 
-        public bool HasAnimatedTiles { get; private set; } = false;
+        public bool IsAnimated { get; private set; } = false;
 
         public void InitializeLevelLayerRenderers(Unity_Level level) {
             if (level.Layers == null) return;
@@ -348,6 +348,7 @@ namespace R1Engine
             // Get the current level and map
             var lvl = LevelEditorData.Level;
 
+            IsAnimated = IsAnimated || lvl.Layers.Any(l => l.IsAnimated);
 
             // If auto, refresh indexes
             if (palette == 0)
@@ -450,13 +451,14 @@ namespace R1Engine
             Unity_TileTexture tile = map.GetTile(t, LevelEditorData.CurrentSettings);
             var atInstance = map.GetAnimatedTile(t, LevelEditorData.CurrentSettings);
             if (atInstance != null) {
-                HasAnimatedTiles = true;
+                IsAnimated = true;
                 atInstance.x = x;
                 atInstance.y = y;
                 atInstance.combinedTileIndex = combinedTileIndex;
                 var at = atInstance.animatedTile;
                 var l = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
                 if (l != null) {
+                    l.HasAnimatedTiles = true;
                     if (!l.AnimatedTiles.ContainsKey(at)) {
                         l.AnimatedTiles[at] = new List<Unity_AnimatedTile.Instance>();
                     }
@@ -1066,11 +1068,11 @@ namespace R1Engine
             }
 
             CheckPaletteChange();
-            if (!HasAnimatedTiles || !Settings.AnimateTiles) return;
+            if (!IsAnimated || !Settings.AnimateTiles) return;
 
             for(int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
                 var layer = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
-                if(layer?.Graphics == null) continue;
+                if(layer?.Graphics == null || !layer.IsAnimated) continue;
                 bool changedTile = false;
                 changedTiles.Clear();
                 var map = layer.Map;

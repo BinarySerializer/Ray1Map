@@ -10,7 +10,7 @@ namespace R1Engine {
 		public Unity_Map.MapLayer Layer { get; set; } = Unity_Map.MapLayer.Middle;
 		public Unity_Map.FreeCameraSettings Settings3D { get; set; }
 		public override bool ShowIn3DView => Settings3D != null;
-		public bool IsAnimated => TextureFrames != null;
+		public override bool IsAnimated => TextureFrames != null;
 
 		// Keep renderers here
 		public SpriteRenderer Graphics { get; set; }

@@ -460,7 +460,7 @@ public class WebCommunicator : MonoBehaviour {
 		var lvl = LevelEditorData.Level;
 		if (Controller.obj?.levelController?.controllerTilemap != null) {
 			var tc = Controller.obj?.levelController?.controllerTilemap;
-			s.HasAnimatedTiles = tc.HasAnimatedTiles;
+			s.HasAnimatedTiles = tc.IsAnimated;
 		}
 		if (lvl != null) {
 			s.CanUseFreeCameraMode = lvl.IsometricData != null;

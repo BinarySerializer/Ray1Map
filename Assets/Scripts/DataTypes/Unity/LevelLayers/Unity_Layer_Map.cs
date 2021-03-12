@@ -16,7 +16,10 @@ namespace R1Engine {
 		// Additional data for the renderers
 		public int?[,][] TileIndexOverrides { get; set; }
 		public Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>> AnimatedTiles { get; set; }
+		public bool HasAnimatedTiles { get; set; } = false;
 		public override bool ShowIn3DView { get => Map.Settings3D != null; }
+
+		public override bool IsAnimated => HasAnimatedTiles;
 
 		public override void SetVisible(bool visible) {
 			if (Graphics != null) {

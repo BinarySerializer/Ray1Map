@@ -5,5 +5,6 @@ namespace R1Engine {
 
 		public abstract void SetVisible(bool visible);
 		public abstract bool ShowIn3DView { get; }
+		public abstract bool IsAnimated { get; }
 	}
 }
