@@ -847,20 +847,20 @@ namespace R1Engine
 			// Initialize layers
 			var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
 			var layers = new List<Unity_Layer>();
-			layers.Add(new Unity_Layer_GameObject(true) {
+			layers.Add(new Unity_Layer_GameObject(true, isAnimated: false) {
 				Name = "Track",
 				Graphics = trackMesh
 			});
 			trackMesh.transform.SetParent(parent3d);
 			if (gao_tunnelParent != null) {
-				layers.Add(new Unity_Layer_GameObject(true) {
+				layers.Add(new Unity_Layer_GameObject(true, isAnimated: false) {
 					Name = "Tunnels",
 					Graphics = gao_tunnelParent
 				});
 				gao_tunnelParent.transform.SetParent(parent3d);
 			}
 			if (gao_3dObjParent != null) {
-				layers.Add(new Unity_Layer_GameObject(true) {
+				layers.Add(new Unity_Layer_GameObject(true, isAnimated: false) {
 					Name = "3D Objects",
 					Graphics = gao_3dObjParent
 				});

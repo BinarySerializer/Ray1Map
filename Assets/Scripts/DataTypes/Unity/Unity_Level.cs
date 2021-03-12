@@ -61,10 +61,10 @@ namespace R1Engine
                 DefaultCollisionLayer = defaultCollisionLayer == -1 ? DefaultLayer : Layers.FindItemIndex(l => (l as Unity_Layer_Map)?.MapIndex == defaultCollisionLayer);
             }
 
-
-            if (Maps?.Length > 0) {
-                MaxWidth = Maps.Max(m => CellSizeOverrideCollision != null && m.Type == Unity_Map.MapType.Collision ? (ushort)(m.Width / (CellSize / CellSizeOverrideCollision)) : m.Width);
-                MaxHeight = Maps.Max(m => CellSizeOverrideCollision != null && m.Type == Unity_Map.MapType.Collision ? (ushort)(m.Height / (CellSize / CellSizeOverrideCollision)) : m.Height);
+            if (Layers?.Length > 0) {
+                var dimensions = Layers.Select(l => l.GetDimensions(CellSize, CellSizeOverrideCollision));
+                MaxWidth = (ushort)dimensions.Max(d => d.x);
+                MaxHeight = (ushort)dimensions.Max(d => d.y);
             }
 
             GridMap = new Unity_Map
@@ -146,7 +146,8 @@ namespace R1Engine
                 for (int i = 0; i < Maps?.Length; i++) {
                     ls.Add(new Unity_Layer_Map() {
                         Name = $"Map {i} ({Maps[i].Type})",
-                        MapIndex = i
+                        MapIndex = i,
+                        Map = Maps[i]
                     });
                 }
                 Layers = ls.ToArray();

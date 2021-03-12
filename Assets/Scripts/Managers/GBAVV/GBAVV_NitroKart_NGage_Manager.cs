@@ -656,7 +656,8 @@ namespace R1Engine
             return context.GetStoredObject<Dictionary<uint, string>>(id);
         }
 
-        public GameObject CreateS3DGameObject(Context context, GBAVV_NitroKart_NGage_S3D s3d) {
+        public GameObject CreateS3DGameObject(Context context, GBAVV_NitroKart_NGage_S3D s3d, out bool isAnimated) {
+            isAnimated = false;
             float scale = 4096f;
             Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, v.Y / scale);
             Vector2 toUV(GBAVV_NitroKart_NGage_UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
@@ -751,11 +752,14 @@ namespace R1Engine
                         curMesh.texture.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", curMesh.texture);
                     }
-                    bool isScroll = BitHelpers.ExtractBits(flags, 1, 5) == 1;
-                    if (isScroll || animatedTextures.ContainsKey(k)) {
+                    bool isScrollH = BitHelpers.ExtractBits(flags, 1, 5) == 1;
+                    bool isScrollV = false;//BitHelpers.ExtractBits(flags, 1, 6) == 1;
+                    if (isScrollH || isScrollV || animatedTextures.ContainsKey(k)) {
+                        isAnimated = true;
                         var animTex = gao.AddComponent<AnimatedTextureComponent>();
                         animTex.material = mr.material;
-                        if (isScroll) animTex.scrollU = -1f;
+                        if (isScrollH) animTex.scrollU = -1f;
+                        if (isScrollV) animTex.scrollV = -1f;
                         if (animatedTextures.ContainsKey(k)) {
                             animTex.animatedTextureSpeed = 15;
                             animTex.animatedTextures = animatedTextures[k];
@@ -769,7 +773,8 @@ namespace R1Engine
             return gaoParent;
         }
 
-        public GameObject CreatePVSGameObject(Context context, GBAVV_NitroKart_NGage_PVS pvs) {
+        public GameObject CreatePVSGameObject(Context context, GBAVV_NitroKart_NGage_PVS pvs, out bool isAnimated) {
+            isAnimated = false;
             float scale = 8f;
             Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, v.Y / scale);
             Vector2 toUV(GBAVV_NitroKart_NGage_UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
@@ -876,6 +881,7 @@ namespace R1Engine
                 }
                 bool isScroll = BitHelpers.ExtractBits(flags, 1, 5) == 1;
                 if (isScroll || animatedTextures.ContainsKey(k)) {
+                    isAnimated = true;
                     var animTex = gao.AddComponent<AnimatedTextureComponent>();
                     animTex.material = mr.material;
                     if(isScroll) animTex.scrollU = -1f;
@@ -891,8 +897,10 @@ namespace R1Engine
             return gaoParent;
         }
 
-        public float GetLevelWidth(GBAVV_NitroKart_NGage_PVS pvs) {
-            return pvs.Vertices.Max(v => v.Y);
+        public Vector2 GetLevelDimensions(GBAVV_NitroKart_NGage_PVS pvs) {
+            var height = pvs.Vertices.Max(v => v.Y);
+            var width = pvs.Vertices.Max(v => v.X);
+            return new Vector2(width, height);
         }
 
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
@@ -905,10 +913,10 @@ namespace R1Engine
 
             var level = exe.LevelInfos[context.Settings.Level];
             var pop = level.POP;
-
-            var pvs = CreatePVSGameObject(context, level.PVS);
-            float levelWidth = GetLevelWidth(level.PVS);
-            pvs.transform.position = new Vector3(0,0,-levelWidth / 8f);
+            bool pvsIsAnimated;
+            var pvs = CreatePVSGameObject(context, level.PVS, out pvsIsAnimated);
+            Vector2 levelDimensions = GetLevelDimensions(level.PVS);
+            pvs.transform.position = new Vector3(0,0,-levelDimensions.y / 8f);
 
             Controller.DetailedState = "Loading localization";
             await Controller.WaitIfNecessary();
@@ -919,7 +927,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(LoadGFX(context)), null, GBAVV_MapInfo.GBAVV_MapType.Kart, nitroKart_ObjTypeData: exe.NitroKart_ObjTypeData, scripts: exe.Scripts, locPointerTable: loc.Item2);
-            objManager.LevelWidthNitroKartNGage = levelWidth;
+            objManager.LevelWidthNitroKartNGage = levelDimensions.y;
 
             var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
 
@@ -934,6 +942,7 @@ namespace R1Engine
             var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
 
             GameObject gao_3dObjParent = null;
+            bool obj3dIsAnimated = false;
 
             void replaceObjWith3D(GBAVV_NitroKart_NGage_S3D s3d, int[] objTypes, Vector3? snapToFloorPosition = null)
             {
@@ -947,7 +956,9 @@ namespace R1Engine
                         gao_3dObjParent.transform.localRotation = Quaternion.identity;
                         gao_3dObjParent.transform.localScale = Vector3.one;
                     }
-                    var obj = CreateS3DGameObject(context, s3d);
+                    bool isAnimated;
+                    var obj = CreateS3DGameObject(context, s3d, out isAnimated);
+                    obj3dIsAnimated = obj3dIsAnimated || isAnimated;
                     obj.transform.SetParent(gao_3dObjParent.transform);
                     const float scale = 8f;
                     var newPosPreConvert = o.Position;
@@ -1027,13 +1038,14 @@ namespace R1Engine
 
             var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
             var layers = new List<Unity_Layer>();
-            layers.Add(new Unity_Layer_GameObject(true) {
+            layers.Add(new Unity_Layer_GameObject(true, isAnimated: pvsIsAnimated) {
                 Name = "Map",
-                Graphics = pvs
+                Graphics = pvs,
+                Dimensions = levelDimensions * 2
             });
             pvs.transform.SetParent(parent3d);
             if (gao_3dObjParent != null) {
-                layers.Add(new Unity_Layer_GameObject(true) {
+                layers.Add(new Unity_Layer_GameObject(true, isAnimated: obj3dIsAnimated) {
                     Name = "3D Objects",
                     Graphics = gao_3dObjParent
                 });
@@ -1053,21 +1065,6 @@ namespace R1Engine
 
             return new Unity_Level(
                 layers: layers.ToArray(),
-                /*maps: new Unity_Map[] {
-                    new Unity_Map()
-                    {
-                        Width = 1,
-                        Height = 1,
-                        TileSet = new Unity_TileSet[]
-                        {
-                            new Unity_TileSet(8, Color.clear), 
-                        },
-                        MapTiles = new Unity_Tile[]
-                        {
-                            new Unity_Tile(new MapTile()), 
-                        }
-                    }
-                },*/
                 objManager: objManager,
                 eventData: objects,
                 cellSize: 8,

@@ -11,12 +11,16 @@ namespace R1Engine {
 		public Unity_Map.FreeCameraSettings Settings3D { get; set; }
 		public override bool ShowIn3DView => Settings3D != null;
 		public override bool IsAnimated => Textures != null;
+		public int CellSize { get; set; } // Needed to calculate width & height in tiles
 
-		// Keep data for renderers here
+		// Renderers
 		public SpriteRenderer Graphics { get; set; }
+
+		// Additional data for renderers
 		public float CurrentAnimatedTexture { get; set; }
 		public Sprite Sprite { get; set; }
 		public Sprite[] Sprites { get; set; }
+		public Texture2D MainTexture => IsAnimated && Textures.Length > 0 ? Textures[0] : Texture;
 		public Sprite MainSprite => IsAnimated && Sprites.Length > 0 ? Sprites[0] : Sprite;
 
 		public override void SetVisible(bool visible) {
@@ -36,6 +40,11 @@ namespace R1Engine {
 
 		public Sprite CreateSprite(Texture2D tex, int pixelsPerUnit) {
 			return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 1), pixelsPerUnit, 0, SpriteMeshType.FullRect);
+		}
+
+		public override Vector2Int GetDimensions(int cellSize, int? cellSizeOverrideCollision) {
+			var tex = MainTexture;
+			return new Vector2Int(Mathf.CeilToInt(tex.width / (float)cellSize), Mathf.CeilToInt(tex.height / (float)cellSize));
 		}
 	}
 }

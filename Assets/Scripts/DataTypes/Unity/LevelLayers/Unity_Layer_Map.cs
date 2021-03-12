@@ -6,9 +6,9 @@ using UnityEngine.Tilemaps;
 namespace R1Engine {
 	public class Unity_Layer_Map : Unity_Layer {
 		public int MapIndex { get; set; }
-		public Unity_Map Map => LevelEditorData.Level.Maps[MapIndex];
+		public Unity_Map Map { get; set; }
 
-		// Keep renderers here
+		// Renderers
 		public SpriteRenderer Graphics { get; set; }
 		public Tilemap CollisionTilemap { get; set; }
 		public TilemapRenderer Collision { get; set; }
@@ -20,6 +20,12 @@ namespace R1Engine {
 		public override bool ShowIn3DView { get => Map.Settings3D != null; }
 
 		public override bool IsAnimated => HasAnimatedTiles;
+
+		public override Vector2Int GetDimensions(int cellSize, int? cellSizeOverrideCollision) {
+			var width = cellSizeOverrideCollision != null && Map.Type == Unity_Map.MapType.Collision ? (ushort)(Map.Width / (cellSize / cellSizeOverrideCollision)) : Map.Width;
+			var height = cellSizeOverrideCollision != null && Map.Type == Unity_Map.MapType.Collision ? (ushort)(Map.Height / (cellSize / cellSizeOverrideCollision)) : Map.Height;
+			return new Vector2Int(width, height);
+		}
 
 		public override void SetVisible(bool visible) {
 			if (Graphics != null) {
