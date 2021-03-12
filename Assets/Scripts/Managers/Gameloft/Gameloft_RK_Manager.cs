@@ -110,7 +110,7 @@ namespace R1Engine
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101;
 
-		public void CreateTrackMesh(Gameloft_RK_Level level, Context context) {
+		public GameObject CreateTrackMesh(Gameloft_RK_Level level, Context context) {
 			// Load road textures
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.Settings), context);
 			var roads = new MeshInProgress[level.Types.Length][];
@@ -340,7 +340,7 @@ namespace R1Engine
 				//normalsRoad[(i * 8) + 0] =
 			}
 
-			GameObject gaoParent = new GameObject();
+			GameObject gaoParent = new GameObject("Track");
 			gaoParent.transform.position = Vector3.zero;
 
 			// Road
@@ -404,6 +404,8 @@ namespace R1Engine
 			}
 
 			gaoParent.transform.localScale = Vector3.one * 8;
+
+			return gaoParent;
 
 		}
 
@@ -711,7 +713,7 @@ namespace R1Engine
 			var ind = GetLevelResourceIndex(context.Settings);
 			var level = resf.SerializeResource<Gameloft_RK_Level>(context.Deserializer, default, ind, name: $"Level_{ind}");
 
-			CreateTrackMesh(level, context);
+			GameObject trackMesh = CreateTrackMesh(level, context);
 
 			// Load objects
 			Mesh[] meshes = level.Objects3D.Select(o => GetObject3DMesh(o)).ToArray();
@@ -728,6 +730,8 @@ namespace R1Engine
 			gaoParent.transform.position = Vector3.zero;
 			gaoParent.transform.localRotation = Quaternion.identity;
 			var heightMultiplier = 0.025f;
+			GameObject gao_3dObjParent = null;
+			GameObject gao_tunnelParent = null;
 			foreach (var o in level.TrackBlocks) {
 				var sphere = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Cube);
 				sphere.transform.position = curPos + Vector3.up * curHeight;
@@ -756,7 +760,14 @@ namespace R1Engine
 					// Usually they don't show up, but if Byte2 == 2, they show up as speed boosts
 					if (blk.ObjType == 1) {
 						if (blk.TrackObjectIndex < 2) {
+							if (gao_tunnelParent == null) {
+								gao_tunnelParent = new GameObject("Tunnels");
+								gao_tunnelParent.transform.localPosition = Vector3.zero;
+								gao_tunnelParent.transform.localRotation = Quaternion.identity;
+								gao_tunnelParent.transform.localScale = Vector3.one;
+							}
 							GameObject gp = new GameObject($"TrackObjIndex: {blk.TrackObjectIndex}");
+							gp.transform.SetParent(gao_tunnelParent.transform);
 							gp.transform.position = Vector3.zero;
 							//var m = meshes[blk.TrackObjectIndex];
 							var m = GetArchMesh(level, curBlockIndex);
@@ -773,7 +784,14 @@ namespace R1Engine
 							gp.transform.localScale = Vector3.one * 8;
 						}
 					} else if (blk.ObjType == 5) {
+						if (gao_3dObjParent == null) {
+							gao_3dObjParent = new GameObject("3D Objects");
+							gao_3dObjParent.transform.localPosition = Vector3.zero;
+							gao_3dObjParent.transform.localRotation = Quaternion.identity;
+							gao_3dObjParent.transform.localScale = Vector3.one;
+						}
 						GameObject gp = new GameObject($"TrackObjIndex: {blk.TrackObjectIndex}");
+						gp.transform.SetParent(gao_3dObjParent.transform);
 						gp.transform.position = Vector3.zero;
 						//var m = meshes[blk.TrackObjectIndex];
 						var m = GetObject3DMesh(level.Objects3D[blk.TrackObjectIndex], o, blk.FlipX);
@@ -809,7 +827,8 @@ namespace R1Engine
 			}
 			gaoParent.transform.localScale = Vector3.one * 8;
 
-			curPos = Vector3.zero + Vector3.up * 100;
+			// Create minimap objects
+			/*curPos = Vector3.zero + Vector3.up * 100;
 			//curAngle = 0;
 			for(int i = 0; i < level.MapSpriteMapping?.Length; i++) {
 				var b = level.MapSpriteMapping[i];
@@ -819,24 +838,34 @@ namespace R1Engine
 
 				curPos += new Vector3(v.x,0,-v.y) / 2f;
 
-				/*UnityEngine.Random.InitState((int)o.Unknown);
-				var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);*/
 				curBlockIndex++;
-			}
+			}*/
 
 			// Load objects
 			var unityObjs = objs;
 
+			// Initialize layers
+			var layers = new List<Unity_Layer>();
+			layers.Add(new Unity_Layer_GameObject(true) {
+				Name = "Track",
+				Graphics = trackMesh
+			});
+			if (gao_tunnelParent != null) {
+				layers.Add(new Unity_Layer_GameObject(true) {
+					Name = "Tunnels",
+					Graphics = gao_tunnelParent
+				});
+			}
+			if (gao_3dObjParent != null) {
+				layers.Add(new Unity_Layer_GameObject(true) {
+					Name = "3D Objects",
+					Graphics = gao_3dObjParent
+				});
+			}
+
 			// Return level
 			return new Unity_Level(
-				maps: new Unity_Map[] {
-					new Unity_Map() {
-						TileSet = new Unity_TileSet[] {
-							new Unity_TileSet(8)
-						},
-						
-					}
-				},
+				layers: layers.ToArray(),
 				objManager: objManager,
 				isometricData: new Unity_IsometricData {
 					CollisionWidth = 0,
