@@ -99,10 +99,11 @@ namespace R1Engine
                         if(lt.Graphics != null) break;
                         lt.Graphics = Instantiate<SpriteRenderer>(PrefabTextureLayerRenderer, new Vector3(0, 0, -layerIndex), Quaternion.identity, ParentTextureLayer);
                         lt.Graphics.gameObject.name = lt.Name;
+                        lt.InitSprites(LevelEditorData.Level.PixelsPerUnit);
+
                         bool wasTiled = lt.Graphics.drawMode == SpriteDrawMode.Tiled;
                         if (wasTiled) SetGraphicsLayerTiled(layerIndex, false);
-                        var tex = lt.Texture;
-                        lt.Graphics.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 1), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
+                        lt.Graphics.sprite = lt.MainSprite;
                         lt.Graphics.gameObject.SetActive(true);
                         if (wasTiled) SetGraphicsLayerTiled(layerIndex, true);
                         break;
@@ -1071,45 +1072,72 @@ namespace R1Engine
             if (!IsAnimated || !Settings.AnimateTiles) return;
 
             for(int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
-                var layer = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
-                if(layer?.Graphics == null || !layer.IsAnimated) continue;
-                bool changedTile = false;
-                changedTiles.Clear();
-                var map = layer.Map;
-                Texture2D tex = layer.Graphics.sprite.texture;
-                foreach (var animatedTile in layer.AnimatedTiles.Keys) {
-                    foreach (var at in layer.AnimatedTiles[animatedTile]) 
-                    {
-                        var animSpeed = (animatedTile.AnimationSpeeds?[at.tileIndex] ?? animatedTile.AnimationSpeed) / 30f;
-                        //print("Updating " + at.x + " - " + at.y);
-                        at.currentTimer += Time.deltaTime;
+                var layer = LevelEditorData.Level.Layers[i];
+                switch (layer) {
+                    case Unity_Layer_Map lm:
+                        Animate_Layer_Map(i);
+                        break;
+                    case Unity_Layer_Texture lt:
+                        Animate_Layer_Texture(i);
+                        break;
+                }
+            }
+        }
 
-                        if (!(at.currentTimer >= animSpeed)) 
-                            continue;
+        public void Animate_Layer_Map(int layerIndex) {
+            var layer = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+            if (layer?.Graphics == null || !layer.IsAnimated) return;
+            bool changedTile = false;
+            changedTiles.Clear();
+            var map = layer.Map;
+            Texture2D tex = layer.Graphics.sprite.texture;
+            foreach (var animatedTile in layer.AnimatedTiles.Keys) {
+                foreach (var at in layer.AnimatedTiles[animatedTile]) {
+                    var animSpeed = (animatedTile.AnimationSpeeds?[at.tileIndex] ?? animatedTile.AnimationSpeed) / 30f;
+                    //print("Updating " + at.x + " - " + at.y);
+                    at.currentTimer += Time.deltaTime;
 
-                        int frames = Mathf.FloorToInt(at.currentTimer / animSpeed);
-                        int oldTileIndex = at.tileIndex;
-                        at.tileIndex = (oldTileIndex + frames) % at.animatedTile.TileIndices.Length;
+                    if (!(at.currentTimer >= animSpeed))
+                        continue;
 
-                        int oldIndexInTileset = at.animatedTile.TileIndices[oldTileIndex];
-                        int newIndexInTileset = at.animatedTile.TileIndices[at.tileIndex];
-                        if (oldIndexInTileset != newIndexInTileset) 
-                        {
-                            changedTile = true;
-                            Vector2Int v = new Vector2Int(at.x,at.y);
-                            if(!changedTiles.Contains(v)) changedTiles.Add(v);
-                            layer.TileIndexOverrides[at.x, at.y][at.combinedTileIndex.HasValue ? at.combinedTileIndex.Value + 1 : 0] = newIndexInTileset;
-                        }
-                        at.currentTimer -= frames * animSpeed;
+                    int frames = Mathf.FloorToInt(at.currentTimer / animSpeed);
+                    int oldTileIndex = at.tileIndex;
+                    at.tileIndex = (oldTileIndex + frames) % at.animatedTile.TileIndices.Length;
+
+                    int oldIndexInTileset = at.animatedTile.TileIndices[oldTileIndex];
+                    int newIndexInTileset = at.animatedTile.TileIndices[at.tileIndex];
+                    if (oldIndexInTileset != newIndexInTileset) {
+                        changedTile = true;
+                        Vector2Int v = new Vector2Int(at.x, at.y);
+                        if (!changedTiles.Contains(v)) changedTiles.Add(v);
+                        layer.TileIndexOverrides[at.x, at.y][at.combinedTileIndex.HasValue ? at.combinedTileIndex.Value + 1 : 0] = newIndexInTileset;
                     }
+                    at.currentTimer -= frames * animSpeed;
                 }
-                int cellSize = LevelEditorData.Level.CellSize;
-                foreach (var ct in changedTiles) {
-                    var newTile = map.MapTiles[ct.y * map.Width + ct.x];
-                    FillInTilePixels(tex, newTile, map, i, ct.x, ct.y, cellSize, applyTexture: false);
-                }
-                if (changedTile)
-                    tex.Apply();
+            }
+            int cellSize = LevelEditorData.Level.CellSize;
+            foreach (var ct in changedTiles) {
+                var newTile = map.MapTiles[ct.y * map.Width + ct.x];
+                FillInTilePixels(tex, newTile, map, layerIndex, ct.x, ct.y, cellSize, applyTexture: false);
+            }
+            if (changedTile)
+                tex.Apply();
+        }
+
+        public void Animate_Layer_Texture(int layerIndex) {
+            var lt = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Texture;
+            if (lt?.Graphics == null || !lt.IsAnimated) return;
+
+            int curTex = Mathf.FloorToInt(lt.CurrentAnimatedTexture);
+            lt.CurrentAnimatedTexture += Time.deltaTime * lt.AnimSpeed;
+            if (lt.CurrentAnimatedTexture >= lt.Sprites.Length) lt.CurrentAnimatedTexture = 0;
+            int newTex = Mathf.FloorToInt(lt.CurrentAnimatedTexture);
+            if (newTex != curTex) {
+
+                bool wasTiled = lt.Graphics.drawMode == SpriteDrawMode.Tiled;
+                if (wasTiled) SetGraphicsLayerTiled(layerIndex, false);
+                lt.Graphics.sprite = lt.Sprites[newTex];
+                if (wasTiled) SetGraphicsLayerTiled(layerIndex, true);
             }
         }
 

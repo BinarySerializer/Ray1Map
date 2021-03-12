@@ -1046,8 +1046,7 @@ namespace R1Engine
                 layers.Add(new Unity_Layer_Texture
                 {
                     Name = $"Parallax {i}",
-                    Texture = frames.First(),
-                    TextureFrames = frames,
+                    Textures = frames,
                     AnimSpeed = level.Int_14, // TODO: Is this the speed?
                 });
             }
