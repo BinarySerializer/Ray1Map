@@ -8,13 +8,16 @@ using UnityEngine.UI;
 namespace R1Engine
 {
     public class LevelTilemapController : MonoBehaviour {
-        /// <summary>
-        /// References to specific tilemap gameObjects in inspector
-        /// </summary>
-        public Tilemap[] CollisionTilemaps;
-        public SpriteRenderer[] GraphicsTilemaps;
-        public SpriteRenderer background;
         public bool[] IsLayerVisible { get; set; }
+
+        // Prefabs
+        public SpriteRenderer PrefabMapLayerRenderer;
+        public SpriteRenderer PrefabTextureLayerRenderer;
+        public Tilemap PrefabMapLayerCollision;
+        // Parents
+        public Transform ParentMapLayer;
+        public Transform ParentTextureLayer;
+        public Transform ParentMapLayerCollision;
 
         public SpriteRenderer tilemapFull;
         public SpriteRenderer tilemapPreview;
@@ -94,7 +97,7 @@ namespace R1Engine
                 switch (l) {
                     case Unity_Layer_Texture lt:
                         if(lt.Graphics != null) break;
-                        lt.Graphics = Instantiate<SpriteRenderer>(background, new Vector3(0, 0, -layerIndex), Quaternion.identity, background.transform.parent);
+                        lt.Graphics = Instantiate<SpriteRenderer>(PrefabTextureLayerRenderer, new Vector3(0, 0, -layerIndex), Quaternion.identity, ParentTextureLayer);
                         lt.Graphics.gameObject.name = lt.Name;
                         bool wasTiled = lt.Graphics.drawMode == SpriteDrawMode.Tiled;
                         if (wasTiled) SetGraphicsLayerTiled(layerIndex, false);
@@ -237,7 +240,7 @@ namespace R1Engine
                 if (l is Unity_Layer_Map lm) {
                     var map = lm.Map;
                     if (map.Type.HasFlag(Unity_Map.MapType.Collision)) {
-                        lm.CollisionTilemap = Instantiate<Tilemap>(CollisionTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, CollisionTilemaps[0].transform.parent);
+                        lm.CollisionTilemap = Instantiate<Tilemap>(PrefabMapLayerCollision, new Vector3(0, 0, -i), Quaternion.identity, ParentMapLayerCollision);
                         lm.CollisionTilemap.gameObject.name = $"{lm.Name} - Collision";
                         lm.Collision = lm.CollisionTilemap.GetComponent<TilemapRenderer>();
                         ConfigureCollisionMapLayer(i);
@@ -356,7 +359,7 @@ namespace R1Engine
                 if (l is Unity_Layer_Map lm) {
                     var map = lm.Map;
                     if (map.Type.HasFlag(Unity_Map.MapType.Graphics)) {
-                        lm.Graphics = Instantiate<SpriteRenderer>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
+                        lm.Graphics = Instantiate<SpriteRenderer>(PrefabMapLayerRenderer, new Vector3(0, 0, -i), Quaternion.identity, ParentMapLayer);
                         lm.Graphics.gameObject.name = $"{lm.Name} - Graphics";
                         ConfigureGraphicsMapLayer(i);
                     }
@@ -521,9 +524,7 @@ namespace R1Engine
         // Used for switching the view between template and normal tiles
         public void ShowHideTemplate() {
             focusedOnTemplate = !focusedOnTemplate;
-            for (int i = 0; i < GraphicsTilemaps.Length; i++) {
-                if(GraphicsTilemaps[i] != null) GraphicsTilemaps[i].gameObject.SetActive(!focusedOnTemplate);
-            }
+            UpdateLayersVisibility();
             tilemapFull.gameObject.SetActive(focusedOnTemplate);
 
             //Clear the selection square so it doesn't remain and look bad
@@ -933,14 +934,14 @@ namespace R1Engine
             var map = layer.Map;
 
             // Update tile graphics
-            for (int i = 0; i < CollisionTilemaps.Length; i++) {
-                if(CollisionTilemaps[i] == null) continue;
-                CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), null);
+            if (layer.CollisionTilemap != null) {
+                layer.CollisionTilemap.SetTile(new Vector3Int(x, y, 0), null);
                 var type = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionType);
                 if (CurrentCollisionIcons.ContainsKey(type)) {
-                    CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
+                    layer.CollisionTilemap.SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
                 }
             }
+
             // Get the tile to set
             var destTile = map.MapTiles[y * map.Width + x];
 
@@ -964,7 +965,10 @@ namespace R1Engine
             var map = layer_map?.Map;
             bool enforcedVisibility = false;
 
-            if (LevelEditorData.Level.IsometricData != null) {
+            if (focusedOnTemplate) {
+                enforcedVisibility = true;
+                layer.SetVisible(false);
+            } else if (LevelEditorData.Level.IsometricData != null) {
                 bool is3D = Controller.obj?.levelController?.editor?.cam?.FreeCameraMode ?? false;
                 var settings3D = map?.Settings3D ?? layer_texture?.Settings3D;
                 if (!layer.ShowIn3DView) {
