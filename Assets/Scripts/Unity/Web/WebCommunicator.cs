@@ -465,20 +465,6 @@ public class WebCommunicator : MonoBehaviour {
 		if (lvl != null) {
 			s.CanUseFreeCameraMode = lvl.IsometricData != null;
 			List<WebJSON.Layer> layers = new List<WebJSON.Layer>();
-			if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
-				layers.Add(new WebJSON.Layer() {
-					Index = LevelTilemapController.Index_Background,
-					IsVisible = Controller.obj.levelController.controllerTilemap.background.gameObject.activeSelf
-				});
-			}
-
-			if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
-				layers.Add(new WebJSON.Layer() {
-					Index = LevelTilemapController.Index_ParallaxBackground,
-					IsVisible = Controller.obj.levelController.controllerTilemap.backgroundParallax.gameObject.activeSelf
-				});
-			}
-
 			var visibility = Controller.obj?.levelController?.controllerTilemap?.IsLayerVisible;
 			if (visibility != null) {
 				for (int i = 0; i < visibility.Length; i++) 
@@ -486,6 +472,7 @@ public class WebCommunicator : MonoBehaviour {
                     /*if (!LevelEditorData.Level.Maps[i].Type.HasFlag(Unity_Map.MapType.Graphics))
                         continue;*/
 					layers.Add(new WebJSON.Layer() {
+						Name = LevelEditorData.Level?.Layers?[i].Name,
 						Index = i,
 						IsVisible = visibility[i]
 					});
@@ -572,24 +559,8 @@ public class WebCommunicator : MonoBehaviour {
 			if (lvl != null && tilemapController != null) {
 				foreach (var layer in msg.Layers) {
 					switch (layer.Index) {
-						case LevelTilemapController.Index_Background:
-							if (lvl.Background != null && tilemapController.background != null) {
-								var bg = tilemapController.background;
-								if (layer.IsVisible.HasValue && layer.IsVisible.Value != bg.gameObject.activeSelf) {
-									bg.gameObject.SetActive(layer.IsVisible.Value);
-								}
-							}
-							break;
-						case LevelTilemapController.Index_ParallaxBackground:
-							if (lvl.ParallaxBackground != null && tilemapController.backgroundParallax != null) {
-								var bg = tilemapController.backgroundParallax;
-								if (layer.IsVisible.HasValue && layer.IsVisible.Value != bg.gameObject.activeSelf) {
-									bg.gameObject.SetActive(layer.IsVisible.Value);
-								}
-							}
-							break;
 						default:
-							if (layer.Index < lvl.Maps.Length && tilemapController.IsLayerVisible != null) {
+							if (tilemapController.IsLayerVisible != null && layer.Index < tilemapController.IsLayerVisible.Length) {
 								tilemapController.IsLayerVisible[layer.Index] = layer.IsVisible.Value;
 							}
 							break;

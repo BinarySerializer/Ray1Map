@@ -282,66 +282,32 @@ public class SettingsWindow : UnityWindow
                 if (Controller.obj?.levelController?.controllerTilemap != null) {
                     var tilemapController = Controller.obj.levelController.controllerTilemap;
 
-                    if (lvl.Background != null && tilemapController.background != null) {
-                        var bg = tilemapController.background;
-
-                        var isActive = EditorField($"Show background", bg.gameObject.activeSelf);
-
-                        if (isActive != bg.gameObject.activeSelf)
-                            bg.gameObject.SetActive(isActive);
-                    }
-
-                    if (lvl.ParallaxBackground != null && tilemapController.backgroundParallax != null) {
-                        var bg = tilemapController.backgroundParallax;
-
-                        var isActive = EditorField($"Show parallax background", bg.gameObject.activeSelf);
-
-                        if (isActive != bg.gameObject.activeSelf)
-                            bg.gameObject.SetActive(isActive);
-                    }
                     var layerVisibilities = tilemapController.IsLayerVisible;
                     if (layerVisibilities != null) {
                         for (int i = 0; i < layerVisibilities.Length; i++) {
-                            layerVisibilities[i] = EditorField($"Show layer {i} ({LevelEditorData.Level.Maps[i].Type})", layerVisibilities[i]);
+                            layerVisibilities[i] = EditorField($"Show {LevelEditorData.Level.Layers[i].Name}", layerVisibilities[i]);
                         }
                     }
-                    if (lvl.Background != null && tilemapController.background != null) {
-                        var bg = tilemapController.background;
-                        var spr = bg.sprite;
-                        if (spr == null
-                                    || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxWidth * tilemapController.CellSizeInUnits
-                                    || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxHeight * tilemapController.CellSizeInUnits) {
-                            bool wasTiled = bg.drawMode == SpriteDrawMode.Tiled;
-                            bool setTiled = EditorField($"Tile background", wasTiled);
-
-                            if (setTiled != wasTiled) {
-                                tilemapController.SetGraphicsLayerTiled(LevelTilemapController.Index_Background, setTiled);
-                            }
-                        }
-                    }
-                    if (lvl.Background != null && tilemapController.backgroundParallax != null) {
-                        var bg = tilemapController.backgroundParallax;
-                        var spr = bg.sprite;
-                        if (spr == null
-                                    || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxWidth * tilemapController.CellSizeInUnits
-                                    || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxHeight * tilemapController.CellSizeInUnits) {
-                            bool wasTiled = bg.drawMode == SpriteDrawMode.Tiled;
-                            bool setTiled = EditorField($"Tile parallax background", wasTiled);
-
-                            if (setTiled != wasTiled) {
-                                tilemapController.SetGraphicsLayerTiled(LevelTilemapController.Index_ParallaxBackground, setTiled);
-                            }
-                        }
-                    }
-                    if (tilemapController.GraphicsTilemaps != null) {
-                        for (int i = 0; i < tilemapController.GraphicsTilemaps.Length; i++) {
-                            if (tilemapController.GraphicsTilemaps[i] != null) {
-                                var spr = tilemapController.GraphicsTilemaps[i].sprite;
+                    if (LevelEditorData.Level?.Layers != null) {
+                        for (int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
+                            if (LevelEditorData.Level.Layers[i] != null) {
+                                Sprite spr = null;
+                                bool wasTiled = false;
+                                var l = LevelEditorData.Level.Layers[i];
+                                switch (l) {
+                                    case Unity_Layer_Map lm:
+                                        spr = lm.Graphics?.sprite;
+                                        wasTiled = lm.Graphics?.drawMode == SpriteDrawMode.Tiled;
+                                        break;
+                                    case Unity_Layer_Texture lt:
+                                        spr = lt.Graphics?.sprite;
+                                        wasTiled = lt.Graphics?.drawMode == SpriteDrawMode.Tiled;
+                                        break;
+                                }
                                 if (spr == null
                                     || spr.rect.width / spr.pixelsPerUnit != LevelEditorData.MaxWidth * tilemapController.CellSizeInUnits
                                     || spr.rect.height / spr.pixelsPerUnit != LevelEditorData.MaxHeight * tilemapController.CellSizeInUnits) {
-                                    bool wasTiled = tilemapController.GraphicsTilemaps[i].drawMode == SpriteDrawMode.Tiled;
-                                    bool setTiled = EditorField($"Tile graphics layer {i}", wasTiled);
+                                    bool setTiled = EditorField($"Tile {l.Name}", wasTiled);
 
                                     if (setTiled != wasTiled) {
                                         tilemapController.SetGraphicsLayerTiled(i, setTiled);

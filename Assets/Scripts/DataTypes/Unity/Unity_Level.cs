@@ -87,6 +87,8 @@ namespace R1Engine
         public ushort MaxWidth { get; }
         public ushort MaxHeight { get; }
 
+        public Unity_Layer[] Layers { get; set; }
+
         public List<Unity_Object> EventData { get; }
         public Unity_Object Rayman { get; }
 
@@ -113,6 +115,32 @@ namespace R1Engine
         #endregion
 
         #region Public Methods
+        public void InitializeDefaultLayers() {
+            if (Layers == null) {
+                List<Unity_Layer> ls = new List<Unity_Layer>();
+                if (Background != null) {
+                    ls.Add(new Unity_Layer_Texture() {
+                        Name = "Background",
+                        Texture = Background,
+                        Layer = Unity_Map.MapLayer.Back
+                    });
+                }
+                if (ParallaxBackground != null) {
+                    ls.Add(new Unity_Layer_Texture() {
+                        Name = "Parallax Background",
+                        Texture = ParallaxBackground,
+                        Layer = Unity_Map.MapLayer.Back
+                    });
+                }
+                for (int i = 0; i < Maps?.Length; i++) {
+                    ls.Add(new Unity_Layer_Map() {
+                        Name = $"Map {i} ({Maps[i].Type})",
+                        MapIndex = i
+                    });
+                }
+                Layers = ls.ToArray();
+            }
+        }
 
         /// <summary>
         /// Auto applies the palette to the tiles in the level
@@ -177,7 +205,8 @@ namespace R1Engine
             int currentPalette = defaultPalette;
 
             // Enumerate each cell (PC only has 1 map per level)
-            for (int cellY = 0; cellY < Maps[0].Height; cellY++)
+            var map = Maps[DefaultMap];
+            for (int cellY = 0; cellY < map.Height; cellY++)
             {
                 // Reset the palette on each row if we have a horizontal changer
                 if (isPaletteHorizontal)
@@ -213,7 +242,7 @@ namespace R1Engine
                     }
                 }
 
-                for (int cellX = 0; cellX < Maps[0].Width; cellX++)
+                for (int cellX = 0; cellX < map.Width; cellX++)
                 {
                     // Check the x position for palette changing
                     if (isPaletteHorizontal)
@@ -247,7 +276,7 @@ namespace R1Engine
                     }
 
                     // Set the common tile
-                    Maps[0].MapTiles[cellY * Maps[0].Width + cellX].PaletteIndex = currentPalette;
+                    map.MapTiles[cellY * map.Width + cellX].PaletteIndex = currentPalette;
                 }
             }
         }

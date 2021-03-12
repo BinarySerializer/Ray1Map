@@ -13,6 +13,7 @@ namespace R1Engine
         /// </summary>
         public Tilemap[] CollisionTilemaps;
         public SpriteRenderer[] GraphicsTilemaps;
+        public SpriteRenderer background;
         public bool[] IsLayerVisible { get; set; }
 
         public SpriteRenderer tilemapFull;
@@ -38,11 +39,8 @@ namespace R1Engine
         public int currentPalette = 1;
         private int _currentPalette = 1;
 
-        // Reference to the background ting
+        // Reference to the background tint
         public SpriteRenderer backgroundTint;
-
-        public SpriteRenderer background;
-        public SpriteRenderer backgroundParallax;
 
         /// <summary>
         /// The type collision tiles
@@ -70,8 +68,6 @@ namespace R1Engine
         public float CellSizeInUnits { get; set; } = 1f;
         public float CellSizeInUnitsCollision { get; set; } = 1f;
 
-        private Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[] animatedTiles;
-        private int?[][,][] TileIndexOverrides { get; set; }
         private HashSet<Vector2Int> changedTiles = new HashSet<Vector2Int>();
 
         public bool HasAutoPaletteOption => LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC || 
@@ -90,34 +86,39 @@ namespace R1Engine
 
         public bool HasAnimatedTiles { get; private set; } = false;
 
-        public const int Index_Background = -2;
-        public const int Index_ParallaxBackground = -1;
+        public void InitializeLevelLayerRenderers(Unity_Level level) {
+            if (level.Layers == null) return;
+            for (int layerIndex = 0; layerIndex < level.Layers.Length; layerIndex++) {
+                var l = level.Layers[layerIndex];
+                if(l == null) continue;
+                switch (l) {
+                    case Unity_Layer_Texture lt:
+                        if(lt.Graphics != null) break;
+                        lt.Graphics = Instantiate<SpriteRenderer>(background, new Vector3(0, 0, -layerIndex), Quaternion.identity, background.transform.parent);
+                        lt.Graphics.gameObject.name = lt.Name;
+                        bool wasTiled = lt.Graphics.drawMode == SpriteDrawMode.Tiled;
+                        if (wasTiled) SetGraphicsLayerTiled(layerIndex, false);
+                        var tex = lt.Texture;
+                        lt.Graphics.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 1), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
+                        lt.Graphics.gameObject.SetActive(true);
+                        if (wasTiled) SetGraphicsLayerTiled(layerIndex, true);
+                        break;
+                    case Unity_Layer_Map lm:
+                        break;
+                }
+            }
+        }
 
         public void InitializeTilemaps() {
             var level = LevelEditorData.Level;
+            if(level.Layers == null) level.InitializeDefaultLayers();
 
             CellSizeInUnits = level.CellSize / (float)level.PixelsPerUnit;
             CellSizeInUnitsCollision = (level.CellSizeOverrideCollision ?? level.CellSize) / (float)level.PixelsPerUnit;
             if (CellSizeInUnitsCollision != 1f) {
                 grid.cellSize = new Vector3(CellSizeInUnitsCollision, CellSizeInUnitsCollision, 0);
             }
-
-            if (level.Background != null) {
-                bool wasTiled = background.drawMode == SpriteDrawMode.Tiled;
-                if (wasTiled) SetGraphicsLayerTiled(Index_Background, false);
-                var tex = level.Background;
-                background.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 1), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
-                background.gameObject.SetActive(true);
-                if (wasTiled) SetGraphicsLayerTiled(Index_Background, true);
-            }
-            if (level.ParallaxBackground != null) {
-                bool wasTiled = background.drawMode == SpriteDrawMode.Tiled;
-                if (wasTiled) SetGraphicsLayerTiled(Index_ParallaxBackground, false);
-                var tex = level.ParallaxBackground;
-                backgroundParallax.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 1), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
-                backgroundParallax.gameObject.SetActive(true);
-                if (wasTiled) SetGraphicsLayerTiled(Index_ParallaxBackground, true);
-            }
+            InitializeLevelLayerRenderers(level);
 
             // Resize the background tint
             ResizeBackgroundTint(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight);
@@ -132,7 +133,7 @@ namespace R1Engine
             }
 
             // Init layer visibility
-            IsLayerVisible = new bool[LevelEditorData.Level.Maps.Length];
+            IsLayerVisible = new bool[LevelEditorData.Level.Layers.Length];
             for (int i = 0; i < IsLayerVisible.Length; i++) {
                 IsLayerVisible[i] = true;
             }
@@ -230,31 +231,26 @@ namespace R1Engine
             var lvl = LevelEditorData.Level;
             var unsupportedTiles = new HashSet<int>();
 
-            // Resize collision map array
-            if (CollisionTilemaps.Length != lvl.Maps.Length) {
-                Array.Resize(ref CollisionTilemaps, lvl.Maps.Length);
-                for (int i = 1; i < CollisionTilemaps.Length; i++) {
-                    var map = lvl.Maps[i];
+            // Initialize collision renderers for all collision map layers
+            for (int i = 0; i < lvl.Layers.Length; i++) {
+                var l = lvl.Layers[i];
+                if (l is Unity_Layer_Map lm) {
+                    var map = lm.Map;
                     if (map.Type.HasFlag(Unity_Map.MapType.Collision)) {
-                        CollisionTilemaps[i] = Instantiate<Tilemap>(CollisionTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, CollisionTilemaps[0].transform.parent);
-                        CollisionTilemaps[i].gameObject.name = "Tilemap Collision " + i;
+                        lm.CollisionTilemap = Instantiate<Tilemap>(CollisionTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, CollisionTilemaps[0].transform.parent);
+                        lm.CollisionTilemap.gameObject.name = $"{lm.Name} - Collision";
+                        lm.Collision = lm.CollisionTilemap.GetComponent<TilemapRenderer>();
                         ConfigureCollisionMapLayer(i);
-                    }
-                }
-                if (lvl.Maps.Length > 0) {
-                    if (!lvl.Maps[0].Type.HasFlag(Unity_Map.MapType.Collision)) {
-                        Destroy(CollisionTilemaps[0].gameObject);
-                        CollisionTilemaps[0] = null;
-                    } else {
-                        ConfigureCollisionMapLayer(0);
                     }
                 }
             }
 
             // Fill out types first
-            for (int i = 0; i < CollisionTilemaps.Length; i++) {
-                var map = lvl.Maps[i];
-                if(!map.Type.HasFlag(Unity_Map.MapType.Collision)) continue;
+            for (int i = 0; i < lvl.Layers.Length; i++) {
+                var lm = lvl.Layers[i] as Unity_Layer_Map;
+                if(lm == null) continue;
+                var map = lm.Map;
+                if (!map.Type.HasFlag(Unity_Map.MapType.Collision)) continue;
                 for (int y = 0; y < map.Height; y++) {
                     for (int x = 0; x < map.Width; x++) {
                         var t = map.MapTiles[y * map.Width + x];
@@ -270,10 +266,10 @@ namespace R1Engine
 
                         if (t.Data.UsesCollisionShape && t.Data.GBAVV_CollisionShape.Value != MapTile.GBAVV_CollisionTileShape.Solid) {
                             // Set the collision tile
-                            CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), GetShapedCollisionTile(collisionType, t.Data.GBAVV_CollisionShape.Value));
+                            lm.CollisionTilemap.SetTile(new Vector3Int(x, y, 0), GetShapedCollisionTile(collisionType, t.Data.GBAVV_CollisionShape.Value));
                         } else {
                             // Set the collision tile
-                            CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons.TryGetItem(collisionType));
+                            lm.CollisionTilemap.SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons.TryGetItem(collisionType));
                         }
                     }
                 }
@@ -285,12 +281,23 @@ namespace R1Engine
 
         private void ConfigureGraphicsMapLayer(int i) {
             var lvl = LevelEditorData.Level;
-            if (GraphicsTilemaps?[i] == null) return;
-            SpriteRenderer tr = GraphicsTilemaps[i];
-            if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
+            Unity_Map.MapLayer mapLayer = Unity_Map.MapLayer.Middle;
+            SpriteRenderer tr = null;
+            switch (lvl.Layers[i]) {
+                case Unity_Layer_Map lm:
+                    mapLayer = lm.Map.Layer;
+                    tr = lm.Graphics;
+                    break;
+                case Unity_Layer_Texture lt:
+                    mapLayer = lt.Layer;
+                    tr = lt.Graphics;
+                    break;
+            }
+            if(tr == null) return;
+            if (mapLayer == Unity_Map.MapLayer.Front) {
                 //Debug.Log($"Graphics map {i} is in front");
                 tr.sortingLayerName = "Tiles Front";
-            } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
+            } else if (mapLayer == Unity_Map.MapLayer.Back) {
                 //Debug.Log($"Graphics map {i} is in the back");
                 tr.sortingLayerName = "Tiles Back";
             } else {
@@ -301,13 +308,19 @@ namespace R1Engine
 
         private void ConfigureCollisionMapLayer(int i) {
             var lvl = LevelEditorData.Level;
-            if (CollisionTilemaps?[i] == null) return;
-            Tilemap t = CollisionTilemaps[i];
-            var tr = t.GetComponent<TilemapRenderer>();
-            if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Front) {
+            Unity_Map.MapLayer mapLayer = Unity_Map.MapLayer.Middle;
+            TilemapRenderer tr = null;
+            switch (lvl.Layers[i]) {
+                case Unity_Layer_Map lm:
+                    mapLayer = lm.Map.Layer;
+                    tr = lm.Collision;
+                    break;
+            }
+            if (tr == null) return;
+            if (mapLayer == Unity_Map.MapLayer.Front) {
                 //Debug.Log($"Collision map {i} is in front");
                 tr.sortingLayerName = "Types Front";
-            } else if (lvl.Maps[i].Layer == Unity_Map.MapLayer.Back) {
+            } else if (mapLayer == Unity_Map.MapLayer.Back) {
                 //Debug.Log($"Collision map {i} is in the back");
                 tr.sortingLayerName = "Types Back";
             } else {
@@ -337,40 +350,31 @@ namespace R1Engine
             if (palette == 0)
                 lvl.AutoApplyPalette();
 
-            // Refresh tiles for every map
-            TileIndexOverrides = new int?[lvl.Maps.Length][,][];
-            if (GraphicsTilemaps.Length != lvl.Maps.Length) {
-                Array.Resize(ref GraphicsTilemaps, lvl.Maps.Length);
-                for (int i = 1; i < GraphicsTilemaps.Length; i++) {
-                    if(!lvl.Maps[i].Type.HasFlag(Unity_Map.MapType.Graphics)) continue;
-                    GraphicsTilemaps[i] = Instantiate<SpriteRenderer>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
-                    GraphicsTilemaps[i].gameObject.name = "Tilemap Graphics " + i;
-                    ConfigureGraphicsMapLayer(i);
+            // Initialize renderers for all graphics layers
+            for (int i = 0; i < lvl.Layers.Length; i++) {
+                var l = lvl.Layers[i];
+                if (l is Unity_Layer_Map lm) {
+                    var map = lm.Map;
+                    if (map.Type.HasFlag(Unity_Map.MapType.Graphics)) {
+                        lm.Graphics = Instantiate<SpriteRenderer>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
+                        lm.Graphics.gameObject.name = $"{lm.Name} - Graphics";
+                        ConfigureGraphicsMapLayer(i);
+                    }
                 }
             }
-            if (lvl.Maps.Length > 0) {
-                if (!lvl.Maps[0].Type.HasFlag(Unity_Map.MapType.Graphics)) {
-                    Destroy(GraphicsTilemaps[0].gameObject);
-                    GraphicsTilemaps[0] = null;
-                } else {
-                    ConfigureGraphicsMapLayer(0);
-                }
-            }
-            animatedTiles = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[GraphicsTilemaps.Length];
-            for (int mapIndex = 0; mapIndex < lvl.Maps.Length; mapIndex++) {
-                var map = lvl.Maps[mapIndex];
-                if(!map.Type.HasFlag(Unity_Map.MapType.Graphics)) continue;
-                animatedTiles[mapIndex] = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>();
-                if (map.IsAdditive) {
-                    GraphicsTilemaps[mapIndex].material = additiveMaterial;
-                }
-                if (map.Alpha.HasValue) {
-                    GraphicsTilemaps[mapIndex].color = new Color(1f, 1f, 1f, map.Alpha.Value);
-                }
+            for (int i = 0; i < lvl.Layers.Length; i++) {
+                var lm = lvl.Layers[i] as Unity_Layer_Map;
+                if (lm == null) continue;
+                var map = lm.Map;
+                if (!map.Type.HasFlag(Unity_Map.MapType.Graphics)) continue;
+                lm.AnimatedTiles = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>();
+                if (map.IsAdditive) lm.Graphics.material = additiveMaterial;
+                if (map.Alpha.HasValue) lm.Graphics.color = new Color(1f, 1f, 1f, map.Alpha.Value);
+
                 int cellSize = LevelEditorData.Level.CellSize;
                 Texture2D tex = TextureHelpers.CreateTexture2D(map.Width * cellSize, map.Height * cellSize);
 
-                TileIndexOverrides[mapIndex] = new int?[map.Width, map.Height][];
+                lm.TileIndexOverrides = new int?[map.Width, map.Height][];
                 for (int y = 0; y < map.Height; y++) {
                     for (int x = 0; x < map.Width; x++) {
                         var t = map.MapTiles[y * map.Width + x];
@@ -381,14 +385,14 @@ namespace R1Engine
                         if (t.PaletteIndex - 1 >= map.TileSet.Length)
                             t.PaletteIndex = 1;
 
-                        TileIndexOverrides[mapIndex][x,y] = new int?[1 + (t.CombinedTiles?.Length ?? 0)];
-                        AddAnimatedTile(map, mapIndex, t, x, y);
+                        lm.TileIndexOverrides[x,y] = new int?[1 + (t.CombinedTiles?.Length ?? 0)];
+                        AddAnimatedTile(map, i, t, x, y);
                         if (t.CombinedTiles != null) {
-                            for (int i = 0; i < t.CombinedTiles.Length; i++) {
-                                AddAnimatedTile(map, mapIndex, t.CombinedTiles[i], x,y,combinedTileIndex: i);
+                            for (int ct = 0; ct < t.CombinedTiles.Length; ct++) {
+                                AddAnimatedTile(map, i, t.CombinedTiles[ct], x,y,combinedTileIndex: ct);
                             }
                         }
-                        FillInTilePixels(tex, t, map, mapIndex, x, y, cellSize);
+                        FillInTilePixels(tex, t, map, i, x, y, cellSize);
 
                         /*GraphicsTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
                         GraphicsTilemaps[mapIndex].SetTransformMatrix(new Vector3Int(x, y, 0), GraphicsTilemaps[mapIndex].GetTransformMatrix(new Vector3Int(x, y, 0)) * Matrix4x4.Scale(new Vector3(t.Data.HorizontalFlip ? -1 : 1, t.Data.VerticalFlip ? -1 : 1, 1)));*/
@@ -397,46 +401,49 @@ namespace R1Engine
                 tex.filterMode = FilterMode.Point;
                 tex.Apply();
 
-                bool wasTiled = GraphicsTilemaps[mapIndex].drawMode == SpriteDrawMode.Tiled;
-                if (wasTiled) SetGraphicsLayerTiled(mapIndex, false);
+                bool wasTiled = lm.Graphics.drawMode == SpriteDrawMode.Tiled;
+                if (wasTiled) SetGraphicsLayerTiled(i, false);
 
                 // Note: FullRect is important, otherwise when editing you need to create a new sprite
-                GraphicsTilemaps[mapIndex].sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
+                lm.Graphics.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
 
                 // After setting sprite, set tiled
-                if (wasTiled) SetGraphicsLayerTiled(mapIndex, true);
+                if (wasTiled) SetGraphicsLayerTiled(i, true);
             }
 
             CreateTilemapGrid();
             CreateTilemapFull();
         }
 
-        public void SetGraphicsLayerTiled(int mapIndex, bool tiled) {
-            SpriteRenderer mapRenderer = null;
+        public void SetGraphicsLayerTiled(int layerIndex, bool tiled) {
+            SpriteRenderer renderer = null;
             var scale = Vector3.one;
-            if (mapIndex < 0) {
-                if (mapIndex == -1) mapRenderer = backgroundParallax;
-                else if(mapIndex == -2) mapRenderer = background;
-            } else {
-                mapRenderer = GraphicsTilemaps[mapIndex];
-                scale.y = -1;
+            var layer = LevelEditorData.Level.Layers[layerIndex];
+            switch (layer) {
+                case Unity_Layer_Map lm:
+                    renderer = lm.Graphics;
+                    scale.y = -1;
+                    break;
+                case Unity_Layer_Texture lt:
+                    renderer = lt.Graphics;
+                    break;
             }
             if (tiled) {
-                mapRenderer.drawMode = SpriteDrawMode.Tiled;
-                mapRenderer.tileMode = SpriteTileMode.Continuous;
-                mapRenderer.transform.localScale = scale;
-                mapRenderer.size = new Vector2(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight) * CellSizeInUnits;
+                renderer.drawMode = SpriteDrawMode.Tiled;
+                renderer.tileMode = SpriteTileMode.Continuous;
+                renderer.transform.localScale = scale;
+                renderer.size = new Vector2(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight) * CellSizeInUnits;
             } else {
-                mapRenderer.drawMode = SpriteDrawMode.Simple;
-                mapRenderer.transform.localScale = scale;
-                if (mapRenderer.sprite != null) {
+                renderer.drawMode = SpriteDrawMode.Simple;
+                renderer.transform.localScale = scale;
+                if (renderer.sprite != null) {
                     // Restore original size
-                    mapRenderer.size = mapRenderer.sprite.rect.size / mapRenderer.sprite.pixelsPerUnit;
+                    renderer.size = renderer.sprite.rect.size / renderer.sprite.pixelsPerUnit;
                 }
             }
         }
 
-        private void AddAnimatedTile(Unity_Map map, int mapIndex, Unity_Tile t, int x, int y, int? combinedTileIndex = null) {
+        private void AddAnimatedTile(Unity_Map map, int layerIndex, Unity_Tile t, int x, int y, int? combinedTileIndex = null) {
             Unity_TileTexture tile = map.GetTile(t, LevelEditorData.CurrentSettings);
             var atInstance = map.GetAnimatedTile(t, LevelEditorData.CurrentSettings);
             if (atInstance != null) {
@@ -445,10 +452,13 @@ namespace R1Engine
                 atInstance.y = y;
                 atInstance.combinedTileIndex = combinedTileIndex;
                 var at = atInstance.animatedTile;
-                if (!animatedTiles[mapIndex].ContainsKey(at)) {
-                    animatedTiles[mapIndex][at] = new List<Unity_AnimatedTile.Instance>();
+                var l = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+                if (l != null) {
+                    if (!l.AnimatedTiles.ContainsKey(at)) {
+                        l.AnimatedTiles[at] = new List<Unity_AnimatedTile.Instance>();
+                    }
+                    l.AnimatedTiles[at].Add(atInstance);
                 }
-                animatedTiles[mapIndex][at].Add(atInstance);
             }
         }
         private void CreateTilemapGrid() {
@@ -621,8 +631,9 @@ namespace R1Engine
                     SetTileAtPos(x1, y1, newTiles[y1 * w + x1], applyTexture: false);
                 }
             }
-            for (int i = 0; i < GraphicsTilemaps.Length; i++) {
-                if (GraphicsTilemaps[i] != null) GraphicsTilemaps[i].sprite.texture.Apply();
+            for (int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
+                var l = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
+                if (l?.Graphics != null) l.Graphics.sprite.texture.Apply();
             }
         }
         public void SetTileBlockAtPos(int startX, int startY, int w, int h, Unity_Tile[,] newTiles) {
@@ -631,25 +642,31 @@ namespace R1Engine
                     SetTileAtPos(startX + x, startY + y, newTiles[x,y], applyTexture: false);
                 }
             }
-            for (int i = 0; i < GraphicsTilemaps.Length; i++) {
-                if (GraphicsTilemaps[i] == null) continue;
-                Texture2D tex = GraphicsTilemaps[i].sprite.texture;
+            for (int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
+                var l = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
+                if (l?.Graphics == null) continue;
+                Texture2D tex = l.Graphics.sprite.texture;
                 tex.Apply();
                 //GraphicsTilemaps[i].sprite = Sprite.Create(tex, new Rect(0,0,tex.width, tex.height), new Vector2(0, 0), LevelEditorData.EditorManager.PixelsPerUnit, 0, SpriteMeshType.FullRect);
             }
         }
 
-        private void FillInTilePixels(Texture2D tex, Unity_Tile t, Unity_Map map, int mapIndex, int x, int y, int cellSize, bool applyTexture = false, bool combined = false) {
+        private void FillInTilePixels(Texture2D tex, Unity_Tile t, Unity_Map map, int layerIndex, int x, int y, int cellSize, bool applyTexture = false, bool combined = false) {
             bool flipY = (t?.Data.VerticalFlip ?? false);
             bool flipX = (t?.Data.HorizontalFlip ?? false);
-            var tile = map.GetTile(t, LevelEditorData.CurrentSettings, tileIndexOverride: mapIndex >= 0 ? TileIndexOverrides[mapIndex][x,y][0] : null);
+            int?[,][] TileIndexOverrides = null;
+            if (layerIndex >= 0) {
+                var layer = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+                TileIndexOverrides = layer.TileIndexOverrides;
+            }
+            var tile = map.GetTile(t, LevelEditorData.CurrentSettings, tileIndexOverride: TileIndexOverrides != null ? TileIndexOverrides[x,y][0] : null);
             FillInTilePixels_Single(tex, tile, x, y, flipX, flipY, cellSize, applyTexture: false, overlay: false);
 
             // Write combined tiles
             if (t?.CombinedTiles?.Length > 0) {
                 for(int i = 0; i < t.CombinedTiles.Length; i++) {
                     var ct = t.CombinedTiles[i];
-                    var tileTex = map.GetTile(ct, LevelEditorData.CurrentSettings, tileIndexOverride: mapIndex >= 0 ? TileIndexOverrides[mapIndex][x, y][1 + i] : null);
+                    var tileTex = map.GetTile(ct, LevelEditorData.CurrentSettings, tileIndexOverride: TileIndexOverrides != null ? TileIndexOverrides[x, y][1 + i] : null);
                     FillInTilePixels_Single(tex, tileTex, x, y, ct.Data.HorizontalFlip, ct.Data.VerticalFlip, cellSize, applyTexture: false, overlay: true);
                 }
             }
@@ -682,12 +699,13 @@ namespace R1Engine
             if (applyTexture) tex.Apply();
         }
 
-        public void SetCollisionTileRendererAtPos(int x, int y, int mapIndex, Unity_Tile newTile, bool setNull = true) {
-            if (CollisionTilemaps[mapIndex] == null) return;
-            if(setNull) CollisionTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), null);
+        public void SetCollisionTileRendererAtPos(int x, int y, int layerIndex, Unity_Tile newTile, bool setNull = true) {
+            var lm = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+            if (lm?.CollisionTilemap == null) return;
+            if(setNull) lm.CollisionTilemap.SetTile(new Vector3Int(x, y, 0), null);
             var type = LevelEditorData.Level.GetCollisionTypeGraphicFunc(newTile.Data.CollisionType);
             if (CurrentCollisionIcons.ContainsKey(type)) {
-                CollisionTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
+                lm.CollisionTilemap.SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
             }
         }
 
@@ -939,13 +957,16 @@ namespace R1Engine
             }
         }
 
-        public void UpdateMapSettings(int i) {
-            var map = LevelEditorData.Level.Maps[i];
+        public void UpdateMapLayerSettings(int i) {
+            var layer = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
+            if(layer == null) return;
+            var map = layer.Map;
             bool enforcedVisibility = false;
 
             if (LevelEditorData.Level.IsometricData != null) {
                 bool is3D = Controller.obj?.levelController?.editor?.cam?.FreeCameraMode ?? false;
-                if (map.Settings3D != null) {
+                var settings3D = map.Settings3D;
+                if (settings3D != null) {
                     Vector3 pos;
                     Vector3 posCol;
                     Quaternion q;
@@ -958,24 +979,24 @@ namespace R1Engine
                         posCol = pos;
                         q = Quaternion.identity;
                         scale = new Vector3(1,-1,1);
-                        if (GraphicsTilemaps?[i] != null) ConfigureGraphicsMapLayer(i);
-                        if (CollisionTilemaps?[i] != null) ConfigureCollisionMapLayer(i);
+                        if (layer.Graphics != null) ConfigureGraphicsMapLayer(i);
+                        if (layer.Collision != null) ConfigureCollisionMapLayer(i);
                     } else {
                         // Move map to desired position
-                        if (map.Settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.FixedPosition) {
-                            pos = map.Settings3D.Position ?? Vector3.zero;
-                            q = map.Settings3D.Rotation ?? Quaternion.identity;
-                            posCol = map.Settings3D.PositionCollision ?? pos;
-                            scale = map.Settings3D.Scale ?? Vector3.one;
-                            sortingOrder = map.Settings3D.SortingOrderGraphics ?? 0;
-                            sortingOrderCol = map.Settings3D.SortingOrderCollision ?? 0;
-                        } else if (map.Settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.Billboard) {
-                            pos = map.Settings3D.Position ?? Vector3.zero;
-                            posCol = map.Settings3D.PositionCollision ?? pos;
-                            q = map.Settings3D.Rotation ?? Quaternion.identity;
-                            scale = map.Settings3D.Scale ?? Vector3.one;
-                            sortingOrder = map.Settings3D.SortingOrderGraphics ?? 0;
-                            sortingOrderCol = map.Settings3D.SortingOrderCollision ?? 0;
+                        if (settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.FixedPosition) {
+                            pos = settings3D.Position ?? Vector3.zero;
+                            q = settings3D.Rotation ?? Quaternion.identity;
+                            posCol = settings3D.PositionCollision ?? pos;
+                            scale = settings3D.Scale ?? Vector3.one;
+                            sortingOrder = settings3D.SortingOrderGraphics ?? 0;
+                            sortingOrderCol = settings3D.SortingOrderCollision ?? 0;
+                        } else if (settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.Billboard) {
+                            pos = settings3D.Position ?? Vector3.zero;
+                            posCol = settings3D.PositionCollision ?? pos;
+                            q = settings3D.Rotation ?? Quaternion.identity;
+                            scale = settings3D.Scale ?? Vector3.one;
+                            sortingOrder = settings3D.SortingOrderGraphics ?? 0;
+                            sortingOrderCol = settings3D.SortingOrderCollision ?? 0;
 
                             Camera cam = Controller.obj.levelEventController.editor.cam.camera3D;
                             Quaternion lookRot = Quaternion.LookRotation(
@@ -990,38 +1011,38 @@ namespace R1Engine
                             q = Quaternion.identity;
                             scale = Vector3.one;
                         }
-                        if (map.Settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.FixedPosition
-                            || map.Settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.Billboard) {
+                        if (settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.FixedPosition
+                            || settings3D.Mode == Unity_Map.FreeCameraSettings.Mode3D.Billboard) {
                             // Update sorting info
-                            if (GraphicsTilemaps?[i] != null) {
-                                GraphicsTilemaps[i].sortingLayerName = "Object Sprites";
-                                GraphicsTilemaps[i].sortingOrder = sortingOrder;
+                            if (layer.Graphics != null) {
+                                layer.Graphics.sortingLayerName = "Object Sprites";
+                                layer.Graphics.sortingOrder = sortingOrder;
                             }
-                            if (CollisionTilemaps?[i] != null) {
-                                var tr = CollisionTilemaps[i].GetComponent<TilemapRenderer>();
+                            if (layer.Collision != null) {
+                                var tr = layer.Collision.GetComponent<TilemapRenderer>();
                                 tr.sortingLayerName = "Object Sprites";
                                 tr.sortingOrder = sortingOrderCol;
                             }
                         }
                     }
-                    if (GraphicsTilemaps?[i] != null) {
-                        GraphicsTilemaps[i].transform.localPosition = pos;
-                        GraphicsTilemaps[i].transform.localRotation = q;
-                        GraphicsTilemaps[i].transform.localScale = scale;
+                    if (layer.Graphics != null) {
+                        layer.Graphics.transform.localPosition = pos;
+                        layer.Graphics.transform.localRotation = q;
+                        layer.Graphics.transform.localScale = scale;
                     }
-                    if (CollisionTilemaps?[i] != null) {
-                        CollisionTilemaps[i].transform.localPosition = posCol;
-                        CollisionTilemaps[i].transform.localRotation = q;
-                        CollisionTilemaps[i].transform.localScale = scale;
+                    if (layer.Collision != null) {
+                        layer.Collision.transform.localPosition = posCol;
+                        layer.Collision.transform.localRotation = q;
+                        layer.Collision.transform.localScale = scale;
                     }
                 } else {
                     if (is3D) {
                         enforcedVisibility = true;
-                        if (GraphicsTilemaps?[i] != null) {
-                            if (GraphicsTilemaps[i].gameObject.activeSelf) GraphicsTilemaps[i].gameObject.SetActive(false);
+                        if (layer.Graphics != null) {
+                            if (layer.Graphics.gameObject.activeSelf) layer.Graphics.gameObject.SetActive(false);
                         }
-                        if (CollisionTilemaps?[i] != null) {
-                            if (CollisionTilemaps[i].gameObject.activeSelf) CollisionTilemaps[i].gameObject.SetActive(false);
+                        if (layer.Collision != null) {
+                            if (layer.Collision.gameObject.activeSelf) layer.Collision.gameObject.SetActive(false);
                         }
                     }
                 }
@@ -1029,14 +1050,14 @@ namespace R1Engine
             // Change map visibility
             if (!enforcedVisibility) {
                 if (IsLayerVisible != null && IsLayerVisible.Length > i) {
-                    if (GraphicsTilemaps?[i] != null) {
-                        if (GraphicsTilemaps[i].gameObject.activeSelf != IsLayerVisible[i]) {
-                            GraphicsTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
+                    if (layer.Graphics != null) {
+                        if (layer.Graphics.gameObject.activeSelf != IsLayerVisible[i]) {
+                            layer.Graphics.gameObject.SetActive(IsLayerVisible[i]);
                         }
                     }
-                    if (CollisionTilemaps?[i] != null) {
-                        if (CollisionTilemaps[i].gameObject.activeSelf != IsLayerVisible[i]) {
-                            CollisionTilemaps[i].gameObject.SetActive(IsLayerVisible[i]);
+                    if (layer.Collision != null) {
+                        if (layer.Collision.gameObject.activeSelf != IsLayerVisible[i]) {
+                            layer.Collision.gameObject.SetActive(IsLayerVisible[i]);
                         }
                     }
                 }
@@ -1055,17 +1076,17 @@ namespace R1Engine
             }
 
             CheckPaletteChange();
+            if (!HasAnimatedTiles || !Settings.AnimateTiles) return;
 
-            if (animatedTiles == null || !Settings.AnimateTiles) return;
-
-            for (int mapIndex = 0; mapIndex < animatedTiles.Length; mapIndex++) {
-                if (GraphicsTilemaps[mapIndex] == null) continue;
+            for(int i = 0; i < LevelEditorData.Level.Layers.Length; i++) {
+                var layer = LevelEditorData.Level.Layers[i] as Unity_Layer_Map;
+                if(layer?.Graphics == null) continue;
                 bool changedTile = false;
                 changedTiles.Clear();
-                var map = LevelEditorData.Level.Maps[mapIndex];
-                Texture2D tex = GraphicsTilemaps[mapIndex].sprite.texture;
-                foreach (var animatedTile in animatedTiles[mapIndex].Keys) {
-                    foreach (var at in animatedTiles[mapIndex][animatedTile]) 
+                var map = layer.Map;
+                Texture2D tex = layer.Graphics.sprite.texture;
+                foreach (var animatedTile in layer.AnimatedTiles.Keys) {
+                    foreach (var at in layer.AnimatedTiles[animatedTile]) 
                     {
                         var animSpeed = (animatedTile.AnimationSpeeds?[at.tileIndex] ?? animatedTile.AnimationSpeed) / 30f;
                         //print("Updating " + at.x + " - " + at.y);
@@ -1085,7 +1106,7 @@ namespace R1Engine
                             changedTile = true;
                             Vector2Int v = new Vector2Int(at.x,at.y);
                             if(!changedTiles.Contains(v)) changedTiles.Add(v);
-                            TileIndexOverrides[mapIndex][at.x, at.y][at.combinedTileIndex.HasValue ? at.combinedTileIndex.Value + 1 : 0] = newIndexInTileset;
+                            layer.TileIndexOverrides[at.x, at.y][at.combinedTileIndex.HasValue ? at.combinedTileIndex.Value + 1 : 0] = newIndexInTileset;
                         }
                         at.currentTimer -= frames * animSpeed;
                     }
@@ -1093,7 +1114,7 @@ namespace R1Engine
                 int cellSize = LevelEditorData.Level.CellSize;
                 foreach (var ct in changedTiles) {
                     var newTile = map.MapTiles[ct.y * map.Width + ct.x];
-                    FillInTilePixels(tex, newTile, map, mapIndex, ct.x, ct.y, cellSize, applyTexture: false);
+                    FillInTilePixels(tex, newTile, map, i, ct.x, ct.y, cellSize, applyTexture: false);
                 }
                 if (changedTile)
                     tex.Apply();
@@ -1106,7 +1127,7 @@ namespace R1Engine
             {
                 for (int i = 0; i < IsLayerVisible.Length; i++)
                 {
-                    UpdateMapSettings(i);
+                    UpdateMapLayerSettings(i);
                     /*if (GraphicsTilemaps != null && GraphicsTilemaps[i] != null)
                     {
                         if (GraphicsTilemaps[i].gameObject.activeSelf != IsLayerVisible[i])

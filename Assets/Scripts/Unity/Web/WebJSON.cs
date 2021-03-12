@@ -152,6 +152,7 @@ public class WebJSON {
 		public int? GameloftRRR_ObjectID { get; set; }
 	}
 	public class Layer {
+		public string Name { get; set; }
 		public int Index { get; set; }
 		public bool? IsVisible { get; set; }
 	}
