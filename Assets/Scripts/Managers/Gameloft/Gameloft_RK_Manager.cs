@@ -105,12 +105,22 @@ namespace R1Engine
 			return models;
 		}
 
+		public virtual int Scale => 8;
+
 		public static bool UseSingleRoadTexture(GameSettings s) => s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128_s40v2
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101;
 
-		public GameObject CreateTrackMesh(Gameloft_RK_Level level, Context context) {
+		public GameObject CreateTrackMesh(Gameloft_RK_Level level, Context context, out Vector2 dimensions, out Vector2 center) {
+			float minX = 0, minY = 0, maxX = 0, maxY = 0;
+			void adjustDimensions(IEnumerable<Vector3> verts) {
+				if(!verts.Any()) return;
+				minX = Mathf.Min(minX, verts.Min(v => v.x));
+				minY = Mathf.Min(minY, verts.Min(v => v.z));
+				maxX = Mathf.Max(maxX, verts.Max(v => v.x));
+				maxY = Mathf.Max(maxY, verts.Max(v => v.z));
+			}
 			// Load road textures
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.Settings), context);
 			var roads = new MeshInProgress[level.Types.Length][];
@@ -345,6 +355,7 @@ namespace R1Engine
 
 			// Road
 			foreach (var road in roads.SelectMany(r => r).Append(bridge)) {
+				adjustDimensions(road.vertices);
 				Mesh roadMesh = new Mesh();
 				roadMesh.SetVertices(road.vertices);
 				roadMesh.SetTriangles(road.triangles, 0);
@@ -368,6 +379,7 @@ namespace R1Engine
 
 			// Ground
 			{
+				adjustDimensions(ground.vertices);
 				Mesh groundMesh = new Mesh();
 				groundMesh.SetVertices(ground.vertices);
 				groundMesh.SetTriangles(ground.triangles, 0);
@@ -387,6 +399,7 @@ namespace R1Engine
 
 			// Abyss
 			{
+				adjustDimensions(abyss.vertices);
 				Mesh abyssMesh = new Mesh();
 				abyssMesh.SetVertices(abyss.vertices);
 				abyssMesh.SetTriangles(abyss.triangles, 0);
@@ -403,7 +416,10 @@ namespace R1Engine
 				mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
 			}
 
-			gaoParent.transform.localScale = Vector3.one * 8;
+			gaoParent.transform.localScale = Vector3.one * Scale;
+
+			center = new Vector2(minX,maxY);
+			dimensions = new Vector2(maxX - minX, maxY - minY);
 
 			return gaoParent;
 
@@ -713,7 +729,10 @@ namespace R1Engine
 			var ind = GetLevelResourceIndex(context.Settings);
 			var level = resf.SerializeResource<Gameloft_RK_Level>(context.Deserializer, default, ind, name: $"Level_{ind}");
 
-			GameObject trackMesh = CreateTrackMesh(level, context);
+			Vector2 dimensions, center;
+			GameObject trackMesh = CreateTrackMesh(level, context, out dimensions, out center);
+			Vector3 centerPos = new Vector3(-center.x, 0, -center.y) * Scale;
+			trackMesh.transform.localPosition = centerPos;
 
 			// Load objects
 			Mesh[] meshes = level.Objects3D.Select(o => GetObject3DMesh(o)).ToArray();
@@ -740,7 +759,7 @@ namespace R1Engine
 				var lumsForCurrentBlock = level.Lums?.Where(s12 => s12.TrackBlockIndex == curBlockIndex);
 				if (lumsForCurrentBlock != null) {
 					foreach (var lum in lumsForCurrentBlock) {
-						var pos = sphere.transform.TransformPoint(new Vector3(lum.XPosition * 0.001f, 0.05f, 0));
+						var pos = centerPos + sphere.transform.TransformPoint(new Vector3(lum.XPosition * 0.001f, 0.05f, 0));
 						// TODO: Add Lum object here. As waypoint? As lum/coin (load puppet first)?
 						// Maybe have a system for objects with custom puppets, so player puppets can be displayed? 
 						/*objs.Add(new Unity_Object_GameloftRK(objManager, s8, level.ObjectTypes[s8.ObjectType]) {
@@ -762,13 +781,13 @@ namespace R1Engine
 						if (blk.TrackObjectIndex < 2) {
 							if (gao_tunnelParent == null) {
 								gao_tunnelParent = new GameObject("Tunnels");
-								gao_tunnelParent.transform.localPosition = Vector3.zero;
+								gao_tunnelParent.transform.localPosition = centerPos;
 								gao_tunnelParent.transform.localRotation = Quaternion.identity;
 								gao_tunnelParent.transform.localScale = Vector3.one;
 							}
 							GameObject gp = new GameObject($"TrackObjIndex: {blk.TrackObjectIndex}");
 							gp.transform.SetParent(gao_tunnelParent.transform);
-							gp.transform.position = Vector3.zero;
+							gp.transform.localPosition = Vector3.zero;
 							//var m = meshes[blk.TrackObjectIndex];
 							var m = GetArchMesh(level, curBlockIndex);
 							GameObject gao = new GameObject();
@@ -781,18 +800,18 @@ namespace R1Engine
 							gao.transform.localPosition = sphere.transform.position;
 							mf.mesh = m;
 							mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
-							gp.transform.localScale = Vector3.one * 8;
+							gp.transform.localScale = Vector3.one * Scale;
 						}
 					} else if (blk.ObjType == 5) {
 						if (gao_3dObjParent == null) {
 							gao_3dObjParent = new GameObject("3D Objects");
-							gao_3dObjParent.transform.localPosition = Vector3.zero;
+							gao_3dObjParent.transform.localPosition = centerPos;
 							gao_3dObjParent.transform.localRotation = Quaternion.identity;
 							gao_3dObjParent.transform.localScale = Vector3.one;
 						}
 						GameObject gp = new GameObject($"TrackObjIndex: {blk.TrackObjectIndex}");
 						gp.transform.SetParent(gao_3dObjParent.transform);
-						gp.transform.position = Vector3.zero;
+						gp.transform.localPosition = Vector3.zero;
 						//var m = meshes[blk.TrackObjectIndex];
 						var m = GetObject3DMesh(level.Objects3D[blk.TrackObjectIndex], o, blk.FlipX);
 						GameObject gao = new GameObject();
@@ -805,14 +824,14 @@ namespace R1Engine
 						gao.transform.localPosition = sphere.transform.position;
 						mf.mesh = m;
 						mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
-						gp.transform.localScale = Vector3.one * 8;
+						gp.transform.localScale = Vector3.one * Scale;
 						//gp.transform.name = s8.ObjectType.ToString();
 					} else {
 						var type = level.ObjectTypes[to.ObjectType];
 						var pos = sphere.transform.TransformPoint(new Vector3(to.XPosition * 0.001f, 0.05f + type.YPosition * 0.001f, 0));
-
+						var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
 						objs.Add(new Unity_Object_GameloftRK(objManager, to, type) {
-							Position = new Vector3(pos.x, -pos.z, pos.y),
+							Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y),
 							Instance = blk
 						});
 					}
@@ -825,7 +844,8 @@ namespace R1Engine
 				sphere.gameObject.transform.SetParent(gaoParent.transform);
 				curBlockIndex++;
 			}
-			gaoParent.transform.localScale = Vector3.one * 8;
+			gaoParent.transform.localScale = Vector3.one * Scale;
+			gaoParent.transform.localPosition = centerPos;
 
 			// Create minimap objects
 			/*curPos = Vector3.zero + Vector3.up * 100;
@@ -849,7 +869,8 @@ namespace R1Engine
 			var layers = new List<Unity_Layer>();
 			layers.Add(new Unity_Layer_GameObject(true, isAnimated: false) {
 				Name = "Track",
-				Graphics = trackMesh
+				Graphics = trackMesh,
+				Dimensions = dimensions * Scale * 8 * 2
 			});
 			trackMesh.transform.SetParent(parent3d);
 			if (gao_tunnelParent != null) {
@@ -874,8 +895,8 @@ namespace R1Engine
 				isometricData: new Unity_IsometricData {
 					CollisionWidth = 0,
 					CollisionHeight = 0,
-					TilesWidth = 38,
-					TilesHeight = 24,
+					TilesWidth = 0,
+					TilesHeight = 0,
 					Collision = null,
 					Scale = Vector3.one * 8,
 					ViewAngle = Quaternion.Euler(90,0,0),
