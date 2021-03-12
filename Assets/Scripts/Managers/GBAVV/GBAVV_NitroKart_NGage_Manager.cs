@@ -1037,6 +1037,18 @@ namespace R1Engine
                 });
             }
 
+            for (int i = 0; i < level.ParallaxCount; i++)
+            {
+                var frames = level.ParallaxData[i].ToTextures(level.ParallaxPalettes[i]);
+                layers.Add(new Unity_Layer_Texture
+                {
+                    Name = $"Parallax {i}",
+                    Texture = frames.First(),
+                    TextureFrames = frames,
+                    AnimSpeed = level.Int_14, // TODO: Is this the speed?
+                });
+            }
+
             return new Unity_Level(
                 layers: layers.ToArray(),
                 /*maps: new Unity_Map[] {
