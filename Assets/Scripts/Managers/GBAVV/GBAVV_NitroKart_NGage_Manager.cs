@@ -14,6 +14,7 @@ namespace R1Engine
         public string ExeFilePath => @"6rac.app";
         public string DataFilePath => @"data.gob";
         public const uint ExeBaseAddress = 0x10000000 - 648;
+        public const int ParallaxAnimSpeed = 1;
 
         public override string[] Languages => new string[]
         {
@@ -203,34 +204,23 @@ namespace R1Engine
             {
                 await LoadFilesAsync(context);
 
-                DoAtBlocks(context, (s, i, offset) =>
+                foreach ((GBAVV_Map2D_AnimSet a, string fileName) in LoadGFX(context))
                 {
-                    try
+                    // Enumerate every animation
+                    for (int j = 0; j < a.AnimationsCount; j++)
                     {
-                        // Attempt to parse block as an AnimSet
-                        var a = s.SerializeObject<GBAVV_Map2D_AnimSet>(default);
+                        var frames = GetAnimFrames(a, j);
 
-                        // Enumerate every animation
-                        for (int j = 0; j < a.AnimationsCount; j++)
-                        {
-                            var frames = GetAnimFrames(a, j);
-
-                            Util.ExportAnim(
-                                frames: frames,
-                                speed: a.Animations[j].GetAnimSpeed,
-                                center: false,
-                                saveAsGif: saveAsGif,
-                                outputDir: outputDir,
-                                primaryName: $"{GetBlockExportName(context, i, offset.CRC, true, false)}",
-                                secondaryName: $"{j}");
-                        }
-
+                        Util.ExportAnim(
+                            frames: frames,
+                            speed: a.Animations[j].GetAnimSpeed,
+                            center: false,
+                            saveAsGif: saveAsGif,
+                            outputDir: outputDir,
+                            primaryName: Path.Combine(Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName)),
+                            secondaryName: $"{j}");
                     }
-                    catch
-                    {
-                        // Ignore any exceptions
-                    }
-                });
+                }
             }
         }
 
@@ -375,7 +365,7 @@ namespace R1Engine
                     var rle = DoAtBlock(context, rlePath, () => s.SerializeObject<GBAVV_NitroKart_NGage_RLE>(default, name: $"{Path.GetFileNameWithoutExtension(rlePath)}"));
                     var pal = DoAtBlock(context, palPath, () => s.SerializeObject<GBAVV_NitroKart_NGage_PAL>(default, name: $"{Path.GetFileNameWithoutExtension(palPath)}"));
                     
-                    Util.ExportAnimAsGif(rle.ToTextures(pal), 4, false, false, Path.Combine(outputDir, $"{pathWithoutExt}.gif"));
+                    Util.ExportAnimAsGif(rle.ToTextures(pal), ParallaxAnimSpeed, false, false, Path.Combine(outputDir, $"{pathWithoutExt}.gif"));
                 }
             }
         }
@@ -586,7 +576,12 @@ namespace R1Engine
                     {
                         for (int x = 0; x < frame.NitroKart_NGage_Width; x++)
                         {
-                            tex.SetPixel(offsetX + x, height - (offsetY + y) - 1, pal[frame.NitroKart_NGage_ImageData[y * frame.NitroKart_NGage_Width + x]]);
+                            var palIndex = frame.NitroKart_NGage_ImageData[y * frame.NitroKart_NGage_Width + x];
+
+                            if (palIndex >= pal.Length)
+                                palIndex = 0;
+
+                            tex.SetPixel(offsetX + x, height - (offsetY + y) - 1, pal[palIndex]);
                         }
                     }
 
@@ -1059,7 +1054,7 @@ namespace R1Engine
                 {
                     Name = $"Parallax {i}",
                     Textures = frames,
-                    AnimSpeed = level.Int_14, // TODO: Is this the speed?
+                    AnimSpeed = ParallaxAnimSpeed,
                 });
             }
 

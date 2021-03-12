@@ -9,7 +9,7 @@
         public int Int_08 { get; set; }
         public Pointer ParallaxBaseFilePathPointer { get; set; }
         public int ParallaxCount { get; set; }
-        public int Int_14 { get; set; }
+        public int EffectsAnimIndex { get; set; }
 
         // Serialized from pointers
         public GBAVV_NitroKart_NGage_FilePath PVSFilePath { get; set; }
@@ -28,7 +28,7 @@
             Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
             ParallaxBaseFilePathPointer = s.SerializePointer(ParallaxBaseFilePathPointer, name: nameof(ParallaxBaseFilePathPointer));
             ParallaxCount = s.Serialize<int>(ParallaxCount, name: nameof(ParallaxCount));
-            Int_14 = s.Serialize<int>(Int_14, name: nameof(Int_14));
+            EffectsAnimIndex = s.Serialize<int>(EffectsAnimIndex, name: nameof(EffectsAnimIndex));
 
             PVSFilePath = s.DoAt(PVSFilePathPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(PVSFilePath, name: nameof(PVSFilePath)));
             POPFilePath = s.DoAt(POPFilePathPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(POPFilePath, name: nameof(POPFilePath)));
