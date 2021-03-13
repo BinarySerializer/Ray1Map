@@ -604,36 +604,39 @@ namespace R1Engine
 			currentColor = (trackBlock % 2 == 0 ? level.Color_Tunnel_0 : level.Color_Tunnel_1).GetColor();
 			var tw = roadWidth;
 			var tt = level.Tunnel_WallThickness;
-			var th = level.Tunnel_Height;
+			var thMin = Mathf.Min(level.Tunnel_Height, level.Tunnel_Height2);
+			var thMax = Mathf.Max(level.Tunnel_Height, level.Tunnel_Height2);
+			var th1 = level.Tunnel_Height;
 			var th2 = level.Tunnel_Height2;
+
 			Vector3[] pts = new Vector3[] {
 				new Vector3((tw + tt), 0, 0),
 				new Vector3(tw, 0, 0),
-				new Vector3((tw + tt), th2, 0),
-				new Vector3(tw, th2, 0),
+				new Vector3((tw + tt), thMax, 0),
+				new Vector3(tw, thMax, 0),
 
 				new Vector3(-(tw + tt), 0, 0),
 				new Vector3(-tw, 0, 0),
-				new Vector3(-(tw + tt), th2, 0),
-				new Vector3(-tw, th2, 0),
+				new Vector3(-(tw + tt), thMax, 0),
+				new Vector3(-tw, thMax, 0),
 
 				// Ceiling front
-				new Vector3(-tw, th, 0),
-				new Vector3(-tw, th2, 0),
-				new Vector3(tw, th, 0),
-				new Vector3(tw, th2, 0),
+				new Vector3(-tw, thMin, 0),
+				new Vector3(-tw, thMax, 0),
+				new Vector3(tw, thMin, 0),
+				new Vector3(tw, thMax, 0),
 
 				// Interior
 				new Vector3(tw, 0, 0),
-				new Vector3(tw, th, 0),
+				new Vector3(tw, thMin, 0),
 				new Vector3(-tw, 0, 0),
-				new Vector3(-tw, th, 0),
+				new Vector3(-tw, thMin, 0),
 
 				// Exterior
 				new Vector3((tw + tt), 0, 0),
-				new Vector3((tw + tt), th2, 0),
+				new Vector3((tw + tt), thMax, 0),
 				new Vector3(-(tw + tt), 0, 0),
-				new Vector3(-(tw + tt), th2, 0),
+				new Vector3(-(tw + tt), thMax, 0),
 
 			};
 			var pts_n = pts.Select(p => zMultiplier * nextPos + nextAngle * p).ToArray();
