@@ -1,0 +1,31 @@
+{
+  "name": "Rayman Kart (Mobile - 128x128, s40v2)",
+  "mode": "RaymanKartMobile_128x128_s40v2",
+  "folder": "gameloft/kart_128x128_s40v2",
+  "levels": [
+    {
+      "world": 0,
+      "level": 0,
+      "nameInternal": "10-0",
+      "name": "Dreamy Forest"
+    },
+    {
+      "world": 0,
+      "level": 1,
+      "nameInternal": "10-1",
+      "name": "Frozen Highway"
+    },
+    {
+      "world": 0,
+      "level": 2,
+      "nameInternal": "10-2",
+      "name": "Shipwreck Track"
+    },
+    {
+      "world": 0,
+      "level": 3,
+      "nameInternal": "10-3",
+      "name": "Sanctuary of Fire"
+    }
+  ]
+}

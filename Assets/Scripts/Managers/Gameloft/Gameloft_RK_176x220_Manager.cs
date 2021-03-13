@@ -43,8 +43,8 @@ namespace R1Engine
 			"33"
 		};
 
-		public override string GetLevelPath(GameSettings settings) => (26+(settings.Level/2)).ToString();
-		public override int GetLevelResourceIndex(GameSettings settings) => settings.Level % 2;
+		public override string GetLevelPath(int level) => (26+(level/2)).ToString();
+		public override int GetLevelResourceIndex(int level) => level % 2;
 		public override int BasePuppetsResourceFile => 10;
 		public override int PuppetsPerResourceFile => 6;
 		public override int PuppetCount => 64;

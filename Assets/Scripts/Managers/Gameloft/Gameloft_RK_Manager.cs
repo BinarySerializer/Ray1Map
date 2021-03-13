@@ -32,9 +32,11 @@ namespace R1Engine
 			"20",
 		};
 
-		public virtual string GetLevelPath(GameSettings settings) => "20";
+		public virtual string GetLevelPath(int level) => "20";
+		public string GetLevelPath(GameSettings settings) => GetLevelPath(settings.Level);
 		public virtual string GetRoadTexturesPath(GameSettings settings) => "2";
-		public virtual int GetLevelResourceIndex(GameSettings settings) => settings.Level;
+		public virtual int GetLevelResourceIndex(int level) => level;
+		public int GetLevelResourceIndex(GameSettings settings) => GetLevelResourceIndex(settings.Level);
 
 		public override string[] SingleResourceFiles => new string[] {
 			"s"

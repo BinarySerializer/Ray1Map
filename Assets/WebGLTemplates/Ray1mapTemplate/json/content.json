@@ -207,6 +207,37 @@
                         { "json": "gameloft_240x320_SamsungD900", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, SamsungD900)", "folder": "gameloft/rrr_240x320_SamsungD900" },
                         { "json": "gameloft_240x320_SamsungF480V", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, SamsungF480V)", "folder": "gameloft/rrr_240x320_SamsungF480V" }
 					]
+				},
+				{
+					"title": "Rayman Kart",
+					"viewer": "ray1map",
+					"json": "gameloft\/kart",
+					"image": ".\/img\/logo\/kart.png",
+					"versions": [
+						{ "json": "gameloft_128x128", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x128)", "folder": "gameloft/kart_128x128" },
+						{ "json": "gameloft_128x128_s40v2", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x128, s40v2)", "folder": "gameloft/kart_128x128_s40v2" },
+						{ "json": "gameloft_128x160_s40v2a_N6101", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x160, s40v2a/N6101)", "folder": "gameloft/kart_128x160_s40v2a_N6101" },
+						{ "json": "gameloft_128x160_s40v2a_N6151", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x160, s40v2a/N6151)", "folder": "gameloft/kart_128x160_s40v2a_N6151" },
+						{ "json": "gameloft_128x160_K500i", "image": ".\/img\/version\/mobile.png", "name": "Mobile (128x160, K500i)", "folder": "gameloft/kart_128x160_K500i" },
+						{ "json": "gameloft_176x208_s60v1_N3650", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x208, s60v1/N3650)", "folder": "gameloft/kart_176x208_s60v1_N3650" },
+						{ "json": "gameloft_176x208_s60v1_N7650", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x208, s60v1/N7650)", "folder": "gameloft/kart_176x208_s60v1_N7650" },
+						{ "json": "gameloft_176x208_s60v2_N70", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x208, s60v2/N70)", "folder": "gameloft/kart_176x208_s60v2_N70" },
+						{ "json": "gameloft_208x208_s40v3", "image": ".\/img\/version\/mobile.png", "name": "Mobile (208x208, s40v3)", "folder": "gameloft/kart_208x208_s40v3" },
+						{ "json": "gameloft_176x220_K700i", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x220, K700i)", "folder": "gameloft/kart_176x220_K700i" },
+						{ "json": "gameloft_176x220_SamsungZV60", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x220, SamsungZV60)", "folder": "gameloft/kart_176x220_SamsungZV60" },
+						{ "json": "gameloft_176x220_SamsungZV10", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x220, SamsungZV10)", "folder": "gameloft/kart_176x220_SamsungZV10" },
+						{ "json": "gameloft_176x220_RAZRV3", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x220, RAZRV3)", "folder": "gameloft/kart_176x220_RAZRV3" },
+						{ "json": "gameloft_176x220_U8110", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x220, U8110)", "folder": "gameloft/kart_176x220_U8110" },
+						{ "json": "gameloft_176x220_KG800", "image": ".\/img\/version\/mobile.png", "name": "Mobile (176x220, KG800)", "folder": "gameloft/kart_176x220_KG800" },
+						{ "json": "gameloft_240x320_s40v3a", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, s40v3a)", "folder": "gameloft/kart_240x320_s40v3a" },
+						{ "json": "gameloft_240x320_s40v5", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, s40v5)", "folder": "gameloft/kart_240x320_s40v5" },
+						{ "json": "gameloft_240x320_W910i", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, W910i)", "folder": "gameloft/kart_240x320_W910i" },
+						{ "json": "gameloft_240x320_C905", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, C905)", "folder": "gameloft/kart_240x320_C905" },
+						{ "json": "gameloft_240x320_SamsungF400", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, SamsungF400)", "folder": "gameloft/kart_240x320_SamsungF400" },
+						{ "json": "gameloft_240x320_SamsungF480", "image": ".\/img\/version\/mobile.png", "name": "Mobile (240x320, SamsungF480)", "folder": "gameloft/kart_240x320_SamsungF480" },
+						{ "json": "gameloft_320x240_KS360", "image": ".\/img\/version\/mobile.png", "name": "Mobile (320x240, KS360)", "folder": "gameloft/kart_320x240_KS360" },
+						{ "json": "gameloft_320x240_Broken", "image": ".\/img\/version\/mobile.png", "name": "Mobile (320x240, Broken)", "folder": "gameloft/kart_320x240_Broken" }	
+					]
 				}
 			]
 		},

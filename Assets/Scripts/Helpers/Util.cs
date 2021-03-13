@@ -368,6 +368,67 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
 
+        public static async Task OutputGameloftKartJSONForWebAsync(string dir)
+        {
+            var str = new StringBuilder();
+
+            foreach (var mode in EnumHelpers.GetValues<GameModeSelection>().Where(x => x.ToString().StartsWith("RaymanKartMobile_")))
+            {
+                var values = mode.ToString().Split('_');
+
+                using (var context = new Context(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
+                {
+                    var m = (Gameloft_RK_Manager)context.Settings.GetGameManager;
+                    await m.LoadFilesAsync(context);
+                    var levelNames = MapNames.GetMapNames(mode.GetAttribute<GameModeAttribute>().Game);
+
+                    var attr = mode.GetAttribute<GameModeAttribute>();
+
+                    var gameNameInfo = String.Join("_", values.Skip(2));
+                    var name = $"{values[1]}{(gameNameInfo.Length > 0 ? $"_{gameNameInfo}" : "")}";
+
+                    var folder = $"gameloft/kart_{name}";
+
+                    var jsonObj = new
+                    {
+                        name = attr.DisplayName.ReplaceFirst(", ", " - "),
+                        mode = mode.ToString(),
+                        folder = folder,
+                        levels = levelNames[0].OrderBy(x => x.Key).Select(x => new
+                        {
+                            world = 0,
+                            level = x.Key,
+                            nameInternal = $"{m.GetLevelPath(x.Key)}-{m.GetLevelResourceIndex(x.Key)}",
+                            name = $"{x.Value}"
+                        }).ToArray()
+                    };
+
+                    var fileName = $"gameloft_{name}";
+                    JsonHelpers.SerializeToFile(jsonObj, Path.Combine(dir, fileName + ".json"));
+
+                    var gameNameInfo2 = String.Join("/", values.Skip(2));
+                    str.AppendLine($"{{ \"json\": \"{fileName}\", \"image\": \".\\/img\\/version\\/mobile.png\", \"name\": \"Mobile ({values[1]}{(gameNameInfo2.Length > 0 ? $", {gameNameInfo2}" : "")})\", \"folder\": \"{folder}\" }},");
+
+                    // Copy files
+                    var inputDir = Settings.GameDirectories[mode];
+                    var outputDir = Path.Combine(dir, folder);
+
+                    CopyDir(inputDir, outputDir);
+                }
+            }
+
+            str.ToString().CopyToClipboard();
+        }
+
+        public static void CopyDir(string inputDir, string outputDir)
+        {
+            foreach (string dirPath in Directory.GetDirectories(inputDir, "*", SearchOption.AllDirectories))
+                Directory.CreateDirectory(dirPath.Replace(inputDir, outputDir));
+
+            foreach (string newPath in Directory.GetFiles(inputDir, "*.*", SearchOption.AllDirectories))
+                File.Copy(newPath, newPath.Replace(inputDir, outputDir), true);
+        }
+
         public static void RenameFilesToUpper(string inputDir)
         {
             foreach (var file in Directory.GetFiles(inputDir, "*", SearchOption.AllDirectories))

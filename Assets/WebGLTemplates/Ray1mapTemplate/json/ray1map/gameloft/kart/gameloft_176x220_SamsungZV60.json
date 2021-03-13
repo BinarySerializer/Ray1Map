@@ -1,0 +1,103 @@
+{
+  "name": "Rayman Kart (Mobile - 176x220, Samsung SGH-ZV60)",
+  "mode": "RaymanKartMobile_176x220_SamsungZV60",
+  "folder": "gameloft/kart_176x220_SamsungZV60",
+  "levels": [
+    {
+      "world": 0,
+      "level": 0,
+      "nameInternal": "26-0",
+      "name": "Dreamy Forest - Easy"
+    },
+    {
+      "world": 0,
+      "level": 1,
+      "nameInternal": "26-1",
+      "name": "Dreamy Forest - Hard"
+    },
+    {
+      "world": 0,
+      "level": 2,
+      "nameInternal": "27-0",
+      "name": "Rockslide Race - Easy"
+    },
+    {
+      "world": 0,
+      "level": 3,
+      "nameInternal": "27-1",
+      "name": "Rockslide Race - Hard"
+    },
+    {
+      "world": 0,
+      "level": 4,
+      "nameInternal": "28-0",
+      "name": "Sanctuary of Fire - Easy"
+    },
+    {
+      "world": 0,
+      "level": 5,
+      "nameInternal": "28-1",
+      "name": "Sanctuary of Fire - Hard"
+    },
+    {
+      "world": 0,
+      "level": 6,
+      "nameInternal": "29-0",
+      "name": "Frozen Highway - Easy"
+    },
+    {
+      "world": 0,
+      "level": 7,
+      "nameInternal": "29-1",
+      "name": "Frozen Highway - Hard"
+    },
+    {
+      "world": 0,
+      "level": 8,
+      "nameInternal": "30-0",
+      "name": "Shipwreck Track - Easy"
+    },
+    {
+      "world": 0,
+      "level": 9,
+      "nameInternal": "30-1",
+      "name": "Shipwreck Track - Hard"
+    },
+    {
+      "world": 0,
+      "level": 10,
+      "nameInternal": "31-0",
+      "name": "Murky Swamp - Easy"
+    },
+    {
+      "world": 0,
+      "level": 11,
+      "nameInternal": "31-1",
+      "name": "Murky Swamp - Hard"
+    },
+    {
+      "world": 0,
+      "level": 12,
+      "nameInternal": "32-0",
+      "name": "Moonlight Pass - Easy"
+    },
+    {
+      "world": 0,
+      "level": 13,
+      "nameInternal": "32-1",
+      "name": "Moonlight Pass - Hard"
+    },
+    {
+      "world": 0,
+      "level": 14,
+      "nameInternal": "33-0",
+      "name": "Rabbid Battlefield - Easy"
+    },
+    {
+      "world": 0,
+      "level": 15,
+      "nameInternal": "33-1",
+      "name": "Rabbid Battlefield - Hard"
+    }
+  ]
+}
