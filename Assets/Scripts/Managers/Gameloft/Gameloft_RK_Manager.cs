@@ -59,12 +59,39 @@ namespace R1Engine
 			foreach (var fileIndex in Enumerable.Range(0, PuppetCount).Select(i => GetPuppetFileIndex(i)).Distinct()) {
 				await context.AddLinearSerializedFileAsync(fileIndex.ToString());
 			}
+			await context.AddLinearSerializedFileAsync(LocalizationResourceFile.ToString());
+		}
+
+
+
+		public Dictionary<string, string[]> LoadLocalization(Context context) {
+			var langages = new string[]
+			{
+				"English",
+				"German",
+				"Spanish",
+				"French",
+				"Italian",
+				"Portuguese"
+			};
+			var s = context.Deserializer;
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(LocalizationResourceFile.ToString(), context);
+			Gameloft_RK_LocalizationTable[] tables = new Gameloft_RK_LocalizationTable[resf.ResourcesCount];
+			for (int i = 0; i < tables.Length; i++) {
+				tables[i] = resf.SerializeResource<Gameloft_RK_LocalizationTable>(s, default, i, name: $"Localization[{i}]");
+			}
+
+			return tables.Select((x, i) => new {
+				Lang = langages[i/ 2] + " - " + ((i % 2 == 0) ? "Menu" : "Race"),
+				Strings = x.Strings
+			}).ToDictionary(x => x.Lang, x => x.Strings);
 		}
 
 		public virtual int BasePuppetsResourceFile => 10;
 		public virtual int PuppetsPerResourceFile => 15;
 		public virtual int PuppetCount => 62;
 		public virtual int ExtraPuppetsInLastFile => 2;
+		public virtual int LocalizationResourceFile => 16;
 
 		public virtual int GetPuppetFileIndex(int puppetIndex) => BasePuppetsResourceFile + puppetIndex / PuppetsPerResourceFile;
 		public virtual int GetPuppetResourceIndex(int puppetIndex) => puppetIndex % PuppetsPerResourceFile;
@@ -112,6 +139,7 @@ namespace R1Engine
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101;
 
+		#region Geometry creation
 		public GameObject CreateTrackMesh(Gameloft_RK_Level level, Context context, out Vector2 dimensions, out Vector2 center) {
 			float minX = 0, minY = 0, maxX = 0, maxY = 0;
 			void adjustDimensions(IEnumerable<Vector3> verts) {
@@ -725,6 +753,7 @@ namespace R1Engine
 			m.RecalculateNormals();
 			return m;
 		}
+		#endregion
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			await UniTask.CompletedTask;
@@ -908,7 +937,7 @@ namespace R1Engine
 					ObjectScale = Vector3.one,
 				},
 				eventData: unityObjs,
-				//localization: LoadLocalization(context),
+				localization: LoadLocalization(context),
 				defaultLayer: 0,
 				defaultCollisionLayer: 0,
 				cellSize: 8);

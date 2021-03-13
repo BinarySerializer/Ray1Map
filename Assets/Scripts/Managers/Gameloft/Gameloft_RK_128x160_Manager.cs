@@ -45,6 +45,7 @@ namespace R1Engine
 		public override int PuppetsPerResourceFile => 10;
 		public override int PuppetCount => 64;
 		public override int ExtraPuppetsInLastFile => 4;
+		public override int LocalizationResourceFile => 18;
 
 		public override string[] SingleResourceFiles => new string[] {
 		};

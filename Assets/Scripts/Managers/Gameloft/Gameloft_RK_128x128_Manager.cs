@@ -22,6 +22,7 @@ namespace R1Engine
 		public override int PuppetsPerResourceFile => 16;
 		public override int PuppetCount => 16;
 		public override int ExtraPuppetsInLastFile => 0;
+		public override int LocalizationResourceFile => 5;
 
 		public override PuppetReference[] PuppetReferences => Enumerable.Range(0, PuppetCount - ExtraPuppetsInLastFile).Select(pi => new PuppetReference() {
 			FileIndex = GetPuppetFileIndex(pi),
