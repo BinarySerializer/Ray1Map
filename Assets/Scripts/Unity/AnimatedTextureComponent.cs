@@ -22,7 +22,7 @@ public class AnimatedTextureComponent : MonoBehaviour
         if(!Settings.AnimateTiles) return;
         if (animatedTextures != null && animatedTextureSpeed != 0) {
             int curTex = Mathf.FloorToInt(currentAnimatedTexture);
-            currentAnimatedTexture += Time.deltaTime * ((LevelEditorData.Level?.FramesPerSecond ?? 60f) / animatedTextureSpeed);
+            currentAnimatedTexture += Time.deltaTime * (LevelEditorData.FramesPerSecond / animatedTextureSpeed);
             if(currentAnimatedTexture >= animatedTextures.Length) currentAnimatedTexture = 0;
             int newTex = Mathf.FloorToInt(currentAnimatedTexture);
             if (newTex != curTex) {

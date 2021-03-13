@@ -83,7 +83,7 @@ namespace R1Engine
 
             // Increment frame if animating
             if (Settings.AnimateSprites && AnimSpeed > 0)
-                AnimationFrameFloat += ((LevelEditorData.Level?.FramesPerSecond ?? 60f) / AnimSpeed) * Time.deltaTime;
+                AnimationFrameFloat += (LevelEditorData.FramesPerSecond / AnimSpeed) * Time.deltaTime;
 
             // Loop around if over the frame limit
             bool isFinished = false;

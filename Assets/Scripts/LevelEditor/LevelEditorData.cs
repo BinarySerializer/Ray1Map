@@ -25,6 +25,7 @@ namespace R1Engine
 
         public static int MaxWidth => Level.MaxWidth;
         public static int MaxHeight => Level.MaxHeight;
+        public static float FramesPerSecond => Level?.FramesPerSecond ?? 60f;
 
         public static int CurrentLayer { get; set; }
         public static int CurrentCollisionLayer { get; set; }
