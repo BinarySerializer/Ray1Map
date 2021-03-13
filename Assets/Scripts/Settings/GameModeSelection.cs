@@ -520,7 +520,19 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 240x320, Sony Ericsson W910i)", typeof(Gameloft_RK_Manager))]
         RaymanKartMobile_240x320_W910i,
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 320x240)", typeof(Gameloft_RK_Manager))]
-        RaymanKartMobile_320x240,
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 240x320, Sony Ericsson C905)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_240x320_C905,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 240x320, Samsung SGH-F400)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_240x320_SamsungF400,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 240x320, Samsung SGH-F480)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_240x320_SamsungF480,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 320x240, LG KS360)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_320x240_KS360,
+
+        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 320x240, Broken)", typeof(Gameloft_RK_Manager))]
+        RaymanKartMobile_320x240_Broken,
     }
 }

@@ -136,7 +136,7 @@ namespace R1Engine
 
 		public static bool UseSingleRoadTexture(GameSettings s) => s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128_s40v2
-				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240
+				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_320x240_Broken
 				|| s.GameModeSelection == GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101;
 
 		#region Geometry creation

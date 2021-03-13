@@ -126,7 +126,7 @@ namespace R1Engine
 					dl = s.Serialize<byte>(dl, name: nameof(dl));
 					dm = s.Serialize<byte>(dm, name: nameof(dm));
 				}
-				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
+				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
 					Color_dq = s.SerializeObject<RGB888Color>(Color_dq, name: nameof(Color_dq));
 					Color_Tunnel_0 = s.SerializeObject<RGB888Color>(Color_Tunnel_0, name: nameof(Color_Tunnel_0));
 					Color_ds = s.SerializeObject<RGB888Color>(Color_ds, name: nameof(Color_ds));
@@ -505,7 +505,7 @@ namespace R1Engine
 
 			public override void SerializeImpl(SerializerObject s) {
 				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
-				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240) {
+				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
 					if (!Gameloft_RK_Manager.UseSingleRoadTexture(s.GameSettings)) {
 						RoadTexture0 = s.Serialize<byte>(RoadTexture0, name: nameof(RoadTexture0));
 						RoadTexture1 = s.Serialize<byte>(RoadTexture1, name: nameof(RoadTexture1));
