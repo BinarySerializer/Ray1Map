@@ -7,7 +7,7 @@ public class AnimatedTextureComponent : MonoBehaviour
 {
     public Material material;
     public Texture2D[] animatedTextures;
-    public float animatedTextureSpeed = 1f;
+    public float animatedTextureSpeed = 1f; // In frames, for 60FPS
     public float currentAnimatedTexture;
     public string textureName = "_MainTex";
     public float scrollU;
@@ -20,9 +20,9 @@ public class AnimatedTextureComponent : MonoBehaviour
     {
         if(Controller.LoadState != Controller.State.Finished) return;
         if(!Settings.AnimateTiles) return;
-        if (animatedTextures != null) {
+        if (animatedTextures != null && animatedTextureSpeed != 0) {
             int curTex = Mathf.FloorToInt(currentAnimatedTexture);
-            currentAnimatedTexture += Time.deltaTime * animatedTextureSpeed;
+            currentAnimatedTexture += Time.deltaTime * ((LevelEditorData.Level?.FramesPerSecond ?? 60f) / animatedTextureSpeed);
             if(currentAnimatedTexture >= animatedTextures.Length) currentAnimatedTexture = 0;
             int newTex = Mathf.FloorToInt(currentAnimatedTexture);
             if (newTex != curTex) {

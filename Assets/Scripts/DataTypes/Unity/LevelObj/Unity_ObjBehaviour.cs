@@ -260,7 +260,7 @@ namespace R1Engine
             UpdateTimer += Time.deltaTime;
 
             // Only update 60 frames per second, as that's the framerate for the game
-            if (!(UpdateTimer > 1.0f / 60.0f))
+            if (!(UpdateTimer > 1.0f / (LevelEditorData.Level?.FramesPerSecond ?? 60f)))
                 return;
 
             UpdateTimer = 0.0f;

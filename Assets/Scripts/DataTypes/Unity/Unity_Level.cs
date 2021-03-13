@@ -30,7 +30,8 @@ namespace R1Engine
             int? cellSizeOverrideCollision = null,
             Unity_CollisionLine[] collisionLines = null,
             string[] objectGroups = null,
-            Unity_TrackManager trackManager = null)
+            Unity_TrackManager trackManager = null,
+            float framesPerSecond = 60f)
         {
             Maps = maps;
             Layers = layers;
@@ -50,6 +51,7 @@ namespace R1Engine
             CollisionLines = collisionLines;
             ObjectGroups = objectGroups;
             TrackManager = trackManager;
+            FramesPerSecond = framesPerSecond;
 
             // Set default layers
             if (Layers != null) {
@@ -122,6 +124,8 @@ namespace R1Engine
         public string[] ObjectGroups { get; }
 
         public Unity_TrackManager TrackManager { get; }
+
+        public float FramesPerSecond { get; set; }
 
         #endregion
 

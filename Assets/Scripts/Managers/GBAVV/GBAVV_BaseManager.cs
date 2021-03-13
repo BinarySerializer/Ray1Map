@@ -1362,7 +1362,7 @@ namespace R1Engine
                     // Add animation for the tile
                     tileAnimations.Add(new Unity_AnimatedTile
                     {
-                        AnimationSpeed = animSpeed,
+                        AnimationSpeed = animSpeed * 2f,
                         TileIndices = new int[]
                         {
                             tileIndex
@@ -1499,7 +1499,7 @@ namespace R1Engine
             {
                 AnimatedTiles = Enumerable.Range(0, length).Select(t => new Unity_AnimatedTile
                 {
-                    AnimationSpeed = 1,
+                    AnimationSpeed = 2,
                     TileIndices = Enumerable.Range(0, tileFrames.TileFrames.Length).Select(f => f * length + t + (prependTransparent ? 1 : 0)).ToArray()
                 }).ToArray()
             };
@@ -1542,7 +1542,7 @@ namespace R1Engine
             {
                 AnimatedTiles = Enumerable.Range(0, width * height).Select(t => new Unity_AnimatedTile
                 {
-                    AnimationSpeed = 2,
+                    AnimationSpeed = 4,
                     TileIndices = Enumerable.Range(0, framesCount).Select(f => f * width * height + t + 0).ToArray()
                 }).ToArray()
             };
@@ -1627,7 +1627,7 @@ namespace R1Engine
                 // Add animation for the tile
                 tileAnimations.Add(new Unity_AnimatedTile
                 {
-                    AnimationSpeed = animSpeed,
+                    AnimationSpeed = animSpeed * 2,
                     TileIndices = new int[]
                     {
                         tileIndex

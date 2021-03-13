@@ -571,7 +571,7 @@ namespace R1Engine
                 for (int p = 0; p < numPalettes; p++) {
                     foreach (var kv in animTilesDict) {
                         Unity_AnimatedTile newAT = new Unity_AnimatedTile() {
-                            AnimationSpeed = 2,
+                            AnimationSpeed = 4,
                             TileIndices = kv.Value.Select(t => t + p * totalTilesetLength).ToArray()
                         };
                         //Debug.Log(string.Join(",",newAT.TileIndices));

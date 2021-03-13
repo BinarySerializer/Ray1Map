@@ -14,7 +14,7 @@ namespace R1Engine
         public string ExeFilePath => @"6rac.app";
         public string DataFilePath => @"data.gob";
         public const uint ExeBaseAddress = 0x10000000 - 648;
-        public const int ParallaxAnimSpeed = 1;
+        public const int ParallaxAnimSpeed = 3;
 
         public override string[] Languages => new string[]
         {
@@ -756,7 +756,7 @@ namespace R1Engine
                         if (isScrollH) animTex.scrollU = -1f;
                         if (isScrollV) animTex.scrollV = -1f;
                         if (animatedTextures.ContainsKey(k)) {
-                            animTex.animatedTextureSpeed = 15;
+                            animTex.animatedTextureSpeed = 4;
                             animTex.animatedTextures = animatedTextures[k];
                         }
                     }
@@ -881,7 +881,7 @@ namespace R1Engine
                     animTex.material = mr.material;
                     if(isScroll) animTex.scrollU = -1f;
                     if (animatedTextures.ContainsKey(k)) {
-                        animTex.animatedTextureSpeed = 15;
+                        animTex.animatedTextureSpeed = 4;
                         animTex.animatedTextures = animatedTextures[k];
                     }
                 }

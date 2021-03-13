@@ -1590,7 +1590,7 @@ namespace R1Engine
                 {
                     unityAnimTiles.Add(new Unity_AnimatedTile()
                     {
-                        AnimationSpeed = animTileInfo.AnimSpeed,
+                        AnimationSpeed = animTileInfo.AnimSpeed * 2f,
                         TileIndices = Enumerable.Range(0, animTileInfo.PalCount).Select(x => (currentBlockIndex + x) * palBlockSize + i).ToArray()
                     });
                 }

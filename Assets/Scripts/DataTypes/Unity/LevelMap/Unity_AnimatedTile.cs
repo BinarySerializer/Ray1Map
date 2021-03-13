@@ -6,7 +6,7 @@ namespace R1Engine
 {
     public class Unity_AnimatedTile
     {
-        public float AnimationSpeed { get; set; } // In frames, for 30FPS
+        public float AnimationSpeed { get; set; } // In frames, for 60FPS
         public float[] AnimationSpeeds { get; set; }
         public int[] TileIndices { get; set; }
 

@@ -1278,7 +1278,7 @@ namespace R1Engine
                 }
 
                 animatedTiles = info.AnimatedTilekits.SelectMany(atk => atk.TileIndices.Where(atkt => atkt != 0).Select(atkt => new Unity_AnimatedTile() {
-                    AnimationSpeed = atk.AnimationSpeed / 2f,
+                    AnimationSpeed = atk.AnimationSpeed,
                     TileIndices = GetIndicesFrom(atkt, atk.TilesStep, atk.NumFrames)
                 })).ToArray();
             }

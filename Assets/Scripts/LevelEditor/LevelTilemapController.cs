@@ -1093,7 +1093,7 @@ namespace R1Engine
             Texture2D tex = layer.Graphics.sprite.texture;
             foreach (var animatedTile in layer.AnimatedTiles.Keys) {
                 foreach (var at in layer.AnimatedTiles[animatedTile]) {
-                    var animSpeed = (animatedTile.AnimationSpeeds?[at.tileIndex] ?? animatedTile.AnimationSpeed) / 30f;
+                    var animSpeed = (animatedTile.AnimationSpeeds?[at.tileIndex] ?? animatedTile.AnimationSpeed) / (LevelEditorData.Level?.FramesPerSecond ?? 60f);
                     //print("Updating " + at.x + " - " + at.y);
                     at.currentTimer += Time.deltaTime;
 
@@ -1129,7 +1129,9 @@ namespace R1Engine
             if (lt?.Graphics == null || !lt.IsAnimated) return;
 
             int curTex = Mathf.FloorToInt(lt.CurrentAnimatedTexture);
-            lt.CurrentAnimatedTexture += Time.deltaTime * lt.AnimSpeed;
+            if (lt.AnimSpeed != 0) {
+                lt.CurrentAnimatedTexture += Time.deltaTime * ((LevelEditorData.Level?.FramesPerSecond ?? 60f) / lt.AnimSpeed);
+            }
             if (lt.CurrentAnimatedTexture >= lt.Sprites.Length) lt.CurrentAnimatedTexture = 0;
             int newTex = Mathf.FloorToInt(lt.CurrentAnimatedTexture);
             if (newTex != curTex) {
