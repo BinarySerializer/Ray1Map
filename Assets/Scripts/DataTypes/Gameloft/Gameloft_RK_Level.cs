@@ -187,8 +187,8 @@ namespace R1Engine
 				None,
 				Flag0 = 1 << 0,
 				Effect = 1 << 1, // Snow in Frozen Highway, Rain in Murky Swamp, Bubbles in Shipwreck Track
-				DrawRocksOnRight = 1 << 2,
-				DrawRocksOnLeft = 1 << 3,
+				WallRight = 1 << 2, // Collision only
+				WallLeft = 1 << 3, // Collision only
 				Flag4 = 1 << 4,
 				TurnRight = 1 << 5,
 				TurnLeft = 1 << 6,
