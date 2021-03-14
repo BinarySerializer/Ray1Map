@@ -6,10 +6,11 @@ namespace R1Engine
 {
     public class Unity_Object_GBARRRMode7Waypoint : Unity_Object_3D
     {
-        public Unity_Object_GBARRRMode7Waypoint(GBARRR_Mode7Waypoint obj, Unity_ObjectManager objManager)
+        public Unity_Object_GBARRRMode7Waypoint(GBARRR_Mode7Waypoint obj, Unity_ObjectManager objManager, int linkedWayPointIndex)
         {
             Object = obj;
             ObjManager = objManager;
+            LinkedWayPointIndex = linkedWayPointIndex;
 
             // Default to no entries
             UIStates = new UIState[0];
@@ -31,6 +32,17 @@ namespace R1Engine
 
         public float Height { get; set; }
         public override float Scale => 0.5f;
+
+        public int LinkedWayPointIndex { get; }
+
+        public override bool CanBeLinked => true;
+        public override IEnumerable<int> Links
+        {
+            get
+            {
+                yield return LinkedWayPointIndex;
+            }
+        }
 
         public override Vector3 Position
         {

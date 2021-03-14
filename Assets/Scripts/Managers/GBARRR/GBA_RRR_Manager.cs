@@ -1052,7 +1052,7 @@ namespace R1Engine
                 var objmanager = new Unity_ObjectManager_GBARRRMode7(context, await LoadGraphicsDataAsync(context));
 
                 var objLength = rom.Mode7_Objects.FindItemIndex(x => x.ObjectType == GBARRR_Mode7Object.Mode7Type.Invalid);
-                var mode7Waypoints = rom.Mode7_Waypoints.Select(x => (Unity_Object)new Unity_Object_GBARRRMode7Waypoint(x, objmanager));
+                var mode7Waypoints = rom.Mode7_Waypoints.Select((x, i) => (Unity_Object)new Unity_Object_GBARRRMode7Waypoint(x, objmanager, objLength + ((i == rom.Mode7_Waypoints.Length - 1) ? 0 : (i + 1))));
                 var rayPos = Mode7_GetRaymanStartPosition(lvl);
                 var mode7Objects = rom.
                     // Get the objects
@@ -1086,7 +1086,8 @@ namespace R1Engine
                         XPosition = (short)rayPos.x,
                         YPosition = (short)rayPos.y
                     }, objmanager, false),
-                    isometricData: Unity_IsometricData.Mode7(CellSize)
+                    isometricData: Unity_IsometricData.Mode7(CellSize),
+                    trackManager: new Unity_TrackManager_GBARRR_Mode7()
                 );
             }
 

@@ -4,20 +4,20 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_TrackManager_GBAVV_NitroKart : Unity_TrackManager_TargetBase
+    public class Unity_TrackManager_GBARRR_Mode7 : Unity_TrackManager_TargetBase
     {
-        protected Unity_Object_GBAVVNitroKartWaypoint CurrentWaypoint { get; set; }
+        protected Unity_Object_GBARRRMode7Waypoint CurrentWaypoint { get; set; }
 
         public override bool IsAvailable(Context context, Unity_Level level)
         {
             // Make sure the level has waypoints
-            return level.EventData.OfType<Unity_Object_GBAVVNitroKartWaypoint>().Any();
+            return level.EventData.OfType<Unity_Object_GBARRRMode7Waypoint>().Any();
         }
 
         public override Vector3 GetStartPosition(Unity_Level level)
         {
             // Get the first waypoint
-            var obj = level.EventData.OfType<Unity_Object_GBAVVNitroKartWaypoint>().First();
+            var obj = level.EventData.OfType<Unity_Object_GBARRRMode7Waypoint>().First();
 
             CurrentWaypoint = obj;
 
@@ -30,7 +30,7 @@ namespace R1Engine
 
         public override void NextTarget(Unity_Level level)
         {
-            CurrentWaypoint = (Unity_Object_GBAVVNitroKartWaypoint) level.EventData[CurrentWaypoint.LinkedWayPointIndex.Value];
+            CurrentWaypoint = (Unity_Object_GBARRRMode7Waypoint) level.EventData[CurrentWaypoint.LinkedWayPointIndex];
             TargetPosition = CurrentWaypoint.Position;
         }
     }
