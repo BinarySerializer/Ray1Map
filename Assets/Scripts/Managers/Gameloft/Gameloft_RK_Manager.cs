@@ -203,6 +203,7 @@ namespace R1Engine
 			float abyssDepth = 0.5f;
 			float abyssSize = 3f;
 			var heightMultiplier = 0.025f;
+			float wallHeight = 2f;
 
 			var t = level.TrackBlocks;
 
@@ -212,9 +213,13 @@ namespace R1Engine
 			// Ground
 			var ground = new MeshInProgress("Ground");
 			var abyss = new MeshInProgress("Abyss");
+			var walls = new MeshInProgress("Walls");
 
 			for (int i = 0; i < t.Length; i++) {
 				var curBlock = t[i];
+				bool isWallLeft = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 5) == 1;
+				bool isWallRight = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 4) == 1;
+
 				bool isBridge = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 0) == 1;
 				bool useRoadWidth = BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 1) == 1
 					|| BitHelpers.ExtractBits(level.Types[curBlock.Type].Flags, 1, 2) == 1;
@@ -230,6 +235,7 @@ namespace R1Engine
 				int roadVertexCount = road.vertices.Count;
 				int groundVertexCount = ground.vertices.Count;
 				int abyssVertexCount = abyss.vertices.Count;
+				int wallsVertexCount = walls.vertices.Count;
 				Quaternion q = Quaternion.Euler(0, curAngle, 0);
 				var curPosH = curPos + Vector3.up * curHeight;
 				road.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
@@ -252,6 +258,19 @@ namespace R1Engine
 					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
 					abyss.vertices.Add(curPosH + q * Vector3.right * abyssSize + curAbyssDepth);
 					abyss.vertices.Add(curPosH + q * Vector3.right * abyssSize + curAbyssDepth);
+				}
+
+				if (isWallLeft) {
+					walls.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+					walls.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+					walls.vertices.Add(curPosH + q * Vector3.left * roadSizeCur + Vector3.up * wallHeight);
+					walls.vertices.Add(curPosH + q * Vector3.left * roadSizeCur + Vector3.up * wallHeight);
+				}
+				if (isWallRight) {
+					walls.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+					walls.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+					walls.vertices.Add(curPosH + q * Vector3.right * roadSizeCur + Vector3.up * wallHeight);
+					walls.vertices.Add(curPosH + q * Vector3.right * roadSizeCur + Vector3.up * wallHeight);
 				}
 
 				curPos += q * Vector3.forward;
@@ -280,6 +299,19 @@ namespace R1Engine
 					abyss.vertices.Add(curPosH + q * Vector3.left * abyssSize + curAbyssDepth);
 					abyss.vertices.Add(curPosH + q * Vector3.right * abyssSize + curAbyssDepth);
 					abyss.vertices.Add(curPosH + q * Vector3.right * abyssSize + curAbyssDepth);
+				}
+
+				if (isWallLeft) {
+					walls.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+					walls.vertices.Add(curPosH + q * Vector3.left * roadSizeCur);
+					walls.vertices.Add(curPosH + q * Vector3.left * roadSizeCur + Vector3.up * wallHeight);
+					walls.vertices.Add(curPosH + q * Vector3.left * roadSizeCur + Vector3.up * wallHeight);
+				}
+				if (isWallRight) {
+					walls.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+					walls.vertices.Add(curPosH + q * Vector3.right * roadSizeCur);
+					walls.vertices.Add(curPosH + q * Vector3.right * roadSizeCur + Vector3.up * wallHeight);
+					walls.vertices.Add(curPosH + q * Vector3.right * roadSizeCur + Vector3.up * wallHeight);
 				}
 
 				// Up
@@ -341,8 +373,45 @@ namespace R1Engine
 					abyss.triangles.Add(abyssVertexCount + 4 + 1);
 				}
 
+				if (isWallLeft) {
+					int spacing = isWallRight ? 8 : 4;
+					// Inward
+					walls.triangles.Add(wallsVertexCount + 0);
+					walls.triangles.Add(wallsVertexCount + 2);
+					walls.triangles.Add(wallsVertexCount + spacing + 2);
+					walls.triangles.Add(wallsVertexCount + spacing + 2);
+					walls.triangles.Add(wallsVertexCount + spacing + 0);
+					walls.triangles.Add(wallsVertexCount + 0);
+					// Outward
+					walls.triangles.Add(wallsVertexCount + 1 + 0);
+					walls.triangles.Add(wallsVertexCount + 1 + spacing + 2);
+					walls.triangles.Add(wallsVertexCount + 1 + 2);
+					walls.triangles.Add(wallsVertexCount + 1 + spacing + 0);
+					walls.triangles.Add(wallsVertexCount + 1 + spacing + 2);
+					walls.triangles.Add(wallsVertexCount + 1 + 0);
+				}
+				if (isWallRight) {
+					int spacing = isWallLeft ? 8 : 4;
+					int offset = isWallLeft ? 4 : 0;
+					// Inward
+					walls.triangles.Add(wallsVertexCount + offset + 0);
+					walls.triangles.Add(wallsVertexCount + offset + spacing + 2);
+					walls.triangles.Add(wallsVertexCount + offset + 2);
+					walls.triangles.Add(wallsVertexCount + offset + spacing + 0);
+					walls.triangles.Add(wallsVertexCount + offset + spacing + 2);
+					walls.triangles.Add(wallsVertexCount + offset + 0);
+					// Outward
+					walls.triangles.Add(wallsVertexCount + offset + 1 + 0);
+					walls.triangles.Add(wallsVertexCount + offset + 1 + 2);
+					walls.triangles.Add(wallsVertexCount + offset + 1 + spacing + 2);
+					walls.triangles.Add(wallsVertexCount + offset + 1 + spacing + 2);
+					walls.triangles.Add(wallsVertexCount + offset + 1 + spacing + 0);
+					walls.triangles.Add(wallsVertexCount + offset + 1 + 0);
+				}
+
 				// Test colors
-				var roadCol = isBridge ? (level.Color_dk_BridgeLight ?? level.Types[curBlock.Type].ColorGround).GetColor() : Color.white;
+				var bridgeCol = (i % 2 == 0) ? level.Color_dk_BridgeLight : level.Color_dj_BridgeDark;
+				var roadCol = isBridge ? (bridgeCol ?? level.Types[curBlock.Type].ColorGround).GetColor() : Color.white;
 				road.colors.Add(roadCol);
 				road.colors.Add(Color.grey);
 				road.colors.Add(roadCol);
@@ -373,6 +442,32 @@ namespace R1Engine
 					//var abyssCol = Color.Lerp(colorAbyss, colorFog, curHeight / 4f);
 					//var abyssCol = level.Color_bF_Fog.GetColor();
 					for (int j = 0; j < 8; j++) abyss.colors.Add(colorAbyss);
+				}
+
+				var wallColor = ((i % 2 == 0) ? level.Color_bH_Wall0 : level.Color_bI_Wall1).GetColor();
+				if (isWallLeft) {
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+				}
+				if (isWallRight) {
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+				}
+				if (isWallLeft) {
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+				}
+				if (isWallRight) {
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
+					walls.colors.Add(wallColor);
 				}
 
 
@@ -443,6 +538,25 @@ namespace R1Engine
 				gao.transform.localScale = Vector3.one;
 				gao.transform.localPosition = Vector3.zero + Vector3.up * abyssDisplacement;
 				mf.mesh = abyssMesh;
+				mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+			}
+
+
+			// Abyss
+			if(walls.vertices.Count > 0) {
+				Mesh wallsMesh = new Mesh();
+				wallsMesh.SetVertices(walls.vertices);
+				wallsMesh.SetTriangles(walls.triangles, 0);
+				wallsMesh.SetColors(walls.colors);
+				wallsMesh.RecalculateNormals();
+				GameObject gao = new GameObject("Walls mesh");
+				MeshFilter mf = gao.AddComponent<MeshFilter>();
+				MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+				gao.layer = LayerMask.NameToLayer("3D Collision");
+				gao.transform.SetParent(gaoParent.transform);
+				gao.transform.localScale = Vector3.one;
+				gao.transform.localPosition = Vector3.zero;
+				mf.mesh = wallsMesh;
 				mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
 			}
 
