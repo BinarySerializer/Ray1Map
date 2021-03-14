@@ -27,6 +27,8 @@ namespace R1Engine
 
         public Grid grid;
 
+        readonly double GoldenRatio = (1 + Math.Sqrt(5)) / 2;
+
         /// <summary>
         /// The events
         /// </summary>
@@ -183,6 +185,7 @@ namespace R1Engine
             // Set max cam sizes
             camMaxX = maxWidth;
             camMaxY = maxHeight;
+            Controller.obj.levelController.editor.cam.maxZoomOrthographic = Mathf.Max(Controller.obj.levelController.editor.cam.minZoomOrthographic, (float)(maxWidth * CellSizeInUnits / GoldenRatio), (float)(maxHeight * CellSizeInUnits / GoldenRatio));
 
             if (IsometricCollision == null && level.IsometricData != null) {
                 IsometricCollision = level.IsometricData.GetCollisionVisualGameObject(isometricCollisionMaterial);

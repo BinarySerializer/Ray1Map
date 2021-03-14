@@ -26,6 +26,9 @@ namespace R1Engine {
         public bool FreeCameraMode { get; set; } = false;
         private bool _freeCameraMode = false;
 
+        public float minZoomOrthographic = 3.75f;
+        public float maxZoomOrthographic = 50f;
+
         void Start() {
             Camera.main.orthographicSize = fov;
             fricStart = friction;
@@ -105,7 +108,7 @@ namespace R1Engine {
                 // Mouse wheel zooming
                 if (!EventSystem.current.IsPointerOverGameObject()) {
                     if(Input.mouseScrollDelta.y != 0) StopLerp();
-                    fov = Mathf.Clamp(fov - 0.25f * Input.mouseScrollDelta.y * fov, 3.75f, 50);
+                    fov = Mathf.Clamp(fov - 0.25f * Input.mouseScrollDelta.y * fov, minZoomOrthographic, maxZoomOrthographic);
                 }
 
 
@@ -463,7 +466,7 @@ namespace R1Engine {
                     var targetSize = objectSize * 2f * 1.5f;
                     if (Mathf.Abs(fov - targetSize) > 5f) {
                         targetOrthoSize = Mathf.Lerp(fov, targetSize, 0.75f);
-                        targetOrthoSize = Mathf.Clamp(targetOrthoSize.Value, 3.75f, 50f);
+                        targetOrthoSize = Mathf.Clamp(targetOrthoSize.Value, minZoomOrthographic, maxZoomOrthographic);
                     }
                     //targetOrthoSize = objectSize * 2f * 1.5f;
                     Vector3 target = cam.transform.InverseTransformPoint(center.Value);
