@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace R1Engine {
@@ -515,7 +516,7 @@ namespace R1Engine {
         }
         public void MoveTrack()
         {
-            if (!IsTrackEnabled) 
+            if (!IsTrackEnabled)
                 return;
             
             var manager = LevelEditorData.Level.TrackManager;
@@ -531,17 +532,22 @@ namespace R1Engine {
             }
             else
             {
-                const float speed = 8f;
+                const float moveSpeed = 8f;
+                const float rotateSpeed = 0.8f;
 
-                // Get the direction
+                // Get the direction to move in
                 var dir = manager.GetDirection(LevelEditorData.Level, currentPos);
 
+                // Get the new position to move to
                 var newPos = new Vector3(
-                    camera3D.transform.position.x + dir.x * Time.deltaTime * speed,
-                    camera3D.transform.position.y + dir.z * Time.deltaTime * speed,
-                    camera3D.transform.position.z - dir.y * Time.deltaTime * speed);
+                    camera3D.transform.position.x + dir.x * Time.deltaTime * moveSpeed,
+                    camera3D.transform.position.y + dir.z * Time.deltaTime * moveSpeed,
+                    camera3D.transform.position.z - dir.y * Time.deltaTime * moveSpeed);
 
-                camera3D.transform.LookAt(newPos);
+                // Gradually rotate the camera
+                Vector3 targetDir = newPos - camera3D.transform.position;
+                Vector3 newDir = Vector3.RotateTowards(camera3D.transform.forward, targetDir, rotateSpeed * Time.deltaTime, 0.0F);
+                camera3D.transform.rotation = Quaternion.LookRotation(newDir);
                 
                 // Set new position
                 camera3D.transform.position = newPos;
