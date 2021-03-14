@@ -969,7 +969,8 @@ namespace R1Engine
                 getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
                 localization: loc.Item1,
-                isometricData: Unity_IsometricData.Mode7(CellSize));
+                isometricData: Unity_IsometricData.Mode7(CellSize),
+                trackManager: new Unity_TrackManager_GBAVV_NitroKart());
         }
 
         public static byte GetIsometricCollisionType(int level, int index)

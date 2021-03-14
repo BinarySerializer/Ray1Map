@@ -533,11 +533,15 @@ namespace R1Engine {
                 // Get the direction
                 var dir = manager.GetDirection(LevelEditorData.Level, currentPos);
 
-                // Set new position
-                camera3D.transform.position = new Vector3(
-                    camera3D.transform.position.x + dir.x * Time.deltaTime * speed, 
-                    camera3D.transform.position.y + dir.z * Time.deltaTime * speed, 
+                var newPos = new Vector3(
+                    camera3D.transform.position.x + dir.x * Time.deltaTime * speed,
+                    camera3D.transform.position.y + dir.z * Time.deltaTime * speed,
                     camera3D.transform.position.z - dir.y * Time.deltaTime * speed);
+
+                camera3D.transform.LookAt(newPos);
+                
+                // Set new position
+                camera3D.transform.position = newPos;
             }
         }
     }
