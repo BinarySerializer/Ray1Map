@@ -1077,7 +1077,8 @@ namespace R1Engine
                     ObjectScale = Vector3.one * 8
                 },
                 objectGroups: objGroups.Select(x => x.Item2).ToArray(),
-                localization: loc.Item1);
+                localization: loc.Item1,
+                trackManager: new Unity_TrackManager_GBAVV_NitroKart());
         }
 
         public override UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

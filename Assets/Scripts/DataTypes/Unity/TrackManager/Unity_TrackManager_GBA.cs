@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using R1Engine.Serialize;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ namespace R1Engine
 {
     public class Unity_TrackManager_GBA : Unity_TrackManager
     {
+        protected GBA_TileCollisionType PreviousCollisionType { get; set; }
+
         public override bool IsAvailable(Context context, Unity_Level level)
         {
             // Make sure the game is Rayman 3 and Ssssam is in the level
@@ -23,8 +26,6 @@ namespace R1Engine
             // Return position
             return new Vector3(obj.XPosition, obj.YPosition, 10);
         }
-
-        protected GBA_TileCollisionType PreviousCollisionType { get; set; }
 
         public override Vector3 GetDirection(Unity_Level level, Vector3 pos)
         {
