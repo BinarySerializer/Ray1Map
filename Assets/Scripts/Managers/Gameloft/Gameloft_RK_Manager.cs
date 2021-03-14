@@ -729,6 +729,109 @@ namespace R1Engine
 			return m;
 		}
 
+		public Mesh GetSpeedBoostMesh(int xCenter, Gameloft_RK_Level.TrackBlock trkblk = null, bool flipX = false, bool highRes = true) {
+			Color currentColor = Color.white;
+			MeshInProgress mesh = new MeshInProgress($"Speed Boost");
+			Vector3 nextPos = Vector3.forward;
+			Quaternion nextAngle = Quaternion.identity;
+			var zMultiplier = 1000f;
+			if (trkblk != null) {
+				var heightMultiplier = 0.025f;
+				nextPos = new Vector3(0, trkblk.DeltaHeight * heightMultiplier, 1f);
+				nextAngle = Quaternion.Euler(0, trkblk.DeltaRotation * (flipX ? 1 : -1), 0);
+			}
+			currentColor = Color.white;
+			Vector3[] pts = new Vector3[] {
+				new Vector3(xCenter - 200, 50, 0),
+				new Vector3(xCenter + 200, 50, 0),
+				new Vector3(xCenter,50,0)
+			};
+			var pts_n = pts.Select(p => zMultiplier * nextPos + nextAngle * p).ToArray();
+			float scaleLerpValue(float f) => 0.2f + (f * 0.6f);
+			if (!highRes) {
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[0], pts_n[0], scaleLerpValue(0f)) / 1000f);
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[2], pts_n[2], scaleLerpValue(0.2f)) / 1000f);
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[1], pts_n[1], scaleLerpValue(0f)) / 1000f);
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[2], pts_n[2], scaleLerpValue(1f)) / 1000f);
+				for (int i = 0; i < 4; i++) mesh.colors.Add(currentColor);
+				mesh.uvs.Add(new Vector2(0, 0));
+				mesh.uvs.Add(new Vector2(0.5f, 0.2f));
+				mesh.uvs.Add(new Vector2(1, 0));
+				mesh.uvs.Add(new Vector2(0.5f, 1f));
+
+
+				// Left
+				mesh.triangles.Add(0);
+				mesh.triangles.Add(3);
+				mesh.triangles.Add(1);
+
+				// Right
+				mesh.triangles.Add(1);
+				mesh.triangles.Add(3);
+				mesh.triangles.Add(2);
+			} else {
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[0], pts_n[0], scaleLerpValue(0f)) / 1000f);
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[2], pts_n[2], scaleLerpValue(0.2f)) / 1000f);
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[1], pts_n[1], scaleLerpValue(0f)) / 1000f);
+
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[0], pts_n[0], scaleLerpValue(0.8f)) / 1000f);
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[2], pts_n[2], scaleLerpValue(1f)) / 1000f);
+				mesh.vertices.Add(Vector3.LerpUnclamped(pts[1], pts_n[1], scaleLerpValue(0.8f)) / 1000f);
+				for (int i = 0; i < 6; i++) mesh.colors.Add(currentColor);
+				mesh.uvs.Add(new Vector2(0, 0));
+				mesh.uvs.Add(new Vector2(0.5f, 0.2f));
+				mesh.uvs.Add(new Vector2(1, 0));
+				mesh.uvs.Add(new Vector2(0, 0.8f));
+				mesh.uvs.Add(new Vector2(0.5f, 1f));
+				mesh.uvs.Add(new Vector2(1, 0.8f));
+				// Left
+				mesh.triangles.Add(0);
+				mesh.triangles.Add(3);
+				mesh.triangles.Add(4);
+
+				mesh.triangles.Add(4);
+				mesh.triangles.Add(1);
+				mesh.triangles.Add(0);
+
+				// Right
+				mesh.triangles.Add(1);
+				mesh.triangles.Add(4);
+				mesh.triangles.Add(5);
+
+				mesh.triangles.Add(5);
+				mesh.triangles.Add(2);
+				mesh.triangles.Add(1);
+			}
+
+
+			Mesh m = new Mesh();
+			m.SetVertices(mesh.vertices);
+			m.SetColors(mesh.colors);
+			m.SetUVs(0, mesh.uvs);
+			m.SetTriangles(mesh.triangles, 0);
+			m.RecalculateNormals();
+			return m;
+		}
+		public Texture2D GetSpeedBoostTexture() {
+			Texture2D tex = TextureHelpers.CreateTexture2D(4,4);
+			Color green = new Color(0 / 255f, 193 / 255f, 20 / 255f);
+			Color white = new Color(148 / 255f, 238 / 255f, 118 / 255f);
+			for (int y = 0; y < tex.height; y++) {
+				for (int x = 0; x < tex.width; x++) {
+					if (y % 2 == 0) {
+						tex.SetPixel(x, y, green);
+					} else {
+						tex.SetPixel(x, y, white);
+					}
+				}
+			}
+			tex.wrapMode = TextureWrapMode.Repeat;
+			tex.filterMode = FilterMode.Bilinear;
+			tex.Apply();
+			return tex;
+		}
+
+
 		public Mesh GetArchMesh(Gameloft_RK_Level level, int trackBlock) {
 			Color currentColor = Color.white;
 			Color frontColor = level.Color_Tunnel_Front.GetColor();
@@ -899,6 +1002,8 @@ namespace R1Engine
 			var heightMultiplier = 0.025f;
 			GameObject gao_3dObjParent = null;
 			GameObject gao_tunnelParent = null;
+			GameObject gao_speedBoostParent = null;
+			Texture2D speedboostTex = null;
 			foreach (var o in level.TrackBlocks) {
 				var sphere = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Cube);
 				sphere.transform.position = curPos + Vector3.up * curHeight;
@@ -922,10 +1027,40 @@ namespace R1Engine
 					var blk = level.TrackObjectInstances[ci_ind];
 					var toi = blk.TrackObjectIndex;
 					var to = level.TrackObjects[toi];
-					if(blk.ObjType == 4) continue;
-					// TODO: Create obj types 4. These are hardcoded it seems.
-					// Usually they don't show up, but if Byte2 == 2, they show up as speed boosts
-					if (blk.ObjType == 1) {
+					if (blk.ObjType == 4) {
+						var triggerObject = level.TriggerObjects[to.ObjectType];
+						// 0 = jump, 1 = speed boost, 2 = Water, 5 = also speedup apparently?
+						// if flag 1 is set, and only flag 1 (so flags == 2): JUST speed boost
+						if (triggerObject.Flags == 2 && context.Settings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
+							if (gao_speedBoostParent == null) {
+								gao_speedBoostParent = new GameObject("Speed Boosts");
+								gao_speedBoostParent.transform.localPosition = centerPos;
+								gao_speedBoostParent.transform.localRotation = Quaternion.identity;
+								gao_speedBoostParent.transform.localScale = Vector3.one;
+								speedboostTex = GetSpeedBoostTexture();
+							}
+							GameObject gp = new GameObject($"Speed Boost");
+							gp.transform.SetParent(gao_speedBoostParent.transform);
+							gp.transform.localPosition = Vector3.zero;
+							bool isHighRes = context.Settings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128;
+							var m = GetSpeedBoostMesh(to.XPosition, o,highRes: isHighRes);
+							GameObject gao = new GameObject();
+							MeshFilter mf = gao.AddComponent<MeshFilter>();
+							MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+							gao.layer = LayerMask.NameToLayer("3D Collision");
+							gao.transform.SetParent(gp.transform);
+							gao.transform.localScale = new Vector3(blk.FlipX ? -1 : 1, 1, 1f);
+							gao.transform.localRotation = Quaternion.Euler(0, curAngle, 0);
+							gao.transform.localPosition = sphere.transform.position;
+							mf.mesh = m;
+							mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+							mr.material.SetTexture("_MainTex", speedboostTex);
+							var animTex = gao.AddComponent<AnimatedTextureComponent>();
+							animTex.material = mr.material;
+							animTex.scrollV = -1f;
+							gp.transform.localScale = Vector3.one * Scale;
+						}
+					} else if (blk.ObjType == 1) {
 						if (blk.TrackObjectIndex < 2) {
 							if (gao_tunnelParent == null) {
 								gao_tunnelParent = new GameObject("Tunnels");
@@ -1034,6 +1169,13 @@ namespace R1Engine
 					Graphics = gao_3dObjParent
 				});
 				gao_3dObjParent.transform.SetParent(parent3d);
+			}
+			if (gao_speedBoostParent != null) {
+				layers.Add(new Unity_Layer_GameObject(true, isAnimated: true) {
+					Name = "Speed Boosts",
+					Graphics = gao_speedBoostParent
+				});
+				gao_speedBoostParent.transform.SetParent(parent3d);
 			}
 
 			// Return level
