@@ -298,7 +298,7 @@ namespace R1Engine {
                 CameraControlsSpeed();
             }
 
-            MoveTrack();
+            MoveAlongTrack();
         }
 
         #region Camera Controls
@@ -486,8 +486,9 @@ namespace R1Engine {
             }
         }
 
-        public bool IsTrackEnabled;
-        public void StartMovingTrack()
+        public bool IsTrackMovingEnabled;
+        public bool FirstTrackMove;
+        public void StartMovingAlongTrack()
         {
             var manager = LevelEditorData.Level.TrackManager;
 
@@ -502,21 +503,22 @@ namespace R1Engine {
             Vector3 isometricScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
             camera3D.transform.position = Vector3.Scale(new Vector3(startPos.x, startPos.z, -startPos.y), isometricScale);
 
-            // TODO: Rotate and zoom in
             // Toggle free camera mode
             ToggleFreeCameraMode(true);
 
             // Enable track
-            IsTrackEnabled = true;
+            IsTrackMovingEnabled = true;
+            FirstTrackMove = true;
         }
-        public void StopMovingTrack()
+        public void StopMovingAlongTrack()
         {
             // Disable track
-            IsTrackEnabled = false;
+            IsTrackMovingEnabled = false;
+            FirstTrackMove = false;
         }
-        public void MoveTrack()
+        public void MoveAlongTrack()
         {
-            if (!IsTrackEnabled)
+            if (!IsTrackMovingEnabled)
                 return;
             
             var manager = LevelEditorData.Level.TrackManager;
@@ -528,7 +530,7 @@ namespace R1Engine {
             // Check if we've reached the end
             if (manager.HasReachedEnd(LevelEditorData.Level, currentPos))
             {
-                IsTrackEnabled = false;
+                IsTrackMovingEnabled = false;
             }
             else
             {
@@ -544,11 +546,19 @@ namespace R1Engine {
                     camera3D.transform.position.y + dir.z * Time.deltaTime * moveSpeed,
                     camera3D.transform.position.z - dir.y * Time.deltaTime * moveSpeed);
 
-                // Gradually rotate the camera
-                Vector3 targetDir = newPos - camera3D.transform.position;
-                Vector3 newDir = Vector3.RotateTowards(camera3D.transform.forward, targetDir, rotateSpeed * Time.deltaTime, 0.0F);
-                camera3D.transform.rotation = Quaternion.LookRotation(newDir);
-                
+                if (FirstTrackMove)
+                {
+                    camera3D.transform.LookAt(newPos);
+                    FirstTrackMove = false;
+                }
+                else
+                {
+                    // Gradually rotate the camera
+                    Vector3 targetDir = newPos - camera3D.transform.position;
+                    Vector3 newDir = Vector3.RotateTowards(camera3D.transform.forward, targetDir, rotateSpeed * Time.deltaTime, 0.0F);
+                    camera3D.transform.rotation = Quaternion.LookRotation(newDir);
+                }
+
                 // Set new position
                 camera3D.transform.position = newPos;
             }

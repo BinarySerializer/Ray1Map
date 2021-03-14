@@ -267,15 +267,15 @@ public class SettingsWindow : UnityWindow
                 {
                     var cam = Controller.obj?.levelController?.editor?.cam;
 
-                    if (cam.IsTrackEnabled)
+                    if (cam.IsTrackMovingEnabled)
                     {
                         if (EditorButton("Stop moving along track"))
-                            cam.StopMovingTrack();
+                            cam.StopMovingAlongTrack();
                     }
                     else
                     {
                         if (EditorButton("Move along track"))
-                            cam.StartMovingTrack();
+                            cam.StartMovingAlongTrack();
                     }
                 }
 
