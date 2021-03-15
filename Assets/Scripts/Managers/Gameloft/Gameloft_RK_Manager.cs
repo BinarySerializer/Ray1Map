@@ -35,6 +35,7 @@ namespace R1Engine
 		public virtual string GetLevelPath(int level) => "20";
 		public string GetLevelPath(GameSettings settings) => GetLevelPath(settings.Level);
 		public virtual string GetRoadTexturesPath(GameSettings settings) => "2";
+		public virtual string GetBackgroundsPath(GameSettings settings) => "1";
 		public virtual int GetLevelResourceIndex(int level) => level;
 		public int GetLevelResourceIndex(GameSettings settings) => GetLevelResourceIndex(settings.Level);
 
@@ -57,6 +58,7 @@ namespace R1Engine
 
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
+			await context.AddLinearSerializedFileAsync(GetBackgroundsPath(context.Settings));
 			await context.AddLinearSerializedFileAsync(GetRoadTexturesPath(context.Settings));
 			foreach (var fileIndex in Enumerable.Range(0, PuppetCount).Select(i => GetPuppetFileIndex(i)).Distinct()) {
 				await context.AddLinearSerializedFileAsync(fileIndex.ToString());
@@ -132,6 +134,38 @@ namespace R1Engine
 				models[i] = new Unity_ObjectManager_GameloftRK.PuppetData(i, fileIndex, resIndex, puppets[i], GetCommonDesign(puppets[i]));
 			}
 			return models;
+		}
+
+		public virtual Unity_Layer[] LoadBackgrounds(Context context, Gameloft_RK_Level level) {
+			var s = context.Deserializer;
+			Gameloft_ResourceFile resf = null;
+			List<Unity_Layer> layers = new List<Unity_Layer>();
+			for (int i = 0; i < level?.BackgroundLayers?.Length; i++) {
+				var bgl = level.BackgroundLayers[i];
+				if (resf == null) {
+					resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundsPath(context.Settings), context);
+				}
+				var rawData = resf.SerializeResource<Gameloft_DummyResource>(s,default,bgl.ImageResourceIndex, name: $"Backgrounds[{bgl.ImageResourceIndex}]");
+				Texture2D tex = TextureHelpers.CreateTexture2D(1,1);
+				tex.LoadImage(rawData.Data);
+				// TODO: Offset background images correctly.
+				// vertical position = bgl.Flags & 0x2 ? (backgroundBottom-tex.height-bgl.PixelsOffset) : bgl.PixelsOffset
+				// backgroundBottom is hardcoded per version...
+				/*
+				 * 44 for 128x128
+				 * 73 for 128x160
+				 * 110 for 176x208
+				 * 107 for 176x220
+				 * 126 for 208x208
+				 * 107 for 240x320 - s40v5
+				 * 177 for 240x320 - W900i
+				 * */
+				layers.Add(new Unity_Layer_Texture {
+					Name = $"Background Layer {i}",
+					Texture = tex,
+				});
+			}
+			return layers.ToArray();
 		}
 
 		public virtual int Scale => 8;
@@ -1169,6 +1203,7 @@ namespace R1Engine
 			// Initialize layers
 			var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
 			var layers = new List<Unity_Layer>();
+			layers.AddRange(LoadBackgrounds(context, level));
 			layers.Add(new Unity_Layer_GameObject(true, isAnimated: false) {
 				Name = "Track",
 				Graphics = trackMesh,

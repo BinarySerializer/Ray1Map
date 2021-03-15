@@ -260,15 +260,15 @@ namespace R1Engine
 
 		public class BackgroundLayer : R1Serializable {
 			public byte ImageResourceIndex { get; set; }
-			public short Short1 { get; set; }
-			public byte Byte3 { get; set; }
+			public short PixelsOffset { get; set; } // vertical position = Flags & 0x2 ? (screenBottom-height-PixelsOffset) : PixelsOffset
+			public byte Flags { get; set; }
 			public short Short4 { get; set; }
 			public short Short6 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				ImageResourceIndex = s.Serialize<byte>(ImageResourceIndex, name: nameof(ImageResourceIndex));
-				Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
-				Byte3 = s.Serialize<byte>(Byte3, name: nameof(Byte3));
+				PixelsOffset = s.Serialize<short>(PixelsOffset, name: nameof(PixelsOffset));
+				Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 				Short4 = s.Serialize<short>(Short4, name: nameof(Short4));
 				Short6 = s.Serialize<short>(Short6, name: nameof(Short6));
 			}
