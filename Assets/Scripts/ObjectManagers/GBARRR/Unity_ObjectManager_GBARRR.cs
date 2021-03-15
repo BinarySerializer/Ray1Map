@@ -41,7 +41,9 @@ namespace R1Engine
             return objects.Any() ? objects.Max(x => x.EditorLinkGroup) + 1 : 1;
         }
 
-        public GraphicsData[][] GraphicsDatas { get; }
+		public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_GBARRR>().FindItem(x => x.IsRayman);
+
+		public GraphicsData[][] GraphicsDatas { get; }
 
         public class GraphicsData
         {

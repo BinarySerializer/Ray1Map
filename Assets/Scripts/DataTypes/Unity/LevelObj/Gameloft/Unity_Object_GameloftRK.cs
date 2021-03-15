@@ -14,6 +14,16 @@ namespace R1Engine {
             PaletteIndex = type.PaletteIndex;
         }
 
+        // For custom objects
+        public Unity_Object_GameloftRK(Unity_ObjectManager_GameloftRK objManager, int puppetIndex, int animIndex, int paletteIndex, string objectName, int? objectGroupIndex = null) {
+            ObjManager = objManager;
+            PuppetIndex = puppetIndex;
+            AnimIndex = animIndex;
+            PaletteIndex = paletteIndex;
+            ObjectGroupIndex = objectGroupIndex;
+            ObjectName = objectName;
+        }
+
         public Unity_ObjectManager_GameloftRK ObjManager { get; }
         public Gameloft_RK_Level.TrackObject Object { get; set; }
         public Gameloft_RK_Level.TrackObjectInstance Instance { get; set; }
@@ -22,28 +32,33 @@ namespace R1Engine {
         public int PuppetIndex { get; set; }
         public int AnimIndex { get; set; }
 
+		public override bool IsEditor => ObjectName == "Player";
+
+		public override int? ObjectGroupIndex { get; }
+
 
         public override Vector3 Position { get; set; }
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }
 
-        public override string DebugText => $"ObjectType: {Object.ObjectType}{Environment.NewLine}" +
-            $"ObjType: {Instance.ObjType}{Environment.NewLine}" +
-            $"TrackObjIndex: {Instance.TrackObjectIndex}{Environment.NewLine}";
+        public override string DebugText => $"ObjectType: {Object?.ObjectType}{Environment.NewLine}" +
+            $"ObjType: {Instance?.ObjType}{Environment.NewLine}" +
+            $"TrackObjIndex: {Instance?.TrackObjectIndex}{Environment.NewLine}";
 
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_{Object.ObjectType}";
+        public override string PrimaryName => $"Type_{Object?.ObjectType.ToString() ?? ObjectName}";
         public override string SecondaryName => PuppetData?.Name;
         public Unity_ObjectManager_GameloftRK.PuppetData PuppetData => ObjManager.Puppets.ElementAtOrDefault(PuppetIndex);
 
-        public override bool FlipHorizontally => Instance.FlipX;
+        public override bool FlipHorizontally => Instance?.FlipX ?? false;
         public override bool FlipVertically => false;
 
         public override bool CanBeLinkedToGroup => false;
 		public override bool CanBeLinked => false;
+        public string ObjectName { get; set; }
 
 		public override Unity_ObjAnimation CurrentAnimation => PuppetData?.Puppet?.Animations?.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? 0;

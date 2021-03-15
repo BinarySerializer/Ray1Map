@@ -1,4 +1,5 @@
 ﻿using R1Engine.Serialize;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ namespace R1Engine
         {
             GraphicsDatas = graphicsDatas;
         }
+
+        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.FindItem(x => (x as Unity_Object_GBARRRMode7)?.IsRayman ?? false);
 
         public GraphicsData[] GraphicsDatas { get; }
 

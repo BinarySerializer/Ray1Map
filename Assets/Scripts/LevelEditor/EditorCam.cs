@@ -435,7 +435,7 @@ namespace R1Engine {
         }
 
 
-        public void JumpTo(GameObject gao) {
+        public void JumpTo(GameObject gao, bool immediate = false) {
             Vector3? center = null, size = null;
             Unity_ObjBehaviour obj = gao.GetComponent<Unity_ObjBehaviour>();
             if (obj != null) {
@@ -472,6 +472,24 @@ namespace R1Engine {
                     //targetOrthoSize = objectSize * 2f * 1.5f;
                     Vector3 target = cam.transform.InverseTransformPoint(center.Value);
                     targetPos = cam.transform.TransformPoint(new Vector3(target.x, target.y, orthographicZPosition));
+                    if (immediate) {
+                        if (targetOrthoSize.HasValue) {
+                            fov = targetOrthoSize.Value;
+                            Camera.main.orthographicSize = fov;
+                            targetOrthoSize = null;
+                        }
+                        if (targetPos.HasValue) {
+                            pos = targetPos.Value;
+                            // Apply position
+                            if (pixelSnap) {
+                                transform.position = PxlVec.SnapVec(pos);
+                            } else {
+                                transform.position = pos;
+                            }
+                            // Set to null
+                            targetPos = null;
+                        }
+                    }
                 } else {
                     var cam = camera3D;
                     float cameraDistance = 4.0f; // Constant factor
@@ -481,6 +499,14 @@ namespace R1Engine {
                     targetPos = center.Value + Vector3.Normalize(cam.transform.position - center.Value) * distance;
                     if (center.Value - transform.position != Vector3.zero) {
                         targetRot = Quaternion.LookRotation(center.Value - cam.transform.position, Vector3.up);
+                    }
+                    if (immediate) {
+                        if (!MouseLookEnabled) {
+                            if (targetPos.HasValue) cam.transform.position = targetPos.Value;
+                            if (targetRot.HasValue) cam.transform.rotation = targetRot.Value;
+                        }
+                        targetPos = null;
+                        targetRot = null;
                     }
                 }
             }

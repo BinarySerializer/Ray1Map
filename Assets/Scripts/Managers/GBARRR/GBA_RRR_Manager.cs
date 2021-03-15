@@ -1197,7 +1197,10 @@ namespace R1Engine
                     cellSize: CellSize,
                     localization: loc,
                     defaultLayer: 0,
-                    rayman: new Unity_Object_GBARRRMode7Unused(new GBARRR_Object(), o)
+                    rayman: new Unity_Object_GBARRRMode7Unused(new GBARRR_Object() {
+                        XPosition = 476,
+                        YPosition = 85
+                    }, o)
                     {
                         AnimationGroupIndex = 0
                     },

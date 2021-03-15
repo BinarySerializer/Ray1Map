@@ -102,9 +102,13 @@ namespace R1Engine
 
             var startEvent = LevelEditorData.Level.Rayman ?? LevelEditorData.Level.ObjManager?.GetMainObject(LevelEditorData.Level.EventData);
 
-            if (startEvent != null)
-                Controller.obj.levelEventController.editor.cam.pos = new Vector3(startEvent.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(startEvent.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
-
+            if (startEvent != null) {
+                var startEventBehaviour = levelController.GetAllObjects.FindItem(x => x.ObjData == startEvent);
+                if (startEventBehaviour != null) {
+                    Controller.obj.levelEventController.editor.cam.JumpTo(startEventBehaviour.gameObject, immediate: true);
+                }
+                //Controller.obj.levelEventController.editor.cam.pos = new Vector3(startEvent.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(startEvent.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
+            }
             Debug.Log($"Loaded in {loadTimer.ElapsedMilliseconds}ms");
         }
 

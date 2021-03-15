@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using R1Engine.Serialize;
 using UnityEngine;
@@ -13,7 +14,8 @@ namespace R1Engine
             AnimSets = animSets;
             WaypointsStartIndex = waypointsStartIndex;
         }
-        
+        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.FindItem(x => (x as Unity_Object_GBAIsometricRHR)?.AnimGroupName == "raymanAnimSet");
+
         public GBAIsometric_ObjectType[] Types { get; }
         public AnimSet[] AnimSets { get; }
         public int WaypointsStartIndex { get; }

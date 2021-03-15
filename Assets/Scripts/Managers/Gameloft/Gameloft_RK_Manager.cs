@@ -1004,6 +1004,20 @@ namespace R1Engine
 			GameObject gao_tunnelParent = null;
 			GameObject gao_speedBoostParent = null;
 			Texture2D speedboostTex = null;
+			string[] objGroups = null;
+			if (level.Lums != null && level.Lums.Length > 0) {
+				objGroups = new string[] { "Normal", "Lums" };
+			}
+			{
+				var pos = Vector3.zero + 0.05f * Vector3.up;
+				var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
+				objs.Add(new Unity_Object_GameloftRK(objManager, 0, 0, 0, "Player") {
+					Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y)
+				});
+				objs.Add(new Unity_Object_GameloftRK(objManager, 1, 0, 0, "Player") {
+					Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y)
+				});
+			}
 			foreach (var o in level.TrackBlocks) {
 				var sphere = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Cube);
 				sphere.transform.position = curPos + Vector3.up * curHeight;
@@ -1012,13 +1026,11 @@ namespace R1Engine
 				var lumsForCurrentBlock = level.Lums?.Where(s12 => s12.TrackBlockIndex == curBlockIndex);
 				if (lumsForCurrentBlock != null) {
 					foreach (var lum in lumsForCurrentBlock) {
-						var pos = centerPos + sphere.transform.TransformPoint(new Vector3(lum.XPosition * 0.001f, 0.05f, 0));
-						// TODO: Add Lum object here. As waypoint? As lum/coin (load puppet first)?
-						// Maybe have a system for objects with custom puppets, so player puppets can be displayed? 
-						/*objs.Add(new Unity_Object_GameloftRK(objManager, s8, level.ObjectTypes[s8.ObjectType]) {
-							Position = new Vector3(pos.x, -pos.z, pos.y),
-							Instance = blk
-						});*/
+						var pos = sphere.transform.TransformPoint(new Vector3(lum.XPosition * 0.001f, 0.05f, 0));
+						var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
+						objs.Add(new Unity_Object_GameloftRK(objManager, 26, 1, 0, "Lum", objectGroupIndex: 1) {
+							Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y)
+						});
 					}
 				}
 				var cj = level.TrackObjectCollections[curBlockIndex];
@@ -1194,6 +1206,7 @@ namespace R1Engine
 					CalculateXDisplacement = () => 0,
 					ObjectScale = Vector3.one,
 				},
+				objectGroups: objGroups,
 				eventData: unityObjs,
 				localization: LoadLocalization(context),
 				defaultLayer: 0,

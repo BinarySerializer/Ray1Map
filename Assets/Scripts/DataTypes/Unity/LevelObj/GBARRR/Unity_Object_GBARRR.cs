@@ -104,6 +104,10 @@ namespace R1Engine
             }
         }
 
+        public bool IsRayman => Object.ObjectType == GBARRR_ObjectType.Special
+            && !Enum.IsDefined(typeof(SpecialType_Function), (SpecialType_Function)Object.P_FunctionPointer)
+            && Object.P_GraphicsIndex == 2;
+
         public Unity_ObjectManager_GBARRR.GraphicsData GraphicsData => IsTriggerType ? null : ObjManager.GraphicsDatas.ElementAtOrDefault(AnimationGroupIndex)?.ElementAtOrDefault(AnimIndex);
 
         public bool IsTriggerType => Object.ObjectType == GBARRR_ObjectType.DoorTrigger ||
