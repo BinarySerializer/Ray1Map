@@ -1004,10 +1004,10 @@ namespace R1Engine
 			GameObject gao_tunnelParent = null;
 			GameObject gao_speedBoostParent = null;
 			Texture2D speedboostTex = null;
-			string[] objGroups = null;
+			/*string[] objGroups = null;
 			if (level.Lums != null && level.Lums.Length > 0) {
 				objGroups = new string[] { "Normal", "Lums" };
-			}
+			}*/
 			{
 				var pos = Vector3.zero + 0.05f * Vector3.up;
 				var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
@@ -1028,7 +1028,7 @@ namespace R1Engine
 					foreach (var lum in lumsForCurrentBlock) {
 						var pos = sphere.transform.TransformPoint(new Vector3(lum.XPosition * 0.001f, 0.05f, 0));
 						var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
-						objs.Add(new Unity_Object_GameloftRK(objManager, 26, 1, 0, "Lum", objectGroupIndex: 1) {
+						objs.Add(new Unity_Object_GameloftRK(objManager, 26, 1, 0, "Lum") {
 							Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y)
 						});
 					}
@@ -1072,6 +1072,13 @@ namespace R1Engine
 							animTex.scrollV = -1f;
 							gp.transform.localScale = Vector3.one * Scale;
 						}
+						// Add regular trigger object
+						var pos = sphere.transform.TransformPoint(new Vector3(to.XPosition * 0.001f, 0.05f, 0));
+						var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
+						objs.Add(new Unity_Object_GameloftRK(objManager, to, triggerObject) {
+							Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y),
+							Instance = blk
+						});
 					} else if (blk.ObjType == 1) {
 						if (blk.TrackObjectIndex < 2) {
 							if (gao_tunnelParent == null) {
@@ -1206,7 +1213,7 @@ namespace R1Engine
 					CalculateXDisplacement = () => 0,
 					ObjectScale = Vector3.one,
 				},
-				objectGroups: objGroups,
+				//objectGroups: objGroups,
 				eventData: unityObjs,
 				localization: LoadLocalization(context),
 				defaultLayer: 0,

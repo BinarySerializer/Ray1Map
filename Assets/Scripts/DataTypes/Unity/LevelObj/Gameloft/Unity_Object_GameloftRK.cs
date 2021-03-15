@@ -24,34 +24,45 @@ namespace R1Engine {
             ObjectName = objectName;
         }
 
+        public Unity_Object_GameloftRK(Unity_ObjectManager_GameloftRK objManager, Gameloft_RK_Level.TrackObject obj, Gameloft_RK_Level.TriggerObject triggerObject) {
+            ObjManager = objManager;
+            Object = obj;
+            Trigger = triggerObject;
+        }
+
         public Unity_ObjectManager_GameloftRK ObjManager { get; }
         public Gameloft_RK_Level.TrackObject Object { get; set; }
         public Gameloft_RK_Level.TrackObjectInstance Instance { get; set; }
         public Gameloft_RK_Level.ObjectType ObjType { get; set; }
+        public Gameloft_RK_Level.TriggerObject Trigger { get; set; }
+        public bool ForceNoGraphics => Trigger != null;
 
         public int PuppetIndex { get; set; }
         public int AnimIndex { get; set; }
 
-		public override bool IsEditor => ObjectName == "Player";
+        public override bool IsAlways => ObjectName == "Lum"; // Lums are marked as always objects
+        public override bool IsEditor => Trigger != null || ObjectName == "Player";
+        public override ObjectType Type => Trigger != null ? ObjectType.Trigger : ObjectType.Object;
 
-		public override int? ObjectGroupIndex { get; }
+        public override int? ObjectGroupIndex { get; }
 
 
-        public override Vector3 Position { get; set; }
+		public override Vector3 Position { get; set; }
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }
 
         public override string DebugText => $"ObjectType: {Object?.ObjectType}{Environment.NewLine}" +
             $"ObjType: {Instance?.ObjType}{Environment.NewLine}" +
-            $"TrackObjIndex: {Instance?.TrackObjectIndex}{Environment.NewLine}";
+            $"TrackObjIndex: {Instance?.TrackObjectIndex}{Environment.NewLine}" + 
+            $"TriggerFlags: {TriggerFlags}";
 
 
         public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_{Object?.ObjectType.ToString() ?? ObjectName}";
+        public override string PrimaryName => $"{Type}_{Object?.ObjectType.ToString() ?? ObjectName}";
         public override string SecondaryName => PuppetData?.Name;
-        public Unity_ObjectManager_GameloftRK.PuppetData PuppetData => ObjManager.Puppets.ElementAtOrDefault(PuppetIndex);
+        public Unity_ObjectManager_GameloftRK.PuppetData PuppetData => ForceNoGraphics ? null : ObjManager.Puppets.ElementAtOrDefault(PuppetIndex);
 
         public override bool FlipHorizontally => Instance?.FlipX ?? false;
         public override bool FlipVertically => false;
@@ -59,6 +70,7 @@ namespace R1Engine {
         public override bool CanBeLinkedToGroup => false;
 		public override bool CanBeLinked => false;
         public string ObjectName { get; set; }
+        public int? TriggerFlags => Trigger?.Flags;
 
 		public override Unity_ObjAnimation CurrentAnimation => PuppetData?.Puppet?.Animations?.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed ?? 0;
@@ -66,6 +78,25 @@ namespace R1Engine {
         public int PaletteIndex { get; set; } = 0;
         protected override int GetSpriteID => PuppetIndex;
         public override IList<Sprite> Sprites => PuppetData?.Puppet?.Sprites[PaletteIndex];
+
+        private Unity_ObjAnimationCollisionPart[] objCollision;
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision {
+            get {
+                if (objCollision == null && Trigger != null) {
+                    objCollision = new Unity_ObjAnimationCollisionPart[] {
+                        new Unity_ObjAnimationCollisionPart
+                        {
+                            XPosition = -Trigger.Width / 8,
+                            YPosition = -Trigger.Height / 8,
+                            Width = Trigger.Width * 2 / 8,
+                            Height = Trigger.Height / 8,
+                            Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                        }
+                    };
+                }
+                return objCollision;
+            }
+        }
 
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper {
@@ -81,13 +112,19 @@ namespace R1Engine {
             }
 
             public int DES {
-                get => Obj.PuppetIndex;
-                set => Obj.PuppetIndex = (short)value;
+                get => Obj.ForceNoGraphics ? -1 : Obj.PuppetIndex;
+                set {
+                    if(!Obj.ForceNoGraphics)
+                        Obj.PuppetIndex = (short)value;
+                }
             }
 
             public int ETA {
-                get => Obj.PuppetIndex;
-                set => Obj.PuppetIndex = (short)value;
+                get => Obj.ForceNoGraphics ? -1 : Obj.PuppetIndex;
+                set {
+                    if (!Obj.ForceNoGraphics)
+                        Obj.PuppetIndex = (short)value;
+                }
             }
 
             public byte Etat {
