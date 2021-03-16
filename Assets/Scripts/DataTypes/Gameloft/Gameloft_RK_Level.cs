@@ -462,9 +462,6 @@ namespace R1Engine
 			public short TrackObjectIndex { get; set; }
 			public bool FlipX { get; set; }
 			public int ObjType { get; set; }
-			public bool FlagUnknown { get; set; }
-			public bool DisplaySprite { get; set; }
-			public bool HasCollision { get; set; }
 			public bool FlagLast { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {

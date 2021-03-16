@@ -150,6 +150,10 @@ public class WebJSON {
 		public string[] Gameloft_PuppetNames { get; set; }
 		public string GameloftRRR_ObjectParams { get; set; }
 		public int? GameloftRRR_ObjectID { get; set; }
+
+		// Gameloft RK
+		public int? GameloftRK_TriggerFlags { get; set; }
+		public string GameloftRK_TriggerParams { get; set; }
 	}
 	public class Layer {
 		public string Name { get; set; }

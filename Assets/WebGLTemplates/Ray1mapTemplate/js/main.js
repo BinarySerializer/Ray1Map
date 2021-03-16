@@ -900,6 +900,8 @@ function getObjVars(obj) {
 	// Gameloft
 	if(obj.hasOwnProperty("GameloftRRR_ObjectID")) objVars.push({"Name": "ObjectID", "Value": obj.GameloftRRR_ObjectID});
 	if(obj.hasOwnProperty("GameloftRRR_ObjectParams")) objVars.push({"Name": "Parameters", "Value": obj.GameloftRRR_ObjectParams});
+	if(obj.hasOwnProperty("GameloftRK_TriggerFlags")) objVars.push({"Name": "Trigger Flags", "Value": obj.GameloftRK_TriggerFlags});
+	if(obj.hasOwnProperty("GameloftRK_TriggerParams")) objVars.push({"Name": "Trigger Parameters", "Value": obj.GameloftRK_TriggerParams});
 
 	return objVars;
 }
@@ -1462,6 +1464,8 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("Gameloft_PuppetIndex")) oldObj.Gameloft_PuppetIndex = newObj.Gameloft_PuppetIndex;
 	if(newObj.hasOwnProperty("GameloftRRR_ObjectParams")) oldObj.GameloftRRR_ObjectParams = newObj.GameloftRRR_ObjectParams;
 	if(newObj.hasOwnProperty("GameloftRRR_ObjectID")) oldObj.GameloftRRR_ObjectID = newObj.GameloftRRR_ObjectID;
+	if(newObj.hasOwnProperty("GameloftRK_TriggerFlags")) oldObj.GameloftRK_TriggerFlags = newObj.GameloftRK_TriggerFlags;
+	if(newObj.hasOwnProperty("GameloftRK_TriggerParams")) oldObj.GameloftRK_TriggerParams = newObj.GameloftRK_TriggerParams;
 
 
 	// Lists

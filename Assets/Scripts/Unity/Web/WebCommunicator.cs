@@ -398,6 +398,17 @@ public class WebCommunicator : MonoBehaviour {
 						webObj.GameloftRRR_ObjectParams = string.Join(",", glRRRObj.Object.Shorts);
 					}
 					break;
+				case Unity_Object_GameloftRK glRKObj:
+					if (glRKObj.PuppetIndex != -1) {
+						webObj.Gameloft_PuppetIndex = glRKObj.PuppetIndex;
+						if(includeLists)
+							webObj.Gameloft_PuppetNames = glRKObj.ObjManager.Puppets.Select((x,i) => x.DisplayName).ToArray();
+					}
+					webObj.GameloftRK_TriggerFlags = glRKObj.TriggerFlags;
+					if (glRKObj?.Trigger?.Parameters != null) {
+						webObj.GameloftRK_TriggerParams = string.Join(",", glRKObj.Trigger.Parameters);
+					}
+					break;
             }
 		}
 		return webObj;
@@ -724,6 +735,12 @@ public class WebCommunicator : MonoBehaviour {
 			case Unity_Object_GameloftRRR glRRRObj:
 				if (msg.Gameloft_PuppetIndex.HasValue && glRRRObj?.PuppetIndex != msg.Gameloft_PuppetIndex.Value) {
 					glRRRObj.PuppetIndex = msg.Gameloft_PuppetIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GameloftRK glRKObj:
+				if (msg.Gameloft_PuppetIndex.HasValue && glRKObj?.PuppetIndex != msg.Gameloft_PuppetIndex.Value) {
+					glRKObj.PuppetIndex = msg.Gameloft_PuppetIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
