@@ -417,8 +417,8 @@ namespace R1Engine
 
                 return new Unity_ObjAnimationCollisionPart[] {
                     new Unity_ObjAnimationCollisionPart() {
-                        XPosition = (frameFlipX ? -1 : 1) * c.XPosition - (frameFlipX ? c.Width : 0),
-                        YPosition = (frameFlipY ? -1 : 1) * c.YPosition - (frameFlipY ? c.Height : 0),
+                        XPosition = f.XPosition + (frameFlipX ? -1 : 1) * c.XPosition - (frameFlipX ? c.Width : 0),
+                        YPosition = f.YPosition + (frameFlipY ? -1 : 1) * c.YPosition - (frameFlipY ? c.Height : 0),
                         Width = c.Width,
                         Height = c.Height,
                         Type = Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox

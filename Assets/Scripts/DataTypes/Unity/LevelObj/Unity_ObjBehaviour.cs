@@ -581,9 +581,14 @@ namespace R1Engine
                             var scl = part.transform.localScale;
                             if (part.flipX) scl.x = scl.x * -1;
                             if (part.flipY) scl.y = scl.y * -1;
-                            b = new Bounds((part.transform.localPosition + Vector3.Scale(b.center, scl)) * LevelEditorData.Level.PixelsPerUnit, Vector3.Scale(b.size, scl) * LevelEditorData.Level.PixelsPerUnit);
+                            var absScale = new Vector3(Mathf.Abs(scl.x), Mathf.Abs(scl.y), Mathf.Abs(scl.z));
+                            b = new Bounds(
+                                (part.transform.localPosition + Vector3.Scale(b.center, scl)) * LevelEditorData.Level.PixelsPerUnit,
+                                Vector3.Scale(b.size, absScale) * LevelEditorData.Level.PixelsPerUnit);
                         } else {
-                            b = new Bounds(transform.InverseTransformPoint(b.center) * LevelEditorData.Level.PixelsPerUnit, transform.InverseTransformVector(b.size) * LevelEditorData.Level.PixelsPerUnit);
+                            b = new Bounds(
+                                transform.InverseTransformPoint(b.center) * LevelEditorData.Level.PixelsPerUnit,
+                                transform.InverseTransformVector(b.size) * LevelEditorData.Level.PixelsPerUnit);
                         }
                         if (b.min.x < leftX || first) leftX = b.min.x;
                         if (b.min.y < bottomY || first) bottomY = b.min.y;
