@@ -59,12 +59,17 @@ public class WebJSON {
 		public bool? CanUseFreeCameraMode { get; set; }
 		public bool? CanUseStateSwitchingMode { get; set; }
 		public bool? CanUseCrashTimeTrialMode { get; set; }
+		public bool? CanMoveAlongTrack { get; set; }
 		public bool? HasAnimatedTiles { get; set; }
 		
 		public Layer[] Layers { get; set; }
 		public string[] Palettes { get; set; }
 		public int? Palette { get; set; }
 		public Layer[] ObjectLayers { get; set; }
+
+		public string[] ObjectGroups { get; set; }
+		public int? ObjectGroup { get; set; }
+		public bool? MoveAlongTrack { get; set; }
 
 		public Color? BackgroundTint { get; set; }
 		public Color? BackgroundTintDark { get; set; }

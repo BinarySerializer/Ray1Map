@@ -263,19 +263,11 @@ public class SettingsWindow : UnityWindow
                     }
                 }
 
-                if (LevelEditorData.Level.TrackManager != null) 
+                if (LevelEditorData.Level.CanMoveAlongTrack) 
                 {
                     var cam = Controller.obj?.levelController?.editor?.cam;
-
-                    if (cam.IsTrackMovingEnabled)
-                    {
-                        if (EditorButton("Stop moving along track"))
-                            cam.StopMovingAlongTrack();
-                    }
-                    else
-                    {
-                        if (EditorButton("Move along track"))
-                            cam.StartMovingAlongTrack();
+                    if (cam != null) {
+                        cam.ToggleTrackMoving(EditorField($"Move along track", cam.IsTrackMovingEnabled));
                     }
                 }
 

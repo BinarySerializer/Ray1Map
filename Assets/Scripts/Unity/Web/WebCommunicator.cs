@@ -474,6 +474,7 @@ public class WebCommunicator : MonoBehaviour {
 			s.HasAnimatedTiles = tc.IsAnimated;
 		}
 		if (lvl != null) {
+			s.CanMoveAlongTrack = lvl.CanMoveAlongTrack;
 			s.CanUseFreeCameraMode = lvl.IsometricData != null;
 			List<WebJSON.Layer> layers = new List<WebJSON.Layer>();
 			var visibility = Controller.obj?.levelController?.controllerTilemap?.IsLayerVisible;
@@ -517,6 +518,11 @@ public class WebCommunicator : MonoBehaviour {
                 if (Controller.obj?.levelController?.controllerTilemap != null)
                     s.Palette = Controller.obj.levelController.controllerTilemap.currentPalette - 1;
             }
+
+			if (LevelEditorData.Level?.ObjectGroups != null) {
+				s.ObjectGroups = LevelEditorData.Level.ObjectGroups;
+				s.ObjectGroup = LevelEditorData.SelectedObjectGroup;
+			}
 		}
 
 		// Add free camera mode
@@ -524,6 +530,7 @@ public class WebCommunicator : MonoBehaviour {
 			var cam = Controller.obj?.levelController?.editor?.cam;
 			if (cam != null) {
 				s.FreeCameraMode = cam.FreeCameraMode;
+				s.MoveAlongTrack = cam.IsTrackMovingEnabled;
 			}
 		}
 
@@ -588,13 +595,23 @@ public class WebCommunicator : MonoBehaviour {
 				}
 			}
 		}
-		bool updatedShowCollision = false;
+		bool updatedSettings = false;
 		if (msg.FreeCameraMode.HasValue) {
 			if (LevelEditorData.Level?.IsometricData != null) {
 				var cam = Controller.obj?.levelController?.editor?.cam;
 				if (cam != null) {
 					if (cam.ToggleFreeCameraMode(msg.FreeCameraMode.Value)) {
-						updatedShowCollision = true;
+						updatedSettings = true;
+					}
+				}
+			}
+		}
+		if (msg.MoveAlongTrack.HasValue) {
+			if (LevelEditorData.Level?.IsometricData != null) {
+				var cam = Controller.obj?.levelController?.editor?.cam;
+				if (cam != null) {
+					if (cam.ToggleTrackMoving(msg.MoveAlongTrack.Value)) {
+						updatedSettings = true;
 					}
 				}
 			}
@@ -610,6 +627,12 @@ public class WebCommunicator : MonoBehaviour {
             }
 		}
 
+		if (msg.ObjectGroup.HasValue) {
+			if (LevelEditorData.Level?.ObjectGroups != null && msg.ObjectGroup.Value < LevelEditorData.Level.ObjectGroups.Length) {
+				LevelEditorData.SelectedObjectGroup = msg.ObjectGroup.Value;
+			}
+		}
+
 		if (msg.BackgroundTint.HasValue) {
 			var bgTint = Controller.obj?.levelController?.controllerTilemap?.backgroundTint;
 			if (bgTint != null) bgTint.color = msg.BackgroundTint.Value;
@@ -617,7 +640,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.BackgroundTintDark.HasValue) {
 			Camera.main.backgroundColor = msg.BackgroundTintDark.Value;
 		}
-		if (updatedShowCollision) {
+		if (updatedSettings) {
 			SendSettings();
 		}
 	}

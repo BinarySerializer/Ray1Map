@@ -1941,11 +1941,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e4d50737777ac4da0c4261aea17727, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CollisionTilemaps:
-  - {fileID: 0}
-  GraphicsTilemaps:
-  - {fileID: 0}
-  background: {fileID: 0}
   PrefabMapLayerRenderer: {fileID: 8744077435692016364, guid: b025da5e9c19db841bb9ba7c41fcc249,
     type: 3}
   PrefabTextureLayerRenderer: {fileID: 941418837871014509, guid: 03814b66286ad9e47bdcb885319cc54e,
@@ -6639,6 +6634,8 @@ MonoBehaviour:
   camera3D: {fileID: 381504336}
   camera2DOverlay: {fileID: 1773028803}
   camera3DOverlay: {fileID: 843111824}
+  minZoomOrthographic: 3.75
+  maxZoomOrthographic: 50
   flySpeed: 20
   flySpeedShiftMultiplier: 2
   clampInDegrees: {x: 360, y: 180}
@@ -6646,7 +6643,7 @@ MonoBehaviour:
   sensitivityRMB: {x: 1.6, y: 1.6}
   smoothing: {x: 3, y: 3}
   lerpFactor: 6
-  IsTrackEnabled: 0
+  IsTrackMovingEnabled: 0
 --- !u!114 &534669907
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -47,7 +47,11 @@ namespace R1Engine {
         private bool? storedCollisionSetting = null;
         public bool ToggleFreeCameraMode(bool freeCameraMode, bool setShowCollision = true) {
             bool wasFreeCameraMode = FreeCameraMode;
+            bool wasTrackMoving = IsTrackMovingEnabled;
             FreeCameraMode = freeCameraMode;
+            if (wasTrackMoving && wasFreeCameraMode != FreeCameraMode && FreeCameraMode == false) {
+                StopMovingAlongTrack();
+            }
             if (setShowCollision && wasFreeCameraMode != FreeCameraMode && LevelEditorData.Level?.IsometricData?.Collision != null) {
                 if (freeCameraMode) { // On enable free camera mode
                     storedCollisionSetting = Settings.ShowCollision;
@@ -61,6 +65,7 @@ namespace R1Engine {
                     }
                 }
             }
+            if(wasTrackMoving && !IsTrackMovingEnabled) return true;
             return false;
         }
 
@@ -243,7 +248,19 @@ namespace R1Engine {
             //camera2DOverlay.cullingMask = 0;
             CheckShifted();
 
-            if (!MouseLookEnabled) {
+            if (IsTrackMovingEnabled) {
+                _shifted = false;
+                MouseLookEnabled = false;
+                MouseLookRMBEnabled = false;
+                StopLerp();
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+
+                //movement
+                CameraControlsPerspective();
+                CameraControlsSpeed();
+                MoveAlongTrack();
+            } else if (!MouseLookEnabled) {
                 Camera cam = camera3D;
                 if (targetPos.HasValue) {
                     if (Vector3.Distance(cam.transform.position, targetPos.Value) < 0.4f) {
@@ -297,8 +314,6 @@ namespace R1Engine {
                 CameraControlsPerspective();
                 CameraControlsSpeed();
             }
-
-            MoveAlongTrack();
         }
 
         #region Camera Controls
@@ -325,19 +340,23 @@ namespace R1Engine {
             if (Input.GetAxis("Mouse ScrollWheel") != 0) {
                 flySpeed = Mathf.Max(0, flySpeed + Time.deltaTime * Input.GetAxis("Mouse ScrollWheel") * 100f * flySpeedFactor);
             }
-            if (Input.GetAxis("Vertical") != 0) {
-                cam.transform.Translate(cam.transform.forward * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("Vertical"), Space.World);
-            }
-            if (Input.GetAxis("Horizontal") != 0) {
-                cam.transform.Translate(cam.transform.right * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("Horizontal"), Space.World);
-            }
-            if (Input.GetAxis("HeightAndZoom") != 0) {
-                cam.transform.Translate(Vector3.up * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("HeightAndZoom"), Space.World);
-            }
-            if (Input.GetKey(KeyCode.Keypad8)) {
-                cam.transform.Translate(Vector3.up * flySpeed * Time.deltaTime * 0.5f, Space.World);
-            } else if (Input.GetKey(KeyCode.Keypad2)) {
-                cam.transform.Translate(-Vector3.up * flySpeed * Time.deltaTime * 0.5f, Space.World);
+            if (!IsTrackMovingEnabled) {
+                if (Input.GetAxis("Vertical") != 0) {
+                    cam.transform.Translate(cam.transform.forward * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("Vertical"), Space.World);
+                }
+                if (Input.GetAxis("Horizontal") != 0) {
+                    cam.transform.Translate(cam.transform.right * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("Horizontal"), Space.World);
+                }
+                if (Input.GetAxis("HeightAndZoom") != 0) {
+                    cam.transform.Translate(Vector3.up * flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("HeightAndZoom"), Space.World);
+                }
+                if (Input.GetKey(KeyCode.Keypad8)) {
+                    cam.transform.Translate(Vector3.up * flySpeed * Time.deltaTime * 0.5f, Space.World);
+                } else if (Input.GetKey(KeyCode.Keypad2)) {
+                    cam.transform.Translate(-Vector3.up * flySpeed * Time.deltaTime * 0.5f, Space.World);
+                }
+            } else {
+                TrackDistance += flySpeed * Time.deltaTime * _flySpeedShiftMultiplier * Input.GetAxis("Vertical");
             }
         }
         void CameraControlsSpeed() {
@@ -460,6 +479,7 @@ namespace R1Engine {
                 size = gao.transform.lossyScale;
             }
             if (center.HasValue) {
+                StopMovingAlongTrack();
                 float objectSize = Mathf.Min(5f, Mathf.Max(2.25f,size.Value.x, size.Value.y, size.Value.z));
                 bool orthographic = !_freeCameraMode;
                 if (orthographic) {
@@ -513,81 +533,55 @@ namespace R1Engine {
         }
 
         public bool IsTrackMovingEnabled;
-        public bool FirstTrackMove;
-        public void StartMovingAlongTrack()
-        {
+        public float TrackDistance { get; set; }
+
+
+        public bool ToggleTrackMoving(bool trackMoving, bool setFreeCamera = true, bool setShowCollision = true) {
             var manager = LevelEditorData.Level.TrackManager;
 
             // Make sure track data is available
-            if (manager == null || !manager.IsAvailable(LevelEditorData.MainContext, LevelEditorData.Level))
-                return;
+            if (manager == null || !LevelEditorData.Level.CanMoveAlongTrack)
+                return false ;
 
-            // Get the start position
-            var startPos = manager.GetStartPosition(LevelEditorData.Level);
+            bool wasTrackMoving = IsTrackMovingEnabled;
+            bool wasFreeCameraMode = FreeCameraMode;
+            IsTrackMovingEnabled = trackMoving;
+            if (trackMoving && !wasTrackMoving) {
+                TrackDistance = 0f;
 
-            // Set the start position
-            Vector3 isometricScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
-            camera3D.transform.position = Vector3.Scale(new Vector3(startPos.x, startPos.z, -startPos.y), isometricScale);
-
-            // Toggle free camera mode
-            ToggleFreeCameraMode(true);
-
-            // Enable track
-            IsTrackMovingEnabled = true;
-            FirstTrackMove = true;
+                // Disable lerp
+                targetOrthoSize = null;
+                targetPos = null;
+                targetRot = null;
+                if (setFreeCamera) {
+                    if (ToggleFreeCameraMode(true, setShowCollision: setShowCollision) || wasFreeCameraMode != FreeCameraMode) {
+                        return true;
+                    }
+                }
+            } else if (wasTrackMoving && !trackMoving) {
+                // Disable track
+                TrackDistance = 0f;
+            }
+            return false;
         }
+
         public void StopMovingAlongTrack()
         {
             // Disable track
             IsTrackMovingEnabled = false;
-            FirstTrackMove = false;
+            TrackDistance = 0f;
         }
-        public void MoveAlongTrack()
+        protected void MoveAlongTrack()
         {
             if (!IsTrackMovingEnabled)
                 return;
             
             var manager = LevelEditorData.Level.TrackManager;
-
-            // Get the current position
-            Vector3 isometricScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
-            var currentPos = new Vector3(camera3D.transform.position.x / isometricScale.x, -camera3D.transform.position.z / isometricScale.y, camera3D.transform.position.y / isometricScale.z);
-
-            // Check if we've reached the end
-            if (manager.HasReachedEnd(LevelEditorData.Level, currentPos))
-            {
-                IsTrackMovingEnabled = false;
+            if (!manager.Loop) {
+                TrackDistance = Mathf.Clamp(TrackDistance, 0f, manager.TrackLength);
             }
-            else
-            {
-                const float moveSpeed = 8f;
-                const float rotateSpeed = 0.8f;
-
-                // Get the direction to move in
-                var dir = manager.GetDirection(LevelEditorData.Level, currentPos);
-
-                // Get the new position to move to
-                var newPos = new Vector3(
-                    camera3D.transform.position.x + dir.x * Time.deltaTime * moveSpeed,
-                    camera3D.transform.position.y + dir.z * Time.deltaTime * moveSpeed,
-                    camera3D.transform.position.z - dir.y * Time.deltaTime * moveSpeed);
-
-                if (FirstTrackMove)
-                {
-                    camera3D.transform.LookAt(newPos);
-                    FirstTrackMove = false;
-                }
-                else
-                {
-                    // Gradually rotate the camera
-                    Vector3 targetDir = newPos - camera3D.transform.position;
-                    Vector3 newDir = Vector3.RotateTowards(camera3D.transform.forward, targetDir, rotateSpeed * Time.deltaTime, 0.0F);
-                    camera3D.transform.rotation = Quaternion.LookRotation(newDir);
-                }
-
-                // Set new position
-                camera3D.transform.position = newPos;
-            }
+            camera3D.transform.position = manager.GetPointAtDistance(LevelEditorData.Level, TrackDistance);
+            camera3D.transform.rotation = manager.GetRotationAtDistance(LevelEditorData.Level, TrackDistance);
         }
     }
 }

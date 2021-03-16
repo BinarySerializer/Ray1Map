@@ -81,6 +81,8 @@ namespace R1Engine
                 Type = Unity_Map.MapType.Graphics,
                 Layer = Unity_Map.MapLayer.Overlay
             };
+
+            CanMoveAlongTrack = IsometricData != null && TrackManager != null && TrackManager.IsAvailable(LevelEditorData.MainContext, this);
         }
 
         #endregion
@@ -124,6 +126,7 @@ namespace R1Engine
         public string[] ObjectGroups { get; }
 
         public Unity_TrackManager TrackManager { get; }
+        public bool CanMoveAlongTrack { get; }
 
         public float FramesPerSecond { get; set; }
 
