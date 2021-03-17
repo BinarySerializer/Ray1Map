@@ -40,6 +40,9 @@ namespace R1Engine
                     // Read the rom
                     var rom = LoadGenericROM_Mode7(context, mode7Level);
 
+                    if (rom == null)
+                        continue;
+
                     var levInfo = rom.CurrentMode7LevelInfo;
 
                     var tilePal = rom.Mode7_GetTilePal(levInfo);

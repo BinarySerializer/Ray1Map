@@ -974,6 +974,22 @@ namespace R1Engine
                         [GBAVV_Pointer.Crash1_WorldMapLevelIcons] = 0x0816e324,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Frogger
+
+                case GameModeSelection.FroggerAdvanceGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x087e884c,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x0833b904,
+                        [GBAVV_Pointer.Frogger_AdditionalLevels] = 0x0802f934,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.FroggerAdvanceGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x087cef20,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08338210,
+                        [GBAVV_Pointer.Frogger_AdditionalLevels] = 0x0802f60c,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 // Crash 2
 
                 case GameModeSelection.Crash2GBAEU:

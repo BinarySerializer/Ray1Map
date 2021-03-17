@@ -139,7 +139,7 @@ namespace R1Engine
         }
 
         public abstract void SerializeLevelInfo(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable);
-        public abstract void SerializeAdditionalData(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable);
+        public virtual void SerializeAdditionalData(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable) { }
         public virtual void SerializeIsometric(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable) { }
 
         public enum GenericLevelType

@@ -379,6 +379,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot Advance (GBA - JP)", typeof(GBAVV_Crash1JP_Manager))]
         Crash1GBAJP,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance: The Great Quest (GBA - EU)", typeof(GBAVV_Frogger_Manager))]
+        FroggerAdvanceGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance: The Great Quest (GBA - US)", typeof(GBAVV_Frogger_Manager))]
+        FroggerAdvanceGBAUS,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBAVV_Crash2_Manager))]
         Crash2GBAEU,
 

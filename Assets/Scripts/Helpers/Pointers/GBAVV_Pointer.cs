@@ -5,12 +5,6 @@
         LevelInfo,
         Localization,
 
-        Crash1_CutsceneStrings,
-        Crash1_CutsceneTable,
-
-        Crash2_CutsceneTable,
-        Crash2_FLCTable,
-
         Map2D_Graphics,
 
         Mode7_LevelInfo,
@@ -62,12 +56,24 @@
         Isometric_AdditionalAnim9_Palette,
         Isometric_AdditionalAnim10_Palette,
 
-        Crash2_WorldMap,
+        // Crash 1
+        Crash1_CutsceneStrings,
+        Crash1_CutsceneTable,
         Crash1_WorldMapLevelIcons,
+        
+        // Crash 2
+        Crash2_CutsceneTable,
+        Crash2_FLCTable,
+        Crash2_WorldMap,
 
+        // Fusion
         Fusion_DialogScripts,
 
+        // Nitro Kart
         NitroKart_HubWorldPortals,
         NitroKart_LevelInfos,
+
+        // Frogger
+        Frogger_AdditionalLevels,
     }
 }
