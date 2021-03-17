@@ -7,7 +7,7 @@ namespace R1Engine
     {
         public bool SerializeData { get; set; } // Set before serializing
 
-        public uint LevelType { get; set; } // 0 or 1 since only two types are available per game
+        public uint LevelType { get; set; }
         public Pointer TileSetFramesPointer { get; set; }
         public uint TileSetFramesBlockLength { get; set; }
         public Pointer Crash1_BackgroundPointer { get; set; }
@@ -28,7 +28,7 @@ namespace R1Engine
         public RGBA5551Color[] ObjPalette { get; set; }
         public GBAVV_Mode7_ObjData ObjData { get; set; }
         public GBAVV_Mode7_AnimSet[] AnimSets { get; set; }
-        public GBAVV_Mode7_ObjGraphics ObjGraphics { get; set; }
+        public GBAVV_Mode7_ObjGraphicsBlock ObjGraphics { get; set; }
 
         public GBAVV_Mode7_AnimSet AnimSet_Chase { get; set; } // Bear in Crash 1, Shark in Crash 2
 
@@ -98,7 +98,7 @@ namespace R1Engine
                 }, name: nameof(AnimSet_Chase));
             }
 
-            ObjGraphics = s.DoAt(ObjGraphicsPointer, () => s.SerializeObject<GBAVV_Mode7_ObjGraphics>(ObjGraphics, x => x.AnimSets = GetAllAnimSets.ToArray(), name: nameof(ObjGraphics)));
+            ObjGraphics = s.DoAt(ObjGraphicsPointer, () => s.SerializeObject<GBAVV_Mode7_ObjGraphicsBlock>(ObjGraphics, x => x.AnimSets = GetAllAnimSets.ToArray(), name: nameof(ObjGraphics)));
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1 && LevelType == 1)
                 // Load the blimp

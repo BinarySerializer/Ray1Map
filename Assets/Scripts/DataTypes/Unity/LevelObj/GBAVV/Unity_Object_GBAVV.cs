@@ -83,8 +83,8 @@ namespace R1Engine
                 if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1)
                     return $"{(GBAVV_Map2D_Crash1_ObjType)Object.ObjType}";
 
-                if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2 && ObjManager.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
-                    return $"{(GBAVV_Crash2_WorldMap_ObjType)Object.ObjType}";
+                if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2 && ObjManager.Crash2_IsWorldMap)
+                    return $"{(GBAVV_Crash2_WorldMapObjType)Object.ObjType}";
 
                 if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
                     return $"{(GBAVV_Map2D_Crash2_ObjType)Object.ObjType}";

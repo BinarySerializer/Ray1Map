@@ -71,5 +71,10 @@ namespace R1Engine
         public const uint Address_VRAM = 0x6000000;  // Size 0x18000
         public const uint Address_OAM  = 0x7000000;  // Size 0x00400
         public const uint Address_ROM  = 0x08000000; // Size 0x1000000
+
+        // GBA values
+        public const int TileSize = 8;
+        public const int ScreenWidth = 240;
+        public const int ScreenHeight = 160;
     }
 }

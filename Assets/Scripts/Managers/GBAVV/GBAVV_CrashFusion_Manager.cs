@@ -5,152 +5,152 @@ namespace R1Engine
 {
     public abstract class GBAVV_CrashFusion_Manager : GBAVV_Fusion_Manager
     {
-        public override LevInfo[] LevInfos => Levels;
+        public override FusionLevInfo[] LevInfos => Levels;
 
-        public static LevInfo[] Levels = new LevInfo[]
+        public static FusionLevInfo[] Levels = new FusionLevInfo[]
         {
-            new LevInfo(0, "Wumpa Jungle - Part 1"), // World 1
-            new LevInfo(1, "Wumpa Jungle - Part 2"), // World 1b
-            new LevInfo(2, "Grin and Bear it - Easy"),
-            new LevInfo(3, "Grin and Bear it - Normal"),
-            new LevInfo(4, "Grin and Bear it - Hard"),
-            new LevInfo(5, "Sheep Stampede - Easy", LevInfo.FusionType.LevInt),
-            new LevInfo(6, "Sheep Stampede - Hard", LevInfo.FusionType.LevInt),
-            new LevInfo(7, "Tanks for the Memories - Easy"),
-            new LevInfo(8, "Tanks for the Memories - Hard"),
-            new LevInfo(9, "Chopper Stopper - Easy", LevInfo.FusionType.LevIntInt),
-            new LevInfo(10, "Chopper Stopper - Hard", LevInfo.FusionType.LevIntInt),
-            new LevInfo(17, "Crashin' down the River - Easy"),
-            new LevInfo(18, "Crashin' Down the River - Normal"),
-            new LevInfo(19, "Crashin' Down the River - Hard"),
-            new LevInfo(11, "Bonus: Crate Smash - Easy", LevInfo.FusionType.LevTime),
-            new LevInfo(12, "Bonus: Crate Smash - Normal", LevInfo.FusionType.LevTime),
-            new LevInfo(13, "Bonus: Crate Smash - Hard", LevInfo.FusionType.LevTime),
-            new LevInfo(14, "Bonus: Freefallin' - Easy"),
-            new LevInfo(15, "Bonus: Freefallin' - Hard"),
-            new LevInfo(16, "Bonus: Crunch Time", LevInfo.FusionType.IntLevel),
-            new LevInfo(23, "Spyro Battle"),
+            new FusionLevInfo(0, "Wumpa Jungle - Part 1"), // World 1
+            new FusionLevInfo(1, "Wumpa Jungle - Part 2"), // World 1b
+            new FusionLevInfo(2, "Grin and Bear it - Easy"),
+            new FusionLevInfo(3, "Grin and Bear it - Normal"),
+            new FusionLevInfo(4, "Grin and Bear it - Hard"),
+            new FusionLevInfo(5, "Sheep Stampede - Easy", FusionLevInfo.FusionType.LevInt),
+            new FusionLevInfo(6, "Sheep Stampede - Hard", FusionLevInfo.FusionType.LevInt),
+            new FusionLevInfo(7, "Tanks for the Memories - Easy"),
+            new FusionLevInfo(8, "Tanks for the Memories - Hard"),
+            new FusionLevInfo(9, "Chopper Stopper - Easy", FusionLevInfo.FusionType.LevIntInt),
+            new FusionLevInfo(10, "Chopper Stopper - Hard", FusionLevInfo.FusionType.LevIntInt),
+            new FusionLevInfo(17, "Crashin' down the River - Easy"),
+            new FusionLevInfo(18, "Crashin' Down the River - Normal"),
+            new FusionLevInfo(19, "Crashin' Down the River - Hard"),
+            new FusionLevInfo(11, "Bonus: Crate Smash - Easy", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(12, "Bonus: Crate Smash - Normal", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(13, "Bonus: Crate Smash - Hard", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(14, "Bonus: Freefallin' - Easy"),
+            new FusionLevInfo(15, "Bonus: Freefallin' - Hard"),
+            new FusionLevInfo(16, "Bonus: Crunch Time", FusionLevInfo.FusionType.IntLevel),
+            new FusionLevInfo(23, "Spyro Battle"),
             //new LevInfo(20, "Buy Card 1", LevInfo.FusionType.Unknown), // Pointer to 212 bytes
             //new LevInfo(21, "Trading Card Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
-            new LevInfo(22, "Bridge Fight"),
+            new FusionLevInfo(22, "Bridge Fight"),
 
-            new LevInfo(31, "Arctic Cliffs - Part 1"), // World 2a
-            new LevInfo(32, "Arctic Cliffs - Part 2"), // World 2b
-            new LevInfo(29, "Crash and Burn - Easy"),
-            new LevInfo(30, "Crash and Burn - Hard"),
-            new LevInfo(37, "Polar Express - Easy"),
-            new LevInfo(38, "Polar Express - Normal"),
-            new LevInfo(39, "Polar Express - Hard"),
-            new LevInfo(43, "Sheep Patrol - Easy", LevInfo.FusionType.LevInt),
-            new LevInfo(44, "Sheep Patrol - Hard", LevInfo.FusionType.LevInt),
-            new LevInfo(45, "Blizzard Ball - Easy"),
-            new LevInfo(46, "Blizzard Ball - Normal"),
-            new LevInfo(47, "Blizzard Ball - Hard"),
-            new LevInfo(40, "Frigid Waters - Easy"),
-            new LevInfo(41, "Frigid Waters - Normal"),
-            new LevInfo(42, "Frigid Waters - Hard"),
-            new LevInfo(26, "Bonus: Crate Step - Easy", LevInfo.FusionType.LevTime),
-            new LevInfo(27, "Bonus: Crate Step - Normal", LevInfo.FusionType.LevTime),
-            new LevInfo(28, "Bonus: Crate Step - Hard", LevInfo.FusionType.LevTime),
-            new LevInfo(34, "Bonus: Crate Smash - Easy", LevInfo.FusionType.LevTime),
-            new LevInfo(35, "Bonus: Crate Smash - Normal", LevInfo.FusionType.LevTime),
-            new LevInfo(36, "Bonus: Crate Smash - Hard", LevInfo.FusionType.LevTime),
-            new LevInfo(25, "Bonus: Pumpin' Iron", LevInfo.FusionType.IntLevel),
-            new LevInfo(33, "Tiny Takeover"),
+            new FusionLevInfo(31, "Arctic Cliffs - Part 1"), // World 2a
+            new FusionLevInfo(32, "Arctic Cliffs - Part 2"), // World 2b
+            new FusionLevInfo(29, "Crash and Burn - Easy"),
+            new FusionLevInfo(30, "Crash and Burn - Hard"),
+            new FusionLevInfo(37, "Polar Express - Easy"),
+            new FusionLevInfo(38, "Polar Express - Normal"),
+            new FusionLevInfo(39, "Polar Express - Hard"),
+            new FusionLevInfo(43, "Sheep Patrol - Easy", FusionLevInfo.FusionType.LevInt),
+            new FusionLevInfo(44, "Sheep Patrol - Hard", FusionLevInfo.FusionType.LevInt),
+            new FusionLevInfo(45, "Blizzard Ball - Easy"),
+            new FusionLevInfo(46, "Blizzard Ball - Normal"),
+            new FusionLevInfo(47, "Blizzard Ball - Hard"),
+            new FusionLevInfo(40, "Frigid Waters - Easy"),
+            new FusionLevInfo(41, "Frigid Waters - Normal"),
+            new FusionLevInfo(42, "Frigid Waters - Hard"),
+            new FusionLevInfo(26, "Bonus: Crate Step - Easy", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(27, "Bonus: Crate Step - Normal", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(28, "Bonus: Crate Step - Hard", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(34, "Bonus: Crate Smash - Easy", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(35, "Bonus: Crate Smash - Normal", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(36, "Bonus: Crate Smash - Hard", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(25, "Bonus: Pumpin' Iron", FusionLevInfo.FusionType.IntLevel),
+            new FusionLevInfo(33, "Tiny Takeover"),
             //new LevInfo(48, "Shell Game 2", LevInfo.FusionType.Unknown), // 5 ints, pointer to 132 bytes (same format as 'Buy Card 1')
             //new LevInfo(49, "Mystery Game 2", LevInfo.FusionType.Unknown), // 3 ints, pointer to 72 bytes (same format as 'Buy Card 1')
             //new LevInfo(50, "Spinning Wheel Game 2", LevInfo.FusionType.Unknown), // 4 ints, pointer to 580 bytes (same format as 'Buy Card 1')
             //new LevInfo(51, "Crate Shuffle Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
             //new LevInfo(52, "Spinning Wheel Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
             //new LevInfo(53, "Mystery Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
-            new LevInfo(24, "Bridge Fight"),
+            new FusionLevInfo(24, "Bridge Fight"),
 
-            new LevInfo(64, "Fire Mountains - Part 1"), // World 3a
-            new LevInfo(65, "Fire Mountains - Part 2"), // World 3b
-            new LevInfo(55, "Tankin' over the world - Easy"),
-            new LevInfo(56, "Tankin' over the world - Hard"),
-            new LevInfo(69, "In Hot Water - Easy"),
-            new LevInfo(70, "In Hot Water - Normal"),
-            new LevInfo(71, "In Hot Water - Hard"),
-            new LevInfo(57, "Chop 'til you Drop - Easy", LevInfo.FusionType.LevIntInt),
-            new LevInfo(58, "Chop 'til you Drop - Hard", LevInfo.FusionType.LevIntInt),
-            new LevInfo(59, "Rocket Power - Easy"),
-            new LevInfo(60, "Rocket Power - Hard"),
-            new LevInfo(66, "Bat Attack - Easy"),
-            new LevInfo(67, "Bat Attack - Normal"),
-            new LevInfo(68, "Bat Attack - Hard"),
-            new LevInfo(61, "Bonus: Crate Step - Easy", LevInfo.FusionType.LevTime),
-            new LevInfo(62, "Bonus: Crate Step - Normal", LevInfo.FusionType.LevTime),
-            new LevInfo(63, "Bonus: Crate Step - Hard", LevInfo.FusionType.LevTime),
-            new LevInfo(73, "Bonus: Weightlift", LevInfo.FusionType.IntLevel),
-            new LevInfo(72, "Nina"),
+            new FusionLevInfo(64, "Fire Mountains - Part 1"), // World 3a
+            new FusionLevInfo(65, "Fire Mountains - Part 2"), // World 3b
+            new FusionLevInfo(55, "Tankin' over the world - Easy"),
+            new FusionLevInfo(56, "Tankin' over the world - Hard"),
+            new FusionLevInfo(69, "In Hot Water - Easy"),
+            new FusionLevInfo(70, "In Hot Water - Normal"),
+            new FusionLevInfo(71, "In Hot Water - Hard"),
+            new FusionLevInfo(57, "Chop 'til you Drop - Easy", FusionLevInfo.FusionType.LevIntInt),
+            new FusionLevInfo(58, "Chop 'til you Drop - Hard", FusionLevInfo.FusionType.LevIntInt),
+            new FusionLevInfo(59, "Rocket Power - Easy"),
+            new FusionLevInfo(60, "Rocket Power - Hard"),
+            new FusionLevInfo(66, "Bat Attack - Easy"),
+            new FusionLevInfo(67, "Bat Attack - Normal"),
+            new FusionLevInfo(68, "Bat Attack - Hard"),
+            new FusionLevInfo(61, "Bonus: Crate Step - Easy", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(62, "Bonus: Crate Step - Normal", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(63, "Bonus: Crate Step - Hard", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(73, "Bonus: Weightlift", FusionLevInfo.FusionType.IntLevel),
+            new FusionLevInfo(72, "Nina"),
             //new LevInfo(74, "Spinning Wheel Game 3", LevInfo.FusionType.Unknown), // 4 ints, pointer to 580 bytes (same format as 'Buy Card 1')
             //new LevInfo(75, "Spinning Wheel Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
             //new LevInfo(76, "Buy Card 3", LevInfo.FusionType.Unknown), // Pointer to 48 bytes
             //new LevInfo(77, "Trading Card Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
-            new LevInfo(54, "Bridge Fight"),
+            new FusionLevInfo(54, "Bridge Fight"),
             
-            new LevInfo(82, "Dragon Castles - Part 1"), // World 4a
-            new LevInfo(83, "Dragon Castles - Part 2"), // World 4b
-            new LevInfo(90, "Sheep Shuttle - Easy", LevInfo.FusionType.LevInt),
-            new LevInfo(91, "Sheep Shuttle - Hard", LevInfo.FusionType.LevInt),
-            new LevInfo(92, "Up, up, and away - Easy"),
-            new LevInfo(93, "Up, up, and away - Hard"),
-            new LevInfo(84, "Castle Chaos - Easy"),
-            new LevInfo(85, "Castle Chaos - Normal"),
-            new LevInfo(86, "Castle Chaos - Hard"),
-            new LevInfo(87, "Bats in the Belfry - Easy"),
-            new LevInfo(88, "Bats in the Belfry - Normal"),
-            new LevInfo(89, "Bats in the Belfry - Hard"),
-            new LevInfo(97, "Tanks 'R Us - Easy"),
-            new LevInfo(98, "Tanks 'R Us - Hard"),
-            new LevInfo(79, "Bonus: Crate Smash - Easy", LevInfo.FusionType.LevTime),
-            new LevInfo(80, "Bonus: Crate Smash - Normal", LevInfo.FusionType.LevTime),
-            new LevInfo(81, "Bonus: Crate Smash - Hard", LevInfo.FusionType.LevTime),
-            new LevInfo(94, "Bonus: Freefallin' - Easy"),
-            new LevInfo(95, "Bonus: Freefallin' - Hard"),
-            new LevInfo(96, "Bonus: Weightlift", LevInfo.FusionType.IntLevel),
-            new LevInfo(105, "Ripto's Magical Mystery Tour"),
+            new FusionLevInfo(82, "Dragon Castles - Part 1"), // World 4a
+            new FusionLevInfo(83, "Dragon Castles - Part 2"), // World 4b
+            new FusionLevInfo(90, "Sheep Shuttle - Easy", FusionLevInfo.FusionType.LevInt),
+            new FusionLevInfo(91, "Sheep Shuttle - Hard", FusionLevInfo.FusionType.LevInt),
+            new FusionLevInfo(92, "Up, up, and away - Easy"),
+            new FusionLevInfo(93, "Up, up, and away - Hard"),
+            new FusionLevInfo(84, "Castle Chaos - Easy"),
+            new FusionLevInfo(85, "Castle Chaos - Normal"),
+            new FusionLevInfo(86, "Castle Chaos - Hard"),
+            new FusionLevInfo(87, "Bats in the Belfry - Easy"),
+            new FusionLevInfo(88, "Bats in the Belfry - Normal"),
+            new FusionLevInfo(89, "Bats in the Belfry - Hard"),
+            new FusionLevInfo(97, "Tanks 'R Us - Easy"),
+            new FusionLevInfo(98, "Tanks 'R Us - Hard"),
+            new FusionLevInfo(79, "Bonus: Crate Smash - Easy", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(80, "Bonus: Crate Smash - Normal", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(81, "Bonus: Crate Smash - Hard", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(94, "Bonus: Freefallin' - Easy"),
+            new FusionLevInfo(95, "Bonus: Freefallin' - Hard"),
+            new FusionLevInfo(96, "Bonus: Weightlift", FusionLevInfo.FusionType.IntLevel),
+            new FusionLevInfo(105, "Ripto's Magical Mystery Tour"),
             //new LevInfo(99, "Buy Card 4", LevInfo.FusionType.Unknown), // Pointer to data
             //new LevInfo(100, "Trading Card Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
             //new LevInfo(101, "Mystery Game 2", LevInfo.FusionType.Unknown), // 3 ints, pointer to bytes (same format as 'Buy Card 1')
             //new LevInfo(102, "Mystery Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
             //new LevInfo(103, "Shell Game 4", LevInfo.FusionType.Unknown), // 5 ints, pointer to bytes (same format as 'Buy Card 1')
             //new LevInfo(104, "Crate Shuffle Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
-            new LevInfo(78, "Bridge Fight"),
+            new FusionLevInfo(78, "Bridge Fight"),
 
-            new LevInfo(107, "Tech Park"), // World 5a
-            new LevInfo(111, "Crash at the Controls - Easy", LevInfo.FusionType.LevIntInt),
-            new LevInfo(112, "Crash at the Controls - Hard", LevInfo.FusionType.LevIntInt),
-            new LevInfo(116, "Bear with Me - Easy"),
-            new LevInfo(117, "Bear with Me - Normal"),
-            new LevInfo(118, "Bear with Me - Hard"),
-            new LevInfo(108, "Tech Deflect - Easy"),
-            new LevInfo(109, "Tech Deflect - Normal"),
-            new LevInfo(110, "Tech Deflect - Hard"),
-            new LevInfo(122, "Tank You Come Again - Easy"),
-            new LevInfo(123, "Tank You Come Again - Hard"),
-            new LevInfo(119, "Bat to the Future - Easy"),
-            new LevInfo(120, "Bat to the Future - Normal"),
-            new LevInfo(121, "Bat to the Future - Hard"),
-            new LevInfo(113, "Bonus: Crate smash - Easy", LevInfo.FusionType.LevTime),
-            new LevInfo(114, "Bonus: Crate smash - Normal", LevInfo.FusionType.LevTime),
-            new LevInfo(115, "Bonus: Crate smash - Hard", LevInfo.FusionType.LevTime),
-            new LevInfo(124, "Bonus: Freefallin' - Easy"),
-            new LevInfo(125, "Bonus: Freefallin' - Hard"),
-            new LevInfo(106, "Bonus: Weightlift", LevInfo.FusionType.IntLevel),
-            new LevInfo(129, "Space Chase"),
+            new FusionLevInfo(107, "Tech Park"), // World 5a
+            new FusionLevInfo(111, "Crash at the Controls - Easy", FusionLevInfo.FusionType.LevIntInt),
+            new FusionLevInfo(112, "Crash at the Controls - Hard", FusionLevInfo.FusionType.LevIntInt),
+            new FusionLevInfo(116, "Bear with Me - Easy"),
+            new FusionLevInfo(117, "Bear with Me - Normal"),
+            new FusionLevInfo(118, "Bear with Me - Hard"),
+            new FusionLevInfo(108, "Tech Deflect - Easy"),
+            new FusionLevInfo(109, "Tech Deflect - Normal"),
+            new FusionLevInfo(110, "Tech Deflect - Hard"),
+            new FusionLevInfo(122, "Tank You Come Again - Easy"),
+            new FusionLevInfo(123, "Tank You Come Again - Hard"),
+            new FusionLevInfo(119, "Bat to the Future - Easy"),
+            new FusionLevInfo(120, "Bat to the Future - Normal"),
+            new FusionLevInfo(121, "Bat to the Future - Hard"),
+            new FusionLevInfo(113, "Bonus: Crate smash - Easy", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(114, "Bonus: Crate smash - Normal", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(115, "Bonus: Crate smash - Hard", FusionLevInfo.FusionType.LevTime),
+            new FusionLevInfo(124, "Bonus: Freefallin' - Easy"),
+            new FusionLevInfo(125, "Bonus: Freefallin' - Hard"),
+            new FusionLevInfo(106, "Bonus: Weightlift", FusionLevInfo.FusionType.IntLevel),
+            new FusionLevInfo(129, "Space Chase"),
             //new LevInfo(126, "Spinning Wheel Game 5", LevInfo.FusionType.Unknown), // 4 ints, pointer to bytes (same format as 'Buy Card 1')
             //new LevInfo(127, "Spinning Wheel Shop", LevInfo.FusionType.Unknown), // Pointer to comp data, 5 ints
-            new LevInfo(128, "Bridge Fight"),
+            new FusionLevInfo(128, "Bridge Fight"),
 
-            new LevInfo(131, "Jump, Crash, Jump!"),
-            new LevInfo(132, "Cold Front"),
-            new LevInfo(133, "Hot feet"),
-            new LevInfo(134, "Moat Monster"),
-            new LevInfo(135, "Wumpa Jump"),
+            new FusionLevInfo(131, "Jump, Crash, Jump!"),
+            new FusionLevInfo(132, "Cold Front"),
+            new FusionLevInfo(133, "Hot feet"),
+            new FusionLevInfo(134, "Moat Monster"),
+            new FusionLevInfo(135, "Wumpa Jump"),
 
-            new LevInfo(130, "Crash 2 Test Level : Tiki Torture"),
+            new FusionLevInfo(130, "Crash 2 Test Level : Tiki Torture"),
         };
 
         public override int ObjTypesCount => 244;

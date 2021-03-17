@@ -9,7 +9,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBAVV : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData, GBAVV_MapInfo.GBAVV_MapType mapType, GBAVV_Script[] scripts = null, GBAVV_Map2D_Graphics[] graphics = null, GBAVV_DialogScript[] dialogScripts = null, GBAVV_NitroKart_ObjTypeData[] nitroKart_ObjTypeData = null, Dictionary<Pointer, int> locPointerTable = null) : base(context)
+        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData = null, GBAVV_Generic_MapInfo.GBAVV_MapType? mapType = null, GBAVV_Script[] scripts = null, GBAVV_Graphics[] graphics = null, GBAVV_DialogScript[] dialogScripts = null, GBAVV_NitroKart_ObjTypeData[] nitroKart_ObjTypeData = null, Dictionary<Pointer, int> locPointerTable = null) : base(context)
         {
             AnimSets = animSets;
             ObjData = objData;
@@ -34,20 +34,24 @@ namespace R1Engine
             }
 
             AnimSetsLookupTable = lookup.ToArray();
+
+            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
+                Crash2_IsWorldMap = Context.Settings.GetGameManagerOfType<GBAVV_Crash2_Manager>().LevInfos[Context.Settings.Level].IsWorldMap;
         }
 
         public AnimSet[][] AnimSets { get; }
         public (int, int)[] AnimSetsLookupTable { get; }
         public bool MultipleAnimSetArrays => AnimSets.Length > 1;
         public GBAVV_Map2D_ObjData ObjData { get; }
-        public GBAVV_MapInfo.GBAVV_MapType MapType { get; }
+        public GBAVV_Generic_MapInfo.GBAVV_MapType? MapType { get; }
         public byte[][] ObjParams => ObjData?.ObjParams;
         public GBAVV_Script[] Scripts { get; }
-        public GBAVV_Map2D_Graphics[] Graphics { get; }
+        public GBAVV_Graphics[] Graphics { get; }
         public GBAVV_NitroKart_ObjTypeData[] NitroKart_ObjTypeData { get; }
         public Dictionary<int, GBAVV_Script> DialogScripts { get; }
         public Dictionary<Pointer, int> LocPointerTable { get; }
         public float? LevelWidthNitroKartNGage { get; set; }
+        public bool Crash2_IsWorldMap { get; }
 
         public override string[] LegacyDESNames => AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => MultipleAnimSetArrays ? $"{graphicsIndex}-{animSet.GetDisplayName(animSetIndex)}" : $"{animSet.GetDisplayName(animSetIndex)}")).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
@@ -67,7 +71,7 @@ namespace R1Engine
 
             public class Animation
             {
-                public Animation(Func<Sprite[]> animFrameFunc, GBAVV_Map2D_Animation crashAnim, int xPos, int yPos)
+                public Animation(Func<Sprite[]> animFrameFunc, GBAVV_Animation crashAnim, int xPos, int yPos)
                 {
                     AnimFrameFunc = animFrameFunc;
                     CrashAnim = crashAnim;
@@ -90,7 +94,7 @@ namespace R1Engine
                 private Sprite[] Frames;
                 private Unity_ObjAnimation Anim;
                 protected Func<Sprite[]> AnimFrameFunc { get; }
-                public GBAVV_Map2D_Animation CrashAnim { get; }
+                public GBAVV_Animation CrashAnim { get; }
                 public int XPos { get; }
                 public int YPos { get; }
 
@@ -106,7 +110,7 @@ namespace R1Engine
                         {
                             var cc = new List<Unity_ObjAnimationCollisionPart>();
 
-                            void addHitBox(GBAVV_Map2D_AnimationRect box, Unity_ObjAnimationCollisionPart.CollisionType type)
+                            void addHitBox(GBAVV_AnimationRect box, Unity_ObjAnimationCollisionPart.CollisionType type)
                             {
                                 if (box == null)
                                     return;

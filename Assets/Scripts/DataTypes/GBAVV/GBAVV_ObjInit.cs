@@ -14,46 +14,46 @@ namespace R1Engine
 
             if (settings.EngineVersion == EngineVersion.GBAVV_Crash2)
             {
-                if (obj.ObjManager.MapType == GBAVV_MapInfo.GBAVV_MapType.WorldMap)
+                if (obj.ObjManager.Crash2_IsWorldMap)
                 {
-                    switch ((GBAVV_Crash2_WorldMap_ObjType)objType)
+                    switch ((GBAVV_Crash2_WorldMapObjType)objType)
                     {
-                        case GBAVV_Crash2_WorldMap_ObjType.LevelPortal:
+                        case GBAVV_Crash2_WorldMapObjType.LevelPortal:
                             obj.AnimSetIndex = 0x2F;
                             obj.AnimIndex = 0;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.MapPosition:
+                        case GBAVV_Crash2_WorldMapObjType.MapPosition:
                             obj.AnimSetIndex = -1;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.Tree_3:
+                        case GBAVV_Crash2_WorldMapObjType.Tree_3:
                             obj.AnimSetIndex = 0x30;
                             obj.AnimIndex = 0;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.Tree_4:
+                        case GBAVV_Crash2_WorldMapObjType.Tree_4:
                             obj.AnimSetIndex = 0x30;
                             obj.AnimIndex = 1;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.Tree_5:
+                        case GBAVV_Crash2_WorldMapObjType.Tree_5:
                             obj.AnimSetIndex = 0x30;
                             obj.AnimIndex = 2;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.Tree_6:
+                        case GBAVV_Crash2_WorldMapObjType.Tree_6:
                             obj.AnimSetIndex = 0x30;
                             obj.AnimIndex = 3;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.Tree_7:
+                        case GBAVV_Crash2_WorldMapObjType.Tree_7:
                             obj.AnimSetIndex = 0x30;
                             obj.AnimIndex = 4;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.Gem_Red:
+                        case GBAVV_Crash2_WorldMapObjType.Gem_Red:
                             obj.AnimSetIndex = 0x18;
                             obj.AnimIndex = 4;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.Gem_Green:
+                        case GBAVV_Crash2_WorldMapObjType.Gem_Green:
                             obj.AnimSetIndex = 0x18;
                             obj.AnimIndex = 5;
                             break;
-                        case GBAVV_Crash2_WorldMap_ObjType.Gem_Blue:
+                        case GBAVV_Crash2_WorldMapObjType.Gem_Blue:
                             obj.AnimSetIndex = 0x18;
                             obj.AnimIndex = 6;
                             break;
@@ -69,15 +69,15 @@ namespace R1Engine
                             switch (obj.ObjManager.MapType)
                             {
                                 default:
-                                case GBAVV_MapInfo.GBAVV_MapType.Normal:
+                                case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal:
                                     obj.AnimSetIndex = 0;
                                     obj.AnimIndex = 18;
                                     break;
-                                case GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_0:
+                                case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal_Vehicle_0:
                                     obj.AnimSetIndex = 1;
                                     obj.AnimIndex = 0;
                                     break;
-                                case GBAVV_MapInfo.GBAVV_MapType.Normal_Vehicle_1:
+                                case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal_Vehicle_1:
                                     obj.AnimSetIndex = 2;
                                     obj.AnimIndex = 0;
                                     break;

@@ -19,7 +19,7 @@ namespace R1Engine
         public GBAVV_Script ReferencedScript { get; set; }
         public GBAVV_Input Input { get; set; }
         public GBAVV_LocalizedString Dialog { get; set; }
-        public GBAVV_Map2D_Animation Animation { get; set; }
+        public GBAVV_Animation Animation { get; set; }
         public GBAVV_ConditionalScriptReference ConditionalScriptReference { get; set; }
         public GBAVV_Movement Movement { get; set; }
         public GBAVV_ObjSpawn ObjSpawn { get; set; }
@@ -83,7 +83,7 @@ namespace R1Engine
                 case CommandType.Animation:
                 case CommandType.SecondaryAnimation:
                 case CommandType.DialogPortrait:
-                    Animation = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Map2D_Animation>(Animation, name: nameof(Animation)));
+                    Animation = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_Animation>(Animation, name: nameof(Animation)));
                     break;
 
                 case CommandType.ConditionalScript:

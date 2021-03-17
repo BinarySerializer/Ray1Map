@@ -17,10 +17,10 @@
         public int Int_30 { get; set; }
 
         // Serialized from pointers
-        public GBAVV_Map2D_Graphics GraphicsData { get; set; }
+        public GBAVV_Graphics GraphicsData { get; set; }
         public int[] AnimationIndices { get; set; }
         public GBAVV_NitroKart_NGage_FilePath NGage_GFXFilePath { get; set; }
-        public GBAVV_Map2D_AnimSet NGage_GFX { get; set; }
+        public GBAVV_AnimSet NGage_GFX { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -45,13 +45,13 @@
 
             if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
-                GraphicsData = s.DoAt(GraphicsDataPointer, () => s.SerializeObject<GBAVV_Map2D_Graphics>(GraphicsData, name: nameof(GraphicsData)));
+                GraphicsData = s.DoAt(GraphicsDataPointer, () => s.SerializeObject<GBAVV_Graphics>(GraphicsData, name: nameof(GraphicsData)));
             }
             else
             {
                 NGage_GFXFilePath = s.DoAt(GraphicsDataPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(NGage_GFXFilePath, name: nameof(NGage_GFXFilePath)));
 
-                NGage_GFX = NGage_GFXFilePath.DoAtFile(() => s.SerializeObject<GBAVV_Map2D_AnimSet>(NGage_GFX, name: nameof(NGage_GFX)));
+                NGage_GFX = NGage_GFXFilePath.DoAtFile(() => s.SerializeObject<GBAVV_AnimSet>(NGage_GFX, name: nameof(NGage_GFX)));
             }
 
             AnimationIndices = s.DoAt(AnimationIndicesPointer, () => s.SerializeArray<int>(AnimationIndices, AnimationIndicesCount, name: nameof(AnimationIndices)));

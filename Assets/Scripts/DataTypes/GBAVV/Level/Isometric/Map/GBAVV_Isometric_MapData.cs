@@ -39,7 +39,7 @@ namespace R1Engine
         
         public GBAVV_Isometric_TileSet TileSet { get; set; }
         public MapTile[] MapTiles { get; set; }
-        public GBAVV_Isometric_MapLayer[] MapLayers { get; set; }
+        public GBAVV_TileMap[] MapLayers { get; set; }
         public RGBA5551Color[] TilePalette { get; set; }
         
         public ushort[] CollisionMap { get; set; }
@@ -85,12 +85,12 @@ namespace R1Engine
             }, name: nameof(TileSet)));
 
             if (MapLayers == null)
-                MapLayers = new GBAVV_Isometric_MapLayer[MapLayerPointers.Length];
+                MapLayers = new GBAVV_TileMap[MapLayerPointers.Length];
 
             for (int i = 0; i < MapLayers.Length; i++)
-                MapLayers[i] = s.DoAt(MapLayerPointers[i], () => s.SerializeObject<GBAVV_Isometric_MapLayer>(MapLayers[i], name: $"{nameof(MapLayers)}[{i}]"));
+                MapLayers[i] = s.DoAt(MapLayerPointers[i], () => s.SerializeObject<GBAVV_TileMap>(MapLayers[i], x => x.MapEncoding = GBAVV_TileMap.Encoding.Rows, name: $"{nameof(MapLayers)}[{i}]"));
 
-            var mapTilesLength = MapLayers.SelectMany(x => x.TileMapRows).SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
+            var mapTilesLength = MapLayers.SelectMany(x => x.TileMapSections).SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
             MapTiles = s.DoAt(MapTilesPointer, () => s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.Is8Bpp = true, name: nameof(MapTiles)));
             TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
 

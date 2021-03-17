@@ -10,7 +10,7 @@
         public int Int_14 { get; set; }
 
         // Serialized from pointers
-        public GBAVV_NitroKart_BackgroundTileMap TileMap { get; set; }
+        public GBAVV_NitroKart_BackgroundTileMapBlock TileMap { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -21,7 +21,7 @@
             Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
             Int_14 = s.Serialize<int>(Int_14, name: nameof(Int_14));
 
-            TileMap = s.DoAt(TileMapPointer, () => s.SerializeObject<GBAVV_NitroKart_BackgroundTileMap>(TileMap, name: nameof(TileMap)));
+            TileMap = s.DoAt(TileMapPointer, () => s.SerializeObject<GBAVV_NitroKart_BackgroundTileMapBlock>(TileMap, name: nameof(TileMap)));
         }
     }
 }

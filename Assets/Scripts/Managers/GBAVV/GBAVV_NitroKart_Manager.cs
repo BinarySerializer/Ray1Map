@@ -2,14 +2,19 @@
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace R1Engine
 {
     public abstract class GBAVV_NitroKart_Manager : GBAVV_BaseManager
     {
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        {
+            new GameInfo_World(0, Enumerable.Range(0, 26).ToArray()), 
+        });
+
         public override string[] Languages => new string[]
         {
             "Dutch",
@@ -20,48 +25,191 @@ namespace R1Engine
             "Spanish",
         };
 
-        public override LevInfo[] LevInfos => Levels;
-
-        public static LevInfo[] Levels = new LevInfo[]
+        public override async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
-            new LevInfo(0, "Terra Hub"), 
-            new LevInfo(1, "Inferno Island"),
-            new LevInfo(2, "Jungle Boogie"),
-            new LevInfo(3, "Tiny's Temple"),
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
 
-            new LevInfo(4, "Barin Hub"),
-            new LevInfo(5, "Meteor Gorge"),
-            new LevInfo(6, "Barin Ruins"),
-            new LevInfo(7, "Deep Sea Driving"),
-            
-            new LevInfo(8, "Fenomena Hub"),
-            new LevInfo(9, "Out of Time"),
-            new LevInfo(10, "Clockwork Wumpa"),
-            new LevInfo(11, "Thunder Struck"),
-            
-            new LevInfo(12, "Teknee Hub"),
-            new LevInfo(13, "Assembly Lane"),
-            new LevInfo(14, "Android Alley"),
-            new LevInfo(15, "Electron Avenue"),
+                // Read the rom
+                var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
 
-            new LevInfo(16, "Velo's Citadel"),
-            new LevInfo(17, "Velo's Challenge"),
+                await UniTask.WaitForEndOfFrame();
 
-            new LevInfo(18, "Battle 1 - Temple Turmoil"),
-            new LevInfo(19, "Battle 2 - Frozen Frenzy"),
-            new LevInfo(20, "Battle 3 - Desert Storm"),
-            new LevInfo(21, "Battle 4 - Magnetic Mayhem"),
-            new LevInfo(22, "Battle 5"),
-            new LevInfo(23, "Battle 6"),
-            new LevInfo(24, "Battle 7"),
-            new LevInfo(25, "Battle 8"),
-        };
+                await ExportAnimFramesAsync(rom.Map2D_Graphics, outputDir, saveAsGif, includePointerInNames);
+            }
+        }
 
-        public override UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context, (s, d) => d.SerializeFLC = true);
+
+                ExportCutscenesFromScripts(rom.GetAllScripts, outputDir);
+            }
+
+            Debug.Log($"Finished export");
+        }
+
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             //FindDataInROM(context.Deserializer, context.FilePointer(GetROMFilePath));
             //FindObjTypeData(context);
-            return base.LoadAsync(context, loadTextures);
+
+            Controller.DetailedState = "Loading data";
+            await Controller.WaitIfNecessary();
+
+            var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
+
+            return await LoadNitroKartAsync(context, rom);
+        }
+
+        public async UniTask<Unity_Level> LoadNitroKartAsync(Context context, GBAVV_ROM_NitroKart rom)
+        {
+            var map = rom.CurrentLevelInfo.MapData;
+
+            Controller.DetailedState = "Loading tilesets";
+            await Controller.WaitIfNecessary();
+
+            // Set the collision type for the tiles
+            foreach (var t in map.Mode7MapLayer.MapTiles)
+                t.CollisionType = (ushort)map.Mode7TileSetCollision[t.TileMapY];
+
+            var tilePalettes = map.AdditionalTilePalettesCount > 0 ? map.AdditionalTilePalettes : new RGBA5551Color[][]
+            {
+                map.TilePalette
+            };
+
+            var mode7TileSets = tilePalettes.Select(p => LoadTileSet(map.Mode7TileSet, p, true, context.Settings.EngineVersion, 0, null)).ToArray();
+            var bgTileSets = tilePalettes.Select(p => LoadTileSet(map.BackgroundTileSet.TileSet, p, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray(), map.BackgroundTileAnimations)).ToArray();
+
+            Controller.DetailedState = "Loading maps";
+            await Controller.WaitIfNecessary();
+
+            Unity_Map getMap(GBAVV_NitroKart_BackgroundMapLayer m)
+            {
+                var width = (ushort)(m.Width / CellSize);
+                var height = (ushort)(m.Height / CellSize);
+
+                var tileMap = new Unity_Tile[width * height];
+
+                const int screenBlockWidth = 32;
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int screenblock = (x / screenBlockWidth) * 1024;
+                        tileMap[y * width + x] = new Unity_Tile(m.TileMap.MapTiles[y * screenBlockWidth + (x % screenBlockWidth) + screenblock]);
+                    }
+                }
+
+                return new Unity_Map
+                {
+                    Width = width,
+                    Height = height,
+                    TileSet = bgTileSets,
+                    MapTiles = tileMap,
+                    Type = Unity_Map.MapType.Graphics,
+                    Layer = Unity_Map.MapLayer.Middle,
+                    /*Settings3D = new Unity_Map.FreeCameraSettings() {
+                        Mode = Unity_Map.FreeCameraSettings.Mode3D.Billboard,
+                        Position = Vector3.forward * 50f,
+                        Scale = new Vector3(1,-1,1)
+                    }*/
+                };
+            }
+
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map
+                {
+                    Width = (ushort)(map.Mode7MapLayer.TileMap.Width * 2),
+                    Height = (ushort)(map.Mode7MapLayer.TileMap.Height * 2),
+                    TileSet = mode7TileSets,
+                    MapTiles = GetTileMap(map.Mode7MapLayer.TileMap, map.Mode7MapLayer.MapTiles),
+                    Type = Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision,
+                    Layer = Unity_Map.MapLayer.Middle,
+                    Settings3D = Unity_Map.FreeCameraSettings.Mode7
+                },
+                getMap(map.BackgroundMapLayers[2]),
+                getMap(map.BackgroundMapLayers[1]),
+                getMap(map.BackgroundMapLayers[0]),
+            };
+
+            Controller.DetailedState = "Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(rom);
+
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
+            Unity_ObjectManager_GBAVV objManager = new Unity_ObjectManager_GBAVV(
+                context: context, 
+                animSets: LoadAnimSets(rom), 
+                graphics: rom.Map2D_Graphics, 
+                nitroKart_ObjTypeData: rom.ObjTypeData, 
+                scripts: rom.GetAllScripts.ToArray(), 
+                locPointerTable: loc.Item2);
+
+            var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();
+
+            objGroups.Add((map.Objects.Objects_Normal, "Normal"));
+
+            if (map.Objects.ObjectsPointer_TimeTrial != map.Objects.ObjectsPointer_Normal)
+                objGroups.Add((map.Objects.Objects_TimeTrial, "Time Trial"));
+
+            if (map.Objects.ObjectsPointer_BossRace != map.Objects.ObjectsPointer_Normal)
+                objGroups.Add((map.Objects.Objects_BossRace, "Boss Race"));
+
+            var objects = objGroups.SelectMany((x, i) => x.Item1.Select(o => (Unity_Object)new Unity_Object_GBAVVNitroKart(objManager, o, i))).ToList();
+
+            var waypointsGroupIndex = 0;
+
+            void addTrackWaypoints(IReadOnlyList<GBAVV_NitroKart_TrackWaypoint> waypoints, string groupName, int trackDataIndex)
+            {
+                if (waypoints == null)
+                    return;
+
+                if (objGroups.Any(x => x.Item2 == groupName))
+                {
+
+                    var objCount = objects.Count;
+                    for (int i = 0; i < waypoints.Count; i++)
+                    {
+                        var w = new Unity_Object_GBAVVNitroKartWaypoint(objManager, waypoints[i], waypointsGroupIndex, trackDataIndex);
+                        w.LinkedWayPointIndex = objCount + ((i == waypoints.Count - 1) ? 0 : (i + 1));
+                        objects.Add(w);
+                    }
+                    //objects.AddRange(waypoints.Select(w => new Unity_Object_GBAVVNitroKartWaypoint(objManager, w, waypointsGroupIndex, trackDataIndex)));
+                    waypointsGroupIndex++;
+                }
+            }
+
+            addTrackWaypoints(map.TrackData1.TrackWaypoints_Normal, "Normal", 0);
+            addTrackWaypoints(map.TrackData1.TrackWaypoints_TimeTrial, "Time Trial", 0);
+            addTrackWaypoints(map.TrackData1.TrackWaypoints_BossRace, "Boss Race", 0);
+            waypointsGroupIndex = 0;
+            addTrackWaypoints(map.TrackData2.TrackWaypoints_Normal, "Normal", 1);
+            addTrackWaypoints(map.TrackData2.TrackWaypoints_TimeTrial, "Time Trial", 1);
+            addTrackWaypoints(map.TrackData2.TrackWaypoints_BossRace, "Boss Race", 1);
+
+            return new Unity_Level(
+                maps: maps,
+                objManager: objManager,
+                eventData: objects,
+                cellSize: CellSize,
+                objectGroups: objGroups.Select(x => x.Item2).ToArray(),
+                getCollisionTypeGraphicFunc: x => ((GBAVV_NitroKart_CollisionType)x).GetCollisionTypeGraphic(),
+                getCollisionTypeNameFunc: x => ((GBAVV_NitroKart_CollisionType)x).ToString(),
+                localization: loc.Item1,
+                isometricData: Unity_IsometricData.Mode7(CellSize),
+                trackManager: new Unity_TrackManager_GBAVV_NitroKart());
         }
 
         public virtual void FindDataInROM(SerializerObject s, Pointer offset)
@@ -126,7 +274,7 @@ namespace R1Engine
 
         public virtual void FindObjTypeData(Context context)
         {
-            var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (o, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+            var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
             var s = context.Deserializer;
 
             var str = new StringBuilder();

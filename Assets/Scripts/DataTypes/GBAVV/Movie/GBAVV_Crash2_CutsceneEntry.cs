@@ -16,7 +16,7 @@
         {
             FLCIndex = s.Serialize<int>(FLCIndex, name: nameof(FLCIndex));
             LocIndex = s.Serialize<int>(LocIndex, name: nameof(LocIndex));
-            s.Log($"LevelName: {s.Context.GetStoredObject<GBAVV_LocTable>(GBAVV_BaseManager.LocTableID)?.Strings[LocIndex]}");
+            s.Log($"LevelName: {s.Context.GetStoredObject<GBAVV_Crash_LocTable>(GBAVV_Crash_BaseManager.LocTableID)?.Strings[LocIndex]}");
             MusicIndex = s.Serialize<int>(MusicIndex, name: nameof(MusicIndex));
             Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
             Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));

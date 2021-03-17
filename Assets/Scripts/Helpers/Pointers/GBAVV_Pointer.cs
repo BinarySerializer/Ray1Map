@@ -62,12 +62,12 @@
         Isometric_AdditionalAnim9_Palette,
         Isometric_AdditionalAnim10_Palette,
 
-        WorldMap_Crash2,
-        WorldMap_Crash1_LevelIcons,
+        Crash2_WorldMap,
+        Crash1_WorldMapLevelIcons,
 
         Fusion_DialogScripts,
 
-        NitroKart_LevelMetaDatas,
+        NitroKart_HubWorldPortals,
         NitroKart_LevelInfos,
     }
 }

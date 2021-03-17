@@ -17,7 +17,7 @@
         // Serialized from pointers
 
         public ushort[] TileMap { get; set; }
-        public GBAVV_Map2D_TileSet TileSet { get; set; }
+        public GBAVV_Map2D_TileSetBlock TileSet { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -34,7 +34,7 @@
             Ushort_1E = s.Serialize<ushort>(Ushort_1E, name: nameof(Ushort_1E));
 
             TileMap = s.DoAt(TileMapPointer, () => s.SerializeArray<ushort>(TileMap, TileMapWidth * TileMapHeight, name: nameof(TileMap)));
-            TileSet = s.DoAt(TileSetPointer, () => s.SerializeObject<GBAVV_Map2D_TileSet>(TileSet, name: nameof(TileSet)));
+            TileSet = s.DoAt(TileSetPointer, () => s.SerializeObject<GBAVV_Map2D_TileSetBlock>(TileSet, name: nameof(TileSet)));
         }
     }
 }

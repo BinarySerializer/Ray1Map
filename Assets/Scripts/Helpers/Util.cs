@@ -299,6 +299,7 @@ namespace R1Engine
             JsonHelpers.SerializeToFile(jsonObj, Path.Combine(outDir, $"{dirName.Substring(name.Length + 1)}.json"));
         }
 
+        /*
         public static void OutputGBAVVJSONLevelListForWeb(GameModeSelection mode, bool includeInternalName)
         {
             // Helper for getting a line
@@ -315,7 +316,7 @@ namespace R1Engine
             }
 
             str.ToString().CopyToClipboard();
-        }
+        }*/
 
         public static async Task OutputGameloftRRRJSONForWebAsync(string dir)
         {
