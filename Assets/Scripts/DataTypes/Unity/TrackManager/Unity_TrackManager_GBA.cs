@@ -53,6 +53,7 @@ namespace R1Engine
             var obj = level.EventData.OfType<Unity_Object_GBA>().First(x => x.Actor.ActorID == (byte)GBA_R3_ActorID.Ssssam);
             Vector2Int pos = new Vector2Int(obj.XPosition / 8, obj.YPosition / 8);
             var startPos = pos;
+            var lastgoodPos = pos;
             var previousCollisionType = GBA_TileCollisionType.Empty;
             List<Vector2Int> points = new List<Vector2Int>();
             int stepsSinceLastAdd = 0;
@@ -76,10 +77,14 @@ namespace R1Engine
                     points.Add(pos);
                     stepsSinceLastAdd = 0;
                 }
+                lastgoodPos = pos;
                 pos += dir.Value;
                 stepsSinceLastAdd++;
             }
-            points.Add(pos);
+            if (stepsSinceLastAdd < 8) {
+                points.RemoveAt(points.Count-1);
+            }
+            points.Add(lastgoodPos);
             if (pos == startPos) IsLoop = true;
 
             return points.Select(p => new Vector3(p.x * 8 + 4, p.y * 8 + 4, 0f)).ToArray();
