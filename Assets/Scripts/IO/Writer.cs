@@ -5,7 +5,7 @@ using System.Text;
 namespace R1Engine {
     public class Writer : BinaryWriter {
         public bool isLittleEndian = true;
-        byte? xorKey;
+        IXORCalculator xorCalculator;
         IChecksumCalculator checksumCalculator;
         uint bytesSinceAlignStart;
         bool autoAlignOn = false;
@@ -100,12 +100,13 @@ namespace R1Engine {
             if (checksumCalculator?.CalculateForDecryptedData == true)
                 checksumCalculator?.AddBytes(data);
 
-            if (xorKey.HasValue) {
+            if (xorCalculator != null) {
                 // Avoid changing data in array, so create a copy
                 data = new byte[buffer.Length];
                 Array.Copy(buffer, 0, data, 0, buffer.Length);
+
                 for (int i = 0; i < data.Length; i++) {
-                    data[i] = (byte)(data[i] ^ xorKey.Value);
+                    data[i] = xorCalculator.XORByte(data[i]);
                 }
             }
 
@@ -123,8 +124,9 @@ namespace R1Engine {
             if (checksumCalculator?.CalculateForDecryptedData == true)
                 checksumCalculator?.AddByte(value);
 
-            if (xorKey.HasValue)
-                value = (byte)(value ^ xorKey.Value);
+            if (xorCalculator != null) {
+                value = xorCalculator.XORByte(value);
+            }
 
             if (checksumCalculator?.CalculateForDecryptedData == false)
                 checksumCalculator?.AddByte(value);
@@ -173,15 +175,15 @@ namespace R1Engine {
             bytesSinceAlignStart = 0;
         }
         #endregion
-        
+
         #region XOR & Checksum
-        public void BeginXOR(byte xorKey) {
-            this.xorKey = xorKey;
+        public void BeginXOR(IXORCalculator xorCalculator) {
+            this.xorCalculator = xorCalculator;
         }
         public void EndXOR() {
-            xorKey = null;
+            xorCalculator = null;
         }
-        public byte? GetXOR() => xorKey;
+        public IXORCalculator GetXORCalculator() => xorCalculator;
         public void BeginCalculateChecksum(IChecksumCalculator checksumCalculator) {
             this.checksumCalculator = checksumCalculator;
         }

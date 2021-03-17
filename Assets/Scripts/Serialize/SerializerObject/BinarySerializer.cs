@@ -163,23 +163,26 @@ namespace R1Engine
             return writer.EndCalculateChecksum<T>();
         }
 
-        public override void BeginXOR(byte xorKey) {
-            writer.BeginXOR(xorKey);
+        public override void BeginXOR(IXORCalculator xorCalculator) {
+            writer.BeginXOR(xorCalculator);
         }
         public override void EndXOR() {
             writer.EndXOR();
         }
+        public override void DoXOR(IXORCalculator xorCalculator, Action action) {
+            var prevCalculator = writer.GetXORCalculator();
 
-        public override void DoXOR(byte xorKey, Action action)
-        {
-            var prevKey = writer.GetXOR();
-            BeginXOR(xorKey);
-            action();
-
-            if (prevKey == null)
+            if (xorCalculator == null)
                 EndXOR();
             else
-                BeginXOR(prevKey.Value);
+                BeginXOR(xorCalculator);
+
+            action();
+
+            if (prevCalculator == null)
+                EndXOR();
+            else
+                BeginXOR(prevCalculator);
         }
 
         public override void Goto(Pointer offset) {

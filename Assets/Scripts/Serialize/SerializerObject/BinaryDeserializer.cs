@@ -190,26 +190,29 @@ namespace R1Engine
         }
 
 
-        public override void BeginXOR(byte xorKey) {
-            reader.BeginXOR(xorKey);
+        public override void BeginXOR(IXORCalculator xorCalculator) {
+            reader.BeginXOR(xorCalculator);
         }
-        public override void EndXOR() {
+		public override void EndXOR() {
             reader.EndXOR();
         }
+		public override void DoXOR(IXORCalculator xorCalculator, Action action) {
+            var prevCalculator = reader.GetXORCalculator();
 
-        public override void DoXOR(byte xorKey, Action action)
-        {
-            var prevKey = reader.GetXOR();
-            BeginXOR(xorKey);
-            action();
-
-            if (prevKey == null)
+            if (xorCalculator == null)
                 EndXOR();
             else
-                BeginXOR(prevKey.Value);
-        }
+                BeginXOR(xorCalculator);
 
-        public override void Goto(Pointer offset) {
+            action();
+
+            if(prevCalculator == null)
+                EndXOR();
+            else
+                BeginXOR(prevCalculator);
+		}
+
+		public override void Goto(Pointer offset) {
             if (offset == null) return;
             if (offset.file != currentFile) {
                 SwitchToFile(offset.file);

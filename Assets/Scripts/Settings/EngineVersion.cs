@@ -93,5 +93,10 @@ namespace R1Engine
 
         Gameloft_RRR,
         Gameloft_RK,
+
+        // Jade
+
+        Jade_RRR_PC,
+
     }
 }

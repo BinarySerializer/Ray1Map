@@ -6,9 +6,13 @@ namespace R1Engine
 {
     public static class ContextExtensions
     {
-        public static async UniTask<LinearSerializedFile> AddLinearSerializedFileAsync(this Context context, string filePath, BinaryFile.Endian endianness = BinaryFile.Endian.Little, bool recreateOnWrite = true)
+        public static async UniTask<LinearSerializedFile> AddLinearSerializedFileAsync(this Context context, string filePath, BinaryFile.Endian endianness = BinaryFile.Endian.Little, bool recreateOnWrite = true, int? bigFileCacheLength = null)
         {
-            await FileSystem.PrepareFile(context.BasePath + filePath);
+            if (bigFileCacheLength.HasValue) {
+                await FileSystem.PrepareBigFile(context.BasePath + filePath, bigFileCacheLength.Value);
+            } else {
+                await FileSystem.PrepareFile(context.BasePath + filePath);
+            }
 
             if (!FileSystem.FileExists(context.BasePath + filePath))
                 return null;

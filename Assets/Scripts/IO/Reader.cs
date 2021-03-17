@@ -9,7 +9,7 @@ namespace R1Engine {
         public bool isLittleEndian = true;
         uint bytesSinceAlignStart = 0;
         bool autoAlignOn = false;
-        byte? xorKey = null;
+        IXORCalculator xorCalculator = null;
         IChecksumCalculator checksumCalculator = null;
         public Reader(Stream stream) : base(stream) { isLittleEndian = true; }
         public Reader(Stream stream, bool isLittleEndian) : base(stream) { this.isLittleEndian = isLittleEndian; }
@@ -86,9 +86,9 @@ namespace R1Engine {
             if (checksumCalculator?.CalculateForDecryptedData == false)
                 checksumCalculator?.AddBytes(bytes);
 
-            if (xorKey.HasValue) {
+            if (xorCalculator != null) {
                 for (int i = 0; i < count; i++) {
-                    bytes[i] = (byte)(bytes[i] ^ xorKey.Value);
+                    bytes[i] = xorCalculator.XORByte(bytes[i]);
                 }
             }
 
@@ -109,8 +109,9 @@ namespace R1Engine {
             if (checksumCalculator?.CalculateForDecryptedData == false)
                 checksumCalculator?.AddByte(result);
 
-            if (xorKey.HasValue)
-                result = (byte)(result ^ xorKey.Value);
+            if (xorCalculator != null) {
+                result = xorCalculator.XORByte(result);
+            }
 
             if (checksumCalculator?.CalculateForDecryptedData == true)
                 checksumCalculator?.AddByte(result);
@@ -174,16 +175,16 @@ namespace R1Engine {
             }
             bytesSinceAlignStart = 0;
         }
-		#endregion
+        #endregion
 
-		#region XOR & Checksum
-		public void BeginXOR(byte xorKey) {
-            this.xorKey = xorKey;
+        #region XOR & Checksum
+        public void BeginXOR(IXORCalculator xorCalculator) {
+            this.xorCalculator = xorCalculator;
         }
         public void EndXOR() {
-            xorKey = null;
+            xorCalculator = null;
         }
-        public byte? GetXOR() => xorKey;
+        public IXORCalculator GetXORCalculator() => xorCalculator;
         public void BeginCalculateChecksum(IChecksumCalculator checksumCalculator) {
             this.checksumCalculator = checksumCalculator;
         }

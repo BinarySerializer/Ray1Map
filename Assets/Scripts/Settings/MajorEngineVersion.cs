@@ -13,6 +13,7 @@
         GBAIsometric,   // Digital Eclipse (GBA) - Dragon
         GBC,            // Ubisoft (GBC)
         GBAVV,          // Vicarious Visions (GBA)
-        Gameloft        // Gameloft (Java)
+        Gameloft,       // Gameloft (Java)
+        Jade,           // Jade Engine
     }
 }

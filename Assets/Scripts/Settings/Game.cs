@@ -77,6 +77,10 @@
         Gameloft_RRR,
         Gameloft_RK,
         Gameloft_RK_LowRes,
-        Gameloft_RK_HighResHalf
+        Gameloft_RK_HighResHalf,
+
+        // Jade
+
+        Jade_RRR,
     }
 }

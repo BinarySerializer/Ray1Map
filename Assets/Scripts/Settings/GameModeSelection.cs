@@ -534,5 +534,10 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 320x240, Broken)", typeof(Gameloft_RK_Manager))]
         RaymanKartMobile_320x240_Broken,
+
+
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_PC, Game.Jade_RRR, "Rayman Raving Rabbids (PC)", typeof(Jade_BaseManager))]
+        RaymanRavingRabbidsPC,
     }
 }

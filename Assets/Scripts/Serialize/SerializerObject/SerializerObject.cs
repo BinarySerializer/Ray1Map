@@ -201,10 +201,11 @@ namespace R1Engine
             return default(T);
         }
 
-        public virtual void BeginXOR(byte xorKey) { }
+        public virtual void BeginXOR(IXORCalculator xorCalculator) { }
         public virtual void EndXOR() { }
 
-        public virtual void DoXOR(byte xorKey, Action action) { }
+        public virtual void DoXOR(byte xorKey, Action action) => DoXOR(new XOR8Calculator(xorKey), action);
+        public virtual void DoXOR(IXORCalculator xorCalculator, Action action) { action(); }
 
         public T DoChecksum<T>(IChecksumCalculator<T> c, Action action, ChecksumPlacement placement, bool calculateChecksum = true, string name = null)
         {
