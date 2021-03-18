@@ -7,6 +7,7 @@ using System.Linq;
 using R1Engine;
 using UnityEditor;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class UnityWindow : EditorWindow
 {
@@ -126,8 +127,7 @@ public class UnityWindow : EditorWindow
 
     public int IndentLevel { get; set; } = 0;
 
-    protected void OnInspectorUpdate()
-    {
+    protected void OnInspectorUpdate() {
         if (EditorApplication.isPlaying && !EditorApplication.isPaused)
         {
             Repaint();
@@ -139,14 +139,13 @@ public class UnityWindow : EditorWindow
     public float YPos;
     protected Dictionary<string, string[]> EnumOptions = new Dictionary<string, string[]>();
 
-    public async UniTask OnGUI()
-    {
+    public void OnGUI() {
         YPos = 0;
 
-        await UpdateEditorFieldsAsync();
+        UpdateEditorFields();
     }
 
-    protected virtual UniTask UpdateEditorFieldsAsync() => UniTask.CompletedTask;
+    protected virtual void UpdateEditorFields() { }
 
     public void DrawHeader(string header) => DrawHeader(ref YPos, header);
 

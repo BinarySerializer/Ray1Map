@@ -19,7 +19,7 @@ public class GamePropertiesWindow : UnityWindow
 
     protected UnityWindowSerializer Serializer { get; set; }
 
-    protected override UniTask UpdateEditorFieldsAsync() 
+    protected override void UpdateEditorFields() 
     {
         if (TotalyPos == 0f)
             TotalyPos = position.height;
@@ -58,8 +58,6 @@ public class GamePropertiesWindow : UnityWindow
 
         TotalyPos = YPos;
         GUI.EndScrollView();
-
-        return UniTask.CompletedTask;
     }
 
     #region Private Properties

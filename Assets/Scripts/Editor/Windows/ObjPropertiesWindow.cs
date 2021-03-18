@@ -25,7 +25,7 @@ public class ObjPropertiesWindow : UnityWindow
     public bool CmdPanelOpen { get; set; }
     public bool LocPanelOpen { get; set; }
 
-    protected override UniTask UpdateEditorFieldsAsync() 
+    protected override void UpdateEditorFields() 
     {
         if (TotalyPos == 0f)
             TotalyPos = position.height;
@@ -122,8 +122,6 @@ public class ObjPropertiesWindow : UnityWindow
 
         TotalyPos = YPos;
         GUI.EndScrollView();
-
-        return UniTask.CompletedTask;
     }
 
     #region Private Properties

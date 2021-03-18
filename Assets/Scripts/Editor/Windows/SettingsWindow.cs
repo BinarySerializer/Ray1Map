@@ -24,7 +24,7 @@ public class SettingsWindow : UnityWindow
 		titleContent.text = "Settings";
 	}
 
-    protected override async UniTask UpdateEditorFieldsAsync() {
+    protected override void UpdateEditorFields() {
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL) {
             fileMode = FileSystem.Mode.Web;
@@ -415,15 +415,19 @@ public class SettingsWindow : UnityWindow
 
                 if (string.IsNullOrEmpty(outputDir) && action.RequiresOutputDir)
                     return;
-                try {
-                    Controller.StartStopwatch();
-                    // Run the action
-                    await action.GameActionFunc(inputDir, outputDir);
-                } catch(Exception ex) {
-                    Debug.LogError(ex.ToString());
-                } finally {
-                    Controller.StopStopwatch();
+
+                async UniTask ExecuteGameAction(GameAction action) {
+                    try {
+                        Controller.StartStopwatch();
+                        // Run the action
+                        await action.GameActionFunc(inputDir, outputDir);
+                    } catch (Exception ex) {
+                        Debug.LogError(ex.ToString());
+                    } finally {
+                        Controller.StopStopwatch();
+                    }
                 }
+                _ = ExecuteGameAction(action);
             }
         }
 
@@ -431,7 +435,7 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("Global Tools");
 
-        async UniTask AddGlobalActionAsync(string actionName)
+        void AddGlobalAction(string actionName)
         {
             if (EditorButton(actionName))
             {
@@ -481,35 +485,33 @@ public class SettingsWindow : UnityWindow
                         continue;
                     }
 
-                    try
-                    {
-                        // Run the action
-                        await action.GameActionFunc(null, Path.Combine(outputDir, mode.ToString()));
+                    async UniTask ExecuteGameAction(GameAction action) {
+                        try {
+                            // Run the action
+                            await action.GameActionFunc(null, Path.Combine(outputDir, mode.ToString()));
+                        } catch (Exception ex) {
+                            Debug.LogWarning($"Mode {mode} failed with exception: {ex.Message}");
+                        } finally {
+                            // Unload textures
+                            await Resources.UnloadUnusedAssets();
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"Mode {mode} failed with exception: {ex.Message}");
-                    }
-                    finally
-                    {
-                        // Unload textures
-                        await Resources.UnloadUnusedAssets();
-                    }
+                    _ = ExecuteGameAction(action);
                 }
             }
         }
 
         // Add special game actions
-        await AddGlobalActionAsync("Export Sprites");
-        await AddGlobalActionAsync("Export Animation Frames");
-        await AddGlobalActionAsync("Export Vignette");
+        AddGlobalAction("Export Sprites");
+        AddGlobalAction("Export Animation Frames");
+        AddGlobalAction("Export Vignette");
 
         // Randomizer
 
         DrawHeader("Randomizer");
 
         if (EditorButton("Run Batch Randomizer"))
-            await BatchRandomizeAsync();
+            _ = BatchRandomizeAsync();
 
         RandomizerSeed = EditorField("Seed", RandomizerSeed);
 
