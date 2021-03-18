@@ -683,7 +683,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
 NOTE: This project is currently in its early stages and may be unstable. Saving edits may corrupt your files for certain games, so make sure to back up your files first!
 
 * Clone or download the repo.
-* Open the project with Unity (through Unity Hub). Version 2019.4.10f1 is recommended.
+* Open the project with Unity (through Unity Hub). Version 2020.3.0f1 is recommended.
 * Open the Ray1Map settings from the toolbar and fill out the game directories.
 * Select the game mode and level.
 * Open the MapViewer scene.
