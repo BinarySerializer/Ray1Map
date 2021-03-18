@@ -9,6 +9,7 @@
 /[Bb]uilds/
 /[Ll]ibrary/
 /[Ll]ogs/
+/[Uu]serSettings/
 sysinfo.txt
 *.stackdump
 /Assets/AssetStoreTools*
