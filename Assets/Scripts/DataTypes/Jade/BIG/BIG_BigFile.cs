@@ -64,11 +64,26 @@ namespace R1Engine.Jade {
 		}
 
 		public async UniTask SerializeFile(SerializerObject s, int fatIndex, int fileIndex, Action<uint> action) {
+			var fat = FatFiles[fatIndex];
 			Pointer off_current = s.CurrentPointer;
-			Pointer off_target = FatFiles[fatIndex].Files[fileIndex].FileOffset;
+			Pointer off_target = fat.Files[fileIndex].FileOffset;
+			/*var sortedFileList = fat.Files.OrderBy(f => f.FileOffset.AbsoluteOffset).ToArray();
+			var indInSortedFileList = sortedFileList.FindItemIndex(f => f.FileOffset == off_target);*/
 			s.Goto(off_target);
 			await s.FillCacheForRead(4);
 			var fileSize = s.Serialize<uint>(default, name: "FileSize");
+			//var actualFileSize = (indInSortedFileList+1 >= sortedFileList.Length ? s.CurrentLength : sortedFileList[indInSortedFileList+1].FileOffset.AbsoluteOffset) - off_target.AbsoluteOffset - 4;
+			await s.FillCacheForRead((int)fileSize);
+			action(fileSize);
+			s.Goto(off_current);
+		}
+
+		public async UniTask SerializeAt(SerializerObject s, Pointer off_target, Action<uint> action) {
+			Pointer off_current = s.CurrentPointer;
+			s.Goto(off_target);
+			await s.FillCacheForRead(4);
+			var fileSize = s.Serialize<uint>(default, name: "FileSize");
+			//var actualFileSize = (indInSortedFileList+1 >= sortedFileList.Length ? s.CurrentLength : sortedFileList[indInSortedFileList+1].FileOffset.AbsoluteOffset) - off_target.AbsoluteOffset - 4;
 			await s.FillCacheForRead((int)fileSize);
 			action(fileSize);
 			s.Goto(off_current);

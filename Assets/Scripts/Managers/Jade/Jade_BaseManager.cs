@@ -21,6 +21,7 @@ namespace R1Engine {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
 				var bf = await LoadBF(context);
+				List<KeyValuePair<long, long>> fileSizes = new List<KeyValuePair<long, long>>();
 				try {
 					for (int fatIndex = 0; fatIndex < bf.FatFiles.Length; fatIndex++) {
 						var fat = bf.FatFiles[fatIndex];
@@ -42,6 +43,7 @@ namespace R1Engine {
 							await bf.SerializeFile(s, fatIndex, i, (fileSize) => {
 								fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
 							});
+							fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileBytes.Length+4));
 							var fi = fat.FileInfos[i];
 							string fileName = null;
 							if (fi.Name != null) {
@@ -52,6 +54,39 @@ namespace R1Engine {
 								Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
 							}
 						}
+					}
+					{
+						s.Goto(bf.Offset);
+						var sortedFileSizes = fileSizes.OrderBy(f => f.Key).ToArray();
+						for (int i = 0; i < sortedFileSizes.Length; i++) {
+							var nextOffset = i == sortedFileSizes.Length-1 ? s.CurrentLength : sortedFileSizes[i+1].Key;
+							var curOffset = sortedFileSizes[i].Key;
+							var curSize = sortedFileSizes[i].Value;
+							while (curOffset + curSize < nextOffset) {
+								curOffset = curOffset + curSize;
+								Pointer curPtr = bf.Offset + curOffset;
+								byte[] fileBytes = null;
+								await bf.SerializeAt(s, curPtr, (fileSize) => {
+									fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
+								});
+								curSize = fileBytes.Length + 4;
+								string fileName = $"hidden_file_{curPtr.StringFileOffset}.dat";
+								Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
+							}
+							if (curOffset + curSize > nextOffset) {
+								UnityEngine.Debug.Log("error @ " + curOffset);
+							}
+						}
+						/*{
+							s.Goto(bf.Offset);
+							byte[] fileBytes = File.ReadAllBytes(Path.Combine(context.BasePath, BFFile));
+							foreach (var c in fileSizes) {
+								for (int i = 0; i < c.Value; i++) {
+									fileBytes[c.Key + i] = 0;
+								}
+							}
+							Util.ByteArrayToFile(Path.Combine(outputDir, "unread.bf"), fileBytes);
+						}*/
 					}
 				} catch (Exception ex) {
 					UnityEngine.Debug.LogError(ex);
