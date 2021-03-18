@@ -951,8 +951,42 @@ namespace R1Engine
         private static Dictionary<int, Dictionary<int, string>> SpyroFusionGBANames { get; } = new Dictionary<int, Dictionary<int, string>>() {
             [0] = GBAVV_SpyroFusion_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
-        private static Dictionary<int, Dictionary<int, string>> CrashNitroKartGBANames { get; } = new Dictionary<int, Dictionary<int, string>>() {
-            [0] = GBAVV_NitroKart_Manager.Levels.Select((x, i) => new {x, i}).ToDictionary(x => x.i, x => x.x.DisplayName)
+        private static Dictionary<int, Dictionary<int, string>> CrashNitroKartGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
+        {
+            [0] = new Dictionary<int, string>()
+            {
+                [0] = "Terra Hub",
+                [1] = "Inferno Island",
+                [2] = "Jungle Boogie",
+                [3] = "Tiny's Temple",
+
+                [4] = "Barin Hub",
+                [5] = "Meteor Gorge",
+                [6] = "Barin Ruins",
+                [7] = "Deep Sea Driving",
+
+                [8] = "Fenomena Hub",
+                [9] = "Out of Time",
+                [10] = "Clockwork Wumpa",
+                [11] = "Thunder Struck",
+
+                [12] = "Teknee Hub",
+                [13] = "Assembly Lane",
+                [14] = "Android Alley",
+                [15] = "Electron Avenue",
+
+                [16] = "Velo's Citadel",
+                [17] = "Velo's Challenge",
+
+                [18] = "Battle 1 - Temple Turmoil",
+                [19] = "Battle 2 - Frozen Frenzy",
+                [20] = "Battle 3 - Desert Storm",
+                [21] = "Battle 4 - Magnetic Mayhem",
+                [22] = "Battle 5",
+                [23] = "Battle 6",
+                [24] = "Battle 7",
+                [25] = "Battle 8",
+            },
         };
     }
 }

@@ -67,6 +67,7 @@
         // GBA Vicarious Visions
 
         GBAVV_Crash1,
+        GBAVV_FroggerAdvance,
         GBAVV_Crash2,
         GBAVV_CrashNitroKart,
         GBAVV_CrashFusion,

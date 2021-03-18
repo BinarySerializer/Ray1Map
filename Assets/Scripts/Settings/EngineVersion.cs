@@ -82,12 +82,13 @@ namespace R1Engine
 
         // GBA VV
 
-        GBAVV_Crash1,
-        GBAVV_Crash2,
-        GBAVV_CrashNitroKart,
-        GBAVV_CrashNitroKart_NGage,
-        GBAVV_CrashFusion,
-        GBAVV_SpyroFusion,
+        GBAVV_Crash1,                        // 2002
+        GBAVV_FroggerAdvance,                // 2002
+        GBAVV_Crash2,                        // 2003
+        GBAVV_CrashNitroKart,                // 2003
+        GBAVV_CrashNitroKart_NGage,          // 2004
+        GBAVV_CrashFusion,                   // 2004
+        GBAVV_SpyroFusion,                   // 2004
 
         // Gameloft
 

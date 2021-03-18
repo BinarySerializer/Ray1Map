@@ -51,7 +51,7 @@ namespace R1Engine
             }
         }
 
-        public List<string> TranslatedStringAll(GBAVV_Map2D_AnimSet[] animSets, Dictionary<Pointer, int> locTable, List<string> list = null)
+        public List<string> TranslatedStringAll(GBAVV_AnimSet[] animSets, Dictionary<Pointer, int> locTable, List<string> list = null)
         {
             var output = list ?? new List<string>();
             var foundScripts = new HashSet<GBAVV_Script>();
@@ -76,7 +76,7 @@ namespace R1Engine
             return output;
         }
 
-        public List<string> TranslatedString(GBAVV_Map2D_AnimSet[] animSets, Dictionary<Pointer, int> locTable, List<string> list = null)
+        public List<string> TranslatedString(GBAVV_AnimSet[] animSets, Dictionary<Pointer, int> locTable, List<string> list = null)
         {
             var output = list ?? new List<string>();
 

@@ -14,7 +14,6 @@ namespace R1Engine
         public Pointer Pointer_10 { get; set; } // Only referenced from function at 08023d8c in Crash 2?
 
         // Serialized from pointers
-
         public GBAVV_Map2D_ObjGroups[] ObjGroups { get; set; }
         public GBAVV_Map2D_Object[] Objects { get; set; }
         public IEnumerable<GBAVV_Map2D_Object> GetObjects => ObjGroupsCount == 0 ? Objects : ObjGroups.SelectMany(x => x.Objects);

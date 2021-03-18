@@ -204,7 +204,7 @@ namespace R1Engine
             {
                 await LoadFilesAsync(context);
 
-                foreach ((GBAVV_Map2D_AnimSet a, string fileName) in LoadGFX(context))
+                foreach ((GBAVV_AnimSet a, string fileName) in LoadGFX(context))
                 {
                     // Enumerate every animation
                     for (int j = 0; j < a.AnimationsCount; j++)
@@ -524,7 +524,7 @@ namespace R1Engine
             });
         }
 
-        public IEnumerable<(GBAVV_Map2D_AnimSet, string)> LoadGFX(Context context)
+        public IEnumerable<(GBAVV_AnimSet, string)> LoadGFX(Context context)
         {
             // Get all file paths
             var paths = FilePaths;
@@ -535,10 +535,10 @@ namespace R1Engine
                 var s = context.Deserializer;
 
                 // Parse the animation set
-                yield return (DoAtBlock(context, gfxPath, () => s.SerializeObject<GBAVV_Map2D_AnimSet>(default, name: $"AnimSet_{Path.GetFileNameWithoutExtension(gfxPath)}")), gfxPath);
+                yield return (DoAtBlock(context, gfxPath, () => s.SerializeObject<GBAVV_AnimSet>(default, name: $"AnimSet_{Path.GetFileNameWithoutExtension(gfxPath)}")), gfxPath);
             }
         }
-        public Texture2D[] GetAnimFrames(GBAVV_Map2D_AnimSet animSet, int animIndex)
+        public Texture2D[] GetAnimFrames(GBAVV_AnimSet animSet, int animIndex)
         {
             // Get properties
             var anim = animSet.Animations[animIndex];
@@ -559,7 +559,7 @@ namespace R1Engine
             var width = maxX - minX;
             var height = maxY - minY;
 
-            var frameCache = new Dictionary<GBAVV_Map2D_AnimationFrame, Texture2D>();
+            var frameCache = new Dictionary<GBAVV_AnimationFrame, Texture2D>();
 
             for (int frameIndex = 0; frameIndex < frames.Length; frameIndex++)
             {
@@ -595,16 +595,16 @@ namespace R1Engine
 
             return output;
         }
-        public Unity_ObjectManager_GBAVV.AnimSet[][] LoadAnimSets(IEnumerable<(GBAVV_Map2D_AnimSet, string)> animSets)
+        public Unity_ObjectManager_GBAVV.AnimSet[][] LoadAnimSets(IEnumerable<(GBAVV_AnimSet, string)> animSets)
         {
-            Unity_ObjectManager_GBAVV.AnimSet.Animation convertAnim(GBAVV_Map2D_AnimSet animSet, GBAVV_Map2D_Animation anim, int i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
+            Unity_ObjectManager_GBAVV.AnimSet.Animation convertAnim(GBAVV_AnimSet animSet, GBAVV_Animation anim, int i) => new Unity_ObjectManager_GBAVV.AnimSet.Animation(
                 animFrameFunc: () => GetAnimFrames(animSet, i).Select(frame => frame.CreateSprite()).ToArray(),
                 crashAnim: anim,
                 xPos: animSet.GetMinX(i),
                 yPos: animSet.GetMinY(i)
             );
 
-            Unity_ObjectManager_GBAVV.AnimSet convertAnimSet((GBAVV_Map2D_AnimSet, string) animSet) => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Item1.Animations.Select((anim, i) => convertAnim(animSet.Item1, anim, i)).ToArray(), animSet.Item2);
+            Unity_ObjectManager_GBAVV.AnimSet convertAnimSet((GBAVV_AnimSet, string) animSet) => new Unity_ObjectManager_GBAVV.AnimSet(animSet.Item1.Animations.Select((anim, i) => convertAnim(animSet.Item1, anim, i)).ToArray(), animSet.Item2);
 
             return new Unity_ObjectManager_GBAVV.AnimSet[][]
             {
@@ -921,7 +921,12 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objManager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(LoadGFX(context)), null, GBAVV_MapInfo.GBAVV_MapType.Kart, nitroKart_ObjTypeData: exe.NitroKart_ObjTypeData, scripts: exe.Scripts, locPointerTable: loc.Item2);
+            var objManager = new Unity_ObjectManager_GBAVV(
+                context: context, 
+                animSets: LoadAnimSets(LoadGFX(context)), 
+                nitroKart_ObjTypeData: exe.NitroKart_ObjTypeData, 
+                scripts: exe.Scripts, 
+                locPointerTable: loc.Item2);
             objManager.LevelWidthNitroKartNGage = levelDimensions.y;
 
             var objGroups = new List<(GBAVV_NitroKart_Object[], string)>();

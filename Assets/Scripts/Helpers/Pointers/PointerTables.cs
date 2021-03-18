@@ -923,7 +923,7 @@ namespace R1Engine
 
                         [GBAVV_Pointer.Mode7_Crash1_PolarDeathPalette] = 0x0817a728,
 
-                        [GBAVV_Pointer.WorldMap_Crash1_LevelIcons] = 0x0816c5a0,
+                        [GBAVV_Pointer.Crash1_WorldMapLevelIcons] = 0x0816c5a0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash1GBAUS:
@@ -947,7 +947,7 @@ namespace R1Engine
 
                         [GBAVV_Pointer.Mode7_Crash1_PolarDeathPalette] = 0x08178878,
 
-                        [GBAVV_Pointer.WorldMap_Crash1_LevelIcons] = 0x0816c0e0,
+                        [GBAVV_Pointer.Crash1_WorldMapLevelIcons] = 0x0816c0e0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash1GBAJP:
@@ -971,7 +971,23 @@ namespace R1Engine
 
                         [GBAVV_Pointer.Mode7_Crash1_PolarDeathPalette] = 0x0817b1ec,
 
-                        [GBAVV_Pointer.WorldMap_Crash1_LevelIcons] = 0x0816e324,
+                        [GBAVV_Pointer.Crash1_WorldMapLevelIcons] = 0x0816e324,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                // Frogger
+
+                case GameModeSelection.FroggerAdvanceGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x087e884c,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x0833b904,
+                        [GBAVV_Pointer.Frogger_AdditionalLevels] = 0x0802f934,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.FroggerAdvanceGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>() {
+                        [GBAVV_Pointer.LevelInfo] = 0x087cef20,
+                        [GBAVV_Pointer.Map2D_Graphics] = 0x08338210,
+                        [GBAVV_Pointer.Frogger_AdditionalLevels] = 0x0802f60c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 // Crash 2
@@ -1029,7 +1045,7 @@ namespace R1Engine
                         [GBAVV_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087de7c8,
                         [GBAVV_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087f79e8,
 
-                        [GBAVV_Pointer.WorldMap_Crash2] = 0x081e3924,
+                        [GBAVV_Pointer.Crash2_WorldMap] = 0x081e3924,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAUS:
@@ -1085,7 +1101,7 @@ namespace R1Engine
                         [GBAVV_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087db040,
                         [GBAVV_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087f4918,
 
-                        [GBAVV_Pointer.WorldMap_Crash2] = 0x081dade4,
+                        [GBAVV_Pointer.Crash2_WorldMap] = 0x081dade4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Crash2GBAJP:
@@ -1141,25 +1157,25 @@ namespace R1Engine
                         [GBAVV_Pointer.Isometric_AdditionalAnim9_Palette] = 0x087ce8a0,
                         [GBAVV_Pointer.Isometric_AdditionalAnim10_Palette] = 0x087e7ac0,
 
-                        [GBAVV_Pointer.WorldMap_Crash2] = 0x081cd6bc,
+                        [GBAVV_Pointer.Crash2_WorldMap] = 0x081cd6bc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.CrashNitroKartEU:
                     return new Dictionary<GBAVV_Pointer, uint>()
                     {
-                        [GBAVV_Pointer.NitroKart_LevelMetaDatas] = 0x0807905c,
+                        [GBAVV_Pointer.NitroKart_HubWorldPortals] = 0x0807905c,
                         [GBAVV_Pointer.NitroKart_LevelInfos] = 0x0803642c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.CrashNitroKartUS:
                     return new Dictionary<GBAVV_Pointer, uint>() {
-                        [GBAVV_Pointer.NitroKart_LevelMetaDatas] = 0x08062300,
+                        [GBAVV_Pointer.NitroKart_HubWorldPortals] = 0x08062300,
                         [GBAVV_Pointer.NitroKart_LevelInfos] = 0x080340c4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.CrashNitroKartJP:
                     return new Dictionary<GBAVV_Pointer, uint>() {
-                        [GBAVV_Pointer.NitroKart_LevelMetaDatas] = 0x08065f44,
+                        [GBAVV_Pointer.NitroKart_HubWorldPortals] = 0x08065f44,
                         [GBAVV_Pointer.NitroKart_LevelInfos] = 0x08036e28,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 

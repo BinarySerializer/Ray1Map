@@ -18,11 +18,11 @@
 
         // Serialized from pointers
         public byte[] Mode7TileSet { get; set; }
-        public GBAVV_Map2D_TileSet BackgroundTileSet { get; set; }
+        public GBAVV_Map2D_TileSetBlock BackgroundTileSet { get; set; }
         public RGBA5551Color[] TilePalette { get; set; }
         public Pointer[] AdditionalTilePalettePointers { get; set; }
         public RGBA5551Color[][] AdditionalTilePalettes { get; set; }
-        public GBAVV_WorldMap_MapLayer Mode7MapLayer { get; set; }
+        public GBAVV_MapLayer Mode7MapLayer { get; set; }
         public GBAVV_NitroKart_BackgroundMapLayer[] BackgroundMapLayers { get; set; }
         public GBAVV_NitroKart_TileAnimations BackgroundTileAnimations { get; set; }
         public GBAVV_NitroKart_CollisionType[] Mode7TileSetCollision { get; set; }
@@ -46,7 +46,7 @@
             TrackData2Pointer = s.SerializePointer(TrackData2Pointer, name: nameof(TrackData2Pointer));
 
             Mode7TileSet = s.DoAt(Mode7TileSetPointer, () => s.SerializeArray<byte>(Mode7TileSet, Mode7TileSetLength * 0x40, name: nameof(Mode7TileSet)));
-            BackgroundTileSet = s.DoAt(BackgroundTileSetPointer, () => s.SerializeObject<GBAVV_Map2D_TileSet>(BackgroundTileSet, name: nameof(BackgroundTileSet)));
+            BackgroundTileSet = s.DoAt(BackgroundTileSetPointer, () => s.SerializeObject<GBAVV_Map2D_TileSetBlock>(BackgroundTileSet, name: nameof(BackgroundTileSet)));
 
             TilePalette = s.DoAt(TilePalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette, 256, name: nameof(TilePalette)));
             AdditionalTilePalettePointers = s.DoAt(AdditionalTilePalettesPointer, () => s.SerializePointerArray(AdditionalTilePalettePointers, AdditionalTilePalettesCount, name: nameof(AdditionalTilePalettePointers)));
@@ -57,7 +57,7 @@
             for (int i = 0; i < AdditionalTilePalettes.Length; i++)
                 AdditionalTilePalettes[i] = s.DoAt(AdditionalTilePalettePointers[i], () => s.SerializeObjectArray<RGBA5551Color>(AdditionalTilePalettes[i], 256, name: $"{nameof(AdditionalTilePalettes)}[{i}]"));
 
-            Mode7MapLayer = s.DoAt(Mode7MapLayerPointer, () => s.SerializeObject<GBAVV_WorldMap_MapLayer>(Mode7MapLayer, name: nameof(Mode7MapLayer)));
+            Mode7MapLayer = s.DoAt(Mode7MapLayerPointer, () => s.SerializeObject<GBAVV_MapLayer>(Mode7MapLayer, x => x.MapEncoding = GBAVV_TileMap.Encoding.Rows, name: nameof(Mode7MapLayer)));
 
             if (BackgroundMapLayers == null)
                 BackgroundMapLayers = new GBAVV_NitroKart_BackgroundMapLayer[BackgroundMapLayerPointers.Length];

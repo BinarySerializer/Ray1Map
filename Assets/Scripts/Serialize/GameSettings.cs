@@ -87,5 +87,6 @@ namespace R1Engine
         // Helpers
 
         public IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);
+        public T GetGameManagerOfType<T>() where T : IGameManager => (T)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);
     }
 }

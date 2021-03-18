@@ -10,14 +10,59 @@ namespace R1Engine
 {
     public abstract class GBAVV_Fusion_Manager : GBAVV_BaseManager
     {
-        public override UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        {
+            new GameInfo_World(0, Enumerable.Range(0, LevInfos.Length).ToArray()),
+        });
+
+        public override async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+
+                await UniTask.WaitForEndOfFrame();
+
+                await ExportAnimFramesAsync(rom.Map2D_Graphics, outputDir, saveAsGif, includePointerInNames);
+            }
+        }
+        public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) =>
+                {
+                    r.CurrentLevInfo = LevInfos[context.Settings.Level];
+                    r.SerializeFLC = true;
+                });
+
+                ExportCutscenesFromScripts(rom.GetAllScripts, outputDir);
+            }
+
+            Debug.Log($"Finished export");
+        }
+
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             //FindDataInROM(context.Deserializer, context.FilePointer(GetROMFilePath));
             //LogLevelInfos(FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]));
             //LogObjTypeInit(context.Deserializer);
             //LogObjTypeInit(context.Deserializer, new ObjTypeInitCreation[0]);
             //await LogInvalidObjTypesAsync(context.Settings);
-            return base.LoadAsync(context, loadTextures);
+
+            Controller.DetailedState = "Loading data";
+            await Controller.WaitIfNecessary();
+
+            var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+
+            return await LoadMap2DAsync(context, rom, rom.CurrentMap);
         }
 
         public void FindDataInROM(SerializerObject s, Pointer offset)
@@ -78,12 +123,12 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
 
-        public void LogLevelInfos(GBAVV_ROM rom)
+        public void LogLevelInfos(GBAVV_ROM_Fusion rom)
         {
             var str = new StringBuilder();
 
-            for (int i = 0; i < rom.LevelInfos.Length; i++)
-                str.AppendLine($"new LevInfo({i}, \"{rom.LevelInfos[i].Fusion_LevelName.Items[0].Text}\"),");
+            for (int i = 0; i < rom.Crash_LevelInfos.Length; i++)
+                str.AppendLine($"new LevInfo({i}, \"{rom.Crash_LevelInfos[i].LevelName.Items[0].Text}\"),");
 
             str.ToString().CopyToClipboard();
         }
@@ -91,7 +136,7 @@ namespace R1Engine
         public void LogObjTypeInit(SerializerObject s)
         {
             // Load the animations
-            var graphics = new GBAVV_Map2D_Graphics();
+            var graphics = new GBAVV_Graphics();
             graphics.Init(s.Context.FilePointer(GetROMFilePath));
             graphics.SerializeImpl(s);
             var animSets = graphics.AnimSets;
@@ -202,7 +247,7 @@ namespace R1Engine
             var str = new StringBuilder();
 
             // Load the animations
-            var graphics = new GBAVV_Map2D_Graphics();
+            var graphics = new GBAVV_Graphics();
             graphics.Init(s.Context.FilePointer(GetROMFilePath));
             graphics.SerializeImpl(s);
             var animSets = graphics.AnimSets;
@@ -230,8 +275,8 @@ namespace R1Engine
                 {
                     await LoadFilesAsync(context);
 
-                    var rom = FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
-                    var objects = rom.CurrentWorldMapData.ObjData?.GetObjects;
+                    var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+                    var objects = rom.CurrentMap.ObjData?.GetObjects;
 
                     if (objects == null)
                         continue;
@@ -264,6 +309,8 @@ namespace R1Engine
         public abstract int DialogScriptsCount { get; }
         public abstract byte[] HardCodedScripts { get; }
 
+        public abstract FusionLevInfo[] LevInfos { get; }
+
         private class ObjTypeInitCreation
         {
             public ObjTypeInitCreation(int objType, uint animPointer)
@@ -290,6 +337,30 @@ namespace R1Engine
             public int AnimIndex { get; }
             public string ScriptName { get; }
             public int? JPAnimIndex { get; }
+        }
+
+        public class FusionLevInfo
+        {
+            public FusionLevInfo(int levelIndex, string displayName, FusionType fusionType = FusionType.Normal)
+            {
+                LevelIndex = levelIndex;
+                DisplayName = displayName;
+                Fusion_Type = fusionType;
+            }
+
+            public int LevelIndex { get; }
+            public FusionType Fusion_Type { get; }
+            public string DisplayName { get; set; }
+
+            public enum FusionType
+            {
+                Normal,
+                LevTime,
+                LevInt,
+                LevIntInt,
+                IntLevel,
+                Unknown
+            }
         }
     }
 }
