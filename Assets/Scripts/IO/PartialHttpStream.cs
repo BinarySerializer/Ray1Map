@@ -380,7 +380,7 @@ namespace R1Engine {
 				}
 			} catch (UnityWebRequestException) {
 			} finally {
-				if (!www.isHttpError && !www.isNetworkError) {
+				if (www.result == UnityWebRequest.Result.Success) {
 					byte[] data = www.downloadHandler.data;
 					int nread = Math.Min(data.Length, count);
 					Array.Copy(data, 0, buffer, offset, nread);

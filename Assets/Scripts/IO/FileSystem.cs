@@ -92,7 +92,7 @@ namespace R1Engine {
 				await www.SendWebRequest();
 			} catch (UnityWebRequestException) {
 			} finally {
-				if (www.isNetworkError || www.isHttpError) {
+				if (www.result != UnityWebRequest.Result.Success) {
 					Debug.Log(www.error);
 					virtualFiles[path] = null;
 				} else {
@@ -114,7 +114,7 @@ namespace R1Engine {
 					}
 				} catch (UnityWebRequestException) {
 				} finally {
-					if (!www.isHttpError && !www.isNetworkError) {
+					if (www.result == UnityWebRequest.Result.Success) {
 						existingDirectories.Add(path, true);
 					} else {
 						existingDirectories.Add(path, false);
@@ -139,7 +139,7 @@ namespace R1Engine {
 				}
 			} catch (UnityWebRequestException) {
 			} finally {
-				if (!www.isHttpError && !www.isNetworkError) {
+				if (www.result == UnityWebRequest.Result.Success) {
 					long contentLength;
 					if (long.TryParse(www.GetResponseHeader("Content-Length"), out contentLength)) {
 						AddVirtualBigFile(path, contentLength, cacheLength);
