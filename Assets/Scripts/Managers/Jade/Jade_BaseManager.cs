@@ -123,9 +123,23 @@ namespace R1Engine {
 		}
 
 		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
+			List<BIG_BigFile> bfs = new List<BIG_BigFile>();
 			foreach (var bfPath in BFFiles) {
 				var bf = await LoadBF(context, bfPath);
+				bfs.Add(bf);
 			}
+			// Set up loader
+			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
+			context.StoreObject<LOA_Loader>("loader", loader);
+
+			AI_Instance Univers = null;
+			loader.RequestFile(bfs[0].UniversKey, (s,configureAction) => {
+				Univers = s.SerializeObject<AI_Instance>(Univers, onPreSerialize: u => configureAction(u), name: nameof(Univers));
+			}, (f) => {
+				Univers = (AI_Instance)f;
+			});
+
+			await loader.LoadLoop(context.Deserializer);
 			throw new NotImplementedException();
 		}
 

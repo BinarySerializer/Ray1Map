@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace R1Engine.Jade {
+﻿namespace R1Engine.Jade {
 	public class BIG_FatFile : R1Serializable {
 		public static uint HeaderLength => 0x18;
 		
@@ -45,11 +39,11 @@ namespace R1Engine.Jade {
 		public class FileReference : R1Serializable {
 			public static uint StructSize => 0x8;
 			public Pointer FileOffset { get; set; }
-			public uint Key { get; set; }
+			public Jade_Key Key { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				FileOffset = s.SerializePointer(FileOffset, name: nameof(FileOffset));
-				Key = s.Serialize<uint>(Key, name: nameof(Key));
+				Key = s.SerializeObject<Jade_Key>(Key, name: nameof(Key));
 			}
 		}
 		/// <summary>

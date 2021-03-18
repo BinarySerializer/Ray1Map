@@ -1,9 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace R1Engine.Jade {
 	public class BIG_BigFile : R1Serializable {
@@ -25,7 +21,7 @@ namespace R1Engine.Jade {
 		public int Int_1C { get; set; }
 		public uint FatFileMaxEntries { get; set; }
 		public uint FatFilesCount { get; set; }
-		public uint UInt_28 { get; set; }
+		public Jade_Key UniversKey { get; set; } // First file it loads
 
 		public Pointer FatFilesOffset { get; set; }
 		public BIG_FatFile[] FatFiles { get; set; }
@@ -42,8 +38,8 @@ namespace R1Engine.Jade {
 				Int_1C = s.Serialize<int>(Int_1C, name: nameof(Int_1C));
 				FatFileMaxEntries = s.Serialize<uint>(FatFileMaxEntries, name: nameof(FatFileMaxEntries));
 				FatFilesCount = s.Serialize<uint>(FatFilesCount, name: nameof(FatFilesCount));
-				UInt_28 = s.Serialize<uint>(UInt_28, name: nameof(UInt_28));
 			});
+			UniversKey = s.SerializeObject<Jade_Key>(UniversKey, name: nameof(UniversKey));
 			FatFilesOffset = s.CurrentPointer;
 		}
 

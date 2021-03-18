@@ -40,11 +40,14 @@ SpriteAtlas:
       allowAlphaSplitting: 0
       enableRotation: 0
       enableTightPacking: 0
+    secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: d5efc838a195a4f4ca87a9169cf23ae5, type: 3}
     totalSpriteSurfaceArea: 4653056
     bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 0a15f93180684ec4fa594ced6a03a161, type: 3}
@@ -190,5 +193,6 @@ SpriteAtlas:
   - EnemyDirection_UpRight
   - EnemyDirection_Left
   - Rotate_Clockwise45
+  m_RenderDataMap: {}
   m_Tag: Tiles HD
   m_IsVariant: 0

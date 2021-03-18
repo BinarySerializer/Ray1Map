@@ -40,11 +40,14 @@ SpriteAtlas:
       allowAlphaSplitting: 0
       enableRotation: 0
       enableTightPacking: 0
+    secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 4f67897a7c1144b4c96580960f903fad, type: 3}
     totalSpriteSurfaceArea: 18176
     bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 28f9cd8388bfaf8448ea729408899799, type: 3}
@@ -190,5 +193,6 @@ SpriteAtlas:
   - Solid
   - Water_NoSplash
   - Slippery
+  m_RenderDataMap: {}
   m_Tag: Tiles SD
   m_IsVariant: 0
