@@ -70,7 +70,14 @@ namespace R1Engine {
 									await bf.SerializeAt(s, curPtr, (fileSize) => {
 										fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
 									});
-									curSize = fileBytes.Length + 4;
+									if (fileBytes.Length == 0) {
+										s.DoAt(curPtr, () => {
+											fileBytes = s.SerializeArray<byte>(fileBytes, nextOffset - curOffset, name: "FileBytes");
+										});
+										curSize = fileBytes.Length;
+									} else {
+										curSize = fileBytes.Length + 4;
+									}
 									string fileName = $"hidden_file_{curPtr.StringFileOffset}.dat";
 									Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
 								}
