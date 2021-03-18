@@ -28,5 +28,6 @@ namespace R1Engine
 
             return await LoadMap2DAsync(context, rom, rom.CurrentMapInfo, rom.GetTheme);
         }
+        public override bool HasAssignedObjTypeGraphics => false;
     }
 }

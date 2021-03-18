@@ -356,7 +356,15 @@ public class WebCommunicator : MonoBehaviour {
                     {
                         webObj.GBAVV_AnimSetIndex = crashObj.AnimSetIndex;
                         if (includeLists)
-                            webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => crashObj.ObjManager.MultipleAnimSetArrays ? $"{graphicsIndex}-{animSet.GetDisplayName(animSetIndex)}" : $"{animSet.GetDisplayName(animSetIndex)}")).ToArray();
+                            webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) =>
+                            {
+                                if (crashObj.ObjManager.HasDummyAnimSet)
+                                    animSetIndex--;
+
+								return crashObj.ObjManager.MultipleAnimSetArrays
+                                        ? $"{graphicsIndex}-{animSet.GetDisplayName(animSetIndex)}"
+                                        : $"{animSet.GetDisplayName(animSetIndex)}";
+                            })).ToArray();
                     }
 
                     if (includeLists)

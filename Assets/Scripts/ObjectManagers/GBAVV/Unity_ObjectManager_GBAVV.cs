@@ -9,8 +9,16 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBAVV : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData = null, GBAVV_Generic_MapInfo.GBAVV_MapType? mapType = null, GBAVV_Script[] scripts = null, GBAVV_Graphics[] graphics = null, GBAVV_DialogScript[] dialogScripts = null, GBAVV_NitroKart_ObjTypeData[] nitroKart_ObjTypeData = null, Dictionary<Pointer, int> locPointerTable = null) : base(context)
+        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData = null, GBAVV_Generic_MapInfo.GBAVV_MapType? mapType = null, GBAVV_Script[] scripts = null, GBAVV_Graphics[] graphics = null, GBAVV_DialogScript[] dialogScripts = null, GBAVV_NitroKart_ObjTypeData[] nitroKart_ObjTypeData = null, Dictionary<Pointer, int> locPointerTable = null, bool addDummyAnimSet = false) : base(context)
         {
+            if (addDummyAnimSet)
+            {
+                animSets[0] = new AnimSet[]
+                {
+                    new AnimSet(new AnimSet.Animation[0])
+                }.Concat(animSets[0]).ToArray();
+            }
+
             AnimSets = animSets;
             ObjData = objData;
             MapType = mapType;
@@ -19,6 +27,7 @@ namespace R1Engine
             DialogScripts = dialogScripts?.ToDictionary(x => x.ID, x => x.Script);
             NitroKart_ObjTypeData = nitroKart_ObjTypeData;
             LocPointerTable = locPointerTable;
+            HasDummyAnimSet = addDummyAnimSet;
 
             // Set indices if there are multiple array
             var index = 0;
@@ -52,8 +61,17 @@ namespace R1Engine
         public Dictionary<Pointer, int> LocPointerTable { get; }
         public float? LevelWidthNitroKartNGage { get; set; }
         public bool Crash2_IsWorldMap { get; }
+        public bool HasDummyAnimSet { get; }
 
-        public override string[] LegacyDESNames => AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => MultipleAnimSetArrays ? $"{graphicsIndex}-{animSet.GetDisplayName(animSetIndex)}" : $"{animSet.GetDisplayName(animSetIndex)}")).ToArray();
+        public override string[] LegacyDESNames => AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) =>
+        {
+            if (HasDummyAnimSet)
+                animSetIndex--;
+
+            return MultipleAnimSetArrays
+                    ? $"{graphicsIndex}-{animSet.GetDisplayName(animSetIndex)}"
+                    : $"{animSet.GetDisplayName(animSetIndex)}";
+        })).ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
 
         public class AnimSet

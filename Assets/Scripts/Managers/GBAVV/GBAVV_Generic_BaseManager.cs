@@ -101,6 +101,7 @@ namespace R1Engine
         public abstract GBAVV_ROM_Generic LoadGenericROM_Mode7(Context context, int level);
 
         // Map2D
+        public virtual bool HasAssignedObjTypeGraphics => true;
         public async UniTask<Unity_Level> LoadMap2DAsync(Context context, GBAVV_BaseROM rom, GBAVV_Generic_MapInfo map, int theme = -1)
         {
             Controller.DetailedState = "Loading tilesets";
@@ -183,7 +184,13 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load objects
-            var objmanager = new Unity_ObjectManager_GBAVV(context, LoadAnimSets(rom), map.MapData2D.ObjData, map.MapType, locPointerTable: loc.Item2);
+            var objmanager = new Unity_ObjectManager_GBAVV(
+                context: context, 
+                animSets: LoadAnimSets(rom), 
+                objData: map.MapData2D.ObjData, 
+                mapType: map.MapType, 
+                locPointerTable: loc.Item2,
+                addDummyAnimSet: !HasAssignedObjTypeGraphics);
             var objects = map.MapData2D.ObjData.ObjGroups.SelectMany((x, groupIndex) => x.Objects.Reverse().Select((obj, i) => new Unity_Object_GBAVV(objmanager, obj, groupIndex, i)));
 
             return new Unity_Level(

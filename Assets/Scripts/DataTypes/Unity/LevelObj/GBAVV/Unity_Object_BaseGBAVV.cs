@@ -41,6 +41,7 @@ namespace R1Engine
         public override ILegacyEditorWrapper LegacyWrapper => new DummyLegacyEditorWrapper(this);
 
         public override ObjectType Type => AnimSetIndex == -1 ? ObjectType.Trigger : ObjectType.Object;
+        public override bool IsEditor => AnimSetIndex == -1;
 
         public int ScriptIndex { get; set; } = -1;
         public GBAVV_Script Script => ObjManager.Scripts?.ElementAtOrDefault(ScriptIndex);
