@@ -20,76 +20,78 @@ namespace R1Engine {
             using (var context = new Context(settings)) {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
-				var bf = await LoadBF(context);
-				List<KeyValuePair<long, long>> fileSizes = new List<KeyValuePair<long, long>>();
-				try {
-					for (int fatIndex = 0; fatIndex < bf.FatFiles.Length; fatIndex++) {
-						var fat = bf.FatFiles[fatIndex];
-						string[] directories = new string[fat.DirectoryInfos.Length];
-						for (int i = 0; i < directories.Length; i++) {
-							var dir = fat.DirectoryInfos[i];
-							var dirName = dir.Name;
-							var curDir = dir;
-							while (curDir.ParentDirectory != -1) {
-								curDir = fat.DirectoryInfos[curDir.ParentDirectory];
-								dirName = Path.Combine(curDir.Name, dirName);
+				foreach (var bfPath in BFFiles) {
+					var bf = await LoadBF(context, bfPath);
+					List<KeyValuePair<long, long>> fileSizes = new List<KeyValuePair<long, long>>();
+					try {
+						for (int fatIndex = 0; fatIndex < bf.FatFiles.Length; fatIndex++) {
+							var fat = bf.FatFiles[fatIndex];
+							string[] directories = new string[fat.DirectoryInfos.Length];
+							for (int i = 0; i < directories.Length; i++) {
+								var dir = fat.DirectoryInfos[i];
+								var dirName = dir.Name;
+								var curDir = dir;
+								while (curDir.ParentDirectory != -1) {
+									curDir = fat.DirectoryInfos[curDir.ParentDirectory];
+									dirName = Path.Combine(curDir.Name, dirName);
+								}
+								directories[i] = Path.Combine(outputDir, dirName);
+								Directory.CreateDirectory(directories[i]);
 							}
-							directories[i] = Path.Combine(outputDir, dirName);
-							Directory.CreateDirectory(directories[i]);
-						}
-						for (int i = 0; i < fat.Files.Length; i++) {
-							var f = fat.Files[i];
-							byte[] fileBytes = null;
-							await bf.SerializeFile(s, fatIndex, i, (fileSize) => {
-								fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
-							});
-							fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileBytes.Length+4));
-							var fi = fat.FileInfos[i];
-							string fileName = null;
-							if (fi.Name != null) {
-								fileName = fi.Name;
-								Util.ByteArrayToFile(Path.Combine(directories[fi.ParentDirectory], fileName), fileBytes);
-							} else {
-								fileName = $"no_name_{fat.Files[i].Key:X8}.dat";
-								Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
-							}
-						}
-					}
-					{
-						s.Goto(bf.Offset);
-						var sortedFileSizes = fileSizes.OrderBy(f => f.Key).ToArray();
-						for (int i = 0; i < sortedFileSizes.Length; i++) {
-							var nextOffset = i == sortedFileSizes.Length-1 ? s.CurrentLength : sortedFileSizes[i+1].Key;
-							var curOffset = sortedFileSizes[i].Key;
-							var curSize = sortedFileSizes[i].Value;
-							while (curOffset + curSize < nextOffset) {
-								curOffset = curOffset + curSize;
-								Pointer curPtr = bf.Offset + curOffset;
+							for (int i = 0; i < fat.Files.Length; i++) {
+								var f = fat.Files[i];
 								byte[] fileBytes = null;
-								await bf.SerializeAt(s, curPtr, (fileSize) => {
+								await bf.SerializeFile(s, fatIndex, i, (fileSize) => {
 									fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
 								});
-								curSize = fileBytes.Length + 4;
-								string fileName = $"hidden_file_{curPtr.StringFileOffset}.dat";
-								Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
-							}
-							if (curOffset + curSize > nextOffset) {
-								UnityEngine.Debug.Log("error @ " + curOffset);
-							}
-						}
-						/*{
-							s.Goto(bf.Offset);
-							byte[] fileBytes = File.ReadAllBytes(Path.Combine(context.BasePath, BFFile));
-							foreach (var c in fileSizes) {
-								for (int i = 0; i < c.Value; i++) {
-									fileBytes[c.Key + i] = 0;
+								fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileBytes.Length + 4));
+								var fi = fat.FileInfos[i];
+								string fileName = null;
+								if (fi.Name != null) {
+									fileName = fi.Name;
+									Util.ByteArrayToFile(Path.Combine(directories[fi.ParentDirectory], fileName), fileBytes);
+								} else {
+									fileName = $"no_name_{fat.Files[i].Key:X8}.dat";
+									Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
 								}
 							}
-							Util.ByteArrayToFile(Path.Combine(outputDir, "unread.bf"), fileBytes);
-						}*/
+						}
+						{
+							s.Goto(bf.Offset);
+							var sortedFileSizes = fileSizes.OrderBy(f => f.Key).ToArray();
+							for (int i = 0; i < sortedFileSizes.Length; i++) {
+								var nextOffset = i == sortedFileSizes.Length - 1 ? s.CurrentLength : sortedFileSizes[i + 1].Key;
+								var curOffset = sortedFileSizes[i].Key;
+								var curSize = sortedFileSizes[i].Value;
+								while (curOffset + curSize < nextOffset) {
+									curOffset = curOffset + curSize;
+									Pointer curPtr = bf.Offset + curOffset;
+									byte[] fileBytes = null;
+									await bf.SerializeAt(s, curPtr, (fileSize) => {
+										fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
+									});
+									curSize = fileBytes.Length + 4;
+									string fileName = $"hidden_file_{curPtr.StringFileOffset}.dat";
+									Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
+								}
+								if (curOffset + curSize > nextOffset) {
+									UnityEngine.Debug.Log("error @ " + curOffset);
+								}
+							}
+							/*{
+								s.Goto(bf.Offset);
+								byte[] fileBytes = File.ReadAllBytes(Path.Combine(context.BasePath, BFFile));
+								foreach (var c in fileSizes) {
+									for (int i = 0; i < c.Value; i++) {
+										fileBytes[c.Key + i] = 0;
+									}
+								}
+								Util.ByteArrayToFile(Path.Combine(outputDir, "unread.bf"), fileBytes);
+							}*/
+						}
+					} catch (Exception ex) {
+						UnityEngine.Debug.LogError(ex);
 					}
-				} catch (Exception ex) {
-					UnityEngine.Debug.LogError(ex);
 				}
             }
         }
@@ -99,25 +101,31 @@ namespace R1Engine {
 			new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
 		});
 
-		public virtual string BFFile => "Rayman4.bf";
+		public virtual string[] BFFiles => new string[] {
+			"Rayman4.bf"
+		};
 
-		public async UniTask<BIG_BigFile> LoadBF(Context context) {
+		public async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) {
 			var s = context.Deserializer;
-			s.Goto(context.GetFile(BFFile).StartPointer);
+			s.Goto(context.GetFile(bfPath).StartPointer);
 			await s.FillCacheForRead((int)BIG_BigFile.HeaderLength);
-			var bfFile = FileFactory.Read<BIG_BigFile>(BFFile, context);
+			var bfFile = FileFactory.Read<BIG_BigFile>(bfPath, context);
 			await s.FillCacheForRead((int)bfFile.TotalFatFilesLength);
 			bfFile.SerializeFatFiles(s);
 			return bfFile;
 		}
 
 		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
-			var bf = await LoadBF(context);
+			foreach (var bfPath in BFFiles) {
+				var bf = await LoadBF(context, bfPath);
+			}
 			throw new NotImplementedException();
 		}
 
 		public async UniTask LoadFilesAsync(Context context) {
-			await context.AddLinearSerializedFileAsync(BFFile, bigFileCacheLength: 8);
+			foreach (var bfPath in BFFiles) {
+				await context.AddLinearSerializedFileAsync(bfPath, bigFileCacheLength: 8);
+			}
 		}
 
 		public async UniTask SaveLevelAsync(Context context, Unity_Level level) {

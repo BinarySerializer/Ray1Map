@@ -545,5 +545,8 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_PC, Game.Jade_RRR, "Rayman Raving Rabbids (PC)", typeof(Jade_BaseManager))]
         RaymanRavingRabbidsPC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_Xbox360, Game.Jade_RRR, "Rayman Raving Rabbids (Xbox 360)", typeof(Jade_RRR_Xbox360_Manager))]
+        RaymanRavingRabbidsXbox360,
     }
 }
