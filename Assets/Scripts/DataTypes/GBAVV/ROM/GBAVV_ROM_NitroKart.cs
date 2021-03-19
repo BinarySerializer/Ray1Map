@@ -18,15 +18,8 @@
             // Get the pointer table
             var pointerTable = PointerTables.GBAVV_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
-            // Get the graphics pointers
-            var graphicsDataPointers = s.GameSettings.GetGameManagerOfType<GBAVV_NitroKart_Manager>().GraphicsDataPointers;
-
             // Serialize graphics
-            if (Map2D_Graphics == null)
-                Map2D_Graphics = new GBAVV_Graphics[graphicsDataPointers.Length];
-
-            for (int i = 0; i < graphicsDataPointers.Length; i++)
-                Map2D_Graphics[i] = s.DoAt(new Pointer(graphicsDataPointers[i], Offset.file), () => s.SerializeObject<GBAVV_Graphics>(Map2D_Graphics[i], name: $"{nameof(Map2D_Graphics)}[{i}]"));
+            SerializeGraphics(s);
 
             // Serialize scripts
             SerializeScripts(s);

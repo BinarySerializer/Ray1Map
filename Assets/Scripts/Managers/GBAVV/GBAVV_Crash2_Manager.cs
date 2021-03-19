@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_Crash2_Manager : GBAVV_Crash_BaseManager
+    public abstract class GBAVV_Crash2_Manager : GBAVV_Crash_BaseManager
     {
         // Metadata
         public override GameAction[] GetGameActions(GameSettings settings)
@@ -20,11 +20,14 @@ namespace R1Engine
         }
 
         // Exports
-        public override GBAVV_ROM_Generic LoadGenericROM(Context context) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
-        public override GBAVV_ROM_Generic LoadGenericROM_Mode7(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7, (short)level, null));
-        public override async UniTask ExportAdditionalAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif,
-            bool includePointerInNames = true)
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7, (short)level, null));
+
+        public override async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
+            // Export 2D and Mode7 animations
+            await base.ExportAnimFramesAsync(settings, outputDir, saveAsGif, includePointerInNames);
+
             // Export isometric animations
             using (var context = new Context(settings))
             {
@@ -55,6 +58,8 @@ namespace R1Engine
                         secondaryName: $"0");
                 }
             }
+
+            Debug.Log($"Finished exporting isometric animations");
         }
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
@@ -557,8 +562,26 @@ namespace R1Engine
         };
     }
 
+    public class GBAVV_Crash2EU_Manager : GBAVV_Crash2_Manager
+    {
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x084768b4
+        };
+    }
+    public class GBAVV_Crash2US_Manager : GBAVV_Crash2_Manager
+    {
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x0846dd74
+        };
+    }
     public class GBAVV_Crash2JP_Manager : GBAVV_Crash2_Manager
     {
         public override int LocTableCount => 202;
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x08460b70
+        };
     }
 }

@@ -65,14 +65,9 @@ namespace R1Engine
             // Serialize level info
             SerializeLevelInfo(s, pointerTable);
 
-            // Serialize 2D graphics if 2D map
+            // Serialize graphics if 2D map
             if (GetGenericLevelType == GenericLevelType.Map2D)
-            {
-                if (Map2D_Graphics == null)
-                    Map2D_Graphics = new GBAVV_Graphics[1];
-
-                Map2D_Graphics[0] = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Graphics>(Map2D_Graphics[0], name: nameof(Map2D_Graphics)));
-            }
+                SerializeGraphics(s);
 
             // Serialize scripts
             SerializeScripts(s);

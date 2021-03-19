@@ -68,6 +68,8 @@
 
         GBAVV_Crash1,
         GBAVV_FroggerAdvance,
+        GBAVV_ThePowerpuffGirls,
+        GBAVV_TheMuppets,
         GBAVV_Crash2,
         GBAVV_CrashNitroKart,
         GBAVV_CrashFusion,

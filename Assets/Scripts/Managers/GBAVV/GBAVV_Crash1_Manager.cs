@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_Crash1_Manager : GBAVV_Crash_BaseManager
+    public abstract class GBAVV_Crash1_Manager : GBAVV_Crash_BaseManager
     {
         public override int LocTableCount => 70;
 
@@ -19,8 +19,8 @@ namespace R1Engine
             }).ToArray();
         }
 
-        public override GBAVV_ROM_Generic LoadGenericROM(Context context) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
-        public override GBAVV_ROM_Generic LoadGenericROM_Mode7(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7, (short)level, null));
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7, (short)level, null));
 
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
@@ -152,8 +152,26 @@ namespace R1Engine
         };
     }
 
+    public class GBAVV_Crash1EU_Manager : GBAVV_Crash1_Manager
+    {
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x084a5600
+        };
+    }
+    public class GBAVV_Crash1US_Manager : GBAVV_Crash1_Manager
+    {
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x084a3624
+        };
+    }
     public class GBAVV_Crash1JP_Manager : GBAVV_Crash1_Manager
     {
         public override int LocTableCount => 73;
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x084a63f8
+        };
     }
 }

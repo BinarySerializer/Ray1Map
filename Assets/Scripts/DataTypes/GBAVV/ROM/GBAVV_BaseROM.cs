@@ -43,5 +43,18 @@ namespace R1Engine
                 DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Fusion_DialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
             }
         }
+
+        protected void SerializeGraphics(SerializerObject s)
+        {
+            // Get the graphics pointers
+            var graphicsDataPointers = s.GameSettings.GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;
+
+            // Serialize graphics
+            if (Map2D_Graphics == null)
+                Map2D_Graphics = new GBAVV_Graphics[graphicsDataPointers.Length];
+
+            for (int i = 0; i < graphicsDataPointers.Length; i++)
+                Map2D_Graphics[i] = s.DoAt(new Pointer(graphicsDataPointers[i], Offset.file), () => s.SerializeObject<GBAVV_Graphics>(Map2D_Graphics[i], name: $"{nameof(Map2D_Graphics)}[{i}]"));
+        }
     }
 }
