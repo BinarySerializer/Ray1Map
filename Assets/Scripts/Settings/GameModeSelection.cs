@@ -379,10 +379,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot Advance (GBA - JP)", typeof(GBAVV_Crash1JP_Manager))]
         Crash1GBAJP,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek, Game.GBAVV_FroggerAdvance, "The Powerpuff Girls Him and Seek (GBA - EU)", typeof(GBAVV_PowerpuffGirlsEU_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek, Game.GBAVV_ThePowerpuffGirls, "The Powerpuff Girls Him and Seek (GBA - EU)", typeof(GBAVV_PowerpuffGirlsEU_Manager))]
         ThePowerpuffGirlsHimAndSeekGBAEU,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek, Game.GBAVV_FroggerAdvance, "The Powerpuff Girls Him and Seek (GBA - US)", typeof(GBAVV_PowerpuffGirlsUS_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek, Game.GBAVV_ThePowerpuffGirls, "The Powerpuff Girls Him and Seek (GBA - US)", typeof(GBAVV_PowerpuffGirlsUS_Manager))]
         ThePowerpuffGirlsHimAndSeekGBAUS,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance The Great Quest (GBA - EU)", typeof(GBAVV_FroggerEU_Manager))]
@@ -390,6 +390,9 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance The Great Quest (GBA - US)", typeof(GBAVV_FroggerUS_Manager))]
         FroggerAdvanceGBAUS,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_TheMuppetsOnWithTheShow, Game.GBAVV_TheMuppets, "The Muppets On with the Show! (GBA - EU/US)", typeof(GBAVV_TheMuppets_Manager))]
+        MuppetsOnWithTheShowGBA,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBAVV_Crash2EU_Manager))]
         Crash2GBAEU,
