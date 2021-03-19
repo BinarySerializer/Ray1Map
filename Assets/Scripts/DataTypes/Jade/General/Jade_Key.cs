@@ -3,6 +3,7 @@
 namespace R1Engine.Jade {
 	public class Jade_Key : R1Serializable, IEquatable<Jade_Key> {
 		public uint Key { get; set; }
+		public bool IsNull => Key == 0 || Key == 0xFFFFFFFF;
 
 		public override void SerializeImpl(SerializerObject s) {
 			Key = s.Serialize<uint>(Key, name: nameof(Key));

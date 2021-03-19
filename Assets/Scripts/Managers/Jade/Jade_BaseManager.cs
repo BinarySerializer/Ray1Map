@@ -132,12 +132,8 @@ namespace R1Engine {
 			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
 			context.StoreObject<LOA_Loader>("loader", loader);
 
-			AI_Instance Univers = null;
-			loader.RequestFile(bfs[0].UniversKey, (s,configureAction) => {
-				Univers = s.SerializeObject<AI_Instance>(Univers, onPreSerialize: u => configureAction(u), name: nameof(Univers));
-			}, (f) => {
-				Univers = (AI_Instance)f;
-			});
+			Jade_Reference<AI_Instance> Univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
+			Univers.Resolve();
 
 			await loader.LoadLoop(context.Deserializer);
 			throw new NotImplementedException();
