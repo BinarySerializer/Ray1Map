@@ -72,6 +72,7 @@
         GBAVV_TheMuppetsOnWithTheShow,
         GBAVV_SpyMuppetsLicenseToCroak,
         GBAVV_Crash2,
+        GBAVV_BruceLeeReturnOfTheLegend,
         GBAVV_CrashNitroKart,
         GBAVV_CrashFusion,
         GBAVV_SpyroFusion,

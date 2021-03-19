@@ -1158,6 +1158,22 @@ namespace R1Engine
                         [GBAVV_Pointer.Crash2_WorldMap] = 0x081cd6bc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Bruce Lee
+
+                case GameModeSelection.BruceLeeReturnOfTheLegendGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        //[GBAVV_Pointer.LevelInfo] = ,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.BruceLeeReturnOfTheLegendGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        //[GBAVV_Pointer.LevelInfo] = 0x08028e68,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                // Nitro Kart
+
                 case GameModeSelection.CrashNitroKartEU:
                     return new Dictionary<GBAVV_Pointer, uint>()
                     {
@@ -1177,6 +1193,8 @@ namespace R1Engine
                         [GBAVV_Pointer.NitroKart_LevelInfos] = 0x08036e28,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Crash Fusion
+
                 case GameModeSelection.CrashFusionGBAEU:
                     return new Dictionary<GBAVV_Pointer, uint>() {
                         [GBAVV_Pointer.LevelInfo] = 0x080a126c,
@@ -1195,6 +1213,8 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x0808a6e0,
                         [GBAVV_Pointer.Fusion_DialogScripts] = 0x080704e0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                // Spyro Fusion
 
                 case GameModeSelection.SpyroFusionGBAEU:
                     return new Dictionary<GBAVV_Pointer, uint>() {

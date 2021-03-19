@@ -406,6 +406,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBAVV_Crash2JP_Manager))]
         Crash2GBAJP,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_BruceLeeReturnOfTheLegend, Game.GBAVV_BruceLeeReturnOfTheLegend, "Bruce Lee Return of the Legend (GBA - EU)", typeof(GBAVV_BruceLeeReturnOfTheLegendEU_Manager))]
+        BruceLeeReturnOfTheLegendGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_BruceLeeReturnOfTheLegend, Game.GBAVV_BruceLeeReturnOfTheLegend, "Bruce Lee Return of the Legend (GBA - US)", typeof(GBAVV_BruceLeeReturnOfTheLegendUS_Manager))]
+        BruceLeeReturnOfTheLegendGBAUS,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (GBA - EU)", typeof(GBAVV_NitroKartEU_Manager))]
         CrashNitroKartEU,
 
