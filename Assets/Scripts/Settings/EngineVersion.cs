@@ -90,8 +90,8 @@ namespace R1Engine
         //GBAVV_TonyHawksProSkater4,         // 2002
         GBAVV_ThePowerpuffGirlsHimAndSeek,   // 2002
         GBAVV_FroggerAdvance,                // 2002
-        GBAVV_TheMuppetsOnWithTheShow,       // 2003 (has PC version)
-        GBAVV_SpyMuppetsLicenseToCroak,      // 2003 (has PC version)
+        GBAVV_TheMuppetsOnWithTheShow,       // 2003 (has PC version) (maps are hard-coded)
+        GBAVV_SpyMuppetsLicenseToCroak,      // 2003 (has PC version) (maps are hard-coded)
         GBAVV_Crash2,                        // 2003
         GBAVV_BruceLeeReturnOfTheLegend,     // 2003
         GBAVV_CrashNitroKart,                // 2003

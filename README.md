@@ -646,7 +646,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
   <tr>
     <td class="tg-yw4l">Bruce Lee: Return of the Legend (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>

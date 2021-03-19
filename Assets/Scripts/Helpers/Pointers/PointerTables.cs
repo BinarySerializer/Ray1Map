@@ -1163,13 +1163,13 @@ namespace R1Engine
                 case GameModeSelection.BruceLeeReturnOfTheLegendGBAEU:
                     return new Dictionary<GBAVV_Pointer, uint>()
                     {
-                        //[GBAVV_Pointer.LevelInfo] = ,
+                        [GBAVV_Pointer.LevelInfo] = 0x08029080,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.BruceLeeReturnOfTheLegendGBAUS:
                     return new Dictionary<GBAVV_Pointer, uint>()
                     {
-                        //[GBAVV_Pointer.LevelInfo] = 0x08028e68,
+                        [GBAVV_Pointer.LevelInfo] = 0x08028e68,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 // Nitro Kart
