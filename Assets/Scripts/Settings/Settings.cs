@@ -94,7 +94,7 @@ namespace R1Engine {
 
         public static string Tool_mkpsxiso_filePath { get; set; }
 
-        public static bool HideDirSettings { get; set; }
+        public static Dictionary<MajorEngineVersion, bool> HideDirectories { get; set; } = new Dictionary<MajorEngineVersion, bool>();
 
         /// <summary>
         /// Indicates if .BAK backup files should be created before writing
@@ -250,7 +250,13 @@ namespace R1Engine {
             ShowRayman = s.SerializeBool("ShowRayman", ShowRayman);
             FollowRaymanInMemoryMode = s.SerializeBool("FollowRaymanInMemoryMode", FollowRaymanInMemoryMode);
             Tool_mkpsxiso_filePath = s.SerializeString("Tool_mkpsxiso_filePath", Tool_mkpsxiso_filePath, "mkpsxiso");
-            HideDirSettings = s.SerializeBool("HideDirSettings", HideDirSettings);
+
+            MajorEngineVersion[] engines = EnumHelpers.GetValues<MajorEngineVersion>();
+            foreach (MajorEngineVersion engine in engines)
+            {
+                bool v = HideDirectories.ContainsKey(engine) && HideDirectories[engine];
+                HideDirectories[engine] = s.SerializeBool("HideDirectory" + engine.ToString(), v);
+            }
 
             Log = s.SerializeBool("Log", Log);
             LogFile = s.SerializeString("LogFile", LogFile);

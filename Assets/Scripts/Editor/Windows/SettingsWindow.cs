@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using R1Engine;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -46,6 +47,12 @@ public class SettingsWindow : UnityWindow
         if (fileMode == FileSystem.Mode.Web) {
             EditorGUI.HelpBox(GetNextRect(ref YPos, height: 40f), "Your build target is configured as WebGL. Ray1Map will attempt to load from the server.", MessageType.Warning);
         }
+
+        if (CategorizedGameModes == null)
+            CategorizedGameModes = EnumHelpers.GetValues<GameModeSelection>().
+                GroupBy(x => x.GetAttribute<GameModeAttribute>().MajorEngineVersion).
+                ToDictionary(x => x.Key, x => 
+                    x.GroupBy(y => y.GetAttribute<GameModeAttribute>().EngineVersion).ToDictionary(y => y.Key, y => y.ToArray()));
 
         // Mode
 
@@ -153,18 +160,34 @@ public class SettingsWindow : UnityWindow
         // Directories
         DrawHeader("Directories" + (fileMode == FileSystem.Mode.Web ? " (Web)" : ""));
 
-        Settings.HideDirSettings = !EditorGUI.Foldout(GetNextRect(ref YPos), !Settings.HideDirSettings, "Directories", true);
+        foreach (var modeCategory in CategorizedGameModes)
+        {
+            Settings.HideDirectories[modeCategory.Key] = !EditorGUI.Foldout(GetNextRect(ref YPos), !Settings.HideDirectories.TryGetItem(modeCategory.Key, true), $"Directories ({modeCategory.Key})", true);
 
-        if (!Settings.HideDirSettings) {
-            var modes = EnumHelpers.GetValues<GameModeSelection>();
-            if (fileMode == FileSystem.Mode.Web) {
-                foreach (var mode in modes) {
-                    Settings.GameDirectoriesWeb[mode] = EditorField(mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetItem(mode, String.Empty));
+            if (!Settings.HideDirectories[modeCategory.Key])
+            {
+                foreach (var engine in modeCategory.Value)
+                {
+                    YPos += 8;
+
+                    var modes = engine.Value;
+                    if (fileMode == FileSystem.Mode.Web)
+                    {
+                        foreach (var mode in modes)
+                        {
+                            Settings.GameDirectoriesWeb[mode] = EditorField(mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetItem(mode, String.Empty));
+                        }
+                    }
+                    else
+                    {
+                        foreach (var mode in modes)
+                        {
+                            Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref YPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetItem(mode, String.Empty));
+                        }
+                    }
                 }
-            } else {
-                foreach (var mode in modes) {
-                    Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref YPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetItem(mode, String.Empty));
-                }
+
+                YPos += 8;
             }
         }
 
@@ -631,6 +654,9 @@ public class SettingsWindow : UnityWindow
     // Available options
     private GameAction[] CurrentGameActions { get; set; }
     private string[] PalOptions { get; set; }
+
+    // Categorized game modes
+    public Dictionary<MajorEngineVersion, Dictionary<EngineVersion, GameModeSelection[]>> CategorizedGameModes { get; set; }
 
     // Dropdowns
     private GameModeSelectionDropdown GameModeDropdown { get; set; }
