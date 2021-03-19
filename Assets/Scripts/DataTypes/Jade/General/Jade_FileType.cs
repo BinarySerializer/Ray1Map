@@ -27,7 +27,8 @@ namespace R1Engine.Jade {
 			[".oin"] = FileType.AI_Instance,
 			[".omd"] = FileType.AI_Model,
 			[".ova"] = FileType.AI_Vars,
-			[".ofc"] = FileType.AI_ProcList
+			[".ofc"] = FileType.AI_Function,
+			[".fce"] = FileType.AI_ProcList
 		};
 
 		public enum FileType {
@@ -38,7 +39,8 @@ namespace R1Engine.Jade {
 			AI_Instance,
 			AI_Vars,
 			AI_Model,
-			AI_ProcList
+			AI_ProcList,
+			AI_Function
 		}
 	}
 }

@@ -41,6 +41,11 @@ namespace R1Engine.Jade {
 							configureAction(f); onPreSerialize?.Invoke(s, f);
 						}, name: nameof(Value));
 						break;
+					case Jade_FileType.FileType.AI_Function:
+						Value = s.SerializeObject<AI_Function>((AI_Function)Value, onPreSerialize: f => {
+							configureAction(f); onPreSerialize?.Invoke(s, f);
+						}, name: nameof(Value));
+						break;
 				}
 				onPostSerialize?.Invoke(s, Value);
 			}, (f) => {

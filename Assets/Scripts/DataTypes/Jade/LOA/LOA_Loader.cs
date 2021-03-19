@@ -9,8 +9,11 @@ namespace R1Engine.Jade {
 	public class LOA_Loader {
 		public BIG_BigFile[] BigFiles { get; set; }
 		public Queue<FileReference> LoadQueue = new Queue<FileReference>();
-		public Dictionary<Jade_Key, Pointer> FilePointers { get; private set; }
+		public Dictionary<Jade_Key, FileInfo> FileInfos { get; private set; }
 		public Dictionary<Jade_Key, Jade_File> LoadedFiles { get; private set; }
+		public bool IsBinaryData => false;
+
+
 		public LOA_Loader(BIG_BigFile[] bigFiles) {
 			BigFiles = bigFiles;
 			CreateSortedFilePointers();
@@ -18,14 +21,41 @@ namespace R1Engine.Jade {
 		}
 
 		private void CreateSortedFilePointers() {
-			FilePointers = new Dictionary<Jade_Key, Pointer>();
+			FileInfos = new Dictionary<Jade_Key, FileInfo>();
 			LoadedFiles = new Dictionary<Jade_Key, Jade_File>();
 			for (int b = 0; b < BigFiles.Length; b++) {
 				var big = BigFiles[b];
 				for (int f = 0; f < big.FatFiles.Length; f++) {
 					var fat = big.FatFiles[f];
-					foreach (var file in fat.Files) {
-						FilePointers.Add(file.Key, file.FileOffset);
+
+					// Create directories list
+					string[] directories = new string[fat.DirectoryInfos.Length];
+					for (int i = 0; i < directories.Length; i++) {
+						var dir = fat.DirectoryInfos[i];
+						var dirName = dir.Name;
+						var curDir = dir;
+						while (curDir.ParentDirectory != -1) {
+							curDir = fat.DirectoryInfos[curDir.ParentDirectory];
+							dirName = $"{curDir.Name}/{dirName}";
+						}
+						directories[i] = dirName;
+					}
+
+
+					for (int fi = 0; fi < fat.Files.Length; fi++) {
+						var file = fat.Files[fi];
+						var fileInfo = new FileInfo() {
+							Key = file.Key,
+							FileOffset = file.FileOffset,
+							FileIndex = fi,
+							FatFile = fat,
+							FatFileInfo = fat.FileInfos[fi]
+						};
+						if (fileInfo.FatFileInfo.Name != null) {
+							fileInfo.DirectoryName = directories[fileInfo.FatFileInfo.ParentDirectory];
+							fileInfo.FileName = fileInfo.FatFileInfo.Name;
+						}
+						FileInfos[file.Key] = fileInfo;
 					}
 				}
 			}
@@ -34,13 +64,15 @@ namespace R1Engine.Jade {
 		public async UniTask LoadLoop(SerializerObject s) {
 			while (LoadQueue.Count > 0) {
 				FileReference currentRef = LoadQueue.Dequeue();
-				if (currentRef.Key != null && FilePointers.ContainsKey(currentRef.Key)) {
+				if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
 					if (LoadedFiles.ContainsKey(currentRef.Key)) {
 						currentRef.AlreadyLoadedCallback(LoadedFiles[currentRef.Key]);
 					} else {
 						Pointer off_current = s.CurrentPointer;
-						Pointer off_target = FilePointers[currentRef.Key];
+						FileInfo f = FileInfos[currentRef.Key];
+						Pointer off_target = f.FileOffset;
 						s.Goto(off_target);
+						s.Log($"LOA: Loading file: {f}");
 						await s.FillCacheForRead(4);
 						var fileSize = s.Serialize<uint>(default, name: "FileSize");
 						await s.FillCacheForRead((int)fileSize);
@@ -70,6 +102,26 @@ namespace R1Engine.Jade {
 				LoadCallback = loadCallback,
 				AlreadyLoadedCallback = alreadyLoadedCallback
 			});
+		}
+
+		public class FileInfo {
+			public Jade_Key Key { get; set; }
+			public Pointer FileOffset { get; set; }
+
+			public BIG_FatFile FatFile { get; set; }
+			public int FileIndex { get; set; }
+			public BIG_FatFile.FileInfo FatFileInfo { get; set; }
+			public string FileName { get; set; }
+			public string DirectoryName { get; set; }
+			public string FilePath => FileName != null ? $"{DirectoryName}/{FileName}" : null;
+			public override string ToString() {
+				var fp = FilePath;
+				if (fp != null) {
+					return $"[{Key}] {fp}";
+				} else {
+					return $"[{Key}] Unknown File";
+				}
+			}
 		}
 	}
 }

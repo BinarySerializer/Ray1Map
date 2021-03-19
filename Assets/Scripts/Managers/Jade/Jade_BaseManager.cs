@@ -131,6 +131,9 @@ namespace R1Engine {
 			// Set up loader
 			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
 			context.StoreObject<LOA_Loader>("loader", loader);
+			// Set up AI types
+			AI_Links aiLinks = AI_Links.GetAILinks(context.Settings);
+			context.StoreObject<AI_Links>("ai", aiLinks);
 
 			Jade_Reference<AI_Instance> Univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
 			Univers.Resolve();
