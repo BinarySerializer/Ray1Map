@@ -971,8 +971,11 @@ namespace R1Engine
         public virtual UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         // Helpers
-        public virtual void FindDataInROM(SerializerObject s, Pointer offset)
+        public virtual void FindDataInROM(SerializerObject s, Pointer offset = null)
         {
+            if (offset == null)
+                offset = s.Context.FilePointer(GetROMFilePath);
+
             // Read ROM as a uint array
             var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
 

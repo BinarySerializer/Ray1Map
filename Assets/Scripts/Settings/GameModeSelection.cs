@@ -391,8 +391,11 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance The Great Quest (GBA - US)", typeof(GBAVV_FroggerUS_Manager))]
         FroggerAdvanceGBAUS,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_TheMuppetsOnWithTheShow, Game.GBAVV_TheMuppets, "The Muppets On with the Show! (GBA - EU/US)", typeof(GBAVV_TheMuppets_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_TheMuppetsOnWithTheShow, Game.GBAVV_TheMuppetsOnWithTheShow, "The Muppets On with the Show! (GBA - EU/US)", typeof(GBAVV_TheMuppetsOnWithTheShow_Manager))]
         MuppetsOnWithTheShowGBA,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpyMuppetsLicenseToCroak, Game.GBAVV_SpyMuppetsLicenseToCroak, "Spy Muppets License to Croak (GBA - EU/US)", typeof(GBAVV_SpyMuppetsLicenseToCroak_Manager))]
+        SpyMuppetsLicenseToCroakGBA,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBAVV_Crash2EU_Manager))]
         Crash2GBAEU,

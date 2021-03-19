@@ -84,13 +84,14 @@ namespace R1Engine
 
         //GBAVV_PowerRangersTimeForce,       // 2001 (early map format where objects are single array without params)
         //GBAVV_TonyHawksProSkater2,         // 2001
-        //GBAVV_SpiderManMysteriosMenace,    // 2001 (same as Power Rangers)
+        //GBAVV_SpiderManMysteriosMenace,    // 2001 (same as Power Rangers) (has DigiBlast version)
         GBAVV_Crash1,                        // 2002
         //GBAVV_TonyHawksProSkater3,         // 2002
         //GBAVV_TonyHawksProSkater4,         // 2002
         GBAVV_ThePowerpuffGirlsHimAndSeek,   // 2002
         GBAVV_FroggerAdvance,                // 2002
-        GBAVV_TheMuppetsOnWithTheShow,       // 2003
+        GBAVV_TheMuppetsOnWithTheShow,       // 2003 (has PC version)
+        GBAVV_SpyMuppetsLicenseToCroak,      // 2003 (has PC version)
 
         GBAVV_Crash2,                        // 2003
         GBAVV_CrashNitroKart,                // 2003

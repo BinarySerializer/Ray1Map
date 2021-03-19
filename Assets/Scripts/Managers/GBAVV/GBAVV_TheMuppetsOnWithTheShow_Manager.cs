@@ -4,7 +4,7 @@ using R1Engine.Serialize;
 
 namespace R1Engine
 {
-    public class GBAVV_TheMuppets_Manager : GBAVV_BaseManager
+    public class GBAVV_TheMuppetsOnWithTheShow_Manager : GBAVV_BaseManager
     {
         // Metadata
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
