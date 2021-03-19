@@ -30,7 +30,8 @@ namespace R1Engine
         {
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
-            new GameAction("Export cutscenes", false, true, (input, output) => ExportCutscenesAsync(settings, output)),
+            new GameAction("Export Cutscenes", false, true, (input, output) => ExportCutscenesAsync(settings, output)),
+            new GameAction("Force Export FLC Files", false, true, (input, output) => ForceExportFLCAsync(settings, output)),
         };
         public abstract UniTask ExportCutscenesAsync(GameSettings settings, string outputDir);
         public void ExportCutscenesFromScripts(IEnumerable<GBAVV_Script> scripts, string outputDir)
@@ -112,6 +113,74 @@ namespace R1Engine
                             outputDir: Path.Combine(outputDir, dirName),
                             primaryName: animSetName,
                             secondaryName: animName);
+                    }
+                }
+            }
+        }
+        public async UniTask ForceExportFLCAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                var s = context.Deserializer;
+                var offset = context.FilePointer(GetROMFilePath);
+                const int alignment = 4;
+                const int minDecompSize = 32;
+                
+                s.Goto(offset);
+                
+                var length = s.CurrentLength;
+
+                // Enumerate every byte
+                for (int i = 0; i < length; i += alignment)
+                {
+                    // Go to the offset
+                    s.Goto(offset + i);
+
+                    // Check for compression header
+                    if (s.Serialize<byte>(default) == 0x10)
+                    {
+                        // Get the decompressed size
+                        var decompressedSize = s.Serialize<UInt24>(default);
+
+                        // Skip if the decompressed size is too low
+                        if (decompressedSize < minDecompSize)
+                            continue;
+
+                        // Go back to the offset
+                        s.Goto(offset + i);
+
+                        // Attempt to decompress
+                        try
+                        {
+                            s.DoEncoded(new GBA_LZSSEncoder(), () =>
+                            {
+                                // Start by reading the header and check so it's an FLC file
+                                var isValid = s.DoAt(s.CurrentPointer, () =>
+                                {
+                                    var fileSize = s.Serialize<uint>(default);
+                                    var format = s.Serialize<FLIC.FLIC_Format>(default);
+
+                                    return format == FLIC.FLIC_Format.FLC;
+                                });
+
+                                if (!isValid)
+                                    return;
+
+                                // Read the .flc file
+                                var flc = s.SerializeObject<FLIC>(default);
+
+                                // Export
+                                using (var collection = flc.ToMagickImageCollection())
+                                    collection.Write(Path.Combine(outputDir, $"0x{(offset + i).AbsoluteOffset:X8}.gif"));
+                            }, allowLocalPointers: true);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (!ex.Message.StartsWith("Cannot go back more than already written"))
+                                Debug.Log(ex);
+                        }
                     }
                 }
             }
