@@ -1172,6 +1172,14 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x08028e68,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // X2: Wolverine's Revenge
+
+                case GameModeSelection.X2WolverinesRevengeGBA:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08032718,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 // Nitro Kart
 
                 case GameModeSelection.CrashNitroKartEU:

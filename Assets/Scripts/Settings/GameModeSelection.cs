@@ -412,6 +412,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_BruceLeeReturnOfTheLegend, Game.GBAVV_BruceLeeReturnOfTheLegend, "Bruce Lee Return of the Legend (GBA - US)", typeof(GBAVV_BruceLeeReturnOfTheLegendUS_Manager))]
         BruceLeeReturnOfTheLegendGBAUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_X2WolverinesRevenge, Game.GBAVV_X2WolverinesRevenge, "X2 Wolverine's Revenge (GBA - EU/US)", typeof(GBAVV_X2WolverinesRevenge_Manager))]
+        X2WolverinesRevengeGBA,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (GBA - EU)", typeof(GBAVV_NitroKartEU_Manager))]
         CrashNitroKartEU,
 

@@ -50,7 +50,7 @@
             {
                 FrameIndexTablePointer = s.SerializePointer(FrameIndexTablePointer, name: nameof(FrameIndexTablePointer));
 
-                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart)
+                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart && s.GameSettings.EngineVersion != EngineVersion.GBAVV_X2WolverinesRevenge)
                     HitBox = s.SerializeObject<GBAVV_AnimationRect>(HitBox, name: nameof(HitBox));
 
                 RenderBox = s.SerializeObject<GBAVV_AnimationRect>(RenderBox, name: nameof(RenderBox));
@@ -59,7 +59,7 @@
                 FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
                 Byte_13 = s.Serialize<byte>(Byte_13, name: nameof(Byte_13));
 
-                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart)
+                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart && s.GameSettings.EngineVersion != EngineVersion.GBAVV_X2WolverinesRevenge)
                     s.SerializeArray<byte>(new byte[4], 4, name: "Padding");
             }
 

@@ -73,6 +73,7 @@
         GBAVV_SpyMuppetsLicenseToCroak,
         GBAVV_Crash2,
         GBAVV_BruceLeeReturnOfTheLegend,
+        GBAVV_X2WolverinesRevenge,
         GBAVV_CrashNitroKart,
         GBAVV_CrashFusion,
         GBAVV_SpyroFusion,

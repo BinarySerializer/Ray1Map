@@ -332,7 +332,7 @@ namespace R1Engine
 
                 foreach (var m in mapTiles_4)
                 {
-                    if (!paletteIndices[m.TileMapY].Contains(m.PaletteIndex))
+                    if (m.TileMapY < paletteIndices.Length && !paletteIndices[m.TileMapY].Contains(m.PaletteIndex))
                         paletteIndices[m.TileMapY].Add(m.PaletteIndex);
                 }
 
