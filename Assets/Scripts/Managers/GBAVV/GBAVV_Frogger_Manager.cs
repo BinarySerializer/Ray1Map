@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace R1Engine
 {
-    public class GBAVV_Frogger_Manager : GBAVV_Generic_BaseManager
+    public abstract class GBAVV_Frogger_Manager : GBAVV_Generic_BaseManager
     {
         // Metadata
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
@@ -14,8 +14,8 @@ namespace R1Engine
         });
 
         // Exports
-        public override GBAVV_ROM_Generic LoadGenericROM(Context context) => FileFactory.Read<GBAVV_ROM_Frogger>(GetROMFilePath, context);
-        public override GBAVV_ROM_Generic LoadGenericROM_Mode7(Context context, int level) => null;
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Frogger>(GetROMFilePath, context);
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => null;
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Load
@@ -26,8 +26,21 @@ namespace R1Engine
 
             var rom = FileFactory.Read<GBAVV_ROM_Frogger>(GetROMFilePath, context);
 
-            return await LoadMap2DAsync(context, rom, rom.CurrentMapInfo, rom.GetTheme);
+            return await LoadMap2DAsync(context, rom, rom.CurrentMapInfo, rom.GetTheme, false);
         }
-        public override bool HasAssignedObjTypeGraphics => false;
+    }
+    public class GBAVV_FroggerEU_Manager : GBAVV_Frogger_Manager
+    {
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x0833b904
+        };
+    }
+    public class GBAVV_FroggerUS_Manager : GBAVV_Frogger_Manager
+    {
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x08338210
+        };
     }
 }

@@ -5,8 +5,6 @@
         LevelInfo,
         Localization,
 
-        Map2D_Graphics,
-
         Mode7_LevelInfo,
         Mode7_TilePalette_Type0,
         Mode7_TilePalette_Type1_Flames,

@@ -47,10 +47,8 @@ namespace R1Engine
                 }
             });
 
-            if (Map2D_Graphics == null)
-                Map2D_Graphics = new GBAVV_Graphics[1];
-
-            Map2D_Graphics[0] = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Map2D_Graphics), () => s.SerializeObject<GBAVV_Graphics>(Map2D_Graphics[0], name: nameof(Map2D_Graphics)));
+            // Serialize graphics
+            SerializeGraphics(s);
 
             // Serialize scripts
             SerializeScripts(s);

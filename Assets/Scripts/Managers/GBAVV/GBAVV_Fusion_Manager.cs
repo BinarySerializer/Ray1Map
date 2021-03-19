@@ -15,21 +15,7 @@ namespace R1Engine
             new GameInfo_World(0, Enumerable.Range(0, LevInfos.Length).ToArray()),
         });
 
-        public override async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
-        {
-            using (var context = new Context(settings))
-            {
-                // Load the files
-                await LoadFilesAsync(context);
-
-                // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
-
-                await UniTask.WaitForEndOfFrame();
-
-                await ExportAnimFramesAsync(rom.Map2D_Graphics, outputDir, saveAsGif, includePointerInNames);
-            }
-        }
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
             using (var context = new Context(settings))
@@ -65,7 +51,7 @@ namespace R1Engine
             return await LoadMap2DAsync(context, rom, rom.CurrentMap);
         }
 
-        public void FindDataInROM(SerializerObject s, Pointer offset)
+        public override void FindDataInROM(SerializerObject s, Pointer offset)
         {
             // Read ROM as a uint array
             var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
@@ -301,6 +287,11 @@ namespace R1Engine
 
             str.ToString().CopyToClipboard();
         }
+
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x08000000, // Dummy pointer so the struct gets serialized once
+        };
 
         public abstract int ObjTypesCount { get; }
         public abstract uint ObjTypesPointer { get; }

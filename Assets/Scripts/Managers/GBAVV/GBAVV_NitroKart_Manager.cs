@@ -25,22 +25,7 @@ namespace R1Engine
             "Spanish",
         };
 
-        public override async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
-        {
-            using (var context = new Context(settings))
-            {
-                // Load the files
-                await LoadFilesAsync(context);
-
-                // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
-
-                await UniTask.WaitForEndOfFrame();
-
-                await ExportAnimFramesAsync(rom.Map2D_Graphics, outputDir, saveAsGif, includePointerInNames);
-            }
-        }
-
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
             using (var context = new Context(settings))
@@ -212,66 +197,6 @@ namespace R1Engine
                 trackManager: new Unity_TrackManager_GBAVV_NitroKart());
         }
 
-        public virtual void FindDataInROM(SerializerObject s, Pointer offset)
-        {
-            // Read ROM as a uint array
-            var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
-
-            // Helper for getting a pointer
-            long getPointer(int index) => GBA_ROMBase.Address_ROM + index * 4;
-            bool isValidPointer(uint value) => value >= GBA_ROMBase.Address_ROM && value < GBA_ROMBase.Address_ROM + s.CurrentLength;
-
-            // Keep track of found data
-            var foundGraphics = new List<long>();
-            var foundScripts = new List<Tuple<long, string>>();
-
-            // Find graphics datas
-            for (int i = 0; i < values.Length - 3; i++)
-            {
-                var p = getPointer(i);
-
-                // The animSets pointer always points to 12 bytes ahead
-                if (values[i] == p + 16)
-                {
-                    // Make sure we've got valid pointers for the tiles and palettes
-                    if (isValidPointer(values[i + 1]) && isValidPointer(values[i + 2]))
-                    {
-                        var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
-                        var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
-
-                        // Make sure the animSets count and palette counts are reasonable
-                        if (animSetsCount < 10000 && palettesCount < 10000)
-                            foundGraphics.Add(p);
-                    }
-                }
-            }
-
-            // Find scripts by finding the name command which is always the first one
-            for (int i = 0; i < values.Length - 2; i++)
-            {
-                if (values[i] == 9 && values[i + 1] == 7 && isValidPointer(values[i + 2]))
-                {
-                    foundScripts.Add(new Tuple<long, string>(getPointer(i), s.DoAt(new Pointer(values[i + 2], s.CurrentPointer.file), () => s.SerializeString(default))));
-                }
-            }
-
-            // Log found data to clipboard
-            var str = new StringBuilder();
-
-            str.AppendLine($"Graphics:");
-
-            foreach (var g in foundGraphics)
-                str.AppendLine($"0x{g:X8},");
-
-            str.AppendLine();
-            str.AppendLine($"Scripts:");
-
-            foreach (var (p, name) in foundScripts)
-                str.AppendLine($"0x{p:X8}, // {name}");
-
-            str.ToString().CopyToClipboard();
-        }
-
         public virtual void FindObjTypeData(Context context)
         {
             var rom = FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
@@ -328,8 +253,6 @@ namespace R1Engine
         public virtual long ObjTypesCount => 114;
         public abstract uint ObjTypesPointer { get; }
         public abstract uint?[] ObjTypesDataPointers { get; }
-
-        public abstract uint[] GraphicsDataPointers { get; }
 
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>()
         {

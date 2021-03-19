@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace R1Engine
@@ -17,6 +18,9 @@ namespace R1Engine
         // Scripts
         public virtual Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>();
         public virtual uint[] ScriptPointers => null;
+
+        // Graphics
+        public abstract uint[] GraphicsDataPointers { get; }
 
         // Metadata
         public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
@@ -44,7 +48,25 @@ namespace R1Engine
                 }
             }
         }
-        public abstract UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true);
+        public abstract GBAVV_BaseROM LoadROMForExport(Context context);
+        public virtual async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
+        {
+            // Export 2D animations
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
+
+                // Read the rom
+                var rom = LoadROMForExport(context);
+
+                await UniTask.WaitForEndOfFrame();
+
+                await ExportAnimFramesAsync(rom.Map2D_Graphics, outputDir, saveAsGif, includePointerInNames);
+            }
+
+            Debug.Log($"Finished exporting animations");
+        }
         public async UniTask ExportAnimFramesAsync(GBAVV_Graphics[] graphicsDatas, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
             // Enumerate every graphics data
@@ -98,7 +120,7 @@ namespace R1Engine
         // Load
         public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
         public abstract UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures);
-        public async UniTask<Unity_Level> LoadMap2DAsync(Context context, GBAVV_BaseROM rom, GBAVV_Map map)
+        public async UniTask<Unity_Level> LoadMap2DAsync(Context context, GBAVV_BaseROM rom, GBAVV_Map map, bool hasAssignedObjTypeGraphics = true)
         {
             Controller.DetailedState = "Loading tilesets";
             await Controller.WaitIfNecessary();
@@ -195,7 +217,8 @@ namespace R1Engine
                 scripts: rom.GetAllScripts.ToArray(), 
                 graphics: rom.Map2D_Graphics, 
                 dialogScripts: rom.DialogScripts, 
-                locPointerTable: loc.Item2);
+                locPointerTable: loc.Item2,
+                addDummyAnimSet: !hasAssignedObjTypeGraphics);
             var objects = new List<Unity_Object>();
 
             if (map.ObjData?.Objects != null)
@@ -879,6 +902,74 @@ namespace R1Engine
         public virtual UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         // Helpers
+        public virtual void FindDataInROM(SerializerObject s, Pointer offset)
+        {
+            // Read ROM as a uint array
+            var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
+
+            // Helper for getting a pointer
+            long getPointer(int index) => GBA_ROMBase.Address_ROM + index * 4;
+            bool isValidPointer(uint value) => value >= GBA_ROMBase.Address_ROM && value < GBA_ROMBase.Address_ROM + s.CurrentLength;
+
+            // Keep track of found data
+            var foundGraphics = new List<long>();
+            var foundScripts = new List<Tuple<long, string>>();
+
+            // Find graphics datas
+            for (int i = 0; i < values.Length - 3; i++)
+            {
+                var p = getPointer(i);
+
+                // The animSets pointer always points to 12 bytes ahead
+                if (values[i] == p + 16)
+                {
+                    // Make sure we've got valid pointers for the tiles and palettes
+                    if (isValidPointer(values[i + 1]) && isValidPointer(values[i + 2]))
+                    {
+                        var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+                        var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+
+                        // Make sure the animSets count and palette counts are reasonable
+                        if (animSetsCount < 1000 && palettesCount < 10000)
+                            foundGraphics.Add(p);
+                    }
+                }
+            }
+
+            var scriptCmds = ScriptCommands;
+
+            if (scriptCmds != null && scriptCmds.Any(x => x.Value == GBAVV_ScriptCommand.CommandType.Name))
+            {
+                var nameCmd = scriptCmds.First(x => x.Value == GBAVV_ScriptCommand.CommandType.Name).Key;
+                var primary = nameCmd / 100;
+                var secondary = nameCmd % 100;
+
+                // Find scripts by finding the name command which is always the first one
+                for (int i = 0; i < values.Length - 2; i++)
+                {
+                    if (values[i] == primary && values[i + 1] == secondary && isValidPointer(values[i + 2]))
+                    {
+                        foundScripts.Add(new Tuple<long, string>(getPointer(i), s.DoAt(new Pointer(values[i + 2], s.CurrentPointer.file), () => s.SerializeString(default))));
+                    }
+                }
+            }
+
+            // Log found data to clipboard
+            var str = new StringBuilder();
+
+            str.AppendLine($"Graphics:");
+
+            foreach (var g in foundGraphics)
+                str.AppendLine($"0x{g:X8},");
+
+            str.AppendLine();
+            str.AppendLine($"Scripts:");
+
+            foreach (var (p, name) in foundScripts)
+                str.AppendLine($"0x{p:X8}, // {name}");
+
+            str.ToString().CopyToClipboard();
+        }
         public static Vector2Int[] TileShapes { get; } = new Vector2Int[]
         {
             new Vector2Int(0x08, 0x08),

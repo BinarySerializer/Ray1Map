@@ -370,25 +370,31 @@ namespace R1Engine
 
         // GBA Vicarious Visions
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot XS (GBA - EU)", typeof(GBAVV_Crash1_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot XS (GBA - EU)", typeof(GBAVV_Crash1EU_Manager))]
         Crash1GBAEU,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot The Huge Adventure (GBA - US)", typeof(GBAVV_Crash1_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot The Huge Adventure (GBA - US)", typeof(GBAVV_Crash1US_Manager))]
         Crash1GBAUS,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot Advance (GBA - JP)", typeof(GBAVV_Crash1JP_Manager))]
         Crash1GBAJP,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance: The Great Quest (GBA - EU)", typeof(GBAVV_Frogger_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek, Game.GBAVV_FroggerAdvance, "The Powerpuff Girls Him and Seek (GBA - EU)", typeof(GBAVV_PowerpuffGirlsEU_Manager))]
+        ThePowerpuffGirlsHimAndSeekGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek, Game.GBAVV_FroggerAdvance, "The Powerpuff Girls Him and Seek (GBA - US)", typeof(GBAVV_PowerpuffGirlsUS_Manager))]
+        ThePowerpuffGirlsHimAndSeekGBAUS,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance The Great Quest (GBA - EU)", typeof(GBAVV_FroggerEU_Manager))]
         FroggerAdvanceGBAEU,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance: The Great Quest (GBA - US)", typeof(GBAVV_Frogger_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance The Great Quest (GBA - US)", typeof(GBAVV_FroggerUS_Manager))]
         FroggerAdvanceGBAUS,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBAVV_Crash2_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - EU)", typeof(GBAVV_Crash2EU_Manager))]
         Crash2GBAEU,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBAVV_Crash2_Manager))]
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot 2 N-Tranced (GBA - US)", typeof(GBAVV_Crash2US_Manager))]
         Crash2GBAUS,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash2, Game.GBAVV_Crash2, "Crash Bandicoot Advance 2 (GBA - JP)", typeof(GBAVV_Crash2JP_Manager))]

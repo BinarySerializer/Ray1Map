@@ -82,7 +82,14 @@ namespace R1Engine
 
         // GBA VV
 
+        //GBAVV_PowerRangersTimeForce,       // 2001
+        //GBAVV_TonyHawksProSkater2,         // 2001
+        //GBAVV_SpiderManMysteriosMenace,    // 2001
         GBAVV_Crash1,                        // 2002
+        //GBAVV_TonyHawksProSkater3,         // 2002
+        //GBAVV_TonyHawksProSkater4,         // 2002
+        GBAVV_ThePowerpuffGirlsHimAndSeek,   // 2002
+
         GBAVV_FroggerAdvance,                // 2002
         GBAVV_Crash2,                        // 2003
         GBAVV_CrashNitroKart,                // 2003

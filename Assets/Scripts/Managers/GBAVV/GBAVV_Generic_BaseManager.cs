@@ -14,18 +14,7 @@ namespace R1Engine
         public override async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
             // Export 2D animations
-            using (var context = new Context(settings))
-            {
-                // Load the files
-                await LoadFilesAsync(context);
-
-                // Read the rom
-                var rom = LoadGenericROM(context);
-
-                await UniTask.WaitForEndOfFrame();
-
-                await ExportAnimFramesAsync(rom.Map2D_Graphics, outputDir, saveAsGif, includePointerInNames);
-            }
+            await base.ExportAnimFramesAsync(settings, outputDir, saveAsGif, includePointerInNames);
 
             // Export Mode7 animations
             for (int mode7Level = 0; mode7Level < 7; mode7Level++)
@@ -38,7 +27,7 @@ namespace R1Engine
                     await LoadFilesAsync(context);
 
                     // Read the rom
-                    var rom = LoadGenericROM_Mode7(context, mode7Level);
+                    var rom = LoadROMForMode7Export(context, mode7Level);
 
                     if (rom == null)
                         continue;
@@ -92,17 +81,12 @@ namespace R1Engine
                 }
             }
 
-            await ExportAdditionalAnimFramesAsync(settings, outputDir, saveAsGif, includePointerInNames);
-
-            Debug.Log($"Finished export");
+            Debug.Log($"Finished exporting Mode7 animations");
         }
-        public virtual UniTask ExportAdditionalAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true) => UniTask.CompletedTask;
-        public abstract GBAVV_ROM_Generic LoadGenericROM(Context context);
-        public abstract GBAVV_ROM_Generic LoadGenericROM_Mode7(Context context, int level);
+        public abstract GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level);
 
         // Map2D
-        public virtual bool HasAssignedObjTypeGraphics => true;
-        public async UniTask<Unity_Level> LoadMap2DAsync(Context context, GBAVV_BaseROM rom, GBAVV_Generic_MapInfo map, int theme = -1)
+        public async UniTask<Unity_Level> LoadMap2DAsync(Context context, GBAVV_BaseROM rom, GBAVV_Generic_MapInfo map, int theme = -1, bool hasAssignedObjTypeGraphics = true)
         {
             Controller.DetailedState = "Loading tilesets";
             await Controller.WaitIfNecessary();
@@ -190,7 +174,7 @@ namespace R1Engine
                 objData: map.MapData2D.ObjData, 
                 mapType: map.MapType, 
                 locPointerTable: loc.Item2,
-                addDummyAnimSet: !HasAssignedObjTypeGraphics);
+                addDummyAnimSet: !hasAssignedObjTypeGraphics);
             var objects = map.MapData2D.ObjData.ObjGroups.SelectMany((x, groupIndex) => x.Objects.Reverse().Select((obj, i) => new Unity_Object_GBAVV(objmanager, obj, groupIndex, i)));
 
             return new Unity_Level(

@@ -11,7 +11,7 @@ namespace R1Engine
     {
         public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData = null, GBAVV_Generic_MapInfo.GBAVV_MapType? mapType = null, GBAVV_Script[] scripts = null, GBAVV_Graphics[] graphics = null, GBAVV_DialogScript[] dialogScripts = null, GBAVV_NitroKart_ObjTypeData[] nitroKart_ObjTypeData = null, Dictionary<Pointer, int> locPointerTable = null, bool addDummyAnimSet = false) : base(context)
         {
-            if (addDummyAnimSet)
+            if (addDummyAnimSet && animSets?.Length > 0)
             {
                 animSets[0] = new AnimSet[]
                 {
