@@ -20,9 +20,9 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - US)</td>
@@ -30,13 +30,13 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - EU)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -44,7 +44,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (PS1 - JP)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -52,7 +52,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (PS1 - JP Demo Vol3)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -60,7 +60,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (PS1 - JP Demo Vol6)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -68,7 +68,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (PS1 - EU Demo)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -76,7 +76,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (PS1 - US Demo)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -84,7 +84,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (Saturn)</td>
     <td class="tg-yw4l">US, EU, JP, US Demo</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -92,7 +92,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (Saturn - Prototype)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -102,7 +102,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Gold (PC - Demo)</td>
@@ -110,7 +110,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Designer (PC)</td>
@@ -118,14 +118,14 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Mapper (PC)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -134,7 +134,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 60 Levels (PC)</td>
@@ -142,7 +142,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Educational (PC)</td>
@@ -150,14 +150,14 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Educational (PS1)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -166,7 +166,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Classic (Mobile)</td>
@@ -174,13 +174,13 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (GBA)</td>
     <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -188,15 +188,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (DSi)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-  </tr>  
+    <td class="tg-yw4l"></td>
+  </tr>
   <tr>
     <td class="tg-yw4l">Rayman 2 (PS1 - Demo)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -209,15 +209,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Jaguar)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -225,7 +225,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (Jaguar - Prototype)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -233,7 +233,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (Jaguar - Demo)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -246,15 +246,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
     <tr>
     <td class="tg-yw4l">Rayman (SNES - Prototype)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -267,15 +267,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (GBC)</td>
     <td class="tg-yw4l">EU/US, JP</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -283,7 +283,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (PalmOS)</td>
     <td class="tg-yw4l">Color, Greyscale, Color Demo, Greyscale Demo</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -291,7 +291,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 1 (PocketPC)</td>
     <td class="tg-yw4l">Portrait, Landscape, IPAQ, Portrait Demo, Landscape Demo, IPAQ Demo</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -299,7 +299,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 2 (GBC)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -307,7 +307,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Donald Duck Goin' Quackers (GBC)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -315,7 +315,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Mowgli's Wild Adventure (GBC)</td>
     <td class="tg-yw4l">EU/US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -328,15 +328,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Donald Duck Advance (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -344,7 +344,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Crouching Tiger Hidden Dragon (GBA)</td>
     <td class="tg-yw4l">EU, US, US Beta</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -352,7 +352,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Tom Clancy's Rainbow Six: Rogue Spear (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -360,7 +360,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">The Mummy (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -368,7 +368,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Tomb Raider: The Prophecy (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -376,7 +376,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Batman Vengeance (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -384,7 +384,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Sabrina the Teenage Witch: Potion Commotion (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -392,7 +392,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 3 (GBA)</td>
     <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -400,7 +400,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 3 (GBA - US Prototype)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -408,7 +408,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 3 (N-Gage)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -416,7 +416,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 3 (DigiBlast)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -424,7 +424,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Rayman 3 Mad Trax (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -432,7 +432,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Splinter Cell (GBA)</td>
     <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -440,7 +440,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Splinter Cell (N-Gage)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -448,7 +448,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Prince of Persia: The Sands of Time (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -456,7 +456,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Batman: Rise of Sin Tzu (GBA)</td>
     <td class="tg-yw4l">US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -464,7 +464,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Splinter Cell: Pandora Tomorrow (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -472,7 +472,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Star Wars Trilogy: Apprentice of the Force (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -480,7 +480,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Star Wars Episode III: Revenge of the Sith (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -488,7 +488,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">King Kong (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -496,7 +496,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Open Season (GBA)</td>
     <td class="tg-yw4l">EU 1, EU 2, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -504,7 +504,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">TMNT (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -512,7 +512,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Surf's Up (GBA)</td>
     <td class="tg-yw4l">EU 1, EU 2, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -525,15 +525,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Spyro 2: Season of Flame (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -541,7 +541,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Spyro: Attack of the Rhynocs (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -549,15 +549,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">TRON 2.0: Killer App (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">Obj type graphics have not been assigned</td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Hoodlums' Revenge (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -570,15 +570,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Raving Rabbids (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -591,15 +591,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Crash Bandicoot: The Huge Adventure (GBA)</td>
     <td class="tg-yw4l">EU, US, JP</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -607,15 +607,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Frogger Advance: The Great Quest (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">Obj type graphics have not been assigned</td>
   </tr>
   <tr>
     <td class="tg-yw4l">Crash Bandicoot 2: N-Tranced (GBA)</td>
     <td class="tg-yw4l">EU, US, JP</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -623,7 +623,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Crash Nitro Kart (GBA)</td>
     <td class="tg-yw4l">EU, US, JP</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -631,7 +631,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Crash Nitro Kart (N-Gage)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -639,7 +639,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Crash Bandicoot Purple: Ripto's Rampage (GBA)</td>
     <td class="tg-yw4l">EU, US, JP</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -647,7 +647,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Spyro Orange: The Cortex Conspiracy (GBA)</td>
     <td class="tg-yw4l">EU, US 1, US 2, JP</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -659,21 +659,21 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
   <tr>
     <th class="tg-yw4l"><b>Game</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Raving Rabbids (Mobile)</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Kart (Mobile)</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
