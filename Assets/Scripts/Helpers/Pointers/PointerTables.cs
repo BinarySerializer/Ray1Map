@@ -1194,6 +1194,20 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x080308ec,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // The Lion King
+
+                case GameModeSelection.TheLionKing112GBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x080319c4,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.TheLionKing112GBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08031800,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 // Nitro Kart
 
                 case GameModeSelection.CrashNitroKartEU:

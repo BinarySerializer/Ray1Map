@@ -421,6 +421,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FindingNemo, Game.GBAVV_FindingNemo, "Finding Nemo (GBA - JP)", typeof(GBAVV_FindingNemoJP_Manager))]
         FindingNemoGBAJP,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_TheLionKing, Game.GBAVV_TheLionKing, "The Lion King 1 ½ (GBA - EU)", typeof(GBAVV_TheLionKingEU_Manager))]
+        TheLionKing112GBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_TheLionKing, Game.GBAVV_TheLionKing, "The Lion King 1 ½ (GBA - US)", typeof(GBAVV_TheLionKingUS_Manager))]
+        TheLionKing112GBAUS,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (GBA - EU)", typeof(GBAVV_NitroKartEU_Manager))]
         CrashNitroKartEU,
 

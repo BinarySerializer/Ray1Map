@@ -34,7 +34,12 @@ namespace R1Engine
             {
                 var mapTilesLength = TileMap.TileMapSections.SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
 
-                s.DoEncodedIf(new GBA_LZSSEncoder(), s.GameSettings.GBAVV_IsFusion || s.GameSettings.EngineVersion == EngineVersion.GBAVV_BruceLeeReturnOfTheLegend || s.GameSettings.EngineVersion == EngineVersion.GBAVV_FindingNemo, () =>
+                var isCompressed = s.GameSettings.GBAVV_IsFusion ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_BruceLeeReturnOfTheLegend || 
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_FindingNemo ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_TheLionKing;
+
+                s.DoEncodedIf(new GBA_LZSSEncoder(), isCompressed, () =>
                 {
                     MapTiles = s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.GBAVV_IsWorldMap = true, name: nameof(MapTiles));
                 });

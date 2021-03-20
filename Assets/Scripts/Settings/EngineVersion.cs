@@ -83,11 +83,11 @@ namespace R1Engine
         // GBA VV
 
         //GBAVV_PowerRangersTimeForce,       // 2001 (early map format where objects are single array without params)
-        //GBAVV_TonyHawksProSkater2,         // 2001
-        //GBAVV_SpiderManMysteriosMenace,    // 2001 (same as Power Rangers) (has DigiBlast version)
+        //GBAVV_TonyHawksProSkater2,         // 2001 (TH engine)
+        //GBAVV_SpiderManMysteriosMenace,    // 2001 (same as Power Rangers, has DigiBlast version)
         GBAVV_Crash1,                        // 2002
-        //GBAVV_TonyHawksProSkater3,         // 2002
-        //GBAVV_TonyHawksProSkater4,         // 2002
+        //GBAVV_TonyHawksProSkater3,         // 2002 (TH engine)
+        //GBAVV_TonyHawksProSkater4,         // 2002 (TH engine)
         GBAVV_ThePowerpuffGirlsHimAndSeek,   // 2002
         GBAVV_FroggerAdvance,                // 2002
         GBAVV_TheMuppetsOnWithTheShow,       // 2003 (has PC version) (maps are hard-coded)
@@ -96,6 +96,9 @@ namespace R1Engine
         GBAVV_BruceLeeReturnOfTheLegend,     // 2003
         GBAVV_X2WolverinesRevenge,           // 2003
         GBAVV_FindingNemo,                   // 2003
+        //GBAVV_JetGrindRadio,               // 2003 (TH engine)
+        //GBAVV_ExtremeSkateAdventure,       // 2003 (TH engine)
+        GBAVV_TheLionKing,                   // 2003
 
         GBAVV_CrashNitroKart,                // 2003
         GBAVV_CrashNitroKart_NGage,          // 2004
