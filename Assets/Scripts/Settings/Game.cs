@@ -86,6 +86,7 @@
         GBAVV_Shrek2BegForMercy,
         GBAVV_KidsNextDoorOperationSODA,
         GBAVV_Madagascar,
+        GBAVV_BatmanBegins,
 
         // Gameloft
 

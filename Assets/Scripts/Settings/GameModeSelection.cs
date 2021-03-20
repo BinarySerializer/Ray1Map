@@ -490,6 +490,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Madagascar, Game.GBAVV_Madagascar, "Madagascar (GBA - JP)", typeof(GBAVV_MadagascarJP_Manager))]
         MadagascarGBAJP,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_BatmanBegins, Game.GBAVV_BatmanBegins, "Batman Begins (GBA - EU/US)", typeof(GBAVV_BatmanBegins_Manager))]
+        BatmanBeginsGBA,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]

@@ -1350,6 +1350,14 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x080333f0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Batman Begins
+
+                case GameModeSelection.BatmanBeginsGBA:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0806f6a0,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

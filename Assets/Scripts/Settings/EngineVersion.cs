@@ -112,6 +112,7 @@ namespace R1Engine
         GBAVV_Shrek2BegForMercy,             // 2004
         GBAVV_KidsNextDoorOperationSODA,     // 2004
         GBAVV_Madagascar,                    // 2005 (has DS version)
+        GBAVV_BatmanBegins,                  // 2005
 
         // Gameloft
 
