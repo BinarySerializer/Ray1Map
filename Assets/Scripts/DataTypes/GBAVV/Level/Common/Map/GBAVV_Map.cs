@@ -16,7 +16,7 @@
         public GBAVV_MapLayer[] MapLayers { get; set; }
         public GBAVV_Map2D_ObjData ObjData { get; set; }
         public GBAVV_TileSets TileSets { get; set; }
-        public GBAVV_Fusion_MapCollisionSector Fusion_Collision { get; set; }
+        public GBAVV_LineCollisionSector LineCollision { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -40,8 +40,8 @@
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Map2D_ObjData>(ObjData, name: nameof(ObjData)));
             TileSets = s.DoAt(TileSetsPointer, () => s.SerializeObject<GBAVV_TileSets>(TileSets, name: nameof(TileSets)));
 
-            if (s.GameSettings.GBAVV_IsFusion) // In Crash 2 the collision is a compressed tilemap, but it's empty so we ignore it
-                Fusion_Collision = s.DoAt(MapCollisionPointer, () => s.SerializeObject<GBAVV_Fusion_MapCollisionSector>(Fusion_Collision, name: nameof(Fusion_Collision)));
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_BrotherBear)
+                LineCollision = s.DoAt(MapCollisionPointer, () => s.SerializeObject<GBAVV_LineCollisionSector>(LineCollision, name: nameof(LineCollision)));
         }
     }
 }

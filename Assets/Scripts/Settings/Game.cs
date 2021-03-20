@@ -76,6 +76,7 @@
         GBAVV_X2WolverinesRevenge,
         GBAVV_FindingNemo,
         GBAVV_TheLionKing,
+        GBAVV_BrotherBear,
         GBAVV_CrashNitroKart,
         GBAVV_CrashFusion,
         GBAVV_SpyroFusion,

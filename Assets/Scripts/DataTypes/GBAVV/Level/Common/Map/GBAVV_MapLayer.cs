@@ -37,7 +37,8 @@ namespace R1Engine
                 var isCompressed = s.GameSettings.GBAVV_IsFusion ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_BruceLeeReturnOfTheLegend || 
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_FindingNemo ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_TheLionKing;
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_TheLionKing ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_BrotherBear;
 
                 s.DoEncodedIf(new GBA_LZSSEncoder(), isCompressed, () =>
                 {

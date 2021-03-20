@@ -1208,6 +1208,20 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x08031800,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Brother Bear
+
+                case GameModeSelection.BrotherBearGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08031eac,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.BrotherBearGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08031e68,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 // Nitro Kart
 
                 case GameModeSelection.CrashNitroKartEU:

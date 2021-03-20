@@ -99,6 +99,8 @@ namespace R1Engine
         //GBAVV_JetGrindRadio,               // 2003 (TH engine)
         //GBAVV_ExtremeSkateAdventure,       // 2003 (TH engine)
         GBAVV_TheLionKing,                   // 2003
+        //GBAVV_TonyHawksUnderground,        // 2003 (TH engine)
+        GBAVV_BrotherBear,                   // 2003
 
         GBAVV_CrashNitroKart,                // 2003
         GBAVV_CrashNitroKart_NGage,          // 2004

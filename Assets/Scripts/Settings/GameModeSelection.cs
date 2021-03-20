@@ -427,6 +427,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_TheLionKing, Game.GBAVV_TheLionKing, "The Lion King 1 ½ (GBA - US)", typeof(GBAVV_TheLionKingUS_Manager))]
         TheLionKing112GBAUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_BrotherBear, Game.GBAVV_BrotherBear, "Brother Bear (GBA - EU)", typeof(GBAVV_BrotherBearEU_Manager))]
+        BrotherBearGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_BrotherBear, Game.GBAVV_BrotherBear, "Brother Bear (GBA - US)", typeof(GBAVV_BrotherBearUS_Manager))]
+        BrotherBearGBAUS,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (GBA - EU)", typeof(GBAVV_NitroKartEU_Manager))]
         CrashNitroKartEU,
 

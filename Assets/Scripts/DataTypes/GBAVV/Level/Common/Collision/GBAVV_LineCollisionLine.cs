@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAVV_Fusion_MapCollisionLine : R1Serializable
+    public class GBAVV_LineCollisionLine : R1Serializable
     {
         public int X1 { get; set; }
         public int Y1 { get; set; }
@@ -14,10 +14,20 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            X1 = s.Serialize<int>(X1, name: nameof(X1));
-            Y1 = s.Serialize<int>(Y1, name: nameof(Y1));
-            X2 = s.Serialize<int>(X2, name: nameof(X2));
-            Y2 = s.Serialize<int>(Y2, name: nameof(Y2));
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_BrotherBear)
+            {
+                X1 = s.Serialize<short>((short)X1, name: nameof(X1));
+                Y1 = s.Serialize<short>((short)Y1, name: nameof(Y1));
+                X2 = s.Serialize<short>((short)X2, name: nameof(X2));
+                Y2 = s.Serialize<short>((short)Y2, name: nameof(Y2));
+            }
+            else
+            {
+                X1 = s.Serialize<int>(X1, name: nameof(X1));
+                Y1 = s.Serialize<int>(Y1, name: nameof(Y1));
+                X2 = s.Serialize<int>(X2, name: nameof(X2));
+                Y2 = s.Serialize<int>(Y2, name: nameof(Y2));
+            }
             Direction = s.Serialize<int>(Direction, name: nameof(Direction));
             CollisionDataPointer = s.SerializePointer(CollisionDataPointer, name: nameof(CollisionDataPointer));
 

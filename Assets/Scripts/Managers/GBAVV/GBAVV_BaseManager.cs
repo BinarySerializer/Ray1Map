@@ -234,18 +234,18 @@ namespace R1Engine
 
             List<Unity_CollisionLine> collisionLines = null;
 
-            // Load collision
-            if (map.Fusion_Collision != null)
+            // Load line collision
+            if (map.LineCollision != null)
             {
                 collisionLines = new List<Unity_CollisionLine>();
                 var dummyCollision = new GBAVV_Fusion_MapCollisionLineData();
 
-                addCollision(map.Fusion_Collision);
+                addCollision(map.LineCollision);
 
-                void addCollision(GBAVV_Fusion_MapCollisionSector mapCollision)
+                void addCollision(GBAVV_LineCollisionSector mapCollision)
                 {
                     // Add every line
-                    foreach (var line in mapCollision.CollisionLines ?? new GBAVV_Fusion_MapCollisionLine[0])
+                    foreach (var line in mapCollision.CollisionLines ?? new GBAVV_LineCollisionLine[0])
                     {
                         // Get vectors for the points
                         Vector2 p1 = new Vector2(line.X1, line.Y1);
