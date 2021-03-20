@@ -84,6 +84,7 @@
         GBAVV_ThatsSoRaven,
         GBAVV_Shrek2,
         GBAVV_Shrek2BegForMercy,
+        GBAVV_KidsNextDoorOperationSODA,
 
         // Gameloft
 

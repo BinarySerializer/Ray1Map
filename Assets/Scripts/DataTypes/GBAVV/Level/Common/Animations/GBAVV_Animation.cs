@@ -30,7 +30,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
             {
                 Fusion_AnimSetPointer = s.SerializePointer(Fusion_AnimSetPointer, name: nameof(Fusion_AnimSetPointer)); // Null for Nitro Kart
                 FrameIndexTablePointer = s.SerializePointer(FrameIndexTablePointer, name: nameof(FrameIndexTablePointer));

@@ -110,6 +110,7 @@ namespace R1Engine
         GBAVV_ThatsSoRaven,                  // 2004
         GBAVV_Shrek2,                        // 2004
         GBAVV_Shrek2BegForMercy,             // 2004
+        GBAVV_KidsNextDoorOperationSODA,     // 2004
 
         // Gameloft
 

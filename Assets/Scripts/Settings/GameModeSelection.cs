@@ -481,6 +481,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Shrek2BegForMercy, Game.GBAVV_Shrek2BegForMercy, "Shrek 2 Beg for Mercy (GBA - EU/US)", typeof(GBAVV_Shrek2BegForMercy_Manager))]
         Shrek2BegForMercyGBA,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_KidsNextDoorOperationSODA, Game.GBAVV_KidsNextDoorOperationSODA, "Codename - Kids Next Door - Operation S.O.D.A. (GBA - US)", typeof(GBAVV_KidsNextDoorOperationSODA_Manager))]
+        GBAVV_KidsNextDoorOperationSODAGBAUS,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]

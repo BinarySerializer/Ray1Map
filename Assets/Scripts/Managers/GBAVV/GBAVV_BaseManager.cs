@@ -1007,7 +1007,7 @@ namespace R1Engine
             var foundGraphics = new List<long>();
             var foundScripts = new List<Tuple<long, string>>();
 
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
             {
                 // Find animation sets by finding pointers which references itself
                 for (int i = 0; i < values.Length; i++)

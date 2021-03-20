@@ -11,6 +11,7 @@ namespace R1Engine
         public int PrimaryCommandType { get; set; }
         public int SecondaryCommandType { get; set; }
         public uint Param { get; set; }
+        public uint SecondaryParam { get; set; }
         public Pointer ParamPointer { get; set; }
         public GBAVV_NitroKart_NGage_FilePath NGage_FilePath { get; set; }
 
@@ -38,6 +39,9 @@ namespace R1Engine
             PrimaryCommandType = s.Serialize<int>(PrimaryCommandType, name: nameof(PrimaryCommandType));
             SecondaryCommandType = s.Serialize<int>(SecondaryCommandType, name: nameof(SecondaryCommandType));
             Param = s.Serialize<uint>(Param, name: nameof(Param));
+
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+                SecondaryParam = s.Serialize<uint>(SecondaryParam, name: nameof(SecondaryParam));
 
             Type = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
 

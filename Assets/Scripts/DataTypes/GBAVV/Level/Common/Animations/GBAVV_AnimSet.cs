@@ -56,7 +56,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
             {
                 SelfPointer = s.SerializePointer(SelfPointer, name: nameof(SelfPointer));
                 FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));

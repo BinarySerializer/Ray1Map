@@ -1328,6 +1328,14 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x0808eb20,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Codename - Kids Next Door - Operation S.O.D.A.
+
+                case GameModeSelection.GBAVV_KidsNextDoorOperationSODAGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08038aac,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

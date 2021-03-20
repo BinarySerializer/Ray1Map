@@ -47,7 +47,7 @@ namespace R1Engine
         protected void SerializeGraphics(SerializerObject s)
         {
             // Get the graphics pointers
-            var graphicsDataPointers = s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion ? new uint[]
+            var graphicsDataPointers = s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA ? new uint[]
             {
                 Address_ROM // Dummy pointer
             }: s.GameSettings.GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;
