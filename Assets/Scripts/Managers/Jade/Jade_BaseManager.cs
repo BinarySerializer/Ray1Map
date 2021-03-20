@@ -12,7 +12,8 @@ namespace R1Engine {
 	public class Jade_BaseManager : IGameManager {
 		public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
 		{
-			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
+			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
+			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
 		};
 
 
@@ -40,18 +41,36 @@ namespace R1Engine {
 							}
 							for (int i = 0; i < fat.Files.Length; i++) {
 								var f = fat.Files[i];
+								var fi = fat.FileInfos[i];
+								bool fileIsCompressed = decompressBIN && f.IsCompressed;
+								if (fileIsCompressed && fi.Name != null && !fi.Name.EndsWith(".bin")) {
+									// Hack. Really whether it's compressed or not also depends on whether speed mode is enabled when loading this specific key
+									fileIsCompressed = false;
+								}
+								//UnityEngine.Debug.Log($"{bf.Offset.file.AbsolutePath} - {i} - {f.Key} - {(fi.Name != null ? Path.Combine(directories[fi.ParentDirectory], fi.Name) : fi.Name)}");
 								byte[] fileBytes = null;
 								await bf.SerializeFile(s, fatIndex, i, (fileSize) => {
-									fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
+									fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileSize + 4));
+									if (fileIsCompressed) {
+										s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: settings.EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
+											fileBytes = s.SerializeArray<byte>(fileBytes, s.CurrentLength, name: "FileBytes");
+										});
+									} else {
+										fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
+									}
 								});
-								fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileBytes.Length + 4));
-								var fi = fat.FileInfos[i];
 								string fileName = null;
 								if (fi.Name != null) {
 									fileName = fi.Name;
+									if (fileIsCompressed) {
+										fileName += ".dec";
+									}
 									Util.ByteArrayToFile(Path.Combine(directories[fi.ParentDirectory], fileName), fileBytes);
 								} else {
 									fileName = $"no_name_{fat.Files[i].Key:X8}.dat";
+									if (fileIsCompressed) {
+										fileName += ".dec";
+									}
 									Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
 								}
 							}
@@ -82,7 +101,7 @@ namespace R1Engine {
 									Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
 								}
 								if (curOffset + curSize > nextOffset) {
-									UnityEngine.Debug.Log("error @ " + curOffset);
+									UnityEngine.Debug.Log($"error @ {(bf.Offset+curOffset)}");
 								}
 							}
 							/*{
@@ -135,8 +154,12 @@ namespace R1Engine {
 			AI_Links aiLinks = AI_Links.GetAILinks(context.Settings);
 			context.StoreObject<AI_Links>("ai", aiLinks);
 
+			// Load univers
 			Jade_Reference<AI_Instance> Univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
 			Univers.Resolve();
+
+			// Load world
+			//var worldKey = 0xff40e8f6; // Just a test. Allow selection later
 
 			await loader.LoadLoop(context.Deserializer);
 			throw new NotImplementedException();
