@@ -987,23 +987,38 @@ namespace R1Engine
             var foundGraphics = new List<long>();
             var foundScripts = new List<Tuple<long, string>>();
 
-            // Find graphics datas
-            for (int i = 0; i < values.Length - 3; i++)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
-                var p = getPointer(i);
-
-                // The animSets pointer always points to 12 bytes ahead
-                if (values[i] == p + 16)
+                // Find animation sets by finding pointers which references itself
+                for (int i = 0; i < values.Length; i++)
                 {
-                    // Make sure we've got valid pointers for the tiles and palettes
-                    if (isValidPointer(values[i + 1]) && isValidPointer(values[i + 2]))
-                    {
-                        var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
-                        var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+                    var p = getPointer(i);
 
-                        // Make sure the animSets count and palette counts are reasonable
-                        if (animSetsCount < 1000 && palettesCount < 10000)
-                            foundGraphics.Add(p);
+                    if (values[i] == p)
+                        // We found a valid animation set!
+                        foundGraphics.Add(p);
+                }
+            }
+            else
+            {
+                // Find graphics datas
+                for (int i = 0; i < values.Length - 3; i++)
+                {
+                    var p = getPointer(i);
+
+                    // The animSets pointer always points to 12 bytes ahead
+                    if (values[i] == p + 16)
+                    {
+                        // Make sure we've got valid pointers for the tiles and palettes
+                        if (isValidPointer(values[i + 1]) && isValidPointer(values[i + 2]))
+                        {
+                            var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+                            var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+
+                            // Make sure the animSets count and palette counts are reasonable
+                            if (animSetsCount < 1000 && palettesCount < 10000)
+                                foundGraphics.Add(p);
+                        }
                     }
                 }
             }

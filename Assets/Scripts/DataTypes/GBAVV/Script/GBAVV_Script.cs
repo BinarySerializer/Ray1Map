@@ -158,7 +158,7 @@ namespace R1Engine
                         }
                         else
                         {
-                            logCommand($"DISPLAY", $"\"{cmd.Dialog.DefaultString.Replace("\n", @"\n")}\"");
+                            logCommand($"DISPLAY", $"\"{cmd.Dialog?.DefaultString?.Replace("\n", @"\n")}\"");
                         }
 
                         break;

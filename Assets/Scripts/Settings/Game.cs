@@ -80,6 +80,7 @@
         GBAVV_CrashNitroKart,
         GBAVV_CrashFusion,
         GBAVV_SpyroFusion,
+        GBAVV_SharkTale,
 
         // Gameloft
 

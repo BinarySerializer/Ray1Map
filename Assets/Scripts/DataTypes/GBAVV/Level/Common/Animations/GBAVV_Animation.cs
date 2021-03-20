@@ -30,7 +30,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion > EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 Fusion_AnimSetPointer = s.SerializePointer(Fusion_AnimSetPointer, name: nameof(Fusion_AnimSetPointer)); // Null for Nitro Kart
                 FrameIndexTablePointer = s.SerializePointer(FrameIndexTablePointer, name: nameof(FrameIndexTablePointer));
@@ -41,7 +41,7 @@
                 Byte_16 = s.Serialize<byte>(Byte_16, name: nameof(Byte_16));
                 Byte_17 = s.Serialize<byte>(Byte_17, name: nameof(Byte_17));
 
-                if (s.GameSettings.GBAVV_IsFusion)
+                if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion)
                     AnimSet = s.DoAt(Fusion_AnimSetPointer, () => s.SerializeObject<GBAVV_AnimSet>(AnimSet, name: nameof(AnimSet)));
 
                 Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(Palette, 16, name: nameof(Palette)));

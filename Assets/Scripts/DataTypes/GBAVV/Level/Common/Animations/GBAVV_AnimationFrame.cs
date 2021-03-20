@@ -44,7 +44,7 @@ namespace R1Engine
         // Helpers
         public int GetTileShape(int index)
         {
-            if (Context.Settings.GBAVV_IsFusion)
+            if (Context.Settings.EngineVersion >= EngineVersion.GBAVV_CrashFusion)
                 return TilePositions[index].ShapeIndex;
             else
                 return TileShapes[index].ShapeIndex;
@@ -52,7 +52,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.GBAVV_IsFusion)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion)
             {
                 TilePositionsPointer = s.SerializePointer(TilePositionsPointer, name: nameof(TilePositionsPointer));
                 Fusion_TileSetPointer = s.SerializePointer(Fusion_TileSetPointer, name: nameof(Fusion_TileSetPointer));
@@ -111,7 +111,7 @@ namespace R1Engine
                 XPos = s.Serialize<short>(XPos, name: nameof(XPos));
                 YPos = s.Serialize<short>(YPos, name: nameof(YPos));
 
-                if (s.GameSettings.GBAVV_IsFusion)
+                if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion)
                     ShapeIndex = s.Serialize<int>(ShapeIndex, name: nameof(ShapeIndex));
             }
         }

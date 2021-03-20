@@ -17,7 +17,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (!s.GameSettings.GBAVV_IsFusion)
+            if (s.GameSettings.EngineVersion < EngineVersion.GBAVV_CrashFusion)
             {
                 AnimSetsPointer = s.SerializePointer(AnimSetsPointer, name: nameof(AnimSetsPointer));
                 TileSetPointer = s.SerializePointer(TileSetPointer, name: nameof(TileSetPointer));
@@ -34,8 +34,8 @@ namespace R1Engine
             }
             else
             {
-                // Since animation sets are referenced directly in Fusion there is no array
-                var pointers = ((GBAVV_Fusion_Manager)s.GameSettings.GetGameManager).AnimSetPointers;
+                // Since animation sets are referenced directly in later games there is no array
+                var pointers = s.GameSettings.GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;
 
                 if (AnimSets == null)
                     AnimSets = new GBAVV_AnimSet[pointers.Length];

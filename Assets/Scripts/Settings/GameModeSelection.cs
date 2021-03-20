@@ -466,6 +466,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpyroFusion, Game.GBAVV_SpyroFusion, "Spyro Advance Wakuwaku Tomodachi Daisakusen! (GBA - JP)", typeof(GBAVV_SpyroFusionJP_Manager))]
         SpyroFusionGBAJP,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SharkTale, Game.GBAVV_SharkTale, "Shark Tale (GBA - EU/US)", typeof(GBAVV_SharkTaleEUUS_Manager))]
+        SharkTaleGBA,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SharkTale, Game.GBAVV_SharkTale, "Shark Tale (GBA - JP)", typeof(GBAVV_SharkTaleJP_Manager))]
+        SharkTaleGBAJP,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]

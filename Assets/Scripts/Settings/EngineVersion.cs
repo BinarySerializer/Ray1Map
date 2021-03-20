@@ -101,11 +101,12 @@ namespace R1Engine
         GBAVV_TheLionKing,                   // 2003
         //GBAVV_TonyHawksUnderground,        // 2003 (TH engine)
         GBAVV_BrotherBear,                   // 2003
-
         GBAVV_CrashNitroKart,                // 2003
         GBAVV_CrashNitroKart_NGage,          // 2004
         GBAVV_CrashFusion,                   // 2004
         GBAVV_SpyroFusion,                   // 2004
+        GBAVV_SharkTale,                     // 2004
+        //GBAVV_TonyHawksUnderground2,       // 2004 (TH engine)
 
         // Gameloft
 
