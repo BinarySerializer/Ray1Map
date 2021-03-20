@@ -82,6 +82,7 @@
         GBAVV_SpyroFusion,
         GBAVV_SharkTale,
         GBAVV_ThatsSoRaven,
+        GBAVV_Shrek2,
 
         // Gameloft
 

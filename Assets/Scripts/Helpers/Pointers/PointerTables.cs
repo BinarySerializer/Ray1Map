@@ -1312,6 +1312,14 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x08039c2c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Shrek 2
+
+                case GameModeSelection.Shrek2GBA:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08028d94,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

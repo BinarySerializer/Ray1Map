@@ -475,6 +475,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ThatsSoRaven, Game.GBAVV_ThatsSoRaven, "That's so Raven (GBA - EU/US)", typeof(GBAVV_ThatsSoRaven_Manager))]
         ThatsSoRavenGBA,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Shrek2, Game.GBAVV_Shrek2, "Shrek 2 (GBA - EU/US)", typeof(GBAVV_Shrek2_Manager))]
+        Shrek2GBA,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]
