@@ -271,6 +271,25 @@ namespace R1Engine
                 }
             }
 
+            // Load collision map
+            if (map.MapCollision != null)
+            {
+                var cm = map.MapCollision;
+
+                maps = maps.Append(new Unity_Map
+                {
+                    Width = cm.Width,
+                    Height = cm.Height,
+                    TileSet = new Unity_TileSet[0],
+                    MapTiles = cm.CollisionMap.Select(x => new Unity_Tile(new MapTile()
+                    {
+                        CollisionType = x
+                    })).ToArray(),
+                    Type = Unity_Map.MapType.Collision,
+                    Layer = Unity_Map.MapLayer.Middle,
+                }).ToArray();
+            }
+
             Controller.DetailedState = "Loading localization";
             await Controller.WaitIfNecessary();
 
@@ -293,6 +312,7 @@ namespace R1Engine
             if (map.ObjData?.Objects != null)
                 objects.AddRange(map.ObjData.Objects.Select(obj => new Unity_Object_GBAVV(objmanager, obj, -1, -1)));
 
+            // TODO: Collision type for map collision
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
@@ -987,23 +1007,38 @@ namespace R1Engine
             var foundGraphics = new List<long>();
             var foundScripts = new List<Tuple<long, string>>();
 
-            // Find graphics datas
-            for (int i = 0; i < values.Length - 3; i++)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
-                var p = getPointer(i);
-
-                // The animSets pointer always points to 12 bytes ahead
-                if (values[i] == p + 16)
+                // Find animation sets by finding pointers which references itself
+                for (int i = 0; i < values.Length; i++)
                 {
-                    // Make sure we've got valid pointers for the tiles and palettes
-                    if (isValidPointer(values[i + 1]) && isValidPointer(values[i + 2]))
-                    {
-                        var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
-                        var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+                    var p = getPointer(i);
 
-                        // Make sure the animSets count and palette counts are reasonable
-                        if (animSetsCount < 1000 && palettesCount < 10000)
-                            foundGraphics.Add(p);
+                    if (values[i] == p)
+                        // We found a valid animation set!
+                        foundGraphics.Add(p);
+                }
+            }
+            else
+            {
+                // Find graphics datas
+                for (int i = 0; i < values.Length - 3; i++)
+                {
+                    var p = getPointer(i);
+
+                    // The animSets pointer always points to 12 bytes ahead
+                    if (values[i] == p + 16)
+                    {
+                        // Make sure we've got valid pointers for the tiles and palettes
+                        if (isValidPointer(values[i + 1]) && isValidPointer(values[i + 2]))
+                        {
+                            var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+                            var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+
+                            // Make sure the animSets count and palette counts are reasonable
+                            if (animSetsCount < 1000 && palettesCount < 10000)
+                                foundGraphics.Add(p);
+                        }
                     }
                 }
             }
@@ -1021,7 +1056,17 @@ namespace R1Engine
                 {
                     if (values[i] == primary && values[i + 1] == secondary && isValidPointer(values[i + 2]))
                     {
-                        foundScripts.Add(new Tuple<long, string>(getPointer(i), s.DoAt(new Pointer(values[i + 2], s.CurrentPointer.file), () => s.SerializeString(default))));
+                        // Serialize the script
+                        var script = s.DoAt(new Pointer((uint)getPointer(i), offset.file), () => s.SerializeObject<GBAVV_Script>(default, x => x.BaseFile = s.Context.GetFile(GetROMFilePath)));
+
+                        // If the script is invalid we ignore it
+                        if (!script.IsValid)
+                        {
+                            Debug.Log($"Skipping script {script.DisplayName}");
+                            continue;
+                        }
+
+                        foundScripts.Add(new Tuple<long, string>(getPointer(i), script.Name));
                     }
                 }
             }

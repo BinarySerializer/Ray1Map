@@ -1290,6 +1290,28 @@ namespace R1Engine
                         [GBAVV_Pointer.Fusion_DialogScripts] = 0x080626c4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Shark Tale
+
+                case GameModeSelection.SharkTaleGBA:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0802b018,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SharkTaleGBAJP:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0802afb4,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                // That's so Raven
+
+                case GameModeSelection.ThatsSoRavenGBA:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08039c2c,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

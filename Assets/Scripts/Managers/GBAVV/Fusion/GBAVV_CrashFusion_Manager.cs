@@ -448,7 +448,7 @@ namespace R1Engine
         };
         public override uint ObjTypesPointer => throw new NotImplementedException();
 
-        public override uint[] AnimSetPointers => new uint[]
+        public override uint[] GraphicsDataPointers => new uint[]
         {
             0x08293C68,
             0x082C86A0,
@@ -1754,7 +1754,7 @@ namespace R1Engine
         };
         public override uint ObjTypesPointer => 0x08011144;
 
-        public override uint[] AnimSetPointers => new uint[]
+        public override uint[] GraphicsDataPointers => new uint[]
         {
             0x08279D94,
             0x082AE7CC,
@@ -3061,7 +3061,7 @@ namespace R1Engine
 
 		public override uint ObjTypesPointer => throw new NotImplementedException();
 
-        public override uint[] AnimSetPointers => new uint[]
+        public override uint[] GraphicsDataPointers => new uint[]
         {
             0x0827D0DC,
             0x082B1B14,

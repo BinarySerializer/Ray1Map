@@ -58,7 +58,7 @@ namespace R1Engine
 
         public override int? GetLayer(int index)
         {
-            if (!ObjManager.Context.Settings.GBAVV_IsFusion)
+            if (ObjManager.Context.Settings.EngineVersion < EngineVersion.GBAVV_CrashFusion)
                 return null;
 
             if (Object.ObjType <= 10)
@@ -93,8 +93,8 @@ namespace R1Engine
             }
         }
 
-        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.GBAVV_IsFusion ? 1 : 2)) != 0;
-        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.GBAVV_IsFusion ? 2 : 4)) != 0;
+        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBAVV_CrashFusion ? 1 : 2)) != 0;
+        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBAVV_CrashFusion ? 2 : 4)) != 0;
 
         public override bool CanBeLinkedToGroup => true;
 

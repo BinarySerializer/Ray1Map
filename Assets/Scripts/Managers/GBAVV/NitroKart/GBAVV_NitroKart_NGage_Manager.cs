@@ -944,6 +944,7 @@ namespace R1Engine
             GameObject gao_3dObjParent = null;
             bool obj3dIsAnimated = false;
 
+            // TODO: Object groups for 3D objects
             void replaceObjWith3D(GBAVV_NitroKart_NGage_S3D s3d, int[] objTypes, Vector3? snapToFloorPosition = null)
             {
                 var toRemove = new HashSet<Unity_Object>();

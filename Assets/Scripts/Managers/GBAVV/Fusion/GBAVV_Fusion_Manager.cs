@@ -288,15 +288,9 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
 
-        public override uint[] GraphicsDataPointers => new uint[]
-        {
-            0x08000000, // Dummy pointer so the struct gets serialized once
-        };
-
         public abstract int ObjTypesCount { get; }
         public abstract uint ObjTypesPointer { get; }
         public abstract ObjTypeInit[] ObjTypeInitInfos { get; }
-        public abstract uint[] AnimSetPointers { get; }
         public abstract int DialogScriptsCount { get; }
         public abstract byte[] HardCodedScripts { get; }
 

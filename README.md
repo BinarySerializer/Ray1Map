@@ -715,6 +715,22 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
+  <tr>
+    <td class="tg-yw4l">Shark Tale (GBA)</td>
+    <td class="tg-yw4l">EU/US, JP</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">Obj type graphics have not been assigned</td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">That's so Raven (GBA)</td>
+    <td class="tg-yw4l">EU/US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">Obj type graphics have not been assigned</td>
+  </tr>
 </table>
 
 ### Supported Games (Gameloft)
