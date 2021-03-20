@@ -271,6 +271,25 @@ namespace R1Engine
                 }
             }
 
+            // Load collision map
+            if (map.MapCollision != null)
+            {
+                var cm = map.MapCollision;
+
+                maps = maps.Append(new Unity_Map
+                {
+                    Width = cm.Width,
+                    Height = cm.Height,
+                    TileSet = new Unity_TileSet[0],
+                    MapTiles = cm.CollisionMap.Select(x => new Unity_Tile(new MapTile()
+                    {
+                        CollisionType = x
+                    })).ToArray(),
+                    Type = Unity_Map.MapType.Collision,
+                    Layer = Unity_Map.MapLayer.Middle,
+                }).ToArray();
+            }
+
             Controller.DetailedState = "Loading localization";
             await Controller.WaitIfNecessary();
 
@@ -293,6 +312,7 @@ namespace R1Engine
             if (map.ObjData?.Objects != null)
                 objects.AddRange(map.ObjData.Objects.Select(obj => new Unity_Object_GBAVV(objmanager, obj, -1, -1)));
 
+            // TODO: Collision type for map collision
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,

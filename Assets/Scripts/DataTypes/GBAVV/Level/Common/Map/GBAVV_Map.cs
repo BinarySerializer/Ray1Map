@@ -16,6 +16,7 @@
         public GBAVV_MapLayer[] MapLayers { get; set; }
         public GBAVV_Map2D_ObjData ObjData { get; set; }
         public GBAVV_TileSets TileSets { get; set; }
+        public GBAVV_MapCollision MapCollision { get; set; }
         public GBAVV_LineCollisionSector LineCollision { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -40,7 +41,12 @@
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Map2D_ObjData>(ObjData, name: nameof(ObjData)));
             TileSets = s.DoAt(TileSetsPointer, () => s.SerializeObject<GBAVV_TileSets>(TileSets, name: nameof(TileSets)));
 
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_BrotherBear)
+            if (s.GameSettings.EngineVersion < EngineVersion.GBAVV_BrotherBear)
+                s.DoAt(MapCollisionPointer, () =>
+                {
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => MapCollision = s.SerializeObject<GBAVV_MapCollision>(MapCollision, name: nameof(MapCollision)));
+                });
+            else
                 LineCollision = s.DoAt(MapCollisionPointer, () => s.SerializeObject<GBAVV_LineCollisionSector>(LineCollision, name: nameof(LineCollision)));
         }
     }
