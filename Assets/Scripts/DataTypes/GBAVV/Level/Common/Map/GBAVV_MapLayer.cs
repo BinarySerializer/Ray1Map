@@ -34,20 +34,13 @@ namespace R1Engine
             {
                 var mapTilesLength = TileMap.TileMapSections.SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
 
-                var isCompressed = s.GameSettings.GBAVV_IsFusion ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_BruceLeeReturnOfTheLegend || 
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_FindingNemo ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_TheLionKing ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_BrotherBear ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_SharkTale ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_ThatsSoRaven ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_Shrek2 ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_Shrek2BegForMercy ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_Madagascar ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_BatmanBegins;
+                var uncompressed = s.GameSettings.EngineVersion == EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_X2WolverinesRevenge ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan;
 
-                s.DoEncodedIf(new GBA_LZSSEncoder(), isCompressed, () =>
+                s.DoEncodedIf(new GBA_LZSSEncoder(), !uncompressed, () =>
                 {
                     MapTiles = s.SerializeObjectArray<MapTile>(MapTiles, mapTilesLength * 4, x => x.GBAVV_IsWorldMap = true, name: nameof(MapTiles));
                 });

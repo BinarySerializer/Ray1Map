@@ -62,6 +62,9 @@ namespace R1Engine
                 case Game.GBAVV_Madagascar:
                     return MadagascarGBANames;
 
+                case Game.GBAVV_UltimateSpiderMan:
+                    return UltimateSpiderManGBANames;
+
                 case Game.Gameloft_RK:
                     return RaymanKartNames;
                 case Game.Gameloft_RK_LowRes:
@@ -994,6 +997,10 @@ namespace R1Engine
         private static Dictionary<int, Dictionary<int, string>> MadagascarGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
         {
             [0] = GBAVV_Madagascar_Manager.Levels.Select((x, i) => new { x, i }).ToDictionary(x => x.i, x => x.x.DisplayName)
+        };
+        private static Dictionary<int, Dictionary<int, string>> UltimateSpiderManGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
+        {
+            [0] = GBAVV_UltimateSpiderMan_Manager.Levels.Select((x, i) => new { x, i }).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
     }
 }

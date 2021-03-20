@@ -248,8 +248,8 @@ namespace R1Engine
                     foreach (var line in mapCollision.CollisionLines ?? new GBAVV_LineCollisionLine[0])
                     {
                         // Get vectors for the points
-                        Vector2 p1 = new Vector2(line.X1, line.Y1);
-                        Vector2 p2 = new Vector2(line.X2, line.Y2);
+                        Vector2 p1 = new Vector2(line.GetX1, line.GetY1);
+                        Vector2 p2 = new Vector2(line.GetX2, line.GetY2);
 
                         var c = line.CollisionData ?? dummyCollision;
 

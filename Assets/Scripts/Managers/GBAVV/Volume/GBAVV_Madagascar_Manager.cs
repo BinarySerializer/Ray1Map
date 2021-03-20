@@ -1,35 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
 
 namespace R1Engine
 {
-    public abstract class GBAVV_Madagascar_Manager : GBAVV_BaseManager
+    public abstract class GBAVV_Madagascar_Manager : GBAVV_Volume_BaseManager
     {
         // Metadata
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
-        {
-            new GameInfo_World(0, Enumerable.Range(0, LevInfos.Length).ToArray()),
-        });
-
-        // Exports
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Madagascar>(GetROMFilePath, context, (s, x) => x.CurrentLevInfo = LevInfos[context.Settings.Level]);
-        public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
-
-        // Load
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
-        {
-            Controller.DetailedState = "Loading data";
-            await Controller.WaitIfNecessary();
-
-            var rom = FileFactory.Read<GBAVV_ROM_Madagascar>(GetROMFilePath, context, (s, x) => x.CurrentLevInfo = LevInfos[context.Settings.Level]);
-            
-            //GenerateLevInfos(rom);
-
-            return await LoadMap2DAsync(context, rom, rom.CurrentMap, false);
-        }
+        public override int VolumesCount => 2;
 
         // Scripts
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>()
@@ -39,32 +15,8 @@ namespace R1Engine
             [0502] = GBAVV_ScriptCommand.CommandType.Dialog,
         };
 
-        // Helpers
-        public void GenerateLevInfos(GBAVV_ROM_Madagascar rom)
-        {
-            var str = new StringBuilder();
-
-            for (int volumeIndex = 0; volumeIndex < rom.Volumes.Length; volumeIndex++)
-            {
-                var volume = rom.Volumes[volumeIndex];
-
-                for (int levelIndex = 0; levelIndex < volume.LevelInfos.Length; levelIndex++)
-                {
-                    var level = volume.LevelInfos[levelIndex];
-
-                    for (int mapIndex = 0; mapIndex < level.MapInfos.Length; mapIndex++)
-                    {
-                        str.AppendLine($"new LevInfo({volumeIndex}, {levelIndex}, {mapIndex}, \"{volume.VolumeName.DefaultString}\", \"{level.LevelName.DefaultString}\"),");
-                    }
-                }
-            }
-
-
-            str.ToString().CopyToClipboard();
-        }
-
         // Levels
-        public LevInfo[] LevInfos => Levels;
+        public override LevInfo[] LevInfos => Levels;
         public static LevInfo[] Levels => new LevInfo[]
         {
             new LevInfo(0, 0, 0, "Adventure", "Alex's Double Jump"),
@@ -127,25 +79,6 @@ namespace R1Engine
             new LevInfo(1, 6, 0, "Bonus", "Gloria's Dive"),
             new LevInfo(1, 7, 0, "Bonus", "Alex's Claw Climb"),
         };
-
-        public class LevInfo
-        {
-            public LevInfo(int volume, int level, int map, string volumeName, string levelName)
-            {
-                Volume = volume;
-                Level = level;
-                Map = map;
-                VolumeName = volumeName;
-                LevelName = levelName;
-            }
-
-            public int Volume { get; }
-            public int Level { get; }
-            public int Map { get; }
-            public string VolumeName { get; }
-            public string LevelName { get; }
-            public string DisplayName => $"{VolumeName}: {LevelName} {Map}";
-        }
     }
     public class GBAVV_MadagascarEUUS_Manager : GBAVV_Madagascar_Manager
     {

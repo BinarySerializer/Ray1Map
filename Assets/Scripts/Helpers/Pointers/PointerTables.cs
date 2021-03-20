@@ -1358,6 +1358,20 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x0806f6a0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Ultimate Spider-Man
+
+                case GameModeSelection.UltimateSpiderManGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0807a3fc,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.UltimateSpiderManGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0807a3fc,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

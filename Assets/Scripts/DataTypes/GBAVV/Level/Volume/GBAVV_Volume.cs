@@ -1,8 +1,8 @@
 ﻿namespace R1Engine
 {
-    public class GBAVV_Madagascar_Volume : R1Serializable
+    public class GBAVV_Volume : R1Serializable
     {
-        public GBAVV_Madagascar_Manager.LevInfo CurrentLevInfo { get; set; } // Set before serializing
+        public GBAVV_Volume_BaseManager.LevInfo CurrentLevInfo { get; set; } // Set before serializing
 
         public Pointer VolumeNamePointer { get; set; }
         public Pointer LevelInfosPointer { get; set; }
@@ -11,7 +11,7 @@
 
         // Serialized from pointers
         public GBAVV_LocalizedString VolumeName { get; set; }
-        public GBAVV_Madagascar_LevelInfo[] LevelInfos { get; set; }
+        public GBAVV_Volume_LevelInfo[] LevelInfos { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -25,10 +25,10 @@
             s.DoAt(LevelInfosPointer, () =>
             {
                 if (LevelInfos == null)
-                    LevelInfos = new GBAVV_Madagascar_LevelInfo[LevelsCount];
+                    LevelInfos = new GBAVV_Volume_LevelInfo[LevelsCount];
 
                 for (int i = 0; i < LevelInfos.Length; i++)
-                    LevelInfos[i] = s.SerializeObject<GBAVV_Madagascar_LevelInfo>(LevelInfos[i], x => x.CurrentLevInfo = i == CurrentLevInfo?.Level ? CurrentLevInfo : null, name: $"{nameof(LevelInfos)}[{i}]");
+                    LevelInfos[i] = s.SerializeObject<GBAVV_Volume_LevelInfo>(LevelInfos[i], x => x.CurrentLevInfo = i == CurrentLevInfo?.Level ? CurrentLevInfo : null, name: $"{nameof(LevelInfos)}[{i}]");
             });
         }
     }

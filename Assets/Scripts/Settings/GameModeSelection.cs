@@ -493,6 +493,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_BatmanBegins, Game.GBAVV_BatmanBegins, "Batman Begins (GBA - EU/US)", typeof(GBAVV_BatmanBegins_Manager))]
         BatmanBeginsGBA,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_UltimateSpiderMan, Game.GBAVV_UltimateSpiderMan, "Ultimate Spider-Man (GBA - EU)", typeof(GBAVV_UltimateSpiderManEU_Manager))]
+        UltimateSpiderManGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_UltimateSpiderMan, Game.GBAVV_UltimateSpiderMan, "Ultimate Spider-Man (GBA - US)", typeof(GBAVV_UltimateSpiderManUS_Manager))]
+        UltimateSpiderManGBAUS,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]

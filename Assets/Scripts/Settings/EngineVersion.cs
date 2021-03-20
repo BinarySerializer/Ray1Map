@@ -113,6 +113,8 @@ namespace R1Engine
         GBAVV_KidsNextDoorOperationSODA,     // 2004
         GBAVV_Madagascar,                    // 2005 (has DS version)
         GBAVV_BatmanBegins,                  // 2005
+        GBAVV_UltimateSpiderMan,             // 2005 (has DS version)
+        //GBAVV_TonyHawksAmericanSk8land,    // 2005 (TH engine)
 
         // Gameloft
 

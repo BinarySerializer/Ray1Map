@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBAVV_Madagascar_MapInfo : R1Serializable
+    public class GBAVV_Volume_MapInfo : R1Serializable
     {
         public bool SerializeData { get; set; } // Set before serializing
 

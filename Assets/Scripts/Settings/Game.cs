@@ -87,6 +87,7 @@
         GBAVV_KidsNextDoorOperationSODA,
         GBAVV_Madagascar,
         GBAVV_BatmanBegins,
+        GBAVV_UltimateSpiderMan,
 
         // Gameloft
 

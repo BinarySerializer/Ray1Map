@@ -2,6 +2,7 @@
 {
     public class GBAVV_LineCollisionSector : R1Serializable
     {
+        // TODO: These are fixed point ints (with point at 8 bits) for Ultimate Spider-Man
         public int Int_00 { get; set; } // X?
         public int Int_04 { get; set; } // Y?
         public int Int_08 { get; set; } // Width?
