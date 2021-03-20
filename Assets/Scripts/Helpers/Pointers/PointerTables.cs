@@ -1180,6 +1180,20 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x08032718,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Finding Nemo
+
+                case GameModeSelection.FindingNemoGBA:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0802e310,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.FindingNemoGBAJP:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x080308ec,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 // Nitro Kart
 
                 case GameModeSelection.CrashNitroKartEU:

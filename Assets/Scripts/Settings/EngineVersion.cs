@@ -95,6 +95,8 @@ namespace R1Engine
         GBAVV_Crash2,                        // 2003
         GBAVV_BruceLeeReturnOfTheLegend,     // 2003
         GBAVV_X2WolverinesRevenge,           // 2003
+        GBAVV_FindingNemo,                   // 2003
+
         GBAVV_CrashNitroKart,                // 2003
         GBAVV_CrashNitroKart_NGage,          // 2004
         GBAVV_CrashFusion,                   // 2004
