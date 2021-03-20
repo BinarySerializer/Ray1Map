@@ -1338,13 +1338,7 @@ namespace R1Engine
 
                 // Madagascar
 
-                case GameModeSelection.MadagascarGBAEU:
-                    return new Dictionary<GBAVV_Pointer, uint>()
-                    {
-                        [GBAVV_Pointer.LevelInfo] = 0x080330d0,
-                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
-
-                case GameModeSelection.MadagascarGBAUS:
+                case GameModeSelection.MadagascarGBA:
                     return new Dictionary<GBAVV_Pointer, uint>()
                     {
                         [GBAVV_Pointer.LevelInfo] = 0x080330d0,

@@ -484,11 +484,8 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_KidsNextDoorOperationSODA, Game.GBAVV_KidsNextDoorOperationSODA, "Codename - Kids Next Door - Operation S.O.D.A. (GBA - US)", typeof(GBAVV_KidsNextDoorOperationSODA_Manager))]
         KidsNextDoorOperationSODAGBAUS,
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Madagascar, Game.GBAVV_Madagascar, "Madagascar (GBA - EU)", typeof(GBAVV_MadagascarEU_Manager))]
-        MadagascarGBAEU,
-
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Madagascar, Game.GBAVV_Madagascar, "Madagascar (GBA - US)", typeof(GBAVV_MadagascarUS_Manager))]
-        MadagascarGBAUS,
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Madagascar, Game.GBAVV_Madagascar, "Madagascar (GBA - EU/US)", typeof(GBAVV_MadagascarEUUS_Manager))]
+        MadagascarGBA,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Madagascar, Game.GBAVV_Madagascar, "Madagascar (GBA - JP)", typeof(GBAVV_MadagascarJP_Manager))]
         MadagascarGBAJP,
