@@ -9,5 +9,8 @@
 			Y = s.Serialize<float>(Y, name: nameof(Y));
 			Z = s.Serialize<float>(Z, name: nameof(Z));
 		}
+		public override string ToString() {
+			return $"Vector({X}, {Y}, {Z})";
+		}
 	}
 }

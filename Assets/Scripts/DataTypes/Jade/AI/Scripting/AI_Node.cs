@@ -2,22 +2,27 @@
 	public class AI_Node : R1Serializable {
 		public uint Parameter { get; set; }
 		public ushort NodeType { get; set; }
-		public byte Byte_06 { get; set; }
-		public byte Byte_07 { get; set; }
+		public byte Flags { get; set; }
+		public byte CategoryType { get; set; }
 
-		public AI_Link Link { get; set; }
+		public AI_Link Link_ParameterType { get; set; }
+		public AI_Link Link_CategoryType { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Parameter = s.Serialize<uint>(Parameter, name: nameof(Parameter));
 			NodeType = s.Serialize<ushort>(NodeType, name: nameof(NodeType));
 
-			Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
-			Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
+			Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
+			CategoryType = s.Serialize<byte>(CategoryType, name: nameof(CategoryType));
 			
 			var links = Context.GetStoredObject<AI_Links>("ai");
 			if (links.Links.ContainsKey(NodeType)) {
-				Link = links.Links[NodeType];
-				s.Log($"Node function name: {Link.Name}");
+				Link_ParameterType = links.Links[NodeType];
+				s.Log($"Node param function name: {Link_ParameterType.Name}");
+			}
+			if (links.Links.ContainsKey(CategoryType)) {
+				Link_CategoryType = links.Links[CategoryType];
+				s.Log($"Node category function name: {Link_CategoryType.Name}");
 			}
 		}
 	}

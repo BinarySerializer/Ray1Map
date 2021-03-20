@@ -2,7 +2,7 @@
 
 namespace R1Engine.Jade {
 	public class AI_VarEditorInfo : R1Serializable {
-		public int Key { get; set; }
+		public int BufferOffset { get; set; }
 		public int Int_04 { get; set; }
 		public int Int_08 { get; set; }
 		public ushort UShort_0C { get; set; }
@@ -13,7 +13,7 @@ namespace R1Engine.Jade {
 		public string Description { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			Key = s.Serialize<int>(Key, name: nameof(Key));
+			BufferOffset = s.Serialize<int>(BufferOffset, name: nameof(BufferOffset));
 			Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));
 			Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
 			UShort_0C = s.Serialize<ushort>(UShort_0C, name: nameof(UShort_0C));

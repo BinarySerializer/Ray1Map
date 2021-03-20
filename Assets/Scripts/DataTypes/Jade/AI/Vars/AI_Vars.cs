@@ -50,14 +50,14 @@ namespace R1Engine.Jade {
 					s.Log($"Strings for {nameof(VarEditorInfos)}[{i}]");
 					var.SerializeStrings(s);
 
-					var match = Vars.FirstOrDefault(v => v.Info.Key == var.Key);
+					var match = Vars.FirstOrDefault(v => v.Info.BufferOffset == var.BufferOffset);
 					if(match != null) match.EditorInfo = var;
 				}
 			}
 
 			// Var values
 			VarValueBufferSize = s.Serialize<uint>(VarValueBufferSize, name: nameof(VarValueBufferSize));
-			var sortedVars = Vars.OrderBy(v => v.Info.Key).ToArray();
+			var sortedVars = Vars.OrderBy(v => v.Info.BufferOffset).ToArray();
 			if(Values == null) Values = new AI_VarValue[sortedVars.Length];
 			for(int i = 0; i < Values.Length; i++) {
 				var variable = sortedVars[i];
@@ -81,7 +81,9 @@ namespace R1Engine.Jade {
 				s.Log($"Vars[{i}]: {Vars[i].Name}" +
 					$"\n\t\tDescription: {Vars[i].EditorInfo?.Description?.Trim() ?? "null"}" +
 					$"\n\t\tToggle text: {Vars[i].EditorInfo?.SelectionString?.Trim() ?? "null"}" +
-					$"\n\t\tValue offset: {Vars[i].Value?.Offset}" +
+					$"\n\t\tValue: {Vars[i].Value}" +
+					$"\n\t\tBuffer value offset: {Vars[i].Info.BufferOffset:X8}" +
+					$"\n\t\tBF Value offset: {Vars[i].Value?.Offset}" +
 					$"\n\t\tValue type: {Vars[i].Type} ({Vars[i].Link.Key})" +
 					$"\n\t\tValue element size: {Vars[i].Link.Size}" +
 					$"\n\t\tValue count: {Vars[i].Info.ArrayLength}" +

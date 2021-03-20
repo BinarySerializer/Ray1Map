@@ -4,7 +4,7 @@
 		Unknown,
 		Bool,
 		Int,
-		UInt,
+		Float,
 		Vector,
 		String,
 		PointerRef,

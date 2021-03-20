@@ -1910,7 +1910,7 @@ namespace R1Engine.Jade {
 			Types = new AI_Link[] {
 				new AI_Link(32, 4, "AI_EvalType_GetBool"),
 				new AI_Link(33, 4, "AI_EvalType_GetInt"),
-				new AI_Link(34, 4, "AI_EvalType_GetInt"),
+				new AI_Link(34, 4, "AI_EvalType_GetInt", AI_VarType.Float),
 				new AI_Link(37, 0xC, "AI_EvalType_GetVector"),
 				new AI_Link(38, 4, "AI_EvalType_GetString"),
 				new AI_Link(39, 4, "AI_EvalType_GetPointerRef"),

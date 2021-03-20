@@ -10,14 +10,18 @@ namespace R1Engine.Jade {
 		public uint Size { get; set; }
 		public string Name { get; set; }
 
-		public AI_Link(uint key, uint size, string name) {
+		public AI_Link(uint key, uint size, string name, AI_VarType? overrideType = null) {
 			Key = key;
 			Size = size;
 			Name = name;
+			OverrideType = overrideType;
 		}
+
+		public AI_VarType? OverrideType { get; set; }
 
 		public AI_VarType VarType {
 			get {
+				if(OverrideType.HasValue) return OverrideType.Value;
 				if(Size == 0) return AI_VarType.None;
 				if (Name.StartsWith("AI_EvalType_Get")) {
 					var typeName = Name.Substring("AI_EvalType_Get".Length);

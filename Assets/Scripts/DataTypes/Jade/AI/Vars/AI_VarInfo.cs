@@ -1,12 +1,12 @@
 ﻿namespace R1Engine.Jade {
 	public class AI_VarInfo : R1Serializable {
-		public int Key { get; set; }
+		public int BufferOffset { get; set; }
 		public int ArrayDimensionsCount { get; set; }
 		public int ArrayLength { get; set; }
 		public short Type { get; set; }
 		public short Short_0A { get; set; }
 		public override void SerializeImpl(SerializerObject s) {
-			Key = s.Serialize<int>(Key, name: nameof(Key));
+			BufferOffset = s.Serialize<int>(BufferOffset, name: nameof(BufferOffset));
 			s.SerializeBitValues<int>(bitFunc => {
 				ArrayLength = bitFunc(ArrayLength, 30, name: nameof(ArrayLength));
 				ArrayDimensionsCount = bitFunc(ArrayDimensionsCount, 2, name: nameof(ArrayDimensionsCount));
