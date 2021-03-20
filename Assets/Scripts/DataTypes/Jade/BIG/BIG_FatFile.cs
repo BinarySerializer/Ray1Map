@@ -40,6 +40,22 @@
 			public static uint StructSize => 0x8;
 			public Pointer FileOffset { get; set; }
 			public Jade_Key Key { get; set; }
+			public bool IsCompressed {
+				get {
+					switch (Key.Key & 0xFF000000) {
+						case 0xFF000000:
+							if ((Key.Key & 0xFFF80000) == 0xFF400000) {
+								return false;
+							} else {
+								return true;
+							}
+						case 0xFE000000:
+						case 0xFD000000:
+							return true;
+					}
+					return false;
+				}
+			}
 
 			public override void SerializeImpl(SerializerObject s) {
 				FileOffset = s.SerializePointer(FileOffset, name: nameof(FileOffset));

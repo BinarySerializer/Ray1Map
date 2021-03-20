@@ -11,7 +11,9 @@ namespace R1Engine.Jade {
 		public Queue<FileReference> LoadQueue = new Queue<FileReference>();
 		public Dictionary<Jade_Key, FileInfo> FileInfos { get; private set; }
 		public Dictionary<Jade_Key, Jade_File> LoadedFiles { get; private set; }
-		public bool IsBinaryData => false;
+		public bool IsBinaryData => SpeedMode && ReadMode == 2;
+		public bool SpeedMode { get; set; }
+		public int ReadMode { get; set; }
 
 
 		public LOA_Loader(BIG_BigFile[] bigFiles) {
