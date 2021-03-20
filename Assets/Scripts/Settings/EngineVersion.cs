@@ -107,6 +107,7 @@ namespace R1Engine
         GBAVV_SpyroFusion,                   // 2004
         GBAVV_SharkTale,                     // 2004
         //GBAVV_TonyHawksUnderground2,       // 2004 (TH engine)
+        GBAVV_ThatsSoRaven,                  // 2004
 
         // Gameloft
 

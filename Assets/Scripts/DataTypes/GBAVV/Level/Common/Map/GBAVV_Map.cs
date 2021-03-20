@@ -41,7 +41,7 @@
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Map2D_ObjData>(ObjData, name: nameof(ObjData)));
             TileSets = s.DoAt(TileSetsPointer, () => s.SerializeObject<GBAVV_TileSets>(TileSets, name: nameof(TileSets)));
 
-            if (s.GameSettings.EngineVersion < EngineVersion.GBAVV_BrotherBear)
+            if (s.GameSettings.EngineVersion < EngineVersion.GBAVV_BrotherBear && s.GameSettings.EngineVersion != EngineVersion.GBAVV_ThatsSoRaven)
                 s.DoAt(MapCollisionPointer, () =>
                 {
                     s.DoEncoded(new GBA_LZSSEncoder(), () => MapCollision = s.SerializeObject<GBAVV_MapCollision>(MapCollision, name: nameof(MapCollision)));

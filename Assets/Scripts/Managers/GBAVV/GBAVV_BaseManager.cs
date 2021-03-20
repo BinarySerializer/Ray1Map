@@ -1056,7 +1056,17 @@ namespace R1Engine
                 {
                     if (values[i] == primary && values[i + 1] == secondary && isValidPointer(values[i + 2]))
                     {
-                        foundScripts.Add(new Tuple<long, string>(getPointer(i), s.DoAt(new Pointer(values[i + 2], s.CurrentPointer.file), () => s.SerializeString(default))));
+                        // Serialize the script
+                        var script = s.DoAt(new Pointer((uint)getPointer(i), offset.file), () => s.SerializeObject<GBAVV_Script>(default, x => x.BaseFile = s.Context.GetFile(GetROMFilePath)));
+
+                        // If the script is invalid we ignore it
+                        if (!script.IsValid)
+                        {
+                            Debug.Log($"Skipping script {script.DisplayName}");
+                            continue;
+                        }
+
+                        foundScripts.Add(new Tuple<long, string>(getPointer(i), script.Name));
                     }
                 }
             }

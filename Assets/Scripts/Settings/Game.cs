@@ -81,6 +81,7 @@
         GBAVV_CrashFusion,
         GBAVV_SpyroFusion,
         GBAVV_SharkTale,
+        GBAVV_ThatsSoRaven,
 
         // Gameloft
 

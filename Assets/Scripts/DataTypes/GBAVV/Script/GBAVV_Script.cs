@@ -31,9 +31,9 @@ namespace R1Engine
                         x.SerializeFLC = SerializeFLC;
                         x.BaseFile = BaseFile;
                     }, name: $"{nameof(Commands)}[{index++}]"));
-                } while (!(cmds[cmds.Count - 1].Type == GBAVV_ScriptCommand.CommandType.Return && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfInputCheck && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfField08) && index < 500);
+                } while (!(cmds[cmds.Count - 1].Type == GBAVV_ScriptCommand.CommandType.Return && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfInputCheck && cmds.ElementAtOrDefault(cmds.Count - 2)?.Type != GBAVV_ScriptCommand.CommandType.SkipNextIfField08) && index < 500 && cmds[cmds.Count - 1].PrimaryCommandType < 100 && cmds[cmds.Count - 1].SecondaryCommandType < 100);
                 
-                if (index == 500 || cmds.Any(x => x.PrimaryCommandType >= 100))
+                if (index == 500 || cmds.Any(x => x.PrimaryCommandType >= 100 || x.SecondaryCommandType >= 100))
                 {
                     Debug.Log($"Invalid script at {Offset}");
                     IsValid = false;
