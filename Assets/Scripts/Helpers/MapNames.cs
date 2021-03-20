@@ -59,6 +59,9 @@ namespace R1Engine
                 case Game.GBAVV_CrashNitroKart:
                     return CrashNitroKartGBANames;
 
+                case Game.GBAVV_Madagascar:
+                    return MadagascarGBANames;
+
                 case Game.Gameloft_RK:
                     return RaymanKartNames;
                 case Game.Gameloft_RK_LowRes:
@@ -987,6 +990,10 @@ namespace R1Engine
                 [24] = "Battle 7",
                 [25] = "Battle 8",
             },
+        };
+        private static Dictionary<int, Dictionary<int, string>> MadagascarGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
+        {
+            [0] = GBAVV_Madagascar_Manager.Levels.Select((x, i) => new { x, i }).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
     }
 }

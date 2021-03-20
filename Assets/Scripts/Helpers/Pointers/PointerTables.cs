@@ -1330,10 +1330,30 @@ namespace R1Engine
 
                 // Codename - Kids Next Door - Operation S.O.D.A.
 
-                case GameModeSelection.GBAVV_KidsNextDoorOperationSODAGBAUS:
+                case GameModeSelection.KidsNextDoorOperationSODAGBAUS:
                     return new Dictionary<GBAVV_Pointer, uint>()
                     {
                         [GBAVV_Pointer.LevelInfo] = 0x08038aac,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                // Madagascar
+
+                case GameModeSelection.MadagascarGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x080330d0,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.MadagascarGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x080330d0,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.MadagascarGBAJP:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x080333f0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

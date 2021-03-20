@@ -40,7 +40,7 @@ namespace R1Engine
             SecondaryCommandType = s.Serialize<int>(SecondaryCommandType, name: nameof(SecondaryCommandType));
             Param = s.Serialize<uint>(Param, name: nameof(Param));
 
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
                 SecondaryParam = s.Serialize<uint>(SecondaryParam, name: nameof(SecondaryParam));
 
             Type = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
