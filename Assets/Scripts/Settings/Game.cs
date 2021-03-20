@@ -83,6 +83,7 @@
         GBAVV_SharkTale,
         GBAVV_ThatsSoRaven,
         GBAVV_Shrek2,
+        GBAVV_Shrek2BegForMercy,
 
         // Gameloft
 

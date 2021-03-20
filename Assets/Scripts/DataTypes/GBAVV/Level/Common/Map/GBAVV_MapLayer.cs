@@ -41,7 +41,8 @@ namespace R1Engine
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_BrotherBear ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_SharkTale ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_ThatsSoRaven ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_Shrek2;
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_Shrek2 ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_Shrek2BegForMercy;
 
                 s.DoEncodedIf(new GBA_LZSSEncoder(), isCompressed, () =>
                 {

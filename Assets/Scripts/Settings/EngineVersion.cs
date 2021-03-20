@@ -90,8 +90,8 @@ namespace R1Engine
         //GBAVV_TonyHawksProSkater4,         // 2002 (TH engine)
         GBAVV_ThePowerpuffGirlsHimAndSeek,   // 2002
         GBAVV_FroggerAdvance,                // 2002
-        GBAVV_TheMuppetsOnWithTheShow,       // 2003 (has PC version) (maps are hard-coded)
-        GBAVV_SpyMuppetsLicenseToCroak,      // 2003 (has PC version) (maps are hard-coded)
+        GBAVV_TheMuppetsOnWithTheShow,       // 2003 (maps are hard-coded, has PC version)
+        GBAVV_SpyMuppetsLicenseToCroak,      // 2003 (maps are hard-coded, has PC version)
         GBAVV_Crash2,                        // 2003
         GBAVV_BruceLeeReturnOfTheLegend,     // 2003
         GBAVV_X2WolverinesRevenge,           // 2003
@@ -109,6 +109,7 @@ namespace R1Engine
         //GBAVV_TonyHawksUnderground2,       // 2004 (TH engine)
         GBAVV_ThatsSoRaven,                  // 2004
         GBAVV_Shrek2,                        // 2004
+        GBAVV_Shrek2BegForMercy,             // 2004
 
         // Gameloft
 
