@@ -5,7 +5,18 @@
         public GBAVV_Volume_BaseManager.LevInfo CurrentLevInfo { get; set; } // Set before serializing
 
         // Helpers
-        public GBAVV_Map CurrentMap => Volumes[CurrentLevInfo.Volume].LevelInfos[CurrentLevInfo.Level].MapInfos[CurrentLevInfo.Map].Map;
+        public GBAVV_Map CurrentMap
+        {
+            get
+            {
+                var v = Volumes[CurrentLevInfo.Volume];
+
+                if (CurrentLevInfo.Level == -1)
+                    return v.PrimaryLevelInfo.MapInfos[CurrentLevInfo.Map].Map;
+                else
+                    return v.LevelInfos[CurrentLevInfo.Level].MapInfos[CurrentLevInfo.Map].Map;
+            }
+        }
 
         // Common
         public GBAVV_Volume[] Volumes { get; set; }

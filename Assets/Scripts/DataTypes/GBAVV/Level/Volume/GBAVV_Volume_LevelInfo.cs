@@ -4,6 +4,7 @@
     {
         public GBAVV_Volume_BaseManager.LevInfo CurrentLevInfo { get; set; } // Set before serializing
 
+        public int Int_00 { get; set; }
         public Pointer LevelNamePointer { get; set; }
         public Pointer MapInfosPointer { get; set; }
         public int MapsCount { get; set; }
@@ -17,7 +18,10 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Madagascar)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_MadagascarOperationPenguin)
+                Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Madagascar || s.GameSettings.EngineVersion == EngineVersion.GBAVV_MadagascarOperationPenguin)
                 LevelNamePointer = s.SerializePointer(LevelNamePointer, name: nameof(LevelNamePointer));
 
             MapInfosPointer = s.SerializePointer(MapInfosPointer, name: nameof(MapInfosPointer));
@@ -25,7 +29,7 @@
             Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
             Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Madagascar)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Madagascar || s.GameSettings.EngineVersion == EngineVersion.GBAVV_MadagascarOperationPenguin)
                 Int_14 = s.Serialize<int>(Int_14, name: nameof(Int_14));
 
             LevelName = s.DoAt(LevelNamePointer, () => s.SerializeObject<GBAVV_LocalizedString>(LevelName, name: nameof(LevelName)));

@@ -1372,6 +1372,14 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x0807a3fc,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Madagascar: Operation Penguin
+
+                case GameModeSelection.MadagascarOperationPenguinGBA:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08036104,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }
