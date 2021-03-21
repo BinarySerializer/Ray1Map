@@ -520,6 +520,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpiderMan3, Game.GBAVV_SpiderMan3, "Spider-Man 3 (GBA - US)", typeof(GBAVV_SpiderMan3US_Manager))]
         SpiderMan3GBAUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ShrekTheThird, Game.GBAVV_ShrekTheThird, "Shrek the Third (GBA - EU)", typeof(GBAVV_ShrekTheThirdEU_Manager))]
+        GBAVV_ShrekTheThirdGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ShrekTheThird, Game.GBAVV_ShrekTheThird, "Shrek the Third (GBA - US)", typeof(GBAVV_ShrekTheThirdUS_Manager))]
+        GBAVV_ShrekTheThirdGBAUS,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]

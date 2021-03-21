@@ -92,6 +92,7 @@
         GBAVV_OverTheHedge,
         GBAVV_OverTheHedgeHammyGoesNuts,
         GBAVV_SpiderMan3,
+        GBAVV_ShrekTheThird,
 
         // Gameloft
 
