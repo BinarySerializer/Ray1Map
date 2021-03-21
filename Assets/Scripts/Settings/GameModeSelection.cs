@@ -508,6 +508,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_OverTheHedge, Game.GBAVV_OverTheHedge, "Over the Hedge (GBA - US)", typeof(GBAVV_OverTheHedgeUS_Manager))]
         OverTheHedgeGBAUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts, Game.GBAVV_OverTheHedgeHammyGoesNuts, "Over the Hedge - Hammy Goes Nuts! (GBA - EU)", typeof(GBAVV_OverTheHedgeHammyGoesNutsEU_Manager))]
+        OverTheHedgeHammyGoesNutsGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts, Game.GBAVV_OverTheHedgeHammyGoesNuts, "Over the Hedge - Hammy Goes Nuts! (GBA - US)", typeof(GBAVV_OverTheHedgeHammyGoesNutsUS_Manager))]
+        OverTheHedgeHammyGoesNutsGBAUS,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]

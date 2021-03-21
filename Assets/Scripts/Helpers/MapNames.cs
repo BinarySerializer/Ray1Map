@@ -71,6 +71,9 @@ namespace R1Engine
                 case Game.GBAVV_OverTheHedge:
                     return OverTheHedgeGBANames;
 
+                case Game.GBAVV_OverTheHedgeHammyGoesNuts:
+                    return OverTheHedgeHammyGoesNutsGBANames;
+
                 case Game.Gameloft_RK:
                     return RaymanKartNames;
                 case Game.Gameloft_RK_LowRes:
@@ -1015,6 +1018,10 @@ namespace R1Engine
         private static Dictionary<int, Dictionary<int, string>> OverTheHedgeGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
         {
             [0] = GBAVV_OverTheHedge_Manager.Levels.Select((x, i) => new { x, i }).ToDictionary(x => x.i, x => x.x.DisplayName)
+        };
+        private static Dictionary<int, Dictionary<int, string>> OverTheHedgeHammyGoesNutsGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
+        {
+            [0] = GBAVV_OverTheHedgeHammyGoesNuts_Manager.Levels.Select((x, i) => new { x, i }).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
     }
 }

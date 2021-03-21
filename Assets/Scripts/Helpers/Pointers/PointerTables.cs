@@ -1394,6 +1394,20 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x08066f84,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Over the Hedge - Hammy Goes Nuts!
+
+                case GameModeSelection.OverTheHedgeHammyGoesNutsGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x080617e8,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.OverTheHedgeHammyGoesNutsGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x080613ec,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

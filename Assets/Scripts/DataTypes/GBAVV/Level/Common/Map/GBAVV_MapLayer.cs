@@ -40,7 +40,8 @@ namespace R1Engine
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_X2WolverinesRevenge ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge;
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts;
 
                 s.DoEncodedIf(new GBA_LZSSEncoder(), !uncompressed, () =>
                 {

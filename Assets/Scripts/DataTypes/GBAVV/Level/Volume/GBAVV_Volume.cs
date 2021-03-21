@@ -17,7 +17,8 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedge)
+            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedge && 
+                s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
             {
                 VolumeNamePointer = s.SerializePointer(VolumeNamePointer, name: nameof(VolumeNamePointer));
 
@@ -27,7 +28,8 @@
 
             LevelInfosPointer = s.SerializePointer(LevelInfosPointer, name: nameof(LevelInfosPointer));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedge)
+            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedge &&
+                s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
             {
                 LevelsCount = s.Serialize<int>(LevelsCount, name: nameof(LevelsCount));
 

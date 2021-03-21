@@ -34,7 +34,7 @@ namespace R1Engine
 
             var volumesCount = s.GameSettings.GetGameManagerOfType<GBAVV_Volume_BaseManager>().VolumesCount;
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge || s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
                 VolumeLevelInfoCounts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo) + 4 * volumesCount, () => s.SerializeArray<int>(VolumeLevelInfoCounts, volumesCount, name: nameof(VolumeLevelInfoCounts)));
 
             // Serialize level infos

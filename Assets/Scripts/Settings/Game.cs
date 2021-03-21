@@ -90,6 +90,7 @@
         GBAVV_UltimateSpiderMan,
         GBAVV_MadagascarOperationPenguin,
         GBAVV_OverTheHedge,
+        GBAVV_OverTheHedgeHammyGoesNuts,
 
         // Gameloft
 

@@ -47,14 +47,14 @@ namespace R1Engine
 
                 if (volume.PrimaryLevelInfo != null)
                     for (int mapIndex = 0; mapIndex < volume.PrimaryLevelInfo.MapInfos.Length; mapIndex++)
-                        str.AppendLine($"new LevInfo({volumeIndex}, -1, {mapIndex}, \"{volume.VolumeName?.DefaultString}\", \"{volume.PrimaryLevelInfo.GetLevelName}\"),");
+                        str.AppendLine($"new LevInfo({volumeIndex}, -1, {mapIndex}, \"{volume.VolumeName?.DefaultString}\", \"{volume.PrimaryLevelInfo.InternalLevelName}\", \"{volume.PrimaryLevelInfo.LevelName?.DefaultString}\"),");
 
                 for (int levelIndex = 0; levelIndex < volume.LevelInfos.Length; levelIndex++)
                 {
                     var level = volume.LevelInfos[levelIndex];
 
                     for (int mapIndex = 0; mapIndex < level.MapInfos.Length; mapIndex++)
-                        str.AppendLine($"new LevInfo({volumeIndex}, {levelIndex}, {mapIndex}, \"{volume.VolumeName?.DefaultString}\", \"{level.GetLevelName}\"),");
+                        str.AppendLine($"new LevInfo({volumeIndex}, {levelIndex}, {mapIndex}, \"{volume.VolumeName?.DefaultString}\", \"{level.InternalLevelName}\", \"{level.LevelName?.DefaultString}\"),");
                 }
             }
 
@@ -67,12 +67,13 @@ namespace R1Engine
 
         public class LevInfo
         {
-            public LevInfo(int volume, int level, int map, string volumeName, string levelName)
+            public LevInfo(int volume, int level, int map, string volumeName, string internalLevelName, string levelName)
             {
                 Volume = volume;
                 Level = level;
                 Map = map;
                 VolumeName = volumeName;
+                InternalLevelName = internalLevelName;
                 LevelName = levelName;
             }
 
@@ -80,8 +81,19 @@ namespace R1Engine
             public int Level { get; }
             public int Map { get; }
             public string VolumeName { get; }
+            public string InternalLevelName { get; }
             public string LevelName { get; }
-            public string DisplayName => $"{(String.IsNullOrWhiteSpace(VolumeName) ? $"{Volume + 1}" : VolumeName)}{(Level == -1 ? " " : $": {(String.IsNullOrWhiteSpace(LevelName) ? $"{Level + 1}-" : $"{LevelName} ")}")}{Map + 1}";
+            public string DisplayName
+            {
+                get
+                {
+                    var volume = String.IsNullOrWhiteSpace(VolumeName) ? $"{Volume + 1}" : VolumeName;
+                    var level = Level == -1 ? " " : $": {(String.IsNullOrWhiteSpace(LevelName) ? $"{Level + 1}-" : $"{LevelName} ")}";
+                    var map = $"{Map + 1}";
+
+                    return $"{volume}{level}{map}";
+                }
+            }
         }
     }
 }
