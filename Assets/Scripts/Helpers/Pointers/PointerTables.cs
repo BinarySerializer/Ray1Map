@@ -1408,6 +1408,20 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x080613ec,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // Spider-Man 3
+
+                case GameModeSelection.SpiderMan3GBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08087090,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SpiderMan3GBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x08087090,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

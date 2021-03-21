@@ -27,6 +27,7 @@ namespace R1Engine
             ScrollY = s.Serialize<uint>(ScrollY, name: nameof(ScrollY));
             Ushort_14 = s.Serialize<ushort>(Ushort_14, name: nameof(Ushort_14));
             Ushort_16 = s.Serialize<ushort>(Ushort_16, name: nameof(Ushort_16));
+            // TODO: More data (check for alpha blending and other flags)
 
             TileMap = s.DoAt(TileMapPointer, () => s.SerializeObject<GBAVV_TileMap>(TileMap, x => x.MapEncoding = MapEncoding, name: nameof(TileMap)));
 
@@ -41,7 +42,8 @@ namespace R1Engine
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_X2WolverinesRevenge ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts;
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpiderMan3;
 
                 s.DoEncodedIf(new GBA_LZSSEncoder(), !uncompressed, () =>
                 {

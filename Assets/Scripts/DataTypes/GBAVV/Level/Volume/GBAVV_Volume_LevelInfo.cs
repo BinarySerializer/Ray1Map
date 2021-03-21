@@ -43,6 +43,11 @@
             {
                 Ints_0C = s.SerializeArray<int>(Ints_0C, 3, name: nameof(Ints_0C));
             }
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpiderMan3)
+            {
+                Ints_0C = s.SerializeArray<int>(Ints_0C, 1, name: nameof(Ints_0C));
+                LevelNamePointer = s.SerializePointer(LevelNamePointer, name: nameof(LevelNamePointer));
+            }
             else
             {
                 Ints_0C = s.SerializeArray<int>(Ints_0C, 2, name: nameof(Ints_0C));

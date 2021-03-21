@@ -514,6 +514,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts, Game.GBAVV_OverTheHedgeHammyGoesNuts, "Over the Hedge - Hammy Goes Nuts! (GBA - US)", typeof(GBAVV_OverTheHedgeHammyGoesNutsUS_Manager))]
         OverTheHedgeHammyGoesNutsGBAUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpiderMan3, Game.GBAVV_SpiderMan3, "Spider-Man 3 (GBA - EU)", typeof(GBAVV_SpiderMan3EU_Manager))]
+        SpiderMan3GBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpiderMan3, Game.GBAVV_SpiderMan3, "Spider-Man 3 (GBA - US)", typeof(GBAVV_SpiderMan3US_Manager))]
+        SpiderMan3GBAUS,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]

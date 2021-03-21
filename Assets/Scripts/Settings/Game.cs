@@ -91,6 +91,7 @@
         GBAVV_MadagascarOperationPenguin,
         GBAVV_OverTheHedge,
         GBAVV_OverTheHedgeHammyGoesNuts,
+        GBAVV_SpiderMan3,
 
         // Gameloft
 

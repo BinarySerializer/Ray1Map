@@ -118,6 +118,7 @@ namespace R1Engine
         GBAVV_MadagascarOperationPenguin,    // 2005
         GBAVV_OverTheHedge,                  // 2006 (has DS version)
         GBAVV_OverTheHedgeHammyGoesNuts,     // 2006
+        GBAVV_SpiderMan3,                    // 2007
 
         // Gameloft
 
