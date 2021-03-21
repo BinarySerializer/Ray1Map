@@ -34,11 +34,13 @@ namespace R1Engine
             {
                 var mapTilesLength = TileMap.TileMapSections.SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
 
+                // TODO: Is there a flag for this?
                 var uncompressed = s.GameSettings.EngineVersion == EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart ||
                                    s.GameSettings.EngineVersion == EngineVersion.GBAVV_X2WolverinesRevenge ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan;
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan ||
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge;
 
                 s.DoEncodedIf(new GBA_LZSSEncoder(), !uncompressed, () =>
                 {

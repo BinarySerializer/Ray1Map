@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBAVV_ROM_Volume : GBAVV_BaseROM
     {
@@ -20,6 +22,7 @@
 
         // Common
         public GBAVV_Volume[] Volumes { get; set; }
+        public int[] VolumeLevelInfoCounts { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -29,14 +32,23 @@
             // Get the pointer table
             var pointerTable = PointerTables.GBAVV_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
+            var volumesCount = s.GameSettings.GetGameManagerOfType<GBAVV_Volume_BaseManager>().VolumesCount;
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge)
+                VolumeLevelInfoCounts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo) + 4 * volumesCount, () => s.SerializeArray<int>(VolumeLevelInfoCounts, volumesCount, name: nameof(VolumeLevelInfoCounts)));
+
             // Serialize level infos
             s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
             {
                 if (Volumes == null)
-                    Volumes = new GBAVV_Volume[s.GameSettings.GetGameManagerOfType<GBAVV_Volume_BaseManager>().VolumesCount];
+                    Volumes = new GBAVV_Volume[volumesCount];
 
                 for (int i = 0; i < Volumes.Length; i++)
-                    Volumes[i] = s.SerializeObject<GBAVV_Volume>(Volumes[i], x => x.CurrentLevInfo = i == CurrentLevInfo?.Volume ? CurrentLevInfo : null, name: $"{nameof(Volumes)}[{i}]");
+                    Volumes[i] = s.SerializeObject<GBAVV_Volume>(Volumes[i], x =>
+                    {
+                        x.CurrentLevInfo = i == CurrentLevInfo?.Volume ? CurrentLevInfo : null;
+                        x.LevelsCount = VolumeLevelInfoCounts?.ElementAtOrDefault(i) ?? 0;
+                    }, name: $"{nameof(Volumes)}[{i}]");
             });
 
             // Serialize graphics

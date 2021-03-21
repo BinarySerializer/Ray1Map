@@ -31,7 +31,8 @@
                 X2 = s.Serialize<short>((short)X2, name: nameof(X2));
                 Y2 = s.Serialize<short>((short)Y2, name: nameof(Y2));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan)
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan || 
+                     s.GameSettings.EngineVersion >= EngineVersion.GBAVV_OverTheHedge)
             {
                 FixedPoint_X1 = s.SerializeObject<FixedPointInt>(FixedPoint_X1, x => x.PointPosition = 8, name: nameof(FixedPoint_X1));
                 FixedPoint_Y1 = s.SerializeObject<FixedPointInt>(FixedPoint_Y1, x => x.PointPosition = 8, name: nameof(FixedPoint_Y1));

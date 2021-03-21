@@ -17,16 +17,23 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            VolumeNamePointer = s.SerializePointer(VolumeNamePointer, name: nameof(VolumeNamePointer));
+            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedge)
+            {
+                VolumeNamePointer = s.SerializePointer(VolumeNamePointer, name: nameof(VolumeNamePointer));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_MadagascarOperationPenguin)
-                PrimaryLevelInfoPointer = s.SerializePointer(PrimaryLevelInfoPointer, name: nameof(PrimaryLevelInfoPointer));
+                if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_MadagascarOperationPenguin)
+                    PrimaryLevelInfoPointer = s.SerializePointer(PrimaryLevelInfoPointer, name: nameof(PrimaryLevelInfoPointer));
+            }
 
             LevelInfosPointer = s.SerializePointer(LevelInfosPointer, name: nameof(LevelInfosPointer));
-            LevelsCount = s.Serialize<int>(LevelsCount, name: nameof(LevelsCount));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_MadagascarOperationPenguin)
-                Pointer_0C = s.SerializePointer(Pointer_0C, name: nameof(Pointer_0C));
+            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedge)
+            {
+                LevelsCount = s.Serialize<int>(LevelsCount, name: nameof(LevelsCount));
+
+                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_MadagascarOperationPenguin)
+                    Pointer_0C = s.SerializePointer(Pointer_0C, name: nameof(Pointer_0C));
+            }
 
             VolumeName = s.DoAt(VolumeNamePointer, () => s.SerializeObject<GBAVV_LocalizedString>(VolumeName, name: nameof(VolumeName)));
 
