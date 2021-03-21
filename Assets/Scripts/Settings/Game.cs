@@ -88,6 +88,8 @@
         GBAVV_Madagascar,
         GBAVV_BatmanBegins,
         GBAVV_UltimateSpiderMan,
+        GBAVV_MadagascarOperationPenguin,
+        GBAVV_OverTheHedge,
 
         // Gameloft
 

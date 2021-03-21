@@ -115,6 +115,8 @@ namespace R1Engine
         GBAVV_BatmanBegins,                  // 2005
         GBAVV_UltimateSpiderMan,             // 2005 (has DS version)
         //GBAVV_TonyHawksAmericanSk8land,    // 2005 (TH engine)
+        GBAVV_MadagascarOperationPenguin,    // 2005
+        GBAVV_OverTheHedge,                  // 2006 (has DS version)
 
         // Gameloft
 

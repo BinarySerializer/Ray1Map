@@ -499,6 +499,15 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_UltimateSpiderMan, Game.GBAVV_UltimateSpiderMan, "Ultimate Spider-Man (GBA - US)", typeof(GBAVV_UltimateSpiderManUS_Manager))]
         UltimateSpiderManGBAUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_MadagascarOperationPenguin, Game.GBAVV_MadagascarOperationPenguin, "Madagascar Operation Penguin (GBA - EU/US)", typeof(GBAVV_MadagascarOperationPenguinManager))]
+        MadagascarOperationPenguinGBA,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_OverTheHedge, Game.GBAVV_OverTheHedge, "Over the Hedge (GBA - EU)", typeof(GBAVV_OverTheHedgeEU_Manager))]
+        OverTheHedgeGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_OverTheHedge, Game.GBAVV_OverTheHedge, "Over the Hedge (GBA - US)", typeof(GBAVV_OverTheHedgeUS_Manager))]
+        OverTheHedgeGBAUS,
+
         // Gameloft
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]

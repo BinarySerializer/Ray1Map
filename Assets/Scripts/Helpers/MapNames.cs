@@ -65,6 +65,12 @@ namespace R1Engine
                 case Game.GBAVV_UltimateSpiderMan:
                     return UltimateSpiderManGBANames;
 
+                case Game.GBAVV_MadagascarOperationPenguin:
+                    return MadagascarOperationPenguinGBANames;
+
+                case Game.GBAVV_OverTheHedge:
+                    return OverTheHedgeGBANames;
+
                 case Game.Gameloft_RK:
                     return RaymanKartNames;
                 case Game.Gameloft_RK_LowRes:
@@ -1001,6 +1007,14 @@ namespace R1Engine
         private static Dictionary<int, Dictionary<int, string>> UltimateSpiderManGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
         {
             [0] = GBAVV_UltimateSpiderMan_Manager.Levels.Select((x, i) => new { x, i }).ToDictionary(x => x.i, x => x.x.DisplayName)
+        };
+        private static Dictionary<int, Dictionary<int, string>> MadagascarOperationPenguinGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
+        {
+            [0] = GBAVV_MadagascarOperationPenguinManager.Levels.Select((x, i) => new { x, i }).ToDictionary(x => x.i, x => x.x.DisplayName)
+        };
+        private static Dictionary<int, Dictionary<int, string>> OverTheHedgeGBANames { get; } = new Dictionary<int, Dictionary<int, string>>()
+        {
+            [0] = GBAVV_OverTheHedge_Manager.Levels.Select((x, i) => new { x, i }).ToDictionary(x => x.i, x => x.x.DisplayName)
         };
     }
 }

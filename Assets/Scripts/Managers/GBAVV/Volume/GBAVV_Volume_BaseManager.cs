@@ -45,14 +45,16 @@ namespace R1Engine
             {
                 var volume = rom.Volumes[volumeIndex];
 
+                if (volume.PrimaryLevelInfo != null)
+                    for (int mapIndex = 0; mapIndex < volume.PrimaryLevelInfo.MapInfos.Length; mapIndex++)
+                        str.AppendLine($"new LevInfo({volumeIndex}, -1, {mapIndex}, \"{volume.VolumeName?.DefaultString}\", \"{volume.PrimaryLevelInfo.GetLevelName}\"),");
+
                 for (int levelIndex = 0; levelIndex < volume.LevelInfos.Length; levelIndex++)
                 {
                     var level = volume.LevelInfos[levelIndex];
 
                     for (int mapIndex = 0; mapIndex < level.MapInfos.Length; mapIndex++)
-                    {
-                        str.AppendLine($"new LevInfo({volumeIndex}, {levelIndex}, {mapIndex}, \"{volume.VolumeName?.DefaultString}\", \"{level.LevelName?.DefaultString}\"),");
-                    }
+                        str.AppendLine($"new LevInfo({volumeIndex}, {levelIndex}, {mapIndex}, \"{volume.VolumeName?.DefaultString}\", \"{level.GetLevelName}\"),");
                 }
             }
 
@@ -79,7 +81,7 @@ namespace R1Engine
             public int Map { get; }
             public string VolumeName { get; }
             public string LevelName { get; }
-            public string DisplayName => $"{VolumeName}: {(String.IsNullOrWhiteSpace(LevelName) ? $"{Level}-" : $"{LevelName} ")}{Map}";
+            public string DisplayName => $"{(String.IsNullOrWhiteSpace(VolumeName) ? $"{Volume + 1}" : VolumeName)}{(Level == -1 ? " " : $": {(String.IsNullOrWhiteSpace(LevelName) ? $"{Level + 1}-" : $"{LevelName} ")}")}{Map + 1}";
         }
     }
 }
