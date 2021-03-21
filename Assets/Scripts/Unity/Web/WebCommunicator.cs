@@ -113,9 +113,11 @@ public class WebCommunicator : MonoBehaviour {
     }
 
     public void SendHierarchy() {
-        if (Application.platform == RuntimePlatform.WebGLPlayer && Controller.LoadState == Controller.State.Finished) {
+        if ((Application.platform == RuntimePlatform.WebGLPlayer || debugMessages) && Controller.LoadState == Controller.State.Finished) {
 			allJSON = SerializeMessage(GetHierarchyMessageJSON());
-            SetAllJSON(allJSON);
+			if (Application.platform == RuntimePlatform.WebGLPlayer) {
+				SetAllJSON(allJSON);
+			}
         }
     }
 	public void SendSettings() {
@@ -514,14 +516,14 @@ public class WebCommunicator : MonoBehaviour {
             if (Controller.obj.levelController.controllerTilemap.HasAutoPaletteOption)
             {
                 s.Palettes = new string[] { "Auto" }
-                    .Concat(Enumerable.Range(0, lvl.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString())).ToArray();
+                    .Concat(Enumerable.Range(0, lvl.Maps?.Max(x => x.TileSet.Length) ?? 0).Select(x => x.ToString())).ToArray();
 
                 if (Controller.obj?.levelController?.controllerTilemap != null)
                     s.Palette = Controller.obj.levelController.controllerTilemap.currentPalette;
             }
 			else
             {
-                s.Palettes = Enumerable.Range(0, lvl.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString()).ToArray();
+                s.Palettes = Enumerable.Range(0, lvl.Maps?.Max(x => x.TileSet.Length) ?? 0).Select(x => x.ToString()).ToArray();
 
                 if (Controller.obj?.levelController?.controllerTilemap != null)
                     s.Palette = Controller.obj.levelController.controllerTilemap.currentPalette - 1;
