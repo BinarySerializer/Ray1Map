@@ -391,6 +391,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_FroggerAdvance, Game.GBAVV_FroggerAdvance, "Frogger Advance The Great Quest (GBA - US)", typeof(GBAVV_FroggerUS_Manager))]
         FroggerAdvanceGBAUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman, Game.GBAVV_SpongeBobRevengeOfTheFlyingDutchman, "SpongeBob SquarePants - Revenge of the Flying Dutchman (GBA - EU/US)", typeof(GBAVV_SpongeBobRevengeOfTheFlyingDutchmanEUUS_Manager))]
+        GBAVV_SpongeBobRevengeOfTheFlyingDutchmanGBA,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman, Game.GBAVV_SpongeBobRevengeOfTheFlyingDutchman, "SpongeBob SquarePants - Revenge of the Flying Dutchman (GBA - US Beta)", typeof(GBAVV_SpongeBobRevengeOfTheFlyingDutchmanUSBeta_Manager))]
         GBAVV_SpongeBobRevengeOfTheFlyingDutchmanGBAUSBeta,
 

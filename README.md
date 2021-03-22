@@ -620,6 +620,14 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">Obj type graphics have not been assigned</td>
   </tr>
   <tr>
+    <td class="tg-yw4l">SpongeBob SquarePants: Revenge of the Flying Dutchman (GBA)</td>
+    <td class="tg-yw4l">EU/US, US Beta</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">Obj type graphics have not been assigned</td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">The Muppets: On with the Show! (GBA)</td>
     <td class="tg-yw4l">EU/US</td>
     <td class="tg-yw4l"></td>

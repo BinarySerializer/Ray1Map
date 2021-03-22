@@ -79,6 +79,13 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
     }
+    public class GBAVV_SpongeBobRevengeOfTheFlyingDutchmanEUUS_Manager : GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager
+    {
+        public override uint[] GraphicsDataPointers => new uint[]
+        {
+            0x084AB158
+        };
+    }
     public class GBAVV_SpongeBobRevengeOfTheFlyingDutchmanUSBeta_Manager : GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager
     {
         public override uint[] GraphicsDataPointers => new uint[]
