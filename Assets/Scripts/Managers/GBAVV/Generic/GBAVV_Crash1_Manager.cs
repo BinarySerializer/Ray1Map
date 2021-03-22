@@ -100,6 +100,7 @@ namespace R1Engine
         {
             41, 47, 47
         };
+        public override int Mode7LevelsCount => 7;
 
         public override IEnumerable<string> GetAdditionalLocStrings(GBAVV_ROM_Crash rom, int langIndex) => ((GBAVV_ROM_Crash1)rom).CutsceneStrings[langIndex].Cutscenes.SelectMany(c => c).Select(s => s?.String?.Text);
 

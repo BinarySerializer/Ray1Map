@@ -73,7 +73,7 @@ namespace R1Engine
             s.DoAt(pointerTable[GBAVV_Pointer.Mode7_LevelInfo], () =>
             {
                 if (Mode7_LevelInfos == null)
-                    Mode7_LevelInfos = new GBAVV_Mode7_LevelInfo[s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman ? 9 : 7];
+                    Mode7_LevelInfos = new GBAVV_Mode7_LevelInfo[s.GameSettings.GetGameManagerOfType<GBAVV_Generic_BaseManager>().Mode7LevelsCount];
 
                 var index3D = GetIndex3D;
 

@@ -4,9 +4,11 @@ namespace R1Engine
 {
     public class GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman : GBAVV_ROM_Generic
     {
+        public bool ForceMode7 { get; set; } // Set before serializing
+
         // Helpers
         public override GBAVV_Generic_MapInfo CurrentMapInfo => LevelInfos[Context.Settings.World].Maps[Context.Settings.Level];
-        public override GenericLevelType GetGenericLevelType => CurrentMapInfo.SpongeBob_IsMode7 ? GenericLevelType.Mode7 : GenericLevelType.Map2D;
+        public override GenericLevelType GetGenericLevelType => CurrentMapInfo.SpongeBob_IsMode7 || ForceMode7 ? GenericLevelType.Mode7 : GenericLevelType.Map2D;
 
         // Common
         public GBAVV_SpongeBobRevengeOfTheFlyingDutchman_LevelInfo[] LevelInfos { get; set; } // Note: This is actually two arrays, but we treat is as one

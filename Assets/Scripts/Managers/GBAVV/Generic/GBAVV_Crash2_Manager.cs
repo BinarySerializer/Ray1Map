@@ -249,6 +249,7 @@ namespace R1Engine
         {
             41, 55
         };
+        public override int Mode7LevelsCount => 7;
 
         // Isometric animations
         public Unity_ObjectManager_GBAVVIsometric.GraphicsData[] LoadIsometricAnimations(GBAVV_ROM_Crash2 rom)

@@ -45,7 +45,7 @@ namespace R1Engine
 
         // Exports
         public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman>(GetROMFilePath, context);
-        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => null;
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman>(GetROMFilePath, context, (_, x) => x.ForceMode7 = true);
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Load
@@ -67,6 +67,7 @@ namespace R1Engine
         {
             34
         };
+        public override int Mode7LevelsCount => 9;
 
         // Helpers
         public void GenerateWorldList(GBAVV_ROM_SpongeBobRevengeOfTheFlyingDutchman rom)

@@ -17,9 +17,9 @@ namespace R1Engine
             await base.ExportAnimFramesAsync(settings, outputDir, saveAsGif, includePointerInNames);
 
             // Export Mode7 animations
-            for (int mode7Level = 0; mode7Level < 7; mode7Level++)
+            for (int mode7Level = 0; mode7Level < Mode7LevelsCount; mode7Level++)
             {
-                var exportedAnimSets = new HashSet<Pointer>();
+                var exportedAnimSets = new HashSet<(Pointer, Pointer)>();
 
                 using (var context = new Context(settings))
                 {
@@ -43,15 +43,18 @@ namespace R1Engine
                     {
                         animSetIndex++;
 
-                        if (animSet?.Animations == null || exportedAnimSets.Contains(animSet.AnimationsPointer))
+                        if (animSet?.Animations == null || exportedAnimSets.Any(x => x.Item1 == animSet.AnimationsPointer && x.Item2 == animSet.FrameOffsetsPointer))
                             continue;
 
-                        exportedAnimSets.Add(animSet.AnimationsPointer);
+                        exportedAnimSets.Add((animSet.AnimationsPointer, animSet.FrameOffsetsPointer));
 
                         for (int animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
                         {
                             await UniTask.WaitForEndOfFrame();
                             var frames = GetMode7AnimFrames(animSet, animSetIndex, animIndex, pal, levInfo);
+
+                            if (frames.Length == 0)
+                                continue;
 
                             Util.ExportAnim(
                                 frames: frames,
@@ -59,15 +62,15 @@ namespace R1Engine
                                 center: true,
                                 saveAsGif: saveAsGif,
                                 outputDir: Path.Combine(outputDir, "Mode7"),
-                                primaryName: $"0x{animSet.AnimationsPointer.AbsoluteOffset:X8}",
+                                primaryName: $"0x{animSet.Offset.AbsoluteOffset:X8}",
                                 secondaryName: $"{animIndex}");
                         }
                     }
 
                     // Export special frames
-                    if (levInfo.SpecialFrames != null && !exportedAnimSets.Contains(levInfo.SpecialFrames.Offset))
+                    if (levInfo.SpecialFrames != null && exportedAnimSets.All(x => x.Item1 != levInfo.SpecialFrames.Offset))
                     {
-                        exportedAnimSets.Add(levInfo.SpecialFrames.Offset);
+                        exportedAnimSets.Add((levInfo.SpecialFrames.Offset, null));
 
                         Util.ExportAnim(
                             frames: GetMode7SpecialAnimFrames(levInfo.SpecialFrames),
@@ -612,6 +615,7 @@ namespace R1Engine
                 localization: loc.Item1);
         }
         public virtual int[] Mode7AnimSetCounts => new int[0];
+        public virtual int Mode7LevelsCount => 0;
 
         // Mode7 tileset
         public Unity_TileSet LoadMode7FramesTileSet(GBAVV_Mode7_TileFrames tileFrames, RGBA5551Color[] pal, bool prependTransparent)
