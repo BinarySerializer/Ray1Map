@@ -42,6 +42,7 @@
             TileSets = s.DoAt(TileSetsPointer, () => s.SerializeObject<GBAVV_TileSets>(TileSets, name: nameof(TileSets)));
 
             if (s.GameSettings.EngineVersion < EngineVersion.GBAVV_BrotherBear || 
+                s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobBattleForBikiniBottom || 
                 s.GameSettings.EngineVersion == EngineVersion.GBAVV_ThatsSoRaven || 
                 s.GameSettings.EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
                 s.DoAt(MapCollisionPointer, () =>

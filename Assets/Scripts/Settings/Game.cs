@@ -78,6 +78,7 @@
         GBAVV_FindingNemo,
         GBAVV_TheLionKing,
         GBAVV_BrotherBear,
+        GBAVV_SpongeBobBattleForBikiniBottom,
         GBAVV_CrashNitroKart,
         GBAVV_CrashFusion,
         GBAVV_SpyroFusion,

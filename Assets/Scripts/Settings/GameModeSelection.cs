@@ -439,6 +439,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_BrotherBear, Game.GBAVV_BrotherBear, "Brother Bear (GBA - US)", typeof(GBAVV_BrotherBearUS_Manager))]
         BrotherBearGBAUS,
 
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpongeBobBattleForBikiniBottom, Game.GBAVV_SpongeBobBattleForBikiniBottom, "SpongeBob SquarePants - Battle for Bikini Bottom (GBA - EU)", typeof(GBAVV_SpongeBobBattleForBikiniBottomEU_Manager))]
+        SpongeBobBattleForBikiniBottomGBAEU,
+
+        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_SpongeBobBattleForBikiniBottom, Game.GBAVV_SpongeBobBattleForBikiniBottom, "SpongeBob SquarePants - Battle for Bikini Bottom (GBA - US)", typeof(GBAVV_SpongeBobBattleForBikiniBottomUS_Manager))]
+        SpongeBobBattleForBikiniBottomGBAUS,
+
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_CrashNitroKart, Game.GBAVV_CrashNitroKart, "Crash Nitro Kart (GBA - EU)", typeof(GBAVV_NitroKartEU_Manager))]
         CrashNitroKartEU,
 

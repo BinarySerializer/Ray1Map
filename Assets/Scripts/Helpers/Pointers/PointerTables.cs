@@ -1240,6 +1240,20 @@ namespace R1Engine
                         [GBAVV_Pointer.LevelInfo] = 0x08031e68,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // SpongeBob SquarePants: Battle for Bikini Bottom
+
+                case GameModeSelection.SpongeBobBattleForBikiniBottomGBAEU:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0803c944,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SpongeBobBattleForBikiniBottomGBAUS:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x0803c758,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 // Nitro Kart
 
                 case GameModeSelection.CrashNitroKartEU:
