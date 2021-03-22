@@ -61,6 +61,7 @@ namespace R1Engine
             else
                 return await LoadMap2DAsync(context, rom, rom.CurrentMapInfo, rom.GetTheme, false);
         }
+        public abstract uint ROMMemPointersOffset { get; }
 
         // Mode7
         public override int[] Mode7AnimSetCounts => new int[]
@@ -86,6 +87,8 @@ namespace R1Engine
         {
             0x084AB158
         };
+
+        public override uint ROMMemPointersOffset => 0x57C5DFC;
     }
     public class GBAVV_SpongeBobRevengeOfTheFlyingDutchmanUSBeta_Manager : GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager
     {
@@ -93,5 +96,6 @@ namespace R1Engine
         {
             0x084ACC9C
         };
+        public override uint ROMMemPointersOffset => 0x57C7B80;
     }
 }

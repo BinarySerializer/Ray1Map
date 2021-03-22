@@ -118,7 +118,8 @@ namespace R1Engine
                     {
                         Tiles = tileMaps[i],
                         TileSet = x?.TileSet
-                    }).Where(x => x.TileSet == tileSetGroup.Key).SelectMany(x => x.Tiles.Select(t => t.Data)).ToArray()));
+                    }).Where(x => x.TileSet == tileSetGroup.Key).SelectMany(x => x.Tiles.Select(t => t.Data)).ToArray(),
+                    paletteShifts: map.SpongeBob_PaletteShifts));
             }
 
             Controller.DetailedState = "Loading maps";

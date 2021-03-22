@@ -331,7 +331,7 @@ namespace R1Engine
 
             return new Unity_TileSet(tex, CellSize);
         }
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, int levelTheme, MapTile[] mapTiles_4, GBAVV_NitroKart_TileAnimations nitroKartTileAnimations = null)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, EngineVersion engineVersion, int levelTheme, MapTile[] mapTiles_4, GBAVV_NitroKart_TileAnimations nitroKartTileAnimations = null, GBAVV_Generic_PaletteShifts paletteShifts = null)
         {
             Texture2D tex;
             var additionalTiles = new List<Texture2D>();
@@ -451,7 +451,7 @@ namespace R1Engine
             // Some levels use animated tile palettes based on the level theme. These are all hard-coded in the level load function.
             RGBA5551Color[][] animatedPalettes = null;
             HashSet<byte> modifiedPaletteIndices = null;
-            var animSpeed = 0;
+            float animSpeed = 0;
             bool isReversed = false;
 
             //Debug.Log($"Theme: {levelTheme}");
@@ -570,6 +570,30 @@ namespace R1Engine
 
                     animSpeed = 2;
                 }
+            }
+
+            if (paletteShifts != null)
+            {
+                var anim = paletteShifts.Shifts.Select(x =>
+                {
+                    var indices = x.ColorIndices;
+
+                    if (x.IsReverse)
+                        indices = indices.Reverse().ToArray();
+
+                    return indices;
+                }).ToArray();
+
+                modifiedPaletteIndices = new HashSet<byte>(anim.SelectMany(x => x));
+
+                animatedPalettes = GetAnimatedPalettes(anim, pal);
+
+                // TODO: Support different speed for each palette shift
+                // We get the average speed for now
+                animSpeed = paletteShifts.Shifts.Sum(x => x.ShiftSpeed) / (float)paletteShifts.Shifts.Length;
+
+                // Divide by 2 for now since it's multiplied by 2 later
+                animSpeed /= 2f;
             }
 
             var additionalPalTilesCount = additionalTiles.Count;

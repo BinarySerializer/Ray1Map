@@ -18,7 +18,7 @@
             MapsPointer = s.Serialize<uint>(MapsPointer, name: nameof(MapsPointer));
             Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
 
-            var memOffset = s.GameSettings.GameModeSelection == GameModeSelection.GBAVV_SpongeBobRevengeOfTheFlyingDutchmanGBAUSBeta ? 0x57C7B80U : 0x57C5DFCU;
+            var memOffset = s.GameSettings.GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
             MapsPointers = s.DoAt(new Pointer(MapsPointer + memOffset, Offset.file), () => s.SerializePointerArray(MapsPointers, MapsCount, name: nameof(MapsPointers)));
 
             if (Maps == null)

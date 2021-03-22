@@ -14,7 +14,7 @@
         
         public byte[] Frogger_Bytes { get; set; }
         
-        public uint SpongeBob_Pointer_08 { get; set; } // Memory pointer - palette animation?
+        public uint SpongeBob_PaletteShiftPointer { get; set; } // Memory pointer
         public bool SpongeBob_IsMode7 { get; set; }
         public byte[] SpongeBob_Bytes { get; set; }
 
@@ -22,6 +22,7 @@
 
         public RGBA5551Color[] TilePalette2D { get; set; }
         public GBAVV_Map2D_Data MapData2D { get; set; }
+        public GBAVV_Generic_PaletteShifts SpongeBob_PaletteShifts { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -34,7 +35,7 @@
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
             {
-                SpongeBob_Pointer_08 = s.Serialize<uint>(SpongeBob_Pointer_08, name: nameof(SpongeBob_Pointer_08));
+                SpongeBob_PaletteShiftPointer = s.Serialize<uint>(SpongeBob_PaletteShiftPointer, name: nameof(SpongeBob_PaletteShiftPointer));
                 SpongeBob_IsMode7 = s.Serialize<bool>(SpongeBob_IsMode7, name: nameof(SpongeBob_IsMode7));
                 s.SerializeArray(new byte[3], 3, name: "Padding");
                 Index3D = s.Serialize<short>(Index3D, name: nameof(Index3D));
@@ -54,6 +55,12 @@
 
             TilePalette2D = s.DoAt(TilePalette2DPointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette2D, 256, name: nameof(TilePalette2D)));
             MapData2D = s.DoAt(MapData2DPointer, () => s.SerializeObject<GBAVV_Map2D_Data>(MapData2D, name: nameof(MapData2D)));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            {
+                var memOffset = s.GameSettings.GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
+                SpongeBob_PaletteShifts = s.DoAt(new Pointer(SpongeBob_PaletteShiftPointer + memOffset, Offset.file), () => s.SerializeObject<GBAVV_Generic_PaletteShifts>(SpongeBob_PaletteShifts, name: nameof(SpongeBob_PaletteShifts)));
+            }
         }
 
         public enum GBAVV_Crash_MapType : int
