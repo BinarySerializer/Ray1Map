@@ -172,7 +172,7 @@ namespace R1Engine
                 context: context, 
                 animSets: LoadAnimSets(rom), 
                 objData: map.MapData2D.ObjData, 
-                mapType: map.MapType, 
+                mapType: map.Crash_MapType, 
                 locPointerTable: loc.Item2,
                 addDummyAnimSet: !hasAssignedObjTypeGraphics);
             var objects = map.MapData2D.ObjData.ObjGroups.SelectMany((x, groupIndex) => x.Objects.Reverse().Select((obj, i) => new Unity_Object_GBAVV(objmanager, obj, groupIndex, i)));
@@ -416,6 +416,74 @@ namespace R1Engine
                     };
                 }
             }
+            else if (context.Settings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            {
+                var paddingHeight = levelInfo.Crash1_Background.Height - tileSetFrames.Height;
+                var padding = Enumerable.Range(0, tileSetFrames.Width * 2 * paddingHeight).Select(t => new Unity_Tile(new MapTile()));
+
+                var cavernMapTiles = new MapTile[tileSetFrames.Width * 2 * tileSetFrames.Height];
+
+                // Mirror the cavern background
+                for (int blockY = 0; blockY < 1; blockY++)
+                {
+                    var flipY = blockY % 2 != 0;
+
+                    for (int blockX = 0; blockX < 2; blockX++)
+                    {
+                        var flipX = blockX % 2 != 0;
+
+                        for (int y = 0; y < tileSetFrames.Height; y++)
+                        {
+                            for (int x = 0; x < tileSetFrames.Width; x++)
+                            {
+                                var actualX = blockX * tileSetFrames.Width + x;
+                                var actualY = blockY * tileSetFrames.Height + y;
+
+                                cavernMapTiles[actualY * tileSetFrames.Width * 2 + actualX] = new MapTile()
+                                {
+                                    TileMapY = (ushort)((flipY ? tileSetFrames.Height - y - 1 : y) * tileSetFrames.Width + (flipX ? tileSetFrames.Width - x - 1 : x)),
+                                    HorizontalFlip = flipX,
+                                    VerticalFlip = flipY
+                                };
+                            }
+                        }
+                    }
+                }
+
+                maps = new Unity_Map[]
+                {
+                    // Background
+                    new Unity_Map()
+                    {
+                        Width = levelInfo.Crash1_Background.Width,
+                        Height = levelInfo.Crash1_Background.Height,
+                        TileSet = new Unity_TileSet[]
+                        {
+                            LoadMode7BackgroundTileSet(levelInfo.Crash1_Background)
+                        },
+                        MapTiles = levelInfo.Crash1_Background.TileMap.Select(t => new Unity_Tile(t)).ToArray(),
+                        Type = Unity_Map.MapType.Graphics,
+                    }, 
+
+                    // Cavern
+                    new Unity_Map
+                    {
+                        Width = (ushort)(tileSetFrames.Width * 2),
+                        Height = (ushort)(tileSetFrames.Height + paddingHeight),
+                        TileSet = new Unity_TileSet[]
+                        {
+                            LoadMode7FramesTileSet(tileSetFrames, tilePal, true)
+                        },
+                        MapTiles = padding.Concat(cavernMapTiles.Select(t => new Unity_Tile(new MapTile()
+                        {
+                            TileMapY = (ushort)(t.TileMapY + 1),
+                            HorizontalFlip = t.HorizontalFlip,
+                            VerticalFlip = t.VerticalFlip
+                        }))).ToArray(),
+                        Type = Unity_Map.MapType.Graphics,
+                    }
+                };
+            }
             else if (context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
             {
                 // Water
@@ -510,7 +578,8 @@ namespace R1Engine
             var objects = levelInfo.ObjData.Objects.Select(x => new Unity_Object_GBAVVMode7(objmanager, x));
 
             // Spawn the chase object for type 0 or special object for Crash 1 (blimp or N. Gin) // TODO: Spawn blimps at correct positions - array at 0x0817a420?
-            if (levelInfo.LevelType == 0 || context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1)
+            if ((levelInfo.LevelType == 0 || context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1) && 
+                context.Settings.EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
                 objects = objects.Append(new Unity_Object_GBAVVMode7(objmanager, new GBAVV_Mode7_Object()
                 {
                     ObjType_Normal = (byte)(objmanager.AnimSets.Length - 1),
@@ -542,6 +611,7 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: loc.Item1);
         }
+        public virtual int[] Mode7AnimSetCounts => new int[0];
 
         // Mode7 tileset
         public Unity_TileSet LoadMode7FramesTileSet(GBAVV_Mode7_TileFrames tileFrames, RGBA5551Color[] pal, bool prependTransparent)
@@ -622,19 +692,30 @@ namespace R1Engine
         }
         public Unity_TileSet LoadMode7BackgroundTileSet(GBAVV_Mode7_Background background)
         {
-            var pal = Util.ConvertAndSplitGBAPalette(background.Palette);
-
-            int[] paletteIndices = new int[background.TileSetCount];
-
-            for (var tileIndex = 0; tileIndex < background.TileMap.Length; tileIndex++)
+            if (background.PaletteIndices == null)
             {
-                var mt = background.TileMap[tileIndex];
-                paletteIndices[mt.TileMapY] = BitHelpers.ExtractBits(background.PaletteIndices[Mathf.FloorToInt(tileIndex / 2f)], 4, tileIndex % 2 == 0 ? 0 : 4);
+                var pal = Util.ConvertGBAPalette(background.Palette);
+
+                var tex = Util.ToTileSetTexture(background.TileSet, pal, Util.TileEncoding.Linear_8bpp, CellSize, false);
+
+                return new Unity_TileSet(tex, CellSize);
             }
+            else
+            {
+                var pal = Util.ConvertAndSplitGBAPalette(background.Palette);
 
-            var tex = Util.ToTileSetTexture(background.TileSet, pal[0], Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: x => pal[paletteIndices[x]]);
+                int[] paletteIndices = new int[background.TileSetCount];
 
-            return new Unity_TileSet(tex, CellSize);
+                for (var tileIndex = 0; tileIndex < background.TileMap.Length; tileIndex++)
+                {
+                    var mt = background.TileMap[tileIndex];
+                    paletteIndices[mt.TileMapY] = BitHelpers.ExtractBits(background.PaletteIndices[Mathf.FloorToInt(tileIndex / 2f)], 4, tileIndex % 2 == 0 ? 0 : 4);
+                }
+
+                var tex = Util.ToTileSetTexture(background.TileSet, pal[0], Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: x => pal[paletteIndices[x]]);
+
+                return new Unity_TileSet(tex, CellSize);
+            }
         }
 
         // Mode7 animations
@@ -642,9 +723,16 @@ namespace R1Engine
         {
             var pal = Util.ConvertAndSplitGBAPalette(level.ObjPalette.Concat(tilePal).ToArray());
 
-            var animSets = level.GetAllAnimSets.Select((animSet, animSetIndex) => new Unity_ObjectManager_GBAVVMode7.AnimSet(
-                animations: animSet.Animations?.Select((anim, i) => new Unity_ObjectManager_GBAVVMode7.AnimSet.Animation(GetMode7AnimFrames(animSet, animSetIndex, i, pal, level).Select(frame => frame.CreateSprite()).ToArray())).ToArray() ?? new Unity_ObjectManager_GBAVVMode7.AnimSet.Animation[0]
-            ));
+            var animSets = level.GetAllAnimSets.Select((animSet, animSetIndex) =>
+            {
+                var animations = animSet.Animations?.Where(x => x.FrameIndex + x.FramesCount <= animSet.ObjFrames.Length).Select((anim, i) =>
+                {
+                    var frames = GetMode7AnimFrames(animSet, animSetIndex, i, pal, level);
+                    return new Unity_ObjectManager_GBAVVMode7.AnimSet.Animation(frames.Select(frame => frame.CreateSprite()).ToArray());
+                }).ToArray() ?? new Unity_ObjectManager_GBAVVMode7.AnimSet.Animation[0];
+
+                return new Unity_ObjectManager_GBAVVMode7.AnimSet(animations);
+            });
 
             // Load special frames animation
             if (level.SpecialFrames != null)

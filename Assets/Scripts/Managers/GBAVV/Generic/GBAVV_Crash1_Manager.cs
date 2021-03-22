@@ -20,7 +20,7 @@ namespace R1Engine
         }
 
         public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
-        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7, (short)level, null));
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7, (short)level, null));
 
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
@@ -90,11 +90,16 @@ namespace R1Engine
             var rom = FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
             var map = rom.CurrentMapInfo;
 
-            if (map.MapType == GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7)
+            if (map.Crash_MapType == GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7)
                 return await LoadMode7Async(context, rom, rom.CurrentMode7LevelInfo);
             else
                 return await LoadMap2DAsync(context, rom, rom.CurrentMapInfo, rom.GetTheme);
         }
+
+        public override int[] Mode7AnimSetCounts => new int[]
+        {
+            41, 47, 47
+        };
 
         public override IEnumerable<string> GetAdditionalLocStrings(GBAVV_ROM_Crash rom, int langIndex) => ((GBAVV_ROM_Crash1)rom).CutsceneStrings[langIndex].Cutscenes.SelectMany(c => c).Select(s => s?.String?.Text);
 

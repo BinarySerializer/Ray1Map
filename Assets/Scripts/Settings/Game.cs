@@ -68,6 +68,7 @@
 
         GBAVV_Crash1,
         GBAVV_FroggerAdvance,
+        GBAVV_SpongeBobRevengeOfTheFlyingDutchman,
         GBAVV_ThePowerpuffGirls,
         GBAVV_TheMuppetsOnWithTheShow,
         GBAVV_SpyMuppetsLicenseToCroak,

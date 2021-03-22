@@ -82,44 +82,45 @@ namespace R1Engine
 
         // GBA VV
 
-        //GBAVV_PowerRangersTimeForce,       // 2001 (early map format where objects are single array without params)
-        //GBAVV_TonyHawksProSkater2,         // 2001 (TH engine)
-        //GBAVV_SpiderManMysteriosMenace,    // 2001 (same as Power Rangers, has DigiBlast version)
-        GBAVV_Crash1,                        // 2002
-        //GBAVV_TonyHawksProSkater3,         // 2002 (TH engine)
-        //GBAVV_TonyHawksProSkater4,         // 2002 (TH engine)
-        GBAVV_ThePowerpuffGirlsHimAndSeek,   // 2002
-        GBAVV_FroggerAdvance,                // 2002
-        GBAVV_TheMuppetsOnWithTheShow,       // 2003 (maps are hard-coded, has PC version)
-        GBAVV_SpyMuppetsLicenseToCroak,      // 2003 (maps are hard-coded, has PC version)
-        GBAVV_Crash2,                        // 2003
-        GBAVV_BruceLeeReturnOfTheLegend,     // 2003
-        GBAVV_X2WolverinesRevenge,           // 2003
-        GBAVV_FindingNemo,                   // 2003
-        //GBAVV_JetGrindRadio,               // 2003 (TH engine)
-        //GBAVV_ExtremeSkateAdventure,       // 2003 (TH engine)
-        GBAVV_TheLionKing,                   // 2003
-        //GBAVV_TonyHawksUnderground,        // 2003 (TH engine)
-        GBAVV_BrotherBear,                   // 2003
-        GBAVV_CrashNitroKart,                // 2003
-        GBAVV_CrashNitroKart_NGage,          // 2004
-        GBAVV_CrashFusion,                   // 2004
-        GBAVV_SpyroFusion,                   // 2004
-        GBAVV_SharkTale,                     // 2004
-        //GBAVV_TonyHawksUnderground2,       // 2004 (TH engine)
-        GBAVV_ThatsSoRaven,                  // 2004
-        GBAVV_Shrek2,                        // 2004
-        GBAVV_Shrek2BegForMercy,             // 2004
-        GBAVV_KidsNextDoorOperationSODA,     // 2004
-        GBAVV_Madagascar,                    // 2005 (has DS version)
-        GBAVV_BatmanBegins,                  // 2005
-        GBAVV_UltimateSpiderMan,             // 2005 (has DS version)
-        //GBAVV_TonyHawksAmericanSk8land,    // 2005 (TH engine)
-        GBAVV_MadagascarOperationPenguin,    // 2005
-        GBAVV_OverTheHedge,                  // 2006 (has DS version)
-        GBAVV_OverTheHedgeHammyGoesNuts,     // 2006
-        GBAVV_SpiderMan3,                    // 2007 (has DS version)
-        GBAVV_ShrekTheThird,                 // 2007 (has DS version)
+        //GBAVV_PowerRangersTimeForce,             // 2001 (early map format where objects are single array without params)
+        //GBAVV_TonyHawksProSkater2,               // 2001 (TH engine)
+        //GBAVV_SpiderManMysteriosMenace,          // 2001 (same as Power Rangers, has DigiBlast version)
+        GBAVV_Crash1,                              // 2002
+        //GBAVV_TonyHawksProSkater3,               // 2002 (TH engine)
+        //GBAVV_TonyHawksProSkater4,               // 2002 (TH engine)
+        GBAVV_ThePowerpuffGirlsHimAndSeek,         // 2002
+        GBAVV_FroggerAdvance,                      // 2002
+        GBAVV_SpongeBobRevengeOfTheFlyingDutchman, // 2002
+        GBAVV_TheMuppetsOnWithTheShow,             // 2003 (maps are hard-coded, has PC version)
+        GBAVV_SpyMuppetsLicenseToCroak,            // 2003 (maps are hard-coded, has PC version)
+        GBAVV_Crash2,                              // 2003
+        GBAVV_BruceLeeReturnOfTheLegend,           // 2003
+        GBAVV_X2WolverinesRevenge,                 // 2003
+        GBAVV_FindingNemo,                         // 2003
+        //GBAVV_JetGrindRadio,                     // 2003 (TH engine)
+        //GBAVV_ExtremeSkateAdventure,             // 2003 (TH engine)
+        GBAVV_TheLionKing,                         // 2003
+        //GBAVV_TonyHawksUnderground,              // 2003 (TH engine)
+        GBAVV_BrotherBear,                         // 2003
+        GBAVV_CrashNitroKart,                      // 2003
+        GBAVV_CrashNitroKart_NGage,                // 2004
+        GBAVV_CrashFusion,                         // 2004
+        GBAVV_SpyroFusion,                         // 2004
+        GBAVV_SharkTale,                           // 2004
+        //GBAVV_TonyHawksUnderground2,             // 2004 (TH engine)
+        GBAVV_ThatsSoRaven,                        // 2004
+        GBAVV_Shrek2,                              // 2004
+        GBAVV_Shrek2BegForMercy,                   // 2004
+        GBAVV_KidsNextDoorOperationSODA,           // 2004
+        GBAVV_Madagascar,                          // 2005 (has DS version)
+        GBAVV_BatmanBegins,                        // 2005
+        GBAVV_UltimateSpiderMan,                   // 2005 (has DS version)
+        //GBAVV_TonyHawksAmericanSk8land,          // 2005 (TH engine)
+        GBAVV_MadagascarOperationPenguin,          // 2005
+        GBAVV_OverTheHedge,                        // 2006 (has DS version)
+        GBAVV_OverTheHedgeHammyGoesNuts,           // 2006
+        GBAVV_SpiderMan3,                          // 2007 (has DS version)
+        GBAVV_ShrekTheThird,                       // 2007 (has DS version)
 
         // Gameloft
 

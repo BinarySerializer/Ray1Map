@@ -9,7 +9,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_GBAVV : Unity_ObjectManager
     {
-        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData = null, GBAVV_Generic_MapInfo.GBAVV_MapType? mapType = null, GBAVV_Script[] scripts = null, GBAVV_Graphics[] graphics = null, GBAVV_DialogScript[] dialogScripts = null, GBAVV_NitroKart_ObjTypeData[] nitroKart_ObjTypeData = null, Dictionary<Pointer, int> locPointerTable = null, bool addDummyAnimSet = false) : base(context)
+        public Unity_ObjectManager_GBAVV(Context context, AnimSet[][] animSets, GBAVV_Map2D_ObjData objData = null, GBAVV_Generic_MapInfo.GBAVV_Crash_MapType? mapType = null, GBAVV_Script[] scripts = null, GBAVV_Graphics[] graphics = null, GBAVV_DialogScript[] dialogScripts = null, GBAVV_NitroKart_ObjTypeData[] nitroKart_ObjTypeData = null, Dictionary<Pointer, int> locPointerTable = null, bool addDummyAnimSet = false) : base(context)
         {
             if (addDummyAnimSet && animSets?.Length > 0)
             {
@@ -52,7 +52,7 @@ namespace R1Engine
         public (int, int)[] AnimSetsLookupTable { get; }
         public bool MultipleAnimSetArrays => AnimSets.Length > 1;
         public GBAVV_Map2D_ObjData ObjData { get; }
-        public GBAVV_Generic_MapInfo.GBAVV_MapType? MapType { get; }
+        public GBAVV_Generic_MapInfo.GBAVV_Crash_MapType? MapType { get; }
         public byte[][] ObjParams => ObjData?.ObjParams;
         public GBAVV_Script[] Scripts { get; }
         public GBAVV_Graphics[] Graphics { get; }

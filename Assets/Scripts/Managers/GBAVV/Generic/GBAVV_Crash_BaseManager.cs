@@ -138,7 +138,7 @@ namespace R1Engine
                 MapType = mapType;
                 DisplayName = $"{displayName} - {mapType.ToString().Replace("Challenge", "Gem Route")}";
             }
-            public CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType? specialMapType, short index3D, string displayName)
+            public CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType? specialMapType, short index3D, string displayName)
             {
                 LevelIndex = -1;
                 MapIndex = -1;
@@ -150,7 +150,7 @@ namespace R1Engine
             public int LevelIndex { get; }
             public int MapIndex { get; }
             public Type MapType { get; }
-            public GBAVV_Generic_MapInfo.GBAVV_MapType? SpecialMapType { get; }
+            public GBAVV_Generic_MapInfo.GBAVV_Crash_MapType? SpecialMapType { get; }
             public short Index3D { get; }
             public string DisplayName { get; set; }
 

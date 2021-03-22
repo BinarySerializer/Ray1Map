@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace R1Engine
@@ -9,28 +8,7 @@ namespace R1Engine
         // Helpers
         public abstract GBAVV_Generic_MapInfo CurrentMapInfo { get; }
         public virtual int GetTheme => 0;
-        public virtual GenericLevelType GetGenericLevelType
-        {
-            get
-            {
-                switch (CurrentMapInfo.MapType)
-                {
-                    case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal:
-                    case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal_Vehicle_0:
-                    case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal_Vehicle_1:
-                        return GenericLevelType.Map2D;
-
-                    case GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7:
-                        return GenericLevelType.Mode7;
-
-                    case GBAVV_Generic_MapInfo.GBAVV_MapType.Isometric:
-                        return GenericLevelType.Isometric;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
+        public virtual GenericLevelType GetGenericLevelType => GenericLevelType.Map2D;
         public virtual int GetIndex3D => CurrentMapInfo.Index3D;
         public GBAVV_Mode7_LevelInfo CurrentMode7LevelInfo => Mode7_LevelInfos[CurrentMapInfo.Index3D];
 
@@ -46,7 +24,14 @@ namespace R1Engine
         public byte[][] Mode7_Crash2_Type1_FlamesTileSets { get; set; }
         public RGBA5551Color[] Mode7_GetTilePal(GBAVV_Mode7_LevelInfo levInfo)
         {
-            var tilePal = Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1 ? levInfo.TileSetFrames.Palette : Mode7_TilePalette;
+            RGBA5551Color[] tilePal;
+
+            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1)
+                tilePal = levInfo.TileSetFrames.Palette;
+            else if (Context.Settings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+                tilePal = levInfo.Crash1_Background.Palette;
+            else
+                tilePal = Mode7_TilePalette;
 
             if (Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1 && levInfo.LevelType == 0)
                 tilePal = tilePal.Take(256 - 16).Concat(Mode7_Crash1_Type0_TilePalette_0F).ToArray(); // Over last palette
@@ -88,12 +73,15 @@ namespace R1Engine
             s.DoAt(pointerTable[GBAVV_Pointer.Mode7_LevelInfo], () =>
             {
                 if (Mode7_LevelInfos == null)
-                    Mode7_LevelInfos = new GBAVV_Mode7_LevelInfo[7];
+                    Mode7_LevelInfos = new GBAVV_Mode7_LevelInfo[s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman ? 9 : 7];
 
                 var index3D = GetIndex3D;
 
                 for (int i = 0; i < Mode7_LevelInfos.Length; i++)
                     Mode7_LevelInfos[i] = s.SerializeObject<GBAVV_Mode7_LevelInfo>(Mode7_LevelInfos[i], x => x.SerializeData = i == index3D, name: $"{nameof(Mode7_LevelInfos)}[{i}]");
+
+                // Serialize animations
+                Mode7_LevelInfos[index3D].SerializeAnimations(s, Mode7_LevelInfos.SelectMany(x => x.GetAllAnimSets).Where(x => x != null));
             });
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2)

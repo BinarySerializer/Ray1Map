@@ -69,15 +69,15 @@ namespace R1Engine
                             switch (obj.ObjManager.MapType)
                             {
                                 default:
-                                case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal:
+                                case GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Normal:
                                     obj.AnimSetIndex = 0;
                                     obj.AnimIndex = 18;
                                     break;
-                                case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal_Vehicle_0:
+                                case GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Normal_Vehicle_0:
                                     obj.AnimSetIndex = 1;
                                     obj.AnimIndex = 0;
                                     break;
-                                case GBAVV_Generic_MapInfo.GBAVV_MapType.Normal_Vehicle_1:
+                                case GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Normal_Vehicle_1:
                                     obj.AnimSetIndex = 2;
                                     obj.AnimIndex = 0;
                                     break;

@@ -6,12 +6,17 @@
 
         public Pointer TilePalette2DPointer { get; set; }
         public Pointer MapData2DPointer { get; set; }
-        public GBAVV_MapType MapType { get; set; }
+        public GBAVV_Crash_MapType Crash_MapType { get; set; }
         public uint Uint_0C { get; set; } // Set to 1 for certain bonus maps
         public short Index3D { get; set; } // For Mode7 and isometric levels
         public byte Alpha_BG3 { get; set; }
         public byte Alpha_BG2 { get; set; } // Might not be BG2
+        
         public byte[] Frogger_Bytes { get; set; }
+        
+        public uint SpongeBob_Pointer_08 { get; set; } // Memory pointer - palette animation?
+        public bool SpongeBob_IsMode7 { get; set; }
+        public byte[] SpongeBob_Bytes { get; set; }
 
         // Serialized from pointers
 
@@ -27,9 +32,17 @@
             {
                 Frogger_Bytes = s.SerializeArray<byte>(Frogger_Bytes, 8, name: nameof(Frogger_Bytes));
             }
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            {
+                SpongeBob_Pointer_08 = s.Serialize<uint>(SpongeBob_Pointer_08, name: nameof(SpongeBob_Pointer_08));
+                SpongeBob_IsMode7 = s.Serialize<bool>(SpongeBob_IsMode7, name: nameof(SpongeBob_IsMode7));
+                s.SerializeArray(new byte[3], 3, name: "Padding");
+                Index3D = s.Serialize<short>(Index3D, name: nameof(Index3D));
+                SpongeBob_Bytes = s.SerializeArray<byte>(SpongeBob_Bytes, 12, name: nameof(SpongeBob_Bytes));
+            }
             else
             {
-                MapType = s.Serialize<GBAVV_MapType>(MapType, name: nameof(MapType));
+                Crash_MapType = s.Serialize<GBAVV_Crash_MapType>(Crash_MapType, name: nameof(Crash_MapType));
                 Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
                 Index3D = s.Serialize<short>(Index3D, name: nameof(Index3D));
                 Alpha_BG3 = s.Serialize<byte>(Alpha_BG3, name: nameof(Alpha_BG3));
@@ -43,7 +56,7 @@
             MapData2D = s.DoAt(MapData2DPointer, () => s.SerializeObject<GBAVV_Map2D_Data>(MapData2D, name: nameof(MapData2D)));
         }
 
-        public enum GBAVV_MapType : int
+        public enum GBAVV_Crash_MapType : int
         {
             // 2D
             Normal = 0,

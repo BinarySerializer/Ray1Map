@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace R1Engine
@@ -17,7 +18,7 @@ namespace R1Engine
                 if (CurrentLevInfo.IsSpecialMap)
                     map = new GBAVV_Generic_MapInfo
                     {
-                        MapType = CurrentLevInfo.SpecialMapType ?? GBAVV_Generic_MapInfo.GBAVV_MapType.Normal,
+                        Crash_MapType = CurrentLevInfo.SpecialMapType ?? GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Normal,
                         Index3D = CurrentLevInfo.Index3D
                     };
                 else if (CurrentLevInfo.MapType == GBAVV_Crash_BaseManager.CrashLevInfo.Type.Normal)
@@ -31,6 +32,28 @@ namespace R1Engine
             }
         }
         public override int GetTheme => LevelInfos[CurrentLevInfo.LevelIndex].LevelTheme;
+        public override GenericLevelType GetGenericLevelType
+        {
+            get
+            {
+                switch (CurrentMapInfo.Crash_MapType)
+                {
+                    case GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Normal:
+                    case GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Normal_Vehicle_0:
+                    case GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Normal_Vehicle_1:
+                        return GenericLevelType.Map2D;
+
+                    case GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7:
+                        return GenericLevelType.Mode7;
+
+                    case GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric:
+                        return GenericLevelType.Isometric;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
 
         // Localization
         public Pointer[] LocTablePointers { get; set; }

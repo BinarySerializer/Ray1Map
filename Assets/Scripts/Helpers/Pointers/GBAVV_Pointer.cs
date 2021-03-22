@@ -23,6 +23,8 @@
 
         Mode7_Crash1_PolarDeathPalette,
 
+        Mode7_SpongeBob_SpecialAnimSets,
+
         Isometric_MapDatas,
         Isometric_ObjectDatas,
         Isometric_ObjAnimations,

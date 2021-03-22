@@ -21,8 +21,16 @@
             TileSetCount = s.Serialize<uint>(TileSetCount, name: nameof(TileSetCount));
 
             TileMap = s.SerializeObjectArray<MapTile>(TileMap, Width * Height, name: nameof(TileMap));
-            TileSet = s.SerializeArray<byte>(TileSet, TileSetCount * 0x20, name: nameof(TileSet));
-            PaletteIndices = s.SerializeArray<byte>(PaletteIndices, (Width * Height) / 2, name: nameof(PaletteIndices));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            {
+                TileSet = s.SerializeArray<byte>(TileSet, TileSetCount * 0x40, name: nameof(TileSet));
+            }
+            else
+            {
+                TileSet = s.SerializeArray<byte>(TileSet, TileSetCount * 0x20, name: nameof(TileSet));
+                PaletteIndices = s.SerializeArray<byte>(PaletteIndices, (Width * Height) / 2, name: nameof(PaletteIndices));
+            }
         }
     }
 }

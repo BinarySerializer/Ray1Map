@@ -21,7 +21,7 @@ namespace R1Engine
 
         // Exports
         public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = LevInfos.First());
-        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7, (short)level, null));
+        public override GBAVV_ROM_Generic LoadROMForMode7Export(Context context, int level) => FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7, (short)level, null));
 
         public override async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
@@ -35,7 +35,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Isometric, 0, null));
+                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 0, null));
 
                 var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
 
@@ -92,7 +92,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Read the rom
-                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Isometric, 0, null));
+                var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, d) => d.CurrentLevInfo = new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 0, null));
 
                 var pal = Util.ConvertAndSplitGBAPalette(rom.Isometric_GetObjPalette);
 
@@ -116,9 +116,9 @@ namespace R1Engine
             var levInfo = rom.CurrentLevInfo;
             var map = rom.CurrentMapInfo;
 
-            if (map.MapType == GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7)
+            if (map.Crash_MapType == GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7)
                 return await LoadMode7Async(context, rom, rom.CurrentMode7LevelInfo);
-            else if (map.MapType == GBAVV_Generic_MapInfo.GBAVV_MapType.Isometric)
+            else if (map.Crash_MapType == GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric)
                 return await LoadIsometricAsync(context, rom);
             else if (levInfo.IsWorldMap)
                 return await LoadMap2DAsync(context, rom, rom.WorldMap);
@@ -243,6 +243,12 @@ namespace R1Engine
                 },
                 localization: loc.Item1);
         }
+
+        // Mode7
+        public override int[] Mode7AnimSetCounts => new int[]
+        {
+            41, 55
+        };
 
         // Isometric animations
         public Unity_ObjectManager_GBAVVIsometric.GraphicsData[] LoadIsometricAnimations(GBAVV_ROM_Crash2 rom)
@@ -550,13 +556,13 @@ namespace R1Engine
             new CrashLevInfo(28, 2, "N. Tropy - Part 3"), 
 
             // Duplicates of Mode7 level 2 - probably here since the Mode7 array was copies from the previous game which has 7 entries
-            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7, 5, "Mode7 - Duplicate Level 5"), 
-            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Mode7, 6, "Mode7 - Duplicate Level 6"), 
+            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7, 5, "Mode7 - Duplicate Level 5"), 
+            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7, 6, "Mode7 - Duplicate Level 6"), 
 
-            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Isometric, 0 - 4, "Isometric - Test"), 
-            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Isometric, 1 - 4, "Isometric - Prototype"), 
-            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Isometric, 2 - 4, "Isometric - Standin"), 
-            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_MapType.Isometric, 3 - 4, "Isometric - Demo"), 
+            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 0 - 4, "Isometric - Test"), 
+            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 1 - 4, "Isometric - Prototype"), 
+            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 2 - 4, "Isometric - Standin"), 
+            new CrashLevInfo(GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Isometric, 3 - 4, "Isometric - Demo"), 
 
             new CrashLevInfo(null, 0, "World Map"),
         };

@@ -60,25 +60,28 @@ namespace R1Engine
             public ushort Height { get; set; } // Set before serializing
 
             public uint DataLength { get; set; }
-            public byte[] Crash2_Header { get; set; }
             public byte[] TileSet { get; set; } // Width * Height, 4bpp
             public byte[] PaletteIndices { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2)
-                {
-                    DataLength = s.Serialize<uint>(DataLength, name: nameof(DataLength));
-                    Crash2_Header = s.SerializeArray<byte>(Crash2_Header, 4, name: nameof(Crash2_Header));
-                }
+                var isCompressed = s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 || 
+                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman;
 
-                TileSet = s.SerializeArray<byte>(TileSet, s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 ? (long)(DataLength - 4) : Width * Height * 0x20, name: nameof(TileSet));
+                if (isCompressed)
+                    DataLength = s.Serialize<uint>(DataLength, name: nameof(DataLength));
+
+                var length = Width * Height * 0x20;
+                s.DoEncodedIf(new GBAVV_Mode7_TileSetEncoder(length), isCompressed, () => TileSet = s.SerializeArray<byte>(TileSet, length, name: nameof(TileSet)));
 
                 if (HasPaletteIndices)
                 {
                     PaletteIndices = s.SerializeArray<byte>(PaletteIndices, Mathf.CeilToInt((Width * Height) / 2f), name: nameof(PaletteIndices));
                     s.Align();
                 }
+
+                if (isCompressed)
+                    s.Goto(Offset + 4 + DataLength);
             }
         }
     }

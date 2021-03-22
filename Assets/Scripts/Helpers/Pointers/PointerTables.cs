@@ -994,6 +994,16 @@ namespace R1Engine
                         [GBAVV_Pointer.Frogger_AdditionalLevels] = 0x0802f60c,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                // SpongeBob SquarePants - Revenge of the Flying Dutchman
+
+                case GameModeSelection.GBAVV_SpongeBobRevengeOfTheFlyingDutchmanGBAUSBeta:
+                    return new Dictionary<GBAVV_Pointer, uint>()
+                    {
+                        [GBAVV_Pointer.LevelInfo] = 0x080d5844,
+                        [GBAVV_Pointer.Mode7_LevelInfo] = 0x080d67d8,
+                        [GBAVV_Pointer.Mode7_SpongeBob_SpecialAnimSets] = 0x080d66cc,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 // Crash 2
 
                 case GameModeSelection.Crash2GBAEU:
