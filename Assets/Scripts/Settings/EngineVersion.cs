@@ -95,7 +95,7 @@ namespace R1Engine
         GBAVV_SpyMuppetsLicenseToCroak,            // 2003 (maps are hard-coded, has PC version)
         GBAVV_Crash2,                              // 2003
         GBAVV_BruceLeeReturnOfTheLegend,           // 2003
-        GBAVV_X2WolverinesRevenge,                 // 2003
+        GBAVV_X2WolverinesRevenge,                 // 2003 (has some tile errors)
         GBAVV_FindingNemo,                         // 2003
         //GBAVV_JetGrindRadio,                     // 2003 (TH engine)
         //GBAVV_ExtremeSkateAdventure,             // 2003 (TH engine)

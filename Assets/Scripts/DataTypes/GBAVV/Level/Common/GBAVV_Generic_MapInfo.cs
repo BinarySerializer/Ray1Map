@@ -56,7 +56,7 @@
             TilePalette2D = s.DoAt(TilePalette2DPointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette2D, 256, name: nameof(TilePalette2D)));
             MapData2D = s.DoAt(MapData2DPointer, () => s.SerializeObject<GBAVV_Map2D_Data>(MapData2D, name: nameof(MapData2D)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman && SpongeBob_PaletteShiftPointer != 0)
             {
                 var memOffset = s.GameSettings.GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
                 SpongeBob_PaletteShifts = s.DoAt(new Pointer(SpongeBob_PaletteShiftPointer + memOffset, Offset.file), () => s.SerializeObject<GBAVV_Generic_PaletteShifts>(SpongeBob_PaletteShifts, name: nameof(SpongeBob_PaletteShifts)));

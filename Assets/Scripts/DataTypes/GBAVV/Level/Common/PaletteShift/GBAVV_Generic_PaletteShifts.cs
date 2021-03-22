@@ -13,8 +13,11 @@
             ShiftsPointer = s.Serialize<uint>(ShiftsPointer, name: nameof(ShiftsPointer));
             ShiftsCount = s.Serialize<int>(ShiftsCount, name: nameof(ShiftsCount));
 
-            var memOffset = s.GameSettings.GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
-            Shifts = s.DoAt(new Pointer(ShiftsPointer + memOffset, Offset.file), () => s.SerializeObjectArray<GBAVV_Generic_PaletteShift>(Shifts, ShiftsCount, name: nameof(Shifts)));
+            if (ShiftsPointer != 0)
+            {
+                var memOffset = s.GameSettings.GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
+                Shifts = s.DoAt(new Pointer(ShiftsPointer + memOffset, Offset.file), () => s.SerializeObjectArray<GBAVV_Generic_PaletteShift>(Shifts, ShiftsCount, name: nameof(Shifts)));
+            }
         }
     }
 }
