@@ -12,11 +12,11 @@ namespace R1Engine
         public Pointer FrameOffsetsPointer { get; set; }
         public uint PaletteIndex { get; set; }
         public uint Uint_10 { get; set; }
-        public short XPos { get; set; }
-        public short YPos { get; set; }
-        public short ZPos { get; set; }
-        public short Width { get; set; }
-        public short Height { get; set; }
+        public short HitBox_XPos { get; set; }
+        public short HitBox_YPos { get; set; }
+        public short HitBox_ZPos { get; set; }
+        public short HitBox_Width { get; set; }
+        public short HitBox_Height { get; set; }
         public byte[] Bytes_1E { get; set; }
 
         public int SpongeBobSpecial_Int_00 { get; set; }
@@ -47,11 +47,11 @@ namespace R1Engine
             if (!IsSpongeBobSpecialAnim)
             {
                 // Hitbox values?
-                XPos = s.Serialize<short>(XPos, name: nameof(XPos));
-                YPos = s.Serialize<short>(YPos, name: nameof(YPos));
-                ZPos = s.Serialize<short>(ZPos, name: nameof(ZPos));
-                Width = s.Serialize<short>(Width, name: nameof(Width));
-                Height = s.Serialize<short>(Height, name: nameof(Height));
+                HitBox_XPos = s.Serialize<short>(HitBox_XPos, name: nameof(HitBox_XPos));
+                HitBox_YPos = s.Serialize<short>(HitBox_YPos, name: nameof(HitBox_YPos));
+                HitBox_ZPos = s.Serialize<short>(HitBox_ZPos, name: nameof(HitBox_ZPos));
+                HitBox_Width = s.Serialize<short>(HitBox_Width, name: nameof(HitBox_Width));
+                HitBox_Height = s.Serialize<short>(HitBox_Height, name: nameof(HitBox_Height));
                 Bytes_1E = s.SerializeArray<byte>(Bytes_1E, 10, name: nameof(Bytes_1E));
             }
         }

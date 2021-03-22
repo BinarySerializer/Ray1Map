@@ -731,7 +731,7 @@ namespace R1Engine
                     return new Unity_ObjectManager_GBAVVMode7.AnimSet.Animation(frames.Select(frame => frame.CreateSprite()).ToArray());
                 }).ToArray() ?? new Unity_ObjectManager_GBAVVMode7.AnimSet.Animation[0];
 
-                return new Unity_ObjectManager_GBAVVMode7.AnimSet(animations);
+                return new Unity_ObjectManager_GBAVVMode7.AnimSet(animations, animSet);
             });
 
             // Load special frames animation
@@ -740,7 +740,7 @@ namespace R1Engine
                 animSets = animSets.Append(new Unity_ObjectManager_GBAVVMode7.AnimSet(new Unity_ObjectManager_GBAVVMode7.AnimSet.Animation[]
                 {
                     new Unity_ObjectManager_GBAVVMode7.AnimSet.Animation(GetMode7SpecialAnimFrames(level.SpecialFrames).Select(x => x.CreateSprite()).ToArray()),
-                }));
+                }, null));
             }
 
             return animSets.ToArray();

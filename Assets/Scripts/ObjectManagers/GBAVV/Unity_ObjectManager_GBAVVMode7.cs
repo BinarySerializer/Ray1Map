@@ -18,12 +18,27 @@ namespace R1Engine
 
         public class AnimSet
         {
-            public AnimSet(Animation[] animations)
+            public AnimSet(Animation[] animations, GBAVV_Mode7_AnimSet animSetObj)
             {
                 Animations = animations;
+                AnimSetObj = animSetObj;
+
+                Collision = AnimSetObj == null || AnimSetObj.IsSpongeBobSpecialAnim ? new Unity_ObjAnimationCollisionPart[0] : new Unity_ObjAnimationCollisionPart[]
+                {
+                    new Unity_ObjAnimationCollisionPart
+                    {
+                        XPosition = AnimSetObj.HitBox_XPos,
+                        YPosition = AnimSetObj.HitBox_YPos,
+                        Width = AnimSetObj.HitBox_Width,
+                        Height = AnimSetObj.HitBox_Height,
+                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                    }
+                };
             }
 
             public Animation[] Animations { get; }
+            public GBAVV_Mode7_AnimSet AnimSetObj { get; }
+            public Unity_ObjAnimationCollisionPart[] Collision { get; }
 
             public class Animation
             {

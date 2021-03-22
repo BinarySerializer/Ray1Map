@@ -98,6 +98,8 @@ namespace R1Engine
 
         public bool FreezeFrame { get; set; }
 
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision => AnimSet?.Collision;
+
         public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
         public override int AnimSpeed => 4;
         public override int? GetAnimIndex => AnimIndex;
