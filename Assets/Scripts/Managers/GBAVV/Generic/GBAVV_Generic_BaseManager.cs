@@ -590,6 +590,16 @@ namespace R1Engine
                     ObjType_Unknown = (byte)(objmanager.AnimSets.Length - 1),
                     ZPos = -50 // Have it start a bit behind the player
                 }));
+            else if (context.Settings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            {
+                objects = objects.Append(new Unity_Object_GBAVVMode7(objmanager, new GBAVV_Mode7_Object()
+                {
+                    ObjType_Normal = 32,
+                    ObjType_TimeTrial = 32,
+                    ObjType_Unknown = 32,
+                    ZPos = -5 // Have it start a bit behind the player
+                }));
+            }
 
             // Spawn the main character (always type 0)
             objects = objects.Append(new Unity_Object_GBAVVMode7(objmanager, new GBAVV_Mode7_Object()));
