@@ -1353,6 +1353,11 @@ a:focus {
 	vertical-align: top;
 	height: 1.3em;
 }
+#objectGroups-group {
+	font-size: 0.85em;
+	text-transform: none;
+	font-weight: normal;
+}
 .palette-input,
 .objectGroups-input {
 	display: flex;
