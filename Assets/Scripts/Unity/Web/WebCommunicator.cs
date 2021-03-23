@@ -38,10 +38,9 @@ public class WebCommunicator : MonoBehaviour {
 					MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Ignore,
 					
 				};
+				_jsonSettings.Converters.Add(new PointerJsonConverter());
+				_jsonSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
 				_jsonSettings.Converters.Add(new Newtonsoft.Json.UnityConverters.Math.Vector3Converter());
-				_jsonSettings.Converters.Add(new Newtonsoft.Json.UnityConverters.Math.Vector2Converter());
-				_jsonSettings.Converters.Add(new Newtonsoft.Json.UnityConverters.Math.Vector4Converter());
-				_jsonSettings.Converters.Add(new Newtonsoft.Json.UnityConverters.Math.QuaternionConverter());
 				_jsonSettings.Converters.Add(new Newtonsoft.Json.UnityConverters.Math.ColorConverter());
 			}
 			return _jsonSettings;
