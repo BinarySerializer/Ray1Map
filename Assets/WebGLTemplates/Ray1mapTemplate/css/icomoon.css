@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('../fonts/icomoon/icomoon.eot?efes2c');
-  src:  url('../fonts/icomoon/icomoon.eot?efes2c#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon/icomoon.ttf?efes2c') format('truetype'),
-    url('../fonts/icomoon/icomoon.woff?efes2c') format('woff'),
-    url('../fonts/icomoon/icomoon.svg?efes2c#icomoon') format('svg');
+  src:  url('../fonts/icomoon/icomoon.eot?upg1ao');
+  src:  url('../fonts/icomoon/icomoon.eot?upg1ao#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon/icomoon.ttf?upg1ao') format('truetype'),
+    url('../fonts/icomoon/icomoon.woff?upg1ao') format('woff'),
+    url('../fonts/icomoon/icomoon.svg?upg1ao#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -252,6 +252,9 @@
 }
 .icon-flow-tree:before {
   content: "\e906";
+}
+.icon-road:before {
+  content: "\e94f";
 }
 .icon-gamepad:before {
   content: "\e943";

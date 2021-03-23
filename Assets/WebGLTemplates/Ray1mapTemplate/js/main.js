@@ -433,6 +433,13 @@ function handleMessage_settings(msg) {
 		$("#btn-freeCameraMode").addClass("removed-button");
 		$("#btn-freeCameraMode").addClass("disabled-button");
 	}
+	if(msg.hasOwnProperty("CanMoveAlongTrack") && msg.CanMoveAlongTrack) {
+		$("#btn-trackMoving").addClass("removed-button");
+		$("#btn-trackMoving").addClass("disabled-button");
+	} else {
+		$("#btn-trackMoving").addClass("removed-button");
+		$("#btn-trackMoving").addClass("disabled-button");
+	}
 
 	if(msg.hasOwnProperty("CanUseStateSwitchingMode") && msg.CanUseStateSwitchingMode) {
 		$("#btn-stateSwitching").removeClass("removed-button");
@@ -1570,6 +1577,7 @@ function sendSettings() {
 			StateSwitchingMode: global_settings.StateSwitchingMode,
 			Palette: paletteSelector.prop("selectedIndex"),
 			FreeCameraMode: $("#btn-freeCameraMode").hasClass("selected"),
+			MoveAlongTrack: $("#btn-trackMoving").hasClass("selected"),
 			CrashTimeTrialMode: $("#btn-crashTimeTrialMode").hasClass("selected")
 		}
 	}

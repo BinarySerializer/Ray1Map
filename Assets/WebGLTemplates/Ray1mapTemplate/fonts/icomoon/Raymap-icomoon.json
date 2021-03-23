@@ -1849,11 +1849,19 @@
       "selection": [
         {
           "order": 1,
+          "id": 17,
+          "prevSize": 28,
+          "code": 59727,
+          "name": "road",
+          "tempChar": ""
+        },
+        {
+          "order": 1,
           "id": 16,
           "prevSize": 28,
           "code": 59715,
           "name": "gamepad",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1861,7 +1869,7 @@
           "prevSize": 28,
           "code": 59712,
           "name": "info",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1869,7 +1877,7 @@
           "name": "paint-brush",
           "prevSize": 28,
           "code": 59711,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1877,7 +1885,7 @@
           "name": "commenting-o",
           "prevSize": 28,
           "code": 59699,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -1885,7 +1893,7 @@
           "name": "commenting",
           "prevSize": 28,
           "code": 59700,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -1893,7 +1901,7 @@
           "name": "comment-o",
           "prevSize": 28,
           "code": 59701,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1901,7 +1909,7 @@
           "name": "lightbulb-o",
           "prevSize": 28,
           "code": 59684,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1909,7 +1917,7 @@
           "name": "video-camera",
           "prevSize": 28,
           "code": 59679,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -1917,7 +1925,7 @@
           "name": "film1",
           "prevSize": 28,
           "code": 59680,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 0,
@@ -1933,7 +1941,7 @@
           "name": "minus",
           "prevSize": 28,
           "code": 59660,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1941,7 +1949,7 @@
           "name": "plus",
           "prevSize": 28,
           "code": 59661,
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 1,
@@ -1949,7 +1957,7 @@
           "prevSize": 28,
           "code": 59648,
           "name": "chevron-right",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 2,
@@ -1957,7 +1965,7 @@
           "prevSize": 28,
           "code": 59650,
           "name": "chevron-left",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 3,
@@ -1965,7 +1973,7 @@
           "prevSize": 28,
           "code": 59651,
           "name": "chevron-down",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 4,
@@ -1973,7 +1981,7 @@
           "prevSize": 28,
           "code": 59652,
           "name": "chevron-up",
-          "tempChar": ""
+          "tempChar": ""
         },
         {
           "order": 0,
@@ -2001,6 +2009,22 @@
       "height": 1024,
       "prevSize": 28,
       "icons": [
+        {
+          "id": 17,
+          "paths": [
+            "M634.857 569.143v-2.286l-13.714-182.857c-0.571-10.286-9.714-18.286-19.429-18.286h-106.286c-9.714 0-18.857 8-19.429 18.286l-13.714 182.857v2.286c-0.571 9.143 8 16 16.571 16h139.429c8.571 0 17.143-6.857 16.571-16zM1068.571 836c0 16.571-4.571 41.714-26.286 41.714h-402.286c9.714 0 17.714-8 17.143-18.286l-11.429-146.286c-0.571-10.286-9.714-18.286-19.429-18.286h-155.429c-9.714 0-18.857 8-19.429 18.286l-11.429 146.286c-0.571 10.286 7.429 18.286 17.143 18.286h-402.286c-21.714 0-26.286-25.143-26.286-41.714 0-22.857 6.286-45.714 14.857-66.286l238.286-596.571c5.714-14.286 21.143-26.857 36.571-26.857h193.714c-9.714 0-18.857 8-19.429 18.286l-8.571 109.714c-0.571 10.286 6.857 18.286 17.143 18.286h94.857c10.286 0 17.714-8 17.143-18.286l-8.571-109.714c-0.571-10.286-9.714-18.286-19.429-18.286h193.714c15.429 0 30.857 12.571 36.571 26.857l238.286 596.571c8.571 20.571 14.857 43.429 14.857 66.286z"
+          ],
+          "attrs": [
+            {}
+          ],
+          "width": 1097,
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "tags": [
+            "road"
+          ],
+          "grid": 14
+        },
         {
           "id": 16,
           "paths": [
