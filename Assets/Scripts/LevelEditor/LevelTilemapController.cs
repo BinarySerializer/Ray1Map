@@ -1067,8 +1067,13 @@ namespace R1Engine
             // Enforce layer visibility
             UpdateLayersVisibility();
 
-            if (Settings.ShowGridMap != tilemapGrid.gameObject.activeSelf) {
-                tilemapGrid.gameObject.SetActive(Settings.ShowGridMap);
+            bool showGridMap = Settings.ShowGridMap;
+            if (LevelEditorData.Level.IsometricData != null) {
+                bool is3D = Controller.obj?.levelController?.editor?.cam?.FreeCameraMode ?? false;
+                showGridMap = showGridMap && !is3D;
+            }
+            if (showGridMap != tilemapGrid.gameObject.activeSelf) {
+                tilemapGrid.gameObject.SetActive(showGridMap);
             }
 
             CheckPaletteChange();
