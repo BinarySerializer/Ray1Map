@@ -368,7 +368,7 @@ function parseObjects(hierarchy) {
 	if(normalObjects.length > 0) {
 		let objectGroups = "";
 		if(global_settings !== null && global_settings.hasOwnProperty("ObjectGroups")
-		&& global_settings.ObjectGroups !== null && global_settings.ObjectGroups.length > 0) {
+		&& global_settings.ObjectGroups !== null && global_settings.ObjectGroups.length > 1) {
 			let currentObjGroup = global_settings.hasOwnProperty("ObjectGroup") ? global_settings.ObjectGroup : 0;
 			objectGroups = "<div class='header-buttons-right'><div id='objectGroups-group' class='input-group dropdown settings-input-group'>"
 				+ "<div id='objectGroups-group-group' class='objectGroups-input input-flex'><div class='label main label-flex'>Group:</div>"
