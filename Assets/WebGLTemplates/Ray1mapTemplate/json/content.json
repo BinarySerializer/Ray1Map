@@ -329,7 +329,7 @@
 			]
 		},
 		{
-			"name": "Other games",
+			"name": "Ubisoft games",
 			"games": [
 				{
 					"title": "Donald Duck: Quack Attack",
@@ -496,7 +496,12 @@
 					"versions": [
 						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/surfs_up_eu1" }
 					]
-				},
+				}
+			]
+		},
+		{
+			"name": "Digital Eclipse games",
+			"games": [
 				{
 					"title": "TRON 2.0: Killer App",
 					"viewer": "ray1map",
@@ -506,6 +511,13 @@
 						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba_isometric/tron2_eu" }
 					]
 				}
+			]
+		},
+		{
+			"name": "Vicarious Visions games",
+			"games": [
+
+
 			]
 		}
 	]
