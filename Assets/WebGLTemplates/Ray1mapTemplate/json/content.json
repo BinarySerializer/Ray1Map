@@ -516,8 +516,219 @@
 		{
 			"name": "Vicarious Visions games",
 			"games": [
-
-
+				{
+					"title": "The Powerpuff Girls: Him and Seek",
+					"viewer": "ray1map",
+					"json": "gba_crash\/the_powerpuff_girls_him_and_seek",
+					"image": ".\/img\/logo\/the_powerpuff_girls_him_and_seek.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/the_powerpuff_girls_him_and_seek_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/the_powerpuff_girls_him_and_seek_us" }
+					]
+				},
+				{
+					"title": "Frogger Advance: The Great Quest",
+					"viewer": "ray1map",
+					"json": "gba_crash\/frogger_advance_the_great_quest",
+					"image": ".\/img\/logo\/frogger_advance_the_great_quest.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/frogger_advance_the_great_quest_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/frogger_advance_the_great_quest_us" }
+					]
+				},
+				{
+					"title": "SpongeBob SquarePants: Revenge of the Flying Dutchman",
+					"viewer": "ray1map",
+					"json": "gba_crash\/spongebob_squarepants_revenge_of_the_flying_dutchman",
+					"image": ".\/img\/logo\/spongebob_squarepants_revenge_of_the_flying_dutchman.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/spongebob_squarepants_revenge_of_the_flying_dutchman_eu_us" },
+						{ "json": "us_beta", "image": ".\/img\/version\/gba.png", "name": "GBA Prototype", "folder": "gba_crash/spongebob_squarepants_revenge_of_the_flying_dutchman_us_beta" }
+					]
+				},
+				{
+					"title": "Bruce Lee: Return of the Legend",
+					"viewer": "ray1map",
+					"json": "gba_crash\/bruce_lee_return_of_the_legend",
+					"image": ".\/img\/logo\/bruce_lee_return_of_the_legend.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/bruce_lee_return_of_the_legend_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/bruce_lee_return_of_the_legend_us" }
+					]
+				},
+				{
+					"title": "X2: Wolverine's Revenge",
+					"viewer": "ray1map",
+					"json": "gba_crash\/x2_wolverines_revenge",
+					"image": ".\/img\/logo\/x2_wolverines_revenge.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/x2_wolverines_revenge_eu_us" }
+					]
+				},
+				{
+					"title": "Finding Nemo",
+					"viewer": "ray1map",
+					"json": "gba_crash\/finding_nemo",
+					"image": ".\/img\/logo\/finding_nemo.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/finding_nemo_eu_us" },
+						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "gba_crash/finding_nemo_jp" }
+					]
+				},
+				{
+					"title": "The Lion King 1½",
+					"viewer": "ray1map",
+					"json": "gba_crash\/the_lion_king_1½",
+					"image": ".\/img\/logo\/the_lion_king_1½.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/the_lion_king_1½_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/the_lion_king_1½_us" }
+					]
+				},
+				{
+					"title": "Brother Bear",
+					"viewer": "ray1map",
+					"json": "gba_crash\/brother_bear",
+					"image": ".\/img\/logo\/brother_bear.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/brother_bear_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/brother_bear_us" }
+					]
+				},
+				{
+					"title": "SpongeBob SquarePants: Battle for Bikini Bottom",
+					"viewer": "ray1map",
+					"json": "gba_crash\/spongebob_squarepants_battle_for_bikini_bottom",
+					"image": ".\/img\/logo\/spongebob_squarepants_battle_for_bikini_bottom.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/spongebob_squarepants_battle_for_bikini_bottom_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/spongebob_squarepants_battle_for_bikini_bottom_us" }
+					]
+				},
+				{
+					"title": "Shark Tale",
+					"viewer": "ray1map",
+					"json": "gba_crash\/shark_tale",
+					"image": ".\/img\/logo\/shark_tale.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/shark_tale_eu_us" },
+						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "gba_crash/shark_tale_jp" }
+					]
+				},
+				{
+					"title": "That's so Raven",
+					"viewer": "ray1map",
+					"json": "gba_crash\/thats_so_raven",
+					"image": ".\/img\/logo\/thats_so_raven.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/thats_so_raven_eu_us" }
+					]
+				},
+				{
+					"title": "Shrek 2",
+					"viewer": "ray1map",
+					"json": "gba_crash\/shrek_2",
+					"image": ".\/img\/logo\/shrek_2.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/shrek_2_eu_us" }
+					]
+				},
+				{
+					"title": "Shrek 2: Beg for Mercy",
+					"viewer": "ray1map",
+					"json": "gba_crash\/shrek_2_beg_for_mercy",
+					"image": ".\/img\/logo\/shrek_2_beg_for_mercy.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/shrek_2_beg_for_mercy_eu_us" }
+					]
+				},
+				{
+					"title": "Codename: Kids Next Door – Operation: S.O.D.A.",
+					"viewer": "ray1map",
+					"json": "gba_crash\/codename_kids_next_door_–_operation_soda",
+					"image": ".\/img\/logo\/codename_kids_next_door_–_operation_soda.png",
+					"versions": [
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/codename_kids_next_door_–_operation_soda_us" }
+					]
+				},
+				{
+					"title": "Madagascar",
+					"viewer": "ray1map",
+					"json": "gba_crash\/madagascar",
+					"image": ".\/img\/logo\/madagascar.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/madagascar_eu_us" },
+						{ "json": "jp", "image": ".\/img\/version\/gba.png", "name": "GBA (JP)", "folder": "gba_crash/madagascar_jp" }
+					]
+				},
+				{
+					"title": "Batman Begins",
+					"viewer": "ray1map",
+					"json": "gba_crash\/batman_begins",
+					"image": ".\/img\/logo\/batman_begins.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/batman_begins_eu_us" }
+					]
+				},
+				{
+					"title": "Ultimate Spider-Man",
+					"viewer": "ray1map",
+					"json": "gba_crash\/ultimate_spiderman",
+					"image": ".\/img\/logo\/ultimate_spiderman.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/ultimate_spiderman_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/ultimate_spiderman_us" }
+					]
+				},
+				{
+					"title": "Madagascar: Operation Penguin",
+					"viewer": "ray1map",
+					"json": "gba_crash\/madagascar_operation_penguin",
+					"image": ".\/img\/logo\/madagascar_operation_penguin.png",
+					"versions": [
+						{ "json": "eu_us", "image": ".\/img\/version\/gba.png", "name": "GBA (EU/US)", "folder": "gba_crash/madagascar_operation_penguin_eu_us" }
+					]
+				},
+				{
+					"title": "Over the Hedge",
+					"viewer": "ray1map",
+					"json": "gba_crash\/over_the_hedge",
+					"image": ".\/img\/logo\/over_the_hedge.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/over_the_hedge_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/over_the_hedge_us" }
+					]
+				},
+				{
+					"title": "Over the Hedge: Hammy Goes Nuts!",
+					"viewer": "ray1map",
+					"json": "gba_crash\/over_the_hedge_hammy_goes_nuts",
+					"image": ".\/img\/logo\/over_the_hedge_hammy_goes_nuts.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/over_the_hedge_hammy_goes_nuts_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/over_the_hedge_hammy_goes_nuts_us" }
+					]
+				},
+				{
+					"title": "Spider-Man 3",
+					"viewer": "ray1map",
+					"json": "gba_crash\/spiderman_3",
+					"image": ".\/img\/logo\/spiderman_3.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/spiderman_3_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/spiderman_3_us" }
+					]
+				},
+				{
+					"title": "Shrek the Third",
+					"viewer": "ray1map",
+					"json": "gba_crash\/shrek_the_third",
+					"image": ".\/img\/logo\/shrek_the_third.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_crash/shrek_the_third_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_crash/shrek_the_third_us" }
+					]
+				}
 			]
 		}
 	]

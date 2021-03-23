@@ -88,7 +88,7 @@ namespace R1Engine
                 get
                 {
                     var volume = String.IsNullOrWhiteSpace(VolumeName) ? $"{Volume + 1}" : VolumeName;
-                    var level = Level == -1 ? " " : $": {(String.IsNullOrWhiteSpace(LevelName) ? $"{Level + 1}-" : $"{LevelName} ")}";
+                    var level = Level == -1 ? " " : $" - {(String.IsNullOrWhiteSpace(LevelName) ? $"{Level + 1}-" : $"{LevelName} ")}";
                     var map = $"{Map + 1}";
 
                     return $"{volume}{level}{map}";
