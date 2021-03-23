@@ -515,6 +515,7 @@ namespace R1Engine
                             for (int i = 0; i < objCol.Length; i++) {
                                 objCollisionRenderers[i] = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
                                 objCollisionRenderers[i].sortingOrder = is3D ? 0 : Layer;
+                                if (is3D) objCollisionRenderers[i].gameObject.layer = LayerMask.NameToLayer("3D Object");
 
                                 objCollisionRenderers[i].transform.localPosition = new Vector3(0, 0, is3D ? 0.1f : (objCol.Length - i));
                                 objCollisionRenderers[i].transform.localRotation = Quaternion.identity;
