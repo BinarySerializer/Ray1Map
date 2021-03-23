@@ -431,7 +431,7 @@ namespace R1Engine
             for(int j = 0; j < puppet.Animations.Length; j++) {
                 var a = puppet.Animations[j];
                 var unityAnim = new Unity_ObjAnimation {
-                    AnimSpeed = 4,
+                    AnimSpeed = 6,
                 };
 
                 var frames = new List<Unity_ObjAnimationFrame>();
