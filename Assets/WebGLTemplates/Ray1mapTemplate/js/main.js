@@ -366,7 +366,21 @@ function parseObjects(hierarchy) {
 		}
 	});
 	if(normalObjects.length > 0) {
-		items.push("<div class='objects-item object-world level-0' alt='Objects'>Objects</div>");
+		let objectGroups = "";
+		if(global_settings !== null && global_settings.hasOwnProperty("ObjectGroups")
+		&& global_settings.ObjectGroups !== null && global_settings.ObjectGroups.length > 0) {
+			let currentObjGroup = global_settings.hasOwnProperty("ObjectGroup") ? global_settings.ObjectGroup : 0;
+			objectGroups = "<div class='header-buttons-right'><div id='objectGroups-group' class='input-group dropdown settings-input-group'>"
+				+ "<div id='objectGroups-group-group' class='objectGroups-input input-flex'><div class='label main label-flex'>Group:</div>"
+				+ "<div class='field flexible'><select id='objectGroupSelector'>";
+			$.each(global_settings.ObjectGroups, function (idx, og) {
+				objectGroups += "<option value='" + idx + "'" + (idx == currentObjGroup ? " selected" : "") + ">" + escapeHTML(og) + "</option>";
+			});
+			objectGroups += "</select></div></div></div></div>";
+		}
+		items.push("<div class='objects-item object-world level-0' alt='Objects'>Objects"
+		+ objectGroups
+		+ "</div>");
 		$.each(normalObjects, function(i, obj) {
 			items.push(getObjectListEntryHTML(obj));
 		});
@@ -434,8 +448,8 @@ function handleMessage_settings(msg) {
 		$("#btn-freeCameraMode").addClass("disabled-button");
 	}
 	if(msg.hasOwnProperty("CanMoveAlongTrack") && msg.CanMoveAlongTrack) {
-		$("#btn-trackMoving").addClass("removed-button");
-		$("#btn-trackMoving").addClass("disabled-button");
+		$("#btn-trackMoving").removeClass("removed-button");
+		selectButton($("#btn-trackMoving"), msg.MoveAlongTrack);
 	} else {
 		$("#btn-trackMoving").addClass("removed-button");
 		$("#btn-trackMoving").addClass("disabled-button");
@@ -464,6 +478,10 @@ function handleMessage_settings(msg) {
 		$("#palettes-group").removeClass("disabled");
 	}
 	if(msg.hasOwnProperty("Palette")) paletteSelector.prop("selectedIndex", msg.Palette);
+
+	if(msg.hasOwnProperty("ObjectGroup") && $("#objectGroupSelector").length) {
+		$("#objectGroupSelector").prop("selectedIndex", msg.ObjectGroup);
+	}
 	
 	$("#btn-camera").removeClass("disabled-button");
 
@@ -1584,6 +1602,9 @@ function sendSettings() {
 	if($("#btn-showAlwaysObjects").length) jsonObj.Settings.ShowAlwaysObjects = $("#btn-showAlwaysObjects").hasClass("selected");
 	if($("#btn-showEditorObjects").length) jsonObj.Settings.ShowEditorObjects = $("#btn-showEditorObjects").hasClass("selected");
 	if($("#btn-showRayman").length) jsonObj.Settings.ShowRayman = $("#btn-showRayman").hasClass("selected");
+	if($("#objectGroupSelector").length) {
+		jsonObj.Settings.ObjectGroup = $("#objectGroupSelector").prop("selectedIndex");
+	}
 	let layers = $(".layer-button");
 	if(layers.length > 0) {
 		let layerSettings = [];
@@ -2351,6 +2372,10 @@ $(function() {
 		updateLevelLinksActors();
 	});
 	$(document).on('change', "#paletteSelector", function() {
+		sendSettings();
+		return false;
+	});
+	$(document).on('change', "#objectGroupSelector", function() {
 		sendSettings();
 		return false;
 	});

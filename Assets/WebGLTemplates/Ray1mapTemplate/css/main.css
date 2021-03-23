@@ -1325,7 +1325,8 @@ a:focus {
 	text-align: right;
 }
 .levels-actor-input-group,
-.palette-group {
+.palette-group,
+.objectGroups-group {
 	font-size: 0.6em;
 	padding: 0.25em 3em 0 3em;
 	text-align: center;
@@ -1339,10 +1340,12 @@ a:focus {
 	box-sizing: border-box;
 }
 .levels-actor-input.invisible,
-.palette-input.invisible {
+.palette-input.invisible,
+.objectGroups-input.invisible {
 	display: none;
 }
-#palettes-group {
+#palettes-group,
+#objectGroups-group {
 	display: inline-block;
 	padding: 0.2em 0.3em 0.3em 0.3em;
 	width: 8em;
@@ -1350,7 +1353,8 @@ a:focus {
 	vertical-align: top;
 	height: 1.3em;
 }
-.palette-input {
+.palette-input,
+.objectGroups-input {
 	display: flex;
 	width: 100%;
 	flex: 0 1 auto;
