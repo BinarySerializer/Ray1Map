@@ -4,7 +4,7 @@
     {
         public override int LevelsCount => 55;
     }
-    public class GBAVV_BrotherBearEU_Manager : GBAVV_FindingNemo_Manager
+    public class GBAVV_BrotherBearEU_Manager : GBAVV_BrotherBear_Manager
     {
         public override uint[] GraphicsDataPointers => new uint[]
         {
@@ -21,7 +21,7 @@
             0x080A5D04,
         };
     }
-    public class GBAVV_BrotherBearUS_Manager : GBAVV_FindingNemo_Manager
+    public class GBAVV_BrotherBearUS_Manager : GBAVV_BrotherBear_Manager
     {
         public override uint[] GraphicsDataPointers => new uint[]
         {

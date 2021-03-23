@@ -3,29 +3,80 @@
   "mode": "BrotherBearGBAUS",
   "folder": "gba_crash/brother_bear_us",
   "levels": [
-    { "world": 0, "level": 0, "nameInternal": "", "name": "Map 0" },
-    { "world": 0, "level": 1, "nameInternal": "", "name": "Map 1" },
-    { "world": 0, "level": 2, "nameInternal": "", "name": "Map 2" },
-    { "world": 0, "level": 3, "nameInternal": "", "name": "Map 3" },
-    { "world": 0, "level": 4, "nameInternal": "", "name": "Map 4" },
-    { "world": 0, "level": 5, "nameInternal": "", "name": "Map 5" },
-    { "world": 0, "level": 6, "nameInternal": "", "name": "Map 6" },
-    { "world": 0, "level": 7, "nameInternal": "", "name": "Map 7" },
-    { "world": 0, "level": 8, "nameInternal": "", "name": "Map 8" },
-    { "world": 0, "level": 9, "nameInternal": "", "name": "Map 9" },
-    { "world": 0, "level": 10, "nameInternal": "", "name": "Map 10" },
-    { "world": 0, "level": 11, "nameInternal": "", "name": "Map 11" },
-    { "world": 0, "level": 12, "nameInternal": "", "name": "Map 12" },
-    { "world": 0, "level": 13, "nameInternal": "", "name": "Map 13" },
-    { "world": 0, "level": 14, "nameInternal": "", "name": "Map 14" },
-    { "world": 0, "level": 15, "nameInternal": "", "name": "Map 15" },
-    { "world": 0, "level": 16, "nameInternal": "", "name": "Map 16" },
-    { "world": 0, "level": 17, "nameInternal": "", "name": "Map 17" },
-    { "world": 0, "level": 18, "nameInternal": "", "name": "Map 18" },
-    { "world": 0, "level": 19, "nameInternal": "", "name": "Map 19" },
-    { "world": 0, "level": 20, "nameInternal": "", "name": "Map 20" },
-    { "world": 0, "level": 21, "nameInternal": "", "name": "Map 21" },
-    { "world": 0, "level": 22, "nameInternal": "", "name": "Map 22" },
-    { "world": 0, "level": 23, "nameInternal": "", "name": "Map 23" }
+    { "world": 0, "level": 3, "nameInternal": "hub1level1section1", "name": "Snow Forest 1-1" },
+    { "world": 0, "level": 5, "nameInternal": "hub1level1section2", "name": "Snow Forest 1-2" },
+    { "world": 0, "level": 4, "nameInternal": "hub1level1section3", "name": "Snow Forest 1-3" },
+    
+    { "world": 0, "level": 12, "nameInternal": "hub1level2section1", "name": "Snow Forest 2-1" },
+    { "world": 0, "level": 32, "nameInternal": "hub1level2section2", "name": "Snow Forest 2-2" },
+    { "world": 0, "level": 13, "nameInternal": "hub1level2section3", "name": "Snow Forest 2-3" },
+
+    { "world": 0, "level": 0, "nameInternal": "hub1level3section1", "name": "Snow Forest 3-1" },
+    { "world": 0, "level": 1, "nameInternal": "hub1level3section2", "name": "Snow Forest 3-2" },
+    { "world": 0, "level": 2, "nameInternal": "hub1level3section3", "name": "Snow Forest 3-3" },
+    
+    { "world": 0, "level": 43, "nameInternal": "hub1level4section1", "name": "Snow Forest 4-1" },
+    { "world": 0, "level": 52, "nameInternal": "hub1level4section2", "name": "Snow Forest 4-2" },
+    { "world": 0, "level": 44, "nameInternal": "hub1level4section3", "name": "Snow Forest 4-3" },
+
+    { "world": 0, "level": 50, "nameInternal": "swim1", "name": "Salmon Run" },
+    { "world": 0, "level": 11, "nameInternal": "hub1chaseSection1", "name": "Snow Forest Chase" },
+
+    { "world": 0, "level": 6, "nameInternal": "hub2level1section1", "name": "Ice Cave 1-1" },
+    { "world": 0, "level": 31, "nameInternal": "hub2level1section2", "name": "Ice Cave 1-2" },
+    { "world": 0, "level": 14, "nameInternal": "hub2level1section3", "name": "Ice Cave 1-3" },
+
+    { "world": 0, "level": 9, "nameInternal": "hub2level2section1", "name": "Ice Cave 2-1" },
+    { "world": 0, "level": 33, "nameInternal": "hub2level2section2", "name": "Ice Cave 2-2" },
+    { "world": 0, "level": 10, "nameInternal": "hub2level2section3", "name": "Ice Cave 2-3" },
+
+    { "world": 0, "level": 15, "nameInternal": "hub2level3section1", "name": "Ice Cave 3-1" },
+    { "world": 0, "level": 34, "nameInternal": "hub2level3section2", "name": "Ice Cave 3-2" },
+    { "world": 0, "level": 16, "nameInternal": "hub2level3section3", "name": "Ice Cave 3-3" },
+    
+    { "world": 0, "level": 45, "nameInternal": "hub2level4section1", "name": "Ice Cave 4-1" },
+    { "world": 0, "level": 53, "nameInternal": "hub2level4section2", "name": "Ice Cave 4-2" },
+    { "world": 0, "level": 46, "nameInternal": "hub2level4section3", "name": "Ice Cave 4-3" },
+
+    { "world": 0, "level": 23, "nameInternal": "hub2chaseSection1", "name": "Ice Cave Chase" },
+
+    { "world": 0, "level": 26, "nameInternal": "hub3level1section1", "name": "Valley of Fire 1-1" },
+    { "world": 0, "level": 35, "nameInternal": "hub3level1section2", "name": "Valley of Fire 1-2" },
+    { "world": 0, "level": 27, "nameInternal": "hub3level1section3", "name": "Valley of Fire 1-3" },
+
+    { "world": 0, "level": 28, "nameInternal": "hub3level2section1", "name": "Valley of Fire 2-1" },
+    { "world": 0, "level": 36, "nameInternal": "hub3level2section2", "name": "Valley of Fire 2-2" },
+    { "world": 0, "level": 29, "nameInternal": "hub3level2section3", "name": "Valley of Fire 2-3" },
+
+    { "world": 0, "level": 7, "nameInternal": "hub3level3section1", "name": "Valley of Fire 3-1" },
+    { "world": 0, "level": 37, "nameInternal": "hub3level3section2", "name": "Valley of Fire 3-1" },
+    { "world": 0, "level": 8, "nameInternal": "hub3level3section3", "name": "Valley of Fire 3-1" },
+
+    { "world": 0, "level": 41, "nameInternal": "hub3level4section1", "name": "Valley of Fire 4-1" },
+    { "world": 0, "level": 42, "nameInternal": "hub3level4section2", "name": "Valley of Fire 4-2" },
+    { "world": 0, "level": 49, "nameInternal": "hub3level4section3", "name": "Valley of Fire 4-3" },
+
+    { "world": 0, "level": 24, "nameInternal": "hub3chaseSection1", "name": "Valley of Fire Chase" },
+
+    { "world": 0, "level": 17, "nameInternal": "hub4level1section1", "name": "The Mountain 1-1" },
+    { "world": 0, "level": 38, "nameInternal": "hub4level1section2", "name": "The Mountain 1-2" },
+    { "world": 0, "level": 18, "nameInternal": "hub4level1section3", "name": "The Mountain 1-3" },
+
+    { "world": 0, "level": 19, "nameInternal": "hub4level2section1", "name": "The Mountain 2-1" },
+    { "world": 0, "level": 39, "nameInternal": "hub4level2section2", "name": "The Mountain 2-2" },
+    { "world": 0, "level": 20, "nameInternal": "hub4level2section3", "name": "The Mountain 2-3" },
+
+    { "world": 0, "level": 51, "nameInternal": "swim2", "name": "Salmon Run" },
+
+    { "world": 0, "level": 21, "nameInternal": "hub4level3section1", "name": "The Mountain 3-1" },
+    { "world": 0, "level": 40, "nameInternal": "hub4level3section2", "name": "The Mountain 3-2" },
+    { "world": 0, "level": 22, "nameInternal": "hub4level3section3", "name": "The Mountain 3-3" },
+
+    { "world": 0, "level": 47, "nameInternal": "hub4level4section1", "name": "The Mountain 4-1" },
+    { "world": 0, "level": 54, "nameInternal": "hub4level4section2", "name": "The Mountain 4-2" },
+    { "world": 0, "level": 48, "nameInternal": "hub4level4section3", "name": "The Mountain 4-3" },
+
+    { "world": 0, "level": 25, "nameInternal": "hub4chaseSection1", "name": "The Mountain Chase" },
+    { "world": 0, "level": 30, "nameInternal": "worldmap", "name": "Snow Forest 1" }
    ]
 }

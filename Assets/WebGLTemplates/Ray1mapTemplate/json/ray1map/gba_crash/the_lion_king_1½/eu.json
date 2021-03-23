@@ -26,6 +26,12 @@
     { "world": 0, "level": 20, "nameInternal": "", "name": "Map 20" },
     { "world": 0, "level": 21, "nameInternal": "", "name": "Map 21" },
     { "world": 0, "level": 22, "nameInternal": "", "name": "Map 22" },
-    { "world": 0, "level": 23, "nameInternal": "", "name": "Map 23" }
+    { "world": 0, "level": 23, "nameInternal": "", "name": "Map 23" },
+    { "world": 0, "level": 24, "nameInternal": "", "name": "Map 24" },
+    { "world": 0, "level": 25, "nameInternal": "", "name": "Map 25" },
+    { "world": 0, "level": 26, "nameInternal": "", "name": "Map 26" },
+    { "world": 0, "level": 27, "nameInternal": "", "name": "Map 27" },
+    { "world": 0, "level": 28, "nameInternal": "", "name": "Map 28" },
+    { "world": 0, "level": 29, "nameInternal": "", "name": "Map 29" }
    ]
 }
