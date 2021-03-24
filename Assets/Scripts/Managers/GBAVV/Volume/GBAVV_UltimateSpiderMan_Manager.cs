@@ -6,6 +6,7 @@ namespace R1Engine
     {
         // Metadata
         public override int VolumesCount => 7;
+        public override bool HasAssignedObjTypeGraphics => true;
 
         // Scripts
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>()
@@ -56,6 +57,230 @@ namespace R1Engine
             new LevInfo(6, 1, 2, "Lab Test", "", ""),
             new LevInfo(6, 1, 3, "Lab Test", "", ""),
             new LevInfo(6, 2, 0, "Lab Test", "", ""),
+        };
+
+        public override ObjTypeInit[] ObjTypeInitInfos => new ObjTypeInit[]
+        {
+            new ObjTypeInit(-1, -1, null), // 0
+            new ObjTypeInit(-1, -1, null), // 1
+            new ObjTypeInit(-1, -1, null), // 2
+            new ObjTypeInit(-1, -1, null), // 3
+            new ObjTypeInit(-1, -1, null), // 4
+            new ObjTypeInit(-1, -1, null), // 5
+            new ObjTypeInit(17, 0, "spideyHealthLarge"), // 6
+            new ObjTypeInit(17, 1, "spideyHealthSmall"), // 7
+            new ObjTypeInit(17, 2, "spideyWebLarge"), // 8
+            new ObjTypeInit(17, 3, "spideyWebSmall"), // 9
+            new ObjTypeInit(17, 4, "spideyWebFluid1"), // 10
+            new ObjTypeInit(17, 4, "spideyWebFluid2"), // 11
+            new ObjTypeInit(17, 4, "spideyWebFluid3"), // 12
+            new ObjTypeInit(17, 7, "spideyWeb1"), // 13
+            new ObjTypeInit(17, 7, "spideyWeb2"), // 14
+            new ObjTypeInit(17, 6, "spideyAgility1"), // 15
+            new ObjTypeInit(17, 6, "spideyAgility2"), // 16
+            new ObjTypeInit(17, 8, "venomAdaptation"), // 17
+            new ObjTypeInit(17, 12, "venomFeed1"), // 18
+            new ObjTypeInit(17, 12, "venomFeed2"), // 19
+            new ObjTypeInit(17, 11, "venomToughness1"), // 20
+            new ObjTypeInit(17, 11, "venomToughness2"), // 21
+            new ObjTypeInit(17, 13, "venomCombat1"), // 22
+            new ObjTypeInit(17, 13, "venomCombat2"), // 23
+            new ObjTypeInit(17, 10, "venomInvincibility"), // 24
+            new ObjTypeInit(17, 14, "venomInvincibilitySmall"), // 25
+            new ObjTypeInit(-1, -1, null), // 26
+            new ObjTypeInit(21, 5, null), // 27
+            new ObjTypeInit(10, 1, "breakableDoor"), // 28
+            new ObjTypeInit(10, 2, "breakableDoorSewer"), // 29
+            new ObjTypeInit(10, 5, "breakableGeneric"), // 30
+            new ObjTypeInit(10, 9, "breakableGeneric"), // 31
+            new ObjTypeInit(10, 10, "breakableGeneric"), // 32
+            new ObjTypeInit(10, 15, "breakableGeneric"), // 33
+            new ObjTypeInit(10, 16, "breakableGeneric"), // 34
+            new ObjTypeInit(10, 19, "bombIdle"), // 35
+            new ObjTypeInit(10, 23, "gasTank"), // 36
+            new ObjTypeInit(10, 26, "breakableCrate"), // 37
+            new ObjTypeInit(10, 29, "breakableBGJumpable"), // 38
+            new ObjTypeInit(10, 32, "breakableBGNonJumpable"), // 39
+            new ObjTypeInit(10, 35, "breakableBGJumpableOneHit"), // 40
+            new ObjTypeInit(10, 38, "breakableSolid"), // 41
+            new ObjTypeInit(10, 40, "breakableBGJumpableOneHit"), // 42
+            new ObjTypeInit(20, 0, "switchableDoor"), // 43
+            new ObjTypeInit(14, 1, "laserBeamIdle"), // 44
+            new ObjTypeInit(14, 7, "laserSwitchBlueIdle"), // 45
+            new ObjTypeInit(14, 3, "laserBeamIdle"), // 46
+            new ObjTypeInit(14, 9, "laserSwitchRedIdle"), // 47
+            new ObjTypeInit(14, 5, "laserBeamIdle"), // 48
+            new ObjTypeInit(14, 11, "laserSwitchYellowIdle"), // 49
+            new ObjTypeInit(20, 2, "switchOnce"), // 50
+            new ObjTypeInit(20, 4, "bankRubbleIdle"), // 51
+            new ObjTypeInit(20, 5, "bankWallIdle"), // 52
+            new ObjTypeInit(20, 6, "museumWallIdle"), // 53
+            new ObjTypeInit(20, 9, "solidIdle"), // 54
+            new ObjTypeInit(14, 35, "steamValveIdle"), // 55
+            new ObjTypeInit(14, 37, "steamWallIdle"), // 56
+            new ObjTypeInit(14, 35, "gasValveIdle"), // 57
+            new ObjTypeInit(14, 37, "gasWallIdle"), // 58
+            new ObjTypeInit(-1, -1, null), // 59
+            new ObjTypeInit(-1, -1, null), // 60
+            new ObjTypeInit(-1, -1, null), // 61
+            new ObjTypeInit(-1, -1, null), // 62
+            new ObjTypeInit(-1, -1, null), // 63
+            new ObjTypeInit(-1, -1, null), // 64
+            new ObjTypeInit(-1, -1, null), // 65
+            new ObjTypeInit(-1, -1, null), // 66
+            new ObjTypeInit(-1, -1, null), // 67
+            new ObjTypeInit(4, 16, null), // 68
+            new ObjTypeInit(4, 16, null), // 69
+            new ObjTypeInit(4, 16, null), // 70
+            new ObjTypeInit(9, 17, null), // 71
+            new ObjTypeInit(9, 17, null), // 72
+            new ObjTypeInit(5, 16, null), // 73
+            new ObjTypeInit(5, 16, null), // 74
+            new ObjTypeInit(-1, -1, null), // 75
+            new ObjTypeInit(-1, -1, null), // 76
+            new ObjTypeInit(1, 17, null), // 77
+            new ObjTypeInit(1, 17, null), // 78
+            new ObjTypeInit(8, 15, null), // 79
+            new ObjTypeInit(8, 15, null), // 80
+            new ObjTypeInit(2, 16, null), // 81
+            new ObjTypeInit(2, 16, null), // 82
+            new ObjTypeInit(7, 20, null), // 83
+            new ObjTypeInit(7, 20, null), // 84
+            new ObjTypeInit(-1, -1, null), // 85
+            new ObjTypeInit(-1, -1, null), // 86
+            new ObjTypeInit(1, 17, null), // 87
+            new ObjTypeInit(-1, -1, null), // 88
+            new ObjTypeInit(-1, -1, null), // 89
+            new ObjTypeInit(-1, -1, null), // 90
+            new ObjTypeInit(-1, -1, null), // 91
+            new ObjTypeInit(-1, -1, null), // 92
+            new ObjTypeInit(-1, -1, null), // 93
+            new ObjTypeInit(-1, -1, null), // 94
+            new ObjTypeInit(-1, -1, null), // 95
+            new ObjTypeInit(16, 1, "helpPromptIdle"), // 96
+            new ObjTypeInit(16, 12, "victim"), // 97
+            new ObjTypeInit(16, 12, "victim"), // 98
+            new ObjTypeInit(16, 12, "victim"), // 99
+            new ObjTypeInit(16, 12, "victim"), // 100
+            new ObjTypeInit(16, 4, "victim"), // 101
+            new ObjTypeInit(16, 4, "victim"), // 102
+            new ObjTypeInit(16, 4, "victim"), // 103
+            new ObjTypeInit(16, 4, "victim"), // 104
+            new ObjTypeInit(16, 12, "TAMVictimRescueImmediately"), // 105
+            new ObjTypeInit(16, 12, "TAMVictimRescueImmediately"), // 106
+            new ObjTypeInit(16, 12, "TAMVictimRescueImmediately"), // 107
+            new ObjTypeInit(16, 12, "TAMVictimRescueImmediately"), // 108
+            new ObjTypeInit(16, 4, "TAMVictimRescueImmediately"), // 109
+            new ObjTypeInit(16, 4, "TAMVictimRescueImmediately"), // 110
+            new ObjTypeInit(16, 4, "TAMVictimRescueImmediately"), // 111
+            new ObjTypeInit(16, 4, "TAMVictimRescueImmediately"), // 112
+            new ObjTypeInit(16, 19, "victim"), // 113
+            new ObjTypeInit(16, 19, "victim"), // 114
+            new ObjTypeInit(16, 19, "victim"), // 115
+            new ObjTypeInit(16, 19, "victim"), // 116
+            new ObjTypeInit(16, 8, "victim"), // 117
+            new ObjTypeInit(16, 8, "victim"), // 118
+            new ObjTypeInit(16, 8, "victim"), // 119
+            new ObjTypeInit(16, 8, "victim"), // 120
+            new ObjTypeInit(16, 19, "TAMVictim"), // 121
+            new ObjTypeInit(16, 19, "TAMVictim"), // 122
+            new ObjTypeInit(16, 19, "TAMVictim"), // 123
+            new ObjTypeInit(16, 19, "TAMVictim"), // 124
+            new ObjTypeInit(16, 8, "TAMVictim"), // 125
+            new ObjTypeInit(16, 8, "TAMVictim"), // 126
+            new ObjTypeInit(16, 8, "TAMVictim"), // 127
+            new ObjTypeInit(16, 8, "TAMVictim"), // 128
+            new ObjTypeInit(16, 12, "venomTAMLevelVictimActivate"), // 129
+            new ObjTypeInit(16, 12, "venomTAMLevelVictimActivate"), // 130
+            new ObjTypeInit(16, 12, "venomTAMLevelVictimActivate"), // 131
+            new ObjTypeInit(16, 12, "venomTAMLevelVictimActivate"), // 132
+            new ObjTypeInit(16, 4, "venomTAMLevelVictimActivate"), // 133
+            new ObjTypeInit(16, 4, "venomTAMLevelVictimActivate"), // 134
+            new ObjTypeInit(16, 4, "venomTAMLevelVictimActivate"), // 135
+            new ObjTypeInit(16, 4, "venomTAMLevelVictimActivate"), // 136
+            new ObjTypeInit(16, 12, "victimRun"), // 137
+            new ObjTypeInit(16, 12, "victimRun"), // 138
+            new ObjTypeInit(16, 12, "victimRun"), // 139
+            new ObjTypeInit(16, 12, "victimRun"), // 140
+            new ObjTypeInit(16, 4, "victimRun"), // 141
+            new ObjTypeInit(16, 4, "victimRun"), // 142
+            new ObjTypeInit(16, 4, "victimRun"), // 143
+            new ObjTypeInit(16, 4, "victimRun"), // 144
+            new ObjTypeInit(6, 1, "sableStartRun"), // 145
+            new ObjTypeInit(6, 1, "SableRunCreate"), // 146
+            new ObjTypeInit(16, 2, "shockerSpeaks"), // 147
+            new ObjTypeInit(21, 1, "venomRunning"), // 148
+            new ObjTypeInit(1, 11, "commandoRunCreate"), // 149
+            new ObjTypeInit(16, 3, null), // 150
+            new ObjTypeInit(15, 16, "TAMTrigger"), // 151
+            new ObjTypeInit(15, 17, "TAMTrigger"), // 152
+            new ObjTypeInit(15, 19, "TAMTrigger"), // 153
+            new ObjTypeInit(15, 18, "TAMTrigger"), // 154
+            new ObjTypeInit(15, 20, "TAMTriggerBigger"), // 155
+            new ObjTypeInit(15, 19, "proximityTAMTargetIdle"), // 156
+            new ObjTypeInit(20, 7, "TAMWallSetup"), // 157
+            new ObjTypeInit(-1, -1, null), // 158
+            new ObjTypeInit(14, 13, "hydrantOpen"), // 159
+            new ObjTypeInit(14, 17, "hydrantDrippingLinked"), // 160
+            new ObjTypeInit(14, 16, "hydrantOpenLinked"), // 161
+            new ObjTypeInit(14, 12, "hydrantClosed"), // 162
+            new ObjTypeInit(14, 20, "electricIdle"), // 163
+            new ObjTypeInit(14, 21, "electricIdle"), // 164
+            new ObjTypeInit(14, 27, "electricWallHorizontalIdle"), // 165
+            new ObjTypeInit(14, 28, "electricWallVerticalIdle"), // 166
+            new ObjTypeInit(14, 22, "generatorIdle"), // 167
+            new ObjTypeInit(14, 25, "electricSwitchIdle"), // 168
+            new ObjTypeInit(14, 27, "electricWallHorizontalHide"), // 169
+            new ObjTypeInit(14, 28, "electricWallVerticalHide"), // 170
+            new ObjTypeInit(14, 32, "TAMElectricWallHide"), // 171
+            new ObjTypeInit(14, 30, "TAMElectricWallHide"), // 172
+            new ObjTypeInit(14, 41, null), // 173
+            new ObjTypeInit(14, 42, null), // 174
+            new ObjTypeInit(14, 43, null), // 175
+            new ObjTypeInit(14, 44, null), // 176
+            new ObjTypeInit(14, 48, "hydrantOpen"), // 177
+            new ObjTypeInit(14, 47, "hydrantDrippingLinked"), // 178
+            new ObjTypeInit(14, 49, "hydrantOpenLinked"), // 179
+            new ObjTypeInit(14, 46, "hydrantClosed"), // 180
+            new ObjTypeInit(14, 51, null), // 181
+            new ObjTypeInit(14, 56, "ceilingTurretSetup"), // 182
+            new ObjTypeInit(14, 57, "ceilingTurretSetup"), // 183
+            new ObjTypeInit(14, 63, "wallTurretSetup"), // 184
+            new ObjTypeInit(14, 64, "wallTurretSetup"), // 185
+            new ObjTypeInit(18, 0, null), // 186
+            new ObjTypeInit(18, 2, null), // 187
+            new ObjTypeInit(18, 2, "offscreenSpawner"), // 188
+            new ObjTypeInit(18, 2, "fight"), // 189
+            new ObjTypeInit(18, 2, "fight"), // 190
+            new ObjTypeInit(18, 2, "fight"), // 191
+            new ObjTypeInit(18, 2, "fight"), // 192
+            new ObjTypeInit(18, 2, "fight"), // 193
+            new ObjTypeInit(21, 85, "venomEndRunCreate"), // 194
+            new ObjTypeInit(21, 85, "venomCreate"), // 195
+            new ObjTypeInit(18, 2, "fight"), // 196
+            new ObjTypeInit(18, 2, "carnageFight"), // 197
+            new ObjTypeInit(21, 1, "venomEndJumpCreate"), // 198
+            new ObjTypeInit(21, 1, "venomStartRun"), // 199
+            new ObjTypeInit(13, 1, "endOfSectionGeneric"), // 200
+            new ObjTypeInit(13, 3, "endOfSectionGeneric"), // 201
+            new ObjTypeInit(11, 6, null), // 202
+            new ObjTypeInit(11, 7, null), // 203
+            new ObjTypeInit(11, 8, null), // 204
+            new ObjTypeInit(11, 9, null), // 205
+            new ObjTypeInit(11, 10, null), // 206
+            new ObjTypeInit(11, 11, null), // 207
+            new ObjTypeInit(11, 12, null), // 208
+            new ObjTypeInit(11, 13, null), // 209
+            new ObjTypeInit(11, 14, null), // 210
+            new ObjTypeInit(11, 16, null), // 211
+            new ObjTypeInit(11, 17, null), // 212
+            new ObjTypeInit(11, 18, null), // 213
+            new ObjTypeInit(11, 19, null), // 214
+            new ObjTypeInit(11, 20, null), // 215
+            new ObjTypeInit(11, 21, null), // 216
+            new ObjTypeInit(11, 22, null), // 217
+            new ObjTypeInit(11, 23, null), // 218
+            new ObjTypeInit(-1, -1, null), // 219
         };
     }
     public class GBAVV_UltimateSpiderManEU_Manager : GBAVV_UltimateSpiderMan_Manager
@@ -779,5 +1004,8 @@ namespace R1Engine
             0x08110454, // waitForPagedText
             0x081104C0, // c7Credits
         };
+
+        public override uint ObjTypesPointer => 0x08027164;
+        public override int ObjTypesCount => 220;
     }
 }
