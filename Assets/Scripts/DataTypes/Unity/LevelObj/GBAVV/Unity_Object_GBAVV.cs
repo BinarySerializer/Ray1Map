@@ -110,6 +110,7 @@ namespace R1Engine
                 case EngineVersion.GBAVV_Shrek2BegForMercy:
                 case EngineVersion.GBAVV_BatmanBegins:
                 case EngineVersion.GBAVV_Madagascar:
+                case EngineVersion.GBAVV_MadagascarOperationPenguin:
                     return 0;
 
                 default:
