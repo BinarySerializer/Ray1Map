@@ -7,9 +7,7 @@ namespace R1Engine
 {
     public class Unity_TrackManager_GBARRR_Mode7 : Unity_TrackManager
     {
-        protected Unity_Object_GBARRRMode7Waypoint CurrentWaypoint { get; set; }
-
-		protected override float Height => 10f;
+        protected override float Height => 10f;
 
 		public override bool Loop => true;
 

@@ -19,8 +19,6 @@ namespace R1Engine
 
         public void CreatePath(Unity_Level level) {
             Vector3[] points = GetPoints(level);
-            float height = Height;
-
             Vector3 isometricScale = level.IsometricData.AbsoluteObjectScale;
             var transformedPoints = points.Select(p => Vector3.Scale(new Vector3(p.x, p.z + Height, -p.y), isometricScale));
             GameObject path = new GameObject("Path");
