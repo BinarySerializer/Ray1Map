@@ -4,6 +4,9 @@ namespace R1Engine
 {
     public class GBAVV_Graphics : R1Serializable
     {
+        // Helpers
+        public static bool UsesAnimationsDirectly(GameSettings s) => s.EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA;
+
         public Pointer AnimSetsPointer { get; set; }
         public Pointer TileSetPointer { get; set; }
         public Pointer PalettesPointer { get; set; }
@@ -17,7 +20,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (UsesAnimationsDirectly(s.GameSettings))
             {
                 // Since animation sets are referenced directly in later games there is no array
                 var pointers = s.GameSettings.GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;

@@ -5,6 +5,7 @@ namespace R1Engine
     public abstract class GBAVV_SharkTale_Manager : GBAVV_MapArray_BaseManager
     {
         public override int LevelsCount => 42;
+        public override bool HasAssignedObjTypeGraphics => true;
 
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>()
         {
@@ -12,6 +13,138 @@ namespace R1Engine
             [0402] = GBAVV_ScriptCommand.CommandType.Script,
             [0406] = GBAVV_ScriptCommand.CommandType.Return,
             [0602] = GBAVV_ScriptCommand.CommandType.Dialog,
+        };
+
+        public override ObjTypeInit[] ObjTypeInitInfos => new ObjTypeInit[]
+        {
+            new ObjTypeInit(-1, -1, null), // 0
+            new ObjTypeInit(-1, -1, null), // 1
+            new ObjTypeInit(-1, -1, null), // 2
+            new ObjTypeInit(-1, -1, null), // 3
+            new ObjTypeInit(-1, -1, null), // 4
+            new ObjTypeInit(-1, -1, null), // 5
+            new ObjTypeInit(9, 2, null), // 6
+            new ObjTypeInit(9, 13, null), // 7
+            new ObjTypeInit(-1, -1, null), // 8
+            new ObjTypeInit(-1, -1, null), // 9
+            new ObjTypeInit(5, 29, "dialogNPC"), // 10
+            new ObjTypeInit(5, 1, "crazyJoe"), // 11
+            new ObjTypeInit(5, 27, "tightFollow"), // 12
+            new ObjTypeInit(5, 5, "shortieTagger"), // 13
+            new ObjTypeInit(5, 11, "shortieTagger"), // 14
+            new ObjTypeInit(5, 17, "shortieTagger"), // 15
+            new ObjTypeInit(5, 34, "lennyFollow"), // 16
+            new ObjTypeInit(5, 35, "lennyFollow"), // 17
+            new ObjTypeInit(5, 0, "dialogNPC"), // 18
+            new ObjTypeInit(5, 0, "swimFast"), // 19
+            new ObjTypeInit(5, 4, "dialogNPC"), // 20
+            new ObjTypeInit(7, 76, "dancerStart"), // 21
+            new ObjTypeInit(5, 27, "swimFast"), // 22
+            new ObjTypeInit(5, 36, "dialogNPC"), // 23
+            new ObjTypeInit(5, 6, "shortieSwimmer"), // 24
+            new ObjTypeInit(5, 18, "shortieSwimmer"), // 25
+            new ObjTypeInit(5, 12, "shortieSwimmer"), // 26
+            new ObjTypeInit(5, 1, "crazyJoeImplode"), // 27
+            new ObjTypeInit(6, 0, "bananaScript"), // 28
+            new ObjTypeInit(6, 16, "healthSmall"), // 29
+            new ObjTypeInit(6, 15, "healthMedium"), // 30
+            new ObjTypeInit(6, 14, "healthLarge"), // 31
+            new ObjTypeInit(6, 14, "healthFull"), // 32
+            new ObjTypeInit(6, 18, "urchin"), // 33
+            new ObjTypeInit(6, 19, "urchinTriple"), // 34
+            new ObjTypeInit(6, 21, "sonarBomb"), // 35
+            new ObjTypeInit(6, 20, "inkBomb"), // 36
+            new ObjTypeInit(6, 17, "swarm"), // 37
+            new ObjTypeInit(6, 22, "extraTime"), // 38
+            new ObjTypeInit(6, 27, "extraPoints200"), // 39
+            new ObjTypeInit(6, 26, "extraPoints500"), // 40
+            new ObjTypeInit(6, 23, "extraPoints"), // 41
+            new ObjTypeInit(6, 24, "speedUp"), // 42
+            new ObjTypeInit(6, 25, "timeFreeze"), // 43
+            new ObjTypeInit(6, 38, "disguise"), // 44
+            new ObjTypeInit(6, 36, "disguise"), // 45
+            new ObjTypeInit(6, 37, "disguise"), // 46
+            new ObjTypeInit(6, 35, "disguise"), // 47
+            new ObjTypeInit(-1, -1, null), // 48
+            new ObjTypeInit(-1, -1, null), // 49
+            new ObjTypeInit(-1, -1, null), // 50
+            new ObjTypeInit(-1, -1, null), // 51
+            new ObjTypeInit(-1, -1, null), // 52
+            new ObjTypeInit(6, 28, "promptMessenger"), // 53
+            new ObjTypeInit(-1, -1, null), // 54
+            new ObjTypeInit(-1, -1, null), // 55
+            new ObjTypeInit(-1, -1, null), // 56
+            new ObjTypeInit(0, 47, "promptKilla"), // 57
+            new ObjTypeInit(6, 33, "clampWait"), // 58
+            new ObjTypeInit(6, 29, "anchorWait"), // 59
+            new ObjTypeInit(6, 33, "clampBottom"), // 60
+            new ObjTypeInit(6, 34, "clampBottom"), // 61
+            new ObjTypeInit(6, 34, "clampWait"), // 62
+            new ObjTypeInit(4, 2, "passivePatrol"), // 63
+            new ObjTypeInit(4, 10, "crabBouncerWalker"), // 64
+            new ObjTypeInit(5, 30, "dolphinCop"), // 65
+            new ObjTypeInit(4, 30, "thugFishSeek"), // 66
+            new ObjTypeInit(4, 34, "thugFishSeek"), // 67
+            new ObjTypeInit(4, 38, "alertPatroller"), // 68
+            new ObjTypeInit(4, 43, "shooterDude"), // 69
+            new ObjTypeInit(4, 52, "ambusherDude"), // 70
+            new ObjTypeInit(4, 10, "crabBouncerStationary"), // 71
+            new ObjTypeInit(9, 5, null), // 72
+            new ObjTypeInit(3, 5, null), // 73
+            new ObjTypeInit(3, 6, null), // 74
+            new ObjTypeInit(3, 4, null), // 75
+            new ObjTypeInit(-1, -1, null), // 76
+            new ObjTypeInit(9, 9, "racetrackEnemyScript"), // 77
+            new ObjTypeInit(9, 18, "racetrackEnemyScript"), // 78
+            new ObjTypeInit(9, 22, "racetrackEnemyScript"), // 79
+            new ObjTypeInit(9, 5, "hurdleScript"), // 80
+            new ObjTypeInit(-1, -1, null), // 81
+            new ObjTypeInit(-1, -1, null), // 82
+            new ObjTypeInit(-1, -1, null), // 83
+            new ObjTypeInit(9, 9, "racetrackEnemyFasterScript"), // 84
+            new ObjTypeInit(9, 18, "racetrackEnemyFasterScript"), // 85
+            new ObjTypeInit(9, 22, "racetrackEnemyFasterScript"), // 86
+            new ObjTypeInit(4, 15, "steamVent"), // 87
+            new ObjTypeInit(4, 16, "octoWipeScript"), // 88
+            new ObjTypeInit(4, 54, "washCrabScript"), // 89
+            new ObjTypeInit(4, 21, "octoWipeScript"), // 90
+            new ObjTypeInit(4, 22, "octoWipeScript"), // 91
+            new ObjTypeInit(4, 20, "octoWipeScript"), // 92
+            new ObjTypeInit(4, 19, "octoWipeScript"), // 93
+            new ObjTypeInit(4, 14, null), // 94
+            new ObjTypeInit(4, 25, "steamVent"), // 95
+            new ObjTypeInit(4, 25, "steamVent"), // 96
+            new ObjTypeInit(4, 27, "slaveIdle"), // 97
+            new ObjTypeInit(4, 5, "masterScript"), // 98
+            new ObjTypeInit(4, 5, "coralScript"), // 99
+            new ObjTypeInit(4, 55, "coralScript"), // 100
+            new ObjTypeInit(4, 1, "steamVent"), // 101
+            new ObjTypeInit(6, 6, "destructible1"), // 102
+            new ObjTypeInit(6, 9, "destructible1"), // 103
+            new ObjTypeInit(6, 12, "destructible2"), // 104
+            new ObjTypeInit(6, 1, "destructibleCoral"), // 105
+            new ObjTypeInit(-1, -1, null), // 106
+            new ObjTypeInit(0, 52, "buttonADown"), // 107
+            new ObjTypeInit(0, 48, "buttonBRight"), // 108
+            new ObjTypeInit(0, 47, "buttonBDown"), // 109
+            new ObjTypeInit(0, 50, "buttonLEFTRight"), // 110
+            new ObjTypeInit(0, 50, "buttonLEFTDown"), // 111
+            new ObjTypeInit(0, 51, "buttonRIGHTRight"), // 112
+            new ObjTypeInit(0, 51, "buttonRIGHTDown"), // 113
+            new ObjTypeInit(0, 47, "buttonUPRight"), // 114
+            new ObjTypeInit(0, 47, "buttonUPDown"), // 115
+            new ObjTypeInit(-1, -1, null), // 116
+            new ObjTypeInit(0, 49, "buttonDOWNRight"), // 117
+            new ObjTypeInit(8, 13, "lolaProjPhone"), // 118
+            new ObjTypeInit(8, 10, "lolaProj"), // 119
+            new ObjTypeInit(8, 8, null), // 120
+            new ObjTypeInit(2, 3, "ernieStart"), // 121
+            new ObjTypeInit(2, 3, "bernieStart"), // 122
+            new ObjTypeInit(2, 11, "lolaStart"), // 123
+            new ObjTypeInit(2, 15, "lolaNet"), // 124
+            new ObjTypeInit(2, 14, "lolaRope"), // 125
+            new ObjTypeInit(2, 1, "frankieWait"), // 126
+            new ObjTypeInit(2, 8, "donLinoStart"), // 127
         };
     }
     public class GBAVV_SharkTaleEUUS_Manager : GBAVV_SharkTale_Manager
@@ -315,6 +448,9 @@ namespace R1Engine
             0x080509AC, // destructibleCoral
             0x08050A34, // destructible2
         };
+
+        public override uint ObjTypesPointer => 0x08004a68;
+        public override int ObjTypesCount => 128;
     }
     public class GBAVV_SharkTaleJP_Manager : GBAVV_SharkTale_Manager
     {

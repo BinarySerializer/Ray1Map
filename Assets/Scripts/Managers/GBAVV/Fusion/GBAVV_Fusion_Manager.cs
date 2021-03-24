@@ -119,115 +119,6 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
 
-        public void LogObjTypeInit(SerializerObject s)
-        {
-            // Load the animations
-            var graphics = new GBAVV_Graphics();
-            graphics.Init(s.Context.FilePointer(GetROMFilePath));
-            graphics.SerializeImpl(s);
-            var animSets = graphics.AnimSets;
-
-            var str = new StringBuilder();
-
-            var initFunctionPointers = s.DoAt(new Pointer(ObjTypesPointer, s.Context.GetFile(GetROMFilePath)), () => s.SerializePointerArray(default, ObjTypesCount));
-            var orderedPointers = initFunctionPointers.OrderBy(x => x.AbsoluteOffset).ToArray(); ;
-
-            // Enumerate every obj init function
-            for (int i = 0; i < initFunctionPointers.Length; i++)
-            {
-                var nextPointer = orderedPointers.ElementAtOrDefault(orderedPointers.FindItemIndex(x => x == initFunctionPointers[i]) + 1);
-
-                s.DoAt(initFunctionPointers[i], () =>
-                {
-                    var foundPointer = false;
-
-                    // Try and read every int as a pointer until we get a valid one 20 times
-                    for (int j = 0; j < 20; j++)
-                    {
-                        if (nextPointer != null && s.CurrentPointer.AbsoluteOffset >= nextPointer.AbsoluteOffset)
-                            break;
-
-                        var p = s.SerializePointer(default);
-
-                        // First we check if the pointer leads directly to an animation
-                        tryParseAnim(p);
-
-                        if (foundPointer)
-                            return;
-
-                        // If not we assume it leads to a struct with the animation pointer
-                        s.DoAt(p, () =>
-                        {
-                            // First pointer here should lead to an animation
-                            var animPointer = s.SerializePointer(default);
-
-                            tryParseAnim(animPointer);
-                        });
-
-                        if (foundPointer)
-                            return;
-
-                        // Spyro has structs where the second value is the animation pointer
-                        s.DoAt(p, () =>
-                        {
-                            s.Serialize<int>(default);
-
-                            var animPointer = s.SerializePointer(default);
-
-                            tryParseAnim(animPointer);
-                        });
-
-                        void tryParseAnim(Pointer ap)
-                        {
-                            s.DoAt(ap, () =>
-                            {
-                                // If it's a valid animation the first pointer will lead to a pointer to itself
-                                var animSetPointer = s.SerializePointer(default);
-
-                                s.DoAt(animSetPointer, () =>
-                                {
-                                    var selfPointer = s.SerializePointer(default);
-
-                                    if (selfPointer == animSetPointer)
-                                    {
-                                        // Sometimes the pointer after the animation pointer leads to a script, so we check that
-                                        var scriptPointer = s.DoAt(p + 4, () => s.SerializePointer(default));
-
-                                        // Attempt to get the script name
-                                        var scriptName = s.DoAt(scriptPointer, () =>
-                                        {
-                                            var primary = s.Serialize<int>(default);
-                                            var secondary = s.Serialize<int>(default);
-                                            var namePointer = s.SerializePointer(default);
-
-                                            if (primary != 5 || secondary != 1 || namePointer == null)
-                                                return null;
-                                            else
-                                                return s.DoAt(namePointer, () => s.SerializeString(default));
-                                        });
-
-                                        var animSetIndex = animSets.FindItemIndex(x => x.Offset == animSetPointer);
-                                        var animIndex = animSets[animSetIndex].Animations.FindItemIndex(x => x.Offset == ap);
-
-                                        str.AppendLine($"new ObjTypeInit({animSetIndex}, {animIndex}, {(scriptName == null ? "null" : $"\"{scriptName}\"")}), // {i}");
-                                        foundPointer = true;
-                                    }
-                                });
-                            });
-                        }
-
-                        if (foundPointer)
-                            return;
-                    }
-
-                    // No pointer found...
-                    str.AppendLine($"new ObjTypeInit(-1, -1, null), // {i}");
-                });
-            }
-
-            str.ToString().CopyToClipboard();
-        }
-
         private void LogObjTypeInit(SerializerObject s, params ObjTypeInitCreation[] types)
         {
             var str = new StringBuilder();
@@ -288,9 +179,6 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
 
-        public abstract int ObjTypesCount { get; }
-        public abstract uint ObjTypesPointer { get; }
-        public abstract ObjTypeInit[] ObjTypeInitInfos { get; }
         public abstract int DialogScriptsCount { get; }
         public abstract byte[] HardCodedScripts { get; }
 
@@ -306,22 +194,6 @@ namespace R1Engine
 
             public int ObjType { get; }
             public uint AnimPointer { get; }
-        }
-
-        public class ObjTypeInit
-        {
-            public ObjTypeInit(int animSetIndex, int animIndex, string scriptName, int? jpAnimIndex = null)
-            {
-                AnimSetIndex = animSetIndex;
-                AnimIndex = animIndex;
-                ScriptName = scriptName;
-                JPAnimIndex = jpAnimIndex;
-            }
-
-            public int AnimSetIndex { get; }
-            public int AnimIndex { get; }
-            public string ScriptName { get; }
-            public int? JPAnimIndex { get; }
         }
 
         public class FusionLevInfo

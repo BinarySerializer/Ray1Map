@@ -12,6 +12,7 @@ namespace R1Engine
             new GameInfo_World(0, Enumerable.Range(0, LevelsCount).ToArray()),
         });
         public abstract int LevelsCount { get; }
+        public virtual bool HasAssignedObjTypeGraphics => false;
 
         // Exports
         public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_MapArray>(GetROMFilePath, context);
@@ -23,12 +24,15 @@ namespace R1Engine
             if (GraphicsDataPointers.Length == 0)
                 FindDataInROM(context.Deserializer);
 
+            if (ObjTypeInitInfos == null && ObjTypesCount > 0)
+                LogObjTypeInit(context.Deserializer);
+
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
             var rom = FileFactory.Read<GBAVV_ROM_MapArray>(GetROMFilePath, context);
 
-            return await LoadMap2DAsync(context, rom, rom.CurrentMap, false);
+            return await LoadMap2DAsync(context, rom, rom.CurrentMap, HasAssignedObjTypeGraphics);
         }
     }
 }

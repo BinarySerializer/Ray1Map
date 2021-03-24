@@ -863,12 +863,14 @@ namespace R1Engine
                 if (obj.AnimSetIndex == 0 && obj.AnimIndex == 0)
                     Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
             }
-            else if (settings.GBAVV_IsFusion)
+            else if (!obj.ObjManager.HasDummyAnimSet)
             {
-                var init = ((GBAVV_Fusion_Manager)settings.GetGameManager).ObjTypeInitInfos[obj.Object.ObjType];
+                var initInfos = settings.GetGameManagerOfType<GBAVV_BaseManager>().ObjTypeInitInfos;
 
-                if (init.AnimSetIndex == -1 || init.AnimIndex == -1)
-                    Debug.LogWarning($"Not implemented for type: {obj.Object.ObjType}");
+                var init = initInfos[obj.Object.ObjType];
+
+                //if (init.AnimSetIndex == -1 || init.AnimIndex == -1)
+                //    return;
 
                 obj.AnimSetIndex = init.AnimSetIndex;
                 obj.AnimIndex = (byte)(isJp ? init.JPAnimIndex ?? init.AnimIndex : init.AnimIndex);
