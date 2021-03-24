@@ -777,7 +777,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Obj type graphics have not been assigned</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Batman Begins (GBA)</td>
