@@ -5,6 +5,7 @@ namespace R1Engine
     public class GBAVV_ThatsSoRaven_Manager : GBAVV_MapArray_BaseManager
     {
         public override int LevelsCount => 193;
+        public override bool HasAssignedObjTypeGraphics => true;
 
         public override string[] Languages => new string[]
         {
@@ -376,6 +377,155 @@ namespace R1Engine
             0x0804CE6C, // dialogTrigger
             0x0804CEFC, // brickWallBreak
             0x0804CF5C, // cheeseEat
+        };
+
+        public override uint ObjTypesPointer => 0x0800598c;
+        public override int ObjTypesCount => 142;
+
+        public override ObjTypeInit[] ObjTypeInitInfos => new ObjTypeInit[]
+        {
+            new ObjTypeInit(-1, -1, null), // 0
+            new ObjTypeInit(-1, -1, null), // 1
+            new ObjTypeInit(-1, -1, null), // 2
+            new ObjTypeInit(-1, -1, null), // 3
+            new ObjTypeInit(9, 15, null), // 4
+            new ObjTypeInit(9, 20, null), // 5
+            new ObjTypeInit(9, 15, null), // 6
+            new ObjTypeInit(7, 17, null), // 7
+            new ObjTypeInit(6, 6, null), // 8
+            new ObjTypeInit(1, 1, "CDScript"), // 9
+            new ObjTypeInit(1, 2, "hamburgerScript"), // 10
+            new ObjTypeInit(1, 8, "waterBottleScript"), // 11
+            new ObjTypeInit(1, 9, "perfumeScript"), // 12
+            new ObjTypeInit(1, 10, "_obsoleteScript"), // 13
+            new ObjTypeInit(1, 11, "_obsoleteScript"), // 14
+            new ObjTypeInit(1, 12, "hallpassScript"), // 15
+            new ObjTypeInit(1, 13, "_obsoleteScript"), // 16
+            new ObjTypeInit(4, 2, "keyScript"), // 17
+            new ObjTypeInit(1, 3, "arcadeTokenScript"), // 18
+            new ObjTypeInit(1, 4, "homeworkScript"), // 19
+            new ObjTypeInit(1, 5, "presentBoxScript"), // 20
+            new ObjTypeInit(1, 6, "schoolSuppliesScript"), // 21
+            new ObjTypeInit(1, 7, "SoapTowelScript"), // 22
+            new ObjTypeInit(10, 0, "brickWall"), // 23
+            new ObjTypeInit(10, 3, "cheese"), // 24
+            new ObjTypeInit(-1, -1, null), // 25
+            new ObjTypeInit(10, 5, null), // 26
+            new ObjTypeInit(10, 6, null), // 27
+            new ObjTypeInit(4, 1, null), // 28
+            new ObjTypeInit(3, 3, "dialogTrigger"), // 29
+            new ObjTypeInit(10, 11, null), // 30
+            new ObjTypeInit(10, 12, null), // 31
+            new ObjTypeInit(4, 4, null), // 32
+            new ObjTypeInit(-1, -1, null), // 33
+            new ObjTypeInit(-1, -1, null), // 34
+            new ObjTypeInit(2, 1, "avCart"), // 35
+            new ObjTypeInit(2, 9, "custodian"), // 36
+            new ObjTypeInit(2, 15, "lawlerAggroChaserSeek"), // 37
+            new ObjTypeInit(2, 29, "stinkySeek"), // 38
+            new ObjTypeInit(2, 19, "hawkSeek"), // 39
+            new ObjTypeInit(2, 57, "shooterCupCake"), // 40
+            new ObjTypeInit(2, 22, "barracuda"), // 41
+            new ObjTypeInit(-1, -1, null), // 42
+            new ObjTypeInit(-1, -1, null), // 43
+            new ObjTypeInit(-1, -1, null), // 44
+            new ObjTypeInit(6, 13, "sink"), // 45
+            new ObjTypeInit(2, 25, "stealthPatrol"), // 46
+            new ObjTypeInit(2, 33, "badGirlShooter"), // 47
+            new ObjTypeInit(2, 37, "badGirlShooter"), // 48
+            new ObjTypeInit(2, 41, "badGirlShooter"), // 49
+            new ObjTypeInit(2, 45, "dodgeBallShooter"), // 50
+            new ObjTypeInit(2, 52, null), // 51
+            new ObjTypeInit(2, 54, null), // 52
+            new ObjTypeInit(2, 49, null), // 53
+            new ObjTypeInit(5, 0, "bugs"), // 54
+            new ObjTypeInit(2, 59, "shooterPizza"), // 55
+            new ObjTypeInit(2, 65, "nadineAggroChaserSeek"), // 56
+            new ObjTypeInit(2, 51, null), // 57
+            new ObjTypeInit(2, 73, "barracuda"), // 58
+            new ObjTypeInit(2, 59, "barracuda"), // 59
+            new ObjTypeInit(2, 3, "hazardTrashCan"), // 60
+            new ObjTypeInit(5, 1, "brokenVent"), // 61
+            new ObjTypeInit(8, 0, "healthNPC"), // 62
+            new ObjTypeInit(8, 2, "healthNPC"), // 63
+            new ObjTypeInit(8, 2, "endLevelNPC"), // 64
+            new ObjTypeInit(4, 1, "minigameWin"), // 65
+            new ObjTypeInit(8, 7, "seleneNPC"), // 66
+            new ObjTypeInit(8, 5, "freddie2NPC"), // 67
+            new ObjTypeInit(8, 6, "horatio3NPC"), // 68
+            new ObjTypeInit(8, 4, "dory3NPC"), // 69
+            new ObjTypeInit(8, 11, "genericNPC"), // 70
+            new ObjTypeInit(8, 12, "genericNPC"), // 71
+            new ObjTypeInit(8, 13, "genericNPC"), // 72
+            new ObjTypeInit(8, 14, "genericNPC"), // 73
+            new ObjTypeInit(8, 10, "genericNPC"), // 74
+            new ObjTypeInit(8, 15, "endLevelNPC"), // 75
+            new ObjTypeInit(8, 2, "chelseaMallNPC"), // 76
+            new ObjTypeInit(8, 0, "endLevelNPC"), // 77
+            new ObjTypeInit(8, 3, "chelseaProtestNPC"), // 78
+            new ObjTypeInit(8, 1, "eddieProtestNPC"), // 79
+            new ObjTypeInit(8, 11, "student4ProtestNPC"), // 80
+            new ObjTypeInit(8, 13, "student5ProtestNPC"), // 81
+            new ObjTypeInit(8, 12, "student6ProtestNPC"), // 82
+            new ObjTypeInit(8, 14, "student7ProtestNPC"), // 83
+            new ObjTypeInit(8, 1, "endLevelNPC"), // 84
+            new ObjTypeInit(8, 3, "endLevelNPC"), // 85
+            new ObjTypeInit(8, 16, "endLevelNPC"), // 86
+            new ObjTypeInit(8, 17, "endLevelNPC"), // 87
+            new ObjTypeInit(8, 18, "endLevelNPC"), // 88
+            new ObjTypeInit(2, 29, "endLevelNPC"), // 89
+            new ObjTypeInit(8, 10, "endLevelNPC"), // 90
+            new ObjTypeInit(8, 19, "endLevelNPC"), // 91
+            new ObjTypeInit(8, 20, "coryTokenNPC"), // 92
+            new ObjTypeInit(8, 2, "chelseaSupplyNPC"), // 93
+            new ObjTypeInit(8, 4, "dory6NPC"), // 94
+            new ObjTypeInit(8, 6, "horatio4NPC"), // 95
+            new ObjTypeInit(8, 6, "horatio5NPC"), // 96
+            new ObjTypeInit(8, 5, "freddie4NPC"), // 97
+            new ObjTypeInit(8, 5, "freddie2NPC"), // 98
+            new ObjTypeInit(8, 6, "horatio5NPC"), // 99
+            new ObjTypeInit(8, 4, "dory6NPC"), // 100
+            new ObjTypeInit(8, 9, "genericNPC"), // 101
+            new ObjTypeInit(8, 1, "healthNPC"), // 102
+            new ObjTypeInit(8, 3, "healthNPC"), // 103
+            new ObjTypeInit(8, 19, "healthNPC"), // 104
+            new ObjTypeInit(8, 21, "genericNPC"), // 105
+            new ObjTypeInit(8, 20, "genericNPC"), // 106
+            new ObjTypeInit(10, 15, "bgObjectSprite"), // 107
+            new ObjTypeInit(10, 16, "bgObjectSprite"), // 108
+            new ObjTypeInit(10, 14, "bgObjectSprite"), // 109
+            new ObjTypeInit(10, 17, "bgObjectSprite"), // 110
+            new ObjTypeInit(10, 18, "bgObjectSprite"), // 111
+            new ObjTypeInit(10, 19, "bgObjectSprite"), // 112
+            new ObjTypeInit(10, 20, "bgObjectSprite"), // 113
+            new ObjTypeInit(10, 21, "bgObjectSprite"), // 114
+            new ObjTypeInit(10, 26, "bgObjectSprite"), // 115
+            new ObjTypeInit(10, 22, "bgObjectSprite"), // 116
+            new ObjTypeInit(10, 23, "bgObjectSprite"), // 117
+            new ObjTypeInit(10, 24, "bgObjectSprite"), // 118
+            new ObjTypeInit(10, 25, "bgObjectSprite"), // 119
+            new ObjTypeInit(10, 27, "bgObjectSprite"), // 120
+            new ObjTypeInit(10, 32, "bgObjectSprite"), // 121
+            new ObjTypeInit(10, 28, "bgObjectSprite"), // 122
+            new ObjTypeInit(10, 29, "bgObjectSprite"), // 123
+            new ObjTypeInit(10, 30, "bgObjectSprite"), // 124
+            new ObjTypeInit(10, 31, "bgObjectSprite"), // 125
+            new ObjTypeInit(10, 33, "bgObjectSprite"), // 126
+            new ObjTypeInit(10, 34, "bgObjectSprite"), // 127
+            new ObjTypeInit(10, 35, "bgObjectSprite"), // 128
+            new ObjTypeInit(10, 36, "bgObjectSprite"), // 129
+            new ObjTypeInit(10, 37, "bgObjectSprite"), // 130
+            new ObjTypeInit(10, 38, "bgObjectSprite"), // 131
+            new ObjTypeInit(10, 39, "bgObjectSprite"), // 132
+            new ObjTypeInit(10, 40, "bgObjectSprite"), // 133
+            new ObjTypeInit(10, 43, "bgObjectSprite"), // 134
+            new ObjTypeInit(10, 41, "bgObjectSprite"), // 135
+            new ObjTypeInit(10, 42, "bgObjectSprite"), // 136
+            new ObjTypeInit(10, 44, "bgObjectSprite"), // 137
+            new ObjTypeInit(10, 45, "bgObjectSprite"), // 138
+            new ObjTypeInit(10, 46, "bgObjectSprite"), // 139
+            new ObjTypeInit(10, 47, "bgObjectSprite"), // 140
+            new ObjTypeInit(10, 48, "bgObjectSprite"), // 141
         };
     }
 }
