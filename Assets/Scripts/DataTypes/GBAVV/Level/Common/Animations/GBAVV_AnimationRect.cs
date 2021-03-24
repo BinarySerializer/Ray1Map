@@ -15,7 +15,7 @@
             if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 || 
                 s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage ||
                 s.GameSettings.EngineVersion == EngineVersion.GBAVV_Madagascar ||
-                s.GameSettings.EngineVersion >= EngineVersion.GBAVV_UltimateSpiderMan)
+                (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_UltimateSpiderMan && s.GameSettings.EngineVersion != EngineVersion.GBAVV_ShrekTheThird))
             {
                 Width = s.Serialize<short>(Width, name: nameof(Width));
                 Height = s.Serialize<short>(Height, name: nameof(Height));
