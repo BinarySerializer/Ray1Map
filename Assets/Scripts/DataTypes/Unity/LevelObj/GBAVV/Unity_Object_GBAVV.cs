@@ -93,8 +93,12 @@ namespace R1Engine
             }
         }
 
-        public override bool FlipHorizontally => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBAVV_CrashFusion ? 1 : 2)) != 0;
-        public override bool FlipVertically => (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBAVV_CrashFusion ? 2 : 4)) != 0;
+        public override bool FlipHorizontally => ReadFlipFlags && (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.GBAVV_IsFusion ? 1 : 2)) != 0;
+        public override bool FlipVertically => ReadFlipFlags && (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.GBAVV_IsFusion ? 2 : 4)) != 0;
+        public bool ReadFlipFlags => ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1 ||
+                                     ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2 ||
+                                     ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashFusion ||
+                                     ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_SpyroFusion;
 
         public override bool CanBeLinkedToGroup => true;
 
