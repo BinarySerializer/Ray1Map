@@ -112,6 +112,7 @@ namespace R1Engine
                 case EngineVersion.GBAVV_Madagascar:
                 case EngineVersion.GBAVV_MadagascarOperationPenguin:
                 case EngineVersion.GBAVV_UltimateSpiderMan:
+                case EngineVersion.GBAVV_SpiderMan3:
                     return 0;
 
                 default:
