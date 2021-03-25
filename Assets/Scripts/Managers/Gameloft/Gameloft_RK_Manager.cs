@@ -1014,6 +1014,7 @@ namespace R1Engine
 			Vector2 dimensions, center;
 			GameObject trackMesh = CreateTrackMesh(level, context, out dimensions, out center);
 			Vector3 centerPos = new Vector3(-center.x, 0, -center.y) * Scale;
+			var scaledCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
 			trackMesh.transform.localPosition = centerPos;
 
 			// Load objects
@@ -1041,26 +1042,26 @@ namespace R1Engine
 			}*/
 			{
 				var pos = Vector3.zero + 0.05f * Vector3.up;
-				var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
 				objs.Add(new Unity_Object_GameloftRK(objManager, 0, 0, 0, "Player") {
-					Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y)
+					Position = scaledCenterPos + new Vector3(pos.x, -pos.z, pos.y)
 				});
 				objs.Add(new Unity_Object_GameloftRK(objManager, 1, 0, 0, "Player") {
-					Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y)
+					Position = scaledCenterPos + new Vector3(pos.x, -pos.z, pos.y)
 				});
 			}
+			Vector3[] points = new Vector3[level.TrackBlocks.Length+1];
 			foreach (var o in level.TrackBlocks) {
 				var sphere = new GameObject();//GameObject.CreatePrimitive(PrimitiveType.Cube);
 				sphere.transform.position = curPos + Vector3.up * curHeight;
 				sphere.transform.rotation = Quaternion.Euler(0, curAngle, 0);
+				points[curBlockIndex] = curPos + Vector3.up * curHeight;
 
 				var lumsForCurrentBlock = level.Lums?.Where(s12 => s12.TrackBlockIndex == curBlockIndex);
 				if (lumsForCurrentBlock != null) {
 					foreach (var lum in lumsForCurrentBlock) {
 						var pos = sphere.transform.TransformPoint(new Vector3(lum.XPosition * 0.001f, 0.05f, 0));
-						var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
 						objs.Add(new Unity_Object_GameloftRK(objManager, 26, 1, 0, "Lum") {
-							Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y)
+							Position = scaledCenterPos + new Vector3(pos.x, -pos.z, pos.y)
 						});
 					}
 				}
@@ -1105,9 +1106,8 @@ namespace R1Engine
 						}
 						// Add regular trigger object
 						var pos = sphere.transform.TransformPoint(new Vector3(to.XPosition * 0.001f, 0.05f, 0));
-						var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
 						objs.Add(new Unity_Object_GameloftRK(objManager, to, triggerObject) {
-							Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y),
+							Position = scaledCenterPos + new Vector3(pos.x, -pos.z, pos.y),
 							Instance = blk
 						});
 					} else if (blk.ObjType == 1) {
@@ -1162,9 +1162,8 @@ namespace R1Engine
 					} else {
 						var type = level.ObjectTypes[to.ObjectType];
 						var pos = sphere.transform.TransformPoint(new Vector3(to.XPosition * 0.001f, 0.05f + type.YPosition * 0.001f, 0));
-						var curCenterPos = new Vector3(centerPos.x, -centerPos.z, centerPos.y) / Scale;
 						objs.Add(new Unity_Object_GameloftRK(objManager, to, type) {
-							Position = curCenterPos + new Vector3(pos.x, -pos.z, pos.y),
+							Position = scaledCenterPos + new Vector3(pos.x, -pos.z, pos.y),
 							Instance = blk
 						});
 					}
@@ -1179,6 +1178,7 @@ namespace R1Engine
 			}
 			gaoParent.transform.localScale = Vector3.one * Scale;
 			gaoParent.transform.localPosition = centerPos;
+			points[curBlockIndex] = curPos + Vector3.up * curHeight;
 
 			// Create minimap objects
 			/*curPos = Vector3.zero + Vector3.up * 100;
@@ -1250,7 +1250,10 @@ namespace R1Engine
 				localization: LoadLocalization(context),
 				defaultLayer: 0,
 				defaultCollisionLayer: 0,
-				cellSize: 8);
+				cellSize: 8,
+				trackManager: new Unity_TrackManager_Gameloft_RK() {
+					Points = points.Select(p => scaledCenterPos + new Vector3(p.x, -p.z, p.y)).ToArray()
+				});
 
 			///throw new NotImplementedException();
 		}
