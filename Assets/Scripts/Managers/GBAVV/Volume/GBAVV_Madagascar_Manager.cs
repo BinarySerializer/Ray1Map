@@ -6,6 +6,7 @@ namespace R1Engine
     {
         // Metadata
         public override int VolumesCount => 2;
+        public override bool HasAssignedObjTypeGraphics => true;
 
         // Scripts
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>()
@@ -358,6 +359,142 @@ namespace R1Engine
             0x080C4B14, // bushes
             0x080C4B50, // bushSquish
         };
+
+        public override uint ObjTypesPointer => 0x080146d4;
+        public override int ObjTypesCount => 129;
+
+        public override ObjTypeInit[] ObjTypeInitInfos => new ObjTypeInit[]
+        {
+            new ObjTypeInit(-1, -1, null), // 0
+            new ObjTypeInit(-1, -1, null), // 1
+            new ObjTypeInit(-1, -1, null), // 2
+            new ObjTypeInit(-1, -1, null), // 3
+            new ObjTypeInit(-1, -1, null), // 4
+            new ObjTypeInit(-1, -1, null), // 5
+            new ObjTypeInit(2, 0, null), // 6
+            new ObjTypeInit(39, 7, null), // 7
+            new ObjTypeInit(37, 8, null), // 8
+            new ObjTypeInit(44, 0, null), // 9
+            new ObjTypeInit(21, 4, null), // 10
+            new ObjTypeInit(-1, -1, null), // 11
+            new ObjTypeInit(-1, -1, null), // 12
+            new ObjTypeInit(-1, -1, null), // 13
+            new ObjTypeInit(2, 0, null), // 14
+            new ObjTypeInit(37, 8, null), // 15
+            new ObjTypeInit(47, 1, "bridge"), // 16
+            new ObjTypeInit(-1, -1, null), // 17
+            new ObjTypeInit(6, 1, "bouncyPost"), // 18
+            new ObjTypeInit(5, 1, "bouncyPost"), // 19
+            new ObjTypeInit(49, 1, "softGround"), // 20
+            new ObjTypeInit(48, 0, "softGround"), // 21
+            new ObjTypeInit(6, 2, "bouncyFlower"), // 22
+            new ObjTypeInit(6, 2, "bouncyFlowerSimple"), // 23
+            new ObjTypeInit(18, 0, "wall"), // 24
+            new ObjTypeInit(20, 0, "wall"), // 25
+            new ObjTypeInit(19, 1, null), // 26
+            new ObjTypeInit(-1, -1, null), // 27
+            new ObjTypeInit(-1, -1, null), // 28
+            new ObjTypeInit(30, 0, "activeNPC"), // 29
+            new ObjTypeInit(7, 0, "spike"), // 30
+            new ObjTypeInit(7, 3, "bushes"), // 31
+            new ObjTypeInit(7, 1, "bushes"), // 32
+            new ObjTypeInit(14, 0, "spike"), // 33
+            new ObjTypeInit(14, 1, "spike"), // 34
+            new ObjTypeInit(58, 1, "spike"), // 35
+            new ObjTypeInit(58, 0, "spike"), // 36
+            new ObjTypeInit(54, 0, "spike"), // 37
+            new ObjTypeInit(45, 0, null), // 38
+            new ObjTypeInit(53, 3, "groundPatrolTwoHPScript"), // 39
+            new ObjTypeInit(52, 0, "groundPatrolOneHPScript"), // 40
+            new ObjTypeInit(12, 0, "groundNoTerrainCollisonPatrolScript"), // 41
+            new ObjTypeInit(3, 0, "airHInvulnerablePatrolScript"), // 42
+            new ObjTypeInit(36, 6, "airHOneHPPatrolScript"), // 43
+            new ObjTypeInit(36, 0, "airHTwoHPDropperPatrolScript"), // 44
+            new ObjTypeInit(46, 0, "airHOneHPPatrolScript"), // 45
+            new ObjTypeInit(46, 0, "airHOneHPDropperPatrolScript"), // 46
+            new ObjTypeInit(57, 0, "spiderLinearPatrolScript"), // 47
+            new ObjTypeInit(50, 0, "groundInvulnerablePatrolScript"), // 48
+            new ObjTypeInit(-1, -1, null), // 49
+            new ObjTypeInit(-1, -1, null), // 50
+            new ObjTypeInit(-1, -1, null), // 51
+            new ObjTypeInit(-1, -1, null), // 52
+            new ObjTypeInit(-1, -1, null), // 53
+            new ObjTypeInit(17, 1, null), // 54
+            new ObjTypeInit(36, 3, null), // 55
+            new ObjTypeInit(46, 2, null), // 56
+            new ObjTypeInit(13, 0, null), // 57
+            new ObjTypeInit(56, 0, null), // 58
+            new ObjTypeInit(15, 0, null), // 59
+            new ObjTypeInit(55, 1, null), // 60
+            new ObjTypeInit(10, 0, null), // 61
+            new ObjTypeInit(41, 1, "groundPatrolWithAttackScript"), // 62
+            new ObjTypeInit(51, 0, "powerupHealthLarge"), // 63
+            new ObjTypeInit(51, 1, "powerupHealthSmall"), // 64
+            new ObjTypeInit(43, 0, null), // 65
+            new ObjTypeInit(11, 0, null), // 66
+            new ObjTypeInit(11, 0, null), // 67
+            new ObjTypeInit(-1, -1, null), // 68
+            new ObjTypeInit(-1, -1, null), // 69
+            new ObjTypeInit(-1, -1, null), // 70
+            new ObjTypeInit(32, 0, "lemurCollectable"), // 71
+            new ObjTypeInit(32, 1, "lemurCollectable"), // 72
+            new ObjTypeInit(32, 2, "lemurCollectable"), // 73
+            new ObjTypeInit(32, 3, "lemurCollectable"), // 74
+            new ObjTypeInit(32, 4, "lemurCollectable"), // 75
+            new ObjTypeInit(32, 5, "lemurCollectable"), // 76
+            new ObjTypeInit(33, 0, "lemurCollectable"), // 77
+            new ObjTypeInit(34, 0, "lemurCollectable"), // 78
+            new ObjTypeInit(45, 2, "penguinCollectable"), // 79
+            new ObjTypeInit(38, 0, "genericNPC"), // 80
+            new ObjTypeInit(42, 0, "activeNPC"), // 81
+            new ObjTypeInit(45, 0, "penguinPointer"), // 82
+            new ObjTypeInit(61, 0, "activeNPC"), // 83
+            new ObjTypeInit(-1, -1, null), // 84
+            new ObjTypeInit(-1, -1, null), // 85
+            new ObjTypeInit(-1, -1, null), // 86
+            new ObjTypeInit(-1, -1, null), // 87
+            new ObjTypeInit(-1, -1, null), // 88
+            new ObjTypeInit(9, 1, "invisibleCandySpawner"), // 89
+            new ObjTypeInit(9, 1, null), // 90
+            new ObjTypeInit(9, 4, "genericGrass"), // 91
+            new ObjTypeInit(9, 3, "genericBug"), // 92
+            new ObjTypeInit(8, 0, "genericGrass"), // 93
+            new ObjTypeInit(8, 2, "genericGrass"), // 94
+            new ObjTypeInit(-1, -1, null), // 95
+            new ObjTypeInit(-1, -1, null), // 96
+            new ObjTypeInit(-1, -1, null), // 97
+            new ObjTypeInit(-1, -1, null), // 98
+            new ObjTypeInit(-1, -1, null), // 99
+            new ObjTypeInit(-1, -1, null), // 100
+            new ObjTypeInit(-1, -1, null), // 101
+            new ObjTypeInit(-1, -1, null), // 102
+            new ObjTypeInit(-1, -1, null), // 103
+            new ObjTypeInit(-1, -1, null), // 104
+            new ObjTypeInit(-1, -1, null), // 105
+            new ObjTypeInit(-1, -1, null), // 106
+            new ObjTypeInit(-1, -1, null), // 107
+            new ObjTypeInit(60, 3, null), // 108
+            new ObjTypeInit(60, 5, null), // 109
+            new ObjTypeInit(59, 2, null), // 110
+            new ObjTypeInit(59, 5, null), // 111
+            new ObjTypeInit(-1, -1, null), // 112
+            new ObjTypeInit(-1, -1, null), // 113
+            new ObjTypeInit(-1, -1, null), // 114
+            new ObjTypeInit(-1, -1, null), // 115
+            new ObjTypeInit(-1, -1, null), // 116
+            new ObjTypeInit(-1, -1, null), // 117
+            new ObjTypeInit(-1, -1, null), // 118
+            new ObjTypeInit(-1, -1, null), // 119
+            new ObjTypeInit(-1, -1, null), // 120
+            new ObjTypeInit(-1, -1, null), // 121
+            new ObjTypeInit(-1, -1, null), // 122
+            new ObjTypeInit(-1, -1, null), // 123
+            new ObjTypeInit(-1, -1, null), // 124
+            new ObjTypeInit(-1, -1, null), // 125
+            new ObjTypeInit(-1, -1, null), // 126
+            new ObjTypeInit(-1, -1, null), // 127
+            new ObjTypeInit(-1, -1, null), // 128
+        };
     }
     public class GBAVV_MadagascarJP_Manager : GBAVV_Madagascar_Manager
     {
@@ -647,6 +784,154 @@ namespace R1Engine
             0x080C4074, // bushes
             0x080C40CC, // rollModeBushes
             0x080C4108, // bushSquish
+        };
+
+        public override uint ObjTypesPointer => 0x080147d0;
+        public override int ObjTypesCount => 141;
+
+        public override ObjTypeInit[] ObjTypeInitInfos => new ObjTypeInit[]
+        {
+            new ObjTypeInit(-1, -1, null), // 0
+            new ObjTypeInit(-1, -1, null), // 1
+            new ObjTypeInit(-1, -1, null), // 2
+            new ObjTypeInit(-1, -1, null), // 3
+            new ObjTypeInit(-1, -1, null), // 4
+            new ObjTypeInit(-1, -1, null), // 5
+            new ObjTypeInit(2, 0, null), // 6
+            new ObjTypeInit(44, 7, null), // 7
+            new ObjTypeInit(42, 8, null), // 8
+            new ObjTypeInit(49, 0, null), // 9
+            new ObjTypeInit(26, 4, null), // 10
+            new ObjTypeInit(-1, -1, null), // 11
+            new ObjTypeInit(-1, -1, null), // 12
+            new ObjTypeInit(-1, -1, null), // 13
+            new ObjTypeInit(2, 0, null), // 14
+            new ObjTypeInit(42, 8, null), // 15
+            new ObjTypeInit(52, 1, "bridge"), // 16
+            new ObjTypeInit(-1, -1, null), // 17
+            new ObjTypeInit(6, 1, "bouncyPost"), // 18
+            new ObjTypeInit(5, 1, "bouncyPost"), // 19
+            new ObjTypeInit(53, 1, "softGround"), // 20
+            new ObjTypeInit(53, 3, "softGround"), // 21
+            new ObjTypeInit(6, 2, "bouncyFlower"), // 22
+            new ObjTypeInit(6, 2, "bouncyFlowerSimple"), // 23
+            new ObjTypeInit(23, 0, "wall"), // 24
+            new ObjTypeInit(25, 0, "wall"), // 25
+            new ObjTypeInit(24, 1, null), // 26
+            new ObjTypeInit(-1, -1, null), // 27
+            new ObjTypeInit(-1, -1, null), // 28
+            new ObjTypeInit(35, 0, "activeNPC"), // 29
+            new ObjTypeInit(7, 0, "spike"), // 30
+            new ObjTypeInit(7, 3, "bushes"), // 31
+            new ObjTypeInit(7, 1, "bushes"), // 32
+            new ObjTypeInit(19, 0, "spike"), // 33
+            new ObjTypeInit(19, 1, "spike"), // 34
+            new ObjTypeInit(62, 1, "spike"), // 35
+            new ObjTypeInit(62, 0, "spike"), // 36
+            new ObjTypeInit(58, 0, "spike"), // 37
+            new ObjTypeInit(7, 3, "rollModeBushes"), // 38
+            new ObjTypeInit(50, 0, null), // 39
+            new ObjTypeInit(57, 3, "groundPatrolTwoHPScript"), // 40
+            new ObjTypeInit(56, 0, "groundPatrolOneHPScript"), // 41
+            new ObjTypeInit(17, 0, "groundNoTerrainCollisonPatrolScript"), // 42
+            new ObjTypeInit(3, 0, "airHInvulnerablePatrolScript"), // 43
+            new ObjTypeInit(41, 6, "airHOneHPPatrolScript"), // 44
+            new ObjTypeInit(41, 0, "airHTwoHPDropperPatrolScript"), // 45
+            new ObjTypeInit(51, 0, "airHOneHPPatrolScript"), // 46
+            new ObjTypeInit(51, 0, "airHOneHPDropperPatrolScript"), // 47
+            new ObjTypeInit(61, 0, "spiderLinearPatrolScript"), // 48
+            new ObjTypeInit(54, 0, "groundInvulnerablePatrolScript"), // 49
+            new ObjTypeInit(-1, -1, null), // 50
+            new ObjTypeInit(-1, -1, null), // 51
+            new ObjTypeInit(-1, -1, null), // 52
+            new ObjTypeInit(-1, -1, null), // 53
+            new ObjTypeInit(-1, -1, null), // 54
+            new ObjTypeInit(22, 1, null), // 55
+            new ObjTypeInit(41, 3, null), // 56
+            new ObjTypeInit(51, 2, null), // 57
+            new ObjTypeInit(18, 0, null), // 58
+            new ObjTypeInit(60, 0, null), // 59
+            new ObjTypeInit(20, 0, null), // 60
+            new ObjTypeInit(59, 1, null), // 61
+            new ObjTypeInit(15, 0, null), // 62
+            new ObjTypeInit(46, 1, "groundPatrolWithAttackScript"), // 63
+            new ObjTypeInit(55, 0, "powerupHealthLarge"), // 64
+            new ObjTypeInit(55, 1, "powerupHealthSmall"), // 65
+            new ObjTypeInit(48, 0, null), // 66
+            new ObjTypeInit(16, 0, null), // 67
+            new ObjTypeInit(16, 0, null), // 68
+            new ObjTypeInit(-1, -1, null), // 69
+            new ObjTypeInit(-1, -1, null), // 70
+            new ObjTypeInit(-1, -1, null), // 71
+            new ObjTypeInit(37, 0, "lemurCollectable"), // 72
+            new ObjTypeInit(37, 1, "lemurCollectable"), // 73
+            new ObjTypeInit(37, 2, "lemurCollectable"), // 74
+            new ObjTypeInit(37, 3, "lemurCollectable"), // 75
+            new ObjTypeInit(37, 4, "lemurCollectable"), // 76
+            new ObjTypeInit(37, 5, "lemurCollectable"), // 77
+            new ObjTypeInit(38, 0, "lemurCollectable"), // 78
+            new ObjTypeInit(39, 0, "lemurCollectable"), // 79
+            new ObjTypeInit(50, 2, "penguinCollectable"), // 80
+            new ObjTypeInit(43, 0, "genericNPC"), // 81
+            new ObjTypeInit(47, 0, "activeNPC"), // 82
+            new ObjTypeInit(50, 0, "penguinPointer"), // 83
+            new ObjTypeInit(65, 0, "activeNPC"), // 84
+            new ObjTypeInit(-1, -1, null), // 85
+            new ObjTypeInit(-1, -1, null), // 86
+            new ObjTypeInit(-1, -1, null), // 87
+            new ObjTypeInit(-1, -1, null), // 88
+            new ObjTypeInit(-1, -1, null), // 89
+            new ObjTypeInit(13, 1, "invisibleCandySpawner"), // 90
+            new ObjTypeInit(9, 0, "genericBush"), // 91
+            new ObjTypeInit(9, 2, "genericBush"), // 92
+            new ObjTypeInit(-1, -1, null), // 93
+            new ObjTypeInit(-1, -1, null), // 94
+            new ObjTypeInit(-1, -1, null), // 95
+            new ObjTypeInit(-1, -1, null), // 96
+            new ObjTypeInit(10, 3, null), // 97
+            new ObjTypeInit(10, 0, "invulnerableBugPatrol"), // 98
+            new ObjTypeInit(10, 1, "invulnerableBugPatrol"), // 99
+            new ObjTypeInit(10, 2, "invulnerableBugPatrol"), // 100
+            new ObjTypeInit(12, 0, null), // 101
+            new ObjTypeInit(13, 1, null), // 102
+            new ObjTypeInit(13, 4, "genericGrass"), // 103
+            new ObjTypeInit(13, 3, "genericBug"), // 104
+            new ObjTypeInit(14, 0, "genericWindow"), // 105
+            new ObjTypeInit(14, 0, "supriseWindow"), // 106
+            new ObjTypeInit(11, 0, "genericBush"), // 107
+            new ObjTypeInit(8, 0, "invulnerableBugPatrol"), // 108
+            new ObjTypeInit(8, 1, "invulnerableBugPatrol"), // 109
+            new ObjTypeInit(-1, -1, null), // 110
+            new ObjTypeInit(-1, -1, null), // 111
+            new ObjTypeInit(-1, -1, null), // 112
+            new ObjTypeInit(-1, -1, null), // 113
+            new ObjTypeInit(-1, -1, null), // 114
+            new ObjTypeInit(-1, -1, null), // 115
+            new ObjTypeInit(-1, -1, null), // 116
+            new ObjTypeInit(-1, -1, null), // 117
+            new ObjTypeInit(-1, -1, null), // 118
+            new ObjTypeInit(-1, -1, null), // 119
+            new ObjTypeInit(64, 3, null), // 120
+            new ObjTypeInit(64, 5, null), // 121
+            new ObjTypeInit(63, 2, null), // 122
+            new ObjTypeInit(63, 5, null), // 123
+            new ObjTypeInit(-1, -1, null), // 124
+            new ObjTypeInit(-1, -1, null), // 125
+            new ObjTypeInit(-1, -1, null), // 126
+            new ObjTypeInit(-1, -1, null), // 127
+            new ObjTypeInit(-1, -1, null), // 128
+            new ObjTypeInit(-1, -1, null), // 129
+            new ObjTypeInit(-1, -1, null), // 130
+            new ObjTypeInit(-1, -1, null), // 131
+            new ObjTypeInit(-1, -1, null), // 132
+            new ObjTypeInit(-1, -1, null), // 133
+            new ObjTypeInit(-1, -1, null), // 134
+            new ObjTypeInit(-1, -1, null), // 135
+            new ObjTypeInit(-1, -1, null), // 136
+            new ObjTypeInit(-1, -1, null), // 137
+            new ObjTypeInit(-1, -1, null), // 138
+            new ObjTypeInit(-1, -1, null), // 139
+            new ObjTypeInit(-1, -1, null), // 140
         };
     }
 }

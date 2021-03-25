@@ -93,12 +93,32 @@ namespace R1Engine
             }
         }
 
-        public override bool FlipHorizontally => ReadFlipFlags && (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.GBAVV_IsFusion ? 1 : 2)) != 0;
-        public override bool FlipVertically => ReadFlipFlags && (ObjParams?.FirstOrDefault() & (ObjManager.Context.Settings.GBAVV_IsFusion ? 2 : 4)) != 0;
-        public bool ReadFlipFlags => ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1 ||
-                                     ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2 ||
-                                     ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashFusion ||
-                                     ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_SpyroFusion;
+        public override bool FlipHorizontally => GetFlipFlagsIndex() != -1 && BitHelpers.ExtractBits(ObjParams?.FirstOrDefault() ?? 0, 1, GetFlipFlagsIndex()) == 1;
+        public override bool FlipVertically => GetFlipFlagsIndex() != -1 && BitHelpers.ExtractBits(ObjParams?.FirstOrDefault() ?? 0, 1, GetFlipFlagsIndex() + 1) == 1;
+        public int GetFlipFlagsIndex()
+        {
+            switch (ObjManager.Context.Settings.EngineVersion)
+            {
+                case EngineVersion.GBAVV_Crash1:
+                case EngineVersion.GBAVV_Crash2:
+                    return 1;
+
+                case EngineVersion.GBAVV_CrashFusion:
+                case EngineVersion.GBAVV_SpyroFusion:
+                case EngineVersion.GBAVV_ThatsSoRaven:
+                case EngineVersion.GBAVV_SharkTale:
+                case EngineVersion.GBAVV_Shrek2BegForMercy:
+                case EngineVersion.GBAVV_BatmanBegins:
+                case EngineVersion.GBAVV_Madagascar:
+                case EngineVersion.GBAVV_MadagascarOperationPenguin:
+                case EngineVersion.GBAVV_UltimateSpiderMan:
+                case EngineVersion.GBAVV_SpiderMan3:
+                    return 0;
+
+                default:
+                    return -1;
+            }
+        }
 
         public override bool CanBeLinkedToGroup => true;
 
