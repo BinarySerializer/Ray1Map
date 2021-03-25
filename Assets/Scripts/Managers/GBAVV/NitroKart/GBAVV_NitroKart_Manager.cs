@@ -249,9 +249,7 @@ namespace R1Engine
 
             str.ToString().CopyToClipboard();
         }
-
-        public virtual long ObjTypesCount => 114;
-        public abstract uint ObjTypesPointer { get; }
+		public override int ObjTypesCount => 114;
         public abstract uint?[] ObjTypesDataPointers { get; }
 
         public override Dictionary<int, GBAVV_ScriptCommand.CommandType> ScriptCommands => new Dictionary<int, GBAVV_ScriptCommand.CommandType>()

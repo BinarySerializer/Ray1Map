@@ -1729,7 +1729,7 @@ namespace R1Engine
             @"gfx\Terra03\TC_surface03.tex",
         };
 
-        public override long ObjTypesCount => 113;
+        public override int ObjTypesCount => 113;
         public override uint ObjTypesPointer => 0x1001aa2c;
 
         public override uint?[] ObjTypesDataPointers => new uint?[]
