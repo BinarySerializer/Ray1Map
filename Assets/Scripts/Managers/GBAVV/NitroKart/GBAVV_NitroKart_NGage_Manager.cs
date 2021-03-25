@@ -1052,7 +1052,20 @@ namespace R1Engine
                     bool isAnimated;
                     var obj = CreateS3DGameObject(context, s3d, out isAnimated);
                     obj3dIsAnimated = obj3dIsAnimated || isAnimated;
-                    obj.transform.SetParent(gao_3dObjParent.transform);
+                    if (o.ObjectGroupIndex.HasValue) {
+                        var ogi = o.ObjectGroupIndex.Value;
+                        GameObject gao = new GameObject($"Object Group {ogi}");
+                        var ogb = gao.AddComponent<Unity_ObjGroupBehaviour>();
+                        ogb.ObjGroup = ogi;
+                        ogb.Content = obj;
+                        gao.transform.transform.SetParent(gao_3dObjParent.transform);
+                        gao.transform.localPosition = Vector3.zero;
+                        gao.transform.localRotation = Quaternion.identity;
+                        gao.transform.localScale = Vector3.one;
+                        obj.transform.SetParent(gao.transform);
+                    } else {
+                        obj.transform.SetParent(gao_3dObjParent.transform);
+                    }
                     const float scale = 8f;
                     var newPosPreConvert = o.Position;
                     var newPos = new Vector3(newPosPreConvert.x / scale, newPosPreConvert.z / scale, -newPosPreConvert.y / scale);
