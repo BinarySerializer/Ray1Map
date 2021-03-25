@@ -664,12 +664,13 @@ namespace R1Engine
     {
         public override string[] Languages => new string[]
         {
-            "Japanese",
+            "Dutch",
             "English",
             "French",
             "German",
             "Italian",
             "Spanish",
+            "Japanese",
         };
 
         public override uint ObjTypesPointer => 0x08008344;
