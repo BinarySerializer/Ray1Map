@@ -1325,8 +1325,7 @@ a:focus {
 	text-align: right;
 }
 .levels-actor-input-group,
-.palette-group,
-.objectGroups-group {
+.palette-group {
 	font-size: 0.6em;
 	padding: 0.25em 3em 0 3em;
 	text-align: center;
@@ -1341,29 +1340,51 @@ a:focus {
 }
 .levels-actor-input.invisible,
 .palette-input.invisible,
-.objectGroups-input.invisible {
+.objectGroups-input.invisible,
+.gbavv-scripts-input.invisible {
 	display: none;
 }
 #palettes-group,
-#objectGroups-group {
+#objectGroups-group,
+.gbavv-scripts-group {
 	display: inline-block;
-	padding: 0.2em 0.3em 0.3em 0.3em;
-	width: 8em;
-	font-size: 0.9em;
 	vertical-align: top;
 	height: 1.3em;
 }
+#palettes-group {
+	padding: 0.2em 0.3em 0.3em 0.3em;
+	width: 8em;
+	font-size: 0.9em;
+}
 #objectGroups-group {
+	padding: 0.2em 0.3em 0.3em 0.3em;
 	font-size: 0.85em;
+	width: 10em;
+}
+.gbavv-scripts-group {
+	padding: 0.5em 0.3em 0.5em 0.3em;
+	width: 12em;
+	font-size: 1.2em;
+}
+#objectGroups-group,
+.gbavv-scripts-group {
 	text-transform: none;
 	font-weight: normal;
 }
 .palette-input,
-.objectGroups-input {
+.objectGroups-input,
+.gbavv-scripts-input {
 	display: flex;
 	width: 100%;
 	flex: 0 1 auto;
 	box-sizing: border-box;
+}
+.cmd-hover {
+	padding: 0.5em;
+	border-radius: 1em;
+	transition: background-color .4s;
+	-moz-transition: background-color .4s;
+	-webkit-transition: background-color .4s;
 }
 #layer-buttons {
 	display: inline-block;

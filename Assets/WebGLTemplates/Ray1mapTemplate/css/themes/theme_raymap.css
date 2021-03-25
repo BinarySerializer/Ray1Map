@@ -173,6 +173,14 @@ body {
   background-color: #033d52;
 }
 
+.cmd-hover {
+  background-color: #033d52;
+}
+
+.cmd-hover:hover {
+  background-color: #01212d;
+}
+
 #highlight-tooltip {
   background-color: #06566d;
   color: #9ed9a0;

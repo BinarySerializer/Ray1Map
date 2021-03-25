@@ -200,6 +200,12 @@ body {
 .localization-item:hover {
 	background-color: $color_bg_dark;
 }
+.cmd-hover {
+	background-color: $color_bg_dark;
+}
+.cmd-hover:hover {
+	background-color: $color_bg_darkest;
+}
 
 #highlight-tooltip {
     background-color: $color_bg_light;
