@@ -892,6 +892,98 @@ namespace R1Engine
             return gaoParent;
         }
 
+        public GameObject CreatePVSGameObjectCollision(Context context, GBAVV_NitroKart_NGage_PVS pvs, out GameObject collidersParent) {
+            float scale = 8f;
+            Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, v.Y / scale);
+            Vector2 toUV(GBAVV_NitroKart_NGage_UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
+
+            Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
+            Dictionary<int, Texture2D[]> animatedTextures = new Dictionary<int, Texture2D[]>();
+            foreach (var tri in pvs.Triangles) {
+                var key = tri.Flags;
+                if (!meshes.ContainsKey(key)) {
+                    meshes[key] = new MeshInProgress($"Flags:{tri.Flags}");
+                }
+                /*
+                 flags:
+                    32 = scrolling texture
+                 */
+
+                var m = meshes[key];
+                int vertCount = m.vertices.Count;
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex0]));
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex1]));
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex2]));
+                m.uvs.Add(toUV(tri.UV0));
+                m.uvs.Add(toUV(tri.UV1));
+                m.uvs.Add(toUV(tri.UV2));
+                m.triangles.Add(vertCount + 0);
+                m.triangles.Add(vertCount + 1);
+                m.triangles.Add(vertCount + 2);
+                // Backface
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex0]));
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex1]));
+                m.vertices.Add(toVertex(pvs.Vertices[tri.Vertex2]));
+                m.uvs.Add(toUV(tri.UV0));
+                m.uvs.Add(toUV(tri.UV1));
+                m.uvs.Add(toUV(tri.UV2));
+                m.triangles.Add(vertCount + 3 + 0);
+                m.triangles.Add(vertCount + 3 + 2);
+                m.triangles.Add(vertCount + 3 + 1);
+
+                UnityEngine.Random.InitState(key);
+                var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
+                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
+                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
+                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
+                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
+                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
+                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
+            }
+
+            // Create GameObjects
+            GameObject gaoParent = new GameObject("Map");
+            collidersParent = new GameObject("Map Colliders");
+            gaoParent.transform.position = Vector3.zero;
+            collidersParent.transform.position = gaoParent.transform.position;
+            foreach (var k in meshes.Keys) {
+                var curMesh = meshes[k];
+                Mesh unityMesh = new Mesh();
+                unityMesh.SetVertices(curMesh.vertices);
+                unityMesh.SetUVs(0, curMesh.uvs);
+                unityMesh.SetColors(curMesh.colors);//Enumerable.Repeat(color, curMesh.vertices.Count).ToArray();
+                unityMesh.SetTriangles(curMesh.triangles, 0);
+                unityMesh.RecalculateNormals();
+                GameObject gao = new GameObject(curMesh.name);
+
+                // Add Collider GameObject
+                GameObject gaoc = new GameObject(curMesh.name);
+                MeshCollider mc = gaoc.AddComponent<MeshCollider>();
+                Mesh colMesh = new Mesh();
+                colMesh.SetVertices(curMesh.vertices);
+                colMesh.SetTriangles(curMesh.triangles.Where((x, i) => i % 6 >= 3).ToArray(), 0);
+                colMesh.RecalculateNormals();
+                mc.sharedMesh = colMesh;
+                gaoc.layer = LayerMask.NameToLayer("3D Collision");
+                gaoc.transform.SetParent(collidersParent.transform);
+                gaoc.transform.localScale = Vector3.one;
+                gaoc.transform.localPosition = Vector3.zero;
+                var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
+                col3D.Type = k.ToString();
+
+                MeshFilter mf = gao.AddComponent<MeshFilter>();
+                MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                gao.layer = LayerMask.NameToLayer("3D Collision");
+                gao.transform.SetParent(gaoParent.transform);
+                gao.transform.localScale = Vector3.one;
+                gao.transform.localPosition = Vector3.zero;
+                mf.mesh = unityMesh;
+                mr.sharedMaterial = Controller.obj.levelController.controllerTilemap.isometricCollisionMaterial;
+            }
+            gaoParent.SetActive(false);
+            return gaoParent;
+        }
+
         public Vector2 GetLevelDimensions(GBAVV_NitroKart_NGage_PVS pvs) {
             var height = pvs.Vertices.Max(v => v.Y);
             var width = pvs.Vertices.Max(v => v.X);
@@ -910,8 +1002,12 @@ namespace R1Engine
             var pop = level.POP;
             bool pvsIsAnimated;
             var pvs = CreatePVSGameObject(context, level.PVS, out pvsIsAnimated);
+            GameObject pvsc_colliders;
+            var pvsc = CreatePVSGameObjectCollision(context, level.PVS, out pvsc_colliders);
             Vector2 levelDimensions = GetLevelDimensions(level.PVS);
             pvs.transform.position = new Vector3(0,0,-levelDimensions.y / 8f);
+            pvsc.transform.position = pvs.transform.position;
+            pvsc_colliders.transform.position = pvs.transform.position;
 
             Controller.DetailedState = "Loading localization";
             await Controller.WaitIfNecessary();
@@ -1059,9 +1155,12 @@ namespace R1Engine
             layers.Add(new Unity_Layer_GameObject(true, isAnimated: pvsIsAnimated) {
                 Name = "Map",
                 Graphics = pvs,
-                Dimensions = levelDimensions * 2
+                Collision = pvsc,
+                Dimensions = levelDimensions * 2,
+                DisableGraphicsWhenCollisionIsActive = true
             });
             pvs.transform.SetParent(parent3d);
+            pvsc.transform.SetParent(Controller.obj.levelController.editor.layerTypes.transform);
             if (gao_3dObjParent != null) {
                 layers.Add(new Unity_Layer_GameObject(true, isAnimated: obj3dIsAnimated) {
                     Name = "3D Objects",

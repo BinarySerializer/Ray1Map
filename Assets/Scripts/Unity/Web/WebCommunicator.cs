@@ -21,7 +21,7 @@ public class WebCommunicator : MonoBehaviour {
 	public bool debugMessages = false;
 
 	Unity_Tile[] highlightedCollision_;
-	Unity_IsometricCollisionTile highlightedCollision3D_;
+	Unity_Collision3DBehaviour highlightedCollision3D_;
 	Unity_CollisionLine highlightedCollisionLine_;
 	Unity_ObjBehaviour highlightedObject_;
 	Unity_ObjBehaviour selectedObject_;
@@ -177,13 +177,24 @@ public class WebCommunicator : MonoBehaviour {
 		};
 		// Collision
 		if (highlightedCollision3D_ != null) {
-			selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
-				new WebJSON.Collision() {
-					Type = highlightedCollision3D_.Type.ToString(),
-					Shape = highlightedCollision3D_.Shape != Unity_IsometricCollisionTile.ShapeType.None ? highlightedCollision3D_.Shape.ToString() : null,
-					AdditionalType = highlightedCollision3D_.AddType != Unity_IsometricCollisionTile.AdditionalTypeFlags.None ? highlightedCollision3D_.AddType.ToString() : null
-				}
-			};
+			var isoTile = highlightedCollision3D_.IsometricTile;
+			if (isoTile != null) {
+				selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
+					new WebJSON.Collision() {
+						Type = isoTile.Type.ToString(),
+						Shape = isoTile.Shape != Unity_IsometricCollisionTile.ShapeType.None ? isoTile.Shape.ToString() : null,
+						AdditionalType = isoTile.AddType != Unity_IsometricCollisionTile.AdditionalTypeFlags.None ? isoTile.AddType.ToString() : null
+					}
+				};
+			} else {
+				selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
+					new WebJSON.Collision() {
+						Type = highlightedCollision3D_.Type,
+						Shape = highlightedCollision3D_.Shape,
+						AdditionalType = highlightedCollision3D_.AddType
+					}
+				};
+			}
 		} else if(highlightedCollisionLine_ != null) {
 			selectionJSON.Highlight.Collision = new WebJSON.Collision[1] {
 				// TODO: Replace with highlighted line properties

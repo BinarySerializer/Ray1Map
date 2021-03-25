@@ -258,6 +258,9 @@ namespace R1Engine
             gao.name = $"{x},{y}";
             float height = Height + (GBAVV_AdditionalHeight ?? 0);
             gao.layer = LayerMask.NameToLayer("3D Collision");
+            var col3D = gao.AddComponent<Unity_Collision3DBehaviour>();
+            col3D.IsometricTile = this;
+            col3D.IsometricPosition = new Vector2Int(x,y);
             gao.transform.SetParent(parent.transform);
             gao.transform.localScale = Vector3.one;
             gao.transform.localPosition = new Vector3(x + 0.5f, 0, -y - 0.5f);

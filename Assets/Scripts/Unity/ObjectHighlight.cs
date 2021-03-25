@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 public class ObjectHighlight : MonoBehaviour {
     public Unity_ObjBehaviour highlightedObject = null;
     public Unity_Tile[] highlightedCollision = null;
-    public Unity_IsometricCollisionTile highlightedCollision3D = null;
+    public Unity_Collision3DBehaviour highlightedCollision3D = null;
     public Unity_Tile[] highlightedTile = null;
     public Unity_CollisionLine highlightedCollisionLine = null;
 
@@ -41,22 +41,17 @@ public class ObjectHighlight : MonoBehaviour {
             }
 
             // Isometric: Raycast collision
-            if (LevelEditorData.Level?.IsometricData?.Collision != null) {
+            if (LevelEditorData.Level?.IsometricData != null) {
                 layerMask = 1 << LayerMask.NameToLayer("3D Collision");
                 Ray ray = cam.ScreenPointToRay(Input.mousePosition);
                 RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, layerMask, QueryTriggerInteraction.Ignore);
                 if (hits != null && hits.Length > 0) {
                     System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
                     for (int i = 0; i < hits.Length; i++) {
-                        // the object identified by hit.transform was clicked
-                        // Hack, for now use the gameobject name
-                        string[] name = hits[i].transform.gameObject.name.Split(',');
-                        if (name.Length == 2 && int.TryParse(name[0], out int x) && int.TryParse(name[1], out int y)) {
-                            var c3dt = LevelEditorData.Level.IsometricData.GetCollisionTile(x, y);
-                            if (c3dt != null) {
-                                highlightedCollision3D = c3dt;
-                                break;
-                            }
+                        Unity_Collision3DBehaviour col3D = hits[i].transform.gameObject.GetComponent<Unity_Collision3DBehaviour>();
+                        if (col3D != null) {
+                            highlightedCollision3D = col3D;
+                            break;
                         }
                     }
                 }

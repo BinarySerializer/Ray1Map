@@ -99,13 +99,22 @@ namespace R1Engine
                     }
                 }
                 if (LevelEditorData.Level.IsometricData != null && c3d != null) {
-                    textCollision.text = $"Collision: {c3d.Type} | Add: {c3d.AddType} | Shape: {c3d.Shape}";
+                    var isoTile = c3d.IsometricTile;
+                    if (isoTile != null) {
+                        textCollision.text = $"Collision: {isoTile.Type} | Add: {isoTile.AddType} | Shape: {isoTile.Shape}";
+                        // Set debug text
+                        Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
+                            ? isoTile.DebugText
+                            : String.Empty;
+                    } else {
+                        textCollision.text = $"Collision: {c3d.Type} | Add: {c3d.AddType} | Shape: {c3d.Shape}";
+                        // Set debug text
+                        Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
+                            ? c3d.DebugText
+                            : String.Empty;
+                    }
 
                     textGraphic.enabled = true;
-                    // Set debug text
-                    Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
-                        ? c3d.DebugText
-                        : String.Empty;
                 }
                 if (LevelEditorData.Level.CollisionLines != null && cl != null) {
                     textCollision.text = $"Collision: {cl.Pos_0} - {cl.Pos_1} | Type: {cl.TypeName} | Color: {cl.LineColor}";
