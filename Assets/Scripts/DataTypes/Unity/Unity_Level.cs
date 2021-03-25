@@ -16,8 +16,8 @@ namespace R1Engine
             Unity_Map[] maps = null,
             Unity_ObjectManager objManager = null, 
             List<Unity_Object> eventData = null, 
-            Unity_Object rayman = null, 
-            IReadOnlyDictionary<string, string[]> localization = null, 
+            Unity_Object rayman = null,
+            IList<KeyValuePair<string, string[]>> localization = null, 
             int defaultLayer = 0, int defaultCollisionLayer = -1, 
             int pixelsPerUnit = 16, 
             int cellSize = 16,
@@ -107,7 +107,7 @@ namespace R1Engine
         public List<Unity_Object> EventData { get; }
         public Unity_Object Rayman { get; }
 
-        public IReadOnlyDictionary<string, string[]> Localization { get; }
+        public IList<KeyValuePair<string, string[]>> Localization { get; }
 
         public Unity_ObjectManager ObjManager { get; }
 

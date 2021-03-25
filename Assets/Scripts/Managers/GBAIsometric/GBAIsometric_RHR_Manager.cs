@@ -527,11 +527,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Add localization
-            var loc = rom.Localization.Localization.Select((x, i) => new
-            {
-                key = rom.Localization.Localization[0][i],
-                strings = x
-            }).ToDictionary(x => x.key, x => x.strings);
+            var loc = rom.Localization.Localization.Select((x, i) => new KeyValuePair<string, string[]>(rom.Localization.Localization[0][i], x)).ToArray();
 
             return new Unity_Level(
                 maps: maps, 

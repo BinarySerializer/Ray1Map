@@ -178,7 +178,7 @@ namespace R1Engine
             return UniTask.FromResult(tex);
         }
 
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
+        protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
             var lngPath = GetLanguageFilePath();
 
@@ -187,21 +187,21 @@ namespace R1Engine
             // Read the language file
             var lng = FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
 
-            var loc = new Dictionary<string, string[]>();
+            var loc = new List<KeyValuePair<string, string[]>>();
 
             // Set localization if available
             if (lng.Strings.Length > 0)
-                loc.Add("English", lng.Strings[0]);
+                loc.Add(new KeyValuePair<string, string[]>("English", lng.Strings[0]));
             if (lng.Strings.Length > 1)
-                loc.Add("French", lng.Strings[1]);
+                loc.Add(new KeyValuePair<string, string[]>("French", lng.Strings[1]));
             if (lng.Strings.Length > 2)
-                loc.Add("German", lng.Strings[2]);
+                loc.Add(new KeyValuePair<string, string[]>("German", lng.Strings[2]));
             if (lng.Strings.Length > 3)
-                loc.Add("Japanese", lng.Strings[3]);
+                loc.Add(new KeyValuePair<string, string[]>("Japanese", lng.Strings[3]));
             if (lng.Strings.Length > 4)
-                loc.Add("Chinese", lng.Strings[4]);
+                loc.Add(new KeyValuePair<string, string[]>("Chinese", lng.Strings[4]));
 
-            return loc;
+            return loc.ToArray();
         }
 
         public override UniTask<PCX> GetWorldMapVigAsync(Context context)

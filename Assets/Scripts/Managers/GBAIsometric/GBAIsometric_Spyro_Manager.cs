@@ -361,7 +361,10 @@ namespace R1Engine
                     cellSize: CellSize,
                     getCollisionTypeNameFunc: collNameFunc,
                     getCollisionTypeGraphicFunc: collGraphicFunc,
-                    localization: LoadLocalization(rom)) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
+                    localization: LoadLocalization(rom))
+                {
+                    CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null
+                };
             }
 
             var levelData = rom.GetLevelData(context.Settings);
@@ -503,15 +506,11 @@ namespace R1Engine
                 defaultCollisionLayer: validMaps.Length - 1) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
         }
 
-        public Dictionary<string, string[]> LoadLocalization(GBAIsometric_Spyro_ROM rom)
+        public KeyValuePair<string, string[]>[] LoadLocalization(GBAIsometric_Spyro_ROM rom)
         {
             var langages = GetLanguages.ToArray();
 
-            return rom.Localization?.LocBlocks?.Select((x, i) => new
-            {
-                Lang = langages[i],
-                Strings = x.Strings
-            }).ToDictionary(x => x.Lang, x => x.Strings);
+            return rom.Localization?.LocBlocks?.Select((x, i) => new KeyValuePair<string, string[]>(langages[i], x.Strings)).ToArray();
         }
 
         public IEnumerable<Unity_ObjectManager_GBAIsometricSpyro.AnimSet> GetAnimSets(Context context, GBAIsometric_Spyro_ROM rom)

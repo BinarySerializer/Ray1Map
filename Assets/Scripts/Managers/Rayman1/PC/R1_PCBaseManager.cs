@@ -1464,7 +1464,7 @@ namespace R1Engine
 
         public abstract UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax);
 
-        protected abstract UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context);
+        protected abstract UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context);
 
         /// <summary>
         /// Reads 3 tile-sets, one for each palette

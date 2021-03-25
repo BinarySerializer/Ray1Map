@@ -68,7 +68,7 @@ namespace R1Engine
 
 
 
-		public Dictionary<string, string[]> LoadLocalization(Context context) {
+		public KeyValuePair<string, string[]>[] LoadLocalization(Context context) {
 			var langages = new string[]
 			{
 				"English",
@@ -85,10 +85,7 @@ namespace R1Engine
 				tables[i] = resf.SerializeResource<Gameloft_RK_LocalizationTable>(s, default, i, name: $"Localization[{i}]");
 			}
 
-			return tables.Select((x, i) => new {
-				Lang = langages[i/ 2] + " - " + ((i % 2 == 0) ? "Menu" : "Race"),
-				Strings = x.Strings
-			}).ToDictionary(x => x.Lang, x => x.Strings);
+			return tables.Select((x, i) => new KeyValuePair<string, string[]>(langages[i / 2] + " - " + ((i % 2 == 0) ? "Menu" : "Race"), x.Strings)).ToArray();
 		}
 
 		public virtual int BasePuppetsResourceFile => 10;

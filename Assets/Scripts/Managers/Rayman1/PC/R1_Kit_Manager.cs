@@ -160,10 +160,10 @@ namespace R1Engine
             }).ToArray();
         }
 
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
+        protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
             // Create the dictionary
-            var localization = new Dictionary<string, string[]>();
+            var localization = new List<KeyValuePair<string, string[]>>();
 
             // Enumerate each language
             foreach (var lang in LoadArchiveFile<R1_PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
@@ -179,14 +179,14 @@ namespace R1Engine
 
                 // Add the localization
                 if (loc != null)
-                    localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+                    localization.Add(new KeyValuePair<string, string[]>($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray()));
 
                 // Read the general data
                 var general = LoadArchiveFile<R1_PC_GeneralFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.GENERAL);
 
                 // Add the localization
                 if (general != null)
-                    localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
+                    localization.Add(new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray()));
 
                 // Add the event localizations (allfix + 6 worlds)
                 for (int i = 0; i < 7; i++)
@@ -205,14 +205,14 @@ namespace R1Engine
 
                     // Add the localization
                     if (FileSystem.mode == FileSystem.Mode.Web) {
-                        localization.Add($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"<key>{x.LocKey}</key><name>{x.Name}</name><description>{x.Description}</description>").ToArray());
+                        localization.Add(new KeyValuePair<string, string[]>($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"<key>{x.LocKey}</key><name>{x.Name}</name><description>{x.Description}</description>").ToArray()));
                     } else {
-                        localization.Add($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.LocKey}: {x.Name} - {x.Description}").ToArray());
+                        localization.Add(new KeyValuePair<string, string[]>($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.LocKey}: {x.Name} - {x.Description}").ToArray()));
                     }
                 }
             }
 
-            return localization;
+            return localization.ToArray();
         }
 
         public override IList<BaseColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND00")?.VGAPalette;

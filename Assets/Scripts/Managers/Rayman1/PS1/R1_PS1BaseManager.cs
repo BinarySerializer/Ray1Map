@@ -830,7 +830,7 @@ namespace R1Engine
             }
         }
 
-        protected virtual UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context) => UniTask.FromResult<IReadOnlyDictionary<string, string[]>>(null);
+        protected virtual UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context) => UniTask.FromResult<KeyValuePair<string, string[]>[]>(null);
 
         public abstract UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
 

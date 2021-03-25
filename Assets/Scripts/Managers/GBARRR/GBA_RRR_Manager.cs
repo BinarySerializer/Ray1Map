@@ -1657,10 +1657,8 @@ namespace R1Engine
             };
         }
 
-        public IReadOnlyDictionary<string, string[]> LoadLocalization(GBARRR_LocalizationBlock loc)
+        public KeyValuePair<string, string[]>[] LoadLocalization(GBARRR_LocalizationBlock loc)
         {
-            var dictionary = new Dictionary<string, string[]>();
-
             var languages = new string[]
             {
                 "English",
@@ -1671,10 +1669,7 @@ namespace R1Engine
                 "Spanish"
             };
 
-            for (int i = 0; i < loc.Strings.Length; i++)
-                dictionary.Add(languages[i], loc.Strings[i].Where(x => !String.IsNullOrWhiteSpace(x)).ToArray());
-
-            return dictionary;
+            return loc.Strings.Select((t, i) => new KeyValuePair<string, string[]>(languages[i], t.Where(x => !String.IsNullOrWhiteSpace(x)).ToArray())).ToArray();
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();

@@ -113,10 +113,10 @@ namespace R1Engine
         public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) =>
             UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
 
-        protected override UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
+        protected override UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
             // Create the dictionary
-            var localization = new Dictionary<string, string[]>();
+            var localization = new KeyValuePair<string, string[]>[3];
 
             // Read the text data
             var loc = LoadArchiveFile<R1_PC_LocFile>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.TEXT);
@@ -128,21 +128,21 @@ namespace R1Engine
                 locName = context.Settings.EduVolume;
 
             // Add the localization
-            localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+            localization[0] = new KeyValuePair<string, string[]>($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
 
             // Read the general data
             var general = LoadArchiveFile<R1_PC_GeneralFile>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.GENERAL);
 
             // Add the localization
-            localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
+            localization[1] = new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
 
             // Read the MOT data
-            var mot = LoadArchiveFile<R1_PCEdu_MOTFile>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.MOT); 
+            var mot = LoadArchiveFile<R1_PCEdu_MOTFile>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.MOT);
 
             // Add the localization
-            localization.Add($"MOT ({locName})", mot.TextDefine.Select(x => x.Value).ToArray());
+            localization[2] = new KeyValuePair<string, string[]>($"MOT ({locName})", mot.TextDefine.Select(x => x.Value).ToArray());
 
-            return UniTask.FromResult<IReadOnlyDictionary<string, string[]>>(localization);
+            return UniTask.FromResult<KeyValuePair<string, string[]>[]>(localization);
         }
 
         public override IList<BaseColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND04")?.VGAPalette;
