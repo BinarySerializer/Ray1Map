@@ -149,6 +149,9 @@ public class WebJSON {
 		public string GBAVV_ObjParams { get; set; }
 		public int? GBAVV_AnimSetIndex { get; set; }
 		public string[] GBAVV_AnimSetNames { get; set; }
+		public int? GBAVV_ScriptIndex { get; set; }
+		public string[] GBAVV_ScriptNames { get; set; }
+		public string[] GBAVV_ScriptContent { get; set; }
 
 		// Gameloft RRR
 		public int? Gameloft_PuppetIndex { get; set; }

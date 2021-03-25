@@ -45,6 +45,7 @@ namespace R1Engine
 
         public int ScriptIndex { get; set; } = -1;
         public GBAVV_Script Script => ObjManager.Scripts?.ElementAtOrDefault(ScriptIndex);
+        public bool HasScripts => ObjManager.Scripts?.Length > 0;
         public virtual GBAVV_Script DialogScript => null;
         public virtual bool ScriptHasDialog => false;
         public string ScriptName => DialogScript?.DisplayName ?? Script?.DisplayName;

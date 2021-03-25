@@ -368,8 +368,11 @@ public class WebCommunicator : MonoBehaviour {
                             })).ToArray();
                     }
 
-                    if (includeLists)
-                        webObj.R1_Commands = crashObj.GetTranslatedScript;
+					webObj.GBAVV_ScriptIndex = crashObj.ObjManager?.Scripts != null ? (int?)crashObj.ScriptIndex : null;
+					if (includeLists) {
+						webObj.GBAVV_ScriptNames = crashObj.ObjManager?.Scripts?.Select(s => s.DisplayName).ToArray();
+						webObj.GBAVV_ScriptContent = crashObj.GetTranslatedScript;
+					}
                     break;
 
 				case Unity_Object_GBAVVMode7 crashObj:
@@ -392,9 +395,14 @@ public class WebCommunicator : MonoBehaviour {
                         webObj.GBAVV_AnimSetIndex = crashObj.AnimSetIndex;
                         if (includeLists)
                             webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => crashObj.ObjManager.MultipleAnimSetArrays ? $"{graphicsIndex}-{animSetIndex}" : $"{animSetIndex}")).ToArray();
-                    }
-                    
-                    break;
+					}
+
+					webObj.GBAVV_ScriptIndex = crashObj.ObjManager?.Scripts != null ? (int?)crashObj.ScriptIndex : null;
+					if (includeLists) {
+						webObj.GBAVV_ScriptNames = crashObj.ObjManager?.Scripts?.Select(s => s.DisplayName).ToArray();
+						webObj.GBAVV_ScriptContent = crashObj.GetTranslatedScript;
+					}
+					break;
 
 				case Unity_Object_GameloftRRR glRRRObj:
 					if (glRRRObj.PuppetIndex != -1) {
@@ -751,6 +759,10 @@ public class WebCommunicator : MonoBehaviour {
                     crashObj.AnimSetIndex = msg.GBAVV_AnimSetIndex.Value;
 					refreshObjectLists = true;
 				}
+				if (msg.GBAVV_ScriptIndex.HasValue && crashObj.HasScripts && crashObj.ScriptIndex != msg.GBAVV_ScriptIndex.Value) {
+					crashObj.ScriptIndex = msg.GBAVV_ScriptIndex.Value;
+					refreshObjectLists = true;
+				}
 				break;
 			case Unity_Object_GBAVVMode7 crashObj:
 				if (msg.GBAVV_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBAVV_AnimSetIndex.Value) {
@@ -761,6 +773,10 @@ public class WebCommunicator : MonoBehaviour {
 			case Unity_Object_GBAVVNitroKart crashObj:
 				if (msg.GBAVV_AnimSetIndex.HasValue && crashObj.AnimSetIndex != msg.GBAVV_AnimSetIndex.Value) {
                     crashObj.AnimSetIndex = msg.GBAVV_AnimSetIndex.Value;
+					refreshObjectLists = true;
+				}
+				if (msg.GBAVV_ScriptIndex.HasValue && crashObj.HasScripts && crashObj.ScriptIndex != msg.GBAVV_ScriptIndex.Value) {
+					crashObj.ScriptIndex = msg.GBAVV_ScriptIndex.Value;
 					refreshObjectLists = true;
 				}
 				break;
