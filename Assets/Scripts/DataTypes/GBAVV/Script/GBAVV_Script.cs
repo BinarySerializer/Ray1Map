@@ -51,8 +51,13 @@ namespace R1Engine
             }
         }
 
+        protected List<string> CachedTranslatedAllStrings { get; set; }
+
         public List<string> TranslatedStringAll(GBAVV_AnimSet[] animSets, Dictionary<Pointer, int> locTable, List<string> list = null)
         {
+            if (CachedTranslatedAllStrings != null)
+                return CachedTranslatedAllStrings;
+
             var output = list ?? new List<string>();
             var foundScripts = new HashSet<GBAVV_Script>();
 
@@ -72,6 +77,8 @@ namespace R1Engine
                 foreach (var ss in s.Commands.Select(x => x.ReferencedScript ?? x.ConditionalScriptReference?.Script))
                     translateScript(ss);
             }
+
+            CachedTranslatedAllStrings = output;
 
             return output;
         }
