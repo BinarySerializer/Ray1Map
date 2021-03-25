@@ -915,16 +915,21 @@ function getGBAVVScriptHTML(commands, scriptNames, scriptIndex) {
 	selectorHTML += "</select></div></div></div></div>";
 
 	commandsString += selectorHTML;
-
+	
 	if(scriptIndex >= 0 && commands !== null && commands.length > 0) {
 		if(commandsIsOpen) {
 			commandsString += "</div><div id='commands-collapse'>";
 		} else {
 			commandsString += "</div><div id='commands-collapse' style='display: none;'>";
 		}
+		let regexLocId = RegExp("&lt;locId&#x3D;([0-9]*)&gt;([^;]*)&lt;&#x2F;locId&gt;", 'gi');
 		$.each(commands, function (idx, val) {
 			commandsString += "<div class='commands-item command'><div class='commands-item-line-number'>" + idx + "</div>";
-			commandsString += "<div class='commands-item-script'><pre><code class='commands-item-code c'>" + escapeHTML(val) + "</code></pre></div></div>";
+			let comText = escapeHTML(val);
+			comText = comText.replace(regexLocId, function (match, p1, p2, offset, string, groups) { // Center text if necessary
+				return `<span class="cmd-hover add-text-tooltip" data-localization-item="${p1}">${p2}</span>`;
+			});
+			commandsString += "<div class='commands-item-script'><pre><code class='commands-item-code c'>" + comText + "</code></pre></div></div>";
 		});
 	}
 	commandsString += "</div>";
@@ -2265,7 +2270,7 @@ $(function() {
 		text_highlight_content.html("");
 		text_highlight_tooltip.addClass("hidden-tooltip");
 	});
-	/*$(document).on('mouseenter', ".objvar-value-Text", function() {
+	$(document).on('mouseenter', ".add-text-tooltip", function() {
 		let locItem = $(this).data("localizationItem");
 		if(locItem !== undefined && locItem != null) {
 			let text = $("#content-localization").find(`.localization-item[data-loc-item='${locItem}']`).find(".localization-item-text").text();
@@ -2280,10 +2285,10 @@ $(function() {
 			}
 		}
 	});
-	$(document).on('mouseleave', ".objvar-value-Text", function() {
+	$(document).on('mouseleave', ".add-text-tooltip", function() {
 		text_highlight_content.html("");
 		text_highlight_tooltip.addClass("hidden-tooltip");
-	});*/
+	});
 	$(document).on('click', ".objects-item.object-event", function() {
 		let index = $(this).data("index");
 		//$(".objects-item").removeClass("current-objects-item");
