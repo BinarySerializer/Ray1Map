@@ -368,7 +368,7 @@ public class WebCommunicator : MonoBehaviour {
                             })).ToArray();
                     }
 
-					webObj.GBAVV_ScriptIndex = crashObj.ObjManager?.Scripts != null ? (int?)crashObj.ScriptIndex : null;
+					webObj.GBAVV_ScriptIndex = crashObj.HasScripts ? (int?)crashObj.ScriptIndex : null;
 					if (includeLists) {
 						webObj.GBAVV_ScriptNames = crashObj.ObjManager?.Scripts?.Select(s => s.DisplayName).ToArray();
 						webObj.GBAVV_ScriptContent = crashObj.GetTranslatedScript;
@@ -397,7 +397,7 @@ public class WebCommunicator : MonoBehaviour {
                             webObj.GBAVV_AnimSetNames = crashObj.ObjManager.AnimSets.SelectMany((graphics, graphicsIndex) => graphics.Select((animSet, animSetIndex) => crashObj.ObjManager.MultipleAnimSetArrays ? $"{graphicsIndex}-{animSetIndex}" : $"{animSetIndex}")).ToArray();
 					}
 
-					webObj.GBAVV_ScriptIndex = crashObj.ObjManager?.Scripts != null ? (int?)crashObj.ScriptIndex : null;
+					webObj.GBAVV_ScriptIndex = crashObj.HasScripts ? (int?)crashObj.ScriptIndex : null;
 					if (includeLists) {
 						webObj.GBAVV_ScriptNames = crashObj.ObjManager?.Scripts?.Select(s => s.DisplayName).ToArray();
 						webObj.GBAVV_ScriptContent = crashObj.GetTranslatedScript;

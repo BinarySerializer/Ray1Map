@@ -895,6 +895,42 @@ function getCommandsHTML(commands) {
 	return commandsString;
 }
 
+function getGBAVVScriptHTML(commands, scriptNames, scriptIndex) {
+	let commandsString;
+	if(scriptIndex >= 0 && commands !== null && commands.length > 0) {
+		commandsString += "<div class='commands-item category collapsible' data-collapse='commands-collapse'><div class='collapse-sign'>" + (commandsIsOpen ? "-" : "+") + "</div>Script";
+	} else {
+		commandsString += "<div class='commands-item category'><div class='collapse-sign'></div>Script";
+	}
+
+	
+	let currentScript = scriptIndex;
+	let selectorHTML = "<div class='header-buttons-right'><div class='gbavv-scripts-group input-group dropdown settings-input-group'>"
+		+ "<div class='gbavv-scripts-group-group gbavv-scripts-input input-flex'>"
+		+ "<div class='field flexible'><select class='gbavv-scriptSelector'>";
+	selectorHTML += "<option value='-1'" + (-1 == currentScript ? " selected" : "") + ">None</option>";
+	$.each(scriptNames, function (idx, og) {
+		selectorHTML += "<option value='" + idx + "'" + (idx == currentScript ? " selected" : "") + ">" + escapeHTML(og) + "</option>";
+	});
+	selectorHTML += "</select></div></div></div></div>";
+
+	commandsString += selectorHTML;
+
+	if(scriptIndex >= 0 && commands !== null && commands.length > 0) {
+		if(commandsIsOpen) {
+			commandsString += "</div><div id='commands-collapse'>";
+		} else {
+			commandsString += "</div><div id='commands-collapse' style='display: none;'>";
+		}
+		$.each(commands, function (idx, val) {
+			commandsString += "<div class='commands-item command'><div class='commands-item-line-number'>" + idx + "</div>";
+			commandsString += "<div class='commands-item-script'><pre><code class='commands-item-code c'>" + escapeHTML(val) + "</code></pre></div></div>";
+		});
+	}
+	commandsString += "</div>";
+	return commandsString;
+}
+
 function getObjVars(obj) {
 
 	let objVars = [];
@@ -1047,6 +1083,13 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			$("#content-commands").empty();
 			if(obj.hasOwnProperty("R1_Commands") && obj.R1_Commands.length > 0) {
 				let commandsString = getCommandsHTML(obj.R1_Commands);
+				$("#content-commands").append(commandsString);
+				// Format commands
+				$(".commands-item-code").each(function() {
+					hljs.highlightBlock($(this).get(0));
+				})
+			} else if(obj.hasOwnProperty("GBAVV_ScriptNames") && obj.GBAVV_ScriptNames.length > 0) {
+				let commandsString = getGBAVVScriptHTML(obj.hasOwnProperty("GBAVV_ScriptContent") ? obj.GBAVV_ScriptContent : null, obj.GBAVV_ScriptNames, obj.GBAVV_ScriptIndex);
 				$("#content-commands").append(commandsString);
 				// Format commands
 				$(".commands-item-code").each(function() {
@@ -1364,6 +1407,10 @@ function sendObject() {
 		if(currentObject.hasOwnProperty("R1_ETANames")) {
 			jsonObj.Object.R1_ETAIndex = graphics2Selector.prop("selectedIndex");
 		}
+		if(currentObject.hasOwnProperty("GBAVV_ScriptNames") && $(".gbavv-scriptSelector").length) {
+			jsonObj.Object.GBAVV_ScriptIndex = $(".gbavv-scriptSelector").prop("selectedIndex");
+			if(currentObject.hasOwnProperty("GBAVV_ScriptIndex")) graphicsSelector.prop("selectedIndex", currentObject.GBAVV_ScriptIndex);
+		}
 		sendMessage(jsonObj);
 	}
 }
@@ -1485,6 +1532,8 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	// GBAVV
 	if(newObj.hasOwnProperty("GBAVV_AnimSetIndex")) oldObj.GBAVV_AnimSetIndex = newObj.GBAVV_AnimSetIndex;
 	if(newObj.hasOwnProperty("GBAVV_ObjParams")) oldObj.GBAVV_ObjParams = newObj.GBAVV_ObjParams;
+	if(newObj.hasOwnProperty("GBAVV_ScriptIndex")) oldObj.GBAVV_ScriptIndex = newObj.GBAVV_ScriptIndex;
+	if(newObj.hasOwnProperty("GBAVV_ScriptContent")) oldObj.GBAVV_ScriptContent = newObj.GBAVV_ScriptContent;
 
 	// SNES
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupIndex")) oldObj.SNES_GraphicsGroupIndex = newObj.SNES_GraphicsGroupIndex;
@@ -1508,6 +1557,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBC_ActorModelNames")) oldObj.GBC_ActorModelNames = newObj.GBC_ActorModelNames;
 	if(newObj.hasOwnProperty("GBAIsometric_AnimSetNames")) oldObj.GBAIsometric_AnimSetNames = newObj.GBAIsometric_AnimSetNames;
 	if(newObj.hasOwnProperty("GBAVV_AnimSetNames")) oldObj.GBAVV_AnimSetNames = newObj.GBAVV_AnimSetNames;
+	if(newObj.hasOwnProperty("GBAVV_ScriptNames")) oldObj.GBAVV_ScriptNames = newObj.GBAVV_ScriptNames;
 	if(newObj.hasOwnProperty("GBARRR_AnimationGroupNames")) oldObj.GBARRR_AnimationGroupNames = newObj.GBARRR_AnimationGroupNames;
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupNames")) oldObj.SNES_GraphicsGroupNames = newObj.SNES_GraphicsGroupNames;
 	if(newObj.hasOwnProperty("Gameloft_PuppetNames")) oldObj.Gameloft_PuppetNames = newObj.Gameloft_PuppetNames;
@@ -2352,19 +2402,8 @@ $(function() {
 		return false;
 	});
 	
-	$(document).on('change', "#state, #graphics, #graphics2", function() {
+	$(document).on('change', "#state, #graphics, #graphics2, .gbavv-scriptSelector", function() {
 		sendObject();
-		$(this).blur();
-		return false;
-	});
-	$(document).on('click', ".selectState", function() {
-		//let selectedIndex = $(this).prop('selectedIndex');
-		//setState(selectedIndex);
-		let newState = parseInt($(this).data("selectState"));
-		if(currentObject != null && currentObject.hasOwnProperty("Perso") && currentObject.Perso.State != newState) {
-			stateSelector.prop("selectedIndex", newState);
-			sendObject();
-		}
 		$(this).blur();
 		return false;
 	});
