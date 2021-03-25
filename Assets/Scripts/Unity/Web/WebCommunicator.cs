@@ -613,17 +613,19 @@ public class WebCommunicator : MonoBehaviour {
 			}
 		}
 		bool updatedSettings = false;
+		bool updatedFreeCamSetting = false;
 		if (msg.FreeCameraMode.HasValue) {
 			if (LevelEditorData.Level?.IsometricData != null) {
 				var cam = Controller.obj?.levelController?.editor?.cam;
 				if (cam != null) {
 					if (cam.ToggleFreeCameraMode(msg.FreeCameraMode.Value)) {
+						updatedFreeCamSetting = true;
 						updatedSettings = true;
 					}
 				}
 			}
 		}
-		if (msg.MoveAlongTrack.HasValue) {
+		if (msg.MoveAlongTrack.HasValue && !updatedFreeCamSetting) {
 			if (LevelEditorData.Level?.IsometricData != null) {
 				var cam = Controller.obj?.levelController?.editor?.cam;
 				if (cam != null) {
