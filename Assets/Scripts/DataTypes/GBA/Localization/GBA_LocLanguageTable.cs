@@ -8,7 +8,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Pointers = s.SerializePointerArray(Pointers, s.GameSettings.EngineVersion == EngineVersion.GBA_R3 ? 10 : 6, name: nameof(Pointers));
+            Pointers = s.SerializePointerArray(Pointers, s.GameSettings.GetGameManagerOfType<GBA_Manager>().Languages?.Length ?? 0, name: nameof(Pointers));
 
             if (StringGroups == null)
                 StringGroups = new GBA_LocStringGroupTable[Pointers.Length];

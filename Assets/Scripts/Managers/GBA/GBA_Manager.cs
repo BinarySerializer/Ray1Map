@@ -570,6 +570,7 @@ namespace R1Engine
 
         public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Data;
         public virtual GBA_LocLanguageTable LoadLocalizationTable(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Localization;
+        public virtual string[] Languages => null;
         public virtual KeyValuePair<string, string[]>[] LoadLocalization(Context context)
         {
             var strings = LoadLocalizationTable(context)?.StringGroups;
@@ -577,20 +578,7 @@ namespace R1Engine
 
             if (strings != null)
             {
-                // TODO: Don't hard-code languages as they differ between games and releases
-                var languages = new string[]
-                {
-                    "English",
-                    "French",
-                    "Spanish",
-                    "German",
-                    "Italian",
-                    "Dutch",
-                    "Swedish",
-                    "Finnish",
-                    "Norwegian",
-                    "Danish"
-                };
+                var languages = Languages;
 
                 loc = strings.Select((t, i) => new KeyValuePair<string, string[]>(languages[i], t.LocStrings.SelectMany(x => x.Strings).ToArray())).ToArray();
             }

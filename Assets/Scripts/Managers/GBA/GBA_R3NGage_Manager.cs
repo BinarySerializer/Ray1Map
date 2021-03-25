@@ -10,6 +10,7 @@ namespace R1Engine
     public class GBA_R3NGage_Manager : GBA_R3_Manager
     {
         public override string GetROMFilePath(Context context) => $"rayman3.dat";
+        public string ExeFilePath => "rayman3.app";
 
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
@@ -95,9 +96,13 @@ namespace R1Engine
         }
 
         public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
-        public override GBA_LocLanguageTable LoadLocalizationTable(Context context) => null;
+        public override GBA_LocLanguageTable LoadLocalizationTable(Context context) => FileFactory.Read<GBA_R3Ngage_ExeFile>(ExeFilePath, context).Localization;
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath(context));
+        public override async UniTask LoadFilesAsync(Context context)
+        {
+            await context.AddLinearSerializedFileAsync(GetROMFilePath(context));
+            await context.AddMemoryMappedFile(ExeFilePath, 0x0fffff84);
+        }
 
         // NOTE: In order to use this the FileSystem class needs to be updated to allow file stream sharing for read/write streams. Also note that this method will overwrite the GBA rom file, so keep a backup! All N-Gage data is appended rather than replaced, so the data can be swapped out by changing the offsets. Only the level offsets are automatically changed to use the N-Gage versions, thus keeping the menu etc.
         public async UniTask AddNGageToGBAAsync(GameModeSelection gbaGameModeSelection)
@@ -170,5 +175,15 @@ namespace R1Engine
                 }
             }
         }
+
+        public override string[] Languages => new string[]
+        {
+            "English",
+            "EnglishUS",
+            "French",
+            "Spanish",
+            "Italian",
+            "German",
+        };
     }
 }

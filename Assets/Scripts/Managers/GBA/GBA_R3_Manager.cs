@@ -262,5 +262,19 @@ namespace R1Engine
                 Util.ByteArrayToFile(Path.Combine(outputDir, $"Icon_{i}.png"), creditsIconsTex.EncodeToPNG());
             }
         }
+
+        public override string[] Languages => new string[]
+        {
+            "English",
+            "French",
+            "Spanish",
+            "German",
+            "Italian",
+            "Dutch",
+            "Swedish",
+            "Finnish",
+            "Norwegian",
+            "Danish"
+        };
     }
 }

@@ -36,5 +36,15 @@ namespace R1Engine
         {
             114
         };
+
+        public override string[] Languages => new string[]
+        {
+            "English",
+            "French",
+            "Spanish",
+            "German",
+            "Italian",
+            "Dutch",
+        };
     }
 }

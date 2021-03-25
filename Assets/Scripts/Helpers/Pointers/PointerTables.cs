@@ -244,7 +244,8 @@ namespace R1Engine
 
                 case GameModeSelection.Rayman3GBAUS:
                     return new Dictionary<GBA_Pointer, uint>() {
-                        [GBA_Pointer.UiOffsetTable] = 0x0829BE54
+                        [GBA_Pointer.UiOffsetTable] = 0x0829BE54,
+                        [GBA_Pointer.Localization] = 0x080d40b4,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Rayman3GBAEUBeta:
@@ -303,7 +304,8 @@ namespace R1Engine
 
                 case GameModeSelection.Rayman3NGage:
                     return new Dictionary<GBA_Pointer, uint>() {
-                        [GBA_Pointer.UiOffsetTable] = 0x0
+                        [GBA_Pointer.UiOffsetTable] = 0x0, // Data
+                        [GBA_Pointer.Localization] = 0x100d1cec, // App
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Rayman3Digiblast:
