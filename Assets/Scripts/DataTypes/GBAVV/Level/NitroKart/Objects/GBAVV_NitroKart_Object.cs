@@ -7,6 +7,7 @@
         public int Height { get; set; }
         public int ObjType { get; set; }
         public Pointer ParamsPointer { get; set; }
+        public int NGage_RelativeHeight { get; set; }
         public byte[] NGage_Params { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -16,10 +17,12 @@
             Height = s.Serialize<int>(Height, name: nameof(Height));
             ObjType = s.Serialize<int>(ObjType, name: nameof(ObjType));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
-                NGage_Params = s.SerializeArray<byte>(NGage_Params, 20, name: nameof(NGage_Params));
-            else
+            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage) {
+                NGage_RelativeHeight = s.Serialize<int>(NGage_RelativeHeight, name: nameof(NGage_RelativeHeight));
+                NGage_Params = s.SerializeArray<byte>(NGage_Params, 0x10, name: nameof(NGage_Params));
+            } else {
                 ParamsPointer = s.SerializePointer(ParamsPointer, name: nameof(ParamsPointer));
+            }
         }
     }
 }

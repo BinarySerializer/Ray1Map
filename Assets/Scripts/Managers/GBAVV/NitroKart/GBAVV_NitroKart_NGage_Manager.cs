@@ -981,9 +981,26 @@ namespace R1Engine
                 foreach (var o in toRemove)
                     objects.Remove(o);
             }
+            void processObjectPosition(Unity_Object_GBAVVNitroKart o) {
+                if (o.Object.NGage_RelativeHeight != int.MaxValue) {
+                    const float scale = 8f;
+                    var newPosPreConvert = o.Position;
+                    var newPos = new Vector3(newPosPreConvert.x / scale, newPosPreConvert.z / scale, -newPosPreConvert.y / scale);
+                    Ray ray = new Ray(newPos + Vector3.up * 100, Vector3.down);
+                    var layerMask = 1 << LayerMask.NameToLayer("3D Collision");
+                    RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, layerMask, QueryTriggerInteraction.Ignore);
+                    if (hits?.Length > 0) {
+                        var hit = hits.OrderBy(h => Vector3.Distance(newPos, h.point)).First();
+                        var hitPosY = hit.point.y;
+                        o.Object.Height = (int)(hitPosY * scale) + o.Object.NGage_RelativeHeight;
+                    }
+                }
+            }
 
-            replaceObjWith3D(exe.S3D_Warp, new ValueRange(0x56, 0x62).EnumerateRange().ToArray(), snapToFloorPosition: Vector3.zero);
-            replaceObjWith3D(exe.S3D_Podium, new ValueRange(0x1F, 0x21).EnumerateRange().ToArray(), snapToFloorPosition: Vector3.zero);
+            foreach (var o in objects.OfType<Unity_Object_GBAVVNitroKart>())
+                processObjectPosition(o);
+            replaceObjWith3D(exe.S3D_Warp, new ValueRange(0x56, 0x62).EnumerateRange().ToArray());
+            replaceObjWith3D(exe.S3D_Podium, new ValueRange(0x1F, 0x21).EnumerateRange().ToArray());
 
             var waypointsGroupIndex = 0;
 
