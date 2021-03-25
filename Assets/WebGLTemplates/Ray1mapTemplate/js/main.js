@@ -898,9 +898,9 @@ function getCommandsHTML(commands) {
 function getGBAVVScriptHTML(commands, scriptNames, scriptIndex) {
 	let commandsString;
 	if(scriptIndex >= 0 && commands !== null && commands.length > 0) {
-		commandsString += "<div class='commands-item category collapsible' data-collapse='commands-collapse'><div class='collapse-sign'>" + (commandsIsOpen ? "-" : "+") + "</div>Script";
+		commandsString = "<div class='commands-item category collapsible' data-collapse='commands-collapse'><div class='collapse-sign'>" + (commandsIsOpen ? "-" : "+") + "</div>Script";
 	} else {
-		commandsString += "<div class='commands-item category'><div class='collapse-sign'></div>Script";
+		commandsString = "<div class='commands-item category'><div class='collapse-sign'></div>Script";
 	}
 
 	
@@ -1088,13 +1088,6 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 				$(".commands-item-code").each(function() {
 					hljs.highlightBlock($(this).get(0));
 				})
-			} else if(obj.hasOwnProperty("GBAVV_ScriptNames") && obj.GBAVV_ScriptNames.length > 0) {
-				let commandsString = getGBAVVScriptHTML(obj.hasOwnProperty("GBAVV_ScriptContent") ? obj.GBAVV_ScriptContent : null, obj.GBAVV_ScriptNames, obj.GBAVV_ScriptIndex);
-				$("#content-commands").append(commandsString);
-				// Format commands
-				$(".commands-item-code").each(function() {
-					hljs.highlightBlock($(this).get(0));
-				})
 			}
 
 			// Object vars
@@ -1114,6 +1107,17 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			stateSelector.empty();
 			graphicsSelector.empty();
 			graphics2Selector.empty();
+
+			
+			if(obj.hasOwnProperty("GBAVV_ScriptNames") && obj.GBAVV_ScriptNames.length > 0) {
+				$("#content-commands").empty();
+				let commandsString = getGBAVVScriptHTML(obj.hasOwnProperty("GBAVV_ScriptContent") ? obj.GBAVV_ScriptContent : null, obj.GBAVV_ScriptNames, obj.GBAVV_ScriptIndex);
+				$("#content-commands").append(commandsString);
+				// Format commands
+				$(".commands-item-code").each(function() {
+					hljs.highlightBlock($(this).get(0));
+				})
+			}
 			
 			if(obj.hasOwnProperty("StateNames") && obj.StateNames.length > 0) {
 				hasStates = true;
@@ -1408,8 +1412,8 @@ function sendObject() {
 			jsonObj.Object.R1_ETAIndex = graphics2Selector.prop("selectedIndex");
 		}
 		if(currentObject.hasOwnProperty("GBAVV_ScriptNames") && $(".gbavv-scriptSelector").length) {
-			jsonObj.Object.GBAVV_ScriptIndex = $(".gbavv-scriptSelector").prop("selectedIndex");
-			if(currentObject.hasOwnProperty("GBAVV_ScriptIndex")) graphicsSelector.prop("selectedIndex", currentObject.GBAVV_ScriptIndex);
+			jsonObj.Object.GBAVV_ScriptIndex = $(".gbavv-scriptSelector").prop("selectedIndex") - 1;
+			if(currentObject.hasOwnProperty("GBAVV_ScriptIndex")) $(".gbavv-scriptSelector").prop("selectedIndex", currentObject.GBAVV_ScriptIndex + 1);
 		}
 		sendMessage(jsonObj);
 	}
@@ -2406,6 +2410,9 @@ $(function() {
 		sendObject();
 		$(this).blur();
 		return false;
+	});
+	$(document).on('click', ".gbavv-scriptSelector", function() {
+		return false; // Don't toggle the collapse by clicking the dropdown in it
 	});
 	$(document).on('change', "#actor1Selector, #actor2Selector", function() {
 		updateLevelLinksActors();
