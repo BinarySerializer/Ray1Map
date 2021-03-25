@@ -1,9 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -100,7 +98,7 @@ namespace R1Engine
 			}
 		}
 
-		public Dictionary<string, string[]> LoadLocalization(Context context) {
+		public KeyValuePair<string, string[]>[] LoadLocalization(Context context) {
 			var langages = new string[]
 			{
 				"English"
@@ -109,10 +107,7 @@ namespace R1Engine
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(FixFilePath, context);
 			var loc = resf.SerializeResource<Gameloft_RRR_LocalizationTable>(s, default, LocalizationResourceIndex, name: "Localization");
 
-			return loc.LanguageTables.Select((x, i) => new {
-				Lang = langages[i],
-				Strings = x.Strings
-			}).ToDictionary(x => x.Lang, x => x.Strings);
+			return loc.LanguageTables.Select((x, i) => new KeyValuePair<string, string[]>(langages[i], x.Strings)).ToArray();
 		}
 
 		public Unity_ObjectManager_GameloftRRR.PuppetData[] LoadPuppets(Context context) {

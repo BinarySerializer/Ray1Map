@@ -1157,15 +1157,15 @@ namespace R1Engine
         /// <param name="editorManager">The level</param>
         public UniTask SaveLevelAsync(Context context, Unity_Level editorManager) => throw new NotImplementedException();
 
-        public virtual IReadOnlyDictionary<string, string[]> LoadLocalization(IR1_GBAData data)
+        public virtual KeyValuePair<string, string[]>[] LoadLocalization(IR1_GBAData data)
         {
-            return new Dictionary<string, string[]>()
+            return new KeyValuePair<string, string[]>[]
             {
-                ["English"] = data.Strings[0],
-                ["French"] = data.Strings[1],
-                ["German"] = data.Strings[2],
-                ["Spanish"] = data.Strings[3],
-                ["Italian"] = data.Strings[4],
+                new KeyValuePair<string, string[]>("English", data.Strings[0]),
+                new KeyValuePair<string, string[]>("French", data.Strings[1]),
+                new KeyValuePair<string, string[]>("German", data.Strings[2]),
+                new KeyValuePair<string, string[]>("Spanish", data.Strings[3]),
+                new KeyValuePair<string, string[]>("Italian", data.Strings[4]),
             };
         }
 

@@ -11,7 +11,7 @@ namespace R1Engine
 
         public string GetLanguageFilePath(string langCode) => GetDataPath() + $"IMA/CRD/RAY{langCode}.TXT";
 
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
+        protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
             var langs = new[]
             {
@@ -33,7 +33,7 @@ namespace R1Engine
             };
 
             // Create the dictionary
-            var loc = new Dictionary<string, string[]>();
+            var loc = new List<KeyValuePair<string, string[]>>();
 
             // Add each language
             foreach (var lang in langs)
@@ -41,10 +41,10 @@ namespace R1Engine
                 var filePath = GetLanguageFilePath(lang.LangCode);
                 await FileSystem.PrepareFile(context.BasePath + filePath);
                 var langFile = FileFactory.ReadText<R1_TextLocFile>(filePath, context);
-                loc.Add(lang.Language, langFile.Strings);
+                loc.Add(new KeyValuePair<string, string[]>(lang.Language, langFile.Strings));
             }
 
-            return loc;
+            return loc.ToArray();
         }
 
         public override uint? TypeZDCOffset => ExeBaseAddress + 0x9F754;

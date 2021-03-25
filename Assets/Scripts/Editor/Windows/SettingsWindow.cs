@@ -253,7 +253,7 @@ public class SettingsWindow : UnityWindow
                 if (EditorButton("Copy localization")) 
                 {
                     if (lvl.Localization != null)
-                        JsonConvert.SerializeObject(lvl.Localization, Formatting.Indented).CopyToClipboard();
+                        JsonConvert.SerializeObject(lvl.Localization.ToDictionary(x => x.Key, x => x.Value), Formatting.Indented).CopyToClipboard();
                 }
 
                 if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null) {

@@ -28,16 +28,16 @@ namespace R1Engine
         public override string ExeFilePath => "RAY.EXE";
         public override uint? ExeBaseAddress => 0x8012F000 - 0x800;
 
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
+        protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
             var filePath = GetLanguageFilePath("US");
 
             await FileSystem.PrepareFile(context.BasePath + filePath);
 
             // Create the dictionary
-            return new Dictionary<string, string[]>()
+            return new KeyValuePair<string, string[]>[]
             {
-                ["English"] = FileFactory.ReadText<R1_TextLocFile>(filePath, context).Strings
+                new KeyValuePair<string, string[]>("English", FileFactory.ReadText<R1_TextLocFile>(filePath, context).Strings)
             };
         }
 

@@ -56,15 +56,15 @@ namespace R1Engine
         /// <returns>The game data</returns>
         public override IR1_GBAData LoadData(Context context) => FileFactory.Read<R1_DSi_DataFile>(GetROMFilePath, context);
 
-        public override IReadOnlyDictionary<string, string[]> LoadLocalization(IR1_GBAData data)
+        public override KeyValuePair<string, string[]>[] LoadLocalization(IR1_GBAData data)
         {
-            return new Dictionary<string, string[]>()
+            return new KeyValuePair<string, string[]>[]
             {
-                ["English"] = data.Strings[1],
-                ["French"] = data.Strings[2],
-                ["German"] = data.Strings[4],
-                ["Spanish"] = data.Strings[0],
-                ["Italian"] = data.Strings[3],
+                new KeyValuePair<string, string[]>("English", data.Strings[1]),
+                new KeyValuePair<string, string[]>("French", data.Strings[2]),
+                new KeyValuePair<string, string[]>("German", data.Strings[4]),
+                new KeyValuePair<string, string[]>("Spanish", data.Strings[0]),
+                new KeyValuePair<string, string[]>("Italian", data.Strings[3]),
             };
         }
 

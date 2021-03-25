@@ -181,7 +181,7 @@ namespace R1Engine
             filePath = filePath
         };
 
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
+        protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
             var langs = new[]
             {
@@ -248,7 +248,7 @@ namespace R1Engine
             };
 
             // Create the dictionary
-            var loc = new Dictionary<string, string[]>();
+            var loc = new List<KeyValuePair<string, string[]>>();
 
             // Add each language
             foreach (var lang in langs)
@@ -259,10 +259,10 @@ namespace R1Engine
 
                 var langFile = FileFactory.ReadText<R1_TextLocFile>(lngPath, context, encoding: lang.Encoding);
 
-                loc.Add(lang.Language, langFile.Strings);
+                loc.Add(new KeyValuePair<string, string[]>(lang.Language, langFile.Strings));
             }
 
-            return loc;
+            return loc.ToArray();
         }
 
         #endregion

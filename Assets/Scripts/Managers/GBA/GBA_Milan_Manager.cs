@@ -29,20 +29,17 @@ namespace R1Engine
             "Italian",
         };
 
-        public override Dictionary<string, string[]> LoadLocalization(Context context)
+        public override KeyValuePair<string, string[]>[] LoadLocalization(Context context)
         {
             var locTable = FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Milan_Localization;
 
-            Dictionary<string, string[]> loc = null;
+            KeyValuePair<string, string[]>[] loc = null;
 
             if (locTable != null)
             {
-                loc = new Dictionary<string, string[]>();
-
                 var lang = Milan_LocTableLanguages;
 
-                for (int i = 0; i < lang.Length; i++)
-                    loc.Add(lang[i], locTable.Strings.Skip(i).Where((x, stringIndex) => stringIndex % lang.Length == 0).ToArray());
+                loc = lang.Select((t, i) => new KeyValuePair<string, string[]>(t, locTable.Strings.Skip(i).Where((x, stringIndex) => stringIndex % lang.Length == 0).ToArray())).ToArray();
             }
 
             return loc;

@@ -977,11 +977,11 @@ namespace R1Engine
         // Localization
         public virtual string[] Languages => null;
         public int DefaultLanguage => Languages?.FindItemIndex(x => x == "English") ?? -1;
-        public virtual (Dictionary<string, string[]>, Dictionary<Pointer, int>) LoadLocalization(GBAVV_BaseROM rom)
+        public virtual (KeyValuePair<string, string[]>[], Dictionary<Pointer, int>) LoadLocalization(GBAVV_BaseROM rom)
         {
             return rom.Scripts != null ? LoadLocalization(rom.GetAllScripts) : (null, null);
         }
-        public (Dictionary<string, string[]>, Dictionary<Pointer, int>) LoadLocalization(IEnumerable<GBAVV_Script> scripts)
+        public (KeyValuePair<string, string[]>[], Dictionary<Pointer, int>) LoadLocalization(IEnumerable<GBAVV_Script> scripts)
         {
             var languages = Languages;
 
@@ -1008,7 +1008,7 @@ namespace R1Engine
                 pointerTable[dialog.Offset] = index++;
             }
 
-            return (locTables.ToDictionary(x => languages[x.Index], x => x.Strings.ToArray()), pointerTable);
+            return (locTables.Select(x => new KeyValuePair<string, string[]>(languages[x.Index], x.Strings.ToArray())).ToArray(), pointerTable);
         }
 
         // Save

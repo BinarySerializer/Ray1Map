@@ -102,7 +102,7 @@ namespace R1Engine
             filePath = filePath
         };
 
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
+        protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
             var lngPath = GetLanguageFilePath();
 
@@ -112,13 +112,13 @@ namespace R1Engine
             var lng = FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
 
             // Set the common localization
-            return new Dictionary<string, string[]>()
+            return new KeyValuePair<string, string[]>[]
             {
-                ["English1"] = lng.Strings[0],
-                ["English2"] = lng.Strings[1],
-                ["English3"] = lng.Strings[2],
-                ["French"] = lng.Strings[3],
-                ["German"] = lng.Strings[4],
+                new KeyValuePair<string, string[]>("English1", lng.Strings[0]),
+                new KeyValuePair<string, string[]>("English2", lng.Strings[1]),
+                new KeyValuePair<string, string[]>("English3", lng.Strings[2]),
+                new KeyValuePair<string, string[]>("French", lng.Strings[3]),
+                new KeyValuePair<string, string[]>("German", lng.Strings[4]),
             };
         }
 

@@ -88,7 +88,7 @@ namespace R1Engine
         // Localization
         public const string LocTableID = "LocTable";
         public abstract int LocTableCount { get; }
-        public override (Dictionary<string, string[]>, Dictionary<Pointer, int>) LoadLocalization(GBAVV_BaseROM rom)
+        public override (KeyValuePair<string, string[]>[], Dictionary<Pointer, int>) LoadLocalization(GBAVV_BaseROM rom)
         {
             var crashRom = (GBAVV_ROM_Crash)rom;
 
@@ -107,16 +107,7 @@ namespace R1Engine
             if (settings.GameModeSelection == GameModeSelection.Crash1GBAJP || settings.GameModeSelection == GameModeSelection.Crash2GBAJP)
                 langages[0] = "Japanese";
 
-            return (crashRom.LocTables?.Select((x, i) =>
-            {
-                var str = x.Strings.Concat(GetAdditionalLocStrings(crashRom, i)).ToArray(); ;
-
-                return new
-                {
-                    Lang = langages[i],
-                    Strings = str
-                };
-            }).ToDictionary(x => x.Lang, x => x.Strings), null);
+            return (crashRom.LocTables?.Select((x, i) => new KeyValuePair<string, string[]>(langages[i], x.Strings.Concat(GetAdditionalLocStrings(crashRom, i)).ToArray())).ToArray(), null);
         }
         public virtual IEnumerable<string> GetAdditionalLocStrings(GBAVV_ROM_Crash rom, int langIndex) => new string[0];
 
