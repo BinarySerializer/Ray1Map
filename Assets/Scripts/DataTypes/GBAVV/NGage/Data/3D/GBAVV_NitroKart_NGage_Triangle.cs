@@ -4,7 +4,7 @@
     {
         public byte BlendMode { get; set; }
         public byte TextureIndex { get; set; }
-        public ushort Flags { get; set; }
+        public GBAVV_NitroKart_NGage_TriangleFlags Flags { get; set; }
         public ushort Vertex0 { get; set; }
         public ushort Vertex1 { get; set; }
         public ushort Vertex2 { get; set; }
@@ -20,7 +20,7 @@
         {
             BlendMode = s.Serialize<byte>(BlendMode, name: nameof(BlendMode));
             TextureIndex = s.Serialize<byte>(TextureIndex, name: nameof(TextureIndex));
-            Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
+            Flags = s.Serialize<GBAVV_NitroKart_NGage_TriangleFlags>(Flags, name: nameof(Flags));
             Vertex0 = s.Serialize<ushort>(Vertex0, name: nameof(Vertex0));
             Vertex1 = s.Serialize<ushort>(Vertex1, name: nameof(Vertex1));
             Vertex2 = s.Serialize<ushort>(Vertex2, name: nameof(Vertex2));

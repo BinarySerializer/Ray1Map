@@ -666,7 +666,7 @@ namespace R1Engine
                 Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
                 Dictionary<int, Texture2D[]> animatedTextures = new Dictionary<int, Texture2D[]>();
                 foreach (var tri in s3d.Triangles[t]) {
-                    var key = tri.TextureIndex | (tri.BlendMode << 8) | (tri.Flags << 16);
+                    var key = tri.TextureIndex | (tri.BlendMode << 8) | ((ushort)tri.Flags << 16);
                     if (!meshes.ContainsKey(key)) {
                         var texs = LoadTextures(s3d.Textures[tri.TextureIndex], s3d.Palettes[tri.TextureIndex], tri.BlendMode, false);
                         if (texs.Length > 1) animatedTextures.Add(key, texs);
@@ -711,7 +711,7 @@ namespace R1Engine
                 // Create GameObjects
                 foreach (var k in meshes.Keys) {
                     var blendMode = BitHelpers.ExtractBits(k, 8, 8);
-                    var flags = BitHelpers.ExtractBits(k, 16, 16);
+                    var flags = (GBAVV_NitroKart_NGage_TriangleFlags)BitHelpers.ExtractBits(k, 16, 16);
                     var curMesh = meshes[k];
                     Mesh unityMesh = new Mesh();
                     unityMesh.SetVertices(curMesh.vertices);
@@ -747,7 +747,7 @@ namespace R1Engine
                         curMesh.texture.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", curMesh.texture);
                     }
-                    bool isScrollH = BitHelpers.ExtractBits(flags, 1, 5) == 1;
+                    bool isScrollH = flags.HasFlag(GBAVV_NitroKart_NGage_TriangleFlags.HorizontalScroll);
                     bool isScrollV = false;//BitHelpers.ExtractBits(flags, 1, 6) == 1;
                     if (isScrollH || isScrollV || animatedTextures.ContainsKey(k)) {
                         isAnimated = true;
@@ -778,7 +778,7 @@ namespace R1Engine
             Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
             Dictionary<int, Texture2D[]> animatedTextures = new Dictionary<int, Texture2D[]>();
             foreach (var tri in pvs.Triangles) {
-                var key = tri.TextureIndex | (tri.BlendMode << 8) | (tri.Flags << 16);
+                var key = tri.TextureIndex | (tri.BlendMode << 8) | ((ushort)tri.Flags << 16);
                 if (!meshes.ContainsKey(key)) {
                     var texs = LoadTextures(pvs.Textures[tri.TextureIndex], pvs.Palettes[tri.TextureIndex], tri.BlendMode, false);
                     if(texs.Length > 1) animatedTextures.Add(key, texs);
@@ -825,7 +825,7 @@ namespace R1Engine
             gaoParent.transform.position = Vector3.zero;
             foreach(var k in meshes.Keys) {
                 var blendMode = BitHelpers.ExtractBits(k,8,8);
-                var flags = BitHelpers.ExtractBits(k, 16, 16);
+                var flags = (GBAVV_NitroKart_NGage_TriangleFlags)BitHelpers.ExtractBits(k, 16, 16);
                 var curMesh = meshes[k];
                 Mesh unityMesh = new Mesh();
                 unityMesh.SetVertices(curMesh.vertices);
@@ -874,7 +874,7 @@ namespace R1Engine
                     curMesh.texture.wrapMode = TextureWrapMode.Repeat;
                     mr.material.SetTexture("_MainTex", curMesh.texture);
                 }
-                bool isScroll = BitHelpers.ExtractBits(flags, 1, 5) == 1;
+                bool isScroll = flags.HasFlag(GBAVV_NitroKart_NGage_TriangleFlags.HorizontalScroll);
                 if (isScroll || animatedTextures.ContainsKey(k)) {
                     isAnimated = true;
                     var animTex = gao.AddComponent<AnimatedTextureComponent>();
@@ -897,7 +897,7 @@ namespace R1Engine
             Vector3 toVertex(GBAVV_NitroKart_NGage_Vertex v) => new Vector3(v.X / scale, v.Z / scale, v.Y / scale);
             Vector2 toUV(GBAVV_NitroKart_NGage_UV uv) => new Vector2(uv.U / (float)0x80, uv.V / (float)0x80);
 
-            Dictionary<int, MeshInProgress> meshes = new Dictionary<int, MeshInProgress>();
+            Dictionary<GBAVV_NitroKart_NGage_TriangleFlags, MeshInProgress> meshes = new Dictionary<GBAVV_NitroKart_NGage_TriangleFlags, MeshInProgress>();
             Dictionary<int, Texture2D[]> animatedTextures = new Dictionary<int, Texture2D[]>();
             foreach (var tri in pvs.Triangles) {
                 var key = tri.Flags;
@@ -944,7 +944,7 @@ namespace R1Engine
                 unityMesh.SetVertices(curMesh.vertices);
                 unityMesh.SetUVs(0, curMesh.uvs);
 
-                UnityEngine.Random.InitState(k);
+                UnityEngine.Random.InitState((ushort)k);
                 var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
                 unityMesh.SetColors(Enumerable.Repeat(color, curMesh.vertices.Count).ToArray());
 
@@ -966,6 +966,10 @@ namespace R1Engine
                 gaoc.transform.localPosition = Vector3.zero;
                 var col3D = gaoc.AddComponent<Unity_Collision3DBehaviour>();
                 col3D.Type = k.ToString();
+
+                // Log unnamed flags
+                //foreach (var f in Enum.GetValues(typeof(GBAVV_NitroKart_NGage_TriangleFlags)).Cast<GBAVV_NitroKart_NGage_TriangleFlags>().Where(v => v != 0 && k.HasFlag(v)).Select(x => x.ToString()).Where(x => x.StartsWith("Flag")))
+                //    Debug.Log($"Flag: {f}");
 
                 MeshFilter mf = gao.AddComponent<MeshFilter>();
                 MeshRenderer mr = gao.AddComponent<MeshRenderer>();
