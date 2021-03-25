@@ -1008,7 +1008,18 @@ namespace R1Engine
                 pointerTable[dialog.Offset] = index++;
             }
 
-            return (locTables.Select(x => new KeyValuePair<string, string[]>(languages[x.Index], x.Strings.ToArray())).ToArray(), pointerTable);
+            var locList = locTables.Select(x => new KeyValuePair<string, string[]>(languages[x.Index], x.Strings.ToArray())).ToList();
+
+            locList.Sort(delegate (KeyValuePair<string, string[]> x, KeyValuePair<string, string[]> y)
+            {
+                if (x.Key == "English")
+                    return -1;
+                if (y.Key == "English")
+                    return 1;
+                return 0;
+            });
+
+            return (locList.ToArray(), pointerTable);
         }
 
         // Save
