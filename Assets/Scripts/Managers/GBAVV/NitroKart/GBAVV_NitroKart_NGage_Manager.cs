@@ -931,14 +931,6 @@ namespace R1Engine
                 m.triangles.Add(vertCount + 3 + 2);
                 m.triangles.Add(vertCount + 3 + 1);
 
-                UnityEngine.Random.InitState(key);
-                var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
-                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
-                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
-                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
-                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
-                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
-                m.colors.Add(new Color(color.r, color.g, color.b, 1f));
             }
 
             // Create GameObjects
@@ -951,7 +943,11 @@ namespace R1Engine
                 Mesh unityMesh = new Mesh();
                 unityMesh.SetVertices(curMesh.vertices);
                 unityMesh.SetUVs(0, curMesh.uvs);
-                unityMesh.SetColors(curMesh.colors);//Enumerable.Repeat(color, curMesh.vertices.Count).ToArray();
+
+                UnityEngine.Random.InitState(k);
+                var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
+                unityMesh.SetColors(Enumerable.Repeat(color, curMesh.vertices.Count).ToArray());
+
                 unityMesh.SetTriangles(curMesh.triangles, 0);
                 unityMesh.RecalculateNormals();
                 GameObject gao = new GameObject(curMesh.name);
