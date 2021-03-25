@@ -377,7 +377,13 @@ namespace R1Engine
             }
             for (int i = 0; i < texs.Length; i++) {
                 for (int j = 0; j < texs[i].Length; j++) {
-                    des.Sprites[j][i] = texs[i][j].CreateSprite();
+                    var tex = texs[i][j];
+                    Color[] pixels = tex.GetPixels();
+                    if (pixels.All(p => p.a == 0)) {
+                        des.Sprites[j][i] = null; // Leave out fully transparent textures
+                    } else {
+                        des.Sprites[j][i] = texs[i][j].CreateSprite();
+                    }
                 }
                 for (int j = texs[i].Length; j < des.Sprites.Length; j++) {
                     des.Sprites[j][i] = des.Sprites[0][i];
@@ -388,6 +394,7 @@ namespace R1Engine
                 Gameloft_Puppet.Animation a,
                 Gameloft_Puppet.AnimationFrame f,
                 Gameloft_Puppet.AnimationLayerGroupGraphics g) {
+                bool trimParts = false;
                 Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[g.Length];
                 var frameFlipX = f.Flags.HasFlag(Gameloft_Puppet.AnimationFrame.Flag.HorizontalFlip);
                 var frameFlipY = f.Flags.HasFlag(Gameloft_Puppet.AnimationFrame.Flag.VerticalFlip);
@@ -402,7 +409,19 @@ namespace R1Engine
                         XPosition = f.XPosition + (frameFlipX ? -1 : 1) * l.XPosition + (frameFlipX ? -puppet.ImageDescriptors[l.ImageIndex].Width : 0),
                         YPosition = f.YPosition + (frameFlipY ? -1 : 1) * l.YPosition + (frameFlipY ? -puppet.ImageDescriptors[l.ImageIndex].Height : 0),
                     };
+                    bool spriteIsNull = true;
+                    for (int s = 0; s < des.Sprites.Length; s++) {
+                        if (des.Sprites[s][l.ImageIndex] != null) {
+                            spriteIsNull = false;
+                            break;
+                        }
+                    }
+                    if (spriteIsNull) {
+                        parts[i] = null;
+                        trimParts = true;
+                    }
                 }
+                if(trimParts) return parts.Where(p => p != null).ToArray();
                 return parts;
             }
 

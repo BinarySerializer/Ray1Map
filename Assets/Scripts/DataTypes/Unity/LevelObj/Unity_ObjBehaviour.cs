@@ -16,7 +16,10 @@ namespace R1Engine
         public bool IsSelected { get; set; }
         public bool ShowOffsets => (IsSelected || Settings.ShowObjOffsets) && EnableBoxCollider;
         public bool ShowCollision => (IsSelected || Settings.ShowObjCollision) && IsVisible;
-        public bool ShowGizmo => Settings.ShowDefaultObjIcons && ObjData.CurrentAnimation == null && IsVisible && (!HasObjCollision || !Settings.ShowObjCollision);
+        public bool ShowGizmo => Settings.ShowDefaultObjIcons
+            && (ObjData.CurrentAnimation?.Frames == null || ObjData.CurrentAnimation.Frames.Length == 0 ||
+                (ObjData.CurrentAnimation.Frames.Length == 1 && (ObjData.CurrentAnimation.Frames[0].SpriteLayers?.Length ?? 0) == 0) && !ShowCollision)
+            && IsVisible && (!HasObjCollision || !Settings.ShowObjCollision);
         public bool EnableBoxCollider => IsVisible && (ObjData.CurrentAnimation != null || ShowGizmo || (HasObjCollision && ShowCollision));
         public bool HasObjCollision => ObjData.ObjCollision?.Any() == true;
 

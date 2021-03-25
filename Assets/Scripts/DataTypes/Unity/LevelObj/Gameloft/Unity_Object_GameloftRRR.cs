@@ -70,9 +70,11 @@ namespace R1Engine
         public int PaletteIndex { get; set; } = 0;
         protected override int GetSpriteID => PuppetIndex + (PaletteIndex << 16);
         public override IList<Sprite> Sprites => PuppetData?.Puppet?.Sprites[PaletteIndex];
+		public override ObjectType Type => ((CurrentAnimation?.Frames?.Length ?? 0) == 0
+            || (CurrentAnimation.Frames.Length == 1 && (CurrentAnimation.Frames[0].SpriteLayers?.Length ?? 0) == 0)) ? ObjectType.Trigger : ObjectType.Object;
 
 
-        private class LegacyEditorWrapper : ILegacyEditorWrapper {
+		private class LegacyEditorWrapper : ILegacyEditorWrapper {
             public LegacyEditorWrapper(Unity_Object_GameloftRRR obj) {
                 Obj = obj;
             }
