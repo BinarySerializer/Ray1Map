@@ -139,6 +139,7 @@ namespace R1Engine
                 if (Background != null) {
                     ls.Add(new Unity_Layer_Texture() {
                         Name = "Background",
+                        ShortName = "BG",
                         Texture = Background,
                         Layer = Unity_Map.MapLayer.Back
                     });
@@ -146,6 +147,7 @@ namespace R1Engine
                 if (ParallaxBackground != null) {
                     ls.Add(new Unity_Layer_Texture() {
                         Name = "Parallax Background",
+                        ShortName = "PAR",
                         Texture = ParallaxBackground,
                         Layer = Unity_Map.MapLayer.Back
                     });
@@ -153,6 +155,7 @@ namespace R1Engine
                 for (int i = 0; i < Maps?.Length; i++) {
                     ls.Add(new Unity_Layer_Map() {
                         Name = $"Map {i} ({Maps[i].Type})",
+                        ShortName = i.ToString(),
                         MapIndex = i,
                         Map = Maps[i]
                     });

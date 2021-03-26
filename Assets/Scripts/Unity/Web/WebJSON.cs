@@ -165,6 +165,7 @@ public class WebJSON {
 	}
 	public class Layer {
 		public string Name { get; set; }
+		public string ShortName { get; set; }
 		public int Index { get; set; }
 		public bool? IsVisible { get; set; }
 	}
