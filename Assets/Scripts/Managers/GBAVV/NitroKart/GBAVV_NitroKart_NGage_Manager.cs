@@ -933,6 +933,9 @@ namespace R1Engine
 
             }
 
+            var colors = CollisionColors;
+            var defaultColor = new Color(88 / 255f, 98 / 255f, 115 / 255f);
+
             // Create GameObjects
             GameObject gaoParent = new GameObject("Map");
             collidersParent = new GameObject("Map Colliders");
@@ -944,9 +947,16 @@ namespace R1Engine
                 unityMesh.SetVertices(curMesh.vertices);
                 unityMesh.SetUVs(0, curMesh.uvs);
 
-                UnityEngine.Random.InitState((ushort)k);
-                var color = UnityEngine.Random.ColorHSV(0, 1, 0.2f, 1f, 0.8f, 1.0f);
-                unityMesh.SetColors(Enumerable.Repeat(color, curMesh.vertices.Count).ToArray());
+                Color? color = null;
+
+                foreach (var flag in Enum.GetValues(typeof(GBAVV_NitroKart_NGage_TriangleFlags)).Cast<GBAVV_NitroKart_NGage_TriangleFlags>().Where(v => v != 0 && k.HasFlag(v)))
+                {
+                    var flagColor = colors.TryGetItem(flag, defaultColor);
+
+                    color = color != null ? Color.Lerp(color.Value, flagColor, 0.5f) : flagColor;
+                }
+
+                unityMesh.SetColors(Enumerable.Repeat(color ?? defaultColor, curMesh.vertices.Count).ToArray());
 
                 unityMesh.SetTriangles(curMesh.triangles, 0);
                 unityMesh.RecalculateNormals();
@@ -983,6 +993,23 @@ namespace R1Engine
             gaoParent.SetActive(false);
             return gaoParent;
         }
+
+        public Dictionary<GBAVV_NitroKart_NGage_TriangleFlags, Color> CollisionColors => new Dictionary<GBAVV_NitroKart_NGage_TriangleFlags, Color>()
+        {
+            [GBAVV_NitroKart_NGage_TriangleFlags.Wall] = new Color(50 / 255f, 55 / 255f, 64 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.TriggerArea] = new Color(194 / 255f, 191 / 255f, 25 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.Flag_03] = new Color(145 / 255f, 128 / 255f, 78 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.MoveSlow] = new Color(212 / 255f, 32 / 255f, 32 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.HorizontalScroll] = new Color(27 / 255f, 194 / 255f, 60 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.Flag_06] = new Color(78 / 255f, 126 / 255f, 145 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.Water] = new Color(51 / 255f, 126 / 255f, 255 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.Pit] = new Color(158 / 255f, 121 / 255f, 0 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.Jump] = new Color(105 / 255f, 194 / 255f, 27 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.LongerJump] = new Color(250 / 255f, 243 / 255f, 140 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.Teleporter] = new Color(194 / 255f, 191 / 255f, 25 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.ElectricGate] = new Color(212 / 255f, 175 / 255f, 57 / 255f),
+            [GBAVV_NitroKart_NGage_TriangleFlags.Flag_14] = new Color(138 / 255f, 78 / 255f, 145 / 255f),
+        };
 
         public Vector2 GetLevelDimensions(GBAVV_NitroKart_NGage_PVS pvs) {
             var height = pvs.Vertices.Max(v => v.Y);
