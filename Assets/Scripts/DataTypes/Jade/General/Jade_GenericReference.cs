@@ -21,7 +21,7 @@ namespace R1Engine.Jade {
 			FileType = fileType;
 		}
 
-		public void Resolve(Action<SerializerObject, Jade_File> onPreSerialize = null, Action<SerializerObject, Jade_File> onPostSerialize = null) {
+		public void Resolve(Action<SerializerObject, Jade_File> onPreSerialize = null, Action<SerializerObject, Jade_File> onPostSerialize = null, bool immediate = false) {
 			if(IsNull) return;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>("loader");
 			loader.RequestFile(Key, (s, configureAction) => {
@@ -51,11 +51,21 @@ namespace R1Engine.Jade {
 							configureAction(f); onPreSerialize?.Invoke(s, f);
 						}, name: nameof(Value));
 						break;
+					case Jade_FileType.FileType.WOR_WorldList:
+						Value = s.SerializeObject<WOR_WorldList>((WOR_WorldList)Value, onPreSerialize: f => {
+							configureAction(f); onPreSerialize?.Invoke(s, f);
+						}, name: nameof(Value));
+						break;
+					case Jade_FileType.FileType.WOR_World:
+						Value = s.SerializeObject<WOR_World>((WOR_World)Value, onPreSerialize: f => {
+							configureAction(f); onPreSerialize?.Invoke(s, f);
+						}, name: nameof(Value));
+						break;
 				}
 				onPostSerialize?.Invoke(s, Value);
 			}, (f) => {
 				Value = f;
-			});
+			}, immediate: immediate);
 		}
 	}
 }

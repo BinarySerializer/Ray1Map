@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using R1Engine.Jade;
 using System.IO;
+using UnityEngine;
 
 namespace R1Engine {
 	public class Jade_BaseManager : IGameManager {
@@ -155,13 +156,26 @@ namespace R1Engine {
 			context.StoreObject<AI_Links>("ai", aiLinks);
 
 			// Load univers
+			Controller.DetailedState = $"Loading universe";
+			await Controller.WaitIfNecessary();
+
 			Jade_Reference<AI_Instance> Univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
 			Univers.Resolve();
+			await loader.LoadLoop(context.Deserializer); // First resolve universe
 
 			// Load world
-			//var worldKey = 0xff40e8f6; // Just a test. Allow selection later
+			Controller.DetailedState = $"Loading world";
+			await Controller.WaitIfNecessary();
 
+			var worldKey = (Jade_Key)0xff01261c; // Just a test. Allow selection later
+			Debug.Log(((Jade_Key)worldKey).Type + " - Entering Speed Mode");
+
+			Jade_Reference<WOR_WorldList> WorldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
+			WorldList.Resolve();
+
+			loader.BeginSpeedMode(worldKey);
 			await loader.LoadLoop(context.Deserializer);
+			loader.EndSpeedMode();
 			throw new NotImplementedException();
 		}
 
@@ -175,5 +189,7 @@ namespace R1Engine {
 			await Task.CompletedTask;
 			throw new NotImplementedException();
 		}
+
+		public static readonly Encoding Encoding = Encoding.GetEncoding(1252);
 	}
 }

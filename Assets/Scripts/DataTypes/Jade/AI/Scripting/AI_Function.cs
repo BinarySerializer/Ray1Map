@@ -40,18 +40,17 @@ namespace R1Engine.Jade {
 					Pointer targetPointer = s.CurrentPointer + StringBufferLength;
 					int ind = 0;
 					while (s.CurrentPointer.AbsoluteOffset < targetPointer.AbsoluteOffset) {
-						strings.Add(s.SerializeString(default, encoding: Encoding, name: $"{nameof(Strings)}[{ind}]"));
+						strings.Add(s.SerializeString(default, encoding: Jade_BaseManager.Encoding, name: $"{nameof(Strings)}[{ind}]"));
 						ind++;
 					}
 					Strings = strings.ToArray();
 				} else {
 					for (int i = 0; i < Strings.Length; i++) {
-						Strings[i] = s.SerializeString(Strings[i], encoding: Encoding, name: $"{nameof(Strings)}[{i}]");
+						Strings[i] = s.SerializeString(Strings[i], encoding: Jade_BaseManager.Encoding, name: $"{nameof(Strings)}[{i}]");
 					}
 				}
 			});
 			StringBuffer = s.SerializeArray<byte>(StringBuffer, StringBufferLength, name: nameof(StringBuffer));
 		}
-		public static readonly Encoding Encoding = Encoding.GetEncoding(1252);
 	}
 }

@@ -23,6 +23,7 @@ namespace R1Engine.Jade {
 		public static readonly Dictionary<string, FileType> Types = new Dictionary<string, FileType>() {
 			[""] = FileType.None,
 			[".gao"] = FileType.OBJ_GameObject,
+			[".wol"] = FileType.WOR_WorldList,
 			[".wow"] = FileType.WOR_World,
 			[".oin"] = FileType.AI_Instance,
 			[".omd"] = FileType.AI_Model,
@@ -35,6 +36,7 @@ namespace R1Engine.Jade {
 			None,
 			Unknown,
 			OBJ_GameObject,
+			WOR_WorldList,
 			WOR_World,
 			AI_Instance,
 			AI_Vars,

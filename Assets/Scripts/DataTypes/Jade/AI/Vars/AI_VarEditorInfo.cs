@@ -23,11 +23,9 @@ namespace R1Engine.Jade {
 
 		public void SerializeStrings(SerializerObject s) {
 			if (Int_04 != 0)
-				SelectionString = s.SerializeString(SelectionString, encoding: Encoding, name: nameof(SelectionString));
+				SelectionString = s.SerializeString(SelectionString, encoding: Jade_BaseManager.Encoding, name: nameof(SelectionString));
 			if (Int_08 != 0)
-				Description = s.SerializeString(Description, encoding: Encoding, name: nameof(Description));
+				Description = s.SerializeString(Description, encoding: Jade_BaseManager.Encoding, name: nameof(Description));
 		}
-
-		public static readonly Encoding Encoding = Encoding.GetEncoding(1252);
 	}
 }
