@@ -1167,6 +1167,7 @@ namespace R1Engine
             var layers = new List<Unity_Layer>();
             layers.Add(new Unity_Layer_GameObject(true, isAnimated: pvsIsAnimated) {
                 Name = "Map",
+                ShortName = "MAP",
                 Graphics = pvs,
                 Collision = pvsc,
                 Dimensions = levelDimensions * 2,
@@ -1177,6 +1178,7 @@ namespace R1Engine
             if (gao_3dObjParent != null) {
                 layers.Add(new Unity_Layer_GameObject(true, isAnimated: obj3dIsAnimated) {
                     Name = "3D Objects",
+                    ShortName = $"3DO",
                     Graphics = gao_3dObjParent
                 });
                 gao_3dObjParent.transform.SetParent(parent3d);
@@ -1188,6 +1190,7 @@ namespace R1Engine
                 layers.Add(new Unity_Layer_Texture
                 {
                     Name = $"Parallax {i}",
+                    ShortName = $"P{i}",
                     Textures = frames,
                     AnimSpeed = ParallaxAnimSpeed,
                 });

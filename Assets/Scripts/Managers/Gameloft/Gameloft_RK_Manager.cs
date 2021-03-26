@@ -159,6 +159,7 @@ namespace R1Engine
 				 * */
 				layers.Add(new Unity_Layer_Texture {
 					Name = $"Background Layer {i}",
+					ShortName = $"BG{i}",
 					Texture = tex,
 				});
 			}
@@ -1203,6 +1204,7 @@ namespace R1Engine
 			layers.AddRange(LoadBackgrounds(context, level));
 			layers.Add(new Unity_Layer_GameObject(true, isAnimated: false) {
 				Name = "Track",
+				ShortName = $"TRK",
 				Graphics = trackMesh,
 				Dimensions = dimensions * Scale * 8 * 2
 			});
@@ -1210,6 +1212,7 @@ namespace R1Engine
 			if (gao_tunnelParent != null) {
 				layers.Add(new Unity_Layer_GameObject(true, isAnimated: false) {
 					Name = "Tunnels",
+					ShortName = $"TUN",
 					Graphics = gao_tunnelParent
 				});
 				gao_tunnelParent.transform.SetParent(parent3d);
@@ -1217,6 +1220,7 @@ namespace R1Engine
 			if (gao_3dObjParent != null) {
 				layers.Add(new Unity_Layer_GameObject(true, isAnimated: false) {
 					Name = "3D Objects",
+					ShortName = $"3DO",
 					Graphics = gao_3dObjParent
 				});
 				gao_3dObjParent.transform.SetParent(parent3d);
@@ -1224,6 +1228,7 @@ namespace R1Engine
 			if (gao_speedBoostParent != null) {
 				layers.Add(new Unity_Layer_GameObject(true, isAnimated: true) {
 					Name = "Speed Boosts",
+					ShortName = $"SPB",
 					Graphics = gao_speedBoostParent
 				});
 				gao_speedBoostParent.transform.SetParent(parent3d);

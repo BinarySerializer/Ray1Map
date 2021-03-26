@@ -513,6 +513,7 @@ public class WebCommunicator : MonoBehaviour {
                         continue;*/
 					layers.Add(new WebJSON.Layer() {
 						Name = LevelEditorData.Level?.Layers?[i].Name,
+						ShortName = LevelEditorData.Level?.Layers?[i].ShortName,
 						Index = i,
 						IsVisible = visibility[i]
 					});

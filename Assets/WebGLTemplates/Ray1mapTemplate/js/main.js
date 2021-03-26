@@ -492,16 +492,10 @@ function handleMessage_settings(msg) {
 				items.push("<div class='header-buttons-text'>Layers:</div>");
 				$.each(msg.Layers, function(i, l) {
 					let index = l.Index;
+					let shortName = escapeHTML(l.ShortName);
+					let fullName = escapeHTML(l.Name);
 					let active = (l.hasOwnProperty("IsVisible") && l.IsVisible) ? " selected" : "";
-					if(index < 0) {
-						if(index == -2) {
-							items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Background Layer"><div class="text">BG</div></div>');
-						} else if(index == -1) {
-							items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Parallax Background Layer"><div class="text">PAR</div></div>');
-						}
-					} else {
-						items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Layer ' + index + '"><div class="text">' + index + '</div></div>');
-					}
+					items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Layer: ' + fullName + '"><div class="text">' + shortName + '</div></div>');
 				});
 			}
 			if(msg.hasOwnProperty("ObjectLayers") && msg.ObjectLayers.length > 0) {
