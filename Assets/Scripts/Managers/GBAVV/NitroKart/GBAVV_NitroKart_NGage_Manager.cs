@@ -941,7 +941,11 @@ namespace R1Engine
             collidersParent = new GameObject("Map Colliders");
             gaoParent.transform.position = Vector3.zero;
             collidersParent.transform.position = gaoParent.transform.position;
-            foreach (var k in meshes.Keys) {
+            foreach (var k in meshes.Keys)
+            {
+                if (k.HasFlag(GBAVV_NitroKart_NGage_TriangleFlags.NotSolid))
+                    continue;
+
                 var curMesh = meshes[k];
                 Mesh unityMesh = new Mesh();
                 unityMesh.SetVertices(curMesh.vertices);
