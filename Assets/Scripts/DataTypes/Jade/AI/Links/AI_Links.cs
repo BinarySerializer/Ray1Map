@@ -35,6 +35,10 @@ namespace R1Engine.Jade {
 				case GameModeSelection.RaymanRavingRabbidsXbox360:
 					links = RRR_Wii;
 					break;
+				case GameModeSelection.BeyondGoodAndEvilPC:
+				case GameModeSelection.BeyondGoodAndEvilPS2_20030814:
+					links = BGE_PS2_Proto;
+					break;
 			}
 			if (links != null) {
 				links.CreateDictionaries();
