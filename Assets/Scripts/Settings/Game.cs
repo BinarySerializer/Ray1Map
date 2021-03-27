@@ -106,5 +106,6 @@
         // Jade
 
         Jade_RRR,
+        Jade_BGE,
     }
 }

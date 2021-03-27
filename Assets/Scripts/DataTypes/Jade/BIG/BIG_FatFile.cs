@@ -13,6 +13,7 @@
 		public FileInfo[] FileInfos { get; set; }
 		public DirectoryInfo[] DirectoryInfos { get; set; }
 		public uint MaxEntries { get; set; } // Set in OnPreSerialize
+		public uint Version { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			FilesCount = s.Serialize<uint>(FilesCount, name: nameof(FilesCount));
@@ -26,9 +27,9 @@
 				Files = s.SerializeObjectArray<FileReference>(Files, FilesCount, name: nameof(Files));
 			});
 			s.DoAt(FilesOffset + MaxEntries * FileReference.StructSize, () => {
-				FileInfos = s.SerializeObjectArray<FileInfo>(FileInfos, FilesCount, name: nameof(FileInfos));
+				FileInfos = s.SerializeObjectArray<FileInfo>(FileInfos, FilesCount, onPreSerialize: fi => fi.Version = Version, name: nameof(FileInfos));
 			});
-			s.DoAt(FilesOffset + MaxEntries * FileReference.StructSize + MaxEntries * FileInfo.StructSize, () => {
+			s.DoAt(FilesOffset + MaxEntries * FileReference.StructSize + MaxEntries * FileInfo.StructSize(Version), () => {
 				DirectoryInfos = s.SerializeObjectArray<DirectoryInfo>(DirectoryInfos, DirectoriesCount, name: nameof(DirectoryInfos));
 			});
 			if (NextFatFileOffset != -1) {
@@ -51,7 +52,8 @@
 		/// File names. Not read by the engine
 		/// </summary>
 		public class FileInfo : R1Serializable {
-			public static uint StructSize => 0x58;
+			public static uint StructSize(uint version) => version == 34 ? (uint)0x54 : 0x58;
+			public uint Version { get; set; }
 
 			public string Name { get; set; }
 			public uint UInt_00 { get; set; }
@@ -63,20 +65,26 @@
 			public uint UInt_54 { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
 				bool hasName = false;
-				s.DoXOR(null, () => {
-					hasName = s.Serialize<uint>(default, "NameCheck") != 0;
-				});
-				if (hasName) {
+				if (s.GetXOR() != null) {
+					s.DoXOR(null, () => {
+						hasName = s.Serialize<uint>(default, "NameCheck") != 0;
+					});
 					s.Goto(s.CurrentPointer - 4);
+				} else {
+					hasName = true;
+				}
+				if (hasName) {
 					UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
 					NextFile = s.Serialize<int>(NextFile, name: nameof(NextFile));
 					PreviousFile = s.Serialize<int>(PreviousFile, name: nameof(PreviousFile));
 					ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
 					UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
-					Name = s.SerializeString(Name, 0x40, name: nameof(Name));
-					UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
+					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+					if (Version != 34) {
+						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
+					}
 				} else {
-					s.Goto(s.CurrentPointer + 0x54);
+					s.Goto(s.CurrentPointer + StructSize(Version));
 				}
 			}
 		}
@@ -100,7 +108,7 @@
 				NextDirectory = s.Serialize<int>(NextDirectory, name: nameof(NextDirectory));
 				PreviousDirectory = s.Serialize<int>(PreviousDirectory, name: nameof(PreviousDirectory));
 				ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
-				Name = s.SerializeString(Name, 0x40, name: nameof(Name));
+				Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
 		}
 

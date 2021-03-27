@@ -169,7 +169,10 @@ namespace R1Engine
         public override void EndXOR() {
             writer.EndXOR();
         }
-        public override void DoXOR(IXORCalculator xorCalculator, Action action) {
+		public override IXORCalculator GetXOR() {
+			return writer.GetXORCalculator();
+		}
+		public override void DoXOR(IXORCalculator xorCalculator, Action action) {
             var prevCalculator = writer.GetXORCalculator();
 
             if (xorCalculator == null)

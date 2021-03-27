@@ -196,6 +196,9 @@ namespace R1Engine
 		public override void EndXOR() {
             reader.EndXOR();
         }
+		public override IXORCalculator GetXOR() {
+			return reader.GetXORCalculator();
+		}
 		public override void DoXOR(IXORCalculator xorCalculator, Action action) {
             var prevCalculator = reader.GetXORCalculator();
 

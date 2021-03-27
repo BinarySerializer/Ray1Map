@@ -8,7 +8,7 @@ namespace R1Engine.Jade {
 		public uint TotalFatFilesLength => FatFilesCount * (
 			BIG_FatFile.HeaderLength
 			+ FatFileMaxEntries * BIG_FatFile.FileReference.StructSize
-			+ FatFileMaxEntries * BIG_FatFile.FileInfo.StructSize
+			+ FatFileMaxEntries * BIG_FatFile.FileInfo.StructSize(Version)
 			+ FatFileMaxEntries * BIG_FatFile.DirectoryInfo.StructSize);
 		
 		public string BIG_gst { get; set; }
@@ -46,7 +46,10 @@ namespace R1Engine.Jade {
 		public void SerializeFatFiles(SerializerObject s) {
 			s.DoAt(FatFilesOffset, () => {
 				XORIfNecessary(s, () => {
-					FatFiles = s.SerializeObjectArray<BIG_FatFile>(FatFiles, FatFilesCount, onPreSerialize: ff => ff.MaxEntries = FatFileMaxEntries, name: nameof(FatFiles));
+					FatFiles = s.SerializeObjectArray<BIG_FatFile>(FatFiles, FatFilesCount, onPreSerialize: ff => {
+						ff.MaxEntries = FatFileMaxEntries;
+						ff.Version = Version;
+					}, name: nameof(FatFiles));
 				});
 			});
 		}

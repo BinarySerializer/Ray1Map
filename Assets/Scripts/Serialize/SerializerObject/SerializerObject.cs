@@ -203,6 +203,7 @@ namespace R1Engine
 
         public virtual void BeginXOR(IXORCalculator xorCalculator) { }
         public virtual void EndXOR() { }
+        public virtual IXORCalculator GetXOR() { return null; }
 
         public virtual void DoXOR(byte xorKey, Action action) => DoXOR(new XOR8Calculator(xorKey), action);
         public virtual void DoXOR(IXORCalculator xorCalculator, Action action) { action(); }
