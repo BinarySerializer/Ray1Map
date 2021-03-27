@@ -53,7 +53,9 @@ namespace R1Engine.Jade {
 				}
 			});
 			StringBuffer = s.SerializeArray<byte>(StringBuffer, StringBufferLength, name: nameof(StringBuffer));
-			// TODO: Read Locals here. They are only read if speed mode is off, so maybe not worth it
+			if (!Loader.SpeedMode) {
+				throw new NotImplementedException("AI_Function: Implement Locals");
+			}
 		}
 	}
 }
