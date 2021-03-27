@@ -56,8 +56,41 @@ namespace R1Engine.Jade {
 		}
 
 		public class UnknownStruct : R1Serializable {
+			public uint UInt_00 { get; set; }
+			public byte[] Bytes_04 { get; set; }
+			public byte[] Bytes_14 { get; set; }
+			public byte[] Bytes_24 { get; set; }
+			public InnerStruct[] InnerStructs { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				throw new NotImplementedException("TODO: Implement WOR_World.UnknownStruct");
+				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>("loader");
+				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+				Bytes_04 = s.SerializeArray<byte>(Bytes_04, 0x10, name: nameof(Bytes_04));
+				Bytes_14 = s.SerializeArray<byte>(Bytes_14, 0x10, name: nameof(Bytes_14));
+				if(!Loader.IsBinaryData) Bytes_24 = s.SerializeArray<byte>(Bytes_24, 0x40, name: nameof(Bytes_24));
+				InnerStructs = s.SerializeObjectArray<InnerStruct>(InnerStructs, 16, name: nameof(InnerStructs));
+			}
+
+			public class InnerStruct : R1Serializable {
+				public short Short_00 { get; set; }
+				public byte Byte_02 { get; set; }
+				public byte Byte_03 { get; set; }
+				public Jade_Vector Vector_04 { get; set; }
+				public Jade_Vector Vector_10 { get; set; }
+				public Jade_Vector Vector_1C { get; set; }
+				public Jade_Vector Vector_28 { get; set; }
+				public byte[] Bytes_34 { get; set; }
+
+				public override void SerializeImpl(SerializerObject s) {
+					LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>("loader");
+					Short_00 = s.Serialize<short>(Short_00, name: nameof(Short_00));
+					Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+					Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+					Vector_04 = s.SerializeObject<Jade_Vector>(Vector_04, name: nameof(Vector_04));
+					Vector_10 = s.SerializeObject<Jade_Vector>(Vector_10, name: nameof(Vector_10));
+					Vector_1C = s.SerializeObject<Jade_Vector>(Vector_1C, name: nameof(Vector_1C));
+					Vector_28 = s.SerializeObject<Jade_Vector>(Vector_28, name: nameof(Vector_28));
+					if (!Loader.IsBinaryData) Bytes_34 = s.SerializeArray<byte>(Bytes_34, 0x40, name: nameof(Bytes_34));
+				}
 			}
 		}
 	}
