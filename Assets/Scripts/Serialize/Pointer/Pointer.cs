@@ -87,11 +87,17 @@ namespace R1Engine {
             return x.AbsoluteOffset - y.AbsoluteOffset;
         }
         public override string ToString() {
-            if (file != null && file.baseAddress != 0) {
-                return file.filePath + "|" + String.Format("0x{0:X8}", AbsoluteOffset) + "[" + String.Format("0x{0:X8}", FileOffset) + "]";
-            } else {
-                return file.filePath + "|" + String.Format("0x{0:X8}", AbsoluteOffset);
+            BinaryFile.Region region = null;
+            var fileOffset = FileOffset;
+            long regionOffset = 0;
+            if (file != null) {
+                region = file.GetRegion(fileOffset);
+                if(region != null) regionOffset = fileOffset - region.Offset;
             }
+            var str = $"{file.filePath}|0x{AbsoluteOffset:X8}";
+            if (file != null && file.baseAddress != 0) str += $"[0x{fileOffset:X8}]";
+            if (region != null) str += $"({region.Name}:0x{regionOffset:X8})";
+            return str;
         }
 
         public int CompareTo(Pointer other)

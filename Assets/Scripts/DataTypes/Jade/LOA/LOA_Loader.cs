@@ -111,6 +111,9 @@ namespace R1Engine.Jade {
 						var fileSize = s.Serialize<uint>(default, name: "FileSize");
 						await s.FillCacheForRead((int)fileSize);
 
+						// Add region
+						off_target.file.AddRegion(off_target.FileOffset+4, fileSize, f.FileRegionName);
+
 						if (currentRef.IsBin && Bin != null) {
 							if (IsCompressed) {
 								s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
@@ -153,13 +156,17 @@ namespace R1Engine.Jade {
 			while (LoadQueue.Count > 0) {
 				uint FileSize = 0;
 				s.Goto(Bin.CurrentPosition);
+				FileReference currentRef = LoadQueue.Dequeue();
 				if (ReadSizes) {
 					FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+
+					// Add region
+					Bin.CurrentPosition.file.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Key:X8}");
+
 					Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
 				} else {
 					FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - startPointer);
 				}
-				FileReference currentRef = LoadQueue.Dequeue();
 				currentRef.LoadCallback(s, (f) => {
 					f.Key = currentRef.Key;
 					f.FileSize = FileSize;
@@ -263,6 +270,7 @@ namespace R1Engine.Jade {
 					return $"[{Key}] Unknown File";
 				}
 			}
+			public string FileRegionName => FileName != null ? $"{FileName}" : $"{Key}";
 		}
 	}
 }

@@ -10,6 +10,7 @@ namespace R1Engine.Serialize
 		public long baseAddress;
 		private Dictionary<uint, Pointer> predefinedPointers = new Dictionary<uint, Pointer>();
 		public abstract Pointer StartPointer { get; }
+		private SortedList<long, Region> regions;
 
 		/// <summary>
 		/// The file path relative to the main directory in the context
@@ -99,5 +100,53 @@ namespace R1Engine.Serialize
         {
 			File.WriteAllBytes(outputFilePath, FileReadMap.Select(x => (byte)(x ? 0xFF : 0x00)).ToArray());
         }
+
+		public void AddRegion(long offset, long length, string name) {
+			var newRegion = new Region(offset, length, name);
+			if (regions == null) {
+				regions = new SortedList<long, Region>();
+			}
+			regions.Add(offset, new Region(offset, length, name));
+		}
+
+		public Region GetRegion(long offset) {
+			if(regions == null) return null;
+
+			// Binary search
+			int lower = 0;
+			int upper = regions.Count - 1;
+			var keys = regions.Keys;
+
+			while (lower <= upper) {
+				int middle = lower + (upper - lower) / 2;
+				var val = regions[keys[middle]];
+				if (offset < val.Offset) {
+					upper = middle - 1;
+				} else if (offset >= val.Offset && offset < val.Offset + val.Length) {
+					return val;
+				} else {
+					lower = middle + 1;
+				}
+			}
+			return null;
+		}
+
+		public class Region {
+			public long Offset { get; private set; }
+			public long Length { get; private set; }
+			public string Name { get; private set; }
+
+			public Region(long offset, long length, string name) {
+				Offset = offset;
+				Length = length;
+				Name = name;
+			}
+		}
+		private static RegionComparer regionComparer = new RegionComparer();
+		public class RegionComparer : IComparer<Region> {
+			public int Compare(Region x, Region y) {
+				return x.Offset.CompareTo(y.Offset);
+			}
+		}
 	}
 }
