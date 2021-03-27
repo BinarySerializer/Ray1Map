@@ -30,8 +30,10 @@ namespace R1Engine.Jade {
 			if (FunctionBufferLength > 0 && (FunctionDef == null || !Loader.IsBinaryData)) {
 				Nodes = s.SerializeObjectArray<AI_Node>(Nodes, FunctionBufferLength / 8, name: nameof(Nodes));
 			}
-			UnknownBufferLength = s.Serialize<uint>(UnknownBufferLength, name: nameof(UnknownBufferLength));
-			Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, UnknownBufferLength / 8, name: nameof(Unknown));
+			if (!Loader.IsBinaryData) {
+				UnknownBufferLength = s.Serialize<uint>(UnknownBufferLength, name: nameof(UnknownBufferLength));
+				Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, UnknownBufferLength / 8, name: nameof(Unknown));
+			}
 			StringBufferLength = s.Serialize<uint>(StringBufferLength, name: nameof(StringBufferLength));
 			Pointer stringBufferStart = s.CurrentPointer;
 			s.DoAt(stringBufferStart, () => {
@@ -51,6 +53,7 @@ namespace R1Engine.Jade {
 				}
 			});
 			StringBuffer = s.SerializeArray<byte>(StringBuffer, StringBufferLength, name: nameof(StringBuffer));
+			// TODO: Read Locals here. They are only read if speed mode is off, so maybe not worth it
 		}
 	}
 }

@@ -41,17 +41,19 @@ namespace R1Engine.Jade {
 			}
 
 			// Editor var data
-			VarEditorInfoBufferSize = s.Serialize<uint>(VarEditorInfoBufferSize, name: nameof(VarEditorInfoBufferSize));
-			VarEditorInfoStringBufferSize = s.Serialize<int>(VarEditorInfoStringBufferSize, name: nameof(VarEditorInfoStringBufferSize));
-			if (VarEditorInfoBufferSize > 0 && !Loader.IsBinaryData) {
-				VarEditorInfos = s.SerializeObjectArray<AI_VarEditorInfo>(VarEditorInfos, VarEditorInfoBufferSize / 0x14, name: nameof(VarEditorInfos));
-				for(int i = 0; i < VarEditorInfos.Length; i++) {
-					var var = VarEditorInfos[i];
-					s.Log($"Strings for {nameof(VarEditorInfos)}[{i}]");
-					var.SerializeStrings(s);
+			if (!Loader.IsBinaryData) {
+				VarEditorInfoBufferSize = s.Serialize<uint>(VarEditorInfoBufferSize, name: nameof(VarEditorInfoBufferSize));
+				VarEditorInfoStringBufferSize = s.Serialize<int>(VarEditorInfoStringBufferSize, name: nameof(VarEditorInfoStringBufferSize));
+				if (VarEditorInfoBufferSize > 0) {
+					VarEditorInfos = s.SerializeObjectArray<AI_VarEditorInfo>(VarEditorInfos, VarEditorInfoBufferSize / 0x14, name: nameof(VarEditorInfos));
+					for (int i = 0; i < VarEditorInfos.Length; i++) {
+						var var = VarEditorInfos[i];
+						s.Log($"Strings for {nameof(VarEditorInfos)}[{i}]");
+						var.SerializeStrings(s);
 
-					var match = Vars.FirstOrDefault(v => v.Info.BufferOffset == var.BufferOffset);
-					if(match != null) match.EditorInfo = var;
+						var match = Vars.FirstOrDefault(v => v.Info.BufferOffset == var.BufferOffset);
+						if (match != null) match.EditorInfo = var;
+					}
 				}
 			}
 
