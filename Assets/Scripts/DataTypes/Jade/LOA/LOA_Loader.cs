@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace R1Engine.Jade {
 	public class LOA_Loader {
 		public BIG_BigFile[] BigFiles { get; set; }
-		public Queue<FileReference> LoadQueue = new Queue<FileReference>();
+		public Dictionary<QueueType, Queue<FileReference>> LoadQueues = new Dictionary<QueueType, Queue<FileReference>>();// = new Queue<FileReference>();
+		public Queue<FileReference> LoadQueue => LoadQueues[CurrentQueueType];
 		public Dictionary<Jade_Key, FileInfo> FileInfos { get; private set; }
 		public Dictionary<Jade_Key, Jade_File> LoadedFiles { get; private set; }
 		public bool IsBinaryData => SpeedMode && ReadMode == Read.Binary;
@@ -16,13 +17,25 @@ namespace R1Engine.Jade {
 		public Read ReadMode { get; set; } = Read.Full;
 		public bool IsCompressed { get; set; } = false;
 		public bool ReadSizes { get; set; } = false;
-		public BINData Bin { get; set; }
+		public BinData Bin { get; set; }
+		public QueueType CurrentQueueType { get; set; } = QueueType.BigFat;
 
-		public class BINData {
+
+		public class BinData {
 			public Jade_Key Key { get; set; }
 			public Pointer CurrentPosition { get; set; }
 			public uint TotalSize { get; set; }
 			public SerializerObject Serializer { get; set; }
+			public QueueType QueueType { get; set; }
+		}
+		public enum QueueType {
+			BigFat,
+			Current,
+			Maps,
+			TextSound,
+			TextNoSound,
+			Sound,
+			Textures
 		}
 
 		public enum Read {
@@ -34,7 +47,9 @@ namespace R1Engine.Jade {
 		public LOA_Loader(BIG_BigFile[] bigFiles) {
 			BigFiles = bigFiles;
 			CreateFileDictionaries();
-
+			foreach (QueueType queue in (QueueType[])Enum.GetValues(typeof(QueueType))) {
+				LoadQueues[queue] = new Queue<FileReference>();
+			}
 		}
 
 		private void CreateFileDictionaries() {
@@ -79,10 +94,12 @@ namespace R1Engine.Jade {
 		}
 
 		public async UniTask LoadLoop(SerializerObject s) {
+			CurrentQueueType = QueueType.BigFat;
+
 			while (LoadQueue.Count > 0) {
-				FileReference currentRef = LoadQueue.Peek();
+				FileReference currentRef = LoadQueue.Dequeue();
 				if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
-					if (LoadedFiles.ContainsKey(currentRef.Key)) {
+					if (!currentRef.IsBin && LoadedFiles.ContainsKey(currentRef.Key)) {
 						currentRef.AlreadyLoadedCallback(LoadedFiles[currentRef.Key]);
 					} else {
 						Pointer off_current = s.CurrentPointer;
@@ -94,16 +111,18 @@ namespace R1Engine.Jade {
 						var fileSize = s.Serialize<uint>(default, name: "FileSize");
 						await s.FillCacheForRead((int)fileSize);
 
-						if (Bin != null) {
+						if (currentRef.IsBin && Bin != null) {
 							if (IsCompressed) {
 								s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
 									uint decompressedLength = s.CurrentLength;
 									Bin.Serializer = s;
-									LoadLoopBIN(decompressedLength);
+									Bin.TotalSize = decompressedLength;
+									LoadLoopBIN();
 								});
 							} else {
 								Bin.Serializer = s;
-								LoadLoopBIN(fileSize);
+								Bin.TotalSize = fileSize;
+								LoadLoopBIN();
 							}
 						} else {
 							currentRef.LoadCallback(s, (f) => {
@@ -116,12 +135,17 @@ namespace R1Engine.Jade {
 						s.Goto(off_current);
 					}
 				}
-				if(LoadQueue.Count > 0) LoadQueue.Dequeue();
 			}
 		}
 
 
-		public void LoadLoopBIN(uint totalSize) {
+		public void LoadLoopBIN() {
+			if (Bin != null) {
+				CurrentQueueType = Bin.QueueType;
+			} else {
+				CurrentQueueType = QueueType.BigFat;
+				return;
+			}
 			SerializerObject s = Bin.Serializer;
 			var curPointer = s.CurrentPointer;
 			if (Bin.CurrentPosition == null) Bin.CurrentPosition = curPointer;
@@ -133,7 +157,7 @@ namespace R1Engine.Jade {
 					FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 					Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
 				} else {
-					FileSize = totalSize - (uint)(Bin.CurrentPosition - startPointer);
+					FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - startPointer);
 				}
 				FileReference currentRef = LoadQueue.Dequeue();
 				currentRef.LoadCallback(s, (f) => {
@@ -157,16 +181,20 @@ namespace R1Engine.Jade {
 			public Jade_Key Key { get; set; }
 			public ResolveAction LoadCallback { get; set; }
 			public ResolvedAction AlreadyLoadedCallback { get; set; }
+			public bool IsBin { get; set; }
 		}
 
-		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false) {
-			LoadQueue.Enqueue(new FileReference() {
+		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false, QueueType queue = QueueType.Current) {
+			if (queue == QueueType.Current) {
+				queue = Bin?.QueueType ?? QueueType.BigFat;
+			}
+			LoadQueues[queue].Enqueue(new FileReference() {
 				Key = key,
 				LoadCallback = loadCallback,
 				AlreadyLoadedCallback = alreadyLoadedCallback
 			});
-			if (immediate && Bin != null) {
-				LoadLoopBIN(0);
+			if (immediate && Bin != null && queue == Bin.QueueType) {
+				LoadLoopBIN();
 			}
 		}
 		public void BeginSpeedMode(Jade_Key key) {
@@ -188,9 +216,21 @@ namespace R1Engine.Jade {
 					}
 					if (FileInfos.ContainsKey(key)) {
 						ReadMode = Read.Binary;
-						Bin = new BINData() { Key = key };
+						Bin = new BinData() { Key = key };
+						switch (key.Type) {
+							case Jade_Key.KeyType.Map: Bin.QueueType = QueueType.Maps; break;
+							case Jade_Key.KeyType.Sounds: Bin.QueueType = QueueType.Sound; break;
+							case Jade_Key.KeyType.TextNoSound: Bin.QueueType = QueueType.TextNoSound; break;
+							case Jade_Key.KeyType.TextSound: Bin.QueueType = QueueType.TextSound; break;
+							case Jade_Key.KeyType.Textures: Bin.QueueType = QueueType.Textures; break;
+						}
+						LoadQueues[QueueType.BigFat].Enqueue(new FileReference() {
+							Key = key,
+							IsBin = true,
+						});
 						IsCompressed = Bin.Key.IsCompressed;
 						ReadSizes = IsCompressed;
+						UnityEngine.Debug.Log($"[{key}] ({key.Type}) - Entering Speed Mode");
 					} else {
 						EndSpeedMode();
 					}
@@ -202,6 +242,7 @@ namespace R1Engine.Jade {
 			IsCompressed = false;
 			ReadSizes = false;
 			Bin = null;
+			CurrentQueueType = QueueType.BigFat;
 		}
 
 		public class FileInfo {

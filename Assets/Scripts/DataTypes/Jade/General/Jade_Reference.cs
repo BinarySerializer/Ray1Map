@@ -17,7 +17,7 @@ namespace R1Engine.Jade {
 			Key = key;
 		}
 
-		public void Resolve(Action<SerializerObject, T> onPreSerialize = null, Action<SerializerObject, T> onPostSerialize = null, bool immediate = false) {
+		public void Resolve(Action<SerializerObject, T> onPreSerialize = null, Action<SerializerObject, T> onPostSerialize = null, bool immediate = false, LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current) {
 			if (IsNull) return;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>("loader");
 			loader.RequestFile(Key, (s, configureAction) => {
@@ -27,7 +27,8 @@ namespace R1Engine.Jade {
 				onPostSerialize?.Invoke(s, Value);
 			}, (f) => {
 				Value = (T)f;
-			}, immediate: immediate);
+			}, immediate: immediate,
+			queue: queue);
 		}
 	}
 }

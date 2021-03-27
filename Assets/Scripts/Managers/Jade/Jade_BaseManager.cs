@@ -167,13 +167,12 @@ namespace R1Engine {
 			Controller.DetailedState = $"Loading world";
 			await Controller.WaitIfNecessary();
 
-			var worldKey = (Jade_Key)0xff01261c; // Just a test. Allow selection later
-			Debug.Log(((Jade_Key)worldKey).Type + " - Entering Speed Mode");
+			var worldKey = (Jade_Key)0x01261c; // Just a test. Allow selection later
 
 			Jade_Reference<WOR_WorldList> WorldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
-			WorldList.Resolve();
+			WorldList.Resolve(queue: LOA_Loader.QueueType.Maps);
 
-			loader.BeginSpeedMode(worldKey);
+			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map));
 			await loader.LoadLoop(context.Deserializer);
 			loader.EndSpeedMode();
 			throw new NotImplementedException();
