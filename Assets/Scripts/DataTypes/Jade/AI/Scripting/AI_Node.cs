@@ -15,7 +15,7 @@
 			Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 			CategoryType = s.Serialize<byte>(CategoryType, name: nameof(CategoryType));
 			
-			var links = Context.GetStoredObject<AI_Links>("ai");
+			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 			if (links.Links.ContainsKey(NodeType)) {
 				Link_ParameterType = links.Links[NodeType];
 				s.Log($"Node param function name: {Link_ParameterType.Name}");

@@ -10,7 +10,7 @@
 		public AI_VarType Type { get; set; }
 
 		public void Init() {
-			var links = Info.Context.GetStoredObject<AI_Links>("ai");
+			var links = Info.Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 			Link = links.Links[(uint)Info.Type];
 			Type = Link.VarType;
 		}

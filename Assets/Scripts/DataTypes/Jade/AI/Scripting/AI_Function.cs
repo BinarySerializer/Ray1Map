@@ -18,7 +18,7 @@ namespace R1Engine.Jade {
 		public AI_FunctionDef FunctionDef { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			var links = Context.GetStoredObject<AI_Links>("ai");
+			var links = Context.GetStoredObject<AI_Links>(Jade_BaseManager.AIKey);
 			if (links.CompiledFunctions.ContainsKey(Key)) {
 				FunctionDef = links.CompiledFunctions[Key];
 				s.Log($"Compiled function found! Function name: {FunctionDef.Name}");

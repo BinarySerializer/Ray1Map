@@ -23,7 +23,7 @@ namespace R1Engine.Jade {
 
 		public void Resolve(Action<SerializerObject, Jade_File> onPreSerialize = null, Action<SerializerObject, Jade_File> onPostSerialize = null, bool immediate = false, LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current) {
 			if (IsNull) return;
-			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>("loader");
+			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			loader.RequestFile(Key, (s, configureAction) => {
 				switch(Type) {
 					case Jade_FileType.FileType.AI_Instance:

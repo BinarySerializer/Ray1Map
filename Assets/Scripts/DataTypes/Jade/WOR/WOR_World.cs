@@ -62,7 +62,7 @@ namespace R1Engine.Jade {
 			public byte[] Bytes_24 { get; set; }
 			public InnerStruct[] InnerStructs { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>("loader");
+				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
 				Bytes_04 = s.SerializeArray<byte>(Bytes_04, 0x10, name: nameof(Bytes_04));
 				Bytes_14 = s.SerializeArray<byte>(Bytes_14, 0x10, name: nameof(Bytes_14));
@@ -81,7 +81,7 @@ namespace R1Engine.Jade {
 				public byte[] Bytes_34 { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
-					LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>("loader");
+					LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 					Short_00 = s.Serialize<short>(Short_00, name: nameof(Short_00));
 					Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
 					Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));

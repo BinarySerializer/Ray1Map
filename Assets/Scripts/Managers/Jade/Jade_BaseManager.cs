@@ -150,10 +150,10 @@ namespace R1Engine {
 			}
 			// Set up loader
 			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
-			context.StoreObject<LOA_Loader>("loader", loader);
+			context.StoreObject<LOA_Loader>(LoaderKey, loader);
 			// Set up AI types
 			AI_Links aiLinks = AI_Links.GetAILinks(context.Settings);
-			context.StoreObject<AI_Links>("ai", aiLinks);
+			context.StoreObject<AI_Links>(AIKey, aiLinks);
 
 			// Load univers
 			Controller.DetailedState = $"Loading universe";
@@ -190,5 +190,7 @@ namespace R1Engine {
 		}
 
 		public static readonly Encoding Encoding = Encoding.GetEncoding(1252);
+		public const string LoaderKey = "loader";
+		public const string AIKey = "ai";
 	}
 }
