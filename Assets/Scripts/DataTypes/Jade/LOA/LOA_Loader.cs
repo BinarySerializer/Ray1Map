@@ -109,31 +109,35 @@ namespace R1Engine.Jade {
 						s.Log($"LOA: Loading file: {f}");
 						await s.FillCacheForRead(4);
 						var fileSize = s.Serialize<uint>(default, name: "FileSize");
-						await s.FillCacheForRead((int)fileSize);
+						if (fileSize != 0) {
+							await s.FillCacheForRead((int)fileSize);
 
-						// Add region
-						off_target.file.AddRegion(off_target.FileOffset+4, fileSize, f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}");
+							// Add region
+							off_target.file.AddRegion(off_target.FileOffset + 4, fileSize, f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}");
 
-						if (currentRef.IsBin && Bin != null) {
-							if (IsCompressed) {
-								s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
-									uint decompressedLength = s.CurrentLength;
+							if (currentRef.IsBin && Bin != null) {
+								if (IsCompressed) {
+									s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
+										uint decompressedLength = s.CurrentLength;
+										Bin.Serializer = s;
+										Bin.TotalSize = decompressedLength;
+										LoadLoopBIN();
+									});
+								} else {
 									Bin.Serializer = s;
-									Bin.TotalSize = decompressedLength;
+									Bin.TotalSize = fileSize;
 									LoadLoopBIN();
-								});
+								}
 							} else {
-								Bin.Serializer = s;
-								Bin.TotalSize = fileSize;
-								LoadLoopBIN();
+								currentRef.LoadCallback(s, (f) => {
+									f.Key = currentRef.Key;
+									f.FileSize = fileSize;
+									f.Loader = this;
+									if (!LoadedFiles.ContainsKey(f.Key)) LoadedFiles[f.Key] = f;
+								});
 							}
 						} else {
-							currentRef.LoadCallback(s, (f) => {
-								f.Key = currentRef.Key;
-								f.FileSize = fileSize;
-								f.Loader = this;
-								if (!LoadedFiles.ContainsKey(f.Key)) LoadedFiles[f.Key] = f;
-							});
+							if (!LoadedFiles.ContainsKey(f.Key)) LoadedFiles[f.Key] = null;
 						}
 						s.Goto(off_current);
 					}
@@ -157,26 +161,34 @@ namespace R1Engine.Jade {
 				uint FileSize = 0;
 				s.Goto(Bin.CurrentPosition);
 				FileReference currentRef = LoadQueue.Dequeue();
-				if (ReadSizes) {
-					FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
-
-					// Add region
-					Bin.CurrentPosition.file.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
-
-					Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
+				if (LoadedFiles.ContainsKey(currentRef.Key)) {
+					currentRef.AlreadyLoadedCallback(LoadedFiles[currentRef.Key]);
 				} else {
-					FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - startPointer);
-				}
-				currentRef.LoadCallback(s, (f) => {
-					f.Key = currentRef.Key;
-					f.FileSize = FileSize;
-					f.Loader = this;
-					if (!LoadedFiles.ContainsKey(f.Key)) LoadedFiles[f.Key] = f;
-				});
-				if (ReadSizes) {
-					s.Goto(Bin.CurrentPosition); // count size uint and actual file
-				} else {
-					Bin.CurrentPosition = s.CurrentPointer;
+					if (ReadSizes) {
+						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+
+						// Add region
+						Bin.CurrentPosition.file.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
+
+						Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
+					} else {
+						FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - startPointer);
+					}
+					if (FileSize != 0) {
+						currentRef.LoadCallback(s, (f) => {
+							f.Key = currentRef.Key;
+							f.FileSize = FileSize;
+							f.Loader = this;
+							if (!LoadedFiles.ContainsKey(f.Key)) LoadedFiles[f.Key] = f;
+						});
+					} else {
+						if (!LoadedFiles.ContainsKey(currentRef.Key)) LoadedFiles[currentRef.Key] = null;
+					}
+					if (ReadSizes) {
+						s.Goto(Bin.CurrentPosition); // count size uint and actual file
+					} else {
+						Bin.CurrentPosition = s.CurrentPointer;
+					}
 				}
 			}
 			s.Goto(curPointer);

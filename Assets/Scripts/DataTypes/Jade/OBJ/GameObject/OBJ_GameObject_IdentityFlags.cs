@@ -24,7 +24,7 @@ namespace R1Engine.Jade {
 		HasExtended = 1 << 13,
 		HasGeometricData = 1 << 14,
 		MsgOn = 1 << 15,
-		Flag16 = 1 << 16,
+		StoreInitialPosition = 1 << 16,
 		Flag17 = 1 << 17,
 		Flag18 = 1 << 18,
 		HasOBBox = 1 << 19,
