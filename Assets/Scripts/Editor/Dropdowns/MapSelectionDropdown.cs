@@ -10,8 +10,12 @@ public class MapSelectionDropdown : AdvancedDropdown
     {
         GameVolumes = gameVolumes;
 
-        LevelNames = MapNames.GetMapNames(game) ?? new Dictionary<int, Dictionary<int, string>>();
-        WorldNames = MapNames.GetWorldNames(game) ?? new Dictionary<int, string>();
+        LevelNames = MapNames.GetMapNames(game) ?? 
+                     gameVolumes?.FirstOrDefault()?.Worlds.ToDictionary(x => x.Index, x => x.GetLevelNamesDictionary()) ?? 
+                     new Dictionary<int, Dictionary<int, string>>();
+        WorldNames = MapNames.GetWorldNames(game) ??
+                     gameVolumes?.FirstOrDefault()?.Worlds.ToDictionary(x => x.Index, x => x.WorldName) ??
+                     new Dictionary<int, string>();
 
         minimumSize = new Vector2(50, 400f);
     }
