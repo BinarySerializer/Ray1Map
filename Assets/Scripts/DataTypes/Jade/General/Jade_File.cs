@@ -3,5 +3,12 @@
 		public LOA_Loader Loader { get; set; }
 		public Jade_Key Key { get; set; }
 		public uint FileSize { get; set; }
+
+		protected override void OnPostSerialize(SerializerObject s) {
+			long readSize = s.CurrentPointer - Offset;
+			if (Loader.IsBinaryData && FileSize != readSize) {
+				UnityEngine.Debug.LogWarning($"File {Key} with type {GetType()} was not fully serialized: File Size: {FileSize:X8} / Serialized: {readSize:X8}");
+			}
+		}
 	}
 }

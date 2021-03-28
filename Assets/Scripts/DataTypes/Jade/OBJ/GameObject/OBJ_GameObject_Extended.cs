@@ -28,6 +28,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<SND_UnknownBank> SND_UnknownBank { get; set; }
 		public Jade_Reference<WAY_AllLinkLists> WAY_AllLinkLists { get; set; }
 		public Jade_Reference<GEO_Object> GEO_Object { get; set; }
+		public OBJ_GameObject_Modifier[] Modifiers { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -73,7 +74,7 @@ namespace R1Engine.Jade {
 				throw new NotImplementedException($"TODO: Implement {GetType()}: Flag6");
 			}
 			if (HasModifiers != 0) {
-				throw new NotImplementedException($"TODO: Implement {GetType()}: Modifiers");
+				Modifiers = s.SerializeObjectArrayUntil<OBJ_GameObject_Modifier>(Modifiers, m => m.Type == MDF_ModifierType.None, includeLastObj: true, name: nameof(Modifiers));
 			}
 		}
 	}
