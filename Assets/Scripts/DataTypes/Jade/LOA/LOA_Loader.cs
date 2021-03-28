@@ -112,7 +112,7 @@ namespace R1Engine.Jade {
 						await s.FillCacheForRead((int)fileSize);
 
 						// Add region
-						off_target.file.AddRegion(off_target.FileOffset+4, fileSize, f.FileRegionName);
+						off_target.file.AddRegion(off_target.FileOffset+4, fileSize, f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}");
 
 						if (currentRef.IsBin && Bin != null) {
 							if (IsCompressed) {
@@ -161,7 +161,7 @@ namespace R1Engine.Jade {
 					FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 
 					// Add region
-					Bin.CurrentPosition.file.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Key:X8}");
+					Bin.CurrentPosition.file.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
 
 					Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
 				} else {
@@ -185,17 +185,19 @@ namespace R1Engine.Jade {
 		public delegate void ResolveAction(SerializerObject s, Action<Jade_File> configureAction);
 		public delegate void ResolvedAction(Jade_File f);
 		public class FileReference {
+			public string Name { get; set; }
 			public Jade_Key Key { get; set; }
 			public ResolveAction LoadCallback { get; set; }
 			public ResolvedAction AlreadyLoadedCallback { get; set; }
 			public bool IsBin { get; set; }
 		}
 
-		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false, QueueType queue = QueueType.Current) {
+		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false, QueueType queue = QueueType.Current, string name = "") {
 			if (queue == QueueType.Current) {
 				queue = Bin?.QueueType ?? QueueType.BigFat;
 			}
 			LoadQueues[queue].Enqueue(new FileReference() {
+				Name = name,
 				Key = key,
 				LoadCallback = loadCallback,
 				AlreadyLoadedCallback = alreadyLoadedCallback
@@ -232,6 +234,7 @@ namespace R1Engine.Jade {
 							case Jade_Key.KeyType.Textures: Bin.QueueType = QueueType.Textures; break;
 						}
 						LoadQueues[QueueType.BigFat].Enqueue(new FileReference() {
+							Name = "BIN",
 							Key = key,
 							IsBin = true,
 						});
@@ -270,7 +273,7 @@ namespace R1Engine.Jade {
 					return $"[{Key}] Unknown File";
 				}
 			}
-			public string FileRegionName => FileName != null ? $"{FileName}" : $"{Key}";
+			public string FileRegionName => FileName;
 		}
 	}
 }

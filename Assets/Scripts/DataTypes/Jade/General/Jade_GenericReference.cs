@@ -66,7 +66,8 @@ namespace R1Engine.Jade {
 			}, (f) => {
 				Value = f;
 			}, immediate: immediate,
-			queue: queue);
+			queue: queue,
+			name: Type.ToString());
 			return this;
 		}
 	}

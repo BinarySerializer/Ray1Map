@@ -28,7 +28,8 @@ namespace R1Engine.Jade {
 			}, (f) => {
 				Value = (T)f;
 			}, immediate: immediate,
-			queue: queue);
+			queue: queue,
+			name: typeof(T).Name);
 			return this;
 		}
 	}
