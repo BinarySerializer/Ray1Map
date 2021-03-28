@@ -132,6 +132,17 @@ namespace R1Engine {
 			"Rayman4.bf"
 		};
 
+		public virtual void CreateLevelList(LOA_Loader l) {
+			var groups = l.FileInfos.GroupBy(l => Jade_Key.WorldKey(l.Key));
+			foreach (var g in groups) {
+				if(!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;
+				var kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
+				//if (kvpair.Value != null) {
+					Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
+				//}
+			}
+		}
+
 		public async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) {
 			var s = context.Deserializer;
 			s.Goto(context.GetFile(bfPath).StartPointer);
@@ -150,6 +161,7 @@ namespace R1Engine {
 			}
 			// Set up loader
 			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
+			CreateLevelList(loader);
 			context.StoreObject<LOA_Loader>(LoaderKey, loader);
 			// Set up AI types
 			AI_Links aiLinks = AI_Links.GetAILinks(context.Settings);
