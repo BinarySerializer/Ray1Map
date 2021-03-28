@@ -16,11 +16,11 @@ namespace R1Engine
             // Export 2D animations
             await base.ExportAnimFramesAsync(settings, outputDir, saveAsGif, includePointerInNames);
 
+            var exportedAnimSets = new HashSet<(Pointer, Pointer)>();
+
             // Export Mode7 animations
             for (int mode7Level = 0; mode7Level < Mode7LevelsCount; mode7Level++)
             {
-                var exportedAnimSets = new HashSet<(Pointer, Pointer)>();
-
                 using (var context = new Context(settings))
                 {
                     // Load the files
@@ -34,6 +34,10 @@ namespace R1Engine
 
                     var levInfo = rom.CurrentMode7LevelInfo;
 
+                    // For Crash 1 we skip type 1 (blimp levels) and use type 2 for the export instead (N. Gin) since it uses correct palettes
+                    if (settings.EngineVersion == EngineVersion.GBAVV_Crash1 && levInfo.LevelType == 1)
+                        continue;
+
                     var tilePal = rom.Mode7_GetTilePal(levInfo);
                     var pal = Util.ConvertAndSplitGBAPalette(levInfo.ObjPalette.Concat(tilePal).ToArray());
                     var animSetIndex = -1;
@@ -43,7 +47,7 @@ namespace R1Engine
                     {
                         animSetIndex++;
 
-                        if (animSet?.Animations == null || exportedAnimSets.Any(x => x.Item1 == animSet.AnimationsPointer && x.Item2 == animSet.FrameOffsetsPointer))
+                        if (animSet?.Animations == null || exportedAnimSets.Any(x => x.Item1.AbsoluteOffset == animSet.AnimationsPointer.AbsoluteOffset && x.Item2.AbsoluteOffset == animSet.FrameOffsetsPointer.AbsoluteOffset))
                             continue;
 
                         exportedAnimSets.Add((animSet.AnimationsPointer, animSet.FrameOffsetsPointer));
@@ -62,13 +66,13 @@ namespace R1Engine
                                 center: true,
                                 saveAsGif: saveAsGif,
                                 outputDir: Path.Combine(outputDir, "Mode7"),
-                                primaryName: $"0x{animSet.Offset.AbsoluteOffset:X8}",
+                                primaryName: $"{mode7Level}_{animSetIndex}{(animSet.Offset != null ? $"_0x{animSet.Offset.AbsoluteOffset:X8}" : "")}",
                                 secondaryName: $"{animIndex}");
                         }
                     }
 
                     // Export special frames
-                    if (levInfo.SpecialFrames != null && exportedAnimSets.All(x => x.Item1 != levInfo.SpecialFrames.Offset))
+                    if (levInfo.SpecialFrames != null && exportedAnimSets.All(x => x.Item1.AbsoluteOffset != levInfo.SpecialFrames.Offset.AbsoluteOffset))
                     {
                         exportedAnimSets.Add((levInfo.SpecialFrames.Offset, null));
 
@@ -78,7 +82,7 @@ namespace R1Engine
                             center: true,
                             saveAsGif: saveAsGif,
                             outputDir: Path.Combine(outputDir, "Mode7"),
-                            primaryName: $"0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}",
+                            primaryName: $"{mode7Level}_0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}",
                             secondaryName: $"0");
                     }
                 }
@@ -765,7 +769,7 @@ namespace R1Engine
         {
             var palette = pal;
 
-            if (levInfo.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1 && animSetIndex == 0 && animIndex == 5)
+            if (levInfo.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1 && animSetIndex == 0 && animIndex == 5 && levInfo.LevelType == 0)
                 palette = Util.ConvertAndSplitGBAPalette(levInfo.Crash1_PolarDeathPalette);
 
             var anim = animSet.Animations[animIndex];

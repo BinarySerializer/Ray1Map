@@ -22,7 +22,8 @@ namespace R1Engine
             for (int i = 0; i < Items.Length; i++)
                 Items[i] = s.DoAt(LocalizationPointers[i], () => s.SerializeObject<GBAVV_LocalizedStringItem>(Items[i], name: $"{nameof(Items)}[{i}]"));
 
-            DefaultString = Items?.ElementAtOrDefault(((GBAVV_BaseManager)s.GameSettings.GetGameManager).DefaultLanguage)?.Text;
+            DefaultString = Items?.ElementAtOrDefault(((GBAVV_BaseManager)s.GameSettings.GetGameManager).DefaultLanguage)?.Text ??
+                            Items?.FirstOrDefault(x => x?.Text != null)?.Text;
         }
     }
 }
