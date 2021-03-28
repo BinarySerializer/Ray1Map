@@ -1,5 +1,7 @@
 ﻿namespace R1Engine.Jade {
 	public class Jade_Matrix : R1Serializable {
+
+		// Format: M{Column}{Row}
 		public float M00 { get; set; }
 		public float M01 { get; set; }
 		public float M02 { get; set; }

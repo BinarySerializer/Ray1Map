@@ -27,6 +27,9 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
+			if (Type.Type != Jade_FileType.FileType.WOR_World)
+				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.WOR_World}");
+
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
 			UInt_0C = s.Serialize<uint>(UInt_0C, name: nameof(UInt_0C));
@@ -41,14 +44,10 @@ namespace R1Engine.Jade {
 			}
 			UInt_A0 = s.Serialize<uint>(UInt_A0, name: nameof(UInt_A0));
 			if (!Loader.IsBinaryData) Bytes_A4 = s.SerializeArray<byte>(Bytes_A4, 44, name: nameof(Bytes_A4));
-			Grid0 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid0, name: nameof(Grid0));
-			Grid0.Resolve();
-			Grid1 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid1, name: nameof(Grid1));
-			Grid1.Resolve();
-			GameObjects = s.SerializeObject<Jade_Reference<WOR_GameObjectGroup>>(GameObjects, name: nameof(GameObjects));
-			GameObjects.Resolve();
-			Networks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(Networks, name: nameof(Networks));
-			Networks.Resolve();
+			Grid0 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid0, name: nameof(Grid0))?.Resolve();
+			Grid1 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid1, name: nameof(Grid1))?.Resolve();
+			GameObjects = s.SerializeObject<Jade_Reference<WOR_GameObjectGroup>>(GameObjects, name: nameof(GameObjects))?.Resolve();
+			Networks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(Networks, name: nameof(Networks))?.Resolve();
 			TextKey = s.SerializeObject<Jade_Key>(TextKey, name: nameof(TextKey));
 			if (Version > 3) {
 				UnknownStructs = s.SerializeObjectArray<UnknownStruct>(UnknownStructs, 64, name: nameof(UnknownStructs));

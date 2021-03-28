@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
 			ProcsCount = s.Serialize<ushort>(ProcsCount, name: nameof(ProcsCount));
 			Procs = s.SerializeObjectArray<Proc>(Procs, ProcsCount, name: nameof(Procs));
 			Code = s.Serialize<uint>(Code, name: nameof(Code));
-			if (Code == 0xC0DE6660) {
+			if (Code == (uint)Jade_Code.Code6660) {
 				ProcListStringLength = s.Serialize<uint>(ProcListStringLength, name: nameof(ProcListStringLength));
 				ProcListString = s.SerializeString(ProcListString, length: ProcListStringLength, encoding: Jade_BaseManager.Encoding, name: nameof(ProcListString));
 				Unknown_04 = s.Serialize<uint>(Unknown_04, name: nameof(Unknown_04));
@@ -42,7 +42,7 @@ namespace R1Engine.Jade {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 				Name = s.SerializeString(Name, length: NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 				Code = s.Serialize<uint>(Code, name: nameof(Code));
-				if (Code == 0xAACCBBDD) {
+				if (Code == (uint)Jade_Code.ACBD) {
 					UShort_Code = s.Serialize<ushort>(UShort_Code, name: nameof(UShort_Code));
 					NodesCount = s.Serialize<uint>(NodesCount, name: nameof(NodesCount));
 				} else {
@@ -52,7 +52,7 @@ namespace R1Engine.Jade {
 					Nodes = s.SerializeObjectArray<AI_Node>(Nodes, NodesCount, name: nameof(Nodes));
 					Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, NodesCount, name: nameof(Unknown));
 					Code2 = s.Serialize<uint>(Code2, name: nameof(Code2));
-					if (Code2 == 0x66666666) {
+					if (Code2 == (uint)Jade_Code.All6) {
 						LocalsCount = s.Serialize<uint>(LocalsCount, name: nameof(LocalsCount));
 						LocalsStringBuffer = s.SerializeArray<byte>(LocalsStringBuffer, 0x400, name: nameof(LocalsStringBuffer));
 					} else {

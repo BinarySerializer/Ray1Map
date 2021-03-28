@@ -70,8 +70,7 @@ namespace R1Engine.Jade {
 
 			if(Functions == null) Functions = new Jade_Reference<AI_Function>[5];
 			for (int i = 0; i < Functions.Length; i++) {
-				Functions[i] = s.SerializeObject<Jade_Reference<AI_Function>>(Functions[i], name: $"{nameof(Functions)}[{i}]");
-				Functions[i].Resolve();
+				Functions[i] = s.SerializeObject<Jade_Reference<AI_Function>>(Functions[i], name: $"{nameof(Functions)}[{i}]")?.Resolve();
 			}
 
 			//PrintVarsOverview(s);
