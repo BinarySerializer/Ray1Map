@@ -133,13 +133,18 @@ namespace R1Engine {
 		};
 
 		public virtual void CreateLevelList(LOA_Loader l) {
-			var groups = l.FileInfos.GroupBy(l => Jade_Key.WorldKey(l.Key));
+			var groups = l.FileInfos.GroupBy(l => Jade_Key.WorldKey(l.Key)).OrderBy(l => l.Key);
+			List<KeyValuePair<uint, string>> levels = new List<KeyValuePair<uint, string>>();
 			foreach (var g in groups) {
 				if(!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;
 				var kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
 				//if (kvpair.Value != null) {
-					Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
+				//	Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
 				//}
+				levels.Add(new KeyValuePair<uint, string>(g.Key, kvpair.Value.FilePath));
+			}
+			foreach (var kv in levels.OrderBy(l => l.Value)) {
+				Debug.Log($"{kv.Key:X8} - {kv.Value }");
 			}
 		}
 
