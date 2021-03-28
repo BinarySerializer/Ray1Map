@@ -654,13 +654,13 @@ namespace R1Engine
 
 
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_PC, Game.Jade_RRR, "Rayman Raving Rabbids (PC)", typeof(Jade_BaseManager))]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_PC, Game.Jade_RRR, "Rayman Raving Rabbids (PC)", typeof(Jade_RRR_PC_Manager))]
         RaymanRavingRabbidsPC,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_Xbox360, Game.Jade_RRR, "Rayman Raving Rabbids (Xbox 360)", typeof(Jade_RRR_Xbox360_Manager))]
         RaymanRavingRabbidsXbox360,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PC, Game.Jade_BGE, "Beyond Good & Evil (PC)", typeof(Jade_BGE_Manager))]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PC, Game.Jade_BGE, "Beyond Good & Evil (PC)", typeof(Jade_BGE_PC_Manager))]
         BeyondGoodAndEvilPC,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PS2, Game.Jade_BGE, "Beyond Good & Evil (PS2, 2003/08/14)", typeof(Jade_BGE_PS2_Prototype_Manager))]

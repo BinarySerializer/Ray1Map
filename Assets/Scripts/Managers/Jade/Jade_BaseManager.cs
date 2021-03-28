@@ -9,15 +9,28 @@ using R1Engine.Jade;
 using System.IO;
 using UnityEngine;
 
-namespace R1Engine {
-	public class Jade_BaseManager : IGameManager {
+namespace R1Engine 
+{
+	public abstract class Jade_BaseManager : IGameManager 
+    {
+		// Levels
+        public virtual GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Select((x, i) =>
+        {
+            return new GameInfo_World(
+                index: i, 
+                worldName: x.Key.ReplaceFirst(CommonLevelBasePath, String.Empty),
+                maps: x.Select(m => (int) m.Key).ToArray(),
+                mapNames: x.Select(m => m.MapName).ToArray());
+        }).ToArray() ?? new GameInfo_World[0]);
+		public abstract LevelInfo[] LevelInfos { get; }
+		public virtual string CommonLevelBasePath => @"ROOT\EngineDatas\06 Levels\";
+
+		// Game actions
 		public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
 		{
 			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
 			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
 		};
-
-
         public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false) {
             using (var context = new Context(settings)) {
 				var s = context.Deserializer;
@@ -123,32 +136,33 @@ namespace R1Engine {
             }
         }
 
-        public virtual GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
-		{
-			new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
-		});
+		// Version properties
+        public abstract string[] BFFiles { get; }
 
-		public virtual string[] BFFiles => new string[] {
-			"Rayman4.bf"
-		};
-
-		public virtual void CreateLevelList(LOA_Loader l) {
+		// Helpers
+        public virtual void CreateLevelList(LOA_Loader l) {
 			var groups = l.FileInfos.GroupBy(l => Jade_Key.WorldKey(l.Key)).OrderBy(l => l.Key);
-			List<KeyValuePair<uint, string>> levels = new List<KeyValuePair<uint, string>>();
+			List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
 			foreach (var g in groups) {
 				if(!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;
 				var kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
 				//if (kvpair.Value != null) {
 				//	Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
 				//}
-				levels.Add(new KeyValuePair<uint, string>(g.Key, kvpair.Value.FilePath));
+				levels.Add(new KeyValuePair<uint, LOA_Loader.FileInfo>(g.Key, kvpair.Value));
 			}
-			foreach (var kv in levels.OrderBy(l => l.Value)) {
-				Debug.Log($"{kv.Key:X8} - {kv.Value }");
-			}
-		}
 
-		public async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) {
+			var str = new StringBuilder();
+
+			foreach (var kv in levels.OrderBy(l => l.Value.FilePath)) 
+            {
+				str.AppendLine($"new LevelInfo(0x{kv.Key:X8}, \"{kv.Value.DirectoryName}\", \"{kv.Value.FileName}\"),");
+				//Debug.Log($"{kv.Key:X8} - {kv.Value }");
+			}
+
+			str.ToString().CopyToClipboard();
+		}
+        public async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) {
 			var s = context.Deserializer;
 			s.Goto(context.GetFile(bfPath).StartPointer);
 			await s.FillCacheForRead((int)BIG_BigFile.HeaderLength);
@@ -158,6 +172,7 @@ namespace R1Engine {
 			return bfFile;
 		}
 
+		// Load
 		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			List<BIG_BigFile> bfs = new List<BIG_BigFile>();
 			foreach (var bfPath in BFFiles) {
@@ -166,7 +181,11 @@ namespace R1Engine {
 			}
 			// Set up loader
 			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
-			CreateLevelList(loader);
+
+			// Create level list if null
+			if (LevelInfos == null)
+			    CreateLevelList(loader);
+
 			context.StoreObject<LOA_Loader>(LoaderKey, loader);
 			// Set up AI types
 			AI_Links aiLinks = AI_Links.GetAILinks(context.Settings);
@@ -184,7 +203,7 @@ namespace R1Engine {
 			Controller.DetailedState = $"Loading world";
 			await Controller.WaitIfNecessary();
 
-			var worldKey = (Jade_Key)0x01261c; // Just a test. Allow selection later
+			var worldKey = (Jade_Key)(uint)context.Settings.Level;
 
 			Jade_Reference<WOR_WorldList> WorldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
 			WorldList.Resolve(queue: LOA_Loader.QueueType.Maps);
@@ -194,20 +213,39 @@ namespace R1Engine {
 			loader.EndSpeedMode();
 			throw new NotImplementedException();
 		}
-
-		public async UniTask LoadFilesAsync(Context context) {
+        public async UniTask LoadFilesAsync(Context context) {
 			foreach (var bfPath in BFFiles) {
 				await context.AddLinearSerializedFileAsync(bfPath, bigFileCacheLength: 8);
 			}
 		}
-
-		public async UniTask SaveLevelAsync(Context context, Unity_Level level) {
+        public async UniTask SaveLevelAsync(Context context, Unity_Level level) {
 			await Task.CompletedTask;
 			throw new NotImplementedException();
 		}
 
+		// Constants
 		public static readonly Encoding Encoding = Encoding.GetEncoding(1252);
 		public const string LoaderKey = "loader";
 		public const string AIKey = "ai";
-	}
+
+		public class LevelInfo
+        {
+            public LevelInfo(uint key, string directoryPath, string filePath)
+            {
+                Key = key;
+                DirectoryPath = directoryPath;
+                FilePath = filePath;
+
+				WorldName = Path.GetDirectoryName(DirectoryPath);
+				MapName = Path.GetFileNameWithoutExtension(FilePath);
+            }
+
+            public uint Key { get; }
+			public string DirectoryPath { get; }
+			public string FilePath { get; }
+
+			public string WorldName { get; }
+			public string MapName { get; }
+		}
+    }
 }
