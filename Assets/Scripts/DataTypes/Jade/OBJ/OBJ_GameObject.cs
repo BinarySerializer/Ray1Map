@@ -20,6 +20,17 @@ namespace R1Engine.Jade {
 		public OBJ_BV_BoundingVolume BoundingVolume { get; set; }
 		public OBJ_GameObject_Visual Visual { get; set; }
 		public OBJ_GameObject_Extended Extended { get; set; }
+		public Jade_Reference<COL_Instance> COL_Instance { get; set; }
+		public Jade_Reference<COL_ColMap> COL_ColMap { get; set; }
+
+		public uint NameLength { get; set; }
+		public string Name { get; set; }
+		public uint UInt_AfterName_00 { get; set; }
+		public uint UInt_AfterName_04 { get; set; }
+		public uint UInt_AfterName_Editor_00 { get; set; }
+		public uint UInt_AfterName_Editor_04 { get; set; }
+		public uint UInt_AfterName_Editor_08 { get; set; }
+		public uint UInt_AfterName_Editor_0C { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
@@ -49,7 +60,23 @@ namespace R1Engine.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtended)) {
 				Extended = s.SerializeObject<OBJ_GameObject_Extended>(Extended, onPreSerialize: o => o.FlagsIdentity = FlagsIdentity, name: nameof(Extended));
 			}
-			throw new NotImplementedException($"TODO: Implement {GetType()}");
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag9) || FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag10)) {
+				COL_Instance = s.SerializeObject<Jade_Reference<COL_Instance>>(COL_Instance, name: nameof(COL_Instance))?.Resolve();
+			}
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasCOL_ColMap)) {
+				COL_ColMap = s.SerializeObject<Jade_Reference<COL_ColMap>>(COL_ColMap, name: nameof(COL_ColMap))?.Resolve();
+			}
+			NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
+			Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+			UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
+			if(UInt_AfterName_00 != 0)
+				UInt_AfterName_04 = s.Serialize<uint>(UInt_AfterName_04, name: nameof(UInt_AfterName_04));
+			if (!Loader.IsBinaryData) {
+				UInt_AfterName_Editor_00 = s.Serialize<uint>(UInt_AfterName_Editor_00, name: nameof(UInt_AfterName_Editor_00));
+				UInt_AfterName_Editor_04 = s.Serialize<uint>(UInt_AfterName_Editor_04, name: nameof(UInt_AfterName_Editor_04));
+				UInt_AfterName_Editor_08 = s.Serialize<uint>(UInt_AfterName_Editor_08, name: nameof(UInt_AfterName_Editor_08));
+				UInt_AfterName_Editor_0C = s.Serialize<uint>(UInt_AfterName_Editor_0C, name: nameof(UInt_AfterName_Editor_0C));
+			}
 		}
 	}
 }
