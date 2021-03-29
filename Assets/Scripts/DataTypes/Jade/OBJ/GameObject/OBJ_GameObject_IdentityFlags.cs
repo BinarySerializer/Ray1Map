@@ -14,7 +14,7 @@ namespace R1Engine.Jade {
 		Flag3 = 1 << 3,
 		HasGEO_Object = 1 << 4,
 		HasAI = 1 << 5,
-		Flag6 = 1 << 6,
+		HasExtendedUnknownData = 1 << 6,
 		Flag7 = 1 << 7,
 		HasCOL_ColMap = 1 << 8,
 		Flag9 = 1 << 9,

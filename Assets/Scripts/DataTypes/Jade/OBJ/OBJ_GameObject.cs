@@ -68,14 +68,16 @@ namespace R1Engine.Jade {
 			}
 			NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 			Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-			UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
-			if(UInt_AfterName_00 != 0)
-				UInt_AfterName_04 = s.Serialize<uint>(UInt_AfterName_04, name: nameof(UInt_AfterName_04));
-			if (!Loader.IsBinaryData) {
-				UInt_AfterName_Editor_00 = s.Serialize<uint>(UInt_AfterName_Editor_00, name: nameof(UInt_AfterName_Editor_00));
-				UInt_AfterName_Editor_04 = s.Serialize<uint>(UInt_AfterName_Editor_04, name: nameof(UInt_AfterName_Editor_04));
-				UInt_AfterName_Editor_08 = s.Serialize<uint>(UInt_AfterName_Editor_08, name: nameof(UInt_AfterName_Editor_08));
-				UInt_AfterName_Editor_0C = s.Serialize<uint>(UInt_AfterName_Editor_0C, name: nameof(UInt_AfterName_Editor_0C));
+			if (s.GameSettings.Game == Game.Jade_RRR) {
+				UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
+				if (UInt_AfterName_00 != 0)
+					UInt_AfterName_04 = s.Serialize<uint>(UInt_AfterName_04, name: nameof(UInt_AfterName_04));
+				if (!Loader.IsBinaryData) {
+					UInt_AfterName_Editor_00 = s.Serialize<uint>(UInt_AfterName_Editor_00, name: nameof(UInt_AfterName_Editor_00));
+					UInt_AfterName_Editor_04 = s.Serialize<uint>(UInt_AfterName_Editor_04, name: nameof(UInt_AfterName_Editor_04));
+					UInt_AfterName_Editor_08 = s.Serialize<uint>(UInt_AfterName_Editor_08, name: nameof(UInt_AfterName_Editor_08));
+					UInt_AfterName_Editor_0C = s.Serialize<uint>(UInt_AfterName_Editor_0C, name: nameof(UInt_AfterName_Editor_0C));
+				}
 			}
 		}
 	}

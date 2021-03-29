@@ -16,6 +16,8 @@ namespace R1Engine.Jade {
 		public AI_VarValue[] Values { get; set; }
 
 		public Jade_Reference<AI_Function>[] Functions { get; set; }
+		public uint ExtraFunctionsCount { get; set; }
+		public Jade_Reference<AI_Function>[] ExtraFunctions { get; set; }
 
 		// Custom
 		public AI_Var[] Vars { get; set; }
@@ -71,6 +73,16 @@ namespace R1Engine.Jade {
 			if(Functions == null) Functions = new Jade_Reference<AI_Function>[5];
 			for (int i = 0; i < Functions.Length; i++) {
 				Functions[i] = s.SerializeObject<Jade_Reference<AI_Function>>(Functions[i], name: $"{nameof(Functions)}[{i}]")?.Resolve();
+			}
+
+			if (s.GameSettings.Game == Game.Jade_BGE) {
+				if (s.CurrentPointer.AbsoluteOffset < (Offset + FileSize).AbsoluteOffset) {
+					ExtraFunctionsCount = s.Serialize<uint>(ExtraFunctionsCount, name: nameof(ExtraFunctionsCount));
+					ExtraFunctions = s.SerializeObjectArray<Jade_Reference<AI_Function>>(ExtraFunctions, ExtraFunctionsCount, name: nameof(ExtraFunctions));
+					foreach (var extraFunction in ExtraFunctions) {
+						extraFunction?.Resolve();
+					}
+				}
 			}
 
 			//PrintVarsOverview(s);

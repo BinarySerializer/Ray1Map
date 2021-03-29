@@ -10,6 +10,8 @@ namespace R1Engine.Jade {
 
 		public Jade_Reference<GRP_Grp> GRP { get; set; }
 		public uint HasModifiers { get; set; }
+		public float Float_BGE_08 { get; set; }
+		public float Float_BGE_0C { get; set; }
 		public uint UInt_Editor_08 { get; set; }
 		public uint UInt_Editor_0C { get; set; }
 		public uint UInt_Editor_10 { get; set; }
@@ -18,7 +20,7 @@ namespace R1Engine.Jade {
 		public int Int_08 { get; set; }
 		public byte[] Bytes_0C { get; set; }
 		public uint UInt_10 { get; set; }
-		public ushort UShort_12 { get; set; }
+		public ushort UShort_Editor_12 { get; set; }
 		public byte Byte_14 { get; set; }
 		public byte Byte_15 { get; set; }
 		public ushort UShort_16 { get; set; } // Flags
@@ -28,6 +30,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<SND_UnknownBank> SND_UnknownBank { get; set; }
 		public Jade_Reference<WAY_AllLinkLists> WAY_AllLinkLists { get; set; }
 		public Jade_Reference<GEO_Object> GEO_Object { get; set; }
+		public OBJ_GameObject_ExtendedUnknownData UnknownData { get; set; }
 		public OBJ_GameObject_Modifier[] Modifiers { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
@@ -36,6 +39,10 @@ namespace R1Engine.Jade {
 			GRP = s.SerializeObject<Jade_Reference<GRP_Grp>>(GRP, name: nameof(GRP));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag23)) GRP?.Resolve();
 			HasModifiers = s.Serialize<uint>(HasModifiers, name: nameof(HasModifiers));
+			if (s.GameSettings.Game == Game.Jade_BGE) {
+				Float_BGE_08 = s.Serialize<float>(Float_BGE_08, name: nameof(Float_BGE_08));
+				Float_BGE_0C = s.Serialize<float>(Float_BGE_0C, name: nameof(Float_BGE_0C));
+			}
 			if (!Loader.IsBinaryData) {
 				UInt_Editor_08 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_08));
 				UInt_Editor_0C = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_0C));
@@ -43,12 +50,15 @@ namespace R1Engine.Jade {
 				UInt_Editor_14 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_14));
 				UInt_Editor_18 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_18));
 			}
-			Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
-			int bytes_0C_count = (Int_08 != -1 && Int_08 != 0) ? 8 : 4;
-			Bytes_0C = s.SerializeArray<byte>(Bytes_0C, bytes_0C_count, name: nameof(Bytes_0C));
-			if (Int_08 == -1) {
+			if (s.GameSettings.Game != Game.Jade_BGE) {
+				Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+				int bytes_0C_count = (Int_08 != -1 && Int_08 != 0) ? 8 : 4;
+				Bytes_0C = s.SerializeArray<byte>(Bytes_0C, bytes_0C_count, name: nameof(Bytes_0C));
+			}
+			if (Int_08 == -1 || s.GameSettings.Game == Game.Jade_BGE) {
 				UInt_10 = s.Serialize<ushort>((ushort)UInt_10, name: nameof(UInt_10));
-				UShort_12 = s.Serialize<ushort>(UShort_12, name: nameof(UShort_12));
+				if (!Loader.IsBinaryData)
+					UShort_Editor_12 = s.Serialize<ushort>(UShort_Editor_12, name: nameof(UShort_Editor_12));
 			} else {
 				UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
 			}
@@ -70,8 +80,8 @@ namespace R1Engine.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasGEO_Object)) {
 				GEO_Object = s.SerializeObject<Jade_Reference<GEO_Object>>(GEO_Object, name: nameof(GEO_Object))?.Resolve();
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag6)) {
-				throw new NotImplementedException($"TODO: Implement {GetType()}: Flag6");
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtendedUnknownData)) {
+				UnknownData = s.SerializeObject<OBJ_GameObject_ExtendedUnknownData>(UnknownData, name: nameof(UnknownData));
 			}
 			if (HasModifiers != 0) {
 				Modifiers = s.SerializeObjectArrayUntil<OBJ_GameObject_Modifier>(Modifiers, m => m.Type == MDF_ModifierType.None, includeLastObj: true, name: nameof(Modifiers));
