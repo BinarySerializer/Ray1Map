@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace R1Engine.Jade {
 	public class OBJ_GameObject_Visual : R1Serializable {
+		public uint Type { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; } // Set in OnPreSerialize
 
 		public OBJ_GameObject_GeometricData GeometricData { get; set; }
@@ -16,7 +17,7 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasGeometricData)) {
-				GeometricData = s.SerializeObject<OBJ_GameObject_GeometricData>(GeometricData, name: nameof(GeometricData));
+				GeometricData = s.SerializeObject<OBJ_GameObject_GeometricData>(GeometricData, onPreSerialize: o => o.Type = Type, name: nameof(GeometricData));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasHierarchyData)) {
 				HierarchyData = s.SerializeObject<OBJ_GameObject_HierarchyData>(HierarchyData, name: nameof(HierarchyData));

@@ -2,8 +2,8 @@
 
 namespace R1Engine.Jade {
 	public class OBJ_GameObject : Jade_File {
-		public Jade_FileType Type { get; set; }
-		public uint UInt_04_Editor { get; set; }
+		public Jade_FileType FileType { get; set; }
+		public uint Type { get; set; }
 		public uint UInt_04 { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; }
 		public ushort FlagsStatus { get; set; }
@@ -33,11 +33,11 @@ namespace R1Engine.Jade {
 		public uint UInt_AfterName_Editor_0C { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
-			if(Type.Type != Jade_FileType.FileType.OBJ_GameObject)
+			FileType = s.SerializeObject<Jade_FileType>(FileType, name: nameof(FileType));
+			if(FileType.Type != Jade_FileType.FileType.OBJ_GameObject)
 				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.OBJ_GameObject}");
 
-			if(!Loader.IsBinaryData) UInt_04_Editor = s.Serialize<uint>(UInt_04_Editor, name: nameof(UInt_04_Editor));
+			if(!Loader.IsBinaryData || s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360) Type = s.Serialize<uint>(Type, name: nameof(Type));
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
 			s.SerializeBitValues<uint>(bitFunc => {
@@ -55,7 +55,10 @@ namespace R1Engine.Jade {
 
 			BoundingVolume = s.SerializeObject<OBJ_BV_BoundingVolume>(BoundingVolume, onPreSerialize: bv => bv.FlagsIdentity = FlagsIdentity, name: nameof(BoundingVolume));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasVisual)) {
-				Visual = s.SerializeObject<OBJ_GameObject_Visual>(Visual, onPreSerialize: o => o.FlagsIdentity = FlagsIdentity, name: nameof(Visual));
+				Visual = s.SerializeObject<OBJ_GameObject_Visual>(Visual, onPreSerialize: o => {
+					o.FlagsIdentity = FlagsIdentity;
+					o.Type = Type;
+				}, name: nameof(Visual));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtended)) {
 				Extended = s.SerializeObject<OBJ_GameObject_Extended>(Extended, onPreSerialize: o => o.FlagsIdentity = FlagsIdentity, name: nameof(Extended));
