@@ -2,7 +2,7 @@
 
 namespace R1Engine.Jade
 {
-    public class GAO_ModifierMPAG : MDF_Modifier
+    public class MPAG_Modifier : MDF_Modifier
     {
         public int Int_00 { get; set; }
         public int Type { get; set; }
