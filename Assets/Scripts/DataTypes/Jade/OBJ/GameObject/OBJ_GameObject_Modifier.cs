@@ -19,6 +19,9 @@ namespace R1Engine.Jade {
 				case MDF_ModifierType.GEO_ModifierRLICarte:
 					Modifier = s.SerializeObject<GEO_ModifierRLICarte>((GEO_ModifierRLICarte)Modifier, name: nameof(Modifier));
 					break;
+				case MDF_ModifierType.GAO_ModifierXMEN:
+					Modifier = s.SerializeObject<GAO_ModifierXMEN>((GAO_ModifierXMEN)Modifier, name: nameof(Modifier));
+					break;
 				default:
 					throw new NotImplementedException($"TODO: Implement Modifier Type {Type}");
 			}
