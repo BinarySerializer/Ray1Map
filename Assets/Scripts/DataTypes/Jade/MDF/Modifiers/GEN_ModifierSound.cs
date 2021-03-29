@@ -7,7 +7,7 @@ namespace R1Engine.Jade
         public uint Uint_00 { get; set; }
         public uint Uint_04_Editor { get; set; }
         public uint Uint_04 { get; set; }
-        public uint Uint_08 { get; set; }
+        public Jade_Reference<SND_SModifier> SModifier { get; set; }
         public uint Uint_0C_Editor { get; set; }
         public uint Uint_10_Editor { get; set; }
         public float Float_0C { get; set; }
@@ -29,7 +29,7 @@ namespace R1Engine.Jade
                 if (!Loader.IsBinaryData) Uint_04_Editor = s.Serialize<uint>(Uint_04_Editor, name: nameof(Uint_04_Editor));
 
                 Uint_04 = s.Serialize<uint>(Uint_04, name: nameof(Uint_04));
-                Uint_08 = s.Serialize<uint>(Uint_08, name: nameof(Uint_08));
+                SModifier = s.SerializeObject<Jade_Reference<SND_SModifier>>(SModifier, name: nameof(SModifier));
 
                 if (!Loader.IsBinaryData)
                 {
