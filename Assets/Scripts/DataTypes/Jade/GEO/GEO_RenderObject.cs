@@ -1,11 +1,10 @@
 ﻿using System;
 
 namespace R1Engine.Jade {
-	public class GEO_Object : Jade_File {
-		public GRO_Struct GRO { get; set; }
+	// Found in GEO_p_CreateFromBuffer
+	public class GEO_RenderObject : GRO_GraphicRenderObject {
 
 		public override void SerializeImpl(SerializerObject s) {
-			GRO = s.SerializeObject<GRO_Struct>(GRO, name: nameof(GRO));
 			throw new NotImplementedException($"TODO: Implement {GetType()}");
 		}
 	}
