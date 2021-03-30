@@ -17,7 +17,13 @@ namespace R1Engine.Jade {
 			Key = key;
 		}
 
-		public Jade_Reference<T> Resolve(Action<SerializerObject, T> onPreSerialize = null, Action<SerializerObject, T> onPostSerialize = null, bool immediate = false, LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current) {
+		public Jade_Reference<T> Resolve(
+			Action<SerializerObject, T> onPreSerialize = null,
+			Action<SerializerObject, T> onPostSerialize = null,
+			bool immediate = false,
+			LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current,
+			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log) {
+
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			loader.RequestFile(Key, (s, configureAction) => {
@@ -29,7 +35,8 @@ namespace R1Engine.Jade {
 				Value = (T)f;
 			}, immediate: immediate,
 			queue: queue,
-			name: typeof(T).Name);
+			name: typeof(T).Name,
+			flags: flags);
 			return this;
 		}
 	}

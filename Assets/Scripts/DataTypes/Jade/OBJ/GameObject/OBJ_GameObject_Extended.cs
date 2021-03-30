@@ -66,16 +66,19 @@ namespace R1Engine.Jade {
 			Byte_15 = s.Serialize<byte>(Byte_15, name: nameof(Byte_15));
 			UShort_16 = s.Serialize<ushort>(UShort_16, name: nameof(UShort_16));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasAI)) {
-				AI_Instance = s.SerializeObject<Jade_Reference<AI_Instance>>(AI_Instance, name: nameof(AI_Instance))?.Resolve();
+				AI_Instance = s.SerializeObject<Jade_Reference<AI_Instance>>(AI_Instance, name: nameof(AI_Instance))?
+					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasEVE_ListTracks)) {
 				EVE_ListTracks = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(EVE_ListTracks, name: nameof(EVE_ListTracks))?.Resolve();
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasSND_UnknownBank)) {
-				SND_UnknownBank = s.SerializeObject<Jade_Reference<SND_UnknownBank>>(SND_UnknownBank, name: nameof(SND_UnknownBank))?.Resolve();
+				SND_UnknownBank = s.SerializeObject<Jade_Reference<SND_UnknownBank>>(SND_UnknownBank, name: nameof(SND_UnknownBank))?
+					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasWAY_AllLinkLists)) {
-				WAY_AllLinkLists = s.SerializeObject<Jade_Reference<WAY_AllLinkLists>>(WAY_AllLinkLists, name: nameof(WAY_AllLinkLists))?.Resolve();
+				WAY_AllLinkLists = s.SerializeObject<Jade_Reference<WAY_AllLinkLists>>(WAY_AllLinkLists, name: nameof(WAY_AllLinkLists))?
+					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasGEO_Object)) {
 				GEO_Object = s.SerializeObject<Jade_Reference<GEO_Object>>(GEO_Object, name: nameof(GEO_Object))?.Resolve();

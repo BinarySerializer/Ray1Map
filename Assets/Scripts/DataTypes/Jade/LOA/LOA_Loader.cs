@@ -43,6 +43,19 @@ namespace R1Engine.Jade {
 			Binary = 2,
 		}
 
+		[Flags]
+		public enum ReferenceFlags {
+			None = 0,
+			Log = 1 << 0,
+			Flag1 = 1 << 1,
+			DontCache = 1 << 2,
+			Flag3 = 1 << 3,
+			KeepReferencesCount = 1 << 4,
+			DontUseAlreadyLoadedCallback = 1 << 5,
+			Flag6 = 1 << 6,
+			Flag7 = 1 << 7,
+		}
+
 
 		public LOA_Loader(BIG_BigFile[] bigFiles) {
 			BigFiles = bigFiles;
@@ -100,7 +113,9 @@ namespace R1Engine.Jade {
 				FileReference currentRef = LoadQueue.Dequeue();
 				if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
 					if (!currentRef.IsBin && LoadedFiles.ContainsKey(currentRef.Key)) {
-						currentRef.AlreadyLoadedCallback(LoadedFiles[currentRef.Key]);
+						var f = LoadedFiles[currentRef.Key];
+						if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
+						if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 					} else {
 						Pointer off_current = s.CurrentPointer;
 						FileInfo f = FileInfos[currentRef.Key];
@@ -133,14 +148,16 @@ namespace R1Engine.Jade {
 									f.Key = currentRef.Key;
 									f.FileSize = fileSize;
 									f.Loader = this;
-									if (!LoadedFiles.ContainsKey(f.Key)) LoadedFiles[f.Key] = f;
+									if (!LoadedFiles.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[f.Key] = f;
 								});
 							}
 						} else {
-							if (!LoadedFiles.ContainsKey(f.Key)) LoadedFiles[f.Key] = null;
+							if (!LoadedFiles.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[f.Key] = null;
 						}
 						s.Goto(off_current);
 					}
+				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
+					UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
 				}
 			}
 		}
@@ -162,7 +179,9 @@ namespace R1Engine.Jade {
 				s.Goto(Bin.CurrentPosition);
 				FileReference currentRef = LoadQueue.Dequeue();
 				if (LoadedFiles.ContainsKey(currentRef.Key)) {
-					currentRef.AlreadyLoadedCallback(LoadedFiles[currentRef.Key]);
+					var f = LoadedFiles[currentRef.Key];
+					if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
+					if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 				} else {
 					if (ReadSizes) {
 						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
@@ -179,10 +198,10 @@ namespace R1Engine.Jade {
 							f.Key = currentRef.Key;
 							f.FileSize = FileSize;
 							f.Loader = this;
-							if (!LoadedFiles.ContainsKey(f.Key)) LoadedFiles[f.Key] = f;
+							if (!LoadedFiles.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[f.Key] = f;
 						});
 					} else {
-						if (!LoadedFiles.ContainsKey(currentRef.Key)) LoadedFiles[currentRef.Key] = null;
+						if (!LoadedFiles.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[currentRef.Key] = null;
 					}
 					if (ReadSizes) {
 						s.Goto(Bin.CurrentPosition); // count size uint and actual file
@@ -202,9 +221,10 @@ namespace R1Engine.Jade {
 			public ResolveAction LoadCallback { get; set; }
 			public ResolvedAction AlreadyLoadedCallback { get; set; }
 			public bool IsBin { get; set; }
+			public ReferenceFlags Flags { get; set; }
 		}
 
-		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false, QueueType queue = QueueType.Current, string name = "") {
+		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false, QueueType queue = QueueType.Current, string name = "", ReferenceFlags flags = ReferenceFlags.Log) {
 			if (queue == QueueType.Current) {
 				queue = Bin?.QueueType ?? QueueType.BigFat;
 			}
@@ -212,7 +232,8 @@ namespace R1Engine.Jade {
 				Name = name,
 				Key = key,
 				LoadCallback = loadCallback,
-				AlreadyLoadedCallback = alreadyLoadedCallback
+				AlreadyLoadedCallback = alreadyLoadedCallback,
+				Flags = flags
 			});
 			if (immediate && Bin != null && queue == Bin.QueueType) {
 				LoadLoopBIN();
@@ -249,6 +270,7 @@ namespace R1Engine.Jade {
 							Name = "BIN",
 							Key = key,
 							IsBin = true,
+							Flags = ReferenceFlags.Log
 						});
 						IsCompressed = Bin.Key.IsCompressed;
 						ReadSizes = IsCompressed;

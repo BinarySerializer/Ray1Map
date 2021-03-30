@@ -67,7 +67,8 @@ namespace R1Engine.Jade {
 				COL_Instance = s.SerializeObject<Jade_Reference<COL_Instance>>(COL_Instance, name: nameof(COL_Instance))?.Resolve();
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasCOL_ColMap)) {
-				COL_ColMap = s.SerializeObject<Jade_Reference<COL_ColMap>>(COL_ColMap, name: nameof(COL_ColMap))?.Resolve();
+				COL_ColMap = s.SerializeObject<Jade_Reference<COL_ColMap>>(COL_ColMap, name: nameof(COL_ColMap))?
+					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseAlreadyLoadedCallback);
 			}
 			NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 			Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));

@@ -29,7 +29,8 @@ namespace R1Engine.Jade
                 if (!Loader.IsBinaryData) Uint_04_Editor = s.Serialize<uint>(Uint_04_Editor, name: nameof(Uint_04_Editor));
 
                 Uint_04 = s.Serialize<uint>(Uint_04, name: nameof(Uint_04));
-                SModifier = s.SerializeObject<Jade_Reference<SND_SModifier>>(SModifier, name: nameof(SModifier));
+                SModifier = s.SerializeObject<Jade_Reference<SND_SModifier>>(SModifier, name: nameof(SModifier))?
+                    .Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
 
                 if (!Loader.IsBinaryData)
                 {
