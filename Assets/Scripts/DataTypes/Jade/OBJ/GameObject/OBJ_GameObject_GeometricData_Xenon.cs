@@ -9,15 +9,15 @@ namespace R1Engine.Jade {
 		public uint Type { get; set; } // Set in on PreSerialize
 
 		public uint UInt_00 { get; set; }
-		public Jade_Key LightmapKey { get; set; }
+		public Jade_TextureReference Lightmap { get; set; }
 		public uint LightmapStructsCount { get; set; }
 		public LightmapStruct[] LightmapStructs { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (Type > 2) {
 				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-				LightmapKey = s.SerializeObject<Jade_Key>(LightmapKey, name: nameof(LightmapKey));
-				if (LightmapKey != 0xFFFFFFFF) {
+				Lightmap = s.SerializeObject<Jade_TextureReference>(Lightmap, name: nameof(Lightmap))?.Resolve();
+				if (!Lightmap.IsNull) {
 					LightmapStructsCount = s.Serialize<uint>(LightmapStructsCount, name: nameof(LightmapStructsCount));
 					LightmapStructs = s.SerializeObjectArray<LightmapStruct>(LightmapStructs, LightmapStructsCount, name: nameof(LightmapStructs));
 				}

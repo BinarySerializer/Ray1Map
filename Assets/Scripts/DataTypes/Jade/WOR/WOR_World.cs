@@ -23,7 +23,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<GRID_WorldGrid> Grid1 { get; set; }
 		public Jade_Reference<WOR_GameObjectGroup> GameObjects { get; set; }
 		public Jade_Reference<WAY_AllNetworks> Networks { get; set; }
-		public Jade_Key TextKey { get; set; } // TODO: Change this to a reference, push this to the loader but load as separate bin
+		public Jade_TextReference Text { get; set; }
 		public UnknownStruct[] UnknownStructs { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
@@ -53,7 +53,7 @@ namespace R1Engine.Jade {
 			Grid1 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid1, name: nameof(Grid1))?.Resolve();
 			GameObjects = s.SerializeObject<Jade_Reference<WOR_GameObjectGroup>>(GameObjects, name: nameof(GameObjects))?.Resolve();
 			Networks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(Networks, name: nameof(Networks))?.Resolve();
-			TextKey = s.SerializeObject<Jade_Key>(TextKey, name: nameof(TextKey));
+			Text = s.SerializeObject<Jade_TextReference>(Text, name: nameof(Text))?.Resolve();
 			if (Type > 3) {
 				UnknownStructs = s.SerializeObjectArray<UnknownStruct>(UnknownStructs, 64, name: nameof(UnknownStructs));
 			}

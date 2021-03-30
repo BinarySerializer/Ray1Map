@@ -33,6 +33,8 @@ namespace R1Engine.Jade {
 		GEO_ModifierCrush = 22,
 		GEO_ModifierRLICarte = 23,
 		GAO_ModifierLazy = 24,
+
+		// Introduced after BG&E
 		GPG_Modifier = 25,
 		FUR_Modifier = 26,
 		GEO_ModifierPerturb = 27,
