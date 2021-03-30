@@ -6,7 +6,7 @@ namespace R1Engine.Jade {
         public uint Count_Editor { get; set; }
         public byte[] Bytes_Editor { get; set; }
 
-        public GRO_GraphicRenderObject GRO { get; set; }
+        public GRO_GraphicRenderObject Value { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -17,10 +17,10 @@ namespace R1Engine.Jade {
                 Bytes_Editor = s.SerializeArray<byte>(Bytes_Editor, Count_Editor, name: nameof(Bytes_Editor));
             }
 
-            GRO = Type switch
+            Value = Type switch
             {
                 GRO_Type.None => null,
-                GRO_Type.GEO => GRO = s.SerializeObject<GEO_RenderObject>((GEO_RenderObject)GRO, name: nameof(GRO)),
+                GRO_Type.GEO => Value = s.SerializeObject<GEO_RenderObject>((GEO_RenderObject)Value, name: nameof(Value)),
                 _ => throw new NotImplementedException($"TODO: Implement GRO Struct Type {Type}")
             };
         }
