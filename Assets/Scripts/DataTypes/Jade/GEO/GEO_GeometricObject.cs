@@ -22,6 +22,12 @@ namespace R1Engine.Jade {
 		public uint[] UInts_14 { get; set; }
 		public UV[] UVs { get; set; }
 		public GEO_GeometricObjectElement[] Elements { get; set; }
+		public uint ElementsFlags { get; set; }
+
+		public GEO_GeometricObject_MRM MRM { get; set; }
+
+		public uint Last_Count { get; set; }
+		public uint Type2_EndCode { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -55,11 +61,33 @@ namespace R1Engine.Jade {
 			}
 			UInts_14 = s.SerializeArray<uint>(UInts_14, UInt_14_Count, name: nameof(UInts_14));
 			UVs = s.SerializeObjectArray<UV>(UVs, UVsCount, name: nameof(UVs));
+
+			// Serialize elements
 			Elements = s.SerializeObjectArray<GEO_GeometricObjectElement>(Elements, ElementsCount, name: nameof(Elements));
 			foreach (var el in Elements) {
 				el.SerializeArrays(s);
 			}
-			throw new NotImplementedException($"TODO: Implement {GetType()}");
+			ElementsFlags = s.Serialize<uint>(ElementsFlags, name: nameof(ElementsFlags));
+			if ((ElementsFlags & 1) != 0) {
+				foreach (var el in Elements) {
+					el.Serialize_Part2(s);
+				}
+			}
+
+			// Serialize MRM
+			if (HasMRM != 0) {
+				MRM = s.SerializeObject<GEO_GeometricObject_MRM>(MRM, onPreSerialize: m => {
+					m.Type = Type;
+					m.VerticesCount = VerticesCount;
+					m.HasShortPerVertex = HasShortPerVertex != 0;
+				}, name: nameof(MRM));
+			}
+
+			Last_Count = s.Serialize<uint>(Last_Count, name: nameof(Last_Count));
+			if (Last_Count != 0 && BitHelpers.ExtractBits((int)Last_Count, 24, 8) == 0) {
+				throw new NotImplementedException($"TODO: Implement {GetType()}: Last");
+			}
+			if(Type >= 2) Type2_EndCode = s.Serialize<uint>(Type2_EndCode, name: nameof(Type2_EndCode));
 		}
 
 		public class UV : BinarySerializable {

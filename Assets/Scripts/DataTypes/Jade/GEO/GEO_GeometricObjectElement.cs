@@ -15,6 +15,11 @@ namespace R1Engine.Jade {
 		public UnknownStruct Unknown { get; set; }
 		public ushort[] Shorts { get; set; }
 
+		// Part 2
+		public uint UInt_Part2_00 { get; set; }
+		public uint UInt_Part2_Count { get; set; }
+		public UnknownPart2Struct[] Part2Structs { get; set; }
+
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
@@ -28,6 +33,11 @@ namespace R1Engine.Jade {
 			Triangles = s.SerializeObjectArray<Triangle>(Triangles, TrianglesCount, name: nameof(Triangles));
 			if(UInt_14 != 0) Unknown = s.SerializeObject<UnknownStruct>(Unknown, name: nameof(Unknown));
 			Shorts = s.SerializeArray<ushort>(Shorts, ShortsCount, name: nameof(Shorts));
+		}
+		public void Serialize_Part2(SerializerObject s) {
+			UInt_Part2_00 = s.Serialize<uint>(UInt_Part2_00, name: nameof(UInt_Part2_00));
+			UInt_Part2_Count = s.Serialize<uint>(UInt_Part2_Count, name: nameof(UInt_Part2_Count));
+			Part2Structs = s.SerializeObjectArray<UnknownPart2Struct>(Part2Structs, UInt_Part2_Count, name: nameof(Part2Structs));
 		}
 
 		public class Triangle : BinarySerializable {
@@ -61,6 +71,33 @@ namespace R1Engine.Jade {
 				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
 				UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 				UInt_Editor_08 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_08));
+			}
+		}
+
+		public class UnknownPart2Struct : BinarySerializable {
+			public int Int_00 { get; set; }
+			public bool HasEditorInts { get; set; }
+			public int[] Ints_Editor { get; set; }
+			public VertexUV[] VertexUVMap { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
+				s.SerializeBitValues<int>(bitFunc => {
+					Int_00 = bitFunc(Int_00, 31, name: nameof(Int_00));
+					HasEditorInts = bitFunc(HasEditorInts ? 1 : 0, 1, name: nameof(HasEditorInts)) == 1;
+				});
+				if (Int_00 >= 0 && !Loader.IsBinaryData) Ints_Editor = s.SerializeArray<int>(Ints_Editor, Int_00, name: nameof(Int_00));
+				VertexUVMap = s.SerializeObjectArray<VertexUV>(VertexUVMap, Int_00, name: nameof(Int_00));
+			}
+
+			public class VertexUV : BinarySerializable {
+				public ushort VertexIndex { get; set; }
+				public ushort UVIndex { get; set; }
+				public override void SerializeImpl(SerializerObject s) {
+					VertexIndex = s.Serialize<ushort>(VertexIndex, name: nameof(VertexIndex));
+					UVIndex = s.Serialize<ushort>(UVIndex, name: nameof(UVIndex));
+				}
 			}
 		}
 	}

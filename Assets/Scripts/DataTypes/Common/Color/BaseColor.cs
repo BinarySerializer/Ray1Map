@@ -103,7 +103,7 @@ namespace R1Engine
         #region Serializable
 
         public override bool IsShortLog => true;
-        public override string ShortLog => $"RGBA({Red}, {Green}, {Blue}, {Alpha})";
+        public override string ShortLog => $"RGBA({(int)(Red*255)}, {(int)(Green * 255)}, {(int)(Blue * 255)}, {Alpha})";
 
         #endregion
     }

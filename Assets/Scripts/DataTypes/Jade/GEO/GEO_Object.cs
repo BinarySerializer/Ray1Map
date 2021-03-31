@@ -7,7 +7,6 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			RenderObject = s.SerializeObject<GRO_Struct>(RenderObject, name: nameof(RenderObject));
-			throw new NotImplementedException($"TODO: Implement {GetType()}");
 		}
 	}
 }
