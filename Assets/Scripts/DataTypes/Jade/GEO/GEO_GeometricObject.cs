@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	// Found in GEO_p_CreateFromBuffer
@@ -61,7 +62,7 @@ namespace R1Engine.Jade {
 			throw new NotImplementedException($"TODO: Implement {GetType()}");
 		}
 
-		public class UV : R1Serializable {
+		public class UV : BinarySerializable {
 			public float U { get; set; }
 			public float V { get; set; }
 			public override void SerializeImpl(SerializerObject s) {

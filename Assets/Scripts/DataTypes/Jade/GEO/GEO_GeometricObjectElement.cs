@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	// Found in GEO_v_CreateElementsFromBuffer
-	public class GEO_GeometricObjectElement : R1Serializable {
+	public class GEO_GeometricObjectElement : BinarySerializable {
 		public uint TrianglesCount { get; set; }
 		public uint UInt_04 { get; set; }
 		public uint UInt_14 { get; set; }
@@ -29,7 +30,7 @@ namespace R1Engine.Jade {
 			Shorts = s.SerializeArray<ushort>(Shorts, ShortsCount, name: nameof(Shorts));
 		}
 
-		public class Triangle : R1Serializable {
+		public class Triangle : BinarySerializable {
 			public ushort Vertex0 { get; set; }
 			public ushort Vertex1 { get; set; }
 			public ushort Vertex2 { get; set; }
@@ -51,7 +52,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public class UnknownStruct : R1Serializable {
+		public class UnknownStruct : BinarySerializable {
 			public uint UInt_00 { get; set; }
 			public uint UInt_04 { get; set; }
 			public uint UInt_Editor_08 { get; set; }
