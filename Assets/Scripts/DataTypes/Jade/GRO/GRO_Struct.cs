@@ -21,7 +21,7 @@ namespace R1Engine.Jade {
             Value = Type switch
             {
                 GRO_Type.None => null,
-                GRO_Type.GEO => Value = s.SerializeObject<GEO_RenderObject>((GEO_RenderObject)Value, name: nameof(Value)),
+                GRO_Type.GEO => Value = s.SerializeObject<GEO_GeometricObject>((GEO_GeometricObject)Value, name: nameof(Value)),
                 _ => throw new NotImplementedException($"TODO: Implement GRO Struct Type {Type}")
             };
         }
