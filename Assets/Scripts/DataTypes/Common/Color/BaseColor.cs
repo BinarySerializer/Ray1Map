@@ -98,6 +98,13 @@ namespace R1Engine
             }
         }
 
-		#endregion
-	}
+        #endregion
+
+        #region Serializable
+
+        public override bool IsShortLog => true;
+        public override string ShortLog => $"RGBA({Red}, {Green}, {Blue}, {Alpha})";
+
+        #endregion
+    }
 }
