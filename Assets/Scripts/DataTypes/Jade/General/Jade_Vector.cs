@@ -14,5 +14,8 @@ namespace R1Engine.Jade {
 		public override string ToString() {
 			return $"Vector({X}, {Y}, {Z})";
 		}
+
+		public override bool IsShortLog => true;
+		public override string ShortLog => ToString();
 	}
 }
