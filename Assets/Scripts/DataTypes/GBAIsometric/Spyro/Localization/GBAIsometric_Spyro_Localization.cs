@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_Localization : R1Serializable
+    public class GBAIsometric_Spyro_Localization : BinarySerializable
     {
         public Pointer[] LocalizationPointers { get; set; }
         public GBAIsometric_Spyro_DataBlockIndex[] LocalizationBlockIndices { get; set; }
@@ -17,10 +18,10 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Get the language count for the current game
-            var langCount = ((GBAIsometric_Spyro_Manager)s.GameSettings.GetGameManager).GetLanguages.Count();
-            var pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var langCount = ((GBAIsometric_Spyro_Manager)s.GetR1Settings().GetGameManager).GetLanguages.Count();
+            var pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
                 // Parse loc tables
                 LocalizationBlockIndices = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LocalizationBlockIndices), () => s.SerializeObjectArray<GBAIsometric_Spyro_DataBlockIndex>(LocalizationBlockIndices, langCount, x => x.HasPadding = true, name: nameof(LocalizationBlockIndices)));

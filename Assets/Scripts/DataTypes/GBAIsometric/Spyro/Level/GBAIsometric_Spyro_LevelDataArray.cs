@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_LevelDataArray : R1Serializable
+    public class GBAIsometric_Spyro_LevelDataArray : BinarySerializable
     {
         // Set before serializing
         public bool UsesPointerArray { get; set; }

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using BinarySerializer;
 
 namespace R1Engine {
 	public class R1Jaguar_MidiWriter {

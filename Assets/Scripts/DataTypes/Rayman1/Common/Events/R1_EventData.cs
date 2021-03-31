@@ -1,6 +1,7 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -26,7 +27,7 @@ namespace R1Engine
     /// <summary>
     /// Common event data
     /// </summary>
-    public class R1_EventData : R1Serializable
+    public class R1_EventData : BinarySerializable
     {
         #region Static Methods
 
@@ -273,7 +274,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (!IsPCFormat(s.GameSettings) || Offset?.file is ProcessMemoryStreamFile || s.GameSettings.EngineVersion == EngineVersion.R1_GBA || s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+            if (!IsPCFormat(s.GetR1Settings()) || Offset?.File is ProcessMemoryStreamFile || s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA || s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
             {
                 ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
                 AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
@@ -282,7 +283,7 @@ namespace R1Engine
 
                 CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                 {
                     PS1Demo_Unk1 = s.SerializeArray<byte>(PS1Demo_Unk1, 40, name: nameof(PS1Demo_Unk1));
 
@@ -294,7 +295,7 @@ namespace R1Engine
                 {
                     LabelOffsetsPointer = s.SerializePointer(LabelOffsetsPointer, name: nameof(LabelOffsetsPointer));
 
-                    if (!IsPCFormat(s.GameSettings))
+                    if (!IsPCFormat(s.GetR1Settings()))
                         PS1_Unk1 = s.Serialize<uint>(PS1_Unk1, name: nameof(PS1_Unk1));
                 }
             }
@@ -309,7 +310,7 @@ namespace R1Engine
                 PC_RuntimeLabelOffsetsPointer = s.Serialize<uint>(PC_RuntimeLabelOffsetsPointer, name: nameof(PC_RuntimeLabelOffsetsPointer));
             }
 
-            if (IsPCFormat(s.GameSettings))
+            if (IsPCFormat(s.GetR1Settings()))
             {
                 CMD_Contexts = s.SerializeObjectArray<CommandContext>(CMD_Contexts, 1, name: nameof(CMD_Contexts));
                 Uint_1C = s.Serialize<uint>(Uint_1C, name: nameof(Uint_1C));
@@ -317,7 +318,7 @@ namespace R1Engine
                 IsActive = s.Serialize<uint>(IsActive, name: nameof(IsActive));
             }
 
-            if (IsPCFormat(s.GameSettings))
+            if (IsPCFormat(s.GetR1Settings()))
             {
                 XPosition = s.Serialize<int>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<int>(YPosition, name: nameof(YPosition));
@@ -328,13 +329,13 @@ namespace R1Engine
                 YPosition = s.Serialize<short>((short)YPosition, name: nameof(YPosition));
             }
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
             {
                 PS1Demo_Unk3 = s.Serialize<short>(PS1Demo_Unk3, name: nameof(PS1Demo_Unk3));
             }
             else
             {
-                if (IsPCFormat(s.GameSettings))
+                if (IsPCFormat(s.GetR1Settings()))
                     Uint_30 = s.Serialize<uint>(Uint_30, name: nameof(Uint_30));
 
                 EventIndex = s.Serialize<short>(EventIndex, name: nameof(EventIndex));
@@ -346,7 +347,7 @@ namespace R1Engine
             InitialXPosition = s.Serialize<short>(InitialXPosition, name: nameof(InitialXPosition));
             InitialYPosition = s.Serialize<short>(InitialYPosition, name: nameof(InitialYPosition));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
             {
                 PS1Demo_IsFlipped = s.Serialize<bool>(PS1Demo_IsFlipped, name: nameof(PS1Demo_IsFlipped)); // This is stored as a short in the game, but used as a bool
                 PS1Demo_Padding = s.Serialize<byte>(PS1Demo_Padding, name: nameof(PS1Demo_Padding));
@@ -364,9 +365,9 @@ namespace R1Engine
             Short_4C = s.Serialize<short>(Short_4C, name: nameof(Short_4C));
             Short_4E = s.Serialize<short>(Short_4E, name: nameof(Short_4E));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || 
-                s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || 
-                s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || 
+                s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || 
+                s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu)
                 EDU_ExtHitPoints = s.Serialize<uint>(EDU_ExtHitPoints, name: nameof(EDU_ExtHitPoints));
 
             CMD_Arg1 = s.Serialize<short>(CMD_Arg1, name: nameof(CMD_Arg1));
@@ -379,10 +380,10 @@ namespace R1Engine
             Runtime_TypeZDC = s.SerializeObject<R1_ZDCEntry>(Runtime_TypeZDC, name: nameof(Runtime_TypeZDC));
             Short_5E = s.Serialize<short>(Short_5E, name: nameof(Short_5E));
 
-            if (IsPCFormat(s.GameSettings))
+            if (IsPCFormat(s.GetR1Settings()))
                 Type = s.Serialize<R1_EventType>(Type, name: nameof(Type));
 
-            CollisionTypes = s.SerializeArray<R1_TileCollisionType>(CollisionTypes, s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3 ? 5 : 1, name: nameof(CollisionTypes));
+            CollisionTypes = s.SerializeArray<R1_TileCollisionType>(CollisionTypes, s.GetR1Settings().EngineVersion != EngineVersion.R1_PS1_JPDemoVol3 ? 5 : 1, name: nameof(CollisionTypes));
             Byte_67 = s.Serialize<byte>(Byte_67, name: nameof(Byte_67));
 
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
@@ -391,7 +392,7 @@ namespace R1Engine
             RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
             RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
-            if (IsPCFormat(s.GameSettings))
+            if (IsPCFormat(s.GetR1Settings()))
             {
                 SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
                 Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
@@ -411,7 +412,7 @@ namespace R1Engine
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                 PS1_Flags = s.Serialize<byte>(PS1_Flags, name: nameof(PS1_Flags));
 
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
@@ -419,12 +420,12 @@ namespace R1Engine
             InitialHitPoints = s.Serialize<byte>(InitialHitPoints, name: nameof(InitialHitPoints));
             DisplayPrio = s.Serialize<byte>(DisplayPrio, name: nameof(DisplayPrio));
 
-            if (!IsPCFormat(s.GameSettings))
+            if (!IsPCFormat(s.GetR1Settings()))
                 Type = (R1_EventType)s.Serialize<byte>((byte)Type, name: nameof(Type));
 
             HitSprite = s.Serialize<byte>(HitSprite, name: nameof(HitSprite));
 
-            if (!IsPCFormat(s.GameSettings))
+            if (!IsPCFormat(s.GetR1Settings()))
                 PS1_Unk5 = s.Serialize<byte>(PS1_Unk5, name: nameof(PS1_Unk5));
 
             Byte_7A = s.Serialize<byte>(Byte_7A, name: nameof(Byte_7A));
@@ -432,11 +433,11 @@ namespace R1Engine
             CMD_CurrentContext = s.Serialize<byte>(CMD_CurrentContext, name: nameof(CMD_CurrentContext));
             Byte_7D = s.Serialize<byte>(Byte_7D, name: nameof(Byte_7D));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
             {
                 PS1Demo_Unk5 = s.Serialize<byte>(PS1Demo_Unk5, name: nameof(PS1Demo_Unk5));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                 {
                     PS1Demo_Unk6 = s.Serialize<byte>(PS1Demo_Unk6, name: nameof(PS1Demo_Unk6));
                     PS1Demo_Unk7 = s.Serialize<byte>(PS1Demo_Unk7, name: nameof(PS1Demo_Unk7));
@@ -449,16 +450,16 @@ namespace R1Engine
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
-            if (IsPCFormat(s.GameSettings))
+            if (IsPCFormat(s.GetR1Settings()))
             {
                 PC_Flags = s.Serialize<PC_EventFlags>(PC_Flags, name: nameof(PC_Flags));
                 Ushort_82 = s.Serialize<ushort>(Ushort_82, name: nameof(Ushort_82));
             }
             else
             {
-                if (s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3)
+                if (s.GetR1Settings().EngineVersion != EngineVersion.R1_PS1_JPDemoVol3)
                 {
-                    if (s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol6)
+                    if (s.GetR1Settings().EngineVersion != EngineVersion.R1_PS1_JPDemoVol6)
                     {
                         PS1_RuntimeFlags = s.Serialize<PS1_EventFlags>(PS1_RuntimeFlags, name: nameof(PS1_RuntimeFlags));
                         PS1_Flags = s.Serialize<byte>(PS1_Flags, name: nameof(PS1_Flags));
@@ -469,7 +470,7 @@ namespace R1Engine
             }
 
             // Parse data from pointers only on PS1 and if we're not reading from processed memory
-            if (!IsPCFormat(s.GameSettings) && !(Offset?.file is ProcessMemoryStreamFile) && s.FullSerialize)
+            if (!IsPCFormat(s.GetR1Settings()) && !(Offset?.File is ProcessMemoryStreamFile) && s.FullSerialize)
             {
                 // Serialize the image descriptors
                 s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors)));
@@ -477,7 +478,7 @@ namespace R1Engine
                 // Serialize the animation descriptors
                 s.DoAt(AnimDescriptorsPointer, () => AnimDescriptors = s.SerializeObjectArray<R1_PS1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors)));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                 {
                     if (ImageBuffer == null && ImageBufferPointer != null && ImageDescriptors != null)
                     {
@@ -539,14 +540,14 @@ namespace R1Engine
                 });*/
 
                 if (ETA?.EventStates?.ElementAtOrDefault(Etat)?.ElementAtOrDefault(SubEtat) == null)
-                    Debug.LogWarning($"Matching event state not found for event {Type} at {XPosition}x{YPosition} with E{Etat},SE{SubEtat} for {s.GameSettings.GameModeSelection} in {s.GameSettings.World}{s.GameSettings.Level}");
+                    Debug.LogWarning($"Matching event state not found for event {Type} at {XPosition}x{YPosition} with E{Etat},SE{SubEtat} for {s.GetR1Settings().GameModeSelection} in {s.GetR1Settings().World}{s.GetR1Settings().Level}");
             }
         }
 
         public R1_EventData InitRayman(Context context, R1_EventData rayPos)
         {
             OffsetBX = 80;
-            OffsetBY = (byte)(context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ? 80 : 78);
+            OffsetBY = (byte)(context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ? 80 : 78);
             if (rayPos != null)
             {
                 XPosition = rayPos.XPosition + rayPos.OffsetBX - OffsetBX;
@@ -593,7 +594,7 @@ namespace R1Engine
             Etat = 5;
 
             // Set correct sub-etat and position
-            if (context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
+            if (context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit)
             {
                 SubEtat = 69;
 
@@ -605,7 +606,7 @@ namespace R1Engine
                 //OffsetBX = 80;
                 //OffsetBY = 64;
             }
-            else if (context.Settings.EngineVersion == EngineVersion.R1_PC_Edu || context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu)
+            else if (context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu)
             {
                 if (index == 0) // Normal
                     SubEtat = 39;
@@ -714,7 +715,7 @@ namespace R1Engine
             UnkFlag_7 = 1 << 7,
         }
 
-        public class CommandContext : R1Serializable
+        public class CommandContext : BinarySerializable
         {
             /// <summary>
             /// The offset where the context was stored, used to remember where to jump back to after execution of the sub-function has finished

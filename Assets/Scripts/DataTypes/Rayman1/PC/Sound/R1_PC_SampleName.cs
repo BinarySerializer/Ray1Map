@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_SampleName : R1Serializable
+    public class R1_PC_SampleName : BinarySerializable
     {
         /// <summary>
         /// The name of the sample

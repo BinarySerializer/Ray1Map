@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -18,7 +19,7 @@ namespace R1Engine
 
             var memoryBank = 15;
 
-            if (s.GameSettings.GameModeSelection == GameModeSelection.MowgliGBC)
+            if (s.GetR1Settings().GameModeSelection == GameModeSelection.MowgliGBC)
                 memoryBank = 31;
 
             // Serialize data
@@ -34,7 +35,7 @@ namespace R1Engine
 
         }
 
-        public class Reference : R1Serializable
+        public class Reference : BinarySerializable
         {
             public GBC_BlockHeader BlockHeader { get; set; }
             public GBC_Pointer Pointer { get; set; }

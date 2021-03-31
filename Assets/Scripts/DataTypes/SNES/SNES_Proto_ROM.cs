@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class SNES_Proto_ROM : R1Serializable
+    public class SNES_Proto_ROM : BinarySerializable
     {
         public RGBA5551Color[] TilePalette { get; set; }
         public RGBA5551Color[] SpritePalette { get; set; }

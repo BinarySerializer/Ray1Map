@@ -1,8 +1,6 @@
-﻿using Cysharp.Threading.Tasks;
-using R1Engine;
+﻿using R1Engine;
 using System;
 using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 

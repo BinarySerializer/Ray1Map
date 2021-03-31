@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBA_Milan_SceneList : GBA_BaseBlock
     {
@@ -24,9 +26,9 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            Scene = s.DoAt(OffsetTable.GetPointer(s.GameSettings.Level), () => s.SerializeObject<GBA_Milan_Scene>(Scene, name: nameof(Scene)));
+            Scene = s.DoAt(OffsetTable.GetPointer(s.GetR1Settings().Level), () => s.SerializeObject<GBA_Milan_Scene>(Scene, name: nameof(Scene)));
         }
 
-        public override long GetShanghaiOffsetTableLength => Context.Settings.EngineVersion == EngineVersion.GBA_TheMummy ? 6 : 3;
+        public override long GetShanghaiOffsetTableLength => Context.GetR1Settings().EngineVersion == EngineVersion.GBA_TheMummy ? 6 : 3;
     }
 }

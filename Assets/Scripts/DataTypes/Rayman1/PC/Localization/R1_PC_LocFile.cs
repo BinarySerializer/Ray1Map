@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
-    public class R1_PC_LocFile : R1Serializable
+    public class R1_PC_LocFile : BinarySerializable
     {
         // NombreLangues
         public byte NumberOfLanguages { get; set; }
@@ -36,10 +37,10 @@ namespace R1Engine
             // Most versions have 3 languages, but sometimes the NumberOfLanguages is set to 1 because only 1 is available. Other versions may have up to 5.
             var numLangNames = Mathf.Clamp(NumberOfLanguages, 3, 5);
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu && (s.GameSettings.EduVolume.StartsWith("IT") || s.GameSettings.EduVolume.StartsWith("CS")))
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu && (s.GetR1Settings().EduVolume.StartsWith("IT") || s.GetR1Settings().EduVolume.StartsWith("CS")))
                 numLangNames = 5;
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu && (s.GameSettings.EduVolume.StartsWith("HN") || s.GameSettings.EduVolume.StartsWith("IS") || s.GameSettings.EduVolume.StartsWith("NL")))
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu && (s.GetR1Settings().EduVolume.StartsWith("HN") || s.GetR1Settings().EduVolume.StartsWith("IS") || s.GetR1Settings().EduVolume.StartsWith("NL")))
                 numLangNames = 5;
 
             LanguageNames = s.SerializeStringArray(LanguageNames, numLangNames, 11, name: nameof(LanguageNames));

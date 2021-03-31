@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
     /// <summary>
     /// Event block data for Rayman 1 (PS1)
     /// </summary>
-    public class R1_PS1_EventBlock : R1Serializable
+    public class R1_PS1_EventBlock : BinarySerializable
     {
         /// <summary>
         /// Pointer to the events

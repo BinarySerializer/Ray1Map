@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_GameObject : R1Serializable
+    public class GBC_GameObject : BinarySerializable
     {
         public byte Index_ActorModel { get; set; } // Invalid if 0
         public ushort XlateID { get; set; }
@@ -39,7 +41,7 @@
             UnkByte0 = s.Serialize<byte>(UnkByte0, name: nameof(UnkByte0));
             ActorID = s.Serialize<byte?>(ActorID, name: nameof(ActorID));
 
-            if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBC)
+            if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBC)
             {
                 YPos = s.Serialize<short>(YPos, name: nameof(YPos));
                 XPos = s.Serialize<short>(XPos, name: nameof(XPos));
@@ -62,10 +64,10 @@
             } 
             else 
             {
-                if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBC)
+                if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBC)
                     UnkActorStruct = s.SerializeObject<GBC_UnkActorStruct>(UnkActorStruct, name: nameof(UnkActorStruct));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_CrouchingTiger)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_CrouchingTiger)
                     CrouchingTiger_Bytes = s.SerializeArray<byte>(CrouchingTiger_Bytes, 9, name: nameof(CrouchingTiger_Bytes));
                 else
                     UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));

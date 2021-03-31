@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_HubWorldPortal : R1Serializable
+    public class GBAVV_NitroKart_HubWorldPortal : BinarySerializable
     {
         public int LevelID { get; set; } // The ID in the current hub
         public Pointer NamePointer { get; set; }

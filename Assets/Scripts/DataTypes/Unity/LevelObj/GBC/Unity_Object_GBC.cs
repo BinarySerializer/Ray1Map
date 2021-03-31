@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -60,7 +61,7 @@ namespace R1Engine
         public override string DebugText => $"ActionIndex: {ActionIndex}{Environment.NewLine}" +
                                             $"ActionID: {Actor.ActionID}{Environment.NewLine}";
 
-        public override R1Serializable SerializableData => Actor;
+        public override BinarySerializable SerializableData => Actor;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override bool CanBeLinked => true;
@@ -90,7 +91,7 @@ namespace R1Engine
                 if (Actor.IsCaptor)
                     return $"Captor";
 
-                if (ObjManager.Context.Settings.Game == Game.GBC_R1 || ObjManager.Context.Settings.Game == Game.GBC_R2)
+                if (ObjManager.Context.GetR1Settings().Game == Game.GBC_R1 || ObjManager.Context.GetR1Settings().Game == Game.GBC_R2)
                 {
                     var actorName = ((GBC_R1_ActorID)Actor.ActorID).ToString();
 
@@ -136,7 +137,7 @@ namespace R1Engine
         protected override int GetSpriteID => ActorModelIndex;
         public override IList<Sprite> Sprites => ActorModel?.Graphics?.Sprites;
 
-        public bool IsGBC => ObjManager.Context.Settings.MajorEngineVersion == MajorEngineVersion.GBC;
+        public bool IsGBC => ObjManager.Context.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBC;
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {

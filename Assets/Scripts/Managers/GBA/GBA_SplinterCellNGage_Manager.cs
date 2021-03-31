@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 
 namespace R1Engine
 {

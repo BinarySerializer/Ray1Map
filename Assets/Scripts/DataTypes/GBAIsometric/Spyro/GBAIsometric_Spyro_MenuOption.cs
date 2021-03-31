@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_MenuOption : R1Serializable
+    public class GBAIsometric_Spyro_MenuOption : BinarySerializable
     {
         public ushort Index { get; set; }
         public GBAIsometric_LocIndex LocIndex { get; set; }

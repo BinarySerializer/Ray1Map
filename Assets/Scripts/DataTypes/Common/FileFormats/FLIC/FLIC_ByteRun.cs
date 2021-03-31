@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class FLIC_ByteRun : R1Serializable
+    public class FLIC_ByteRun : BinarySerializable
     {
         public FLIC Flic { get; set; } // Set before serializing
 
@@ -14,7 +15,7 @@ namespace R1Engine
             Lines = s.SerializeObjectArray<FLIC_ByteRunLine>(Lines, Flic.Height, x => x.Flic = Flic, name: nameof(Lines));
         }
 
-        public class FLIC_ByteRunLine : R1Serializable
+        public class FLIC_ByteRunLine : BinarySerializable
         {
             public FLIC Flic { get; set; } // Set before serializing
 
@@ -33,7 +34,7 @@ namespace R1Engine
                 }, includeLastObj: true, name: nameof(Packets));
             }
 
-            public class FLIC_ByteRunPacket : R1Serializable
+            public class FLIC_ByteRunPacket : BinarySerializable
             {
                 public sbyte Count { get; set; }
                 public byte[] ImageData { get; set; }

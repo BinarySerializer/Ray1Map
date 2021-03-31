@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_Poing : R1Serializable
+    public class R1_Poing : BinarySerializable
     {
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }

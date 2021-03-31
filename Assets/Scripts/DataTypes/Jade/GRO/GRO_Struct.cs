@@ -1,7 +1,8 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-    public class GRO_Struct : R1Serializable {
+    public class GRO_Struct : BinarySerializable {
         public GRO_Type Type { get; set; }
         public uint Count_Editor { get; set; }
         public byte[] Bytes_Editor { get; set; }

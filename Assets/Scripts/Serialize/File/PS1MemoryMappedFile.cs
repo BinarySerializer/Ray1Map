@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Cysharp.Threading.Tasks;
+﻿using BinarySerializer;
 
-namespace R1Engine.Serialize {
-	public class PS1MemoryMappedFile : MemoryMappedFile {
+namespace R1Engine
+{
+    public class PS1MemoryMappedFile : MemoryMappedFile {
 		public InvalidPointerMode invalidPointerMode;
 		public PS1MemoryMappedFile(Context context, uint baseAddress,
 			InvalidPointerMode invalidPointerMode) : base(context, baseAddress) {

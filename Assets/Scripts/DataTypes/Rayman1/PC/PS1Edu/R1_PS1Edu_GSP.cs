@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PS1Edu_GSP : R1Serializable
+    public class R1_PS1Edu_GSP : BinarySerializable
     {
         /// <summary>
         /// Indices for the descriptor array in PS1_EDU_TEX

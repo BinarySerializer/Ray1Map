@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro2_LevelObjects2D : R1Serializable
+    public class GBAIsometric_Spyro2_LevelObjects2D : BinarySerializable
     {
         public byte[] Bytes_00 { get; set; }
 

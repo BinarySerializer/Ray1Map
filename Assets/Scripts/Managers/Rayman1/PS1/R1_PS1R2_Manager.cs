@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -136,7 +137,7 @@ namespace R1Engine
         {
             // Read the files
             var fixGraphics = FileFactory.Read<Array<byte>>(FixGraphicsPath, context, onPreSerialize: (s,a) => a.Length = s.CurrentLength);
-            var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelGraphicsPath(context.Settings), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelGraphicsPath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
             var palettes = FileFactory.Read<ObjectArray<RGBA5551Color>>(SpritePalettesPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
 
             var tilePalettes = new ObjectArray<RGBA5551Color>[4];
@@ -191,7 +192,7 @@ namespace R1Engine
             vram.AddDataAt(0, 0, 0, paletteY, palettes.Value.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512); 
 
             context.StoreObject("vram", vram);
-            //PaletteHelpers.ExportVram(context.Settings.GameDirectory + "vram.png", vram);
+            //PaletteHelpers.ExportVram(context.GetR1Settings().GameDirectory + "vram.png", vram);
         }
 
         public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress) {
@@ -199,7 +200,7 @@ namespace R1Engine
 
             if (baseAddress != 0) {
                 PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode) {
-                    filePath = path,
+                    FilePath = path,
                     Length = FileSizes[path]
                 };
                 context.AddFile(file);
@@ -207,8 +208,8 @@ namespace R1Engine
                 return FileSizes[path];
             } else {
                 LinearSerializedFile file = new LinearSerializedFile(context) {
-                    filePath = path,
-                    length = FileSizes.ContainsKey(path) ? FileSizes[path] : 0
+                    FilePath = path,
+                    Length = FileSizes.ContainsKey(path) ? FileSizes[path] : 0
                 };
                 context.AddFile(file);
                 return 0;
@@ -233,13 +234,13 @@ namespace R1Engine
             var fixDTAPath = FixDataPath;
             var fixGRPPath = FixGraphicsPath;
             var sprPLSPath = SpritePalettesPath;
-            var levelDTAPath = GetLevelDataPath(context.Settings);
-            var levelSPRPath = GetLevelImageDescriptorsPath(context.Settings);
-            var levelGRPPath = GetLevelGraphicsPath(context.Settings);
+            var levelDTAPath = GetLevelDataPath(context.GetR1Settings());
+            var levelSPRPath = GetLevelImageDescriptorsPath(context.GetR1Settings());
+            var levelGRPPath = GetLevelGraphicsPath(context.GetR1Settings());
 
             baseAddress += await LoadFile(context, fixDTAPath, baseAddress);
             baseAddress -= 94; // FIX.DTA header size
-            Pointer fixDTAHeader = new Pointer(baseAddress, context.FilePointer(fixDTAPath).file);
+            Pointer fixDTAHeader = new Pointer(baseAddress, context.FilePointer(fixDTAPath).File);
 
             R1_R2AllfixFooter footer = null;
 
@@ -308,7 +309,7 @@ namespace R1Engine
                 return new Unity_ObjectManager_R2.AnimGroup(
                     pointer: animGroup?.Offset, eta: animGroup?.ETA.EventStates ?? new R1_EventState[0][], 
                     animations: animGroup?.AnimationDecriptors?.Select(x => x.ToCommonAnimation()).ToArray(), 
-                    filePath: animGroup?.AnimationDescriptorsPointer?.file.filePath);
+                    filePath: animGroup?.AnimationDescriptorsPointer?.File.FilePath);
             }
 
             var objManager = new Unity_ObjectManager_R2(
@@ -408,7 +409,7 @@ namespace R1Engine
         public override async UniTask ExportAllAnimationFramesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // Create the context
-            using (var context = new Context(baseGameSettings))
+            using (var context = new R1Context(baseGameSettings))
             {
                 // Load the level
                 var level = await LoadAsync(context, true);

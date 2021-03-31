@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// World map info
     /// </summary>
-    public class R1_WorldMapInfo : R1Serializable
+    public class R1_WorldMapInfo : BinarySerializable
     {
         public short XPosition { get; set; }
         public short YPosition { get; set; }
@@ -28,7 +29,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit)
             {
                 Unk1 = s.Serialize<uint>(Unk1, name: nameof(Unk1));
                 XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
@@ -41,12 +42,12 @@ namespace R1Engine
                 LevelName = s.Serialize<ushort>(LevelName, name: nameof(LevelName));
 
                 string specialPath = null;
-                var m = (R1_PCBaseManager)s.GameSettings.GetGameManager;
+                var m = (R1_PCBaseManager)s.GetR1Settings().GetGameManager;
 
                 if (m is R1_Kit_Manager kit)
                     specialPath = kit.GetSpecialArchiveFilePath("USA");
                 else if (m is R1_PCEdu_Manager edu)
-                    specialPath = edu.GetSpecialArchiveFilePath(s.GameSettings.EduVolume);
+                    specialPath = edu.GetSpecialArchiveFilePath(s.GetR1Settings().EduVolume);
 
                 if (specialPath != null)
                     s.Log($"Name: {m.LoadArchiveFile<R1_PC_LocFile>(s.Context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT)?.TextDefine.ElementAtOrDefault(LevelName)?.Value ?? "(out of bounds)"}");

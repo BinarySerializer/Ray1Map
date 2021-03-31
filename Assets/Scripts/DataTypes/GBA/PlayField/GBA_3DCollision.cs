@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_3DCollision : R1Serializable
+    public class GBA_3DCollision : BinarySerializable
     {
         public byte Height { get; set; }
         public byte Type { get; set; }

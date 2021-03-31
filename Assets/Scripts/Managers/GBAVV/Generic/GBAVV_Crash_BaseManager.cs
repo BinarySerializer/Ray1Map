@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -92,7 +93,7 @@ namespace R1Engine
         {
             var crashRom = (GBAVV_ROM_Crash)rom;
 
-            var settings = rom.Context.Settings;
+            var settings = rom.Context.GetR1Settings();
 
             var langages = new string[]
             {

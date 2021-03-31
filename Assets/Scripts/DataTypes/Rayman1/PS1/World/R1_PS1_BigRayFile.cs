@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// BigRay data for Rayman 1 (PS1)

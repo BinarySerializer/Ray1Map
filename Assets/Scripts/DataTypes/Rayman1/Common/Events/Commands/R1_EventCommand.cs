@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// A common event command
     /// </summary>
-    public class R1_EventCommand : R1Serializable
+    public class R1_EventCommand : BinarySerializable
     {
         /// <summary>
         /// The command
@@ -69,7 +70,7 @@ namespace R1Engine
 
                     case R1_EventCommandType.GO_DOLOOP:
                     case R1_EventCommandType.GO_RETURN:
-                        Arguments = s.SerializeArray<byte>(Arguments, s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ? 1 : 0, name: nameof(Arguments));
+                        Arguments = s.SerializeArray<byte>(Arguments, s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ? 1 : 0, name: nameof(Arguments));
                         break;
 
                     case R1_EventCommandType.GO_TEST:

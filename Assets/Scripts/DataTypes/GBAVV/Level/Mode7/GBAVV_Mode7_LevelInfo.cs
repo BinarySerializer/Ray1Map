@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_Mode7_LevelInfo : R1Serializable
+    public class GBAVV_Mode7_LevelInfo : BinarySerializable
     {
         public bool SerializeData { get; set; } // Set before serializing
 
@@ -42,15 +43,15 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            var pointerTable = PointerTables.GBAVV_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBAVV_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
                 LevelType = s.Serialize<uint>(LevelType, name: nameof(LevelType));
 
             TileSetFramesPointer = s.SerializePointer(TileSetFramesPointer, name: nameof(TileSetFramesPointer));
             TileSetFramesBlockLength = s.Serialize<uint>(TileSetFramesBlockLength, name: nameof(TileSetFramesBlockLength));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1 || s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 || s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
                 Crash1_BackgroundPointer = s.SerializePointer(Crash1_BackgroundPointer, name: nameof(Crash1_BackgroundPointer));
             else
                 Crash2_BackgroundIndex = s.Serialize<uint>(Crash2_BackgroundIndex, name: nameof(Crash2_BackgroundIndex));
@@ -60,7 +61,7 @@ namespace R1Engine
             AnimSetsPointer = s.SerializePointer(AnimSetsPointer, name: nameof(AnimSetsPointer));
             ObjGraphicsPointer = s.SerializePointer(ObjGraphicsPointer, name: nameof(ObjGraphicsPointer));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
             {
                 Uint_20 = s.Serialize<uint>(Uint_20, name: nameof(Uint_20));
                 Uint_24 = s.Serialize<uint>(Uint_24, name: nameof(Uint_24));
@@ -69,7 +70,7 @@ namespace R1Engine
                 Uint_30 = s.Serialize<uint>(Uint_30, name: nameof(Uint_30));
             }
 
-            int animSetsCount = s.GameSettings.GetGameManagerOfType<GBAVV_Generic_BaseManager>().Mode7AnimSetCounts[LevelType];
+            int animSetsCount = s.GetR1Settings().GetGameManagerOfType<GBAVV_Generic_BaseManager>().Mode7AnimSetCounts[LevelType];
 
             // Serialize animation sets
             AnimSets = s.DoAt(AnimSetsPointer, () => s.SerializeObjectArray<GBAVV_Mode7_AnimSet>(AnimSets, animSetsCount, name: nameof(AnimSets)));
@@ -95,35 +96,35 @@ namespace R1Engine
             TileSetFrames = s.DoAt(TileSetFramesPointer, () => s.SerializeObject<GBAVV_Mode7_TileFrames>(TileSetFrames, x =>
             {
                 x.TileSetFramesBlockLength = TileSetFramesBlockLength;
-                x.HasPaletteIndices = LevelType == 0 && s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1;
+                x.HasPaletteIndices = LevelType == 0 && s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1;
             }, name: nameof(TileSetFrames)));
 
             s.DoAt(Crash1_BackgroundPointer, () =>
             {
-                s.DoEncodedIf(new GBA_LZSSEncoder(), s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman, () => Crash1_Background = s.SerializeObject<GBAVV_Mode7_Background>(Crash1_Background, name: nameof(Crash1_Background)));
+                s.DoEncodedIf(new GBA_LZSSEncoder(), s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman, () => Crash1_Background = s.SerializeObject<GBAVV_Mode7_Background>(Crash1_Background, name: nameof(Crash1_Background)));
             });
 
             ObjPalette = s.DoAt(ObjPalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(ObjPalette, 256, name: nameof(ObjPalette)));
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Mode7_ObjData>(ObjData, name: nameof(ObjData)));
 
-            if (LevelType == 0 && s.GameSettings.EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            if (LevelType == 0 && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
             {
                 AnimSet_Chase = new GBAVV_Mode7_AnimSet()
                 {
                     AnimationsPointer = pointerTable[GBAVV_Pointer.Mode7_Type0_ChaseObjAnimations],
                     FrameOffsetsPointer = pointerTable[GBAVV_Pointer.Mode7_Type0_ChaseObjFrames],
-                    PaletteIndex = (uint)(s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1 ? 0x1F : 0x12), // Tile pal 0x0F and 0x02
+                    PaletteIndex = (uint)(s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 ? 0x1F : 0x12), // Tile pal 0x0F and 0x02
                 };
             }
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1 && LevelType == 1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && LevelType == 1)
                 // Load the blimp
                 SpecialFrames = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash1_Type1_SpecialFrame], () => s.SerializeObject<GBAVV_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 4, name: nameof(SpecialFrames)));
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1 && LevelType == 2)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && LevelType == 2)
                 // Load N. Gin
                 SpecialFrames = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash1_Type2_SpecialFrame], () => s.SerializeObject<GBAVV_Mode7_SpecialFrames>(SpecialFrames, x => x.FramesCount = 1, name: nameof(SpecialFrames)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
                 Crash1_PolarDeathPalette = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash1_PolarDeathPalette], () => s.SerializeObjectArray<RGBA5551Color>(Crash1_PolarDeathPalette, 16, name: nameof(Crash1_PolarDeathPalette)));
         }
 

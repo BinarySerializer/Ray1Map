@@ -1,8 +1,9 @@
 ﻿using System.Text;
+using BinarySerializer;
 using Unity.Collections.LowLevel.Unsafe;
 
 namespace R1Engine {
-    public class MusyX_InstrumentTable : R1Serializable {
+    public class MusyX_InstrumentTable : BinarySerializable {
         // Set in OnPreSerialize
         public Pointer BaseOffset { get; set; }
         public Pointer EndOffset { get; set; }

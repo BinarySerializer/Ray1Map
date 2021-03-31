@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -117,12 +118,12 @@ namespace R1Engine
             }
         }
 
-        public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.Settings);
+        public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.GetR1Settings());
 
-        public override R1Serializable SerializableData => EventData;
+        public override BinarySerializable SerializableData => EventData;
 
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
-        public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == R1_EventType.TYPE_DARK2_PINK_FLY);
+        public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == R1_EventType.TYPE_DARK2_PINK_FLY);
         public override bool IsEditor => TypeInfo?.Flag == ObjTypeFlag.Editor;
 
         public override bool IsActive
@@ -136,7 +137,7 @@ namespace R1Engine
                 }
                 else
                 {
-                    if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                    if (ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                     {
                         // TODO: Find actual flag
                         return EventData.PS1_Unk5 == 0;
@@ -168,7 +169,7 @@ namespace R1Engine
                 }
                 else
                 {
-                    if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                    if (ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                     {
                         if (EventData.PS1Demo_IsFlipped && Settings.LoadFromMemory)
                             return true;
@@ -198,7 +199,7 @@ namespace R1Engine
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC()
         {
-            var engineVersion = ObjManager.Context.Settings.EngineVersion;
+            var engineVersion = ObjManager.Context.GetR1Settings().EngineVersion;
 
             // Ignore earlier games
             if (engineVersion == EngineVersion.R1_PS1_JP ||
@@ -511,8 +512,8 @@ namespace R1Engine
 
             public bool FollowEnabled
             {
-                get => Obj.EventData.GetFollowEnabled(Obj.ObjManager.Context.Settings);
-                set => Obj.EventData.SetFollowEnabled(Obj.ObjManager.Context.Settings, value);
+                get => Obj.EventData.GetFollowEnabled(Obj.ObjManager.Context.GetR1Settings());
+                set => Obj.EventData.SetFollowEnabled(Obj.ObjManager.Context.GetR1Settings(), value);
             }
         }
 

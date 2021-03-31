@@ -1,5 +1,7 @@
-﻿namespace R1Engine.Jade {
-	public class AI_Node_Unknown : R1Serializable {
+﻿using BinarySerializer;
+
+namespace R1Engine.Jade {
+	public class AI_Node_Unknown : BinarySerializable {
 		public int Index { get; set; }
 		public int Key { get; set; }
 

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class R1_PC_AllfixFile : R1_PC_BaseWorldFile
     {
@@ -39,7 +41,7 @@
             DESIndex_Alpha = s.Serialize<uint>(DESIndex_Alpha, name: nameof(DESIndex_Alpha));
             DESIndex_Alpha2 = s.Serialize<uint>(DESIndex_Alpha2, name: nameof(DESIndex_Alpha2));
 
-            if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPC_1_21_JP)
+            if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPC_1_21_JP)
                 DESIndex_Alpha3 = s.Serialize<uint>(DESIndex_Alpha3, name: nameof(DESIndex_Alpha3));
 
             DESIndex_RayLittle = s.Serialize<uint>(DESIndex_RayLittle, name: nameof(DESIndex_RayLittle));
@@ -47,7 +49,7 @@
             DESIndex_ClockObj = s.Serialize<uint>(DESIndex_ClockObj, name: nameof(DESIndex_ClockObj));
             DESIndex_DivObj = s.Serialize<uint>(DESIndex_DivObj, name: nameof(DESIndex_DivObj));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu)
                 DESIndex_PARCHEM = s.Serialize<uint>(DESIndex_PARCHEM, name: nameof(DESIndex_PARCHEM));
         }
     }

@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Tile texture data for PC
     /// </summary>
-    public class R1_PC_TileTextureBlock : R1Serializable
+    public class R1_PC_TileTextureBlock : BinarySerializable
     {
         /// <summary>
         /// The checksum for the decrypted texture block
@@ -58,7 +60,7 @@
         {
             TextureBlockChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
-                s.DoXOR((byte)(s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC ? 0 : 0xFF), () =>
+                s.DoXOR((byte)(s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC ? 0 : 0xFF), () =>
                 {
                     // Read the offset table for the textures, based from the start of the tile texture arrays
                     TexturesOffsetTable = s.SerializePointerArray(TexturesOffsetTable, 1200, s.CurrentPointer + 1200 * 4 + 3 * 4, name: nameof(TexturesOffsetTable));
@@ -77,8 +79,8 @@
 
                     // Serialize the fourth unknown value
                     Unknown4 = s.SerializeArray<byte>(Unknown4, 32, name: nameof(Unknown4));
-                }, ChecksumPlacement.After, calculateChecksum: s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC, name: nameof(TexturesChecksum));
-            }, ChecksumPlacement.Before, calculateChecksum: s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu, name: nameof(TextureBlockChecksum));
+                }, ChecksumPlacement.After, calculateChecksum: s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC, name: nameof(TexturesChecksum));
+            }, ChecksumPlacement.Before, calculateChecksum: s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu, name: nameof(TextureBlockChecksum));
         }
     }
 }

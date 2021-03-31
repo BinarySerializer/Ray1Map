@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using BinarySerializer;
 using Newtonsoft.Json;
-using R1Engine.Serialize;
+
 
 namespace R1Engine
 {
@@ -26,7 +27,7 @@ namespace R1Engine
                     {
                         OnPreSerialize(path);
 
-                        using (R1TextParser parser = new R1TextParser(context.Settings, s, encoding))
+                        using (R1TextParser parser = new R1TextParser(context.GetR1Settings(), s, encoding))
                             Read(parser);
 
                         OnPostSerialize(path);
@@ -42,7 +43,7 @@ namespace R1Engine
                     {
                         OnPreSerialize(path);
 
-                        using (R1TextParser parser = new R1TextParser(context.Settings, s, encoding))
+                        using (R1TextParser parser = new R1TextParser(context.GetR1Settings(), s, encoding))
                             Write(parser);
 
                         OnPostSerialize(path);

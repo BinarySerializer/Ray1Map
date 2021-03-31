@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Event graphics block for some special events in Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_EventComplexData : R1Serializable
+    public class R1Jaguar_EventComplexData : BinarySerializable
     {
         public ushort StructType { get; set; } // Read from EventDefinition
 		public ushort NumLayers { get; set; }
@@ -28,7 +29,7 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto && StructType != 29)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && StructType != 29)
                 UnkPointers = s.SerializePointerArray(UnkPointers, 64, allowInvalid: true, name: nameof(UnkPointers));
 
             if (StructType != 29)
@@ -38,7 +39,7 @@ namespace R1Engine
 
             if (StructType != 29) 
             {
-                Transitions = s.SerializeObjectArray<R1Jaguar_EventComplexDataTransition>(Transitions, s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto ? 5 : 7, onPreSerialize: g => {
+                Transitions = s.SerializeObjectArray<R1Jaguar_EventComplexDataTransition>(Transitions, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? 5 : 7, onPreSerialize: g => {
 					g.StructType = StructType;
 					g.NumLayers = NumLayers;
 				}, name: nameof(Transitions));
@@ -62,7 +63,7 @@ namespace R1Engine
 							}
 						});
 						if (!success
-						|| (CheckPtr0 != null && CheckPtr0.file != Offset.file)) {
+						|| (CheckPtr0 != null && CheckPtr0.File != Offset.File)) {
 							break;
 						} else if(CheckPtr0 != null) {
 							// Can't check animation header, the frame pointer doesn't always point to the start of the actual animation
@@ -88,7 +89,7 @@ namespace R1Engine
 				States = temp.ToArray();
 			}
 
-			if (s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto)
+			if (s.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto)
             {
                 s.DoAt(ImageDescriptorsPointer, () => {
                     // TODO: This doesn't seem to work consistently at all - fallback to previous method for now

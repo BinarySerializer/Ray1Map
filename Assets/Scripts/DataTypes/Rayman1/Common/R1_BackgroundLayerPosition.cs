@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Background layer position data
     /// </summary>
-    public class R1_BackgroundLayerPosition : R1Serializable
+    public class R1_BackgroundLayerPosition : BinarySerializable
     {
         /// <summary>
         /// The layer x position

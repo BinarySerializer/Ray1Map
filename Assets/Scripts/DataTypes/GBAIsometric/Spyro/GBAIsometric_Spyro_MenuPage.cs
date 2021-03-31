@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_MenuPage : R1Serializable
+    public class GBAIsometric_Spyro_MenuPage : BinarySerializable
     {
         public GBAIsometric_LocIndex Header { get; set; }
         public GBAIsometric_LocIndex SubHeader { get; set; }

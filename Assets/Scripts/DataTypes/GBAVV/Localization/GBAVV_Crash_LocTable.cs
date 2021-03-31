@@ -1,13 +1,15 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Crash_LocTable : R1Serializable
+    public class GBAVV_Crash_LocTable : BinarySerializable
     {
         public Pointer[] StringPointers { get; set; }
         public string[] Strings { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            StringPointers = s.SerializePointerArray(StringPointers, s.GameSettings.GetGameManagerOfType<GBAVV_Crash_BaseManager>().LocTableCount, name: nameof(StringPointers));
+            StringPointers = s.SerializePointerArray(StringPointers, s.GetR1Settings().GetGameManagerOfType<GBAVV_Crash_BaseManager>().LocTableCount, name: nameof(StringPointers));
 
             if (Strings == null)
                 Strings = new string[StringPointers.Length];

@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Animation group data for Rayman 2 (PS1 - Demo)
     /// </summary>
-    public class R1_R2EventAnimGroup : R1Serializable
+    public class R1_R2EventAnimGroup : BinarySerializable
     {
         #region Event Data
 

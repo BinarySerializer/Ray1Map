@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBA_Milan_Scene : GBA_BaseBlock
     {
@@ -24,7 +26,7 @@
 
             PlayField = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
             {
                 TomClancy_TilePalette = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Palette>(TomClancy_TilePalette, name: nameof(TomClancy_TilePalette)));
                 TomClancy_ObjPalette = s.DoAt(OffsetTable.GetPointer(blockIndex++), () => s.SerializeObject<GBA_Palette>(TomClancy_ObjPalette, name: nameof(TomClancy_ObjPalette)));

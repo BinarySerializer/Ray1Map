@@ -1,11 +1,12 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman 2 (PS1 - Demo)
     /// </summary>
-    public class R1_R2LevDataFile : R1Serializable
+    public class R1_R2LevDataFile : BinarySerializable
     {
         #region Level Data
 

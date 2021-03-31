@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
 	public class Gameloft_RRR_LevelList : Gameloft_Resource {
 		public Level[] Levels { get; set; }
@@ -9,7 +11,7 @@
 				includeLastObj: true, name: nameof(Levels));
 		}
 
-		public class Level : R1Serializable {
+		public class Level : BinarySerializable {
 			public byte World { get; set; }
 			public byte[] Types { get; set; }
 

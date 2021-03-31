@@ -1,11 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
 using ImageMagick;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -86,35 +87,6 @@ namespace R1Engine
 
             File.WriteAllLines(path, output);
         }
-
-		/// <summary>
-		/// Convert a byte array to a hex string
-		/// </summary>
-		/// <param name="Bytes">The byte array to convert</param>
-		/// <param name="Align">Should the byte array be split in different lines, this defines the length of one line</param>
-		/// <param name="NewLinePrefix">The prefix to add to each new line</param>
-		/// <returns></returns>
-		public static string ByteArrayToHexString(byte[] Bytes, int? Align = null, string NewLinePrefix = null, int? MaxLines = null) {
-			StringBuilder Result = new StringBuilder(Bytes.Length * 2);
-			string HexAlphabet = "0123456789ABCDEF";
-			int curLine = 0;
-			for(int i = 0; i < Bytes.Length; i++) {
-				if (i > 0 && Align.HasValue && i % Align == 0) {
-					curLine++;
-					if (MaxLines.HasValue && curLine >= MaxLines.Value) {
-						Result.Append("...");
-						return Result.ToString();
-					}
-					Result.Append("\n" + NewLinePrefix ?? "");
-				}
-				byte B = Bytes[i];
-				Result.Append(HexAlphabet[(int)(B >> 4)]);
-				Result.Append(HexAlphabet[(int)(B & 0xF)]);
-				if(i < Bytes.Length-1) Result.Append(' ');
-			}
-
-			return Result.ToString();
-		}
 
         public static void CopyDir(string inputDir, string outputDir)
         {

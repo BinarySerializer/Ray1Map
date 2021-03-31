@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_LocalizedStringItem : R1Serializable
+    public class GBAVV_LocalizedStringItem : BinarySerializable
     {
         public Pointer TextPointer { get; set; }
 

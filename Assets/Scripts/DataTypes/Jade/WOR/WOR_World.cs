@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class WOR_World : Jade_File {
@@ -44,7 +45,7 @@ namespace R1Engine.Jade {
 				UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
 			}
 			UInt_A0 = s.Serialize<uint>(UInt_A0, name: nameof(UInt_A0));
-			if (s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
+			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
 				Xenon = s.SerializeObject<XenonStruct>(Xenon, onPreSerialize: x => x.Type = Type, name: nameof(Xenon));
 			} else {
 				if (!Loader.IsBinaryData) Bytes_A4 = s.SerializeArray<byte>(Bytes_A4, 44, name: nameof(Bytes_A4));
@@ -59,7 +60,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public class UnknownStruct : R1Serializable {
+		public class UnknownStruct : BinarySerializable {
 			public uint UInt_00 { get; set; }
 			public byte[] Bytes_04 { get; set; }
 			public byte[] Bytes_14 { get; set; }
@@ -74,7 +75,7 @@ namespace R1Engine.Jade {
 				InnerStructs = s.SerializeObjectArray<InnerStruct>(InnerStructs, 16, name: nameof(InnerStructs));
 			}
 
-			public class InnerStruct : R1Serializable {
+			public class InnerStruct : BinarySerializable {
 				public short Short_00 { get; set; }
 				public byte Byte_02 { get; set; }
 				public byte Byte_03 { get; set; }
@@ -98,7 +99,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public class XenonStruct : R1Serializable {
+		public class XenonStruct : BinarySerializable {
 			public uint Type { get; set; } // Set in onPreSerialize
 
 			public float Float_00 { get; set; }

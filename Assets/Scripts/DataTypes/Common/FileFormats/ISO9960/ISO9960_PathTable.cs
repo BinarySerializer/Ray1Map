@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     // See: https://wiki.osdev.org/ISO_9660
-    public class ISO9960_PathTable : R1Serializable {
+    public class ISO9960_PathTable : BinarySerializable {
         public Entry[] Entries { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
@@ -18,7 +19,7 @@ namespace R1Engine
             }
         }
 
-        public class Entry : R1Serializable {
+        public class Entry : BinarySerializable {
             public byte DirectoryIdentifierLength { get; set; }
             public byte ExtendedAttributeRecordLength { get; set; }
             public uint ExtentLBA { get; set; }

@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event graphic data for Rayman Advance (GBA)
     /// </summary>
-    public class R1_GBA_EventGraphicsData : R1Serializable 
+    public class R1_GBA_EventGraphicsData : BinarySerializable 
     {
         // sub_50BA4((_BYTE*)eventPointer, 0, 116u);
 

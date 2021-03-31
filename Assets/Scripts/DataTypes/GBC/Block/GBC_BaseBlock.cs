@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
-    public abstract class GBC_BaseBlock : R1Serializable 
+    public abstract class GBC_BaseBlock : BinarySerializable 
     {
         public GBC_BlockHeader GBC_Header { get; set; }
         public ushort GBC_DataLength { get; set; } // The size of the data in the block
@@ -14,7 +15,7 @@ namespace R1Engine
 
         public Pointer BlockStartPointer {
             get {
-                if (Context.Settings.EngineVersion == EngineVersion.GBC_R1) {
+                if (Context.GetR1Settings().EngineVersion == EngineVersion.GBC_R1) {
                     return GBC_DataPointer.GetPointer();
                 } else {
                     return Offset + DependencyTable.Size + 4;
@@ -24,7 +25,7 @@ namespace R1Engine
         private uint? _cachedBlockLength { get; set; }
         public uint BlockSize {
             get {
-                if (Context.Settings.EngineVersion == EngineVersion.GBC_R1) {
+                if (Context.GetR1Settings().EngineVersion == EngineVersion.GBC_R1) {
                     return GBC_DataLength;
                 } else {
                     if (!_cachedBlockLength.HasValue) {
@@ -43,7 +44,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s) 
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1)
             {
                 GBC_Header = s.SerializeObject<GBC_BlockHeader>(GBC_Header, name: nameof(GBC_Header));
                 GBC_DataLength = s.Serialize<ushort>(GBC_DataLength, name: nameof(GBC_DataLength));
@@ -58,7 +59,7 @@ namespace R1Engine
             s.Goto(BlockStartPointer);
             SerializeBlock(s);
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm || s.GameSettings.EngineVersion == EngineVersion.GBC_R1_PocketPC) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_Palm || s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_PocketPC) {
                 s.Align(baseOffset: BlockStartPointer);
             }
             CheckBlockSize(s);

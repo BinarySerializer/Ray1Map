@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Map2D_ObjDataUnkTable : R1Serializable
+    public class GBAVV_Map2D_ObjDataUnkTable : BinarySerializable
     {
         public uint Count { get; set; }
         public Entry[] Entries { get; set; }
@@ -11,7 +13,7 @@
             Entries = s.SerializeObjectArray<Entry>(Entries, Count, name: nameof(Entries));
         }
 
-        public class Entry : R1Serializable
+        public class Entry : BinarySerializable
         {
             public uint Uint_00 { get; set; }
             public uint Uint_04 { get; set; }

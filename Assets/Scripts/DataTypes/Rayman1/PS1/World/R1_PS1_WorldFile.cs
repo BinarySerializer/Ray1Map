@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// World data for Rayman 1 (PS1)
@@ -132,7 +134,7 @@
                 EventPalette2 = s.SerializeObjectArray<RGBA5551Color>(EventPalette2, 256, name: nameof(EventPalette2));
             });
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1)
             {
                 // TILES
                 s.DoAt(TilesBlockPointer, () => {
@@ -160,7 +162,7 @@
                     TilePaletteIndexTable = s.SerializeArray<byte>(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: nameof(TilePaletteIndexTable));
                 });
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP)
             {
                 // TILES
                 s.DoAt(TilesBlockPointer, () => {

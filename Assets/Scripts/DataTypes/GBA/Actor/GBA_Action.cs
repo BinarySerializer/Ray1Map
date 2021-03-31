@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBA_Action : R1Serializable
+    public class GBA_Action : BinarySerializable
     {
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }
@@ -31,7 +32,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.GBA_IsMilan)
+            if (s.GetR1Settings().GBA_IsMilan)
             {
                 Milan_Ushort_00 = s.Serialize<ushort>(Milan_Ushort_00, name: nameof(Milan_Ushort_00));
                 AnimationIndex = s.Serialize<ushort>(AnimationIndex, name: nameof(AnimationIndex));
@@ -39,7 +40,7 @@ namespace R1Engine
             }
             else
             {
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance)
                 {
                     Hitbox_Y1 = s.Serialize<short>(Hitbox_Y1, name: nameof(Hitbox_Y1));
                     Hitbox_X1 = s.Serialize<short>(Hitbox_X1, name: nameof(Hitbox_X1));

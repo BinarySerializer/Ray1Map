@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class FLIC_Color256 : R1Serializable
+    public class FLIC_Color256 : BinarySerializable
     {
         public ushort PacketsCount { get; set; }
         public FLIC_ColorPacket[] Packets { get; set; }
@@ -11,7 +13,7 @@
             Packets = s.SerializeObjectArray<FLIC_ColorPacket>(Packets, PacketsCount, name: nameof(Packets));
         }
 
-        public class FLIC_ColorPacket : R1Serializable
+        public class FLIC_ColorPacket : BinarySerializable
         {
             public byte Skip { get; set; }
             public byte Count { get; set; }

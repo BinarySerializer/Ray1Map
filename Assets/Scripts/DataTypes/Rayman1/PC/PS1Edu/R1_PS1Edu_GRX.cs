@@ -1,6 +1,7 @@
 ﻿using System;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 
 namespace R1Engine
 {
@@ -49,7 +50,7 @@ namespace R1Engine
 
             s.Goto(BaseOffset + file.FileOffset);
 
-            await s.FillCacheForRead((int)file.FileSize);
+            await s.FillCacheForReadAsync((int)file.FileSize);
 
             // Read the bytes
             byte[] buffer = s.SerializeArray<byte>(default, file.FileSize, name: nameof(buffer));
@@ -60,12 +61,12 @@ namespace R1Engine
 
         public async UniTask SerializeHeaderAsync(SerializerObject s)
         {
-            await s.FillCacheForRead(8);
+            await s.FillCacheForReadAsync(8);
             
             Magic = s.SerializeArray<byte>(Magic, 4, name: nameof(Magic));
             BaseOffset = s.SerializePointer(BaseOffset, name: nameof(BaseOffset));
 
-            await s.FillCacheForRead((int)BaseOffset.FileOffset - 8);
+            await s.FillCacheForReadAsync((int)BaseOffset.FileOffset - 8);
             
             FileCount = s.Serialize<uint>(FileCount, name: nameof(FileCount));
             Files = s.SerializeObjectArray<R1_PS1Edu_GRXFile>(Files, FileCount, name: nameof(Files));

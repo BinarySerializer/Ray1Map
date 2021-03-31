@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -93,7 +94,7 @@ namespace R1Engine
         public override Unity_TileSet GetTileSet(Context context)
         {
             // Get the file name
-            var filename = GetTileSetFilePath(context.Settings);
+            var filename = GetTileSetFilePath(context.GetR1Settings());
 
             // Read the file
             var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
@@ -135,8 +136,8 @@ namespace R1Engine
             var height = s.Height;
             var offset = s.ImageBufferOffset;
 
-            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = 256);
-            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = 256);
+            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Length = 256);
+            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 8), context, (y, x) => x.Length = 256);
 
             // Select correct palette
             var palette = s.ImageType == 3 ? pal8.Value : pal4.Value;
@@ -194,8 +195,8 @@ namespace R1Engine
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Get the file paths
-            var levelPath = GetLevelFilePath(context.Settings);
-            var mapPath = GetMapFilePath(context.Settings);
+            var levelPath = GetLevelFilePath(context.GetR1Settings());
+            var mapPath = GetMapFilePath(context.GetR1Settings());
 
             // Load the files
             await LoadFilesAsync(context);
@@ -214,12 +215,12 @@ namespace R1Engine
 
             // Get the file paths
             var allfixPath = GetAllfixFilePath();
-            var worldPath = GetWorldFilePath(context.Settings);
-            var levelPath = GetLevelFilePath(context.Settings);
-            var mapPath = GetMapFilePath(context.Settings);
-            var tileSetPath = GetTileSetFilePath(context.Settings);
-            var pal4Path = GetPalettePath(context.Settings, 4);
-            var pal8Path = GetPalettePath(context.Settings, 8);
+            var worldPath = GetWorldFilePath(context.GetR1Settings());
+            var levelPath = GetLevelFilePath(context.GetR1Settings());
+            var mapPath = GetMapFilePath(context.GetR1Settings());
+            var tileSetPath = GetTileSetFilePath(context.GetR1Settings());
+            var pal4Path = GetPalettePath(context.GetR1Settings(), 4);
+            var pal8Path = GetPalettePath(context.GetR1Settings(), 8);
 
             // Load the files
             await LoadExtraFile(context, allfixPath, false);
@@ -272,13 +273,13 @@ namespace R1Engine
 
         public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load files
                 await LoadFilesAsync(context);
 
                 // Read level file
-                var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context);
+                var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
                 // Export
                 await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new R1_PS1_FontData[]
@@ -293,7 +294,7 @@ namespace R1Engine
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
         {
-            var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context);
+            var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
             {
@@ -305,7 +306,7 @@ namespace R1Engine
         {
             var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
 
-            var bgIndex = context.Settings.R1_World == R1_World.Jungle ? 0 : 2;
+            var bgIndex = context.GetR1Settings().R1_World == R1_World.Jungle ? 0 : 2;
             var fndStartIndex = exe.GetFileTypeIndex(this, R1_PS1_FileType.fnd_file);
 
             if (fndStartIndex == -1)

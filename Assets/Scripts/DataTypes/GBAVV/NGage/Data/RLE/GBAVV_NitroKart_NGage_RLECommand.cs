@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_RLECommand : R1Serializable
+    public class GBAVV_NitroKart_NGage_RLECommand : BinarySerializable
     {
         public byte Type { get; set; } // 0 == Array, 1 == Empty, 2 == Repeat
         public byte Count { get; set; }

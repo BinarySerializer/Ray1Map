@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -32,7 +33,7 @@ namespace R1Engine
             if(Patterns.Length > 0) s.Goto(Patterns[Patterns.Length - 1].Offset + Patterns[Patterns.Length - 1].Size);
         }
 
-		public class Pattern : R1Serializable {
+		public class Pattern : BinarySerializable {
             public byte PatByte_00 { get; set; }
             public byte PatByte_01 { get; set; }
             public byte PatByte_02 { get; set; }
@@ -61,7 +62,7 @@ namespace R1Engine
             }
 		}
 
-		public class Row : R1Serializable {
+		public class Row : BinarySerializable {
             public byte Command { get; set; }
             public byte[] CommandData { get; set; }
 
@@ -98,7 +99,7 @@ namespace R1Engine
                     }
                 }
 
-                if ((s.GameSettings.Game == Game.GBC_DD || s.GameSettings.Game == Game.GBC_Mowgli) && Command == 0xFC) {
+                if ((s.GetR1Settings().Game == Game.GBC_DD || s.GetR1Settings().Game == Game.GBC_Mowgli) && Command == 0xFC) {
                     CommandData = s.SerializeArray<byte>(CommandData, 3, name: nameof(CommandData));
                 }
             }

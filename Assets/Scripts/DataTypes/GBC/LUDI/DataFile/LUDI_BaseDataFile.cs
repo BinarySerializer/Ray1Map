@@ -1,5 +1,7 @@
-﻿namespace R1Engine {
-	public abstract class LUDI_BaseDataFile : R1Serializable {
+﻿using BinarySerializer;
+
+namespace R1Engine {
+	public abstract class LUDI_BaseDataFile : BinarySerializable {
 		public abstract LUDI_FileIdentifier FileID { get; }
 		public abstract LUDI_OffsetTable OffsetTable { get; }
 		public abstract LUDI_DataInfo DataInfo { get; }

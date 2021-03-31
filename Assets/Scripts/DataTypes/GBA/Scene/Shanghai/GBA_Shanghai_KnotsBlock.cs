@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_Shanghai_KnotsBlock : R1Serializable
+    public class GBA_Shanghai_KnotsBlock : BinarySerializable
     {
         public long Length { get; set; } // Set before serializing
 

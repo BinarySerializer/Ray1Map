@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System.Diagnostics;
+using BinarySerializer;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
@@ -86,7 +87,7 @@ namespace R1Engine
             DetailedState = "Starting...";
 
             // Create the context
-            LevelEditorData.MainContext = new Context(Settings.GetGameSettings);
+            LevelEditorData.MainContext = new R1Context(Settings.GetGameSettings);
             await levelController.LoadLevelAsync(Settings.GetGameManager, LevelEditorData.MainContext);
             if (Settings.ScreenshotEnumeration) return;
 

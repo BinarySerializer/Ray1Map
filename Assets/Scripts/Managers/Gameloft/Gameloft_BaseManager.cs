@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
-using R1Engine.Serialize;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -35,13 +36,13 @@ namespace R1Engine
         }
 
         public async UniTask ExportResourcesAsync(GameSettings settings, string outputDir, ExportMethod exportMethod) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 foreach(var filePath in ResourceFiles) {
                     var f = await context.AddLinearSerializedFileAsync(filePath);
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {
                         try {
-                            var resf = s.SerializeObject<Gameloft_ResourceFile>(default, name: f.filePath);
+                            var resf = s.SerializeObject<Gameloft_ResourceFile>(default, name: f.FilePath);
                             ExportResourceFile(resf, s, Path.Combine(outputDir,filePath), exportMethod);
                         } catch (Exception ex) {
                             Debug.LogError(ex);
@@ -54,7 +55,7 @@ namespace R1Engine
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {
                         try {
-                            var bytes = s.SerializeArray<byte>(default, s.CurrentLength, name: f.filePath);
+                            var bytes = s.SerializeArray<byte>(default, s.CurrentLength, name: f.FilePath);
                             ExportResourceFileData(bytes,"data", Path.Combine(outputDir, filePath), exportMethod);
                         } catch (Exception ex) {
                             Debug.LogError(ex);
@@ -112,14 +113,14 @@ namespace R1Engine
                     case ExportMethod.LayerGroups:
                         if (restype == ResourceType.Puppet) {
                             //Debug.Log($"Reading {resf.Offset.file.filePath} - {i}");
-                            var puppet = resf.SerializeResource<Gameloft_Puppet>(s, default, i, name: $"Puppet_{resf.Offset.file.filePath}_{i}");
+                            var puppet = resf.SerializeResource<Gameloft_Puppet>(s, default, i, name: $"Puppet_{resf.Offset.File.FilePath}_{i}");
                             ExportPuppet(puppet, Path.Combine(outputDir, $"{i}"), exportMethod);
                         }
                         break;
                     case ExportMethod.Animations:
                         if (restype == ResourceType.Puppet) {
                             //Debug.Log($"Reading {resf.Offset.file.filePath} - {i}");
-                            var puppet = resf.SerializeResource<Gameloft_Puppet>(s, default, i, name: $"Puppet_{resf.Offset.file.filePath}_{i}");
+                            var puppet = resf.SerializeResource<Gameloft_Puppet>(s, default, i, name: $"Puppet_{resf.Offset.File.FilePath}_{i}");
                             ExportAnimations(puppet, Path.Combine(outputDir, $"{i}"));
                         }
                         break;

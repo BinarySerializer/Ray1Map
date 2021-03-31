@@ -1,18 +1,20 @@
-﻿using System.IO;
-using System.Linq; // For Where and OfType
+﻿using BinarySerializer;
+// For Where and OfType
 using BinaryTools.Elf; // To find symbols in Linux EXEs
 using BinaryTools.Elf.Io; // Make sure it has a reader it's happy with...
 using PE; // To find symbols in Windows EXEs
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
-namespace R1Engine.Serialize
+namespace R1Engine
 {
     public class ProcessMemoryStreamFile : BinaryFile 
     {
         public ProcessMemoryStreamFile(string name, string processFileName, Context context) : base(context)
         {
             ProcessFileName = processFileName;
-            filePath = name;
+            FilePath = name;
             stream = null;
         }
 
@@ -82,11 +84,11 @@ namespace R1Engine.Serialize
                         if (symReader.ReadUInt32() == 0) {
                             // First four bytes are zero => next four bytes are an offset into the string table.
                             exestream.Seek(strTabPos + symReader.ReadUInt32(), SeekOrigin.Begin);
-                            symName = symReader.ReadNullDelimitedString();
+                            symName = symReader.ReadNullDelimitedString(Context.DefaultEncoding);
                         } else {
                             // First four bytes not zero => the name is eight characters (or less) and right here.
                             exestream.Seek(symPos, SeekOrigin.Begin);
-                            symName = symReader.ReadString(8);
+                            symName = symReader.ReadString(8, Context.DefaultEncoding);
                         }
 
                         if (symName.Equals($"_{name}") // COFF symbols have a preceding underscore, at least in my MinGW Dosbox build.
@@ -110,7 +112,7 @@ namespace R1Engine.Serialize
             return ptr;
         }
 
-        public override Pointer StartPointer => new Pointer((uint)baseAddress, this);
+        public override Pointer StartPointer => new Pointer((uint)BaseAddress, this);
 		public override Reader CreateReader() {
 			Reader reader = new Reader(new BufferedStream(new NonClosingStreamWrapper(GetStream())), isLittleEndian: Endianness == Endian.Little);
 			return reader;
@@ -126,5 +128,8 @@ namespace R1Engine.Serialize
 			stream = null;
 			base.Dispose();
 		}
-	}
+
+        public override bool SavePointersToMemoryMap => false;
+        public override bool IgnoreCacheOnRead => true;
+    }
 }

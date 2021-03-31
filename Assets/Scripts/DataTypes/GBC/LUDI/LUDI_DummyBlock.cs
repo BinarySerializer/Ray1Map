@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {

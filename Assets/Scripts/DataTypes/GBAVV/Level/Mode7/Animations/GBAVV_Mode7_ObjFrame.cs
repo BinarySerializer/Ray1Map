@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_Mode7_ObjFrame : R1Serializable
+    public class GBAVV_Mode7_ObjFrame : BinarySerializable
     {
         public byte Width { get; set; }
         public byte Height { get; set; }

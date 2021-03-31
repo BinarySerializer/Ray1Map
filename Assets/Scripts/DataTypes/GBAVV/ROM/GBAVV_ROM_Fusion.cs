@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -7,7 +8,7 @@ namespace R1Engine
         public GBAVV_Fusion_Manager.FusionLevInfo CurrentLevInfo { get; set; } // Set before serializing
 
         // Helpers
-        public GBAVV_Map CurrentMap => Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashFusion ? Crash_LevelInfos[CurrentLevInfo.LevelIndex].MapData : Spyro_Maps[CurrentLevInfo.LevelIndex];
+        public GBAVV_Map CurrentMap => Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashFusion ? Crash_LevelInfos[CurrentLevInfo.LevelIndex].MapData : Spyro_Maps[CurrentLevInfo.LevelIndex];
 
         // Common
         public GBAVV_CrashFusion_LevelInfo[] Crash_LevelInfos { get; set; }
@@ -19,17 +20,17 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // Get the pointer table
-            var pointerTable = PointerTables.GBAVV_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBAVV_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Get the manager
-            var manager = s.GameSettings.GetGameManagerOfType<GBAVV_Fusion_Manager>();
+            var manager = s.GetR1Settings().GetGameManagerOfType<GBAVV_Fusion_Manager>();
 
             // Serialize level infos
             s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>
             {
                 var levelsCount = manager.LevInfos.Max(x => x.LevelIndex) + 1;
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashFusion)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashFusion)
                 {
                     if (Crash_LevelInfos == null)
                         Crash_LevelInfos = new GBAVV_CrashFusion_LevelInfo[levelsCount];

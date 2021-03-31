@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class SNES_Proto_State : R1Serializable
+    public class SNES_Proto_State : BinarySerializable
     {
         public SNES_Pointer MovementFunctionPointer { get; set; } // Modifying this changes how Rayman moves
         public SNES_Pointer CollisionFunctionPointer { get; set; } // Modifying this changes what kind of platform Rayman thinks he's on

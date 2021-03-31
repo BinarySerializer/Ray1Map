@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_UnkActorStruct : R1Serializable
+    public class GBC_UnkActorStruct : BinarySerializable
     {
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; } // Always 0xCD on PalmOS

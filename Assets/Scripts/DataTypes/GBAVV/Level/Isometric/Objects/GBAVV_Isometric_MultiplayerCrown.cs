@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_MultiplayerCrown : R1Serializable
+    public class GBAVV_Isometric_MultiplayerCrown : BinarySerializable
     {
         public int XPos { get; set; }
         public int YPos { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Generic_PaletteShifts : R1Serializable
+    public class GBAVV_Generic_PaletteShifts : BinarySerializable
     {
         public uint ShiftsPointer { get; set; } // Memory pointer
         public int ShiftsCount { get; set; }
@@ -15,8 +17,8 @@
 
             if (ShiftsPointer != 0)
             {
-                var memOffset = s.GameSettings.GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
-                Shifts = s.DoAt(new Pointer(ShiftsPointer + memOffset, Offset.file), () => s.SerializeObjectArray<GBAVV_Generic_PaletteShift>(Shifts, ShiftsCount, name: nameof(Shifts)));
+                var memOffset = s.GetR1Settings().GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
+                Shifts = s.DoAt(new Pointer(ShiftsPointer + memOffset, Offset.File), () => s.SerializeObjectArray<GBAVV_Generic_PaletteShift>(Shifts, ShiftsCount, name: nameof(Shifts)));
             }
         }
     }

@@ -1,7 +1,8 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine {
-    public class MusyX_Sample : R1Serializable {
+    public class MusyX_Sample : BinarySerializable {
         public uint Length { get; set; }
         public int Int_04 { get; set; }
         public ushort SampleRate { get; set; }

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Level event data for Rayman Advance (GBA)
@@ -21,7 +23,7 @@
         public void SerializeData(SerializerObject s, Pointer eventGraphicsPointers, Pointer eventDataPointers, Pointer eventGraphicsGroupCountTablePointers, Pointer levelEventGraphicsGroupCounts)
         {
             // Get the global level index
-            var levelIndex = ((R1_GBA_Manager)s.Context.Settings.GetGameManager).LoadData(s.Context).WorldLevelOffsetTable[s.GameSettings.World] + (s.GameSettings.Level - 1);
+            var levelIndex = ((R1_GBA_Manager)s.Context.GetR1Settings().GetGameManager).LoadData(s.Context).WorldLevelOffsetTable[s.GetR1Settings().World] + (s.GetR1Settings().Level - 1);
 
             // Serialize data
             s.DoAt(eventGraphicsPointers + (uint)(4 * levelIndex), 

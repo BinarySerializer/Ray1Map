@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Frogger_AdditionalLevelData : R1Serializable
+    public class GBAVV_Frogger_AdditionalLevelData : BinarySerializable
     {
         public bool SerializeData1 { get; set; } // Set before serializing
         public bool SerializeData2 { get; set; } // Set before serializing

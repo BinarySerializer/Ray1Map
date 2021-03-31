@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -25,11 +26,11 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override Unity_TileSet GetTileSet(Context context)
         {
-            if (context.Settings.R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == R1_World.Menu)
                 return new Unity_TileSet(Settings.CellSize);
 
             // Get the file name
-            var filename = GetWorldFilePath(context.Settings);
+            var filename = GetWorldFilePath(context.GetR1Settings());
 
             // Read the file
             var worldFile = FileFactory.Read<R1_PS1_WorldFile>(filename, context);
@@ -76,13 +77,13 @@ namespace R1Engine
             // TODO: Support BigRay + font for US version
 
             // Read the files
-            var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context) : null;
-            var world = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context) : null;
-            var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context).TextureBlock : null;
-            var bigRay = mode == VRAMMode.BigRay ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.Settings), context) : null;
-            var font = mode == VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.Settings), context, (s, o) => o.Length = s.CurrentLength) : null;
+            var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context) : null;
+            var world = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context) : null;
+            var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context).TextureBlock : null;
+            var bigRay = mode == VRAMMode.BigRay ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context) : null;
+            var font = mode == VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.GetR1Settings()), context, (s, o) => o.Length = s.CurrentLength) : null;
 
-            //var bgPath = GetLevelBackgroundFilePath(context.Settings, true);
+            //var bgPath = GetLevelBackgroundFilePath(context.GetR1Settings(), true);
             //ARGB1555Color[][] bgPalette = new ARGB1555Color[0][];
             //if (bgPath != null)
             //    bgPalette = FileFactory.Read<PS1_R1_BackgroundVignetteFile>(bgPath, context).ParallaxPalettes;
@@ -112,7 +113,7 @@ namespace R1Engine
             } 
             else if (mode == VRAMMode.Menu) 
             {
-                if (context.Settings.GameModeSelection == GameModeSelection.RaymanPS1US)
+                if (context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1US)
                     vram.AddDataAt(10, 1, 0, 80, font.Value, 256);
                 else 
                     vram.AddDataAt(10, 0, 0, 226, font.Value, 256);
@@ -167,34 +168,34 @@ namespace R1Engine
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Read the allfix file
-            await LoadExtraFile(context, GetAllfixFilePath(context.Settings), false);
-            FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+            await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
+            FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
 
             R1_PS1_EventBlock eventBlock = null;
             MapData mapData;
 
-            if (context.Settings.R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != R1_World.Menu)
             {
                 Controller.DetailedState = $"Loading world file";
 
                 await Controller.WaitIfNecessary();
 
                 // Read the world file
-                await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
-                FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
+                await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
+                FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
                 Controller.DetailedState = $"Loading map data";
 
                 // Read the level data
-                await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
-                var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
+                await LoadExtraFile(context, GetLevelFilePath(context.GetR1Settings()), true);
+                var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
                 eventBlock = level.EventData;
                 mapData = level.MapData;
             }
             else
             {
-                await LoadExtraFile(context, GetFontFilePath(context.Settings), false);
+                await LoadExtraFile(context, GetFontFilePath(context.GetR1Settings()), false);
 
                 mapData = MapData.GetEmptyMapData(384 / Settings.CellSize, 288 / Settings.CellSize);
             }
@@ -213,11 +214,11 @@ namespace R1Engine
         public override UniTask SaveLevelAsync(Context context, Unity_Level lvl)
         {
             // Menu levels can't be saved
-            if (context.Settings.R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == R1_World.Menu)
                 return UniTask.CompletedTask;
 
             // Get the level file path
-            var lvlPath = GetLevelFilePath(context.Settings);
+            var lvlPath = GetLevelFilePath(context.GetR1Settings());
 
             // Get the level data
             var lvlData = context.GetMainFileObject<R1_PS1_LevFile>(lvlPath);
@@ -269,7 +270,7 @@ namespace R1Engine
             var newEventLinkTable = objManager.LinkTable.Select(x => (byte)x).ToArray();
 
             // Relocate pointers to a new block of data we append to the level file
-            UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.EventData, newEvents, newEventLinkTable, context.Settings);
+            UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.EventData, newEvents, newEventLinkTable, context.GetR1Settings());
 
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file

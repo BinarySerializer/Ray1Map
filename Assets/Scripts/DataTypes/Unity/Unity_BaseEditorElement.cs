@@ -1,11 +1,13 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Wrapper for editor objects
     /// </summary>
     /// <typeparam name="T">The native object type</typeparam>
     public abstract class Unity_BaseEditorElement<T>
-        where T : R1Serializable
+        where T : BinarySerializable
     {
         protected Unity_BaseEditorElement(T data)
         {

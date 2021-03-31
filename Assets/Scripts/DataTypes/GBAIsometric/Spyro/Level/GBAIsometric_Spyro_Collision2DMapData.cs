@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_Collision2DMapData : R1Serializable
+    public class GBAIsometric_Spyro_Collision2DMapData : BinarySerializable
     {
         public ushort Width { get; set; }
         public ushort Height { get; set; }
@@ -16,7 +18,7 @@
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
                 TileWidth = s.Serialize<byte>(TileWidth, name: nameof(TileWidth));
                 TileHeight = s.Serialize<byte>(TileHeight, name: nameof(TileHeight));

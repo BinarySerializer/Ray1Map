@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -30,7 +31,7 @@ namespace R1Engine
             Enumerable.Range(0, 1),
         };
 
-        public override string GetROMFilePath(Context context) => $"{(Files)context.Settings.World}.bin";
+        public override string GetROMFilePath(Context context) => $"{(Files)context.GetR1Settings().World}.bin";
 
         public enum Files
         {
@@ -67,7 +68,7 @@ namespace R1Engine
 
         public async UniTask ExportSpritesAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 foreach (var world in GetLevels(settings).First().Worlds.Where(x => x.Maps.Length > 0).Select(x => x.Index))
                 {
@@ -87,7 +88,7 @@ namespace R1Engine
         {
             var output = new List<GBA_R3MadTraxSprite>();
 
-            var file = (Files)context.Settings.World;
+            var file = (Files)context.GetR1Settings().World;
             var pointerTable = PointerTables.GBA_PointerTable(context, context.GetFile(GetROMFilePath(context)));
             var s = context.Deserializer;
 

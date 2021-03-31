@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_AnimationRect : R1Serializable
+    public class GBAVV_AnimationRect : BinarySerializable
     {
         public short X { get; set; }
         public short Y { get; set; }
@@ -12,10 +14,10 @@
             X = s.Serialize<short>(X, name: nameof(X));
             Y = s.Serialize<short>(Y, name: nameof(Y));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 || 
-                s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage ||
-                s.GameSettings.EngineVersion == EngineVersion.GBAVV_Madagascar ||
-                (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_UltimateSpiderMan && s.GameSettings.EngineVersion != EngineVersion.GBAVV_ShrekTheThird))
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 || 
+                s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage ||
+                s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Madagascar ||
+                (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_UltimateSpiderMan && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_ShrekTheThird))
             {
                 Width = s.Serialize<short>(Width, name: nameof(Width));
                 Height = s.Serialize<short>(Height, name: nameof(Height));

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -49,7 +50,7 @@ namespace R1Engine
         public Unity_ObjectManager_GBAVVMode7.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBAVVMode7.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
 
-        public override R1Serializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{Object.ObjType_Normal}";

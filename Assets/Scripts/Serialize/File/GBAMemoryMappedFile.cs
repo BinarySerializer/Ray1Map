@@ -1,4 +1,6 @@
-﻿namespace R1Engine.Serialize
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBAMemoryMappedFile : MemoryMappedFile {
 		public GBAMemoryMappedFile(Context context, uint baseAddress) : base(context, baseAddress) { }

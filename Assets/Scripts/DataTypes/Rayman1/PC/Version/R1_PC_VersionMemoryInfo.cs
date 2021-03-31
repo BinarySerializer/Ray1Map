@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_VersionMemoryInfo : R1Serializable
+    public class R1_PC_VersionMemoryInfo : BinarySerializable
     {
         public uint TailleMainMemTmp { get; set; }
         public uint TailleMainMemFix { get; set; }
@@ -35,7 +37,7 @@
             TailleMainMemSamplesTable = s.Serialize<uint>(TailleMainMemSamplesTable, name: nameof(TailleMainMemSamplesTable));
             s.Log($"{nameof(TailleMainMemSamplesTable)}: {TailleMainMemSamplesTable << 10} bytes");
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit)
             {
                 TailleMainMemEdit = s.Serialize<uint>(TailleMainMemEdit, name: nameof(TailleMainMemEdit));
                 s.Log($"{nameof(TailleMainMemEdit)}: {TailleMainMemEdit << 10} bytes");

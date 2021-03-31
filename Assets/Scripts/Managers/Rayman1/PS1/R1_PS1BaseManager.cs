@@ -1,9 +1,10 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ namespace R1Engine
 
         protected virtual PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.DevPointerXOR;
 
-        public virtual BinaryFile.Endian Endianness { get; } = BinaryFile.Endian.Little;
+        public virtual Endian Endianness { get; } = Endian.Little;
 
         /// <summary>
         /// Gets the name for the world
@@ -199,7 +200,7 @@ namespace R1Engine
 
             PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, entry.MemoryAddress, InvalidPointerMode)
             {
-                filePath = path,
+                FilePath = path,
                 Length = entry.FileSize,
                 RecreateOnWrite = recreateOnWrite
             };
@@ -226,7 +227,7 @@ namespace R1Engine
             // Only load the v-ram if we're loading textures
             if (loadTextures)
                 // Get the v-ram
-                FillVRAM(context, context.Settings.R1_World == R1_World.Menu ? VRAMMode.Menu : VRAMMode.Level);
+                FillVRAM(context, context.GetR1Settings().R1_World == R1_World.Menu ? VRAMMode.Menu : VRAMMode.Level);
 
             // Load background sprites
             if (bg != null && loadTextures)
@@ -235,7 +236,7 @@ namespace R1Engine
                 {
                     Sprites = new List<Sprite>(),
                     Animations = new List<Unity_ObjAnimation>(),
-                    FilePath = bg.Offset.file.filePath
+                    FilePath = bg.Offset.File.FilePath
                 };
 
                 // Get every sprite
@@ -270,7 +271,7 @@ namespace R1Engine
                     {
                         Sprites = new List<Sprite>(),
                         Animations = new List<Unity_ObjAnimation>(),
-                        FilePath = des.ImageDescriptorsPointer.file.filePath
+                        FilePath = des.ImageDescriptorsPointer.File.FilePath
                     };
 
                     var s = context.Deserializer;
@@ -291,7 +292,7 @@ namespace R1Engine
                     // Add animations
                     finalDesign.Animations.AddRange(animDescriptors.Select(x => x.ToCommonAnimation()));
 
-                    var desName = des.Name ?? LevelEditorData.NameTable_R1PS1DES?.TryGetItem(des.ImageDescriptorsPointer?.file.filePath)?.FindItem(x =>
+                    var desName = des.Name ?? LevelEditorData.NameTable_R1PS1DES?.TryGetItem(des.ImageDescriptorsPointer?.File.FilePath)?.FindItem(x =>
                         x.Value.ImageDescriptors == des.ImageDescriptorsPointer?.AbsoluteOffset &&
                         x.Value.AnimationDescriptors == des.AnimationDescriptorsPointer?.AbsoluteOffset &&
                         (!x.Value.ImageBuffer.HasValue || x.Value.ImageBuffer == des.ImageBufferPointer?.AbsoluteOffset)).Key;
@@ -306,7 +307,7 @@ namespace R1Engine
                 // Add if not found
                 if (eta.ETAPointer != null && eventETA.All(x => x.PrimaryPointer != eta.ETAPointer))
                 {
-                    var etaName = eta.Name ?? LevelEditorData.NameTable_R1PS1ETA?.TryGetItem(eta.ETAPointer.file.filePath)?.FindItem(x => x.Value == eta.ETAPointer.AbsoluteOffset).Key;
+                    var etaName = eta.Name ?? LevelEditorData.NameTable_R1PS1ETA?.TryGetItem(eta.ETAPointer.File.FilePath)?.FindItem(x => x.Value == eta.ETAPointer.AbsoluteOffset).Key;
 
                     var s = context.Deserializer;
 
@@ -321,7 +322,7 @@ namespace R1Engine
             var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
 
             // Create a dummy linking table
-            if (context.Settings.R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == R1_World.Menu)
                 eventLinkingTable = Enumerable.Range(0, 24).Select(x => (ushort)x).ToArray();
 
             var objManager = new Unity_ObjectManager_R1(
@@ -338,7 +339,7 @@ namespace R1Engine
             List<Unity_Object> objects;
 
             // Create objects
-            if (context.Settings.R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == R1_World.Menu)
             {
                 // Load map object events for the world map
                 objects = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).WorldInfo.
@@ -467,7 +468,7 @@ namespace R1Engine
                     baseGameSettings.Level = lvl;
 
                     // Create the context
-                    using (var context = new Context(baseGameSettings))
+                    using (var context = new R1Context(baseGameSettings))
                     {
                         // Load the editor manager
                         var level = await LoadAsync(context, true);
@@ -549,7 +550,7 @@ namespace R1Engine
                     baseGameSettings.Level = lvl;
 
                     // Create the context
-                    using (var context = new Context(baseGameSettings))
+                    using (var context = new R1Context(baseGameSettings))
                     {
                         // Load the level
                         var level = await LoadAsync(context, true);
@@ -720,7 +721,7 @@ namespace R1Engine
         public virtual void ExportVignetteTextures(GameSettings settings, string outputDir)
         {
             // Create the context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Enumerate every file
                 foreach (var fileInfo in GetVignetteInfo().Where(x => File.Exists(settings.GameDirectory + x.FilePath)))
@@ -728,7 +729,7 @@ namespace R1Engine
                     // Add the file to the context
                     context.AddFile(new LinearSerializedFile(context)
                     {
-                        filePath = fileInfo.FilePath
+                        FilePath = fileInfo.FilePath
                     });
 
                     // Get the textures

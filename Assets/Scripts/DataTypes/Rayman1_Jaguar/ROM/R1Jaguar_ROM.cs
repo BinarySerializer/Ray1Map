@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using R1Engine.Serialize;
+
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -9,7 +10,7 @@ namespace R1Engine
     /// <summary>
     /// ROM data for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_ROM : R1Serializable
+    public class R1Jaguar_ROM : BinarySerializable
     {
         #region Prototype Reference Data
 
@@ -99,16 +100,16 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Get info
-            var pointerTable = s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto ? PointerTables.JaguarR1_PointerTable(s.GameSettings.EngineVersion, this.Offset.file) : null;
-            var manager = (R1Jaguar_Manager)s.GameSettings.GetGameManager;
+            var pointerTable = s.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto ? PointerTables.JaguarR1_PointerTable(s.GetR1Settings().EngineVersion, this.Offset.File) : null;
+            var manager = (R1Jaguar_Manager)s.GetR1Settings().GetGameManager;
             var levels = manager.GetNumLevels;
 
             // Serialize the references for the prototype
-            if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
             {
-                s.DoAt(new Pointer(0x8BB6A8, Offset.file), () =>
+                s.DoAt(new Pointer(0x8BB6A8, Offset.File), () =>
                 {
-                    References = s.SerializeObjectArray<R1Jaguar_ReferenceEntry>(References, 1676, onPreSerialize: (x => x.StringBase = new Pointer(0x8C0538, Offset.file)), name: nameof(References));
+                    References = s.SerializeObjectArray<R1Jaguar_ReferenceEntry>(References, 1676, onPreSerialize: (x => x.StringBase = new Pointer(0x8C0538, Offset.File)), name: nameof(References));
 
                     // Unknown initial 4 bytes, part of the string table
                     UnkReferenceValue = s.Serialize<uint>(UnkReferenceValue, name: nameof(UnkReferenceValue));
@@ -116,7 +117,7 @@ namespace R1Engine
             }
 
             // Serialize event definition data
-            if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar)
             {
                 if (!s.Context.FileExists("RAM_EventDefinitions"))
                 {
@@ -128,7 +129,7 @@ namespace R1Engine
                         var file = new MemoryMappedByteArrayFile("RAM_EventDefinitions", EventDefsDataBytes, s.Context,
                             0x001f9000)
                         {
-                            Endianness = BinaryFile.Endian.Big
+                            Endianness = Endian.Big
                         };
                         s.Context.AddFile(file);
                         s.DoAt(file.StartPointer,
@@ -139,7 +140,7 @@ namespace R1Engine
             }
             else
             {
-                var offset = s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto ? GetProtoDataPointer(R1Jaguar_Proto_References.MS_rayman) : pointerTable[JaguarR1_Pointer.EventDefinitions];
+                var offset = s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? GetProtoDataPointer(R1Jaguar_Proto_References.MS_rayman) : pointerTable[JaguarR1_Pointer.EventDefinitions];
 
                 // Pointers all point to the ROM, not RAM
                 s.DoAt(offset, () => EventDefinitions = s.SerializeObjectArray<R1Jaguar_EventDefinition>(EventDefinitions,
@@ -148,11 +149,11 @@ namespace R1Engine
 
             if (AdditionalEventDefinitions == null) 
             {
-                if (s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto)
+                if (s.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto)
                 {
                     AdditionalEventDefinitions = manager.AdditionalEventDefinitionPointers.Select(p =>
                     {
-                        return s.DoAt(new Pointer(p, pointerTable[JaguarR1_Pointer.EventDefinitions].file), () => s.SerializeObject<R1Jaguar_EventDefinition>(default, name: nameof(AdditionalEventDefinitions)));
+                        return s.DoAt(new Pointer(p, pointerTable[JaguarR1_Pointer.EventDefinitions].File), () => s.SerializeObject<R1Jaguar_EventDefinition>(default, name: nameof(AdditionalEventDefinitions)));
                     }).ToArray();
                 }
                 else
@@ -162,7 +163,7 @@ namespace R1Engine
                 }
             }
 
-            if (s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto)
             {
                 // Serialize allfix sprite data
                 s.DoAt(pointerTable[JaguarR1_Pointer.FixSprites], () => AllfixLoadCommands = s.SerializeObject<R1Jaguar_LevelLoadCommandCollection>(AllfixLoadCommands, name: nameof(AllfixLoadCommands)));
@@ -268,8 +269,8 @@ namespace R1Engine
                 });
 
                 // Get the current map load commands
-                var wldCommands = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.R1_World)];
-                var mapCommands = LevelLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.R1_World)][s.GameSettings.Level - 1].Commands;
+                var wldCommands = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)];
+                var mapCommands = LevelLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)][s.GetR1Settings().Level - 1].Commands;
 
                 // Get pointers
                 var mapPointer = mapCommands.FindItem(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelMapBlockPointer;
@@ -278,17 +279,17 @@ namespace R1Engine
 
                 Pointer tilesPointer;
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar)
-                    tilesPointer = mapCommands.LastOrDefault(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.R1_World)].Commands.First(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar)
+                    tilesPointer = mapCommands.LastOrDefault(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)].Commands.First(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
                 else
-                    tilesPointer = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.R1_World)].Commands.Last(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001BD800).ImageBufferPointer;
+                    tilesPointer = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)].Commands.Last(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001BD800).ImageBufferPointer;
 
                 // Serialize map and event data
                 s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData))));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar)
                     s.DoAt(eventPointer, () => s.DoEncoded(new RNCEncoder(), () => EventData = s.SerializeObject<R1Jaguar_EventBlock>(EventData, name: nameof(EventData))));
-                else if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Demo)
+                else if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Demo)
                     s.DoAt(eventPointer, () => EventData = s.SerializeObject<R1Jaguar_EventBlock>(EventData, name: nameof(EventData)));
 
                 // Serialize sprite palette

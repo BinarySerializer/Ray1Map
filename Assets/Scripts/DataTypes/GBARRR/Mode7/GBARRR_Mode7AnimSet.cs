@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBARRR_Mode7AnimSet : R1Serializable
+    public class GBARRR_Mode7AnimSet : BinarySerializable
     {
         public int Length { get; set; } // set in OnPreSerialize
 

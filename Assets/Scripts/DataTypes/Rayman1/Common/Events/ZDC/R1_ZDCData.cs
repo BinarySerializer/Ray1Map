@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_ZDCData : R1Serializable
+    public class R1_ZDCData : BinarySerializable
     {
         public short XPosition { get; set; }
         public short YPosition { get; set; }
@@ -18,7 +20,7 @@
             Width = s.Serialize<byte>(Width, name: nameof(Width));
             Height = s.Serialize<byte>(Height, name: nameof(Height));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {

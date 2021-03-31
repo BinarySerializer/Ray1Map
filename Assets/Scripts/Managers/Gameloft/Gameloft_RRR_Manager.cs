@@ -1,7 +1,8 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -89,9 +90,9 @@ namespace R1Engine
 		public override async UniTask LoadFilesAsync(Context context) {
 			await context.AddLinearSerializedFileAsync(FixFilePath);
 			var levelList = LoadLevelList(context);
-			await context.AddLinearSerializedFileAsync(GetBackgroundTileSetPath(context.Settings, levelList));
-			await context.AddLinearSerializedFileAsync(GetForegroundTileSetPath(context.Settings, levelList));
-			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
+			await context.AddLinearSerializedFileAsync(GetBackgroundTileSetPath(context.GetR1Settings(), levelList));
+			await context.AddLinearSerializedFileAsync(GetForegroundTileSetPath(context.GetR1Settings(), levelList));
+			await context.AddLinearSerializedFileAsync(GetLevelPath(context.GetR1Settings()));
 			await context.AddLinearSerializedFileAsync(ObjectsFilePath);
 			for (int i = -1; i < 9; i++) {
 				await context.AddLinearSerializedFileAsync(GetPuppetPath(i));
@@ -145,16 +146,16 @@ namespace R1Engine
 
 		public virtual Unity_Map[] LoadMaps(Context context, Gameloft_RRR_LevelList levelList) {
 			var s = context.Deserializer;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.GetR1Settings()), context);
 			var lh0 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 0, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader0");
 			var lh1 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 1, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Graphics, name: "LayerHeader1");
 			var lh2 = resf.SerializeResource<Gameloft_RRR_MapLayerHeader>(s, default, 2, onPreSerialize: o => o.Type = Gameloft_RRR_MapLayerHeader.LayerType.Collision, name: "LayerHeader2");
 			var l0 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 3, onPreSerialize: o => o.Header = lh0, name: "Layer0");
 			var l1 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 4, onPreSerialize: o => o.Header = lh1, name: "Layer1");
 			var l2 = resf.SerializeResource<Gameloft_RRR_MapLayerData>(s, default, 5, onPreSerialize: o => o.Header = lh2, name: "Layer2");
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.Settings, levelList), context);
+			resf = FileFactory.Read<Gameloft_ResourceFile>(GetForegroundTileSetPath(context.GetR1Settings(), levelList), context);
 			var ts_f = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Foreground");
-			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.Settings, levelList), context);
+			resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundTileSetPath(context.GetR1Settings(), levelList), context);
 			var ts_b = resf.SerializeResource<Gameloft_Puppet>(s, default, 0, name: "Background");
 			var tileSet_f = GetPuppetImages(ts_f, flipY: false, allowTransparent: true);
 			var tileSet_b = GetPuppetImages(ts_b, flipY: false, allowTransparent: false);
@@ -224,15 +225,15 @@ namespace R1Engine
 			var maps = LoadMaps(context, levelList);
 			
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(ObjectsFilePath, context);
-			var objs = resf.SerializeResource<Gameloft_RRR_Objects>(s, default, context.Settings.Level * 2, name: "Objects");
+			var objs = resf.SerializeResource<Gameloft_RRR_Objects>(s, default, context.GetR1Settings().Level * 2, name: "Objects");
 
 			// Load objects
 			var objManager = new Unity_ObjectManager_GameloftRRR(context, LoadPuppets(context), objs.Objects);
 			var unityObjs = objs.Objects.Select((o, i) => (Unity_Object)(new Unity_Object_GameloftRRR(objManager, o))).ToList();
 
 			// Set palette index for loops
-			var world = GetWorldIndex(context.Settings, levelList);
-			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanRavingRabbidsMobile_208x208_s40v3) {
+			var world = GetWorldIndex(context.GetR1Settings(), levelList);
+			if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanRavingRabbidsMobile_208x208_s40v3) {
 				if (world == 2) {
 					foreach (var uo in unityObjs) {
 						if (((Unity_Object_GameloftRRR)uo).Object.Type == 8) {

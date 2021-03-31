@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_RLEFrame : R1Serializable
+    public class GBAVV_NitroKart_NGage_RLEFrame : BinarySerializable
     {
         public int Width { get; set; } // Set before serializing
         public int Height { get; set; } // Set before serializing

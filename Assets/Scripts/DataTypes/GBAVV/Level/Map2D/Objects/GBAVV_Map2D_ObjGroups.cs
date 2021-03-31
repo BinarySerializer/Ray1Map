@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Map2D_ObjGroups : R1Serializable
+    public class GBAVV_Map2D_ObjGroups : BinarySerializable
     {
         public ushort Ushort_00 { get; set; }
         public ushort ObjectsCount { get; set; }

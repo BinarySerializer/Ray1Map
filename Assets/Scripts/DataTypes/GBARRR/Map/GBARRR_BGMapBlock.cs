@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_BGMapBlock : R1Serializable
+    public class GBARRR_BGMapBlock : BinarySerializable
     {
         public byte[] UnkData { get; set; }
 

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PS1JPDemoVol3_UnknownEventTableItem : R1Serializable
+    public class R1_PS1JPDemoVol3_UnknownEventTableItem : BinarySerializable
     {
         public byte LinkIndex { get; set; }
         public byte Value { get; set; }

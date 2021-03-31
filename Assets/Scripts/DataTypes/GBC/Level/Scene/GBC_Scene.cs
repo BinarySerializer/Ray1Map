@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -38,7 +39,7 @@ namespace R1Engine
             var blockOffset = s.CurrentPointer;
 
             // Serialize data (always little endian)
-            s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Little, () => 
+            s.DoEndian(Endian.Little, () => 
             {
                 // Parse data
                 GameObjectsCount = s.Serialize<ushort>(GameObjectsCount, name: nameof(GameObjectsCount));

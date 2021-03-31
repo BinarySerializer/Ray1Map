@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public abstract class GBAVV_BaseBlock : R1Serializable
+    public abstract class GBAVV_BaseBlock : BinarySerializable
     {
         public bool HasHeader { get; set; } = true; // Set before serializing
 

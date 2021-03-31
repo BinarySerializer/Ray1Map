@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Information for a scene
     /// </summary>
-    public class GBA_R3_SceneInfo : R1Serializable
+    public class GBA_R3_SceneInfo : BinarySerializable
     {
         public ushort MusicIndex { get; set; }
         

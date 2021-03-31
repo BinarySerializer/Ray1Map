@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// A base GBA block
     /// </summary>
-    public abstract class GBA_BaseBlock : R1Serializable
+    public abstract class GBA_BaseBlock : BinarySerializable
     {
         /// <summary>
         /// The size of the block in bytes, not counting this value
@@ -33,13 +35,13 @@
                     DecompressedBlockOffset = s.CurrentPointer;
                     SerializeOffsetTable(s);
                     SerializeBlock(s);
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                         s.Align();
                     }
                     CheckBlockSize(s);
                     // Serialize data from the offset table
                     SerializeOffsetData(s);
-                    s.Goto(s.CurrentPointer.file.StartPointer + s.CurrentLength); // no warning
+                    s.Goto(s.CurrentPointer.File.StartPointer + s.CurrentLength); // no warning
                 });
             } else 
             {
@@ -48,14 +50,14 @@
                     SerializeOffsetTable(s);
 
                 // The Shanghai and Milan branches have a local offset table within each block
-                if (s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan)
+                if (s.GetR1Settings().GBA_IsShanghai || s.GetR1Settings().GBA_IsMilan)
                     ShanghaiOffsetTable = s.SerializeObject<GBA_ShanghaiLocalOffsetTable>(ShanghaiOffsetTable, x => x.Length = GetShanghaiOffsetTableLength, name: nameof(ShanghaiOffsetTable));
 
                 // Serialize the block
                 SerializeBlock(s);
 
                 // Align for GCN and Splinter Cell N-Gage
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage || IsGCNBlock)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage || IsGCNBlock)
                     s.Align();
 
                 // Verify that we serialized the entire block
@@ -89,7 +91,7 @@
                 s.DoAt(Offset - 4, () => {
                     // Serialize the size
                     BlockSize = s.Serialize<uint>(BlockSize, name: nameof(BlockSize));
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                         if (BitHelpers.ExtractBits((int)BlockSize, 1, 31) == 1) {
                             IsBlockCompressed = true;
                             CompressedBlockSize = (uint)BitHelpers.ExtractBits((int)BlockSize, 31, 0);

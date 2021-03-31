@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PCEdu_GeneralFileVignetteItem : R1Serializable
+    public class R1_PCEdu_GeneralFileVignetteItem : BinarySerializable
     {
         public ushort Unk1 { get; set; }
         public byte Unk2 { get; set; }

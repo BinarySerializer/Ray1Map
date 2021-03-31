@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBC_DependencyTable : R1Serializable {
+    public class GBC_DependencyTable : BinarySerializable {
         public uint DependenciesCount { get; set; }
         public GBC_Dependency[] Dependencies { get; set; }
 
@@ -12,7 +13,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s) 
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1)
 		        DependenciesCount = s.Serialize<byte>((byte)DependenciesCount, name: nameof(DependenciesCount));
             else
 		        DependenciesCount = s.Serialize<uint>(DependenciesCount, name: nameof(DependenciesCount));
@@ -26,8 +27,8 @@ namespace R1Engine
         public Pointer GetPointer(int index) {
             UsedDependencies[index] = true;
 
-            if (Context.Settings.EngineVersion == EngineVersion.GBC_R1_Palm ||
-                Context.Settings.EngineVersion == EngineVersion.GBC_R1_PocketPC) {
+            if (Context.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_Palm ||
+                Context.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_PocketPC) {
                 var offTable = Context.GetStoredObject<LUDI_GlobalOffsetTable>(GBC_BaseManager.GlobalOffsetTableKey);
                 return offTable?.Resolve(Dependencies[index]);
             } else {

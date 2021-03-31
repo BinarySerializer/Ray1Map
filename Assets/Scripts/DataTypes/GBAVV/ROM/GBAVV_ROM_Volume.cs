@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -30,11 +31,11 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // Get the pointer table
-            var pointerTable = PointerTables.GBAVV_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBAVV_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
-            var volumesCount = s.GameSettings.GetGameManagerOfType<GBAVV_Volume_BaseManager>().VolumesCount;
+            var volumesCount = s.GetR1Settings().GetGameManagerOfType<GBAVV_Volume_BaseManager>().VolumesCount;
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge || s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_OverTheHedge || s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
                 VolumeLevelInfoCounts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo) + 4 * volumesCount, () => s.SerializeArray<int>(VolumeLevelInfoCounts, volumesCount, name: nameof(VolumeLevelInfoCounts)));
 
             // Serialize level infos

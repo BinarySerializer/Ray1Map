@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBARRR_LocalizationBlock : R1Serializable
+    public class GBARRR_LocalizationBlock : BinarySerializable
     {
         public int Count { get; set; } = 0x400;
         public int LanguageCount { get; set; } = 6;

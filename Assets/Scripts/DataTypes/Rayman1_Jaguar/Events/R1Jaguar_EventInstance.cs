@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Data necessary to spawn an instance of an event for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_EventInstance : R1Serializable
+    public class R1Jaguar_EventInstance : BinarySerializable
     {
         // This value is 0 if the event is not valid
         public ushort Unk_00 { get; set; }

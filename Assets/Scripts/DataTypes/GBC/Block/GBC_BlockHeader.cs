@@ -1,9 +1,10 @@
 ﻿using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBC_BlockHeader : R1Serializable
+    public class GBC_BlockHeader : BinarySerializable
     {
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }

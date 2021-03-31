@@ -1,5 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using BinarySerializer;
+using System;
 
 namespace R1Engine
 {
@@ -78,10 +78,10 @@ namespace R1Engine
 		public override void SerializeImpl(SerializerObject s) {
 			TrackLength = s.Serialize<ushort>(TrackLength, name: nameof(TrackLength));
 			TrackBlocks = s.SerializeObjectArray<TrackBlock>(TrackBlocks, TrackLength, name: nameof(TrackBlocks));
-			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+			if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
 				LumsCount = s.Serialize<byte>(LumsCount, name: nameof(LumsCount));
-				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2
-					&& s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101) {
+				if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2
+					&& s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101) {
 					BM_Byte0 = s.Serialize<byte>(BM_Byte0, name: nameof(BM_Byte0));
 					BM_Bool1 = s.Serialize<bool>(BM_Bool1, name: nameof(BM_Bool1));
 					BM_Byte2 = s.Serialize<byte>(BM_Byte2, name: nameof(BM_Byte2));
@@ -89,7 +89,7 @@ namespace R1Engine
 					MapSpriteMapping = s.SerializeObjectArray<TrackMapping>(MapSpriteMapping, TrackLength - 1, name: nameof(MapSpriteMapping));
 				}
 			}
-			if (Gameloft_RK_Manager.UseSingleRoadTexture(s.GameSettings)) {
+			if (Gameloft_RK_Manager.UseSingleRoadTexture(s.GetR1Settings())) {
 				RoadTextureID_0 = s.Serialize<byte>(RoadTextureID_0, name: nameof(RoadTextureID_0));
 				RoadTextureID_1 = s.Serialize<byte>(RoadTextureID_1, name: nameof(RoadTextureID_1));
 			}
@@ -111,22 +111,22 @@ namespace R1Engine
 			Color_afterbK_0 = s.SerializeObject<RGB888Color>(Color_afterbK_0, name: nameof(Color_afterbK_0));
 			Color_afterbK_1 = s.SerializeObject<RGB888Color>(Color_afterbK_1, name: nameof(Color_afterbK_1));
 			bL = s.Serialize<byte>(bL, name: nameof(bL));
-			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
+			if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
 				LowResUnusedByteAfterbL = s.Serialize<byte>(LowResUnusedByteAfterbL, name: nameof(LowResUnusedByteAfterbL));
 			}
 			Color_bH_Wall0 = s.SerializeObject<RGB888Color>(Color_bH_Wall0, name: nameof(Color_bH_Wall0));
 			Color_bI_Wall1 = s.SerializeObject<RGB888Color>(Color_bI_Wall1, name: nameof(Color_bI_Wall1));
 			byte_afterBI = s.Serialize<byte>(byte_afterBI, name: nameof(byte_afterBI));
-			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128 &&
-				s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2 &&
-				s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101) {
+			if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128 &&
+				s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128_s40v2 &&
+				s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x160_s40v2a_N6101) {
 				if (BitHelpers.ExtractBits(aW, 1, 2) == 1) {
 					Color_dj_BridgeDark = s.SerializeObject<RGB888Color>(Color_dj_BridgeDark, name: nameof(Color_dj_BridgeDark));
 					Color_dk_BridgeLight = s.SerializeObject<RGB888Color>(Color_dk_BridgeLight, name: nameof(Color_dk_BridgeLight));
 					dl = s.Serialize<byte>(dl, name: nameof(dl));
 					dm = s.Serialize<byte>(dm, name: nameof(dm));
 				}
-				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
+				if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
 					Color_dq = s.SerializeObject<RGB888Color>(Color_dq, name: nameof(Color_dq));
 					Color_Tunnel_0 = s.SerializeObject<RGB888Color>(Color_Tunnel_0, name: nameof(Color_Tunnel_0));
 					Color_ds = s.SerializeObject<RGB888Color>(Color_ds, name: nameof(Color_ds));
@@ -161,13 +161,13 @@ namespace R1Engine
 			if(TrackObjectInstancesCount > 0) TrackObjectCollections = s.SerializeObjectArray<TrackObjectCollection>(TrackObjectCollections, TrackLength, name: nameof(TrackObjectCollections));
 			TypesCount = s.Serialize<byte>(TypesCount, name: nameof(TypesCount));
 			Types = s.SerializeObjectArray<Type>(Types, TypesCount, name: nameof(Types));
-			if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
+			if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
 				LumsCount = s.Serialize<byte>(LumsCount, name: nameof(LumsCount));
 			}
 			Lums = s.SerializeObjectArray<Lum>(Lums, LumsCount, name: nameof(Lums));
 		}
 
-		public class TrackBlock : R1Serializable {
+		public class TrackBlock : BinarySerializable {
 			public sbyte DeltaRotation { get; set; }
 			public sbyte DeltaHeight { get; set; }
 			public byte Type { get; set; }
@@ -196,7 +196,7 @@ namespace R1Engine
 			}
 		}
 
-		public class TrackMapping : R1Serializable {
+		public class TrackMapping : BinarySerializable {
 			public byte YDelta { get; set; }
 			public byte XDelta { get; set; }
 			public bool YDeltaSign { get; set; }
@@ -222,7 +222,7 @@ namespace R1Engine
 			}
 		}
 
-		public class TriggerObject : R1Serializable {
+		public class TriggerObject : BinarySerializable {
 			public short Width { get; set; }
 			public short Height { get; set; }
 			public byte Flags { get; set; } // 0 = jump, 1 = speed boost, 2 = Water, 5 = also speedup apparently?
@@ -238,7 +238,7 @@ namespace R1Engine
 			}
 		}
 
-		public class Struct2 : R1Serializable {
+		public class Struct2 : BinarySerializable {
 			public byte Byte0 { get; set; }
 			public byte Byte1 { get; set; }
 			public short Short2 { get; set; }
@@ -258,7 +258,7 @@ namespace R1Engine
 			}
 		}
 
-		public class BackgroundLayer : R1Serializable {
+		public class BackgroundLayer : BinarySerializable {
 			public byte ImageResourceIndex { get; set; }
 			public short PixelsOffset { get; set; } // vertical position = Flags & 0x2 ? (screenBottom-height-PixelsOffset) : PixelsOffset
 			public byte Flags { get; set; }
@@ -274,7 +274,7 @@ namespace R1Engine
 			}
 		}
 
-		public class BackgroundGradient : R1Serializable {
+		public class BackgroundGradient : BinarySerializable {
 			public byte Count { get; set; }
 			public Key[] Keys { get; set; }
 
@@ -282,7 +282,7 @@ namespace R1Engine
 				Count = s.Serialize<byte>(Count, name: nameof(Count));
 				Keys = s.SerializeObjectArray<Key>(Keys, Count, name: nameof(Keys));
 			}
-			public class Key : R1Serializable {
+			public class Key : BinarySerializable {
 				public short Position { get; set; } // 100 is top of screen, 80 is middle
 				public RGB888Color Color { get; set; }
 
@@ -293,7 +293,7 @@ namespace R1Engine
 			}
 		}
 
-		public class TrackGradientMap : R1Serializable {
+		public class TrackGradientMap : BinarySerializable {
 			public byte BackgroundGradientIndex { get; set; }
 			public byte Min { get; set; }
 			public byte Max { get; set; } // If between min & max, or if max < min && smaller than max or larger than min, it uses Struct4 with that index
@@ -307,7 +307,7 @@ namespace R1Engine
 			}
 		}
 
-		public class ObjectType : R1Serializable {
+		public class ObjectType : BinarySerializable {
 			public byte PuppetIndex { get; set; }
 			public byte AnimationIndex { get; set; }
 			public byte PaletteIndex { get; set; }
@@ -324,7 +324,7 @@ namespace R1Engine
 				PuppetIndex = s.Serialize<byte>(PuppetIndex, name: nameof(PuppetIndex));
 				AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
 				PaletteIndex = s.Serialize<byte>(PaletteIndex, name: nameof(PaletteIndex));
-				if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
+				if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanKartMobile_128x128) {
 					LowResbE0 = s.Serialize<byte>(LowResbE0, name: nameof(LowResbE0));
 					LowResbE1 = s.Serialize<byte>(LowResbE1, name: nameof(LowResbE1));
 				}
@@ -337,7 +337,7 @@ namespace R1Engine
 			}
 		}
 
-		public class Object3D : R1Serializable {
+		public class Object3D : BinarySerializable {
 			public byte Count { get; set; }
 			public ushort UShort1 { get; set; }
 			public ushort UShort2 { get; set; }
@@ -353,7 +353,7 @@ namespace R1Engine
 				});
 				Commands = s.SerializeObjectArray<Command>(Commands, Count, name: nameof(Commands));
 			}
-			public class Command : R1Serializable {
+			public class Command : BinarySerializable {
 				public CommandType Type { get; set; }
 				public short[] Shorts { get; set; }
 
@@ -402,7 +402,7 @@ namespace R1Engine
 					FillArc = 5,
 				}
 
-				public class Position : R1Serializable {
+				public class Position : BinarySerializable {
 					public short X { get; set; }
 					public short Y { get; set; }
 					public short Z { get; set; }
@@ -414,7 +414,7 @@ namespace R1Engine
 						});
 					}
 				}
-				public class AABB : R1Serializable {
+				public class AABB : BinarySerializable {
 					public short X { get; set; }
 					public short Y { get; set; }
 					public short Width { get; set; }
@@ -427,7 +427,7 @@ namespace R1Engine
 						Height = s.Serialize<short>(Height, name: nameof(Height));
 					}
 				}
-				public class Arc : R1Serializable {
+				public class Arc : BinarySerializable {
 					// http://jdrawing.sourceforge.net/doc/0.3/api/org/jdrawing/graphics/FillArc.html
 					public short XPosition { get; set; }
 					public short YPosition { get; set; }
@@ -449,7 +449,7 @@ namespace R1Engine
 		}
 
 
-		public class TrackObject : R1Serializable {
+		public class TrackObject : BinarySerializable {
 			public byte ObjectType { get; set; }
 			public short XPosition { get; set; }
 
@@ -458,7 +458,7 @@ namespace R1Engine
 				XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
 			}
 		}
-		public class TrackObjectInstance : R1Serializable {
+		public class TrackObjectInstance : BinarySerializable {
 			public short TrackObjectIndex { get; set; }
 			public bool FlipX { get; set; }
 			public int ObjType { get; set; }
@@ -476,7 +476,7 @@ namespace R1Engine
 				});
 			}
 		}
-		public class TrackObjectCollection : R1Serializable {
+		public class TrackObjectCollection : BinarySerializable {
 			public short InstanceIndex { get; set; }
 			public int Count { get; set; }
 
@@ -487,7 +487,7 @@ namespace R1Engine
 				});
 			}
 		}
-		public class Type : R1Serializable {
+		public class Type : BinarySerializable {
 			public short Flags { get; set; }
 
 			// Lowres only
@@ -502,8 +502,8 @@ namespace R1Engine
 
 			public override void SerializeImpl(SerializerObject s) {
 				Flags = s.Serialize<short>(Flags, name: nameof(Flags));
-				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
-					if (!Gameloft_RK_Manager.UseSingleRoadTexture(s.GameSettings)) {
+				if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
+					if (!Gameloft_RK_Manager.UseSingleRoadTexture(s.GetR1Settings())) {
 						RoadTexture0 = s.Serialize<byte>(RoadTexture0, name: nameof(RoadTexture0));
 						RoadTexture1 = s.Serialize<byte>(RoadTexture1, name: nameof(RoadTexture1));
 					}
@@ -515,7 +515,7 @@ namespace R1Engine
 				ColorAbyss = s.SerializeObject<RGB888Color>(ColorAbyss, name: nameof(ColorAbyss));
 			}
 
-			public class Entry : R1Serializable {
+			public class Entry : BinarySerializable {
 				public byte ci { get; set; }
 				public short cj { get; set; }
 
@@ -527,7 +527,7 @@ namespace R1Engine
 		}
 
 
-		public class Lum : R1Serializable {
+		public class Lum : BinarySerializable {
 			public byte TrackBlockIndex { get; set; }
 			public short XPosition { get; set; }
 

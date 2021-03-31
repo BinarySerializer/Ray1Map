@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Save file data for Rayman 1 (PC)
     /// </summary>
-    public class R1_PC_SaveFile : R1Serializable
+    public class R1_PC_SaveFile : BinarySerializable
     {
         /// <summary>
         /// The save file name (maximum of 3 characters)

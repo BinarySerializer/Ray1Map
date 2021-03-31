@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_ObjectType : R1Serializable
+    public class GBAIsometric_ObjectType : BinarySerializable
     {
         public uint ObjFlags { get; set; }
         public Pointer DataPointer { get; set; }

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_RHR_AnimSet : R1Serializable {
+    public class GBAIsometric_RHR_AnimSet : BinarySerializable {
         public byte Width { get; set; }
         public byte Height { get; set; }
         public byte PivotX { get; set; }
@@ -131,7 +132,7 @@ namespace R1Engine
                 AlternativePalettes = new RGBA5551Color[pointers.Length][];
 
             for (int i = 0; i < AlternativePalettes.Length; i++)
-                AlternativePalettes[i] = s.DoAt(new Pointer(pointers[i], Offset.file), () => s.SerializeObjectArray<RGBA5551Color>(AlternativePalettes[i], Is8Bit ? 256 : 16, name: $"{nameof(AlternativePalettes)}[{i}]"));
+                AlternativePalettes[i] = s.DoAt(new Pointer(pointers[i], Offset.File), () => s.SerializeObjectArray<RGBA5551Color>(AlternativePalettes[i], Is8Bit ? 256 : 16, name: $"{nameof(AlternativePalettes)}[{i}]"));
 
             //PaletteHelpers.ExportPalette(Path.Combine(s.Context.BasePath, $"{Name}.png"), Palette.Concat(AlternativePalettes.SelectMany(x => x)).ToArray(), optionalWrap: Is8Bit ? 256 : 16);
         }

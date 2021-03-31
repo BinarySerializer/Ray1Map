@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman 1 (PS1 - Japan Demo)
     /// </summary>
-    public class R1_PS1JPDemo_LevFile : R1Serializable
+    public class R1_PS1JPDemo_LevFile : BinarySerializable
     {
         // All pointers lead to allfix
         public R1_PS1_FontData FontData { get; set; }
@@ -34,7 +36,7 @@
             // Serialize event information
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                 UnknownEventTablePointer = s.SerializePointer(UnknownEventTablePointer, name: nameof(UnknownEventTablePointer));
             EventCount = s.Serialize<uint>(EventCount, name: nameof(EventCount));
             EventLinkTablePointer = s.SerializePointer(EventLinkTablePointer, name: nameof(EventLinkTablePointer));

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_AnimPattern : R1Serializable
+    public class GBAIsometric_Spyro_AnimPattern : BinarySerializable
     {
         public byte X { get; set; }
         public byte Y { get; set; } // In pixels

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 
 namespace R1Engine
 {
@@ -37,7 +38,7 @@ namespace R1Engine
             // Create the dictionary
             return new KeyValuePair<string, string[]>[]
             {
-                new KeyValuePair<string, string[]>("English", FileFactory.ReadText<R1_TextLocFile>(filePath, context).Strings)
+                new KeyValuePair<string, string[]>("English", R1FileFactory.ReadText<R1_TextLocFile>(filePath, context).Strings)
             };
         }
 

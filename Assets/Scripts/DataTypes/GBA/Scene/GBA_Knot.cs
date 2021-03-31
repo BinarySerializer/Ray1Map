@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Sector data
     /// </summary>
-    public class GBA_Knot : R1Serializable
+    public class GBA_Knot : BinarySerializable
     {
         public byte Length { get; set; }
 
@@ -22,7 +24,7 @@
         {
             Length = s.Serialize<byte>(Length, name: nameof(Length));
             ActorIndicesCount = s.Serialize<byte>(ActorIndicesCount, name: nameof(ActorIndicesCount));
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 Batman_02 = s.Serialize<byte>(Batman_02, name: nameof(Batman_02));
                 Batman_03 = s.Serialize<byte>(Batman_03, name: nameof(Batman_03));
                 ActorIndices = s.SerializeArray<byte>(ActorIndices, ActorIndicesCount, name: nameof(ActorIndices));

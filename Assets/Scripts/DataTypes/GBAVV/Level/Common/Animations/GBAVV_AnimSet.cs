@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_AnimSet : R1Serializable
+    public class GBAVV_AnimSet : BinarySerializable
     {
         public Pointer AnimationsPointer { get; set; }
         public Pointer FramePointersPointer { get; set; }
@@ -22,7 +23,7 @@ namespace R1Engine
 
         public int GetMinX(int animIndex)
         {
-            if (Context?.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (Context?.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 var framesX = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x].RenderBox.X).ToArray();
 
@@ -39,7 +40,7 @@ namespace R1Engine
 
         public int GetMinY(int animIndex)
         {
-            if (Context?.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (Context?.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 var framesY = Animations[animIndex].FrameIndexTable.Select(x => AnimationFrames[x].RenderBox.Y).ToArray();
 
@@ -56,7 +57,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
             {
                 SelfPointer = s.SerializePointer(SelfPointer, name: nameof(SelfPointer));
                 FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
@@ -84,7 +85,7 @@ namespace R1Engine
                     AnimationFrames[i] = s.DoAt(FramePointers[i], () => s.SerializeObject<GBAVV_AnimationFrame>(AnimationFrames[i], name: $"{nameof(AnimationFrames)}[{i}]"));
             }
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
                 s.Goto(Offset + s.CurrentLength);
         }
     }

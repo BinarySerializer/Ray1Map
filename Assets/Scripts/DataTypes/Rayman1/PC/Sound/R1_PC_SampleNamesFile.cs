@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_SampleNamesFile : R1Serializable
+    public class R1_PC_SampleNamesFile : BinarySerializable
     {
         public ushort SamplesCount { get; set; }
 

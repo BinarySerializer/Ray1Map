@@ -1,10 +1,11 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_LocIndex : R1Serializable
+    public class GBAIsometric_LocIndex : BinarySerializable
     {
         public Func<int, int> ParseIndexFunc { get; set; }
         public int LocIndex { get; set; }
@@ -13,7 +14,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_RHR)
                 LocIndex = s.Serialize<int>(LocIndex, name: nameof(LocIndex));
             else
                 LocIndex = s.Serialize<ushort>((ushort)LocIndex, name: nameof(LocIndex));

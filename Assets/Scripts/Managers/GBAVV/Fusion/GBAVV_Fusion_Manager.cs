@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -15,17 +16,17 @@ namespace R1Engine
             new GameInfo_World(0, Enumerable.Range(0, LevInfos.Length).ToArray()),
         });
 
-        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+        public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
                 // Read the rom
                 var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) =>
                 {
-                    r.CurrentLevInfo = LevInfos[context.Settings.Level];
+                    r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level];
                     r.SerializeFLC = true;
                 });
 
@@ -38,15 +39,15 @@ namespace R1Engine
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             //FindDataInROM(context.Deserializer, context.FilePointer(GetROMFilePath));
-            //LogLevelInfos(FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]));
+            //LogLevelInfos(FileFactory.Read<GBAVV_ROM>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]));
             //LogObjTypeInit(context.Deserializer);
             //LogObjTypeInit(context.Deserializer, new ObjTypeInitCreation[0]);
-            //await LogInvalidObjTypesAsync(context.Settings);
+            //await LogInvalidObjTypesAsync(context.GetR1Settings());
 
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+            var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
 
             return await LoadMap2DAsync(context, rom, rom.CurrentMap);
         }
@@ -79,7 +80,7 @@ namespace R1Engine
                 if (values[i] == 5 && values[i + 1] == 1 && values[i + 2] > GBA_ROMBase.Address_ROM && values[i + 2] < GBA_ROMBase.Address_ROM + s.CurrentLength)
                 {
                     // Serialize the script
-                    var script = s.DoAt(new Pointer((uint)getPointer(i), offset.file), () => s.SerializeObject<GBAVV_Script>(default));
+                    var script = s.DoAt(new Pointer((uint)getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default));
 
                     // If the script is invalid we ignore it
                     if (!script.IsValid)
@@ -148,11 +149,11 @@ namespace R1Engine
             {
                 settings.Level = i;
 
-                using (var context = new Context(settings))
+                using (var context = new R1Context(settings))
                 {
                     await LoadFilesAsync(context);
 
-                    var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+                    var rom = FileFactory.Read<GBAVV_ROM_Fusion>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
                     var objects = rom.CurrentMap.ObjData?.GetObjects;
 
                     if (objects == null)

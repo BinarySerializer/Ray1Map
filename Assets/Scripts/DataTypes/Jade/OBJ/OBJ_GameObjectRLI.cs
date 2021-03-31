@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class OBJ_GameObjectRLI : Jade_File {

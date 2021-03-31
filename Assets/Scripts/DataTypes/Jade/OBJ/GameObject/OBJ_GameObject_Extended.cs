@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_Extended : R1Serializable {
+	public class OBJ_GameObject_Extended : BinarySerializable {
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; } // Set in OnPreSerialize
 
 		public Jade_Reference<GRP_Grp> GRP { get; set; }
@@ -40,7 +41,7 @@ namespace R1Engine.Jade {
 			GRP = s.SerializeObject<Jade_Reference<GRP_Grp>>(GRP, name: nameof(GRP));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag23)) GRP?.Resolve();
 			HasModifiers = s.Serialize<uint>(HasModifiers, name: nameof(HasModifiers));
-			if (s.GameSettings.Game == Game.Jade_BGE) {
+			if (s.GetR1Settings().Game == Game.Jade_BGE) {
 				Float_BGE_08 = s.Serialize<float>(Float_BGE_08, name: nameof(Float_BGE_08));
 				Float_BGE_0C = s.Serialize<float>(Float_BGE_0C, name: nameof(Float_BGE_0C));
 			}
@@ -51,12 +52,12 @@ namespace R1Engine.Jade {
 				UInt_Editor_14 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_14));
 				UInt_Editor_18 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_18));
 			}
-			if (s.GameSettings.Game != Game.Jade_BGE) {
+			if (s.GetR1Settings().Game != Game.Jade_BGE) {
 				Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
 				int bytes_0C_count = (Int_08 != -1 && Int_08 != 0) ? 8 : 4;
 				Bytes_0C = s.SerializeArray<byte>(Bytes_0C, bytes_0C_count, name: nameof(Bytes_0C));
 			}
-			if (Int_08 == -1 || s.GameSettings.Game == Game.Jade_BGE) {
+			if (Int_08 == -1 || s.GetR1Settings().Game == Game.Jade_BGE) {
 				UInt_10 = s.Serialize<ushort>((ushort)UInt_10, name: nameof(UInt_10));
 				if (!Loader.IsBinaryData)
 					UShort_Editor_12 = s.Serialize<ushort>(UShort_Editor_12, name: nameof(UShort_Editor_12));
@@ -89,7 +90,7 @@ namespace R1Engine.Jade {
 			}
 			if (HasModifiers != 0) {
 				Modifiers = s.SerializeObjectArrayUntil<OBJ_GameObject_Modifier>(Modifiers, m => m.Type == MDF_ModifierType.None, includeLastObj: true, name: nameof(Modifiers));
-				if (s.GameSettings.Game == Game.Jade_BGE) {
+				if (s.GetR1Settings().Game == Game.Jade_BGE) {
 					Modifiers_UInt_BGE = s.Serialize<uint>(Modifiers_UInt_BGE, name: nameof(Modifiers_UInt_BGE));
 				}
 			}

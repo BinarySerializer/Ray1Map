@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public abstract class LUDI_AppInfoBlock : R1Serializable {
+    public abstract class LUDI_AppInfoBlock : BinarySerializable {
         public uint LengthInBytes { get; set; }
         public byte[] UnknownData { get; set; }
 

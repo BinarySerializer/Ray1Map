@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Level save data for Rayman 1 on PC
     /// </summary>
-    public class R1_PC_SaveDataLevel : R1Serializable
+    public class R1_PC_SaveDataLevel : BinarySerializable
     {
         /// <summary>
         /// Indicates if the level has been unlocked on the world map

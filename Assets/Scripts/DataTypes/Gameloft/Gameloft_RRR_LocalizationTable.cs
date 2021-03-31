@@ -1,16 +1,18 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
 	public class Gameloft_RRR_LocalizationTable : Gameloft_Resource {
 		public LanguageTable[] LanguageTables { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Big, () => {
+			s.DoEndian(Endian.Big, () => {
 				LanguageTables = s.SerializeArraySize<LanguageTable, ushort>(LanguageTables, name: nameof(LanguageTables));
 				LanguageTables = s.SerializeObjectArray<LanguageTable>(LanguageTables, LanguageTables.Length, name: nameof(LanguageTables));
 			});
 		}
 
-		public class LanguageTable : R1Serializable {
+		public class LanguageTable : BinarySerializable {
 			public uint Length { get; set; }
 			public string[] Strings { get; set; }
 			

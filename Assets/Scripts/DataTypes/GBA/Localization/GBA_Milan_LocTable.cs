@@ -1,15 +1,16 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBA_Milan_LocTable : R1Serializable
+    public class GBA_Milan_LocTable : BinarySerializable
     {
         public Pointer[] Pointers { get; set; }
         public string[] Strings { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            var manager = ((GBA_Milan_Manager)s.GameSettings.GetGameManager);
+            var manager = ((GBA_Milan_Manager)s.GetR1Settings().GetGameManager);
 
             Pointers = s.SerializePointerArray(Pointers, manager.Milan_LocTableLength * manager.Milan_LocTableLangCount, name: nameof(Pointers));
 

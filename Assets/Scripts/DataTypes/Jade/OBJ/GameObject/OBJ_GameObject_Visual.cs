@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_Visual : R1Serializable {
+	public class OBJ_GameObject_Visual : BinarySerializable {
 		public uint Type { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; } // Set in OnPreSerialize
 

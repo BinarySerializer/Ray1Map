@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_TileAssemble : R1Serializable
+    public class GBAIsometric_RHR_TileAssemble : BinarySerializable
     {
         public Pointer DataPointer { get; set; }
         public Pointer DataOffsetsPointer { get; set; } // Compressed
@@ -39,7 +41,7 @@
                 }
             }
         }
-        public class TileData : R1Serializable {
+        public class TileData : BinarySerializable {
             public ushort BaseMapEntry { get; set; }
             public ushort Padding { get; set; }
             public ushort[] TileIndices { get; set; }

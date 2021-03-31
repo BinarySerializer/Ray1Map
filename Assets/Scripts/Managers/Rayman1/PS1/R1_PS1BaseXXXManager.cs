@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -91,7 +92,7 @@ namespace R1Engine
         }
 
         public async UniTask TestBinRead(GameSettings settings) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 await context.AddLinearSerializedFileAsync("disc.bin");
                 var binFile = FileFactory.Read<ISO9960_BinFile>("disc.bin", context);
             }
@@ -227,15 +228,15 @@ namespace R1Engine
                 settings.World = world.Index;
                 settings.Level = 1;
 
-                using (var context = new Context(settings))
+                using (var context = new R1Context(settings))
                 {
                     // Read the allfix file
-                    await LoadExtraFile(context, GetAllfixFilePath(context.Settings), false);
-                    var allfix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+                    await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
+                    var allfix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
 
                     // Read the BigRay file
-                    await LoadExtraFile(context, GetBigRayFilePath(context.Settings), false);
-                    var br = FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.Settings), context);
+                    await LoadExtraFile(context, GetBigRayFilePath(context.GetR1Settings()), false);
+                    var br = FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
 
                     Add(spritePals, allfix.Palette1);
                     Add(spritePals, allfix.Palette2);
@@ -247,8 +248,8 @@ namespace R1Engine
                     Add(spritePals, br.Palette2);
 
                     // Read the world file
-                    await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
-                    var wld = FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
+                    await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
+                    var wld = FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
                     Add(spritePals, wld.EventPalette1);
                     Add(spritePals, wld.EventPalette2);
@@ -264,17 +265,17 @@ namespace R1Engine
 
         public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
-            using (var menuContext = new Context(settings)) 
+            using (var menuContext = new R1Context(settings)) 
             {
-                using (var bigRayContext = new Context(settings))
+                using (var bigRayContext = new R1Context(settings))
                 {
                     await LoadFilesAsync(menuContext);
                     await LoadFilesAsync(bigRayContext);
 
                     // Read the allfix & font files for the menu
-                    await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.Settings), false);
-                    var fix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(menuContext.Settings), menuContext);
-                    await LoadExtraFile(menuContext, GetFontFilePath(menuContext.Settings), false);
+                    await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()), false);
+                    var fix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(menuContext.GetR1Settings()), menuContext);
+                    await LoadExtraFile(menuContext, GetFontFilePath(menuContext.GetR1Settings()), false);
 
                     // Correct font palette
                     if (settings.EngineVersion == EngineVersion.R1_PS1_JP)
@@ -303,8 +304,8 @@ namespace R1Engine
                     }
 
                     // Read the BigRay file
-                    await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.Settings), false);
-                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.Settings)) ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(bigRayContext.Settings), bigRayContext) : null;
+                    await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings()), false);
+                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(bigRayContext.GetR1Settings()), bigRayContext) : null;
 
                     // Export
                     await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData.FontData, fix.AllfixData.WldObj, br?.BigRayData);
@@ -316,12 +317,12 @@ namespace R1Engine
         {
             var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
 
-            if (context.Settings.R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != R1_World.Menu)
             {
                 if (exe.LevelBackgroundIndexTable == null)
                     return null;
 
-                var bgIndex = exe.LevelBackgroundIndexTable[context.Settings.World - 1][context.Settings.Level - 1];
+                var bgIndex = exe.LevelBackgroundIndexTable[context.GetR1Settings().World - 1][context.GetR1Settings().Level - 1];
                 var fndStartIndex = exe.GetFileTypeIndex(this, R1_PS1_FileType.fnd_file);
 
                 if (fndStartIndex == -1)
@@ -346,7 +347,7 @@ namespace R1Engine
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
         {
-            var allfix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context).AllfixData;
+            var allfix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context).AllfixData;
             var wldObj = allfix.WldObj;
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()

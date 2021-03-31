@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event state for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_EventComplexDataState : R1Serializable
+    public class R1Jaguar_EventComplexDataState : BinarySerializable
     {
         public Pointer AnimationPointer { get; set; }
         public byte Byte04 { get; set; }
@@ -61,7 +63,7 @@
             // The layer index
             var layer = 0;
 
-            var ignoreYBit = Context.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto && AnimationPointer.AbsoluteOffset == 0x00811DDC;
+            var ignoreYBit = Context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && AnimationPointer.AbsoluteOffset == 0x00811DDC;
 
             // Create each frame
             for (int i = 0; i < FrameCount; i++) {

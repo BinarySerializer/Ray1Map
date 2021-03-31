@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Status data for Rayman 1
     /// </summary>
-    public class R1_StatusBar : R1Serializable
+    public class R1_StatusBar : BinarySerializable
     {
         /// <summary>
         /// The current number of lives, 0-99

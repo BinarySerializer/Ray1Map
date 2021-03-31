@@ -1,8 +1,9 @@
-﻿using static R1Engine.GBA_AnimationChannel;
+﻿using BinarySerializer;
+using static R1Engine.GBA_AnimationChannel;
 
 namespace R1Engine
 {
-    public class GBA_BatmanVengeance_AnimationChannel : R1Serializable {
+    public class GBA_BatmanVengeance_AnimationChannel : BinarySerializable {
         #region Data
         public short XPosition { get; set; }
         public short YPosition { get; set; }
@@ -24,7 +25,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s) 
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_CrouchingTiger) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_CrouchingTiger) {
                 s.SerializeBitValues<ushort>(bitFunc => {
                     YPosition = (short)bitFunc(YPosition, 8, name: nameof(YPosition));
                     if (YPosition >= 128) YPosition -= 256;

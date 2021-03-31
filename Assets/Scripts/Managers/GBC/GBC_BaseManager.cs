@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using Newtonsoft.Json;
-using R1Engine.Serialize;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -33,7 +34,7 @@ namespace R1Engine
 
         public virtual async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -61,7 +62,7 @@ namespace R1Engine
                         indentLevel++;
 
                         if (export && block.Data != null)
-                            Util.ByteArrayToFile(Path.Combine(outputDir, path, $"{block.Offset.file.filePath}_0x{block.Offset.StringFileOffset}.bin"), block.Data);
+                            Util.ByteArrayToFile(Path.Combine(outputDir, path, $"{block.Offset.File.FilePath}_0x{block.Offset.StringFileOffset}.bin"), block.Data);
 
                         writer.WriteLine($"{$"{block.Offset}:",-30}{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.DependencyTable.DependenciesCount} - BlockSize: {block.Data?.Length}");
 
@@ -77,13 +78,13 @@ namespace R1Engine
                             references[block.SubBlocks[i].Offset].Add(block.Offset);
 
                             // Export
-                            ExportBlocks(block.SubBlocks[i], i, Path.Combine(path, $"{i} - {block.SubBlocks[i].Offset.file.filePath}_0x{block.SubBlocks[i].Offset.StringFileOffset}"));
+                            ExportBlocks(block.SubBlocks[i], i, Path.Combine(path, $"{i} - {block.SubBlocks[i].Offset.File.FilePath}_0x{block.SubBlocks[i].Offset.StringFileOffset}"));
                         }
 
                         indentLevel--;
                     }
 
-                    ExportBlocks(rootBlock, 0, $"{rootBlock.Offset.file.filePath}_0x{rootBlock.Offset.StringFileOffset}");
+                    ExportBlocks(rootBlock, 0, $"{rootBlock.Offset.File.FilePath}_0x{rootBlock.Offset.StringFileOffset}");
                 }
             }
 
@@ -107,7 +108,7 @@ namespace R1Engine
                 {
                     foreach (var file in got.Files)
                     {
-                        string filename = Path.GetFileNameWithoutExtension(file.Offset.file.AbsolutePath);
+                        string filename = Path.GetFileNameWithoutExtension(file.Offset.File.AbsolutePath);
                         if (file.OffsetTable != null)
                         {
                             for (int i = 0; i < file.OffsetTable.NumEntries; i++)
@@ -185,7 +186,7 @@ namespace R1Engine
         }
         public async UniTask ExportVignetteAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -195,7 +196,7 @@ namespace R1Engine
         public virtual void ExportVignette(Context context, string outputDir) { }
         public async UniTask LevelInfoToClipboardAsync(GameSettings settings)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
                 var lvls = GetLevelList(context);
@@ -230,7 +231,7 @@ namespace R1Engine
 
                 settings.Level = lev;
 
-                using (var context = new Context(settings))
+                using (var context = new R1Context(settings))
                 {
                     // Load the files
                     await LoadFilesAsync(context);
@@ -283,7 +284,7 @@ namespace R1Engine
                                         }
 
                                         // Save gif
-                                        collection.Write(Path.Combine(outputDir, $"{offset.file.filePath}_0x{offset.StringFileOffset} - {animIndex}.gif"));
+                                        collection.Write(Path.Combine(outputDir, $"{offset.File.FilePath}_0x{offset.StringFileOffset} - {animIndex}.gif"));
                                     }
                                 }
                                 else
@@ -292,7 +293,7 @@ namespace R1Engine
 
                                     foreach (var tex in GetAnimationFrames(anim, commonDesign.Sprites))
                                     {
-                                        Util.ByteArrayToFile(Path.Combine(outputDir, $"{offset.file.filePath}_0x{offset.StringFileOffset}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
+                                        Util.ByteArrayToFile(Path.Combine(outputDir, $"{offset.File.FilePath}_0x{offset.StringFileOffset}", $"{animIndex}", $"{frameIndex}.png"), tex.EncodeToPNG());
                                         frameIndex++;
                                     }
                                 }

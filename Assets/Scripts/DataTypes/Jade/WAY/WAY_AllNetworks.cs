@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class WAY_AllNetworks : Jade_File {

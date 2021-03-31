@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBA_AffineMatrix : R1Serializable
+    public class GBA_AffineMatrix : BinarySerializable
     {
         public short Pa { get; set; }
         public short Pb { get; set; }

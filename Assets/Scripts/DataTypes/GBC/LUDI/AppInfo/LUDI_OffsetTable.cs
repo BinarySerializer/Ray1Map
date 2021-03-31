@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -25,7 +26,7 @@ namespace R1Engine
             Entries = s.SerializeObjectArray<Entry>(Entries, NumEntries, name: nameof(Entries));
         }
 
-		public class Entry : R1Serializable {
+		public class Entry : BinarySerializable {
             public ushort BlockID { get; set; }
             public ushort Padding { get; set; }
 
@@ -36,9 +37,9 @@ namespace R1Engine
                 BlockID = s.Serialize<ushort>(BlockID, name: nameof(BlockID));
                 Padding = s.Serialize<ushort>(Padding, name: nameof(Padding));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm) {
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_Palm) {
                     RecordID = s.Serialize<uint>(RecordID, name: nameof(RecordID));
-                } else if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_PocketPC) {
+                } else if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_PocketPC) {
                     BlockOffset = s.Serialize<uint>(BlockOffset, name: nameof(BlockOffset));
                 }
             }

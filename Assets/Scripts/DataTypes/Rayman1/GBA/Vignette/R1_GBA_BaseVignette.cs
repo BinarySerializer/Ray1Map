@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Base vignette data for Rayman Advance (GBA)
     /// </summary>
-    public abstract class R1_GBA_BaseVignette : R1Serializable
+    public abstract class R1_GBA_BaseVignette : BinarySerializable
     {
         #region Properties
 
@@ -58,7 +60,7 @@
             // Serialize data from pointers
 
             s.DoAt(ImageDataPointer, () => {
-                if (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi)
+                if (s.Context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanDSi)
                 {
                     if (isImgDataCompressed)
                         s.DoEncoded(new GBA_LZSSEncoder(), () => ImageData = s.SerializeArray<byte>(ImageData, 0x40 * Width * Height, name: nameof(ImageData)));
@@ -77,7 +79,7 @@
 
             s.DoAt(PalettesPointer, () => {
                 Palettes = s.SerializeObjectArray<RGBA5551Color>(Palettes,
-                    (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi) ? 256 : (PaletteCount * 16),
+                    (s.Context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanDSi) ? 256 : (PaletteCount * 16),
                     name: nameof(Palettes));
             });
         }

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
 	public class Gameloft_RRR_PuppetResourceList : Gameloft_Resource {
 		public ResourceReference[] ResourceList { get; set; }
@@ -9,7 +11,7 @@
 				includeLastObj: true, name: nameof(ResourceList));
 		}
 
-		public class ResourceReference : R1Serializable {
+		public class ResourceReference : BinarySerializable {
 			public sbyte FileID { get; set; }
 			public byte ResourceID { get; set; }
 			public byte Byte2 { get; set; }

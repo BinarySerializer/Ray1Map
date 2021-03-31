@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_Vertex : R1Serializable
+    public class GBAVV_NitroKart_NGage_Vertex : BinarySerializable
     {
         public short X { get; set; }
         public short Y { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_AnimGroup : R1Serializable
+    public class GBAIsometric_Spyro_AnimGroup : BinarySerializable
     {
         public ushort AnimCount { get; set; }
         public ushort AnimIndex { get; set; }

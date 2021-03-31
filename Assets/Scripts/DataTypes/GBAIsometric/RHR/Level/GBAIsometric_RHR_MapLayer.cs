@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_RHR_MapLayer : R1Serializable
+    public class GBAIsometric_RHR_MapLayer : BinarySerializable
     {
         public Pointer<GBAIsometric_RHR_TileSet> TileSetPointer { get; set; }
         public MapLayerType StructType { get; set; }

@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Background block data for Rayman 1 (PS1)
     /// </summary>
-    public class R1_PS1_BackgroundBlock : R1Serializable
+    public class R1_PS1_BackgroundBlock : BinarySerializable
     {
         public R1_BackgroundLayerPosition[] BackgroundDefineNormal { get; set; }
         public R1_BackgroundLayerPosition[] BackgroundDefineDiff { get; set; }
@@ -32,7 +34,7 @@
 
             BackgroundLayerInfos = s.SerializeObjectArray<R1_ImageDescriptor>(BackgroundLayerInfos, 12, name: nameof(BackgroundLayerInfos));
 
-            Unknown4 = s.SerializeArray<byte>(Unknown4, s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP ? 208 : 80, name: nameof(Unknown4));
+            Unknown4 = s.SerializeArray<byte>(Unknown4, s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP ? 208 : 80, name: nameof(Unknown4));
         }
     }
 }

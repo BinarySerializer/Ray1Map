@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class R1_PS1_Executable : R1Serializable
+    public class R1_PS1_Executable : BinarySerializable
     {
         public R1_ZDCEntry[] TypeZDC { get; set; }
         public R1_ZDCData[] ZDCData { get; set; }
@@ -23,33 +24,33 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            var manager = (R1_PS1BaseManager)s.GameSettings.GetGameManager;
+            var manager = (R1_PS1BaseManager)s.GetR1Settings().GetGameManager;
 
             if (manager.TypeZDCOffset != null)
-                TypeZDC = s.DoAt(new Pointer(manager.TypeZDCOffset.Value, Offset.file), () => s.SerializeObjectArray<R1_ZDCEntry>(TypeZDC, manager.TypeZDCCount, name: nameof(TypeZDC)));
+                TypeZDC = s.DoAt(new Pointer(manager.TypeZDCOffset.Value, Offset.File), () => s.SerializeObjectArray<R1_ZDCEntry>(TypeZDC, manager.TypeZDCCount, name: nameof(TypeZDC)));
 
             if (manager.ZDCDataOffset != null)
-                ZDCData = s.DoAt(new Pointer(manager.ZDCDataOffset.Value, Offset.file), () => s.SerializeObjectArray<R1_ZDCData>(ZDCData, manager.ZDCDataCount, name: nameof(ZDCData)));
+                ZDCData = s.DoAt(new Pointer(manager.ZDCDataOffset.Value, Offset.File), () => s.SerializeObjectArray<R1_ZDCData>(ZDCData, manager.ZDCDataCount, name: nameof(ZDCData)));
 
             if (manager.EventFlagsOffset != null)
             {
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
-                    EventFlags = s.DoAt(new Pointer(manager.EventFlagsOffset.Value, Offset.file), 
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_Saturn)
+                    EventFlags = s.DoAt(new Pointer(manager.EventFlagsOffset.Value, Offset.File), 
                         () => s.SerializeArray<int>(EventFlags?.Select(x => BitHelpers.ReverseBits((int)x)).ToArray(), manager.EventFlagsCount, name: nameof(EventFlags))).Select(BitHelpers.ReverseBits).Select(x => (R1_EventFlags)x).ToArray();
                 else
-                    EventFlags = s.DoAt(new Pointer(manager.EventFlagsOffset.Value, Offset.file), 
+                    EventFlags = s.DoAt(new Pointer(manager.EventFlagsOffset.Value, Offset.File), 
                         () => s.SerializeArray<R1_EventFlags>(EventFlags, manager.EventFlagsCount, name: nameof(EventFlags)));
             }
 
             if (manager.WorldInfoOffset != null)
-                WorldInfo = s.DoAt(new Pointer(manager.WorldInfoOffset.Value, Offset.file), () => s.SerializeObjectArray<R1_WorldMapInfo>(WorldInfo, 24, name: nameof(WorldInfo)));
+                WorldInfo = s.DoAt(new Pointer(manager.WorldInfoOffset.Value, Offset.File), () => s.SerializeObjectArray<R1_WorldMapInfo>(WorldInfo, 24, name: nameof(WorldInfo)));
 
             if (manager.LevelBackgroundIndexTableOffset != null)
             {
                 if (LevelBackgroundIndexTable == null)
                     LevelBackgroundIndexTable = new byte[6][];
 
-                s.DoAt(new Pointer(manager.LevelBackgroundIndexTableOffset.Value, Offset.file), () =>
+                s.DoAt(new Pointer(manager.LevelBackgroundIndexTableOffset.Value, Offset.File), () =>
                 {
                     for (int i = 0; i < LevelBackgroundIndexTable.Length; i++)
                         LevelBackgroundIndexTable[i] = s.SerializeArray<byte>(LevelBackgroundIndexTable[i], 30, name: $"{nameof(LevelBackgroundIndexTable)}[{i}]");
@@ -64,7 +65,7 @@ namespace R1Engine
             var index = 0;
             foreach (var info in fileTableInfos)
             {
-                s.DoAt(new Pointer(info.Offset, Offset.file), () =>
+                s.DoAt(new Pointer(info.Offset, Offset.File), () =>
                 {
                     for (int i = 0; i < info.Count; i++)
                     {
@@ -74,16 +75,16 @@ namespace R1Engine
                 });
             }
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_Saturn)
             {
                 var saturnManager = (R1_Saturn_Manager)manager;
 
-                Saturn_Palettes = s.DoAt(new Pointer(saturnManager.GetPalOffset, Offset.file), () => s.SerializeObjectArray<RGBA5551Color>(Saturn_Palettes, 25 * 256 * 2, name: nameof(Saturn_Palettes)));
+                Saturn_Palettes = s.DoAt(new Pointer(saturnManager.GetPalOffset, Offset.File), () => s.SerializeObjectArray<RGBA5551Color>(Saturn_Palettes, 25 * 256 * 2, name: nameof(Saturn_Palettes)));
 
                 if (Saturn_FNDFileTable == null)
                     Saturn_FNDFileTable = new string[6][];
 
-                s.DoAt(new Pointer(saturnManager.GetFndFileTableOffset, Offset.file), () =>
+                s.DoAt(new Pointer(saturnManager.GetFndFileTableOffset, Offset.File), () =>
                 {
                     for (int i = 0; i < Saturn_FNDFileTable.Length; i++)
                         Saturn_FNDFileTable[i] = s.SerializeStringArray(Saturn_FNDFileTable[i], 10, 12, name: $"{nameof(Saturn_FNDFileTable)}[{i}]");
@@ -92,7 +93,7 @@ namespace R1Engine
                 if (Saturn_FNDSPFileTable == null)
                     Saturn_FNDSPFileTable = new string[6][];
 
-                s.DoAt(new Pointer(saturnManager.GetFndSPFileTableOffset, Offset.file), () =>
+                s.DoAt(new Pointer(saturnManager.GetFndSPFileTableOffset, Offset.File), () =>
                 {
                     for (int i = 0; i < Saturn_FNDSPFileTable.Length; i++)
                         Saturn_FNDSPFileTable[i] = s.SerializeStringArray(Saturn_FNDSPFileTable[i], 5, 12, name: $"{nameof(Saturn_FNDSPFileTable)}[{i}]");
@@ -101,7 +102,7 @@ namespace R1Engine
                 if (Saturn_FNDIndexTable == null)
                     Saturn_FNDIndexTable = new byte[7][];
 
-                s.DoAt(new Pointer(saturnManager.GetFndIndexTableOffset, Offset.file), () =>
+                s.DoAt(new Pointer(saturnManager.GetFndIndexTableOffset, Offset.File), () =>
                 {
                     for (int i = 0; i < Saturn_FNDIndexTable.Length; i++)
                         Saturn_FNDIndexTable[i] = s.SerializeArray<byte>(Saturn_FNDIndexTable[i], 25, name: $"{nameof(Saturn_FNDIndexTable)}[{i}]");

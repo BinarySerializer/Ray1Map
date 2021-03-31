@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_KitLevelDefinesBlock : R1Serializable
+    public class R1_PC_KitLevelDefinesBlock : BinarySerializable
     {
         public byte LevelDefineChecksum { get; set; }
         public byte[] LevelDefine_0 { get; set; }
@@ -28,7 +30,7 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            var isEncryptedAndChecksum = s.GameSettings.EngineVersion != EngineVersion.R1_PS1_Edu;
+            var isEncryptedAndChecksum = s.GetR1Settings().EngineVersion != EngineVersion.R1_PS1_Edu;
 
             LevelDefineChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {

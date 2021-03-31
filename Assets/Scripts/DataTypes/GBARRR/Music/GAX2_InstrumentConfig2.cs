@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_InstrumentConfig2 : R1Serializable {
+    public class GAX2_InstrumentConfig2 : BinarySerializable {
         public byte NumPoints { get; set; }
         public byte Byte_01 { get; set; }
         public byte[] Bytes { get; set; }

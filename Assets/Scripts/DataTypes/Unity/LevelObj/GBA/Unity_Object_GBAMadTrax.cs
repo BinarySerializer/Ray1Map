@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -21,7 +22,7 @@ namespace R1Engine
 
         public override string DebugText => String.Empty;
 
-        public override R1Serializable SerializableData => null;
+        public override BinarySerializable SerializableData => null;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Rayman";

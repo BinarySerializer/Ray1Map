@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class ISO9960_Sector<T> : R1Serializable where T : R1Serializable, new() {
+    public class ISO9960_Sector<T> : BinarySerializable where T : BinarySerializable, new() {
 
         public byte[] Sync { get; set; }
         public byte[] Header { get; set; }

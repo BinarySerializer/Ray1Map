@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Animation descriptor data for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_AnimationDescriptor : R1Serializable, IR1_AnimationDescriptor
+    public class R1Jaguar_AnimationDescriptor : BinarySerializable, IR1_AnimationDescriptor
     {
         /// <summary>
         /// The number of layers to use per frame

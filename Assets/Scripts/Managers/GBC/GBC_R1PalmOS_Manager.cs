@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -14,7 +15,7 @@ namespace R1Engine
         public string AllfixFilePath => "worldmap.pdb";
         public string[] GetAllDataPaths(Context c) {
             return new string[] {
-                c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColor || c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSColorDemo ? "palmcolormenu" : "menu",
+                c.GetR1Settings().GameModeSelection == GameModeSelection.RaymanGBCPalmOSColor || c.GetR1Settings().GameModeSelection == GameModeSelection.RaymanGBCPalmOSColorDemo ? "palmcolormenu" : "menu",
                 "worldmap",
                 "jungle1",
                 "jungle2",
@@ -114,7 +115,7 @@ namespace R1Engine
 
         public async UniTask ExportDataBasesAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 var s = context.Deserializer;
 
@@ -127,7 +128,7 @@ namespace R1Engine
                         continue;
 
                     var relPath = Path.GetFileName(filePath);
-                    await context.AddLinearSerializedFileAsync(relPath, BinaryFile.Endian.Big);
+                    await context.AddLinearSerializedFileAsync(relPath, Endian.Big);
 
                     if (type == Palm_Database.DatabaseType.PDB) {
                         var dataFile = FileFactory.Read<LUDI_PalmOS_DataFile>(relPath, context);
@@ -186,7 +187,7 @@ namespace R1Engine
             List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
             foreach (var path in GetAllDataPaths(context)) {
                 var fullPath = $"{path}.pdb";
-                if (await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Big) != null)
+                if (await context.AddLinearSerializedFileAsync(fullPath, Endian.Big) != null)
                     dataFiles.Add(FileFactory.Read<LUDI_PalmOS_DataFile>(fullPath, context));
             }
             globalOffsetTable.Files = dataFiles.ToArray();
@@ -202,7 +203,7 @@ namespace R1Engine
 
 		public override Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level) {
 
-            bool greyScale = context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale || context.Settings.GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscaleDemo;
+            bool greyScale = context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscale || context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanGBCPalmOSGreyscaleDemo;
             Util.TileEncoding encoding = greyScale ? Util.TileEncoding.Linear_4bpp_ReverseOrder : Util.TileEncoding.Linear_8bpp;
             Color[] pal = (greyScale ? GetPalmOS4BitPalette() : GetPalmOS8BitPalette()).Select(x => x.GetColor()).ToArray();
             var tileSetTex = Util.ToTileSetTexture(playField.TileKit.TileData, pal, encoding, CellSize, flipY: false);

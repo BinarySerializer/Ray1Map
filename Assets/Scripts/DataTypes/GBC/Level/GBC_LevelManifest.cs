@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBC_LevelManifest : GBC_BaseBlock
     {

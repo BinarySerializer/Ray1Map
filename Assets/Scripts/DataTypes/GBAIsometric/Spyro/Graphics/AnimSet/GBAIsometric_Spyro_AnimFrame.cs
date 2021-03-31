@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_AnimFrame : R1Serializable
+    public class GBAIsometric_Spyro_AnimFrame : BinarySerializable
     {
         public ushort FrameImageIndex { get; set; }
         public int UnkBitFieldValue { get; set; }

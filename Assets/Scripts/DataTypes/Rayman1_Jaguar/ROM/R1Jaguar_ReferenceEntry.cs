@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1Jaguar_ReferenceEntry : R1Serializable
+    public class R1Jaguar_ReferenceEntry : BinarySerializable
     {
         public Pointer StringBase { get; set; }
 

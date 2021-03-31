@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Level data for EDU on PS1
     /// </summary>
-    public class R1_PS1Edu_LevFile : R1Serializable
+    public class R1_PS1Edu_LevFile : BinarySerializable
     {
         #region Public Properties
 

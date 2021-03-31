@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_LocFileString : R1Serializable
+    public class R1_PC_LocFileString : BinarySerializable
     {
         public byte Length { get; set; }
         public string Value { get; set; }

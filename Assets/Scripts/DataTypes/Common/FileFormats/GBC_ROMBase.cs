@@ -1,11 +1,12 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Base data for a GBC ROM
     /// </summary>
-    public class GBC_ROMBase : R1Serializable
+    public class GBC_ROMBase : BinarySerializable
     {
         public byte[] EntryPoint { get; set; }
         public byte[] NintendoLogo { get; set; }

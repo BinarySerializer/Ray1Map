@@ -1,8 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -52,7 +53,7 @@ namespace R1Engine
         public override async UniTask ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir, bool exportAnimFrames)
         {
             // Create the context
-            using (var context = new Context(baseGameSettings))
+            using (var context = new R1Context(baseGameSettings))
             {
                 // Load the game data
                 await LoadFilesAsync(context);
@@ -285,7 +286,7 @@ namespace R1Engine
         public override async UniTask ExtractVignetteAsync(GameSettings settings, string outputPath)
         {
             // Create a context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Get a deserializer
                 var s = context.Deserializer;
@@ -342,7 +343,7 @@ namespace R1Engine
 
         public override async UniTask ExportPaletteImage(GameSettings settings, string outputPath)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the files
                 await LoadFilesAsync(context);
@@ -358,7 +359,7 @@ namespace R1Engine
         public async UniTask ExportDataBlocks(GameSettings settings, string outputPath)
         {
             // Create the context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the rom
                 await LoadFilesAsync(context);

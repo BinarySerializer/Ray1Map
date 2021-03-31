@@ -1,12 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using R1Engine;
-using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -581,7 +581,7 @@ public class SettingsWindow : UnityWindow
                     settings.Level = lvl;
 
                     // Create the context
-                    var context = new Context(settings);
+                    var context = new R1Context(settings);
 
                     // Load the files
                     await manager.LoadFilesAsync(context);

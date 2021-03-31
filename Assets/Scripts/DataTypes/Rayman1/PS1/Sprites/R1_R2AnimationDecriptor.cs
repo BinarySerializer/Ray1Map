@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Animation descriptor for Rayman 2 (PS1 - Demo)
     /// </summary>
-    public class R1_R2AnimationDecriptor : R1Serializable, IR1_AnimationDescriptor
+    public class R1_R2AnimationDecriptor : BinarySerializable, IR1_AnimationDescriptor
     {
         #region Animation Data
 

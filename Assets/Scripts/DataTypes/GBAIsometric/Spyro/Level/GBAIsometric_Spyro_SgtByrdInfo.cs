@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_SgtByrdInfo : R1Serializable
+    public class GBAIsometric_Spyro_SgtByrdInfo : BinarySerializable
     {
         public ushort LevelID { get; set; }
         public ushort Ushort_02 { get; set; } // Always 2

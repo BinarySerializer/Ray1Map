@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -16,7 +17,7 @@ namespace R1Engine
                 SubBlocks = new GBC_DummyBlock[DependencyTable.DependenciesCount];
 
             // Get all root pointers
-            var rootBlock = ((GBC_BaseManager)s.GameSettings.GetGameManager).GetLevelList(s.Context);
+            var rootBlock = ((GBC_BaseManager)s.GetR1Settings().GetGameManager).GetLevelList(s.Context);
             var rootTable = rootBlock.DependencyTable;
             var rootPointers = Enumerable.Range(0, rootTable.Dependencies.Length).Select(x => rootTable.GetPointer(x)).ToArray();
 

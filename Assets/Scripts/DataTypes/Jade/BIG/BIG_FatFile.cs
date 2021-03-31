@@ -1,5 +1,7 @@
-﻿namespace R1Engine.Jade {
-	public class BIG_FatFile : R1Serializable {
+﻿using BinarySerializer;
+
+namespace R1Engine.Jade {
+	public class BIG_FatFile : BinarySerializable {
 		public static uint HeaderLength => 0x18;
 		
 		public uint FilesCount { get; set; }
@@ -33,11 +35,11 @@
 				DirectoryInfos = s.SerializeObjectArray<DirectoryInfo>(DirectoryInfos, DirectoriesCount, name: nameof(DirectoryInfos));
 			});
 			if (NextFatFileOffset != -1) {
-				s.Goto(s.CurrentPointer.file.StartPointer + NextFatFileOffset - HeaderLength);
+				s.Goto(s.CurrentPointer.File.StartPointer + NextFatFileOffset - HeaderLength);
 			}
 		}
 
-		public class FileReference : R1Serializable {
+		public class FileReference : BinarySerializable {
 			public static uint StructSize => 0x8;
 			public Pointer FileOffset { get; set; }
 			public Jade_Key Key { get; set; }
@@ -51,7 +53,7 @@
 		/// <summary>
 		/// File names. Not read by the engine
 		/// </summary>
-		public class FileInfo : R1Serializable {
+		public class FileInfo : BinarySerializable {
 			public static uint StructSize(uint version) => version == 34 ? (uint)0x54 : 0x58;
 			public uint Version { get; set; }
 
@@ -93,7 +95,7 @@
 		/// <summary>
 		/// Directories. Not read by the engine
 		/// </summary>
-		public class DirectoryInfo : R1Serializable {
+		public class DirectoryInfo : BinarySerializable {
 			public static uint StructSize => 0x54;
 
 			public int FirstFileID { get; set; }

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class LUDI_Header : LUDI_AppInfoBlock {
         public uint LUDI { get; set; }

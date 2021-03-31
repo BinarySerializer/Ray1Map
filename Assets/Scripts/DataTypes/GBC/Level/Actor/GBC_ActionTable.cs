@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_ActionTable : R1Serializable
+    public class GBC_ActionTable : BinarySerializable
     {
         public ushort Unknown1Offset { get; set; }
         public ushort Unknown2Offset { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_OffsetTableEntry : R1Serializable
+    public class GBARRR_OffsetTableEntry : BinarySerializable
     {
         public GBARRR_OffsetTableEntryHeader Header { get; set; }
         public uint BlockSize { get; set; }

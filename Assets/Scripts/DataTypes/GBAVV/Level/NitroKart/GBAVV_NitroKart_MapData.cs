@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_MapData : R1Serializable
+    public class GBAVV_NitroKart_MapData : BinarySerializable
     {
         public Pointer Mode7TileSetPointer { get; set; }
         public Pointer BackgroundTileSetPointer { get; set; }

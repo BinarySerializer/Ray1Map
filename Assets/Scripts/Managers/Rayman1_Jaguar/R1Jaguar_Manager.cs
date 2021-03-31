@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -153,7 +154,7 @@ namespace R1Engine
                 {
                     var mainRomSettings = new GameSettings(GameModeSelection.RaymanJaguar, Settings.GameDirectories[GameModeSelection.RaymanJaguar], 1, 1);
 
-                    mainRomContext = new Context(mainRomSettings);
+                    mainRomContext = new R1Context(mainRomSettings);
 
                     var mainManger = new R1Jaguar_Manager();
 
@@ -164,7 +165,7 @@ namespace R1Engine
                 }
 
                 // Create the context
-                using (var context = new Context(baseGameSettings))
+                using (var context = new R1Context(baseGameSettings))
                 {
                     // Keep track of exported files
                     var exportedFiles = new List<string>();
@@ -582,7 +583,7 @@ namespace R1Engine
         public virtual async UniTask ExtractVignetteAsync(GameSettings settings, string outputPath)
         {
             // Create a context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Get a deserializer
                 var s = context.Deserializer;
@@ -627,7 +628,7 @@ namespace R1Engine
         public async UniTask ExtractCompressedDataAsync(GameSettings settings, string outputPath, bool as888)
         {
             // Create a context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Get a deserializer
                 var s = context.Deserializer;
@@ -689,16 +690,16 @@ namespace R1Engine
 
         public async UniTask ConvertMusicAsync(GameSettings settings, string outputPath) {
             // Create a context
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 // Get a deserializer
                 var s = context.Deserializer;
 
                 // Add the file
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
-                var pointerTable = PointerTables.JaguarR1_PointerTable(s.GameSettings.EngineVersion, file);
+                var pointerTable = PointerTables.JaguarR1_PointerTable(s.GetR1Settings().EngineVersion, file);
                 s.DoAt(pointerTable[JaguarR1_Pointer.Music], () => {
                     // Read the music table
-                    R1Jaguar_MusicDescriptor[] MusicTable = s.SerializeObjectArray<R1Jaguar_MusicDescriptor>(null, s.GameSettings.EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
+                    R1Jaguar_MusicDescriptor[] MusicTable = s.SerializeObjectArray<R1Jaguar_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
                     // Immediately after this: pointer to sample buffer?
 
                     // For each entry
@@ -714,7 +715,7 @@ namespace R1Engine
 
         public virtual async UniTask ExportPaletteImage(GameSettings settings, string outputPath)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the files
                 await LoadFilesAsync(context);
@@ -743,7 +744,7 @@ namespace R1Engine
 
         public void FixMemoryDumpByteSwapping(GameSettings settings) {
             // Create a context
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 // Get a deserializer
                 var s = context.Deserializer;
                 string[] files = Directory.EnumerateFiles(context.BasePath, "*.jag", SearchOption.TopDirectoryOnly).ToArray();
@@ -751,8 +752,8 @@ namespace R1Engine
                     // Add the file
                     string path = filepath.Substring(context.BasePath.Length);
                     var file = new LinearSerializedFile(context) {
-                        filePath = path,
-                        Endianness = BinaryFile.Endian.Little
+                        FilePath = path,
+                        Endianness = Endian.Little
                     };
                     context.AddFile(file);
                     ushort[] data = s.DoAt(file.StartPointer, () => s.SerializeArray<ushort>(null, s.CurrentLength / 2, name: nameof(data)));
@@ -782,7 +783,7 @@ namespace R1Engine
             {
                 string name;
 
-                if (c.Settings.EngineVersion != EngineVersion.R1Jaguar_Proto)
+                if (c.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto)
                     name = null;
                 // Need to do last here to get the correct event name for Rayman
                 else if (desEtaName)
@@ -848,7 +849,7 @@ namespace R1Engine
                     }
                 }
 
-                if (c.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto)
+                if (c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
                 {
                     var p = ed.ImageBufferMemoryPointerPointer >> 8;
                     if (rom.ImageBufferDescriptors.ContainsKey(p))
@@ -878,7 +879,7 @@ namespace R1Engine
                     {
                         foreach (var transition in ed.ComplexData.Transitions)
                         {
-                            if (transition.ComplexData?.States == null || (c.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto && transition.ComplexData.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
+                            if (transition.ComplexData?.States == null || (c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && transition.ComplexData.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
                                 continue;
                             finalDesign.Animations.AddRange(transition.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                         }
@@ -951,7 +952,7 @@ namespace R1Engine
                         {
                             if (cd == null || cds.Contains(cd)) return;
 
-                            if ((c.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto && cd.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
+                            if ((c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && cd.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
                                 return;
 
                             cds.Add(cd);
@@ -1187,7 +1188,7 @@ namespace R1Engine
             var eventIndex = 0;
 
             // Set to true to change the event state to display them correctly, or false to use the original states
-            var correctEventStates = context.Settings.EngineVersion != EngineVersion.R1Jaguar_Proto;
+            var correctEventStates = context.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto;
 
             Controller.DetailedState = $"Loading events & states";
             await Controller.WaitIfNecessary();
@@ -1208,7 +1209,7 @@ namespace R1Engine
             var gendoor = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual])) : null; // Gendoor
             var piranha = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual])) : null; // Piranha
             var scroll = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual])) : null; // Scroll
-            var rayBzzit = (correctEventStates && context.Settings.R1_World == R1_World.Jungle && context.Settings.Level == 7) ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual])) : null; // Rayman on Bzzit
+            var rayBzzit = (correctEventStates && context.GetR1Settings().R1_World == R1_World.Jungle && context.GetR1Settings().Level == 7) ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual])) : null; // Rayman on Bzzit
             var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDefinitions, loadTextures, objManager) : null; // Bzzit (demo)
 
             var eventDataList = new List<Unity_Object>();
@@ -1228,7 +1229,7 @@ namespace R1Engine
 
                 bool IsGendoor(int index)
                 {
-                    switch (context.Settings.GameModeSelection)
+                    switch (context.GetR1Settings().GameModeSelection)
                     {
                         default:
                             return rom.EventData.EventData[i][index].EventDefinitionPointer.AbsoluteOffset == 0x001F9CD0;
@@ -1318,19 +1319,19 @@ namespace R1Engine
                         {
                             eventData.EventDefinitionIndex = piranha.EventDefinitionIndex;
 
-                            if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Demo)
+                            if (context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Demo)
                                 eventData.ComplexStateIndex = eventData.RuntimeComplexStateIndex = 1;
                         }
                         else if ((ed.Offset == specialPointers[SpecialEventType.ScrollFast] || ed.Offset == specialPointers[SpecialEventType.ScrollSlow]) && !Settings.ScreenshotEnumeration) // Scroll fast/slow
                         {
                             eventData.EventDefinitionIndex = scroll.EventDefinitionIndex;
 
-                            if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Demo)
+                            if (context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Demo)
                                 eventData.ComplexStateIndex = eventData.RuntimeComplexStateIndex = 6;
                             else
                                 eventData.ComplexStateIndex = eventData.RuntimeComplexStateIndex = 2;
                         }
-                        else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.Settings.R1_World == R1_World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
+                        else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.GetR1Settings().R1_World == R1_World.Jungle && context.GetR1Settings().Level == 7) // Rayman on Bzzit
                         {
                             if (rayBzzit != null)
                                 eventData.EventDefinitionIndex = rayBzzit.EventDefinitionIndex;
@@ -1364,7 +1365,7 @@ namespace R1Engine
 
             Unity_Object rayman = null;
 
-            if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto)
+            if (context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
             {
                 var ray = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(R1Jaguar_Proto_References.MS_rayman));
                 if (ray != null)
@@ -1418,7 +1419,7 @@ namespace R1Engine
             
             if (rom.Background != null)
             {
-                var width = context.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto ? 192 : GetVignette.First(x => x.Key == rom.BackgroundPointer.AbsoluteOffset).Value;
+                var width = context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? 192 : GetVignette.First(x => x.Key == rom.BackgroundPointer.AbsoluteOffset).Value;
                 bg = TextureHelpers.CreateTexture2D(width, rom.Background.Length / width);
 
                 for (int y = 0; y < bg.height; y++)
@@ -1453,7 +1454,7 @@ namespace R1Engine
 
         public virtual async UniTask<MemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
         {
-            return await context.AddMemoryMappedFile(path, baseAddress, BinaryFile.Endian.Big);
+            return await context.AddMemoryMappedFile(path, baseAddress, Endian.Big);
         }
 
         #endregion

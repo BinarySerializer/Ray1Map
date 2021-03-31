@@ -1,9 +1,10 @@
 ﻿using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBARRR_Object : R1Serializable
+    public class GBARRR_Object : BinarySerializable
     {
         public short YPosition { get; set; }
         public short XPosition { get; set; }

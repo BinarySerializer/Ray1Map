@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_GraphicsTableEntry : R1Serializable
+    public class GBARRR_GraphicsTableEntry : BinarySerializable
     {
         public uint Key { get; set; }
         public uint Value { get; set; }

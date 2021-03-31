@@ -1,10 +1,11 @@
 ﻿using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
     // Matches https://www.coranac.com/tonc/text/regobj.htm
-    public class GBA_AnimationChannel : R1Serializable, ICloneable {
+    public class GBA_AnimationChannel : BinarySerializable, ICloneable {
         public ushort Attr0 { get; set; }
         public ushort Attr1 { get; set; }
         public ushort Attr2 { get; set; }
@@ -54,7 +55,7 @@ namespace R1Engine
                 }
                 // Attr0
                 YPosition = (short)BitHelpers.ExtractBits(Attr0, 8, 0);
-                /*if (s.GameSettings.Game == Game.GBA_Rayman3) {
+                /*if (s.GetR1Settings().Game == Game.GBA_Rayman3) {
                     if (YPosition >= 96) YPosition -= 256; // Hack. Since usually more of the top sprite is visible, this is more likely.
                 } else {
                     if (YPosition >= 128) YPosition -= 256;
@@ -81,19 +82,19 @@ namespace R1Engine
                 }
                 SpriteSize = BitHelpers.ExtractBits(Attr1, 2, 14);
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina) {
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_Sabrina) {
                     ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 12, 0);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
-                } else if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanRiseOfSinTzu) {
+                } else if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanRiseOfSinTzu) {
                     ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 15, 0);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 1, 15); // another flag at byte 0xF?
-                } else if (s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
+                } else if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
                     ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 14, 0);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 1, 14); // another flag at byte 0xF?
-                } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
+                } else if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCell) {
                     ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 14, 0);
                     PaletteIndex = BitHelpers.ExtractBits(Attr2, 2, 14); // another flag at byte 0xF?
-                } else if(s.GameSettings.GBA_IsMilan) {
+                } else if(s.GetR1Settings().GBA_IsMilan) {
                     ImageIndex = Attr2;
                 } else {
                     ImageIndex = (ushort)BitHelpers.ExtractBits(Attr2, 11, 0);

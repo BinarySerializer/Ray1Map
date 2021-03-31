@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// WAV audio file data
     /// </summary>
-    public class WAV : R1Serializable
+    public class WAV : BinarySerializable
     {
         public string Magic { get; set; }
 

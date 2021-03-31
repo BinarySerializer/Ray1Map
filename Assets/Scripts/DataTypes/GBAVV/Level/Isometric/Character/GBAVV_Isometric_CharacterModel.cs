@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_CharacterModel : R1Serializable
+    public class GBAVV_Isometric_CharacterModel : BinarySerializable
     {
         public uint Magic { get; set; } // TH2
         public uint Block1_Length { get; set; } // Length / 2
@@ -44,7 +46,7 @@
             });
         }
 
-        public class Block0_Struct : R1Serializable
+        public class Block0_Struct : BinarySerializable
         {
             public byte[] Data { get; set; }
 
@@ -53,7 +55,7 @@
                 Data = s.SerializeArray<byte>(Data, 8, name: nameof(Data));
             }
         }
-        public class Block1_Struct : R1Serializable
+        public class Block1_Struct : BinarySerializable
         {
             public byte[] Data { get; set; }
 

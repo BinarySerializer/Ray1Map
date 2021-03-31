@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event state for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_EventState : R1Serializable
+    public class R1Jaguar_EventState : BinarySerializable
     {
         public byte Byte00 { get; set; }
         public byte AnimationSpeed { get; set; }

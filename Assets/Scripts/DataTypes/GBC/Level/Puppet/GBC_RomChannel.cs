@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -16,7 +17,7 @@ namespace R1Engine
 
         public override void SerializeBlock(SerializerObject s)
         {
-            s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Little, () => {
+            s.DoEndian(Endian.Little, () => {
                 Count = s.Serialize<ushort>(Count, name: nameof(Count));
             });
             if (Keyframes == null) {

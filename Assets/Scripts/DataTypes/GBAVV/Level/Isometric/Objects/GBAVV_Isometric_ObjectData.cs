@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_ObjectData : R1Serializable
+    public class GBAVV_Isometric_ObjectData : BinarySerializable
     {
         public bool SerializeData { get; set; } // Set before serializing
         public bool IsMultiplayer { get; set; } // Set before serializing

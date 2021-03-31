@@ -63,7 +63,7 @@ namespace R1Engine
 
                 if (flags.HasFlag(RandomizerFlags.Follow))
                 {
-                    eventData.EventData.SetFollowEnabled(level.ObjManager.Context.Settings, random.Next(0, 1) == 1);
+                    eventData.EventData.SetFollowEnabled(level.ObjManager.Context.GetR1Settings(), random.Next(0, 1) == 1);
                     eventData.EventData.OffsetHY = (byte)random.Next(0, 10);
                 }
 

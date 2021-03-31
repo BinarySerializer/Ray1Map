@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class Jade_TextReference : R1Serializable {
+	public class Jade_TextReference : BinarySerializable {
 		public Jade_Key Key { get; set; }
 		public bool IsNull => Key.IsNull;
 

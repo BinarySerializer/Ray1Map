@@ -1,5 +1,6 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -13,10 +14,10 @@ namespace R1Engine
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.GBA_IsMilan)
+            if (s.GetR1Settings().GBA_IsMilan)
                 Milan_Header = s.SerializeArray<byte>(Milan_Header, 4, name: nameof(Milan_Header));
 
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCell) {
                 MatrixOffsets = s.SerializeArray<ushort>(MatrixOffsets, FrameCount, name: nameof(MatrixOffsets));
                 s.Align(4);
                 if (Matrices == null) Matrices = new GBA_AffineMatrix[FrameCount][];

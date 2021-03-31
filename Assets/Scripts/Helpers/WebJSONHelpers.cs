@@ -3,7 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -74,7 +75,7 @@ namespace R1Engine
             {
                 var settings = new GameSettings(mode, subDir, 1, 1);
 
-                using (var context = new Context(settings))
+                using (var context = new R1Context(settings))
                 {
                     foreach (var v in m.GetLevels(settings))
                     {
@@ -84,7 +85,7 @@ namespace R1Engine
 
                         context.AddFile(new LinearSerializedFile(context)
                         {
-                            filePath = specialPath
+                            FilePath = specialPath
                         });
 
                         var wldMap = m.LoadArchiveFile<R1_PC_WorldMap>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.WLDMAP01);
@@ -287,9 +288,9 @@ namespace R1Engine
 
                 var worldCounts = new int[worlds.Length];
 
-                using (var context = new Context(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
+                using (var context = new R1Context(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
                 {
-                    var m = (Gameloft_RRR_Manager)context.Settings.GetGameManager;
+                    var m = (Gameloft_RRR_Manager)context.GetR1Settings().GetGameManager;
                     await m.LoadFilesAsync(context);
                     var levels = m.LoadLevelList(context);
 
@@ -329,9 +330,9 @@ namespace R1Engine
             {
                 var values = mode.ToString().Split('_');
 
-                using (var context = new Context(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
+                using (var context = new R1Context(new GameSettings(mode, Settings.GameDirectories[mode], 0, 0)))
                 {
-                    var m = (Gameloft_RK_Manager)context.Settings.GetGameManager;
+                    var m = (Gameloft_RK_Manager)context.GetR1Settings().GetGameManager;
                     await m.LoadFilesAsync(context);
                     var levelNames = MapNames.GetMapNames(mode.GetAttribute<GameModeAttribute>().Game);
 

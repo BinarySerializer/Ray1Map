@@ -1,7 +1,8 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine {
-    public class MusyX_UnknownTable : R1Serializable {
+    public class MusyX_UnknownTable : BinarySerializable {
         // Set in OnPreSerialize
         public Pointer BaseOffset { get; set; }
 
@@ -18,7 +19,7 @@ namespace R1Engine {
             Entries = s.SerializeObjectArray<Entry>(Entries, Length, name: nameof(Entries));
         }
 
-        public class Entry : R1Serializable {
+        public class Entry : BinarySerializable {
             public byte[] Bytes { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {

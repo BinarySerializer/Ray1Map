@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBARRR_Mode7AnimationFrame : R1Serializable
+    public class GBARRR_Mode7AnimationFrame : BinarySerializable
     {
         public GBARRR_Mode7AnimationChannel[] Channels { get; set; }
         public int MinXPosition => Channels.Where(c => !c.IsEndAttribute).Min(c => c.XPosition);

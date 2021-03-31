@@ -1,9 +1,10 @@
 ﻿using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_RLE : R1Serializable
+    public class GBAVV_NitroKart_NGage_RLE : BinarySerializable
     {
         public string Magic { get; set; }
         public int Width { get; set; }

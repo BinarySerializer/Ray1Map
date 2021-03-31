@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_Animation : R1Serializable
+    public class GBAIsometric_Spyro_Animation : BinarySerializable
     {
         public ushort FrameOffset { get; set; }
         public byte AnimSpeed { get; set; }

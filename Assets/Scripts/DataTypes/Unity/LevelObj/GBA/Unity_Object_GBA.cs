@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -122,7 +123,7 @@ namespace R1Engine
             }
         }
 
-        public override R1Serializable SerializableData => Actor;
+        public override BinarySerializable SerializableData => Actor;
 
         public override IEnumerable<int> GetLocIndices
         {
@@ -153,7 +154,7 @@ namespace R1Engine
                 if (ModelData?.Name != null)
                     return ModelData.Name;
 
-                if (ObjManager.Context.Settings.GBA_IsMilan)
+                if (ObjManager.Context.GetR1Settings().GBA_IsMilan)
                     return $"Actor";
 
                 return $"ID_{Actor.ActorID}";
@@ -163,10 +164,10 @@ namespace R1Engine
         {
             get
             {
-                if (Actor.Type == GBA_Actor.ActorType.Captor && !ObjManager.Context.Settings.GBA_IsMilan)
+                if (Actor.Type == GBA_Actor.ActorType.Captor && !ObjManager.Context.GetR1Settings().GBA_IsMilan)
                     return $"Trigger ({Actor.CaptorID})";
 
-                if (ObjManager.Context.Settings.Game == Game.GBA_Rayman3)
+                if (ObjManager.Context.GetR1Settings().Game == Game.GBA_Rayman3)
                     return $"{(GBA_R3_ActorID) Actor.ActorID}";
 
                 return null;
@@ -184,7 +185,7 @@ namespace R1Engine
                 {
                     prevAction = Action;
 
-                    if (Actor.Type == GBA_Actor.ActorType.Captor && !ObjManager.Context.Settings.GBA_IsMilan)
+                    if (Actor.Type == GBA_Actor.ActorType.Captor && !ObjManager.Context.GetR1Settings().GBA_IsMilan)
                         objCollision = new Unity_ObjAnimationCollisionPart[]
                         {
                             new Unity_ObjAnimationCollisionPart()
@@ -198,7 +199,7 @@ namespace R1Engine
                                     : Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox
                             }
                         };
-                    else if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+                    else if (ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                         objCollision = new Unity_ObjAnimationCollisionPart[]
                         {
                             new Unity_ObjAnimationCollisionPart

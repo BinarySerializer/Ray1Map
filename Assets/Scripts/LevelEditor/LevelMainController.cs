@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -51,7 +52,7 @@ namespace R1Engine
 
             using (serializeContext) {
                 // Init editor data
-                await LevelEditorData.InitAsync(context.Settings);
+                await LevelEditorData.InitAsync(context.GetR1Settings());
                 await Controller.WaitIfNecessary();
 
                 // Load the level

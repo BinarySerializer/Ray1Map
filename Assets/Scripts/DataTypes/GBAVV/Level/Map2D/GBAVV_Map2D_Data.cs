@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Map2D_Data : R1Serializable
+    public class GBAVV_Map2D_Data : BinarySerializable
     {
         public Pointer[] MapLayersPointers { get; set; }
         public Pointer CollisionDataPointer { get; set; }

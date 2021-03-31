@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_R2ZDCUnkData : R1Serializable
+    public class R1_R2ZDCUnkData : BinarySerializable
     {
         public ushort Data1 { get; set; }
         public byte Data2 { get; set; }

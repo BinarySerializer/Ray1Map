@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBAVV_Map2D_TileSetBlock : GBAVV_BaseBlock
     {

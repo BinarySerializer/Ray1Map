@@ -1,12 +1,13 @@
 ﻿using System.Text;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {
     /// <summary>
     /// Chunk data for a WAV file
     /// </summary>
-    public class WAVChunk : R1Serializable
+    public class WAVChunk : BinarySerializable
     {
         public string ChunkHeader { get; set; }
         public uint ChunkSize { get; set; }

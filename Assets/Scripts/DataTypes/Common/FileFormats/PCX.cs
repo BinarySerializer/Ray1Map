@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -6,7 +7,7 @@ namespace R1Engine
     /// <summary>
     /// PCX file data
     /// </summary>
-    public class PCX : R1Serializable
+    public class PCX : BinarySerializable
     {
         public byte Identifier { get; set; }
 

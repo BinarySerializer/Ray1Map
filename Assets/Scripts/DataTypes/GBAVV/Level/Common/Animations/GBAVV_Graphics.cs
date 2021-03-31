@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_Graphics : R1Serializable
+    public class GBAVV_Graphics : BinarySerializable
     {
         // Helpers
         public static bool UsesAnimationsDirectly(GameSettings s) => s.EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA;
@@ -20,16 +21,16 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (UsesAnimationsDirectly(s.GameSettings))
+            if (UsesAnimationsDirectly(s.GetR1Settings()))
             {
                 // Since animation sets are referenced directly in later games there is no array
-                var pointers = s.GameSettings.GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;
+                var pointers = s.GetR1Settings().GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;
 
                 if (AnimSets == null)
                     AnimSets = new GBAVV_AnimSet[pointers.Length];
 
                 for (int i = 0; i < pointers.Length; i++)
-                    AnimSets[i] = s.DoAt(new Pointer(pointers[i], Offset.file),
+                    AnimSets[i] = s.DoAt(new Pointer(pointers[i], Offset.File),
                         () => s.SerializeObject<GBAVV_AnimSet>(AnimSets[i], name: $"{nameof(AnimSets)}[{i}]"));
             }
             else

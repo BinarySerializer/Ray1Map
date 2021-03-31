@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Mode7_SpecialFrames : R1Serializable
+    public class GBAVV_Mode7_SpecialFrames : BinarySerializable
     {
         public byte FramesCount { get; set; } // Set before serializing
 
@@ -17,7 +19,7 @@
             Frames = s.SerializeObjectArray<Frame>(Frames, FramesCount, x => x.TileMapLength = Width * Height, name: nameof(Frames));
         }
 
-        public class Frame : R1Serializable
+        public class Frame : BinarySerializable
         {
             public int TileMapLength { get; set; } // Set before serializing
 

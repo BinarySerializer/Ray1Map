@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_CharacterInfo : R1Serializable
+    public class GBAVV_Isometric_CharacterInfo : BinarySerializable
     {
         public Pointer NamePointer { get; set; }
         public uint Uint_04 { get; set; }

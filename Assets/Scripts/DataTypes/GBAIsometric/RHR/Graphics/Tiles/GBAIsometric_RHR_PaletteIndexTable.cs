@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_RHR_PaletteIndexTable : R1Serializable {
+    public class GBAIsometric_RHR_PaletteIndexTable : BinarySerializable {
         // Set in onPreSerialize
         public uint Length { get; set; }
 

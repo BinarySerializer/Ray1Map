@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using BinarySerializer;
 
 namespace R1Engine {
     /// <summary>

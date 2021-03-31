@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -53,7 +54,7 @@ namespace R1Engine
 
         public override string DebugText => String.Empty;
 
-        public override R1Serializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{AnimTypeIndex}";

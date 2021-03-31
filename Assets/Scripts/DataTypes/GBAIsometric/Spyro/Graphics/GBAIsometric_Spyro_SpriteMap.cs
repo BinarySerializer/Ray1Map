@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_SpriteMap : R1Serializable
+    public class GBAIsometric_Spyro_SpriteMap : BinarySerializable
     {
         public ushort Width { get; set; }
         public ushort Height { get; set; }

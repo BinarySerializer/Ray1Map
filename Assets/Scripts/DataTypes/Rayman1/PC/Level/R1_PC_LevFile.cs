@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -78,19 +79,19 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // Serialize the pointers
-            bool allowInvalid = s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC || s.GameSettings.GameModeSelection == GameModeSelection.RaymanClassicMobile;
+            bool allowInvalid = s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC || s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanClassicMobile;
             EventBlockPointer = s.SerializePointer(EventBlockPointer, allowInvalid: allowInvalid, name: nameof(EventBlockPointer));
             TextureBlockPointer = s.SerializePointer(TextureBlockPointer, allowInvalid: allowInvalid, name: nameof(TextureBlockPointer));
 
             // Serialize the level defines
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu)
                 KitLevelDefines = s.SerializeObject<R1_PC_KitLevelDefinesBlock>(KitLevelDefines, name: nameof(KitLevelDefines));
 
             // Serialize the map data
             MapData = s.SerializeObject<R1_PC_MapBlock>(MapData, name: nameof(MapData));
 
             // Serialize the background data
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC)
             {
                 // Serialize the background data
                 BackgroundIndex = s.Serialize<byte>(BackgroundIndex, name: nameof(BackgroundIndex));
@@ -99,7 +100,7 @@ namespace R1Engine
             }
 
             // Serialize the rough tile textures
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC)
                 RoughTileTextureData = s.SerializeObject<R1_PC_RoughTileTextureBlock>(RoughTileTextureData, name: nameof(RoughTileTextureData));
             else
                 LeftoverRoughTextureBlock = s.SerializeArray<byte>(LeftoverRoughTextureBlock, TextureBlockPointer.FileOffset - s.CurrentPointer.FileOffset, name: nameof(LeftoverRoughTextureBlock));
@@ -112,18 +113,18 @@ namespace R1Engine
             TileTextureData = s.SerializeObject<R1_PC_TileTextureBlock>(TileTextureData, name: nameof(TileTextureData));
 
             // At this point the stream position should match the event block offset (ignore the Pocket PC version here since it uses leftover pointers from PC version)
-            if (s.GameSettings.EngineVersion != EngineVersion.R1_PocketPC && s.CurrentPointer != EventBlockPointer)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.R1_PocketPC && s.CurrentPointer != EventBlockPointer)
                 Debug.LogError("Event block offset is incorrect");
 
             // Serialize the event data
             EventData = s.SerializeObject<R1_PC_EventBlock>(EventData, name: nameof(EventData));
 
             // Serialize the profile define data (only on By his Fans and 60 Levels)
-            if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanByHisFansPC || s.GameSettings.GameModeSelection == GameModeSelection.Rayman60LevelsPC)
+            if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanByHisFansPC || s.GetR1Settings().GameModeSelection == GameModeSelection.Rayman60LevelsPC)
                 ProfileDefine = s.SerializeObject<R1_PC_ProfileDefine>(ProfileDefine, name: nameof(ProfileDefine));
 
             // Serialize alpha data (only on EDU)
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu)
             {
                 EDU_AlphaChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
                 {

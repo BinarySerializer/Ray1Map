@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBA_R3MadTraxSprite : R1Serializable
+    public class GBA_R3MadTraxSprite : BinarySerializable
     {
         // Set before serializing
         public int Width { get; set; }

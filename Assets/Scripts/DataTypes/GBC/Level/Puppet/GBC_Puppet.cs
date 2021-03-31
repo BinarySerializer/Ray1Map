@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBC_Puppet : GBC_BaseBlock
     {
@@ -13,7 +15,7 @@
         {
             PuppetData = s.SerializeArray<byte>(PuppetData, BlockSize, name: nameof(PuppetData));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1 || PuppetData.Length != 0) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1 || PuppetData.Length != 0) {
                 TileKit = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_TileKit>(TileKit, name: nameof(TileKit)));
             } else {
                 BasePuppet = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_Puppet>(BasePuppet, name: nameof(BasePuppet)));

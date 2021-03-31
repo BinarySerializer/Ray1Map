@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_S3D : R1Serializable
+    public class GBAVV_NitroKart_NGage_S3D : BinarySerializable
     {
         public string Magic { get; set; }
         public int Width { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_UV : R1Serializable
+    public class GBAVV_NitroKart_NGage_UV : BinarySerializable
     {
         public byte U { get; set; }
         public byte V { get; set; }

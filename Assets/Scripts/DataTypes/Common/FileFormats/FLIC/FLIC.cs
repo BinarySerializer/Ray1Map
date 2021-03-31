@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using ImageMagick;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace R1Engine
 {
     // https://www.drdobbs.com/windows/the-flic-file-format/184408954
     // https://github.com/aseprite/flic/blob/main/decoder.cpp
-    public class FLIC : R1Serializable
+    public class FLIC : BinarySerializable
     {
         public uint FileSize { get; set; }
         public FLIC_Format FormatType { get; set; }

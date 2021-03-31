@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro3_QuestItem : R1Serializable
+    public class GBAIsometric_Spyro3_QuestItem : BinarySerializable
     {
         public ushort ObjectType { get; set; }
         public QuestItemType ItemType { get; set; }

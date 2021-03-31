@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_ProfileDefine : R1Serializable
+    public class R1_PC_ProfileDefine : BinarySerializable
     {
         /// <summary>
         /// The checksum for the encrypted data

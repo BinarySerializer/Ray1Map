@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Level load commands for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_LevelLoadCommandCollection : R1Serializable
+    public class R1Jaguar_LevelLoadCommandCollection : BinarySerializable
     {
         /// <summary>
         /// The commands

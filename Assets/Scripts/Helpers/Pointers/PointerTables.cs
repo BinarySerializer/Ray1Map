@@ -1,8 +1,9 @@
 ﻿
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -225,7 +226,7 @@ namespace R1Engine
         /// <returns>The pointer table</returns>
         public static Dictionary<GBA_Pointer, Pointer> GBA_PointerTable(Context context, BinaryFile romFile)
         {
-            switch (context.Settings.GameModeSelection)
+            switch (context.GetR1Settings().GameModeSelection)
             {
                 case GameModeSelection.Rayman3GBAEU:
                     return new Dictionary<GBA_Pointer, uint>() {
@@ -270,7 +271,7 @@ namespace R1Engine
 
                 case GameModeSelection.Rayman3GBAMadTraxEU:
                 case GameModeSelection.Rayman3GBAMadTraxUS:
-                    switch ((GBA_R3MadTrax_Manager.Files)context.Settings.World)
+                    switch ((GBA_R3MadTrax_Manager.Files)context.GetR1Settings().World)
                     {
                         case GBA_R3MadTrax_Manager.Files.client_pad_english:
                         case GBA_R3MadTrax_Manager.Files.client_pad_french:
@@ -299,7 +300,7 @@ namespace R1Engine
                             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                         default:
-                            throw new ArgumentOutOfRangeException(nameof(context.Settings.World), context.Settings.World, null);
+                            throw new ArgumentOutOfRangeException(nameof(GameSettings.World), context.GetR1Settings().World, null);
                     }
 
                 case GameModeSelection.Rayman3NGage:

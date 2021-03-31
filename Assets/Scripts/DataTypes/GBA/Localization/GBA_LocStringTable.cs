@@ -1,8 +1,9 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBA_LocStringTable : R1Serializable
+    public class GBA_LocStringTable : BinarySerializable
     {
         public uint StringCount { get; set; }
         public Pointer StringPointersPointer { get; set; }

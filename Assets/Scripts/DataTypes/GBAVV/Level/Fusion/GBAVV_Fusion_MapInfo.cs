@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_Fusion_MapInfo : R1Serializable
+    public class GBAVV_Fusion_MapInfo : BinarySerializable
     {
         public GBAVV_Fusion_Manager.FusionLevInfo.FusionType Type { get; set; } // Set before serializing
 

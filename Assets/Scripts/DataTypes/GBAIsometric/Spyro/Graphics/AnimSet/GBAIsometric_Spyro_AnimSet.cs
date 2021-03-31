@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_AnimSet : R1Serializable
+    public class GBAIsometric_Spyro_AnimSet : BinarySerializable
     {
         public Pointer AnimGroupsPointer { get; set; }
         public GBAIsometric_Spyro_DataBlockIndex TileSetIndex { get; set; }

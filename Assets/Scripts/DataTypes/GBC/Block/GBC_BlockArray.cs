@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBC_BlockArray<T> : GBC_BaseBlock
         where T : GBC_BaseBlock, new()

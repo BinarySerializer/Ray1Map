@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Map2D_MapLayer : R1Serializable
+    public class GBAVV_Map2D_MapLayer : BinarySerializable
     {
         public Pointer TileMapPointer { get; set; } // The 16x8 tilemap, containing offsets to the map block section of the level data block. Each tile block consists of commands which fill a total of 128 tiles (16*8)
         public uint DataBlockOffset { get; set; } // The base offset for the layer data in the level block

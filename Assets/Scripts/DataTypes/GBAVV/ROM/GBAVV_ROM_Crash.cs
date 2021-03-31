@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -67,7 +68,7 @@ namespace R1Engine
             // Serialize localization
             if (pointerTable.ContainsKey(GBAVV_Pointer.Localization))
             {
-                var multipleLanguages = s.GameSettings.GameModeSelection == GameModeSelection.Crash1GBAEU || s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAEU;
+                var multipleLanguages = s.GetR1Settings().GameModeSelection == GameModeSelection.Crash1GBAEU || s.GetR1Settings().GameModeSelection == GameModeSelection.Crash2GBAEU;
 
                 if (multipleLanguages)
                     LocTablePointers = s.DoAt(pointerTable[GBAVV_Pointer.Localization], () => s.SerializePointerArray(LocTablePointers, 6, name: nameof(LocTablePointers)));
@@ -92,7 +93,7 @@ namespace R1Engine
                 return;
 
             // Get the manager
-            var manager = s.GameSettings.GetGameManagerOfType<GBAVV_Crash_BaseManager>();
+            var manager = s.GetR1Settings().GetGameManagerOfType<GBAVV_Crash_BaseManager>();
 
             // Serialize level infos
             s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () =>

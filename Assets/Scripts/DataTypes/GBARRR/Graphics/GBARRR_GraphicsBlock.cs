@@ -1,9 +1,10 @@
 ﻿using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBARRR_GraphicsBlock : R1Serializable
+    public class GBARRR_GraphicsBlock : BinarySerializable
     {
         public uint Count { get; set; }
         public uint TileSize { get; set; }
@@ -60,7 +61,7 @@ namespace R1Engine
             }
         }
 
-        public class Header : R1Serializable {
+        public class Header : BinarySerializable {
             public int TileOffset { get; set; }
             public int ExtraBytes { get; set; }
 

@@ -1,8 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -43,7 +44,7 @@ namespace R1Engine
         public override async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)
         {
             // Create a context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the ROM
                 await LoadFilesAsync(context);
@@ -111,13 +112,13 @@ namespace R1Engine
             var gbaManager = new GBA_R3_Manager();
 
             // Create a GBA context
-            using (var gbaContext = new Context(new GameSettings(gbaGameModeSelection, Settings.GameDirectories[gbaGameModeSelection], 0, 0)))
+            using (var gbaContext = new R1Context(new GameSettings(gbaGameModeSelection, Settings.GameDirectories[gbaGameModeSelection], 0, 0)))
             {
                 // Load GBA files
                 await gbaManager.LoadFilesAsync(gbaContext);
 
                 // Create an N-Gage context
-                using (var ngageContext = new Context(new GameSettings(GameModeSelection.Rayman3NGage, Settings.GameDirectories[GameModeSelection.Rayman3NGage], 0, 0)))
+                using (var ngageContext = new R1Context(new GameSettings(GameModeSelection.Rayman3NGage, Settings.GameDirectories[GameModeSelection.Rayman3NGage], 0, 0)))
                 {
                     // Load N-Gage files
                     await LoadFilesAsync(ngageContext);

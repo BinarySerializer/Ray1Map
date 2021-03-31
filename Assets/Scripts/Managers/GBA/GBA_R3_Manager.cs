@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -124,7 +125,7 @@ namespace R1Engine
         public override async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)
         {
             // Create a context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the ROM
                 await LoadFilesAsync(context);

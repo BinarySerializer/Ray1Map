@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class AI_VarValue : R1Serializable {
+	public class AI_VarValue : BinarySerializable {
 		// Set in onPreSerialize
 		public AI_Var Var { get; set; }
 

@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -39,7 +40,7 @@ namespace R1Engine
         };
 
         public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 var s = context.Deserializer;
 
                 void ExportSample(string directory, string filename, byte[] data, uint sampleRate, ushort channels) {
@@ -78,7 +79,7 @@ namespace R1Engine
                     // Create and open the output file
                     using (var outputStream = File.Create(outputFilePath)) {
                         // Create a context
-                        using (var wavContext = new Context(settings)) {
+                        using (var wavContext = new R1Context(settings)) {
                             // Create a key
                             const string wavKey = "wav";
 
@@ -115,7 +116,7 @@ namespace R1Engine
                     // Create and open the output file
                     using (var outputStream = File.Create(outputFilePath)) {
                         // Create a context
-                        using (var xmContext = new Context(settings)) {
+                        using (var xmContext = new R1Context(settings)) {
                             xmContext.Log.OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.txt");
                             // Create a key
                             string xmKey = $"{h.ParsedName}.xm";
@@ -144,7 +145,7 @@ namespace R1Engine
                 for (int i = 0; i < exe.GAX_FX.Songs.Length; i++) {
                     ExportGAX($"{outputPath}/fx/{i}", exe.GAX_FX.Songs[i], 1);
                 }
-                /*uint[] ptrs = s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAUS ? ptrs_us : ptrs_eu;
+                /*uint[] ptrs = s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAUS ? ptrs_us : ptrs_eu;
                 foreach (var ptr in ptrs) {
                     s.DoAt(new Pointer(ptr, rom.Offset.file), () => {
                         GAX2_Song h = s.SerializeObject<GAX2_Song>(default, name: "SongHeader");
@@ -164,7 +165,7 @@ namespace R1Engine
                         // Create and open the output file
                         using (var outputStream = File.Create(outputFilePath)) {
                             // Create a context
-                            using (var xmContext = new Context(settings)) {
+                            using (var xmContext = new R1Context(settings)) {
                                 xmContext.Log.OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.txt");
                                 // Create a key
                                 string xmKey = $"{h.ParsedName}.xm";
@@ -183,7 +184,7 @@ namespace R1Engine
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool withFilenames = false)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -200,7 +201,7 @@ namespace R1Engine
 
         public async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -228,7 +229,7 @@ namespace R1Engine
         {
             GBAVV_NitroKart_NGage_PAL pal = null;
 
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -277,7 +278,7 @@ namespace R1Engine
 
         public async UniTask ExportFLCAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -300,7 +301,7 @@ namespace R1Engine
 
         public async UniTask ExportFontsAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -351,7 +352,7 @@ namespace R1Engine
 
         public async UniTask ExportBackgroundsAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -387,7 +388,7 @@ namespace R1Engine
             {
                 if (values[i] == 9 && values[i + 1] == 7 && isValidPointer(values[i + 2]))
                 {
-                    foundScripts.Add(new Tuple<long, string>(getPointer(i), s.DoAt(new Pointer(values[i + 2], s.CurrentPointer.file), () => s.SerializeString(default))));
+                    foundScripts.Add(new Tuple<long, string>(getPointer(i), s.DoAt(new Pointer(values[i + 2], s.CurrentPointer.File), () => s.SerializeString(default))));
                 }
             }
 
@@ -480,7 +481,7 @@ namespace R1Engine
                 DoAtBlock<object>(context, i, () =>
                 {
                     action(s, i, data.DataFileEntries[i]);
-                    s.Goto(s.CurrentPointer.file.StartPointer + s.CurrentLength);
+                    s.Goto(s.CurrentPointer.File.StartPointer + s.CurrentLength);
                     return default;
                 });
             }
@@ -1029,7 +1030,7 @@ namespace R1Engine
             // Load the exe
             var exe = FileFactory.Read<GBAVV_NitroKart_NGage_ExeFile>(ExeFilePath, context);
 
-            var level = exe.LevelInfos[context.Settings.Level];
+            var level = exe.LevelInfos[context.GetR1Settings().Level];
             var pop = level.POP;
             bool pvsIsAnimated;
             var pvs = CreatePVSGameObject(context, level.PVS, out pvsIsAnimated);

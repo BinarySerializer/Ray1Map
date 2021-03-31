@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// SNES Pointer class. See https://datacrystal.romhacking.net/wiki/Pointer#SNES_Pointers
     /// </summary>
-    public class SNES_Pointer : R1Serializable
+    public class SNES_Pointer : BinarySerializable
     {
         // Set before serializing
         public bool HasMemoryBankValue { get; set; } = false;
@@ -16,7 +18,7 @@
         public Pointer GetPointer() {
             if (_cachedPointer == null) {
                 // The ROM is split into memory banks, with the size 0x8000 which get loaded at 0x8000 in RAM.
-                var baseOffset = Offset.file.StartPointer;
+                var baseOffset = Offset.File.StartPointer;
 
                 long bank = MemoryBankOverride ?? MemoryBank;
 

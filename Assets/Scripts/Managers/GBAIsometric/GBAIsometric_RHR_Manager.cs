@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -166,7 +167,7 @@ namespace R1Engine
             if (spritePaletteOffsets.ContainsKey(sprite.Name))
             {
                 var palPos = spritePaletteOffsets[sprite.Name];
-                s.DoAt(new Pointer(palPos, sprite.Offset.file), () => {
+                s.DoAt(new Pointer(palPos, sprite.Offset.File), () => {
                     var cols = s.SerializeObjectArray<RGBA5551Color>(default, sprite.Is8Bit ? 256 : 16, name: "Palette");
                     pal = Util.ConvertGBAPalette(cols);
                 });
@@ -195,7 +196,7 @@ namespace R1Engine
                 if (spritePaletteOffsets.ContainsKey(name))
                 {
                     var palPos = spritePaletteOffsets[name];
-                    s.DoAt(new Pointer(palPos, spriteSet.Offset.file), () => {
+                    s.DoAt(new Pointer(palPos, spriteSet.Offset.File), () => {
                         var cols = s.SerializeObjectArray<RGBA5551Color>(default, spriteSet.Is8Bit ? 256 : 16, name: "Palette");
                         pal = Util.ConvertGBAPalette(cols);
                     });
@@ -208,7 +209,7 @@ namespace R1Engine
 
         public async UniTask ExportAssetsAsync(GameSettings settings, string outputPath)
         {
-            using (var context = new Context(settings)) 
+            using (var context = new R1Context(settings)) 
             {
                 await LoadFilesAsync(context);
 
@@ -274,7 +275,7 @@ namespace R1Engine
         }
 
         public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 var s = context.Deserializer;
 
                 void ExportSampleSigned(string directory, string filename, sbyte[] data, uint sampleRate, ushort channels) {
@@ -315,7 +316,7 @@ namespace R1Engine
                     // Create and open the output file
                     using (var outputStream = File.Create(outputFilePath)) {
                         // Create a context
-                        using (var wavContext = new Context(settings)) {
+                        using (var wavContext = new R1Context(settings)) {
                             // Create a key
                             const string wavKey = "wav";
 
@@ -331,7 +332,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 Pointer ptr = context.FilePointer(GetROMFilePath);
-                var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GameSettings.GameModeSelection, ptr.file);
+                var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GetR1Settings().GameModeSelection, ptr.File);
                 MusyX_File musyxFile = null;
                 s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.MusyxFile], () => {
                     musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
@@ -340,7 +341,7 @@ namespace R1Engine
                 for (int i = 0; i < musyxFile.SampleTable.Value.Samples.Length; i++) {
                     var e = musyxFile.SampleTable.Value.Samples[i].Value;
                     //Util.ByteArrayToFile(outPath + $"{i}_{e.Offset.AbsoluteOffset:X8}.bin", e.SampleData);
-                    ExportSampleSigned(outPath, $"{i}_{musyxFile.SampleTable.Value.Samples[i].pointer.SerializedOffset:X8}", e.SampleData, e.SampleRate, 1);
+                    ExportSampleSigned(outPath, $"{i}_{musyxFile.SampleTable.Value.Samples[i].PointerValue.SerializedOffset:X8}", e.SampleData, e.SampleRate, 1);
                 }
                 outPath = outputPath + "/SongData/";
                 for (int i = 0; i < musyxFile.SongTable.Value.Length; i++) {
@@ -460,9 +461,9 @@ namespace R1Engine
             // Read the rom
             var rom = FileFactory.Read<GBAIsometric_RHR_ROM>(GetROMFilePath, context);
 
-            var isMenu = context.Settings.World == 1;
+            var isMenu = context.GetR1Settings().World == 1;
 
-            var levelInfo = !isMenu ? rom.LevelInfos[context.Settings.Level] : null;
+            var levelInfo = !isMenu ? rom.LevelInfos[context.GetR1Settings().Level] : null;
             var levelData = levelInfo?.LevelDataPointer.Value;
             var animPal = !isMenu ? rom.PaletteAnimations.ElementAtOrDefault(levelInfo?.PaletteShiftIndex ?? -1) : null;
 
@@ -585,7 +586,7 @@ namespace R1Engine
             var pal_4 = Util.CreateDummyPalette(16, true).Select(x => x.GetColor()).ToArray();
             var pal_8 = Util.CreateDummyPalette(256, true).Select(x => x.GetColor()).ToArray();
 
-            var spritePalettesUInt = rom.SpritePalettes[context.Settings.GameModeSelection];
+            var spritePalettesUInt = rom.SpritePalettes[context.GetR1Settings().GameModeSelection];
 
             // Add sprites
             foreach (var sprite in rom.GetAllSprites())

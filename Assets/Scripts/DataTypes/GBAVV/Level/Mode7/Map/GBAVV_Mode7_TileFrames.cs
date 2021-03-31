@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_Mode7_TileFrames : R1Serializable
+    public class GBAVV_Mode7_TileFrames : BinarySerializable
     {
         public uint TileSetFramesBlockLength { get; set; } // Set before serializing
         public bool HasPaletteIndices { get; set; } // Set before serializing
@@ -17,7 +18,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
                 Palette = s.SerializeObjectArray<RGBA5551Color>(Palette, 256, name: nameof(Palette));
 
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
@@ -29,7 +30,7 @@ namespace R1Engine
                 var index = 0;
                 long length = 4;
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
                     length += 0x200; // Palette
 
                 do
@@ -53,7 +54,7 @@ namespace R1Engine
             }
         }
 
-        public class TileFrame : R1Serializable
+        public class TileFrame : BinarySerializable
         {
             public bool HasPaletteIndices { get; set; } // Set before serializing
             public ushort Width { get; set; } // Set before serializing
@@ -65,8 +66,8 @@ namespace R1Engine
 
             public override void SerializeImpl(SerializerObject s)
             {
-                var isCompressed = s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 || 
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman;
+                var isCompressed = s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 || 
+                                   s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman;
 
                 if (isCompressed)
                     DataLength = s.Serialize<uint>(DataLength, name: nameof(DataLength));

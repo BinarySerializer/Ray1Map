@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -6,7 +7,7 @@ namespace R1Engine
     /// <summary>
     /// Sega Saturn .BIT file data
     /// </summary>
-    public class BIT : R1Serializable
+    public class BIT : BinarySerializable
     {
         public RGBA5551Color[] Pixels;
         public byte[] PixelsPaletted;

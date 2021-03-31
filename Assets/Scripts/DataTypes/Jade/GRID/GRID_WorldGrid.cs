@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GRID_WorldGrid : Jade_File {

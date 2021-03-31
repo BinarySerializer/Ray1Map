@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     // See: https://wiki.osdev.org/ISO_9660
-    public class ISO9960_Directory : R1Serializable {
+    public class ISO9960_Directory : BinarySerializable {
         public ISO9960_DirectoryRecord[] Entries { get; set; }
         // Note: Every directory will start with 2 special entries: an empty string, describing the "." entry, and the string "\1" describing the ".." entry.
 

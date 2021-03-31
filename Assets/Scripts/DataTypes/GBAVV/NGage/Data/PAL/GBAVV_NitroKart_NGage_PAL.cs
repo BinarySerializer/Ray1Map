@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_PAL : R1Serializable
+    public class GBAVV_NitroKart_NGage_PAL : BinarySerializable
     {
         public RGBA5551Color[] Palette { get; set; }
 

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_GeometricData : R1Serializable {
+	public class OBJ_GameObject_GeometricData : BinarySerializable {
 		public uint Type { get; set; } // Set in on PreSerialize
 
 		public Jade_Reference<GEO_Object> GeometricObject0 { get; set; }
@@ -28,7 +29,7 @@ namespace R1Engine.Jade {
 			Int_7A = s.Serialize<int>(Int_7A, name: nameof(Int_7A));
 			UInt_7E = s.Serialize<uint>(UInt_7E, name: nameof(UInt_7E));
 
-			if (s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
+			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
 				Xenon = s.SerializeObject<OBJ_GameObject_GeometricData_Xenon>(Xenon, onPreSerialize: x => x.Type = Type, name: nameof(Xenon));
 			}
 
@@ -40,7 +41,7 @@ namespace R1Engine.Jade {
 				RLI_UInts = s.SerializeArray<uint>(RLI_UInts, Code, name: nameof(RLI_UInts));
 			}
 
-			if (s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
+			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
 				Xenon2 = s.SerializeObject<OBJ_GameObject_GeometricData_Xenon2>(Xenon2, onPreSerialize: x => x.Type = Type, name: nameof(Xenon2));
 			}
 		}

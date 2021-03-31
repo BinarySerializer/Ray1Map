@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class LUDI_UncompressedBlock<T> : LUDI_BaseBlock where T : R1Serializable, new() {
+    public class LUDI_UncompressedBlock<T> : LUDI_BaseBlock where T : BinarySerializable, new() {
         public T Value { get; set; }
 
         public override void SerializeBlock(SerializerObject s) {

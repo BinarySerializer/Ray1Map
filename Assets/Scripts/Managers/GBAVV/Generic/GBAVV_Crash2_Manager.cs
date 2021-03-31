@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -29,7 +30,7 @@ namespace R1Engine
             await base.ExportAnimFramesAsync(settings, outputDir, saveAsGif, includePointerInNames);
 
             // Export isometric animations
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the files
                 await LoadFilesAsync(context);
@@ -63,7 +64,7 @@ namespace R1Engine
         }
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -86,7 +87,7 @@ namespace R1Engine
         }
         public async UniTask ExportIsometricCharacterIcons(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the files
                 await LoadFilesAsync(context);
@@ -112,7 +113,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+            var rom = FileFactory.Read<GBAVV_ROM_Crash2>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
             var levInfo = rom.CurrentLevInfo;
             var map = rom.CurrentMapInfo;
 

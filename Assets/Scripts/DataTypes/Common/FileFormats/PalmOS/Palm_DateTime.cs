@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class Palm_DateTime : R1Serializable
+    public class Palm_DateTime : BinarySerializable
     {
         public uint Time { get; set; }
 

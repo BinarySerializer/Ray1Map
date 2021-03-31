@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common animation frame data
     /// </summary>
-    public class R1_AnimationFrame : R1Serializable
+    public class R1_AnimationFrame : BinarySerializable
     {
         /// <summary>
         /// The frame x position

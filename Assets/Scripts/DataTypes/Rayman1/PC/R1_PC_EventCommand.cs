@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event command for PC
     /// </summary>
-    public class R1_PC_EventCommand : R1Serializable
+    public class R1_PC_EventCommand : BinarySerializable
     {
         /// <summary>
         /// The amount of bytes for the commands

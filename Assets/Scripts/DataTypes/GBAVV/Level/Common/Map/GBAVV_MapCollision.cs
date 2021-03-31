@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_MapCollision : R1Serializable
+    public class GBAVV_MapCollision : BinarySerializable
     {
         public ushort Width { get; set; }
         public ushort Height { get; set; }

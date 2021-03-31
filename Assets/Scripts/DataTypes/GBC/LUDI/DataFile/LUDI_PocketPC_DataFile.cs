@@ -1,4 +1,6 @@
-﻿namespace R1Engine {
+﻿using BinarySerializer;
+
+namespace R1Engine {
 	public class LUDI_PocketPC_DataFile : LUDI_BaseDataFile {
 		// Serialized properties
 		public LUDI_AppInfo AppInfo { get; set; }

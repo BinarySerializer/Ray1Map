@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using BinarySerializer;
+using System;
 using UnityEngine;
 
 namespace R1Engine
@@ -7,7 +7,7 @@ namespace R1Engine
     /// <summary>
     /// A standard ARGB color
     /// </summary>
-    public abstract class BaseColor : R1Serializable, IEquatable<BaseColor> {
+    public abstract class BaseColor : BinarySerializable, IEquatable<BaseColor> {
         #region Constructors
 
         public BaseColor() { Alpha = 1f; }

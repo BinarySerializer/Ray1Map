@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_LevelInfo : R1Serializable
+    public class GBARRR_LevelInfo : BinarySerializable
     {
         public uint LevelTilesetIndex { get; set; }
 

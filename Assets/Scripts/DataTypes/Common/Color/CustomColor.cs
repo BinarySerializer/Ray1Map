@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 using Newtonsoft.Json;
 using UnityEngine;
 

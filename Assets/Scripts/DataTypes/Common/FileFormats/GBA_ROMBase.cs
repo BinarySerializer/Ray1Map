@@ -1,11 +1,12 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Base data for a GBA ROM
     /// </summary>
-    public class GBA_ROMBase : R1Serializable
+    public class GBA_ROMBase : BinarySerializable
     {
         public byte[] EntryPoint { get; set; }
 

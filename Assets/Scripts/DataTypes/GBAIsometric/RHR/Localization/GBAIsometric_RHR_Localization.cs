@@ -1,8 +1,9 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_RHR_Localization : R1Serializable
+    public class GBAIsometric_RHR_Localization : BinarySerializable
     {
         public Pointer<GBAIsometric_RHR_Cutscene>[] Cutscenes { get; set; }
         public Pointer<Array<ushort>>[] Offsets { get; set; }

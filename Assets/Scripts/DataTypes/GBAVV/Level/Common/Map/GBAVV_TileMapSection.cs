@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_TileMapSection : R1Serializable
+    public class GBAVV_TileMapSection : BinarySerializable
     {
         public ushort Length { get; set; } // Set before serializing
 

@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_AnimationFrame : R1Serializable
+    public class GBAVV_AnimationFrame : BinarySerializable
     {
         public Pointer TilePositionsPointer { get; set; }
         public Pointer TileShapesPointer { get; set; }
@@ -44,7 +45,7 @@ namespace R1Engine
         // Helpers
         public int GetTileShape(int index)
         {
-            if (Context.Settings.EngineVersion >= EngineVersion.GBAVV_CrashFusion && Context.Settings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (Context.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashFusion && Context.GetR1Settings().EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
                 return TilePositions[index].ShapeIndex;
             else
                 return TileShapes[index].ShapeIndex;
@@ -52,7 +53,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
             {
                 TilePositionsPointer = s.SerializePointer(TilePositionsPointer, name: nameof(TilePositionsPointer));
                 Fusion_TileSetPointer = s.SerializePointer(Fusion_TileSetPointer, name: nameof(Fusion_TileSetPointer));
@@ -75,7 +76,7 @@ namespace R1Engine
                 Fusion_HitBox2 = s.DoAt(Fusion_HitBox2Pointer, () => s.SerializeObject<GBAVV_AnimationRect>(Fusion_HitBox2, name: nameof(Fusion_HitBox2)));
                 Fusion_HitBox3 = s.DoAt(Fusion_HitBox3Pointer, () => s.SerializeObject<GBAVV_AnimationRect>(Fusion_HitBox3, name: nameof(Fusion_HitBox3)));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 NitroKart_NGage_ImageDataPointer = s.SerializePointer(NitroKart_NGage_ImageDataPointer, name: nameof(NitroKart_NGage_ImageDataPointer));
                 RenderBox = s.SerializeObject<GBAVV_AnimationRect>(RenderBox, name: nameof(RenderBox));
@@ -89,7 +90,7 @@ namespace R1Engine
                 TileOffset = s.Serialize<UInt24>(TileOffset, name: nameof(TileOffset));
                 TilesCount = s.Serialize<byte>(TilesCount, name: nameof(TilesCount));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart || s.GameSettings.EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart || s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
                 {
                     RenderBox = s.SerializeObject<GBAVV_AnimationRect>(RenderBox, name: nameof(RenderBox));
                     NitroKart_Pointer_10 = s.SerializePointer(NitroKart_Pointer_10, name: nameof(NitroKart_Pointer_10));
@@ -102,7 +103,7 @@ namespace R1Engine
             }
         }
 
-        public class TilePosition : R1Serializable
+        public class TilePosition : BinarySerializable
         {
             public short XPos { get; set; }
             public short YPos { get; set; }
@@ -113,12 +114,12 @@ namespace R1Engine
                 XPos = s.Serialize<short>(XPos, name: nameof(XPos));
                 YPos = s.Serialize<short>(YPos, name: nameof(YPos));
 
-                if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+                if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
                     ShapeIndex = s.Serialize<int>(ShapeIndex, name: nameof(ShapeIndex));
             }
         }
 
-        public class TileShape : R1Serializable
+        public class TileShape : BinarySerializable
         {
             public byte ShapeIndex { get; set; }
             public byte Unknown { get; set; }

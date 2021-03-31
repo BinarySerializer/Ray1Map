@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_TileMap : R1Serializable
+    public class GBAVV_TileMap : BinarySerializable
     {
         public Encoding MapEncoding { get; set; } = Encoding.Columns; // Set before serializing
 

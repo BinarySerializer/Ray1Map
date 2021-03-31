@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Manifest data for GameCube DLC maps
     /// </summary>
-    public class GBA_GameCubeMapManifest : R1Serializable
+    public class GBA_GameCubeMapManifest : BinarySerializable
     {
         public uint MapCount { get; set; }
         public GBA_GameCubeMapInfo[] MapInfos { get; set; }

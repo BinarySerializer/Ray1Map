@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBC_PlayField : GBC_BaseBlock 
     {
@@ -22,7 +24,7 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1) {
                 Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
                 Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
                 PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));

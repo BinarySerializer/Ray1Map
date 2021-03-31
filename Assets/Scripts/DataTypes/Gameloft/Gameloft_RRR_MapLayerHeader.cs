@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
 	public class Gameloft_RRR_MapLayerHeader : Gameloft_Resource {
 		public ushort Width { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -37,12 +38,12 @@ namespace R1Engine
             // Serialize ROM header
             base.SerializeImpl(s);
 
-            var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBAIsometric_RHR_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Serialize localization
             Localization = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Localization], () => s.SerializeObject<GBAIsometric_RHR_Localization>(Localization, name: nameof(Localization)));
 
-            if (s.GameSettings.World == 0)
+            if (s.GetR1Settings().World == 0)
             {
                 // Serialize level infos
                 s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.Levels], () =>
@@ -51,7 +52,7 @@ namespace R1Engine
                         LevelInfos = new GBAIsometric_RHR_LevelInfo[20];
 
                     for (int i = 0; i < LevelInfos.Length; i++)
-                        LevelInfos[i] = s.SerializeObject(LevelInfos[i], x => x.SerializeData = i == s.GameSettings.Level, name: $"{nameof(LevelInfos)}[{i}]");
+                        LevelInfos[i] = s.SerializeObject(LevelInfos[i], x => x.SerializeData = i == s.GetR1Settings().Level, name: $"{nameof(LevelInfos)}[{i}]");
                 });
 
                 PaletteAnimations = new GBAIsometric_RHR_PaletteAnimationTable[3];
@@ -72,36 +73,36 @@ namespace R1Engine
                 ObjectTypes[13].Data = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.CrabObjType], () => s.SerializeObject<GBAIsometric_ObjectTypeData>(ObjectTypes[13].Data, name: $"CrabObjectTypeData"));
 
                 // Serialize additional object types
-                var additionalObjTypePointers = ObjTypePointers[s.GameSettings.GameModeSelection];
+                var additionalObjTypePointers = ObjTypePointers[s.GetR1Settings().GameModeSelection];
                 if (AdditionalObjectTypes == null)
                     AdditionalObjectTypes = new GBAIsometric_ObjectTypeData[additionalObjTypePointers.Length];
 
                 for (int i = 0; i < AdditionalObjectTypes.Length; i++)
-                    AdditionalObjectTypes[i] = s.DoAt(new Pointer(additionalObjTypePointers[i], Offset.file), () => s.SerializeObject<GBAIsometric_ObjectTypeData>(AdditionalObjectTypes[i], name: $"{nameof(AdditionalObjectTypes)}[{i}]"));
+                    AdditionalObjectTypes[i] = s.DoAt(new Pointer(additionalObjTypePointers[i], Offset.File), () => s.SerializeObject<GBAIsometric_ObjectTypeData>(AdditionalObjectTypes[i], name: $"{nameof(AdditionalObjectTypes)}[{i}]"));
 
                 // Serialize additional animation sets
-                var additionalAnimSetPointers = AnimSetPointers[s.GameSettings.GameModeSelection];
+                var additionalAnimSetPointers = AnimSetPointers[s.GetR1Settings().GameModeSelection];
                 if (AdditionalAnimSets == null)
                     AdditionalAnimSets = new GBAIsometric_RHR_AnimSet[additionalAnimSetPointers.Length];
 
                 for (int i = 0; i < AdditionalAnimSets.Length; i++)
-                    AdditionalAnimSets[i] = s.DoAt(new Pointer(additionalAnimSetPointers[i], Offset.file), () => s.SerializeObject<GBAIsometric_RHR_AnimSet>(AdditionalAnimSets[i], name: $"{nameof(AdditionalAnimSets)}[{i}]"));
+                    AdditionalAnimSets[i] = s.DoAt(new Pointer(additionalAnimSetPointers[i], Offset.File), () => s.SerializeObject<GBAIsometric_RHR_AnimSet>(AdditionalAnimSets[i], name: $"{nameof(AdditionalAnimSets)}[{i}]"));
 
                 // Serialize sprite sets
-                var spriteSetPointers = SpriteSetPointers[s.GameSettings.GameModeSelection];
+                var spriteSetPointers = SpriteSetPointers[s.GetR1Settings().GameModeSelection];
                 if (SpriteSets == null)
                     SpriteSets = new GBAIsometric_RHR_SpriteSet[spriteSetPointers.Length];
 
                 for (int i = 0; i < SpriteSets.Length; i++)
-                    SpriteSets[i] = s.DoAt(new Pointer(spriteSetPointers[i], Offset.file), () => s.SerializeObject<GBAIsometric_RHR_SpriteSet>(SpriteSets[i], name: $"{nameof(SpriteSets)}[{i}]"));
+                    SpriteSets[i] = s.DoAt(new Pointer(spriteSetPointers[i], Offset.File), () => s.SerializeObject<GBAIsometric_RHR_SpriteSet>(SpriteSets[i], name: $"{nameof(SpriteSets)}[{i}]"));
 
                 // Serialize sprites
-                var spritePointers = SpritePointers[s.GameSettings.GameModeSelection];
+                var spritePointers = SpritePointers[s.GetR1Settings().GameModeSelection];
                 if (Sprites == null)
                     Sprites = new GBAIsometric_RHR_Sprite[spritePointers.Length];
 
                 for (int i = 0; i < Sprites.Length; i++)
-                    Sprites[i] = s.DoAt(new Pointer(spritePointers[i], Offset.file), () => s.SerializeObject<GBAIsometric_RHR_Sprite>(Sprites[i], name: $"{nameof(Sprites)}[{i}]"));
+                    Sprites[i] = s.DoAt(new Pointer(spritePointers[i], Offset.File), () => s.SerializeObject<GBAIsometric_RHR_Sprite>(Sprites[i], name: $"{nameof(Sprites)}[{i}]"));
 
                 // Serialize sprite icons
                 SpriteIconPointers = s.DoAt(pointerTable[GBAIsometric_RHR_Pointer.SpriteIcons], () => s.SerializePointerArray(SpriteIconPointers, 84, name: nameof(SpriteIconPointers)));
@@ -131,14 +132,14 @@ namespace R1Engine
                     Portraits[i] = s.DoAt(PortraitPointers[i], () => s.SerializeObject<GBAIsometric_RHR_AnimSet>(Portraits[i], name: $"{nameof(Portraits)}[{i}]"));
 
                 // Serialize alternative anim set palettes
-                var alternativeAnimSetPalettes = AlternativeAnimSetPalettes[s.GameSettings.GameModeSelection];
+                var alternativeAnimSetPalettes = AlternativeAnimSetPalettes[s.GetR1Settings().GameModeSelection];
 
                 foreach (GBAIsometric_RHR_AnimSet animSet in GetAllAnimSets().Where(x => alternativeAnimSetPalettes.ContainsKey(x.Name)))
                     animSet.SerializeAlternativePalettes(s, alternativeAnimSetPalettes[animSet.Name]);
             }
             else
             {
-                var maps = ((GBAIsometric_RHR_Manager)s.GameSettings.GetGameManager).GetMenuMaps(s.GameSettings.Level);
+                var maps = ((GBAIsometric_RHR_Manager)s.GetR1Settings().GetGameManager).GetMenuMaps(s.GetR1Settings().Level);
                 MenuMaps = new GBAIsometric_RHR_MapLayer[maps.Length];
 
                 for (int i = 0; i < MenuMaps.Length; i++)

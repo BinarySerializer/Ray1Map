@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Base file for Rayman 1 (PS1)
     /// </summary>
-    public class R1_PS1BaseFile : R1Serializable
+    public class R1_PS1BaseFile : BinarySerializable
     {
         /// <summary>
         /// The amount of pointers in the header

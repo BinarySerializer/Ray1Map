@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -63,23 +64,23 @@ namespace R1Engine
 
         public GeneralEventInfoData[] AvailableEvents { get; }
 
-        public bool UsesLocalCommands => Context.Settings.GameModeSelection == GameModeSelection.MapperPC || 
-                                         Context.Settings.EngineVersion == EngineVersion.R1_GBA || 
-                                         Context.Settings.EngineVersion == EngineVersion.R1_DSi ||
-                                         Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
-                                         Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6;
+        public bool UsesLocalCommands => Context.GetR1Settings().GameModeSelection == GameModeSelection.MapperPC || 
+                                         Context.GetR1Settings().EngineVersion == EngineVersion.R1_GBA || 
+                                         Context.GetR1Settings().EngineVersion == EngineVersion.R1_DSi ||
+                                         Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                                         Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6;
 
         protected IEnumerable<GeneralEventInfoData> GetGeneralEventInfoData()
         {
             var engine = GeneralEventInfoData.Engine.R1;
 
-            if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Edu || Context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu)
+            if (Context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu)
                 engine = GeneralEventInfoData.Engine.EDU;
-            else if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
+            else if (Context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit)
                 engine = GeneralEventInfoData.Engine.KIT;
 
             return LevelEditorData.EventInfoData.Where(x => 
-                x.Worlds.Contains(Context.Settings.R1_World) && 
+                x.Worlds.Contains(Context.GetR1Settings().R1_World) && 
                 x.Engines.Contains(engine) && 
                 (!HasDefinedDesEtaNames || (DES.Any(d => d.Name == x.DES) && ETA.Any(e => e.Name == x.ETA))));
         }
@@ -91,13 +92,13 @@ namespace R1Engine
 
             if (UsesLocalCommands)
             {
-                var compiledData = e.Commands == null ? null : EventCommandCompiler.Compile(e.Commands, e.Commands.ToBytes(Context.Settings));
-                compiledCmds = compiledData?.Commands?.ToBytes(Context.Settings) ?? new byte[0];
+                var compiledData = e.Commands == null ? null : EventCommandCompiler.Compile(e.Commands, e.Commands.ToBytes(Context.GetR1Settings()));
+                compiledCmds = compiledData?.Commands?.ToBytes(Context.GetR1Settings()) ?? new byte[0];
                 labelOffsets = compiledData?.LabelOffsets ?? new ushort[0];
             }
             else
             {
-                compiledCmds = e.Commands?.ToBytes(Context.Settings) ?? new byte[0];
+                compiledCmds = e.Commands?.ToBytes(Context.GetR1Settings()) ?? new byte[0];
                 labelOffsets = e.LabelOffsets ?? new ushort[0];
             }
 
@@ -122,7 +123,7 @@ namespace R1Engine
                                                      (!flags.HasFlag(EventMatchFlags.FollowSprite) || x.FollowSprite == e.FollowSprite) &&
                                                      (!flags.HasFlag(EventMatchFlags.HitPoints) || x.HitPoints == e.ActualHitPoints) &&
                                                      (!flags.HasFlag(EventMatchFlags.HitSprite) || x.HitSprite == e.HitSprite) &&
-                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.GetFollowEnabled(Context.Settings)) &&
+                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.GetFollowEnabled(Context.GetR1Settings())) &&
                                                      (!flags.HasFlag(EventMatchFlags.Commands) || compareCommands(x)));
             }
 
@@ -158,7 +159,7 @@ namespace R1Engine
         {
             get
             {
-                switch (Context.Settings.EngineVersion)
+                switch (Context.GetR1Settings().EngineVersion)
                 {
                     case EngineVersion.R1_PS1_JPDemoVol3:
                     case EngineVersion.R1_PS1_JPDemoVol6:
@@ -199,11 +200,11 @@ namespace R1Engine
             // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
             if (UsesLocalCommands)
             {
-                cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(R1_EventCommandCollection.FromBytes(e.Commands, Context.Settings), e.LabelOffsets), e.Commands);
+                cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(R1_EventCommandCollection.FromBytes(e.Commands, Context.GetR1Settings()), e.LabelOffsets), e.Commands);
             }
             else if (e.Commands.Any())
             {
-                cmds = R1_EventCommandCollection.FromBytes(e.Commands, Context.Settings);
+                cmds = R1_EventCommandCollection.FromBytes(e.Commands, Context.GetR1Settings());
                 labelOffsets = e.LabelOffsets.Any() ? e.LabelOffsets : null;
             }
 
@@ -222,7 +223,7 @@ namespace R1Engine
                 LabelOffsets = labelOffsets
             }, this, ETAIndex: ETA.FindItemIndex(x => x.Name == e.ETA));
 
-            eventData.EventData.SetFollowEnabled(Context.Settings, e.FollowEnabled);
+            eventData.EventData.SetFollowEnabled(Context.GetR1Settings(), e.FollowEnabled);
 
             // We need to set the hit points after the type
             eventData.EventData.ActualHitPoints = e.HitPoints;
@@ -316,7 +317,7 @@ namespace R1Engine
             }
 
             // Set DES and ETA for worldmap
-            if (Context.Settings.R1_World == R1_World.Menu)
+            if (Context.GetR1Settings().R1_World == R1_World.Menu)
             {
                 var mapObj = EventTemplates[WldObjType.MapObj];
                 var rayman = level.Rayman as Unity_Object_R1;
@@ -335,13 +336,13 @@ namespace R1Engine
                     rayman.EventData.Etat = rayman.EventData.InitialEtat = 0;
                     rayman.EventData.SubEtat = rayman.EventData.InitialSubEtat = 0;
 
-                    if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
+                    if (Context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit)
                     {
                         // ?
                         rayman.XPosition = (short)(level.EventData[0].XPosition + 42 - rayman.EventData.OffsetBX);
                         rayman.YPosition = (short)(level.EventData[0].YPosition + 48 - rayman.EventData.OffsetBY);
                     }
-                    else if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Edu ||Context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu)
+                    else if (Context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu ||Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu)
                     {
                         // ?
                         rayman.XPosition = (short)(level.EventData[0].XPosition + 42 + 44 - rayman.EventData.OffsetBX);
@@ -435,7 +436,7 @@ namespace R1Engine
                 ed.EventData.Init(s.CurrentPointer);
                 ed.EventData.Serialize(s);
 
-                if (s is BinarySerializer)
+                if (s is BinarySerializer.BinarySerializer)
                 {
                     Debug.Log($"Edited event {ed.EventData.EventIndex}");
                     madeEdits = true;
@@ -486,7 +487,7 @@ namespace R1Engine
                         mapTile.Data.Init(s.CurrentPointer);
                         mapTile.Data.Serialize(s);
 
-                        if (s is BinarySerializer)
+                        if (s is BinarySerializer.BinarySerializer)
                             madeEdits = true;
 
                         mapTile.HasPendingEdits = false;
@@ -497,7 +498,7 @@ namespace R1Engine
                         currentOffset = s.CurrentPointer;
 
                         // On PC we need to also update the BigMap pointer table
-                        if (GameMemoryData.BigMap != null && s is BinarySerializer)
+                        if (GameMemoryData.BigMap != null && s is BinarySerializer.BinarySerializer)
                         {
                             var pointerOffset = GameMemoryData.BigMap.MapTileTexturesPointersPointer + (4 * tileIndex);
                             var newPointer = GameMemoryData.BigMap.TileTexturesPointer + (lvl.Maps[0].PCTileOffsetTable[mapTile.Data.TileMapY]).SerializedOffset;
@@ -544,7 +545,7 @@ namespace R1Engine
                     return 0;
 
                 case 123:
-                    return (byte)(Context.Settings.World == 1 && Context.Settings.Level == 14 ? 3 : 2);
+                    return (byte)(Context.GetR1Settings().World == 1 && Context.GetR1Settings().Level == 14 ? 3 : 2);
 
                 case 2:
                 case 31:
@@ -679,7 +680,7 @@ namespace R1Engine
                         return defaultName;
 
                     // The name is only official for Rayman Designer, so return that as is then
-                    if (LevelEditorData.MainContext.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
+                    if (LevelEditorData.MainContext.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit)
                         return Name;
 
                     // Otherwise show both versions
@@ -737,7 +738,7 @@ namespace R1Engine
                 Pointer gameMemoryOffset = s.CurrentPointer;
 
                 // Rayman 1 (PC - 1.21)
-                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPC_1_21)
+                if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPC_1_21)
                 {
                     // In IDA with 1.21 the difference from memory is 0xA1000
 
@@ -765,7 +766,7 @@ namespace R1Engine
                         [nameof(OldNumLevelChoice)] = gameMemoryOffset + 0x17F80E,
                     };
                 }
-                else  if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPS1US)
+                else  if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1US)
                 {
                     Pointers = new Dictionary<string, Pointer>()
                     {

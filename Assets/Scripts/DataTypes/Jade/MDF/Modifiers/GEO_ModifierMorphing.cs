@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GEO_ModifierMorphing : MDF_Modifier {
@@ -26,7 +27,7 @@ namespace R1Engine.Jade {
 			UnknownMorphs = s.SerializeObjectArray<UnknownMorph>(UnknownMorphs, UnknownMorphsCount, name: nameof(UnknownMorphs));
 		}
 
-		public class VertexMorph : R1Serializable {
+		public class VertexMorph : BinarySerializable {
 			public uint Count { get; set; }
 			public string Name { get; set; }
 			public uint[] Indices { get; set; }
@@ -40,7 +41,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public class UnknownMorph : R1Serializable {
+		public class UnknownMorph : BinarySerializable {
 			public uint Count { get; set; }
 			public float Float_04 { get; set; }
 			public float Float_08 { get; set; }

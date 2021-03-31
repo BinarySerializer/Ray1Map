@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Vignette intro data for Rayman Advance (GBA)
     /// </summary>
-    public class R1_GBA_IntroVignette : R1Serializable
+    public class R1_GBA_IntroVignette : BinarySerializable
     {
         #region Vignette Data
 

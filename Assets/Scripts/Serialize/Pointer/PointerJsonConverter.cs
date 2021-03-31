@@ -1,12 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using BinarySerializer;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace R1Engine.Serialize {
+namespace R1Engine
+{
     public class PointerJsonConverter : JsonConverter {
         const string PointerPattern = @"^(?<file>[^\|]*)\|0x(?<offset>[a-fA-F0-9]{8})(\[0x(?<offsetInFile>[a-fA-F0-9]{8})\])?$";
         public override bool CanConvert(Type objectType) {

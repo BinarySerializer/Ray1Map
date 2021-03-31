@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GEO_Object : Jade_File {

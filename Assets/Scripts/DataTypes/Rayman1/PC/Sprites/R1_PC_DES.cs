@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// DES item data for PC
     /// </summary>
-    public class R1_PC_DES : R1Serializable {
+    public class R1_PC_DES : BinarySerializable {
         public Type FileType { get; set; }
 
         // TODO: Is that what this property is for? It seems it's true for all DES except the parallax ones.
@@ -72,7 +74,7 @@
 
             ImageDataLength = s.Serialize<uint>(ImageDataLength, name: nameof(ImageDataLength));
 
-            var isChecksumBefore = FileType == Type.World && (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu);
+            var isChecksumBefore = FileType == Type.World && (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu);
             var hasChecksum = !(!isChecksumBefore && FileType == Type.BigRay);
 
             ImageDataChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>

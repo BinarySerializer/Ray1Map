@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_RHR_PaletteAnimationTable : R1Serializable
+    public class GBAIsometric_RHR_PaletteAnimationTable : BinarySerializable
     {
         public Entry[] Entries { get; set; }
 
@@ -24,7 +25,7 @@ namespace R1Engine
                 s.SerializeObjectArray<Entry>(Entries, Entries.Length, name: nameof(Entries));
             }
         }
-        public class Entry : R1Serializable {
+        public class Entry : BinarySerializable {
             public byte PaletteIndex { get; set; }
             public sbyte Speed { get; set; }
             public byte StartIndex { get; set; }

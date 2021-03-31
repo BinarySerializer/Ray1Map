@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -175,7 +176,7 @@ namespace R1Engine
         public async UniTask ExportGRXAsync(GameSettings settings, string outputDir, bool exportSprites)
         {
             // Create the context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Get the big ray palette if exporting sprites
                 IList<BaseColor> brPal = null;
@@ -190,7 +191,7 @@ namespace R1Engine
                 {
                     context.AddFile(new LinearSerializedFile(context)
                     {
-                        filePath = grxFilePath
+                        FilePath = grxFilePath
                     });
 
                     var grx = await LoadGRXAsync(context, grxFilePath);
@@ -236,7 +237,7 @@ namespace R1Engine
         }
 
         public async UniTask<T> LoadGRXFileAsync<T>(Context context, IList<R1_PS1Edu_GRX> grx, string fileName, string name)
-            where T : R1Serializable, new()
+            where T : BinarySerializable, new()
         {
             // Get the file
             var file = grx.SelectMany(x => x.Files).FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
@@ -255,7 +256,7 @@ namespace R1Engine
             // Go to the pointer
             s.Goto(pointer);
 
-            await s.FillCacheForRead((int)file.FileSize);
+            await s.FillCacheForReadAsync((int)file.FileSize);
 
             return s.SerializeObject<T>(default, name: nameof(name));
         }
@@ -271,21 +272,21 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the world files
-            var allfix = FileFactory.Read<R1_PS1Edu_WorldFile>(GetAllfixFilePath(context.Settings), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.Allfix);
-            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
-            var level = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.Settings), context);
+            var allfix = FileFactory.Read<R1_PS1Edu_WorldFile>(GetAllfixFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.Allfix);
+            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
+            var level = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
             // Load the .grx bundles
             var grx = new List<R1_PS1Edu_GRX>();
 
-            foreach (var grxFile in context.MemoryMap.Files.Where(x => x.filePath.Contains(".GRX")).Select(x => x.filePath))
+            foreach (var grxFile in context.MemoryMap.Files.Where(x => x.FilePath.Contains(".GRX")).Select(x => x.FilePath))
                 grx.Add(await LoadGRXAsync(context, grxFile));
 
             var s = context.Deserializer;
 
             // Load .grx files (.tex and .gsp)
-            R1_PS1Edu_TEX levelTex = await LoadGRXFileAsync<R1_PS1Edu_TEX>(context, grx, GetGRXLevelName(context.Settings) + ".TEX", "LevelTex");
-            ushort[] levelIndices = (await LoadGRXFileAsync<R1_PS1Edu_GSP>(context, grx, GetGRXLevelName(context.Settings) + ".GSP", "LevelIndices"))?.Indices;
+            R1_PS1Edu_TEX levelTex = await LoadGRXFileAsync<R1_PS1Edu_TEX>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".TEX", "LevelTex");
+            ushort[] levelIndices = (await LoadGRXFileAsync<R1_PS1Edu_GSP>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".GSP", "LevelIndices"))?.Indices;
 
             if (levelTex == null || levelIndices == null)
                 return new Unity_ObjectManager_R1.DESData[0];
@@ -480,7 +481,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading map data";
 
             // Load the level
-            var levelData = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.Settings), context);
+            var levelData = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
             await Controller.WaitIfNecessary();
 
@@ -531,9 +532,9 @@ namespace R1Engine
             // Load Rayman
             var rayman = new Unity_Object_R1(R1_EventData.GetRayman(context, levelData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
 
-            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
+            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
 
-            var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[levelData.LevelDefines.BG_0])?.ToTexture(true); 
+            var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[levelData.LevelDefines.BG_0])?.ToTexture(true); 
 
             Unity_Level level = new Unity_Level(
                 maps: maps,
@@ -594,8 +595,8 @@ namespace R1Engine
         public override IEnumerable<R1_PC_ETA> GetCurrentEventStates(Context context)
         {
             // Load the world files
-            var allfix = FileFactory.Read<R1_PS1Edu_WorldFile>(GetAllfixFilePath(context.Settings), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.Allfix);
-            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
+            var allfix = FileFactory.Read<R1_PS1Edu_WorldFile>(GetAllfixFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.Allfix);
+            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
 
             // Return the ETA
             return allfix.ETA.Concat(world.ETA).Select(x => new R1_PC_ETA()
@@ -613,19 +614,19 @@ namespace R1Engine
             // Load base files
             await base.LoadFilesAsync(context);
 
-            var langCode = GetLangCode(context.Settings);
+            var langCode = GetLangCode(context.GetR1Settings());
 
             // Load the .grx files
-            if (context.Settings.GameModeSelection == GameModeSelection.RaymanEducationalPS1)
+            if (context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanEducationalPS1)
             {
-                var volLevel = context.Settings.EduVolume.Substring(2, 1);
+                var volLevel = context.GetR1Settings().EduVolume.Substring(2, 1);
 
                 await AddFile(context, $"FIX{volLevel}.GRX", true);
 
                 for (int i = 1; i < 3 + 1; i++)
                     await AddFile(context, $"{langCode}{i}.GRX", true);
             }
-            else if (context.Settings.GameModeSelection == GameModeSelection.RaymanQuizPS1)
+            else if (context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanQuizPS1)
             {
                 await AddFile(context, $"LFIX.GRX", true);
                 await AddFile(context, $"LE_{langCode}.GRX", true);

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Text;
+using BinarySerializer;
 
 namespace R1Engine {
     /// <summary>
@@ -323,7 +325,7 @@ namespace R1Engine {
             Reader reader = new Reader(s, isLittleEndian: false);
             byte[] decompressed = null;
             if (HasHeader) {
-                string header = reader.ReadString(0x3);
+                string header = reader.ReadString(0x3, new ASCIIEncoding());
                 if (header != "RNC") {
                     throw new Exception("Data is not compressed with RNC!");
                 }

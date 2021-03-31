@@ -1,10 +1,11 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_DataBlockIndex : R1Serializable
+    public class GBAIsometric_Spyro_DataBlockIndex : BinarySerializable
     {
         public static HashSet<ushort> UsedIndices { get; } = new HashSet<ushort>();
 

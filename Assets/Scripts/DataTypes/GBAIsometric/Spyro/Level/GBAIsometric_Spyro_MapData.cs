@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_MapData : R1Serializable
+    public class GBAIsometric_Spyro_MapData : BinarySerializable
     {
         public ushort Width { get; set; }
         public ushort Height { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_R2UnknownAnimData : R1Serializable
+    public class R1_R2UnknownAnimData : BinarySerializable
     {
         public ushort Ushort_00 { get; set; } // Some index?
         public byte Byte_02 { get; set; }

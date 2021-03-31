@@ -1,10 +1,11 @@
 ﻿using lzo.net;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine {
     /// <summary>
@@ -14,8 +15,8 @@ namespace R1Engine {
     {
         public uint TotalCompressedSize { get; }
         public bool Xbox360Version { get; }
-        public BinaryFile.Endian Endianness { get; }
-        public Jade_Lzo1xEncoder(uint compressedSize, bool xbox360Version, BinaryFile.Endian endianness = BinaryFile.Endian.Little) {
+        public Endian Endianness { get; }
+        public Jade_Lzo1xEncoder(uint compressedSize, bool xbox360Version, Endian endianness = Endian.Little) {
             TotalCompressedSize = compressedSize;
             Xbox360Version = xbox360Version;
             Endianness = endianness;
@@ -28,7 +29,7 @@ namespace R1Engine {
         /// <returns>The stream with the decoded data</returns>
         public Stream DecodeStream(Stream s) {
 
-            Reader reader = new Reader(s, isLittleEndian: Endianness == BinaryFile.Endian.Little);
+            Reader reader = new Reader(s, isLittleEndian: Endianness == Endian.Little);
             var currentPos = reader.BaseStream.Position;
             var lastSizeRead = 0xFFFFFFFF;
             List<byte[]> decompressedBlocks = new List<byte[]>();
@@ -44,7 +45,7 @@ namespace R1Engine {
                         byte[] decompressedBlock;
                         using (var compressedStream = new MemoryStream(compressedBlock))
                         using (var lzo = new LzoStream(compressedStream, CompressionMode.Decompress))
-                        using (Reader lzoReader = new Reader(lzo, isLittleEndian: Endianness == BinaryFile.Endian.Little)) {
+                        using (Reader lzoReader = new Reader(lzo, isLittleEndian: Endianness == Endian.Little)) {
                             lzo.SetLength(size);
                             decompressedBlock = lzoReader.ReadBytes((int)size);
                         }

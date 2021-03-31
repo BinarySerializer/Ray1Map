@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_GraphicsData : R1Serializable
+    public class GBAIsometric_RHR_GraphicsData : BinarySerializable
     {
         public uint UInt_00 { get; set; }
         public uint CompressionLookupBufferLength { get; set; }

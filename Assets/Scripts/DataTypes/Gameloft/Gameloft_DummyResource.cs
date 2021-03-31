@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
 	public class Gameloft_DummyResource : Gameloft_Resource {
 		public byte[] Data { get; set; }

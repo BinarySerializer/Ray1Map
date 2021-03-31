@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_Isometric_Animation : R1Serializable
+    public class GBAVV_Isometric_Animation : BinarySerializable
     {
         public int Width { get; set; }
         public int Height { get; set; }
@@ -54,7 +55,7 @@ namespace R1Engine
             {
                 if (FramesCount == 0)
                 {
-                    if (s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAUS)
+                    if (s.GetR1Settings().GameModeSelection == GameModeSelection.Crash2GBAUS)
                     {
                         switch (FramesCountPointer)
                         {
@@ -68,7 +69,7 @@ namespace R1Engine
                             default: throw new ArgumentOutOfRangeException(nameof(FramesCountPointer), FramesCountPointer, null);
                         }
                     }
-                    else if (s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAEU)
+                    else if (s.GetR1Settings().GameModeSelection == GameModeSelection.Crash2GBAEU)
                     {
                         switch (FramesCountPointer)
                         {
@@ -82,7 +83,7 @@ namespace R1Engine
                             default: throw new ArgumentOutOfRangeException(nameof(FramesCountPointer), FramesCountPointer, null);
                         }
                     }
-                    else if (s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAJP)
+                    else if (s.GetR1Settings().GameModeSelection == GameModeSelection.Crash2GBAJP)
                     {
                         switch (FramesCountPointer)
                         {

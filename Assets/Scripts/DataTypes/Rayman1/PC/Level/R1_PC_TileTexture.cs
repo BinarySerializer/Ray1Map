@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Tile texture data for PC
     /// </summary>
-    public class R1_PC_TileTexture : R1Serializable
+    public class R1_PC_TileTexture : BinarySerializable
     {
         /// <summary>
         /// The color indexes for this texture

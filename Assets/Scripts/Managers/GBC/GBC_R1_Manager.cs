@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
 using ImageMagick;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -27,7 +28,7 @@ namespace R1Engine
 
         public async UniTask ExportRootTileKitsAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -53,7 +54,7 @@ namespace R1Engine
 
         public override async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 

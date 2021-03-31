@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using R1Engine.Serialize;
+
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 
 namespace R1Engine
@@ -178,7 +179,7 @@ namespace R1Engine
         /// <returns>The binary file</returns>
         protected override BinaryFile GetFile(Context context, string filePath) => new LinearSerializedFile(context)
         {
-            filePath = filePath
+            FilePath = filePath
         };
 
         protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
@@ -257,7 +258,7 @@ namespace R1Engine
 
                 await AddFile(context, lngPath);
 
-                var langFile = FileFactory.ReadText<R1_TextLocFile>(lngPath, context, encoding: lang.Encoding);
+                var langFile = R1FileFactory.ReadText<R1_TextLocFile>(lngPath, context, encoding: lang.Encoding);
 
                 loc.Add(new KeyValuePair<string, string[]>(lang.Language, langFile.Strings));
             }

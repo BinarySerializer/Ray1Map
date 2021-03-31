@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_LevelData : R1Serializable
+    public class GBAIsometric_RHR_LevelData : BinarySerializable
     {
         public Layer[] MapLayers { get; set; }
 
@@ -57,7 +59,7 @@
             });
         }
 
-        public class Layer : R1Serializable
+        public class Layer : BinarySerializable
         {
             public Pointer<GBAIsometric_RHR_MapLayer> DataPointer { get; set; }
             public byte[] UnkData { get; set; }

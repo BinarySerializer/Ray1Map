@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_GeneralFileStringItem : R1Serializable
+    public class R1_PC_GeneralFileStringItem : BinarySerializable
     {
         public uint StringPointer { get; set; } // Gets overwritten by a pointer in memory
         public uint Uint_04 { get; set; }

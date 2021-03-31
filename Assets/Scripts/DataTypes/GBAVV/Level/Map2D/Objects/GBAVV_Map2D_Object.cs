@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Map2D_Object : R1Serializable
+    public class GBAVV_Map2D_Object : BinarySerializable
     {
         public short ObjType { get; set; }
         public short XPos { get; set; }

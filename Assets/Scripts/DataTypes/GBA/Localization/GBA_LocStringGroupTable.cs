@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_LocStringGroupTable : R1Serializable
+    public class GBA_LocStringGroupTable : BinarySerializable
     {
         public Pointer[] Pointers { get; set; }
 

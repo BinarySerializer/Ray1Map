@@ -1,6 +1,7 @@
 ﻿using Cinemachine;
-using R1Engine.Serialize;
+
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine

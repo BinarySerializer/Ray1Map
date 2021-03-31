@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_ProcList : Jade_File {
@@ -25,7 +26,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public class Proc : R1Serializable {
+		public class Proc : BinarySerializable {
 			public uint NameLength { get; set; }
 			public string Name { get; set; }
 			public uint Code { get; set; }

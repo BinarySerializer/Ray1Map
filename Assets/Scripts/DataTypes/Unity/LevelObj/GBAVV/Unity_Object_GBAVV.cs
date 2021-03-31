@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -32,7 +33,7 @@ namespace R1Engine
             if (Settings.GBAVV_Crash_TimeTrialMode && (ObjParams?.ElementAtOrDefault(0) & 0x20) != 0)
                 objType = ObjParams?.ElementAtOrDefault(4) ?? Object.ObjType;
 
-            GBAVV_ObjInit.InitObj(ObjManager.Context.Settings, this, objType);
+            GBAVV_ObjInit.InitObj(ObjManager.Context.GetR1Settings(), this, objType);
         }
 
         public GBAVV_Map2D_Object Object { get; set; }
@@ -52,13 +53,13 @@ namespace R1Engine
             set => Object.YPos = value;
         }
 
-        public override string DebugText => $"Params: {Util.ByteArrayToHexString(ObjParams)}{Environment.NewLine}" +
+        public override string DebugText => $"Params: {ObjParams.ToHexString()}{Environment.NewLine}" +
                                             $"Group: {ObjGroupIndex}{Environment.NewLine}" +
                                             $"Index: {ObjIndex}{Environment.NewLine}";
 
         public override int? GetLayer(int index)
         {
-            if (ObjManager.Context.Settings.EngineVersion < EngineVersion.GBAVV_CrashFusion)
+            if (ObjManager.Context.GetR1Settings().EngineVersion < EngineVersion.GBAVV_CrashFusion)
                 return null;
 
             if (Object.ObjType <= 10)
@@ -72,7 +73,7 @@ namespace R1Engine
         public override GBAVV_Script DialogScript => ScriptHasDialog ? ObjManager.DialogScripts?.TryGetItem(ObjParams?.ElementAtOrDefault(8) ?? -1) : null;
         public override bool ScriptHasDialog => Script?.DisplayName == "genericNPC";
 
-        public override R1Serializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => ScriptName != null ? $"{ScriptName.Replace("Script", "")}" : $"Type_{(int)Object.ObjType}";
@@ -80,13 +81,13 @@ namespace R1Engine
         {
             get
             {
-                if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1)
+                if (ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
                     return $"{(GBAVV_Map2D_Crash1_ObjType)Object.ObjType}";
 
-                if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2 && ObjManager.Crash2_IsWorldMap)
+                if (ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 && ObjManager.Crash2_IsWorldMap)
                     return $"{(GBAVV_Crash2_WorldMapObjType)Object.ObjType}";
 
-                if (ObjManager.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
+                if (ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2)
                     return $"{(GBAVV_Map2D_Crash2_ObjType)Object.ObjType}";
 
                 return null;
@@ -97,7 +98,7 @@ namespace R1Engine
         public override bool FlipVertically => GetFlipFlagsIndex() != -1 && BitHelpers.ExtractBits(ObjParams?.FirstOrDefault() ?? 0, 1, GetFlipFlagsIndex() + 1) == 1;
         public int GetFlipFlagsIndex()
         {
-            switch (ObjManager.Context.Settings.EngineVersion)
+            switch (ObjManager.Context.GetR1Settings().EngineVersion)
             {
                 case EngineVersion.GBAVV_Crash1:
                 case EngineVersion.GBAVV_Crash2:

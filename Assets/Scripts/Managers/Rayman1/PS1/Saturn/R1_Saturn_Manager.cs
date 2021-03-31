@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -24,7 +25,7 @@ namespace R1Engine
 
         public uint BaseAddress => 0x00200000;
 
-        public override BinaryFile.Endian Endianness { get; } = BinaryFile.Endian.Big;
+        public override Endian Endianness { get; } = Endian.Big;
 
         /// <summary>
         /// Gets the folder path for the specified world
@@ -68,33 +69,33 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The map file path</returns>
-        public string GetMapFilePath(Context context) => (GetWorldFolderPath(context.Settings.R1_World) + (context.Settings.Level == 140 ? $"JUNNT14.XMP" : $"{GetWorldName(context.Settings.R1_World)}00{context.Settings.Level}.XMP"));
+        public string GetMapFilePath(Context context) => (GetWorldFolderPath(context.GetR1Settings().R1_World) + (context.GetR1Settings().Level == 140 ? $"JUNNT14.XMP" : $"{GetWorldName(context.GetR1Settings().R1_World)}00{context.GetR1Settings().Level}.XMP"));
 
         /// <summary>
         /// Gets the tile-set palette file path
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile-set palette file path</returns>
-        public string GetTileSetPaletteFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}.PAL";
+        public string GetTileSetPaletteFilePath(Context context) => GetWorldFolderPath(context.GetR1Settings().R1_World) + $"{GetWorldName(context.GetR1Settings().R1_World)}.PAL";
 
         /// <summary>
         /// Gets the tile-set palette index table file path
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile-set palette index table file path</returns>
-        public string GetTileSetPaletteIndexTableFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}_01.PLT";
+        public string GetTileSetPaletteIndexTableFilePath(Context context) => GetWorldFolderPath(context.GetR1Settings().R1_World) + $"{GetWorldName(context.GetR1Settings().R1_World)}_01.PLT";
 
         /// <summary>
         /// Gets the tile-set file path
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile-set file path</returns>
-        public string GetTileSetFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}_01.BIT";
+        public string GetTileSetFilePath(Context context) => GetWorldFolderPath(context.GetR1Settings().R1_World) + $"{GetWorldName(context.GetR1Settings().R1_World)}_01.BIT";
 
         public string GetBigRayImageFilePath() => "BIG.IMG";
         public string GetFixImageFilePath() => "RAY.IMG";
-        public string GetWorldImageFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}.IMG";
-        public string GetLevelImageFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}{context.Settings.Level:00}.IMG";
+        public string GetWorldImageFilePath(Context context) => GetWorldFolderPath(context.GetR1Settings().R1_World) + $"{GetWorldName(context.GetR1Settings().R1_World)}.IMG";
+        public string GetLevelImageFilePath(Context context) => GetWorldFolderPath(context.GetR1Settings().R1_World) + $"{GetWorldName(context.GetR1Settings().R1_World)}{context.GetR1Settings().Level:00}.IMG";
 
         /// <summary>
         /// Gets the levels for each world
@@ -124,8 +125,8 @@ namespace R1Engine
             {
                 PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode)
                 {
-                    filePath = path,
-                    Endianness = BinaryFile.Endian.Big
+                    FilePath = path,
+                    Endianness = Endian.Big
                 };
                 context.AddFile(file);
 
@@ -135,8 +136,8 @@ namespace R1Engine
             {
                 LinearSerializedFile file = new LinearSerializedFile(context)
                 {
-                    filePath = path,
-                    Endianness = BinaryFile.Endian.Big
+                    FilePath = path,
+                    Endianness = Endian.Big
                 };
                 context.AddFile(file);
                 return 0;
@@ -150,7 +151,7 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override Unity_TileSet GetTileSet(Context context) 
         {
-            if (context.Settings.R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == R1_World.Menu)
                 return new Unity_TileSet(Settings.CellSize);
 
             // Read the files
@@ -186,8 +187,8 @@ namespace R1Engine
             // Imitates code at 0x0603586c (US executable)
             // After tile palettes: 19
             int part2 = 19;
-            int level = context.Settings.Level;
-            switch (context.Settings.R1_World) {
+            int level = context.GetR1Settings().Level;
+            switch (context.GetR1Settings().R1_World) {
                 case R1_World.Jungle:
                     if (level == 9 || level == 16) { // Different palette for Moskito boss, but why Swamp 1?
                         return part2 + 1;
@@ -260,7 +261,7 @@ namespace R1Engine
             var palette = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).Saturn_Palettes;
             var paletteOffset = img.PaletteInfo;
 
-            var isBigRay = img.Offset.file.filePath == GetBigRayFilePath();
+            var isBigRay = img.Offset.File.FilePath == GetBigRayFilePath();
             var isFont = context.GetStoredObject<R1_PS1_FontData[]>("Font")?.SelectMany(x => x.ImageDescriptors).Contains(img) == true;
             
             //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
@@ -336,10 +337,10 @@ namespace R1Engine
             R1_PS1_EventBlock eventBlock = null;
             MapData mapData;
 
-            if (context.Settings.R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != R1_World.Menu)
             {
-                var worldFilePath = GetWorldFilePath(context.Settings);
-                var levelFilePath = GetLevelFilePath(context.Settings);
+                var worldFilePath = GetWorldFilePath(context.GetR1Settings());
+                var levelFilePath = GetLevelFilePath(context.GetR1Settings());
                 var tileSetPaletteFilePath = GetTileSetPaletteFilePath(context);
                 var tileSetPaletteIndexTableFilePath = GetTileSetPaletteIndexTableFilePath(context);
                 var tileSetFilePath = GetTileSetFilePath(context);
@@ -394,15 +395,15 @@ namespace R1Engine
         public override void ExportVignetteTextures(GameSettings settings, string outputDir)
         {
             // Create a new context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 void exportBit(string file, int width = 16, bool swizzled = true, int blockWidth = 8, int blockHeight = 8, IList<Vector2> sizes = null)
                 {
                     // Add the file to the context
                     context.AddFile(new LinearSerializedFile(context)
                     {
-                        filePath = file,
-                        Endianness = BinaryFile.Endian.Big
+                        FilePath = file,
+                        Endianness = Endian.Big
                     });
 
                     // Read the file
@@ -451,8 +452,8 @@ namespace R1Engine
                     // Add the file to the context
                     context.AddFile(new LinearSerializedFile(context)
                     {
-                        filePath = file,
-                        Endianness = BinaryFile.Endian.Big
+                        FilePath = file,
+                        Endianness = Endian.Big
                     });
 
                     // Read the raw data
@@ -534,9 +535,9 @@ namespace R1Engine
 
         public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
-            using (var menuContext = new Context(settings))
+            using (var menuContext = new R1Context(settings))
             {
-                using (var bigRayContext = new Context(settings))
+                using (var bigRayContext = new R1Context(settings))
                 {
                     // Load allfix
                     await LoadFile(menuContext, GetAllfixFilePath(), BaseAddress);
@@ -580,26 +581,26 @@ namespace R1Engine
         {
             string bgFilePath;
 
-            if (context.Settings.R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == R1_World.Menu)
             {
                 bgFilePath = "VIGNET/NWORLD.BIT";
             }
             else
             {
                 var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
-                var worldIndex = context.Settings.World - 1;
-                var lvlIndex = context.Settings.Level - 1;
+                var worldIndex = context.GetR1Settings().World - 1;
+                var lvlIndex = context.GetR1Settings().Level - 1;
 
                 if (lvlIndex >= 25)
                     return null;
 
-                var bgIndex = exe.Saturn_FNDIndexTable[context.Settings.World][lvlIndex];
+                var bgIndex = exe.Saturn_FNDIndexTable[context.GetR1Settings().World][lvlIndex];
                 var bgFile = exe.Saturn_FNDFileTable[worldIndex][bgIndex];
 
                 if (String.IsNullOrEmpty(bgFile))
                     return null;
 
-                bgFilePath = GetWorldFolderPath(context.Settings.R1_World) + bgFile;
+                bgFilePath = GetWorldFolderPath(context.GetR1Settings().R1_World) + bgFile;
             }
 
             await LoadFile(context, bgFilePath);

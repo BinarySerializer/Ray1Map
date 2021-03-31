@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_CaptorDataEntry : R1Serializable
+    public class GBA_CaptorDataEntry : BinarySerializable
     {
         public ushort UShort_00 { get; set; }
         public byte LinkedActor { get; set; }
@@ -22,7 +24,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 Type = s.Serialize<byte>(Type, name: nameof(Type));
                 Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
                 Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
@@ -32,7 +34,7 @@
                 Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
                 Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
                 UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
-            } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+            } else if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                 Type = s.Serialize<byte>(Type, name: nameof(Type));
                 LinkedActor = s.Serialize<byte>(LinkedActor, name: nameof(LinkedActor));
                 Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
@@ -41,7 +43,7 @@
                 Byte_05 = s.Serialize<byte>(Byte_05, name: nameof(Byte_05));
                 Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
                 Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
-            } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina) {
+            } else if(s.GetR1Settings().EngineVersion == EngineVersion.GBA_Sabrina) {
                 Type = 1; // Disable links for Sabrina. No clear actor byte
                 UShort_00 = s.Serialize<ushort>(UShort_00, name: nameof(UShort_00));
                 Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));

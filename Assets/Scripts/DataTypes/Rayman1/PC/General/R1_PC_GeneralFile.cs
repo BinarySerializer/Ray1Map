@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_GeneralFile : R1Serializable
+    public class R1_PC_GeneralFile : BinarySerializable
     {
         // Always 1
         public uint Unk1 { get; set; }
@@ -34,7 +36,7 @@
             var unk2Length = 27;
 
             // The PS1 version hard-codes a different length for this version
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu && s.GameSettings.EduVolume.StartsWith("CS"))
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu && s.GetR1Settings().EduVolume.StartsWith("CS"))
                 unk2Length = 29;
 
             Unk2 = s.SerializeArray<byte>(Unk2, unk2Length, name: nameof(Unk2));

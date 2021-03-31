@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -63,7 +64,7 @@ namespace R1Engine
             Index_PlayFieldFG = s.Serialize<ushort>(Index_PlayFieldFG, name: nameof(Index_PlayFieldFG));
             Index_TilePal = s.Serialize<ushort>(Index_TilePal, name: nameof(Index_TilePal));
 
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_CrouchingTiger)
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_CrouchingTiger)
             {
                 HasPlayFieldBG = s.Serialize<bool>(HasPlayFieldBG, name: nameof(HasPlayFieldBG));
                 s.Serialize<byte>(default, name: "Padding");

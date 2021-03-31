@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade
 {
@@ -23,7 +24,7 @@ namespace R1Engine.Jade
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
             Uint_00 = s.Serialize<uint>(Uint_00, name: nameof(Uint_00));
-            if (s.GameSettings.Game == Game.Jade_BGE) {
+            if (s.GetR1Settings().Game == Game.Jade_BGE) {
                 throw new NotImplementedException($"TODO: Implement {GetType()} for BG&E");
             } else if (Uint_00 == 274) {
                 if (!Loader.IsBinaryData) Uint_04_Editor = s.Serialize<uint>(Uint_04_Editor, name: nameof(Uint_04_Editor));

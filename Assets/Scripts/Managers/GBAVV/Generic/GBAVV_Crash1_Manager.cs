@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -24,7 +25,7 @@ namespace R1Engine
 
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -64,7 +65,7 @@ namespace R1Engine
 
         public async UniTask ExportLevelIcons(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the files
                 await LoadFilesAsync(context);
@@ -87,7 +88,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();
 
-            var rom = FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.Settings.Level]);
+            var rom = FileFactory.Read<GBAVV_ROM_Crash1>(GetROMFilePath, context, (s, r) => r.CurrentLevInfo = LevInfos[context.GetR1Settings().Level]);
             var map = rom.CurrentMapInfo;
 
             if (map.Crash_MapType == GBAVV_Generic_MapInfo.GBAVV_Crash_MapType.Mode7)

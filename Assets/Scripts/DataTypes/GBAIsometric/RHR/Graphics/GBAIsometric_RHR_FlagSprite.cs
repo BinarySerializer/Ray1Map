@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_FlagSprite : R1Serializable
+    public class GBAIsometric_RHR_FlagSprite : BinarySerializable
     {
         public uint LocID { get; set; }
         public Pointer SpritePointer { get; set; }

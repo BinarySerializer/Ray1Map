@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_InstrumentVolumeEnvelope : R1Serializable {
+    public class GAX2_InstrumentVolumeEnvelope : BinarySerializable {
         public byte NumPoints { get; set; }
         public byte NumPointsWithUShort_02 { get; set; }
         public byte Byte_02 { get; set; }
@@ -20,7 +21,7 @@ namespace R1Engine
             Points = s.SerializeObjectArray<Point>(Points, NumPoints, name: nameof(Points));
         }
 
-		public class Point : R1Serializable {
+		public class Point : BinarySerializable {
             public ushort X { get; set; }
             public ushort UShort_02 { get; set; }
             public ushort Y { get; set; }

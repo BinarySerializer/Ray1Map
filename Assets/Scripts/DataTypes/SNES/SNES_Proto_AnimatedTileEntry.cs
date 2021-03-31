@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class SNES_Proto_AnimatedTileEntry : R1Serializable
+    public class SNES_Proto_AnimatedTileEntry : BinarySerializable
     {
         public SNES_Pointer GraphicsPointer { get; set; }
         public ushort VRAMAddress { get; set; }

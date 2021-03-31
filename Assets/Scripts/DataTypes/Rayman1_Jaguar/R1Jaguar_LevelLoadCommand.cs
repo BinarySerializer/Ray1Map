@@ -1,11 +1,12 @@
 ﻿using System.IO;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Level load command for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_LevelLoadCommand : R1Serializable
+    public class R1Jaguar_LevelLoadCommand : BinarySerializable
     {
         public LevelLoadCommandType Type { get; set; }
 
@@ -53,7 +54,7 @@ namespace R1Engine
                     UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
                     LevelMapBlockPointer = s.SerializePointer(LevelMapBlockPointer, name: nameof(LevelMapBlockPointer));
 
-                    if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto)
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
                         Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
                     else
                         LevelEventBlockPointer = s.SerializePointer(LevelEventBlockPointer, name: nameof(LevelEventBlockPointer));
@@ -70,7 +71,7 @@ namespace R1Engine
                     UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
                     UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
 
-                    if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto)
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
                         Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
 
                     break;
@@ -87,7 +88,7 @@ namespace R1Engine
                     TargetImageBufferMemoryPointer = s.Serialize<uint>(TargetImageBufferMemoryPointer, name: nameof(TargetImageBufferMemoryPointer));
                     Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
 
-                    if (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto)
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
                     {
                         Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
                         Short3 = s.Serialize<short>(Short3, name: nameof(Short3));

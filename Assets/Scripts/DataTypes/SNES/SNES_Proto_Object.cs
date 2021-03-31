@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class SNES_Proto_Object : R1Serializable
+    public class SNES_Proto_Object : BinarySerializable
     {
         public SNES_Pointer UnknownStatesPointer { get; set; }
         public SNES_Pointer ImageDescriptorsPointer { get; set; }

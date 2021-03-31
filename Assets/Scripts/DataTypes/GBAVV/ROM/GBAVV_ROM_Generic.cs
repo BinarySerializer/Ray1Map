@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -26,14 +27,14 @@ namespace R1Engine
         {
             RGBA5551Color[] tilePal;
 
-            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1)
+            if (Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
                 tilePal = levInfo.TileSetFrames.Palette;
-            else if (Context.Settings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            else if (Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
                 tilePal = levInfo.Crash1_Background.Palette;
             else
                 tilePal = Mode7_TilePalette;
 
-            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1 && levInfo.LevelType == 0)
+            if (Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && levInfo.LevelType == 0)
                 tilePal = tilePal.Take(256 - 16).Concat(Mode7_Crash1_Type0_TilePalette_0F).ToArray(); // Over last palette
 
             return tilePal;
@@ -45,7 +46,7 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // Get the pointer table
-            var pointerTable = PointerTables.GBAVV_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBAVV_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Serialize level info
             SerializeLevelInfo(s, pointerTable);
@@ -73,7 +74,7 @@ namespace R1Engine
             s.DoAt(pointerTable[GBAVV_Pointer.Mode7_LevelInfo], () =>
             {
                 if (Mode7_LevelInfos == null)
-                    Mode7_LevelInfos = new GBAVV_Mode7_LevelInfo[s.GameSettings.GetGameManagerOfType<GBAVV_Generic_BaseManager>().Mode7LevelsCount];
+                    Mode7_LevelInfos = new GBAVV_Mode7_LevelInfo[s.GetR1Settings().GetGameManagerOfType<GBAVV_Generic_BaseManager>().Mode7LevelsCount];
 
                 var index3D = GetIndex3D;
 
@@ -84,22 +85,22 @@ namespace R1Engine
                 Mode7_LevelInfos[index3D].SerializeAnimations(s, Mode7_LevelInfos.SelectMany(x => x.GetAllAnimSets).Where(x => x != null));
             });
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2)
             {
                 GBAVV_Pointer palPointer = CurrentMode7LevelInfo.LevelType == 0 ? GBAVV_Pointer.Mode7_TilePalette_Type0 : GBAVV_Pointer.Mode7_TilePalette_Type1_Flames;
 
                 Mode7_TilePalette = s.DoAt(pointerTable[palPointer], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_TilePalette, CurrentMode7LevelInfo.LevelType == 0 ? 256 : 16, name: nameof(Mode7_TilePalette)));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash1 && CurrentMode7LevelInfo.LevelType == 0)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && CurrentMode7LevelInfo.LevelType == 0)
             {
                 Mode7_Crash1_Type0_TilePalette_0F = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash1_Type0_TilePalette_0F], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_Crash1_Type0_TilePalette_0F, 16, name: nameof(Mode7_Crash1_Type0_TilePalette_0F)));
             }
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 && CurrentMode7LevelInfo.LevelType == 0)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 && CurrentMode7LevelInfo.LevelType == 0)
             {
                 Mode7_Crash2_Type0_BG1 = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash2_Type0_BG1], () => s.SerializeArray<byte>(Mode7_Crash2_Type0_BG1, 38 * 9 * 32, name: nameof(Mode7_Crash2_Type0_BG1)));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 && CurrentMode7LevelInfo.LevelType == 1)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 && CurrentMode7LevelInfo.LevelType == 1)
             {
                 Mode7_Crash2_Type1_FlamesTileMapsPointers = s.DoAt(pointerTable[GBAVV_Pointer.Mode7_Crash2_Type1_FlamesTileMaps], () => s.SerializePointerArray(Mode7_Crash2_Type1_FlamesTileMapsPointers, 20, name: nameof(Mode7_Crash2_Type1_FlamesTileMapsPointers)));
 

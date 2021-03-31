@@ -1124,15 +1124,15 @@ namespace R1Engine
             return index;
         }
 
-        private static GBAIsometric_Spyro_ROM GetROM(Unity_Object_GBAIsometricSpyro obj) => obj.ObjManager.Context.GetMainFileObject<GBAIsometric_Spyro_ROM>(((GBAIsometric_Spyro_Manager)obj.ObjManager.Context.Settings.GetGameManager).GetROMFilePath);
+        private static GBAIsometric_Spyro_ROM GetROM(Unity_Object_GBAIsometricSpyro obj) => obj.ObjManager.Context.GetMainFileObject<GBAIsometric_Spyro_ROM>(((GBAIsometric_Spyro_Manager)obj.ObjManager.Context.GetR1Settings().GetGameManager).GetROMFilePath);
 
         private static void Spyro_NotImplemented(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
         }
         private static void Spyro_EditorObj(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
             obj.IsEditorObj = true;
         }
         private static void FaceObj(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects, int objType)
@@ -1152,22 +1152,22 @@ namespace R1Engine
 
         private static void Spyro2_0(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Dragon elder (intro)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1A);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_1(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca (intro)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_2(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter (intro)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x32);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x32);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_3(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Gem
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3B);
 
             switch (obj.Object.ObjectType - 0x87)
             {
@@ -1196,16 +1196,16 @@ namespace R1Engine
         {
             var relType = obj.Object.ObjectType - 0x7D;
 
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, relType < 5 ? 0x0B : 0x77);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, relType < 5 ? 0x0B : 0x77);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_5(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Level portal
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x56);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x56);
             obj.AnimationGroupIndex = 0x02;
 
             var state = GetROM(obj).States_Spyro2_Portals?.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
-            var lvl = obj.ObjManager.Context.Settings.Level;
+            var lvl = obj.ObjManager.Context.GetR1Settings().Level;
 
             var lookAtObj = state?.LevelID == lvl ? 0xDF : state?.SpawnerObjectType;
 
@@ -1213,7 +1213,7 @@ namespace R1Engine
         }
         private static void Spyro2_6(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_7(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Level objective
@@ -1233,51 +1233,51 @@ namespace R1Engine
         }
         private static void Spyro2_8(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x32);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x32);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_9(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter (jumping tutorial)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x32);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x32);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_10(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Fodder
         {
             if (obj.Object.ObjectType == 0x78)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x67);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x67);
                 obj.AnimationGroupIndex = 0x02;
             }
             else if (obj.Object.ObjectType == 0x77)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x53);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x53);
                 obj.AnimationGroupIndex = 0x01;
             }
             else if (obj.Object.ObjectType == 0x79)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3A);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3A);
                 obj.AnimationGroupIndex = 0x00;
             }
             else
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
             }
         }
         private static void Spyro2_11(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 NPC
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x37);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x37);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_12(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_13(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Power-up gate
         {
             // Note: Game creates a second obj with same anim at x + 0xC
 
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x13);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x13);
 
             if (obj.Object.ObjectType == 0x17C)
                 obj.AnimationGroupIndex = 0x00;
@@ -1288,83 +1288,83 @@ namespace R1Engine
         }
         private static void Spyro2_14(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Life
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x36);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x36);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_15(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Dragonfly
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x21);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x21);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_16(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sparx Panic portal
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x56);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x56);
             obj.AnimationGroupIndex = 0x02;
 
             FaceObj(obj, allObjects, 494);
         }
         private static void Spyro2_17(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sheila NPC
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x68);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x68);
             obj.AnimationGroupIndex = 0x05;
         }
         private static void Spyro2_18(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Moneybags
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x51);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x51);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_19(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_20(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Moneybags
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x51);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x51);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_21(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Henrietta
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2F);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_22(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x63);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x63);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro2_23(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Locked chest
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x18);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x18);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_24(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6E);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro2_25(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Checkpoint fairy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x39);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x39);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_26(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Key
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3E);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_27(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Daisy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2F);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_28(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Challenge portal
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x57);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x57);
             obj.AnimationGroupIndex = 0x01;
 
             var state = GetROM(obj).States_Spyro2_ChallengePortals?.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
-            var lvl = obj.ObjManager.Context.Settings.Level;
+            var lvl = obj.ObjManager.Context.GetR1Settings().Level;
 
             var lookAtObj = state?.LevelID_1 == lvl ? 0xDF : state?.SpawnerObjectType;
 
@@ -1372,364 +1372,364 @@ namespace R1Engine
         }
         private static void Spyro2_29(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Mabel
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2F);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_30(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Brian
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x45);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x45);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_31(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x44);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x44);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_32(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x60);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x60);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_33(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Boulder
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x10);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x10);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_34(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Darby
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x45);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x45);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_35(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Dancing horseshoe
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x30);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x30);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_36(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Christopher
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x07);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x07);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_37(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1F);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro2_38(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bomb
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0D);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_39(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x52);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x52);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_40(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Lizard fodder
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x46);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x46);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_41(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Thief
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x73);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x73);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_42(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // NPC
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x07);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x07);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_43(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ben
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1D);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_44(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Vine
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x74);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x74);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_45(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x75);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x75);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro2_46(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x76);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x76);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_47(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Tommy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1D);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_48(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Linus
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1D);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_49(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Crush
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x19);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x19);
             obj.AnimationGroupIndex = 0x05;
         }
         private static void Spyro2_50(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x32);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x32);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_51(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_52(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3F);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro2_53(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x64);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x64);
             obj.AnimationGroupIndex = 0x07;
         }
         private static void Spyro2_54(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Caged NPC
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1E);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_55(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bert
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x08);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x08);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_56(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Robby
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x08);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x08);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_57(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Cake
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x16);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x16);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_58(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Spawning enemies
         {
             if (obj.Object.ObjectType == 0x170)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3F);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3F);
                 obj.AnimationGroupIndex = 0x02;
             }
             else if (obj.Object.ObjectType == 0x175)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5D);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5D);
                 obj.AnimationGroupIndex = 0x02;
             }
             else
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
             }
         }
         private static void Spyro2_59(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Chatter
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x28);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x28);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_60(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x4A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x4A);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro2_61(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x17);
-            obj.AnimationGroupIndex = (byte)(obj.ObjManager.Context.Settings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 0x00 : 0x02);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x17);
+            obj.AnimationGroupIndex = (byte)(obj.ObjManager.Context.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 0x00 : 0x02);
         }
         private static void Spyro2_62(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Chills
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x28);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x28);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_63(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Skull
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x79);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x79);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_64(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Andy 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x47);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x47);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_65(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Candle 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x4E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x4E);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_66(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6D);
             obj.AnimationGroupIndex = 0x05;
         }
         private static void Spyro2_67(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x61);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x61);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro2_68(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Pierre 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x47);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x47);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_69(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Luc 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x47);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x47);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_70(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ice hockey player 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x29);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x29);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro2_71(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Darren 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x47);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x47);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_72(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Minda 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x59);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x59);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_73(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x40);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x40);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro2_74(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Moving platform 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_75(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Balloon 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0A);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_76(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Mayor Mooney 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6B);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_77(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Shirley
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x59);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x59);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_78(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Gulp
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2C);
             obj.AnimationGroupIndex = 0x08;
         }
         private static void Spyro2_79(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hunter
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x32);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x32);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_80(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_81(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Captain Whiskers
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6F);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro2_82(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5D);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro2_83(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Satellite
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5B);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_84(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x62);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x62);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro2_85(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Mouser
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6F);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro2_86(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Rocketship
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5E);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_87(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Laura
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x25);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x25);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_88(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Siam
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x25);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x25);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_89(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Madame Meow
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x25);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x25);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_90(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Steffi
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x4C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x4C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_91(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x72);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x72);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_92(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Stacey
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x4C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x4C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_93(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ripto
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5C);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro2_94(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x09);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x09);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_95(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Rabbit fodder
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6A);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_96(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x71);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x71);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro2_97(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x11);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x11);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro2_98(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Heating device
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2E);
             obj.AnimationGroupIndex = 0x01;
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
@@ -1738,27 +1738,27 @@ namespace R1Engine
         private static void Spyro2_99(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Blocker
         {
             if (obj.Object.ObjectType == 0x1BB)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x35);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x35);
             else if (obj.Object.ObjectType == 0x1BC)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x74);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x74);
             else
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
 
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro2_100(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x55);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x55);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_101(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x50);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x50);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro2_102(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Fire canon
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x42);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x42);
             obj.AnimationGroupIndex = 0x01;
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
@@ -1768,74 +1768,74 @@ namespace R1Engine
 
         private static void Spyro3_0(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Spyro
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x7E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x7E);
             obj.AnimationGroupIndex = 0x13;
         }
         private static void Spyro3_1(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sparx
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x40);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x40);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_2(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Gem containers
         {
             var relType = obj.Object.ObjectType - 0x0D;
 
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, relType < 5 ? 0x09 : 0x84);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, relType < 5 ? 0x09 : 0x84);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_3(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x68);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x68);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_4(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Virtual professor
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x60); // 0x61 when inactive
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x60); // 0x61 when inactive
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_5(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x10);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x10);
             obj.AnimationGroupIndex = 0x0B;
         }
         private static void Spyro3_6(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5A);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_7(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy in gem container
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x66);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x66);
             obj.AnimationGroupIndex = 0x02; // Actually defaulted to 0x00, but we do 0x02 so you can see the eyes
         }
         private static void Spyro3_8(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x07);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x07);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_9(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bugs which carry you
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2E);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_10(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Locked chest
         {
             if (obj.Object.ObjectType == 0xa8) // Green
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x15);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x15);
             else if(obj.Object.ObjectType == 0xa9) // Pink
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x16);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x16);
             else if(obj.Object.ObjectType == 0xa7) // Red
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x17);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x17);
             else if (obj.Object.ObjectType == 0xaa) // Yellow
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x18);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x18);
             else
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
 
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_11(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x37);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x37);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_12(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // NPC
@@ -1855,35 +1855,35 @@ namespace R1Engine
         }
         private static void Spyro3_13(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Mining enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x58);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x58);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_14(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Flat switch
         {
             if (obj.Object.ObjectType == 0xba)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5E);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5E);
                 obj.AnimationGroupIndex = 0x01;
             }
             else if (obj.Object.ObjectType == 0xbb)
             {
 
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5D);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5D);
                 obj.AnimationGroupIndex = 0x02;
             }
             else
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
             }
         }
         private static void Spyro3_15(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Red timed switch
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x82);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x82);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_16(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Timed door
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x20);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x20);
             obj.AnimationGroupIndex = 0x00; // TODO: This needs to be changed based on some flags!
 
             // Change the type of the waypoints (the game creates new objects at the waypoint positions)
@@ -1892,42 +1892,42 @@ namespace R1Engine
         }
         private static void Spyro3_17(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Walrus
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x87);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x87);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_18(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ripto
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6C);
             obj.AnimationGroupIndex = 0x06;
         }
         private static void Spyro3_19(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Library fairy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2a);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2a);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_20(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Burning book
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x48);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x48);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_21(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bentley
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0A);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_22(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Small yeti
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x08);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x08);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_23(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Door
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x8E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x8E);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_24(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Whistling statue
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x8B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x8B);
 
             if (obj.Object.ObjectType == 0xda)
                 obj.AnimationGroupIndex = 0x04;
@@ -1938,27 +1938,27 @@ namespace R1Engine
         }
         private static void Spyro3_25(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x10);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x10);
             obj.AnimationGroupIndex = 0x07;
         }
         private static void Spyro3_26(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Penguin
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x57);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x57);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_27(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Fly
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x14);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x14);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_28(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Penguin
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x57);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x57);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_29(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Gem
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3e);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3e);
 
             if (obj.Object.ObjectType == 0x08)
                 obj.AnimationGroupIndex = 0x02;
@@ -1973,42 +1973,42 @@ namespace R1Engine
         }
         private static void Spyro3_30(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x77);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x77);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_31(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x7F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x7F);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro3_32(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Moneybags
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x55);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x55);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_33(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Safe
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x71);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x71);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_34(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Thief
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x53);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x53);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_35(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Baby dragon
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x23);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x23);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_36(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x9D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x9D);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_37(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Banana pod controller
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x05);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x05);
             obj.AnimationGroupIndex = 0x03;
 
             if (obj.Object.ObjectType == 0x195)
@@ -2026,110 +2026,110 @@ namespace R1Engine
         }
         private static void Spyro3_38(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Baby dragon
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x23);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x23);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_39(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Baby dragon
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x23);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x23);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_40(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Cube
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x63);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x63);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_41(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Defeated stealth enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB4);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB4);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_42(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Clown from ground
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x86);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x86);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_43(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Numbers
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x02);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x02);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_45(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x4D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x4D);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_46(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ripto TV
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x83);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x83);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_47(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Statue
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x32);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x32);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_48(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Potions
         {
             if (obj.Object.ObjectType == 0x17C)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x42);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x42);
             else if (obj.Object.ObjectType == 0x17D)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x43);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x43);
             else if (obj.Object.ObjectType == 0x17E)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x44);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x44);
             else if (obj.Object.ObjectType == 0x17f)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x45);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x45);
             else
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
 
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_49(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Rainy cloud
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x80);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x80);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_50(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Professor's contraption
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x85);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x85);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_52(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Tutorial objects
         {
             if (obj.Object.ObjectType == 0x1B)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x09);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x09);
                 obj.AnimationGroupIndex = 0x01;
             }
             else if (obj.Object.ObjectType == 0x1C)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0C);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0C);
                 obj.AnimationGroupIndex = 0x00;
             }
             else if (obj.Object.ObjectType == 0x1D)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x84);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x84);
                 obj.AnimationGroupIndex = 0x01;
             }
             else if (obj.Object.ObjectType == 0x1E)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0D);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0D);
                 obj.AnimationGroupIndex = 0x00;
             }
             else if (obj.Object.ObjectType == 0x1F)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x04);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x04);
                 obj.AnimationGroupIndex = 0x00;
             }
             else
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
             }
         }
         private static void Spyro3_53(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Door
         {
             var rom = GetROM(obj);
-            var levID = obj.ObjManager.Context.Settings.Level;
+            var levID = obj.ObjManager.Context.GetR1Settings().Level;
             var typeState = rom.States_Spyro3_DoorTypes.FirstOrDefault(x => x.ObjectType == obj.Object.ObjectType);
 
             long graphicsID;
@@ -2154,60 +2154,60 @@ namespace R1Engine
         {
             if (obj.Object.ObjectType == 562 || obj.Object.ObjectType == 624 || obj.Object.ObjectType == 633)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x46);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x46);
                 obj.AnimationGroupIndex = 0x02;
             }
             else if (obj.Object.ObjectType == 616)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x31);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x31);
                 obj.AnimationGroupIndex = 0x01;
             }
             else
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
             }
         }
         private static void Spyro3_55(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sheep
         {
             if (obj.Object.ObjectType == 0x34)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x75);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x75);
             else if (obj.Object.ObjectType == 0x33)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x73);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x73);
             else if (obj.Object.ObjectType == 0x35)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x74);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x74);
             else
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
 
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_56(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Spyro gets teleported
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x88);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x88);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_57(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Raft
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x11);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x11);
             obj.AnimationGroupIndex = 0x01;
 
-            allObjects[obj.Object.WaypointIndex].AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x12);
+            allObjects[obj.Object.WaypointIndex].AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x12);
             allObjects[obj.Object.WaypointIndex].AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_58(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Boat
         {
             if (obj.Object.ObjectType == 0x26E)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2C);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2C);
                 obj.AnimationGroupIndex = 0x00;
             }
             else if (obj.Object.ObjectType == 0x26D)
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x34);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x34);
                 obj.AnimationGroupIndex = 0x01;
             }
             else
             {
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
             }
         }
         private static void Spyro3_59(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Quest item
@@ -2218,27 +2218,27 @@ namespace R1Engine
             switch (questItem?.ItemType)
             {
                 case GBAIsometric_Spyro3_QuestItem.QuestItemType.RedChest:
-                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x17);
+                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x17);
                     obj.AnimationGroupIndex = 0x00;
                     break;
 
                 case GBAIsometric_Spyro3_QuestItem.QuestItemType.GreenChest:
-                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x15);
+                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x15);
                     obj.AnimationGroupIndex = 0x00;
                     break;
 
                 case GBAIsometric_Spyro3_QuestItem.QuestItemType.PinkChest:
-                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x16);
+                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x16);
                     obj.AnimationGroupIndex = 0x00;
                     break;
 
                 case GBAIsometric_Spyro3_QuestItem.QuestItemType.YellowChest:
-                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x18);
+                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x18);
                     obj.AnimationGroupIndex = 0x00;
                     break;
 
                 default:
-                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x00);
+                    obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x00);
                     obj.AnimationGroupIndex = 0x01;
                     obj.ForceFrame = questItem?.AnimFrameIndex ?? 0;
                     // Note: The game also creates an objects for animSet 0, group 0 to be behind it as the shining effect
@@ -2247,18 +2247,18 @@ namespace R1Engine
         }
         private static void Spyro3_60(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hat
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x54);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x54);
             obj.AnimationGroupIndex = 0x02;
             // Note: The game also creates an objects for the creature inside the hat
         }
         private static void Spyro3_61(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Air vent
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1F);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_62(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ripto poster
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x06);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x06);
             obj.AnimationGroupIndex = 0x01;
 
             // TODO: Find better solution to this
@@ -2266,7 +2266,7 @@ namespace R1Engine
         }
         private static void Spyro3_63(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Butler
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x13);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x13);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro3_64(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
@@ -2278,7 +2278,7 @@ namespace R1Engine
         }
         private static void Spyro3_65(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Boulder
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0F);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_66(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Rhynopede
@@ -2291,33 +2291,33 @@ namespace R1Engine
 
                 if (i == 0)
                 {
-                    wp.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x69);
+                    wp.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x69);
                     wp.AnimationGroupIndex = (byte)(obj.Object.ObjectType == 0x42 ? 0x01 : 0x03);
                 }
                 else
                 {
-                    wp.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, obj.Object.ObjectType != 0x42 && obj.Object.ObjectType != 0x27A ? 0x7B : 0x69);
+                    wp.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, obj.Object.ObjectType != 0x42 && obj.Object.ObjectType != 0x27A ? 0x7B : 0x69);
                 }
             }
         }
         private static void Spyro3_67(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Locked chest
         {
             if (obj.Object.ObjectType == 0x1A8) // Green
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x15);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x15);
             else if (obj.Object.ObjectType == 0x1A9) // Pink
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x16);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x16);
             else if (obj.Object.ObjectType == 0x1A7) // Red
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x17);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x17);
             else if (obj.Object.ObjectType == 0x1AA) // Yellow
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x18);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x18);
             else
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
 
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_68(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sheep with clothes
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x73);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x73);
 
             if (obj.Object.ObjectType == 0x36)
                 obj.AnimationGroupIndex = 0x04;
@@ -2326,58 +2326,58 @@ namespace R1Engine
         }
         private static void Spyro3_69(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ice block
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x7D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x7D);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_70(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x67);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x67);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_71(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ice obstacle
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x87);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x87);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_72(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x7B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x7B);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_73(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Green thief
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x53);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x53);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_74(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x03);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x03);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_75(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Thief NPC
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x56);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x56);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro3_76(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Green race thief
         {
             // Note: The game spawns them from the race controller type (253)
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x53);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x53);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_77(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bianca
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0B);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_78(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1E);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_79(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // O'Hare
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x4F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x4F);
             obj.AnimationGroupIndex = obj.Object.ObjectType == 0x156 ? (byte)0x02 : (byte)0x01;
         }
         private static void Spyro3_80(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Clown from ground controller
@@ -2392,7 +2392,7 @@ namespace R1Engine
         }
         private static void Spyro3_81(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // George
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x8C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x8C);
             obj.AnimationGroupIndex = 0x03;
 
             var wp = allObjects[obj.Object.WaypointCount - 1 + obj.Object.WaypointIndex];
@@ -2400,63 +2400,63 @@ namespace R1Engine
         }
         private static void Spyro3_82(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Banana pod
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x05);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x05);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_83(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Albert
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x8C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x8C);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro3_84(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Target
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6B);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_85(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x7F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x7F);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_86(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Janice
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x50);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x50);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_87(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ripto statue
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x70);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x70);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro3_88(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Hedgehog
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x38);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x38);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_89(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2F);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_90(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // R statue
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x70);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x70);
             obj.AnimationGroupIndex = obj.ObjType.ObjFlags == 0 ? (byte) 0x01 : (byte) 0x02;
         }
         private static void Spyro3_91(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Puzzle
         {
             // Note: The game creates 9 objects here for each piece of the puzzle, with each using a specific frame
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x64);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x64);
             obj.AnimationGroupIndex = obj.Object.ObjectType == 0x177 ? (byte) 0x00 : (byte) 0x02;
         }
         private static void Spyro3_92(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Moneybags
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x55);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x55);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_93(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Water fountain
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1D);
             obj.AnimationGroupIndex = 0x01;
 
             var wp = allObjects[obj.Object.WaypointIndex];
@@ -2474,7 +2474,7 @@ namespace R1Engine
         }
         private static void Spyro3_95(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Blocking drill
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6A);
             obj.AnimationGroupIndex = 0x00;
 
             for (int i = 0; i < obj.Object.WaypointCount; i++)
@@ -2485,118 +2485,118 @@ namespace R1Engine
         }
         private static void Spyro3_96(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Cat
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1C);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_97(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x8A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x8A);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_98(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Food machine
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x36);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x36);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_99(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bomb bird
         {
             // Note: Game spawns a bomb object too
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x0E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x0E);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_100(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Bruiser
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x1B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x1B);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_101(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x81);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x81);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_102(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Treadmill
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x33);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x33);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_103(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x2F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x2F);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_104(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3D);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_105(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Baby dragon
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x23);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x23);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_106(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Blocking drill
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6A);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_107(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Curtain
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x25);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x25);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_108(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ripto spying machine
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x26);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x26);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_109(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ripto portal
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3B);
             obj.AnimationGroupIndex = 0x12;
         }
         private static void Spyro3_110(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Electric switch
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x46);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x46);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_111(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Professor
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5F);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_112(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Professor
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x5F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x5F);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_113(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Statue top
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6D);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6D);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_114(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Baby dragon
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x23);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x23);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_115(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Statue bottom
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6F);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6F);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_116(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Final boss statue
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6C);
             obj.AnimationGroupIndex = 0x10;
         }
         private static void Spyro3_117(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Final boss throne
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6C);
             obj.AnimationGroupIndex = 0x15;
         }
         private static void Spyro3_118(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Poisoned water
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x47);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x47);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_119(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Boulder controller
@@ -2611,23 +2611,23 @@ namespace R1Engine
         }
         private static void Spyro3_120(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Ripto
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x6E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x6E);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_121(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 air vent 
         {
             // Note: Game also spawns Sparx here
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB1);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB1);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_122(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 sign post 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB2);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB2);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_123(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 locked doors
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xA4);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xA4);
 
             var wp = allObjects[obj.Object.WaypointIndex];
 
@@ -2649,12 +2649,12 @@ namespace R1Engine
         }
         private static void Spyro3_124(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 sleeping guard 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB7);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB7);
             obj.AnimationGroupIndex = 0x05;
         }
         private static void Spyro3_125(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 gem
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xA6);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xA6);
 
             if (obj.Object.ObjectType == 0x20A)
                 obj.AnimationGroupIndex = 0x02;
@@ -2669,22 +2669,22 @@ namespace R1Engine
         }
         private static void Spyro3_126(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 patrolling guard 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB7);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB7);
             obj.AnimationGroupIndex = 0x0A;
         }
         private static void Spyro3_127(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 guard popping out from pipe 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xBA);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xBA);
             obj.AnimationGroupIndex = 0x03;
         }
         private static void Spyro3_128(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 prisoner 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB3);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB3);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_129(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 locked door key 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xA9);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xA9);
 
             if (obj.Object.ObjectType == 0x24B)
                 obj.AnimationGroupIndex = 0x03;
@@ -2695,59 +2695,59 @@ namespace R1Engine
         }
         private static void Spyro3_130(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 camera 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB9);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB9);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_131(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 flying enemy 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB5);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB5);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_132(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 checkpoint fairy 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x3C);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x3C);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_133(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 gem container 
         {
             if (obj.Object.ObjectType == 0x1F9 || obj.Object.ObjectType == 0x1FA || obj.Object.ObjectType == 0x1FB || obj.Object.ObjectType == 0x1FC || obj.Object.ObjectType == 0x1FD)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xA3);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xA3);
             else if (obj.Object.ObjectType == 0x1FE || obj.Object.ObjectType == 0x1FF || obj.Object.ObjectType == 0x200 || obj.Object.ObjectType == 0x201 || obj.Object.ObjectType == 0x202)
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xAF);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xAF);
             else
-                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, -1);
+                obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, -1);
 
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_134(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 moving platform 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xAB);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xAB);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_135(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 mines 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xAA);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xAA);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_136(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects)
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB8);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB8);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_137(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Agent 9 spying enemy
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xB7);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xB7);
             obj.AnimationGroupIndex = 0x02;
         }
         private static void Spyro3_138(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd air vent 
         {
             // Note: Game also spawns Sparx here
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x9E);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x9E);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_139(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd gem 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0xA6);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0xA6);
 
             if (obj.Object.ObjectType == 0x2C8)
                 obj.AnimationGroupIndex = 0x02;
@@ -2763,17 +2763,17 @@ namespace R1Engine
         private static void Spyro3_140(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd imprisoned penguin 
         {
             // Note: Game also spawns penguin inside of cage
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x90);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x90);
             obj.AnimationGroupIndex = 0x00;
         }
         private static void Spyro3_141(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd flying enemy 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x91);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x91);
             obj.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_44(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd shooting enemy
         {
-            if (obj.ObjManager.Context.Settings.GameModeSelection == GameModeSelection.SpyroAdventureUS)
+            if (obj.ObjManager.Context.GetR1Settings().GameModeSelection == GameModeSelection.SpyroAdventureUS)
             {
                 obj.AnimSetIndex = 0xA1;
 
@@ -2806,7 +2806,7 @@ namespace R1Engine
                 new { ObjType = 0x2D2, SwitchType = 0x2D5, AnimGroup = 0x07 },
             };
 
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x96);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x96);
             
             var state = states.FirstOrDefault(x => x.ObjType == obj.Object.ObjectType);
 
@@ -2823,7 +2823,7 @@ namespace R1Engine
         }
         private static void Spyro3_143(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd electric gate switch
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x9A);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x9A);
 
             if (obj.Object.ObjectType == 0x2D3)
                 obj.AnimationGroupIndex = 0x05;
@@ -2834,7 +2834,7 @@ namespace R1Engine
         }
         private static void Spyro3_144(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd enemy
         {
-            if (obj.ObjManager.Context.Settings.GameModeSelection == GameModeSelection.SpyroAdventureUS)
+            if (obj.ObjManager.Context.GetR1Settings().GameModeSelection == GameModeSelection.SpyroAdventureUS)
             {
                 obj.AnimSetIndex = 0xA1;
 
@@ -2871,7 +2871,7 @@ namespace R1Engine
         }
         private static void Spyro3_146(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd teleporter
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x9B);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x9B);
 
             if (obj.Object.ObjectType == 0x2DC)
                 obj.AnimationGroupIndex = 0x01;
@@ -2885,12 +2885,12 @@ namespace R1Engine
             Spyro_EditorObj(obj, allObjects);
 
             var wp = allObjects[obj.Object.WaypointIndex];
-            wp.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x9C);
+            wp.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x9C);
             wp.AnimationGroupIndex = 0x01;
         }
         private static void Spyro3_148(Unity_Object_GBAIsometricSpyro obj, Unity_Object_GBAIsometricSpyro[] allObjects) // Sgt. Byrd enemy 
         {
-            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.Settings.GameModeSelection, 0x91);
+            obj.AnimSetIndex = ConvertAnimSetIndex(obj.ObjManager.Context.GetR1Settings().GameModeSelection, 0x91);
             obj.AnimationGroupIndex = 0x00;
         }
     }

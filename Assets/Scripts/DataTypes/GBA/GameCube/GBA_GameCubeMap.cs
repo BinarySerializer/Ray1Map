@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBA_GameCubeMap : R1Serializable
+    public class GBA_GameCubeMap : BinarySerializable
     {
         // Header
 

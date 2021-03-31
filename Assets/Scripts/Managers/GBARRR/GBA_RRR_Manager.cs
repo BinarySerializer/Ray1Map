@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
 using ImageMagick;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -67,7 +68,7 @@ namespace R1Engine
         };
 
         public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 var s = context.Deserializer;
 
                 void ExportSample(string directory, string filename, byte[] data, uint sampleRate, ushort channels) {
@@ -106,7 +107,7 @@ namespace R1Engine
                     // Create and open the output file
                     using (var outputStream = File.Create(outputFilePath)) {
                         // Create a context
-                        using (var wavContext = new Context(settings)) {
+                        using (var wavContext = new R1Context(settings)) {
                             // Create a key
                             const string wavKey = "wav";
 
@@ -123,9 +124,9 @@ namespace R1Engine
 
                 // Load the rom
                 var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
-                var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
+                var pointerTable = PointerTables.GBARRR_PointerTable(s.GetR1Settings().GameModeSelection, rom.Offset.File);
                 Pointer<GAX2_Instrument>[] instruments = null;
-                s.DoAt(new Pointer(0x0805C8EC, rom.Offset.file), () => {
+                s.DoAt(new Pointer(0x0805C8EC, rom.Offset.File), () => {
                     instruments = s.SerializePointerArray<GAX2_Instrument>(instruments, 156, resolve: true, name: nameof(instruments));
                 });
                 s.DoAt(pointerTable[GBARRR_Pointer.MusicSampleTable], () => {
@@ -243,9 +244,9 @@ namespace R1Engine
                     0x083D34E0,
                     0x083D3CB8
                 };
-                uint[] ptrs = s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAUS ? ptrs_us : ptrs_eu;
+                uint[] ptrs = s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAUS ? ptrs_us : ptrs_eu;
                 foreach (var ptr in ptrs) {
-                    s.DoAt(new Pointer(ptr, rom.Offset.file), () => {
+                    s.DoAt(new Pointer(ptr, rom.Offset.File), () => {
                         GAX2_Song h = s.SerializeObject<GAX2_Song>(default, name: "SongHeader");
                         // For each entry
                         GAX2_MidiWriter w = new GAX2_MidiWriter();
@@ -263,7 +264,7 @@ namespace R1Engine
                         // Create and open the output file
                         using (var outputStream = File.Create(outputFilePath)) {
                             // Create a context
-                            using (var xmContext = new Context(settings)) {
+                            using (var xmContext = new R1Context(settings)) {
                                 xmContext.Log.OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.txt");
                                 // Create a key
                                 string xmKey = $"{h.ParsedName}.xm";
@@ -309,7 +310,7 @@ namespace R1Engine
             const int vigWidth = 240;
             const int vigHeight = 160;
 
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 var s = context.Deserializer;
 
@@ -416,7 +417,7 @@ namespace R1Engine
                 }
 
                 if (flags.HasFlag(ExportFlags.AdditionalBlocks)) {
-                    var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
+                    var pointerTable = PointerTables.GBARRR_PointerTable(s.GetR1Settings().GameModeSelection, rom.Offset.File);
 
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Waypoints], nameof(GBARRR_Pointer.Mode7_Waypoints), 3, compressed: false, 0x7D0);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Palette_Mode7Sprites_2], nameof(GBARRR_Pointer.Palette_Mode7Sprites_2), 3, compressed: false);
@@ -560,7 +561,7 @@ namespace R1Engine
                             s.Goto(blockOff);
                             var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
 
-                            Util.ByteArrayToFile(Path.Combine(outPath, $"Uncategorized/{i}{append}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
+                            Util.ByteArrayToFile(Path.Combine(outPath, $"Uncategorized/{i}{append}{(s.CurrentPointer.File is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
                         }
                     });
                 }
@@ -570,7 +571,7 @@ namespace R1Engine
         public async UniTask<Mode7Data> LoadMode7SpritesAsync(Context context) {
             var s = context.Deserializer;
             var romPath = GetROMFilePath;
-            var pointerTable = PointerTables.GBARRR_PointerTable(context.Settings.GameModeSelection, context.GetFile(romPath));
+            var pointerTable = PointerTables.GBARRR_PointerTable(context.GetR1Settings().GameModeSelection, context.GetFile(romPath));
 
             // Read animation frame indices
             Controller.DetailedState = $"Loading animation frames";
@@ -796,7 +797,7 @@ namespace R1Engine
         }
 
         public async UniTask ExportMode7SpritesAsync(GameSettings settings, string outputPath) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 // Load files
                 await LoadFilesAsync(context);
                 
@@ -986,10 +987,10 @@ namespace R1Engine
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
-            var gameMode = GetCurrentGameMode(context.Settings);
+            var gameMode = GetCurrentGameMode(context.GetR1Settings());
 
-            var lvl = context.Settings.Level;
-            var world = context.Settings.World;
+            var lvl = context.GetR1Settings().Level;
+            var world = context.GetR1Settings().World;
 
             if (gameMode == GameMode.Village)
             {
@@ -1093,7 +1094,7 @@ namespace R1Engine
 
             if (gameMode == GameMode.Menu)
             {
-                var mapLevels = GetMenuLevels(context.Settings.Level);
+                var mapLevels = GetMenuLevels(context.GetR1Settings().Level);
                 var maps = new Unity_Map[mapLevels.Length];
 
                 for (int i = 0; i < mapLevels.Length; i++)
@@ -1241,7 +1242,7 @@ namespace R1Engine
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
 
-            var hasFGMap = !(gameMode == GameMode.Village && context.Settings.Level == 2); // Disable rain
+            var hasFGMap = !(gameMode == GameMode.Village && context.GetR1Settings().Level == 2); // Disable rain
 
             var properties = rom.LevelProperties[lvl];
 
@@ -1256,7 +1257,7 @@ namespace R1Engine
 
             var objects = rom.ObjectArray.Objects.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager));
 
-            if (gameMode == GameMode.Village && context.Settings.Level == 2)
+            if (gameMode == GameMode.Village && context.GetR1Settings().Level == 2)
                 objects = objects.Where(x => ((Unity_Object_GBARRR)x).Object.ObjectType != GBARRR_ObjectType.Scenery2); // Disable rain
 
             var objList = objects.ToList();

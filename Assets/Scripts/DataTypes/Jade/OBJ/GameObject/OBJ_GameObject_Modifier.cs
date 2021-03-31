@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_Modifier : R1Serializable {
+	public class OBJ_GameObject_Modifier : BinarySerializable {
 		public MDF_ModifierType Type { get; set; }
 		public uint UInt_00 { get; set; }
 		public MDF_Modifier Modifier { get; set; }

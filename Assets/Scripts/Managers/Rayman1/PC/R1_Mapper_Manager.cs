@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -21,12 +22,12 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <returns>The level file path</returns>
         public async UniTask<string> GetLevelFolderPath(Context context) {
-            var custom = GetWorldName(context.Settings.R1_World) + "/" + $"MAP{context.Settings.Level}" + "/";
+            var custom = GetWorldName(context.GetR1Settings().R1_World) + "/" + $"MAP{context.GetR1Settings().Level}" + "/";
             await FileSystem.CheckDirectory(context.BasePath + custom); // check this and await, since it's a request in WebGL
             if (FileSystem.DirectoryExists(context.BasePath + custom))
                 return custom;
 
-            return GetWorldName(context.Settings.R1_World) + "/" + $"MAP_{context.Settings.Level}" + "/";
+            return GetWorldName(context.GetR1Settings().R1_World) + "/" + $"MAP_{context.GetR1Settings().Level}" + "/";
         }
 
         public string GetMapFilePath(string levelDir) => levelDir + "EVENT.MAP";
@@ -80,12 +81,12 @@ namespace R1Engine
             var mapPath = GetMapFilePath(basePath);
             var mapEventsPath = GetMapEventsFilePath(basePath);
             var saveEventsPath = GetSaveEventsFilePath(basePath);
-            var pcxPath = GetPCXFilePath(context.Settings);
-            var eventsCsvPath = GetEventManfiestFilePath(context.Settings.R1_World);
+            var pcxPath = GetPCXFilePath(context.GetR1Settings());
+            var eventsCsvPath = GetEventManfiestFilePath(context.GetR1Settings().R1_World);
 
             // Load files to context
             await AddFile(context, mapPath);
-            await AddFile(context, mapEventsPath, endianness: BinaryFile.Endian.Big); // Big endian just like on Jaguar
+            await AddFile(context, mapEventsPath, endianness: Endian.Big); // Big endian just like on Jaguar
             await AddFile(context, pcxPath);
 
             // Read the files
@@ -99,8 +100,8 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var mapEvents = FileFactory.Read<R1Jaguar_MapEvents>(mapEventsPath, context);
-            var saveEvents = FileFactory.ReadText<R1_Mapper_SaveEvents>(saveEventsPath, context);
-            var csv = FileFactory.ReadText<R1_Mapper_EventManifest>(eventsCsvPath, context);
+            var saveEvents = R1FileFactory.ReadText<R1_Mapper_SaveEvents>(saveEventsPath, context);
+            var csv = R1FileFactory.ReadText<R1_Mapper_EventManifest>(eventsCsvPath, context);
 
             Controller.DetailedState = $"Loading tileset";
             await Controller.WaitIfNecessary();
@@ -114,7 +115,7 @@ namespace R1Engine
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, vgaPalette) : new Unity_ObjectManager_R1.DESData[0];
 
             // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
+            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
             var maps = new Unity_Map[]
             {
@@ -221,10 +222,10 @@ namespace R1Engine
                         },
 
                         LabelOffsets = new ushort[0],
-                        Commands = R1_EventCommandCollection.FromBytes(def.EventCommands, context.Settings),
+                        Commands = R1_EventCommandCollection.FromBytes(def.EventCommands, context.GetR1Settings()),
                     };
 
-                    ed.SetFollowEnabled(context.Settings, def.FollowEnabled > 0);
+                    ed.SetFollowEnabled(context.GetR1Settings(), def.FollowEnabled > 0);
 
                     // Add the event
                     levelEvents.Add(new Unity_Object_R1(

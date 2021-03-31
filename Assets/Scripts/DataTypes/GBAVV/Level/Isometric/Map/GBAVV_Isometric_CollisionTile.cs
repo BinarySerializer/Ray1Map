@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_CollisionTile : R1Serializable
+    public class GBAVV_Isometric_CollisionTile : BinarySerializable
     {
         public FixedPointInt Height { get; set; }
         public int TypeIndex { get; set; }

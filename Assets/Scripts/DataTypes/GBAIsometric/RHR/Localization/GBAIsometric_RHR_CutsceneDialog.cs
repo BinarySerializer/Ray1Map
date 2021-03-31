@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_CutsceneDialog : R1Serializable
+    public class GBAIsometric_RHR_CutsceneDialog : BinarySerializable
     {
         public ushort PortraitIndex { get; set; }
         public GBAIsometric_LocIndex LocIndex { get; set; }

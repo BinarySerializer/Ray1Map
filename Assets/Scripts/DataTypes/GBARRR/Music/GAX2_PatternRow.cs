@@ -1,9 +1,10 @@
 ﻿using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_PatternRow : R1Serializable
+    public class GAX2_PatternRow : BinarySerializable
     {
         public byte Flags { get; set; }
         public byte Note { get; set; }

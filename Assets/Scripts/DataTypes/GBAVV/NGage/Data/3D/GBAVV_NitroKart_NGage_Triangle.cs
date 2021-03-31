@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_Triangle : R1Serializable
+    public class GBAVV_NitroKart_NGage_Triangle : BinarySerializable
     {
         public byte BlendMode { get; set; }
         public byte TextureIndex { get; set; }

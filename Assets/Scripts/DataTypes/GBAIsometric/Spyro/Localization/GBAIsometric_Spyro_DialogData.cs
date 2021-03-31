@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_DialogData : R1Serializable
+    public class GBAIsometric_Spyro_DialogData : BinarySerializable
     {
         public Entry[] Entries { get; set; }
 
@@ -25,7 +26,7 @@ namespace R1Engine
             }
         }
 
-        public class Entry : R1Serializable
+        public class Entry : BinarySerializable
         {
             public Value[] Values { get; set; }
 
@@ -46,7 +47,7 @@ namespace R1Engine
                     switch (initialValue.Instruction)
                     {
                         case Instruction.DrawPortrait:
-                            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+                            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
                                 values.Add(s.SerializeObject<Value>(default, name: $"{nameof(PortraitIndex)}"));
 
                             PortraitIndex = values.Last().Param;
@@ -59,7 +60,7 @@ namespace R1Engine
 
                             bool read = true;
 
-                            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
                             {
                                 var l = new GBAIsometric_LocIndex()
                                 {
@@ -112,7 +113,7 @@ namespace R1Engine
 
         }
 
-        public class Value : R1Serializable
+        public class Value : BinarySerializable
         {
             public Instruction Instruction { get; set; }
             public bool IsLastEntry { get; set; }
@@ -125,7 +126,7 @@ namespace R1Engine
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
                     {
                         Param = bitFunc(Param, 10, name: nameof(Param));
                         bitFunc(default, 1, name: "Padding");

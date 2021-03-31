@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_WorldDefine : R1Serializable
+    public class R1_PC_WorldDefine : BinarySerializable
     {
         public string WorldName { get; set; }
         public string LevelFilePrefix { get; set; }

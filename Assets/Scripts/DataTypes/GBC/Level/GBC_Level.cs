@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBC_Level : GBC_BaseBlock
     {
@@ -46,7 +48,7 @@
             Scene = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_Scene>(Scene, name: nameof(Scene)));
         }
 
-        public class CageUID : R1Serializable {
+        public class CageUID : BinarySerializable {
             public byte GameObjectXlateID { get; set; } // Local to this level
             public byte GlobalCageID { get; set; } // Global
 
@@ -55,7 +57,7 @@
                 GlobalCageID = s.Serialize<byte>(GlobalCageID, name: nameof(GlobalCageID));
 			}
         }
-        public class VignetteReference : R1Serializable {
+        public class VignetteReference : BinarySerializable {
             public bool HasVignette { get; set; }
             public byte? Index { get; set; }
             public byte Byte_02 { get; set; }

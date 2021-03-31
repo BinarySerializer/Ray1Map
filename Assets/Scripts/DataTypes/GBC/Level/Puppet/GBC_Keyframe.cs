@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -8,7 +9,7 @@ namespace R1Engine
     /// Contains all the commands to update an image.
     /// The first keyframe will have a lot of data, while other keyframes will only contain the differences.
     /// </summary>
-    public class GBC_Keyframe : R1Serializable {
+    public class GBC_Keyframe : BinarySerializable {
         public byte Time { get; set; } // Amount of frames to show this image (60FPS)
         public byte DataSize { get; set; }
         public GBC_RomChannel ChannelData { get; set; } // Set before serializing
@@ -36,7 +37,7 @@ namespace R1Engine
                     }
 
                     if (endPointer.AbsoluteOffset != s.CurrentPointer.AbsoluteOffset)
-                        throw new Exception($"Instruction overflow for level {s.GameSettings.Level}!");
+                        throw new Exception($"Instruction overflow for level {s.GetR1Settings().Level}!");
                 }
                 catch (Exception ex)
                 {

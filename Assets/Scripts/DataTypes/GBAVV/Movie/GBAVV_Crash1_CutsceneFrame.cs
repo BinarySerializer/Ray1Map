@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Crash1_CutsceneFrame : R1Serializable
+    public class GBAVV_Crash1_CutsceneFrame : BinarySerializable
     {
         public Pointer GraphicsPointer { get; set; }
         public int Int_04 { get; set; }

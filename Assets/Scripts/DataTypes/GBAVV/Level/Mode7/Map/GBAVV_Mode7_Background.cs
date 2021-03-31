@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Mode7_Background : R1Serializable
+    public class GBAVV_Mode7_Background : BinarySerializable
     {
         public RGBA5551Color[] Palette { get; set; }
 
@@ -22,7 +24,7 @@
 
             TileMap = s.SerializeObjectArray<MapTile>(TileMap, Width * Height, name: nameof(TileMap));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
             {
                 TileSet = s.SerializeArray<byte>(TileSet, TileSetCount * 0x40, name: nameof(TileSet));
             }

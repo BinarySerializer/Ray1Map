@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_BatmanVengeance_Animation : R1Serializable {
+    public class GBA_BatmanVengeance_Animation : BinarySerializable {
         #region Data
         // Set in onPreSerialize
         public GBA_BatmanVengeance_Puppet Puppet { get; set; }
@@ -24,7 +26,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.GBA_IsMilan)
+            if (s.GetR1Settings().GBA_IsMilan)
             {
                 FrameCount = s.Serialize<ushort>((ushort)FrameCount, name: nameof(FrameCount));
                 Milan_Ushort_02 = s.Serialize<ushort>(Milan_Ushort_02, name: nameof(Milan_Ushort_02));

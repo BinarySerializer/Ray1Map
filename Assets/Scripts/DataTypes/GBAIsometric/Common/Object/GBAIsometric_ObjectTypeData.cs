@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_ObjectTypeData : R1Serializable
+    public class GBAIsometric_ObjectTypeData : BinarySerializable
     {
         public Pointer<GBAIsometric_RHR_AnimSet> AnimSetPointer { get; set; }
         public uint ObjectMemorySize { get; set; } // The size of the object struct in memory (the first few properties are always the same, but then it varies between object types how it's filled out)
@@ -17,9 +19,9 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_RHR)
                 AnimSetPointer = s.SerializePointer<GBAIsometric_RHR_AnimSet>(AnimSetPointer, resolve: true, name: nameof(AnimSetPointer));
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
                 ObjectMemorySize = s.Serialize<uint>(ObjectMemorySize, name: nameof(ObjectMemorySize));
 
             InitFunctionPointer = s.SerializePointer(InitFunctionPointer, name: nameof(InitFunctionPointer));
@@ -28,7 +30,7 @@
             FunctionPointer3 = s.SerializePointer(FunctionPointer3, name: nameof(FunctionPointer3));
             FunctionPointer4 = s.SerializePointer(FunctionPointer4, name: nameof(FunctionPointer4));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_RHR) {
                 AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
                 Byte_19 = s.Serialize<byte>(Byte_19, name: nameof(Byte_19));
                 UShort_1A = s.Serialize<ushort>(UShort_1A, name: nameof(UShort_1A));

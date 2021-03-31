@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -99,7 +100,7 @@ namespace R1Engine
             var isGBA = baseGameSettings.EngineVersion == EngineVersion.R1_GBA;
 
             // Create the context
-            using (var context = new Context(baseGameSettings))
+            using (var context = new R1Context(baseGameSettings))
             {
                 // Load the game data
                 await LoadFilesAsync(context);
@@ -108,8 +109,8 @@ namespace R1Engine
                 var data = LoadData(context);
 
                 // Get a pointer tables
-                var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
-                var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
+                var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((BinarySerializable)data).Offset.File) : null;
+                var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((BinarySerializable)data).Offset.File) : null;
 
                 var graphics = new Dictionary<Pointer, List<KeyValuePair<R1_World, RGBA5551Color[]>>>();
 
@@ -235,7 +236,7 @@ namespace R1Engine
 
                             d.Init(s.CurrentPointer); // Init so it has a context, which is used for a check
 
-                            var tex = GetSpriteTexture(context, buffer, d, data.GetSpritePalettes(context.Settings));
+                            var tex = GetSpriteTexture(context, buffer, d, data.GetSpritePalettes(context.GetR1Settings()));
 
                             Util.ByteArrayToFile(Path.Combine(outputDir, "Extended", $"{extDES} - {index}.png"), tex.EncodeToPNG());
                         });
@@ -258,7 +259,7 @@ namespace R1Engine
             var isGBA = baseGameSettings.EngineVersion == EngineVersion.R1_GBA;
 
             // Create the context
-            using (var context = new Context(baseGameSettings))
+            using (var context = new R1Context(baseGameSettings))
             {
                 // Load the rom
                 await LoadFilesAsync(context);
@@ -270,8 +271,8 @@ namespace R1Engine
                 var graphics = new List<Pointer>();
 
                 // Get a pointer tables
-                var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
-                var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
+                var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((BinarySerializable)data).Offset.File) : null;
+                var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((BinarySerializable)data).Offset.File) : null;
 
                 // Enumerate every world
                 foreach (var world in GetLevels(baseGameSettings).First().Worlds)
@@ -305,7 +306,7 @@ namespace R1Engine
                 // Enumerate every fourth byte (we assume it's aligned this way)
                 for (int i = 0; i < s.CurrentLength; i += 4)
                 {
-                    s.Goto(((R1Serializable)data).Offset + i);
+                    s.Goto(((BinarySerializable)data).Offset + i);
 
                     File.WriteAllText(Path.Combine(outputDir, "log.txt"), $"{s.CurrentPointer.FileOffset} / {s.CurrentLength}");
 
@@ -333,7 +334,7 @@ namespace R1Engine
                                 continue;
                             }
 
-                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{(((R1Serializable)data).Offset + i).FileOffset} - {imgIndex}.png"), tex.EncodeToPNG());
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{(((BinarySerializable)data).Offset + i).FileOffset} - {imgIndex}.png"), tex.EncodeToPNG());
 
                             imgIndex++;
                         }
@@ -352,7 +353,7 @@ namespace R1Engine
         public virtual async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)
         {
             // Create a context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the ROM
                 await LoadFilesAsync(context);
@@ -425,7 +426,7 @@ namespace R1Engine
                 {
                     settings.Level = lvl;
 
-                    using (var context = new Context(settings))
+                    using (var context = new R1Context(settings))
                     {
                         // Load the game data
                         await LoadFilesAsync(context);
@@ -455,7 +456,7 @@ namespace R1Engine
         }
 
         public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 var s = context.Deserializer;
 
                 void ExportSampleSigned(string directory, string filename, sbyte[] data, uint sampleRate, ushort channels) {
@@ -508,7 +509,7 @@ namespace R1Engine
                     // Create and open the output file
                     using (var outputStream = File.Create(outputFilePath)) {
                         // Create a context
-                        using (var wavContext = new Context(settings)) {
+                        using (var wavContext = new R1Context(settings)) {
                             // Create a key
                             const string wavKey = "wav";
 
@@ -524,7 +525,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 var rom = FileFactory.Read<R1_GBA_ROM>(GetROMFilePath, context);
-                var pointerTable = PointerTables.R1_GBA_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
+                var pointerTable = PointerTables.R1_GBA_PointerTable(s.GetR1Settings().GameModeSelection, rom.Offset.File);
                 MusyX_File musyxFile = null;
                 s.DoAt(pointerTable[R1_GBA_ROMPointer.MusyxFile], () => {
                     musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
@@ -533,7 +534,7 @@ namespace R1Engine
                 for(int i = 0; i < musyxFile.SampleTable.Value.Samples.Length; i++) {
                     var e = musyxFile.SampleTable.Value.Samples[i].Value;
                     //Util.ByteArrayToFile(outPath + $"{i}_{e.Offset.AbsoluteOffset:X8}.bin", e.SampleData);
-                    ExportSampleSigned(outPath, $"{i}_{musyxFile.SampleTable.Value.Samples[i].pointer.SerializedOffset:X8}", e.SampleData, e.SampleRate, 1);
+                    ExportSampleSigned(outPath, $"{i}_{musyxFile.SampleTable.Value.Samples[i].PointerValue.SerializedOffset:X8}", e.SampleData, e.SampleRate, 1);
                 }
                 outPath = outputPath + "/SongData/";
                 for (int i = 0; i < musyxFile.SongTable.Value.Length; i++) {
@@ -883,7 +884,7 @@ namespace R1Engine
             var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>>();
             var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
 
-            if (context.Settings.R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != R1_World.Menu)
             {
                 var map = data.LevelMapData;
                 eventData = data.LevelEventData;
@@ -920,13 +921,13 @@ namespace R1Engine
                 eventData = null;
             }
 
-            var spritePalette = data.GetSpritePalettes(context.Settings);
+            var spritePalette = data.GetSpritePalettes(context.GetR1Settings());
 
             var maps = new Unity_Map[]
             {
                 new Unity_Map()
                 {
-                    Type = context.Settings.R1_World != R1_World.Menu ? (Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision) : Unity_Map.MapType.Graphics,
+                    Type = context.GetR1Settings().R1_World != R1_World.Menu ? (Unity_Map.MapType.Graphics | Unity_Map.MapType.Collision) : Unity_Map.MapType.Graphics,
                     // Set the dimensions
                     Width = mapData.Width,
                     Height = mapData.Height,
@@ -951,7 +952,7 @@ namespace R1Engine
                 {
                     Sprites = new List<Sprite>(),
                     Animations = new List<Unity_ObjAnimation>(),
-                    FilePath = graphics.ImageDescriptorsPointer.file.filePath
+                    FilePath = graphics.ImageDescriptorsPointer.File.FilePath
                 };
 
                 // Get every sprite
@@ -981,7 +982,7 @@ namespace R1Engine
                     // Add to the ETA
                     eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(eta, etaPointer));
                 }
-                else if (etaPointer != null && context.Settings.EngineVersion == EngineVersion.R1_DSi)
+                else if (etaPointer != null && context.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
                 {
                     // Temporary solution - combine ETA
                     var current = eventETA.First(x => x.PrimaryPointer == etaPointer).Data;
@@ -1046,7 +1047,7 @@ namespace R1Engine
             }
 
             // Create a linking table
-            var linkTable = context.Settings.R1_World != R1_World.Menu ? new ushort[eventData.EventData.Select(x => x.Length).Sum()] : Enumerable.Range(0, 24).Select(x => (ushort)x).ToArray();
+            var linkTable = context.GetR1Settings().R1_World != R1_World.Menu ? new ushort[eventData.EventData.Select(x => x.Length).Sum()] : Enumerable.Range(0, 24).Select(x => (ushort)x).ToArray();
 
             var objManager = new Unity_ObjectManager_R1(
                 context: context,
@@ -1060,7 +1061,7 @@ namespace R1Engine
 
             var events = new List<Unity_Object>();
 
-            if (context.Settings.R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != R1_World.Menu)
             {
                 // Handle each event link group
                 foreach (var linkedEvents in eventData.EventData.SelectMany(x => x).Select((x, i) => new
@@ -1121,7 +1122,7 @@ namespace R1Engine
                             LabelOffsets = new ushort[0]
                         };
 
-                        e.SetFollowEnabled(context.Settings, dat.FollowEnabled);
+                        e.SetFollowEnabled(context.GetR1Settings(), dat.FollowEnabled);
 
                         // Add the event
                         events.Add(new Unity_Object_R1(e, objManager));

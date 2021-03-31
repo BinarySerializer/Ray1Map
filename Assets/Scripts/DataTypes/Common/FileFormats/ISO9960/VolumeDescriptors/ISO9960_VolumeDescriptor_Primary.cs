@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     // See: https://wiki.osdev.org/ISO_9660
     public class ISO9960_VolumeDescriptor_Primary : ISO9960_VolumeDescriptor

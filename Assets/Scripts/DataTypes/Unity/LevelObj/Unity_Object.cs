@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -17,7 +18,7 @@ namespace R1Engine
         public virtual IEnumerable<int> Links => new int[0];
         public virtual IEnumerable<LinkType> LinkTypes => null;
         public bool HasPendingEdits { get; set; }
-        public abstract R1Serializable SerializableData { get; }
+        public abstract BinarySerializable SerializableData { get; }
 
         public virtual IEnumerable<int> GetLocIndices => new int[0];
 

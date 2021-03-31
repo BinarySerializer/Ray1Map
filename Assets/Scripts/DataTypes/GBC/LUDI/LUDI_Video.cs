@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class LUDI_Video : LUDI_BaseBlock {
         public uint Width { get; set; }
@@ -14,7 +16,7 @@
             Speed = s.Serialize<uint>(Speed, name: nameof(Speed));
             FrameCount = s.Serialize<uint>(FrameCount, name: nameof(FrameCount));
             FrameOffsets = s.SerializeArray<uint>(FrameOffsets, FrameCount, name: nameof(FrameOffsets));
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_PocketPC) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_PocketPC) {
                 if (FrameDataPPC == null) FrameDataPPC = new BGR565Color[FrameCount][];
                 for (int i = 0; i < FrameDataPPC.Length; i++) {
                     uint decompressedSize = Width * Height * 2;

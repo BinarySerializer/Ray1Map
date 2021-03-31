@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GAX2_Pattern : R1Serializable {
+    public class GAX2_Pattern : BinarySerializable {
         public ushort Duration { get; set; }
         public GAX2_PatternRow[] Rows { get; set; }
         public Pointer EndOffset { get; set; }

@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBA_BatmanVengeance_AnimationCommand : R1Serializable {
+    public class GBA_BatmanVengeance_AnimationCommand : BinarySerializable {
         #region Data
         public GBA_BatmanVengeance_Puppet Puppet { get; set; } // Set in onPreSerialize
 
@@ -59,7 +60,7 @@ namespace R1Engine
         #region Public Methods
 
         public override void SerializeImpl(SerializerObject s) {
-            bool isShanghai = s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan;
+            bool isShanghai = s.GetR1Settings().GBA_IsShanghai || s.GetR1Settings().GBA_IsMilan;
             Command = s.Serialize<InstructionCommand>(Command, name: nameof(Command));
 
             if (isShanghai)
@@ -150,7 +151,7 @@ namespace R1Engine
 
 
 
-        public class TileGraphicsInfo : R1Serializable {
+        public class TileGraphicsInfo : BinarySerializable {
             public ushort TileIndex { get; set; } // If -1, same effect as SetInvisible, otherwise SetVisible
             public bool IsFlippedHorizontally { get; set; }
             public bool IsFlippedVertically { get; set; }

@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Rough tile texture data for PC
     /// </summary>
-    public class R1_PC_RoughTileTextureBlock : R1Serializable
+    public class R1_PC_RoughTileTextureBlock : BinarySerializable
     {
         /// <summary>
         /// The length of <see cref="RoughTextures"/>

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_Font : R1Serializable
+    public class GBAIsometric_RHR_Font : BinarySerializable
     {
         public byte Byte_00 { get; set; }
         public bool Is8Bit { get; set; }

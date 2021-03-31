@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Event definition data for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_EventDefinition : R1Serializable {
+    public class R1Jaguar_EventDefinition : BinarySerializable {
 		#region Event Data
 
 		public short NumLayers { get; set; }
@@ -79,7 +80,7 @@ namespace R1Engine
                 Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
                 Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
-			} else if (StructType == 6 || StructType == 7 || StructType == 30 || StructType == 31 || (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto && StructType == 15)) {
+			} else if (StructType == 6 || StructType == 7 || StructType == 30 || StructType == 31 || (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && StructType == 15)) {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
 				ComplexDataPointer = s.SerializePointer(ComplexDataPointer, name: nameof(ComplexDataPointer));
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
@@ -97,7 +98,7 @@ namespace R1Engine
 				Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
 				Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 				Byte_27 = s.Serialize<byte>(Byte_27, name: nameof(Byte_27));
-			} else if (StructType == 23 || StructType == 11 || StructType == 2 || (s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Demo && StructType == 10)) {
+			} else if (StructType == 23 || StructType == 11 || StructType == 2 || (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Demo && StructType == 10)) {
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1c, name: nameof(UnkBytes));
 			} else if (StructType == 36 || StructType == 37 || StructType == 56) {
@@ -126,7 +127,7 @@ namespace R1Engine
 				FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
 				Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x10, name: nameof(UnkBytes));
-			} else if(s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto && (StructType == 10 || StructType == 26 || StructType == 19)) {
+			} else if(s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && (StructType == 10 || StructType == 26 || StructType == 19)) {
 				if (StructType == 10) {
 					UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
 					UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
@@ -176,8 +177,8 @@ namespace R1Engine
 						}
 					});
 					if (!success
-					|| (CheckPtr0 != null && CheckPtr0.file != CurrentStatePointer.file)
-					|| (CheckPtr1 != null && CheckPtr1.file != CurrentStatePointer.file)) {
+					|| (CheckPtr0 != null && CheckPtr0.File != CurrentStatePointer.File)
+					|| (CheckPtr1 != null && CheckPtr1.File != CurrentStatePointer.File)) {
 						currentStateIndex--;
 						break;
 					}
@@ -202,8 +203,8 @@ namespace R1Engine
 								}
 							});
 							if (!success
-							|| (CheckPtr0 != null && CheckPtr0.file != CurrentStatePointer.file)
-							|| (CheckPtr1 != null && CheckPtr1.file != CurrentStatePointer.file)) {
+							|| (CheckPtr0 != null && CheckPtr0.File != CurrentStatePointer.File)
+							|| (CheckPtr1 != null && CheckPtr1.File != CurrentStatePointer.File)) {
 								break;
 							}
 							/*
@@ -243,7 +244,7 @@ namespace R1Engine
 			});
 
 			// Serialize image descriptors based on the state animations
-			if (s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto)
+			if (s.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto)
             {
                 s.DoAt(ImageDescriptorsPointer, () => {
                     if (StructType == 25)

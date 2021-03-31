@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {
@@ -17,10 +18,10 @@ namespace R1Engine
         public R1_PC_EncryptedFileArchiveEntry[] Entries { get; set; }
 
         public T ReadFile<T>(Context context, string fileName, Action<T> onPreSerialize = null)
-            where T : R1Serializable, new() => ReadFile<T>(context, Entries.FindItemIndex(x => x.FileName == fileName), onPreSerialize);
+            where T : BinarySerializable, new() => ReadFile<T>(context, Entries.FindItemIndex(x => x.FileName == fileName), onPreSerialize);
 
         public T ReadFile<T>(Context context, int index, Action<T> onPreSerialize = null)
-            where T : R1Serializable, new()
+            where T : BinarySerializable, new()
         {
             // Make sure the index is not out of bounds
             if (index < 0 || index >= Entries.Length)
@@ -62,7 +63,7 @@ namespace R1Engine
 
         public void RepackArchive(Context context, Dictionary<string, Action<SerializerObject>> fileWriter)
         {
-            if (context.Settings.EngineVersion == EngineVersion.R1_PC || context.Settings.EngineVersion == EngineVersion.R1_PocketPC)
+            if (context.GetR1Settings().EngineVersion == EngineVersion.R1_PC || context.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC)
                 throw new NotImplementedException("Repacking is not supported for Rayman 1"); // The header is in the exe
 
             // Get every file before we start writing
@@ -135,12 +136,12 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // For Rayman 1 the header is hard-coded in the game executable
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC)
             {
-                if (s is BinarySerializer)
+                if (s is BinarySerializer.BinarySerializer)
                     throw new Exception("Can't serialize Rayman 1 archive headers");
 
-                var headerBytes = R1_PC_ArchiveHeaders.GetHeader(s.GameSettings, Path.GetFileName(Offset.file.filePath));
+                var headerBytes = R1_PC_ArchiveHeaders.GetHeader(s.GetR1Settings(), Path.GetFileName(Offset.File.FilePath));
                 var headerLength = headerBytes.Length / 12;
 
                 using (var headerStream = new MemoryStream(headerBytes))
@@ -165,7 +166,7 @@ namespace R1Engine
                 }
                 else
                 {
-                    if (s is BinarySerializer)
+                    if (s is BinarySerializer.BinarySerializer)
                         throw new Exception($"Use {nameof(RepackArchive)} for writing");
 
                     //s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(Entries, Entries.Length, name: nameof(Entries));

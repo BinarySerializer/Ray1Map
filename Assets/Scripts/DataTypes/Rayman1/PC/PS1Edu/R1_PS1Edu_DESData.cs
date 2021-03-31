@@ -1,11 +1,13 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     // This class uses the same structure as normal events. Dummy data is always 0 as the event values aren't used here.
 
     /// <summary>
     /// DES data for EDU on PS1
     /// </summary>
-    public class R1_PS1Edu_DESData : R1Serializable
+    public class R1_PS1Edu_DESData : BinarySerializable
     {
         // These get set during runtime
         public uint ImageDescriptorsPointer { get; set; }

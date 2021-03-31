@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_ZDCEntry : R1Serializable
+    public class R1_ZDCEntry : BinarySerializable
     {
         public ushort ZDCIndex { get; set; }
         public byte ZDCCount { get; set; }

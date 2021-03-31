@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event localization item for Rayman Mapper (PC)
     /// </summary>
-    public class R1_Mapper_EventLocItem : R1Serializable
+    public class R1_Mapper_EventLocItem : BinarySerializable
     {
         /// <summary>
         /// The localization key

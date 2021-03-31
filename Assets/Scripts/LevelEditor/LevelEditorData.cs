@@ -1,8 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -18,7 +19,7 @@ namespace R1Engine
         public static Dictionary<string, Dictionary<string, uint>> NameTable_R1PS1ETA { get; private set; }
 
         public static Context MainContext { get; set; }
-        public static GameSettings CurrentSettings => MainContext?.Settings;
+        public static GameSettings CurrentSettings => MainContext?.GetR1Settings();
 
         public static Unity_Level Level { get; set; }
         public static Unity_ObjectManager ObjManager => Level.ObjManager;

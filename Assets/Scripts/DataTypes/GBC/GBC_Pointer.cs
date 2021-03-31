@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_Pointer : R1Serializable
+    public class GBC_Pointer : BinarySerializable
     {
         public bool HasMemoryBankValue { get; set; } = true; // Set before serializing
 
@@ -11,7 +13,7 @@
         public Pointer GetPointer() {
             if (_cachedPointer == null) {
                 // The ROM is split into memory banks, with the size 0x4000 which get loaded at 0x4000 in RAM.
-                var baseOffset = Offset.file.StartPointer;
+                var baseOffset = Offset.File.StartPointer;
 
                 long bank = MemoryBank;
 

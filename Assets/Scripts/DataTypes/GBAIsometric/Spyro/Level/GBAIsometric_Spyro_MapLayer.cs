@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_MapLayer : R1Serializable
+    public class GBAIsometric_Spyro_MapLayer : BinarySerializable
     {
         public GBAIsometric_Spyro_DataBlockIndex MapIndex { get; set; }
         public GBAIsometric_Spyro_DataBlockIndex TileAssembleIndex { get; set; }

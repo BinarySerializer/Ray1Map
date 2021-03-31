@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_Vars : Jade_File {
@@ -75,7 +76,7 @@ namespace R1Engine.Jade {
 				Functions[i] = s.SerializeObject<Jade_Reference<AI_Function>>(Functions[i], name: $"{nameof(Functions)}[{i}]")?.Resolve();
 			}
 
-			if (s.GameSettings.Game == Game.Jade_BGE) {
+			if (s.GetR1Settings().Game == Game.Jade_BGE) {
 				if (s.CurrentPointer.AbsoluteOffset < (Offset + FileSize).AbsoluteOffset) {
 					ExtraFunctionsCount = s.Serialize<uint>(ExtraFunctionsCount, name: nameof(ExtraFunctionsCount));
 					ExtraFunctions = s.SerializeObjectArray<Jade_Reference<AI_Function>>(ExtraFunctions, ExtraFunctionsCount, name: nameof(ExtraFunctions));

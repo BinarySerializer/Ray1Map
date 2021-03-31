@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_Instrument : R1Serializable {
+    public class GAX2_Instrument : BinarySerializable {
         public byte Byte_01 { get; set; }
         public byte Sample { get; set; }
         public ushort UShort_02 { get; set; }

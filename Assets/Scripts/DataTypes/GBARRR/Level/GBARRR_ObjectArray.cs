@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_ObjectArray : R1Serializable
+    public class GBARRR_ObjectArray : BinarySerializable
     {
         public bool IsUnusedMode7 { get; set; }
 

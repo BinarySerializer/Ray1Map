@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_Actor : R1Serializable
+    public class GBA_Actor : BinarySerializable
     {
         #region Actor Data
 
@@ -72,7 +74,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.GBA_IsMilan)
+            if (s.GetR1Settings().GBA_IsMilan)
             {
                 if (Type == ActorType.Actor)
                 {
@@ -85,7 +87,7 @@
                     Milan_LinksCount = s.Serialize<ushort>(Milan_LinksCount, name: nameof(Milan_LinksCount));
                     Milan_Links = s.SerializeObjectArray<Milan_ActorLink>(Milan_Links, Milan_LinksCount, name: nameof(Milan_Links));
 
-                    UnkData1 = s.SerializeArray<byte>(UnkData1, s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear ? 8 : 12, name: nameof(UnkData1));
+                    UnkData1 = s.SerializeArray<byte>(UnkData1, s.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear ? 8 : 12, name: nameof(UnkData1));
 
                     DialogCount = s.Serialize<ushort>(DialogCount, name: nameof(DialogCount));
                     DialogTable = s.SerializeArray<short>(DialogTable, DialogCount, name: nameof(DialogTable));
@@ -124,26 +126,26 @@
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
                     ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
 
-                    if (s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Type == ActorType.Actor || Type == ActorType.AlwaysActor) {
+                    if (s.GetR1Settings().EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Type == ActorType.Actor || Type == ActorType.AlwaysActor) {
                         Index_ActorModel = s.Serialize<byte>((byte)Index_ActorModel, name: nameof(Index_ActorModel));
                         ActionIndex = s.Serialize<byte>(ActionIndex, name: nameof(ActionIndex));
                     }
 
-                    if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance && s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow) {
+                    if (s.GetR1Settings().EngineVersion > EngineVersion.GBA_BatmanVengeance && s.GetR1Settings().EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                         Link_0 = s.Serialize<byte>(Link_0, name: nameof(Link_0));
                         Link_1 = s.Serialize<byte>(Link_1, name: nameof(Link_1));
                         Link_2 = s.Serialize<byte>(Link_2, name: nameof(Link_2));
                         Link_3 = s.Serialize<byte>(Link_3, name: nameof(Link_3));
                     }
 
-                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell
-                        && s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow) {
+                    if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCell
+                        && s.GetR1Settings().EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                         Short_0C = s.Serialize<short>(Short_0C, name: nameof(Short_0C));
                         Short_0E = s.Serialize<short>(Short_0E, name: nameof(Short_0E));
                         int len = Short_0E & 0xF;
                         ExtraData = s.SerializeArray<byte>(ExtraData, len, name: nameof(ExtraData));
                     } 
-                    else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) 
+                    else if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) 
                     {
                         if (Type == ActorType.Waypoint || Type == ActorType.Unk) {
                             ActorSize = s.Serialize<ushort>(ActorSize, name: nameof(ActorSize));
@@ -157,7 +159,7 @@
                 } else {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
 
-                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                    if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                         UnkData1 = s.SerializeArray<byte>(UnkData1, 1, name: nameof(UnkData1));
                         LinkedActorsCount = s.Serialize<byte>(LinkedActorsCount, name: nameof(LinkedActorsCount));
                         CaptorID = s.Serialize<CaptorType>(CaptorID, name: nameof(CaptorID));
@@ -170,10 +172,10 @@
                     }
                     Index_CaptorData = s.Serialize<byte>(Index_CaptorData, name: nameof(Index_CaptorData));
 
-                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
+                    if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                         UnkData2 = s.SerializeArray<byte>(UnkData2, 1, name: nameof(UnkData2));
                         ActorSize = s.Serialize<ushort>(ActorSize, name: nameof(ActorSize));
-                    } else if (s.GameSettings.EngineVersion < EngineVersion.GBA_PrinceOfPersia) {
+                    } else if (s.GetR1Settings().EngineVersion < EngineVersion.GBA_PrinceOfPersia) {
                         UnkData2 = s.SerializeArray<byte>(UnkData2, 1, name: nameof(UnkData2));
                     } else {
                         UnkData2 = s.SerializeArray<byte>(UnkData2, 3, name: nameof(UnkData2));
@@ -182,7 +184,7 @@
                     BoxMinX = s.Serialize<short>(BoxMinX, name: nameof(BoxMinX));
                     BoxMaxY = s.Serialize<short>(BoxMaxY, name: nameof(BoxMaxY));
                     BoxMaxX = s.Serialize<short>(BoxMaxX, name: nameof(BoxMaxX));
-                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
+                    if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                         ExtraData = s.SerializeArray<byte>(ExtraData, ActorSize - 20, name: nameof(ExtraData));
                     }
                 }
@@ -217,7 +219,7 @@
             Unk_7,
         }
 
-        public class Milan_ActorLink : R1Serializable
+        public class Milan_ActorLink : BinarySerializable
         {
             public ushort Ushort_00 { get; set; }
             public ushort LinkedActor { get; set; }

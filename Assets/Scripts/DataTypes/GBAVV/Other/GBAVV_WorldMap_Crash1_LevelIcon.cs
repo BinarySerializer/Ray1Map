@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_WorldMap_Crash1_LevelIcon : R1Serializable
+    public class GBAVV_WorldMap_Crash1_LevelIcon : BinarySerializable
     {
         public Pointer PalettePointer { get; set; }
         public Pointer TileSetPointer { get; set; }

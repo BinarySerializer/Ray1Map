@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -89,16 +90,16 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // Get the pointer table
-            var pointerTable = PointerTables.R1_GBA_PointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+            var pointerTable = PointerTables.R1_GBA_PointerTable(s.GetR1Settings().GameModeSelection, this.Offset.File);
 
             s.DoAt(pointerTable[R1_GBA_ROMPointer.WorldLevelOffsetTable],
                 () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 12, name: nameof(WorldLevelOffsetTable)));
 
             // Get the global level index
-            var levelIndex = WorldLevelOffsetTable[s.GameSettings.World] + (s.GameSettings.Level - 1);
+            var levelIndex = WorldLevelOffsetTable[s.GetR1Settings().World] + (s.GetR1Settings().Level - 1);
 
             // Hardcode files
-            if (s is BinaryDeserializer && s.GameSettings.R1_World == R1_World.Image && s.GameSettings.Level == 4) {
+            if (s is BinaryDeserializer && s.GetR1Settings().R1_World == R1_World.Image && s.GetR1Settings().Level == 4) {
                 s.DoAt(Offset + 0x55cc, () => {
                     void CreateFakeFile(int index, int size) {
                         uint memAddress = s.Serialize<uint>(default, name: nameof(memAddress));
@@ -138,7 +139,7 @@ namespace R1Engine
             ETA_Map = s.DoAt(pointerTable.TryGetItem(R1_GBA_ROMPointer.ETA_Map), () => s.SerializeObject<R1_GBA_ETA>(ETA_Map, x => x.Lengths = new byte[] { 64, 1, 19, 1, 1, 69, 3 }, name: nameof(ETA_Map)));
 
             // Serialize data from the ROM
-            if (s.GameSettings.R1_World != R1_World.Menu)
+            if (s.GetR1Settings().R1_World != R1_World.Menu)
                 s.DoAt(pointerTable[R1_GBA_ROMPointer.LevelMaps] + (levelIndex * 28),
                     () => LevelMapData = s.SerializeObject<R1_GBA_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
 
@@ -151,7 +152,7 @@ namespace R1Engine
             s.DoAt(pointerTable[R1_GBA_ROMPointer.SpritePalettes], 
                 () => SpritePalettes = s.SerializeObjectArray<RGBA5551Color>(SpritePalettes, 16 * 16, name: nameof(SpritePalettes)));
 
-            if (s.GameSettings.R1_World != R1_World.Menu)
+            if (s.GetR1Settings().R1_World != R1_World.Menu)
             {
                 // Serialize the level event data
                 LevelEventData = new R1_GBA_LevelEventData();
@@ -199,7 +200,7 @@ namespace R1Engine
             s.DoAt(pointerTable[R1_GBA_ROMPointer.EventFlags], () => EventFlags = s.SerializeArray<R1_EventFlags>(EventFlags, 262, name: nameof(EventFlags)));
 
             WorldVignetteIndicesPointers = s.DoAt(pointerTable[R1_GBA_ROMPointer.WorldVignetteIndices], () => s.SerializePointerArray(WorldVignetteIndicesPointers, 9, name: nameof(WorldVignetteIndicesPointers)));
-            WorldVignetteIndices = s.DoAt(WorldVignetteIndicesPointers[s.GameSettings.World], () => s.SerializeArray<byte>(WorldVignetteIndices, 8, name: nameof(WorldVignetteIndices))); // The max size is 8
+            WorldVignetteIndices = s.DoAt(WorldVignetteIndicesPointers[s.GetR1Settings().World], () => s.SerializeArray<byte>(WorldVignetteIndices, 8, name: nameof(WorldVignetteIndices))); // The max size is 8
 
             WorldInfos = s.DoAt(pointerTable[R1_GBA_ROMPointer.WorldInfo], () => s.SerializeObjectArray<R1_WorldMapInfo>(WorldInfos, 24, name: nameof(WorldInfos)));
         }

@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman Advance (GBA)
     /// </summary>
-    public class R1_GBA_LevelMapData : R1Serializable
+    public class R1_GBA_LevelMapData : BinarySerializable
     {
         #region Level Data
 
@@ -84,7 +85,7 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_GBA)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA)
             {
                 // Serialize values
                 TileDataPointer = s.SerializePointer(TileDataPointer, name: nameof(TileDataPointer));
@@ -98,7 +99,7 @@ namespace R1Engine
                 ParallaxBackgroundIndex = s.Serialize<byte>(ParallaxBackgroundIndex, name: nameof(ParallaxBackgroundIndex));
                 CompressionFlags = s.Serialize<uint>(CompressionFlags, name: nameof(CompressionFlags));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
             {
                 // Serialize values
                 UnkDword_DSi_00 = s.Serialize<uint>(UnkDword_DSi_00, name: nameof(UnkDword_DSi_00));
@@ -113,7 +114,7 @@ namespace R1Engine
         }
 
         public void SerializeLevelData(SerializerObject s) {
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_GBA)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA)
             {
                 s.DoAt(MapDataPointer, () => {
                     if ((CompressionFlags & 1) == 1)
@@ -145,7 +146,7 @@ namespace R1Engine
                 ushort maxBlockIndex = TileBlockIndices.Max();
                 s.DoAt(TileDataPointer, () => TileData = s.SerializeArray<byte>(TileData, 0x20 * ((uint)maxBlockIndex + 1), name: nameof(TileData)));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
             {
                 s.DoAt(MapDataPointer, () => s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData))));
                 s.DoAt(TileDataPointer, () => {

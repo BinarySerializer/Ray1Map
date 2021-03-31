@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -10,7 +11,7 @@ namespace R1Engine
     /// <summary>
     /// Base data for a Palm database
     /// </summary>
-    public class Palm_Database : R1Serializable
+    public class Palm_Database : BinarySerializable
     {
         public DatabaseType Type { get; set; } // Set before serializing
 

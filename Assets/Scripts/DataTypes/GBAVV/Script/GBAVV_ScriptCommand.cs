@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {
-    public class GBAVV_ScriptCommand : R1Serializable
+    public class GBAVV_ScriptCommand : BinarySerializable
     {
         public BinaryFile BaseFile { get; set; } // Set before serializing
         public bool SerializeFLC { get; set; } // Set before serializing
@@ -40,13 +41,13 @@ namespace R1Engine
             SecondaryCommandType = s.Serialize<int>(SecondaryCommandType, name: nameof(SecondaryCommandType));
             Param = s.Serialize<uint>(Param, name: nameof(Param));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
                 SecondaryParam = s.Serialize<uint>(SecondaryParam, name: nameof(SecondaryParam));
 
-            Type = ((GBAVV_BaseManager)s.GameSettings.GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
+            Type = ((GBAVV_BaseManager)s.GetR1Settings().GetGameManager).ScriptCommands.TryGetItem(PrimaryCommandType * 100 + SecondaryCommandType, CommandType.Unknown);
 
             // If the param is a valid pointer to the ROM we parse the pointer
-            if (Param >= BaseFile.baseAddress && Param < BaseFile.baseAddress + 0x1000000)
+            if (Param >= BaseFile.BaseAddress && Param < BaseFile.BaseAddress + 0x1000000)
             {
                 ParamPointer = new Pointer(Param, BaseFile);
                 s.Log($"Param: {ParamPointer}");
@@ -112,7 +113,7 @@ namespace R1Engine
                     break;
 
                 case CommandType.FLC:
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
                     {
                         NGage_FilePath = s.DoAt(ParamPointer, () => s.SerializeObject<GBAVV_NitroKart_NGage_FilePath>(NGage_FilePath, name: nameof(NGage_FilePath)));
 
@@ -172,7 +173,7 @@ namespace R1Engine
             Credits
         }
 
-        public class GBAVV_ConditionalScriptReference : R1Serializable
+        public class GBAVV_ConditionalScriptReference : BinarySerializable
         {
             public BinaryFile BaseFile { get; set; } // Set before serializing
             public bool SerializeFLC { get; set; } // Set before serializing
@@ -195,7 +196,7 @@ namespace R1Engine
             }
         }
 
-        public class GBAVV_Movement : R1Serializable
+        public class GBAVV_Movement : BinarySerializable
         {
             public int Speed { get; set; }
             public int Param_1 { get; set; }
@@ -209,7 +210,7 @@ namespace R1Engine
             }
         }
 
-        public class GBAVV_Input : R1Serializable
+        public class GBAVV_Input : BinarySerializable
         {
             public int Param_0 { get; set; }
             public int Param_1 { get; set; }
@@ -229,7 +230,7 @@ namespace R1Engine
             public string[] GetArgs() => new string[] { $"{Param_0}", $"{Param_1}", $"{Param_2}", $"{Param_3}", $"{Param_4}" };
         }
 
-        public class GBAVV_Sound : R1Serializable
+        public class GBAVV_Sound : BinarySerializable
         {
             public int Param_0 { get; set; }
             public int Param_1 { get; set; }
@@ -245,7 +246,7 @@ namespace R1Engine
             public string[] GetArgs() => new string[] { $"{Param_0}", $"{Param_1}", $"{Param_2}" };
         }
 
-        public class GBAVV_ObjSpawn : R1Serializable
+        public class GBAVV_ObjSpawn : BinarySerializable
         {
             public int Param_0 { get; set; }
             public int Param_1 { get; set; }

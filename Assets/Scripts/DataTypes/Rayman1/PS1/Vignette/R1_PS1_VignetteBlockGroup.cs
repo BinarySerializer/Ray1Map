@@ -1,5 +1,6 @@
 ﻿using System;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -7,7 +8,7 @@ namespace R1Engine
     /// <summary>
     /// Vignette block group data for Rayman 1 (PS1)
     /// </summary>
-    public class R1_PS1_VignetteBlockGroup : R1Serializable
+    public class R1_PS1_VignetteBlockGroup : BinarySerializable
     {
         /// <summary>
         /// The size of the block group, in pixels
@@ -53,7 +54,7 @@ namespace R1Engine
             Unknown2 = s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
 
             // Get the block width
-            var blockWidth = GetBlockWidth(s.GameSettings.EngineVersion);
+            var blockWidth = GetBlockWidth(s.GetR1Settings().EngineVersion);
 
             // Create block array
             if (ImageBlocks == null)
@@ -75,7 +76,7 @@ namespace R1Engine
             var tex = TextureHelpers.CreateTexture2D(Width, Height);
 
             // Get the block width
-            var blockWidth = GetBlockWidth(context.Settings.EngineVersion);
+            var blockWidth = GetBlockWidth(context.GetR1Settings().EngineVersion);
 
             // Write each block
             for (int blockIndex = 0; blockIndex < ImageBlocks.Length; blockIndex++)

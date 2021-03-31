@@ -1,8 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class BIG_BigFile : R1Serializable {
+	public class BIG_BigFile : BinarySerializable {
 		public static readonly byte[] XORKey = new byte[] { 0xb3, 0x98, 0xcc, 0x66 };
 		public static uint HeaderLength => 44;
 		public uint TotalFatFilesLength => FatFilesCount * (
@@ -69,10 +70,10 @@ namespace R1Engine.Jade {
 			/*var sortedFileList = fat.Files.OrderBy(f => f.FileOffset.AbsoluteOffset).ToArray();
 			var indInSortedFileList = sortedFileList.FindItemIndex(f => f.FileOffset == off_target);*/
 			s.Goto(off_target);
-			await s.FillCacheForRead(4);
+			await s.FillCacheForReadAsync(4);
 			var fileSize = s.Serialize<uint>(default, name: "FileSize");
 			//var actualFileSize = (indInSortedFileList+1 >= sortedFileList.Length ? s.CurrentLength : sortedFileList[indInSortedFileList+1].FileOffset.AbsoluteOffset) - off_target.AbsoluteOffset - 4;
-			await s.FillCacheForRead((int)fileSize);
+			await s.FillCacheForReadAsync((int)fileSize);
 			action(fileSize);
 			s.Goto(off_current);
 		}
@@ -80,10 +81,10 @@ namespace R1Engine.Jade {
 		public async UniTask SerializeAt(SerializerObject s, Pointer off_target, Action<uint> action) {
 			Pointer off_current = s.CurrentPointer;
 			s.Goto(off_target);
-			await s.FillCacheForRead(4);
+			await s.FillCacheForReadAsync(4);
 			var fileSize = s.Serialize<uint>(default, name: "FileSize");
 			//var actualFileSize = (indInSortedFileList+1 >= sortedFileList.Length ? s.CurrentLength : sortedFileList[indInSortedFileList+1].FileOffset.AbsoluteOffset) - off_target.AbsoluteOffset - 4;
-			await s.FillCacheForRead((int)fileSize);
+			await s.FillCacheForReadAsync((int)fileSize);
 			action(fileSize);
 			s.Goto(off_current);
 		}

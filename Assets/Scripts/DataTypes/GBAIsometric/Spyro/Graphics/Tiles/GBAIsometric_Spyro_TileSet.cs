@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_TileSet : R1Serializable
+    public class GBAIsometric_Spyro_TileSet : BinarySerializable
     {
         public long BlockSize { get; set; }
 

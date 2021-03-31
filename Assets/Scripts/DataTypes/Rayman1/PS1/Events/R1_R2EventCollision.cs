@@ -1,11 +1,12 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Event collision data for Rayman 2 (PS1 - Demo)
     /// </summary>
-    public class R1_R2EventCollision : R1Serializable
+    public class R1_R2EventCollision : BinarySerializable
     {
         public EventFlags Flags { get; set; }
         public byte Byte_02 { get; set; }

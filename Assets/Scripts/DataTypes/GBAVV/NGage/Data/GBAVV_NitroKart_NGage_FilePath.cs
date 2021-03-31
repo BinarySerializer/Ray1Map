@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_FilePath : R1Serializable
+    public class GBAVV_NitroKart_NGage_FilePath : BinarySerializable
     {
         public GBAVV_NitroKart_NGage_FilePath() { }
         public GBAVV_NitroKart_NGage_FilePath(Context context, string filePath)
@@ -24,7 +25,7 @@ namespace R1Engine
         public T DoAtFile<T>(Func<T> func) => DoAtFile(null, func);
         public T DoAtFile<T>(string fileExtension, Func<T> func)
         {
-            var manager = (GBAVV_NitroKart_NGage_Manager)Context.Settings.GetGameManager;
+            var manager = (GBAVV_NitroKart_NGage_Manager)Context.GetR1Settings().GetGameManager;
 
             var path = GetFullPath;
 

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_Cutscene : R1Serializable
+    public class GBAIsometric_RHR_Cutscene : BinarySerializable
     {
         public uint DialogCount { get; set; }
         public Pointer DialogPointer { get; set; }

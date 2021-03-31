@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_Mode7Waypoint : R1Serializable
+    public class GBARRR_Mode7Waypoint : BinarySerializable
     {
         public short XPosition { get; set; }
         public short YPosition { get; set; }

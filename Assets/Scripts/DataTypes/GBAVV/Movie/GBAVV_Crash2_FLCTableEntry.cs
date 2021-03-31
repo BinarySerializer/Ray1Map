@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Crash2_FLCTableEntry : R1Serializable
+    public class GBAVV_Crash2_FLCTableEntry : BinarySerializable
     {
         public Pointer FLCPointer { get; set; }
         public bool Loop { get; set; }

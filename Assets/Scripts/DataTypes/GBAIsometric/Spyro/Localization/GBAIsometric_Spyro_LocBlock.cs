@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_LocBlock : R1Serializable
+    public class GBAIsometric_Spyro_LocBlock : BinarySerializable
     {
         // Set in onPreSerialize
         public int Length { get; set; }
@@ -14,7 +15,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && StringOffsets == null)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 && StringOffsets == null)
             {
                 var firstOffset = s.DoAt(s.CurrentPointer, () => s.Serialize<ushort>(default, name: $"{nameof(StringOffsets)}[0]"));
                 Length = firstOffset / 2;
@@ -27,12 +28,12 @@ namespace R1Engine
                 StringTileIndices = new byte[StringOffsets.Length][];
                 Strings = new string[StringOffsets.Length];
 
-                var encoding = new SpyroEncoding(s.GameSettings.GameModeSelection);
+                var encoding = new SpyroEncoding(s.GetR1Settings().GameModeSelection);
 
                 for (int i = 0; i < StringOffsets.Length; i++) {
                     s.DoAt(Offset + StringOffsets[i], () => 
                     {
-                        if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                        if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
                         {
                             var length = s.Serialize<byte>((byte)(StringTileIndices?.ElementAtOrDefault(i)?.Length ?? 0), name: $"StringTileIndicesLength[{i}]");
                             StringTileIndices[i] = s.SerializeArray<byte>(StringTileIndices[i], length, name: $"{nameof(StringTileIndices)}[{i}]");

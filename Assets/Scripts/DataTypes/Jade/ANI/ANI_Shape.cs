@@ -1,4 +1,6 @@
-﻿namespace R1Engine.Jade
+﻿using BinarySerializer;
+
+namespace R1Engine.Jade
 {
     public class ANI_Shape : Jade_File
     {
@@ -11,7 +13,7 @@
             Structs = s.SerializeObjectArray(Structs, StructsCount, name: nameof(Structs));
         }
 
-        public class ANI_ShapeStruct : R1Serializable
+        public class ANI_ShapeStruct : BinarySerializable
         {
             public sbyte Byte_00 { get; set; }
             public byte Byte_01 { get; set; }

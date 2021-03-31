@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// GRX file data for EDU on PS1
     /// </summary>
-    public class R1_PS1Edu_GRXFile : R1Serializable
+    public class R1_PS1Edu_GRXFile : BinarySerializable
     {
         /// <summary>
         /// The file name

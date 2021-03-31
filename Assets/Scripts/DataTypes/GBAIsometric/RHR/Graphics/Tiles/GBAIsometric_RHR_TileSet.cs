@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_RHR_TileSet : R1Serializable
+    public class GBAIsometric_RHR_TileSet : BinarySerializable
     {
         public Pointer<GBAIsometric_RHR_GraphicsData> GraphicsDataPointer { get; set; }
         public Pointer<GBAIsometric_RHR_PaletteIndexTable> PaletteIndexTablePointer { get; set; }

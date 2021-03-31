@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class Jade_FileType : R1Serializable {
+	public class Jade_FileType : BinarySerializable {
 		public string Extension { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -29,7 +30,7 @@ namespace R1Engine
             s.Goto(basePointer + BlockLength);
         }
 
-        public class GBAVV_TileLayerData : R1Serializable
+        public class GBAVV_TileLayerData : BinarySerializable
         {
             public GBAVV_Map2D_MapLayer MapLayer { get; set; } // Set before serializing
 
@@ -48,7 +49,7 @@ namespace R1Engine
                     TileMapTileCommands[i] = s.DoAt(Offset + Offsets[i] * 4, () => s.SerializeObject<GBAVV_TileMapTileCommands>(TileMapTileCommands[i], name: $"{nameof(TileMapTileCommands)}[{i}]"));
             }
 
-            public class GBAVV_TileMapTileCommands : R1Serializable
+            public class GBAVV_TileMapTileCommands : BinarySerializable
             {
                 public GBAVV_TileCommand[] TileCommands { get; set; }
 
@@ -75,7 +76,7 @@ namespace R1Engine
                     }
                 }
 
-                public class GBAVV_TileCommand : R1Serializable
+                public class GBAVV_TileCommand : BinarySerializable
                 {
                     public byte TilesCount { get; set; }
                     public byte CommandType { get; set; }

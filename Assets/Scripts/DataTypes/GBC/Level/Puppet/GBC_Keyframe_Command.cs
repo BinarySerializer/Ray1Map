@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBC_Keyframe_Command : R1Serializable {
+    public class GBC_Keyframe_Command : BinarySerializable {
         public GBC_RomChannel ChannelData { get; set; } // Set before serializing
 
         public InstructionCommand Command { get; set; }
@@ -110,7 +111,7 @@ namespace R1Engine
             Terminator = 0xFF,
         }
 
-        public class TileAttribute : R1Serializable {
+        public class TileAttribute : BinarySerializable {
             public byte PalIndex { get; set; }
             public byte TransparentColorIndex { get; set; }
             public bool HorizontalFlip { get; set; }
@@ -128,7 +129,7 @@ namespace R1Engine
             }
         }
 
-        public class TileGraphicsInfo : R1Serializable
+        public class TileGraphicsInfo : BinarySerializable
         {
             public byte TileIndex { get; set; } // If -1, same effect as SetInvisible, otherwise SetVisible
             public TileAttribute Attribute { get; set; }
@@ -140,7 +141,7 @@ namespace R1Engine
             }
         }
 
-        public class LayerInfo : R1Serializable
+        public class LayerInfo : BinarySerializable
         {
             public byte DrawIndex { get; set; } // The index this sprite is given in the puppet's sprite array
             public TileGraphicsInfo Tile { get; set; }
@@ -156,7 +157,7 @@ namespace R1Engine
             }
         }
 
-        public class TileMapInfo : R1Serializable {
+        public class TileMapInfo : BinarySerializable {
             public byte Byte00_Indices { get; set; }
             public byte Count_Indices { get; set; }
             public byte[] TileIndices { get; set; }

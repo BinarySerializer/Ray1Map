@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
 using ImageMagick;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -36,13 +37,13 @@ namespace R1Engine
         {
             var worlds = WorldLevels.Length;
 
-            if (context.Settings.World == worlds && MenuLevels.Any())
+            if (context.GetR1Settings().World == worlds && MenuLevels.Any())
                 return LevelType.Menu;
 
-            if (context.Settings.World == worlds + 1)
+            if (context.GetR1Settings().World == worlds + 1)
                 return LevelType.DLC;
 
-            if (context.Settings.World == worlds + 2 && HasR3SinglePakLevel)
+            if (context.GetR1Settings().World == worlds + 2 && HasR3SinglePakLevel)
                 return LevelType.R3SinglePak;
 
             return LevelType.Game;
@@ -78,7 +79,7 @@ namespace R1Engine
         public async UniTask ExportAllCompressedBlocksAsync(GameSettings settings, string outputDir)
         {
             // Create a context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the ROM
                 await LoadFilesAsync(context);
@@ -162,7 +163,7 @@ namespace R1Engine
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Get the deserializer
                 var s = context.Deserializer;
@@ -250,7 +251,7 @@ namespace R1Engine
             GBA_Data data;
 
             // Export menu sprites
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the ROM
                 await LoadFilesAsync(context);
@@ -281,7 +282,7 @@ namespace R1Engine
 
                 settings.Level = lev;
 
-                using (var context = new Context(settings))
+                using (var context = new R1Context(settings))
                 {
                     // Load the ROM
                     await LoadFilesAsync(context);
@@ -611,7 +612,7 @@ namespace R1Engine
 
                 //s.DoAt(context.GetFile(GetGameCubeManifestFilePath).StartPointer, () => s.SerializeObject<GBA_GameCubeMapManifest>(default, name: "GameCubeManifest"));
 
-                var gcnFile = await context.AddLinearSerializedFileAsync($"map.{context.Settings.Level:000}");
+                var gcnFile = await context.AddLinearSerializedFileAsync($"map.{context.GetR1Settings().Level:000}");
 
                 var gcnMap = s.DoAt(gcnFile.StartPointer, () => s.SerializeObject<GBA_GameCubeMap>(default, name: "GameCubeMap"));
 
@@ -631,12 +632,12 @@ namespace R1Engine
 
                 if (lvlType == LevelType.Game)
                 {
-                    if (context.Settings.GBA_IsCommon)
+                    if (context.GetR1Settings().GBA_IsCommon)
                     {
                         scene = dataBlock.Scene;
                         playField = dataBlock.Scene.PlayField;
                     }
-                    else if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+                    else if (context.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_MadTrax)
                     {
                         scene = null;
 
@@ -650,7 +651,7 @@ namespace R1Engine
                             }.SelectMany(x => x.Layers).ToArray(),
                         };
                     }
-                    else if (context.Settings.GBA_IsMilan)
+                    else if (context.GetR1Settings().GBA_IsMilan)
                     {
                         scene = null;
                         playField = dataBlock.Milan_SceneList.Scene.PlayField;
@@ -670,8 +671,8 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            var uses3DCollision = context.Settings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy ||
-                                  context.Settings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear;
+            var uses3DCollision = context.GetR1Settings().EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy ||
+                                  context.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear;
 
             // Get the map layers
             var mapLayers = playField.Layers.Where(x => 
@@ -709,7 +710,7 @@ namespace R1Engine
             }
 
             // Create a normal 8x8 map array for Shanghai games with 32x8 maps
-            if (context.Settings.GBA_IsShanghai)
+            if (context.GetR1Settings().GBA_IsShanghai)
             {
                 foreach (var l in mapLayers.Where(x => x.Cluster?.Shanghai_MapTileSize == 1 || x.Cluster?.Shanghai_MapTileSize == 2))
                 {
@@ -740,7 +741,7 @@ namespace R1Engine
             }
 
             // Create a normal 8x8 map array for Milan games with 16x16 maps
-            if (context.Settings.GBA_IsMilan)
+            if (context.GetR1Settings().GBA_IsMilan)
             {
                 foreach (var l in mapLayers.Where(x => x.StructType == GBA_TileLayer.Type.Layer2D))
                 {
@@ -826,8 +827,8 @@ namespace R1Engine
                             TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0]
                         }).ToArray();
                     } else if (!map.UsesTileKitDirectly
-                        && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
-                        && context.Settings.EngineVersion > EngineVersion.GBA_BatmanVengeance) {
+                        && context.GetR1Settings().EngineVersion != EngineVersion.GBA_SplinterCell_NGage
+                        && context.GetR1Settings().EngineVersion > EngineVersion.GBA_BatmanVengeance) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
@@ -867,8 +868,8 @@ namespace R1Engine
                                 }
                             } else {
                                 index -= 2;
-                                if (context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia
-                                //&& context.Settings.EngineVersion < EngineVersion.GBA_StarWarsTrilogy
+                                if (context.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia
+                                //&& context.GetR1Settings().EngineVersion < EngineVersion.GBA_StarWarsTrilogy
                                 && playField.BGTileTable != null
                                 && playField.BGTileTable.IndicesCount8bpp > 383) {
                                     int numTiles = playField.BGTileTable.IndicesCount8bpp % 384;
@@ -896,7 +897,7 @@ namespace R1Engine
                         Width = map.Width,
                         Height = map.Height,
                         MapTiles = mapData.Select(x => new Unity_Tile(x)).ToArray(),
-                        Layer = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7 && context.Settings.EngineVersion != EngineVersion.GBA_R3_MadTrax) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
+                        Layer = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7 && context.GetR1Settings().EngineVersion != EngineVersion.GBA_R3_MadTrax) ? Unity_Map.MapLayer.Front : Unity_Map.MapLayer.Middle,
                         Settings3D = map.StructType == GBA_TileLayer.Type.RotscaleLayerMode7 ? Unity_Map.FreeCameraSettings.Mode7 : null
                     };
                     if (map.ShouldSetBGAlphaBlending) {
@@ -987,14 +988,14 @@ namespace R1Engine
                 localization: LoadLocalization(context),
                 cellSize: CellSize,
                 getCollisionTypeNameFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).ToString() : ((GBA_TileCollisionType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
+                getCollisionTypeGraphicFunc: x => playField.StructType == GBA_PlayField.Type.PlayFieldMode7 ? ((GBA_Mode7TileCollisionType)x).GetCollisionTypeGraphic() : ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.GetR1Settings().EngineVersion),
                 sectors: GetSectors(scene, dataBlock),
                 isometricData: isometricData,
                 trackManager: new Unity_TrackManager_GBA());
         }
 
-        public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0], data));
-        public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.Settings).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager, scene?.PlayField?.StructType == GBA_PlayField.Type.PlayFieldMode7)) ?? new Unity_Object_GBA[0];
+        public virtual Unity_ObjectManager GetObjectManager(Context context, GBA_Scene scene, GBA_Data data) => new Unity_ObjectManager_GBA(context, LoadActorModels(context, scene?.GetAllActors(context.GetR1Settings()) ?? new GBA_Actor[0], data));
+        public virtual IEnumerable<Unity_Object> GetObjects(Context context, GBA_Scene scene, Unity_ObjectManager objManager, GBA_Data data) => scene?.GetAllActors(context.GetR1Settings()).Select(a => new Unity_Object_GBA(a, (Unity_ObjectManager_GBA)objManager, scene?.PlayField?.StructType == GBA_PlayField.Type.PlayFieldMode7)) ?? new Unity_Object_GBA[0];
         public virtual Unity_Sector[] GetSectors(GBA_Scene scene, GBA_Data data) => scene?.Knots.Select(x => new Unity_Sector(x.ActorIndices.Concat(x.CaptorIndices ?? new byte[0]).Select(y => (int)y).ToList())).ToArray();
         public virtual Unity_ObjGraphics GetCommonDesign(GBA_BaseBlock puppetBlock, bool is8bit, GBA_Data data, GBA_Animation[] additionalAnimations)
         {
@@ -1010,10 +1011,10 @@ namespace R1Engine
             if (puppet == null)
                 return des;
 
-            var tileSetLength = puppet.Context.Settings.GBA_IsMilan ? (is8bit ? puppet.Milan_TileKit.TileSet8bppSize : puppet.Milan_TileKit.TileSet4bppSize) : puppet.TileSet.TileSetLength;
+            var tileSetLength = puppet.Context.GetR1Settings().GBA_IsMilan ? (is8bit ? puppet.Milan_TileKit.TileSet8bppSize : puppet.Milan_TileKit.TileSet4bppSize) : puppet.TileSet.TileSetLength;
 
             var length = tileSetLength / (is8bit ? 2 : 1);
-            var tileSet = puppet.Context.Settings.GBA_IsMilan ? (is8bit ? puppet.Milan_TileKit.TileSet8bpp : puppet.Milan_TileKit.TileSet4bpp) : puppet.TileSet.TileSet;
+            var tileSet = puppet.Context.GetR1Settings().GBA_IsMilan ? (is8bit ? puppet.Milan_TileKit.TileSet8bpp : puppet.Milan_TileKit.TileSet4bpp) : puppet.TileSet.TileSet;
             var pal = puppet.Palette.Palette;
             const int tileWidth = 8;
             int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
@@ -1188,7 +1189,7 @@ namespace R1Engine
                     loadedPuppets[i] = cachedPuppets[modelPuppets[i]];
                 }
 
-                graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.Index_ActorModel, context.Settings.GBA_IsMilan ? actor.ActorModel.Milan_Actions.Blocks.Select(y => y.Action).ToArray() : actor.ActorModel.Actions, loadedPuppets, actor.ActorModel.Milan_ActorID));
+                graphicsData.Add(new Unity_ObjectManager_GBA.ModelData(actor.Index_ActorModel, context.GetR1Settings().GBA_IsMilan ? actor.ActorModel.Milan_Actions.Blocks.Select(y => y.Action).ToArray() : actor.ActorModel.Actions, loadedPuppets, actor.ActorModel.Milan_ActorID));
             }
 
             // Set override animation indexes for actors
@@ -1211,20 +1212,20 @@ namespace R1Engine
             bool is8bpp;
             GBA_Palette[] tilePalettes;
             GBA_AnimatedTileKit[] animatedTilekits = null;
-            if (context.Settings.EngineVersion <= EngineVersion.GBA_BatmanVengeance)
+            if (context.GetR1Settings().EngineVersion <= EngineVersion.GBA_BatmanVengeance)
             {
                 is8bpp = map.TileKit.Is8bpp;
                 tileset = is8bpp ? map.TileKit.TileSet8bpp : map.TileKit.TileSet4bpp;
 
                 GBA_Palette pal;
 
-                if (context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                if (context.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance)
                     pal = playField.TilePalette;
-                else if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+                else if (context.GetR1Settings().EngineVersion == EngineVersion.GBA_R3_MadTrax)
                     pal = data.MadTraxPalette;
-                else if (context.Settings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                else if (context.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
                     pal = data.Milan_SceneList.Scene.TomClancy_TilePalette;
-                else if (context.Settings.GBA_IsMilan)
+                else if (context.GetR1Settings().GBA_IsMilan)
                     pal = map.TileKit.Palettes[0];
                 else
                     pal = data.Shanghai_Scene.TilePal;

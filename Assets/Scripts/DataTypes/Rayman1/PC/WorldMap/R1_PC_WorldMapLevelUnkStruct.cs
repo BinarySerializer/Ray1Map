@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_WorldMapLevelUnkStruct : R1Serializable
+    public class R1_PC_WorldMapLevelUnkStruct : BinarySerializable
     {
         public uint DataLength { get; set; }
         public byte[] Unk2 { get; set; }

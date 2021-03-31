@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_Isometric_TileSet : R1Serializable
+    public class GBAVV_Isometric_TileSet : BinarySerializable
     {
         public ushort TileSetCount_Total { get; set; } // Set before serializing
         public ushort TileSetCount_4bpp { get; set; } // Set before serializing
@@ -22,7 +23,7 @@ namespace R1Engine
             TileSet_4bpp_ConvertDatas = s.SerializeObjectArray<ConvertData>(TileSet_4bpp_ConvertDatas, TileSet_4bpp_ConvertIndexTable.Max() + 1, name: nameof(TileSet_4bpp_ConvertDatas));
         }
 
-        public class ConvertData : R1Serializable
+        public class ConvertData : BinarySerializable
         {
             public byte[] Data { get; set; }
 

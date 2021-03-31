@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Vignette world map data for Rayman Advance (GBA)
@@ -16,10 +18,10 @@
             Width = 48;
             Height = 36;
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_GBA)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA)
             {
                 // Get the pointer table
-                var pointerTable = PointerTables.R1_GBA_PointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+                var pointerTable = PointerTables.R1_GBA_PointerTable(s.GetR1Settings().GameModeSelection, this.Offset.File);
 
                 // Hard-code properties
                 ImageDataPointer = pointerTable[R1_GBA_ROMPointer.WorldMapVignetteImageData];
@@ -30,10 +32,10 @@
                 // Serialize data from pointers
                 SerializeVignette(s, false);
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
             {
                 // Get the pointer table
-                var pointerTable = PointerTables.R1_DSi_PointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+                var pointerTable = PointerTables.R1_DSi_PointerTable(s.GetR1Settings().GameModeSelection, this.Offset.File);
 
                 // Serialize pointers
                 s.DoAt(pointerTable[R1_DSi_Pointer.WorldMapVignette], () =>

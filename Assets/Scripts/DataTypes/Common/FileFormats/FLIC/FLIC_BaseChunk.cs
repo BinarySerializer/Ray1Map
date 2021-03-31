@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
-    public abstract class FLIC_BaseChunk : R1Serializable
+    public abstract class FLIC_BaseChunk : BinarySerializable
     {
         public uint ChunkSize { get; set; }
         public ushort ChunkType { get; set; }

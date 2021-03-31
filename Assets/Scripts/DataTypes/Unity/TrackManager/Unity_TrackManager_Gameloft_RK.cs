@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 
 namespace R1Engine

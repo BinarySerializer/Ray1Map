@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Encrypted file archive entry data for PC
     /// </summary>
-    public class R1_PC_EncryptedFileArchiveEntry : R1Serializable
+    public class R1_PC_EncryptedFileArchiveEntry : BinarySerializable
     {
         /// <summary>
         /// The XOR key to use when decoding the file
@@ -36,7 +38,7 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC)
             {
                 FileOffset = s.Serialize<uint>(FileOffset, name: nameof(FileOffset));
                 FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));

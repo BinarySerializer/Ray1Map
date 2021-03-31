@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Sound manifest data for PC
     /// </summary>
-    public class R1_PC_SoundManifest : R1Serializable
+    public class R1_PC_SoundManifest : BinarySerializable
     {
         /// <summary>
         /// The amount of sound file entries

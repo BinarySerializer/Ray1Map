@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class R1_PC_WorldFile : R1_PC_BaseWorldFile
     {
@@ -49,7 +51,7 @@
             VideoBiosCheckSum = s.Serialize<byte>(VideoBiosCheckSum, name: nameof(VideoBiosCheckSum));
             BiosCheckSum = s.Serialize<byte>(BiosCheckSum, name: nameof(BiosCheckSum));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC)
                 s.DoXOR(0x15, () => Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, Plan0NumPcxCount, name: nameof(Plan0NumPcx)));
             else
                 s.DoXOR(0x19, () => Plan0NumPcxFiles = s.SerializeStringArray(Plan0NumPcxFiles, Plan0NumPcxCount, 8, name: nameof(Plan0NumPcxFiles)));
@@ -64,7 +66,7 @@
             Eta = s.SerializeObjectArray<R1_PC_ETA>(Eta, Eta.Length, name: nameof(Eta));
 
             // Kit and EDU have more data...
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu)
             {
                 // Serialize world defines
                 WorldDefineChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
@@ -73,7 +75,7 @@
                 }, ChecksumPlacement.Before, name: nameof(WorldDefineChecksum));
 
                 // Serialize file tables
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit)
                 {
                     DESFileNames = s.SerializeStringArray(DESFileNames, 100, 13, name: nameof(DESFileNames));
                     ETAFileNames = s.SerializeStringArray(ETAFileNames, 60, 13, name: nameof(ETAFileNames));

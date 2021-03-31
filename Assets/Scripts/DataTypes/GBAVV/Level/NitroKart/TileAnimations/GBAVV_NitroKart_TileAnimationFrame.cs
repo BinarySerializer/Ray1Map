@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_TileAnimationFrame : R1Serializable
+    public class GBAVV_NitroKart_TileAnimationFrame : BinarySerializable
     {
         public int TilesCount { get; set; } // Set before serializing
 

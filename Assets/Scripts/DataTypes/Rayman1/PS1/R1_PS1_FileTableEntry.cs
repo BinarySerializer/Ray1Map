@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PS1_FileTableEntry : R1Serializable
+    public class R1_PS1_FileTableEntry : BinarySerializable
     {
         public Pointer FilePathPointer { get; set; }
         public uint MemoryAddress { get; set; } // Retail units have access to memory ranges between 0x80000000 and 0x801FFFFF
@@ -62,7 +64,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
             {
                 FilePath = s.SerializeString(FilePath, 32, name: nameof(FilePath));
                 MemoryAddress = s.Serialize<uint>(MemoryAddress, name: nameof(MemoryAddress));
@@ -73,7 +75,7 @@
                 s.Serialize<byte>(default, name: "Padding");
                 s.Log($"LBA: {LBA}");
                 FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
-                s.SerializeArray<byte>(new byte[s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ? 12 : 8], s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ? 12 : 8, name: "Padding");
+                s.SerializeArray<byte>(new byte[s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ? 12 : 8], s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ? 12 : 8, name: "Padding");
             }
             else
             {
@@ -93,9 +95,9 @@
 
             ProcessedFilePath = FilePath.Replace('\\', '/').Replace(";1", "").TrimStart('/');
 
-            if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPS1EUDemo || 
-                s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
-                s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+            if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1EUDemo || 
+                s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                 ProcessedFilePath = ProcessedFilePath.Replace("RAY/", "");
         }
     }

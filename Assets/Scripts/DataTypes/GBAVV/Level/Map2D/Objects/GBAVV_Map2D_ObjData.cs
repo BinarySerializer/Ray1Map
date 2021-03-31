@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_Map2D_ObjData : R1Serializable
+    public class GBAVV_Map2D_ObjData : BinarySerializable
     {
         public ushort ObjectsCount { get; set; }
         public ushort ObjGroupsCount { get; set; }

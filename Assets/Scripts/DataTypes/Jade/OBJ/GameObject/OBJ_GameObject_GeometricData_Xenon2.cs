@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_GeometricData_Xenon2 : R1Serializable {
+	public class OBJ_GameObject_GeometricData_Xenon2 : BinarySerializable {
 		public uint Type { get; set; } // Set in on PreSerialize
 
 		public uint Type4_UInt { get; set; }

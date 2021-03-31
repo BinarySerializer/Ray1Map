@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_Mode7Object : R1Serializable
+    public class GBARRR_Mode7Object : BinarySerializable
     {
         public Mode7Type ObjectType { get; set; }
         public short XPosition { get; set; }

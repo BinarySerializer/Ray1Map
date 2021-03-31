@@ -1,7 +1,9 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class LUDI_CompressedBlock<T> : LUDI_BaseBlock
-        where T : R1Serializable, new()
+        where T : BinarySerializable, new()
     {
         public uint TotalBlockSize { get; set; }
         public uint DecompressedSize { get; set; }
@@ -14,7 +16,7 @@
             CompressedSize = s.Serialize<uint>(CompressedSize, name: nameof(CompressedSize));
             s.DoEncoded(new Lzo1xEncoder(CompressedSize, DecompressedSize), () => {
                 Value = s.SerializeObject<T>(Value, name: nameof(Value));
-            }, R1Engine.Serialize.BinaryFile.Endian.Little);
+            }, Endian.Little);
         }
     }
 }

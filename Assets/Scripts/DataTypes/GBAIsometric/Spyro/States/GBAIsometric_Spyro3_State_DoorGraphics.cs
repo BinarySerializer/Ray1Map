@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro3_State_DoorGraphics : R1Serializable
+    public class GBAIsometric_Spyro3_State_DoorGraphics : BinarySerializable
     {
         public uint ID { get; set; }
         public ushort AnimationGroupIndex { get; set; }

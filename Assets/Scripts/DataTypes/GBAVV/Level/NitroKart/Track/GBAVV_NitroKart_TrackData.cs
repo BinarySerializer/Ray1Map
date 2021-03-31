@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_TrackData : R1Serializable
+    public class GBAVV_NitroKart_TrackData : BinarySerializable
     {
         public Pointer TrackWaypointsPointer_Normal { get; set; }
         public Pointer TrackWaypointsPointer_TimeTrial { get; set; }
@@ -16,7 +18,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 TrackWaypointsPointer_Normal = s.SerializePointer(TrackWaypointsPointer_Normal, name: nameof(TrackWaypointsPointer_Normal));
                 TrackWaypointsPointer_TimeTrial = s.SerializePointer(TrackWaypointsPointer_TimeTrial, name: nameof(TrackWaypointsPointer_TimeTrial));

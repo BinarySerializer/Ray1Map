@@ -1,9 +1,10 @@
 ﻿using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_SampleTable : R1Serializable
+    public class GAX2_SampleTable : BinarySerializable
     {
         public uint Length { get; set; }
         public Pointer Silence { get; set; }

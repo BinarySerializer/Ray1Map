@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_LevelInfo : R1Serializable
+    public class GBAVV_NitroKart_LevelInfo : BinarySerializable
     {
         public bool SerializeData { get; set; } // Set before serializing
 

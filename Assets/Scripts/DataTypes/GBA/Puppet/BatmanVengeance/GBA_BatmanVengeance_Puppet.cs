@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBA_BatmanVengeance_Puppet : GBA_BaseBlock {
         #region Data
@@ -38,7 +40,7 @@
             AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
             Index_TileSet = s.Serialize<byte>(Index_TileSet, name: nameof(Index_TileSet));
 
-            if (s.GameSettings.EngineVersion < EngineVersion.GBA_BatmanVengeance) {
+            if (s.GetR1Settings().EngineVersion < EngineVersion.GBA_BatmanVengeance) {
                 TilemapWidth = s.Serialize<byte>(TilemapWidth, name: nameof(TilemapWidth));
                 TilemapHeight = s.Serialize<byte>(TilemapHeight, name: nameof(TilemapHeight));
                 Padding = s.SerializeArray<byte>(Padding, 2, name: nameof(Padding));
@@ -58,7 +60,7 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            if (s.GameSettings.GBA_IsShanghai)
+            if (s.GetR1Settings().GBA_IsShanghai)
             {
                 TileSet = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, name: nameof(TileSet)));
             }

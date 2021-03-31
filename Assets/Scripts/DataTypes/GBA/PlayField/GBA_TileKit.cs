@@ -1,5 +1,6 @@
 ﻿
 using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -32,10 +33,10 @@ namespace R1Engine
         #endregion
 
         public override void SerializeBlock(SerializerObject s) {
-            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
+            if (s.GetR1Settings().EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
                 Is8bpp = s.Serialize<bool>(Is8bpp, name: nameof(Is8bpp));
 
-                if (s.GameSettings.GBA_IsMilan)
+                if (s.GetR1Settings().GBA_IsMilan)
                 {
                     CompressionType = s.Serialize<Milan_CompressionType>(CompressionType, name: nameof(CompressionType));
                 }
@@ -59,7 +60,7 @@ namespace R1Engine
                 Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
                 PaletteIndices = s.SerializeArray<byte>(PaletteIndices, PaletteCount, name: nameof(PaletteIndices));
 
-                CompressionType = IsCompressed && s.GameSettings.EngineVersion != EngineVersion.GBA_R3_NGage ? Milan_CompressionType.LZSS : Milan_CompressionType.None;
+                CompressionType = IsCompressed && s.GetR1Settings().EngineVersion != EngineVersion.GBA_R3_NGage ? Milan_CompressionType.LZSS : Milan_CompressionType.None;
             }
 
             // Serialize tilemap data
@@ -86,7 +87,7 @@ namespace R1Engine
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance) {
+            if (s.GetR1Settings().EngineVersion > EngineVersion.GBA_BatmanVengeance) {
                 // Serialize tile palette
                 if (Palettes == null) Palettes = new GBA_Palette[PaletteCount];
                 for (int p = 0; p < Palettes.Length; p++) {
@@ -100,10 +101,10 @@ namespace R1Engine
                     for (int i = 0; i < AnimatedTileKits.Length; i++) {
                         AnimatedTileKits[i] = s.DoAt(OffsetTable.GetPointer(AnimatedTileKitManager.TileKitBlocks[i]), () => s.SerializeObject<GBA_AnimatedTileKit>(AnimatedTileKits[i], name: $"{nameof(AnimatedTileKits)}[{i}]"));
                     }
-                    Debug.Log("Level " + s.GameSettings.Level + " (" + s.GameSettings.World + ") has " + AnimatedTileKits.Length + " animated tilekits.");
+                    Debug.Log("Level " + s.GetR1Settings().Level + " (" + s.GetR1Settings().World + ") has " + AnimatedTileKits.Length + " animated tilekits.");
                 }
             }
-            else if (s.GameSettings.GBA_IsMilan && OffsetTable.OffsetsCount > 0)
+            else if (s.GetR1Settings().GBA_IsMilan && OffsetTable.OffsetsCount > 0)
             {
                 if (Palettes == null)
                     Palettes = new GBA_Palette[1];

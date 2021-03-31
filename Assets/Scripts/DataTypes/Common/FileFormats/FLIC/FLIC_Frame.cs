@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class FLIC_Frame : R1Serializable
+    public class FLIC_Frame : BinarySerializable
     {
         public FLIC Flic { get; set; } // Set before serializing
 

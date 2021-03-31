@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -25,7 +26,7 @@ namespace R1Engine
             {
                 if (obj.Object.ObjectType != 0)
                 {
-                    GBAIsometric_Spyro_ObjInit.GetInitFunc(Context.Settings, obj.ObjType?.Data?.InitFunctionPointer?.AbsoluteOffset ?? 0)?.Invoke(obj, all3DObjects);
+                    GBAIsometric_Spyro_ObjInit.GetInitFunc(Context.GetR1Settings(), obj.ObjType?.Data?.InitFunctionPointer?.AbsoluteOffset ?? 0)?.Invoke(obj, all3DObjects);
 
                     if (obj.AnimSetIndex == -1 && !obj.IsEditorObj && obj.ObjType?.Data?.InitFunctionPointer != null)
                         Debug.LogWarning($"Type {obj.Object.ObjectType} is not implemented with init function at 0x{obj.ObjType?.Data?.InitFunctionPointer}");
@@ -63,9 +64,9 @@ namespace R1Engine
                 switch (obj.Object.Category)
                 {
                     case GBAIsometric_Spyro2_Object2D.ObjCategory.Door:
-                        obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x86);
+                        obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x86);
 
-                        switch (Context.Settings.Level)
+                        switch (Context.GetR1Settings().Level)
                         {
                             case 0:
                                 obj.AnimationGroupIndex = 0x03;
@@ -87,23 +88,23 @@ namespace R1Engine
                         {
                             // Enemies
                             case 0:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x92);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x92);
                                 obj.AnimationGroupIndex = 0x05;
                                 break;
                             case 1:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x91);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x91);
                                 obj.AnimationGroupIndex = 0x03;
                                 break;
                             case 2:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x8A);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x8A);
                                 obj.AnimationGroupIndex = 0x02;
                                 break;
                             case 3:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x84);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x84);
                                 obj.AnimationGroupIndex = 0x0B;
                                 break;
                             case 4:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x82);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x82);
                                 obj.AnimationGroupIndex = 0x01;
                                 break;
 
@@ -118,41 +119,41 @@ namespace R1Engine
 
                             // Mine
                             case 7:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x8E);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x8E);
                                 obj.AnimationGroupIndex = 0x00;
                                 break;
 
                             // Floating platforms
                             case 8:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x90);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x90);
                                 obj.AnimationGroupIndex = 0x02;
                                 break;
                             case 9:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x90);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x90);
                                 obj.AnimationGroupIndex = 0x00;
                                 break;
 
                             // Checkpoint fairy
                             case 11:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x88);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x88);
                                 obj.AnimationGroupIndex = 0x00;
                                 break;
 
                             // Agent 9
                             case 13:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x80);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x80);
                                 obj.AnimationGroupIndex = 0x08;
                                 break;
 
                             // Firefly
                             case 14:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x7C);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x7C);
                                 obj.AnimationGroupIndex = 0x03;
                                 break;
 
                             // Sign
                             case 15:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x96);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x96);
                                 obj.AnimationGroupIndex = 0x00;
                                 break;
 
@@ -167,27 +168,27 @@ namespace R1Engine
                         {
                             // Gem
                             case 0: // Red
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x89);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x89);
                                 obj.AnimationGroupIndex = 0x03;
                                 break;
 
                             case 1: // Diamond
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x89);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x89);
                                 obj.AnimationGroupIndex = 0x00;
                                 break;
 
                             case 2: // Gold
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x89);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x89);
                                 obj.AnimationGroupIndex = 0x05;
                                 break;
 
                             case 3: // Green
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x89);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x89);
                                 obj.AnimationGroupIndex = 0x01;
                                 break;
 
                             case 4: // Purple
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x89);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x89);
                                 obj.AnimationGroupIndex = 0x02;
                                 break;
 
@@ -197,7 +198,7 @@ namespace R1Engine
                             case 18:
                             case 19:
                             case 20:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x7E);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x7E);
                                 obj.AnimationGroupIndex = 0x05;
                                 break;
 
@@ -206,7 +207,7 @@ namespace R1Engine
                             case 34:
                             case 35:
                             case 36:
-                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.Settings.GameModeSelection, 0x7A);
+                                obj.AnimSetIndex = GBAIsometric_Spyro_ObjInit.ConvertAnimSetIndex(Context.GetR1Settings().GameModeSelection, 0x7A);
                                 obj.AnimationGroupIndex = 0x04;
                                 break;
 

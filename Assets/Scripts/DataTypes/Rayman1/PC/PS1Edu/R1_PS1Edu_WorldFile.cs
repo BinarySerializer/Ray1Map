@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// World data for EDU on PS1
     /// </summary>
-    public class R1_PS1Edu_WorldFile : R1Serializable
+    public class R1_PS1Edu_WorldFile : BinarySerializable
     {
         #region Public Properties
 

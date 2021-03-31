@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Vignette file data with multiple image blocks for Rayman 1 (PS1)
     /// </summary>
-    public class R1_PS1_MultiVignetteFile : R1Serializable
+    public class R1_PS1_MultiVignetteFile : BinarySerializable
     {
         /// <summary>
         /// The file pointers

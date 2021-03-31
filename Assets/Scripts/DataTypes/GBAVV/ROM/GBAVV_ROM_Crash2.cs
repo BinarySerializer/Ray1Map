@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -47,7 +48,7 @@ namespace R1Engine
 
         public override void SerializeAdditionalData(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable)
         {
-            var isJp = s.GameSettings.GameModeSelection == GameModeSelection.Crash2GBAJP;
+            var isJp = s.GetR1Settings().GameModeSelection == GameModeSelection.Crash2GBAJP;
 
             CutsceneTable = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Crash2_CutsceneTable), () => s.SerializeObjectArray<GBAVV_Crash2_CutsceneEntry>(CutsceneTable, isJp ? 55 : 54, name: nameof(CutsceneTable)));
 

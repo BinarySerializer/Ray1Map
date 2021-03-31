@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PCEdu_MOTFile : R1Serializable
+    public class R1_PCEdu_MOTFile : BinarySerializable
     {
         public ushort TextDefineCount { get; set; }
         public R1_PC_LocFileString[] TextDefine { get; set; }

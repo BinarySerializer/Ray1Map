@@ -1,5 +1,7 @@
-﻿namespace R1Engine.Jade {
-	public class AI_VarInfo : R1Serializable {
+﻿using BinarySerializer;
+
+namespace R1Engine.Jade {
+	public class AI_VarInfo : BinarySerializable {
 		public int BufferOffset { get; set; }
 		public int ArrayDimensionsCount { get; set; }
 		public int ArrayLength { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_VersionFile : R1Serializable
+    public class R1_PC_VersionFile : BinarySerializable
     {
         public byte VersionsCount { get; set; }
         public byte RuntimeCurrentVersion { get; set; }
@@ -28,7 +30,7 @@
             s.DoAt(Offset + 0x52, () => VersionModes = s.SerializeStringArray(VersionModes, VersionsCount, 20, name: nameof(VersionModes)));
             s.DoAt(Offset + 0x192, () => VersionMemoryInfos = s.SerializeObjectArray<R1_PC_VersionMemoryInfo>(VersionMemoryInfos, VersionsCount, name: nameof(VersionMemoryInfos)));
 
-            s.DoAt(Offset + (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit ? 0x392 : 0x312), () =>
+            s.DoAt(Offset + (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit ? 0x392 : 0x312), () =>
             {
                 DefaultPrimaryHeader = s.SerializeString(DefaultPrimaryHeader, 5, name: nameof(DefaultPrimaryHeader));
                 DefaultSecondaryHeader = s.SerializeString(DefaultSecondaryHeader, 5, name: nameof(DefaultSecondaryHeader));
@@ -36,7 +38,7 @@
             });
 
             // Make sure we actually end up at the end of the file.
-            s.Goto(Offset + (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit ? 0x39E : 0x31E));
+            s.Goto(Offset + (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit ? 0x39E : 0x31E));
         }
     }
 }

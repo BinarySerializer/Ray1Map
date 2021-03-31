@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// XM audio file data
     /// </summary>
-    public class XM_Instrument : R1Serializable {
+    public class XM_Instrument : BinarySerializable {
         public uint InstrumentSize { get; set; } = 243; // This is for instrument with sample. 29 without
         public string InstrumentName { get; set; }
         public byte InstrumentType { get; set; } = 0;

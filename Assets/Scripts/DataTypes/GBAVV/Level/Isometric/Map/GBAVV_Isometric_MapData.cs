@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_Isometric_MapData : R1Serializable
+    public class GBAVV_Isometric_MapData : BinarySerializable
     {
         public bool SerializeData { get; set; } // Set before serializing
 
@@ -125,7 +126,7 @@ namespace R1Engine
         }
     }
 
-    public class GBAVV_Isometric_UnkStruct_0 : R1Serializable
+    public class GBAVV_Isometric_UnkStruct_0 : BinarySerializable
     {
         public int Int_00 { get; set; }
         public short XPos_0 { get; set; }

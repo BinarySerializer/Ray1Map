@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Vignette background data for Rayman Advance (GBA)
@@ -38,7 +40,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize data
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_DSi) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi) {
                 DSi_Dword_00 = s.Serialize<uint>(DSi_Dword_00, name: nameof(DSi_Dword_00));
                 DSi_Dword_04 = s.Serialize<uint>(DSi_Dword_04, name: nameof(DSi_Dword_04));
             }
@@ -57,11 +59,11 @@
 
             UnkBytes_20 = s.SerializeArray<byte>(UnkBytes_20, 4, name: nameof(UnkBytes_20));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
                 DSi_Dword_2C = s.Serialize<uint>(DSi_Dword_2C, name: nameof(DSi_Dword_2C));
 
             // Serialize data from pointers
-            SerializeVignette(s, s.GameSettings.EngineVersion == EngineVersion.R1_DSi);
+            SerializeVignette(s, s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi);
         }
 
         #endregion

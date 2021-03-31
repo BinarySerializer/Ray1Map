@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Volume_MapInfo : R1Serializable
+    public class GBAVV_Volume_MapInfo : BinarySerializable
     {
         public bool SerializeData { get; set; } // Set before serializing
 
@@ -19,7 +21,7 @@
             Pointer_04 = s.SerializePointer(Pointer_04, name: nameof(Pointer_04));
             Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpiderMan3)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpiderMan3)
             {
                 Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
                 Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));

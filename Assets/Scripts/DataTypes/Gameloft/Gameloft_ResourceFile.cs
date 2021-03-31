@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class Gameloft_ResourceFile : R1Serializable
+    public class Gameloft_ResourceFile : BinarySerializable
     {
         public uint ResourcesCount { get; set; }
         public ushort OffsetsCount { get; set; }
@@ -17,7 +18,7 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.Gameloft_RK) {
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.Gameloft_RK) {
                 ResourcesCount = s.Serialize<uint>(ResourcesCount, name: nameof(ResourcesCount));
                 OffsetsCount = (ushort)ResourcesCount;
             } else {
@@ -25,7 +26,7 @@ namespace R1Engine
                 ResourcesCount = (uint)(OffsetsCount - 1);
             }
             if (ResourcesCount > 256) {
-                throw new System.Exception($"File {Offset.file.filePath} is not a valid resource file ({ResourcesCount} resources)!");
+                throw new System.Exception($"File {Offset.File.FilePath} is not a valid resource file ({ResourcesCount} resources)!");
             }
             Offsets = s.SerializeArray<uint>(Offsets, OffsetsCount, name: nameof(Offsets));
             StartPointer = s.CurrentPointer;
@@ -40,7 +41,7 @@ namespace R1Engine
             }
             Pointer startOffset = StartPointer;
             int size = 0;
-            if (Context.Settings.EngineVersion >= EngineVersion.Gameloft_RK) {
+            if (Context.GetR1Settings().EngineVersion >= EngineVersion.Gameloft_RK) {
                 if (i > 0) startOffset += Offsets[i - 1];
                 size = (int)(Offsets[i] - (i > 0 ? Offsets[i - 1] : 0));
                 startOffset += 1;
@@ -55,11 +56,11 @@ namespace R1Engine
 
         public T SerializeResource<T>(SerializerObject s, T t, int i, Action<T> onPreSerialize = null, string name = null) where T : Gameloft_Resource, new() {
             if (i >= ResourcesCount) {
-                throw new System.Exception($"{typeof(T)}: Resource number {i} too high for file {Offset.file.filePath} (max {ResourcesCount})");
+                throw new System.Exception($"{typeof(T)}: Resource number {i} too high for file {Offset.File.FilePath} (max {ResourcesCount})");
             }
             Pointer startOffset = StartPointer;
             int size = 0;
-            if (s.GameSettings.EngineVersion >= EngineVersion.Gameloft_RK) {
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.Gameloft_RK) {
                 if (i > 0) startOffset += Offsets[i - 1];
                 size = (int)(Offsets[i] - (i > 0 ? Offsets[i - 1] : 0));
                 startOffset += 1;

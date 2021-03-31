@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_CrashFusion_LevelInfo : R1Serializable
+    public class GBAVV_CrashFusion_LevelInfo : BinarySerializable
     {
         public GBAVV_Fusion_Manager.FusionLevInfo LevInfo { get; set; } // Set before serializing if it's the current level
 

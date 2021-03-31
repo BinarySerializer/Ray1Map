@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_Mode7_AnimSet : R1Serializable
+    public class GBAVV_Mode7_AnimSet : BinarySerializable
     {
         public bool IsSpongeBobSpecialAnim { get; set; } // Set before serializing
         public int? OverrideFramesCount { get; set; } // Set before serializing

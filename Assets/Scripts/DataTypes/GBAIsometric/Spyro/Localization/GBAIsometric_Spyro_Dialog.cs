@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_Dialog : R1Serializable
+    public class GBAIsometric_Spyro_Dialog : BinarySerializable
     {
         public uint ID { get; set; }
         public Pointer DialogDataPointer { get; set; }

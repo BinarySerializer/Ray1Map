@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_PortraitSprite : R1Serializable
+    public class GBAIsometric_Spyro_PortraitSprite : BinarySerializable
     {
         public uint ID { get; set; }
         public Pointer Pointer_04 { get; set; } // Uint array

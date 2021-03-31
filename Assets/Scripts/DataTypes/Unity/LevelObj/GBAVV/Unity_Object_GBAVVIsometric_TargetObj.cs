@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -33,7 +34,7 @@ namespace R1Engine
 
         public override bool FlipHorizontally { get; }
 
-        public override R1Serializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Object;
 
         public override string PrimaryName => $"Type_10_{(int)Object.ObjType}";
         public override string SecondaryName => $"{Object.ObjType}";

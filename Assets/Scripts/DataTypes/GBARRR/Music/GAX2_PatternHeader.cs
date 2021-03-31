@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_PatternHeader : R1Serializable
+    public class GAX2_PatternHeader : BinarySerializable
     {
         public ushort SequenceOffset { get; set; }
         public sbyte Transpose { get; set; }

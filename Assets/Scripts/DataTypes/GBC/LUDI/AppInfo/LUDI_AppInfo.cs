@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class LUDI_AppInfo : R1Serializable {
+    public class LUDI_AppInfo : BinarySerializable {
         public LUDI_Header Header { get; set; }
         public LUDI_OffsetTable OffsetTable { get; set; }
         public LUDI_DataInfo DataInfo { get; set; }

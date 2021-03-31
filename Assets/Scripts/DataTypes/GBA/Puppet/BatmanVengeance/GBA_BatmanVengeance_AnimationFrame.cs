@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBA_BatmanVengeance_AnimationFrame : R1Serializable {
+    public class GBA_BatmanVengeance_AnimationFrame : BinarySerializable {
         // Set in onPreSerialize
         public GBA_BatmanVengeance_Puppet Puppet { get; set; }
 

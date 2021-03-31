@@ -1,7 +1,9 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     // See: https://wiki.osdev.org/ISO_9660
-    public abstract class ISO9960_VolumeDescriptor : R1Serializable
+    public abstract class ISO9960_VolumeDescriptor : BinarySerializable
     {
         public byte TypeCode { get; set; }
         public string StandardIdentifier { get; set; }

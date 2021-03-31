@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PS1_BigRayBlock : R1Serializable
+    public class R1_PS1_BigRayBlock : BinarySerializable
     {
         /// <summary>
         /// The data length, set before serializing

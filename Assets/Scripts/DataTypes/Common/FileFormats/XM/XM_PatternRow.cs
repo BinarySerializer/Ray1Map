@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// XM audio file data
     /// </summary>
-    public class XM_PatternRow : R1Serializable {
+    public class XM_PatternRow : BinarySerializable {
         // Set in onPreSerialize
         public byte Flags { get; set; } = 0x80;
         public byte Note { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -39,7 +40,7 @@ namespace R1Engine
 		public override bool IsEditor => true;
         public override string DebugText => String.Empty;
 
-        public override R1Serializable SerializableData => Waypoint;
+        public override BinarySerializable SerializableData => Waypoint;
         public override ILegacyEditorWrapper LegacyWrapper => new DummyLegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Waypoint";

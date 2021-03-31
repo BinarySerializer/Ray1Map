@@ -1,6 +1,7 @@
 ﻿using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 
 namespace R1Engine
 {
@@ -8,9 +9,9 @@ namespace R1Engine
     {
         public static async UniTask MapperToRDAsync(GameSettings inputSettings, GameSettings outputSettings)
         {
-            using (var inputContext = new Context(inputSettings))
+            using (var inputContext = new R1Context(inputSettings))
             {
-                using (var outputContext = new Context(outputSettings))
+                using (var outputContext = new R1Context(outputSettings))
                 {
                     // Create managers
                     var mapperManager = new R1_Mapper_Manager();

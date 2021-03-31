@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -44,8 +45,8 @@ namespace R1Engine
 
             AnimSetsLookupTable = lookup.ToArray();
 
-            if (Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
-                Crash2_IsWorldMap = Context.Settings.GetGameManagerOfType<GBAVV_Crash2_Manager>().LevInfos[Context.Settings.Level].IsWorldMap;
+            if (Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2)
+                Crash2_IsWorldMap = Context.GetR1Settings().GetGameManagerOfType<GBAVV_Crash2_Manager>().LevInfos[Context.GetR1Settings().Level].IsWorldMap;
         }
 
         public AnimSet[][] AnimSets { get; }

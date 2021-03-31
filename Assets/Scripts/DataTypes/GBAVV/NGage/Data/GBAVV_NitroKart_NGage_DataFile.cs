@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_DataFile : R1Serializable
+    public class GBAVV_NitroKart_NGage_DataFile : BinarySerializable
     {
         public int BlocksCount { get; set; }
         public GBAVV_NitroKart_NGage_DataFileEntry[] DataFileEntries { get; set; }

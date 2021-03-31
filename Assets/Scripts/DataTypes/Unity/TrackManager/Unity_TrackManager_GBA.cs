@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -18,7 +19,7 @@ namespace R1Engine
 		public override bool IsAvailable(Context context, Unity_Level level)
         {
             // Make sure the game is Rayman 3 and Ssssam is in the level
-            return context.Settings.Game == Game.GBA_Rayman3 && level.EventData.OfType<Unity_Object_GBA>().Any(x => x.Actor.ActorID == (byte)GBA_R3_ActorID.Ssssam);
+            return context.GetR1Settings().Game == Game.GBA_Rayman3 && level.EventData.OfType<Unity_Object_GBA>().Any(x => x.Actor.ActorID == (byte)GBA_R3_ActorID.Ssssam);
         }
 
         public GBA_TileCollisionType? GetCollisionType(Unity_Level level, Vector2Int pos)

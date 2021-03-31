@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GAO_ModifierXMEN : MDF_Modifier {
@@ -33,7 +34,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public class Point : R1Serializable {
+		public class Point : BinarySerializable {
 			public uint Index { get; set; }
 			public float Float { get; set; }
 

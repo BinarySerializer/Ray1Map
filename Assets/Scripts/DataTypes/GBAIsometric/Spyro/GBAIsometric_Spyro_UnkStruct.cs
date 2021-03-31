@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_UnkStruct : R1Serializable
+    public class GBAIsometric_Spyro_UnkStruct : BinarySerializable
     {
         public ushort ID { get; set; }
         public byte Byte_02 { get; set; }

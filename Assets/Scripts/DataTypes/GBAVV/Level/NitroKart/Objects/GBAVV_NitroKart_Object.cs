@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_Object : R1Serializable
+    public class GBAVV_NitroKart_Object : BinarySerializable
     {
         public int XPos { get; set; }
         public int YPos { get; set; }
@@ -17,7 +19,7 @@
             Height = s.Serialize<int>(Height, name: nameof(Height));
             ObjType = s.Serialize<int>(ObjType, name: nameof(ObjType));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage) {
                 NGage_RelativeHeight = s.Serialize<int>(NGage_RelativeHeight, name: nameof(NGage_RelativeHeight));
                 NGage_Params = s.SerializeArray<byte>(NGage_Params, 0x10, name: nameof(NGage_Params));
             } else {

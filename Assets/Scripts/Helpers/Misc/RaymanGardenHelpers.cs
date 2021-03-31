@@ -1,15 +1,16 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine {
 	public class RaymanGardenHelpers {
-        public class Loc : R1Serializable {
+        public class Loc : BinarySerializable {
             public string Name { get; set; }
             public ushort HuffTableOffset { get; set; }
             public ushort HuffTableLength { get; set; }
@@ -30,7 +31,7 @@ namespace R1Engine {
                 NumTables = s.Serialize<ushort>(NumTables, name: nameof(NumTables));
                 Tables = s.SerializeObjectArray<Table>(Tables, NumTables, onPreSerialize: t => t.HuffTable = HuffTable, name: nameof(Tables));
             }
-            public class HuffTableEntry : R1Serializable {
+            public class HuffTableEntry : BinarySerializable {
                 public ushort Value { get; set; }
                 public ushort Left { get; set; }
                 public ushort Right { get; set; }
@@ -42,7 +43,7 @@ namespace R1Engine {
                     Right = s.Serialize<ushort>(Right, name: nameof(Right));
                 }
             }
-            public class Entry : R1Serializable {
+            public class Entry : BinarySerializable {
                 public byte ID { get; set; }
                 public byte Length { get; set; }
                 public ushort Pos { get; set; }
@@ -52,7 +53,7 @@ namespace R1Engine {
                     Pos = s.Serialize<ushort>(Pos, name: nameof(Pos));
                 }
             }
-            public class Table : R1Serializable {
+            public class Table : BinarySerializable {
                 public HuffTableEntry[] HuffTable { get; set; }
                 public byte ID { get; set; }
                 public ushort NumEntries { get; set; }
@@ -129,12 +130,12 @@ namespace R1Engine {
                     NumEntries = s.Serialize<ushort>(NumEntries, name: nameof(NumEntries));
                     Pos = s.Serialize<ushort>(Pos, name: nameof(Pos));
                     Padding = s.Serialize<ushort>(Padding, name: nameof(Padding));
-                    s.DoAt(new Pointer(Pos, Offset.file), () => {
+                    s.DoAt(new Pointer(Pos, Offset.File), () => {
                         Entries = s.SerializeObjectArray<Entry>(Entries, NumEntries, name: nameof(Entries));
                     });
                     Strings = new string[NumEntries];
                     for (int i = 0; i < Entries.Length; i++) {
-                        s.DoAt(new Pointer(Entries[i].Pos, Offset.file), () => {
+                        s.DoAt(new Pointer(Entries[i].Pos, Offset.File), () => {
                             s.DoEncoded(new Eclipse_StringEncoder(HuffTable, Entries[i]), () => {
                                 var bytes = s.SerializeArray<byte>(default, s.CurrentLength, "bytes[" + i + "]");
                                 string str = Encoding.Unicode.GetString(bytes);
@@ -153,7 +154,7 @@ namespace R1Engine {
             for (int i = 0; i < cols.Length; i++) {
                 cols[i] = new Color(pal[i * 3] / 255f, pal[i * 3 + 1] / 255f, pal[i * 3 + 2] / 255f, 1f);
             }
-            using (var context = new Context(input, settings)) {
+            using (var context = new R1Context(input, settings)) {
                 List<Loc> locs = new List<Loc>();
                 foreach (var file in Directory.EnumerateFiles(input + "/loc")) {
                     FileInfo fi = new FileInfo(file);

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using R1Engine;
-using R1Engine.Serialize;
+using BinarySerializer;
 using UnityEditor;
 using UnityEngine;
 
@@ -29,11 +28,11 @@ public class UnityWindowSerializer : SerializerObject
     public override Pointer CurrentPointer => null;
     public override void Goto(Pointer offset) { }
 
-    public override void DoEncoded(IStreamEncoder encoder, Action action, BinaryFile.Endian? endianness = null, bool allowLocalPointers = false) {
+    public override void DoEncoded(IStreamEncoder encoder, Action action, Endian? endianness = null, bool allowLocalPointers = false) {
         action();
     }
 
-    public override void DoEndian(BinaryFile.Endian endianness, Action action) {
+    public override void DoEndian(Endian endianness, Action action) {
         action();
     }
 

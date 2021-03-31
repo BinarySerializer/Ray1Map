@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBC_Video : GBC_BaseBlock {
         public byte FrameCount { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_TileVRAMMap : R1Serializable {
+    public class GBC_TileVRAMMap : BinarySerializable {
         public byte TileCount { get; set; }
         public ushort TileOffset { get; set; } // TileIndex = TileOffset / 16
         public ushort VRAMPointer { get; set; }

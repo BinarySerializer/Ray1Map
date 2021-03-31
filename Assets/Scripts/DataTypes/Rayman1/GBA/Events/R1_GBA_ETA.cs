@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class R1_GBA_ETA : R1Serializable
+    public class R1_GBA_ETA : BinarySerializable
     {
         public byte[] Lengths { get; set; }
         public R1_EventState[][] ETA { get; set; }

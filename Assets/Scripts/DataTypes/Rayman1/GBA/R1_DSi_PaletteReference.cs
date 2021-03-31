@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Palette Reference for Rayman 1 (DSi)
     /// </summary>
-    public class R1_DSi_PaletteReference : R1Serializable
+    public class R1_DSi_PaletteReference : BinarySerializable
     {
         public Pointer PalettePointer;
         public uint UInt_04;

@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// ETA data for PC
     /// </summary>
-    public class R1_PC_ETA : R1Serializable
+    public class R1_PC_ETA : BinarySerializable
     {
         /// <summary>
         /// The event states, order by Etat and SubEtat

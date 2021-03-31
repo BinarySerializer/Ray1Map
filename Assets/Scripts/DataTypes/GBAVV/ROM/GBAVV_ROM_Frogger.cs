@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -9,12 +10,12 @@ namespace R1Engine
         {
             get
             {
-                if (Context.Settings.World == 0)
-                    return MapInfos[Context.Settings.Level];
+                if (Context.GetR1Settings().World == 0)
+                    return MapInfos[Context.GetR1Settings().Level];
                 
-                var lvl = AdditionalLevelInfos[Context.Settings.Level / 2];
+                var lvl = AdditionalLevelInfos[Context.GetR1Settings().Level / 2];
 
-                return Context.Settings.Level % 2 == 0 ? lvl.LevelData.MapInfo1 : lvl.LevelData.MapInfo2;
+                return Context.GetR1Settings().Level % 2 == 0 ? lvl.LevelData.MapInfo1 : lvl.LevelData.MapInfo2;
             }
         }
 
@@ -26,7 +27,7 @@ namespace R1Engine
         public override void SerializeLevelInfo(SerializerObject s, Dictionary<GBAVV_Pointer, Pointer> pointerTable)
         {
             // Serialize level infos
-            if (s.GameSettings.World == 0)
+            if (s.GetR1Settings().World == 0)
             {
                 MapInfoPointers = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.LevelInfo), () => s.SerializePointerArray(MapInfoPointers, 17, name: nameof(MapInfoPointers)));
 
@@ -34,7 +35,7 @@ namespace R1Engine
                     MapInfos = new GBAVV_Generic_MapInfo[MapInfoPointers.Length];
 
                 for (int i = 0; i < MapInfos.Length; i++)
-                    MapInfos[i] = s.DoAt(MapInfoPointers[i], () => s.SerializeObject<GBAVV_Generic_MapInfo>(MapInfos[i], x => x.SerializeData = i == s.GameSettings.Level, name: $"{nameof(MapInfos)}[{i}]"));
+                    MapInfos[i] = s.DoAt(MapInfoPointers[i], () => s.SerializeObject<GBAVV_Generic_MapInfo>(MapInfos[i], x => x.SerializeData = i == s.GetR1Settings().Level, name: $"{nameof(MapInfos)}[{i}]"));
             }
             else
             {
@@ -46,8 +47,8 @@ namespace R1Engine
                     for (int i = 0; i < AdditionalLevelInfos.Length; i++)
                         AdditionalLevelInfos[i] = s.SerializeObject<GBAVV_Frogger_AdditionalLevelInfo>(AdditionalLevelInfos[i], x =>
                         {
-                            x.SerializeData1 = i == s.GameSettings.Level / 2f;
-                            x.SerializeData2 = i == (s.GameSettings.Level - 1) / 2f;
+                            x.SerializeData1 = i == s.GetR1Settings().Level / 2f;
+                            x.SerializeData2 = i == (s.GetR1Settings().Level - 1) / 2f;
                         }, name: $"{nameof(AdditionalLevelInfos)}[{i}]");
                 });
             }

@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBAVV_ROM_NitroKart : GBAVV_BaseROM
     {
         // Helpers
-        public GBAVV_NitroKart_LevelInfo CurrentLevelInfo => LevelInfos[Context.Settings.Level];
+        public GBAVV_NitroKart_LevelInfo CurrentLevelInfo => LevelInfos[Context.GetR1Settings().Level];
 
         // Nitro Kart
         public GBAVV_NitroKart_HubWorldPortal[][] HubWorldPortals { get; set; }
@@ -16,7 +18,7 @@
             base.SerializeImpl(s);
 
             // Get the pointer table
-            var pointerTable = PointerTables.GBAVV_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBAVV_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Serialize graphics
             SerializeGraphics(s);
@@ -41,17 +43,17 @@
                     LevelInfos = new GBAVV_NitroKart_LevelInfo[26];
 
                 for (int i = 0; i < LevelInfos.Length; i++)
-                    LevelInfos[i] = s.SerializeObject<GBAVV_NitroKart_LevelInfo>(LevelInfos[i], x => x.SerializeData = i == s.GameSettings.Level, name: $"{nameof(LevelInfos)}[{i}]");
+                    LevelInfos[i] = s.SerializeObject<GBAVV_NitroKart_LevelInfo>(LevelInfos[i], x => x.SerializeData = i == s.GetR1Settings().Level, name: $"{nameof(LevelInfos)}[{i}]");
             });
 
-            var objTypesDataPointers = s.GameSettings.GetGameManagerOfType<GBAVV_NitroKart_Manager>().ObjTypesDataPointers;
+            var objTypesDataPointers = s.GetR1Settings().GetGameManagerOfType<GBAVV_NitroKart_Manager>().ObjTypesDataPointers;
 
             // Serialize object type data
             if (ObjTypeData == null)
                 ObjTypeData = new GBAVV_NitroKart_ObjTypeData[objTypesDataPointers.Length];
 
             for (int i = 0; i < objTypesDataPointers.Length; i++)
-                ObjTypeData[i] = s.DoAt(objTypesDataPointers[i] == null ? null : new Pointer(objTypesDataPointers[i].Value, Offset.file), () => s.SerializeObject<GBAVV_NitroKart_ObjTypeData>(ObjTypeData[i], name: $"{nameof(ObjTypeData)}[{i}]"));
+                ObjTypeData[i] = s.DoAt(objTypesDataPointers[i] == null ? null : new Pointer(objTypesDataPointers[i].Value, Offset.File), () => s.SerializeObject<GBAVV_NitroKart_ObjTypeData>(ObjTypeData[i], name: $"{nameof(ObjTypeData)}[{i}]"));
         }
     }
 }

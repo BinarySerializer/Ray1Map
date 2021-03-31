@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Generic_MapInfo : R1Serializable
+    public class GBAVV_Generic_MapInfo : BinarySerializable
     {
         public bool SerializeData { get; set; } = true; // Set before serializing
 
@@ -29,11 +31,11 @@
             TilePalette2DPointer = s.SerializePointer(TilePalette2DPointer, name: nameof(TilePalette2DPointer));
             MapData2DPointer = s.SerializePointer(MapData2DPointer, name: nameof(MapData2DPointer));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_FroggerAdvance)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_FroggerAdvance)
             {
                 Frogger_Bytes = s.SerializeArray<byte>(Frogger_Bytes, 8, name: nameof(Frogger_Bytes));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
             {
                 SpongeBob_PaletteShiftPointer = s.Serialize<uint>(SpongeBob_PaletteShiftPointer, name: nameof(SpongeBob_PaletteShiftPointer));
                 SpongeBob_IsMode7 = s.Serialize<bool>(SpongeBob_IsMode7, name: nameof(SpongeBob_IsMode7));
@@ -56,10 +58,10 @@
             TilePalette2D = s.DoAt(TilePalette2DPointer, () => s.SerializeObjectArray<RGBA5551Color>(TilePalette2D, 256, name: nameof(TilePalette2D)));
             MapData2D = s.DoAt(MapData2DPointer, () => s.SerializeObject<GBAVV_Map2D_Data>(MapData2D, name: nameof(MapData2D)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman && SpongeBob_PaletteShiftPointer != 0)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman && SpongeBob_PaletteShiftPointer != 0)
             {
-                var memOffset = s.GameSettings.GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
-                SpongeBob_PaletteShifts = s.DoAt(new Pointer(SpongeBob_PaletteShiftPointer + memOffset, Offset.file), () => s.SerializeObject<GBAVV_Generic_PaletteShifts>(SpongeBob_PaletteShifts, name: nameof(SpongeBob_PaletteShifts)));
+                var memOffset = s.GetR1Settings().GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
+                SpongeBob_PaletteShifts = s.DoAt(new Pointer(SpongeBob_PaletteShiftPointer + memOffset, Offset.File), () => s.SerializeObject<GBAVV_Generic_PaletteShifts>(SpongeBob_PaletteShifts, name: nameof(SpongeBob_PaletteShifts)));
             }
         }
 

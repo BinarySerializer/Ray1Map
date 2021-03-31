@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_SpongeBobRevengeOfTheFlyingDutchman_LevelInfo : R1Serializable
+    public class GBAVV_SpongeBobRevengeOfTheFlyingDutchman_LevelInfo : BinarySerializable
     {
         public int SerializeDataForMap { get; set; } // Set before serializing
 
@@ -20,8 +22,8 @@
 
             if (MapsPointer != 0)
             {
-                var memOffset = s.GameSettings.GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
-                MapsPointers = s.DoAt(new Pointer(MapsPointer + memOffset, Offset.file), () => s.SerializePointerArray(MapsPointers, MapsCount, name: nameof(MapsPointers)));
+                var memOffset = s.GetR1Settings().GetGameManagerOfType<GBAVV_SpongeBobRevengeOfTheFlyingDutchman_Manager>().ROMMemPointersOffset;
+                MapsPointers = s.DoAt(new Pointer(MapsPointer + memOffset, Offset.File), () => s.SerializePointerArray(MapsPointers, MapsCount, name: nameof(MapsPointers)));
             }
 
             if (Maps == null)

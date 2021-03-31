@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Crash2_CutsceneEntry : R1Serializable
+    public class GBAVV_Crash2_CutsceneEntry : BinarySerializable
     {
         public int FLCIndex { get; set; }
         public int LocIndex { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Mode7_Animation : R1Serializable
+    public class GBAVV_Mode7_Animation : BinarySerializable
     {
         public ushort Ushort_00 { get; set; }
         public ushort FrameIndex { get; set; }

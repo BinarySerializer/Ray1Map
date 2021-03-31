@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_ObjectTable : R1Serializable
+    public class GBAIsometric_Spyro_ObjectTable : BinarySerializable
     {
         public uint Count { get; set; }
         public GBAIsometric_Object[] Objects { get; set; }

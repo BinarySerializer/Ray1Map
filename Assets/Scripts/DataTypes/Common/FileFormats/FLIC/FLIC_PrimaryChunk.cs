@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class FLIC_PrimaryChunk : FLIC_BaseChunk
     {

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public abstract class LUDI_BaseBlock : R1Serializable 
+    public abstract class LUDI_BaseBlock : BinarySerializable 
     {
         public LUDI_BlockIdentifier LUDI_Header { get; set; }
 
@@ -32,7 +34,7 @@
             s.Goto(BlockStartPointer);
             SerializeBlock(s);
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_Palm) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_Palm) {
                 s.Align(baseOffset: BlockStartPointer);
             }
             CheckBlockSize(s);

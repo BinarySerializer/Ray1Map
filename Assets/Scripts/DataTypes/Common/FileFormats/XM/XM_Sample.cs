@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// XM audio file data
     /// </summary>
-    public class XM_Sample : R1Serializable {
+    public class XM_Sample : BinarySerializable {
         public uint SampleLength { get; set; }
         public uint SampleLoopStart { get; set; }
         public uint SampleLoopLength { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -55,18 +56,18 @@ namespace R1Engine
             // Serialize ROM header
             base.SerializeImpl(s);
 
-            var pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
-            var manager = (GBAIsometric_Spyro_Manager)s.GameSettings.GetGameManager;
+            var pointerTable = PointerTables.GBAIsometric_Spyro_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
+            var manager = (GBAIsometric_Spyro_Manager)s.GetR1Settings().GetGameManager;
 
             // Serialize primary data table and store it so we can get the data blocks
             DataTable = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.DataTable], () => s.SerializeObject<GBAIsometric_Spyro_DataTable>(DataTable, name: nameof(DataTable)));
             s.Context.StoreObject(nameof(DataTable), DataTable);
 
             // Serialize the localization data
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAIsometric_Tron2)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.GBAIsometric_Tron2)
                 Localization = s.SerializeObject<GBAIsometric_Spyro_Localization>(Localization, name: nameof(Localization));
 
-            var id = GetLevelDataID(s.GameSettings);
+            var id = GetLevelDataID(s.GetR1Settings());
 
             // Serialize level data
             LevelData = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelData), () => s.SerializeObject(LevelData, x =>
@@ -74,11 +75,11 @@ namespace R1Engine
                 x.Length = manager.LevelDataCount;
                 x.UsesPointerArray = true;
                 x.Is2D = false;
-                x.SerializeDataForID = s.GameSettings.World != 0 ? -1 : id;
+                x.SerializeDataForID = s.GetR1Settings().World != 0 ? -1 : id;
             }, name: nameof(LevelData)));
             LevelObjects = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.LevelObjects), () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects, LevelData.Length, name: nameof(LevelObjects)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
             {
                 // Agent 9
                 LevelData_Spyro2_Agent9 = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData_Spyro2_Agent9], () => s.SerializeObject(LevelData_Spyro2_Agent9, x =>
@@ -86,13 +87,13 @@ namespace R1Engine
                     x.Length = 4;
                     x.UsesPointerArray = false;
                     x.Is2D = true;
-                    x.SerializeDataForID = s.GameSettings.World != 1 ? -1 : id;
+                    x.SerializeDataForID = s.GetR1Settings().World != 1 ? -1 : id;
                     x.AssignIDAsIndex = true;
                 }, name: nameof(LevelData_Spyro2_Agent9)));
 
                 ushort[] objIndices;
 
-                if (s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU)
+                if (s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameEU)
                     objIndices = new ushort[] { 0x4E3, 0x4F2, 0x4D4, 0x502 };
                 else
                     objIndices = new ushort[] { 0x4DE, 0x4ED, 0x4CF, 0x4FD };
@@ -106,7 +107,7 @@ namespace R1Engine
                 for (int i = 0; i < LevelObjects_Spyro2_Agent9.Length; i++)
                     LevelObjects_Spyro2_Agent9[i] = LevelObjectIndices_Spyro2_Agent9[i].DoAtBlock(size => s.SerializeObject<GBAIsometric_Spyro2_LevelObjects2D>(LevelObjects_Spyro2_Agent9[i], name: $"{nameof(LevelObjects_Spyro2_Agent9)}[{i}]"));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
             {
                 // Agent 9
 
@@ -115,7 +116,7 @@ namespace R1Engine
                     x.Length = 4;
                     x.UsesPointerArray = true;
                     x.Is2D = true;
-                    x.SerializeDataForID = s.GameSettings.World != 1 ? -1 : id;
+                    x.SerializeDataForID = s.GetR1Settings().World != 1 ? -1 : id;
                 }, name: nameof(LevelData_Spyro3_Agent9)));
                 LevelObjects_Spyro3_Agent9 = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_Agent9], () => s.SerializeObjectArray<GBAIsometric_Spyro_LevelObjects>(LevelObjects_Spyro3_Agent9, LevelData_Spyro3_Agent9.Length, name: nameof(LevelObjects_Spyro3_Agent9)));
 
@@ -123,14 +124,14 @@ namespace R1Engine
                 LevelObjects_Spyro3_SgtByrd = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_SgtByrd], () => s.SerializeObjectArray<GBAIsometric_Spyro_SgtByrdInfo>(LevelObjects_Spyro3_SgtByrd, 4, name: nameof(LevelObjects_Spyro3_SgtByrd)));
                 LevelObjects_Spyro3_ByrdRescue = s.DoAt(pointerTable[GBAIsometric_Spyro_Pointer.LevelObjects_Spyro3_ByrdRescue], () => s.SerializeObjectArray<GBAIsometric_Spyro_ByrdRescueInfo>(LevelObjects_Spyro3_ByrdRescue, 22, name: nameof(LevelObjects_Spyro3_ByrdRescue)));
 
-                id = GetLevelDataID(s.GameSettings);
+                id = GetLevelDataID(s.GetR1Settings());
 
                 LevelData_Spyro3_SgtByrd = s.DoAt<GBAIsometric_Spyro_LevelDataArray>(pointerTable[GBAIsometric_Spyro_Pointer.LevelData_Spyro3_SgtByrd], () => s.SerializeObject(LevelData_Spyro3_SgtByrd, x =>
                 {
                     x.Length = 13;
                     x.UsesPointerArray = true;
                     x.Is2D = true;
-                    x.SerializeDataForID = s.GameSettings.World != 2 && s.GameSettings.World != 3 ? -1 : id;
+                    x.SerializeDataForID = s.GetR1Settings().World != 2 && s.GetR1Settings().World != 3 ? -1 : id;
                 }, name: nameof(LevelData_Spyro3_SgtByrd)));
             }
 
@@ -157,11 +158,11 @@ namespace R1Engine
             MenuPages = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.MenuPages), () => s.SerializeObjectArray<GBAIsometric_Spyro_MenuPage>(MenuPages, manager.MenuPageCount, name: nameof(MenuPages)));
 
             // Serialize palettes for Spyro 2
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
             {
-                Spyro2_CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Spyro2_CommonPalette, 256, name: nameof(Spyro2_CommonPalette)));
+                Spyro2_CommonPalette = GBAIsometric_Spyro_DataBlockIndex.FromIndex(s, (ushort)(s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameEU ? 332 : 321)).DoAtBlock(size => s.SerializeObjectArray<RGBA5551Color>(Spyro2_CommonPalette, 256, name: nameof(Spyro2_CommonPalette)));
 
-                var palInfo = s.GameSettings.GameModeSelection == GameModeSelection.SpyroSeasonFlameUS ? Spyro2_PalInfoUS : Spyro2_PalInfoEU;
+                var palInfo = s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameUS ? Spyro2_PalInfoUS : Spyro2_PalInfoEU;
 
                 if (Spyro2_AnimSetPalettes == null)
                     Spyro2_AnimSetPalettes = new RGBA5551Color[palInfo.Length][][];
@@ -194,7 +195,7 @@ namespace R1Engine
             QuestItems = s.DoAt(pointerTable.TryGetItem(GBAIsometric_Spyro_Pointer.QuestItems), () => s.SerializeObjectArray<GBAIsometric_Spyro3_QuestItem>(QuestItems, 104, name: nameof(QuestItems)));
 
             // Serialize unknown struct
-            if (s.GameSettings.GameModeSelection == GameModeSelection.SpyroAdventureUS)
+            if (s.GetR1Settings().GameModeSelection == GameModeSelection.SpyroAdventureUS)
             {
                 UnkStructs = s.DoAt(Offset + 0x1c009c, () => s.SerializeObjectArray<GBAIsometric_Spyro_UnkStruct>(UnkStructs, 104, name: nameof(UnkStructs)));
                 // 0x1bfa10, same as UnkStruct

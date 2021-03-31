@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -33,10 +34,10 @@ namespace R1Engine
             // Serialize ROM header
             base.SerializeImpl(s);
 
-            var manager = ((GBA_Manager)s.Context.Settings.GetGameManager);
+            var manager = ((GBA_Manager)s.Context.GetR1Settings().GetGameManager);
 
             // Get the pointer table
-            var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.file);
+            var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.File);
             var lvlType = manager.GetLevelType(s.Context);
 
             // Serialize the offset table
@@ -50,7 +51,7 @@ namespace R1Engine
             // Serialize localization
             if (pointerTable.ContainsKey(GBA_Pointer.Localization))
             {
-                if (s.GameSettings.GBA_IsMilan)
+                if (s.GetR1Settings().GBA_IsMilan)
                     s.DoAt(pointerTable[GBA_Pointer.Localization], () => Milan_Localization = s.SerializeObject<GBA_Milan_LocTable>(Milan_Localization, name: nameof(Milan_Localization)));
                 else
                     s.DoAt(pointerTable[GBA_Pointer.Localization], () => Localization = s.SerializeObject<GBA_LocLanguageTable>(Localization, name: nameof(Localization)));

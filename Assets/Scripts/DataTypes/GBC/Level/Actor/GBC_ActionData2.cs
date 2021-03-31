@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_ActionData2 : R1Serializable {
+    public class GBC_ActionData2 : BinarySerializable {
         public byte[] Unknown2Data { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {

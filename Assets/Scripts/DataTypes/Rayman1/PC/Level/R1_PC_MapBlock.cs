@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Map block data for PC
     /// </summary>
-    public class R1_PC_MapBlock : R1Serializable
+    public class R1_PC_MapBlock : BinarySerializable
     {
         public byte MapBlockChecksum { get; set; }
 
@@ -47,7 +49,7 @@
                 // Create the palettes if necessary
                 if (ColorPalettes == null)
                 {
-                    ColorPalettes = s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit ? new RGB666Color[][]
+                    ColorPalettes = s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit ? new RGB666Color[][]
                     {
                         new RGB666Color[256],
                     } : new RGB666Color[][]
@@ -70,7 +72,7 @@
 
                 // Serialize the map cells
                 Tiles = s.SerializeObjectArray<MapTile>(Tiles, Height * Width, name: nameof(Tiles));
-            }, ChecksumPlacement.Before, calculateChecksum: s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu, name: nameof(MapBlockChecksum));
+            }, ChecksumPlacement.Before, calculateChecksum: s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu, name: nameof(MapBlockChecksum));
         }
     }
 }

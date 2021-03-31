@@ -1,5 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using R1Engine.Jade;
 using System.IO;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine 
@@ -32,7 +33,7 @@ namespace R1Engine
 			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
 		};
         public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
 				foreach (var bfPath in BFFiles) {
@@ -165,9 +166,9 @@ namespace R1Engine
         public async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) {
 			var s = context.Deserializer;
 			s.Goto(context.GetFile(bfPath).StartPointer);
-			await s.FillCacheForRead((int)BIG_BigFile.HeaderLength);
+			await s.FillCacheForReadAsync((int)BIG_BigFile.HeaderLength);
 			var bfFile = FileFactory.Read<BIG_BigFile>(bfPath, context);
-			await s.FillCacheForRead((int)bfFile.TotalFatFilesLength);
+			await s.FillCacheForReadAsync((int)bfFile.TotalFatFilesLength);
 			bfFile.SerializeFatFiles(s);
 			return bfFile;
 		}
@@ -188,7 +189,7 @@ namespace R1Engine
 
 			context.StoreObject<LOA_Loader>(LoaderKey, loader);
 			// Set up AI types
-			AI_Links aiLinks = AI_Links.GetAILinks(context.Settings);
+			AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
 			context.StoreObject<AI_Links>(AIKey, aiLinks);
 
 			// Load univers
@@ -203,7 +204,7 @@ namespace R1Engine
 			Controller.DetailedState = $"Loading world";
 			await Controller.WaitIfNecessary();
 
-			var worldKey = (Jade_Key)(uint)context.Settings.Level;
+			var worldKey = (Jade_Key)(uint)context.GetR1Settings().Level;
 
 			Jade_Reference<WOR_WorldList> WorldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
 			WorldList.Resolve(queue: LOA_Loader.QueueType.Maps);

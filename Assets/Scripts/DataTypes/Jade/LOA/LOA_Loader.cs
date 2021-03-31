@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class LOA_Loader {
@@ -122,17 +123,17 @@ namespace R1Engine.Jade {
 						Pointer off_target = f.FileOffset;
 						s.Goto(off_target);
 						s.Log($"LOA: Loading file: {f}");
-						await s.FillCacheForRead(4);
+						await s.FillCacheForReadAsync(4);
 						var fileSize = s.Serialize<uint>(default, name: "FileSize");
 						if (fileSize != 0) {
-							await s.FillCacheForRead((int)fileSize);
+							await s.FillCacheForReadAsync((int)fileSize);
 
 							// Add region
-							off_target.file.AddRegion(off_target.FileOffset + 4, fileSize, f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}");
+							off_target.File.AddRegion(off_target.FileOffset + 4, fileSize, f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}");
 
 							if (currentRef.IsBin && Bin != null) {
 								if (IsCompressed) {
-									s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
+									s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
 										uint decompressedLength = s.CurrentLength;
 										Bin.Serializer = s;
 										Bin.TotalSize = decompressedLength;
@@ -187,7 +188,7 @@ namespace R1Engine.Jade {
 						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 
 						// Add region
-						Bin.CurrentPosition.file.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
+						Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
 
 						Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
 					} else {

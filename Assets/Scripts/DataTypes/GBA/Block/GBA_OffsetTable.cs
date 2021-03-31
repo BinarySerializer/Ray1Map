@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// An offset table for GBA
     /// </summary>
-    public class GBA_OffsetTable : R1Serializable
+    public class GBA_OffsetTable : BinarySerializable
     {
         public int OffsetsCount { get; set; }
         public int[] Offsets { get; set; }
@@ -27,7 +28,7 @@ namespace R1Engine
 
             UsedOffsets[index] = true;
 
-            var manager = (GBA_Manager)Offset.Context.Settings.GetGameManager;
+            var manager = (GBA_Manager)Offset.Context.GetR1Settings().GetGameManager;
             var pointerTable = PointerTables.GBA_PointerTable(Offset.Context, Context.GetFile(manager.GetROMFilePath(Context)));
 
             var root = pointerTable[GBA_Pointer.UiOffsetTable];
@@ -35,7 +36,7 @@ namespace R1Engine
             if (manager.GetLevelType(Context) == GBA_Manager.LevelType.R3SinglePak)
                 root = pointerTable[GBA_Pointer.R3SinglePak_OffsetTable];
 
-            if (Context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+            if (Context.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                 if (Block == null) {
                     return root + Offsets[index];
                 } else {

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBC_SoundBank : GBC_BaseBlock
     {
@@ -19,7 +21,7 @@
         public Sound[] Sounds { get; set; }
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBC_R1_PocketPC) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBC_R1_PocketPC) {
                 FileOffsets = s.SerializeArraySize<uint, uint>(FileOffsets, name: nameof(FileOffsets));
                 FileOffsets = s.SerializeArray<uint>(FileOffsets, FileOffsets.Length, name: nameof(FileOffsets));
                 if(Files == null) Files = new SoundFile_PPC[FileOffsets.Length];
@@ -58,14 +60,14 @@
             }
         }
 
-		public class SoundID : R1Serializable {
+		public class SoundID : BinarySerializable {
             public byte[] Data { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
 				Data = s.SerializeArray<byte>(Data, 4, name: nameof(Data));
 			}
         }
 
-        public class Sound : R1Serializable {
+        public class Sound : BinarySerializable {
             public int Length { get; set; }
 
             public byte Command { get; set; }
@@ -75,7 +77,7 @@
             public override void SerializeImpl(SerializerObject s) {
                 Command = s.Serialize<byte>(Command, name: nameof(Command));
                 if (Command == 0) {
-                    if (s.GameSettings.Game == Game.GBC_DD || s.GameSettings.Game == Game.GBC_Mowgli) {
+                    if (s.GetR1Settings().Game == Game.GBC_DD || s.GetR1Settings().Game == Game.GBC_Mowgli) {
                         Data = s.SerializeArray<byte>(Data, 1, name: nameof(Data));
                     }
                     SoundProgramID = s.Serialize<byte>(SoundProgramID.HasValue ? SoundProgramID.Value : (byte)0, name: nameof(SoundProgramID));
@@ -85,7 +87,7 @@
             }
         }
 
-		public class SoundFile_PPC : R1Serializable {
+		public class SoundFile_PPC : BinarySerializable {
             public FileType Type { get; set; }
             public byte[] Data { get; set; }
 			public override void SerializeImpl(SerializerObject s) {

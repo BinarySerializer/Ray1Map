@@ -1,7 +1,8 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine {
-    public class MusyX_SampleTable : R1Serializable {
+    public class MusyX_SampleTable : BinarySerializable {
         // Set in OnPreSerialize
         public Pointer BaseOffset { get; set; }
 

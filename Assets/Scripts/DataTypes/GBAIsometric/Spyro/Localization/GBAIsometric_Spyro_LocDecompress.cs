@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_LocDecompress : R1Serializable
+    public class GBAIsometric_Spyro_LocDecompress : BinarySerializable
     {
         public byte b0 { get; set; }
         public byte b1 { get; set; }

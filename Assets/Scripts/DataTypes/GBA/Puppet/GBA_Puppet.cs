@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -35,9 +36,9 @@ namespace R1Engine
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (!s.GameSettings.GBA_IsMilan)
+            if (!s.GetR1Settings().GBA_IsMilan)
             {
-                if (s.GameSettings.EngineVersion != EngineVersion.GBA_Sabrina)
+                if (s.GetR1Settings().EngineVersion != EngineVersion.GBA_Sabrina)
                 {
                     Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
                     Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
@@ -46,7 +47,7 @@ namespace R1Engine
                 Index_TileSet = s.Serialize<byte>((byte)Index_TileSet, name: nameof(Index_TileSet));
                 Index_Palette = s.Serialize<byte>((byte)Index_Palette, name: nameof(Index_Palette));
 
-                if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
+                if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
                     Index_Unknown = s.Serialize<byte>(Index_Unknown, name: nameof(Index_Unknown));
 
                 Byte_04 = s.Serialize<byte>((byte)Byte_04, name: nameof(Byte_04)); // Byte_04 & 0xF == palette count
@@ -72,10 +73,10 @@ namespace R1Engine
         {
             Palette = s.DoAt(OffsetTable.GetPointer(Index_Palette), () => s.SerializeObject<GBA_SpritePalette>(Palette, name: nameof(Palette)));
 
-            if (!s.GameSettings.GBA_IsMilan)
+            if (!s.GetR1Settings().GBA_IsMilan)
                 TileSet = s.DoAt(OffsetTable.GetPointer(Index_TileSet), () => s.SerializeObject<GBA_SpriteTileSet>(TileSet, onPreSerialize: x =>
                 {
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina)
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_Sabrina)
                         x.IsDataCompressed = BitHelpers.ExtractBits(Byte_04, 1, 5) == 0;
                 }, name: nameof(TileSet)));
             else

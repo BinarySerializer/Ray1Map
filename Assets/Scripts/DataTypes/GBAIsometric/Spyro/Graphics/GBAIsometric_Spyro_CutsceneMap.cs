@@ -1,9 +1,10 @@
 ﻿using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_CutsceneMap : R1Serializable
+    public class GBAIsometric_Spyro_CutsceneMap : BinarySerializable
     {
         public GBAIsometric_Spyro_DataBlockIndex[] TileSetIndices { get; set; }
         public GBAIsometric_Spyro_DataBlockIndex MapIndex { get; set; }

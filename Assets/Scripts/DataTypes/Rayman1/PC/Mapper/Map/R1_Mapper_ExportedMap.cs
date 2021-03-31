@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Exported map data for the Mapper
     /// </summary>
-    public class R1_Mapper_ExportedMap : R1Serializable
+    public class R1_Mapper_ExportedMap : BinarySerializable
     {
         #region Header
 

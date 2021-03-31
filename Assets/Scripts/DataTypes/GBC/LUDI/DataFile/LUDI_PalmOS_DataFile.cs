@@ -1,4 +1,6 @@
-﻿namespace R1Engine {
+﻿using BinarySerializer;
+
+namespace R1Engine {
 	public class LUDI_PalmOS_DataFile : LUDI_BaseDataFile {
 		// Serialized properties
 		public Palm_Database Database { get; set; }

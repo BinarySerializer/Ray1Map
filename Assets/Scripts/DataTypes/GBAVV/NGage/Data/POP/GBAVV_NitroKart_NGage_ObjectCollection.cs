@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_ObjectCollection : R1Serializable
+    public class GBAVV_NitroKart_NGage_ObjectCollection : BinarySerializable
     {
         public Pointer ObjectsPointer { get; set; }
         public int ObjectsCount { get; set; }

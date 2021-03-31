@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BinarySerializer;
+using System;
 
 namespace R1Engine
 {
     /// <summary>
     /// Common map tile data
     /// </summary>
-    public class MapTile : R1Serializable, ICloneable
+    public class MapTile : BinarySerializable, ICloneable
     {
         #region Tile Properties (used in ray1map)
 
@@ -109,13 +110,13 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            if (s.GameSettings.GameModeSelection == GameModeSelection.MapperPC || s.GameSettings.EngineVersion == EngineVersion.R1_GBA|| s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+            if (s.GetR1Settings().GameModeSelection == GameModeSelection.MapperPC || s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA|| s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
             {
                 TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
                 TileMapX = 0;
                 CollisionType = s.Serialize<ushort>(CollisionType, name: nameof(CollisionType));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC)
             {
                 TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
                 TileMapX = 0;
@@ -124,7 +125,7 @@ namespace R1Engine
                 PC_TransparencyMode = s.Serialize<R1_PC_MapTileTransparencyMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
                 PC_Unk2 = s.Serialize<byte>(PC_Unk2, name: nameof(PC_Unk2));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
             {
                 s.SerializeBitValues<int>(bitFunc =>
                 {
@@ -133,7 +134,7 @@ namespace R1Engine
                     CollisionType = (byte)bitFunc(CollisionType, 8, name: nameof(CollisionType));
                 });
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_Saturn)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
@@ -144,7 +145,7 @@ namespace R1Engine
                 CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
                 s.Serialize<byte>(0, name: "Padding");
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
@@ -154,7 +155,7 @@ namespace R1Engine
 
                 TileMapX = 0;
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.SNES)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.SNES)
             {
                 if (!SNES_Is8PxTile)
                 {
@@ -180,11 +181,11 @@ namespace R1Engine
 
                 TileMapX = 0;
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBA)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBA)
             {
                 // TODO: Use SerializeBitValues
                 
-                if (s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan)
+                if (s.GetR1Settings().GBA_IsShanghai || s.GetR1Settings().GBA_IsMilan)
                 {
                     s.SerializeBitValues<ushort>(bitFunc =>
                     {
@@ -195,15 +196,15 @@ namespace R1Engine
                     });
                 }
                 else if ((GBATileType == GBA_TileType.BGTile || GBATileType == GBA_TileType.FGTile)
-                    && s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
-                    && s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
+                    && s.GetR1Settings().EngineVersion != EngineVersion.GBA_SplinterCell_NGage
+                    && s.GetR1Settings().EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                     int numBits = Is8Bpp ? 9 : 10;
 
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                         numBits = 8;
-                    }/*else if(s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
+                    }/*else if(s.GetR1Settings().EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
                         numBits = Is8Bpp ? 9 : 10;
-                    } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
+                    } else if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCell) {
                         numBits = 9;
                         if (GBATileType == GBA_TileType.FGTile) numBits = 10;
                     }*/
@@ -252,11 +253,11 @@ namespace R1Engine
                 } else {
                     int numBits = Is8Bpp ? 14 : 11;
 
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                         numBits = 10;
-                    } else if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                    } else if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                         numBits = Is8Bpp ? 14 : 12;
-                    } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
+                    } else if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCell) {
                         numBits = Is8Bpp ? 14 : 12;
                     }
 
@@ -269,25 +270,25 @@ namespace R1Engine
                     value = s.Serialize<ushort>(value, name: nameof(value));
 
                     TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage && Is8Bpp) {
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage && Is8Bpp) {
                         TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits-1, 0);
                     }
                     TileMapX = 0;
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                         VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits + 1) == 1;
                     }
                     if (!Is8Bpp) {
-                        if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
+                        if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCell) {
                             PaletteIndex = (byte)BitHelpers.ExtractBits(value, 3, 13);
                         } else {
                             PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
                         }
 
-                        if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell) {
+                        if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell) {
                             PaletteIndex += 8;
                         }
-                    } else if(s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
+                    } else if(s.GetR1Settings().EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                         VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits + 1) == 1;
                     }
 
@@ -296,7 +297,7 @@ namespace R1Engine
                     s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
                 }
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 || s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1 || s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
@@ -305,7 +306,7 @@ namespace R1Engine
                     CollisionType = (byte)bitFunc(CollisionType, 6, name: nameof(CollisionType));
                 });
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP)
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
@@ -313,7 +314,7 @@ namespace R1Engine
                     CollisionType = (byte)bitFunc(CollisionType, 7, name: nameof(CollisionType));
                 });
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBARRR)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBARRR)
             {
                 if (GBARRRType == GBARRR_MapBlock.MapType.Collision)
                 {
@@ -348,7 +349,7 @@ namespace R1Engine
                     TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
                 }
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBAIsometric)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBAIsometric)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
@@ -358,7 +359,7 @@ namespace R1Engine
                     PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
                 });
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBC)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBC)
             {
                 switch (GBCTileType) {
                     case GBC_TileType.Full:
@@ -387,7 +388,7 @@ namespace R1Engine
                         break;
                 }
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBAVV)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBAVV)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
@@ -399,7 +400,7 @@ namespace R1Engine
                         PaletteIndex = (byte)bitFunc(PaletteIndex, GBAVV_IsWorldMap ? 2 : 4, name: nameof(PaletteIndex));
                 });
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Gameloft)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.Gameloft)
             {
                 s.SerializeBitValues<byte>(bitFunc =>
                 {

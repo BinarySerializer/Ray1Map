@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Mode7_ObjData : R1Serializable
+    public class GBAVV_Mode7_ObjData : BinarySerializable
     {
         public uint Uint_00 { get; set; }
         public uint ObjectsCount { get; set; }

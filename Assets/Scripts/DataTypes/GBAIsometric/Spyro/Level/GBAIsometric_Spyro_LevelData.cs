@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_LevelData : R1Serializable
+    public class GBAIsometric_Spyro_LevelData : BinarySerializable
     {
         public bool Is2D { get; set; }
         public int SerializeDataForID { get; set; }
@@ -30,17 +32,17 @@
 
             if (Is2D)
             {
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2)
                     Collision2DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision2DIndex, x => x.HasPadding = true, name: nameof(Collision2DIndex));
 
                 TilePaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(TilePaletteIndex, x => x.HasPadding = true, name: nameof(TilePaletteIndex));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
                     Collision2DIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(Collision2DIndex, x => x.HasPadding = true, name: nameof(Collision2DIndex));
 
                 ObjPaletteIndex = s.SerializeObject<GBAIsometric_Spyro_DataBlockIndex>(ObjPaletteIndex, x => x.HasPadding = true, name: nameof(ObjPaletteIndex));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3)
                     ID = s.Serialize<uint>(ID, name: nameof(ID));
             }
             else

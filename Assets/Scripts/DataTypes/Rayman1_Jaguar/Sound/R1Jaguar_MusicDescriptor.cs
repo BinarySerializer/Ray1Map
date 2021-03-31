@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Music data for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_MusicDescriptor : R1Serializable
+    public class R1Jaguar_MusicDescriptor : BinarySerializable
     {
         public Pointer MusicDataPointer { get; set; }
         public ushort UShort_04 { get; set; }

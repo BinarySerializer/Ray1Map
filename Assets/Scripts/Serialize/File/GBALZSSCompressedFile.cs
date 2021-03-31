@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BinarySerializer;
+using System;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using Cysharp.Threading.Tasks;
 
-namespace R1Engine.Serialize {
-	// Implemented from: https://github.com/Barubary/dsdecmp/blob/master/CSharp/DSDecmp/Formats/Nitro/LZ10.cs
-	public class GBALZSSCompressedFile : LinearSerializedFile {
+namespace R1Engine
+{
+    // Implemented from: https://github.com/Barubary/dsdecmp/blob/master/CSharp/DSDecmp/Formats/Nitro/LZ10.cs
+    public class GBALZSSCompressedFile : LinearSerializedFile {
 		public GBALZSSCompressedFile(Context context) : base(context) {
 		}
 
-		public override Pointer StartPointer => new Pointer((uint)baseAddress, this);
+		public override Pointer StartPointer => new Pointer((uint)BaseAddress, this);
 
 		public override Reader CreateReader() {
 			Stream s = FileSystem.GetFileReadStream(AbsolutePath);
@@ -22,14 +19,14 @@ namespace R1Engine.Serialize {
             // Set the position to the beginning
             memStream.Position = 0;
 
-			length = (uint)memStream.Length;
+			Length = (uint)memStream.Length;
 			Reader reader = new Reader(memStream, isLittleEndian: Endianness == Endian.Little);
 			return reader;
 		}
 
 		public override Writer CreateWriter() {
 			Stream memStream = new MemoryStream();
-			memStream.SetLength(length);
+			memStream.SetLength(Length);
 			Writer writer = new Writer(memStream, isLittleEndian: Endianness == Endian.Little);
 			return writer;
 		}
@@ -48,15 +45,15 @@ namespace R1Engine.Serialize {
 		}
 
 		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
-			if (length == 0) {
+			if (Length == 0) {
 				Stream s = FileSystem.GetFileReadStream(AbsolutePath);
                 // Create a memory stream to write to so we can get the position
                 var memStream = Decode(s);
-				length = (uint)memStream.Length;
+				Length = (uint)memStream.Length;
 				memStream.Close();
 			}
 			uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
-			if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset <= baseAddress + length) {
+			if (serializedValue + anchorOffset >= BaseAddress && serializedValue + anchorOffset <= BaseAddress + Length) {
 				return new Pointer(serializedValue, this, anchor: anchor);
 			}
 			return null;

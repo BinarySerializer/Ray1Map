@@ -1,9 +1,10 @@
 ﻿using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_Fusion_MapCollisionLineData : R1Serializable
+    public class GBAVV_Fusion_MapCollisionLineData : BinarySerializable
     {
         public bool IsSingleValue { get; set; } // Set before serializing
 
@@ -16,7 +17,7 @@ namespace R1Engine
 
         public CollisionTypes GetCollisionType()
         {
-            if (Context?.Settings.EngineVersion == EngineVersion.GBAVV_CrashFusion)
+            if (Context?.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashFusion)
             {
                 if (Data.ElementAtOrDefault(0) == 1)
                     return CollisionTypes.Water;
@@ -27,7 +28,7 @@ namespace R1Engine
                 else if (Data.ElementAtOrDefault(13) == 1)
                     return CollisionTypes.Slippery;
             }
-            else if (Context?.Settings.EngineVersion == EngineVersion.GBAVV_SpyroFusion)
+            else if (Context?.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpyroFusion)
             {
                 if (Data.ElementAtOrDefault(9) == 1)
                     return CollisionTypes.Lava;

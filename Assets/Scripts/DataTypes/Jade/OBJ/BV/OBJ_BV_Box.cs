@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_BV_Box : R1Serializable {
+	public class OBJ_BV_Box : BinarySerializable {
 		public Jade_Vector Min { get; set; }
 		public Jade_Vector Max { get; set; }
 

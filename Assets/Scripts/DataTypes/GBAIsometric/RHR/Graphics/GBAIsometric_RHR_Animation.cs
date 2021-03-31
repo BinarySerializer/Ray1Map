@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_Animation : R1Serializable
+    public class GBAIsometric_RHR_Animation : BinarySerializable
     {
         public byte Speed { get; set; }
         public byte FrameCount { get; set; }

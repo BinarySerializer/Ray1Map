@@ -1,9 +1,10 @@
 ﻿using System;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_DataTable : R1Serializable
+    public class GBAIsometric_Spyro_DataTable : BinarySerializable
     {
         public GBAIsometric_Spyro_DataTableEntry[] DataEntries { get; set; }
 
@@ -45,7 +46,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            var manager = (GBAIsometric_Spyro_Manager)s.GameSettings.GetGameManager;
+            var manager = (GBAIsometric_Spyro_Manager)s.GetR1Settings().GetGameManager;
 
             DataEntries = s.SerializeObjectArray<GBAIsometric_Spyro_DataTableEntry>(DataEntries, manager.DataTableCount, name: nameof(DataEntries));
         }

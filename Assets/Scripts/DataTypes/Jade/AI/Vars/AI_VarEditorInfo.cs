@@ -1,7 +1,8 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class AI_VarEditorInfo : R1Serializable {
+	public class AI_VarEditorInfo : BinarySerializable {
 		public int BufferOffset { get; set; }
 		public int Int_04 { get; set; }
 		public int Int_08 { get; set; }

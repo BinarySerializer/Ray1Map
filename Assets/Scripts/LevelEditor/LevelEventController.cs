@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -191,7 +192,7 @@ namespace R1Engine
             
             // Get common properties
             var objManager = LevelEditorData.ObjManager;
-            var settings = objManager.Context.Settings;
+            var settings = objManager.Context.GetR1Settings();
             var objects = Controller.obj.levelController.Objects;
             var level = LevelEditorData.Level;
             var tilemapController = Controller.obj.levelController.controllerTilemap;
@@ -251,7 +252,7 @@ namespace R1Engine
 
                 // Hide any object linked to Rayman
                 var mainObj = objManager.GetMainObject(level.EventData);
-                if (mainObj != null && (objManager.Context.Settings.Game == Game.GBC_R1 || objManager.Context.Settings.Game == Game.GBC_R2))
+                if (mainObj != null && (objManager.Context.GetR1Settings().Game == Game.GBC_R1 || objManager.Context.GetR1Settings().Game == Game.GBC_R2))
                 {
                     foreach (var l in mainObj.Links)
                         objects[l].IsEnabled = false;

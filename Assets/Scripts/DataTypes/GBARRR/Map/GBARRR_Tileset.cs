@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_Tileset : R1Serializable
+    public class GBARRR_Tileset : BinarySerializable
     {
         public uint BlockSize { get; set; }
         public int PalLength { get; set; } = 256;

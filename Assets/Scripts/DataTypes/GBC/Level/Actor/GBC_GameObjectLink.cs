@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_GameObjectLink : R1Serializable
+    public class GBC_GameObjectLink : BinarySerializable
     {
         public byte MessageID { get; set; }
         public ushort MessageTarget { get; set; }

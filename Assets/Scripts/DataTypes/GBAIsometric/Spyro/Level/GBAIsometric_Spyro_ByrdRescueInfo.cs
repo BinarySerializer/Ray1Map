@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_ByrdRescueInfo : R1Serializable
+    public class GBAIsometric_Spyro_ByrdRescueInfo : BinarySerializable
     {
         public ushort ID { get; set; }
         public GameMode Game { get; set; }

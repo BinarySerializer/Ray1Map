@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class Jade_GenericReference : R1Serializable {
+	public class Jade_GenericReference : BinarySerializable {
 		public Jade_Key Key { get; set; }
 		public Jade_FileType FileType { get; set; }
 		public Jade_File Value { get; set; }

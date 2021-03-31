@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_AnimFrameImage : R1Serializable
+    public class GBAIsometric_Spyro_AnimFrameImage : BinarySerializable
     {
         public ushort TileIndex { get; set; }
         public byte Width { get; set; } // In pixels
@@ -43,7 +44,7 @@ namespace R1Engine
                     UnkPatternValue = (byte)bitFunc(UnkPatternValue, 8, name: nameof(UnkPatternValue));
                 });
             }
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAIsometric_Spyro3) {
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAIsometric_Spyro3) {
                 NumTiles = s.Serialize<byte>(NumTiles, name: nameof(NumTiles));
                 Bytes_09 = s.SerializeArray<byte>(Bytes_09, 7, name: nameof(Bytes_09));
             }

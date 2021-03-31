@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro2_State_ChallengePortal : R1Serializable
+    public class GBAIsometric_Spyro2_State_ChallengePortal : BinarySerializable
     {
         public ushort ObjectType { get; set; }
         public ushort SpawnerObjectType { get; set; }

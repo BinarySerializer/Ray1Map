@@ -1,8 +1,9 @@
 ﻿using System;
-using R1Engine.Serialize;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -58,7 +59,7 @@ namespace R1Engine
 
                     settings.Level = lev;
 
-                    using (var context = new Context(settings))
+                    using (var context = new R1Context(settings))
                     {
                         // Load the ROM
                         await LoadFilesAsync(context);

@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event graphics block for some special events in Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_EventComplexDataTransition : R1Serializable
+    public class R1Jaguar_EventComplexDataTransition : BinarySerializable
     {
         public ushort StructType { get; set; } // Read from EventDefinition
         public ushort NumLayers { get; set; } // Read from EventDefinition

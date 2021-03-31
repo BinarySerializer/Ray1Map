@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -28,7 +29,7 @@ namespace R1Engine
         public override GBAVV_BaseROM LoadROMForExport(Context context) => FileFactory.Read<GBAVV_ROM_NitroKart>(GetROMFilePath, context);
         public override async UniTask ExportCutscenesAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -70,8 +71,8 @@ namespace R1Engine
                 map.TilePalette
             };
 
-            var mode7TileSets = tilePalettes.Select(p => LoadTileSet(map.Mode7TileSet, p, true, context.Settings.EngineVersion, 0, null)).ToArray();
-            var bgTileSets = tilePalettes.Select(p => LoadTileSet(map.BackgroundTileSet.TileSet, p, false, context.Settings.EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray(), map.BackgroundTileAnimations)).ToArray();
+            var mode7TileSets = tilePalettes.Select(p => LoadTileSet(map.Mode7TileSet, p, true, context.GetR1Settings().EngineVersion, 0, null)).ToArray();
+            var bgTileSets = tilePalettes.Select(p => LoadTileSet(map.BackgroundTileSet.TileSet, p, false, context.GetR1Settings().EngineVersion, 0, map.BackgroundMapLayers.SelectMany(x => x.TileMap.MapTiles).ToArray(), map.BackgroundTileAnimations)).ToArray();
 
             Controller.DetailedState = "Loading maps";
             await Controller.WaitIfNecessary();

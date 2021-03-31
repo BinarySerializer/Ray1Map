@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_Vignette : R1Serializable
+    public class GBARRR_Vignette : BinarySerializable
     {
         public RGBA5551Color[] Palette { get; set; }
         public byte[] ImgData { get; set; }

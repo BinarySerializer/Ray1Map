@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
 	public class Gameloft_RRR_MapLayerData : Gameloft_Resource {
 		public Gameloft_RRR_MapLayerHeader Header { get; set; } // Set in onPreSerialize
@@ -19,7 +21,7 @@
                         s.SerializeBitValues<byte>(bitFunc =>
                         {
 							int bpt = 2; // bits per tile
-							if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x128_CZ) {
+							if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanRavingRabbidsMobile_128x128_CZ) {
 								bpt = 1;
 							}
 							for (int j = 0; j < (8/bpt); j++) // 4 * 2 = 8 (2 bits per collision type)

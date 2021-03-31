@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -99,7 +100,7 @@ namespace R1Engine
         /// <returns>The binary file</returns>
         protected override BinaryFile GetFile(Context context, string filePath) => new GzipCompressedFile(context)
         {
-            filePath = filePath
+            FilePath = filePath
         };
 
         protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
@@ -109,7 +110,7 @@ namespace R1Engine
             await AddFile(context, lngPath);
 
             // Read the language file
-            var lng = FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
+            var lng = R1FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
 
             // Set the common localization
             return new KeyValuePair<string, string[]>[]
@@ -159,7 +160,7 @@ namespace R1Engine
         {
             var s = context.Deserializer;
 
-            var headerBytes = R1_PC_ArchiveHeaders.GetHeader(context.Settings, "VIGNET.DAT");
+            var headerBytes = R1_PC_ArchiveHeaders.GetHeader(context.GetR1Settings(), "VIGNET.DAT");
             var headerLength = headerBytes.Length / 12;
 
             var headerStream = new MemoryStream(headerBytes);
@@ -171,7 +172,7 @@ namespace R1Engine
         public override void ExtractVignette(GameSettings settings, string vigPath, string outputDir)
         {
             // Create a new context
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 R1_PC_EncryptedFileArchiveEntry[] entries = LoadVignetteHeader(context);
                 var s = context.Deserializer;
@@ -182,7 +183,7 @@ namespace R1Engine
                     var path = GetVignetteFilePath(i);
                     var file = new GzipCompressedFile(context)
                     {
-                        filePath = path
+                        FilePath = path
                     };
 
                     context.AddFile(file);

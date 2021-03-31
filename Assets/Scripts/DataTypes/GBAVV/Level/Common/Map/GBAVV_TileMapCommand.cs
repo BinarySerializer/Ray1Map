@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_TileMapCommand : R1Serializable
+    public class GBAVV_TileMapCommand : BinarySerializable
     {
         public ushort Length { get; set; }
         public byte Type { get; set; }

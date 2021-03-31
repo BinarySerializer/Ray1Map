@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BinarySerializer;
 using UnityEngine;
 
 public class WebCommunicator : MonoBehaviour {
@@ -362,7 +363,7 @@ public class WebCommunicator : MonoBehaviour {
 
 				case Unity_Object_GBAVV crashObj:
 					if (crashObj.ObjParams?.Any() == true)
-					    webObj.GBAVV_ObjParams = Util.ByteArrayToHexString(crashObj.ObjParams);
+					    webObj.GBAVV_ObjParams = crashObj.ObjParams.ToHexString();
 
 					if (crashObj.AnimSetIndex != -1)
                     {
@@ -399,7 +400,7 @@ public class WebCommunicator : MonoBehaviour {
                     if (crashObj.Object.ParamsPointer != null)
                         webObj.GBAVV_ObjParams = $"0x{crashObj.Object.ParamsPointer.AbsoluteOffset:X8}";
 					else if (crashObj.Object.NGage_Params != null)
-                        webObj.GBAVV_ObjParams = Util.ByteArrayToHexString(crashObj.Object.NGage_Params);
+                        webObj.GBAVV_ObjParams = crashObj.Object.NGage_Params.ToHexString();
 
                     if (crashObj.AnimSetIndex != -1)
                     {
@@ -443,7 +444,7 @@ public class WebCommunicator : MonoBehaviour {
 	}
 	public WebJSON.GameSettings GetGameSettingsJSON() {
 		Context c = LevelEditorData.MainContext;
-		GameSettings g = c.Settings;
+		GameSettings g = c.GetR1Settings();
 		return new WebJSON.GameSettings() {
 			MajorEngineVersion = g.MajorEngineVersion,
 			EngineVersion = g.EngineVersion,
@@ -494,8 +495,8 @@ public class WebCommunicator : MonoBehaviour {
 
 		// Add layers
 		var c = LevelEditorData.MainContext;
-		s.CanUseStateSwitchingMode = (c?.Settings?.MajorEngineVersion == MajorEngineVersion.Rayman1) == true;
-		s.CanUseCrashTimeTrialMode = (c?.Settings?.EngineVersion == EngineVersion.GBAVV_Crash1 || c?.Settings?.EngineVersion == EngineVersion.GBAVV_Crash2) == true;
+		s.CanUseStateSwitchingMode = (c?.GetR1Settings()?.MajorEngineVersion == MajorEngineVersion.Rayman1) == true;
+		s.CanUseCrashTimeTrialMode = (c?.GetR1Settings()?.EngineVersion == EngineVersion.GBAVV_Crash1 || c?.GetR1Settings()?.EngineVersion == EngineVersion.GBAVV_Crash2) == true;
 		var lvl = LevelEditorData.Level;
 		if (Controller.obj?.levelController?.controllerTilemap != null) {
 			var tc = Controller.obj?.levelController?.controllerTilemap;
@@ -522,7 +523,7 @@ public class WebCommunicator : MonoBehaviour {
 			if (layers.Count > 0) {
 				s.Layers = layers.ToArray();
 			}
-			if (c?.Settings.EngineVersion == EngineVersion.R2_PS1) {
+			if (c?.GetR1Settings().EngineVersion == EngineVersion.R2_PS1) {
 				var objLayers = Controller.obj.levelController.Objects
 					.Select(o => o.ObjData.MapLayer).Distinct()
 					.Where(l => l.HasValue && (LevelEditorData.ShowEventsForMaps?.Length ?? 0) > l.Value);

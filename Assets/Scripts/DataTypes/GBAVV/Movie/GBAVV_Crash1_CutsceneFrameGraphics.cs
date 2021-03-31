@@ -1,9 +1,10 @@
 ﻿using System;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_Crash1_CutsceneFrameGraphics : R1Serializable
+    public class GBAVV_Crash1_CutsceneFrameGraphics : BinarySerializable
     {
         public RGBA5551Color[] Palette { get; set; }
         public byte[] ImageData { get; set; }

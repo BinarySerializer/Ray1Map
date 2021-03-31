@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Animation descriptor data for EDU on PS1
     /// </summary>
-    public class R1_PS1Edu_AnimationDescriptor : R1Serializable, IR1_AnimationDescriptor
+    public class R1_PS1Edu_AnimationDescriptor : BinarySerializable, IR1_AnimationDescriptor
     {
         #region Descriptor Properties
 

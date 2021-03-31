@@ -1,7 +1,8 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -58,7 +59,7 @@ namespace R1Engine
                 ed.EventData.Init(s.CurrentPointer);
                 ed.EventData.Serialize(s);
 
-                if (s is BinarySerializer)
+                if (s is BinarySerializer.BinarySerializer)
                 {
                     Debug.Log($"Edited event {ed.EventData.EventIndex}");
                     madeEdits = true;
@@ -108,7 +109,7 @@ namespace R1Engine
                         mapTile.Data.Init(s.CurrentPointer);
                         mapTile.Data.Serialize(s);
 
-                        if (s is BinarySerializer)
+                        if (s is BinarySerializer.BinarySerializer)
                             madeEdits = true;
 
                         mapTile.HasPendingEdits = false;

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_Object : R1Serializable
+    public class GBAVV_Isometric_Object : BinarySerializable
     {
         public GBAVV_Isometric_ObjType ObjType { get; set; }
         public GBAVV_Isometric_ObjType ObjType_TimeTrial { get; set; }

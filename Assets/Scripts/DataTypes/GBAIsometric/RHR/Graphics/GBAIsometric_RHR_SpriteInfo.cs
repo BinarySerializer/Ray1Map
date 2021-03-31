@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_SpriteInfo : R1Serializable
+    public class GBAIsometric_RHR_SpriteInfo : BinarySerializable
     {
         public int Width { get; set; } // In 8x8 tiles
         public int Height { get; set; }

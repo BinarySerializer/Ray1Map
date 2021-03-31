@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_ObjTypeData : R1Serializable
+    public class GBAVV_NitroKart_ObjTypeData : BinarySerializable
     {
         public int ObjType { get; set; }
         public int Int_04 { get; set; }
@@ -31,7 +33,7 @@
             Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
             GraphicsDataPointer = s.SerializePointer(GraphicsDataPointer, name: nameof(GraphicsDataPointer));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
                 AnimSetIndex = s.Serialize<int>(AnimSetIndex, name: nameof(AnimSetIndex));
             
             Int_1C = s.Serialize<int>(Int_1C, name: nameof(Int_1C));
@@ -43,7 +45,7 @@
 
             // TODO: Some objects have additional data
 
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
             {
                 GraphicsData = s.DoAt(GraphicsDataPointer, () => s.SerializeObject<GBAVV_Graphics>(GraphicsData, name: nameof(GraphicsData)));
             }

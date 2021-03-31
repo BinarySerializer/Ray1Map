@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -116,7 +117,7 @@ namespace R1Engine
             // TODO: Dispose when we stop program?
             if (gameMemoryContext == null)
             {
-                gameMemoryContext = new Context(LevelEditorData.CurrentSettings);
+                gameMemoryContext = new R1Context(LevelEditorData.CurrentSettings);
 
                 try
                 {
@@ -157,11 +158,11 @@ namespace R1Engine
                     }
 
                     // TODO: Find better way to handle this
-                    if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 ||
-                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP ||
-                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
-                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ||
-                        s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1 ||
+                        s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP ||
+                        s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                        s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ||
+                        s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
                         baseStreamOffset -= 0x80000000;
 
                     file.BaseStreamOffset = baseStreamOffset;

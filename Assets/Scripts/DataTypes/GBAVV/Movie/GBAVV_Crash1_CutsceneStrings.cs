@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Crash1_CutsceneStrings : R1Serializable
+    public class GBAVV_Crash1_CutsceneStrings : BinarySerializable
     {
         public GBAVV_Crash1_CutsceneEntry[] CutsceneTable { get; set; } // Set before serializing
 

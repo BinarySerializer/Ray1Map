@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -108,13 +109,13 @@ namespace R1Engine
 
         public void DecryptSaveFiles(GameSettings settings)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.sav", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
                 {
                     LinearSerializedFile f = new LinearSerializedFile(context)
                     {
-                        filePath = save
+                        FilePath = save
                     };
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
@@ -141,13 +142,13 @@ namespace R1Engine
 
         public void ReadSaveFiles(GameSettings settings)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.sav", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
                 {
                     LinearSerializedFile f = new LinearSerializedFile(context)
                     {
-                        filePath = save
+                        FilePath = save
                     };
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
@@ -158,8 +159,8 @@ namespace R1Engine
             }
         }
 
-        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_R1PCDES[context.Settings.R1_World == R1_World.Menu ? 0 : context.Settings.World - 1];
-        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_R1PCETA[context.Settings.R1_World == R1_World.Menu ? 0 : context.Settings.World - 1];
+        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_R1PCDES[context.GetR1Settings().R1_World == R1_World.Menu ? 0 : context.GetR1Settings().World - 1];
+        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_R1PCETA[context.GetR1Settings().R1_World == R1_World.Menu ? 0 : context.GetR1Settings().World - 1];
 
         public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.R1PC_Type_ZDC;
         public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.R1PC_ZDCTable;
@@ -172,7 +173,7 @@ namespace R1Engine
             if (parallax && level.ParallaxBackgroundIndex == level.BackgroundIndex)
                 return UniTask.FromResult<Texture2D>(null);
 
-            var tex = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings),
+            var tex = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()),
                 world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex])?.ToTexture(true);
 
             return UniTask.FromResult(tex);
@@ -185,7 +186,7 @@ namespace R1Engine
             await FileSystem.PrepareFile(context.BasePath + lngPath);
 
             // Read the language file
-            var lng = FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
+            var lng = R1FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
 
             var loc = new List<KeyValuePair<string, string[]>>();
 
@@ -208,7 +209,7 @@ namespace R1Engine
         {
             int index;
 
-            switch (context.Settings.GameModeSelection)
+            switch (context.GetR1Settings().GameModeSelection)
             {
                 case GameModeSelection.RaymanPC_1_00:
                     index = 47;
@@ -229,10 +230,10 @@ namespace R1Engine
 
                 case GameModeSelection.RaymanPC_Demo_1:
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(context.Settings.GameModeSelection), context.Settings.GameModeSelection, null);
+                    throw new ArgumentOutOfRangeException(nameof(GameSettings.GameModeSelection), context.GetR1Settings().GameModeSelection, null);
             }
 
-            return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), index));
+            return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), index));
         }
 
         #endregion

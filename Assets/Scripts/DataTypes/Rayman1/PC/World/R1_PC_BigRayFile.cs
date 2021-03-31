@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class R1_PC_BigRayFile : R1_PC_BaseWorldFile
     {

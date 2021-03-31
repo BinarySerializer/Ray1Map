@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {

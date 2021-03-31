@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using BinarySerializer;
+using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_Generic_PaletteShift : R1Serializable
+    public class GBAVV_Generic_PaletteShift : BinarySerializable
     {
         public uint PalettePointer { get; set; } // Memory pointer, always 0x05000000
         public Pointer ColorIndicesPointer { get; set; }

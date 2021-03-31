@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Mode7_Object : R1Serializable
+    public class GBAVV_Mode7_Object : BinarySerializable
     {
         public byte ObjType_Normal { get; set; }
         public byte ObjType_TimeTrial { get; set; }

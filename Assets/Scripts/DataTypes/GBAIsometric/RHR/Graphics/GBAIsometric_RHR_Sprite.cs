@@ -1,7 +1,9 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     // For the flags, buttons etc.
-    public class GBAIsometric_RHR_Sprite : R1Serializable
+    public class GBAIsometric_RHR_Sprite : BinarySerializable
     {
         public GBAIsometric_RHR_SpriteInfo Info { get; set; }
         public bool Is8Bit { get; set; }

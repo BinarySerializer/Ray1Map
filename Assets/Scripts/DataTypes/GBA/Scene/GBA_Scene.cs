@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -75,7 +76,7 @@ namespace R1Engine
 
             SectorsCount = s.Serialize<byte>(SectorsCount, name: nameof(SectorsCount));
 
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
 
                 AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.AlwaysActor, name: nameof(AlwaysActors));
                 NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Actor, name: nameof(NormalActors));
@@ -83,7 +84,7 @@ namespace R1Engine
                 Waypoints = s.SerializeObjectArray<GBA_Actor>(Waypoints, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Waypoint, name: nameof(Waypoints));
                 UnkActors = s.SerializeObjectArray<GBA_Actor>(UnkActors, ActorsCount4, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Unk, name: nameof(UnkActors));
             }
-            else if (s.GameSettings.EngineVersion < EngineVersion.GBA_R3_Proto)
+            else if (s.GetR1Settings().EngineVersion < EngineVersion.GBA_R3_Proto)
             {
                 MainActors = s.SerializeObjectArray<GBA_Actor>(MainActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.MainActor, name: nameof(MainActors));
                 NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Actor, name: nameof(NormalActors));
@@ -96,7 +97,7 @@ namespace R1Engine
                 NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Actor, name: nameof(NormalActors));
 
                 if (ActorsCount3 > 0)
-                    Debug.LogWarning($"Unparsed actors for count 3 in level {s.GameSettings.Level}");
+                    Debug.LogWarning($"Unparsed actors for count 3 in level {s.GetR1Settings().Level}");
 
                 Captors = s.SerializeObjectArray<GBA_Actor>(Captors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Captor, name: nameof(Captors));
             }
@@ -111,7 +112,7 @@ namespace R1Engine
                 PlayField = s.DoAt(OffsetTable.GetPointer(Index_PlayField), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
 
             // Parse actor data
-            var actors = GetAllActors(s.GameSettings).ToArray();
+            var actors = GetAllActors(s.GetR1Settings()).ToArray();
 
             for (var i = 0; i < actors.Length; i++)
             {
@@ -136,7 +137,7 @@ namespace R1Engine
 		public override int GetOffsetTableLengthGCN(SerializerObject s) {
             int max = Index_PlayField + 1;
             // Parse actor data
-            var actors = GetAllActors(s.GameSettings).ToArray();
+            var actors = GetAllActors(s.GetR1Settings()).ToArray();
 
             for (var i = 0; i < actors.Length; i++) {
                 if (actors[i].Type == GBA_Actor.ActorType.Captor) {

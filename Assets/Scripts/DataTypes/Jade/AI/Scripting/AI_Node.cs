@@ -1,5 +1,7 @@
-﻿namespace R1Engine.Jade {
-	public class AI_Node : R1Serializable {
+﻿using BinarySerializer;
+
+namespace R1Engine.Jade {
+	public class AI_Node : BinarySerializable {
 		public uint Parameter { get; set; }
 		public ushort NodeType { get; set; }
 		public byte Flags { get; set; }

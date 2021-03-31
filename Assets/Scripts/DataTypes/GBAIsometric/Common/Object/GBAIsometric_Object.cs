@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Object : R1Serializable
+    public class GBAIsometric_Object : BinarySerializable
     {
         public short XPosition { get; set; }
         public short YPosition { get; set; }
@@ -22,7 +24,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_RHR)
             {
                 ObjectType = s.Serialize<ushort>(ObjectType, name: nameof(ObjectType));
             }
@@ -46,7 +48,7 @@
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
             Height = s.Serialize<short>(Height, name: nameof(Height));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_RHR)
             {
                 WaypointIndex = s.Serialize<short>(WaypointIndex, name: nameof(WaypointIndex));
                 WaypointCount = s.Serialize<byte>(WaypointCount, name: nameof(WaypointCount));

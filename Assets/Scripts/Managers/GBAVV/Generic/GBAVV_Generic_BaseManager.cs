@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using UnityEngine;
 
 namespace R1Engine
@@ -21,7 +22,7 @@ namespace R1Engine
             // Export Mode7 animations
             for (int mode7Level = 0; mode7Level < Mode7LevelsCount; mode7Level++)
             {
-                using (var context = new Context(settings))
+                using (var context = new R1Context(settings))
                 {
                     // Load the files
                     await LoadFilesAsync(context);
@@ -116,7 +117,7 @@ namespace R1Engine
                     tileSet: tileSetGroup.Key.TileSet,
                     pal: map.TilePalette2D,
                     is8bit: map.MapData2D.MapLayers[3]?.TileSet == tileSetGroup.Key,
-                    engineVersion: context.Settings.EngineVersion,
+                    engineVersion: context.GetR1Settings().EngineVersion,
                     levelTheme: theme,
                     mapTiles_4: map.MapData2D.MapLayers.Select((x, i) => new
                     {
@@ -335,7 +336,7 @@ namespace R1Engine
             Unity_Map[] maps = null;
 
             // TODO: Do not hard-code this
-            if (context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1)
+            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1)
             {
                 // Snow
                 if (levelInfo.LevelType == 0)
@@ -424,7 +425,7 @@ namespace R1Engine
                     };
                 }
             }
-            else if (context.Settings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            else if (context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
             {
                 var paddingHeight = levelInfo.Crash1_Background.Height - tileSetFrames.Height;
                 var padding = Enumerable.Range(0, tileSetFrames.Width * 2 * paddingHeight).Select(t => new Unity_Tile(new MapTile()));
@@ -492,7 +493,7 @@ namespace R1Engine
                     }
                 };
             }
-            else if (context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
+            else if (context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2)
             {
                 // Water
                 if (levelInfo.LevelType == 0)
@@ -586,8 +587,8 @@ namespace R1Engine
             var objects = levelInfo.ObjData.Objects.Select(x => new Unity_Object_GBAVVMode7(objmanager, x));
 
             // Spawn the chase object for type 0 or special object for Crash 1 (blimp or N. Gin) // TODO: Spawn blimps at correct positions - array at 0x0817a420?
-            if ((levelInfo.LevelType == 0 || context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1) && 
-                context.Settings.EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            if ((levelInfo.LevelType == 0 || context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1) && 
+                context.GetR1Settings().EngineVersion != EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
                 objects = objects.Append(new Unity_Object_GBAVVMode7(objmanager, new GBAVV_Mode7_Object()
                 {
                     ObjType_Normal = (byte)(objmanager.AnimSets.Length - 1),
@@ -595,7 +596,7 @@ namespace R1Engine
                     ObjType_Unknown = (byte)(objmanager.AnimSets.Length - 1),
                     ZPos = -50 // Have it start a bit behind the player
                 }));
-            else if (context.Settings.EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
+            else if (context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobRevengeOfTheFlyingDutchman)
             {
                 objects = objects.Append(new Unity_Object_GBAVVMode7(objmanager, new GBAVV_Mode7_Object()
                 {
@@ -769,7 +770,7 @@ namespace R1Engine
         {
             var palette = pal;
 
-            if (levInfo.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash1 && animSetIndex == 0 && animIndex == 5 && levInfo.LevelType == 0)
+            if (levInfo.Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash1 && animSetIndex == 0 && animIndex == 5 && levInfo.LevelType == 0)
                 palette = Util.ConvertAndSplitGBAPalette(levInfo.Crash1_PolarDeathPalette);
 
             var anim = animSet.Animations[animIndex];

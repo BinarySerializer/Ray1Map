@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_DialogScript : R1Serializable
+    public class GBAVV_DialogScript : BinarySerializable
     {
         public int ID { get; set; }
         public Pointer ScriptPointer { get; set; }

@@ -1,9 +1,10 @@
 ﻿using System;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {
-    public class GBARRR_OffsetTable : R1Serializable
+    public class GBARRR_OffsetTable : BinarySerializable
     {
         public uint OffsetTableCount { get; set; }
         public GBARRR_OffsetTableEntry[] OffsetTable { get; set; }

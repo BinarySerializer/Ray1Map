@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro_LevelObjects : R1Serializable
+    public class GBAIsometric_Spyro_LevelObjects : BinarySerializable
     {
         public ushort LevelID { get; set; }
         public GBAIsometric_Spyro_DataBlockIndex ObjectTableIndex { get; set; }

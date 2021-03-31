@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_Song : R1Serializable
+    public class GAX2_Song : BinarySerializable
     {
         public int? PredefinedSampleCount { get; set; } // Set in onPreSerialize
 

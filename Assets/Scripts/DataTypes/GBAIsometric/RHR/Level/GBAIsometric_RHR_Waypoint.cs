@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_Waypoint : R1Serializable
+    public class GBAIsometric_RHR_Waypoint : BinarySerializable
     {
         public int XPos { get; set; }
         public int YPos { get; set; }

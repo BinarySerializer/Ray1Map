@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common image descriptor data
     /// </summary>
-    public class R1_ImageDescriptor : R1Serializable
+    public class R1_ImageDescriptor : BinarySerializable
     {
         /// <summary>
         /// The image buffer offset. In final PS1 versions this is always 0 except for backgrounds.
@@ -72,7 +74,7 @@
         public bool IsDummySprite()
         {
             // Get the settings
-            var settings = Context.Settings;
+            var settings = Context.GetR1Settings();
 
             if (settings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
                 return Height == 0 || Width == 0 || Index == 0xFF;
@@ -90,7 +92,7 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
+            if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
             {
                 // TODO: Is the fourth byte always 0?
                 ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset << 8, name: nameof(ImageBufferOffset)) >> 8;
@@ -108,18 +110,18 @@
             }
             else
             {
-                if (s.GameSettings.EngineVersion != EngineVersion.R2_PS1)
+                if (s.GetR1Settings().EngineVersion != EngineVersion.R2_PS1)
                     ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset, name: nameof(ImageBufferOffset));
 
                 // PS1
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 || 
-                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP || 
-                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || 
-                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 || 
-                    s.GameSettings.EngineVersion == EngineVersion.R1_Saturn || 
-                    s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1 || 
+                    s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP || 
+                    s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || 
+                    s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 || 
+                    s.GetR1Settings().EngineVersion == EngineVersion.R1_Saturn || 
+                    s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
                 {
-                    if (s.Context.Settings.EngineVersion == EngineVersion.R2_PS1)
+                    if (s.Context.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
                     {
                         Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
                         Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
@@ -132,9 +134,9 @@
                         PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
                         TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
                     }
-                    else if (s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JP || 
-                             s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || 
-                             s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+                    else if (s.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JP || 
+                             s.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || 
+                             s.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                     {
                         Index = s.Serialize<ushort>(Index, name: nameof(Index));
                         ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));
@@ -145,7 +147,7 @@
                         Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
                         Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
                     }
-                    else if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
+                    else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_Saturn)
                     {
                         Index = s.Serialize<ushort>(Index, name: nameof(Index));
 
@@ -172,8 +174,8 @@
                         HitBoxOffsetXY = s.Serialize<byte>(HitBoxOffsetXY, name: nameof(HitBoxOffsetXY));
                     }
 
-                    if (s.GameSettings.EngineVersion != EngineVersion.R1_Saturn && 
-                        s.GameSettings.Game != Game.R1_Rayman2)
+                    if (s.GetR1Settings().EngineVersion != EngineVersion.R1_Saturn && 
+                        s.GetR1Settings().Game != Game.R1_Rayman2)
                     {
                         Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
                         Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
@@ -186,13 +188,13 @@
                     }
                 }
                 // PC
-                else if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || 
-                         s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || 
-                         s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || 
-                         s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu || 
-                         s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC || 
-                         s.GameSettings.EngineVersion == EngineVersion.R1_GBA || 
-                         s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+                else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || 
+                         s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || 
+                         s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || 
+                         s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu || 
+                         s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC || 
+                         s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA || 
+                         s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
                 {
                     Index = s.Serialize<byte>((byte)Index, name: nameof(Index));
                     Width = s.Serialize<byte>((byte)Width, name: nameof(Width));

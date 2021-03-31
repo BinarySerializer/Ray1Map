@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event map data for Rayman 1 (Jaguar), as well as the event.mev files in Rayman Designer
     /// </summary>
-    public class R1Jaguar_MapEvents : R1Serializable
+    public class R1Jaguar_MapEvents : BinarySerializable
     {
         public bool HasEvents { get; set; } // Always 1?
 

@@ -1,4 +1,6 @@
-﻿namespace R1Engine.Jade 
+﻿using BinarySerializer;
+
+namespace R1Engine.Jade 
 {
 	public class ACT_ActionKit : Jade_File 
     {
@@ -9,7 +11,7 @@
             Entries = s.SerializeObjectArray(Entries, FileSize / (Loader.IsBinaryData ? 4 : 8), name: nameof(Entries));
         }
 
-        public class ACT_ActionKitEntry : R1Serializable
+        public class ACT_ActionKitEntry : BinarySerializable
         {
             public Jade_Reference<ACT_Action> Action { get; set; }
             public uint Uint_04_Editor { get; set; }

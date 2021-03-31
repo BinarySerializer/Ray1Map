@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -17,7 +18,7 @@ namespace R1Engine
 		}
 
 		public uint? GetBlockLength(LUDI_BlockIdentifier blockHeader) {
-			LUDI_BaseDataFile file = Files.FirstOrDefault(f => f.Offset.file == blockHeader.Offset.file);
+			LUDI_BaseDataFile file = Files.FirstOrDefault(f => f.Offset.File == blockHeader.Offset.File);
 			return file?.GetLength(blockHeader.BlockID);
 		}
 	}

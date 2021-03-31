@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_GameCubeMapInfo : R1Serializable
+    public class GBA_GameCubeMapInfo : BinarySerializable
     {
         public ushort Unk1 { get; set; }
         public ushort MusicIndex { get; set; }

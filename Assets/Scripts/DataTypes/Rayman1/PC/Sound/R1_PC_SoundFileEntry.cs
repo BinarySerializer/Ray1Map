@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Sound file entry data for PC
     /// </summary>
-    public class R1_PC_SoundFileEntry : R1Serializable
+    public class R1_PC_SoundFileEntry : BinarySerializable
     {
         /// <summary>
         /// The sound file offset

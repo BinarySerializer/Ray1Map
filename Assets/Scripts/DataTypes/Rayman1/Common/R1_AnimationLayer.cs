@@ -1,11 +1,12 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Common animation layer data
     /// </summary>
-    public class R1_AnimationLayer : R1Serializable
+    public class R1_AnimationLayer : BinarySerializable
     {
         /// <summary>
         /// Indicates if the layer is flipped horizontally
@@ -91,7 +92,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
-            if (s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
             {
                 s.SerializeBitValues<ushort>(bitFunc =>
                 {
@@ -102,8 +103,8 @@ namespace R1Engine
                 XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
             }
-            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar
-                || s.GameSettings.MajorEngineVersion == MajorEngineVersion.SNES)
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar
+                || s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.SNES)
             {
                 /*if (FlipFlagInX) {
                     JaguarXByte = s.Serialize<byte>(JaguarXByte, name: nameof(JaguarXByte));
@@ -114,7 +115,7 @@ namespace R1Engine
                     YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                     JaguarImageIndexByte = s.Serialize<byte>(JaguarImageIndexByte, name: nameof(JaguarImageIndexByte));
                 }*/
-                if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.SNES)
+                if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.SNES)
                 {
                     s.SerializeBitValues<byte>(bitFunc =>
                     {

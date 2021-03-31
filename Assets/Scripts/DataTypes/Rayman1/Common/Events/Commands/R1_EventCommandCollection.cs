@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {
     /// <summary>
     /// A common event command collection
     /// </summary>
-    public class R1_EventCommandCollection : R1Serializable
+    public class R1_EventCommandCollection : BinarySerializable
     {
         /// <summary>
         /// The commands
@@ -32,7 +33,7 @@ namespace R1Engine
                 };
 
             // Create a new context
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 // Create a memory stream
                 using (var memStream = new MemoryStream(bytes)) {
                     // Stream key
@@ -54,7 +55,7 @@ namespace R1Engine
         /// <returns>The command bytes</returns>
         public byte[] ToBytes(GameSettings settings)
         {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 // Create a memory stream
                 using (var memStream = new MemoryStream()) {
                     // Stream key

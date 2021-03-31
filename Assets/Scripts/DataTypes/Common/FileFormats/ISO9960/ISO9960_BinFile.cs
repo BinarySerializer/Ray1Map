@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     // See: https://wiki.osdev.org/ISO_9660
-    public class ISO9960_BinFile : R1Serializable {
+    public class ISO9960_BinFile : BinarySerializable {
         public const uint SectorDataSize = 0x800;
         public const uint SectorHeaderSize = 0x18;
         public const uint SectorFooterSize = 0x118;

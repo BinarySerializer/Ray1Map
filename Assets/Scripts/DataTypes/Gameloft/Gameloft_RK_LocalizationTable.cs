@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
 	public class Gameloft_RK_LocalizationTable : Gameloft_Resource {
 		public uint StringsCount { get; set; }

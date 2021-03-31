@@ -1,11 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using ImageMagick;
 using UnityEngine;
+using Endian = BinarySerializer.Endian;
 
 namespace R1Engine
 {
@@ -15,7 +16,7 @@ namespace R1Engine
         public string AllfixFilePath => "worldmap.dat";
         public string[] GetAllDataPaths(Context c) {
             return new string[] {
-                ((c.Settings.GameModeSelection == GameModeSelection.RaymanGBCPocketPC_LandscapeIPAQ) ? "ipaqmenu" : "menu"),
+                ((c.GetR1Settings().GameModeSelection == GameModeSelection.RaymanGBCPocketPC_LandscapeIPAQ) ? "ipaqmenu" : "menu"),
                 "worldmap",
                 "jungle1",
                 "jungle2",
@@ -174,14 +175,14 @@ namespace R1Engine
 
         public async UniTask ExportDataBasesAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 var s = context.Deserializer;
 
                 foreach (var filePath in Directory.GetFiles(context.BasePath, "*.dat", SearchOption.TopDirectoryOnly))
                 {
                     var relPath = Path.GetFileName(filePath);
-                    await context.AddLinearSerializedFileAsync(relPath, BinaryFile.Endian.Little);
+                    await context.AddLinearSerializedFileAsync(relPath, Endian.Little);
                     var dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(relPath, context);
                     ExportLUDIDataFile(dataFile, s, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath)));
                 }
@@ -193,7 +194,7 @@ namespace R1Engine
             List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
             foreach (var path in GetAllDataPaths(context)) {
                 var fullPath = $"{path}.dat";
-                if (await context.AddLinearSerializedFileAsync(fullPath, BinaryFile.Endian.Little) != null)
+                if (await context.AddLinearSerializedFileAsync(fullPath, Endian.Little) != null)
                     dataFiles.Add(FileFactory.Read<LUDI_PocketPC_DataFile>(fullPath, context));
             }
             globalOffsetTable.Files = dataFiles.ToArray();

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
 	public class Gameloft_RRR_Objects : Gameloft_Resource {
 		public Object[] Objects { get; set; }
@@ -9,7 +11,7 @@
 				includeLastObj: true, name: nameof(Objects));
 		}
 
-		public class Object : R1Serializable {
+		public class Object : BinarySerializable {
 			public byte Length { get; set; }
 
 			public short Type { get; set; }

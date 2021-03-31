@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_ActorModel : R1Serializable
+    public class GBC_ActorModel : BinarySerializable
     {
         public byte ActorID { get; set; }
         public byte Anim0 { get; set; } // Some animation related thing. Flags?

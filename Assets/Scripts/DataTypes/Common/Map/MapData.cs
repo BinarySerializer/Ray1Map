@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Common map data
     /// </summary>
-    public class MapData : R1Serializable
+    public class MapData : BinarySerializable
     {
         #region Public Properties
 

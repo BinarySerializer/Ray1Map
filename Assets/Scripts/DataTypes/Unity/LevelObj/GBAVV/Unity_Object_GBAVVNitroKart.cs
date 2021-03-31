@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -24,7 +25,7 @@ namespace R1Engine
             }
             else
             {
-                if (ObjManager.Context.Settings.EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
+                if (ObjManager.Context.GetR1Settings().EngineVersion != EngineVersion.GBAVV_CrashNitroKart_NGage)
                 {
                     var graphicsIndex = ObjManager.Graphics.FindItemIndex(x => x.Offset == typeData.GraphicsDataPointer);
                     SetAnimation(graphicsIndex, typeData.AnimSetIndex, (byte)(typeData.AnimationIndices?.FirstOrDefault() ?? 0));
@@ -75,7 +76,7 @@ namespace R1Engine
 
 		public override float Scale => 0.5f;
 
-        public override R1Serializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{Object.ObjType}";

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_SpriteSet : R1Serializable
+    public class GBAIsometric_RHR_SpriteSet : BinarySerializable
     {
         public Pointer<GBAIsometric_RHR_GraphicsData> GraphicsDataPointer { get; set; }
         public Pointer LookupBufferPositionsPointer { get; set; }

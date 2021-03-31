@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_RLERow : R1Serializable
+    public class GBAVV_NitroKart_NGage_RLERow : BinarySerializable
     {
         public Pointer BaseOffset { get; set; } // Set before serializing
         public int Width { get; set; } // Set before serializing

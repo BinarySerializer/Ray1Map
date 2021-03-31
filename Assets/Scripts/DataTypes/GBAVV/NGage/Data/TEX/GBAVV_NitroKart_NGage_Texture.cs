@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_Texture : R1Serializable
+    public class GBAVV_NitroKart_NGage_Texture : BinarySerializable
     {
         public byte[] Texture_64px { get; set; }
         public byte[] Texture_32px { get; set; }

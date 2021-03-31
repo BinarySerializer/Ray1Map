@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_LineCollisionSector : R1Serializable
+    public class GBAVV_LineCollisionSector : BinarySerializable
     {
         // TODO: These are fixed point ints (with point at 8 bits) for Ultimate Spider-Man & Over the Hedge
         public int Int_00 { get; set; } // X?
@@ -17,7 +19,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_BrotherBear)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_BrotherBear)
             {
                 Int_00 = s.Serialize<short>((short)Int_00, name: nameof(Int_00));
                 Int_04 = s.Serialize<short>((short)Int_04, name: nameof(Int_04));

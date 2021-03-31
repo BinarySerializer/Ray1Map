@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_TileSet : R1Serializable
+    public class GBAVV_TileSet : BinarySerializable
     {
         public uint TileSetLength { get; set; }
         public byte[] TileSet { get; set; }

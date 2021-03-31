@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_Cluster : R1Serializable
+    public class GBA_Cluster : BinarySerializable
     {
         public int ScrollX { get; set; }
         public int ScrollY { get; set; }
@@ -41,16 +43,16 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance)
             {
                 Batman_Data = s.SerializeArray<byte>(Batman_Data, 0x10, name: nameof(Batman_Data));
             }
-            else if (s.GameSettings.GBA_IsShanghai || s.GameSettings.GBA_IsMilan)
+            else if (s.GetR1Settings().GBA_IsShanghai || s.GetR1Settings().GBA_IsMilan)
             {
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
 
-                if (s.GameSettings.GBA_IsMilan)
+                if (s.GetR1Settings().GBA_IsMilan)
                 {
                     s.SerializeBitValues<byte>(bitFunc =>
                     {
@@ -71,7 +73,7 @@
                     Shanghai_Byte_06 = s.Serialize<byte>(Shanghai_Byte_06, name: nameof(Shanghai_Byte_06));
                     Shanghai_Byte_07 = s.Serialize<byte>(Shanghai_Byte_07, name: nameof(Shanghai_Byte_07));
 
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_DonaldDuck && Shanghai_Byte_04 == 3)
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_DonaldDuck && Shanghai_Byte_04 == 3)
                     {
                         Shanghai_MapTileSize = s.Serialize<byte>(Shanghai_MapTileSize, name: nameof(Shanghai_MapTileSize));
                         Shanghai_Byte_09 = s.Serialize<byte>(Shanghai_Byte_09, name: nameof(Shanghai_Byte_09));

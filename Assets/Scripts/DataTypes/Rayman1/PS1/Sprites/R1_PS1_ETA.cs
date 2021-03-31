@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -6,7 +7,7 @@ namespace R1Engine
     /// <summary>
     /// ETA data for PS1
     /// </summary>
-    public class R1_PS1_ETA : R1Serializable
+    public class R1_PS1_ETA : BinarySerializable
     {
         /// <summary>
         /// The number of Etats
@@ -44,7 +45,7 @@ namespace R1Engine
                 s.DoAt(pointer, () => {
                     Pointer p = s.SerializePointer(null, name: "FirstEtat");
                     
-                    if (p.file != pointer.file || p.AbsoluteOffset < pointer.AbsoluteOffset + 4 || (p.AbsoluteOffset - pointer.AbsoluteOffset) % 4 != 0)
+                    if (p.File != pointer.File || p.AbsoluteOffset < pointer.AbsoluteOffset + 4 || (p.AbsoluteOffset - pointer.AbsoluteOffset) % 4 != 0)
                         Debug.LogWarning("Number of ETAs wasn't correctly determined");
 
                     NumEtats = (p.AbsoluteOffset - pointer.AbsoluteOffset) / 4;
@@ -60,11 +61,11 @@ namespace R1Engine
                 // Get the state size
                 uint stateSize;
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
                     stateSize = 16u;
-                else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                     stateSize = 14u;
-                else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+                else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                     stateSize = 12u;
                 else
                     stateSize = 8;

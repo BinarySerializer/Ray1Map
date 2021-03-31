@@ -1,12 +1,13 @@
 ﻿using System.IO;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 
 namespace R1Engine
 {
     public static class ContextExtensions
     {
-        public static async UniTask<LinearSerializedFile> AddLinearSerializedFileAsync(this Context context, string filePath, BinaryFile.Endian endianness = BinaryFile.Endian.Little, bool recreateOnWrite = true, int? bigFileCacheLength = null)
+        public static async UniTask<LinearSerializedFile> AddLinearSerializedFileAsync(this Context context, string filePath, Endian endianness = Endian.Little, bool recreateOnWrite = true, int? bigFileCacheLength = null)
         {
             if (bigFileCacheLength.HasValue) {
                 await FileSystem.PrepareBigFile(context.BasePath + filePath, bigFileCacheLength.Value);
@@ -19,7 +20,7 @@ namespace R1Engine
 
             var file = new LinearSerializedFile(context)
             {
-                filePath = filePath,
+                FilePath = filePath,
                 Endianness = endianness,
                 RecreateOnWrite = recreateOnWrite
             };
@@ -28,7 +29,7 @@ namespace R1Engine
 
             return file;
         }
-        public static async UniTask<MemoryMappedFile> AddMemoryMappedFile(this Context context, string filePath, uint baseAddress, BinaryFile.Endian endianness = BinaryFile.Endian.Little, bool recreateOnWrite = true)
+        public static async UniTask<MemoryMappedFile> AddMemoryMappedFile(this Context context, string filePath, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true)
         {
             await FileSystem.PrepareFile(context.BasePath + filePath);
 
@@ -37,7 +38,7 @@ namespace R1Engine
 
             var file = new MemoryMappedFile(context, baseAddress)
             {
-                filePath = filePath,
+                FilePath = filePath,
                 Endianness = endianness,
                 RecreateOnWrite = recreateOnWrite
             };
@@ -46,7 +47,7 @@ namespace R1Engine
 
             return file;
         }
-        public static async UniTask<GBAMemoryMappedFile> AddGBAMemoryMappedFile(this Context context, string filePath, uint baseAddress, BinaryFile.Endian endianness = BinaryFile.Endian.Little, bool recreateOnWrite = true)
+        public static async UniTask<GBAMemoryMappedFile> AddGBAMemoryMappedFile(this Context context, string filePath, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true)
         {
             await FileSystem.PrepareFile(context.BasePath + filePath);
 
@@ -55,7 +56,7 @@ namespace R1Engine
 
             var file = new GBAMemoryMappedFile(context, baseAddress)
             {
-                filePath = filePath,
+                FilePath = filePath,
                 Endianness = endianness,
                 RecreateOnWrite = recreateOnWrite
             };
@@ -64,7 +65,7 @@ namespace R1Engine
 
             return file;
         }
-        public static StreamFile AddStreamFile(this Context context, string name, Stream stream, BinaryFile.Endian endianness = BinaryFile.Endian.Little, bool recreateOnWrite = true)
+        public static StreamFile AddStreamFile(this Context context, string name, Stream stream, Endian endianness = Endian.Little, bool recreateOnWrite = true)
         {
             var file = new StreamFile(name, stream, context)
             {
@@ -76,7 +77,7 @@ namespace R1Engine
 
             return file;
         }
-        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, uint length, uint baseAddress, BinaryFile.Endian endianness = BinaryFile.Endian.Little, bool recreateOnWrite = true)
+        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, uint length, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true)
         {
             var file = new MemoryMappedByteArrayFile(name, length, context, baseAddress)
             {
@@ -88,7 +89,7 @@ namespace R1Engine
 
             return file;
         }
-        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, byte[] bytes, uint baseAddress, BinaryFile.Endian endianness = BinaryFile.Endian.Little, bool recreateOnWrite = true)
+        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, byte[] bytes, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true)
         {
             var file = new MemoryMappedByteArrayFile(name, bytes, context, baseAddress)
             {

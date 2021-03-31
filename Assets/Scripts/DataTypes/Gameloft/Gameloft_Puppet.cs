@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -50,7 +51,7 @@ namespace R1Engine
 			Layers = s.SerializeObjectArray<AnimationLayer>(Layers, LayersCount, name: nameof(Layers));
 			LayerGroupsCount = s.Serialize<ushort>(LayerGroupsCount, name: nameof(LayerGroupsCount));
 			LayerGroupsGraphics = s.SerializeObjectArray<AnimationLayerGroupGraphics>(LayerGroupsGraphics, LayerGroupsCount, name: nameof(LayerGroupsGraphics));
-			if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+			if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
 				LayerGroupsCollision = s.SerializeObjectArray<AnimationLayerGroupCollision>(LayerGroupsCollision, LayerGroupsCount, name: nameof(LayerGroupsCollision));
 			}
 			FramesCount = s.Serialize<ushort>(FramesCount, name: nameof(FramesCount));
@@ -61,7 +62,7 @@ namespace R1Engine
 			if(s.CurrentPointer.AbsoluteOffset >= (Offset + ResourceSize).AbsoluteOffset) return;
 
 			if (ImagesCount > 0) {
-				if (UseImageData(s.GameSettings)) {
+				if (UseImageData(s.GetR1Settings())) {
 					ImageDataLength = s.Serialize<ushort>(ImageDataLength, name: nameof(ImageDataLength));
 					if(ImageDataLength > 0) {
 						ImageData = s.SerializeObject<ImageBlock>(ImageData, name: nameof(ImageData));
@@ -76,7 +77,7 @@ namespace R1Engine
 
 		}
 
-		public class PaletteBlock : R1Serializable {
+		public class PaletteBlock : BinarySerializable {
 			public byte PaletteCount { get; set; }
 			public byte PaletteLength { get; set; }
 			public BaseColor[][] Palettes { get; set; }
@@ -104,7 +105,7 @@ namespace R1Engine
 			}
 		}
 
-		public class ImageDescriptor : R1Serializable {
+		public class ImageDescriptor : BinarySerializable {
 			public bool HasPalette { get; set; }
 			public bool HasImageOffset { get; set; }
 
@@ -118,7 +119,7 @@ namespace R1Engine
 				if (HasPalette) {
 					Palette = s.Serialize<byte>(Palette, name: nameof(Palette));
 				}
-				if (UseImageData(s.GameSettings) && HasImageOffset) {
+				if (UseImageData(s.GetR1Settings()) && HasImageOffset) {
 					XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
 					YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
 				}
@@ -126,7 +127,7 @@ namespace R1Engine
 				Height = s.Serialize<byte>(Height, name: nameof(Height));
 			}
 		}
-		public class AnimationLayer : R1Serializable {
+		public class AnimationLayer : BinarySerializable {
 			public byte ImageIndex { get; set; }
 			public sbyte XPosition { get; set; }
 			public sbyte YPosition { get; set; }
@@ -152,20 +153,20 @@ namespace R1Engine
 				Flags = s.Serialize<Flag>(Flags, name: nameof(Flags));
 			}
 		}
-		public class AnimationLayerGroupGraphics : R1Serializable {
+		public class AnimationLayerGroupGraphics : BinarySerializable {
 			public byte Length { get; set; }
 			public byte LayerGroupUnusedByte { get; set; }
 			public ushort StartIndex { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Length = s.Serialize<byte>(Length, name: nameof(Length));
-				if (s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+				if (s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
 					LayerGroupUnusedByte = s.Serialize<byte>(LayerGroupUnusedByte, name: nameof(LayerGroupUnusedByte));
 				}
 				StartIndex = s.Serialize<ushort>(StartIndex, name: nameof(StartIndex));
 			}
 		}
-		public class AnimationLayerGroupCollision : R1Serializable {
+		public class AnimationLayerGroupCollision : BinarySerializable {
 			public sbyte XPosition { get; set; }
 			public sbyte YPosition { get; set; }
 			public byte Width { get; set; }
@@ -178,7 +179,7 @@ namespace R1Engine
 				Height = s.Serialize<byte>(Height, name: nameof(Height));
 			}
 		}
-		public class AnimationFrame : R1Serializable {
+		public class AnimationFrame : BinarySerializable {
 			public byte LayerGroupIndex { get; set; }
 			public byte Duration { get; set; }
 			public sbyte XPosition { get; set; }
@@ -205,21 +206,21 @@ namespace R1Engine
 				Flags = s.Serialize<Flag>(Flags, name: nameof(Flags));
 			}
 		}
-		public class Animation : R1Serializable {
+		public class Animation : BinarySerializable {
 			public byte Length { get; set; }
 			public byte AnimationUnusedByte { get; set; }
 			public ushort FrameIndex { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Length = s.Serialize<byte>(Length, name: nameof(Length));
-				if (s.GameSettings.EngineVersion >= EngineVersion.Gameloft_RK
-					&& s.GameSettings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
+				if (s.GetR1Settings().EngineVersion >= EngineVersion.Gameloft_RK
+					&& s.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128) {
 					AnimationUnusedByte = s.Serialize<byte>(AnimationUnusedByte, name: nameof(AnimationUnusedByte));
 				}
 				FrameIndex = s.Serialize<ushort>(FrameIndex, name: nameof(FrameIndex));
 			}
 		}
-		public class Image : R1Serializable {
+		public class Image : BinarySerializable {
 			public ushort Length { get; set; }
 			public byte[] Data { get; set; }
 
@@ -298,7 +299,7 @@ namespace R1Engine
 		}
 
 
-		public class ImageBlock : R1Serializable {
+		public class ImageBlock : BinarySerializable {
 			public byte PaletteLength { get; set; }
 			public int Width { get; set; }
 			public int Height { get; set; }
@@ -309,7 +310,7 @@ namespace R1Engine
 			public byte[] UnknownData { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Big, () => {
+				s.DoEndian(Endian.Big, () => {
 					s.SerializeBitValues<uint>(bitFunc => {
 						PaletteLength = (byte)bitFunc(PaletteLength, 8, name: nameof(PaletteLength));
 						Height = bitFunc(Height, 9, name: nameof(Height));

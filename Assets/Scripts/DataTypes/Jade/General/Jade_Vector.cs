@@ -1,5 +1,7 @@
-﻿namespace R1Engine.Jade {
-	public class Jade_Vector : R1Serializable {
+﻿using BinarySerializer;
+
+namespace R1Engine.Jade {
+	public class Jade_Vector : BinarySerializable {
 		public float X { get; set; }
 		public float Y { get; set; }
 		public float Z { get; set; }

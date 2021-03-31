@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Event data for Rayman Advance (GBA)
     /// </summary>
-    public class R1_GBA_EventData : R1Serializable
+    public class R1_GBA_EventData : BinarySerializable
     {
         public Pointer ETAPointer { get; set; }
 
@@ -85,7 +86,7 @@ namespace R1Engine
                         etatCount = Etat + 1;
 
                         // Get correct etat count on GBA
-                        if (s.GameSettings.EngineVersion == EngineVersion.R1_GBA)
+                        if (s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA)
                         {
                             s.DoAt(ETAPointer, () => {
                                 int curEtatCount = 0;
@@ -98,7 +99,7 @@ namespace R1Engine
                                         && off_next != ETAPointer
                                         && (off_prev == null 
                                         || ((off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0) && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000))
-                                        || (off_next.file != off_prev.file && off_next.file != Offset.file)
+                                        || (off_next.File != off_prev.File && off_next.File != Offset.File)
                                         )))
                                     {
                                         curEtatCount++;
@@ -139,14 +140,14 @@ namespace R1Engine
 
                         if (!hasSerialized || prevETA.Length <= j)
                         {
-                            if (s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+                            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
                             {
                                 count = j == Etat ? (SubEtat + 1) : 1;
                             }
                             else
                             {
-                                if (EtatPointers[j].file is Serialize.MemoryMappedByteArrayFile && EtatPointers[j].FileOffset == 0) {
-                                    count = (int)(((Serialize.MemoryMappedByteArrayFile)(EtatPointers[j].file)).Length / 8);
+                                if (EtatPointers[j].File is MemoryMappedByteArrayFile && EtatPointers[j].FileOffset == 0) {
+                                    count = (int)(((MemoryMappedByteArrayFile)(EtatPointers[j].File)).Length / 8);
                                 } else {
                                     Pointer nextPointer = j < EtatPointers.Length - 1 ? EtatPointers[j + 1] : ETAPointer;
                                     count = (int)((nextPointer - EtatPointers[j]) / 8);

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_POP : R1Serializable
+    public class GBAVV_NitroKart_NGage_POP : BinarySerializable
     {
         public string Magic { get; set; }
         public GBAVV_NitroKart_TrackData TrackData1 { get; set; }

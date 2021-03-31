@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BinarySerializer;
 
 namespace R1Engine {
     /// <summary>
@@ -16,7 +17,7 @@ namespace R1Engine {
 
         public override void SerializeBlock(SerializerObject s) 
         {
-            if (s.GameSettings.GBA_IsMilan && s.GameSettings.EngineVersion != EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+            if (s.GetR1Settings().GBA_IsMilan && s.GetR1Settings().EngineVersion != EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
             {
                 // Copied from function at 0x080087e4 in The Mummy (US)
 
@@ -79,16 +80,16 @@ namespace R1Engine {
             }
             else
             {
-                if (s.GameSettings.GBA_IsShanghai)
+                if (s.GetR1Settings().GBA_IsShanghai)
                     s.Goto(ShanghaiOffsetTable.GetPointer(0));
 
                 Length = s.Serialize<ushort>(Length, name: nameof(Length));
                 PalOffset = s.Serialize<ushort>(PalOffset, name: nameof(PalOffset));
 
-                if (s.GameSettings.GBA_IsShanghai)
+                if (s.GetR1Settings().GBA_IsShanghai)
                     s.Goto(ShanghaiOffsetTable.GetPointer(1));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage)
                 {
                     Palette = s.SerializeObjectArray<BGRA4441Color>((BGRA4441Color[])Palette, Length, name: nameof(Palette));
                 }

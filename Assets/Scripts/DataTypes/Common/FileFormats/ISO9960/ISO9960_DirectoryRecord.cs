@@ -1,9 +1,10 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
     // See: https://wiki.osdev.org/ISO_9660
-    public class ISO9960_DirectoryRecord : R1Serializable {
+    public class ISO9960_DirectoryRecord : BinarySerializable {
         public byte[] Unused { get; set; }
         public byte[] BigEndianValue { get; set; }
 

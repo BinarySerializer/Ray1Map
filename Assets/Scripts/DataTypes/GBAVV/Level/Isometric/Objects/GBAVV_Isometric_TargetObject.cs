@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_TargetObject : R1Serializable
+    public class GBAVV_Isometric_TargetObject : BinarySerializable
     {
         public GBAVV_Isometric_TargetObjType ObjType { get; set; }
         public FixedPointInt XPos { get; set; }

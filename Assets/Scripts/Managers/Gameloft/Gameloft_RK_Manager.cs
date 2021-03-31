@@ -1,8 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -57,9 +58,9 @@ namespace R1Engine
 		}
 
 		public override async UniTask LoadFilesAsync(Context context) {
-			await context.AddLinearSerializedFileAsync(GetLevelPath(context.Settings));
-			await context.AddLinearSerializedFileAsync(GetBackgroundsPath(context.Settings));
-			await context.AddLinearSerializedFileAsync(GetRoadTexturesPath(context.Settings));
+			await context.AddLinearSerializedFileAsync(GetLevelPath(context.GetR1Settings()));
+			await context.AddLinearSerializedFileAsync(GetBackgroundsPath(context.GetR1Settings()));
+			await context.AddLinearSerializedFileAsync(GetRoadTexturesPath(context.GetR1Settings()));
 			foreach (var fileIndex in Enumerable.Range(0, PuppetCount).Select(i => GetPuppetFileIndex(i)).Distinct()) {
 				await context.AddLinearSerializedFileAsync(fileIndex.ToString());
 			}
@@ -140,7 +141,7 @@ namespace R1Engine
 			for (int i = 0; i < level?.BackgroundLayers?.Length; i++) {
 				var bgl = level.BackgroundLayers[i];
 				if (resf == null) {
-					resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundsPath(context.Settings), context);
+					resf = FileFactory.Read<Gameloft_ResourceFile>(GetBackgroundsPath(context.GetR1Settings()), context);
 				}
 				var rawData = resf.SerializeResource<Gameloft_DummyResource>(s,default,bgl.ImageResourceIndex, name: $"Backgrounds[{bgl.ImageResourceIndex}]");
 				Texture2D tex = TextureHelpers.CreateTexture2D(1,1);
@@ -184,11 +185,11 @@ namespace R1Engine
 				maxY = Mathf.Max(maxY, verts.Max(v => v.z));
 			}
 			// Load road textures
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.Settings), context);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetRoadTexturesPath(context.GetR1Settings()), context);
 			var roads = new MeshInProgress[level.Types.Length][];
 			Dictionary<int, Texture2D> textures = new Dictionary<int, Texture2D>();
 			Dictionary<int, bool> textureIsTransparent = new Dictionary<int, bool>();
-			bool useSingleRoadTexture = UseSingleRoadTexture(context.Settings);
+			bool useSingleRoadTexture = UseSingleRoadTexture(context.GetR1Settings());
 			for (int i = 0; i < level.Types.Length; i++) {
 				var roadTex0 = !useSingleRoadTexture ? level.Types[i].RoadTexture0 : level.RoadTextureID_0;
 				var roadTex1 = !useSingleRoadTexture ? level.Types[i].RoadTexture1 : level.RoadTextureID_1;
@@ -1008,8 +1009,8 @@ namespace R1Engine
 
 		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
 			await UniTask.CompletedTask;
-			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.Settings), context);
-			var ind = GetLevelResourceIndex(context.Settings);
+			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.GetR1Settings()), context);
+			var ind = GetLevelResourceIndex(context.GetR1Settings());
 			var level = resf.SerializeResource<Gameloft_RK_Level>(context.Deserializer, default, ind, name: $"Level_{ind}");
 
 			Vector2 dimensions, center;
@@ -1076,7 +1077,7 @@ namespace R1Engine
 						var triggerObject = level.TriggerObjects[to.ObjectType];
 						// 0 = jump, 1 = speed boost, 2 = Water, 5 = also speedup apparently?
 						// if flag 1 is set, and only flag 1 (so flags == 2): JUST speed boost
-						if (triggerObject.Flags == 2 && context.Settings.GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
+						if (triggerObject.Flags == 2 && context.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_320x240_Broken) {
 							if (gao_speedBoostParent == null) {
 								gao_speedBoostParent = new GameObject("Speed Boosts");
 								gao_speedBoostParent.transform.localPosition = centerPos;
@@ -1087,7 +1088,7 @@ namespace R1Engine
 							GameObject gp = new GameObject($"Speed Boost");
 							gp.transform.SetParent(gao_speedBoostParent.transform);
 							gp.transform.localPosition = Vector3.zero;
-							bool isHighRes = context.Settings.GameModeSelection != GameModeSelection.RaymanKartMobile_128x128;
+							bool isHighRes = context.GetR1Settings().GameModeSelection != GameModeSelection.RaymanKartMobile_128x128;
 							var m = GetSpeedBoostMesh(to.XPosition, o,highRes: isHighRes);
 							GameObject gao = new GameObject();
 							MeshFilter mf = gao.AddComponent<MeshFilter>();

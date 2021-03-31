@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_ActorTypeTableEntry : R1Serializable
+    public class GBA_ActorTypeTableEntry : BinarySerializable
     {
         public string ActorID { get; set; }
         public uint Uint_04 { get; set; }

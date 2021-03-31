@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -53,7 +54,7 @@ namespace R1Engine
         public virtual async UniTask ExportAnimFramesAsync(GameSettings settings, string outputDir, bool saveAsGif, bool includePointerInNames = true)
         {
             // Export 2D animations
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load the files
                 await LoadFilesAsync(context);
@@ -119,7 +120,7 @@ namespace R1Engine
         }
         public async UniTask ForceExportFLCAsync(GameSettings settings, string outputDir)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -203,8 +204,8 @@ namespace R1Engine
                 return GetTileMap(x.TileMap, x.MapTiles);
             }).ToArray();
 
-            var tileSet4bpp = LoadTileSet(map.TileSets.TileSet4bpp.TileSet, map.TilePalette, false, context.Settings.EngineVersion, -1, tileMaps.Take(3).Where(x => x != null).SelectMany(x => x).Select(x => x.Data).ToArray());
-            var tileSet8bpp = LoadTileSet(map.TileSets.TileSet8bpp.TileSet, map.TilePalette, true, context.Settings.EngineVersion, -1, null);
+            var tileSet4bpp = LoadTileSet(map.TileSets.TileSet4bpp.TileSet, map.TilePalette, false, context.GetR1Settings().EngineVersion, -1, tileMaps.Take(3).Where(x => x != null).SelectMany(x => x).Select(x => x.Data).ToArray());
+            var tileSet8bpp = LoadTileSet(map.TileSets.TileSet8bpp.TileSet, map.TilePalette, true, context.GetR1Settings().EngineVersion, -1, null);
 
             Controller.DetailedState = "Loading maps";
             await Controller.WaitIfNecessary();
@@ -261,7 +262,7 @@ namespace R1Engine
                             LineColor = c.GetColor(),
                             TypeName = c.GetCollisionType().ToString(),
                             DebugText = $"Direction: {line.Direction}{Environment.NewLine}" +
-                                        $"Data: {(c.Data != null ? Util.ByteArrayToHexString(c.Data) : "")}{Environment.NewLine}"
+                                        $"Data: {(c.Data != null ? c.Data.ToHexString() : "")}{Environment.NewLine}"
                         });
                     }
 
@@ -885,7 +886,7 @@ namespace R1Engine
             var animSets = rom.Map2D_Graphics?.Select(graphics => graphics.AnimSets.Select(animSet => convertAnimSet(graphics, animSet)).ToArray()).ToArray() ?? new Unity_ObjectManager_GBAVV.AnimSet[0][];
 
             // Create an anim set for Fake Crash for Crash 2
-            if (rom.Context.Settings.EngineVersion == EngineVersion.GBAVV_Crash2)
+            if (rom.Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2)
             {
                 var crash = rom.Map2D_Graphics[0].AnimSets[0];
 
@@ -1042,7 +1043,7 @@ namespace R1Engine
             var foundGraphics = new List<long>();
             var foundScripts = new List<Tuple<long, string>>();
 
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
             {
                 // Find animation sets by finding pointers which references itself
                 for (int i = 0; i < values.Length; i++)
@@ -1067,8 +1068,8 @@ namespace R1Engine
                         // Make sure we've got valid pointers for the tiles and palettes
                         if (isValidPointer(values[i + 1]) && isValidPointer(values[i + 2]))
                         {
-                            var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
-                            var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.file), () => s.Serialize<ushort>(default));
+                            var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.File), () => s.Serialize<ushort>(default));
+                            var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.File), () => s.Serialize<ushort>(default));
 
                             // Make sure the animSets count and palette counts are reasonable
                             if (animSetsCount < 1000 && palettesCount < 10000)
@@ -1092,7 +1093,7 @@ namespace R1Engine
                     if (values[i] == primary && values[i + 1] == secondary && isValidPointer(values[i + 2]))
                     {
                         // Serialize the script
-                        var script = s.DoAt(new Pointer((uint)getPointer(i), offset.file), () => s.SerializeObject<GBAVV_Script>(default, x => x.BaseFile = s.Context.GetFile(GetROMFilePath)));
+                        var script = s.DoAt(new Pointer((uint)getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default, x => x.BaseFile = s.Context.GetFile(GetROMFilePath)));
 
                         // If the script is invalid we ignore it
                         if (!script.IsValid)
@@ -1146,7 +1147,7 @@ namespace R1Engine
         public void LogObjTypeInit(SerializerObject s)
         {
             // For now we only support games which use animations directly
-            if (!GBAVV_Graphics.UsesAnimationsDirectly(s.Context.Settings))
+            if (!GBAVV_Graphics.UsesAnimationsDirectly(s.Context.GetR1Settings()))
                 return;
 
             // Load the animations
@@ -1239,7 +1240,7 @@ namespace R1Engine
                             // Attempt to get the script name
                             return s.DoAt(scriptPointer, () =>
                             {
-                                var cmd = s.SerializeObject<GBAVV_ScriptCommand>(default, x => x.BaseFile = scriptPointer.file);
+                                var cmd = s.SerializeObject<GBAVV_ScriptCommand>(default, x => x.BaseFile = scriptPointer.File);
 
                                 if (cmd.Type != GBAVV_ScriptCommand.CommandType.Name)
                                     return null;

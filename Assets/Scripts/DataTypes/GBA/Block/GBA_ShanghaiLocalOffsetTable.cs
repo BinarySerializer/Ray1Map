@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_ShanghaiLocalOffsetTable : R1Serializable
+    public class GBA_ShanghaiLocalOffsetTable : BinarySerializable
     {
         public long Length { get; set; } // Set before serializing
 

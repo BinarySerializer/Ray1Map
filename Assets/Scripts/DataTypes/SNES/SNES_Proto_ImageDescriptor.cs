@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class SNES_Proto_ImageDescriptor : R1Serializable
+    public class SNES_Proto_ImageDescriptor : BinarySerializable
     {
 
         // See https://wiki.superfamicom.org/snes-sprites (Sprite Table 2)

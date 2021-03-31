@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_Sample : R1Serializable {
+    public class GAX2_Sample : BinarySerializable {
         public Pointer SampleOffset { get; set; }
         public uint Length { get; set; }
 

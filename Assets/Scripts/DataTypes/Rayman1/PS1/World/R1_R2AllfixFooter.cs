@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Allfix footer data for Rayman 2 (PS1 - Demo)
     /// </summary>
-    public class R1_R2AllfixFooter : R1Serializable
+    public class R1_R2AllfixFooter : BinarySerializable
     {
         public Pointer RaymanCollisionDataPointer { get; set; }
         public Pointer RaymanBehaviorPointer { get; set; }

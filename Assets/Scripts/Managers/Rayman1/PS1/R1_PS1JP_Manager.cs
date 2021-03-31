@@ -1,7 +1,8 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 
 namespace R1Engine
@@ -27,7 +28,7 @@ namespace R1Engine
         /// <returns>The tile set colors to use</returns>
         public IList<BaseColor> GetTileSetColors(Context context)
         {
-            var levelTileSetFileName = GetSpecialTileSetPath(context.Settings);
+            var levelTileSetFileName = GetSpecialTileSetPath(context.GetR1Settings());
 
             if (FileSystem.FileExists(context.BasePath + levelTileSetFileName))
             {
@@ -36,7 +37,7 @@ namespace R1Engine
             }
 
             // Get the file name
-            var filename = GetWorldFilePath(context.Settings);
+            var filename = GetWorldFilePath(context.GetR1Settings());
 
             // Read the file
             var worldJPFile = FileFactory.Read<R1_PS1_WorldFile>(filename, context);
@@ -55,7 +56,7 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override Unity_TileSet GetTileSet(Context context)
         {
-            if (context.Settings.R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == R1_World.Menu)
                 return new Unity_TileSet(Settings.CellSize);
 
             return new Unity_TileSet(GetTileSetColors(context), TileSetWidth, Settings.CellSize);
@@ -72,11 +73,11 @@ namespace R1Engine
             // TODO: Support BigRay + font
 
             // Read the files
-            var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context) : null;
-            var world = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context) : null;
-            var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context).TextureBlock : null;
-            var bigRay = mode == VRAMMode.BigRay ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.Settings), context) : null;
-            var font = mode == VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.Settings), context, (s, o) => o.Length = s.CurrentLength) : null;
+            var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context) : null;
+            var world = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context) : null;
+            var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context).TextureBlock : null;
+            var bigRay = mode == VRAMMode.BigRay ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context) : null;
+            var font = mode == VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.GetR1Settings()), context, (s, o) => o.Length = s.CurrentLength) : null;
 
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -170,37 +171,37 @@ namespace R1Engine
             Controller.DetailedState = $"Loading allfix";
 
             // Read the allfix file
-            await LoadExtraFile(context, GetAllfixFilePath(context.Settings), false);
-            FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+            await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
+            FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
 
             R1_PS1_EventBlock eventBlock = null;
             MapData mapData;
 
-            if (context.Settings.R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != R1_World.Menu)
             {
                 Controller.DetailedState = $"Loading world file";
 
                 await Controller.WaitIfNecessary();
 
                 // Read the world file
-                await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
-                FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
+                await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
+                FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
                 Controller.DetailedState = $"Loading map data";
 
                 // Read the level data
-                await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
-                var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
+                await LoadExtraFile(context, GetLevelFilePath(context.GetR1Settings()), true);
+                var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
                 eventBlock = level.EventData;
                 mapData = level.MapData;
 
                 // Load special tile set file
-                await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings), true);
+                await LoadExtraFile(context, GetSpecialTileSetPath(context.GetR1Settings()), true);
             }
             else
             {
-                await LoadExtraFile(context, GetFontFilePath(context.Settings), false);
+                await LoadExtraFile(context, GetFontFilePath(context.GetR1Settings()), false);
 
                 mapData = MapData.GetEmptyMapData(384 / Settings.CellSize, 288 / Settings.CellSize);
             }

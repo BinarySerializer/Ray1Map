@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PS1_FontData : R1Serializable
+    public class R1_PS1_FontData : BinarySerializable
     {
         public Pointer ImageDescriptorsPointer { get; set; }
         public Pointer ImageBufferPointer { get; set; }
@@ -22,7 +24,7 @@
 
             s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorsCount, name: nameof(ImageDescriptors)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
             {
                 if (ImageBuffer == null && ImageBufferPointer != null && ImageDescriptors != null)
                 {

@@ -1,8 +1,9 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_TileCollision : R1Serializable
+    public class GBAIsometric_TileCollision : BinarySerializable
     {
         public byte Height { get; set; }
         public CollisionType_RHR Type { get; set; }
@@ -24,7 +25,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_RHR) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_RHR) {
                 Height = s.Serialize<byte>(Height, name: nameof(Height));
                 s.SerializeBitValues<byte>(serializeFunc => {
                     Type = (CollisionType_RHR)serializeFunc((int)Type, 4, name: nameof(Type));
@@ -36,8 +37,8 @@ namespace R1Engine
                     Layer3 = (byte)serializeFunc(Layer3, 4, name: nameof(Layer3));
                     Shape = (ShapeType_RHR)serializeFunc((int)Shape, 4, name: nameof(Shape));
                 });
-            } else if(s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 || s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 || s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Tron2) {
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
+            } else if(s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 || s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 || s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Tron2) {
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
                     s.SerializeBitValues<byte>(bitFunc => {
                         Height = (byte)bitFunc(Height,6,name: nameof(Height));
                         HeightFlags = (byte)bitFunc(HeightFlags, 2, nameof(HeightFlags));

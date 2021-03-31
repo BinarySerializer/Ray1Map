@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAIsometric_Spyro_AnimationBlock : R1Serializable
+    public class GBAIsometric_Spyro_AnimationBlock : BinarySerializable
     {
         public GBAIsometric_Spyro_Animation[] Animations { get; set; }
 

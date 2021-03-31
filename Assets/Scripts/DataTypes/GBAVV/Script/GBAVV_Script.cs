@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAVV_Script : R1Serializable
+    public class GBAVV_Script : BinarySerializable
     {
         public bool IsValid { get; set; } = true;
         public BinaryFile BaseFile { get; set; } // Set before serializing
@@ -213,7 +214,7 @@ namespace R1Engine
                         break;
 
                     case GBAVV_ScriptCommand.CommandType.FLC:
-                        if (Context.Settings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
+                        if (Context.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
                             logCommand($"PLAY_FLC", $"\"{cmd.NGage_FilePath?.GetFullPath}\"");
                         else
                             logCommand($"PLAY_FLC", $"0x{cmd.Param:X8}");

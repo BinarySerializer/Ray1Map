@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_GAX : R1Serializable
+    public class GBAVV_NitroKart_NGage_GAX : BinarySerializable
     {
         public long SongsCount { get; set; } // Set before serializing
         public int? SamplesCount { get; set; } // Set before serializing

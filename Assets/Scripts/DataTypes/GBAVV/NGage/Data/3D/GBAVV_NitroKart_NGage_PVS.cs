@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_NitroKart_NGage_PVS : R1Serializable
+    public class GBAVV_NitroKart_NGage_PVS : BinarySerializable
     {
         public int FileVersion { get; set; }
 

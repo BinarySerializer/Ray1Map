@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBA_LocLanguageTable : R1Serializable
+    public class GBA_LocLanguageTable : BinarySerializable
     {
         public Pointer[] Pointers { get; set; }
         
@@ -8,7 +10,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Pointers = s.SerializePointerArray(Pointers, s.GameSettings.GetGameManagerOfType<GBA_Manager>().Languages?.Length ?? 0, name: nameof(Pointers));
+            Pointers = s.SerializePointerArray(Pointers, s.GetR1Settings().GetGameManagerOfType<GBA_Manager>().Languages?.Length ?? 0, name: nameof(Pointers));
 
             if (StringGroups == null)
                 StringGroups = new GBA_LocStringGroupTable[Pointers.Length];

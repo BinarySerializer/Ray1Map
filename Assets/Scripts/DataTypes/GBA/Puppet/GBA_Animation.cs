@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -23,7 +24,7 @@ namespace R1Engine
         {
             Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 
-            if (!s.GameSettings.GBA_IsMilan)
+            if (!s.GetR1Settings().GBA_IsMilan)
             {
                 Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
                 AffineMatricesIndex = s.Serialize<byte>((byte)AffineMatricesIndex, name: nameof(AffineMatricesIndex));

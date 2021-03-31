@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBA_ActorModel : GBA_BaseBlock
     {
@@ -24,13 +26,13 @@
         {
             get
             {
-                if (Context.Settings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                if (Context.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
                     return TomClancy_Puppets.Blocks;
 
-                if (Context.Settings.GBA_IsMilan)
+                if (Context.GetR1Settings().GBA_IsMilan)
                     return Milan_Puppets.Blocks;
 
-                if (Context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                if (Context.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance)
                     return new GBA_BaseBlock[]
                     {
                         Puppet_BatmanVengeance
@@ -45,14 +47,14 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.GBA_IsMilan)
+            if (s.GetR1Settings().GBA_IsMilan)
             {
                 Milan_ActorID = s.SerializeString(Milan_ActorID, length: 4, name: nameof(Milan_ActorID));
                 s.SerializeArray<byte>(new byte[8], 8, name: "Padding");
             }
             else
             {
-                if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance)
+                if (s.GetR1Settings().EngineVersion > EngineVersion.GBA_BatmanVengeance)
                 {
                     UnkData = s.SerializeArray<byte>(UnkData, 8, name: nameof(UnkData));
                 }
@@ -62,7 +64,7 @@
                 Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
                 Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance)
                 {
                     Actions = s.SerializeObjectArray<GBA_Action>(Actions, (BlockSize - 4) / 12, name: nameof(Actions));
                 }
@@ -75,13 +77,13 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) 
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) 
             {
                 Puppet_BatmanVengeance = s.DoAt(OffsetTable.GetPointer(Index_Puppet), () => s.SerializeObject<GBA_BatmanVengeance_Puppet>(Puppet_BatmanVengeance, name: nameof(Puppet_BatmanVengeance)));
             }
-            else if (s.GameSettings.GBA_IsMilan)
+            else if (s.GetR1Settings().GBA_IsMilan)
             {
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear)
                 {
                     TomClancy_Puppets = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_BlockArray<GBA_BatmanVengeance_Puppet>>(TomClancy_Puppets, name: nameof(TomClancy_Puppets)));
                 }
@@ -97,7 +99,7 @@
                 Puppet = s.DoAt(OffsetTable.GetPointer(Index_Puppet), () => s.SerializeObject<GBA_Puppet>(Puppet, name: nameof(Puppet)));
             }
 
-            if (!s.GameSettings.GBA_IsMilan)
+            if (!s.GetR1Settings().GBA_IsMilan)
             {
                 // Parse state data
                 for (var i = 0; i < Actions.Length; i++)

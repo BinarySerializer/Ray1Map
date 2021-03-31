@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Animation : R1Serializable
+    public class GBAVV_Animation : BinarySerializable
     {
         public Pointer Fusion_AnimSetPointer { get; set; }
 
@@ -30,7 +32,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GameSettings.EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashNitroKart_NGage && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA)
             {
                 Fusion_AnimSetPointer = s.SerializePointer(Fusion_AnimSetPointer, name: nameof(Fusion_AnimSetPointer)); // Null for Nitro Kart
                 FrameIndexTablePointer = s.SerializePointer(FrameIndexTablePointer, name: nameof(FrameIndexTablePointer));
@@ -41,7 +43,7 @@
                 Byte_16 = s.Serialize<byte>(Byte_16, name: nameof(Byte_16));
                 Byte_17 = s.Serialize<byte>(Byte_17, name: nameof(Byte_17));
 
-                if (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_CrashFusion)
+                if (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashFusion)
                     AnimSet = s.DoAt(Fusion_AnimSetPointer, () => s.SerializeObject<GBAVV_AnimSet>(AnimSet, name: nameof(AnimSet)));
 
                 Palette = s.DoAt(PalettePointer, () => s.SerializeObjectArray<RGBA5551Color>(Palette, 16, name: nameof(Palette)));
@@ -50,7 +52,7 @@
             {
                 FrameIndexTablePointer = s.SerializePointer(FrameIndexTablePointer, name: nameof(FrameIndexTablePointer));
 
-                if (s.GameSettings.EngineVersion < EngineVersion.GBAVV_X2WolverinesRevenge)
+                if (s.GetR1Settings().EngineVersion < EngineVersion.GBAVV_X2WolverinesRevenge)
                     HitBox = s.SerializeObject<GBAVV_AnimationRect>(HitBox, name: nameof(HitBox));
 
                 RenderBox = s.SerializeObject<GBAVV_AnimationRect>(RenderBox, name: nameof(RenderBox));
@@ -59,7 +61,7 @@
                 FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
                 Byte_13 = s.Serialize<byte>(Byte_13, name: nameof(Byte_13));
 
-                if (s.GameSettings.EngineVersion < EngineVersion.GBAVV_X2WolverinesRevenge)
+                if (s.GetR1Settings().EngineVersion < EngineVersion.GBAVV_X2WolverinesRevenge)
                     s.SerializeArray<byte>(new byte[4], 4, name: "Padding");
             }
 

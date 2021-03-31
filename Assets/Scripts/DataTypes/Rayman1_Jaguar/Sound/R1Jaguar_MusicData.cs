@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Music data for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_MusicData : R1Serializable
+    public class R1Jaguar_MusicData : BinarySerializable
     {
         public int Time { get; set; } // Time in milliseconds
         public int Command { get; set; }

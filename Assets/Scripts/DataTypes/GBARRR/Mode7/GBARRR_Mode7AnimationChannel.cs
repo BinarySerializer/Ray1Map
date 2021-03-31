@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Numerics;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
     // Matches https://www.coranac.com/tonc/text/regobj.htm
-    public class GBARRR_Mode7AnimationChannel : R1Serializable {
+    public class GBARRR_Mode7AnimationChannel : BinarySerializable {
         public ushort Attr0 { get; set; }
         public ushort Attr1 { get; set; }
         public ushort Attr2 { get; set; }

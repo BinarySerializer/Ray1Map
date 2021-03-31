@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_VisualUnknownData : R1Serializable {
+	public class OBJ_GameObject_VisualUnknownData : BinarySerializable {
 		public byte Unk_Type { get; set; }
 		public bool Unk_Bool { get; set; }
 		public byte Unk_Byte_02 { get; set; }

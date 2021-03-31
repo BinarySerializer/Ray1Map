@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class GBAVV_MapLayer : R1Serializable
+    public class GBAVV_MapLayer : BinarySerializable
     {
         public GBAVV_TileMap.Encoding MapEncoding { get; set; } = GBAVV_TileMap.Encoding.Columns; // Set before serializing
 
@@ -36,14 +37,14 @@ namespace R1Engine
                 var mapTilesLength = TileMap.TileMapSections.SelectMany(x => x.Commands).Select(x => x.Params?.Max() ?? x.Param).Max() + 1;
 
                 // TODO: Is there a flag for this?
-                var uncompressed = s.GameSettings.EngineVersion == EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_Crash2 ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_CrashNitroKart ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_X2WolverinesRevenge ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedge ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts ||
-                                   s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpiderMan3;
+                var uncompressed = s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_ThePowerpuffGirlsHimAndSeek ||
+                                   s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_Crash2 ||
+                                   s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart ||
+                                   s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_X2WolverinesRevenge ||
+                                   s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan ||
+                                   s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_OverTheHedge ||
+                                   s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts ||
+                                   s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpiderMan3;
 
                 s.DoEncodedIf(new GBA_LZSSEncoder(), !uncompressed, () =>
                 {

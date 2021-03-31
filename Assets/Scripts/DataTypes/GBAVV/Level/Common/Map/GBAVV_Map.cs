@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Map : R1Serializable
+    public class GBAVV_Map : BinarySerializable
     {
         public bool SerializeData { get; set; } = true; // Set before serializing
 
@@ -41,10 +43,10 @@
             ObjData = s.DoAt(ObjDataPointer, () => s.SerializeObject<GBAVV_Map2D_ObjData>(ObjData, name: nameof(ObjData)));
             TileSets = s.DoAt(TileSetsPointer, () => s.SerializeObject<GBAVV_TileSets>(TileSets, name: nameof(TileSets)));
 
-            if (s.GameSettings.EngineVersion < EngineVersion.GBAVV_BrotherBear || 
-                s.GameSettings.EngineVersion == EngineVersion.GBAVV_SpongeBobBattleForBikiniBottom || 
-                s.GameSettings.EngineVersion == EngineVersion.GBAVV_ThatsSoRaven || 
-                s.GameSettings.EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
+            if (s.GetR1Settings().EngineVersion < EngineVersion.GBAVV_BrotherBear || 
+                s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_SpongeBobBattleForBikiniBottom || 
+                s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_ThatsSoRaven || 
+                s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_KidsNextDoorOperationSODA)
                 s.DoAt(MapCollisionPointer, () =>
                 {
                     s.DoEncoded(new GBA_LZSSEncoder(), () => MapCollision = s.SerializeObject<GBAVV_MapCollision>(MapCollision, name: nameof(MapCollision)));

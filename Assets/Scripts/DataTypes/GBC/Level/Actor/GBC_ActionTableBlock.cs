@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     public class GBC_ActionTableBlock : GBC_BaseBlock 
     {
@@ -7,7 +9,7 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            s.DoEndian(R1Engine.Serialize.BinaryFile.Endian.Little, () => {
+            s.DoEndian(Endian.Little, () => {
                 ActionTable = s.SerializeObject<GBC_ActionTable>(ActionTable, name: nameof(ActionTable));
             });
             Puppet = s.DoAt(DependencyTable.GetPointer(0), () => s.SerializeObject<GBC_Puppet>(Puppet, name: $"{nameof(Puppet)}"));

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PS1Edu_TEXDescriptor : R1Serializable
+    public class R1_PS1Edu_TEXDescriptor : BinarySerializable
     {
         public byte XInPage { get; set; }
         public byte YInPage { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_CollisionType : R1Serializable
+    public class GBAVV_Isometric_CollisionType : BinarySerializable
     {
         public Pointer FunctionPointer_0 { get; set; }
         public Pointer FunctionPointer_1 { get; set; }

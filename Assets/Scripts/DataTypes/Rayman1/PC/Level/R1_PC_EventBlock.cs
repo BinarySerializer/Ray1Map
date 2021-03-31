@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event data for PC
     /// </summary>
-    public class R1_PC_EventBlock : R1Serializable
+    public class R1_PC_EventBlock : BinarySerializable
     {
         /// <summary>
         /// The checksum for the decrypted event block
@@ -39,7 +41,7 @@
             EventBlockChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
                 // Set the xor key to use for the event block
-                s.DoXOR((byte)(s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC ? 0 : 0x91), () =>
+                s.DoXOR((byte)(s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC ? 0 : 0x91), () =>
                 {
                     // Serialize the event count
                     EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
@@ -53,7 +55,7 @@
                     // Serialize the event commands
                     EventCommands = s.SerializeObjectArray<R1_PC_EventCommand>(EventCommands, EventCount, name: nameof(EventCommands));
                 });
-            }, ChecksumPlacement.Before, calculateChecksum: s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu, name: nameof(EventBlockChecksum));
+            }, ChecksumPlacement.Before, calculateChecksum: s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit || s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu, name: nameof(EventBlockChecksum));
         }
     }
 }

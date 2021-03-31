@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_GeometricData_Xenon : R1Serializable {
+	public class OBJ_GameObject_GeometricData_Xenon : BinarySerializable {
 		public uint Type { get; set; } // Set in on PreSerialize
 
 		public uint UInt_00 { get; set; }
@@ -24,7 +25,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public class LightmapStruct : R1Serializable {
+		public class LightmapStruct : BinarySerializable {
 			public uint Count { get; set; }
 			public Entry[] Entries { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
@@ -32,7 +33,7 @@ namespace R1Engine.Jade {
 				Entries = s.SerializeArray<Entry>(Entries, Count, name: nameof(Entries));
 			}
 
-			public class Entry : R1Serializable {
+			public class Entry : BinarySerializable {
 				public float Float_00 { get; set; }
 				public float Float_04 { get; set; }
 				public float Float_08 { get; set; }

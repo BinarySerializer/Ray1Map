@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro2_Object2D : R1Serializable
+    public class GBAIsometric_Spyro2_Object2D : BinarySerializable
     {
         public ObjCategory Category { get; set; }
 

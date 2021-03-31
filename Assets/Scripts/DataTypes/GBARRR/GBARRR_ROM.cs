@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -81,7 +82,7 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // Get pointer table
-            var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBARRR_PointerTable(s.GetR1Settings().GameModeSelection, Offset.File);
 
             // Serialize offset table
             OffsetTable = s.DoAt(pointerTable[GBARRR_Pointer.OffsetTable], () => s.SerializeObject<GBARRR_OffsetTable>(OffsetTable, name: nameof(OffsetTable)));
@@ -90,7 +91,7 @@ namespace R1Engine
             OffsetTable.DoAtBlock(s.Context, 3, size =>
                 Localization = s.SerializeObject<GBARRR_LocalizationBlock>(Localization, name: nameof(Localization)));
 
-            var gameMode = GBA_RRR_Manager.GetCurrentGameMode(s.GameSettings);
+            var gameMode = GBA_RRR_Manager.GetCurrentGameMode(s.GetR1Settings());
 
             if (gameMode == GBA_RRR_Manager.GameMode.Game || gameMode == GBA_RRR_Manager.GameMode.Village)
             {
@@ -104,7 +105,7 @@ namespace R1Engine
                     () => s.SerializeObjectArray<GBARRR_LevelProperties>(LevelProperties, 32, name: nameof(LevelProperties)));
 
                 // Get the current level info
-                var lvlInfo = GetLevelInfo(s.GameSettings);
+                var lvlInfo = GetLevelInfo(s.GetR1Settings());
 
                 // Serialize tile maps
                 OffsetTable.DoAtBlock(s.Context, lvlInfo.LevelTilesetIndex, size =>
@@ -140,7 +141,7 @@ namespace R1Engine
                         onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Foreground));
 
                 // Serialize palettes
-                var tilePalIndex = GetLevelTilePaletteOffsetIndex(s.GameSettings);
+                var tilePalIndex = GetLevelTilePaletteOffsetIndex(s.GetR1Settings());
                 if (tilePalIndex != null)
                     OffsetTable.DoAtBlock(s.Context, tilePalIndex.Value, size =>
                         TilePalette = s.SerializeObjectArray<RGBA5551Color>(TilePalette, 0x100, name: nameof(TilePalette)));
@@ -200,65 +201,65 @@ namespace R1Engine
                 Mode7_WaypointsPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Waypoints], () => s.SerializePointerArray(Mode7_WaypointsPointers, 3, name: nameof(Mode7_WaypointsPointers)));
 
                 // Serialize compressed tile data
-                s.DoAt(Mode7_MapTilesPointers[s.GameSettings.Level], () => {
+                s.DoAt(Mode7_MapTilesPointers[s.GetR1Settings().Level], () => {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_MapTiles = s.SerializeArray<byte>(Mode7_MapTiles, s.CurrentLength, name: nameof(Mode7_MapTiles)));
                 });
-                s.DoAt(Mode7_BG0TilesPointers[s.GameSettings.Level], () => {
+                s.DoAt(Mode7_BG0TilesPointers[s.GetR1Settings().Level], () => {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG0Tiles = s.SerializeArray<byte>(Mode7_BG0Tiles, s.CurrentLength, name: nameof(Mode7_BG0Tiles)));
                 });
-                s.DoAt(Mode7_BG1TilesPointers[s.GameSettings.Level], () => {
+                s.DoAt(Mode7_BG1TilesPointers[s.GetR1Settings().Level], () => {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG1Tiles = s.SerializeArray<byte>(Mode7_BG1Tiles, s.CurrentLength, name: nameof(Mode7_BG1Tiles)));
                 });
 
                 // Serialize map data
-                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAEU)
+                if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAEU)
                 {
-                    Mode7_MapData = s.DoAt(Mode7_MapPointers[s.GameSettings.Level], () => s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Mode7Tiles, name: nameof(Mode7_MapData)));
+                    Mode7_MapData = s.DoAt(Mode7_MapPointers[s.GetR1Settings().Level], () => s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Mode7Tiles, name: nameof(Mode7_MapData)));
                 }
                 else
                 {
-                    s.DoAt(Mode7_MapPointers[s.GameSettings.Level], () =>
+                    s.DoAt(Mode7_MapPointers[s.GetR1Settings().Level], () =>
                     {
                         s.DoEncoded(new RNCEncoder(hasHeader: false), () =>
                             Mode7_MapData = s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Mode7Tiles, name: nameof(Mode7_MapData)));
                     });
                 }
-                s.DoAt(Mode7_BG0MapPointers[s.GameSettings.Level], () =>
+                s.DoAt(Mode7_BG0MapPointers[s.GetR1Settings().Level], () =>
                 {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG0MapData = s.SerializeObjectArray<MapTile>(Mode7_BG0MapData, 32 * 32,
                         onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Foreground, name: nameof(Mode7_BG0MapData)));
                 });
-                s.DoAt(Mode7_BG1MapPointers[s.GameSettings.Level], () =>
+                s.DoAt(Mode7_BG1MapPointers[s.GetR1Settings().Level], () =>
                 {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG1MapData = s.SerializeObjectArray<MapTile>(Mode7_BG1MapData, 32 * 32,
                         onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Foreground,
                         name: nameof(Mode7_BG1MapData)));
                 });
-                s.DoAt(Mode7_ObjectsPointers[s.GameSettings.Level], () =>
+                s.DoAt(Mode7_ObjectsPointers[s.GetR1Settings().Level], () =>
                 {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_Objects = s.SerializeObjectArray<GBARRR_Mode7Object>(Mode7_Objects, 141, name: nameof(Mode7_Objects)));
                 });
-                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAEU) {
-                    s.DoAt(Mode7_CollisionMapDataPointers[s.GameSettings.Level], () => {
+                if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAEU) {
+                    s.DoAt(Mode7_CollisionMapDataPointers[s.GetR1Settings().Level], () => {
                         Mode7_CollisionMapData = s.SerializeArray<ushort>(Mode7_CollisionMapData, 256 * 256, name: nameof(Mode7_CollisionMapData));
                     });
                 } else {
-                    s.DoAt(Mode7_CollisionMapDataPointers[s.GameSettings.Level], () => {
+                    s.DoAt(Mode7_CollisionMapDataPointers[s.GetR1Settings().Level], () => {
                         s.DoEncoded(new RNCEncoder(hasHeader: false), () =>
                             Mode7_CollisionMapData = s.SerializeArray<ushort>(Mode7_CollisionMapData, 256 * 256, name: nameof(Mode7_CollisionMapData)));
                     });
                 }
-                s.DoAt(Mode7_CollisionTypesPointers[s.GameSettings.Level], () => {
+                s.DoAt(Mode7_CollisionTypesPointers[s.GetR1Settings().Level], () => {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_CollisionTypes = s.SerializeArray<byte>(Mode7_CollisionTypes, s.CurrentLength, name: nameof(Mode7_CollisionTypes)));
                 });
-                s.DoAt(Mode7_WaypointsPointers[s.GameSettings.Level], () => {
-                    Mode7_Waypoints = s.SerializeObjectArray<GBARRR_Mode7Waypoint>(Mode7_Waypoints, Mode7_WaypointsCount[s.GameSettings.Level], name: nameof(Mode7_Waypoints));
+                s.DoAt(Mode7_WaypointsPointers[s.GetR1Settings().Level], () => {
+                    Mode7_Waypoints = s.SerializeObjectArray<GBARRR_Mode7Waypoint>(Mode7_Waypoints, Mode7_WaypointsCount[s.GetR1Settings().Level], name: nameof(Mode7_Waypoints));
                 });
 
                 // Serialize palettes
-                Mode7_MapPalette = s.DoAt(Mode7_MapPalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_MapPalette, 16 * 16, name: nameof(Mode7_MapPalette)));
-                Mode7_BG1Palette = s.DoAt(Mode7_BG1PalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_BG1Palette, 16, name: nameof(Mode7_BG1Palette)));
-                Mode7_BG0Palette = s.DoAt(Mode7_BG0PalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_BG0Palette, 16, name: nameof(Mode7_BG0Palette)));
+                Mode7_MapPalette = s.DoAt(Mode7_MapPalettePointers[s.GetR1Settings().Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_MapPalette, 16 * 16, name: nameof(Mode7_MapPalette)));
+                Mode7_BG1Palette = s.DoAt(Mode7_BG1PalettePointers[s.GetR1Settings().Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_BG1Palette, 16, name: nameof(Mode7_BG1Palette)));
+                Mode7_BG0Palette = s.DoAt(Mode7_BG0PalettePointers[s.GetR1Settings().Level], () => s.SerializeObjectArray<RGBA5551Color>(Mode7_BG0Palette, 16, name: nameof(Mode7_BG0Palette)));
 
                 // Fill in full tilemap palette
                 Mode7_TilemapPalette = new RGBA5551Color[16 * 16];
@@ -289,8 +290,8 @@ namespace R1Engine
             {
                 Menu_Pointers = s.DoAt(pointerTable[GBARRR_Pointer.MenuArray], () => s.SerializePointerArray(Menu_Pointers, 15 * 3, name: nameof(Menu_Pointers)));
 
-                var manager = (GBA_RRR_Manager)s.GameSettings.GetGameManager;
-                var menuLevels = manager.GetMenuLevels(s.GameSettings.Level);
+                var manager = (GBA_RRR_Manager)s.GetR1Settings().GetGameManager;
+                var menuLevels = manager.GetMenuLevels(s.GetR1Settings().Level);
 
                 Menu_Tiles = new byte[menuLevels.Length][];
                 Menu_MapData = new MapTile[menuLevels.Length][];

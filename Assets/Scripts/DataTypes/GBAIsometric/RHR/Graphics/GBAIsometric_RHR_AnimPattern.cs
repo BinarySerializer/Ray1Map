@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_RHR_AnimPattern : R1Serializable
+    public class GBAIsometric_RHR_AnimPattern : BinarySerializable
     {
         public byte WidthPower { get; set; }
         public byte HeightPower { get; set; }

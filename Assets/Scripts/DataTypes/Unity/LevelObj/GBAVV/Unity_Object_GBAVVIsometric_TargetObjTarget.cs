@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -26,7 +27,7 @@ namespace R1Engine
             set => Object.TargetYPos = value;
         }
 
-        public override R1Serializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Object;
 
         public override string PrimaryName => $"Type_10_{(int)Object.ObjType}";
         public override string SecondaryName => $"{Object.ObjType} Target";

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_WorldMap : R1Serializable
+    public class R1_PC_WorldMap : BinarySerializable
     {
         public byte[][] EDU_Alpha { get; set; }
 
@@ -25,7 +27,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize alpha data (only on EDU)
-            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu)
             {
                 if (EDU_Alpha == null)
                     EDU_Alpha = new byte[160][];

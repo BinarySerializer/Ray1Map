@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class OBJ_GameObject : Jade_File {
@@ -37,7 +38,7 @@ namespace R1Engine.Jade {
 			if(FileType.Type != Jade_FileType.FileType.OBJ_GameObject)
 				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.OBJ_GameObject}");
 
-			if(!Loader.IsBinaryData || s.GameSettings.EngineVersion == EngineVersion.Jade_RRR_Xbox360) Type = s.Serialize<uint>(Type, name: nameof(Type));
+			if(!Loader.IsBinaryData || s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) Type = s.Serialize<uint>(Type, name: nameof(Type));
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
 			s.SerializeBitValues<uint>(bitFunc => {
@@ -72,7 +73,7 @@ namespace R1Engine.Jade {
 			}
 			NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 			Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-			if (s.GameSettings.Game == Game.Jade_RRR) {
+			if (s.GetR1Settings().Game == Game.Jade_RRR) {
 				UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
 				if (UInt_AfterName_00 != 0)
 					UInt_AfterName_04 = s.Serialize<uint>(UInt_AfterName_04, name: nameof(UInt_AfterName_04));

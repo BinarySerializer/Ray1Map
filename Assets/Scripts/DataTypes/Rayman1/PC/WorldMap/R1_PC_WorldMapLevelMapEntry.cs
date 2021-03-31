@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PC_WorldMapLevelMapEntry : R1Serializable
+    public class R1_PC_WorldMapLevelMapEntry : BinarySerializable
     {
         public sbyte World { get; set; }
         public sbyte Level { get; set; }

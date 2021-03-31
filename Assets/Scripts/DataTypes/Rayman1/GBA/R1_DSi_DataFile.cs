@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Data for Rayman 1 (DSi)
     /// </summary>
-    public class R1_DSi_DataFile : R1Serializable, IR1_GBAData
+    public class R1_DSi_DataFile : BinarySerializable, IR1_GBAData
     {
         /// <summary>
         /// The map data for the current level
@@ -94,13 +95,13 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Get the pointer table
-            var pointerTable = PointerTables.R1_DSi_PointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+            var pointerTable = PointerTables.R1_DSi_PointerTable(s.GetR1Settings().GameModeSelection, this.Offset.File);
 
             s.DoAt(pointerTable[R1_DSi_Pointer.WorldLevelOffsetTable],
                 () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 8, name: nameof(WorldLevelOffsetTable)));
 
             // Get the global level index
-            var levelIndex = WorldLevelOffsetTable[s.GameSettings.World] + (s.GameSettings.Level - 1);
+            var levelIndex = WorldLevelOffsetTable[s.GetR1Settings().World] + (s.GetR1Settings().Level - 1);
 
             DES_Ray = s.DoAt(pointerTable[R1_DSi_Pointer.DES_Ray], () => s.SerializeObject<R1_GBA_EventGraphicsData>(DES_Ray, name: nameof(DES_Ray)));
             ETA_Ray = s.DoAt(pointerTable.TryGetItem(R1_DSi_Pointer.ETA_Ray), () => s.SerializeObject<R1_GBA_ETA>(ETA_Ray, x => x.Lengths = new byte[] { 66, 12, 34, 53, 14, 14, 1, 2 }, name: nameof(ETA_Ray)));
@@ -117,8 +118,8 @@ namespace R1Engine
             ETA_Map = s.DoAt(pointerTable.TryGetItem(R1_DSi_Pointer.ETA_Map), () => s.SerializeObject<R1_GBA_ETA>(ETA_Map, x => x.Lengths = new byte[] { 64, 1, 19, 1, 1, 69, 3 }, name: nameof(ETA_Map)));
 
             // Serialize data from the ROM
-            if (s.GameSettings.R1_World != R1_World.Menu)
-                s.DoAt((s.GameSettings.R1_World == R1_World.Jungle ? pointerTable[R1_DSi_Pointer.JungleMaps] : pointerTable[R1_DSi_Pointer.LevelMaps]) + (levelIndex * 32), 
+            if (s.GetR1Settings().R1_World != R1_World.Menu)
+                s.DoAt((s.GetR1Settings().R1_World == R1_World.Jungle ? pointerTable[R1_DSi_Pointer.JungleMaps] : pointerTable[R1_DSi_Pointer.LevelMaps]) + (levelIndex * 32), 
                     () => LevelMapData = s.SerializeObject<R1_GBA_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
 
             s.DoAt(pointerTable[R1_DSi_Pointer.BackgroundVignette],
@@ -127,7 +128,7 @@ namespace R1Engine
             WorldMapVignette = s.SerializeObject<R1_GBA_WorldMapVignette>(WorldMapVignette, name: nameof(WorldMapVignette));
 
             // Serialize the level event data
-            if (s.GameSettings.R1_World != R1_World.Menu)
+            if (s.GetR1Settings().R1_World != R1_World.Menu)
             {
                 LevelEventData = new R1_GBA_LevelEventData();
                 LevelEventData.SerializeData(s, pointerTable[R1_DSi_Pointer.EventGraphicsPointers], pointerTable[R1_DSi_Pointer.EventDataPointers], pointerTable[R1_DSi_Pointer.EventGraphicsGroupCountTablePointers], pointerTable[R1_DSi_Pointer.LevelEventGraphicsGroupCounts]);
@@ -174,10 +175,10 @@ namespace R1Engine
             s.DoAt(pointerTable[R1_DSi_Pointer.ZdcData], () => ZdcData = s.SerializeObjectArray<R1_ZDCData>(ZdcData, 200, name: nameof(ZdcData)));
             s.DoAt(pointerTable[R1_DSi_Pointer.EventFlags], () => EventFlags = s.SerializeArray<R1_EventFlags>(EventFlags, 262, name: nameof(EventFlags)));
 
-            if (s.GameSettings.R1_World != R1_World.Menu)
+            if (s.GetR1Settings().R1_World != R1_World.Menu)
             {
                 WorldVignetteIndicesPointers = s.DoAt(pointerTable[R1_DSi_Pointer.WorldVignetteIndices], () => s.SerializePointerArray(WorldVignetteIndicesPointers, 7, name: nameof(WorldVignetteIndicesPointers)));
-                WorldVignetteIndices = s.DoAt(WorldVignetteIndicesPointers[s.GameSettings.World], () => s.SerializeArray<byte>(WorldVignetteIndices, 8, name: nameof(WorldVignetteIndices))); // The max size is 8
+                WorldVignetteIndices = s.DoAt(WorldVignetteIndicesPointers[s.GetR1Settings().World], () => s.SerializeArray<byte>(WorldVignetteIndices, 8, name: nameof(WorldVignetteIndices))); // The max size is 8
 
                 // Get the background indices
                 s.DoAt(pointerTable[R1_DSi_Pointer.LevelMapsBGIndices] + (levelIndex * 32), () =>

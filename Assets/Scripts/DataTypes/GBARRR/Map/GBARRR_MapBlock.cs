@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_MapBlock : R1Serializable
+    public class GBARRR_MapBlock : BinarySerializable
     {
         public MapType Type { get; set; }
 
@@ -49,7 +51,7 @@
             Menu
         }
 
-        public class GBARRR_TileReferences : R1Serializable
+        public class GBARRR_TileReferences : BinarySerializable
         {
             public ushort[] TileIndices { get; set; }
 
@@ -59,7 +61,7 @@
             }
         }
 
-        public class GBARRR_MapTiles : R1Serializable
+        public class GBARRR_MapTiles : BinarySerializable
         {
             public MapType Type { get; set; }
 

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBC_PalmOS_Vignette : R1Serializable 
+    public class GBC_PalmOS_Vignette : BinarySerializable 
     {
         public uint BlockSize { get; set; }
         public uint Width { get; set; }

@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -110,7 +111,7 @@ namespace R1Engine
         public override Unity_TileSet GetTileSet(Context context)
         {
             // Get the file name
-            var filename = GetTileSetFilePath(context.Settings);
+            var filename = GetTileSetFilePath(context.GetR1Settings());
 
             // Read the file
             var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
@@ -128,14 +129,14 @@ namespace R1Engine
         protected override void FillVRAM(Context context, VRAMMode mode)
         {
             // Read palettes
-            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = y.CurrentLength / 2);
-            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = y.CurrentLength / 2);
+            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Length = y.CurrentLength / 2);
+            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 8), context, (y, x) => x.Length = y.CurrentLength / 2);
             var palLettre = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetFontPalettePath(), context, (y, x) => x.Length = y.CurrentLength / 2);
 
             // Read the files
             var fixGraphics = FileFactory.Read<Array<byte>>(GetAllfixSpritePath(), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            var wldGraphics = FileFactory.Read<Array<byte>>(GetWorldSpritePath(context.Settings), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelSpritePath(context.Settings), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var wldGraphics = FileFactory.Read<Array<byte>>(GetWorldSpritePath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelSpritePath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
             
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -173,8 +174,8 @@ namespace R1Engine
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Get the file paths
-            var mapPath = GetMapFilePath(context.Settings);
-            var levelPath = GetLevelFilePath(context.Settings);
+            var mapPath = GetMapFilePath(context.GetR1Settings());
+            var levelPath = GetLevelFilePath(context.GetR1Settings());
 
             // Read the files
             var map = FileFactory.Read<MapData>(mapPath, context);
@@ -190,17 +191,17 @@ namespace R1Engine
 
             // Get the file paths
             var allfixPath = GetAllfixFilePath();
-            var worldPath = GetWorldFilePath(context.Settings);
-            var levelPath = GetLevelFilePath(context.Settings);
-            var mapPath = GetMapFilePath(context.Settings);
-            var tileSetPath = GetTileSetFilePath(context.Settings);
+            var worldPath = GetWorldFilePath(context.GetR1Settings());
+            var levelPath = GetLevelFilePath(context.GetR1Settings());
+            var mapPath = GetMapFilePath(context.GetR1Settings());
+            var tileSetPath = GetTileSetFilePath(context.GetR1Settings());
 
             // sprites
             await LoadExtraFile(context, GetAllfixSpritePath(), true);
-            await LoadExtraFile(context, GetWorldSpritePath(context.Settings), true);
-            await LoadExtraFile(context, GetLevelSpritePath(context.Settings), true);
-            await LoadExtraFile(context, GetPalettePath(context.Settings, 4), false);
-            await LoadExtraFile(context, GetPalettePath(context.Settings, 8), false);
+            await LoadExtraFile(context, GetWorldSpritePath(context.GetR1Settings()), true);
+            await LoadExtraFile(context, GetLevelSpritePath(context.GetR1Settings()), true);
+            await LoadExtraFile(context, GetPalettePath(context.GetR1Settings(), 4), false);
+            await LoadExtraFile(context, GetPalettePath(context.GetR1Settings(), 8), false);
             await LoadExtraFile(context, GetFontPalettePath(), true);
 
             // Load the files
@@ -249,13 +250,13 @@ namespace R1Engine
 
         public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 // Load files
                 await LoadFilesAsync(context);
 
                 // Read level file
-                var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context);
+                var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
                 // Export
                 await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new R1_PS1_FontData[]
@@ -270,7 +271,7 @@ namespace R1Engine
 
         public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
         {
-            var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context);
+            var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
             return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
             {

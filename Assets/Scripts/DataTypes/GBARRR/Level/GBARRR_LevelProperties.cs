@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBARRR_LevelProperties : R1Serializable
+    public class GBARRR_LevelProperties : BinarySerializable
     {
         public int Int_00 { get; set; } // Set to 2 for the shooting range maps
         public int Int_04 { get; set; } // Set to 2 for sweets and 1 for title screen - some layer prio?

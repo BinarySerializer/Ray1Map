@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class R1_PS1_AllfixBlock : R1Serializable
+    public class R1_PS1_AllfixBlock : BinarySerializable
     {
         /// <summary>
         /// The data length, set before serializing

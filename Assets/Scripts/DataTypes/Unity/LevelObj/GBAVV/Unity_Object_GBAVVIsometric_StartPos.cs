@@ -1,4 +1,5 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
@@ -28,7 +29,7 @@ namespace R1Engine
             set => Object.YPos = value;
         }
 
-        public override R1Serializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Object;
 
         public override string PrimaryName => $"Player_{PlayerIndex + 1}";
         public override string SecondaryName => $"Start Position";

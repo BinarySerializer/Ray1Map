@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAIsometric_Spyro2_State_LevelObjective : R1Serializable
+    public class GBAIsometric_Spyro2_State_LevelObjective : BinarySerializable
     {
         public ushort ObjectType { get; set; }
         public ushort Ushort_02 { get; set; }

@@ -1,11 +1,12 @@
 ﻿using System;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Common event state (etat) data
     /// </summary>
-    public class R1_EventState : R1Serializable
+    public class R1_EventState : BinarySerializable
     {
         // Right and left speed?
         public byte[] UnkR2_1 { get; set; }
@@ -71,7 +72,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
-            if (s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.R2_PS1)
             {
                 UnkR2_1 = s.SerializeArray<byte>(UnkR2_1, 4, name: nameof(UnkR2_1));
                 AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
@@ -86,29 +87,29 @@ namespace R1Engine
             {
                 RightSpeed = s.Serialize<sbyte>(RightSpeed, name: nameof(RightSpeed));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
-                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                    s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                     UnkDemo1 = s.Serialize<byte>(UnkDemo1, name: nameof(UnkDemo1));
 
                 LeftSpeed = s.Serialize<sbyte>(LeftSpeed, name: nameof(LeftSpeed));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
-                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                    s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                     UnkDemo2 = s.Serialize<byte>(UnkDemo2, name: nameof(UnkDemo2));
 
                 AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
-                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                    s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                     UnkDemo3 = s.Serialize<byte>(UnkDemo3, name: nameof(UnkDemo3));
 
                 LinkedEtat = s.Serialize<byte>(LinkedEtat, name: nameof(LinkedEtat));
                 LinkedSubEtat = s.Serialize<byte>(LinkedSubEtat, name: nameof(LinkedSubEtat));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                     UnkDemo4 = s.Serialize<byte>(UnkDemo4, name: nameof(UnkDemo4));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_Saturn)
                 {
                     s.SerializeBitValues<byte>(bitFunc =>
                     {
@@ -125,7 +126,7 @@ namespace R1Engine
                     });
                 }
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                 {
                     UnkDemo5 = s.Serialize<byte>(UnkDemo5, name: nameof(UnkDemo5));
                     UnkDemo6 = s.Serialize<byte>(UnkDemo6, name: nameof(UnkDemo6));
@@ -133,7 +134,7 @@ namespace R1Engine
                     UnkDemo8 = s.Serialize<byte>(UnkDemo8, name: nameof(UnkDemo8));
                 }
                 else {
-                    if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6) {
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6) {
                         UnkDemo4 = s.Serialize<byte>(UnkDemo4, name: nameof(UnkDemo4));
                     }
                     SoundIndex = s.Serialize<byte>(SoundIndex, name: nameof(SoundIndex));

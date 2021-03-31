@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -70,7 +71,7 @@ namespace R1Engine
 
         public override void SerializeBlock(SerializerObject s) {
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 if (StructType != Type.Collision) {
                     Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
                     Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
@@ -84,7 +85,7 @@ namespace R1Engine
                     ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
                 }
             }
-            else if (s.GameSettings.GBA_IsMilan)
+            else if (s.GetR1Settings().GBA_IsMilan)
             {
                 ColorMode = GBA_ColorMode.Color4bpp;
 
@@ -132,7 +133,7 @@ namespace R1Engine
                 // Return to avoid serializing the map tile array normally
                 return;
             }
-            else if (s.GameSettings.GBA_IsShanghai)
+            else if (s.GetR1Settings().GBA_IsShanghai)
             {
                 ColorMode = GBA_ColorMode.Color4bpp;
                 IsCompressed = false;
@@ -230,7 +231,7 @@ namespace R1Engine
                             Unk_0D = s.Serialize<byte>(Unk_0D, name: nameof(Unk_0D));
                             Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
                             Unk_0F = s.Serialize<byte>(Unk_0F, name: nameof(Unk_0F));
-                            if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
                                 ColorMode = GBA_ColorMode.Color8bpp;
                             } else {
                                 ColorMode = GBA_ColorMode.Color4bpp;
@@ -265,7 +266,7 @@ namespace R1Engine
             {
                 if (!IsCompressed)
                     SerializeTileMap(s);
-                else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PoP)
+                else if (s.GetR1Settings().EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PoP)
                     s.DoEncoded(new GBA_Huffman4Encoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
                 else
                     s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
@@ -293,8 +294,8 @@ namespace R1Engine
                     Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
                     break;
                 case Type.Collision:
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy || 
-                        s.GameSettings.EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear) {
+                    if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_TombRaiderTheProphecy || 
+                        s.GetR1Settings().EngineVersion == EngineVersion.GBA_TomClancysRainbowSixRogueSpear) {
                         CollisionData3D = s.SerializeObjectArray<GBA_3DCollision>(CollisionData3D, Width * Height, name: nameof(CollisionData3D));
                     } else {
                         CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData));
@@ -305,7 +306,7 @@ namespace R1Engine
 
 		public override void SerializeOffsetData(SerializerObject s) {
 			base.SerializeOffsetData(s);
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 if(StructType != Type.Collision)
                     // Serialize tilemap
                     TileKit = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
@@ -323,6 +324,6 @@ namespace R1Engine
             PoP = 5
         }
 
-        public override long GetShanghaiOffsetTableLength => StructType == Type.Layer2D || Context.Settings.GBA_IsMilan ? 3 : 1;
+        public override long GetShanghaiOffsetTableLength => StructType == Type.Layer2D || Context.GetR1Settings().GBA_IsMilan ? 3 : 1;
     }
 }

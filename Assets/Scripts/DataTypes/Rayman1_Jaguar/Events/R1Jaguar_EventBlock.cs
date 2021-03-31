@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Event block data for Rayman 1 (Jaguar)
     /// </summary>
-    public class R1Jaguar_EventBlock : R1Serializable
+    public class R1Jaguar_EventBlock : BinarySerializable
     {
         public R1Jaguar_MapEvents MapEvents { get; set; }
 
@@ -22,8 +23,8 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Get offsets
-            var offsetTableOffset = s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto ? Offset + 0x1208 : new R1Jaguar_Proto_Manager().GetDataPointer(s.Context, R1Jaguar_Proto_References.test_offlist);
-            var eventTableOffset = s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto ? Offset + 0x1608 : new R1Jaguar_Proto_Manager().GetDataPointer(s.Context, R1Jaguar_Proto_References.test_event);
+            var offsetTableOffset = s.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto ? Offset + 0x1208 : new R1Jaguar_Proto_Manager().GetDataPointer(s.Context, R1Jaguar_Proto_References.test_offlist);
+            var eventTableOffset = s.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto ? Offset + 0x1608 : new R1Jaguar_Proto_Manager().GetDataPointer(s.Context, R1Jaguar_Proto_References.test_event);
 
             MapEvents = s.SerializeObject<R1Jaguar_MapEvents>(MapEvents, name: nameof(MapEvents));
 

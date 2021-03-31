@@ -1,8 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -74,7 +75,7 @@ namespace R1Engine
         public string GetDESFileName(Context context, int desIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
+            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
             // Get file names
             var desNames = worldData.DESFileNames ?? new string[0];
@@ -92,7 +93,7 @@ namespace R1Engine
         public string GetETAFileName(Context context, int etaIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
+            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
             // Get file names
             var etaNames = worldData.ETAFileNames ?? new string[0];
@@ -128,9 +129,9 @@ namespace R1Engine
                 Select(Path.GetFileName).
                 Select(x => new AdditionalSoundArchive($"SMP ({x})", GetSamplesArchiveFilePath(x))).ToArray();
 
-        public override string[] GetDESNameTable(Context context) => context.Settings.R1_World == R1_World.Menu ? new string[0] : FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetDESNameTable(Context context) => context.GetR1Settings().R1_World == R1_World.Menu ? new string[0] : FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
-        public override string[] GetETANameTable(Context context) => context.Settings.R1_World == R1_World.Menu ? new string[0] : FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetETANameTable(Context context) => context.GetR1Settings().R1_World == R1_World.Menu ? new string[0] : FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
         public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.KitPC_Type_ZDC;
         public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.KitPC_ZDCTable;
@@ -143,7 +144,7 @@ namespace R1Engine
         }
 
         public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => 
-            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
+            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
 
         /// <summary>
         /// Gets the available game actions
@@ -215,7 +216,7 @@ namespace R1Engine
             return localization.ToArray();
         }
 
-        public override IList<BaseColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND00")?.VGAPalette;
+        public override IList<BaseColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), "FND00")?.VGAPalette;
 
         public override async UniTask LoadFilesAsync(Context context)
         {
@@ -234,7 +235,7 @@ namespace R1Engine
         {
             var worldVig = LoadArchiveFile<R1_PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
 
-            return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), worldVig));
+            return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), worldVig));
         }
 
         public async UniTask ImportDESETA(GameSettings settings, bool edu)
@@ -248,7 +249,7 @@ namespace R1Engine
             // Load in the JSON files to get our mappings
             await LevelEditorData.InitAsync(settings, true);
 
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 GameSettings otherSettings;
 
@@ -264,25 +265,25 @@ namespace R1Engine
                     otherSettings = new GameSettings(GameModeSelection.RaymanEducationalPC, Settings.GameDirectories[GameModeSelection.RaymanEducationalPC], settings.World, settings.Level);
                 }
 
-                using (var otherContext = new Context(otherSettings)) {
+                using (var otherContext = new R1Context(otherSettings)) {
                     // Create manager for the other game, and load its files.
                     R1_PCBaseManager otherGame = (R1_PCBaseManager)otherSettings.GetGameManager;
 
                     if (edu)
-                        otherContext.Settings.EduVolume = otherGame.GetLevels(otherContext.Settings).First().Name;
+                        otherContext.GetR1Settings().EduVolume = otherGame.GetLevels(otherContext.GetR1Settings()).First().Name;
 
                     // Loop through the worlds.
                     for (int w = 1; w < 7; w++)
                     {
-                        context.Settings.World = otherContext.Settings.World = w;
-                        var wldPath = GetWorldFilePath(context.Settings);
+                        context.GetR1Settings().World = otherContext.GetR1Settings().World = w;
+                        var wldPath = GetWorldFilePath(context.GetR1Settings());
 
                         await LoadFilesAsync(context);
                         await otherGame.LoadFilesAsync(otherContext);
 
                         // Load our WLD file and the other game's.
                         var wld = FileFactory.Read<R1_PC_WorldFile>(wldPath, context);
-                        var otherWld = FileFactory.Read<R1_PC_WorldFile>(otherGame.GetWorldFilePath(otherContext.Settings), otherContext);
+                        var otherWld = FileFactory.Read<R1_PC_WorldFile>(otherGame.GetWorldFilePath(otherContext.GetR1Settings()), otherContext);
 
                         // Get the list of existing ETA and DES files so we know what's missing.
                         var desNames = wld.DESFileNames.ToArray();
@@ -291,7 +292,7 @@ namespace R1Engine
                         // Use the tables to get mappings from the other game onto this one.
                         var desMappings = new Dictionary<int, string>();
                         var etaMappings = new Dictionary<int, string>();
-                        var r1wld = otherContext.Settings.R1_World;
+                        var r1wld = otherContext.GetR1Settings().R1_World;
 
                         var desNameTable = otherGame.GetDESNameTable(otherContext);
                         var etaNameTable = otherGame.GetETANameTable(otherContext);
@@ -354,7 +355,7 @@ namespace R1Engine
         public async UniTask IncreaseMemAlloc(GameSettings settings)
         {
             const int newMemAlloc = 2048; // 2 MiB should be enough!
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 

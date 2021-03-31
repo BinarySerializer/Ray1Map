@@ -1,12 +1,13 @@
 ﻿using System;
-using R1Engine.Serialize;
+using BinarySerializer;
+
 
 namespace R1Engine
 {
     /// <summary>
     /// Event data for Rayman 2 (PS1 - Demo)
     /// </summary>
-    public class R1_R2EventData : R1Serializable 
+    public class R1_R2EventData : BinarySerializable 
     {
         #region Static Methods
 
@@ -281,7 +282,7 @@ namespace R1Engine
                     ParamsGeneric = s.SerializeArray<byte>(ParamsGeneric, 44, name: nameof(ParamsGeneric)); // 44 bytes is the max length for object params
             });
 
-            if (!s.FullSerialize || Offset.file is ProcessMemoryStreamFile)
+            if (!s.FullSerialize || Offset.File is ProcessMemoryStreamFile)
                 return;
 
             // Serialize the animation group data
@@ -336,7 +337,7 @@ namespace R1Engine
 
         #region Object Params
 
-        public class Params_Gendoor : R1Serializable
+        public class Params_Gendoor : BinarySerializable
         {
             public Pointer LinkedObjectsPointer { get; set; }
             public Pointer TriggerObjectsPointer { get; set; } // Objects that can trigger the gendoor when in range. We don't show these in the editor right now since they're unused in the prototype, even though the engine supports them.
@@ -376,7 +377,7 @@ namespace R1Engine
             }
         }
 
-        public class Params_Trigger : R1Serializable
+        public class Params_Trigger : BinarySerializable
         {
             public Pointer LinkedObjectsPointer { get; set; }
             public ushort LinkedObjectsCount { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Volume : R1Serializable
+    public class GBAVV_Volume : BinarySerializable
     {
         public GBAVV_Volume_BaseManager.LevInfo CurrentLevInfo { get; set; } // Set before serializing
 
@@ -17,23 +19,23 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedge && 
-                s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_OverTheHedge && 
+                s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
             {
                 VolumeNamePointer = s.SerializePointer(VolumeNamePointer, name: nameof(VolumeNamePointer));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_MadagascarOperationPenguin)
+                if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_MadagascarOperationPenguin)
                     PrimaryLevelInfoPointer = s.SerializePointer(PrimaryLevelInfoPointer, name: nameof(PrimaryLevelInfoPointer));
             }
 
             LevelInfosPointer = s.SerializePointer(LevelInfosPointer, name: nameof(LevelInfosPointer));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedge &&
-                s.GameSettings.EngineVersion != EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
+            if (s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_OverTheHedge &&
+                s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_OverTheHedgeHammyGoesNuts)
             {
                 LevelsCount = s.Serialize<int>(LevelsCount, name: nameof(LevelsCount));
 
-                if (s.GameSettings.EngineVersion != EngineVersion.GBAVV_MadagascarOperationPenguin)
+                if (s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_MadagascarOperationPenguin)
                     Pointer_0C = s.SerializePointer(Pointer_0C, name: nameof(Pointer_0C));
             }
 

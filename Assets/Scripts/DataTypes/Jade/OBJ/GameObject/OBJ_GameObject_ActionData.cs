@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_ActionData : R1Serializable {
+	public class OBJ_GameObject_ActionData : BinarySerializable {
 		public uint Action0 { get; set; }
 		public uint Action1 { get; set; }
 		public uint Action2 { get; set; }

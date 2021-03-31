@@ -1,10 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -40,7 +41,7 @@ namespace R1Engine
         };
 
         public async UniTask ExportDataBlocksAsync(GameSettings settings, string outputPath, bool categorize, bool ignoreUsedBlocks) {
-            using (var context = new Context(settings)) {
+            using (var context = new R1Context(settings)) {
                 var s = context.Deserializer;
                 await LoadFilesAsync(context);
 
@@ -84,7 +85,7 @@ namespace R1Engine
 
         public async UniTask ExportCutscenes(GameSettings settings, string outputPath)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -166,7 +167,7 @@ namespace R1Engine
 
         public async UniTask ExportAssetsAsync(GameSettings settings, string outputPath)
         {
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -317,15 +318,15 @@ namespace R1Engine
 
             Func<ushort, Unity_MapCollisionTypeGraphic> collGraphicFunc = x => ((GBAIsometric_Spyro3_TileCollisionType2D)x).GetCollisionTypeGraphic();
             Func<ushort, string> collNameFunc = x => ((GBAIsometric_Spyro3_TileCollisionType2D)x).ToString();
-            if (context.Settings.EngineVersion < EngineVersion.GBAIsometric_Spyro3) {
+            if (context.GetR1Settings().EngineVersion < EngineVersion.GBAIsometric_Spyro3) {
                 collGraphicFunc = x => ((GBAIsometric_Spyro2_TileCollisionType2D)x).GetCollisionTypeGraphic();
                 collNameFunc = x => ((GBAIsometric_Spyro2_TileCollisionType2D)x).ToString();
             }
 
             // Spyro 2 cutscenes
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 4)
+            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.GetR1Settings().World == 4)
             {
-                var cutsceneMap = rom.CutsceneMaps[context.Settings.Level];
+                var cutsceneMap = rom.CutsceneMaps[context.GetR1Settings().Level];
 
                 Controller.DetailedState = $"Loading tileset";
                 await Controller.WaitIfNecessary();
@@ -363,11 +364,11 @@ namespace R1Engine
                     getCollisionTypeGraphicFunc: collGraphicFunc,
                     localization: LoadLocalization(rom))
                 {
-                    CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null
+                    CellSizeOverrideCollision = context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null
                 };
             }
 
-            var levelData = rom.GetLevelData(context.Settings);
+            var levelData = rom.GetLevelData(context.GetR1Settings());
 
             // Convert map arrays to map tiles
             Dictionary<GBAIsometric_Spyro_MapLayer, MapTile[]> mapTiles = levelData.MapLayers.Where(x => x != null).ToDictionary(x => x, GetMapTiles);
@@ -407,7 +408,7 @@ namespace R1Engine
                 };
             });
 
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 1)
+            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.GetR1Settings().World == 1)
             {
                 var reversedMaps = maps.Reverse().ToArray();
                 reversedMaps.Last().Layer = Unity_Map.MapLayer.Front;
@@ -418,7 +419,7 @@ namespace R1Engine
             if (levelData.Collision2D != null)
             {
                 int width, height;
-                if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3) {
+                if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3) {
                     width = levelData.Collision2D.Width / levelData.Collision2D.TileWidth;
                     height = levelData.Collision2D.Height / levelData.Collision2D.TileHeight;
                 } else {
@@ -438,8 +439,8 @@ namespace R1Engine
             }
 
             // Add the map if available
-            var lvlMap = rom.LevelMaps?.FirstOrDefault(x => x.LevelID == rom.GetLevelDataID(context.Settings));
-            if (context.Settings.World == 0 && lvlMap != null && Settings.LoadIsometricMapLayer)
+            var lvlMap = rom.LevelMaps?.FirstOrDefault(x => x.LevelID == rom.GetLevelDataID(context.GetR1Settings()));
+            if (context.GetR1Settings().World == 0 && lvlMap != null && Settings.LoadIsometricMapLayer)
             {
                 maps = maps.Append(new Unity_Map() {
                     Type = Unity_Map.MapType.Graphics,
@@ -459,15 +460,15 @@ namespace R1Engine
             var objects = new List<Unity_Object>();
 
             // Load objects
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.Settings.World == 1)
+            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 && context.GetR1Settings().World == 1)
             {
-                var objTable = rom.LevelObjects_Spyro2_Agent9[context.Settings.Level];
+                var objTable = rom.LevelObjects_Spyro2_Agent9[context.GetR1Settings().Level];
 
                 objects.AddRange(objTable.DoorObjects.Concat(objTable.CharacterObjects).Concat(objTable.CollectibleObjects).Select(x => new Unity_Object_GBAIsometricSpyro2_2D(x, objManager)));
             }
             else
             {
-                var objTable = rom.GetObjectTable(context.Settings);
+                var objTable = rom.GetObjectTable(context.GetR1Settings());
 
                 // Init the objects
                 if (objTable != null)
@@ -478,7 +479,7 @@ namespace R1Engine
             }
 
             // Spyro 2: Snap object height to height of collision tile
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2 && isometricData != null) {
+            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2 && isometricData != null) {
                 foreach (var obj in objects.OfType<Unity_Object_GBAIsometricSpyro>().Where(x => !x.IsWaypoint)) {
                     var objX = obj.XPosition / 16f;
                     var objY = obj.YPosition / 16f;
@@ -503,7 +504,7 @@ namespace R1Engine
                 defaultLayer: 1,
                 isometricData: isometricData,
                 localization: LoadLocalization(rom),
-                defaultCollisionLayer: validMaps.Length - 1) { CellSizeOverrideCollision = context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
+                defaultCollisionLayer: validMaps.Length - 1) { CellSizeOverrideCollision = context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 ? (int?)16 : null };
         }
 
         public KeyValuePair<string, string[]>[] LoadLocalization(GBAIsometric_Spyro_ROM rom)
@@ -541,9 +542,9 @@ namespace R1Engine
         {
             var animSetPalettes = new Color[rom.AnimSets.Length][][][];
 
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro3 || context.Settings.EngineVersion == EngineVersion.GBAIsometric_Tron2)
+            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro3 || context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Tron2)
             {
-                var objPal = rom.GetLevelData(context.Settings).ObjPalette;
+                var objPal = rom.GetLevelData(context.GetR1Settings()).ObjPalette;
                 var pal = Util.ConvertAndSplitGBAPalette(objPal);
 
                 for (int i = 0; i < animSetPalettes.Length; i++)
@@ -555,7 +556,7 @@ namespace R1Engine
             else
             {
                 var cachedPalettes = new Dictionary<long, Color[][]>();
-                var palInfo = context.Settings.GameModeSelection == GameModeSelection.SpyroSeasonFlameUS ? rom.Spyro2_PalInfoUS : rom.Spyro2_PalInfoEU;
+                var palInfo = context.GetR1Settings().GameModeSelection == GameModeSelection.SpyroSeasonFlameUS ? rom.Spyro2_PalInfoUS : rom.Spyro2_PalInfoEU;
                 var commonPal = rom.Spyro2_CommonPalette;
 
                 for (int i = 0; i < palInfo.Length; i++)
@@ -588,7 +589,7 @@ namespace R1Engine
                         }
                     }).ToArray() ?? new Color[][][] // Default to level obj palette if no dedicated palette is specified
                     {
-                        Util.ConvertAndSplitGBAPalette(rom.GetLevelData(context.Settings).ObjPalette)
+                        Util.ConvertAndSplitGBAPalette(rom.GetLevelData(context.GetR1Settings()).ObjPalette)
                     };
                 }
             }
@@ -690,7 +691,7 @@ namespace R1Engine
         public MapTile[] GetCollision2DMapTiles(Context context, GBAIsometric_Spyro_Collision2DMapData collision2D)
         {
 
-            if (context.Settings.EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
+            if (context.GetR1Settings().EngineVersion == EngineVersion.GBAIsometric_Spyro2) {
                 int width = collision2D.Width;
                 int height = collision2D.Height;
                 MapTile[] tiles = new MapTile[width * height * 4];
@@ -855,9 +856,9 @@ namespace R1Engine
 
         public async UniTask CreateInitFuncUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
         {
-            using (var usContext = new Context(usSettings))
+            using (var usContext = new R1Context(usSettings))
             {
-                using (var euContext = new Context(euSettings))
+                using (var euContext = new R1Context(euSettings))
                 {
                     // Load rom files
                     await LoadFilesAsync(usContext);
@@ -893,9 +894,9 @@ namespace R1Engine
         }
         public async UniTask CreateAnimSetIndexUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
         {
-            using (var usContext = new Context(usSettings))
+            using (var usContext = new R1Context(usSettings))
             {
-                using (var euContext = new Context(euSettings))
+                using (var euContext = new R1Context(euSettings))
                 {
                     // Load rom files
                     await LoadFilesAsync(usContext);
@@ -961,7 +962,7 @@ namespace R1Engine
 
                     var levSettings = new GameSettings(settings.GameModeSelection, settings.GameDirectory, world.Index, lev);
 
-                    using (var context = new Context(levSettings))
+                    using (var context = new R1Context(levSettings))
                     {
                         await LoadFilesAsync(context);
 
@@ -997,7 +998,7 @@ namespace R1Engine
         {
             var output = String.Empty;
 
-            using (var context = new Context(settings))
+            using (var context = new R1Context(settings))
             {
                 await LoadFilesAsync(context);
 
@@ -1023,9 +1024,9 @@ namespace R1Engine
         }
         public async UniTask CreatePalBlockIndexPerLevelUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
         {
-            using (var usContext = new Context(usSettings))
+            using (var usContext = new R1Context(usSettings))
             {
-                using (var euContext = new Context(euSettings))
+                using (var euContext = new R1Context(euSettings))
                 {
                     // Load rom files
                     await LoadFilesAsync(usContext);

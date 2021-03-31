@@ -1,6 +1,7 @@
-﻿using System;
+﻿using BinarySerializer;
 
-namespace R1Engine {
+namespace R1Engine
+{
     /// <summary>
     /// A standard ARGB color wrapper with serializing support for the encoding RGB-565
     /// </summary>

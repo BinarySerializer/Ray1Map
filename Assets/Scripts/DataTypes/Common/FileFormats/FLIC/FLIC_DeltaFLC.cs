@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
-    public class FLIC_DeltaFLC : R1Serializable
+    public class FLIC_DeltaFLC : BinarySerializable
     {
         public ushort LinesCount { get; set; }
         public FLIC_DeltaFLCLine[] Lines { get; set; }
@@ -14,7 +15,7 @@ namespace R1Engine
             Lines = s.SerializeObjectArray<FLIC_DeltaFLCLine>(Lines, LinesCount, name: nameof(Lines));
         }
 
-        public class FLIC_DeltaFLCLine : R1Serializable
+        public class FLIC_DeltaFLCLine : BinarySerializable
         {
             public FLIC_DeltaFLCLineCommand[] Commands { get; set; }
 
@@ -23,7 +24,7 @@ namespace R1Engine
                 Commands = s.SerializeObjectArrayUntil<FLIC_DeltaFLCLineCommand>(Commands, x => x.ValueType != 3, includeLastObj: true, name: nameof(Commands));
             }
 
-            public class FLIC_DeltaFLCLineCommand : R1Serializable
+            public class FLIC_DeltaFLCLineCommand : BinarySerializable
             {
                 public ushort Value { get; set; }
                 public byte ValueType { get; set; }
@@ -64,7 +65,7 @@ namespace R1Engine
                     Packets = s.SerializeObjectArray<FLIC_DeltaFLCPacket>(Packets, PacketsCount, name: nameof(Packets));
                 }
 
-                public class FLIC_DeltaFLCPacket : R1Serializable
+                public class FLIC_DeltaFLCPacket : BinarySerializable
                 {
                     public byte Skip { get; set; }
                     public sbyte Count { get; set; }

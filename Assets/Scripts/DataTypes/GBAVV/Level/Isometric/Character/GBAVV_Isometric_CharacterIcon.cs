@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_Isometric_CharacterIcon : R1Serializable
+    public class GBAVV_Isometric_CharacterIcon : BinarySerializable
     {
         public Pointer TileSetPointer { get; set; }
         public uint PaletteIndex { get; set; }

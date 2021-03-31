@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_VisualUnknown2Data : R1Serializable {
+	public class OBJ_GameObject_VisualUnknown2Data : BinarySerializable {
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; } // Set in OnPreSerialize
 
 		public uint Unk2_Count { get; set; }
@@ -15,7 +16,7 @@ namespace R1Engine.Jade {
 			Unk2_Count = s.Serialize<uint>(Unk2_Count, name: nameof(Unk2_Count));
 			Unk2s = s.SerializeObjectArray<Unk2>(Unk2s, Unk2_Count, onPreSerialize: u => u.FlagsIdentity = FlagsIdentity, name: nameof(Unk2s));
 		}
-		public class Unk2 : R1Serializable {
+		public class Unk2 : BinarySerializable {
 			public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; } // set in onPreSerialize
 
 			public Jade_Reference<OBJ_GameObject> GameObject { get; set; }

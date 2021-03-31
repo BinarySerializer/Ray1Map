@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -14,7 +15,7 @@ namespace R1Engine
             IsChildObj = isChildObj;
 
             var type = ObjManager.Types?.ElementAtOrDefault(Object.ObjectType);
-            AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.Data?.AnimSetPointer?.pointer);
+            AnimSetIndex = type == null ? -1 : ObjManager.AnimSets.FindItemIndex(x => x.Pointer == type.Data?.AnimSetPointer?.PointerValue);
             AnimIndex = animIndex ?? type?.Data?.AnimationIndex ?? 0;
         }
 
@@ -61,10 +62,10 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBAIsometricRHR.AnimSet AnimSet => ObjManager.AnimSets?.ElementAtOrDefault(AnimSetIndex);
 
-        public bool IsWaypoint => ObjManager.Context.Settings.EngineVersion != EngineVersion.GBAIsometric_RHR && Object.ObjectType == 0;
+        public bool IsWaypoint => ObjManager.Context.GetR1Settings().EngineVersion != EngineVersion.GBAIsometric_RHR && Object.ObjectType == 0;
         public bool IsChildObj { get; }
 
-        public override R1Serializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => IsWaypoint ? "Waypoint" : $"{AnimGroupName?.Replace("AnimSet", String.Empty) ?? $"Type_{Object.ObjectType}"}";

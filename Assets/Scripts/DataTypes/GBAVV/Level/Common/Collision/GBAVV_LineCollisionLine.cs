@@ -1,6 +1,8 @@
-﻿namespace R1Engine
+﻿using BinarySerializer;
+
+namespace R1Engine
 {
-    public class GBAVV_LineCollisionLine : R1Serializable
+    public class GBAVV_LineCollisionLine : BinarySerializable
     {
         public int X1 { get; set; }
         public int Y1 { get; set; }
@@ -24,15 +26,15 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_BrotherBear)
+            if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_BrotherBear)
             {
                 X1 = s.Serialize<short>((short)X1, name: nameof(X1));
                 Y1 = s.Serialize<short>((short)Y1, name: nameof(Y1));
                 X2 = s.Serialize<short>((short)X2, name: nameof(X2));
                 Y2 = s.Serialize<short>((short)Y2, name: nameof(Y2));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan || 
-                     (s.GameSettings.EngineVersion >= EngineVersion.GBAVV_OverTheHedge && s.GameSettings.EngineVersion != EngineVersion.GBAVV_ShrekTheThird))
+            else if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_UltimateSpiderMan || 
+                     (s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_OverTheHedge && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_ShrekTheThird))
             {
                 FixedPoint_X1 = s.SerializeObject<FixedPointInt>(FixedPoint_X1, x => x.PointPosition = 8, name: nameof(FixedPoint_X1));
                 FixedPoint_Y1 = s.SerializeObject<FixedPointInt>(FixedPoint_Y1, x => x.PointPosition = 8, name: nameof(FixedPoint_Y1));

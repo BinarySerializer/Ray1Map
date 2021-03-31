@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// XM audio file data
     /// </summary>
-    public class XM : R1Serializable {
+    public class XM : BinarySerializable {
         public string IDText { get; set; } = "Extended Module: ";
         public string ModuleName { get; set; }
         public byte EscapeName { get; set;} = 0x1A;

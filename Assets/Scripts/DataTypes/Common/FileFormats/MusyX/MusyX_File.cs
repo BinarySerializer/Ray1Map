@@ -1,11 +1,12 @@
 ﻿using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Base file for GBA MusyX
     /// </summary>
-    public class MusyX_File : R1Serializable
+    public class MusyX_File : BinarySerializable
     {
         public Pointer<MusyX_InstrumentTable> InstrumentTable { get; set; }
         public Pointer<MusyX_UnknownTable> Unknown2List1 { get; set; }
@@ -35,13 +36,13 @@ namespace R1Engine
             // Read instrument table
             InstrumentTable.Resolve(s, onPreSerialize: st => {
                 st.BaseOffset = Offset;
-                st.EndOffset = Unknown2List1.pointer;
+                st.EndOffset = Unknown2List1.PointerValue;
             });
 
             // Read song table
             SongTable.Resolve(s, onPreSerialize: st => {
                 st.BaseOffset = Offset;
-                st.EndOffset = SampleTable.pointer;
+                st.EndOffset = SampleTable.PointerValue;
             });
 
             // Read sample table
