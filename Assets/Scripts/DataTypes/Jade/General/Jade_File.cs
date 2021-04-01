@@ -5,7 +5,7 @@ namespace R1Engine.Jade {
 		public LOA_Loader Loader { get; set; }
 		public Jade_Key Key { get; set; }
 		public uint FileSize { get; set; }
-		public uint ReferencesCount { get; set; } = 1;
+		public uint? File_UnknownValue { get; set; }
 
 		protected override void OnPostSerialize(SerializerObject s) {
 			long readSize = s.CurrentPointer - Offset;

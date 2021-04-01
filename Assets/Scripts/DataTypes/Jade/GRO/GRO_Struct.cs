@@ -22,7 +22,9 @@ namespace R1Engine.Jade {
             {
                 GRO_Type.None => null,
                 GRO_Type.GEO => Value = s.SerializeObject<GEO_GeometricObject>((GEO_GeometricObject)Value, name: nameof(Value)),
+                GRO_Type.MAT_SIN => Value = s.SerializeObject<MAT_SIN_SingleMaterial>((MAT_SIN_SingleMaterial)Value, name: nameof(Value)),
                 GRO_Type.MAT_MSM => Value = s.SerializeObject<MAT_MSM_MultiSingleMaterial>((MAT_MSM_MultiSingleMaterial)Value, name: nameof(Value)),
+                GRO_Type.MAT_MTT => Value = s.SerializeObject<MAT_MTT_MultiTextureMaterial>((MAT_MTT_MultiTextureMaterial)Value, name: nameof(Value)),
                 _ => throw new NotImplementedException($"TODO: Implement GRO Struct Type {Type}")
             };
         }

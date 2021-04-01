@@ -31,7 +31,7 @@ namespace R1Engine.Jade
 
                 Uint_04 = s.Serialize<uint>(Uint_04, name: nameof(Uint_04));
                 SModifier = s.SerializeObject<Jade_Reference<SND_SModifier>>(SModifier, name: nameof(SModifier))?
-                    .Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    .Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.ReadUnknownValue);
 
                 if (!Loader.IsBinaryData)
                 {

@@ -51,7 +51,7 @@ namespace R1Engine.Jade {
 			Flag1 = 1 << 1,
 			DontCache = 1 << 2,
 			Flag3 = 1 << 3,
-			KeepReferencesCount = 1 << 4,
+			ReadUnknownValue = 1 << 4,
 			DontUseAlreadyLoadedCallback = 1 << 5,
 			Flag6 = 1 << 6,
 			Flag7 = 1 << 7,
@@ -115,7 +115,6 @@ namespace R1Engine.Jade {
 				if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
 					if (!currentRef.IsBin && LoadedFiles.ContainsKey(currentRef.Key)) {
 						var f = LoadedFiles[currentRef.Key];
-						if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 						if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 					} else {
 						Pointer off_current = s.CurrentPointer;
@@ -181,9 +180,12 @@ namespace R1Engine.Jade {
 				FileReference currentRef = LoadQueue.Dequeue();
 				if (LoadedFiles.ContainsKey(currentRef.Key)) {
 					var f = LoadedFiles[currentRef.Key];
-					if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 					if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 				} else {
+					uint? UnknownValue = null;
+					if (currentRef.Flags.HasFlag(ReferenceFlags.ReadUnknownValue)) {
+						UnknownValue = s.Serialize<uint>(UnknownValue ?? 0, name: nameof(UnknownValue));
+					}
 					if (ReadSizes) {
 						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 
@@ -198,6 +200,7 @@ namespace R1Engine.Jade {
 						currentRef.LoadCallback(s, (f) => {
 							f.Key = currentRef.Key;
 							f.FileSize = FileSize;
+							f.File_UnknownValue = UnknownValue;
 							f.Loader = this;
 							if (!LoadedFiles.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[f.Key] = f;
 						});
