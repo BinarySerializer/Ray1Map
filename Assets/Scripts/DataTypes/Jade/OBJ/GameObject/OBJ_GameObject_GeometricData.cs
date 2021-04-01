@@ -9,8 +9,8 @@ namespace R1Engine.Jade {
 	public class OBJ_GameObject_GeometricData : BinarySerializable {
 		public uint Type { get; set; } // Set in on PreSerialize
 
-		public Jade_Reference<GEO_Object> GeometricObject0 { get; set; }
-		public Jade_Reference<GEO_Object> GeometricObject1 { get; set; }
+		public Jade_Reference<GEO_Object> GeometricObject { get; set; }
+		public Jade_Reference<GEO_Object> Material { get; set; }
 		public int Int_7A { get; set; }
 		public uint UInt_7E { get; set; } // Seem to be flags of some sort
 
@@ -24,8 +24,8 @@ namespace R1Engine.Jade {
 		public OBJ_GameObject_GeometricData_Xenon2 Xenon2 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			GeometricObject0 = s.SerializeObject<Jade_Reference<GEO_Object>>(GeometricObject0, name: nameof(GeometricObject0))?.Resolve();
-			GeometricObject1 = s.SerializeObject<Jade_Reference<GEO_Object>>(GeometricObject1, name: nameof(GeometricObject1))?.Resolve();
+			GeometricObject = s.SerializeObject<Jade_Reference<GEO_Object>>(GeometricObject, name: nameof(GeometricObject))?.Resolve();
+			Material = s.SerializeObject<Jade_Reference<GEO_Object>>(Material, name: nameof(Material))?.Resolve();
 			Int_7A = s.Serialize<int>(Int_7A, name: nameof(Int_7A));
 			UInt_7E = s.Serialize<uint>(UInt_7E, name: nameof(UInt_7E));
 

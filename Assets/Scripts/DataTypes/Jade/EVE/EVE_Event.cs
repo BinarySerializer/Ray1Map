@@ -9,7 +9,15 @@ namespace R1Engine.Jade
         public int Index { get; set; } // Set before serializing
 
         public ushort Ushort_00 { get; set; }
-        public ushort Ushort_02 { get; set; }
+        public ushort Flags_00 { get; set; }
+        public ushort TypeCode { get; set; }
+        public ushort Flags_01 { get; set; }
+
+        public uint? InterpolationKey_UInt { get; set; }
+        public EVE_Event_InterpolationKey InterpolationKey { get; set; }
+        public EVE_Event_AIFunction AIFunction { get; set; }
+        public EVE_Event_MagicKey MagicKey { get; set; }
+        public EVE_Event_MorphKey_Old MorphKey_Old { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -20,27 +28,48 @@ namespace R1Engine.Jade
             else
                 Ushort_00 = s.Serialize<ushort>(Ushort_00, name: nameof(Ushort_00));
 
-            if (ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_11) && Index != 0)
-            {
-                if (ListEvents.Track.Uint_04 > 0 &&
+            if (ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_11) && Index > 0) {
+                if (ListEvents.Track.UInt_04 > 0 &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_11) &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12) &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13) &&
-                    (ListEvents.Header_Flags & 0x80) != 0)
-                    Ushort_02 = 128;
-                else
-                    throw new NotImplementedException($"TODO: Implement {GetType()}"); // Ushort_02 = *(_WORD *)(*(_DWORD *)(trackStruct + 4) + 2);
+                    (ListEvents.Header_Flags & 0x80) != 0) {
+                    Flags_00 = 128;
+                } else {
+                    Flags_00 = ListEvents.Events[0].Flags_00;
+                    TypeCode = ListEvents.Events[0].TypeCode;
+                    Flags_01 = ListEvents.Events[0].Flags_01;
+                }
 
-                Ushort_02 &= 0xFFFB;
+                //Ushort_02 &= 0xFFFB;
+            } else {
+                s.SerializeBitValues<ushort>(bitFunc => {
+                    Flags_00 = (ushort)bitFunc(Flags_00, 6, name: nameof(Flags_00));
+                    TypeCode = (ushort)bitFunc(TypeCode, 5, name: nameof(TypeCode));
+                    Flags_01 = (ushort)bitFunc(Flags_01, 5, name: nameof(Flags_01));
+                });
             }
-            else
-            {
-                Ushort_02 = s.Serialize<ushort>(Ushort_02, name: nameof(Ushort_02));
+
+            switch (TypeCode) {
+                case 0x1:
+                    AIFunction = s.SerializeObject<EVE_Event_AIFunction>(AIFunction, name: nameof(AIFunction));
+                    break;
+                case 0x2:
+                    if ((Flags_00 & 0x20) != 0) {
+                        InterpolationKey_UInt = s.Serialize<uint>(InterpolationKey_UInt ?? 0, name: nameof(InterpolationKey_UInt));
+                    } else {
+                        InterpolationKey = s.SerializeObject<EVE_Event_InterpolationKey>(InterpolationKey, onPreSerialize: k => k.Event = this, name: nameof(InterpolationKey));
+                    }
+                    break;
+                case 0x4:
+                    MorphKey_Old = s.SerializeObject<EVE_Event_MorphKey_Old>(MorphKey_Old, name: nameof(MorphKey_Old));
+                    break;
+                case 0xC:
+                    MagicKey = s.SerializeObject<EVE_Event_MagicKey>(MagicKey, name: nameof(MagicKey));
+                    break;
+                case 0x14: throw new NotImplementedException($"TODO: Implement {GetType()}: EVE_Event_PlaySynchro_Load");
+                case 0x18: throw new NotImplementedException($"TODO: Implement {GetType()}: EVE_Event_MorphKey_Load");
             }
-
-            var v24 = Ushort_02 & 0x7C0;
-
-            throw new NotImplementedException($"TODO: Implement {GetType()}");
         }
     }
 }

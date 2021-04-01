@@ -5,10 +5,11 @@ namespace R1Engine.Jade {
 	public class Jade_Key : BinarySerializable, IEquatable<Jade_Key> {
 		public uint Key { get; set; }
 		public bool IsNull => Key == 0 || Key == 0xFFFFFFFF;
+		public override bool IsShortLog => true;
+		public override string ShortLog => ToString();
 
 		public override void SerializeImpl(SerializerObject s) {
 			Key = s.Serialize<uint>(Key, name: nameof(Key));
-			s.Log($"Key: {Key:X8}");
 		}
 
 		public Jade_Key() { }

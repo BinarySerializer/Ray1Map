@@ -20,30 +20,31 @@ namespace R1Engine.Jade
         {
             EventsCount = s.Serialize<uint>(EventsCount, name: nameof(EventsCount));
 
-            if (Track.Uint_04 > 0)
+            if (Track.UInt_04 > 0)
             {
-                if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_9))
-                    Header_Short_00 = s.Serialize<byte>((byte)Header_Short_00, name: nameof(Header_Short_00));
-                else
-                    Header_Short_00 = s.Serialize<short>(Header_Short_00, name: nameof(Header_Short_00));
+                s.DoAt(s.CurrentPointer, () => {
+                    if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_9))
+                        Header_Short_00 = s.Serialize<byte>((byte)Header_Short_00, name: nameof(Header_Short_00));
+                    else
+                        Header_Short_00 = s.Serialize<short>(Header_Short_00, name: nameof(Header_Short_00));
 
-                Header_Short_02 = s.Serialize<short>(Header_Short_02, name: nameof(Header_Short_02));
-                Header_Ushort_04 = s.Serialize<ushort>(Header_Ushort_04, name: nameof(Header_Ushort_04));
-                Header_Flags = s.Serialize<ushort>(Header_Flags, name: nameof(Header_Flags));
+                    Header_Short_02 = s.Serialize<short>(Header_Short_02, name: nameof(Header_Short_02));
+                    Header_Ushort_04 = s.Serialize<ushort>(Header_Ushort_04, name: nameof(Header_Ushort_04));
+                    Header_Flags = s.Serialize<ushort>(Header_Flags, name: nameof(Header_Flags));
 
-                if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13) && (Header_Flags & 8) != 0)
-                {
-                    long count = Header_Ushort_04;
+                    if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13) && (Header_Flags & 8) != 0) {
+                        long count = Header_Ushort_04;
 
-                    if ((Header_Flags & 0x10) != 0 && (Header_Flags & 0x80) != 0)
-                        count = Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12) ? 6 : 16;
+                        if ((Header_Flags & 0x10) != 0 && (Header_Flags & 0x80) != 0)
+                            count = Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12) ? 6 : 16;
 
-                    if ((Header_Flags & 3) != 0)
-                        count = 12 * (Header_Flags & 3);
+                        if ((Header_Flags & 3) != 0)
+                            count = 12 * (Header_Flags & 3);
 
-                    Header_Bytes = s.SerializeArray(Header_Bytes, count, name: nameof(Header_Bytes));
-                    Header_Int = s.Serialize<int>(Header_Int, name: nameof(Header_Int));
-                }
+                        Header_Bytes = s.SerializeArray(Header_Bytes, count, name: nameof(Header_Bytes));
+                        Header_Int = s.Serialize<int>(Header_Int, name: nameof(Header_Int));
+                    }
+                });
             }
 
             if (Events == null)

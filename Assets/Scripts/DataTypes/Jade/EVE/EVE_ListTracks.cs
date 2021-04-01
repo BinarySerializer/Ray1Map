@@ -12,7 +12,7 @@ namespace R1Engine.Jade
         {
             TracksCount = s.Serialize<ushort>(TracksCount, name: nameof(TracksCount));
             Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
-            Tracks = s.SerializeObjectArray(Tracks, TracksCount, name: nameof(Tracks));
+            Tracks = s.SerializeObjectArray<EVE_Track>(Tracks, TracksCount, name: nameof(Tracks));
         }
     }
 }

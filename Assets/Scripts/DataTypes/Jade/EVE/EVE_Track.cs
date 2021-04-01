@@ -6,8 +6,8 @@ namespace R1Engine.Jade
     public class EVE_Track : BinarySerializable
     {
         public TrackFlags Flags { get; set; }
-        public ushort Ushort_02 { get; set; }
-        public uint Uint_04 { get; set; }
+        public ushort UShort_02 { get; set; }
+        public uint UInt_04 { get; set; }
         public int Int_08 { get; set; }
         public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
         public string String_0C_Editor { get; set; }
@@ -19,8 +19,8 @@ namespace R1Engine.Jade
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
             Flags = s.Serialize<TrackFlags>(Flags, name: nameof(Flags));
-            Ushort_02 = s.Serialize<ushort>(Ushort_02, name: nameof(Ushort_02));
-            Uint_04 = s.Serialize<uint>(Uint_04, name: nameof(Uint_04));
+            UShort_02 = s.Serialize<ushort>(UShort_02, name: nameof(UShort_02));
+            UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 
             if (Flags.HasFlag(TrackFlags.Flag_15))
             {
@@ -29,7 +29,7 @@ namespace R1Engine.Jade
             }
             else
             {
-                GameObject = s.SerializeObject(GameObject, name: nameof(GameObject))?.Resolve();
+                GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 
                 if (!Loader.IsBinaryData)
                 {
