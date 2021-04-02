@@ -17,6 +17,8 @@ namespace R1Engine.Jade {
 
 		public uint Code_01 { get; set; }
 		// (other stuff here)
+		public GEO_GeometricObject_CollisionData CollisionData { get; set; }
+		// (other stuff here)
 		public Jade_Vector[] Vertices { get; set; }
 		public Jade_Vector[] Vertices_Editor { get; set; }
 		public uint[] UInts_14 { get; set; }
@@ -52,7 +54,7 @@ namespace R1Engine.Jade {
 				throw new NotImplementedException($"TODO: Implement {GetType()}: SKN");
 			}
 			if ((Code_01 & 1) != 0) {
-				throw new NotImplementedException($"TODO: Implement {GetType()}: COL");
+				CollisionData = s.SerializeObject<GEO_GeometricObject_CollisionData>(CollisionData, name: nameof(CollisionData));
 			}
 			Vertices = s.SerializeObjectArray<Jade_Vector>(Vertices, VerticesCount, name: nameof(Vertices));
 			if (!Loader.IsBinaryData) Vertices_Editor = s.SerializeObjectArray<Jade_Vector>(Vertices_Editor, VerticesCount, name: nameof(Vertices_Editor));

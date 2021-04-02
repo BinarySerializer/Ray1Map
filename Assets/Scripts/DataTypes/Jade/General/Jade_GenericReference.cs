@@ -68,6 +68,8 @@ namespace R1Engine.Jade {
 							configureAction(f); onPreSerialize?.Invoke(s, f);
 						}, name: nameof(Value));
 						break;
+					default:
+						throw new NotImplementedException($"GenericReference: Could not resolve key {Key} of type {Type} ({FileType.Extension})");
 				}
 				onPostSerialize?.Invoke(s, Value);
 			}, (f) => {

@@ -26,11 +26,22 @@ namespace R1Engine.Jade {
 			[".gao"] = FileType.OBJ_GameObject,
 			[".wol"] = FileType.WOR_WorldList,
 			[".wow"] = FileType.WOR_World,
+
+			// AI
 			[".oin"] = FileType.AI_Instance,
 			[".omd"] = FileType.AI_Model,
 			[".ova"] = FileType.AI_Vars,
 			[".ofc"] = FileType.AI_Function,
-			[".fce"] = FileType.AI_ProcList
+			[".fce"] = FileType.AI_ProcList,
+
+			// Sound
+			[".snk"] = FileType.SND_Metabank,
+			[".smd"] = FileType.SND_SModifier,
+			[".wav"] = FileType.SND_Sound,
+			[".wac"] = FileType.SND_LoadingSound,
+			[".wad"] = FileType.SND_Dialog,
+			[".wam"] = FileType.SND_Music,
+			[".waa"] = FileType.SND_Ambience,
 		};
 
 		public enum FileType {
@@ -43,7 +54,14 @@ namespace R1Engine.Jade {
 			AI_Vars,
 			AI_Model,
 			AI_ProcList,
-			AI_Function
+			AI_Function,
+			SND_Metabank,
+			SND_Sound,
+			SND_LoadingSound,
+			SND_Dialog,
+			SND_Music,
+			SND_Ambience,
+			SND_SModifier,
 		}
 	}
 }

@@ -76,7 +76,7 @@ namespace R1Engine.Jade {
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasSND_UnknownBank)) {
 				SND_UnknownBank = s.SerializeObject<Jade_Reference<SND_UnknownBank>>(SND_UnknownBank, name: nameof(SND_UnknownBank))?
-					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.ReadUnknownValue);
+					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasWAY_AllLinkLists)) {
 				WAY_AllLinkLists = s.SerializeObject<Jade_Reference<WAY_AllLinkLists>>(WAY_AllLinkLists, name: nameof(WAY_AllLinkLists))?

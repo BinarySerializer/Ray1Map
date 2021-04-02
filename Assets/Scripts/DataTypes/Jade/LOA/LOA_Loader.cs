@@ -45,16 +45,19 @@ namespace R1Engine.Jade {
 		}
 
 		[Flags]
-		public enum ReferenceFlags {
+		public enum ReferenceFlags : uint {
 			None = 0,
 			Log = 1 << 0,
 			Flag1 = 1 << 1,
 			DontCache = 1 << 2,
 			Flag3 = 1 << 3,
-			ReadUnknownValue = 1 << 4,
+			KeepReferencesCount = 1 << 4,
 			DontUseAlreadyLoadedCallback = 1 << 5,
 			Flag6 = 1 << 6,
 			Flag7 = 1 << 7,
+			
+			// Custom
+			IsIrregularFileFormat = 1 << 16
 		}
 
 
@@ -115,6 +118,7 @@ namespace R1Engine.Jade {
 				if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
 					if (!currentRef.IsBin && LoadedFiles.ContainsKey(currentRef.Key)) {
 						var f = LoadedFiles[currentRef.Key];
+						if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 						if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 					} else {
 						Pointer off_current = s.CurrentPointer;
@@ -180,34 +184,32 @@ namespace R1Engine.Jade {
 				FileReference currentRef = LoadQueue.Dequeue();
 				if (LoadedFiles.ContainsKey(currentRef.Key)) {
 					var f = LoadedFiles[currentRef.Key];
+					if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 					if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 				} else {
-					uint? UnknownValue = null;
-					if (currentRef.Flags.HasFlag(ReferenceFlags.ReadUnknownValue)) {
-						UnknownValue = s.Serialize<uint>(UnknownValue ?? 0, name: nameof(UnknownValue));
-					}
-					if (ReadSizes) {
-						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+					if (!currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
+						if (ReadSizes) {
+							FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 
-						// Add region
-						Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
+							// Add region
+							Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
 
-						Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
-					} else {
-						FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - startPointer);
+							Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
+						} else {
+							FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - startPointer);
+						}
 					}
-					if (FileSize != 0) {
+					if (FileSize != 0 || currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 						currentRef.LoadCallback(s, (f) => {
 							f.Key = currentRef.Key;
 							f.FileSize = FileSize;
-							f.File_UnknownValue = UnknownValue;
 							f.Loader = this;
 							if (!LoadedFiles.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[f.Key] = f;
 						});
 					} else {
 						if (!LoadedFiles.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[currentRef.Key] = null;
 					}
-					if (ReadSizes) {
+					if (ReadSizes && !currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 						s.Goto(Bin.CurrentPosition); // count size uint and actual file
 					} else {
 						Bin.CurrentPosition = s.CurrentPointer;
