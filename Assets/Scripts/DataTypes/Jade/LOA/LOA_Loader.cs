@@ -233,6 +233,7 @@ namespace R1Engine.Jade {
 		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false, QueueType queue = QueueType.Current, string name = "", ReferenceFlags flags = ReferenceFlags.Log) {
 			if (queue == QueueType.Current) {
 				queue = Bin?.QueueType ?? QueueType.BigFat;
+				//if(Bin != null && FileInfos.ContainsKey(key)) queue = QueueType.BigFat;
 			}
 			LoadQueues[queue].Enqueue(new FileReference() {
 				Name = name,

@@ -26,6 +26,7 @@ namespace R1Engine.Jade {
                 GRO_Type.MAT_MSM => Value = s.SerializeObject<MAT_MSM_MultiSingleMaterial>((MAT_MSM_MultiSingleMaterial)Value, name: nameof(Value)),
                 GRO_Type.MAT_MTT => Value = s.SerializeObject<MAT_MTT_MultiTextureMaterial>((MAT_MTT_MultiTextureMaterial)Value, name: nameof(Value)),
                 GRO_Type.STR => Value = s.SerializeObject<STR_StringRenderObject>((STR_StringRenderObject)Value, name: nameof(Value)),
+                GRO_Type.LIGHT => Value = s.SerializeObject<LIGHT_Light>((LIGHT_Light)Value, name: nameof(Value)),
                 _ => throw new NotImplementedException($"TODO: Implement GRO Struct Type {Type}")
             };
         }

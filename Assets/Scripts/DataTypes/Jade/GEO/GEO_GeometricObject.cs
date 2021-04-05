@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
 		public uint UInt_2C { get; set; }
 
 		public uint Code_01 { get; set; }
-		// (other stuff here)
+		public GEO_GeometricObject_SKN SkinData { get; set; }
 		public GEO_GeometricObject_CollisionData CollisionData { get; set; }
 		// (other stuff here)
 		public Jade_Vector[] Vertices { get; set; }
@@ -51,7 +51,7 @@ namespace R1Engine.Jade {
 			UInt_2C = s.Serialize<uint>(UInt_2C, name: nameof(UInt_2C));
 			Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
 			if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
-				throw new NotImplementedException($"TODO: Implement {GetType()}: SKN");
+				SkinData = s.SerializeObject<GEO_GeometricObject_SKN>(SkinData, name: nameof(SkinData));
 			}
 			if ((Code_01 & 1) != 0) {
 				CollisionData = s.SerializeObject<GEO_GeometricObject_CollisionData>(CollisionData, name: nameof(CollisionData));

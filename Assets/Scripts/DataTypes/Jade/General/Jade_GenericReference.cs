@@ -68,6 +68,15 @@ namespace R1Engine.Jade {
 							configureAction(f); onPreSerialize?.Invoke(s, f);
 						}, name: nameof(Value));
 						break;
+					case Jade_FileType.FileType.SND_Ambience:
+					case Jade_FileType.FileType.SND_Dialog:
+					case Jade_FileType.FileType.SND_LoadingSound:
+					case Jade_FileType.FileType.SND_Music:
+					case Jade_FileType.FileType.SND_Sound:
+						Value = s.SerializeObject<SND_Wave>((SND_Wave)Value, onPreSerialize: f => {
+							configureAction(f); onPreSerialize?.Invoke(s, f);
+						}, name: nameof(Value));
+						break;
 					default:
 						throw new NotImplementedException($"GenericReference: Could not resolve key {Key} of type {Type} ({FileType.Extension})");
 				}

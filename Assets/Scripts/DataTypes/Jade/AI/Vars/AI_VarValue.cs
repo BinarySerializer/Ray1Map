@@ -23,6 +23,8 @@ namespace R1Engine.Jade {
 		public int ValueText0 { get; set; }
 		public int ValueText1 { get; set; }
 
+		public AI_Trigger ValueTrigger { get; set; }
+
 		public override void SerializeImpl(SerializerObject s) {
 			if (!IsArrayElement) {
 				Dimensions = s.SerializeArray<uint>(Dimensions, Var.Info.ArrayDimensionsCount, name: nameof(Dimensions));
@@ -60,9 +62,11 @@ namespace R1Engine.Jade {
 						ValueText1 = s.Serialize<int>(ValueText1, name: nameof(ValueText1));
 						break;
 					case AI_VarType.Message:
-					case AI_VarType.Trigger:
-						// TODO: Add these. They're read in AI_ul_CallbackLoadVars
+						// TODO: Add this. It's read in AI_ul_CallbackLoadVars
 						throw new NotImplementedException("AI_VarType not implemented: " + Var.Type.ToString());
+					case AI_VarType.Trigger:
+						ValueTrigger = s.SerializeObject<AI_Trigger>(ValueTrigger, name: nameof(ValueTrigger));
+						break;
 					default:
 						if (Var.Link.Size == 4) {
 							ValueInt = s.Serialize<int>(ValueInt, name: nameof(ValueInt));
