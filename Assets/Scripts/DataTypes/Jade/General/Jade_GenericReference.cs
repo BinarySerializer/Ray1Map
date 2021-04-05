@@ -77,6 +77,11 @@ namespace R1Engine.Jade {
 							configureAction(f); onPreSerialize?.Invoke(s, f);
 						}, name: nameof(Value));
 						break;
+					case Jade_FileType.FileType.SND_SModifier:
+						Value = s.SerializeObject<SND_SModifier>((SND_SModifier)Value, onPreSerialize: f => {
+							configureAction(f); onPreSerialize?.Invoke(s, f);
+						}, name: nameof(Value));
+						break;
 					default:
 						throw new NotImplementedException($"GenericReference: Could not resolve key {Key} of type {Type} ({FileType.Extension})");
 				}
