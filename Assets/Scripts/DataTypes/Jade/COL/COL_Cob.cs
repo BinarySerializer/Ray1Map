@@ -1,4 +1,5 @@
-﻿using BinarySerializer;
+﻿using System;
+using BinarySerializer;
 
 namespace R1Engine.Jade
 {
@@ -86,6 +87,7 @@ namespace R1Engine.Jade
                     {
                         Type5_UnkStructs2_Count = s.Serialize<uint>(Type5_UnkStructs2_Count, name: nameof(Type5_UnkStructs2_Count));
                         Type5_UnkStructs2 = s.SerializeObjectArray<UnkStruct2>(Type5_UnkStructs2, Type5_UnkStructs2_Count, name: nameof(Type5_UnkStructs2));
+                        throw new NotImplementedException("TODO: Implement COL_Load_Nodes_Recursively");
                     }
 
                     break;
