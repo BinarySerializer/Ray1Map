@@ -44,7 +44,7 @@ namespace R1Engine.Jade {
 			public short Short_02 { get; set; }
 			public uint UInt_04 { get; set; }
 			public uint UInt_08 { get; set; }
-			public uint Float_0C { get; set; }
+			public float Float_0C { get; set; }
 			public Jade_TextureReference Texture { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
@@ -52,7 +52,7 @@ namespace R1Engine.Jade {
 				Short_02 = s.Serialize<short>(Short_02, name: nameof(Short_02));
 				UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 				UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
-				Float_0C = s.Serialize<uint>(Float_0C, name: nameof(Float_0C));
+				Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
 				Texture = s.SerializeObject<Jade_TextureReference>(Texture, name: nameof(Texture))?.Resolve();
 			}
 		}

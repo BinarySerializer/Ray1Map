@@ -211,8 +211,10 @@ namespace R1Engine
 
 			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map));
 			await loader.LoadLoop(context.Deserializer);
+			loader.BeginSpeedMode((Jade_Key)Jade_Key.KeyTypeTextures);
+			await loader.LoadLoop(context.Deserializer);
 			loader.EndSpeedMode();
-			throw new NotImplementedException();
+			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
 		}
         public async UniTask LoadFilesAsync(Context context) {
 			foreach (var bfPath in BFFiles) {
