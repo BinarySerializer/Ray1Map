@@ -15,6 +15,8 @@ namespace R1Engine.Jade
         public ushort Stored_Buffer_UShort_00 { get; set; }
         public TypeFlags Stored_Buffer_Type { get; set; }
 
+        public Jade_CompressedQuaternion CompressedQuaternion { get; set; }
+
         public Jade_Quaternion Quaternion { get; set; }
         public Jade_Matrix Matrix { get; set; }
         public Jade_Vector Vector0 { get; set; }
@@ -74,6 +76,7 @@ namespace R1Engine.Jade
             if(Type.HasFlag(TypeFlags.Flag_4) && !Type.HasFlag(TypeFlags.Flag_7)) currentUShort_00 = 20;
 
             if (Type.HasFlag(TypeFlags.Flag_7)) {
+                CompressedQuaternion = s.SerializeObject<Jade_CompressedQuaternion>(CompressedQuaternion, name: nameof(CompressedQuaternion));
                 throw new NotImplementedException($"TODO: Implement {GetType()}: Type & 0x80");
             } else if(Type.HasFlag(TypeFlags.Flag_4) || Type.HasFlag(TypeFlags.Flag_0) || Type.HasFlag(TypeFlags.Flag_1) || Type.HasFlag(TypeFlags.Flag_2)) {
                 if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)) {
