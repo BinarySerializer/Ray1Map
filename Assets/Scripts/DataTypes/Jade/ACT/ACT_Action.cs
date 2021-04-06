@@ -18,7 +18,7 @@ namespace R1Engine.Jade
             if (!Loader.IsBinaryData) Ushort_02_Editor = s.Serialize<ushort>(Ushort_02_Editor, name: nameof(Ushort_02_Editor));
 
             Structs1 = s.SerializeObjectArray<ACT_ActionStruct1>(Structs1, StructsCount, name: nameof(Structs1));
-            Structs2 = s.SerializeObjectArray<ACT_ActionStruct2>(Structs2, StructsCount, name: nameof(Structs2));
+            //Structs2 = s.SerializeObjectArray<ACT_ActionStruct2>(Structs2, StructsCount, name: nameof(Structs2));
         }
 
         public class ACT_ActionStruct1 : BinarySerializable
