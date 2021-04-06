@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System;
 
 namespace R1Engine.Jade
 {
@@ -10,7 +11,7 @@ namespace R1Engine.Jade
         public override void SerializeImpl(SerializerObject s)
         {
             StructsCount = s.Serialize<byte>(StructsCount, name: nameof(StructsCount));
-            Structs = s.SerializeObjectArray(Structs, StructsCount, name: nameof(Structs));
+            Structs = s.SerializeObjectArray(Structs, Math.Min((byte)64, StructsCount), name: nameof(Structs));
         }
 
         public class ANI_ShapeStruct : BinarySerializable

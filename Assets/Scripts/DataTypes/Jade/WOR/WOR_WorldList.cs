@@ -21,7 +21,7 @@ namespace R1Engine.Jade {
 							if (actionData != null) {
 								actionData.Shape?.Resolve(immediate: true);
 								actionData.GRP?.Resolve(immediate: true);
-								if(actionData.ActionKit?.Value != null) actionData.ListTracks?.Resolve(immediate: true);
+								if(actionData.ActionKit?.Value == null) actionData.ListTracks?.Resolve(immediate: true);
 							}
 						}
 					}

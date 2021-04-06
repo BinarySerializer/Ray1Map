@@ -26,6 +26,8 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.GAO_ModifierShadow => s.SerializeObject<GAO_ModifierShadow>((GAO_ModifierShadow)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.PROTEX_Modifier => s.SerializeObject<PROTEX_Modifier>((PROTEX_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierLazy => s.SerializeObject<GAO_ModifierLazy>((GAO_ModifierLazy)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.SPG_Modifier => s.SerializeObject<SPG_Modifier>((SPG_Modifier)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.FUR_Modifier => s.SerializeObject<FUR_Modifier>((FUR_Modifier)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type}")
             };
         }
