@@ -36,7 +36,9 @@ namespace R1Engine.Jade {
 				NF_Short_02 = s.Serialize<short>(NF_Short_02, name: nameof(NF_Short_02));
 			}
 
-			Textures = s.SerializeObjectArrayUntil<TextureDescriptor>(Textures, t => t.Short_00 == 0, includeLastObj: true, name: nameof(Textures));
+			if (TexturePointer != 0) {
+				Textures = s.SerializeObjectArrayUntil<TextureDescriptor>(Textures, t => t.Short_00 == 0, includeLastObj: true, name: nameof(Textures));
+			}
 		}
 
 		public class TextureDescriptor : BinarySerializable {

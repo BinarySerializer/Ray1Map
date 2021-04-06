@@ -6,8 +6,8 @@ namespace R1Engine.Jade
     {
 		public byte[] WaveData { get; set; }
 
-		public override void SerializeImpl(SerializerObject s) 
-        {
+		public override void SerializeImpl(SerializerObject s) {
+			// TODO: Maybe properly parse this later on
 			WaveData = s.SerializeArray<byte>(WaveData, FileSize, name: nameof(WaveData));
 		}
 	}
