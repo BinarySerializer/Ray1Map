@@ -7,12 +7,12 @@ namespace R1Engine.Jade
     {
         public EVE_Event Event { get; set; } // Set in onPreSerialize
 
-        public ushort UShort_00 { get; set; }
+        public ushort StructSize { get; set; }
         public TypeFlags Type { get; set; }
 
-        public ushort Stored_UShort_00 { get; set; }
+        public ushort Stored_StructSize { get; set; }
         public TypeFlags Stored_Type { get; set; }
-        public ushort Stored_Buffer_UShort_00 { get; set; }
+        public ushort Stored_Buffer_StructSize { get; set; }
         public TypeFlags Stored_Buffer_Type { get; set; }
 
         public Jade_CompressedQuaternion CompressedQuaternion { get; set; }
@@ -29,23 +29,23 @@ namespace R1Engine.Jade
         public override void SerializeImpl(SerializerObject s)
         {
             if (Event.Index == 0 || !Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)) {
-                UShort_00 = s.Serialize<ushort>(UShort_00, name: nameof(UShort_00));
+                StructSize = s.Serialize<ushort>(StructSize, name: nameof(StructSize));
             } else {
                 var firstEvent = Event.ListEvents.Events[0];
-                if ((firstEvent.Ushort_00 & 0x8000) == 0) {
+                if ((firstEvent.Ushort_00_InGame & 0x8000) == 0) {
                     if (firstEvent.InterpolationKey_UInt.HasValue) {
                         throw new NotImplementedException($"TODO: Implement {GetType()}: Figure out InterpolationKey");
                         //UShort_00 = (ushort)BitHelpers.ExtractBits((int)firstEvent.InterpolationKey_UInt, 15, 1);
                     } else if(firstEvent.InterpolationKey != null) {
-                        UShort_00 = (ushort)(firstEvent.InterpolationKey.Stored_UShort_00 >> 1);
+                        StructSize = (ushort)(firstEvent.InterpolationKey.Stored_StructSize >> 1);
                     }
                 }
             }
-            if (Event.Index == 0 || !Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_8)) {
+            if (Event.Index == 0 || !Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12)) {
                 Type = s.Serialize<TypeFlags>(Type, name: nameof(Type));
             } else if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)) {
                 var firstEvent = Event.ListEvents.Events[0];
-                if ((firstEvent.Ushort_00 & 0x8000) != 0) {
+                if ((firstEvent.Ushort_00_InGame & 0x8000) != 0) {
                     Type = TypeFlags.Flag_4 | TypeFlags.Flag_7;
                 } else if (firstEvent.InterpolationKey_UInt.HasValue) {
                     throw new NotImplementedException($"TODO: Implement {GetType()}: Figure out InterpolationKey");
@@ -63,7 +63,7 @@ namespace R1Engine.Jade
                     throw new NotImplementedException($"TODO: Implement {GetType()}: Figure out InterpolationKey");
                     //Type = (ushort)BitHelpers.ExtractBits((int)firstEvent.InterpolationKey_UInt, 16, 16);
                 } else if (firstEvent.InterpolationKey != null) {
-                    if ((firstEvent.InterpolationKey.Stored_UShort_00 & 1) == 1) {
+                    if ((firstEvent.InterpolationKey.Stored_StructSize & 1) == 1) {
                         Type = firstEvent.InterpolationKey.Stored_Type;
                     } else {
                         Type = firstEvent.InterpolationKey.Stored_Buffer_Type;
@@ -72,25 +72,46 @@ namespace R1Engine.Jade
                     throw new NotImplementedException($"TODO: Implement {GetType()}: Figure out InterpolationKey");
                 }
             }
-            var currentUShort_00 = UShort_00;
-            if(Type.HasFlag(TypeFlags.Flag_4) && !Type.HasFlag(TypeFlags.Flag_7)) currentUShort_00 = 20;
+            var currentStructSize = StructSize;
+            if(Type.HasFlag(TypeFlags.Flag_4) && !Type.HasFlag(TypeFlags.Flag_7)) currentStructSize = 20;
 
             if (Type.HasFlag(TypeFlags.Flag_7)) {
                 CompressedQuaternion = s.SerializeObject<Jade_CompressedQuaternion>(CompressedQuaternion, name: nameof(CompressedQuaternion));
-                throw new NotImplementedException($"TODO: Implement {GetType()}: Type & 0x80");
+                currentStructSize = 20;
+                if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12))
+                    currentStructSize = 10;
+                if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)
+                    && Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12)
+                    && Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_11)) {
+                    Event.Ushort_00_InGame |= 0x8000;
+                    // If there's an error here later, good chance that it's here.
+                    // It moves CompressedQuaternion into the event struct?
+                } else if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)) {
+                    Stored_Type = Type;
+                    Stored_StructSize = (ushort)((currentStructSize << 1) | 1);
+                    if (!Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12)) {
+                        Stored_Type = Stored_Type & ~TypeFlags.Flag_7;
+                    }
+                } else {
+                    Stored_Buffer_StructSize = currentStructSize;
+                    Stored_Buffer_Type = Type;
+                    if (!Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12)) {
+                        Stored_Buffer_Type = Stored_Buffer_Type & ~TypeFlags.Flag_7;
+                    }
+                }
             } else if(Type.HasFlag(TypeFlags.Flag_4) || Type.HasFlag(TypeFlags.Flag_0) || Type.HasFlag(TypeFlags.Flag_1) || Type.HasFlag(TypeFlags.Flag_2)) {
                 if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)) {
                     Stored_Type = Type;
-                    Stored_UShort_00 = (ushort)((currentUShort_00 << 1) | 1);
+                    Stored_StructSize = (ushort)((currentStructSize << 1) | 1);
                 } else {
-                    Stored_Buffer_UShort_00 = currentUShort_00;
+                    Stored_Buffer_StructSize = currentStructSize;
                     Stored_Buffer_Type = Type;
                 }
                 if (!Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_8)) {
                     if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13))
-                        currentUShort_00 -= 2;
+                        currentStructSize -= 2;
                     if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12))
-                        currentUShort_00 -= 2;
+                        currentStructSize -= 2;
                 }
                 switch ((ushort)Type & 3) {
                     case 0:
@@ -115,7 +136,7 @@ namespace R1Engine.Jade
                 }
                 if (Type.HasFlag(TypeFlags.Flag_3)) {
                     uint curSize = (uint)(s.CurrentPointer - Offset);
-                    if (curSize < currentUShort_00) {
+                    if (curSize < currentStructSize) {
                         Flag3_Count = s.Serialize<uint>(Flag3_Count, name: nameof(Flag3_Count));
                         var count = Math.Max(Flag3_Count * 2 - 1, 0);
                         Flag3_Floats = s.SerializeArray<float>(Flag3_Floats, count, name: nameof(Flag3_Floats));

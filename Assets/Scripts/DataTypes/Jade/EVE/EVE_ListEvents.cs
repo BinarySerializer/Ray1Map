@@ -7,7 +7,7 @@ namespace R1Engine.Jade
         public EVE_Track Track { get; set; } // Set before serializing
         public uint EventsCount { get; set; }
 
-        public short Header_Short_00 { get; set; }
+        public ushort Header_UShort_00 { get; set; }
         public short Header_Short_02 { get; set; }
         public ushort Header_Ushort_04 { get; set; }
         public ushort Header_Flags { get; set; }
@@ -24,9 +24,9 @@ namespace R1Engine.Jade
             {
                 s.DoAt(s.CurrentPointer, () => {
                     if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_9))
-                        Header_Short_00 = s.Serialize<byte>((byte)Header_Short_00, name: nameof(Header_Short_00));
+                        Header_UShort_00 = s.Serialize<byte>((byte)Header_UShort_00, name: nameof(Header_UShort_00));
                     else
-                        Header_Short_00 = s.Serialize<short>(Header_Short_00, name: nameof(Header_Short_00));
+                        Header_UShort_00 = s.Serialize<ushort>(Header_UShort_00, name: nameof(Header_UShort_00));
 
                     Header_Short_02 = s.Serialize<short>(Header_Short_02, name: nameof(Header_Short_02));
                     Header_Ushort_04 = s.Serialize<ushort>(Header_Ushort_04, name: nameof(Header_Ushort_04));

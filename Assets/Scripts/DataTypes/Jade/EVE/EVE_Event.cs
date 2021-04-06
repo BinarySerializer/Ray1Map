@@ -9,6 +9,7 @@ namespace R1Engine.Jade
         public int Index { get; set; } // Set before serializing
 
         public ushort Ushort_00 { get; set; }
+        public ushort Ushort_00_InGame { get; set; }
         public ushort Flags_00 { get; set; }
         public ushort TypeCode { get; set; }
         public ushort Flags_01 { get; set; }
@@ -28,14 +29,16 @@ namespace R1Engine.Jade
                 Ushort_00 = s.Serialize<byte>((byte)Ushort_00, name: nameof(Ushort_00));
             else
                 Ushort_00 = s.Serialize<ushort>(Ushort_00, name: nameof(Ushort_00));
+            Ushort_00_InGame = Ushort_00;
 
             if (ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_11) && Index > 0) {
                 if (ListEvents.Track.UInt_04 > 0 &&
-                    ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_11) &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12) &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13) &&
                     (ListEvents.Header_Flags & 0x80) != 0) {
-                    Flags_00 = 128;
+                    Flags_00 = 0;
+                    Flags_01 = 0;
+                    TypeCode = 2; // InterpolationKey
                 } else {
                     Flags_00 = ListEvents.Events[0].Flags_00;
                     TypeCode = ListEvents.Events[0].TypeCode;
