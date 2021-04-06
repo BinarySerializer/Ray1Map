@@ -1877,6 +1877,9 @@ namespace R1Engine.Jade {
 				new AI_FunctionDef( 0x800A5CA, "Obstacle_loop"),
 				new AI_FunctionDef( 0xB00FB95, "Obstacle_init"),
 				new AI_FunctionDef(0xFFFFFFFF, "testtest"),
+
+				// Custom from RRR PC. Probably best to separate these
+				new AI_FunctionDef(0xB500DD5E, "TS_MessageYesNo"),
 			},
 			#endregion
 

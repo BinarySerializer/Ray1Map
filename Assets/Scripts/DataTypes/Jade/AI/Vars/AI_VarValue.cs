@@ -24,6 +24,7 @@ namespace R1Engine.Jade {
 		public int ValueText1 { get; set; }
 
 		public AI_Trigger ValueTrigger { get; set; }
+		public AI_Message ValueMessage { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (!IsArrayElement) {
@@ -62,8 +63,8 @@ namespace R1Engine.Jade {
 						ValueText1 = s.Serialize<int>(ValueText1, name: nameof(ValueText1));
 						break;
 					case AI_VarType.Message:
-						// TODO: Add this. It's read in AI_ul_CallbackLoadVars
-						throw new NotImplementedException("AI_VarType not implemented: " + Var.Type.ToString());
+						ValueMessage = s.SerializeObject<AI_Message>(ValueMessage, name: nameof(ValueMessage));
+						break;
 					case AI_VarType.Trigger:
 						ValueTrigger = s.SerializeObject<AI_Trigger>(ValueTrigger, name: nameof(ValueTrigger));
 						break;
