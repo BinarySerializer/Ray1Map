@@ -364,7 +364,9 @@ namespace R1Engine
                 if (l is Unity_Layer_Map lm) {
                     var map = lm.Map;
                     if (map.Type.HasFlag(Unity_Map.MapType.Graphics)) {
-                        lm.Graphics = Instantiate<SpriteRenderer>(PrefabMapLayerRenderer, new Vector3(0, 0, -i), Quaternion.identity, ParentMapLayer);
+                        if (lm.Graphics == null) {
+                            lm.Graphics = Instantiate<SpriteRenderer>(PrefabMapLayerRenderer, new Vector3(0, 0, -i), Quaternion.identity, ParentMapLayer);
+                        }
                         lm.Graphics.gameObject.name = $"{lm.Name} - Graphics";
                         ConfigureGraphicsMapLayer(i);
                     }
