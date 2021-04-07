@@ -32,6 +32,9 @@ public class UnityWindowSerializer : SerializerObject
         action();
     }
 
+    public override Pointer BeginEncoded(IStreamEncoder encoder, Endian? endianness = null, bool allowLocalPointers = false) => null;
+    public override void EndEncoded(Pointer endPointer) {}
+
     public override void DoEndian(Endian endianness, Action action) {
         action();
     }

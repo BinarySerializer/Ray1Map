@@ -9,6 +9,8 @@ namespace R1Engine {
     /// </summary>
     public class GzipEncoder : IStreamEncoder
     {
+        public string Name => "Gzip";
+
         /// <summary>
         /// Decodes the data and returns it in a stream
         /// </summary>

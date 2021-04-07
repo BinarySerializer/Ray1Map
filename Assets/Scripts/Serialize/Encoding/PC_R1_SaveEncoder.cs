@@ -8,6 +8,8 @@ namespace R1Engine {
     /// </summary>
     public class PC_R1_SaveEncoder : IStreamEncoder
     {
+        public string Name => "PC_R1_SaveEncoding";
+
         /// <summary>
         /// Decodes the data and returns it in a stream
         /// </summary>

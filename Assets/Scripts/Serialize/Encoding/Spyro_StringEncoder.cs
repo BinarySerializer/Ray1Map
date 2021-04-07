@@ -8,6 +8,7 @@ namespace R1Engine
     /// Compresses/decompresses data with Spyro's string compression algorithm
     /// </summary>
     public class Spyro_StringEncoder : IStreamEncoder {
+        public string Name => "Spyro_StringEncoding";
         public GBAIsometric_Spyro_LocDecompress[] Helpers { get; set; }
         public Spyro_StringEncoder(GBAIsometric_Spyro_LocDecompress[] helpers) {
             Helpers = helpers;

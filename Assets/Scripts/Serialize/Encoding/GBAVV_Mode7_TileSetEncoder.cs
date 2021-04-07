@@ -6,6 +6,8 @@ namespace R1Engine
 {
     public class GBAVV_Mode7_TileSetEncoder : IStreamEncoder
     {
+        public string Name => "GBAVV_Mode7_TileSetEncoding";
+
         public GBAVV_Mode7_TileSetEncoder(long decodedLength)
         {
             DecodedLength = decodedLength;

@@ -65,7 +65,10 @@ namespace R1Engine {
                 public class Eclipse_StringEncoder : IStreamEncoder {
                     public HuffTableEntry[] Helpers { get; set; }
                     public Entry Entry { get; set; }
-                    public Eclipse_StringEncoder(HuffTableEntry[] helpers, Entry entry) {
+
+					public string Name => "Eclipse_StringEncoding";
+
+					public Eclipse_StringEncoder(HuffTableEntry[] helpers, Entry entry) {
                         Helpers = helpers;
                         Entry = entry;
                     }

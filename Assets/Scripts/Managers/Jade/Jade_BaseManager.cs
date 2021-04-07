@@ -212,24 +212,29 @@ namespace R1Engine
 			Jade_Reference<WOR_WorldList> WorldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
 			WorldList.Resolve(queue: LOA_Loader.QueueType.Maps);
 
-			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map));
+			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map), serializeAction: async s => {
+				await loader.LoadLoopBINAsync();
+				if (WorldList?.Value != null) {
+					await WorldList.Value.ResolveReferences(s);
+				}
+			});
 			await loader.LoadLoop(context.Deserializer);
 			if (texList.Textures.Any()) {
-				loader.BeginSpeedMode((Jade_Key)Jade_Key.KeyTypeTextures, serializeAction: s => {
+				loader.BeginSpeedMode((Jade_Key)Jade_Key.KeyTypeTextures, serializeAction: async s => {
 					for (int i = 0; i < texList.Textures.Count; i++) {
 						texList.Textures[i].LoadInfo();
-						loader.LoadLoopBIN();
+						await loader.LoadLoopBINAsync();
 					}
 					if (texList.Palettes != null) {
 						for (int i = 0; i < texList.Palettes.Count; i++) {
 							texList.Palettes[i].Load();
 						}
-						loader.LoadLoopBIN();
+						await loader.LoadLoopBINAsync();
 					}
 					for (int i = 0; i < texList.Textures.Count; i++) {
 						texList.Textures[i].LoadContent();
 					}
-					loader.LoadLoopBIN();
+					await loader.LoadLoopBINAsync();
 					texList.FillInReferences();
 				});
 				await loader.LoadLoop(context.Deserializer);

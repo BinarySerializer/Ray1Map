@@ -10,6 +10,8 @@ namespace R1Engine {
     /// </summary>
     public class Lzo1xEncoder : IStreamEncoder
     {
+        public string Name => "Lzo1x";
+
         public uint CompressedSize { get; }
         public uint DecompressedSize { get; }
         public Lzo1xEncoder(uint compressedSize, uint decompressedSize) {

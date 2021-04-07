@@ -10,6 +10,8 @@ namespace R1Engine
     /// </summary>
     public class LZSSEncoder : IStreamEncoder
     {
+        public string Name => "LZSS";
+
         public LZSSEncoder(uint length, bool hasHeader = true) {
             Length = length;
             HasHeader = hasHeader;

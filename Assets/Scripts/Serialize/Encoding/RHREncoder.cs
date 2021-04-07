@@ -8,8 +8,8 @@ namespace R1Engine
     /// <summary>
     /// Compresses/decompresses data with RHR's hybrid compression algorithm
     /// </summary>
-    public class RHREncoder : IStreamEncoder
-    {
+    public class RHREncoder : IStreamEncoder {
+        public string Name => "RHREncoding";
         public enum EncoderMode {
             Full,
             TileData

@@ -11,6 +11,8 @@ namespace R1Engine
     /// </summary>
     public class GBA_LZSSEncoder : IStreamEncoder
     {
+        public string Name => "GBA_LZSS";
+
         /// <summary>
         /// Decodes the data and returns it in a stream
         /// </summary>

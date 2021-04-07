@@ -7,8 +7,8 @@ namespace R1Engine
     /// <summary>
     /// Compresses/decompresses data with RHR's sprite compression algorithm
     /// </summary>
-    public class RHR_SpriteEncoder : IStreamEncoder
-    {
+    public class RHR_SpriteEncoder : IStreamEncoder {
+        public string Name => "RHR_SpriteEncoding";
         public enum CombineMode {
             UseSpriteData,
             UseLookupBufferDirectly,

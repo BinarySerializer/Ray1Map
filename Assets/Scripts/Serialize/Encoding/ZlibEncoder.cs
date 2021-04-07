@@ -8,6 +8,7 @@ namespace R1Engine {
     /// Compresses/decompresses data using Zlib
     /// </summary>
     public class ZlibEncoder : IStreamEncoder {
+        public string Name => "Zlib";
         public ZlibEncoder(uint length, uint decompressedLength) {
             Length = length;
             DecompressedLength = decompressedLength;

@@ -24,11 +24,12 @@ namespace R1Engine.Jade {
 
 		public class BinData {
 			public Jade_Key Key { get; set; }
+			public Pointer StartPosition { get; set; }
 			public Pointer CurrentPosition { get; set; }
 			public uint TotalSize { get; set; }
 			public SerializerObject Serializer { get; set; }
 			public QueueType QueueType { get; set; }
-			public Action<SerializerObject> SerializeAction { get; set; }
+			public Func<SerializerObject, UniTask> SerializeAction { get; set; }
 		}
 		public enum QueueType {
 			BigFat,
@@ -127,6 +128,8 @@ namespace R1Engine.Jade {
 						Pointer off_target = f.FileOffset;
 						s.Goto(off_target);
 						s.Log($"LOA: Loading file: {f}");
+						string previousState = Controller.DetailedState;
+						Controller.DetailedState = $"{previousState}\n{f}";
 						await s.FillCacheForReadAsync(4);
 						var fileSize = s.Serialize<uint>(default, name: "FileSize");
 						if (fileSize != 0) {
@@ -137,23 +140,25 @@ namespace R1Engine.Jade {
 
 							if (currentRef.IsBin && Bin != null) {
 								if (IsCompressed) {
-									s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
-										uint decompressedLength = s.CurrentLength;
-										Bin.Serializer = s;
-										Bin.TotalSize = decompressedLength;
-										if (Bin?.SerializeAction != null) {
-											Bin.SerializeAction.Invoke(s);
-										} else {
-											LoadLoopBIN();
-										}
-									});
+									Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360));
+									Bin.CurrentPosition = Bin.StartPosition;
+									s.Goto(Bin.StartPosition);
+									uint decompressedLength = s.CurrentLength;
+									Bin.Serializer = s;
+									Bin.TotalSize = decompressedLength;
+									if (Bin?.SerializeAction != null) {
+										await Bin.SerializeAction(s);
+									} else {
+										await LoadLoopBINAsync();
+									}
+									s.EndEncoded(Bin.CurrentPosition);
 								} else {
 									Bin.Serializer = s;
 									Bin.TotalSize = fileSize;
 									if (Bin?.SerializeAction != null) {
-										Bin.SerializeAction.Invoke(s);
+										await Bin.SerializeAction(s);
 									} else {
-										LoadLoopBIN();
+										await LoadLoopBINAsync();
 									}
 								}
 							} else {
@@ -167,6 +172,8 @@ namespace R1Engine.Jade {
 						} else {
 							if (!LoadedFiles.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[f.Key] = null;
 						}
+						await Controller.WaitIfNecessary();
+						Controller.DetailedState = previousState;
 						s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
@@ -186,46 +193,72 @@ namespace R1Engine.Jade {
 			SerializerObject s = Bin.Serializer;
 			var curPointer = s.CurrentPointer;
 			if (Bin.CurrentPosition == null) Bin.CurrentPosition = curPointer;
-			var startPointer = Bin.CurrentPosition;
+			if (Bin.StartPosition == null) Bin.StartPosition = curPointer;
 			while (LoadQueue.Count > 0) {
-				uint FileSize = 0;
-				s.Goto(Bin.CurrentPosition);
-				FileReference currentRef = LoadQueue.Dequeue();
-				if (LoadedFiles.ContainsKey(currentRef.Key)) {
-					var f = LoadedFiles[currentRef.Key];
-					if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
-					if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
-				} else {
-					if (!currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
-						if (ReadSizes) {
-							FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
-
-							// Add region
-							Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
-
-							Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
-						} else {
-							FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - startPointer);
-						}
-					}
-					if (FileSize != 0 || currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
-						currentRef.LoadCallback(s, (f) => {
-							f.Key = currentRef.Key;
-							f.FileSize = FileSize;
-							f.Loader = this;
-							if (!LoadedFiles.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[f.Key] = f;
-						});
-					} else {
-						if (!LoadedFiles.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[currentRef.Key] = null;
-					}
-					if (ReadSizes && !currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
-						s.Goto(Bin.CurrentPosition); // count size uint and actual file
-					} else {
-						Bin.CurrentPosition = s.CurrentPointer;
-					}
-				}
+				LoadLoopBIN_Inner();
 			}
 			s.Goto(curPointer);
+		}
+		public async UniTask LoadLoopBINAsync() {
+			if (Bin != null) {
+				CurrentQueueType = Bin.QueueType;
+			} else {
+				CurrentQueueType = QueueType.BigFat;
+				return;
+			}
+			SerializerObject s = Bin.Serializer;
+			var curPointer = s.CurrentPointer;
+			if (Bin.CurrentPosition == null) Bin.CurrentPosition = curPointer;
+			if (Bin.StartPosition == null) Bin.StartPosition = curPointer;
+			while (LoadQueue.Count > 0) {
+				string previousState = Controller.DetailedState;
+				var currentRef = LoadQueue.Peek();
+				Controller.DetailedState = $"{previousState}\n{currentRef.Name}_{currentRef.Key:X8}";
+				await Controller.WaitIfNecessary();
+				LoadLoopBIN_Inner();
+				Controller.DetailedState = previousState;
+			}
+			s.Goto(curPointer);
+		}
+
+		private void LoadLoopBIN_Inner() {
+			SerializerObject s = Bin.Serializer;
+			uint FileSize = 0;
+			s.Goto(Bin.CurrentPosition);
+			FileReference currentRef = LoadQueue.Dequeue();
+			if (LoadedFiles.ContainsKey(currentRef.Key)) {
+				var f = LoadedFiles[currentRef.Key];
+				if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
+				if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
+			} else {
+				if (!currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
+					if (ReadSizes) {
+						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+
+						// Add region
+						Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
+
+						Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
+					} else {
+						FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - Bin.StartPosition);
+					}
+				}
+				if (FileSize != 0 || currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
+					currentRef.LoadCallback(s, (f) => {
+						f.Key = currentRef.Key;
+						f.FileSize = FileSize;
+						f.Loader = this;
+						if (!LoadedFiles.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[f.Key] = f;
+					});
+				} else {
+					if (!LoadedFiles.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) LoadedFiles[currentRef.Key] = null;
+				}
+				if (ReadSizes && !currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
+					s.Goto(Bin.CurrentPosition); // count size uint and actual file
+				} else {
+					Bin.CurrentPosition = s.CurrentPointer;
+				}
+			}
 		}
 
 		public delegate void ResolveAction(SerializerObject s, Action<Jade_File> configureAction);
@@ -255,7 +288,7 @@ namespace R1Engine.Jade {
 				LoadLoopBIN();
 			}
 		}
-		public void BeginSpeedMode(Jade_Key key, Action<SerializerObject> serializeAction = null) {
+		public void BeginSpeedMode(Jade_Key key, Func<SerializerObject, UniTask> serializeAction = null) {
 			if (SpeedMode) {
 				if (Bin != null || (key != Jade_Key.KeyTypeSounds && key != Jade_Key.KeyTypeTextures && key.Type != Jade_Key.KeyType.TextSound)) {
 					if (key == Jade_Key.KeyTypeTextures) {

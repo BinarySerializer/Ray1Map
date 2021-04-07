@@ -13,6 +13,8 @@ namespace R1Engine {
     /// </summary>
     public class Jade_Lzo1xEncoder : IStreamEncoder
     {
+        public string Name => "Jade_Lzo1x";
+
         public uint TotalCompressedSize { get; }
         public bool Xbox360Version { get; }
         public Endian Endianness { get; }

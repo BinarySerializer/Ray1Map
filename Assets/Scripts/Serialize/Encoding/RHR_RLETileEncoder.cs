@@ -7,8 +7,8 @@ namespace R1Engine
     /// <summary>
     /// Compresses/decompresses data with RHR's sprite compression algorithm
     /// </summary>
-    public class RHR_RLETileEncoder : IStreamEncoder
-    {
+    public class RHR_RLETileEncoder : IStreamEncoder {
+        public string Name => "RHR_RLETileEncoding";
         public enum RLEMode {
             RLE1,
             RLE2

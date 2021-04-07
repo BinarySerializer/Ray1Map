@@ -7,8 +7,8 @@ namespace R1Engine {
     /// <summary>
     /// Compresses/decompresses data with the RNC2 algorithm
     /// </summary>
-    public class RNCEncoder : IStreamEncoder
-    {
+    public class RNCEncoder : IStreamEncoder {
+        public string Name => "RNC";
         public bool HasHeader { get; }
 
         public RNCEncoder(bool hasHeader = true) {

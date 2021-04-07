@@ -6,6 +6,8 @@ namespace R1Engine
 {
     public class BriefLZEncoder : IStreamEncoder
     {
+        public string Name => "BriefLZ";
+
         public Stream DecodeStream(Stream s)
         {
             // Create a reader for the input
