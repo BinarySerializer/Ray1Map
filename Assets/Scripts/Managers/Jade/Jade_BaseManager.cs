@@ -204,7 +204,7 @@ namespace R1Engine
 			await loader.LoadLoop(context.Deserializer); // First resolve universe
 
 			// Load world
-			Controller.DetailedState = $"Loading world";
+			Controller.DetailedState = $"Loading worlds";
 			await Controller.WaitIfNecessary();
 
 			var worldKey = (Jade_Key)(uint)context.GetR1Settings().Level;
@@ -220,17 +220,21 @@ namespace R1Engine
 			});
 			await loader.LoadLoop(context.Deserializer);
 			if (texList.Textures.Any()) {
+				Controller.DetailedState = $"Loading textures";
 				loader.BeginSpeedMode((Jade_Key)Jade_Key.KeyTypeTextures, serializeAction: async s => {
+					Controller.DetailedState = $"Loading textures: Info";
 					for (int i = 0; i < texList.Textures.Count; i++) {
 						texList.Textures[i].LoadInfo();
 						await loader.LoadLoopBINAsync();
 					}
+					Controller.DetailedState = $"Loading textures: Palettes";
 					if (texList.Palettes != null) {
 						for (int i = 0; i < texList.Palettes.Count; i++) {
 							texList.Palettes[i].Load();
 						}
 						await loader.LoadLoopBINAsync();
 					}
+					Controller.DetailedState = $"Loading textures: Content";
 					for (int i = 0; i < texList.Textures.Count; i++) {
 						texList.Textures[i].LoadContent();
 					}
