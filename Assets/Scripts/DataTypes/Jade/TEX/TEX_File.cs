@@ -11,9 +11,9 @@ namespace R1Engine.Jade
         public int Int_00 { get; set; } // Always 0xFFFFFFFF in files
         public ushort Ushort_04 { get; set; }
         public TexFileFormat FileFormat { get; set; }
-        public byte Byte_07 { get; set; }
-        public ushort Ushort_08 { get; set; }
-        public ushort Ushort_0A { get; set; }
+        public byte ColorFormat { get; set; } // Determines bits per pixel
+        public ushort Width { get; set; }
+        public ushort Height { get; set; }
         public uint Uint_0C { get; set; }
         public uint Uint_10 { get; set; }
         public uint Uint_14 { get; set; } // Usually CAD01234
@@ -31,9 +31,9 @@ namespace R1Engine.Jade
             if (Int_00 == -1) {
                 Ushort_04 = s.Serialize<ushort>(Ushort_04, name: nameof(Ushort_04));
                 FileFormat = s.Serialize<TexFileFormat>(FileFormat, name: nameof(FileFormat));
-                Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
-                Ushort_08 = s.Serialize<ushort>(Ushort_08, name: nameof(Ushort_08));
-                Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
+                ColorFormat = s.Serialize<byte>(ColorFormat, name: nameof(ColorFormat));
+                Width = s.Serialize<ushort>(Width, name: nameof(Width));
+                Height = s.Serialize<ushort>(Height, name: nameof(Height));
                 Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
                 Uint_10 = s.Serialize<uint>(Uint_10, name: nameof(Uint_10));
                 Uint_14 = s.Serialize<uint>(Uint_14, name: nameof(Uint_14));
