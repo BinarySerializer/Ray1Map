@@ -2169,11 +2169,13 @@ function init() {
 	initContent();
 	let url = new URL(window.location.href);
 	mode = url.searchParams.get("mode");
-	lvl = parseInt(url.searchParams.get("lvl"));
-	wld = parseInt(url.searchParams.get("wld"));
+	let lvlString = url.searchParams.get("lvl");
+	let wldString = url.searchParams.get("wld");
+	lvl = parseInt(lvlString);
+	wld = parseInt(wldString);
 	vol = url.searchParams.get("vol");
 	folder = url.searchParams.get("folder");
-	if(mode != null && lvl != null && folder != null && wld != null) {
+	if(mode != null && folder != null && lvlString != null && wldString != null) {
 		startGame();
 	} else {
 		//showConfig();
