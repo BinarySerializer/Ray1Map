@@ -1,12 +1,16 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class Jade_TextureReference : BinarySerializable {
 		public Jade_Key Key { get; set; }
 		public bool IsNull => Key.IsNull;
-		public TEX_File Value { get; set; }
+		public TEX_File Info { get; set; }
+		public TEX_File Content { get; set; }
+
+		public List<Jade_TextureReference> Duplicates { get; set; } = new List<Jade_TextureReference>();
 
 		public override void SerializeImpl(SerializerObject s) {
 			Key = s.SerializeObject<Jade_Key>(Key, name: nameof(Key));
@@ -19,26 +23,52 @@ namespace R1Engine.Jade {
 		}
 
 		// Dummy resolve method for now
-		public Jade_TextureReference Resolve(
-			Action<SerializerObject, TEX_File> onPreSerialize = null,
-			Action<SerializerObject, TEX_File> onPostSerialize = null,
-			bool immediate = false,
-			LOA_Loader.QueueType queue = LOA_Loader.QueueType.Textures,
-			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log) {
+		public Jade_TextureReference Resolve() {
+			if (IsNull) return this;
+			TEX_GlobalList lists = Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
+			lists.AddTexture(this);
+			return this;
+		}
 
+		public Jade_TextureReference LoadInfo(
+			Action<SerializerObject, TEX_File> onPreSerialize = null,
+			Action<SerializerObject, TEX_File> onPostSerialize = null) {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			loader.RequestFile(Key, (s, configureAction) => {
-				Value = s.SerializeObject<TEX_File>(Value, onPreSerialize: f => {
-					configureAction(f); onPreSerialize?.Invoke(s, f);
-				}, name: nameof(Value));
-				onPostSerialize?.Invoke(s, Value);
+				Info = s.SerializeObject<TEX_File>(Info, onPreSerialize: f => {
+					configureAction(f); f.IsContent = false; onPreSerialize?.Invoke(s, f);
+				}, name: nameof(Info));
+				foreach (var d in Duplicates) d.Info = Info;
+				onPostSerialize?.Invoke(s, Info);
 			}, (f) => {
-				Value = (TEX_File)f;
-			}, immediate: immediate,
-			queue: queue,
+				Info = (TEX_File)f;
+				foreach (var d in Duplicates) d.Info = Info;
+			}, immediate: false,
+			queue: LOA_Loader.QueueType.Textures,
 			name: typeof(TEX_File).Name,
-			flags: flags);
+			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+			return this;
+		}
+
+		public Jade_TextureReference LoadContent(
+			Action<SerializerObject, TEX_File> onPreSerialize = null,
+			Action<SerializerObject, TEX_File> onPostSerialize = null) {
+			if (IsNull) return this;
+			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			loader.RequestFile(Key, (s, configureAction) => {
+				Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
+					configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
+				}, name: nameof(Content));
+				foreach (var d in Duplicates) d.Content = Content;
+				onPostSerialize?.Invoke(s, Content);
+			}, (f) => {
+				Content = (TEX_File)f;
+				foreach(var d in Duplicates) d.Content = Content;
+			}, immediate: false,
+			queue: LOA_Loader.QueueType.Textures,
+			name: typeof(TEX_File).Name,
+			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 			return this;
 		}
 	}

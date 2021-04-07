@@ -182,15 +182,18 @@ namespace R1Engine
 			}
 			// Set up loader
 			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
+			context.StoreObject<LOA_Loader>(LoaderKey, loader);
 
 			// Create level list if null
-			if (LevelInfos == null)
-			    CreateLevelList(loader);
+			if (LevelInfos == null) CreateLevelList(loader);
 
-			context.StoreObject<LOA_Loader>(LoaderKey, loader);
 			// Set up AI types
 			AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
 			context.StoreObject<AI_Links>(AIKey, aiLinks);
+
+			// Set up texture list
+			TEX_GlobalList texList = new TEX_GlobalList();
+			context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
 
 			// Load univers
 			Controller.DetailedState = $"Loading universe";
@@ -211,8 +214,26 @@ namespace R1Engine
 
 			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map));
 			await loader.LoadLoop(context.Deserializer);
-			loader.BeginSpeedMode((Jade_Key)Jade_Key.KeyTypeTextures);
-			await loader.LoadLoop(context.Deserializer);
+			if (texList.Textures.Any()) {
+				loader.BeginSpeedMode((Jade_Key)Jade_Key.KeyTypeTextures, serializeAction: s => {
+					for (int i = 0; i < texList.Textures.Count; i++) {
+						texList.Textures[i].LoadInfo();
+						loader.LoadLoopBIN();
+					}
+					if (texList.Palettes != null) {
+						for (int i = 0; i < texList.Palettes.Count; i++) {
+							texList.Palettes[i].Load();
+						}
+						loader.LoadLoopBIN();
+					}
+					for (int i = 0; i < texList.Textures.Count; i++) {
+						texList.Textures[i].LoadContent();
+					}
+					loader.LoadLoopBIN();
+					texList.FillInReferences();
+				});
+				await loader.LoadLoop(context.Deserializer);
+			}
 			loader.EndSpeedMode();
 			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
 		}
@@ -229,6 +250,7 @@ namespace R1Engine
 		// Constants
 		public static readonly Encoding Encoding = Encoding.GetEncoding(1252);
 		public const string LoaderKey = "loader";
+		public const string TextureListKey = "textureList";
 		public const string AIKey = "ai";
 
 		public class LevelInfo

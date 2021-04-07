@@ -11,6 +11,8 @@ namespace R1Engine.Jade {
 		Code2002 = 0xC0DE2002,
 		Code2009 = 0xC0DE2009,
 		Code6660 = 0xC0DE6660,
+		CodeCode  = 0xC0DEC0DE,
+		CAD01234 = 0xCAD01234,
 		All6 = 0x66666666,
 		RLI = 0x494C5280, // Spells out "RLI\x80"
 	}

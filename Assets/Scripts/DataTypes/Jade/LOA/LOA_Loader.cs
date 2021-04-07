@@ -28,6 +28,7 @@ namespace R1Engine.Jade {
 			public uint TotalSize { get; set; }
 			public SerializerObject Serializer { get; set; }
 			public QueueType QueueType { get; set; }
+			public Action<SerializerObject> SerializeAction { get; set; }
 		}
 		public enum QueueType {
 			BigFat,
@@ -140,12 +141,20 @@ namespace R1Engine.Jade {
 										uint decompressedLength = s.CurrentLength;
 										Bin.Serializer = s;
 										Bin.TotalSize = decompressedLength;
-										LoadLoopBIN();
+										if (Bin?.SerializeAction != null) {
+											Bin.SerializeAction.Invoke(s);
+										} else {
+											LoadLoopBIN();
+										}
 									});
 								} else {
 									Bin.Serializer = s;
 									Bin.TotalSize = fileSize;
-									LoadLoopBIN();
+									if (Bin?.SerializeAction != null) {
+										Bin.SerializeAction.Invoke(s);
+									} else {
+										LoadLoopBIN();
+									}
 								}
 							} else {
 								currentRef.LoadCallback(s, (f) => {
@@ -246,7 +255,7 @@ namespace R1Engine.Jade {
 				LoadLoopBIN();
 			}
 		}
-		public void BeginSpeedMode(Jade_Key key) {
+		public void BeginSpeedMode(Jade_Key key, Action<SerializerObject> serializeAction = null) {
 			if (SpeedMode) {
 				if (Bin != null || (key != Jade_Key.KeyTypeSounds && key != Jade_Key.KeyTypeTextures && key.Type != Jade_Key.KeyType.TextSound)) {
 					if (key == Jade_Key.KeyTypeTextures) {
@@ -265,7 +274,7 @@ namespace R1Engine.Jade {
 					}
 					if (FileInfos.ContainsKey(key)) {
 						ReadMode = Read.Binary;
-						Bin = new BinData() { Key = key };
+						Bin = new BinData() { Key = key, SerializeAction = serializeAction };
 						switch (key.Type) {
 							case Jade_Key.KeyType.Map: Bin.QueueType = QueueType.Maps; break;
 							case Jade_Key.KeyType.Sounds: Bin.QueueType = QueueType.Sound; break;

@@ -3,21 +3,24 @@ using BinarySerializer;
 
 namespace R1Engine.Jade 
 {
-	// See: GDI_l_AttachWorld & TEX_l_File_Read
-	// TEX_l_File_Read reads the texture header, after that GDI_l_AttachWorld resolves some references (for animated textures) and adds palette references
-	public class TEX_File : Jade_File 
-    {
-		public int Int_00 { get; set; } // Always 0xFFFFFFFF in files
-		public ushort Ushort_04 { get; set; }
-		public TexFileFormat FileFormat { get; set; }
-		public byte Byte_07 { get; set; }
-		public ushort Ushort_08 { get; set; }
-		public ushort Ushort_0A { get; set; }
-		public uint Uint_0C { get; set; }
-		public uint Uint_10 { get; set; }
-		public uint Uint_14 { get; set; } // Usually CAD01234
+    // See: GDI_l_AttachWorld & TEX_l_File_Read
+    // TEX_l_File_Read reads the texture header, after that GDI_l_AttachWorld resolves some references (for animated textures) and adds palette references
+    public class TEX_File : Jade_File {
+        public bool IsContent { get; set; }
+
+        public int Int_00 { get; set; } // Always 0xFFFFFFFF in files
+        public ushort Ushort_04 { get; set; }
+        public TexFileFormat FileFormat { get; set; }
+        public byte Byte_07 { get; set; }
+        public ushort Ushort_08 { get; set; }
+        public ushort Ushort_0A { get; set; }
+        public uint Uint_0C { get; set; }
+        public uint Uint_10 { get; set; }
+        public uint Uint_14 { get; set; } // Usually CAD01234
         public uint Uint_18 { get; set; } // Checked for 0xFF00FF
-        public uint Uint_1C { get; set; } // Checked for 0xC0DEC0DE
+        public Jade_Code Code_1C { get; set; } // Checked for 0xC0DEC0DE
+
+        public TEX_Content_RawPal Content_RawPal { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
@@ -35,10 +38,23 @@ namespace R1Engine.Jade
                 Uint_10 = s.Serialize<uint>(Uint_10, name: nameof(Uint_10));
                 Uint_14 = s.Serialize<uint>(Uint_14, name: nameof(Uint_14));
                 Uint_18 = s.Serialize<uint>(Uint_18, name: nameof(Uint_18));
-                Uint_1C = s.Serialize<uint>(Uint_1C, name: nameof(Uint_1C));
+                Code_1C = s.Serialize<Jade_Code>(Code_1C, name: nameof(Code_1C));
 
                 if (!Loader.IsBinaryData)
                     s.Goto(Offset);
+
+                switch (FileFormat) {
+                    case TexFileFormat.RawPal:
+                        Content_RawPal = s.SerializeObject<TEX_Content_RawPal>(Content_RawPal, c => c.Texture = this, name: nameof(Content_RawPal));
+                        break;
+                    case TexFileFormat.Raw:
+                        if (IsContent) {
+                            throw new NotImplementedException($"TODO: Implement texture type {FileFormat}");
+                        }
+                        break;
+                    default:
+                        throw new NotImplementedException($"TODO: Implement texture type {FileFormat}");
+                }
 
             }
         }
@@ -50,8 +66,8 @@ namespace R1Engine.Jade
             Jpeg = 3,
             SpriteGen = 4,
             Procedural = 5,
-            Raw_1 = 6,
-            Raw_2 = 7,
+            Raw = 6,
+            RawPal = 7,
             Animated = 9
         }
 	}
