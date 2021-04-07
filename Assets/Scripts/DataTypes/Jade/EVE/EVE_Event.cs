@@ -18,6 +18,7 @@ namespace R1Engine.Jade
         public EVE_Event_InterpolationKey InterpolationKey { get; set; }
         public EVE_Event_AIFunction AIFunction { get; set; }
         public EVE_Event_MagicKey MagicKey { get; set; }
+        public EVE_Event_PlaySynchro PlaySynchro { get; set; }
         public EVE_Event_MorphKey MorphKey { get; set; }
         public EVE_Event_MorphKey_Old MorphKey_Old { get; set; }
 
@@ -71,7 +72,9 @@ namespace R1Engine.Jade
                 case 0xC:
                     MagicKey = s.SerializeObject<EVE_Event_MagicKey>(MagicKey, name: nameof(MagicKey));
                     break;
-                case 0x14: throw new NotImplementedException($"TODO: Implement {GetType()}: EVE_Event_PlaySynchro_Load");
+                case 0x14:
+                    PlaySynchro = s.SerializeObject<EVE_Event_PlaySynchro>(PlaySynchro, name: nameof(PlaySynchro));
+                    break;
                 case 0x18:
                     MorphKey = s.SerializeObject<EVE_Event_MorphKey>(MorphKey, name: nameof(MorphKey));
                     break;
