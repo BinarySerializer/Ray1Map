@@ -10,8 +10,6 @@ namespace R1Engine.Jade {
 		public TEX_File Info { get; set; }
 		public TEX_File Content { get; set; }
 
-		public List<Jade_TextureReference> Duplicates { get; set; } = new List<Jade_TextureReference>();
-
 		public override void SerializeImpl(SerializerObject s) {
 			Key = s.SerializeObject<Jade_Key>(Key, name: nameof(Key));
 		}
@@ -39,11 +37,9 @@ namespace R1Engine.Jade {
 				Info = s.SerializeObject<TEX_File>(Info, onPreSerialize: f => {
 					configureAction(f); f.IsContent = false; onPreSerialize?.Invoke(s, f);
 				}, name: nameof(Info));
-				foreach (var d in Duplicates) d.Info = Info;
 				onPostSerialize?.Invoke(s, Info);
 			}, (f) => {
 				Info = (TEX_File)f;
-				foreach (var d in Duplicates) d.Info = Info;
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Textures,
 			name: typeof(TEX_File).Name,
@@ -60,11 +56,9 @@ namespace R1Engine.Jade {
 				Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
 					configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
 				}, name: nameof(Content));
-				foreach (var d in Duplicates) d.Content = Content;
 				onPostSerialize?.Invoke(s, Content);
 			}, (f) => {
 				Content = (TEX_File)f;
-				foreach(var d in Duplicates) d.Content = Content;
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Textures,
 			name: typeof(TEX_File).Name,
