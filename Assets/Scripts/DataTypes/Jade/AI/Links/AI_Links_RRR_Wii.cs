@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace R1Engine.Jade {
-	public partial class AI_Links {
-		static AI_Links RRR_Wii => new AI_Links() {
+	public class AI_Links_RRR_Wii : AI_Links {
+		protected override void InitFunctionDefs() {
 			#region Function Defs
 			FunctionDefs = new AI_FunctionDef[] {
 				new AI_FunctionDef(0xDD001785, "RM_Hammer_Proc"),
@@ -1880,9 +1880,10 @@ namespace R1Engine.Jade {
 
 				// Custom from RRR PC. Probably best to separate these
 				new AI_FunctionDef(0xB500DD5E, "TS_MessageYesNo"),
-			},
+			};
 			#endregion
-
+		}
+		protected override void InitCategories() {
 			#region Categories
 			Categories = new AI_Link[] {
 				new AI_Link(1, 0, "AI_EvalCateg_Type"),
@@ -1906,9 +1907,10 @@ namespace R1Engine.Jade {
 				new AI_Link(28, 0, "AI_EvalCateg_LocalVarRef"),
 				new AI_Link(29, 0, "AI_EvalCateg_PopProcRef"),
 				new AI_Link(31, 0, "AI_dum"),
-			},
+			};
 			#endregion Categories
-
+		}
+		protected override void InitTypes() {
 			#region Types
 			Types = new AI_Link[] {
 				new AI_Link(32, 4, "AI_EvalType_GetBool"),
@@ -1940,9 +1942,10 @@ namespace R1Engine.Jade {
 				new AI_Link(133, 0xC, "AI_EvalType_GetVector"),
 				new AI_Link(134, 0xC, "AI_EvalType_GetVector"),
 				new AI_Link(135, 0xC, "AI_EvalType_GetVector"),
-			},
+			};
 			#endregion
-
+		}
+		protected override void InitKeywords() {
 			#region Keywords
 			Keywords = new AI_Link[] {
 				new AI_Link(2048, 0, "AI_dum"),
@@ -2033,9 +2036,10 @@ namespace R1Engine.Jade {
 				new AI_Link(2551, 0, "AI_EvalKeyword_TextPlus"),
 				new AI_Link(2560, 0, "AI_EvalKeyword_MsgIdAffect"),
 				new AI_Link(2561, 0, "AI_EvalKeyword_TriggerAffect"),
-			},
+			};
 			#endregion
-
+		}
+		protected override void InitFunctions() {
 			#region Functions
 			Functions = new AI_Link[] {
 				new AI_Link(4096, 0, "AI_EvalFunc_DbgTraceInt"),
@@ -3148,9 +3152,10 @@ namespace R1Engine.Jade {
 				new AI_Link(17038, 0, "AI_EvalFunc_DbgSetRasterEnable"),
 				new AI_Link(17920, 0, "AI_EvalFunc_MDF_Fur_SetLayerNumber"),
 				new AI_Link(17921, 0, "AI_EvalFunc_MDF_Fur_SetNormalOffset"),
-			},
+			};
 			#endregion
-
+		}
+		protected override void InitFields() {
 			#region Fields
 			Fields = new AI_Link[] {
 				new AI_Link(512, 0, "AI_EvalField_VecX"),
@@ -3188,8 +3193,8 @@ namespace R1Engine.Jade {
 				new AI_Link(562, 0, "AI_EvalField_DesignText2"),
 				new AI_Link(563, 0, "AI_EvalField_DesignInt3"),
 				new AI_Link(564, 0, "AI_EvalField_DesignDesFlags"),
-			},
+			};
 			#endregion
-		};
+		}
 	}
 }

@@ -35,7 +35,11 @@ namespace R1Engine.Jade {
 				UnknownBufferLength = s.Serialize<uint>(UnknownBufferLength, name: nameof(UnknownBufferLength));
 				Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, UnknownBufferLength / 8, name: nameof(Unknown));
 			}
-			StringBufferLength = s.Serialize<uint>(StringBufferLength, name: nameof(StringBufferLength));
+			if (s.GetR1Settings().EngineVersion != EngineVersion.Jade_RRR_Xbox360) {
+				StringBufferLength = s.Serialize<uint>(StringBufferLength, name: nameof(StringBufferLength));
+			} else {
+				StringBufferLength = FileSize - (uint)(s.CurrentPointer - Offset);
+			}
 			Pointer stringBufferStart = s.CurrentPointer;
 			s.DoAt(stringBufferStart, () => {
 				if (Strings == null) {

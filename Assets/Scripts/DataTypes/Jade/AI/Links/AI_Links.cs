@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace R1Engine.Jade {
-	public partial class AI_Links {
+	public abstract class AI_Links {
 
 		public AI_FunctionDef[] FunctionDefs { get; protected set; }
 
@@ -28,19 +28,38 @@ namespace R1Engine.Jade {
 			foreach(var l in FunctionDefs) CompiledFunctions[l.Key] = l;
 		}
 
+		protected void Init() {
+			InitFunctionDefs();
+			InitCategories();
+			InitTypes();
+			InitKeywords();
+			InitFunctions();
+			InitFields();
+		}
+		protected abstract void InitFunctionDefs();
+		protected abstract void InitCategories();
+		protected abstract void InitTypes();
+		protected abstract void InitKeywords();
+		protected abstract void InitFunctions();
+		protected abstract void InitFields();
+
+
 		public static AI_Links GetAILinks(GameSettings settings) {
 			AI_Links links = null;
 			switch (settings.GameModeSelection) {
 				case GameModeSelection.RaymanRavingRabbidsPC:
+					links = new AI_Links_RRR_Wii();
+					break;
 				case GameModeSelection.RaymanRavingRabbidsXbox360:
-					links = RRR_Wii;
+					links = new AI_Links_RRR_Xbox360();
 					break;
 				case GameModeSelection.BeyondGoodAndEvilPC:
 				case GameModeSelection.BeyondGoodAndEvilPS2_20030814:
-					links = BGE_PS2_Proto;
+					links = new AI_Links_BGE_PS2_Proto();
 					break;
 			}
 			if (links != null) {
+				links.Init();
 				links.CreateDictionaries();
 			}
 			return links;

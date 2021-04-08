@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace R1Engine.Jade {
-	public partial class AI_Links {
-		static AI_Links BGE_PS2_Proto => new AI_Links() {
+	public class AI_Links_BGE_PS2_Proto : AI_Links {
+		protected override void InitFunctionDefs() {
 			#region Function Defs
 			FunctionDefs = new AI_FunctionDef[] {
 				new AI_FunctionDef(0x3D0090E1, "end_demo_init"),
@@ -2514,9 +2514,10 @@ namespace R1Engine.Jade {
 				new AI_FunctionDef(0x3500845E, "Chrono_rebours_chr_init"),
 				new AI_FunctionDef(0x35008463, "Chrono_rebours_chr_rebours"),
 				new AI_FunctionDef(0xFFFFFFFF, "testtest"),
-			},
+			};
 			#endregion
-
+		}
+		protected override void InitCategories() {
 			#region Categories
 			Categories = new AI_Link[] {
 				new AI_Link(1, 0, "AI_EvalCateg_Type"),
@@ -2541,9 +2542,10 @@ namespace R1Engine.Jade {
 				new AI_Link(28, 0, "AI_EvalCateg_LocalVarRef"),
 				new AI_Link(29, 0, "AI_EvalCateg_PopProcRef"),
 				new AI_Link(31, 0, "AI_dum"),
-			},
+			};
 			#endregion Categories
-
+		}
+		protected override void InitTypes() {
 			#region Types
 			Types = new AI_Link[] {
 				new AI_Link(32, 4, "AI_EvalType_GetBool"),
@@ -2575,9 +2577,10 @@ namespace R1Engine.Jade {
 				new AI_Link(133, 0xC, "AI_EvalType_GetVector"),
 				new AI_Link(134, 0xC, "AI_EvalType_GetVector"),
 				new AI_Link(135, 0xC, "AI_EvalType_GetVector"),
-			},
+			};
 			#endregion
-
+		}
+		protected override void InitKeywords() {
 			#region Keywords
 			Keywords = new AI_Link[] {
 				new AI_Link(0x800, 0, "AI_dum"),
@@ -2654,9 +2657,10 @@ namespace R1Engine.Jade {
 				new AI_Link(0x9C4, 0, "AI_EvalKeyword_MsgAffect"),
 				new AI_Link(0x9F6, 0, "AI_EvalKeyword_TextAffect"),
 				new AI_Link(0x9F7, 0, "AI_EvalKeyword_TextPlus"),
-			},
+			};
 			#endregion
-
+		}
+		protected override void InitFunctions() {
 			#region Functions
 			Functions = new AI_Link[] {
 				new AI_Link(0x1000, 0, "AI_EvalFunc_DbgTraceInt"),
@@ -3498,9 +3502,10 @@ namespace R1Engine.Jade {
 				new AI_Link(0x3DBC, 0, "AI_EvalFunc_WTR_Enable"),
 				new AI_Link(0x3DBD, 0, "AI_EvalFunc_WTR_SetF"),
 				new AI_Link(0x3DBE, 0, "AI_EvalFunc_WTR_SetL"),
-			},
+			};
 			#endregion
-
+		}
+		protected override void InitFields() {
 			#region Fields
 			Fields = new AI_Link[] {
 				new AI_Link(0x200, 0, "AI_EvalField_VecX"),
@@ -3530,8 +3535,8 @@ namespace R1Engine.Jade {
 				new AI_Link(0x232, 0, "AI_EvalField_DesignText2"),
 				new AI_Link(0x233, 0, "AI_EvalField_DesignInt3"),
 				new AI_Link(0x234, 0, "AI_EvalField_DesignDesFlags"),
-			},
+			};
 			#endregion
-		};
+		}
 	}
 }
