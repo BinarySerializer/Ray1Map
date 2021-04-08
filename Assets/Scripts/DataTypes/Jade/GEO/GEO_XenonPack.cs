@@ -6,9 +6,11 @@ namespace R1Engine.Jade {
 	/// Special Geometric object format for Xbox 360 (and King Kong Gamer's Edition)
 	/// </summary>
 	public class GEO_XenonPack : Jade_File {
+		public byte[] Bytes { get; set; } // Game reads this as a byte array, then parses the buffer
 
 		public override void SerializeImpl(SerializerObject s) {
-			throw new NotImplementedException($"TODO: Implement {GetType()}");
+			Bytes = s.SerializeArray<byte>(Bytes, FileSize, name: nameof(Bytes));
+			//throw new NotImplementedException($"TODO: Implement {GetType()}");
 		}
 	}
 }

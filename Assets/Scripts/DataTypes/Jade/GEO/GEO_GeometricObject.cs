@@ -20,7 +20,7 @@ namespace R1Engine.Jade {
 		public GEO_GeometricObject_CollisionData CollisionData { get; set; }
 		// (other stuff here)
 		public Jade_Vector[] Vertices { get; set; }
-		public Jade_Vector[] Vertices_Editor { get; set; }
+		public Jade_Vector[] Normals { get; set; }
 		public uint[] UInts_14 { get; set; }
 		public UV[] UVs { get; set; }
 		public GEO_GeometricObjectElement[] Elements { get; set; }
@@ -57,7 +57,7 @@ namespace R1Engine.Jade {
 				CollisionData = s.SerializeObject<GEO_GeometricObject_CollisionData>(CollisionData, name: nameof(CollisionData));
 			}
 			Vertices = s.SerializeObjectArray<Jade_Vector>(Vertices, VerticesCount, name: nameof(Vertices));
-			if (!Loader.IsBinaryData) Vertices_Editor = s.SerializeObjectArray<Jade_Vector>(Vertices_Editor, VerticesCount, name: nameof(Vertices_Editor));
+			if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
 			if (UInt_2C != 0) {
 				throw new NotImplementedException($"TODO: Implement {GetType()}: UInt_2C");
 			}

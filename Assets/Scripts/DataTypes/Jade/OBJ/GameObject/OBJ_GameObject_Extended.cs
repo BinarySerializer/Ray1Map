@@ -32,6 +32,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<WAY_AllLinkLists> WAY_AllLinkLists { get; set; }
 		public Jade_Reference<GEO_Object> GEO_Object { get; set; }
 		public OBJ_GameObject_ExtendedUnknownData UnknownData { get; set; }
+		public OBJ_GameObject_ExtendedXenonData XenonData { get; set; }
 		public OBJ_GameObject_Modifier[] Modifiers { get; set; }
 		public uint Modifiers_UInt_BGE { get; set; }
 
@@ -87,6 +88,9 @@ namespace R1Engine.Jade {
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtendedUnknownData)) {
 				UnknownData = s.SerializeObject<OBJ_GameObject_ExtendedUnknownData>(UnknownData, name: nameof(UnknownData));
+			}
+			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && Int_08 >= 2 && FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag30)) {
+				XenonData = s.SerializeObject<OBJ_GameObject_ExtendedXenonData>(XenonData, name: nameof(XenonData));
 			}
 			if (HasModifiers != 0) {
 				Modifiers = s.SerializeObjectArrayUntil<OBJ_GameObject_Modifier>(Modifiers, m => m.Type == MDF_ModifierType.None, includeLastObj: true, name: nameof(Modifiers));

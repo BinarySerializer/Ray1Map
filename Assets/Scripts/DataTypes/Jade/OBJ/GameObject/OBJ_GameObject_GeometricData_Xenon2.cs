@@ -23,7 +23,7 @@ namespace R1Engine.Jade {
 
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 				if (Loader.IsBinaryData) {
-					XenonPack?.Resolve();
+					XenonPack?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 				}
 			}
 		}
