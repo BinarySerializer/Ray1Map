@@ -59,6 +59,12 @@ namespace R1Engine.Jade {
 		public float Type13_Float_0 { get; set; }
 		public float Type13_Float_1 { get; set; }
 
+		public float Type14_Float_0 { get; set; }
+		public float Type14_Float_1 { get; set; }
+		public float Type14_Float_2 { get; set; }
+		public float Type14_Float_3 { get; set; }
+
+		public float Type15_Float { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -124,6 +130,17 @@ namespace R1Engine.Jade {
 			if (Type >= 13) {
 				Type13_Float_0 = s.Serialize<float>(Type13_Float_0, name: nameof(Type13_Float_0));
 				Type13_Float_1 = s.Serialize<float>(Type13_Float_1, name: nameof(Type13_Float_1));
+			}
+			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && Type != 273) {
+				if (Type >= 14) {
+					Type14_Float_0 = s.Serialize<float>(Type14_Float_0, name: nameof(Type14_Float_0));
+					Type14_Float_1 = s.Serialize<float>(Type14_Float_1, name: nameof(Type14_Float_1));
+					Type14_Float_2 = s.Serialize<float>(Type14_Float_2, name: nameof(Type14_Float_2));
+					Type14_Float_3 = s.Serialize<float>(Type14_Float_3, name: nameof(Type14_Float_3));
+				}
+				if (Type >= 15) {
+					Type15_Float = s.Serialize<float>(Type15_Float, name: nameof(Type15_Float));
+				}
 			}
 		}
 	}
