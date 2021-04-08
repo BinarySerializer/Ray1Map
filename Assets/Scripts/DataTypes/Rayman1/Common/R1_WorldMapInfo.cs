@@ -14,7 +14,8 @@ namespace R1Engine
         public byte DownIndex { get; set; }
         public byte LeftIndex { get; set; }
         public byte RightIndex { get; set; }
-        public ushort RuntimeData { get; set; } // Has info for if it's unlocked, cage count etc.
+        public byte Runtime_State { get; set; }
+        public byte Runtime_Cages { get; set; }
         public R1_World World { get; set; }
         public byte Level { get; set; }
         public uint Uint_0C { get; set; }
@@ -63,7 +64,8 @@ namespace R1Engine
                 DownIndex = s.Serialize<byte>(DownIndex, name: nameof(DownIndex));
                 LeftIndex = s.Serialize<byte>(LeftIndex, name: nameof(LeftIndex));
                 RightIndex = s.Serialize<byte>(RightIndex, name: nameof(RightIndex));
-                RuntimeData = s.Serialize<ushort>(RuntimeData, name: nameof(RuntimeData));
+                Runtime_State = s.Serialize<byte>(Runtime_State, name: nameof(Runtime_State));
+                Runtime_Cages = s.Serialize<byte>(Runtime_Cages, name: nameof(Runtime_Cages));
                 World = s.Serialize<R1_World>(World, name: nameof(World));
                 Level = s.Serialize<byte>(Level, name: nameof(Level));
                 Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
