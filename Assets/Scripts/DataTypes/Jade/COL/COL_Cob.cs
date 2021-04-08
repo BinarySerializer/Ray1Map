@@ -31,8 +31,7 @@ namespace R1Engine.Jade
         public uint Type5_UnkStructs_Count { get; set; }
         public UnkStruct[] Type5_UnkStructs { get; set; }
         public ColMapPoint[][] Type5_AdditionalColMapPoints { get; set; }
-        public uint Type5_UnkStructs2_Count { get; set; }
-        public UnkStruct2[] Type5_UnkStructs2 { get; set; }
+        public GEO_GeometricObject_CollisionData Type5_CollisionData { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
@@ -81,13 +80,10 @@ namespace R1Engine.Jade
 
                         for (int i = 0; i < Type5_AdditionalColMapPoints.Length; i++)
                             Type5_AdditionalColMapPoints[i] = s.SerializeObjectArray(Type5_AdditionalColMapPoints[i], Type5_UnkStructs[i].ColMapPointsCount, name: $"{nameof(Type5_AdditionalColMapPoints)}[{i}]");
-                    }
 
-                    if ((Flags & 0x88) == 0x88 && Loader.IsBinaryData)
-                    {
-                        Type5_UnkStructs2_Count = s.Serialize<uint>(Type5_UnkStructs2_Count, name: nameof(Type5_UnkStructs2_Count));
-                        Type5_UnkStructs2 = s.SerializeObjectArray<UnkStruct2>(Type5_UnkStructs2, Type5_UnkStructs2_Count, name: nameof(Type5_UnkStructs2));
-                        throw new NotImplementedException("TODO: Implement COL_Load_Nodes_Recursively");
+                        if ((Flags & 8) == 8) {
+                            Type5_CollisionData = s.SerializeObject<GEO_GeometricObject_CollisionData>(Type5_CollisionData, name: nameof(Type5_CollisionData));
+                        }
                     }
 
                     break;
@@ -123,36 +119,6 @@ namespace R1Engine.Jade
                 Short_00 = s.Serialize<short>(Short_00, name: nameof(Short_00));
                 Short_02 = s.Serialize<short>(Short_02, name: nameof(Short_02));
                 Short_04 = s.Serialize<short>(Short_04, name: nameof(Short_04));
-            }
-        }
-
-        public class UnkStruct2 : BinarySerializable
-        {
-            public uint StructsCount { get; set; }
-            public Jade_Vector Vector_04 { get; set; }
-            public Jade_Vector Vector_10 { get; set; }
-            public UnkStruct3[] Structs { get; set; }
-
-            public override void SerializeImpl(SerializerObject s)
-            {
-                StructsCount = s.Serialize<uint>(StructsCount, name: nameof(StructsCount));
-                Vector_04 = s.SerializeObject<Jade_Vector>(Vector_04, name: nameof(Vector_04));
-                Vector_10 = s.SerializeObject<Jade_Vector>(Vector_10, name: nameof(Vector_10));
-                Structs = s.SerializeObjectArray<UnkStruct3>(Structs, StructsCount, name: nameof(Structs));
-            }
-        }
-
-        public class UnkStruct3 : BinarySerializable
-        {
-            public ushort Ushort_00 { get; set; }
-            public ushort UshortsCount { get; set; }
-            public ushort[] Ushorts { get; set; }
-
-            public override void SerializeImpl(SerializerObject s)
-            {
-                Ushort_00 = s.Serialize<ushort>(Ushort_00, name: nameof(Ushort_00));
-                UshortsCount = s.Serialize<ushort>(UshortsCount, name: nameof(UshortsCount));
-                Ushorts = s.SerializeArray<ushort>(Ushorts, UshortsCount, name: nameof(Ushorts));
             }
         }
     }
