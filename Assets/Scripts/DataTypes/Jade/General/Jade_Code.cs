@@ -13,6 +13,7 @@ namespace R1Engine.Jade {
 		Code6660 = 0xC0DE6660,
 		CodeCode  = 0xC0DEC0DE,
 		CAD01234 = 0xCAD01234,
+		FF00FF = 0xFF00FF,
 		All6 = 0x66666666,
 		RLI = 0x494C5280, // Spells out "RLI\x80"
 	}

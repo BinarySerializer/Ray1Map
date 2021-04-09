@@ -28,11 +28,11 @@ public class UnityWindowSerializer : SerializerObject
     public override Pointer CurrentPointer => null;
     public override void Goto(Pointer offset) { }
 
-    public override void DoEncoded(IStreamEncoder encoder, Action action, Endian? endianness = null, bool allowLocalPointers = false) {
+    public override void DoEncoded(IStreamEncoder encoder, Action action, Endian? endianness = null, bool allowLocalPointers = false, string filename = null) {
         action();
     }
 
-    public override Pointer BeginEncoded(IStreamEncoder encoder, Endian? endianness = null, bool allowLocalPointers = false) => null;
+    public override Pointer BeginEncoded(IStreamEncoder encoder, Endian? endianness = null, bool allowLocalPointers = false, string filename = null) => null;
     public override void EndEncoded(Pointer endPointer) {}
 
     public override void DoEndian(Endian endianness, Action action) {

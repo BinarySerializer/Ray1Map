@@ -42,8 +42,8 @@ namespace R1Engine.Jade {
 				Info = (TEX_File)f;
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Textures,
-			name: typeof(TEX_File).Name,
-			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+			cache: LOA_Loader.CacheType.TextureInfo,
+			name: typeof(TEX_File).Name);
 			return this;
 		}
 
@@ -63,8 +63,8 @@ namespace R1Engine.Jade {
 				Content = (TEX_File)f;
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Textures,
-			name: typeof(TEX_File).Name,
-			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+			cache: LOA_Loader.CacheType.TextureContent,
+			name: typeof(TEX_File).Name);
 			return this;
 		}
 	}

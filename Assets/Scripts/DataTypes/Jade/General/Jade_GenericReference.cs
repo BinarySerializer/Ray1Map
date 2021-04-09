@@ -94,5 +94,8 @@ namespace R1Engine.Jade {
 			flags: flags);
 			return this;
 		}
+
+		public override bool IsShortLog => true;
+		public override string ShortLog => $"GenericReference({Key}{FileType.Extension} - {Type})";
 	}
 }

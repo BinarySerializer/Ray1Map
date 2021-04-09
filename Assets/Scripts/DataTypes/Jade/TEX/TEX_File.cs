@@ -22,8 +22,8 @@ namespace R1Engine.Jade
         public ushort Height { get; set; }
         public uint Uint_0C { get; set; }
         public Jade_Reference<STR_FontDescriptor> FontDesc { get; set; }
-        public uint Uint_14 { get; set; } // Usually CAD01234
-        public uint Uint_18 { get; set; } // Checked for 0xFF00FF
+        public Jade_Code Code_14 { get; set; } // Usually CAD01234
+        public Jade_Code Code_18 { get; set; } // Checked for 0xFF00FF
         public Jade_Code Code_1C { get; set; } // Checked for 0xC0DEC0DE
 
         public TEX_Content_RawPal Content_RawPal { get; set; }
@@ -44,8 +44,8 @@ namespace R1Engine.Jade
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
                 Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
                 FontDesc = s.SerializeObject<Jade_Reference<STR_FontDescriptor>>(FontDesc, name: nameof(FontDesc));
-                Uint_14 = s.Serialize<uint>(Uint_14, name: nameof(Uint_14));
-                Uint_18 = s.Serialize<uint>(Uint_18, name: nameof(Uint_18));
+                Code_14 = s.Serialize<Jade_Code>(Code_14, name: nameof(Code_14));
+                Code_18 = s.Serialize<Jade_Code>(Code_18, name: nameof(Code_18));
                 Code_1C = s.Serialize<Jade_Code>(Code_1C, name: nameof(Code_1C));
 
                 if (!Loader.IsBinaryData)
@@ -54,8 +54,16 @@ namespace R1Engine.Jade
                 bool hasReadContent = false;
                 switch (FileFormat) {
                     case TexFileFormat.RawPal:
+                        if (FileSize > 0x50 || (FileSize & 0x3) != 0) {
+                            throw new NotImplementedException($"TEX_File: Load header for type {FileFormat}");
+                        }
                         Content_RawPal = s.SerializeObject<TEX_Content_RawPal>(Content_RawPal, c => c.Texture = this, name: nameof(Content_RawPal));
                         break;
+                    // Types 4, 5, 9 and 7 are loaded regardless of IsContent
+                    case TexFileFormat.SpriteGen:
+                    case TexFileFormat.Procedural:
+                    case TexFileFormat.Animated:
+                        throw new NotImplementedException($"TEX_File: Load header for type {FileFormat}");
                     default:
                         if (IsContent) {
                             Content = s.SerializeArray<byte>(Content, FileSize - (s.CurrentPointer - Offset), name: nameof(Content));
