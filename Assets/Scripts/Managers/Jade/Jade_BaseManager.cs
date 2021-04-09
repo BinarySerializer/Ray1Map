@@ -237,8 +237,8 @@ namespace R1Engine
 					Controller.DetailedState = $"Loading textures: Content";
 					for (int i = 0; i < texList.Textures.Count; i++) {
 						texList.Textures[i].LoadContent();
+						await loader.LoadLoopBINAsync();
 					}
-					await loader.LoadLoopBINAsync();
 					texList.FillInReferences();
 				});
 				await loader.LoadLoop(context.Deserializer);
