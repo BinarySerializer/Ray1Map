@@ -8,7 +8,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class OBJ_GameObject_VisualUnknownData : BinarySerializable {
 		public byte Unk_Type { get; set; }
-		public bool Unk_Bool { get; set; }
+		public byte Unk_Byte_01 { get; set; }
 		public byte Unk_Byte_02 { get; set; }
 		public byte Unk_Byte_03 { get; set; }
 		public Jade_Vector Unk_Type2_Vector { get; set; }
@@ -24,7 +24,7 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			Unk_Type = s.Serialize<byte>(Unk_Type, name: nameof(Unk_Type));
-			Unk_Bool = s.Serialize<bool>(Unk_Bool, name: nameof(Unk_Bool));
+			Unk_Byte_01 = s.Serialize<byte>(Unk_Byte_01, name: nameof(Unk_Byte_01));
 			Unk_Byte_02 = s.Serialize<byte>(Unk_Byte_02, name: nameof(Unk_Byte_02));
 			Unk_Byte_03 = s.Serialize<byte>(Unk_Byte_03, name: nameof(Unk_Byte_03));
 			if (Unk_Type >= 2)
@@ -36,7 +36,7 @@ namespace R1Engine.Jade {
 				Unk_Type6_Float_1 = s.Serialize<float>(Unk_Type6_Float_1, name: nameof(Unk_Type6_Float_1));
 			}
 			Unk_Float_00 = s.Serialize<float>(Unk_Float_00, name: nameof(Unk_Float_00));
-			if (Unk_Bool) {
+			if (Unk_Byte_01 != 0) {
 				Unk_Bool_Float_0 = s.Serialize<float>(Unk_Bool_Float_0, name: nameof(Unk_Bool_Float_0));
 				Unk_Bool_Float_1 = s.Serialize<float>(Unk_Bool_Float_1, name: nameof(Unk_Bool_Float_1));
 				Unk_Bool_Float_2 = s.Serialize<float>(Unk_Bool_Float_2, name: nameof(Unk_Bool_Float_2));
