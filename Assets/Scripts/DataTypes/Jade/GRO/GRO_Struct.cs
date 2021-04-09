@@ -21,6 +21,7 @@ namespace R1Engine.Jade {
             Value = Type switch
             {
                 GRO_Type.None => null,
+                GRO_Type.Unknown => null,
                 GRO_Type.GEO => Value = s.SerializeObject<GEO_GeometricObject>((GEO_GeometricObject)Value, name: nameof(Value)),
                 GRO_Type.GEO_StaticLOD => Value = s.SerializeObject<GEO_StaticLOD>((GEO_StaticLOD)Value, name: nameof(Value)),
                 GRO_Type.MAT_SIN => Value = s.SerializeObject<MAT_SIN_SingleMaterial>((MAT_SIN_SingleMaterial)Value, name: nameof(Value)),
