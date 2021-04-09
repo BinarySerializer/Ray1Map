@@ -33,6 +33,7 @@ namespace R1Engine
 		{
 			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
 			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
+			new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output)),
 		};
         public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false) {
             using (var context = new R1Context(settings)) {
@@ -138,9 +139,45 @@ namespace R1Engine
 				}
             }
         }
+        public async UniTask ExportTexturesAsync(GameSettings settings, string outputDir)
+        {
+			var parsedTexs = new HashSet<uint>();
 
-		// Version properties
-        public abstract string[] BFFiles { get; }
+            foreach (var lev in LevelInfos)
+            {
+				Debug.Log($"Exporting for level {lev.MapName}");
+
+                using (var context = new R1Context(settings))
+                {
+                    await LoadFilesAsync(context);
+                    await LoadJadeAsync(context, (Jade_Key)lev.Key);
+
+					TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
+                    
+                    Debug.Log($"Loaded level. Exporting {texList.Textures.Count} textures...");
+
+                    foreach (var t in texList.Textures)
+                    {
+                        if (parsedTexs.Contains(t.Key.Key))
+                            continue;
+
+                        parsedTexs.Add(t.Key.Key);
+
+                        var tex = (t.Content ?? t.Info).ToTexture2D();
+
+                        if (tex == null)
+                            continue;
+
+                        Util.ByteArrayToFile(Path.Combine(outputDir, $"0x{t.Key.Key:X8}.png"), tex.EncodeToPNG());
+                    }
+                }
+            }
+
+            Debug.Log($"Finished export");
+		}
+
+        // Version properties
+		public abstract string[] BFFiles { get; }
 
 		// Helpers
         public virtual void CreateLevelList(LOA_Loader l) {
@@ -181,7 +218,17 @@ namespace R1Engine
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
 
-			List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+			var loader = await LoadJadeAsync(context, (Jade_Key)(uint)context.GetR1Settings().Level);
+
+			stopWatch.Stop();
+
+			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
+
+			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
+		}
+		public async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey) 
+        {
+            List<BIG_BigFile> bfs = new List<BIG_BigFile>();
 			foreach (var bfPath in BFFiles) {
 				var bf = await LoadBF(context, bfPath);
 				bfs.Add(bf);
@@ -205,23 +252,21 @@ namespace R1Engine
 			Controller.DetailedState = $"Loading universe";
 			await Controller.WaitIfNecessary();
 
-			Jade_Reference<AI_Instance> Univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
-			Univers.Resolve();
+			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
+			univers.Resolve();
 			await loader.LoadLoop(context.Deserializer); // First resolve universe
 
 			// Load world
 			Controller.DetailedState = $"Loading worlds";
 			await Controller.WaitIfNecessary();
 
-			var worldKey = (Jade_Key)(uint)context.GetR1Settings().Level;
-
-			Jade_Reference<WOR_WorldList> WorldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
-			WorldList.Resolve(queue: LOA_Loader.QueueType.Maps);
+			Jade_Reference<WOR_WorldList> worldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
+			worldList.Resolve(queue: LOA_Loader.QueueType.Maps);
 
 			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map), serializeAction: async s => {
 				await loader.LoadLoopBINAsync();
-				if (WorldList?.Value != null) {
-					await WorldList.Value.ResolveReferences(s);
+				if (worldList?.Value != null) {
+					await worldList.Value.ResolveReferences(s);
 				}
 			});
 			await loader.LoadLoop(context.Deserializer);
@@ -251,12 +296,9 @@ namespace R1Engine
 			}
 			loader.EndSpeedMode();
 
-			stopWatch.Stop();
+			return loader;
+        }
 
-			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
-            
-            throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
-		}
         public async UniTask LoadFilesAsync(Context context) {
 			foreach (var bfPath in BFFiles) {
 				await context.AddLinearSerializedFileAsync(bfPath, bigFileCacheLength: 8);

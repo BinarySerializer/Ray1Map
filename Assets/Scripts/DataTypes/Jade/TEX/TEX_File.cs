@@ -1,5 +1,7 @@
 ﻿using BinarySerializer;
 using System;
+using System.Linq;
+using UnityEngine;
 
 namespace R1Engine.Jade
 {
@@ -17,7 +19,7 @@ namespace R1Engine.Jade
         public int Int_00 { get; set; } // Always 0xFFFFFFFF in files
         public ushort Flags { get; set; }
         public TexFileFormat FileFormat { get; set; }
-        public byte ColorFormat { get; set; } // Determines bits per pixel
+        public TexColorFormat ColorFormat { get; set; } // Determines bits per pixel
         public ushort Width { get; set; }
         public ushort Height { get; set; }
         public uint Uint_0C { get; set; }
@@ -41,7 +43,7 @@ namespace R1Engine.Jade
             if (Int_00 == -1) {
                 Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
                 FileFormat = s.Serialize<TexFileFormat>(FileFormat, name: nameof(FileFormat));
-                ColorFormat = s.Serialize<byte>(ColorFormat, name: nameof(ColorFormat));
+                ColorFormat = s.Serialize<TexColorFormat>(ColorFormat, name: nameof(ColorFormat));
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
                 Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
@@ -99,8 +101,17 @@ namespace R1Engine.Jade
                 if (hasReadContent && (Flags & 0x40) != 0 && CanHaveFontDesc) {
                     FontDesc?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
                 }
-
             }
+        }
+
+        public Texture2D ToTexture2D()
+        {
+            return FileFormat switch
+            {
+                TexFileFormat.RawPal => Content_RawPal.References[0].ToTexture2D(),
+                TexFileFormat.Tga => Content_TGA.ToTexture2D(),
+                _ => null
+            };
         }
 
         public enum TexFileFormat : byte
@@ -114,6 +125,16 @@ namespace R1Engine.Jade
             RawPal = 7,
             Animated = 9,
             Xenon = 11,
+        }
+
+        public enum TexColorFormat : byte
+        {
+            BPP_4 = 0x50,
+            BPP_8 = 0x40,
+
+            BPP_16 = 0x31,
+            BPP_24 = 0x20,
+            BPP_32 = 0x10,
         }
 	}
 }

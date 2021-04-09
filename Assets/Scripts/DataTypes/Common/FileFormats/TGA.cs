@@ -64,8 +64,8 @@ namespace R1Engine
 
                     RGBImageData = BitsPerPixel switch
                     {
-                        24 => s.SerializeObjectArray<RGB888Color>((RGB888Color[]) RGBImageData, Width * Height, name: nameof(RGBImageData)),
-                        32 => s.SerializeObjectArray<RGBA8888Color>((RGBA8888Color[]) RGBImageData, Width * Height, name: nameof(RGBImageData)),
+                        24 => s.SerializeObjectArray<BGR888Color>((BGR888Color[])RGBImageData, Width * Height, name: nameof(RGBImageData)),
+                        32 => s.SerializeObjectArray<BGRA8888Color>((BGRA8888Color[])RGBImageData, Width * Height, name: nameof(RGBImageData)),
                         _ => throw new NotImplementedException($"Not implemented support for textures with type {ImageType} with bpp {BitsPerPixel}")
                     };
 
