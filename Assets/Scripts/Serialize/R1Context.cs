@@ -62,32 +62,26 @@ namespace R1Engine
 
         public class R1SerializerLog : ISerializerLog
         {
-            public R1SerializerLog()
-            {
-                CurrentLog = new StringBuilder();
-            }
-
             public bool IsEnabled => R1Engine.Settings.Log;
-            protected StringBuilder CurrentLog { get; }
+
+            private StreamWriter _logWriter;
+
+            protected StreamWriter LogWriter => _logWriter ??= new StreamWriter(File.Create(LogFile), Encoding.UTF8, BufferSize);
 
             public string OverrideLogPath { get; set; }
             public string LogFile => OverrideLogPath ?? R1Engine.Settings.LogFile;
+            public int BufferSize => 0x8000000; // 1 GB
 
             public void Log(object obj)
             {
                 if (IsEnabled)
-                    CurrentLog.AppendLine(obj != null ? obj.ToString() : "");
+                    LogWriter.WriteLine(obj != null ? obj.ToString() : "");
             }
 
-            public void WriteLog()
+            public void Dispose()
             {
-                if (IsEnabled && LogFile.Trim() != "")
-                {
-                    using (StreamWriter writer = new StreamWriter(LogFile))
-                    {
-                        writer.WriteLine(CurrentLog.ToString());
-                    }
-                }
+                LogWriter?.Dispose();
+                _logWriter = null;
             }
         }
     }

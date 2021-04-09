@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using R1Engine.Jade;
 using System.IO;
 using BinarySerializer;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace R1Engine 
 {
@@ -174,7 +176,11 @@ namespace R1Engine
 		}
 
 		// Load
-		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
+		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) 
+        {
+			var stopWatch = new Stopwatch();
+			stopWatch.Start();
+
 			List<BIG_BigFile> bfs = new List<BIG_BigFile>();
 			foreach (var bfPath in BFFiles) {
 				var bf = await LoadBF(context, bfPath);
@@ -244,7 +250,12 @@ namespace R1Engine
 				await loader.LoadLoop(context.Deserializer);
 			}
 			loader.EndSpeedMode();
-			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
+
+			stopWatch.Stop();
+
+			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
+            
+            throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
 		}
         public async UniTask LoadFilesAsync(Context context) {
 			foreach (var bfPath in BFFiles) {
