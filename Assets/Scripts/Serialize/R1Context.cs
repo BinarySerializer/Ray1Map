@@ -80,7 +80,7 @@ namespace R1Engine
 
             public void Dispose()
             {
-                LogWriter?.Dispose();
+                _logWriter?.Dispose();
                 _logWriter = null;
             }
         }
