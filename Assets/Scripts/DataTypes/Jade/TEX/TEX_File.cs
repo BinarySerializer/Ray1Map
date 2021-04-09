@@ -1,7 +1,7 @@
-﻿using System;
-using BinarySerializer;
+﻿using BinarySerializer;
+using System;
 
-namespace R1Engine.Jade 
+namespace R1Engine.Jade
 {
     // See: GDI_l_AttachWorld & TEX_l_File_Read
     // TEX_l_File_Read reads the texture header, after that GDI_l_AttachWorld resolves some references (for animated textures) and adds palette references
@@ -26,7 +26,9 @@ namespace R1Engine.Jade
         public Jade_Code Code_18 { get; set; } // Checked for 0xFF00FF
         public Jade_Code Code_1C { get; set; } // Checked for 0xC0DEC0DE
 
+        public byte[] Content_Raw { get; set; }
         public TEX_Content_RawPal Content_RawPal { get; set; }
+        public TGA Content_TGA { get; set; }
 
         public byte[] Content { get; set; }
 
@@ -52,7 +54,14 @@ namespace R1Engine.Jade
                     s.Goto(Offset);
 
                 bool hasReadContent = false;
-                switch (FileFormat) {
+                switch (FileFormat) 
+                {
+                    case TexFileFormat.Raw:
+                        Content_Raw = s.SerializeArray<byte>(Content_Raw, FileSize - (s.CurrentPointer - Offset), name: nameof(Content_Raw));
+                        if (Content_Raw.Length > 0) 
+                            hasReadContent = true;
+                        break;
+
                     case TexFileFormat.RawPal:
                         if (FileSize > 0x50 || (FileSize & 0x3) != 0) {
                             throw new NotImplementedException($"TEX_File: Load header for type {FileFormat}");
@@ -64,6 +73,19 @@ namespace R1Engine.Jade
                     case TexFileFormat.Procedural:
                     case TexFileFormat.Animated:
                         throw new NotImplementedException($"TEX_File: Load header for type {FileFormat}");
+
+                    case TexFileFormat.Tga:
+                        if (IsContent)
+                        {
+                            Content_TGA = s.SerializeObject<TGA>(Content_TGA, name: nameof(Content_TGA));
+                            hasReadContent = true;
+                        }
+
+                        break;
+
+                    case TexFileFormat.Bmp:
+                    case TexFileFormat.Jpeg:
+                    case TexFileFormat.Xenon:
                     default:
                         if (IsContent) {
                             Content = s.SerializeArray<byte>(Content, FileSize - (s.CurrentPointer - Offset), name: nameof(Content));
