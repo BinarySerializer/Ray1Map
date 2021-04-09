@@ -143,33 +143,42 @@ namespace R1Engine
         {
 			var parsedTexs = new HashSet<uint>();
 
+			var levIndex = 0;
+
             foreach (var lev in LevelInfos)
             {
-				Debug.Log($"Exporting for level {lev.MapName}");
+				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
 
-                using (var context = new R1Context(settings))
+                try
                 {
-                    await LoadFilesAsync(context);
-                    await LoadJadeAsync(context, (Jade_Key)lev.Key);
-
-					TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
-                    
-                    Debug.Log($"Loaded level. Exporting {texList.Textures.Count} textures...");
-
-                    foreach (var t in texList.Textures)
+                    using (var context = new R1Context(settings))
                     {
-                        if (parsedTexs.Contains(t.Key.Key))
-                            continue;
+                        await LoadFilesAsync(context);
+                        await LoadJadeAsync(context, (Jade_Key)lev.Key);
 
-                        parsedTexs.Add(t.Key.Key);
+                        TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
 
-                        var tex = (t.Content ?? t.Info).ToTexture2D();
+                        Debug.Log($"Loaded level. Exporting {texList.Textures.Count} textures...");
 
-                        if (tex == null)
-                            continue;
+                        foreach (var t in texList.Textures)
+                        {
+                            if (parsedTexs.Contains(t.Key.Key))
+                                continue;
 
-                        Util.ByteArrayToFile(Path.Combine(outputDir, $"0x{t.Key.Key:X8}.png"), tex.EncodeToPNG());
+                            parsedTexs.Add(t.Key.Key);
+
+                            var tex = (t.Content ?? t.Info).ToTexture2D();
+
+                            if (tex == null)
+                                continue;
+
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"0x{t.Key.Key:X8}.png"), tex.EncodeToPNG());
+                        }
                     }
+                }
+				catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to export for level {lev.MapName}: {ex.Message}");
                 }
             }
 
