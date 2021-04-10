@@ -28,10 +28,8 @@ namespace R1Engine.Jade
         public Jade_Code Code_18 { get; set; } // Checked for 0xFF00FF
         public Jade_Code Code_1C { get; set; } // Checked for 0xC0DEC0DE
 
-        public byte[] Content_Raw { get; set; }
         public TEX_Content_RawPal Content_RawPal { get; set; }
         public TGA Content_TGA { get; set; }
-
         public byte[] Content { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
@@ -58,18 +56,13 @@ namespace R1Engine.Jade
                 bool hasReadContent = false;
                 switch (FileFormat) 
                 {
-                    case TexFileFormat.Raw:
-                        Content_Raw = s.SerializeArray<byte>(Content_Raw, FileSize - (s.CurrentPointer - Offset), name: nameof(Content_Raw));
-                        if (Content_Raw.Length > 0) 
-                            hasReadContent = true;
-                        break;
-
                     case TexFileFormat.RawPal:
                         if (FileSize > 0x50 || (FileSize & 0x3) != 0) {
                             throw new NotImplementedException($"TEX_File: Load header for type {FileFormat}");
                         }
                         Content_RawPal = s.SerializeObject<TEX_Content_RawPal>(Content_RawPal, c => c.Texture = this, name: nameof(Content_RawPal));
                         break;
+
                     // Types 4, 5, 9 and 7 are loaded regardless of IsContent
                     case TexFileFormat.SpriteGen:
                     case TexFileFormat.Procedural:
@@ -82,21 +75,19 @@ namespace R1Engine.Jade
                             Content_TGA = s.SerializeObject<TGA>(Content_TGA, name: nameof(Content_TGA));
                             hasReadContent = true;
                         }
-
                         break;
 
-                    case TexFileFormat.Bmp:
+                    case TexFileFormat.Raw:
                     case TexFileFormat.Jpeg:
+                    case TexFileFormat.Bmp:
                     case TexFileFormat.Xenon:
                     default:
                         if (IsContent) {
                             Content = s.SerializeArray<byte>(Content, FileSize - (s.CurrentPointer - Offset), name: nameof(Content));
-                            if (Content.Length > 0) hasReadContent = true;
-                            //throw new NotImplementedException($"TODO: Implement texture type {FileFormat}");
+                            if (Content.Length > 0) 
+                                hasReadContent = true;
                         }
                         break;
-                    //default:
-                    //    break;//throw new NotImplementedException($"TODO: Implement texture type {FileFormat}");
                 }
                 if (hasReadContent && (Flags & 0x40) != 0 && CanHaveFontDesc) {
                     FontDesc?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
@@ -111,8 +102,18 @@ namespace R1Engine.Jade
                 TexFileFormat.Raw => null, // Gets parsed from RawPal
                 TexFileFormat.RawPal => Content_RawPal.References[0].ToTexture2D(),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
+                TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
                 _ => throw new NotImplementedException($"TODO: Implement texture type {FileFormat}")
             };
+        }
+
+        public Texture2D ToTexture2DFromJpeg()
+        {
+            var tex = TextureHelpers.CreateTexture2D(Width, Height);
+
+            tex.LoadImage(Content);
+
+            return tex;
         }
 
         public enum TexFileFormat : byte
