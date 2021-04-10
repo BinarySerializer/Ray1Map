@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class Jade_BGE_PS2_Prototype_Manager : Jade_BGE_Manager 
+    public class Jade_BGE_PS2 : Jade_BGE_Manager 
     {
         // Levels
         public override LevelInfo[] LevelInfos => new LevelInfo[]
@@ -19,6 +19,7 @@
             new LevelInfo(0x00001848, "ROOT/EngineDatas/06 Levels/_mdisk/MDisk_02_03_brief_entrepot", "MDisk_02_03_brief_entrepot.wol"),
             new LevelInfo(0x000030A8, "ROOT/EngineDatas/06 Levels/_mdisk/Mdisk_06_10_animaux_rares", "Mdisk_06_10_animaux_rares.wol"),
             new LevelInfo(0x00004764, "ROOT/EngineDatas/06 Levels/_mdisk/MDisk_06_12_catalog_mamago", "MDisk_06_12_catalog_mamago.wol"),
+            new LevelInfo(0x00022627, "ROOT/EngineDatas/06 Levels/_mdisk/MDisk_JeuDuPalet", "Mdisk_JeuDuPalet.wol"),
             new LevelInfo(0x000030DA, "ROOT/EngineDatas/06 Levels/_mdisk/Mdisk_SPOON_511", "Mdisk_SPOON_511.wol"),
             new LevelInfo(0x000030E8, "ROOT/EngineDatas/06 Levels/_mdisk/Mdisk_SPOON_512", "Mdisk_SPOON_512.wol"),
             new LevelInfo(0x000030F1, "ROOT/EngineDatas/06 Levels/_mdisk/Mdisk_SPOON_513_entrepot", "Mdisk_SPOON_513_entrepot.wol"),
@@ -80,6 +81,8 @@
             new LevelInfo(0x00006F33, "ROOT/EngineDatas/06 Levels/08_Satellite/08_03_satellite_emetteur", "08_03_satellite_emetteur.wol"),
             new LevelInfo(0x0000AE8A, "ROOT/EngineDatas/06 Levels/09_Nazh/09_00_nazh_liberation_peyj", "09_00_nazh_liberation_peyj.wol"),
             new LevelInfo(0x0000B7AD, "ROOT/EngineDatas/06 Levels/09_Nazh/09_01_nazh_boss", "09_01_nazh_boss.wol"),
+            new LevelInfo(0x0000EA33, "ROOT/EngineDatas/06 Levels/09_Nazh/09_01_nazh_boss_cine_finale", "09_01_nazh_boss_cine_finale.wol"),
+            new LevelInfo(0x00015021, "ROOT/EngineDatas/06 Levels/09_Nazh/09_02_nazh_boss_ascenseur", "09_02_nazh_boss_ascenseur.wol"),
             new LevelInfo(0x0000738E, "ROOT/EngineDatas/06 Levels/10_Lune/10_02_lune_faisceaux", "10_02_lune_faisceaux.wol"),
             new LevelInfo(0x000033CB, "ROOT/EngineDatas/06 Levels/11_minimaps/11_00_vieux_fou_01", "11_00_vieux_fou_01.wol"),
             new LevelInfo(0x00000C5B, "ROOT/EngineDatas/06 Levels/11_minimaps/11_01_vieux_fou_02", "11_01_vieux_fou_02.wol"),
@@ -92,8 +95,7 @@
             new LevelInfo(0x00001FBA, "ROOT/EngineDatas/06 Levels/11_minimaps/11_08_Combat_01", "11_08_Combat_01.wol"),
             new LevelInfo(0x000013A3, "ROOT/EngineDatas/06 Levels/11_minimaps/11_10_Combat_03", "11_10_Combat_03.wol"),
             new LevelInfo(0x00003E1B, "ROOT/EngineDatas/06 Levels/11_minimaps/11_13_Combat_06", "11_13_Combat_06.wol"),
+            new LevelInfo(0x00029588, "ROOT/EngineDatas/06 Levels/50_Gplay/YO_PEARL", "YO_pearl.wol"),
         };
-
-		public override string JadeSpePath => "JADE.SPE";
     }
 }

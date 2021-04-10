@@ -2,10 +2,15 @@
 {
     public abstract class Jade_BGE_Manager : Jade_BaseManager 
     {
-		public override string[] FixWorlds => new string[] {
-			"_main_fix"
-		};
+        // Version properties
+        public override string[] BFFiles => new string[] {
+            "SALLY.BF"
+        };
 
-		public override string JadeSpePath => "jade.spe";
-	}
+        public override string[] FixWorlds => new string[] {
+            "_main_fix"
+        };
+
+        public override string JadeSpePath => "jade.spe";
+    }
 }

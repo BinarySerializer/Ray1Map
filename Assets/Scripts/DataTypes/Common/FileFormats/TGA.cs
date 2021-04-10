@@ -7,6 +7,8 @@ namespace R1Engine
 {
     public class TGA : BinarySerializable
     {
+        public RGBColorFormat ColorFormat { get; set; } // Set before serializing
+
         public byte IdentificationFieldLength { get; set; }
         public bool HasColorMap { get; set; }
         public TGA_ImageType ImageType { get; set; }
@@ -64,8 +66,12 @@ namespace R1Engine
 
                     RGBImageData = BitsPerPixel switch
                     {
-                        24 => s.SerializeObjectArray<BGR888Color>((BGR888Color[])RGBImageData, Width * Height, name: nameof(RGBImageData)),
-                        32 => s.SerializeObjectArray<BGRA8888Color>((BGRA8888Color[])RGBImageData, Width * Height, name: nameof(RGBImageData)),
+                        24 => ColorFormat == RGBColorFormat.RGB ? 
+                            (BaseColor[])s.SerializeObjectArray<RGB888Color>((RGB888Color[])RGBImageData, Width * Height, name: nameof(RGBImageData)) :
+                            s.SerializeObjectArray<BGR888Color>((BGR888Color[])RGBImageData, Width * Height, name: nameof(RGBImageData)),
+                        32 => ColorFormat == RGBColorFormat.RGB ?
+                            (BaseColor[])s.SerializeObjectArray<RGBA8888Color>((RGBA8888Color[])RGBImageData, Width * Height, name: nameof(RGBImageData)) :
+                            s.SerializeObjectArray<BGRA8888Color>((BGRA8888Color[])RGBImageData, Width * Height, name: nameof(RGBImageData)),
                         _ => throw new NotImplementedException($"Not implemented support for textures with type {ImageType} with bpp {BitsPerPixel}")
                     };
 
@@ -116,6 +122,11 @@ namespace R1Engine
             TwoWay = 1,
             FourWay = 2,
             Reserved = 3
+        }
+        public enum RGBColorFormat
+        {
+            RGB,
+            BGR
         }
     }
 }

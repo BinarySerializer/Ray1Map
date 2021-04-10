@@ -48,6 +48,7 @@ namespace R1Engine.Jade {
 			AI_Links links = null;
 			switch (settings.GameModeSelection) {
 				case GameModeSelection.RaymanRavingRabbidsPC:
+				case GameModeSelection.RaymanRavingRabbidsPS2:
 					links = new AI_Links_RRR_Wii();
 					break;
 				case GameModeSelection.RaymanRavingRabbidsXbox360:
@@ -55,6 +56,7 @@ namespace R1Engine.Jade {
 					break;
 				case GameModeSelection.BeyondGoodAndEvilPC:
 				case GameModeSelection.BeyondGoodAndEvilPS2_20030814:
+				case GameModeSelection.BeyondGoodAndEvilPS2:
 					links = new AI_Links_BGE_PS2_Proto();
 					break;
 			}
