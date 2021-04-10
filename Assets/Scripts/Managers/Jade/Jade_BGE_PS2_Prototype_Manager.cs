@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class Jade_BGE_PS2_Prototype_Manager : Jade_BGE_Manager 
+    public class Jade_BGE_PS2_Prototype_Manager : Jade_BGE_PS2_Manager 
     {
         // Levels
         public override LevelInfo[] LevelInfos => new LevelInfo[]
@@ -93,7 +93,5 @@
             new LevelInfo(0x000013A3, "ROOT/EngineDatas/06 Levels/11_minimaps/11_10_Combat_03", "11_10_Combat_03.wol"),
             new LevelInfo(0x00003E1B, "ROOT/EngineDatas/06 Levels/11_minimaps/11_13_Combat_06", "11_13_Combat_06.wol"),
         };
-
-		public override string JadeSpePath => "JADE.SPE";
     }
 }

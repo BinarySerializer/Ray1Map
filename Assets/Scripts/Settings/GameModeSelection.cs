@@ -668,7 +668,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PS2, Game.Jade_BGE, "Beyond Good & Evil (PS2, 2003/08/14)", typeof(Jade_BGE_PS2_Prototype_Manager))]
         BeyondGoodAndEvilPS2_20030814,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PS2, Game.Jade_BGE, "Beyond Good & Evil (PS2)", typeof(Jade_BGE_PS2))]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PS2, Game.Jade_BGE, "Beyond Good & Evil (PS2)", typeof(Jade_BGE_PS2_Manager))]
         BeyondGoodAndEvilPS2,
     }
 }
