@@ -29,9 +29,9 @@ namespace R1Engine.Jade {
 			if(Type >= 1) Type1_UInt = s.Serialize<uint>(Type1_UInt, name: nameof(Type1_UInt));
 			if(Type >= 2) Type2_Float = s.Serialize<float>(Type2_Float, name: nameof(Type2_Float));
 			if(Type >= 3) Type3_UInt = s.Serialize<uint>(Type3_UInt, name: nameof(Type3_UInt));
-			if ((Flags & 8) != 0) {
+			//if ((Flags & 8) == 0) { // This is always 0 -- it does Flags &= 0xFFFFFFF7 after reading it
 				GeometricObject?.Resolve();
-			}
+			//}
 		}
 
 		public class Point : BinarySerializable {

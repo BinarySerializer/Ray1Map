@@ -34,7 +34,6 @@ namespace R1Engine.Jade {
 		public OBJ_GameObject_ExtendedUnknownData UnknownData { get; set; }
 		public OBJ_GameObject_ExtendedXenonData XenonData { get; set; }
 		public OBJ_GameObject_Modifier[] Modifiers { get; set; }
-		public uint Modifiers_UInt_BGE { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -94,9 +93,6 @@ namespace R1Engine.Jade {
 			}
 			if (HasModifiers != 0) {
 				Modifiers = s.SerializeObjectArrayUntil<OBJ_GameObject_Modifier>(Modifiers, m => m.Type == MDF_ModifierType.None, includeLastObj: true, name: nameof(Modifiers));
-				if (s.GetR1Settings().Game == Game.Jade_BGE) {
-					Modifiers_UInt_BGE = s.Serialize<uint>(Modifiers_UInt_BGE, name: nameof(Modifiers_UInt_BGE));
-				}
 			}
 		}
 	}
