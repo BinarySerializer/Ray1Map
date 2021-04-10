@@ -40,7 +40,13 @@ namespace R1Engine.Jade {
         public uint UInt_26 { get; set; }
         public uint UInt_27 { get; set; }
 
+        public byte[] Bytes { get; set; }
+
         public override void SerializeImpl(SerializerObject s) {
+            if (s.GetR1Settings().Game == Game.Jade_BGE) {
+                Bytes = s.SerializeArray<byte>(Bytes, FileSize, name: nameof(Bytes));
+                return;
+            }
             Type = s.Serialize<uint>(Type, name: nameof(Type));
             UInt_01 = s.Serialize<uint>(UInt_01, name: nameof(UInt_01));
             UInt_02 = s.Serialize<uint>(UInt_02, name: nameof(UInt_02));
@@ -106,6 +112,7 @@ namespace R1Engine.Jade {
                 /*if (Flags.HasFlag(SoundFlags.Dialog)) {
                 } else if (Flags.HasFlag(SoundFlags.Music)) {
                 } else if (Flags.HasFlag(SoundFlags.Ambience)) {
+                // else if modifier in BG&E only, in GEN_ModifierSound
                 } else if (Flags.HasFlag(SoundFlags.LoadingSound)) {
                 } else { // Sound
                 }*/
@@ -131,7 +138,7 @@ namespace R1Engine.Jade {
                 Music = 1 << 13,
                 Dialog = 1 << 14,
                 Flag_15 = 1 << 15,
-                Flag_16 = 1 << 16,
+                SModifier = 1 << 16,
                 Flag_17 = 1 << 17,
                 Flag_18 = 1 << 18,
                 Ambience = 1 << 19,

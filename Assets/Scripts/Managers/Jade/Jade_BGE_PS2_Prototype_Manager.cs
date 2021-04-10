@@ -98,5 +98,7 @@
         public override string[] BFFiles => new string[] {
 			"SALLY.BF"
 		};
-	}
+
+		public override string JadeSpePath => "JADE.SPE";
+    }
 }

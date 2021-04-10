@@ -87,8 +87,8 @@ namespace R1Engine.Jade {
 					Int_00 = bitFunc(Int_00, 31, name: nameof(Int_00));
 					HasEditorInts = bitFunc(HasEditorInts ? 1 : 0, 1, name: nameof(HasEditorInts)) == 1;
 				});
-				if (Int_00 >= 0 && !Loader.IsBinaryData) Ints_Editor = s.SerializeArray<int>(Ints_Editor, Int_00, name: nameof(Int_00));
-				VertexUVMap = s.SerializeObjectArray<VertexUV>(VertexUVMap, Int_00, name: nameof(Int_00));
+				if (Int_00 >= 0 && !Loader.IsBinaryData) Ints_Editor = s.SerializeArray<int>(Ints_Editor, Int_00, name: nameof(Ints_Editor));
+				VertexUVMap = s.SerializeObjectArray<VertexUV>(VertexUVMap, Int_00, name: nameof(VertexUVMap));
 			}
 
 			public class VertexUV : BinarySerializable {

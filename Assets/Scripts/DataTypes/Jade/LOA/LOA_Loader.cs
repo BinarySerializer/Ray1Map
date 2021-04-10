@@ -8,9 +8,12 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class LOA_Loader {
+		public bool IsLoadingFix { get; set; }
+		public LOA_SpecialArray SpecialArray { get; set; }
+
 		public BIG_BigFile[] BigFiles { get; set; }
-		public Dictionary<QueueType, Queue<FileReference>> LoadQueues = new Dictionary<QueueType, Queue<FileReference>>();// = new Queue<FileReference>();
-		public Queue<FileReference> LoadQueue => LoadQueues[CurrentQueueType];
+		public Dictionary<QueueType, LinkedList<FileReference>> LoadQueues = new Dictionary<QueueType, LinkedList<FileReference>>();// = new Queue<FileReference>();
+		public LinkedList<FileReference> LoadQueue => LoadQueues[CurrentQueueType];
 		public Dictionary<Jade_Key, FileInfo> FileInfos { get; private set; }
 		public Dictionary<CacheType, Dictionary<Jade_Key, Jade_File>> Caches { get; private set; } = new Dictionary<CacheType, Dictionary<Jade_Key, Jade_File>>();
 		public Dictionary<Jade_Key, Jade_File> Cache => Caches[CurrentCacheType];
@@ -44,6 +47,8 @@ namespace R1Engine.Jade {
 		}
 		public enum CacheType {
 			Main,
+			Fix,
+			Current,
 			TextureInfo,
 			TextureContent,
 		}
@@ -74,7 +79,7 @@ namespace R1Engine.Jade {
 			BigFiles = bigFiles;
 			CreateFileDictionaries();
 			foreach (QueueType queue in (QueueType[])Enum.GetValues(typeof(QueueType))) {
-				LoadQueues[queue] = new Queue<FileReference>();
+				LoadQueues[queue] = new LinkedList<FileReference>();
 			}
 			foreach (CacheType cache in (CacheType[])Enum.GetValues(typeof(CacheType))) {
 				Caches[cache] = new Dictionary<Jade_Key, Jade_File>();
@@ -123,10 +128,11 @@ namespace R1Engine.Jade {
 
 		public async UniTask LoadLoop(SerializerObject s) {
 			CurrentQueueType = QueueType.BigFat;
-			CurrentCacheType = CacheType.Main;
+			CurrentCacheType = IsLoadingFix ? CacheType.Fix : CacheType.Main;
 
-			while (LoadQueue.Count > 0) {
-				FileReference currentRef = LoadQueue.Dequeue();
+			while (LoadQueue.First?.Value != null) {
+				FileReference currentRef = LoadQueue.First.Value;
+				LoadQueue.RemoveFirst();
 				if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
 					CurrentCacheType = currentRef.Cache;
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key)) {
@@ -203,13 +209,15 @@ namespace R1Engine.Jade {
 				CurrentQueueType = QueueType.BigFat;
 				return;
 			}
-			CurrentCacheType = CacheType.Main;
+			CurrentCacheType = IsLoadingFix ? CacheType.Fix : CacheType.Main;
 			SerializerObject s = Bin.Serializer;
 			var curPointer = s.CurrentPointer;
 			if (Bin.CurrentPosition == null) Bin.CurrentPosition = curPointer;
 			if (Bin.StartPosition == null) Bin.StartPosition = curPointer;
-			while (LoadQueue.Count > 0) {
-				LoadLoopBIN_Inner();
+			while (LoadQueue.First?.Value != null) {
+				FileReference currentRef = LoadQueue.First.Value;
+				LoadQueue.RemoveFirst();
+				LoadLoopBIN_ResolveReference(currentRef);
 			}
 			s.Goto(curPointer);
 		}
@@ -224,25 +232,36 @@ namespace R1Engine.Jade {
 			var curPointer = s.CurrentPointer;
 			if (Bin.CurrentPosition == null) Bin.CurrentPosition = curPointer;
 			if (Bin.StartPosition == null) Bin.StartPosition = curPointer;
-			while (LoadQueue.Count > 0) {
+			while (LoadQueue.First?.Value != null) {
+				FileReference currentRef = LoadQueue.First.Value;
+				LoadQueue.RemoveFirst();
 				string previousState = Controller.DetailedState;
-				var currentRef = LoadQueue.Peek();
 				Controller.DetailedState = $"{previousState}\n{currentRef.Name}_{currentRef.Key:X8}";
 				await Controller.WaitIfNecessary();
-				LoadLoopBIN_Inner();
+				LoadLoopBIN_ResolveReference(currentRef);
 				Controller.DetailedState = previousState;
 			}
 			s.Goto(curPointer);
 		}
 
-		private void LoadLoopBIN_Inner() {
+		private Jade_File GetLoadedFile(Jade_Key key) {
+			if(Cache.ContainsKey(key)) return Cache[key];
+			if (!IsLoadingFix && SpecialArray != null) {
+				if (SpecialArray.Lookup.Contains(key) && Caches[CacheType.Fix].ContainsKey(key)) {
+					return Caches[CacheType.Fix][key];
+				}
+			}
+			return null;
+		}
+
+		private void LoadLoopBIN_ResolveReference(FileReference currentRef) {
 			SerializerObject s = Bin.Serializer;
 			uint FileSize = 0;
 			s.Goto(Bin.CurrentPosition);
-			FileReference currentRef = LoadQueue.Dequeue();
 			CurrentCacheType = currentRef.Cache;
-			if (Cache.ContainsKey(currentRef.Key)) {
-				var f = Cache[currentRef.Key];
+			var loadedFile = GetLoadedFile(currentRef.Key);
+			if (loadedFile != null) {
+				var f = loadedFile;
 				if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 			} else {
@@ -273,6 +292,7 @@ namespace R1Engine.Jade {
 				} else {
 					Bin.CurrentPosition = s.CurrentPointer;
 				}
+
 			}
 		}
 
@@ -290,22 +310,27 @@ namespace R1Engine.Jade {
 
 		public void RequestFile(Jade_Key key, ResolveAction loadCallback, ResolvedAction alreadyLoadedCallback, bool immediate = false,
 			QueueType queue = QueueType.Current,
-			CacheType cache = CacheType.Main,
+			CacheType cache = CacheType.Current,
 			string name = "", ReferenceFlags flags = ReferenceFlags.Log) {
 			if (queue == QueueType.Current) {
 				queue = Bin?.QueueType ?? QueueType.BigFat;
 				//if(Bin != null && FileInfos.ContainsKey(key)) queue = QueueType.BigFat;
 			}
-			LoadQueues[queue].Enqueue(new FileReference() {
+			if (cache == CacheType.Current) {
+				cache = IsLoadingFix ? CacheType.Fix : CacheType.Main;
+			}
+			var fileRef = new FileReference() {
 				Name = name,
 				Key = key,
 				LoadCallback = loadCallback,
 				AlreadyLoadedCallback = alreadyLoadedCallback,
 				Flags = flags,
 				Cache = cache
-			});
+			};
 			if (immediate && Bin != null && queue == Bin.QueueType) {
-				LoadLoopBIN();
+				LoadQueues[queue].AddFirst(fileRef);
+			} else {
+				LoadQueues[queue].AddLast(fileRef);
 			}
 		}
 		public void BeginSpeedMode(Jade_Key key, Func<SerializerObject, UniTask> serializeAction = null) {
@@ -335,12 +360,12 @@ namespace R1Engine.Jade {
 							case Jade_Key.KeyType.TextSound: Bin.QueueType = QueueType.TextSound; break;
 							case Jade_Key.KeyType.Textures: Bin.QueueType = QueueType.Textures; break;
 						}
-						LoadQueues[QueueType.BigFat].Enqueue(new FileReference() {
+						LoadQueues[QueueType.BigFat].AddLast(new FileReference() {
 							Name = "BIN",
 							Key = key,
 							IsBin = true,
 							Flags = ReferenceFlags.Log,
-							Cache = CacheType.Main
+							Cache = IsLoadingFix ? CacheType.Fix : CacheType.Main,
 						});
 						IsCompressed = Bin.Key.IsCompressed;
 						ReadSizes = IsCompressed;

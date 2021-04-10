@@ -20,7 +20,11 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			// Serialize file inline
 			if (Type.Type == Jade_FileType.FileType.SND_Metabank) {
-				throw new NotImplementedException($"TODO: Implement {GetType()}: Metabank");
+				File = s.SerializeObject<SND_Metabank>((SND_Metabank)File, onPreSerialize: f => {
+					f.Key = Key;
+					f.FileSize = ContainedFileSize;
+					f.Loader = Loader;
+				}, name: nameof(File));
 			} else {
 				File = s.SerializeObject<SND_Bank>((SND_Bank)File, onPreSerialize: f => {
 					f.Key = Key;

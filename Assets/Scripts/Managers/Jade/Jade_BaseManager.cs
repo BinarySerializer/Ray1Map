@@ -187,6 +187,8 @@ namespace R1Engine
 
         // Version properties
 		public abstract string[] BFFiles { get; }
+		public virtual string[] FixWorlds { get; }
+		public virtual string JadeSpePath { get; }
 
 		// Helpers
         public virtual void CreateLevelList(LOA_Loader l) {
@@ -221,56 +223,22 @@ namespace R1Engine
 			return bfFile;
 		}
 
-		// Load
-		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) 
-        {
-			var stopWatch = new Stopwatch();
-			stopWatch.Start();
-
-			var loader = await LoadJadeAsync(context, (Jade_Key)(uint)context.GetR1Settings().Level);
-
-			stopWatch.Stop();
-
-			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
-
-			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
+		public void LoadJadeSPE(Context context) {
+			if(JadeSpePath == null) return;
+			var s = context.Deserializer;
+			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+			loader.SpecialArray = FileFactory.Read<LOA_SpecialArray>(JadeSpePath, context);
 		}
-		public async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey) 
-        {
-            List<BIG_BigFile> bfs = new List<BIG_BigFile>();
-			foreach (var bfPath in BFFiles) {
-				var bf = await LoadBF(context, bfPath);
-				bfs.Add(bf);
-			}
-			// Set up loader
-			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
-			context.StoreObject<LOA_Loader>(LoaderKey, loader);
+		public async UniTask<Jade_Reference<WOR_WorldList>> LoadWorldList(Context context, Jade_Key worldKey, bool isFix = false) {
+			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+			loader.IsLoadingFix = isFix;
 
-			// Create level list if null
-			if (LevelInfos == null) CreateLevelList(loader);
-
-			// Set up AI types
-			AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
-			context.StoreObject<AI_Links>(AIKey, aiLinks);
+			Jade_Reference<WOR_WorldList> worldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
+			worldList.Resolve(queue: LOA_Loader.QueueType.Maps); 
 
 			// Set up texture list
 			TEX_GlobalList texList = new TEX_GlobalList();
 			context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
-
-			// Load univers
-			Controller.DetailedState = $"Loading universe";
-			await Controller.WaitIfNecessary();
-
-			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
-			univers.Resolve();
-			await loader.LoadLoop(context.Deserializer); // First resolve universe
-
-			// Load world
-			Controller.DetailedState = $"Loading worlds";
-			await Controller.WaitIfNecessary();
-
-			Jade_Reference<WOR_WorldList> worldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
-			worldList.Resolve(queue: LOA_Loader.QueueType.Maps);
 
 			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map), serializeAction: async s => {
 				await loader.LoadLoopBINAsync();
@@ -304,6 +272,75 @@ namespace R1Engine
 				await loader.LoadLoop(context.Deserializer);
 			}
 			loader.EndSpeedMode();
+			loader.IsLoadingFix = false;
+
+			return worldList;
+		}
+
+		// Load
+		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) 
+        {
+			var stopWatch = new Stopwatch();
+			stopWatch.Start();
+
+			var loader = await LoadJadeAsync(context, (Jade_Key)(uint)context.GetR1Settings().Level);
+
+			stopWatch.Stop();
+
+			Debug.Log($"Loaded BINs in {stopWatch.ElapsedMilliseconds}ms");
+
+			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
+		}
+		public async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey) 
+        {
+            List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+			foreach (var bfPath in BFFiles) {
+				var bf = await LoadBF(context, bfPath);
+				bfs.Add(bf);
+			}
+			// Set up loader
+			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
+			context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+			// Load jade.spe
+			LoadJadeSPE(context);
+
+			// Create level list if null
+			if (LevelInfos == null) CreateLevelList(loader);
+
+			// Set up AI types
+			AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
+			context.StoreObject<AI_Links>(AIKey, aiLinks);
+
+			// Load univers
+			Controller.DetailedState = $"Loading universe";
+			await Controller.WaitIfNecessary();
+
+			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
+			univers.Resolve();
+			await loader.LoadLoop(context.Deserializer); // First resolve universe
+
+			// Load world
+			Controller.DetailedState = $"Loading worlds";
+			await Controller.WaitIfNecessary();
+
+			if (FixWorlds != null && LevelInfos != null) {
+				var levelInfos = LevelInfos;
+				foreach (var world in FixWorlds) {
+					var fixInfo = levelInfos.FindItem(li => li.MapName.Contains(world));
+					if (fixInfo != null) {
+						Jade_Key fixKey = (Jade_Key)fixInfo.Key;
+						if (fixKey == worldKey) {
+							UnityEngine.Debug.LogWarning($"Loading fix world with name {world} as a regular map world");
+							break;
+						}
+						var fixWorldList = await LoadWorldList(context, fixKey, isFix: true);
+					} else {
+						UnityEngine.Debug.LogWarning($"Fix world with name {world} could not be found");
+					}
+				}
+			}
+			var worldList = await LoadWorldList(context, worldKey);
 
 			return loader;
         }
@@ -311,6 +348,9 @@ namespace R1Engine
         public async UniTask LoadFilesAsync(Context context) {
 			foreach (var bfPath in BFFiles) {
 				await context.AddLinearSerializedFileAsync(bfPath, bigFileCacheLength: 8);
+			}
+			if (JadeSpePath != null) {
+				await context.AddLinearSerializedFileAsync(JadeSpePath);
 			}
 		}
         public async UniTask SaveLevelAsync(Context context, Unity_Level level) {

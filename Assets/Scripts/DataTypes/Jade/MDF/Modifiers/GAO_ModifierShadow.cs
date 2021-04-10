@@ -47,10 +47,12 @@ namespace R1Engine.Jade {
 			Float_2C = s.Serialize<float>(Float_2C, name: nameof(Float_2C));
 			UInt_30 = s.Serialize<uint>(UInt_30, name: nameof(UInt_30));
 			Byte_34 = s.Serialize<byte>(Byte_34, name: nameof(Byte_34));
-			HasGameObject = s.Serialize<bool>(HasGameObject, name: nameof(HasGameObject));
-			Short_36 = s.Serialize<short>(Short_36, name: nameof(Short_36));
-			if (HasGameObject) {
-				GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
+			if (s.GetR1Settings().Game != Game.Jade_BGE || !Loader.IsBinaryData) {
+				HasGameObject = s.Serialize<bool>(HasGameObject, name: nameof(HasGameObject));
+				Short_36 = s.Serialize<short>(Short_36, name: nameof(Short_36));
+				if (HasGameObject) {
+					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
+				}
 			}
 			Texture?.Resolve();
 		}

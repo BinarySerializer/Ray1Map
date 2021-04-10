@@ -12,7 +12,7 @@ namespace R1Engine.Jade {
 		HasActionData = 1 << 1,
 		DynOn = 1 << 2,
 		Flag3 = 1 << 3,
-		HasGEO_Object = 1 << 4,
+		HasLight = 1 << 4,
 		HasAI = 1 << 5,
 		HasExtendedUnknownData = 1 << 6,
 		Flag7 = 1 << 7,
