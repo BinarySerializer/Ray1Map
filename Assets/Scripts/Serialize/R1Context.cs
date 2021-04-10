@@ -66,11 +66,16 @@ namespace R1Engine
 
             private StreamWriter _logWriter;
 
-            protected StreamWriter LogWriter => _logWriter ??= new StreamWriter(File.Create(LogFile), Encoding.UTF8, BufferSize);
+            protected StreamWriter LogWriter => _logWriter ??= GetFile();
 
             public string OverrideLogPath { get; set; }
             public string LogFile => OverrideLogPath ?? R1Engine.Settings.LogFile;
             public int BufferSize => 0x8000000; // 1 GB
+
+            public StreamWriter GetFile()
+            {
+                return new StreamWriter(File.Open(LogFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite), Encoding.UTF8, BufferSize);
+            }
 
             public void Log(object obj)
             {
