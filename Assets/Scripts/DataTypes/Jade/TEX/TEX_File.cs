@@ -1,6 +1,5 @@
 ﻿using BinarySerializer;
 using System;
-using System.Linq;
 using UnityEngine;
 
 namespace R1Engine.Jade
@@ -72,7 +71,24 @@ namespace R1Engine.Jade
                     case TexFileFormat.Tga:
                         if (IsContent)
                         {
-                            Content_TGA = s.SerializeObject<TGA>(Content_TGA, name: nameof(Content_TGA));
+                            TGA.RGBColorFormat colorFormat;
+
+                            switch (s.GetR1Settings().EngineVersion)
+                            {
+                                case EngineVersion.Jade_RRR_PC:
+                                case EngineVersion.Jade_BGE_PC:
+                                    colorFormat = TGA.RGBColorFormat.BGR;
+                                    break;
+
+                                case EngineVersion.Jade_RRR_Xbox360:
+                                case EngineVersion.Jade_RRR_PS2:
+                                case EngineVersion.Jade_BGE_PS2:
+                                default:
+                                    colorFormat = TGA.RGBColorFormat.RGB;
+                                    break;
+                            }
+
+                            Content_TGA = s.SerializeObject<TGA>(Content_TGA, x => x.ColorFormat = colorFormat, name: nameof(Content_TGA));
                             hasReadContent = true;
                         }
                         break;
