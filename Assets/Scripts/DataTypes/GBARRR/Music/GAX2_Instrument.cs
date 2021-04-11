@@ -14,8 +14,9 @@ namespace R1Engine
         public Pointer<GAX2_InstrumentVolumeEnvelope> Pointer_0C { get; set; }
         public uint UInt_10 { get; set; }
         public Pointer<GAX2_InstrumentConfig2> Pointer_14 { get; set; }
-        public sbyte Pitch1 { get; set; }
-        public sbyte Pitch2 { get; set; }
+        public byte FineTune { get; set; }
+        public byte RelativeNoteNumberSmall { get; set; }
+        public sbyte RelativeNoteNumberBig { get; set; }
         public short Short_1A { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -28,8 +29,11 @@ namespace R1Engine
             Pointer_0C = s.SerializePointer<GAX2_InstrumentVolumeEnvelope>(Pointer_0C, resolve: true, name: nameof(Pointer_0C));
             UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
             Pointer_14 = s.SerializePointer<GAX2_InstrumentConfig2>(Pointer_14, resolve: true, name: nameof(Pointer_14));
-            Pitch1 = s.Serialize<sbyte>(Pitch1, name: nameof(Pitch1));
-            Pitch2 = s.Serialize<sbyte>(Pitch2, name: nameof(Pitch2));
+            s.SerializeBitValues<byte>(bitFunc => {
+                FineTune = (byte)bitFunc(FineTune, 5, name: nameof(FineTune));
+                RelativeNoteNumberSmall = (byte)bitFunc(RelativeNoteNumberSmall, 3, name: nameof(RelativeNoteNumberSmall));
+            });
+            RelativeNoteNumberBig = s.Serialize<sbyte>(RelativeNoteNumberBig, name: nameof(RelativeNoteNumberBig));
             Short_1A = s.Serialize<short>(Short_1A, name: nameof(Short_1A));
         }
     }

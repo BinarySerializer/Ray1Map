@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -45,11 +46,14 @@ namespace R1Engine {
 
             XM_Sample smp = new XM_Sample();
             smp.SampleName = "Sample " + gax_instr.Sample;
-            smp.SampleData16 = ConvertSample(song.Samples[index].Sample); //song.Samples[index].Sample.Select(b => (sbyte)(b - 128)).ToArray();
+            smp.SampleData16 = ConvertSample(song.Samples[index].Sample);
             smp.Type = 1 << 4; // 16 bit sample data
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
-            //smp.FineTune = gax_instr.Pitch1;
-            smp.RelativeNoteNumber = (sbyte)(gax_instr.Pitch2 * 10);
+
+            smp.RelativeNoteNumber = (sbyte)(gax_instr.RelativeNoteNumberBig * 8);
+            smp.RelativeNoteNumber += (sbyte)gax_instr.RelativeNoteNumberSmall;
+            smp.RelativeNoteNumber -= 1;
+            smp.FineTune = (sbyte)(gax_instr.FineTune*4);
 
             XM_Instrument instr = new XM_Instrument();
             instr.InstrumentName = "Instrument " + ind;
