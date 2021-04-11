@@ -8,8 +8,13 @@ namespace R1Engine.Jade
     // TEX_l_File_Read reads the texture header, after that GDI_l_AttachWorld resolves some references (for animated textures) and adds palette references
     public class TEX_File : Jade_File {
         public bool IsContent { get; set; }
-        public bool HasContent => FileFormat != TexFileFormat.RawPal;
-        public bool CanHaveFontDesc => FileFormat == TexFileFormat.Tga
+        public bool HasContent
+            => FileFormat != TexFileFormat.RawPal
+            && FileFormat != TexFileFormat.Procedural
+            && FileFormat != TexFileFormat.SpriteGen;
+
+        public bool CanHaveFontDesc
+            => FileFormat == TexFileFormat.Tga
             || FileFormat == TexFileFormat.Bmp
             || FileFormat == TexFileFormat.Jpeg
             || FileFormat == TexFileFormat.Raw
@@ -29,6 +34,8 @@ namespace R1Engine.Jade
 
         public TEX_Content_RawPal Content_RawPal { get; set; }
         public TGA Content_TGA { get; set; }
+        public TEX_Content_Procedural Content_Procedural { get; set; }
+        public MAT_SpriteGen Content_SpriteGen { get; set; }
         public byte[] Content { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
@@ -53,6 +60,7 @@ namespace R1Engine.Jade
                     s.Goto(Offset);
 
                 bool hasReadContent = false;
+                uint contentSize = FileSize - (uint)(s.CurrentPointer - Offset);
                 switch (FileFormat) 
                 {
                     case TexFileFormat.RawPal:
@@ -62,9 +70,20 @@ namespace R1Engine.Jade
                         Content_RawPal = s.SerializeObject<TEX_Content_RawPal>(Content_RawPal, c => c.Texture = this, name: nameof(Content_RawPal));
                         break;
 
-                    // Types 4, 5, 9 and 7 are loaded regardless of IsContent
-                    case TexFileFormat.SpriteGen:
                     case TexFileFormat.Procedural:
+                        if (contentSize > 0) {
+                            Content_Procedural = s.SerializeObject<TEX_Content_Procedural>(Content_Procedural, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Procedural));
+                            hasReadContent = true;
+                        }
+                        break;
+
+                    case TexFileFormat.SpriteGen:
+                        if (contentSize > 0) {
+                            Content_SpriteGen = s.SerializeObject<MAT_SpriteGen>(Content_SpriteGen, name: nameof(Content_SpriteGen));
+                        }
+                        hasReadContent = true;
+                        break;
+
                     case TexFileFormat.Animated:
                         throw new NotImplementedException($"TEX_File: Load header for type {FileFormat}");
 

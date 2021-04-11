@@ -239,6 +239,8 @@ namespace R1Engine
 			// Set up texture list
 			TEX_GlobalList texList = new TEX_GlobalList();
 			context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+			loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
+			loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
 
 			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map), serializeAction: async s => {
 				await loader.LoadLoopBINAsync();

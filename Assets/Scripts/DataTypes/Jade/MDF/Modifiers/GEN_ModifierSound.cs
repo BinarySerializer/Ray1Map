@@ -94,7 +94,7 @@ namespace R1Engine.Jade
                         }
                     } else {
                         BGE_UnknownBank = new Jade_Reference<SND_UnknownBank>(Context, BGE_SoundKey);
-                        BGE_UnknownBank?.Resolve();
+                        BGE_UnknownBank?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
                     }
                     if (!Loader.IsBinaryData) BGE_UInt_16_Editor = s.Serialize<uint>(BGE_UInt_16_Editor, name: nameof(BGE_UInt_16_Editor));
                     BGE_Float_17 = s.Serialize<float>(BGE_Float_17, name: nameof(BGE_Float_17));
