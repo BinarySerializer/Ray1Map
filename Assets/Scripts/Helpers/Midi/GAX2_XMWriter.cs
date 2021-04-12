@@ -11,6 +11,7 @@ namespace R1Engine {
 	public class GAX2_XMWriter {
         public XM ConvertToXM(GAX2_Song song) {
             XM xm = new XM();
+            UnityEngine.Debug.Log($"Exporting song: {song.ParsedName}");
             xm.ModuleName = song.ParsedName;
             xm.Instruments = song.InstrumentIndices.Select((s,i) => GetInstrument(song,i)).ToArray();
             xm.NumInstruments = (ushort)xm.Instruments.Length;
@@ -43,6 +44,7 @@ namespace R1Engine {
         public XM_Instrument GetInstrument(GAX2_Song song, int index) {
             int ind = song.InstrumentIndices[index];
             var gax_instr = song.InstrumentSet[ind].Value;
+            UnityEngine.Debug.Log($"(Instrumment {ind}) Sample:{gax_instr.Sample} - Pitch:{gax_instr.Pitch}");
 
             XM_Sample smp = new XM_Sample();
             smp.SampleName = "Sample " + gax_instr.Sample;
@@ -50,14 +52,54 @@ namespace R1Engine {
             smp.Type = 1 << 4; // 16 bit sample data
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
 
-            smp.RelativeNoteNumber = (sbyte)(gax_instr.RelativeNoteNumberBig * 8);
+            /*smp.RelativeNoteNumber = (sbyte)(gax_instr.RelativeNoteNumberBig * 8);
             smp.RelativeNoteNumber += (sbyte)gax_instr.RelativeNoteNumberSmall;
             smp.RelativeNoteNumber -= 1;
-            smp.FineTune = (sbyte)(gax_instr.FineTune*4);
+            smp.FineTune = (sbyte)(gax_instr.FineTune*4);*/
+            //if (song.Context.GetR1Settings().Game == Game.GBARRR_RavingRabbids) {
+            sbyte instrPitch = (sbyte)(gax_instr.Pitch / 32);
+            smp.RelativeNoteNumber = instrPitch;
+            smp.FineTune = (sbyte)((gax_instr.Pitch - (instrPitch * 32)) * 4);
+
+            /*} else {
+                smp.RelativeNoteNumber = (sbyte)(gax_instr.Pitch / 16);
+                smp.FineTune = (sbyte)((gax_instr.Pitch - (smp.RelativeNoteNumber * 16)) * 8);
+            }*/
+            smp.RelativeNoteNumber -= 1; // Notes in GAX seem to start at 1
 
             XM_Instrument instr = new XM_Instrument();
             instr.InstrumentName = "Instrument " + ind;
             instr.Samples = new XM_Sample[] { smp };
+
+            // Volume envelope
+            instr.NumVolumePoints = gax_instr.Envelope.Value.NumPointsVolume;
+            for (int i = 0; i < instr.NumVolumePoints; i++) {
+                instr.PointsForVolumeEnvelope[i * 2 + 0] = gax_instr.Envelope.Value.Points[i].X;
+                instr.PointsForVolumeEnvelope[i * 2 + 1] = (ushort)(gax_instr.Envelope.Value.Points[i].Y / 4);
+                // The values in gax's envelope are 0-255 - in XM's they are 0-64.
+                // However for GAX they all seem to be conversions from 0-64, i.e. no values that aren't 0 when doing % 4.
+                // Excpet for 0xFF which should be treated as 64
+            }
+            instr.VolumeLoopEndPoint = (byte)Math.Max(instr.NumVolumePoints - 1,0);
+            instr.VolumeLoopStartPoint = 0;
+            instr.VolumeSustainPoint = instr.VolumeLoopEndPoint;
+            instr.VolumeType = 1;
+
+            // Panning envelope
+            instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsPanning;
+            if (gax_instr.Envelope.Value.NumPointsPanning == 0xFF) {
+                instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsVolume;
+            } else {
+                instr.NumPanningPoints = gax_instr.Envelope.Value.NumPointsPanning;
+            }
+            for (int i = 0; i < instr.NumPanningPoints; i++) {
+                instr.PointsForPanningEnvelope[i * 2 + 0] = gax_instr.Envelope.Value.Points[i].X;
+                instr.PointsForPanningEnvelope[i * 2 + 1] = 32;// gax_instr.Envelope.Value.Points[i].Short_02;
+                UnityEngine.Debug.Log($"PP: {gax_instr.Envelope.Value.Points[i].Short_02}");
+            }
+            instr.PanningLoopEndPoint = 0;
+            instr.PanningLoopStartPoint = 0;
+            instr.PanningSustainPoint = 0;
             return instr;
         }
 
