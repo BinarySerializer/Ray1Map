@@ -44,7 +44,6 @@ namespace R1Engine {
         public XM_Instrument GetInstrument(GAX2_Song song, int index) {
             int ind = song.InstrumentIndices[index];
             var gax_instr = song.InstrumentSet[ind].Value;
-            UnityEngine.Debug.Log($"(Instrumment {ind}) Sample:{gax_instr.Sample} - Pitch:{gax_instr.Pitch}");
 
             XM_Sample smp = new XM_Sample();
             smp.SampleName = "Sample " + gax_instr.Sample;
@@ -56,16 +55,16 @@ namespace R1Engine {
             smp.RelativeNoteNumber += (sbyte)gax_instr.RelativeNoteNumberSmall;
             smp.RelativeNoteNumber -= 1;
             smp.FineTune = (sbyte)(gax_instr.FineTune*4);*/
-            //if (song.Context.GetR1Settings().Game == Game.GBARRR_RavingRabbids) {
-            sbyte instrPitch = (sbyte)(gax_instr.Pitch / 32);
-            smp.RelativeNoteNumber = instrPitch;
+            int instrPitch = (gax_instr.Pitch / 32);
+            int relNote = (gax_instr.InstrumentConfig.Value.RelativeNoteNumber & 63);
+            int relativeNoteNumber =
+                instrPitch
+                + (gax_instr.InstrumentConfig.Value.Byte_01 == 1 ? -1 : 1) * relNote
+                - 2
+                - 1; // GAX notes start at 1
+            UnityEngine.Debug.Log($"(Instrumment {ind}) Sample:{gax_instr.Sample} - Pitch:{gax_instr.Pitch} - Relative Note Number:{relativeNoteNumber}");
+            smp.RelativeNoteNumber = (sbyte)relativeNoteNumber;
             smp.FineTune = (sbyte)((gax_instr.Pitch - (instrPitch * 32)) * 4);
-
-            /*} else {
-                smp.RelativeNoteNumber = (sbyte)(gax_instr.Pitch / 16);
-                smp.FineTune = (sbyte)((gax_instr.Pitch - (smp.RelativeNoteNumber * 16)) * 8);
-            }*/
-            smp.RelativeNoteNumber -= 1; // Notes in GAX seem to start at 1
 
             XM_Instrument instr = new XM_Instrument();
             instr.InstrumentName = "Instrument " + ind;
@@ -82,7 +81,7 @@ namespace R1Engine {
             }
             instr.VolumeLoopEndPoint = (byte)Math.Max(instr.NumVolumePoints - 1,0);
             instr.VolumeLoopStartPoint = 0;
-            instr.VolumeSustainPoint = instr.VolumeLoopEndPoint;
+            instr.VolumeSustainPoint = 0;
             instr.VolumeType = 1;
 
             // Panning envelope
@@ -95,7 +94,7 @@ namespace R1Engine {
             for (int i = 0; i < instr.NumPanningPoints; i++) {
                 instr.PointsForPanningEnvelope[i * 2 + 0] = gax_instr.Envelope.Value.Points[i].X;
                 instr.PointsForPanningEnvelope[i * 2 + 1] = 32;// gax_instr.Envelope.Value.Points[i].Short_02;
-                UnityEngine.Debug.Log($"PP: {gax_instr.Envelope.Value.Points[i].Short_02}");
+                //UnityEngine.Debug.Log($"PP: {gax_instr.Envelope.Value.Points[i].Short_02}");
             }
             instr.PanningLoopEndPoint = 0;
             instr.PanningLoopStartPoint = 0;
