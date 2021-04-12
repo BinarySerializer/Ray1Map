@@ -51,20 +51,23 @@ namespace R1Engine {
             smp.Type = 1 << 4; // 16 bit sample data
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
 
-            /*smp.RelativeNoteNumber = (sbyte)(gax_instr.RelativeNoteNumberBig * 8);
-            smp.RelativeNoteNumber += (sbyte)gax_instr.RelativeNoteNumberSmall;
-            smp.RelativeNoteNumber -= 1;
-            smp.FineTune = (sbyte)(gax_instr.FineTune*4);*/
             int instrPitch = (gax_instr.Pitch / 32);
             int relNote = (gax_instr.InstrumentConfig.Value.RelativeNoteNumber & 63);
             int relativeNoteNumber =
-                instrPitch
-                + (gax_instr.InstrumentConfig.Value.Byte_01 == 1 ? -1 : 1) * relNote
-                - 2
-                - 1; // GAX notes start at 1
-            UnityEngine.Debug.Log($"(Instrumment {ind}) Sample:{gax_instr.Sample} - Pitch:{gax_instr.Pitch} - Relative Note Number:{relativeNoteNumber}");
+                instrPitch - 1 // GAX notes start at 1
+                + (gax_instr.InstrumentConfig.Value.Byte_01 == 1 ? -1 : 1) * relNote - 2;
+            UnityEngine.Debug.Log($"(Instrument {ind}) Sample:{gax_instr.Sample}" +
+                $" - Pitch:{gax_instr.Pitch}" +
+                $" - Relative Note Number:{relativeNoteNumber}" +
+                $" - Cfg1:{gax_instr.InstrumentConfig.Value.Byte_01}" +
+                $" - CfgRelNote:{relNote}" +
+                $"");
             smp.RelativeNoteNumber = (sbyte)relativeNoteNumber;
             smp.FineTune = (sbyte)((gax_instr.Pitch - (instrPitch * 32)) * 4);
+            if (ind == 0) {
+                smp.RelativeNoteNumber = 0;
+                smp.FineTune = 0;
+            }
 
             XM_Instrument instr = new XM_Instrument();
             instr.InstrumentName = "Instrument " + ind;
