@@ -135,6 +135,7 @@ namespace R1Engine.Jade
             return FileFormat switch
             {
                 TexFileFormat.Raw => null, // Gets parsed from RawPal
+                TexFileFormat.SpriteGen => null, // Points to a RawPal
                 TexFileFormat.RawPal => Content_RawPal.References[0].ToTexture2D(),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
                 TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
