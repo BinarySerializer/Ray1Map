@@ -205,9 +205,9 @@ namespace R1Engine
 
 			var str = new StringBuilder();
 
-			foreach (var kv in levels.OrderBy(l => l.Value.DirectoryName).ThenBy(l => l.Value.FileName)) 
+			foreach (var kv in levels.OrderBy(l => l.Value?.DirectoryName).ThenBy(l => l.Value?.FileName)) 
             {
-				str.AppendLine($"new LevelInfo(0x{kv.Key:X8}, \"{kv.Value.DirectoryName}\", \"{kv.Value.FileName}\"),");
+				str.AppendLine($"new LevelInfo(0x{kv.Key:X8}, \"{kv.Value?.DirectoryName}\", \"{kv.Value?.FileName}\"),");
 				//Debug.Log($"{kv.Key:X8} - {kv.Value }");
 			}
 

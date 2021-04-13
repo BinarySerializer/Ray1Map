@@ -48,6 +48,7 @@ namespace R1Engine.Jade {
 			AI_Links links = null;
 			switch (settings.GameModeSelection) {
 				case GameModeSelection.RaymanRavingRabbidsPC:
+				case GameModeSelection.RaymanRavingRabbidsPCDemo:
 				case GameModeSelection.RaymanRavingRabbidsPS2:
 					links = new AI_Links_RRR_Wii();
 					break;
