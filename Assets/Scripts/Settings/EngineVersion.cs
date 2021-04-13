@@ -131,6 +131,7 @@ namespace R1Engine
         // Jade
 
         Jade_RRR_PC,
+        Jade_RRR_Wii,
         Jade_RRR_Xbox360,
         Jade_RRR_PS2,
         Jade_BGE_PC,
