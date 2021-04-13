@@ -56,6 +56,7 @@ namespace R1Engine.Jade {
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			loader.RequestFile(Key, (s, configureAction) => {
 				Content = s.SerializeObject<TEX_File>(Content, onPreSerialize: f => {
+					f.Info = Info;
 					configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
 				}, name: nameof(Content));
 				onPostSerialize?.Invoke(s, Content);

@@ -9,9 +9,21 @@ namespace R1Engine.Jade
     public class TEX_File : Jade_File {
         public bool IsContent { get; set; }
         public bool HasContent
-            => FileFormat != TexFileFormat.RawPal
+            => (FileFormat != TexFileFormat.RawPal || (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && ContentKey != null)) // On Xbox 360 it resolves the raw texture
             && FileFormat != TexFileFormat.Procedural
-            && FileFormat != TexFileFormat.SpriteGen;
+            && FileFormat != TexFileFormat.SpriteGen
+            && (FileFormat != TexFileFormat.Raw || Context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRR_Xbox360);
+
+        public Jade_Key ContentKey {
+            get {
+                if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && FileFormat == TexFileFormat.RawPal) {
+                    return Content_RawPal?.UsedReference.TextureRef.Key;
+                } else {
+                    return Key;
+                }
+            }
+        }
+        public TEX_File Info { get; set; } // Set in onPreSerialize
 
         public bool CanHaveFontDesc
             => FileFormat == TexFileFormat.Tga
@@ -124,8 +136,13 @@ namespace R1Engine.Jade
                         }
                         break;
                 }
-                if (hasReadContent && (Flags & 0x40) != 0 && CanHaveFontDesc) {
-                    FontDesc?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+                if (hasReadContent && (Flags & 0x40) != 0 && CanHaveFontDesc && !FontDesc.IsNull) {
+                    TEX_GlobalList lists = Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
+                    var keyForTexture = Info?.ContentKey ?? ContentKey ?? Key;
+                    if (!lists.FontDescriptors.ContainsKey(keyForTexture)) {
+                        FontDesc?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+                        lists.FontDescriptors[keyForTexture] = FontDesc;
+                    }
                 }
             }
         }

@@ -14,18 +14,23 @@ namespace R1Engine.Jade
             if (!(Texture.FileSize > 0x50 || Texture.FileSize % 4 != 0)) {
                 var count = (Texture.FileSize - (s.CurrentPointer - Texture.Offset)) / 12;
                 References = s.SerializeObjectArray<TexPaletteReference>(References, count, name: nameof(References));
-                //if((Texture.Flags & 512) != 0) return;
-                var palOrder = GetPaletteOrder(s.GetR1Settings());
+                UsedReference?.Resolve();
+            }
+        }
+
+        public TexPaletteReference UsedReference {
+            get {
+                var palOrder = GetPaletteOrder(Context.GetR1Settings());
                 for (int i = 0; i < palOrder.Length; i++) {
                     var pi = palOrder[i];
                     if (pi == -1) break;
                     if (pi >= References.Length) continue;
                     var reference = References[pi];
                     if (!reference.RawTexture.IsNull || !reference.Palette.IsNull || !reference.Unknown.IsNull) {
-                        reference.Resolve();
-                        break;
+                        return reference;
                     }
                 }
+                return null;
             }
         }
 
@@ -54,6 +59,16 @@ namespace R1Engine.Jade
             }
 
             public bool HasTexture => RawTexture?.Info != null || Palette?.Value != null || Unknown?.Info != null;
+
+            public Jade_TextureReference TextureRef {
+                get {
+                    if (RawTexture.IsNull && Palette.IsNull) {
+                        return Unknown;
+                    } else {
+                        return RawTexture;
+                    }
+                }
+            }
 
             public void Resolve() {
                 if (RawTexture.IsNull && Palette.IsNull) {

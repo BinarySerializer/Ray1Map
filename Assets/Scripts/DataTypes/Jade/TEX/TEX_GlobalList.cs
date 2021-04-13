@@ -9,6 +9,7 @@ namespace R1Engine.Jade {
 
 		private Dictionary<Jade_Key, List<Jade_PaletteReference>> KeyPaletteDictionary { get; set; }
 		private Dictionary<Jade_Key, List<Jade_TextureReference>> KeyTextureDictionary { get; set; }
+		public Dictionary<Jade_Key, Jade_Reference<STR_FontDescriptor>> FontDescriptors { get; set; } = new Dictionary<Jade_Key, Jade_Reference<STR_FontDescriptor>>(); // Texture key - font descriptor
 
 		public void AddTexture(Jade_TextureReference tex) {
 			if (tex == null || tex.IsNull) return;

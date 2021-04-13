@@ -268,6 +268,12 @@ namespace R1Engine
 					for (int i = 0; i < texList.Textures.Count; i++) {
 						texList.Textures[i].LoadContent();
 						await loader.LoadLoopBINAsync();
+						if (texList.Textures[i].Content != null && texList.Textures[i].Info.FileFormat != TEX_File.TexFileFormat.RawPal) {
+							if (texList.Textures[i].Content.Width != texList.Textures[i].Info.Width ||
+								texList.Textures[i].Content.Height != texList.Textures[i].Content.Height) {
+								throw new Exception($"Info & Content width/height mismatch for texture with key {texList.Textures[i].Key}");
+							}
+						}
 					}
 					texList.FillInReferences();
 				});
