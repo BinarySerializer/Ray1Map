@@ -136,7 +136,7 @@ namespace R1Engine.Jade
             {
                 TexFileFormat.Raw => null, // Gets parsed from RawPal
                 TexFileFormat.SpriteGen => null, // Points to a RawPal
-                TexFileFormat.RawPal => Content_RawPal.References[0].ToTexture2D(),
+                TexFileFormat.RawPal => Content_RawPal.References.FindItem(t => t.HasTexture)?.ToTexture2D(),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
                 TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
                 _ => throw new NotImplementedException($"TODO: Implement texture type {FileFormat}")

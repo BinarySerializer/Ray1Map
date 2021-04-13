@@ -67,5 +67,8 @@ namespace R1Engine.Jade {
 			name: typeof(TEX_File).Name);
 			return this;
 		}
+
+		public override bool IsShortLog => true;
+		public override string ShortLog => Key.ToString();
 	}
 }

@@ -14,7 +14,13 @@ namespace R1Engine.Jade
             if (!(Texture.FileSize > 0x50 || Texture.FileSize % 4 != 0)) {
                 var count = (Texture.FileSize - (s.CurrentPointer - Texture.Offset)) / 12;
                 References = s.SerializeObjectArray<TexPaletteReference>(References, count, name: nameof(References));
-                foreach (var reference in References) {
+                //if((Texture.Flags & 512) != 0) return;
+                var palOrder = GetPaletteOrder(s.GetR1Settings());
+                for (int i = 0; i < palOrder.Length; i++) {
+                    var pi = palOrder[i];
+                    if (pi == -1) break;
+                    if (pi >= References.Length) continue;
+                    var reference = References[pi];
                     if (!reference.RawTexture.IsNull || !reference.Palette.IsNull || !reference.Unknown.IsNull) {
                         reference.Resolve();
                         break;
@@ -23,19 +29,41 @@ namespace R1Engine.Jade
             }
         }
 
-		public class TexPaletteReference : BinarySerializable {
+        public static sbyte[] GetPaletteOrder(GameSettings settings) {
+            switch (settings.GameModeSelection) {
+                case GameModeSelection.RaymanRavingRabbidsWii:
+                    return PaletteOrderWii;
+                case GameModeSelection.RaymanRavingRabbidsXbox360:
+                    return PaletteOrderXbox360;
+                default:
+                    return PaletteOrderPC;
+            }
+        }
+        public static sbyte[] PaletteOrderWii = new sbyte[] { 1, 0, -1, -1 };
+        public static sbyte[] PaletteOrderPC = new sbyte[] { 0, -1, -1, -1 };
+        public static sbyte[] PaletteOrderXbox360 = new sbyte[] { 0, 2, -1, -1 };
+
+        public class TexPaletteReference : BinarySerializable {
             public Jade_TextureReference RawTexture { get; set; }
             public Jade_PaletteReference Palette { get; set; }
-            public Jade_Key Unknown { get; set; }
+            public Jade_TextureReference Unknown { get; set; }
             public override void SerializeImpl(SerializerObject s) {
 				RawTexture = s.SerializeObject<Jade_TextureReference>(RawTexture, name: nameof(RawTexture));
                 Palette = s.SerializeObject<Jade_PaletteReference>(Palette, name: nameof(Palette));
-                Unknown = s.SerializeObject<Jade_Key>(Unknown, name: nameof(Unknown));
+                Unknown = s.SerializeObject<Jade_TextureReference>(Unknown, name: nameof(Unknown));
             }
 
+            public bool HasTexture => RawTexture?.Info != null || Palette?.Value != null || Unknown?.Info != null;
+
             public void Resolve() {
-                RawTexture?.Resolve();
-                Palette?.Resolve();
+                if (RawTexture.IsNull && Palette.IsNull) {
+                    Unknown?.Resolve();
+                } else {//if (Unknown.IsNull) {
+                    RawTexture?.Resolve();
+                    Palette?.Resolve();
+                } /*else {
+                    //throw new NotImplementedException("TODO: Implement RawPal textures where 
+                }*/
             }
             public Texture2D ToTexture2D()
             {
@@ -45,7 +73,7 @@ namespace R1Engine.Jade
                 if (texture == null || pal == null)
                     return null;
 
-                if (texture.ColorFormat != TEX_File.TexColorFormat.BPP_4&& texture.ColorFormat != TEX_File.TexColorFormat.BPP_8)
+                if (texture.ColorFormat != TEX_File.TexColorFormat.BPP_4 && texture.ColorFormat != TEX_File.TexColorFormat.BPP_8)
                     throw new NotImplementedException($"Unsupported raw texture format {texture.ColorFormat}");
 
                 var tex = TextureHelpers.CreateTexture2D(texture.Width, texture.Height);

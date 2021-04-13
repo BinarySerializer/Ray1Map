@@ -45,5 +45,8 @@ namespace R1Engine.Jade {
 			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 			return this;
 		}
+
+		public override bool IsShortLog => true;
+		public override string ShortLog => Key.ToString();
 	}
 }

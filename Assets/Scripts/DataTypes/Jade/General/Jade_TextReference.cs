@@ -21,5 +21,8 @@ namespace R1Engine.Jade {
 		public Jade_TextReference Resolve() {
 			return this;
 		}
+
+		public override bool IsShortLog => true;
+		public override string ShortLog => Key.ToString();
 	}
 }
