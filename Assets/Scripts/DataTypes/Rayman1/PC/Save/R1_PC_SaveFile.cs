@@ -41,7 +41,7 @@ namespace R1Engine
         public ushort WorldIndex { get; set; }
 
         // First byte is a flag for having beaten specific bosses
-        public ushort FinBossLevel { get; set; }
+        public R1_FinBossLevel FinBossLevel { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -65,7 +65,7 @@ namespace R1Engine
 
             BonusPerfect = s.SerializeArray<byte>(BonusPerfect, 24, name: nameof(BonusPerfect));
             WorldIndex = s.Serialize<ushort>(WorldIndex, name: nameof(WorldIndex));
-            FinBossLevel = s.Serialize<ushort>(FinBossLevel, name: nameof(FinBossLevel));
+            FinBossLevel = s.Serialize<R1_FinBossLevel>(FinBossLevel, name: nameof(FinBossLevel));
         }
     }
 }
