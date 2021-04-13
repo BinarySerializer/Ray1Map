@@ -244,14 +244,19 @@ namespace R1Engine.Jade {
 			s.Goto(curPointer);
 		}
 
-		private Jade_File GetLoadedFile(Jade_Key key) {
-			if(Cache.ContainsKey(key)) return Cache[key];
+		private bool GetLoadedFile(Jade_Key key, out Jade_File loadedFile) {
+			if (Cache.ContainsKey(key)) {
+				loadedFile = Cache[key];
+				return true;
+			}
 			if (!IsLoadingFix && SpecialArray != null) {
 				if (SpecialArray.Lookup.Contains(key) && Caches[CacheType.Fix].ContainsKey(key)) {
-					return Caches[CacheType.Fix][key];
+					loadedFile = Caches[CacheType.Fix][key];
+					return true;
 				}
 			}
-			return null;
+			loadedFile = null;
+			return false;
 		}
 
 		private void LoadLoopBIN_ResolveReference(FileReference currentRef) {
@@ -259,8 +264,9 @@ namespace R1Engine.Jade {
 			uint FileSize = 0;
 			s.Goto(Bin.CurrentPosition);
 			CurrentCacheType = currentRef.Cache;
-			var loadedFile = GetLoadedFile(currentRef.Key);
-			if (loadedFile != null) {
+
+			bool hasLoadedFile = GetLoadedFile(currentRef.Key, out Jade_File loadedFile);
+			if (hasLoadedFile) {
 				var f = loadedFile;
 				if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
@@ -285,7 +291,9 @@ namespace R1Engine.Jade {
 						if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
 					});
 				} else {
-					if (!Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[currentRef.Key] = null;
+					if (!Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) {
+						Cache[currentRef.Key] = null;
+					}
 				}
 				if (ReadSizes && !currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 					s.Goto(Bin.CurrentPosition); // count size uint and actual file
