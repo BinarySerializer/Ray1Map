@@ -114,6 +114,20 @@ namespace R1Engine
                             y++;
                         }
                     }
+                    else if (chunk.LiteralFLC != null)
+                    {
+                        var imgData = chunk.LiteralFLC.ImgData;
+
+                        var p = 0;
+
+                        for (int y = 0; y < Height; y++)
+                        {
+                            for (int x = 0; x < Width; x++)
+                            {
+                                tex.SetPixel(x, tex.height - y - 1, palette[imgData[p++]]);
+                            }
+                        }
+                    }
                 }
 
                 tex.Apply();

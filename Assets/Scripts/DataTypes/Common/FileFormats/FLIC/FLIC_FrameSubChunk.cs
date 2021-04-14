@@ -10,6 +10,7 @@ namespace R1Engine
         public FLIC_Color256 Color256 { get; set; }
         public FLIC_ByteRun ByteRun { get; set; }
         public FLIC_DeltaFLC DeltaFLC { get; set; }
+        public FLIC_LiteralFLC LiteralFLC { get; set; }
 
         public override void SerializeChunkData(SerializerObject s)
         {
@@ -19,6 +20,8 @@ namespace R1Engine
                 DeltaFLC = s.SerializeObject<FLIC_DeltaFLC>(DeltaFLC, name: nameof(DeltaFLC));
             else if (ChunkType == 0x0F)
                 ByteRun = s.SerializeObject<FLIC_ByteRun>(ByteRun, x => x.Flic = Flic, name: nameof(ByteRun));
+            else if (ChunkType == 0x10)
+                LiteralFLC = s.SerializeObject<FLIC_LiteralFLC>(LiteralFLC, x => x.Flic = Flic, name: nameof(LiteralFLC));
             else
                 SerializeUnknownData(s);
         }
