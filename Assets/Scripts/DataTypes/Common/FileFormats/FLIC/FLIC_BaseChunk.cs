@@ -21,7 +21,8 @@ namespace R1Engine
             var endOffset = Offset + ChunkSize;
             if (s.CurrentPointer != endOffset)
             {
-                Debug.LogWarning($"Chunk size doesn't match! Type: {ChunkType}, Size: {ChunkSize}, Parsed: {s.CurrentPointer - Offset}");
+                if (Mathf.Abs(s.CurrentPointer - Offset - ChunkSize) >= 4)
+                    Debug.LogWarning($"Chunk size doesn't match! Type: {ChunkType}, Size: {ChunkSize}, Parsed: {s.CurrentPointer - Offset}");
                 s.Goto(endOffset);
             }
         }
@@ -30,7 +31,7 @@ namespace R1Engine
 
         public void SerializeUnknownData(SerializerObject s)
         {
-            Debug.LogWarning($"Unknown FLIC chunk type {ChunkType} of size {ChunkSize}");
+            Debug.LogWarning($"Unknown FLIC chunk type {ChunkType} of size {ChunkSize} at {Offset}");
             Chunk_Data = s.SerializeArray<byte>(Chunk_Data, ChunkSize - 6, name: nameof(Chunk_Data));
         }
     }

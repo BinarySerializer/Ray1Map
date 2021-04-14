@@ -107,6 +107,12 @@ namespace R1Engine
         /// <returns>The primary sound manifest file path</returns>
         public virtual string GetSoundManifestFilePath() => $"SNDH8B.DAT";
 
+        public virtual string[] GetMoviePaths => new string[]
+        {
+            "INTRO.DAT",
+            "CONCLU.DAT",
+        };
+
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
@@ -976,6 +982,7 @@ namespace R1Engine
                 new GameAction("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
                 new GameAction("Export ETA Info", false, true, (input, output) => ExportETAInfo(settings, output, false)),
                 new GameAction("Export ETA Info (extended)", false, true, (input, output) => ExportETAInfo(settings, output, true)),
+                new GameAction("Export Movies", false, true, (input, output) => ExportMoviesAsync(settings, output)),
             };
         }
 
@@ -1121,6 +1128,25 @@ namespace R1Engine
 
                 // Export
                 PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), pal.SelectMany(x => x).ToArray(), optionalWrap: 256);
+            }
+        }
+
+        public async UniTask ExportMoviesAsync(GameSettings settings, string outputDir)
+        {
+            using (var context = new R1Context(settings))
+            {
+                foreach (var moviePath in GetMoviePaths)
+                {
+                    await context.AddLinearSerializedFileAsync(moviePath);
+
+                    var flc = FileFactory.Read<FLIC>(moviePath, context);
+
+                    flc.Speed = 83;
+
+                    // Export
+                    using var collection = flc.ToMagickImageCollection();
+                    collection.Write(Path.Combine(outputDir, $"{Path.GetFileNameWithoutExtension(moviePath)}.gif"));
+                }
             }
         }
 

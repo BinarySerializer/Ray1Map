@@ -145,20 +145,29 @@ namespace R1Engine
             FramesCount = s.Serialize<ushort>(FramesCount, name: nameof(FramesCount));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
-            BitsPerPixel = s.Serialize<ushort>(BitsPerPixel, name: nameof(BitsPerPixel));
-            Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
-            Speed = s.Serialize<uint>(Speed, name: nameof(Speed));
-            Ushort_14 = s.Serialize<ushort>(Ushort_14, name: nameof(Ushort_14));
-            CreationDate = s.Serialize<uint>(CreationDate, name: nameof(CreationDate));
-            CreationProgramSerialNum = s.Serialize<uint>(CreationProgramSerialNum, name: nameof(CreationProgramSerialNum));
-            UpdatedDate = s.Serialize<uint>(UpdatedDate, name: nameof(UpdatedDate));
-            UpdatedProgramSerialNum = s.Serialize<uint>(UpdatedProgramSerialNum, name: nameof(UpdatedProgramSerialNum));
-            AspectX = s.Serialize<ushort>(AspectX, name: nameof(AspectX));
-            AspectY = s.Serialize<ushort>(AspectY, name: nameof(AspectY));
-            Reserved_0 = s.SerializeArray<byte>(Reserved_0, 38, name: nameof(Reserved_0));
-            FirstFramePointer = s.SerializePointer(FirstFramePointer, name: nameof(FirstFramePointer));
-            SecondFramePointer = s.SerializePointer(SecondFramePointer, name: nameof(SecondFramePointer));
-            Reserved_1 = s.SerializeArray<byte>(Reserved_1, 40, name: nameof(Reserved_1));
+
+            if (FileSize != 12)
+            {
+                BitsPerPixel = s.Serialize<ushort>(BitsPerPixel, name: nameof(BitsPerPixel));
+                Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
+                Speed = s.Serialize<uint>(Speed, name: nameof(Speed));
+                Ushort_14 = s.Serialize<ushort>(Ushort_14, name: nameof(Ushort_14));
+                CreationDate = s.Serialize<uint>(CreationDate, name: nameof(CreationDate));
+                CreationProgramSerialNum = s.Serialize<uint>(CreationProgramSerialNum, name: nameof(CreationProgramSerialNum));
+                UpdatedDate = s.Serialize<uint>(UpdatedDate, name: nameof(UpdatedDate));
+                UpdatedProgramSerialNum = s.Serialize<uint>(UpdatedProgramSerialNum, name: nameof(UpdatedProgramSerialNum));
+                AspectX = s.Serialize<ushort>(AspectX, name: nameof(AspectX));
+                AspectY = s.Serialize<ushort>(AspectY, name: nameof(AspectY));
+                Reserved_0 = s.SerializeArray<byte>(Reserved_0, 38, name: nameof(Reserved_0));
+                FirstFramePointer = s.SerializePointer(FirstFramePointer, name: nameof(FirstFramePointer), allowInvalid: true);
+                SecondFramePointer = s.SerializePointer(SecondFramePointer, name: nameof(SecondFramePointer), allowInvalid: true);
+                Reserved_1 = s.SerializeArray<byte>(Reserved_1, 40, name: nameof(Reserved_1));
+            }
+            else
+            {
+                Speed = 30;
+                FileSize = s.CurrentLength;
+            }
 
             Chunks = s.SerializeObjectArrayUntil(Chunks, x => s.CurrentPointer.FileOffset >= Offset.FileOffset + FileSize, includeLastObj: true, onPreSerialize: x => x.Flic = this, name: nameof(Chunks));
         }
