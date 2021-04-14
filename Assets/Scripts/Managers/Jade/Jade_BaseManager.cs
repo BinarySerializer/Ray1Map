@@ -160,34 +160,41 @@ namespace R1Engine
 
                         Debug.Log($"Loaded level. Exporting {texList.Textures.Count} textures...");
 
-                        foreach (var t in texList.Textures)
-                        {
-                            if (parsedTexs.Contains(t.Key.Key))
-                                continue;
+						if (texList.Textures != null && texList.Textures.Any()) {
+							foreach (var t in texList.Textures) {
+								if (parsedTexs.Contains(t.Key.Key))
+									continue;
 
-                            parsedTexs.Add(t.Key.Key);
+								parsedTexs.Add(t.Key.Key);
 
-							Texture2D tex = null;
-							if (t.Info.FileFormat == TEX_File.TexFileFormat.RawPal && context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
-								throw new NotImplementedException("TODO: RawPal textures work a bit differently on Xbox 360");
-								// TODO: the content of a Xbox 360 RawPal texture is the Raw texture it references.
-								// Meanwhile, for the texture with Info.format == Raw, the Content is never read.
-							} else {
+								Texture2D tex = null;
 								tex = (t.Content ?? t.Info).ToTexture2D();
+
+								if (tex == null)
+									continue;
+
+								Util.ByteArrayToFile(Path.Combine(outputDir, $"0x{t.Key.Key:X8}.png"), tex.EncodeToPNG());
 							}
-
-                            if (tex == null)
-                                continue;
-
-                            Util.ByteArrayToFile(Path.Combine(outputDir, $"0x{t.Key.Key:X8}.png"), tex.EncodeToPNG());
-                        }
+						}
+						if (texList.CubeMaps != null && texList.CubeMaps.Any()) {
+							foreach (var t in texList.CubeMaps) {
+								if (parsedTexs.Contains(t.Key.Key))
+									continue;
+								parsedTexs.Add(t.Key.Key);
+								Util.ByteArrayToFile(Path.Combine(outputDir, $"0x{t.Key.Key:X8}.dds"), t.Value.Data);
+							}
+						}
                     }
                 }
 				catch (Exception ex)
                 {
-                    Debug.LogError($"Failed to export for level {lev.MapName}: {ex.Message}");
+                    Debug.LogError($"Failed to export for level {lev.MapName}: {ex.ToString()}");
                 }
-            }
+
+
+				// Unload textures
+				await Resources.UnloadUnusedAssets();
+			}
 
             Debug.Log($"Finished export");
 		}
@@ -256,7 +263,7 @@ namespace R1Engine
 				}
 			});
 			await loader.LoadLoop(context.Deserializer);
-			if (texList.Textures.Any()) {
+			if (texList.Textures != null && texList.Textures.Any()) {
 				Controller.DetailedState = $"Loading textures";
 				loader.BeginSpeedMode((Jade_Key)Jade_Key.KeyTypeTextures, serializeAction: async s => {
 					Controller.DetailedState = $"Loading textures: Info";
@@ -266,7 +273,7 @@ namespace R1Engine
 					}
 					Controller.DetailedState = $"Loading textures: Palettes";
 					if (texList.Palettes != null) {
-						for (int i = 0; i < texList.Palettes.Count; i++) {
+						for (int i = 0; i < (texList.Palettes?.Count ?? 0); i++) {
 							texList.Palettes[i].Load();
 						}
 						await loader.LoadLoopBINAsync();
@@ -282,6 +289,12 @@ namespace R1Engine
 							}
 						}
 					}
+					Controller.DetailedState = $"Loading textures: CubeMaps";
+					for (int i = 0; i < (texList.CubeMaps?.Count ?? 0); i++) {
+						texList.CubeMaps[i].Load();
+						await loader.LoadLoopBINAsync();
+					}
+					Controller.DetailedState = $"Loading textures: End";
 					texList.FillInReferences();
 				});
 				await loader.LoadLoop(context.Deserializer);

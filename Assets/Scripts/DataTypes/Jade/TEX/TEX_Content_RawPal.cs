@@ -23,7 +23,7 @@ namespace R1Engine.Jade
                 var palOrder = GetPaletteOrder(Context.GetR1Settings());
                 for (int i = 0; i < palOrder.Length; i++) {
                     var pi = palOrder[i];
-                    if (pi == -1) break;
+                    if (pi < 0) break;
                     if (pi >= References.Length) continue;
                     var reference = References[pi];
                     if (!reference.RawTexture.IsNull || !reference.Palette.IsNull || !reference.Unknown.IsNull) {
@@ -80,9 +80,9 @@ namespace R1Engine.Jade
                     //throw new NotImplementedException("TODO: Implement RawPal textures where 
                 }*/
             }
-            public Texture2D ToTexture2D()
+            public Texture2D ToTexture2D(TEX_File contentFile)
             {
-                var texture = RawTexture.Content;
+                var texture = Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 ? contentFile : RawTexture.Content;
                 var pal = Palette.Value;
 
                 if (texture == null || pal == null)

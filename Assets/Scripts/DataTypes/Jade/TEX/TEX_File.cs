@@ -48,6 +48,7 @@ namespace R1Engine.Jade
         public TGA Content_TGA { get; set; }
         public TEX_Content_Procedural Content_Procedural { get; set; }
         public MAT_SpriteGen Content_SpriteGen { get; set; }
+        public TEX_Content_Xenon Content_Xenon { get; set; }
         public byte[] Content { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
@@ -124,13 +125,20 @@ namespace R1Engine.Jade
                         }
                         break;
 
+                    case TexFileFormat.Xenon:
+                        if (IsContent) {
+                            if (contentSize > 0) {
+                                Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Xenon));
+                                hasReadContent = true;
+                            }
+                        }
+                        break;
                     case TexFileFormat.Raw:
                     case TexFileFormat.Jpeg:
                     case TexFileFormat.Bmp:
-                    case TexFileFormat.Xenon:
                     default:
                         if (IsContent) {
-                            Content = s.SerializeArray<byte>(Content, FileSize - (s.CurrentPointer - Offset), name: nameof(Content));
+                            Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));
                             if (Content.Length > 0) 
                                 hasReadContent = true;
                         }
@@ -149,14 +157,16 @@ namespace R1Engine.Jade
 
         public Texture2D ToTexture2D()
         {
-            return FileFormat switch
+            var fileFormat = Info?.FileFormat ?? FileFormat;
+            return fileFormat switch
             {
                 TexFileFormat.Raw => null, // Gets parsed from RawPal
                 TexFileFormat.SpriteGen => null, // Points to a RawPal
-                TexFileFormat.RawPal => Content_RawPal.UsedReference?.ToTexture2D(),
+                TexFileFormat.RawPal => (Info != null ? Info : this).Content_RawPal.UsedReference?.ToTexture2D(this),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
                 TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
-                _ => throw new NotImplementedException($"TODO: Implement texture type {FileFormat}")
+                TexFileFormat.Xenon => null, // Don't export for now
+                _ => throw new NotImplementedException($"TODO: Implement texture type {fileFormat}")
             };
         }
 

@@ -88,7 +88,7 @@ namespace R1Engine.Jade {
 				public float Type4_Float { get; set; }
 				public Jade_TextureReference Texture0 { get; set; }
 				public Jade_TextureReference Texture1 { get; set; }
-				public int Int_18 { get; set; }
+				public Jade_CubeMapReference CubeMap { get; set; }
 				public Jade_TextureReference Texture2 { get; set; }
 				public Jade_TextureReference Texture3 { get; set; }
 
@@ -152,7 +152,7 @@ namespace R1Engine.Jade {
 					Texture1 = s.SerializeObject<Jade_TextureReference>(Texture1, name: nameof(Texture1));
 					if ((Flags & 0x2000) == 0) Texture1?.Resolve();
 
-					Int_18 = s.Serialize<int>(Int_18, name: nameof(Int_18));
+					CubeMap = s.SerializeObject<Jade_CubeMapReference>(CubeMap, name: nameof(CubeMap))?.Resolve();
 
 					if (Type >= 10) {
 						Texture2 = s.SerializeObject<Jade_TextureReference>(Texture2, name: nameof(Texture2));
