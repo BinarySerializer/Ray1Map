@@ -43,9 +43,21 @@ namespace R1Engine.Jade {
 		MatrixBore_Modifier = 30,
 		Grid_Modifier = 31,
 		SND_ModifierSoundVol = 32,
+
+		MDF_ModifierWATER3D = 33, // Xenon only
+		MDF_ModifierDisturber = 34, // Xenon only
+		MDF_ModifierSFX = 35, // Xenon only
+
 		GAO_ModifierRotationPaste = 36,
 		GAO_ModifierTranslationPaste = 37,
 		GAO_ModifierAnimatedGAO = 38,
+		
+		MDF_ModifierWeather = 39, // Xenon only
+		MDF_ModifierSoftBody = 40, // Xenon only
+		MDF_ModifierWind = 41, // Xenon only
+		FUR_ModifierXenon = 42, // Xenon only
+		SPG2_ModifierHolder = 43, // Xenon only
+
 		VINE_Modifier = 49,
 		GAO_ModifierFOGDY = 50,
 		GAO_ModifierFOGDY_Emtr = 51,

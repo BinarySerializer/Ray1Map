@@ -77,9 +77,6 @@ namespace R1Engine.Jade
                 switch (FileFormat) 
                 {
                     case TexFileFormat.RawPal:
-                        if (FileSize > 0x50 || (FileSize & 0x3) != 0) {
-                            throw new NotImplementedException($"TEX_File: Load header for type {FileFormat}");
-                        }
                         Content_RawPal = s.SerializeObject<TEX_Content_RawPal>(Content_RawPal, c => c.Texture = this, name: nameof(Content_RawPal));
                         break;
 

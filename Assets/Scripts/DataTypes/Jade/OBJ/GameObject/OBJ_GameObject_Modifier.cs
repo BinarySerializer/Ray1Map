@@ -40,6 +40,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.GEO_ModifierOnduleTonCorps => s.SerializeObject<GEO_ModifierOnduleTonCorps>((GEO_ModifierOnduleTonCorps)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.UVTexWave_Modifier => s.SerializeObject<UVTexWave_Modifier>((UVTexWave_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.SND_ModifierSoundVol => s.SerializeObject<SND_ModifierSoundVol>((SND_ModifierSoundVol)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.MDF_ModifierSFX => s.SerializeObject<MDF_ModifierSFX>((MDF_ModifierSFX)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type}")
             };
         }

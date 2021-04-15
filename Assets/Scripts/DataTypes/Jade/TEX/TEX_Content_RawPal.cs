@@ -9,12 +9,36 @@ namespace R1Engine.Jade
 
         public TexPaletteReference[] References { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) 
-        {
-            if (!(Texture.FileSize > 0x50 || Texture.FileSize % 4 != 0)) {
-                var count = (Texture.FileSize - (s.CurrentPointer - Texture.Offset)) / 12;
+        public uint UInt_00 { get; set; }
+        public int Int_04 { get; set; }
+        public int Int_08 { get; set; }
+        public int Int_0C { get; set; }
+        public int Int_10 { get; set; }
+        public int Int_14 { get; set; }
+        public int Int_18 { get; set; }
+        public int Int_1C { get; set; }
+
+        public override void SerializeImpl(SerializerObject s) {
+            uint FileSize = Texture.FileSize;
+            if(s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && FileSize > 0x50) FileSize = 0x50;
+            if (!(FileSize > 0x50 || FileSize % 4 != 0)) {
+                var count = (FileSize - (s.CurrentPointer - Texture.Offset)) / 12;
                 References = s.SerializeObjectArray<TexPaletteReference>(References, count, name: nameof(References));
                 UsedReference?.Resolve();
+            } else {
+                throw new Exception("Invalid TEX_Content_RawPal");
+            }
+            if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && FileSize < Texture.FileSize) {
+                UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+                if (UInt_00 != 0) {
+                    Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));
+                    Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+                    Int_0C = s.Serialize<int>(Int_0C, name: nameof(Int_0C));
+                    Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
+                    Int_14 = s.Serialize<int>(Int_14, name: nameof(Int_14));
+                    Int_18 = s.Serialize<int>(Int_18, name: nameof(Int_18));
+                    Int_1C = s.Serialize<int>(Int_1C, name: nameof(Int_1C));
+                }
             }
         }
 
