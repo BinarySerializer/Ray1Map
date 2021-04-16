@@ -162,7 +162,7 @@ namespace R1Engine.Jade
                 TexFileFormat.RawPal => (Info != null ? Info : this).Content_RawPal.UsedReference?.ToTexture2D(this),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
                 TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
-                TexFileFormat.Xenon => null, // Don't export for now
+                TexFileFormat.Xenon => Content_Xenon.ToTexture2D(),
                 _ => throw new NotImplementedException($"TODO: Implement texture type {fileFormat}")
             };
         }

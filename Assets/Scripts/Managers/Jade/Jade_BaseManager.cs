@@ -169,7 +169,7 @@ namespace R1Engine
 
 								Texture2D tex = null;
 								tex = (t.Content ?? t.Info).ToTexture2D();
-
+								
 								if (tex == null)
 									continue;
 
