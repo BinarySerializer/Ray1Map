@@ -108,7 +108,9 @@ namespace R1Engine.Jade
             {
                 var texture = Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 ? contentFile : RawTexture.Content;
                 var pal = Palette.Value;
-
+                if (RawTexture.IsNull && Palette.IsNull) {
+                    throw new NotImplementedException($"Implement RawPal format Unknown for key {texture.Key}");
+                }
                 if (texture == null || pal == null)
                     return null;
 
