@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			GameObjects = s.SerializeObjectArray<Jade_Reference<OBJ_GameObject>>(GameObjects, FileSize / 4, name: nameof(GameObjects));
 			foreach (var reference in GameObjects) {
-				reference.Resolve();
+				reference.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
 			}
 		}
 	}

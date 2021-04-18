@@ -11,9 +11,10 @@ namespace R1Engine.Jade {
 
 		public FileType Type {
 			get {
-				if (Types.ContainsKey(Extension)) {
-					return Types[Extension];
-				} else if (string.IsNullOrEmpty(Extension)) {
+				var lowerExtension = Extension.ToLower();
+				if (Types.ContainsKey(lowerExtension)) {
+					return Types[lowerExtension];
+				} else if (string.IsNullOrEmpty(lowerExtension)) {
 					return FileType.None;
 				} else {
 					return FileType.Unknown;
