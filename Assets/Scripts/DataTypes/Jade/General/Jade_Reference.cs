@@ -32,7 +32,7 @@ namespace R1Engine.Jade {
 			loader.RequestFile(Key, (s, configureAction) => {
 				SerializeFile(s, configureAction, onPreSerialize, onPostSerialize);
 			}, (f) => {
-				Value = (T)f;
+				Value = f?.ConvertType<T>();
 			}, immediate: immediate,
 			queue: queue,
 			name: typeof(T).Name,
@@ -47,7 +47,7 @@ namespace R1Engine.Jade {
 			if (IsNull) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (loader.Cache.ContainsKey(Key)) {
-				Value = (T)loader.Cache[Key];
+				Value = loader.Cache[Key]?.ConvertType<T>();
 			} else {
 				EmbeddedFileSize = s.Serialize<uint>(EmbeddedFileSize, name: nameof(EmbeddedFileSize));
 				SerializeFile(s, f => {

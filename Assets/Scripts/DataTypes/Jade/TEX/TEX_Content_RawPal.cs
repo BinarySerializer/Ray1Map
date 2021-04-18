@@ -22,8 +22,14 @@ namespace R1Engine.Jade
             uint FileSize = Texture.FileSize;
             if(s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && FileSize > 0x50) FileSize = 0x50;
             if (!(FileSize > 0x50 || FileSize % 4 != 0)) {
-                var count = (FileSize - (s.CurrentPointer - Texture.Offset)) / 12;
-                References = s.SerializeObjectArray<TexPaletteReference>(References, count, name: nameof(References));
+                var byteCount = (FileSize - (s.CurrentPointer - Texture.Offset));
+                var count = byteCount / 12 + ((byteCount % 12 >= 4) ? 1 : 0);
+                var startPtr = s.CurrentPointer;
+                References = s.SerializeObjectArray<TexPaletteReference>(References, count, onPreSerialize:
+                    r => {
+                        r.ReferenceArrayStart = startPtr;
+                        r.ReferenceArrayByteCount = byteCount;
+                    }, name: nameof(References));
                 UsedReference?.Resolve();
             } else {
                 throw new Exception("Invalid TEX_Content_RawPal");
@@ -73,13 +79,24 @@ namespace R1Engine.Jade
         public static sbyte[] PaletteOrderXbox360 = new sbyte[] { 0, 2, -1, -1 };
 
         public class TexPaletteReference : BinarySerializable {
+            public Pointer ReferenceArrayStart { get; set; } // Set in onPreSerialize
+            public long ReferenceArrayByteCount { get; set; }
+
             public Jade_TextureReference RawTexture { get; set; }
             public Jade_PaletteReference Palette { get; set; }
             public Jade_TextureReference Unknown { get; set; }
             public override void SerializeImpl(SerializerObject s) {
 				RawTexture = s.SerializeObject<Jade_TextureReference>(RawTexture, name: nameof(RawTexture));
-                Palette = s.SerializeObject<Jade_PaletteReference>(Palette, name: nameof(Palette));
-                Unknown = s.SerializeObject<Jade_TextureReference>(Unknown, name: nameof(Unknown));
+                if (s.CurrentPointer.AbsoluteOffset >= ReferenceArrayStart.AbsoluteOffset + ReferenceArrayByteCount) {
+                    Palette = new Jade_PaletteReference(Context, (Jade_Key)0xFFFFFFFF);
+                } else {
+                    Palette = s.SerializeObject<Jade_PaletteReference>(Palette, name: nameof(Palette));
+                }
+                if (s.CurrentPointer.AbsoluteOffset >= ReferenceArrayStart.AbsoluteOffset + ReferenceArrayByteCount) {
+                    Unknown = new Jade_TextureReference(Context, (Jade_Key)0xFFFFFFFF);
+                } else {
+                    Unknown = s.SerializeObject<Jade_TextureReference>(Unknown, name: nameof(Unknown));
+                }
             }
 
             public bool HasTexture => RawTexture?.Info != null || Palette?.Value != null || Unknown?.Info != null;

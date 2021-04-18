@@ -39,7 +39,7 @@ namespace R1Engine.Jade {
 				}, name: nameof(Info));
 				onPostSerialize?.Invoke(s, Info);
 			}, (f) => {
-				Info = (TEX_File)f;
+				Info = f?.ConvertType<TEX_File>();
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Textures,
 			cache: LOA_Loader.CacheType.TextureInfo,
@@ -61,7 +61,7 @@ namespace R1Engine.Jade {
 				}, name: nameof(Content));
 				onPostSerialize?.Invoke(s, Content);
 			}, (f) => {
-				Content = (TEX_File)f;
+				Content = f?.ConvertType<TEX_File>(); ;
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Textures,
 			cache: LOA_Loader.CacheType.TextureContent,

@@ -20,9 +20,12 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.None => null,
                 MDF_ModifierType.GEO_ModifierRLICarte => s.SerializeObject<GEO_ModifierRLICarte>((GEO_ModifierRLICarte)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierXMEN => s.SerializeObject<GAO_ModifierXMEN>((GAO_ModifierXMEN)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.GAO_ModifierXMEC => s.SerializeObject<GAO_ModifierXMEC>((GAO_ModifierXMEC)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.GAO_ModifierROTR => s.SerializeObject<GAO_ModifierROTR>((GAO_ModifierROTR)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MPAG_Modifier => s.SerializeObject<MPAG_Modifier>((MPAG_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GEO_ModifierMorphing => s.SerializeObject<GEO_ModifierMorphing>((GEO_ModifierMorphing)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GEO_ModifierSnap => s.SerializeObject<GEO_ModifierSnap>((GEO_ModifierSnap)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.GEO_ModifierSTP => s.SerializeObject<GEO_ModifierSTP>((GEO_ModifierSTP)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GEN_ModifierSound => s.SerializeObject<GEN_ModifierSound>((GEN_ModifierSound)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GEN_ModifierSoundFx => s.SerializeObject<GEN_ModifierSoundFx>((GEN_ModifierSoundFx)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierShadow => s.SerializeObject<GAO_ModifierShadow>((GAO_ModifierShadow)Modifier, name: nameof(Modifier)),
@@ -33,6 +36,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.GAO_ModifierSNAKE => s.SerializeObject<GAO_ModifierSNAKE>((GAO_ModifierSNAKE)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierPhoto => s.SerializeObject<GAO_ModifierPhoto>((GAO_ModifierPhoto)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierSpecialLookAt => s.SerializeObject<GAO_ModifierSpecialLookAt>((GAO_ModifierSpecialLookAt)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.GAO_ModifierLegLink => s.SerializeObject<GAO_ModifierLegLink>((GAO_ModifierLegLink)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GEO_ModifierSymetrie => s.SerializeObject<GEO_ModifierSymetrie>((GEO_ModifierSymetrie)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.SPG_Modifier => s.SerializeObject<SPG_Modifier>((SPG_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.SPG2_Modifier => s.SerializeObject<SPG2_Modifier>((SPG2_Modifier)Modifier, name: nameof(Modifier)),
@@ -41,6 +45,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.UVTexWave_Modifier => s.SerializeObject<UVTexWave_Modifier>((UVTexWave_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.SND_ModifierSoundVol => s.SerializeObject<SND_ModifierSoundVol>((SND_ModifierSoundVol)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MDF_ModifierSFX => s.SerializeObject<MDF_ModifierSFX>((MDF_ModifierSFX)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.MDF_LoadingSound => s.SerializeObject<MDF_LoadingSound>((MDF_LoadingSound)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type}")
             };
         }

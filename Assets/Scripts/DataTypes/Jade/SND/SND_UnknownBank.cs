@@ -39,5 +39,12 @@ namespace R1Engine.Jade {
 			base.OnPostSerialize(s);
 			s.Goto(Offset + FileSize);
 		}
+
+		/*public override T ConvertType<T>() {
+			var type = typeof(T);
+			if(type == typeof(SND_Bank) || type == typeof(SND_Metabank))
+				return File?.ConvertType<T>() ?? base.ConvertType<T>();
+			return base.ConvertType<T>();
+		}*/
 	}
 }

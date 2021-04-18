@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
 		public async UniTask ResolveReferences(SerializerObject s) {
 			int worldIndex = 0;
 			foreach (var world in Worlds) {
-				world.Resolve();
+				world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 				await Loader.LoadLoopBINAsync();
 
 				if (world?.Value != null && world.Value is WOR_World w) {

@@ -11,18 +11,36 @@ namespace R1Engine.Jade
         public ushort Flags { get; set; }
         public ushort Width { get; set; }
         public ushort Height { get; set; }
-        public ushort Type { get; set; }
+        public TEXPRO_Type Type { get; set; }
 
-        public byte[] Data { get; set; }
+        public TEXPRO_Photo Photo { get; set; }
+        public TEXPRO_Mpeg Mpeg { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
             UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
             Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
-            Type = s.Serialize<ushort>(Type, name: nameof(Type));
+            Type = s.Serialize<TEXPRO_Type>(Type, name: nameof(Type));
 
-            Data = s.SerializeArray<byte>(Data, FileSize - 12, name: nameof(Data));
+            uint contentSize = FileSize - 12;
+            switch (Type) {
+                case TEXPRO_Type.Photo:
+                    Photo = s.SerializeObject<TEXPRO_Photo>(Photo, onPreSerialize: p => p.FileSize = contentSize, name: nameof(Photo));
+                    break;
+                case TEXPRO_Type.Mpeg:
+                    Mpeg = s.SerializeObject<TEXPRO_Mpeg>(Mpeg, onPreSerialize: m => m.FileSize = contentSize, name: nameof(Mpeg));
+                    break;
+            }
+        }
+
+        public enum TEXPRO_Type : ushort {
+            Unknown = 0,
+            Water = 1,
+            Fire = 2,
+            Mpeg = 3,
+            Photo = 4,
+            Plasma = 5
         }
 	}
 }

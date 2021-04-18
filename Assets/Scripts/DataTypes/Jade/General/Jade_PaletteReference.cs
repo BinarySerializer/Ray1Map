@@ -38,7 +38,7 @@ namespace R1Engine.Jade {
 				}, name: nameof(Value));
 				onPostSerialize?.Invoke(s, Value);
 			}, (f) => {
-				Value = (TEX_Palette)f;
+				Value = f?.ConvertType<TEX_Palette>();
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Textures,
 			name: typeof(TEX_Palette).Name,

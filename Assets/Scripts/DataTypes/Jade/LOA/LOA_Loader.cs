@@ -71,7 +71,8 @@ namespace R1Engine.Jade {
 			Flag7 = 1 << 7,
 			
 			// Custom
-			IsIrregularFileFormat = 1 << 16
+			IsIrregularFileFormat = 1 << 16,
+			DontUseCachedFile = 1 << 17
 		}
 
 
@@ -135,7 +136,7 @@ namespace R1Engine.Jade {
 				LoadQueue.RemoveFirst();
 				if (currentRef.Key != null && FileInfos.ContainsKey(currentRef.Key)) {
 					CurrentCacheType = currentRef.Cache;
-					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key)) {
+					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 						var f = Cache[currentRef.Key];
 						if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 						if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
@@ -266,7 +267,7 @@ namespace R1Engine.Jade {
 			CurrentCacheType = currentRef.Cache;
 
 			bool hasLoadedFile = GetLoadedFile(currentRef.Key, out Jade_File loadedFile);
-			if (hasLoadedFile) {
+			if (hasLoadedFile && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 				var f = loadedFile;
 				if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);

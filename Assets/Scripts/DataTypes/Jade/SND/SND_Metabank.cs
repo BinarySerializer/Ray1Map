@@ -12,7 +12,8 @@ namespace R1Engine.Jade {
                 var firstValidRef = References.FindItem(r => !r.IsNull);
 
                 if (s.GetR1Settings().Game == Game.Jade_BGE) {
-                    firstValidRef.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    firstValidRef.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount
+                        | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
                 } else {
                     firstValidRef.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
                 }

@@ -142,21 +142,12 @@ namespace R1Engine.Jade {
             {
                 throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
             }
-            else if (Type == 9)
-            {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
-            }
-            else if (Type == 10)
-            {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
-            }
-            else if (Type == 11)
-            {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
-            }
-            else if (Type == 12)
-            {
-                Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
+            else if (Type == 9 || Type == 10 || Type == 11 || Type == 12) {
+                if (Type >= 11) {
+                    Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
+                } else {
+                    Int_10 = s.Serialize<ushort>((ushort)Int_10, name: nameof(Int_10));
+                }
                 Byte_14 = s.Serialize<byte>(Byte_14, name: nameof(Byte_14));
                 Byte_15 = s.Serialize<byte>(Byte_15, name: nameof(Byte_15));
 
@@ -200,9 +191,14 @@ namespace R1Engine.Jade {
                 Float_1D8 = s.Serialize<float>(Float_1D8, name: nameof(Float_1D8));
                 Float_1DC = s.Serialize<float>(Float_1DC, name: nameof(Float_1DC));
                 Float_1E0 = s.Serialize<float>(Float_1E0, name: nameof(Float_1E0));
-                Float_1E4 = s.Serialize<float>(Float_1E4, name: nameof(Float_1E4));
 
-                Byte_270 = s.Serialize<byte>(Byte_270, name: nameof(Byte_270));
+                if (Type >= 10) {
+                    Float_1E4 = s.Serialize<float>(Float_1E4, name: nameof(Float_1E4));
+                }
+
+                if (Type >= 12) {
+                    Byte_270 = s.Serialize<byte>(Byte_270, name: nameof(Byte_270));
+                }
             }
         }
     }

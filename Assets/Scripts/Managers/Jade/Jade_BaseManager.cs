@@ -158,9 +158,9 @@ namespace R1Engine
 
                         TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
 
-                        Debug.Log($"Loaded level. Exporting {texList.Textures.Count} textures...");
-
 						if (texList.Textures != null && texList.Textures.Any()) {
+							Debug.Log($"Loaded level. Exporting {texList?.Textures?.Count} textures...");
+							await Controller.WaitIfNecessary();
 							foreach (var t in texList.Textures) {
 								if (parsedTexs.Contains(t.Key.Key))
 									continue;
@@ -181,7 +181,9 @@ namespace R1Engine
 								if (parsedTexs.Contains(t.Key.Key))
 									continue;
 								parsedTexs.Add(t.Key.Key);
-								Util.ByteArrayToFile(Path.Combine(outputDir, $"0x{t.Key.Key:X8}.dds"), t.Value.Data);
+								byte[] ddsData = t.Value.Data;
+								var dds = new DDSImageParser.DDSImage(ddsData);
+								Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"0x{t.Key.Key:X8}.png"), dds.BitmapImage.EncodeToPNG());
 							}
 						}
                     }
@@ -193,6 +195,7 @@ namespace R1Engine
 
 
 				// Unload textures
+				await Controller.WaitIfNecessary();
 				await Resources.UnloadUnusedAssets();
 			}
 

@@ -12,6 +12,7 @@ namespace R1Engine.Jade
             => (FileFormat != TexFileFormat.RawPal || (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && ContentKey != null)) // On Xbox 360 it resolves the raw texture
             && FileFormat != TexFileFormat.Procedural
             && FileFormat != TexFileFormat.SpriteGen
+            && FileFormat != TexFileFormat.Animated
             && (FileFormat != TexFileFormat.Raw || Context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRR_Xbox360);
 
         public Jade_Key ContentKey {
@@ -47,6 +48,7 @@ namespace R1Engine.Jade
         public TEX_Content_RawPal Content_RawPal { get; set; }
         public TGA Content_TGA { get; set; }
         public TEX_Content_Procedural Content_Procedural { get; set; }
+        public TEX_Content_Animated Content_Animated { get; set; }
         public MAT_SpriteGen Content_SpriteGen { get; set; }
         public TEX_Content_Xenon Content_Xenon { get; set; }
         public byte[] Content { get; set; }
@@ -95,7 +97,8 @@ namespace R1Engine.Jade
                         break;
 
                     case TexFileFormat.Animated:
-                        throw new NotImplementedException($"TEX_File: Load header for type {FileFormat}");
+                        Content_Animated = s.SerializeObject<TEX_Content_Animated>(Content_Animated, c => c.Texture = this, name: nameof(Content_Animated));
+                        break;
 
                     case TexFileFormat.Tga:
                         if (IsContent)
@@ -159,6 +162,8 @@ namespace R1Engine.Jade
             {
                 TexFileFormat.Raw => null, // Gets parsed from RawPal
                 TexFileFormat.SpriteGen => null, // Points to a RawPal
+                TexFileFormat.Procedural => null, // Points to nothing
+                TexFileFormat.Animated => null, // Points to various frames
                 TexFileFormat.RawPal => (Info != null ? Info : this).Content_RawPal.UsedReference?.ToTexture2D(this),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
                 TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
