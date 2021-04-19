@@ -57,6 +57,8 @@ namespace R1Engine.Jade {
 					links = new AI_Links_RRR_Xbox360();
 					break;
 				case GameModeSelection.BeyondGoodAndEvilPC:
+					links = new AI_Links_BGE_PC();
+					break;
 				case GameModeSelection.BeyondGoodAndEvilPS2_20030814:
 				case GameModeSelection.BeyondGoodAndEvilPS2:
 					links = new AI_Links_BGE_PS2_Proto();

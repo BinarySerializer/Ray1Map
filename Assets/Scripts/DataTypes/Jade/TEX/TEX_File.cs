@@ -136,6 +136,7 @@ namespace R1Engine.Jade
                     case TexFileFormat.Raw:
                     case TexFileFormat.Jpeg:
                     case TexFileFormat.Bmp:
+                    case TexFileFormat.Cubemap:
                     default:
                         if (IsContent) {
                             Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));
@@ -164,6 +165,7 @@ namespace R1Engine.Jade
                 TexFileFormat.SpriteGen => null, // Points to a RawPal
                 TexFileFormat.Procedural => null, // Points to nothing
                 TexFileFormat.Animated => null, // Points to various frames
+                TexFileFormat.Cubemap => null,
                 TexFileFormat.RawPal => (Info != null ? Info : this).Content_RawPal.UsedReference?.ToTexture2D(this),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
                 TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
@@ -191,6 +193,7 @@ namespace R1Engine.Jade
             Raw = 6,
             RawPal = 7,
             Animated = 9,
+            Cubemap = 10,
             Xenon = 11,
         }
 
