@@ -1,6 +1,5 @@
-﻿using System;
-using BinarySerializer;
-using DDSImageParser;
+﻿using BinarySerializer;
+using System;
 using UnityEngine;
 
 namespace R1Engine.Jade
@@ -69,17 +68,14 @@ namespace R1Engine.Jade
                 }
                 data = outData;
             }
-            DDSImage dds = null;
-            switch (Format) {
-                case XenonFormat.D3DFMT_DXT1:
-                    dds = new DDSImage(data, DDSImage.PixelFormat.DXT1, Width, Height);
-                    break;
-                case XenonFormat.D3DFMT_DXT5:
-                    dds = new DDSImage(data, DDSImage.PixelFormat.DXT5, Width, Height);
-                    break;
-            }
-            if(dds != null) return dds.BitmapImage;
-            return null;
+
+            var dds = Format switch
+            {
+                XenonFormat.D3DFMT_DXT1 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT1, Width, Height),
+                XenonFormat.D3DFMT_DXT5 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT5, Width, Height),
+                _ => null
+            };
+            return dds?.ToTexture2D();
         }
 
         public enum XenonFormat : uint {

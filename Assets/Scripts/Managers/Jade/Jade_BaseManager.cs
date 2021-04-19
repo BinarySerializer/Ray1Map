@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -181,9 +180,8 @@ namespace R1Engine
 								if (parsedTexs.Contains(t.Key.Key))
 									continue;
 								parsedTexs.Add(t.Key.Key);
-								byte[] ddsData = t.Value.Data;
-								var dds = new DDSImageParser.DDSImage(ddsData);
-								Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"0x{t.Key.Key:X8}.png"), dds.BitmapImage.EncodeToPNG());
+								var dds = t.Value.DDSData;
+								Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"0x{t.Key.Key:X8}.png"), dds.ToTexture2D().EncodeToPNG());
 							}
 						}
                     }
