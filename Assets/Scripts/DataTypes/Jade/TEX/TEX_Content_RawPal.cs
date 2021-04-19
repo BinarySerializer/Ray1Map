@@ -123,7 +123,7 @@ namespace R1Engine.Jade
             }
             public Texture2D ToTexture2D(TEX_File contentFile)
             {
-                var texture = Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 ? contentFile : RawTexture.Content;
+                var texture = TEX_File.IsRawPalUnsupported(Context) ? contentFile : RawTexture.Content;
                 var pal = Palette.Value;
                 if (RawTexture.IsNull && Palette.IsNull) {
                     throw new NotImplementedException($"Implement RawPal format Unknown for key {texture.Key}");

@@ -9,24 +9,24 @@ namespace R1Engine.Jade
     public class TEX_File : Jade_File {
         public bool IsContent { get; set; }
         public bool HasContent
-            => (FileFormat != TexFileFormat.RawPal || (IsRawPalUnsupported && ContentKey != null)) // On Xbox 360 it resolves the raw texture
+            => (FileFormat != TexFileFormat.RawPal || (IsRawPalUnsupported(Context) && ContentKey != null)) // On Xbox 360 it resolves the raw texture
             && FileFormat != TexFileFormat.Procedural
             && FileFormat != TexFileFormat.SpriteGen
             && FileFormat != TexFileFormat.Animated
-            && (FileFormat != TexFileFormat.Raw || !IsRawPalUnsupported);
+            && (FileFormat != TexFileFormat.Raw || !IsRawPalUnsupported(Context));
 
         public Jade_Key ContentKey {
             get {
-                if (IsRawPalUnsupported && FileFormat == TexFileFormat.RawPal) {
+                if (IsRawPalUnsupported(Context) && FileFormat == TexFileFormat.RawPal) {
                     return Content_RawPal?.UsedReference.TextureRef.Key;
                 } else {
                     return Key;
                 }
             }
         }
-        public bool IsRawPalUnsupported =>
-            Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 ||
-            Context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_PC;
+        public static bool IsRawPalUnsupported(Context c) =>
+            c.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 ||
+            c.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_PC;
         public TEX_File Info { get; set; } // Set in onPreSerialize
 
         public bool CanHaveFontDesc
