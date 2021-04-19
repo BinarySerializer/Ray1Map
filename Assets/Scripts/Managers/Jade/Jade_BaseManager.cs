@@ -287,7 +287,8 @@ namespace R1Engine
 						await loader.LoadLoopBINAsync();
 						if (texList.Textures[i].Content != null && texList.Textures[i].Info.FileFormat != TEX_File.TexFileFormat.RawPal) {
 							if (texList.Textures[i].Content.Width != texList.Textures[i].Info.Width ||
-								texList.Textures[i].Content.Height != texList.Textures[i].Content.Height) {
+								texList.Textures[i].Content.Height != texList.Textures[i].Info.Height ||
+								texList.Textures[i].Content.Uint_0C != texList.Textures[i].Info.Uint_0C) {
 								throw new Exception($"Info & Content width/height mismatch for texture with key {texList.Textures[i].Key}");
 							}
 						}

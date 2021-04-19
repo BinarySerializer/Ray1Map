@@ -9,21 +9,24 @@ namespace R1Engine.Jade
     public class TEX_File : Jade_File {
         public bool IsContent { get; set; }
         public bool HasContent
-            => (FileFormat != TexFileFormat.RawPal || (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && ContentKey != null)) // On Xbox 360 it resolves the raw texture
+            => (FileFormat != TexFileFormat.RawPal || (IsRawPalUnsupported && ContentKey != null)) // On Xbox 360 it resolves the raw texture
             && FileFormat != TexFileFormat.Procedural
             && FileFormat != TexFileFormat.SpriteGen
             && FileFormat != TexFileFormat.Animated
-            && (FileFormat != TexFileFormat.Raw || Context.GetR1Settings().EngineVersion != EngineVersion.Jade_RRR_Xbox360);
+            && (FileFormat != TexFileFormat.Raw || !IsRawPalUnsupported);
 
         public Jade_Key ContentKey {
             get {
-                if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && FileFormat == TexFileFormat.RawPal) {
+                if (IsRawPalUnsupported && FileFormat == TexFileFormat.RawPal) {
                     return Content_RawPal?.UsedReference.TextureRef.Key;
                 } else {
                     return Key;
                 }
             }
         }
+        public bool IsRawPalUnsupported =>
+            Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 ||
+            Context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_PC;
         public TEX_File Info { get; set; } // Set in onPreSerialize
 
         public bool CanHaveFontDesc
@@ -148,7 +151,8 @@ namespace R1Engine.Jade
                 if (hasReadContent && (Flags & 0x40) != 0 && CanHaveFontDesc && !FontDesc.IsNull) {
                     TEX_GlobalList lists = Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
                     var keyForTexture = Info?.ContentKey ?? ContentKey ?? Key;
-                    if (!lists.FontDescriptors.ContainsKey(keyForTexture)) {
+                    //s.Log($"FONTDESC Key: {keyForTexture}");
+                    if (!lists.FontDescriptors.ContainsKey(keyForTexture) || s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_PC) {
                         FontDesc?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
                         lists.FontDescriptors[keyForTexture] = FontDesc;
                     }
