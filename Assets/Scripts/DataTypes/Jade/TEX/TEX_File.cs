@@ -106,7 +106,7 @@ namespace R1Engine.Jade
                     case TexFileFormat.Tga:
                         if (IsContent)
                         {
-                            TGA.RGBColorFormat colorFormat;
+                            TGA.RGBColorFormat colorFormat = TGA.RGBColorFormat.RGB;
 
                             switch (s.GetR1Settings().EngineVersion)
                             {
@@ -114,12 +114,10 @@ namespace R1Engine.Jade
                                 case EngineVersion.Jade_BGE_PC:
                                     colorFormat = TGA.RGBColorFormat.BGR;
                                     break;
-
-                                case EngineVersion.Jade_RRR_Xbox360:
-                                case EngineVersion.Jade_RRR_PS2:
-                                case EngineVersion.Jade_BGE_PS2:
-                                default:
-                                    colorFormat = TGA.RGBColorFormat.RGB;
+                            }
+                            switch (s.GetR1Settings().GameModeSelection) {
+                                case GameModeSelection.RaymanRavingRabbidsWiiJP:
+                                    colorFormat = TGA.RGBColorFormat.BGR;
                                     break;
                             }
 

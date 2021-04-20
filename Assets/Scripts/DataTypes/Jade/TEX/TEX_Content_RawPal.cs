@@ -67,6 +67,7 @@ namespace R1Engine.Jade
         public static sbyte[] GetPaletteOrder(GameSettings settings) {
             switch (settings.GameModeSelection) {
                 case GameModeSelection.RaymanRavingRabbidsWii:
+                case GameModeSelection.RaymanRavingRabbidsWiiJP:
                     return PaletteOrderWii;
                 case GameModeSelection.RaymanRavingRabbidsXbox360:
                     return PaletteOrderXbox360;
