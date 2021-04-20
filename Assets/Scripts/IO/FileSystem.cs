@@ -110,7 +110,7 @@ namespace R1Engine {
 				try {
 					await www.SendWebRequest();
 					while (!www.isDone) {
-						await UniTask.WaitForEndOfFrame();
+						await Controller.WaitFrame();
 					}
 				} catch (UnityWebRequestException) {
 				} finally {
@@ -135,7 +135,7 @@ namespace R1Engine {
 			try {
 				await www.SendWebRequest();
 				while (!www.isDone) {
-					await UniTask.WaitForEndOfFrame();
+					await Controller.WaitFrame();
 				}
 			} catch (UnityWebRequestException) {
 			} finally {

@@ -69,7 +69,7 @@ namespace R1Engine
                         var scene = gbaData.Milan_SceneList.Scene;
 
                         // Enumerate every graphic group
-                        await UniTask.WaitForEndOfFrame();
+                        await Controller.WaitFrame();
 
                         foreach (var model in scene.ActorsBlock.ActorModels)
                         {

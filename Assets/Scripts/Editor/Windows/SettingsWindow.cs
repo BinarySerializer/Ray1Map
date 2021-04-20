@@ -441,6 +441,7 @@ public class SettingsWindow : UnityWindow
 
                 async UniTask ExecuteGameAction(GameAction action) {
                     try {
+                        await UniTask.SwitchToThreadPool();
                         Controller.StartStopwatch();
                         // Run the action
                         await action.GameActionFunc(inputDir, outputDir);

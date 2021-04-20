@@ -55,7 +55,7 @@ namespace R1Engine
 
                         for (int animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
                         {
-                            await UniTask.WaitForEndOfFrame();
+                            await Controller.WaitFrame();
                             var frames = GetMode7AnimFrames(animSet, animSetIndex, animIndex, pal, levInfo);
 
                             if (frames.Length == 0)

@@ -222,7 +222,7 @@ namespace R1Engine
                         }
 
                         for (int i = 0; i < blocks.Length; i++) {
-                            await UniTask.WaitForEndOfFrame();
+                            await Controller.WaitFrame();
                             ExportBlocks(blocks[i], i, (i + " - " + blocks[i].Offset.StringFileOffset));
                         }
                     }
@@ -292,7 +292,7 @@ namespace R1Engine
                     GBA_Scene lvl = gbaData.Scene;
 
                     // Enumerate every graphic group
-                    await UniTask.WaitForEndOfFrame();
+                    await Controller.WaitFrame();
 
                     foreach (var spr in lvl.GetAllActors(settings).Select(x => x.ActorModel.Puppet).Distinct())
                         await ExportSpriteGroup(spr, false, -1);

@@ -40,7 +40,9 @@ namespace R1Engine
 
         public static async UniTask WaitFrame()
         {
-            await UniTask.WaitForEndOfFrame();
+            //await UniTask.NextFrame();
+            await UniTask.Yield();
+            //await UniTask.WaitForEndOfFrame();
 
             if (stopwatch.IsRunning) stopwatch.Restart();
         }

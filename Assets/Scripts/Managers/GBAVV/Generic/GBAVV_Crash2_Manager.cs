@@ -45,7 +45,7 @@ namespace R1Engine
                 // Enumerate every animation
                 for (var i = 1; i < animations.Length; i++)
                 {
-                    await UniTask.WaitForEndOfFrame();
+                    await Controller.WaitFrame();
 
                     var frames = GetIsometricAnimFrames(animations[i], pal);
 

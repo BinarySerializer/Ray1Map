@@ -239,7 +239,7 @@ namespace R1Engine
                     // Read the level
                     var data = GetLevelList(context).Level;
 
-                    await UniTask.WaitForEndOfFrame();
+                    await Controller.WaitFrame();
 
                     // Enumerate every graphic group
                     foreach (var model in data.Scene.GameObjects.Select(x => x.ActorModel).Where(x => x != null).Distinct())
@@ -257,7 +257,7 @@ namespace R1Engine
 
                             for (var animIndex = 0; animIndex < commonDesign.Animations.Count; animIndex++)
                             {
-                                await UniTask.WaitForEndOfFrame();
+                                await Controller.WaitFrame();
 
                                 var anim = commonDesign.Animations[animIndex];
 

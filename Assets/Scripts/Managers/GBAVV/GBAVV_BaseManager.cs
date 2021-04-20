@@ -62,7 +62,7 @@ namespace R1Engine
                 // Read the rom
                 var rom = LoadROMForExport(context);
 
-                await UniTask.WaitForEndOfFrame();
+                await Controller.WaitFrame();
 
                 await ExportAnimFramesAsync(rom.Map2D_Graphics, outputDir, saveAsGif, includePointerInNames);
             }
@@ -84,7 +84,7 @@ namespace R1Engine
                     // Enumerate every animation
                     for (var animIndex = 0; animIndex < animSet.Animations.Length; animIndex++)
                     {
-                        await UniTask.WaitForEndOfFrame();
+                        await Controller.WaitFrame();
 
                         var anim = animSet.Animations[animIndex];
                         var frames = GetAnimFrames(animSet, animIndex, graphicsData.TileSet, graphicsData.Palettes);
