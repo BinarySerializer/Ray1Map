@@ -75,7 +75,7 @@ namespace R1Engine.Jade
                 XenonFormat.D3DFMT_DXT5 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT5, Width, Height),
                 _ => null
             };
-            return dds?.ToTexture2D();
+            return dds?.PrimaryTexture?.ToTexture2D();
         }
 
         public enum XenonFormat : uint {

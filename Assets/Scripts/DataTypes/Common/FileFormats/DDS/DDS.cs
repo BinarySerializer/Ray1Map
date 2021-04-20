@@ -1,6 +1,7 @@
-﻿using System;
-using BinarySerializer;
-using UnityEngine;
+﻿using BinarySerializer;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -8,20 +9,9 @@ namespace R1Engine
     {
         public uint Magic { get; set; }
         public DDS_Header Header { get; set; }
-        public byte[] ImageData { get; set; }
+        public DDS_Texture[] Textures { get; set; }
 
-        public bool IsCubeMap => Header.Caps.HasFlag(DDS_Header.DDS_CapsFlags.DDS_SURFACE_FLAGS_CUBEMAP);
-
-        public Texture2D ToTexture2D()
-        {
-            if (IsCubeMap)
-                Debug.LogWarning($"TODO: Implement remaining cub-map surfaces");
-
-            Texture2D bitmap = new Texture2D((int)Header.Width, (int)Header.Height, TextureFormat.RGBA32, false);
-            bitmap.LoadRawTextureData(ImageData);
-            bitmap.Apply();
-            return bitmap;
-        }
+        public DDS_TextureItem PrimaryTexture => Textures?.FirstOrDefault()?.Items?.FirstOrDefault();
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -31,10 +21,14 @@ namespace R1Engine
                 throw new Exception("Invalid DDS header");
 
             Header = s.SerializeObject<DDS_Header>(Header, name: nameof(Header));
-            s.DoEncoded(new DDSEncoder(Header), () =>
-            {
-                ImageData = s.SerializeArray<byte>(ImageData, s.CurrentLength, name: nameof(ImageData));
-            });
+
+            var texturesCount = 1;
+
+            // TODO: Improve this - a cubemap doesn't require all surfaces to be available
+            if (Header.Caps.HasFlag(DDS_Header.DDS_CapsFlags.DDS_SURFACE_FLAGS_CUBEMAP))
+                texturesCount = 6;
+
+            Textures = s.SerializeObjectArray(Textures, texturesCount, x => x.Header = Header, name: nameof(Textures));
         }
 
 		public static DDS FromRawData(byte[] data, DDSParser.PixelFormat pixelFormat, uint width, uint height)
@@ -48,14 +42,28 @@ namespace R1Engine
 				{
 					PixelFormat = new DDS_PixelFormat(),
 					Height = height,
-					Width = width,
-					Depth = 1
+					Width = width
 				}
 			};
 
-			dds.ImageData = DDSParser.DecompressData(dds.Header, data, pixelFormat);
+            using var memStream = new MemoryStream(data);
+            using var reader = new Reader(memStream);
 
-			return dds;
+            dds.Textures = new DDS_Texture[]
+            {
+                new DDS_Texture()
+                {
+                    Items = new DDS_TextureItem[]
+                    {
+                        new DDS_TextureItem()
+                        {
+                            ImageData = DDSParser.DecompressData(dds.Header, reader, pixelFormat, width, height)
+                        }
+                    }
+                }
+            };
+
+            return dds;
         }
-	}
+    }
 }

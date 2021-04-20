@@ -181,7 +181,11 @@ namespace R1Engine
 									continue;
 								parsedTexs.Add(t.Key.Key);
 								var dds = t.Value.DDSData;
-								Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"0x{t.Key.Key:X8}.png"), dds.ToTexture2D().EncodeToPNG());
+
+                                for (int i = 0; i < dds.Textures.Length; i++)
+                                {
+								    Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"0x{t.Key.Key:X8}_{i}.png"), dds.Textures[i].Items[0].ToTexture2D().EncodeToPNG());
+                                }
 							}
 						}
                     }
