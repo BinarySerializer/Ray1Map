@@ -53,11 +53,15 @@ namespace R1Engine
             {
                 new DDS_Texture()
                 {
+                    Header = dds.Header,
                     Items = new DDS_TextureItem[]
                     {
                         new DDS_TextureItem()
                         {
-                            ImageData = DDSParser.DecompressData(dds.Header, reader, pixelFormat, width, height)
+                            ImageData = DDSParser.DecompressData(dds.Header, reader, pixelFormat, width, height),
+                            Header = dds.Header,
+                            Width = width,
+                            Height = height
                         }
                     }
                 }
