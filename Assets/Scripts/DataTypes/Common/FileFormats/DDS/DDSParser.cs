@@ -416,7 +416,7 @@ namespace R1Engine
             Colour8888[] colours = new Colour8888[4];
             ushort[] alphas = new ushort[8];
 
-            int temp = 0;
+            //int temp = 0;
             for (int z = 0; z < depth; z++)
             {
                 for (int y = 0; y < height; y += 4)

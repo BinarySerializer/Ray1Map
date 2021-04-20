@@ -28,7 +28,7 @@ namespace R1Engine.Jade {
 						foreach (var gao in gaos) {
 							await JustAfterLoadObject(gao?.Value);
 						}
-						if ((s.GetR1Settings().Game == Game.Jade_BGE && !Loader.IsLoadingFix && !hasLoadedWorld)) {
+						if ((s.GetR1Settings().Game == Game.Jade_BGE || Loader.IsLoadingFix) && !hasLoadedWorld) {
 							foreach (var gao in Loader.AttachedGameObjects) {
 								if (gao != null) {
 									// WOR_World_CheckFather

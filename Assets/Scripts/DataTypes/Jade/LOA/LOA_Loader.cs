@@ -279,9 +279,9 @@ namespace R1Engine.Jade {
 				if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 			} else {
-				if (previouslyCached.Contains(currentRef.Key)) {
+				/*if (previouslyCached.Contains(currentRef.Key)) {
 					UnityEngine.Debug.Log($"Reserializing: {currentRef.Key}");
-				}
+				}*/
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 					if (ReadSizes) {
 						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
@@ -315,7 +315,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public List<Jade_Key> previouslyCached = new List<Jade_Key>();
+		//public List<Jade_Key> previouslyCached = new List<Jade_Key>();
 		public void RemoveCacheReference(Jade_Key key) {
 			var cache = Cache;
 			if (SpecialArray != null && SpecialArray.Lookup.Contains(key)) return;
@@ -323,7 +323,7 @@ namespace R1Engine.Jade {
 				var file = cache[key];
 				file.CachedCount--;
 				if(file.CachedCount == 0) cache.Remove(key);
-				if (file.CachedCount == 0) previouslyCached.Add(key);
+				//if (file.CachedCount == 0) previouslyCached.Add(key);
 			}
 		}
 

@@ -147,7 +147,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.RayCarrot.Ray1Map
-    Standalone: com.Company.ProductName
+    Standalone: com.RayCarrot.Ray1Map
   buildNumber:
     Standalone: 0
     iPhone: 0
