@@ -16,6 +16,7 @@ namespace R1Engine
         public uint PitchOrLinearSize { get; set; }
 
         public uint Depth { get; set; }
+        public uint GetDepth => Depth == 0 ? 1 : Depth;
         public uint MipMapCount { get; set; }
         public uint[] Reserved { get; set; }
         public DDS_PixelFormat PixelFormat { get; set; }
