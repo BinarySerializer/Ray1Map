@@ -33,10 +33,13 @@ namespace R1Engine.Jade {
 		public uint UInt_AfterName_Editor_08 { get; set; }
 		public uint UInt_AfterName_Editor_0C { get; set; }
 
+		public bool IsInitialized { get; set; }
+
 		public override void SerializeImpl(SerializerObject s) {
 			FileType = s.SerializeObject<Jade_FileType>(FileType, name: nameof(FileType));
 			if(FileType.Type != Jade_FileType.FileType.OBJ_GameObject)
 				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.OBJ_GameObject}");
+			if(Loader?.WorldToLoadIn != null) Loader.WorldToLoadIn.SerializedGameObjects.Add(this);
 
 			if(!Loader.IsBinaryData || s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) Type = s.Serialize<uint>(Type, name: nameof(Type));
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));

@@ -26,6 +26,11 @@ namespace R1Engine.Jade {
 		public QueueType CurrentQueueType { get; set; } = QueueType.BigFat;
 		public CacheType CurrentCacheType { get; set; } = CacheType.Main;
 
+		public WOR_World WorldToLoadIn { get; set; }
+		public List<WOR_World> LoadedWorlds { get; set; } = new List<WOR_World>();
+		public List<OBJ_GameObject> AttachedGameObjects { get; set; } = new List<OBJ_GameObject>();
+		public bool IsGameObjectAttached(OBJ_GameObject gao) => AttachedGameObjects.Any(obj => obj.Key == gao.Key);
+
 
 		public class BinData {
 			public Jade_Key Key { get; set; }
@@ -138,6 +143,7 @@ namespace R1Engine.Jade {
 					CurrentCacheType = currentRef.Cache;
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 						var f = Cache[currentRef.Key];
+						if (f != null) f.CachedCount++;
 						if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 						if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 					} else {
@@ -269,9 +275,13 @@ namespace R1Engine.Jade {
 			bool hasLoadedFile = GetLoadedFile(currentRef.Key, out Jade_File loadedFile);
 			if (hasLoadedFile && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
 				var f = loadedFile;
+				if (f != null) f.CachedCount++;
 				if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
 			} else {
+				if (previouslyCached.Contains(currentRef.Key)) {
+					UnityEngine.Debug.Log($"Reserializing: {currentRef.Key}");
+				}
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 					if (ReadSizes) {
 						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
@@ -302,6 +312,18 @@ namespace R1Engine.Jade {
 					Bin.CurrentPosition = s.CurrentPointer;
 				}
 
+			}
+		}
+
+		public List<Jade_Key> previouslyCached = new List<Jade_Key>();
+		public void RemoveCacheReference(Jade_Key key) {
+			var cache = Cache;
+			if (SpecialArray != null && SpecialArray.Lookup.Contains(key)) return;
+			if (cache.ContainsKey(key)) {
+				var file = cache[key];
+				file.CachedCount--;
+				if(file.CachedCount == 0) cache.Remove(key);
+				if (file.CachedCount == 0) previouslyCached.Add(key);
 			}
 		}
 

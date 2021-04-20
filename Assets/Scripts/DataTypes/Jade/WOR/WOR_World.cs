@@ -27,16 +27,21 @@ namespace R1Engine.Jade {
 		public Jade_TextReference Text { get; set; }
 		public UnknownStruct[] UnknownStructs { get; set; }
 
+		public List<OBJ_GameObject> SerializedGameObjects { get; set; } = new List<OBJ_GameObject>();
+
 		public override void SerializeImpl(SerializerObject s) {
 			FileType = s.SerializeObject<Jade_FileType>(FileType, name: nameof(FileType));
 			if (FileType.Type != Jade_FileType.FileType.WOR_World)
 				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.WOR_World}");
+			Loader.WorldToLoadIn = this;
+			Loader.LoadedWorlds.Add(this);
 
 			Type = s.Serialize<uint>(Type, name: nameof(Type));
 			UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
 			UInt_0C = s.Serialize<uint>(UInt_0C, name: nameof(UInt_0C));
 			Name = s.SerializeString(Name, length: 60, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-			if(!Loader.IsBinaryData) UInt_AfterName = s.Serialize<uint>(UInt_AfterName, name: nameof(UInt_AfterName));
+
+			if (!Loader.IsBinaryData) UInt_AfterName = s.Serialize<uint>(UInt_AfterName, name: nameof(UInt_AfterName));
 			Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
 			Float_90 = s.Serialize<float>(Float_90, name: nameof(Float_90));
 			UInt_94 = s.Serialize<uint>(UInt_94, name: nameof(UInt_94));
