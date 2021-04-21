@@ -16,13 +16,16 @@ namespace R1Engine
         /// <param name="game">The game</param>
         /// <param name="displayName">The display name</param>
         /// <param name="managerType">The manager type</param>
-        public GameModeAttribute(MajorEngineVersion majorEngineVersion, EngineVersion engineVersion, Game game, string displayName, Type managerType)
+        public GameModeAttribute(MajorEngineVersion majorEngineVersion, EngineVersion engineVersion, Game game, string displayName, Type managerType,
+            Platform platform = Platform.Unspecified
+            )
         {
             MajorEngineVersion = majorEngineVersion;
             EngineVersion = engineVersion;
             Game = game;
             DisplayName = displayName;
             ManagerType = managerType;
+            Platform = platform;
         }
 
         /// <summary>
@@ -49,5 +52,10 @@ namespace R1Engine
         /// The manager type
         /// </summary>
         public Type ManagerType { get; }
+
+        /// <summary>
+        /// The platform this game is on
+        /// </summary>
+        public Platform Platform { get; }
     }
 }

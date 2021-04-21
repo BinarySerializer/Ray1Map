@@ -96,20 +96,24 @@ namespace R1Engine.Jade {
 			FileInfos = new Dictionary<Jade_Key, FileInfo>();
 			for (int b = 0; b < BigFiles.Length; b++) {
 				var big = BigFiles[b];
+				string[] directories = new string[0];
 				for (int f = 0; f < big.FatFiles.Length; f++) {
 					var fat = big.FatFiles[f];
 
 					// Create directories list
-					string[] directories = new string[fat.DirectoryInfos.Length];
-					for (int i = 0; i < directories.Length; i++) {
-						var dir = fat.DirectoryInfos[i];
-						var dirName = dir.Name;
-						var curDir = dir;
-						while (curDir.ParentDirectory != -1) {
-							curDir = fat.DirectoryInfos[curDir.ParentDirectory];
-							dirName = $"{curDir.Name}/{dirName}";
+					var fatForDirectories = fat;
+					if (fatForDirectories.DirectoryInfos?.Length > 0) {
+						directories = new string[fatForDirectories.DirectoryInfos.Length];
+						for (int i = 0; i < directories.Length; i++) {
+							var dir = fatForDirectories.DirectoryInfos[i];
+							var dirName = dir.Name;
+							var curDir = dir;
+							while (curDir.ParentDirectory != -1) {
+								curDir = fatForDirectories.DirectoryInfos[curDir.ParentDirectory];
+								dirName = $"{curDir.Name}/{dirName}";
+							}
+							directories[i] = dirName;
 						}
-						directories[i] = dirName;
 					}
 
 
@@ -123,7 +127,13 @@ namespace R1Engine.Jade {
 							FatFileInfo = fat.FileInfos[fi]
 						};
 						if (fileInfo.FatFileInfo.Name != null) {
-							fileInfo.DirectoryName = directories[fileInfo.FatFileInfo.ParentDirectory];
+							if (fileInfo.FatFileInfo.ParentDirectory < -1 || fileInfo.FatFileInfo.ParentDirectory >= directories.Length) {
+								throw new Exception($"Parent directory index out of bounds: {fileInfo.FatFileInfo.ParentDirectory}. Directory count: {directories.Length}");
+							}
+							if (fileInfo.FatFileInfo.ParentDirectory != -1)
+								fileInfo.DirectoryName = directories[fileInfo.FatFileInfo.ParentDirectory];
+							else 
+								fileInfo.DirectoryName = "";
 							fileInfo.FileName = fileInfo.FatFileInfo.Name;
 						}
 						FileInfos[file.Key] = fileInfo;
@@ -165,7 +175,7 @@ namespace R1Engine.Jade {
 
 							if (currentRef.IsBin && Bin != null) {
 								if (IsCompressed) {
-									Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360),
+									Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().Jade_Version == Jade_Version.Xenon),
 										filename: regionName);
 									Bin.CurrentPosition = Bin.StartPosition;
 									s.Goto(Bin.StartPosition);

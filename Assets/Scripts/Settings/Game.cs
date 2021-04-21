@@ -105,7 +105,11 @@
 
         // Jade
 
-        Jade_RRR,
         Jade_BGE,
+        Jade_KingKong,
+        Jade_RRR,
+        Jade_RRR2,
+
+        Jade_PoP_SandsOfTime,
     }
 }

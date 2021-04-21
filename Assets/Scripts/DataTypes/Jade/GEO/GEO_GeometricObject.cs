@@ -57,7 +57,7 @@ namespace R1Engine.Jade {
 				CollisionData = s.SerializeObject<GEO_GeometricObject_CollisionData>(CollisionData, name: nameof(CollisionData));
 			}
 			Vertices = s.SerializeObjectArray<Jade_Vector>(Vertices, VerticesCount, name: nameof(Vertices));
-			if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
+			if (!Loader.IsBinaryData || s.GetR1Settings().Jade_Version == Jade_Version.Xenon) Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
 			if (UInt_2C != 0) {
 				throw new NotImplementedException($"TODO: Implement {GetType()}: UInt_2C");
 			}

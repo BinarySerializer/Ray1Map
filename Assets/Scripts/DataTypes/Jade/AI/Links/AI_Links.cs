@@ -67,6 +67,11 @@ namespace R1Engine.Jade {
 				case GameModeSelection.BeyondGoodAndEvilPS2:
 					links = new AI_Links_BGE_PS2_Proto();
 					break;
+				case GameModeSelection.KingKongPCGamersEdition:
+				case GameModeSelection.KingKongXbox360:
+				case GameModeSelection.KingKongPC:
+					links = new AI_Links_KingKong_PCGamersEdition();
+					break;
 			}
 			if (links != null) {
 				links.Init();

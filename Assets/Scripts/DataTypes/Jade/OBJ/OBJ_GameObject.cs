@@ -41,7 +41,7 @@ namespace R1Engine.Jade {
 				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.OBJ_GameObject}");
 			if(Loader?.WorldToLoadIn != null) Loader.WorldToLoadIn.SerializedGameObjects.Add(this);
 
-			if(!Loader.IsBinaryData || s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) Type = s.Serialize<uint>(Type, name: nameof(Type));
+			if(!Loader.IsBinaryData || s.GetR1Settings().Jade_Version == Jade_Version.Xenon) Type = s.Serialize<uint>(Type, name: nameof(Type));
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
 			s.SerializeBitValues<uint>(bitFunc => {

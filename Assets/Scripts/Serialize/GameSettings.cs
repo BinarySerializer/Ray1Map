@@ -23,6 +23,7 @@ namespace R1Engine
             Game = atr.Game;
             EngineVersion = atr.EngineVersion;
             MajorEngineVersion = atr.MajorEngineVersion;
+            Platform = atr.Platform;
             GameDirectory = Util.NormalizePath(gameDirectory, isFolder: true);
             World = world;
             Level = level;
@@ -49,6 +50,11 @@ namespace R1Engine
         /// The game
         /// </summary>
         public Game Game { get; }
+
+        /// <summary>
+        /// The platform this game is on
+        /// </summary>
+        public Platform Platform { get; }
 
         /// <summary>
         /// The game directory
@@ -83,6 +89,23 @@ namespace R1Engine
         public bool GBA_IsCommon => EngineVersion >= EngineVersion.GBA_BatmanVengeance;
 
         public bool GBAVV_IsFusion => EngineVersion == EngineVersion.GBAVV_CrashFusion || EngineVersion == EngineVersion.GBAVV_SpyroFusion;
+
+        public Jade_Version Jade_Version {
+            get {
+                if (Game == Game.Jade_BGE) {
+                    return Jade_Version.Default;
+                } else if (EngineVersion < EngineVersion.Jade_PoP_SandsOfTime) {
+                    if (Platform == Platform.Xbox360 || GameModeSelection == GameModeSelection.KingKongPCGamersEdition) {
+                        return Jade_Version.Xenon;
+                    } else {
+                        return Jade_Version.Default;
+                    }
+                } else {
+                    return Jade_Version.Montreal;
+                }
+            }
+        }
+
 
         // Helpers
 

@@ -20,7 +20,7 @@ namespace R1Engine.Jade
 
         public override void SerializeImpl(SerializerObject s) {
             uint FileSize = Texture.FileSize;
-            if(s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && FileSize > 0x50) FileSize = 0x50;
+            if(s.GetR1Settings().Jade_Version == Jade_Version.Xenon && FileSize > 0x50) FileSize = 0x50;
             if (!(FileSize > 0x50 || FileSize % 4 != 0)) {
                 var byteCount = (FileSize - (s.CurrentPointer - Texture.Offset));
                 var count = byteCount / 12 + ((byteCount % 12 >= 4) ? 1 : 0);
@@ -34,7 +34,7 @@ namespace R1Engine.Jade
             } else {
                 throw new Exception("Invalid TEX_Content_RawPal");
             }
-            if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && FileSize < Texture.FileSize) {
+            if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && FileSize < Texture.FileSize) {
                 UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
                 if (UInt_00 != 0) {
                     Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));

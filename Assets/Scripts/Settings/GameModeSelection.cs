@@ -9,9 +9,10 @@ namespace R1Engine
     [JsonConverter(typeof(StringEnumConverter))]
     public enum GameModeSelection
     {
-        // Rayman 1
+		#region Rayman 1
+		// Rayman 1
 
-        [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PS1, Game.R1_Rayman1, "Rayman 1 (PS1 - US)", typeof(R1_PS1US_Manager))]
+		[GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PS1, Game.R1_Rayman1, "Rayman 1 (PS1 - US)", typeof(R1_PS1US_Manager))]
         RaymanPS1US,
 
         [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PS1, Game.R1_Rayman1, "Rayman 1 (PS1 - EU)", typeof(R1_PS1EU_Manager))]
@@ -118,10 +119,12 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R2_PS1, Game.R1_Rayman2, "Rayman 2 (PS1 - Demo)", typeof(R1_PS1R2_Manager))]
         Rayman2PS1Demo,
+		#endregion
 
-        // Rayman 1 Jaguar
+		#region Rayman 1 Jaguar
+		// Rayman 1 Jaguar
 
-        [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar, Game.R1_Rayman1, "Rayman 1 (Jaguar)", typeof(R1Jaguar_Manager))]
+		[GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar, Game.R1_Rayman1, "Rayman 1 (Jaguar)", typeof(R1Jaguar_Manager))]
         RaymanJaguar,
 
         [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar_Proto, Game.R1_Rayman1, "Rayman 1 (Jaguar - Prototype)", typeof(R1Jaguar_Proto_Manager))]
@@ -129,15 +132,19 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar_Demo, Game.R1_Rayman1, "Rayman 1 (Jaguar - Demo)", typeof(R1Jaguar_Demo_Manager))]
         RaymanJaguarDemo,
+		#endregion
 
-        // SNES
+		#region SNES
+		// SNES
 
-        [GameMode(MajorEngineVersion.SNES, EngineVersion.SNES, Game.SNES_Prototype, "Rayman (SNES - Prototype)", typeof(SNES_Prototype_Manager))]
+		[GameMode(MajorEngineVersion.SNES, EngineVersion.SNES, Game.SNES_Prototype, "Rayman (SNES - Prototype)", typeof(SNES_Prototype_Manager))]
         RaymanSNES,
+		#endregion
 
-        // GBA
+		#region GBA
+		// GBA
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_DonaldDuck, Game.GBA_DonaldDuckAdvance, "Donald Duck Advance (GBA - EU)", typeof(GBA_DonaldDuck_Manager))]
+		[GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_DonaldDuck, Game.GBA_DonaldDuckAdvance, "Donald Duck Advance (GBA - EU)", typeof(GBA_DonaldDuck_Manager))]
         DonaldDuckAdvanceGBAEU,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_DonaldDuck, Game.GBA_DonaldDuckAdvance, "Donald Duck Advance (GBA - US)", typeof(GBA_DonaldDuck_Manager))]
@@ -274,21 +281,25 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SurfsUp, Game.GBA_SurfsUp, "Surf's Up (GBA - US)", typeof(GBA_SurfsUp_Manager))]
         SurfsUpUS,
+		#endregion
 
-        // GBA RRR
+		#region GBA RRR
+		// GBA RRR
 
-        [GameMode(MajorEngineVersion.GBARRR, EngineVersion.GBARRR, Game.GBARRR_RavingRabbids, "Rayman Raving Rabbids (GBA - EU)", typeof(GBA_RRR_Manager))]
+		[GameMode(MajorEngineVersion.GBARRR, EngineVersion.GBARRR, Game.GBARRR_RavingRabbids, "Rayman Raving Rabbids (GBA - EU)", typeof(GBA_RRR_Manager))]
         RaymanRavingRabbidsGBAEU,
 
         [GameMode(MajorEngineVersion.GBARRR, EngineVersion.GBARRR, Game.GBARRR_RavingRabbids, "Rayman Raving Rabbids (GBA - US)", typeof(GBA_RRR_Manager))]
         RaymanRavingRabbidsGBAUS,
+		#endregion
 
-        // GBA Isometric
+		#region GBA Isometric
+		// GBA Isometric
 
-        //[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro1, Game.GBAIsometric_Spyro1, "Spyro: Season of Ice (GBA - EU)", typeof(GBAIsometric_Spyro2_Manager))]
-        //SpyroSeasonIceEU,
+		//[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro1, Game.GBAIsometric_Spyro1, "Spyro: Season of Ice (GBA - EU)", typeof(GBAIsometric_Spyro2_Manager))]
+		//SpyroSeasonIceEU,
 
-        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro1, Game.GBAIsometric_Spyro1, "Spyro: Season of Ice (GBA - US)", typeof(GBAIsometric_Spyro1_Manager))]
+		[GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro1, Game.GBAIsometric_Spyro1, "Spyro: Season of Ice (GBA - US)", typeof(GBAIsometric_Spyro1_Manager))]
         SpyroSeasonIceUS,
 
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_Spyro2, Game.GBAIsometric_Spyro2, "Spyro 2: Season of Flame (GBA - EU)", typeof(GBAIsometric_Spyro2EU_Manager))]
@@ -314,10 +325,12 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
         RaymanHoodlumsRevengeUS,
+		#endregion
 
-        // GBC
+		#region GBC
+		// GBC
 
-        [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_Palm, Game.GBC_R1, "Rayman (PalmOS - Color)", typeof(GBC_R1PalmOS_Manager))]
+		[GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_Palm, Game.GBC_R1, "Rayman (PalmOS - Color)", typeof(GBC_R1PalmOS_Manager))]
         RaymanGBCPalmOSColor,
 
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1_Palm, Game.GBC_R1, "Rayman (PalmOS - Greyscale)", typeof(GBC_R1PalmOS_Manager))]
@@ -367,10 +380,12 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBC, EngineVersion.GBC_R1, Game.GBC_Mowgli, "Mowgli's Wild Adventure (GBC - EU/US)", typeof(GBC_Mowgli_Manager))]
         MowgliGBC,
+		#endregion
 
-        // GBA Vicarious Visions
+		#region GBA Vicarious Visions
+		// GBA Vicarious Visions
 
-        [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot XS (GBA - EU)", typeof(GBAVV_Crash1EU_Manager))]
+		[GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot XS (GBA - EU)", typeof(GBAVV_Crash1EU_Manager))]
         Crash1GBAEU,
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_Crash1, Game.GBAVV_Crash1, "Crash Bandicoot The Huge Adventure (GBA - US)", typeof(GBAVV_Crash1US_Manager))]
@@ -537,10 +552,12 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBAVV, EngineVersion.GBAVV_ShrekTheThird, Game.GBAVV_ShrekTheThird, "Shrek the Third (GBA - US)", typeof(GBAVV_ShrekTheThirdUS_Manager))]
         GBAVV_ShrekTheThirdGBAUS,
+		#endregion
 
-        // Gameloft
+		#region Gameloft
+		// Gameloft
 
-        [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]
+		[GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, s40v2)", typeof(Gameloft_RRR_128x128_s40v2_Manager))]
         RaymanRavingRabbidsMobile_128x128_s40v2,
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RRR, Game.Gameloft_RRR, "Rayman Raving Rabbids (Mobile, 128x128, CZ)", typeof(Gameloft_RRR_128x128_cz_Manager))]
@@ -651,36 +668,51 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Gameloft, EngineVersion.Gameloft_RK, Game.Gameloft_RK, "Rayman Kart (Mobile, 320x240, Broken)", typeof(Gameloft_RK_Manager))]
         RaymanKartMobile_320x240_Broken,
+		#endregion
 
+		#region Jade
+		// Jade
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_PC, Game.Jade_RRR, "Rayman Raving Rabbids (PC)", typeof(Jade_RRR_PC_Manager))]
-        RaymanRavingRabbidsPC,
-
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_PC, Game.Jade_RRR, "Rayman Raving Rabbids (PC - Demo)", typeof(Jade_RRR_PCDemo_Manager))]
-        RaymanRavingRabbidsPCDemo,
-
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_Wii, Game.Jade_RRR, "Rayman Raving Rabbids (Wii)", typeof(Jade_RRR_Wii_Manager))]
-        RaymanRavingRabbidsWii,
-
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_Wii, Game.Jade_RRR, "Rayman Raving Rabbids (Wii - JP)", typeof(Jade_RRR_Wii_Manager))]
-        RaymanRavingRabbidsWiiJP,
-
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_Xbox360, Game.Jade_RRR, "Rayman Raving Rabbids (Xbox 360)", typeof(Jade_RRR_Xbox360_Manager))]
-        RaymanRavingRabbidsXbox360,
-
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_PS2, Game.Jade_RRR, "Rayman Raving Rabbids (PS2)", typeof(Jade_RRR_PS2_Manager))]
-        RaymanRavingRabbidsPS2,
-
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PC, Game.Jade_BGE, "Beyond Good & Evil (PC)", typeof(Jade_BGE_PC_Manager))]
+		[GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PC)", typeof(Jade_BGE_PC_Manager), Platform.PC)]
         BeyondGoodAndEvilPC,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PC, Game.Jade_BGE, "Beyond Good & Evil (PC - Demo)", typeof(Jade_BGE_PCDemo_Manager))]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PC - Demo)", typeof(Jade_BGE_PCDemo_Manager), Platform.PC)]
         BeyondGoodAndEvilPCDemo,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PS2, Game.Jade_BGE, "Beyond Good & Evil (PS2 - Prototype 2003/08/14)", typeof(Jade_BGE_PS2_Prototype_Manager))]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PS2 - Prototype 2003/08/14)", typeof(Jade_BGE_PS2_Prototype_Manager), Platform.PS2)]
         BeyondGoodAndEvilPS2_20030814,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_PS2, Game.Jade_BGE, "Beyond Good & Evil (PS2)", typeof(Jade_BGE_PS2_Manager))]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PS2)", typeof(Jade_BGE_PS2_Manager), Platform.PS2)]
         BeyondGoodAndEvilPS2,
-    }
+
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PC)", typeof(Jade_BGE_PC_Manager), Platform.PC)]
+        KingKongPC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_PCGamersEdition, Game.Jade_KingKong, "King Kong (PC - Gamer's Edition)", typeof(Jade_KingKong_PCGamersEdition_Manager), Platform.PC)]
+        KingKongPCGamersEdition,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xbox360, Game.Jade_KingKong, "King Kong (Xbox 360)", typeof(Jade_BGE_PC_Manager), Platform.PC)]
+        KingKongXbox360,
+
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PC)", typeof(Jade_RRR_PC_Manager), Platform.PC)]
+        RaymanRavingRabbidsPC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PC - Demo)", typeof(Jade_RRR_PCDemo_Manager), Platform.PC)]
+        RaymanRavingRabbidsPCDemo,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (Wii)", typeof(Jade_RRR_Wii_Manager), Platform.Wii)]
+        RaymanRavingRabbidsWii,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (Wii - JP)", typeof(Jade_RRR_Wii_Manager), Platform.Wii)]
+        RaymanRavingRabbidsWiiJP,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_Xbox360, Game.Jade_RRR, "Rayman Raving Rabbids (Xbox 360)", typeof(Jade_RRR_Xbox360_Manager), Platform.Xbox360)]
+        RaymanRavingRabbidsXbox360,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PS2)", typeof(Jade_RRR_PS2_Manager), Platform.PS2)]
+        RaymanRavingRabbidsPS2,
+		#endregion
+	}
 }

@@ -22,7 +22,7 @@ namespace R1Engine.Jade {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && UInt_00 == 0) {
+			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && UInt_00 == 0) {
 				Xenon_Type = s.Serialize<uint>(Xenon_Type, name: nameof(Xenon_Type));
 			}
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));

@@ -116,6 +116,7 @@ namespace R1Engine.Jade {
                 } else if (Flags.HasFlag(SoundFlags.LoadingSound)) {
                 } else { // Sound
                 }*/
+                if(Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_PCGamersEdition) return;
                 Wave.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
             }
 

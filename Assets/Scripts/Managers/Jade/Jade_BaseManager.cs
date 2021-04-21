@@ -42,19 +42,22 @@ namespace R1Engine
 					var bf = await LoadBF(context, bfPath);
 					List<KeyValuePair<long, long>> fileSizes = new List<KeyValuePair<long, long>>();
 					try {
+						string[] directories = new string[0];
 						for (int fatIndex = 0; fatIndex < bf.FatFiles.Length; fatIndex++) {
 							var fat = bf.FatFiles[fatIndex];
-							string[] directories = new string[fat.DirectoryInfos.Length];
-							for (int i = 0; i < directories.Length; i++) {
-								var dir = fat.DirectoryInfos[i];
-								var dirName = dir.Name;
-								var curDir = dir;
-								while (curDir.ParentDirectory != -1) {
-									curDir = fat.DirectoryInfos[curDir.ParentDirectory];
-									dirName = Path.Combine(curDir.Name, dirName);
+							if (fat.DirectoryInfos?.Length > 0) {
+								directories = new string[fat.DirectoryInfos.Length];
+								for (int i = 0; i < directories.Length; i++) {
+									var dir = fat.DirectoryInfos[i];
+									var dirName = dir.Name;
+									var curDir = dir;
+									while (curDir.ParentDirectory != -1) {
+										curDir = fat.DirectoryInfos[curDir.ParentDirectory];
+										dirName = Path.Combine(curDir.Name, dirName);
+									}
+									directories[i] = Path.Combine(outputDir, dirName);
+									Directory.CreateDirectory(directories[i]);
 								}
-								directories[i] = Path.Combine(outputDir, dirName);
-								Directory.CreateDirectory(directories[i]);
 							}
 							for (int i = 0; i < fat.Files.Length; i++) {
 								var f = fat.Files[i];
@@ -69,7 +72,7 @@ namespace R1Engine
 								await bf.SerializeFile(s, fatIndex, i, (fileSize) => {
 									fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileSize + 4));
 									if (fileIsCompressed) {
-										s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: settings.EngineVersion == EngineVersion.Jade_RRR_Xbox360), () => {
+										s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: settings.Jade_Version == Jade_Version.Xenon), () => {
 											fileBytes = s.SerializeArray<byte>(fileBytes, s.CurrentLength, name: "FileBytes");
 										});
 									} else {
@@ -82,7 +85,9 @@ namespace R1Engine
 									if (fileIsCompressed) {
 										fileName += ".dec";
 									}
-									Util.ByteArrayToFile(Path.Combine(directories[fi.ParentDirectory], fileName), fileBytes);
+									if (fi.ParentDirectory >= 0) {
+										Util.ByteArrayToFile(Path.Combine(directories[fi.ParentDirectory], fileName), fileBytes);
+									}
 								} else {
 									fileName = $"no_name_{fat.Files[i].Key:X8}.dat";
 									if (fileIsCompressed) {
@@ -92,6 +97,7 @@ namespace R1Engine
 								}
 							}
 						}
+						// Extract hidden files
 						{
 							s.Goto(bf.Offset);
 							var sortedFileSizes = fileSizes.OrderBy(f => f.Key).ToArray();
@@ -103,6 +109,7 @@ namespace R1Engine
 									curOffset = curOffset + curSize;
 									Pointer curPtr = bf.Offset + curOffset;
 									byte[] fileBytes = null;
+									Debug.Log($"Reading hidden file @ {curPtr}");
 									await bf.SerializeAt(s, curPtr, (fileSize) => {
 										fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
 									});

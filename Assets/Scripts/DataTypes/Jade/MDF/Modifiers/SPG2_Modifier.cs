@@ -124,22 +124,25 @@ namespace R1Engine.Jade {
 			}
 			if (Type >= 10) Type10_Float = s.Serialize<float>(Type10_Float, name: nameof(Type10_Float));
 			if (Type >= 11) Type11_UInt = s.Serialize<uint>(Type11_UInt, name: nameof(Type11_UInt));
-			if (Type >= 12) {
-				Type12_UInt_0 = s.Serialize<uint>(Type12_UInt_0, name: nameof(Type12_UInt_0));
-				Type12_UInt_1 = s.Serialize<uint>(Type12_UInt_1, name: nameof(Type12_UInt_1));
+			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+				if (Type >= 12) {
+					Type12_UInt_0 = s.Serialize<uint>(Type12_UInt_0, name: nameof(Type12_UInt_0));
+					Type12_UInt_1 = s.Serialize<uint>(Type12_UInt_1, name: nameof(Type12_UInt_1));
+				}
+				if (Type >= 13) {
+					Type13_Float_0 = s.Serialize<float>(Type13_Float_0, name: nameof(Type13_Float_0));
+					Type13_Float_1 = s.Serialize<float>(Type13_Float_1, name: nameof(Type13_Float_1));
+				}
 			}
-			if (Type >= 13) {
-				Type13_Float_0 = s.Serialize<float>(Type13_Float_0, name: nameof(Type13_Float_0));
-				Type13_Float_1 = s.Serialize<float>(Type13_Float_1, name: nameof(Type13_Float_1));
-			}
-			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && Type != 0x111) {
-				if (Type >= 14) {
+			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && Type != 0x111) {
+				var maxType = (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) ? 14 : 12;
+				if (Type >= maxType) {
 					Type14_Float_0 = s.Serialize<float>(Type14_Float_0, name: nameof(Type14_Float_0));
 					Type14_Float_1 = s.Serialize<float>(Type14_Float_1, name: nameof(Type14_Float_1));
 					Type14_Float_2 = s.Serialize<float>(Type14_Float_2, name: nameof(Type14_Float_2));
 					Type14_Float_3 = s.Serialize<float>(Type14_Float_3, name: nameof(Type14_Float_3));
 				}
-				if (Type >= 15) {
+				if (Type >= maxType + 1) {
 					Type15_Float = s.Serialize<float>(Type15_Float, name: nameof(Type15_Float));
 				}
 				if (Type >= 0x111) {

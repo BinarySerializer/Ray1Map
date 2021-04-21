@@ -128,14 +128,22 @@ namespace R1Engine
         Gameloft_RRR,
         Gameloft_RK,
 
-        // Jade
+        // Jade: Ubisoft Montpellier branch
+        Jade_BGE,
+        Jade_BGE_HD_Xbox360,
+        Jade_BGE_HD_PS3,
+        
+        Jade_KingKong,
+        Jade_KingKong_Xbox360,
+        Jade_KingKong_PCGamersEdition,
+        Jade_KingKong_PSP,
 
-        Jade_RRR_PC,
-        Jade_RRR_Wii,
+        Jade_RRR,
         Jade_RRR_Xbox360,
-        Jade_RRR_PS2,
-        Jade_BGE_PC,
-        Jade_BGE_PS2,
 
+        Jade_RRR2,
+
+        // Jade: Ubisoft Montreal branch
+        Jade_PoP_SandsOfTime,
     }
 }

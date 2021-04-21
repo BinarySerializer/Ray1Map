@@ -44,7 +44,7 @@ namespace R1Engine.Jade {
 			Int_7A = s.Serialize<int>(Int_7A, name: nameof(Int_7A));
 			UInt_7E = s.Serialize<uint>(UInt_7E, name: nameof(UInt_7E));
 
-			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
+			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
 				Xenon = s.SerializeObject<OBJ_GameObject_GeometricData_Xenon>(Xenon, onPreSerialize: x => x.Type = Type, name: nameof(Xenon));
 			}
 
@@ -56,7 +56,7 @@ namespace R1Engine.Jade {
 				RLI_UInts = s.SerializeArray<uint>(RLI_UInts, Code, name: nameof(RLI_UInts));
 			}
 
-			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
+			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
 				Xenon2 = s.SerializeObject<OBJ_GameObject_GeometricData_Xenon2>(Xenon2, onPreSerialize: x => x.Type = Type, name: nameof(Xenon2));
 			}
 		}

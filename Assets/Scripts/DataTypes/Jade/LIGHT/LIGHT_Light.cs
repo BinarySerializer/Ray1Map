@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
-			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && BitHelpers.ExtractBits((int)UInt_00, 3, 0) == 7) {
+			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && BitHelpers.ExtractBits((int)UInt_00, 3, 0) == 7) {
 				XenonData1 = s.SerializeObject<LIGHT_XenonData1>(XenonData1, name: nameof(XenonData1));
 			}
 			Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
@@ -25,7 +25,7 @@ namespace R1Engine.Jade {
 			Float_14 = s.Serialize<float>(Float_14, name: nameof(Float_14));
 			GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 			if ((XenonData1 != null && BitHelpers.ExtractBits((int)XenonData1.LightFlags, 3, 0) == 5)
-				|| (XenonData1 == null && s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && BitHelpers.ExtractBits((int)UInt_00, 3, 0) == 5)) {
+				|| (XenonData1 == null && s.GetR1Settings().Jade_Version == Jade_Version.Xenon && BitHelpers.ExtractBits((int)UInt_00, 3, 0) == 5)) {
 				throw new NotImplementedException($"TODO: Light X360 stuff");
 			}
 		}

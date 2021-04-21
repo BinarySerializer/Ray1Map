@@ -41,7 +41,7 @@ namespace R1Engine.Jade {
 			GRP = s.SerializeObject<Jade_Reference<GRP_Grp>>(GRP, name: nameof(GRP));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag23)) GRP?.Resolve();
 			HasModifiers = s.Serialize<uint>(HasModifiers, name: nameof(HasModifiers));
-			if (s.GetR1Settings().Game == Game.Jade_BGE) {
+			if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
 				Float_BGE_08 = s.Serialize<float>(Float_BGE_08, name: nameof(Float_BGE_08));
 				Float_BGE_0C = s.Serialize<float>(Float_BGE_0C, name: nameof(Float_BGE_0C));
 			}
@@ -52,12 +52,14 @@ namespace R1Engine.Jade {
 				UInt_Editor_14 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_14));
 				UInt_Editor_18 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_18));
 			}
-			if (s.GetR1Settings().Game != Game.Jade_BGE) {
-				Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_KingKong) {
+				if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+					Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+				}
 				int bytes_0C_count = (Int_08 != -1 && Int_08 != 0) ? 8 : 4;
 				Bytes_0C = s.SerializeArray<byte>(Bytes_0C, bytes_0C_count, name: nameof(Bytes_0C));
 			}
-			if (Int_08 == -1 || s.GetR1Settings().Game == Game.Jade_BGE) {
+			if (Int_08 == -1 || s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
 				UInt_10 = s.Serialize<ushort>((ushort)UInt_10, name: nameof(UInt_10));
 				if (!Loader.IsBinaryData)
 					UShort_Editor_12 = s.Serialize<ushort>(UShort_Editor_12, name: nameof(UShort_Editor_12));
@@ -88,7 +90,7 @@ namespace R1Engine.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtendedUnknownData)) {
 				UnknownData = s.SerializeObject<OBJ_GameObject_ExtendedUnknownData>(UnknownData, name: nameof(UnknownData));
 			}
-			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && Int_08 >= 2 && FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag30)) {
+			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && Int_08 >= 2 && FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag30)) {
 				XenonData = s.SerializeObject<OBJ_GameObject_ExtendedXenonData>(XenonData, name: nameof(XenonData));
 			}
 			if (HasModifiers != 0) {

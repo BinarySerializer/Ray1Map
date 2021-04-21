@@ -35,7 +35,7 @@ namespace R1Engine.Jade {
 				NF_Byte_00 = s.Serialize<byte>(NF_Byte_00, name: nameof(NF_Byte_00));
 				NF_Byte_01 = s.Serialize<byte>(NF_Byte_01, name: nameof(NF_Byte_01));
 				NF_Short_02 = s.Serialize<short>(NF_Short_02, name: nameof(NF_Short_02));
-				if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360 && NF_Byte_00 == 3) {
+				if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && NF_Byte_00 == 3) {
 					NF_Xenon_UInt = s.Serialize<uint>(NF_Xenon_UInt, name: nameof(NF_Xenon_UInt));
 				}
 			} else {

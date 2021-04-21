@@ -7,7 +7,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class WOR_World : Jade_File {
 		public Jade_FileType FileType { get; set; }
-		public uint Type { get; set; }
+		public uint Version { get; set; }
 		public uint UInt_08 { get; set; }
 		public uint UInt_0C { get; set; } // a key?
 		public string Name { get; set; }
@@ -26,6 +26,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<WAY_AllNetworks> Networks { get; set; }
 		public Jade_TextReference Text { get; set; }
 		public UnknownStruct[] UnknownStructs { get; set; }
+		public Jade_Reference<LIGHT_Rejection> LightRejection { get; set; }
 
 		public List<OBJ_GameObject> SerializedGameObjects { get; set; } = new List<OBJ_GameObject>();
 
@@ -36,7 +37,7 @@ namespace R1Engine.Jade {
 			Loader.WorldToLoadIn = this;
 			Loader.LoadedWorlds.Add(this);
 
-			Type = s.Serialize<uint>(Type, name: nameof(Type));
+			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
 			UInt_0C = s.Serialize<uint>(UInt_0C, name: nameof(UInt_0C));
 			Name = s.SerializeString(Name, length: 60, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
@@ -46,12 +47,12 @@ namespace R1Engine.Jade {
 			Float_90 = s.Serialize<float>(Float_90, name: nameof(Float_90));
 			UInt_94 = s.Serialize<uint>(UInt_94, name: nameof(UInt_94));
 			UInt_98 = s.Serialize<uint>(UInt_98, name: nameof(UInt_98));
-			if (Type >= 5) {
+			if (Version >= 5 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
 				UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
 			}
 			UInt_A0 = s.Serialize<uint>(UInt_A0, name: nameof(UInt_A0));
-			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR_Xbox360) {
-				Xenon = s.SerializeObject<XenonStruct>(Xenon, onPreSerialize: x => x.Type = Type, name: nameof(Xenon));
+			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
+				Xenon = s.SerializeObject<XenonStruct>(Xenon, onPreSerialize: x => x.Version = Version, name: nameof(Xenon));
 			} else {
 				if (!Loader.IsBinaryData) Bytes_A4 = s.SerializeArray<byte>(Bytes_A4, 44, name: nameof(Bytes_A4));
 			}
@@ -61,8 +62,11 @@ namespace R1Engine.Jade {
 				?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 			Networks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(Networks, name: nameof(Networks))?.Resolve();
 			Text = s.SerializeObject<Jade_TextReference>(Text, name: nameof(Text))?.Resolve();
-			if (Type > 3) {
+			if (Version > 3) {
 				UnknownStructs = s.SerializeObjectArray<UnknownStruct>(UnknownStructs, 64, name: nameof(UnknownStructs));
+			}
+			if (Version > 4 && s.GetR1Settings().Jade_Version == Jade_Version.Xenon && s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
+				LightRejection = s.SerializeObject<Jade_Reference<LIGHT_Rejection>>(LightRejection, name: nameof(LightRejection))?.Resolve();
 			}
 		}
 
@@ -106,7 +110,7 @@ namespace R1Engine.Jade {
 		}
 
 		public class XenonStruct : BinarySerializable {
-			public uint Type { get; set; } // Set in onPreSerialize
+			public uint Version { get; set; } // Set in onPreSerialize
 
 			public float Float_00 { get; set; }
 			public float Float_04 { get; set; }
@@ -167,29 +171,29 @@ namespace R1Engine.Jade {
 				Float_1C = s.Serialize<float>(Float_1C, name: nameof(Float_1C));
 				Float_20 = s.Serialize<float>(Float_20, name: nameof(Float_20));
 				Float_24 = s.Serialize<float>(Float_24, name: nameof(Float_24));
-				if (Type >= 6) {
+				if (Version >= 6) {
 					Type6_Float_00 = s.Serialize<float>(Type6_Float_00, name: nameof(Type6_Float_00));
 					Type6_Float_04 = s.Serialize<float>(Type6_Float_04, name: nameof(Type6_Float_04));
 					Type6_Float_08 = s.Serialize<float>(Type6_Float_08, name: nameof(Type6_Float_08));
 					Type6_Float_0C = s.Serialize<float>(Type6_Float_0C, name: nameof(Type6_Float_0C));
 				}
-				if (Type >= 7) {
+				if (Version >= 7) {
 					Type7_Float_00 = s.Serialize<float>(Type7_Float_00, name: nameof(Type7_Float_00));
 					Type7_Float_04 = s.Serialize<float>(Type7_Float_04, name: nameof(Type7_Float_04));
 				}
-				if (Type >= 8) {
+				if (Version >= 8) {
 					Type8_UInt_00 = s.Serialize<uint>(Type8_UInt_00, name: nameof(Type8_UInt_00));
 					Type8_UInt_04 = s.Serialize<uint>(Type8_UInt_04, name: nameof(Type8_UInt_04));
 				}
-				if (Type >= 9) {
+				if (Version >= 9) {
 					Type9_Float_00 = s.Serialize<float>(Type9_Float_00, name: nameof(Type9_Float_00));
 					Type9_Int_04 = s.Serialize<int>(Type9_Int_04, name: nameof(Type9_Int_04));
 				}
-				if (Type >= 10) {
+				if (Version >= 10) {
 					Type10_Float_00 = s.Serialize<float>(Type10_Float_00, name: nameof(Type10_Float_00));
 					Type10_Float_04 = s.Serialize<float>(Type10_Float_04, name: nameof(Type10_Float_04));
 				}
-				if (Type >= 11) {
+				if (Version >= 11) {
 					Type11_UInt_00 = s.Serialize<uint>(Type11_UInt_00, name: nameof(Type11_UInt_00));
 					Type11_Float_04 = s.Serialize<float>(Type11_Float_04, name: nameof(Type11_Float_04));
 					Type11_Float_08 = s.Serialize<float>(Type11_Float_08, name: nameof(Type11_Float_08));
@@ -197,12 +201,12 @@ namespace R1Engine.Jade {
 					Type11_Float_10 = s.Serialize<float>(Type11_Float_10, name: nameof(Type11_Float_10));
 					Type11_Float_14 = s.Serialize<float>(Type11_Float_14, name: nameof(Type11_Float_14));
 				}
-				if (Type == 12) {
+				if (Version == 12) {
 					Type12_Float_00 = s.Serialize<float>(Type12_Float_00, name: nameof(Type12_Float_00));
 					Type12_Float_04 = s.Serialize<float>(Type12_Float_04, name: nameof(Type12_Float_04));
 					Type12_Float_08 = s.Serialize<float>(Type12_Float_08, name: nameof(Type12_Float_08));
 				}
-				if (Type >= 13) {
+				if (Version >= 13) {
 					Type13_Float_00 = s.Serialize<float>(Type13_Float_00, name: nameof(Type13_Float_00));
 					Type13_Float_04 = s.Serialize<float>(Type13_Float_04, name: nameof(Type13_Float_04));
 					Type13_Float_08 = s.Serialize<float>(Type13_Float_08, name: nameof(Type13_Float_08));
