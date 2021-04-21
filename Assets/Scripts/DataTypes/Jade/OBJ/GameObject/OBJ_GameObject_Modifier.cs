@@ -35,6 +35,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.GAO_ModifierSemiLookAt => s.SerializeObject<GAO_ModifierSemiLookAt>((GAO_ModifierSemiLookAt)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierSNAKE => s.SerializeObject<GAO_ModifierSNAKE>((GAO_ModifierSNAKE)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierPhoto => s.SerializeObject<GAO_ModifierPhoto>((GAO_ModifierPhoto)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.GAO_ModifierBoneRefine => s.SerializeObject<GAO_ModifierBoneRefine>((GAO_ModifierBoneRefine)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierSpecialLookAt => s.SerializeObject<GAO_ModifierSpecialLookAt>((GAO_ModifierSpecialLookAt)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierLegLink => s.SerializeObject<GAO_ModifierLegLink>((GAO_ModifierLegLink)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GEO_ModifierSymetrie => s.SerializeObject<GEO_ModifierSymetrie>((GEO_ModifierSymetrie)Modifier, name: nameof(Modifier)),
@@ -46,6 +47,8 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.SND_ModifierSoundVol => s.SerializeObject<SND_ModifierSoundVol>((SND_ModifierSoundVol)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MDF_ModifierSFX => s.SerializeObject<MDF_ModifierSFX>((MDF_ModifierSFX)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MDF_LoadingSound => s.SerializeObject<MDF_LoadingSound>((MDF_LoadingSound)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.MDF_ModifierDisturber => s.SerializeObject<MDF_ModifierDisturber>((MDF_ModifierDisturber)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.MDF_ModifierWeather => s.SerializeObject<MDF_ModifierWeather>((MDF_ModifierWeather)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type}")
             };
         }

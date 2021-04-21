@@ -16,7 +16,10 @@ namespace R1Engine.Jade {
 
 
 		public override void SerializeImpl(SerializerObject s) {
-			Type = s.Serialize<uint>(Type, name: nameof(Type));
+			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
+			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR || !Loader.IsBinaryData)
+				Type = s.Serialize<uint>(Type, name: nameof(Type));
 			Float_04 = s.Serialize<float>(Float_04, name: nameof(Float_04));
 			Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
 			Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));

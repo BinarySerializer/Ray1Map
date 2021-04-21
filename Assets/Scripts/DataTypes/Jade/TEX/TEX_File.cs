@@ -25,7 +25,7 @@ namespace R1Engine.Jade
             }
         }
         public static bool IsRawPalUnsupported(Context c) =>
-            c.GetR1Settings().Jade_Version == Jade_Version.Xenon ||
+            (c.GetR1Settings().Jade_Version == Jade_Version.Xenon) ||
             (c.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE && c.GetR1Settings().Platform == Platform.PC);
         public TEX_File Info { get; set; } // Set in onPreSerialize
 
