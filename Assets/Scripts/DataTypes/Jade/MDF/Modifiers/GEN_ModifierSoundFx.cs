@@ -28,7 +28,7 @@ namespace R1Engine.Jade
         {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-            if (s.GetR1Settings().Game == Game.Jade_BGE) {
+            if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
                 BGE_Flags = s.Serialize<uint>(BGE_Flags, name: nameof(BGE_Flags));
                 if (BGE_Flags == 0x100) {
                     UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));

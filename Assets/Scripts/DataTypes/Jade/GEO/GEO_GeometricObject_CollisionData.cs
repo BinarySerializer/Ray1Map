@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			Count = s.Serialize<uint>(Count, name: nameof(Count));
 			Entries = s.SerializeObjectArray<Entry>(Entries, Count, name: nameof(Entries));
-			if (s.GetR1Settings().Game != Game.Jade_BGE) {
+			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_KingKong) {
 				Tree = s.SerializeObject<COL_Node>(Tree, name: nameof(Tree));
 			}
 		}

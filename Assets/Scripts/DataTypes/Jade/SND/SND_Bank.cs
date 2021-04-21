@@ -8,10 +8,10 @@ namespace R1Engine.Jade {
 
         public override void SerializeImpl(SerializerObject s) {
             Count = FileSize / 8;
-            if (s.GetR1Settings().Game == Game.Jade_BGE && Loader.IsBinaryData) {
+            if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong && Loader.IsBinaryData) {
                 Count = s.Serialize<uint>(Count, name: nameof(Count));
             }
-            if (s.GetR1Settings().Game == Game.Jade_BGE) {
+            if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
                 References = new Jade_GenericReference[Count];
                 for (int i = 0; i < References.Length; i++) {
                     References[i] = s.SerializeObject<Jade_GenericReference>(References[i], name: $"{nameof(References)}[{i}]");

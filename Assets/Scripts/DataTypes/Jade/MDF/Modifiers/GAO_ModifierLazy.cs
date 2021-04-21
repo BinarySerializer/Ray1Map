@@ -28,7 +28,7 @@ namespace R1Engine.Jade {
 			if(!Loader.IsBinaryData) UInt_Editor_00 = s.Serialize<uint>(UInt_Editor_00, name: nameof(UInt_Editor_00));
 			Type = s.Serialize<uint>(Type, name: nameof(Type));
 			Float_04 = s.Serialize<float>(Float_04, name: nameof(Float_04));
-			if (s.GetR1Settings().Game == Game.Jade_BGE) {
+			if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
 				UInt_08_BGE = s.Serialize<uint>(UInt_08_BGE, name: nameof(UInt_08_BGE));
 			} else {
 				Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));

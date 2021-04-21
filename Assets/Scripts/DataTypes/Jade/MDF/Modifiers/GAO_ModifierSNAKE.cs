@@ -13,7 +13,7 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			if (s.GetR1Settings().Game != Game.Jade_BGE || !Loader.IsBinaryData) {
+			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_KingKong || !Loader.IsBinaryData) {
 				Type = s.Serialize<uint>(Type, name: nameof(Type));
 			}
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
