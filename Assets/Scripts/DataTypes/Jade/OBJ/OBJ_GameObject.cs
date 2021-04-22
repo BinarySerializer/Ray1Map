@@ -76,7 +76,7 @@ namespace R1Engine.Jade {
 			}
 			NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 			Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-			if (s.GetR1Settings().Game == Game.Jade_RRR) {
+			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
 				UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
 				if (UInt_AfterName_00 != 0)
 					UInt_AfterName_04 = s.Serialize<uint>(UInt_AfterName_04, name: nameof(UInt_AfterName_04));

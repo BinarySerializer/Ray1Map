@@ -4,12 +4,16 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class SND_UnknownBank : Jade_File {
 		public Jade_FileType Type { get; set; }
+		public uint HeaderFileSize { get; set; } = 4;
 		public uint ContainedFileSize { get; set; }
 		public Jade_File File { get; set; }
 
 		// Irregular Jade_File format. The filesize is only read after the type
 		protected override void OnPreSerialize(SerializerObject s) {
 			base.OnPreSerialize(s);
+			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
+				HeaderFileSize = s.Serialize<uint>(HeaderFileSize, name: nameof(HeaderFileSize));
+			}
 			Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
 			ContainedFileSize = s.Serialize<uint>(ContainedFileSize, name: nameof(ContainedFileSize));
 			var ptr = s.CurrentPointer;

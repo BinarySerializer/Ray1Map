@@ -49,18 +49,20 @@ namespace R1Engine.Jade {
 				} else {
 					NodesCount = Code;
 				}
-				if (!Loader.IsBinaryData) {
+				if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
 					Nodes = s.SerializeObjectArray<AI_Node>(Nodes, NodesCount, name: nameof(Nodes));
-					Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, NodesCount, name: nameof(Unknown));
-					Code2 = s.Serialize<uint>(Code2, name: nameof(Code2));
-					if (Code2 == (uint)Jade_Code.All6) {
-						LocalsCount = s.Serialize<uint>(LocalsCount, name: nameof(LocalsCount));
-						LocalsStringBuffer = s.SerializeArray<byte>(LocalsStringBuffer, 0x400, name: nameof(LocalsStringBuffer));
-					} else {
-						LocalsCount = Code2;
-					}
-					if (LocalsCount > 0) {
-						throw new NotImplementedException("AI_ProcList.Proc: Implement Locals");
+					if (!Loader.IsBinaryData) {
+						Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, NodesCount, name: nameof(Unknown));
+						Code2 = s.Serialize<uint>(Code2, name: nameof(Code2));
+						if (Code2 == (uint)Jade_Code.All6) {
+							LocalsCount = s.Serialize<uint>(LocalsCount, name: nameof(LocalsCount));
+							LocalsStringBuffer = s.SerializeArray<byte>(LocalsStringBuffer, 0x400, name: nameof(LocalsStringBuffer));
+						} else {
+							LocalsCount = Code2;
+						}
+						if (LocalsCount > 0) {
+							throw new NotImplementedException("AI_ProcList.Proc: Implement Locals");
+						}
 					}
 				}
 			}

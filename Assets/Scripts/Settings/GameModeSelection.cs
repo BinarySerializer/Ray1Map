@@ -715,7 +715,10 @@ namespace R1Engine
         RaymanRavingRabbidsPS2,
 
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR2, Game.Jade_RRR2, "Rayman Raving Rabbids 2 (Wii)", typeof(Jade_RRR_Wii_Manager), Platform.Wii)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR2, Game.Jade_RRR2, "Rayman Raving Rabbids 2 (PC)", typeof(Jade_RRR2_PC_Manager), Platform.PC)]
+        RaymanRavingRabbids2PC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR2, Game.Jade_RRR2, "Rayman Raving Rabbids 2 (Wii)", typeof(Jade_RRR2_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbids2Wii,
         #endregion
     }

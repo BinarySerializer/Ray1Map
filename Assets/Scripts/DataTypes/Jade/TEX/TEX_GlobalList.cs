@@ -21,6 +21,13 @@ namespace R1Engine.Jade {
 			if (!KeyTextureDictionary.ContainsKey(tex.Key)) KeyTextureDictionary[tex.Key] = new List<Jade_TextureReference>();
 			KeyTextureDictionary[tex.Key].Add(tex);
 		}
+		public bool ContainsTexture(Jade_TextureReference tex) {
+			if (tex == null || tex.IsNull) return false;
+			if (Textures == null) Textures = new List<Jade_TextureReference>();
+			if (KeyTextureDictionary == null) KeyTextureDictionary = new Dictionary<Jade_Key, List<Jade_TextureReference>>();
+			if (!KeyTextureDictionary.ContainsKey(tex.Key)) return false;
+			return KeyTextureDictionary[tex.Key] != null;
+		}
 		public void AddPalette(Jade_PaletteReference pal) {
 			if (pal == null || pal.IsNull) return;
 			if (Palettes == null) Palettes = new List<Jade_PaletteReference>();

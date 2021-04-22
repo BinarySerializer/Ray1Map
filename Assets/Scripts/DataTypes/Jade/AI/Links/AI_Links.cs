@@ -72,6 +72,10 @@ namespace R1Engine.Jade {
 				case GameModeSelection.KingKongPC:
 					links = new AI_Links_KingKong_PCGamersEdition();
 					break;
+				case GameModeSelection.RaymanRavingRabbids2Wii:
+				case GameModeSelection.RaymanRavingRabbids2PC:
+					links = new AI_Links_RRR2_Wii();
+					break;
 			}
 			if (links != null) {
 				links.Init();

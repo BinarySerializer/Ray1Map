@@ -28,5 +28,14 @@ namespace R1Engine.Jade {
                 }
             }
         }
-    }
+
+		public class SoundRef : BinarySerializable {
+            public Jade_GenericReference Reference { get; set; }
+
+            public override void SerializeImpl(SerializerObject s) {
+                Reference = s.SerializeObject<Jade_GenericReference>(Reference, name: nameof(Reference));
+                Reference.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+            }
+		}
+	}
 }

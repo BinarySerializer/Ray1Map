@@ -10,8 +10,17 @@ namespace R1Engine.Jade {
 		public TEX_File Info { get; set; }
 		public TEX_File Content { get; set; }
 
+		public byte RRR2_Byte { get; set; }
+		public bool RRR2_ReadByte { get; set; } = true;
+
 		public override void SerializeImpl(SerializerObject s) {
 			Key = s.SerializeObject<Jade_Key>(Key, name: nameof(Key));
+			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR2 && RRR2_ReadByte) {
+				TEX_GlobalList lists = Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
+				if (!lists.ContainsTexture(this)) {
+					RRR2_Byte = s.Serialize<byte>(RRR2_Byte, name: nameof(RRR2_Byte));
+				}
+			}
 		}
 
 		public Jade_TextureReference() { }
@@ -70,6 +79,6 @@ namespace R1Engine.Jade {
 		}
 
 		public override bool IsShortLog => true;
-		public override string ShortLog => Key.ToString();
+		public override string ShortLog => RRR2_Byte != 0 ? $"{Key},{RRR2_Byte}" : Key.ToString();
 	}
 }
