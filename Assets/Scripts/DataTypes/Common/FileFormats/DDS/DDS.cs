@@ -40,11 +40,14 @@ namespace R1Engine
 			{
 				Header = new DDS_Header
 				{
-					PixelFormat = new DDS_PixelFormat(),
+					PixelFormat = DDS_PixelFormat.GetDefaultPixelFormat(pixelFormat),
 					Height = height,
 					Width = width
 				}
 			};
+            if (pixelFormat == DDSParser.PixelFormat.DXT5n) {
+                pixelFormat = DDSParser.PixelFormat.DXT5;
+            }
 
             using var memStream = new MemoryStream(data);
             using var reader = new Reader(memStream);

@@ -179,7 +179,11 @@ namespace R1Engine
 								if (tex == null)
 									continue;
 
-								Util.ByteArrayToFile(Path.Combine(outputDir, $"0x{t.Key.Key:X8}.png"), tex.EncodeToPNG());
+								string name = $"{t.Key.Key:X8}";
+								/*if ((t.Content ?? t.Info)?.Content_Xenon != null) {
+									name += "_" + (t.Content ?? t.Info).Content_Xenon.Format.ToString();
+								}*/
+								Util.ByteArrayToFile(Path.Combine(outputDir, $"{name}.png"), tex.EncodeToPNG());
 							}
 						}
 						if (texList.CubeMaps != null && texList.CubeMaps.Any()) {
@@ -191,7 +195,7 @@ namespace R1Engine
 
                                 for (int i = 0; i < dds.Textures.Length; i++)
                                 {
-								    Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"0x{t.Key.Key:X8}_{i}.png"), dds.Textures[i].Items[0].ToTexture2D().EncodeToPNG());
+								    Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"{t.Key.Key:X8}_{i}.png"), dds.Textures[i].Items[0].ToTexture2D().EncodeToPNG());
                                 }
 							}
 						}

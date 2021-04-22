@@ -14,7 +14,11 @@ namespace R1Engine
 
         public Texture2D ToTexture2D()
         {
-            Texture2D bitmap = new Texture2D((int)Width, (int)Height, TextureFormat.RGBA32, false);
+            TextureFormat fmt = TextureFormat.RGBA32;
+            if (Header?.PixelFormat?.FourCC == "ATI2") {
+                fmt = TextureFormat.RGB24;
+            }
+            Texture2D bitmap = new Texture2D((int)Width, (int)Height, fmt, false);
             bitmap.LoadRawTextureData(ImageData);
             bitmap.Apply();
             return bitmap;

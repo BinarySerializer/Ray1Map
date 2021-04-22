@@ -46,7 +46,7 @@ namespace R1Engine.Jade
             if (!Enum.IsDefined(typeof(XenonFormat), Format)) {
                 throw new NotImplementedException($"Unsupported XenonTexture format {Format}");
             }
-            if (Format == XenonFormat.D3DFMT_DXT1 || Format == XenonFormat.D3DFMT_DXT5) {
+            if (Format != XenonFormat.LUMINANCE) { // Add all 1-byte formats here
                 data = new byte[Data.Length];
                 for (int i = 0; i < Data.Length / 2; i++) {
                     data[i * 2] = Data[i * 2 + 1];
@@ -56,32 +56,47 @@ namespace R1Engine.Jade
             if (((uint)Format & 0x100) == 0x100) { // Is swizzled
                 byte[] outData = new byte[data.Length];
                 switch (Format) {
-                    case XenonFormat.D3DFMT_DXT1:
+                    case XenonFormat.DXT1:
                         UntileXbox360Texture(data, outData, (int)Width, (int)Height, 8, 128, 128, 4, 4);
                         break;
-                    case XenonFormat.D3DFMT_DXT5:
+                    case XenonFormat.DXT5:
                         UntileXbox360Texture(data, outData, (int)Width, (int)Height, 16, 128, 128, 4, 4);
                         break;
-                    /*case XenonFormat.ARGB8888:
+                    case XenonFormat.RGBA8888:
                         UntileXbox360Texture(data, outData, (int)Width, (int)Height, 4, 32, 32, 1, 1);
-                        break;*/
+                        break;
+                    case XenonFormat.BC5U:
+                        UntileXbox360Texture(data, outData, (int)Width, (int)Height, 16, 128, 128, 4, 4);
+                        break;
+                    case XenonFormat.LUMINANCE:
+                        UntileXbox360Texture(data, outData, (int)Width, (int)Height, 1, 0, 0, 1, 1);
+                        break;
                 }
                 data = outData;
             }
 
+            /*if (Format == XenonFormat.LUMINANCE) {
+                Util.ByteArrayToFile($"{Context.BasePath}/../tex/raw/{Format}_{Offset.StringFileOffset}.bin", data);
+            }*/
+
             var dds = Format switch
             {
-                XenonFormat.D3DFMT_DXT1 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT1, Width, Height),
-                XenonFormat.D3DFMT_DXT5 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT5, Width, Height),
+                XenonFormat.DXT1 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT1, Width, Height),
+                XenonFormat.DXT5 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT5, Width, Height),
+                XenonFormat.BC5U => DDS.FromRawData(data, DDSParser.PixelFormat.THREEDC, Width, Height),
+                XenonFormat.LUMINANCE => DDS.FromRawData(data, DDSParser.PixelFormat.LUMINANCE, Width, Height),
+                XenonFormat.RGBA8888 => DDS.FromRawData(data, DDSParser.PixelFormat.RGBA, Width, Height),
                 _ => null
             };
             return dds?.PrimaryTexture?.ToTexture2D();
         }
 
         public enum XenonFormat : uint {
-            //ARGB8888 = 0x9,
-            D3DFMT_DXT1 = 0x1A200152,
-            D3DFMT_DXT5 = 0x1A200154,
+            LUMINANCE    = 0x04900102,
+            DXT1 = 0x1A200152,
+            DXT5 = 0x1A200154,
+            BC5U   = 0x1A200171, // For normal maps
+            RGBA8888    = 0x18280186,
         }
 
         // Based on https://github.com/gildor2/UEViewer/blob/eaba2837228f9fe39134616d7bff734acd314ffb/Unreal/UnrealMaterial/UnTexture.cpp#L562
@@ -163,6 +178,7 @@ namespace R1Engine.Jade
         }
 
         int Align(int value, int align) {
+            if(align == 0) return value;
             return (value % align != 0) ? ((value / align) + 1) * (align) : value;
         }
         int appLog2(int n) {

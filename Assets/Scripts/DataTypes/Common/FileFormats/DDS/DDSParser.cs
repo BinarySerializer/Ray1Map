@@ -31,6 +31,8 @@ namespace R1Engine
                 PixelFormat.DXT3 => DecompressDXT3(header, reader, pixelFormat, width, height),
                 PixelFormat.DXT4 => DecompressDXT4(header, reader, pixelFormat, width, height),
                 PixelFormat.DXT5 => DecompressDXT5(header, reader, pixelFormat, width, height),
+                PixelFormat.THREEDC => Decompress3Dc(header, reader, pixelFormat, width, height),
+                PixelFormat.ATI1N => DecompressAti1n(header, reader, pixelFormat, width, height),
                 _ => throw new Exception($"Unknown format: {pixelFormat}")
             };
 
@@ -53,6 +55,7 @@ namespace R1Engine
                     DDS_PixelFormat.D3DFMT_DXT4 => PixelFormat.DXT4,
                     DDS_PixelFormat.D3DFMT_DXT5 => PixelFormat.DXT5,
                     "ATI1" => PixelFormat.ATI1N,
+
                     DDS_PixelFormat.DXGI_FORMAT_BC5_UNORM => PixelFormat.THREEDC,
                     "RXBG" => PixelFormat.RXGB,
                     DDS_PixelFormat.D3DFMT_A16B16G16R16 => PixelFormat.A16B16G16R16,
@@ -421,8 +424,7 @@ namespace R1Engine
             {
                 for (int y = 0; y < height; y += 4)
                 {
-                    for (int x = 0; x < width; x += 4)
-                    {
+                    for (int x = 0; x < width; x += 4) {
                         if (y >= height || x >= width)
                             break;
                         alphas[0] = reader.ReadByte();
@@ -524,10 +526,190 @@ namespace R1Engine
                                 bits >>= 3;
                             }
                         }
+
+
+                        if (header?.PixelFormat?.Flags != null && header.PixelFormat.Flags.HasFlag(DDS_PixelFormat.DDS_PixelFormatFlags.DDPF_NORMAL)) {
+
+                            for (int j = 0; j < 4; j++) {
+                                for (int i = 0; i < 4; i++) {
+                                    uint offset = (uint)(z * sizeofplane + (y + j) * bps + (x + i) * bpp);
+                                    uint normal = buildNormal(rawData[offset + 3], rawData[offset + 1]);
+                                    rawData[offset + 0] = (byte)(normal & 0xFF);
+                                    rawData[offset + 1] = (byte)((normal >> 8) & 0xFF);
+                                    rawData[offset + 2] = (byte)((normal >> 16) & 0xFF);
+                                    rawData[offset + 3] = 0xFF;
+                                }
+                            }
+                        }
                     }
                 }
             }
 
+            return rawData;
+        }
+
+        private static uint buildNormal(byte x, byte y) {
+            float nx = 2 * (x / 255.0f) - 1;
+            float ny = 2 * (y / 255.0f) - 1;
+            float nz = 0.0f;
+            if (1 - nx * nx - ny * ny > 0) nz = (float)Math.Sqrt(1 - nx * nx - ny * ny);
+            int b = (int)(255.0f * (nz + 1) / 2.0f);
+            if (b <= 0) b = 0;
+            if (b >= 255) b = 255;
+            uint col = (uint)(x | (y << 8) | (b << 16));
+            return col;
+        }
+
+
+        private static byte[] Decompress3Dc(DDS_Header header, BinaryReader reader, PixelFormat pixelFormat, uint width, uint height) {
+            // allocate bitmap
+            int bpp = (int)(PixelFormatToBpp(pixelFormat, header.PixelFormat.GetRGBBitCount));
+            int bps = (int)(width * bpp * PixelFormatToBpc(pixelFormat));
+            int sizeofplane = (int)(bps * height);
+            int depth = (int)header.GetDepth;
+
+            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            byte[] yColours = new byte[8];
+            byte[] xColours = new byte[8];
+
+            int offset = 0;
+            long tempPos = reader.BaseStream.Position;
+            for (int z = 0; z < depth; z++) {
+                for (int y = 0; y < height; y += 4) {
+                    for (int x = 0; x < width; x += 4) {
+                        long temp2Pos = tempPos + 8;
+
+                        //Read Y palette
+                        reader.BaseStream.Position = tempPos;
+                        int t1 = yColours[0] = reader.ReadByte();
+                        int t2 = yColours[1] = reader.ReadByte();
+                        tempPos += 2;
+                        if (t1 > t2)
+                            for (int i = 2; i < 8; ++i)
+                                yColours[i] = (byte)(t1 + ((t2 - t1) * (i - 1)) / 7);
+                        else {
+                            for (int i = 2; i < 6; ++i)
+                                yColours[i] = (byte)(t1 + ((t2 - t1) * (i - 1)) / 5);
+                            yColours[6] = 0;
+                            yColours[7] = 255;
+                        }
+
+                        // Read X palette
+                        reader.BaseStream.Position = temp2Pos;
+                        t1 = xColours[0] = reader.ReadByte();
+                        t2 = xColours[1] = reader.ReadByte();
+                        temp2Pos += 2;
+                        if (t1 > t2)
+                            for (int i = 2; i < 8; ++i)
+                                xColours[i] = (byte)(t1 + ((t2 - t1) * (i - 1)) / 7);
+                        else {
+                            for (int i = 2; i < 6; ++i)
+                                xColours[i] = (byte)(t1 + ((t2 - t1) * (i - 1)) / 5);
+                            xColours[6] = 0;
+                            xColours[7] = 255;
+                        }
+
+                        //decompress pixel data
+                        int currentOffset = offset;
+                        for (int k = 0; k < 4; k += 2) {
+                            // First three bytes
+                            reader.BaseStream.Position = tempPos;
+                            uint bitmask = ((uint)(reader.ReadByte()) << 0) | ((uint)(reader.ReadByte()) << 8) | ((uint)(reader.ReadByte()) << 16);
+                            reader.BaseStream.Position = temp2Pos;
+                            uint bitmask2 = ((uint)(reader.ReadByte()) << 0) | ((uint)(reader.ReadByte()) << 8) | ((uint)(reader.ReadByte()) << 16);
+
+                            tempPos += 3;
+                            temp2Pos += 3;
+
+                            for (int j = 0; j < 2; j++) {
+                                // only put pixels out < height
+                                if ((y + k + j) < height) {
+                                    for (int i = 0; i < 4; i++) {
+                                        // only put pixels out < width
+                                        if (((x + i) < width)) {
+                                            int t;
+                                            byte tx, ty;
+
+                                            t1 = currentOffset + (x + i) * 3;
+                                            rawData[t1 + 1] = ty = yColours[bitmask & 0x07];
+                                            rawData[t1 + 0] = tx = xColours[bitmask2 & 0x07];
+
+                                            //calculate b (z) component ((r/255)^2 + (g/255)^2 + (b/255)^2 = 1
+                                            t = 127 * 128 - (tx - 127) * (tx - 128) - (ty - 127) * (ty - 128);
+                                            if (t > 0)
+                                                rawData[t1 + 2] = (byte)(Math.Sqrt(t) + 128);
+                                            else
+                                                rawData[t1 + 2] = 0x7F;
+                                        }
+                                        bitmask >>= 3;
+                                        bitmask2 >>= 3;
+                                    }
+                                    currentOffset += bps;
+                                }
+                            }
+                        }
+
+                        //skip bytes that were read via Temp2
+                        tempPos += 8;
+                    }
+                    offset += bps * 4;
+                }
+            }
+
+            return rawData;
+        }
+
+        private static byte[] DecompressAti1n(DDS_Header header, BinaryReader reader, PixelFormat pixelFormat, uint width, uint height) {
+            // allocate bitmap
+            int bpp = (int)(PixelFormatToBpp(pixelFormat, header.PixelFormat.GetRGBBitCount));
+            int bps = (int)(width * bpp * PixelFormatToBpc(pixelFormat));
+            int sizeofplane = (int)(bps * height);
+            int depth = (int)header.GetDepth;
+
+            byte[] rawData = new byte[depth * sizeofplane + height * bps + width * bpp];
+            byte[] colours = new byte[8];
+
+            uint offset = 0;
+            for (int z = 0; z < depth; z++) {
+                for (int y = 0; y < height; y += 4) {
+                    for (int x = 0; x < width; x += 4) {
+                        //Read palette
+                        int t1 = colours[0] = reader.ReadByte();
+                        int t2 = colours[1] = reader.ReadByte();
+                        if (t1 > t2)
+                            for (int i = 2; i < 8; ++i)
+                                colours[i] = (byte)(t1 + ((t2 - t1) * (i - 1)) / 7);
+                        else {
+                            for (int i = 2; i < 6; ++i)
+                                colours[i] = (byte)(t1 + ((t2 - t1) * (i - 1)) / 5);
+                            colours[6] = 0;
+                            colours[7] = 255;
+                        }
+
+                        //decompress pixel data
+                        uint currOffset = offset;
+                        for (int k = 0; k < 4; k += 2) {
+                            // First three bytes
+                            uint bitmask = ((uint)(reader.ReadByte()) << 0) | ((uint)(reader.ReadByte()) << 8) | ((uint)(reader.ReadByte()) << 16);
+                            for (int j = 0; j < 2; j++) {
+                                // only put pixels out < height
+                                if ((y + k + j) < height) {
+                                    for (int i = 0; i < 4; i++) {
+                                        // only put pixels out < width
+                                        if (((x + i) < width)) {
+                                            t1 = (int)(currOffset + (x + i));
+                                            rawData[t1] = colours[bitmask & 0x07];
+                                        }
+                                        bitmask >>= 3;
+                                    }
+                                    currOffset += (uint)bps;
+                                }
+                            }
+                        }
+                    }
+                    offset += (uint)(bps * 4);
+                }
+            }
             return rawData;
         }
 
@@ -586,12 +768,11 @@ namespace R1Engine
             ComputeMaskParams(header.PixelFormat.BBitMask, out var bShift1, out var bMul, out var bShift2);
             ComputeMaskParams(header.PixelFormat.ABitMask, out var aShift1, out var aMul, out var aShift2);
 
-            var data = reader.ReadBytes((byte)(width * height * depth * pixSize));
+            var data = reader.ReadBytes((int)(width * height * depth * pixSize));
 
             int offset = 0;
             var pixnum = width * height * depth;
             int temp = 0;
-
             while (pixnum-- > 0)
             {
                 uint px = BitConverter.ToUInt32(data, temp) & valMask;
@@ -629,7 +810,7 @@ namespace R1Engine
                 rawData[offset + 0] = (byte)(((px >> lShift1) * lMul) >> lShift2);
                 rawData[offset + 1] = (byte)(((px >> lShift1) * lMul) >> lShift2);
                 rawData[offset + 2] = (byte)(((px >> lShift1) * lMul) >> lShift2);
-                rawData[offset + 3] = (byte)(((px >> lShift1) * lMul) >> lShift2);
+                rawData[offset + 3] = 255; //(byte)(((px >> lShift1) * lMul) >> lShift2);
                 offset += 4;
             }
             return rawData;
@@ -705,6 +886,7 @@ namespace R1Engine
             R32F,
             G32R32F,
             A32B32G32R32F,
+            DXT5n // DXT5 with normal flag
         }
 
         #endregion

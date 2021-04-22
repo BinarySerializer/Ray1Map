@@ -110,7 +110,8 @@ namespace R1Engine.Jade
 
                             if (s.GetR1Settings().Platform == Platform.PC
                                 && (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR
-                                || s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE)) {
+                                || s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE
+                                || s.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_PCGamersEdition)) {
                                 colorFormat = TGA.RGBColorFormat.BGR;
                             }
                             switch (s.GetR1Settings().GameModeSelection) {
