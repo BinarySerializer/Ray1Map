@@ -117,15 +117,15 @@ namespace R1Engine.Jade {
                 } else if (Flags.HasFlag(SoundFlags.LoadingSound)) {
                 } else { // Sound
                 }*/
-                if(Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_PCGamersEdition) return;
-                Wave.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
-
-                if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
+                if (Context.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
                     LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
                     if (!Wave.IsNull && Loader.IsBinaryData) {
                         RRR2_Bool = s.Serialize<bool>(RRR2_Bool, name: nameof(RRR2_Bool));
+                        if(RRR2_Bool) return;
                     }
                 }
+                if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_PCGamersEdition) return;
+                Wave.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
             }
 
             [Flags]
