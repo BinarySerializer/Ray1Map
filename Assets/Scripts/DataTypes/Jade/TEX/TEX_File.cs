@@ -129,10 +129,10 @@ namespace R1Engine.Jade
                     case TexFileFormat.DDS:
                         if (IsContent) {
                             if (contentSize > 0) {
-                                if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
-                                    Content_DDS = s.SerializeObject<DDS>(Content_DDS, name: nameof(Content_DDS));
-                                } else {
+                                if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
                                     Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Xenon));
+                                } else {
+                                    Content_DDS = s.SerializeObject<DDS>(Content_DDS, name: nameof(Content_DDS));
                                 }
                                 hasReadContent = true;
                             }

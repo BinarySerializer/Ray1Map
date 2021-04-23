@@ -69,6 +69,7 @@ namespace R1Engine.Jade
                 case GameModeSelection.RaymanRavingRabbidsWii:
                 case GameModeSelection.RaymanRavingRabbidsWiiJP:
                 case GameModeSelection.RaymanRavingRabbids2Wii:
+                case GameModeSelection.RaymanRavingRabbids2PC:
                     return PaletteOrderWii;
                 case GameModeSelection.RaymanRavingRabbidsXbox360:
                     return PaletteOrderXbox360;
