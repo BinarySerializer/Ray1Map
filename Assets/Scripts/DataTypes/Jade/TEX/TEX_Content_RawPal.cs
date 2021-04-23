@@ -131,8 +131,11 @@ namespace R1Engine.Jade
                 if (RawTexture.IsNull && Palette.IsNull) {
                     throw new BinarySerializableException(this, $"Implement RawPal format Unknown for key {texture.Key}");
                 }
+
                 if (texture == null || pal == null)
                     return null;
+
+                if (texture.FileFormat != TEX_File.TexFileFormat.Raw) return null;
 
                 if (texture.ColorFormat != TEX_File.TexColorFormat.BPP_4 && texture.ColorFormat != TEX_File.TexColorFormat.BPP_8)
                     throw new BinarySerializableException(this, $"Unsupported raw texture format {texture.ColorFormat}");
