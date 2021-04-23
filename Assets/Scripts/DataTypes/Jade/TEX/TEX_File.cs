@@ -147,7 +147,7 @@ namespace R1Engine.Jade
                                 if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
                                     Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Xenon));
                                 } else {
-                                    Content_DDS = s.SerializeObject<DDS>(Content_DDS, x => x.ForceNoMipmaps = true, name: nameof(Content_DDS));
+                                    Content_DDS = s.SerializeObject<DDS>(Content_DDS, x => x.ForceSingleNoMipmaps = true, name: nameof(Content_DDS));
                                 }
                                 hasReadContent = true;
                             }

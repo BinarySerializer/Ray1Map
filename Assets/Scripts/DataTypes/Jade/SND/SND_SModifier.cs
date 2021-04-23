@@ -69,7 +69,7 @@ namespace R1Engine.Jade {
             UInt_17 = s.Serialize<uint>(UInt_17, name: nameof(UInt_17));
             UInt_18 = s.Serialize<uint>(UInt_18, name: nameof(UInt_18));
             Float_19 = s.Serialize<float>(Float_19, name: nameof(Float_19));
-            if (Type >= 3) {
+            if (Type >= 3 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
                 Type3_Float_20 = s.Serialize<float>(Type3_Float_20, name: nameof(Type3_Float_20));
             } else {
                 Type2_UInt_20 = s.Serialize<uint>(Type2_UInt_20, name: nameof(Type2_UInt_20));

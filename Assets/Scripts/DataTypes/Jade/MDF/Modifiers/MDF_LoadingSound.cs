@@ -13,6 +13,7 @@ namespace R1Engine.Jade
         public byte[] Bytes_18_Editor { get; set; }
 
         public Jade_Reference<SND_SModifier> SModifier { get; set; }
+        public Jade_Reference<SND_Wave> Wave { get; set; }
 
         public uint BGE_Flags { get; set; }
 
@@ -98,9 +99,12 @@ namespace R1Engine.Jade
                 if (!Loader.IsBinaryData) Bytes_18_Editor = s.SerializeArray(Bytes_18_Editor, 0x100, name: nameof(Bytes_18_Editor));
 
                 if (SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.LoadingSound)) {
+                    Wave = new Jade_Reference<SND_Wave>(Context, SoundKey);
+                    if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_PCGamersEdition) return;
+                    Wave?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
                 } else if (SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.SModifier)) {
                     SModifier = new Jade_Reference<SND_SModifier>(Context, SoundKey);
-                    SModifier?.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    SModifier?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
                 }
             }
         }

@@ -42,6 +42,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.SPG_Modifier => s.SerializeObject<SPG_Modifier>((SPG_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.SPG2_Modifier => s.SerializeObject<SPG2_Modifier>((SPG2_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.FUR_Modifier => s.SerializeObject<FUR_Modifier>((FUR_Modifier)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.FUR_ModifierXenon => s.SerializeObject<FUR_ModifierXenon>((FUR_ModifierXenon)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GEO_ModifierOnduleTonCorps => s.SerializeObject<GEO_ModifierOnduleTonCorps>((GEO_ModifierOnduleTonCorps)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.UVTexWave_Modifier => s.SerializeObject<UVTexWave_Modifier>((UVTexWave_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.SND_ModifierSoundVol => s.SerializeObject<SND_ModifierSoundVol>((SND_ModifierSoundVol)Modifier, name: nameof(Modifier)),
@@ -49,6 +50,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.MDF_LoadingSound => s.SerializeObject<MDF_LoadingSound>((MDF_LoadingSound)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MDF_ModifierDisturber => s.SerializeObject<MDF_ModifierDisturber>((MDF_ModifierDisturber)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MDF_ModifierWeather => s.SerializeObject<MDF_ModifierWeather>((MDF_ModifierWeather)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.MDF_ModifierWATER3D => s.SerializeObject<MDF_ModifierWATER3D>((MDF_ModifierWATER3D)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type}")
             };
         }

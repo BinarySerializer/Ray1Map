@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class DDS : BinarySerializable
     {
-        public bool ForceNoMipmaps { get; set; } // Set before serializing
+        public bool ForceSingleNoMipmaps { get; set; } // Set before serializing
 
         public uint Magic { get; set; }
         public DDS_Header Header { get; set; }
@@ -22,12 +22,12 @@ namespace R1Engine
             if (Magic != 0x20534444)
                 throw new Exception("Invalid DDS header");
 
-            Header = s.SerializeObject<DDS_Header>(Header, x => x.ForceNoMipmaps = ForceNoMipmaps, name: nameof(Header));
+            Header = s.SerializeObject<DDS_Header>(Header, x => x.ForceNoMipmaps = ForceSingleNoMipmaps, name: nameof(Header));
 
             var texturesCount = 1;
 
             // TODO: Improve this - a cubemap doesn't require all surfaces to be available
-            if (Header.Caps == DDS_Header.DDS_CapsFlags.DDS_SURFACE_FLAGS_CUBEMAP)
+            if (Header.Caps.HasFlag(DDS_Header.DDS_CapsFlags.DDS_SURFACE_FLAGS_CUBEMAP) && !ForceSingleNoMipmaps)
                 texturesCount = 6;
 
             Textures = s.SerializeObjectArray(Textures, texturesCount, x => x.Header = Header, name: nameof(Textures));
