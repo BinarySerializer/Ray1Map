@@ -32,7 +32,7 @@ namespace R1Engine.Jade
                     }, name: nameof(References));
                 UsedReference?.Resolve();
             } else {
-                throw new Exception("Invalid TEX_Content_RawPal");
+                throw new BinarySerializableException(this, $"Invalid {nameof(TEX_Content_RawPal)}");
             }
             if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && FileSize < Texture.FileSize) {
                 UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
@@ -129,13 +129,13 @@ namespace R1Engine.Jade
                 var texture = TEX_File.IsRawPalUnsupported(Context) ? contentFile : RawTexture.Content;
                 var pal = Palette.Value;
                 if (RawTexture.IsNull && Palette.IsNull) {
-                    throw new NotImplementedException($"Implement RawPal format Unknown for key {texture.Key}");
+                    throw new BinarySerializableException(this, $"Implement RawPal format Unknown for key {texture.Key}");
                 }
                 if (texture == null || pal == null)
                     return null;
 
                 if (texture.ColorFormat != TEX_File.TexColorFormat.BPP_4 && texture.ColorFormat != TEX_File.TexColorFormat.BPP_8)
-                    throw new NotImplementedException($"Unsupported raw texture format {texture.ColorFormat}");
+                    throw new BinarySerializableException(this, $"Unsupported raw texture format {texture.ColorFormat}");
 
                 var tex = TextureHelpers.CreateTexture2D(texture.Width, texture.Height);
 
