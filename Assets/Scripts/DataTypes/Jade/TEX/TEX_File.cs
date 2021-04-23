@@ -34,7 +34,7 @@ namespace R1Engine.Jade
             || FileFormat == TexFileFormat.Bmp
             || FileFormat == TexFileFormat.Jpeg
             || FileFormat == TexFileFormat.Raw
-            || FileFormat == TexFileFormat.Xenon;
+            || FileFormat == TexFileFormat.DDS;
 
         public int Int_00 { get; set; } // Always 0xFFFFFFFF in files
         public ushort Flags { get; set; }
@@ -54,6 +54,7 @@ namespace R1Engine.Jade
         public TEX_Content_Animated Content_Animated { get; set; }
         public MAT_SpriteGen Content_SpriteGen { get; set; }
         public TEX_Content_Xenon Content_Xenon { get; set; }
+        public DDS Content_DDS { get; set; }
         public byte[] Content { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
@@ -125,10 +126,14 @@ namespace R1Engine.Jade
                         }
                         break;
 
-                    case TexFileFormat.Xenon:
+                    case TexFileFormat.DDS:
                         if (IsContent) {
                             if (contentSize > 0) {
-                                Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Xenon));
+                                if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
+                                    Content_DDS = s.SerializeObject<DDS>(Content_DDS, name: nameof(Content_DDS));
+                                } else {
+                                    Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Xenon));
+                                }
                                 hasReadContent = true;
                             }
                         }
@@ -171,7 +176,7 @@ namespace R1Engine.Jade
                 TexFileFormat.RawPal => (Info != null ? Info : this).Content_RawPal.UsedReference?.ToTexture2D(this),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
                 TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
-                TexFileFormat.Xenon => Content_Xenon.ToTexture2D(),
+                TexFileFormat.DDS => Content_DDS != null ? Content_DDS.PrimaryTexture?.ToTexture2D() : Content_Xenon.ToTexture2D(),
                 _ => throw new NotImplementedException($"TODO: Implement texture type {fileFormat}")
             };
         }
@@ -196,7 +201,7 @@ namespace R1Engine.Jade
             RawPal = 7,
             Animated = 9,
             Cubemap = 10,
-            Xenon = 11,
+            DDS = 11,
         }
 
         public enum TexColorFormat : byte

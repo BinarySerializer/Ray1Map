@@ -26,7 +26,7 @@ namespace R1Engine.Jade
         public override void SerializeImpl(SerializerObject s) {
             UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
             UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
-            BumpMap = s.SerializeObject<Jade_TextureReference>(BumpMap, name: nameof(BumpMap))?.Resolve();
+            BumpMap = s.SerializeObject<Jade_TextureReference>(BumpMap, name: nameof(BumpMap));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
             Float_10 = s.Serialize<float>(Float_10, name: nameof(Float_10));
@@ -41,6 +41,8 @@ namespace R1Engine.Jade
             Float_34 = s.Serialize<float>(Float_34, name: nameof(Float_34));
             UInt_38 = s.Serialize<uint>(UInt_38, name: nameof(UInt_38));
             UInt_3C = s.Serialize<uint>(UInt_3C, name: nameof(UInt_3C));
+
+            BumpMap?.Resolve(s, RRR2_readBool: true);
         }
 	}
 }

@@ -54,7 +54,7 @@ namespace R1Engine.Jade {
 					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 				}
 			}
-			Texture?.Resolve();
+			Texture?.Resolve(s, RRR2_readBool: true);
 		}
 	}
 }

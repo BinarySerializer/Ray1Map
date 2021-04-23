@@ -10,17 +10,10 @@ namespace R1Engine.Jade {
 		public TEX_File Info { get; set; }
 		public TEX_File Content { get; set; }
 
-		public byte RRR2_Byte { get; set; }
-		public bool RRR2_ReadByte { get; set; } = true;
+		public bool RRR2_Bool { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Key = s.SerializeObject<Jade_Key>(Key, name: nameof(Key));
-			if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR2 && RRR2_ReadByte) {
-				TEX_GlobalList lists = Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
-				if (!lists.ContainsTexture(this)) {
-					RRR2_Byte = s.Serialize<byte>(RRR2_Byte, name: nameof(RRR2_Byte));
-				}
-			}
 		}
 
 		public Jade_TextureReference() { }
@@ -30,9 +23,15 @@ namespace R1Engine.Jade {
 		}
 
 		// Dummy resolve method for now
-		public Jade_TextureReference Resolve() {
+		public Jade_TextureReference Resolve(SerializerObject s = null, bool RRR2_readBool = false) {
 			if (IsNull) return this;
 			TEX_GlobalList lists = Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
+			if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR2 && RRR2_readBool && s != null) {
+				if (!lists.ContainsTexture(this)) {
+					RRR2_Bool = s.Serialize<bool>(RRR2_Bool, name: nameof(RRR2_Bool));
+					if (!RRR2_Bool) return this;
+				}
+			}
 			lists.AddTexture(this);
 			return this;
 		}
@@ -79,6 +78,6 @@ namespace R1Engine.Jade {
 		}
 
 		public override bool IsShortLog => true;
-		public override string ShortLog => RRR2_Byte != 0 ? $"{Key},{RRR2_Byte}" : Key.ToString();
+		public override string ShortLog => RRR2_Bool ? $"{Key},{RRR2_Bool}" : Key.ToString();
 	}
 }

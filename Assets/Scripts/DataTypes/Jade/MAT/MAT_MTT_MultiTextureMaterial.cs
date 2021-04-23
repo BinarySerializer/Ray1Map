@@ -69,7 +69,7 @@ namespace R1Engine.Jade {
 				UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 				UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
 				Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-				Texture = s.SerializeObject<Jade_TextureReference>(Texture, name: nameof(Texture))?.Resolve();
+				Texture = s.SerializeObject<Jade_TextureReference>(Texture, name: nameof(Texture))?.Resolve(s, RRR2_readBool: true);
 
 				if (NF_Byte_00 >= 2 && NF_Byte_00 <= 0x12) {
 					HasXenonData = s.Serialize<uint>(HasXenonData, name: nameof(HasXenonData));

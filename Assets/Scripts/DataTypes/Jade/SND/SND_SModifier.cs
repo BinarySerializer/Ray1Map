@@ -89,9 +89,9 @@ namespace R1Engine.Jade {
 
             if (SoundsCount > 0) {
                 foreach(var sound in Sounds)
-                    sound.Resolve();
+                    sound.Resolve(s);
             } else {
-                Sound.Resolve();
+                Sound.Resolve(s);
             }
             Insert_15.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
             Insert_16.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
@@ -102,12 +102,13 @@ namespace R1Engine.Jade {
 		public class SoundRef : BinarySerializable {
             public Jade_Reference<SND_Wave> Wave { get; set; }
             public SoundFlags Flags { get; set; }
-			public override void SerializeImpl(SerializerObject s) {
+            public bool RRR2_Bool { get; set; }
+            public override void SerializeImpl(SerializerObject s) {
 				Wave = s.SerializeObject<Jade_Reference<SND_Wave>>(Wave, name: nameof(Wave));
                 Flags = s.Serialize<SoundFlags>(Flags, name: nameof(Flags));
 			}
 
-            public void Resolve() {
+            public void Resolve(SerializerObject s) {
                 // All of these are just waves
                 /*if (Flags.HasFlag(SoundFlags.Dialog)) {
                 } else if (Flags.HasFlag(SoundFlags.Music)) {
@@ -118,6 +119,13 @@ namespace R1Engine.Jade {
                 }*/
                 if(Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_PCGamersEdition) return;
                 Wave.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+
+                if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
+                    LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+                    if (!Wave.IsNull && Loader.IsBinaryData) {
+                        RRR2_Bool = s.Serialize<bool>(RRR2_Bool, name: nameof(RRR2_Bool));
+                    }
+                }
             }
 
             [Flags]

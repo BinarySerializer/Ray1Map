@@ -22,6 +22,8 @@ namespace R1Engine.Jade {
 			UInt_14 = s.Serialize<uint>(UInt_14, name: nameof(UInt_14));
 			Texture = s.SerializeObject<Jade_TextureReference>(Texture, name: nameof(Texture));
 			UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
+
+			Texture?.Resolve(s, RRR2_readBool: true);
 		}
 	}
 }
