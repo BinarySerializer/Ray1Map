@@ -5,6 +5,8 @@ namespace R1Engine
 {
     public class DDS_Header : BinarySerializable
     {
+        public bool ForceNoMipmaps { get; set; } // Set before serializing
+
         public uint StructSize { get; set; }
         public DDS_HeaderFlags Flags { get; set; }
         public uint Height { get; set; }
@@ -18,6 +20,7 @@ namespace R1Engine
         public uint Depth { get; set; }
         public uint GetDepth => Depth == 0 ? 1 : Depth;
         public uint MipMapCount { get; set; }
+        public uint GetMipMapCount => MipMapCount == 0 || ForceNoMipmaps ? 1 : MipMapCount;
         public uint[] Reserved { get; set; }
         public DDS_PixelFormat PixelFormat { get; set; }
         public DDS_CapsFlags Caps { get; set; }

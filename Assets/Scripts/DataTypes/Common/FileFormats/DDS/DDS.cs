@@ -7,6 +7,8 @@ namespace R1Engine
 {
     public class DDS : BinarySerializable
     {
+        public bool ForceNoMipmaps { get; set; } // Set before serializing
+
         public uint Magic { get; set; }
         public DDS_Header Header { get; set; }
         public DDS_Texture[] Textures { get; set; }
@@ -20,7 +22,7 @@ namespace R1Engine
             if (Magic != 0x20534444)
                 throw new Exception("Invalid DDS header");
 
-            Header = s.SerializeObject<DDS_Header>(Header, name: nameof(Header));
+            Header = s.SerializeObject<DDS_Header>(Header, x => x.ForceNoMipmaps = ForceNoMipmaps, name: nameof(Header));
 
             var texturesCount = 1;
 

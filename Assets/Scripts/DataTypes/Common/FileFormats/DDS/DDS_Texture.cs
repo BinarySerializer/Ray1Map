@@ -10,13 +10,8 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            var mipmapsCount = Header.MipMapCount;
-
-            if (mipmapsCount == 0)
-                mipmapsCount = 1;
-
             if (Items == null)
-                Items = new DDS_TextureItem[mipmapsCount];
+                Items = new DDS_TextureItem[Header.GetMipMapCount];
 
             var w = Header.Width;
             var h = Header.Height;
