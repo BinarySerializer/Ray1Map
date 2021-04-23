@@ -49,6 +49,7 @@ namespace R1Engine.Jade
         public Jade_Code Code_1C { get; set; } // Checked for 0xC0DEC0DE
 
         public TEX_Content_RawPal Content_RawPal { get; set; }
+        public TGA_Header Content_TGA_Header { get; set; }
         public TGA Content_TGA { get; set; }
         public TEX_Content_Procedural Content_Procedural { get; set; }
         public TEX_Content_Animated Content_Animated { get; set; }
@@ -121,7 +122,21 @@ namespace R1Engine.Jade
                                     break;
                             }
 
-                            Content_TGA = s.SerializeObject<TGA>(Content_TGA, x => x.ColorFormat = colorFormat, name: nameof(Content_TGA));
+                            // Serialize the header first, then set a custom one for the TGA struct based on the Jade properties instead
+                            Content_TGA_Header = s.SerializeObject<TGA_Header>(Content_TGA_Header, x => x.ForceNoColorMap = true, name: nameof(Content_TGA_Header));
+                            Content_TGA = s.SerializeObject<TGA>(Content_TGA, x =>
+                            {
+                                x.ColorFormat = colorFormat;
+                                x.SkipHeader = true;
+                                x.Header = new TGA_Header
+                                {
+                                    HasColorMap = false,
+                                    ImageType = TGA_Header.TGA_ImageType.UnmappedRGB,
+                                    Width = Width,
+                                    Height = Height,
+                                    BitsPerPixel = (byte)(ColorFormat == TexColorFormat.BPP_24 ? 24 : 32),
+                                };
+                            }, name: nameof(Content_TGA));
                             hasReadContent = true;
                         }
                         break;
