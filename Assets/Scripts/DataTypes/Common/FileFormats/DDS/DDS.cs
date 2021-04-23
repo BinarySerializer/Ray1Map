@@ -25,7 +25,7 @@ namespace R1Engine
             var texturesCount = 1;
 
             // TODO: Improve this - a cubemap doesn't require all surfaces to be available
-            if (Header.Caps.HasFlag(DDS_Header.DDS_CapsFlags.DDS_SURFACE_FLAGS_CUBEMAP))
+            if (Header.Caps == DDS_Header.DDS_CapsFlags.DDS_SURFACE_FLAGS_CUBEMAP)
                 texturesCount = 6;
 
             Textures = s.SerializeObjectArray(Textures, texturesCount, x => x.Header = Header, name: nameof(Textures));
