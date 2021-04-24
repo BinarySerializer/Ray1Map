@@ -836,7 +836,7 @@ namespace R1Engine
                     // Hack to get correct colors
                     var p = palette.Skip(i * 8 + 1).ToList();
 
-                    p.Insert(0, (CustomColor)Color.black);
+                    p.Insert(0, Color.black.GetColor());
 
                     if (i % 2 != 0)
                         p[8] = palette[i * 8];

@@ -159,9 +159,9 @@ namespace R1Engine
             vram.AddData(lvlGraphics.Value, 256);
 
             int paletteY = 256 - 3; // 480 - 1 page height
-            vram.AddDataAt(1, 1, 0, paletteY++, palLettre.Value.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
-            vram.AddDataAt(1, 1, 0, paletteY++, pal4.Value.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
-            vram.AddDataAt(1, 1, 0, paletteY++, pal8.Value.SelectMany(c => BitConverter.GetBytes(c.Color5551)).ToArray(), 512);
+            vram.AddDataAt(1, 1, 0, paletteY++, palLettre.Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
+            vram.AddDataAt(1, 1, 0, paletteY++, pal4.Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
+            vram.AddDataAt(1, 1, 0, paletteY++, pal8.Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
             context.StoreObject("vram", vram);
         }
 

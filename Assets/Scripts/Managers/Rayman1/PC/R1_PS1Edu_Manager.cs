@@ -452,7 +452,7 @@ namespace R1Engine
                         {
                             case 4: col = p[paletteIndex]; break;
                             case 8: col = p[paletteIndex]; break;
-                            case 16: col = RGBA5551Color.From5551(paletteIndex); break;
+                            case 16: col = new RGBA5551Color(paletteIndex); break;
                         }
 
                         Color c = col.GetColor();
@@ -582,7 +582,7 @@ namespace R1Engine
 
             // Enumerate every palette
             for (int i = 0; i < levData.ColorPalettes.Length; i++)
-                output[i] = new Unity_TileSet(levData.TileTextures.Select(x => x == 0 ? BaseColor.clear : levData.ColorPalettes[i][x]).ToArray(), 512 / Settings.CellSize, Settings.CellSize);
+                output[i] = new Unity_TileSet(levData.TileTextures.Select(x => x == 0 ? BaseColor.Clear : levData.ColorPalettes[i][x]).ToArray(), 512 / Settings.CellSize, Settings.CellSize);
 
             return output;
         }

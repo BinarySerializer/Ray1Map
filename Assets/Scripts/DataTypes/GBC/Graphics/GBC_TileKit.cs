@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BinarySerializer;
+using System;
 using System.Linq;
-using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
@@ -54,7 +53,7 @@ namespace R1Engine
                 case EngineVersion.GBC_R1_PocketPC:
                     return new Texture2D[][] {
                         new Texture2D[] {
-                            Util.ToTileSetTexture(TileDataPocketPC.Select(c => c.Color565 == 0 ? BaseColor.clear : c).ToArray(), GBC_BaseManager.CellSize, true)
+                            Util.ToTileSetTexture(TileDataPocketPC.Select(c => c.ColorValue == 0 ? BaseColor.Clear : c).ToArray(), GBC_BaseManager.CellSize, true)
                         }
                     };
 

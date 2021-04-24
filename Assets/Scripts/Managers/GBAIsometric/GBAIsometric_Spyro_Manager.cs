@@ -574,7 +574,7 @@ namespace R1Engine
 
                                 for (int j = 0; j < 256; j++)
                                 {
-                                    if (pal[j].Color5551 != 0)
+                                    if (pal[j].ColorValue != 0)
                                         newPal[j] = pal[j];
                                 }
 

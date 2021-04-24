@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BinarySerializer;
 using Cysharp.Threading.Tasks;
 
 namespace R1Engine {
@@ -173,7 +174,7 @@ namespace R1Engine {
 			byte b0 = GetPixel8(pageX, pageY, x * 2, y);
 			byte b1 = GetPixel8(pageX, pageY, (x * 2) + 1, y);
 			ushort col = (ushort)(b0 | (b1 << 8));
-			return RGBA5551Color.From5551(col);
+			return new RGBA5551Color(col);
 		}
 
 		public class Page {

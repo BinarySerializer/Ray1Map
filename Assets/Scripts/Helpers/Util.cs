@@ -45,7 +45,7 @@ namespace R1Engine
             BaseColor[] pal = new BaseColor[length];
             if(wrap == null) wrap = length;
             if (firstTransparent) {
-                pal[0] = BaseColor.clear;
+                pal[0] = BaseColor.Clear;
             }
             for (int i = firstTransparent ? 1 : 0; i < length; i++) {
                 float val = (float)(i % wrap.Value) / (wrap.Value - 1);

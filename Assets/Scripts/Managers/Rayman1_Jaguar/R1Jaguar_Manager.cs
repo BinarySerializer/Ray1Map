@@ -1180,7 +1180,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load tile set and treat black as transparent
-            maps[0].TileSet[0] = new Unity_TileSet(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? BaseColor.clear : x).ToArray(), 1, Settings.CellSize);
+            maps[0].TileSet[0] = new Unity_TileSet(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? BaseColor.Clear : x).ToArray(), 1, Settings.CellSize);
 
             var eventDefinitions = new List<Unity_ObjectManager_R1Jaguar.EventDefinition>();
             var objManager = new Unity_ObjectManager_R1Jaguar(context, eventDefinitions);
