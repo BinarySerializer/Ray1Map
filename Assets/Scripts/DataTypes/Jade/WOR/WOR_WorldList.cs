@@ -59,6 +59,14 @@ namespace R1Engine.Jade {
 								}
 							}
 						}
+						if (!hasLoadedWorld && (w.Grid0?.Value != null || w.Grid1?.Value != null)) {
+							if (Loader.CurWorldForGrids != null) {
+								var cw = Loader.CurWorldForGrids;
+								if (cw.Grid0?.Value != null && cw.Grid0.Value != w.Grid0?.Value) cw.Grid0.Value.Unload();
+								if (cw.Grid1?.Value != null && cw.Grid1.Value != w.Grid1?.Value) cw.Grid1.Value.Unload();
+							}
+							Loader.CurWorldForGrids = w;
+						}
 					}
 					Loader.WorldToLoadIn = null;
 				}

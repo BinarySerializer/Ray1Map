@@ -12,6 +12,7 @@ namespace R1Engine.Jade {
 		public float Float_10 { get; set; }
 		public float Float_14 { get; set; }
 		public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
+		public LIGHT_XenonData2 XenonData2 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
@@ -26,7 +27,7 @@ namespace R1Engine.Jade {
 			GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 			if ((XenonData1 != null && BitHelpers.ExtractBits((int)XenonData1.LightFlags, 3, 0) == 5)
 				|| (XenonData1 == null && s.GetR1Settings().Jade_Version == Jade_Version.Xenon && BitHelpers.ExtractBits((int)UInt_00, 3, 0) == 5)) {
-				throw new NotImplementedException($"TODO: Light X360 stuff");
+				XenonData2 = s.SerializeObject<LIGHT_XenonData2>(XenonData2, name: nameof(XenonData2));
 			}
 		}
 	}

@@ -27,6 +27,7 @@ namespace R1Engine.Jade {
 		public CacheType CurrentCacheType { get; set; } = CacheType.Main;
 
 		public WOR_World WorldToLoadIn { get; set; }
+		public WOR_World CurWorldForGrids { get; set; }
 		public List<WOR_World> LoadedWorlds { get; set; } = new List<WOR_World>();
 		public List<OBJ_GameObject> AttachedGameObjects { get; set; } = new List<OBJ_GameObject>();
 		public bool IsGameObjectAttached(OBJ_GameObject gao) => AttachedGameObjects.Any(obj => obj.Key == gao.Key);

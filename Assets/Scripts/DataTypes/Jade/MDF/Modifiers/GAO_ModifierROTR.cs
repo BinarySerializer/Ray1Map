@@ -13,12 +13,6 @@ namespace R1Engine.Jade {
 		public float Float_0C { get; set; }
 		public float Float_10 { get; set; }
 		public float Float_14 { get; set; }
-		public float Float_18 { get; set; }
-		public float Float_1C { get; set; }
-		public uint UInt_20 { get; set; }
-		public uint UInt_24 { get; set; }
-		public uint UInt_28 { get; set; }
-		public int[] Ints { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);

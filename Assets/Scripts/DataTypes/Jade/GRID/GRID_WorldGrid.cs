@@ -58,5 +58,10 @@ namespace R1Engine.Jade {
 			}
 			Grid = s.SerializeArray<int>(Grid, Width * Height, name: nameof(Grid));
 		}
+
+		public void Unload() {
+			if (CompressedGrid?.Value != null) Loader.RemoveCacheReference(CompressedGrid.Key);
+			Loader.RemoveCacheReference(Key);
+		}
 	}
 }
