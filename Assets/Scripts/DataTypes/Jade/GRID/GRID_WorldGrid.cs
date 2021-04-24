@@ -60,8 +60,8 @@ namespace R1Engine.Jade {
 		}
 
 		public void Unload() {
-			if (CompressedGrid?.Value != null) Loader.RemoveCacheReference(CompressedGrid.Key);
-			Loader.RemoveCacheReference(Key);
+			if (CompressedGrid?.Value != null) Loader.RemoveCacheReference(CompressedGrid.Key, all: true);
+			Loader.RemoveCacheReference(Key, all: true);
 		}
 	}
 }

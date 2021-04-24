@@ -150,6 +150,7 @@ namespace R1Engine
 			var parsedTexs = new HashSet<uint>();
 
 			var levIndex = 0;
+			uint currentKey = 0;
 
             foreach (var lev in LevelInfos)
             {
@@ -157,9 +158,9 @@ namespace R1Engine
 
                 try
                 {
-                    using (var context = new R1Context(settings))
-                    {
-                        await LoadFilesAsync(context);
+                    using (var context = new R1Context(settings)) {
+						currentKey = 0;
+						await LoadFilesAsync(context);
                         await LoadJadeAsync(context, (Jade_Key)lev.Key);
 
                         TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
@@ -167,6 +168,7 @@ namespace R1Engine
 						if (texList.Textures != null && texList.Textures.Any()) {
 							Debug.Log($"Loaded level. Exporting {texList?.Textures?.Count} textures...");
 							await Controller.WaitIfNecessary();
+
 							foreach (var t in texList.Textures) {
 								if (parsedTexs.Contains(t.Key.Key))
 									continue;
@@ -174,6 +176,7 @@ namespace R1Engine
 								parsedTexs.Add(t.Key.Key);
 
 								Texture2D tex = null;
+								currentKey = t.Key;
 								tex = (t.Content ?? t.Info).ToTexture2D();
 								
 								if (tex == null)
@@ -203,7 +206,11 @@ namespace R1Engine
                 }
 				catch (Exception ex)
                 {
-                    Debug.LogError($"Failed to export for level {lev.MapName}: {ex.ToString()}");
+					if (currentKey == 0) {
+						Debug.LogError($"Failed to export for level {lev.MapName}: {ex.ToString()}");
+					} else {
+						Debug.LogError($"Failed to export for level {lev.MapName}: [{currentKey:X8}] {ex.ToString()}");
+					}
                 }
 
 

@@ -147,9 +147,9 @@ namespace R1Engine.Jade
                     for (int x = 0; x < texture.Width; x++)
                     {
                         if (texture.ColorFormat == TEX_File.TexColorFormat.BPP_8)
-                            tex.SetPixel(x, y, pal.Colors[texture.Content[(y * texture.Width + x)]].GetColor());
+                            tex.SetPixel(x, y, pal.Colors[texture.Content[(y * texture.Width + x)] % pal.Colors.Length].GetColor());
                         else
-                            tex.SetPixel(x, y, pal.Colors[BitHelpers.ExtractBits(texture.Content[(y * texture.Width + x) / 2], 4, x % 2 == 1 ? 0 : 4)].GetColor());
+                            tex.SetPixel(x, y, pal.Colors[BitHelpers.ExtractBits(texture.Content[(y * texture.Width + x) / 2], 4, x % 2 == 1 ? 0 : 4) % pal.Colors.Length].GetColor());
                     }
                 }
 

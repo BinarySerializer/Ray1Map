@@ -327,13 +327,14 @@ namespace R1Engine.Jade {
 		}
 
 		//public List<Jade_Key> previouslyCached = new List<Jade_Key>();
-		public void RemoveCacheReference(Jade_Key key) {
+		public void RemoveCacheReference(Jade_Key key, bool all = false) {
 			var cache = Cache;
 			if (SpecialArray != null && SpecialArray.Lookup.Contains(key)) return;
 			if (cache.ContainsKey(key)) {
 				var file = cache[key];
 				file.CachedCount--;
-				if(file.CachedCount == 0) cache.Remove(key);
+				if (all) file.CachedCount = 0;
+				if (file.CachedCount == 0) cache.Remove(key);
 				//if (file.CachedCount == 0) previouslyCached.Add(key);
 			}
 		}
