@@ -16,19 +16,21 @@ namespace R1Engine
 
             const string key = "CachedColors";
 
-            var cacheDictionary = context.GetStoredObject<Dictionary<Type, Dictionary<uint, Color>>>(key) ?? context.StoreObject(key, new Dictionary<Type, Dictionary<uint, Color>>());
+            var cacheDictionary = context.GetStoredObject<Dictionary<Type, Dictionary<int, Color>>>(key) ?? context.StoreObject(key, new Dictionary<Type, Dictionary<int, Color>>());
 
             var type = c.GetType();
 
             if (!cacheDictionary.ContainsKey(type))
-                cacheDictionary.Add(type, new Dictionary<uint, Color>());
+                cacheDictionary.Add(type, new Dictionary<int, Color>());
 
             var typeDictionary = cacheDictionary[type];
 
-            if (!typeDictionary.ContainsKey(c.ColorValue))
-                typeDictionary.Add(c.ColorValue, new Color(c.Red, c.Green, c.Blue, c.Alpha));
+            var hash = c.GetHashCode();
 
-            return typeDictionary[c.ColorValue];
+            if (!typeDictionary.ContainsKey(hash))
+                typeDictionary.Add(hash, new Color(c.Red, c.Green, c.Blue, c.Alpha));
+
+            return typeDictionary[hash];
         }
 
         public static CustomColor GetColor(this Color c)
