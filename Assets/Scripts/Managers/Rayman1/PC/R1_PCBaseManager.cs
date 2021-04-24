@@ -1379,7 +1379,7 @@ namespace R1Engine
                 hasDefinedDesEtaNames: true,
                 eventTemplates: new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
                 {
-                    // TODO: How does the game match the ETA?
+                    // TODO: Match ETA using the property in the DES
                     [Unity_ObjectManager_R1.WldObjType.Ray] = createEventDataTemplate(allfix.DESIndex_Ray, 0),
                     [Unity_ObjectManager_R1.WldObjType.RayLittle] = createEventDataTemplate(allfix.DESIndex_RayLittle, 0),
                     [Unity_ObjectManager_R1.WldObjType.MapObj] = createEventDataTemplate(allfix.DESIndex_MapObj, 2),

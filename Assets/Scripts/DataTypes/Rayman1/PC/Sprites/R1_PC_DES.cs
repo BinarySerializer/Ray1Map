@@ -14,7 +14,7 @@ namespace R1Engine
         /// </summary>
         public bool RequiresBackgroundClearing { get; set; }
 
-        public uint Allfix_Unk1 { get; set; }
+        public uint WldETAIndex { get; set; }
         public uint RaymanExeSize { get; set; }
         public uint RaymanExeCheckSum1 { get; set; }
 
@@ -67,7 +67,7 @@ namespace R1Engine
 
             if (FileType == Type.AllFix)
             {
-                Allfix_Unk1 = s.Serialize<uint>(Allfix_Unk1, name: nameof(Allfix_Unk1));
+                WldETAIndex = s.Serialize<uint>(WldETAIndex, name: nameof(WldETAIndex));
                 RaymanExeSize = s.Serialize<uint>(RaymanExeSize, name: nameof(RaymanExeSize));
                 RaymanExeCheckSum1 = s.Serialize<uint>(RaymanExeCheckSum1, name: nameof(RaymanExeCheckSum1));
             }
