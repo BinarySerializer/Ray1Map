@@ -55,6 +55,7 @@ namespace R1Engine.Jade
         public TEX_Content_Animated Content_Animated { get; set; }
         public MAT_SpriteGen Content_SpriteGen { get; set; }
         public TEX_Content_Xenon Content_Xenon { get; set; }
+        public DDS_Header Content_DDS_Header { get; set; }
         public DDS Content_DDS { get; set; }
         public byte[] Content { get; set; }
 
@@ -142,12 +143,34 @@ namespace R1Engine.Jade
                         break;
 
                     case TexFileFormat.DDS:
-                        if (IsContent) {
-                            if (contentSize > 0) {
-                                if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
+                        if (IsContent) 
+                        {
+                            if (contentSize > 0) 
+                            {
+                                if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) 
+                                {
                                     Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Xenon));
-                                } else {
-                                    Content_DDS = s.SerializeObject<DDS>(Content_DDS, x => x.ForceSingleNoMipmaps = true, name: nameof(Content_DDS));
+                                }
+                                else 
+                                { 
+                                    // Serialize the header first, then set a custom one for the DDS struct based on the Jade properties instead
+                                    Content_DDS_Header = s.SerializeObject<DDS_Header>(Content_DDS_Header, name: nameof(Content_DDS_Header));
+                                    Content_DDS = s.SerializeObject<DDS>(Content_DDS, x =>
+                                    {
+                                        x.SkipHeader = true;
+                                        x.Header = new DDS_Header
+                                        {
+                                            Flags = DDS_Header.DDS_HeaderFlags.DDS_HEADER_FLAGS_TEXTURE,
+                                            Height = Height,
+                                            Width = Width,
+                                            PixelFormat = new DDS_PixelFormat
+                                            {
+                                                Flags = DDS_PixelFormat.DDS_PixelFormatFlags.DDPF_FOURCC,
+                                                FourCC = Content_DDS_Header.PixelFormat.FourCC,
+                                                RGBBitCount = 32,
+                                            },
+                                        };
+                                    }, name: nameof(Content_DDS));
                                 }
                                 hasReadContent = true;
                             }

@@ -4,12 +4,32 @@ namespace R1Engine.Jade
 {
     public class TEX_CubeMap : Jade_File 
     {
-        public DDS DDSData { get; set; }
+        public DDS_Header DDS_Header { get; set; }
+        public DDS DDS { get; set; }
         public TEX_File Header { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            DDSData = s.SerializeObject<DDS>(DDSData, name: nameof(DDSData));
+            DDS_Header = s.SerializeObject<DDS_Header>(DDS_Header, name: nameof(DDS_Header));
+            DDS = s.SerializeObject<DDS>(DDS, x =>
+            {
+                x.SkipHeader = true;
+                x.Header = new DDS_Header()
+                {
+                    Flags = DDS_Header.DDS_HeaderFlags.DDS_HEADER_FLAGS_TEXTURE,
+                    Height = DDS_Header.Height,
+                    Width = DDS_Header.Width,
+                    Caps = DDS_Header.DDS_CapsFlags.DDS_SURFACE_FLAGS_CUBEMAP,
+                    Caps2 = DDS_Header.DDS_Caps2Flags.DDSCAPS2_CUBEMAP | DDS_Header.DDS_Caps2Flags.DDS_CUBEMAP_ALLFACES,
+                    PixelFormat = new DDS_PixelFormat
+                    {
+                        Flags = DDS_PixelFormat.DDS_PixelFormatFlags.DDPF_FOURCC,
+                        FourCC = DDS_Header.PixelFormat.FourCC,
+                        RGBBitCount = 32
+                    },
+                };
+            }, name: nameof(DDS));
+
             if (s.CurrentPointer.AbsoluteOffset + 0x20 <= Offset.AbsoluteOffset + FileSize) {
                 Header = s.SerializeObject<TEX_File>(Header, onPreSerialize: h => {
                     h.FileSize = 0x20;

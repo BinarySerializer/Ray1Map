@@ -194,7 +194,7 @@ namespace R1Engine
 								if (parsedTexs.Contains(t.Key.Key))
 									continue;
 								parsedTexs.Add(t.Key.Key);
-								var dds = t.Value.DDSData;
+								var dds = t.Value.DDS;
 
                                 for (int i = 0; i < dds.Textures.Length; i++)
                                 {

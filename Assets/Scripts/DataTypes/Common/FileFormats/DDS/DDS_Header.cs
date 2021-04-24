@@ -5,7 +5,7 @@ namespace R1Engine
 {
     public class DDS_Header : BinarySerializable
     {
-        public bool ForceNoMipmaps { get; set; } // Set before serializing
+        public uint Magic { get; set; }
 
         public uint StructSize { get; set; }
         public DDS_HeaderFlags Flags { get; set; }
@@ -20,7 +20,7 @@ namespace R1Engine
         public uint Depth { get; set; }
         public uint GetDepth => Depth == 0 ? 1 : Depth;
         public uint MipMapCount { get; set; }
-        public uint GetMipMapCount => MipMapCount == 0 || ForceNoMipmaps ? 1 : MipMapCount;
+        public uint GetMipMapCount => MipMapCount == 0 ? 1 : MipMapCount;
         public uint[] Reserved { get; set; }
         public DDS_PixelFormat PixelFormat { get; set; }
         public DDS_CapsFlags Caps { get; set; }
@@ -31,6 +31,11 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
+            Magic = s.Serialize<uint>(Magic, name: nameof(Magic));
+
+            if (Magic != 0x20534444)
+                throw new Exception("Invalid DDS header");
+
             StructSize = s.Serialize<uint>(StructSize, name: nameof(StructSize));
 
             if (StructSize != 124)
