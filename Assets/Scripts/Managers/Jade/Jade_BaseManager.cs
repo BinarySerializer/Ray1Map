@@ -234,6 +234,9 @@ namespace R1Engine
 			foreach (var g in groups) {
 				if(!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;
 				var kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
+				if (kvpair.Value == null) {
+					kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Key.Type == Jade_Key.KeyType.Map);
+				}
 				//if (kvpair.Value != null) {
 				//	Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
 				//}

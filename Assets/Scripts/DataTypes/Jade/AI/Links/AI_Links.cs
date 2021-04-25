@@ -76,6 +76,9 @@ namespace R1Engine.Jade {
 				case GameModeSelection.RaymanRavingRabbids2PC:
 					links = new AI_Links_RRR2_Wii();
 					break;
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030819:
+					links = new AI_Links_PoP_SoT_PS2_Proto();
+					break;
 			}
 			if (links != null) {
 				links.Init();

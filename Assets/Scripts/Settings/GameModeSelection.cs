@@ -720,6 +720,10 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR2, Game.Jade_RRR2, "Rayman Raving Rabbids 2 (Wii)", typeof(Jade_RRR2_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbids2Wii,
+
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SandsOfTime, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PS2 - Prototype 2003/08/19)", typeof(Jade_PoP_SoT_PS2_Prototype_Manager), Platform.PS2)]
+        PrinceOfPersiaTheSandsOfTimePS2_20030819,
         #endregion
     }
 }
