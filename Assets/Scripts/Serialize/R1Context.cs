@@ -11,17 +11,14 @@ namespace R1Engine
     {
         public R1Context(string basePath, GameSettings settings) : base(
             basePath: basePath, // Pass in the base path
-            defaultEncoding: R1Engine.Settings.StringEncoding, // Use default string encoding
+            settings: settings, // Pass in the settings
             serializerLog: new R1SerializerLog(), // Use R1 serializer log for logging to a file
             fileManager: new R1FileManager(), // Use R1 file manager for use with FileSystem
             logger: new UnityLogger()) // Use Unity logger
-        {
-            Settings = settings;
-        }
+        { }
         public R1Context(GameSettings settings) : this(settings.GameDirectory, settings) { }
 
-        public GameSettings Settings { get; }
-        public override bool CreateBackupOnWrite => R1Engine.Settings.BackupFiles;
+        public new GameSettings Settings => GetSettings<GameSettings>();
 
         public class R1FileManager : IFileManager
         {
@@ -44,20 +41,9 @@ namespace R1Engine
         
         public class UnityLogger : ILogger
         {
-            public void Log(object log)
-            {
-                Debug.Log(log);
-            }
-
-            public void LogWarning(object log)
-            {
-                Debug.LogWarning(log);
-            }
-
-            public void LogError(object log)
-            {
-                Debug.LogError(log);
-            }
+            public void Log(object log) => Debug.Log(log);
+            public void LogWarning(object log) => Debug.LogWarning(log);
+            public void LogError(object log) => Debug.LogError(log);
         }
 
         public class R1SerializerLog : ISerializerLog

@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Text;
+using BinarySerializer;
 
 namespace R1Engine
 {
     /// <summary>
     /// Common game settings
     /// </summary>
-    public class GameSettings
+    public class GameSettings : ISerializerSettings
     {
         /// <summary>
         /// Default constructor
@@ -28,6 +30,18 @@ namespace R1Engine
             World = world;
             Level = level;
         }
+
+        // Serializer settings
+
+        /// <summary>
+        /// The default string encoding to use when none is specified
+        /// </summary>
+        public Encoding DefaultStringEncoding => Settings.StringEncoding;
+
+        /// <summary>
+        /// Indicates if a backup file should be created when writing to a file
+        /// </summary>
+        public bool CreateBackupOnWrite => Settings.BackupFiles;
 
         // Global settings
 
