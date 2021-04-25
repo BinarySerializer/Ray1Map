@@ -80,7 +80,7 @@ public class UnityWindow : EditorWindow
 
         rect = new Rect(rect.x, rect.y, rect.width - ButtonWidth, rect.height);
 
-        value = !includeLabel ? EditorGUI.TextField(rect, value) : EditorGUI.TextField(rect, new GUIContent(title), value);
+        value = !includeLabel ? EditorGUI.TextField(rect, value) : EditorGUI.TextField(rect, new GUIContent(title, title), value);
 
         return value;
     }
