@@ -686,8 +686,14 @@ namespace R1Engine
         BeyondGoodAndEvilPS2,
 
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PC)", typeof(Jade_BGE_PC_Manager), Platform.PC)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PC)", typeof(Jade_KingKong_PC_Manager), Platform.PC)]
         KingKongPC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (GC)", typeof(Jade_KingKong_GC_Manager), Platform.GC)]
+        KingKongGC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PS2)", typeof(Jade_KingKong_PS2_Manager), Platform.PS2)]
+        KingKongPS2,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_PCGamersEdition, Game.Jade_KingKong, "King Kong (PC - Gamer's Edition)", typeof(Jade_KingKong_PCGamersEdition_Manager), Platform.PC)]
         KingKongPCGamersEdition,

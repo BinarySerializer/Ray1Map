@@ -28,7 +28,7 @@ namespace R1Engine
 		public virtual string CommonLevelBasePath => @"ROOT\EngineDatas\06 Levels\";
 
 		// Game actions
-		public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+		public virtual GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
 		{
 			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
 			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
