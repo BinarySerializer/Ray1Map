@@ -34,7 +34,7 @@ namespace R1Engine
 
             public async Task FillCacheForReadAsync(int length, Reader reader)
             {
-                if (reader.BaseStream is PartialHttpStream httpStream)
+                if (reader.BaseStream.InnerStream is PartialHttpStream httpStream)
                     await httpStream.FillCacheForRead(length);
             }
         }

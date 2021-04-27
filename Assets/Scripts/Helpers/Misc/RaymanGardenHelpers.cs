@@ -110,7 +110,7 @@ namespace R1Engine {
                             using (Writer writer = new Writer(new MemoryStream())) {
                                 DecompressString(compressed, writer);
                                 writer.BaseStream.Position = 0;
-                                decompressed = (writer.BaseStream as MemoryStream).ToArray();
+                                decompressed = (writer.BaseStream.InnerStream as MemoryStream).ToArray();
                             }
                         }
 

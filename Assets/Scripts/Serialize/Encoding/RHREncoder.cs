@@ -104,7 +104,7 @@ namespace R1Engine
                         }
                     }
                     writer.BaseStream.Position = 0;
-                    byte[] decompressed2 = (writer.BaseStream as MemoryStream).ToArray();
+                    byte[] decompressed2 = (writer.BaseStream.InnerStream as MemoryStream).ToArray();
                     Array.Copy(decompressed2, 0, decompressed, outPos, decompressed2.Length);
                     outPos += decompressed2.Length;
                 }
