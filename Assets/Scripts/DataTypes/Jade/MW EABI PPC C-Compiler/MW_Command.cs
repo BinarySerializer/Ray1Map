@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using BinarySerializer;
 
-namespace R1Engine.XMW {
-	public class XMW_Command : BinarySerializable {
+namespace R1Engine.MW {
+	public class MW_Command : BinarySerializable {
 		public Command CommandType { get; set; }
 		public uint ParamUInt { get; set; }
 		public ushort ParamUShort { get; set; }

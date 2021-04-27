@@ -441,7 +441,6 @@ public class SettingsWindow : UnityWindow
 
                 async UniTask ExecuteGameAction(GameAction action) {
                     try {
-                        await UniTask.SwitchToThreadPool();
                         Controller.StartStopwatch();
                         // Run the action
                         await action.GameActionFunc(inputDir, outputDir);
@@ -511,11 +510,14 @@ public class SettingsWindow : UnityWindow
 
                     async UniTask ExecuteGameAction(GameAction action) {
                         try {
+                            Controller.StartStopwatch();
                             // Run the action
                             await action.GameActionFunc(null, Path.Combine(outputDir, mode.ToString()));
                         } catch (Exception ex) {
                             Debug.LogWarning($"Mode {mode} failed with exception: {ex.Message}");
                         } finally {
+                            Controller.StopStopwatch();
+
                             // Unload textures
                             await Resources.UnloadUnusedAssets();
                         }
