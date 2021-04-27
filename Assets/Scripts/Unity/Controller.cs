@@ -104,7 +104,7 @@ namespace R1Engine
             loadTimer.Stop();
 
             var startEvent = LevelEditorData.Level.Rayman ?? LevelEditorData.Level.ObjManager?.GetMainObject(LevelEditorData.Level.EventData);
-
+            levelController.editor.cam.InitCamera3D();
             if (startEvent != null) {
                 var startEventBehaviour = levelController.GetAllObjects.FindItem(x => x.ObjData == startEvent);
                 if (startEventBehaviour != null) {

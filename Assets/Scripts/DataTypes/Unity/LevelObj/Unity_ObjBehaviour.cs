@@ -176,7 +176,9 @@ namespace R1Engine
             if (y < minY)
                 y = minY;
 
-            transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
+            var pos = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
+            transform.position = pos;
+            if (!HasInitialized) midpoint = pos;
         }
 
         public void InitGizmo() {
@@ -194,6 +196,7 @@ namespace R1Engine
                 UpdateGizmoPosition(ObjData.ObjCollision, ObjData.Pivot);
             }
         }
+
         public void UpdateGizmoPosition(Unity_ObjAnimationCollisionPart[] collision, Vector2 pivot) {
             if (collision == null || collision.Length == 0) {
                 defaultRenderer.transform.localPosition = Vector3.zero;
@@ -228,7 +231,9 @@ namespace R1Engine
             // Convert position to unity space
             //transform.position = new Vector3(pos.x / 16f - 0.5f, pos.z / 32f, -pos.y / 16f + 0.5f);
             Vector3 isometricScale = LevelEditorData.Level.IsometricData.AbsoluteObjectScale;
-            transform.position = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y), isometricScale);
+            var pos3D = Vector3.Scale(new Vector3(pos.x, pos.z, -pos.y), isometricScale);
+            transform.position = pos3D;
+            if (!HasInitialized) midpoint = pos3D;
 
             // Billboard
             Camera cam = Controller.obj.levelEventController.editor.cam.camera3D;
@@ -659,18 +664,20 @@ namespace R1Engine
                 InitGizmo();
             }
             bool enableBoxCollider = EnableBoxCollider;
-            if (boxCollider != null) {
+            if (ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
+                if (boxCollider3D != null) {
+                    // Update visibility
+                    boxCollider3D.enabled = enableBoxCollider;
+
+                    // Set new midpoint
+                    midpoint = transform.TransformPoint(boxCollider3D.center);
+                }
+            } else if (boxCollider != null) {
                 // Update visibility
                 boxCollider.enabled = enableBoxCollider;
 
                 // Set new midpoint
                 midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
-            } else if (boxCollider3D != null) {
-                // Update visibility
-                boxCollider3D.enabled = enableBoxCollider;
-
-                // Set new midpoint
-                midpoint = transform.TransformPoint(boxCollider3D.center);
             }
             // Set link line to cube
             lineRend.SetPosition(0, midpoint);

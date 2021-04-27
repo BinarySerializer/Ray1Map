@@ -69,6 +69,52 @@ namespace R1Engine {
             return false;
         }
 
+        public void InitCamera3D() {
+            UpdateOrthographic_Camera3D();
+        }
+
+        private void UpdateOrthographic_Camera3D() {
+            if (LevelEditorData.Level != null) {
+
+                if (LevelEditorData.Level?.IsometricData != null) {
+                    // Update 3D camera
+                    float scl = 1f;
+                    Quaternion rot3D = LevelEditorData.Level.IsometricData.ViewAngle;
+                    camera3D.transform.rotation = rot3D;
+                    Vector3 v = rot3D * Vector3.back;
+                    float w = LevelEditorData.Level.IsometricData.TilesWidth * levelTilemapController.CellSizeInUnits;
+                    float h = (LevelEditorData.Level.IsometricData.TilesHeight) * levelTilemapController.CellSizeInUnits;
+                    float colYDisplacement = LevelEditorData.Level.IsometricData.CalculateYDisplacement();
+                    float colXDisplacement = LevelEditorData.Level.IsometricData.CalculateXDisplacement();
+                    /*if (!camera3D.gameObject.activeSelf) {
+                        Debug.Log(LevelEditorData.Level.IsometricData.TilesWidth
+                            + "x" + LevelEditorData.Level.IsometricData.TilesHeight
+                            + " - " + LevelEditorData.Level.IsometricData.CollisionWidth
+                            + "x" + LevelEditorData.Level.IsometricData.CollisionHeight);
+                    }*/
+                    camera3D.orthographic = true;
+                    camera3D.transform.position = v * 300 + rot3D * ((pos -
+                        new Vector3((w - colXDisplacement) / 2f, -(h - colYDisplacement) / 2f, 0f)) / scl); // Move back 300 units
+                    camera3D.orthographicSize = Camera.main.orthographicSize / scl;
+
+                    // Activate
+                    if (!camera3D.gameObject.activeSelf) camera3D.gameObject.SetActive(true);
+                    camera3DOverlay.orthographicSize = camera3D.orthographicSize;
+                    camera3DOverlay.orthographic = true;
+                    camera2DOverlay.cullingMask &= ~(1 << LayerMask.NameToLayer("3D Overlay"));
+
+
+                    if (FreeCameraMode) {
+                        StopLerp();
+                        _freeCameraMode = true;
+                        cullingMask = Camera.main.cullingMask;
+                        cullingMask2DOverlay = camera2DOverlay.cullingMask;
+                        UpdateCullingMask(_freeCameraMode);
+                    }
+                }
+            }
+        }
+
         void UpdateOrthographic() {
             //Allow RMB panning only in certain modes, otherwise force wasd movement
             bool canPan = (editor.currentMode == LevelEditorBehaviour.EditMode.Events || editor.currentMode == LevelEditorBehaviour.EditMode.Links);
@@ -170,42 +216,7 @@ namespace R1Engine {
                 Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, fov, Time.deltaTime * 8);
                 camera2DOverlay.orthographicSize = Camera.main.orthographicSize;
 
-                if (LevelEditorData.Level?.IsometricData != null) {
-                    // Update 3D camera
-                    float scl = 1f;
-                    Quaternion rot3D = LevelEditorData.Level.IsometricData.ViewAngle;
-                    camera3D.transform.rotation = rot3D;
-                    Vector3 v = rot3D * Vector3.back;
-                    float w = LevelEditorData.Level.IsometricData.TilesWidth * levelTilemapController.CellSizeInUnits;
-                    float h = (LevelEditorData.Level.IsometricData.TilesHeight) * levelTilemapController.CellSizeInUnits;
-                    float colYDisplacement = LevelEditorData.Level.IsometricData.CalculateYDisplacement();
-                    float colXDisplacement = LevelEditorData.Level.IsometricData.CalculateXDisplacement();
-                    /*if (!camera3D.gameObject.activeSelf) {
-                        Debug.Log(LevelEditorData.Level.IsometricData.TilesWidth
-                            + "x" + LevelEditorData.Level.IsometricData.TilesHeight
-                            + " - " + LevelEditorData.Level.IsometricData.CollisionWidth
-                            + "x" + LevelEditorData.Level.IsometricData.CollisionHeight);
-                    }*/
-                    camera3D.orthographic = true;
-                    camera3D.transform.position = v * 300 + rot3D * ((pos - 
-                        new Vector3((w - colXDisplacement) / 2f, -(h - colYDisplacement) / 2f, 0f)) / scl); // Move back 300 units
-                    camera3D.orthographicSize = Camera.main.orthographicSize / scl;
-
-                    // Activate
-                    if (!camera3D.gameObject.activeSelf) camera3D.gameObject.SetActive(true);
-                    camera3DOverlay.orthographicSize = camera3D.orthographicSize;
-                    camera3DOverlay.orthographic = true;
-                    camera2DOverlay.cullingMask &= ~(1 << LayerMask.NameToLayer("3D Overlay"));
-
-
-                    if (FreeCameraMode) {
-                        StopLerp();
-                        _freeCameraMode = true;
-                        cullingMask = Camera.main.cullingMask;
-                        cullingMask2DOverlay = camera2DOverlay.cullingMask;
-                        UpdateCullingMask(_freeCameraMode);
-                    }
-                }
+                UpdateOrthographic_Camera3D();
             }
         }
 
@@ -463,13 +474,14 @@ namespace R1Engine {
                     if (orthographic) {
                         Vector3 target = camera3D.transform.InverseTransformPoint(obj.midpoint);
                         center = transform.TransformPoint(new Vector3(target.x, target.y, orthographicZPosition));
-                        
                         //center = obj.midpoint;
-                        size = obj.boxCollider3D?.size ?? Vector3.one;
                     } else {
                         center = obj.midpoint;
-                        size = obj.boxCollider3D?.size ?? Vector3.one;
                     }
+                    if (obj.boxCollider3D == null)
+                        size = Vector3.one;
+                    else
+                        size = obj.boxCollider3D.size;
                 } else {
                     center = obj.midpoint;
                     size = obj.boxCollider?.size ?? Vector3.one;
