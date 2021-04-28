@@ -31,7 +31,7 @@ namespace R1Engine.Jade
         public uint Type5_UnkStructs_Count { get; set; }
         public UnkStruct[] Type5_UnkStructs { get; set; }
         public ColMapPoint[][] Type5_AdditionalColMapPoints { get; set; }
-        public GEO_GeometricObject_CollisionData Type5_CollisionData { get; set; }
+        public COL_OK3 Type5_CollisionData { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
@@ -82,7 +82,7 @@ namespace R1Engine.Jade
                             Type5_AdditionalColMapPoints[i] = s.SerializeObjectArray(Type5_AdditionalColMapPoints[i], Type5_UnkStructs[i].ColMapPointsCount, name: $"{nameof(Type5_AdditionalColMapPoints)}[{i}]");
 
                         if ((Flags & 8) == 8) {
-                            Type5_CollisionData = s.SerializeObject<GEO_GeometricObject_CollisionData>(Type5_CollisionData, name: nameof(Type5_CollisionData));
+                            Type5_CollisionData = s.SerializeObject<COL_OK3>(Type5_CollisionData, name: nameof(Type5_CollisionData));
                         }
                     }
 

@@ -8,24 +8,24 @@ namespace R1Engine.Jade {
 	public class WOR_World : Jade_File {
 		public Jade_FileType FileType { get; set; }
 		public uint Version { get; set; }
-		public uint UInt_08 { get; set; }
-		public uint UInt_0C { get; set; } // a key?
+		public uint TotalGameObjectsCount { get; set; }
+		public uint AmbientColor { get; set; } // a key?
 		public string Name { get; set; }
 		public uint UInt_AfterName { get; set; }
-		public Jade_Matrix Matrix { get; set; }
-		public float Float_90 { get; set; }
-		public uint UInt_94 { get; set; } // a key?
-		public uint UInt_98 { get; set; } // a key?
+		public Jade_Matrix CameraPosSave { get; set; }
+		public float FieldOfVision { get; set; }
+		public uint BackgroundColor { get; set; } // a key?
+		public uint AmbientColor2 { get; set; } // a key?
 		public uint UInt_9C_Version5 { get; set; }
-		public uint UInt_A0 { get; set; }
+		public uint LODCut { get; set; }
 		public byte[] Bytes_A4 { get; set; }
 		public XenonStruct Xenon { get; set; }
 		public Jade_Reference<GRID_WorldGrid> Grid0 { get; set; }
 		public Jade_Reference<GRID_WorldGrid> Grid1 { get; set; }
 		public Jade_Reference<WOR_GameObjectGroup> GameObjects { get; set; }
-		public Jade_Reference<WAY_AllNetworks> Networks { get; set; }
+		public Jade_Reference<WAY_AllNetworks> AllNetworks { get; set; }
 		public Jade_TextReference Text { get; set; }
-		public UnknownStruct[] UnknownStructs { get; set; }
+		public Secto[] AllSectos { get; set; }
 		public Jade_Reference<LIGHT_Rejection> LightRejection { get; set; }
 
 		public List<OBJ_GameObject> SerializedGameObjects { get; set; } = new List<OBJ_GameObject>();
@@ -38,19 +38,19 @@ namespace R1Engine.Jade {
 			Loader.LoadedWorlds.Add(this);
 
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
-			UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
-			UInt_0C = s.Serialize<uint>(UInt_0C, name: nameof(UInt_0C));
+			TotalGameObjectsCount = s.Serialize<uint>(TotalGameObjectsCount, name: nameof(TotalGameObjectsCount));
+			AmbientColor = s.Serialize<uint>(AmbientColor, name: nameof(AmbientColor));
 			Name = s.SerializeString(Name, length: 60, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 
 			if (!Loader.IsBinaryData) UInt_AfterName = s.Serialize<uint>(UInt_AfterName, name: nameof(UInt_AfterName));
-			Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
-			Float_90 = s.Serialize<float>(Float_90, name: nameof(Float_90));
-			UInt_94 = s.Serialize<uint>(UInt_94, name: nameof(UInt_94));
-			UInt_98 = s.Serialize<uint>(UInt_98, name: nameof(UInt_98));
+			CameraPosSave = s.SerializeObject<Jade_Matrix>(CameraPosSave, name: nameof(CameraPosSave));
+			FieldOfVision = s.Serialize<float>(FieldOfVision, name: nameof(FieldOfVision));
+			BackgroundColor = s.Serialize<uint>(BackgroundColor, name: nameof(BackgroundColor));
+			AmbientColor2 = s.Serialize<uint>(AmbientColor2, name: nameof(AmbientColor2));
 			if (Version >= 5 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
 				UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
 			}
-			UInt_A0 = s.Serialize<uint>(UInt_A0, name: nameof(UInt_A0));
+			LODCut = s.Serialize<uint>(LODCut, name: nameof(LODCut));
 			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
 				Xenon = s.SerializeObject<XenonStruct>(Xenon, onPreSerialize: x => x.Version = Version, name: nameof(Xenon));
 			} else {
@@ -60,50 +60,50 @@ namespace R1Engine.Jade {
 			Grid1 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid1, name: nameof(Grid1))?.Resolve();
 			GameObjects = s.SerializeObject<Jade_Reference<WOR_GameObjectGroup>>(GameObjects, name: nameof(GameObjects))
 				?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
-			Networks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(Networks, name: nameof(Networks))?.Resolve();
+			AllNetworks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(AllNetworks, name: nameof(AllNetworks))?.Resolve();
 			Text = s.SerializeObject<Jade_TextReference>(Text, name: nameof(Text))?.Resolve();
-			if (Version > 3) {
-				UnknownStructs = s.SerializeObjectArray<UnknownStruct>(UnknownStructs, 64, name: nameof(UnknownStructs));
+			if (Version >= 4) {
+				AllSectos = s.SerializeObjectArray<Secto>(AllSectos, 64, name: nameof(AllSectos));
 			}
 			if (Version > 4 && s.GetR1Settings().Jade_Version == Jade_Version.Xenon && s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
 				LightRejection = s.SerializeObject<Jade_Reference<LIGHT_Rejection>>(LightRejection, name: nameof(LightRejection))?.Resolve();
 			}
 		}
 
-		public class UnknownStruct : BinarySerializable {
-			public uint UInt_00 { get; set; }
-			public byte[] Bytes_04 { get; set; }
-			public byte[] Bytes_14 { get; set; }
+		public class Secto : BinarySerializable {
+			public uint Flags { get; set; }
+			public byte[] RefVis { get; set; }
+			public byte[] RefAct { get; set; }
 			public byte[] Bytes_24 { get; set; }
-			public InnerStruct[] InnerStructs { get; set; }
+			public Portal[] Portals { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-				Bytes_04 = s.SerializeArray<byte>(Bytes_04, 0x10, name: nameof(Bytes_04));
-				Bytes_14 = s.SerializeArray<byte>(Bytes_14, 0x10, name: nameof(Bytes_14));
+				Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+				RefVis = s.SerializeArray<byte>(RefVis, 0x10, name: nameof(RefVis));
+				RefAct = s.SerializeArray<byte>(RefAct, 0x10, name: nameof(RefAct));
 				if(!Loader.IsBinaryData) Bytes_24 = s.SerializeArray<byte>(Bytes_24, 0x40, name: nameof(Bytes_24));
-				InnerStructs = s.SerializeObjectArray<InnerStruct>(InnerStructs, 16, name: nameof(InnerStructs));
+				Portals = s.SerializeObjectArray<Portal>(Portals, 16, name: nameof(Portals));
 			}
 
-			public class InnerStruct : BinarySerializable {
-				public short Short_00 { get; set; }
-				public byte Byte_02 { get; set; }
-				public byte Byte_03 { get; set; }
-				public Jade_Vector Vector_04 { get; set; }
-				public Jade_Vector Vector_10 { get; set; }
-				public Jade_Vector Vector_1C { get; set; }
-				public Jade_Vector Vector_28 { get; set; }
+			public class Portal : BinarySerializable {
+				public short Flags { get; set; }
+				public byte ShareSect { get; set; }
+				public byte SharePortal { get; set; }
+				public Jade_Vector vA { get; set; }
+				public Jade_Vector vB { get; set; }
+				public Jade_Vector vC { get; set; }
+				public Jade_Vector vD { get; set; }
 				public byte[] Bytes_34 { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-					Short_00 = s.Serialize<short>(Short_00, name: nameof(Short_00));
-					Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
-					Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
-					Vector_04 = s.SerializeObject<Jade_Vector>(Vector_04, name: nameof(Vector_04));
-					Vector_10 = s.SerializeObject<Jade_Vector>(Vector_10, name: nameof(Vector_10));
-					Vector_1C = s.SerializeObject<Jade_Vector>(Vector_1C, name: nameof(Vector_1C));
-					Vector_28 = s.SerializeObject<Jade_Vector>(Vector_28, name: nameof(Vector_28));
+					Flags = s.Serialize<short>(Flags, name: nameof(Flags));
+					ShareSect = s.Serialize<byte>(ShareSect, name: nameof(ShareSect));
+					SharePortal = s.Serialize<byte>(SharePortal, name: nameof(SharePortal));
+					vA = s.SerializeObject<Jade_Vector>(vA, name: nameof(vA));
+					vB = s.SerializeObject<Jade_Vector>(vB, name: nameof(vB));
+					vC = s.SerializeObject<Jade_Vector>(vC, name: nameof(vC));
+					vD = s.SerializeObject<Jade_Vector>(vD, name: nameof(vD));
 					if (!Loader.IsBinaryData) Bytes_34 = s.SerializeArray<byte>(Bytes_34, 0x40, name: nameof(Bytes_34));
 				}
 			}
