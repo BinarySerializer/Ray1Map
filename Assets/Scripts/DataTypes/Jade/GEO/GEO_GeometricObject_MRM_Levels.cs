@@ -4,36 +4,34 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	// Found in GEO_p_CreateFromBuffer
 	public class GEO_GeometricObject_MRM_Levels : BinarySerializable {
-		public uint Type { get; set; }
-		public bool HasShortPerVertex { get; set; }
-		public uint VerticesCount { get; set; }
+		public GEO_GeometricObject GeometricObject { get; set; }
 
 		public float Type4_Float { get; set; }
 		public uint LevelsCount { get; set; }
 		public uint[] ElementCounts { get; set; }
 		public float[] Thresholds { get; set; }
-		public short[] VertexShorts { get; set; }
+		public short[] ReorderBuffer { get; set; }
 
-		public uint UInt_Type3_0 { get; set; }
-		public uint[] UInts_Type3_0 { get; set; }
-		public uint UInt_Type3_1 { get; set; }
-		public uint[] UInts_Type3_1 { get; set; }
+		public uint TotalVerticesCount { get; set; }
+		public uint[] LevelsVerticesCount { get; set; }
+		public uint TotalUVsCount { get; set; }
+		public uint[] LevelsUVsCount { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {			
-			if(Type >= 4) Type4_Float = s.Serialize<float>(Type4_Float, name: nameof(Type4_Float));
+			if(GeometricObject.Version >= 4) Type4_Float = s.Serialize<float>(Type4_Float, name: nameof(Type4_Float));
 			LevelsCount = s.Serialize<uint>(LevelsCount, name: nameof(LevelsCount));
 
 			ElementCounts = s.SerializeArray<uint>(ElementCounts, LevelsCount, name: nameof(ElementCounts));
 			Thresholds = s.SerializeArray<float>(Thresholds, (LevelsCount > 0) ? LevelsCount - 1 : 0, name: nameof(Thresholds));
 
-			if(HasShortPerVertex)
-				VertexShorts = s.SerializeArray<short>(VertexShorts, VerticesCount, name: nameof(VertexShorts));
+			if(GeometricObject.HasReorderBuffer != 0)
+				ReorderBuffer = s.SerializeArray<short>(ReorderBuffer, GeometricObject.VerticesCount, name: nameof(ReorderBuffer));
 
-			if (Type >= 3) {
-				UInt_Type3_0 = s.Serialize<uint>(UInt_Type3_0, name: nameof(UInt_Type3_0));
-				UInts_Type3_0 = s.SerializeArray<uint>(UInts_Type3_0, LevelsCount, name: nameof(UInts_Type3_0));
-				UInt_Type3_1 = s.Serialize<uint>(UInt_Type3_1, name: nameof(UInt_Type3_1));
-				UInts_Type3_1 = s.SerializeArray<uint>(UInts_Type3_1, LevelsCount, name: nameof(UInts_Type3_1));
+			if (GeometricObject.Version >= 3) {
+				TotalVerticesCount = s.Serialize<uint>(TotalVerticesCount, name: nameof(TotalVerticesCount));
+				LevelsVerticesCount = s.SerializeArray<uint>(LevelsVerticesCount, LevelsCount, name: nameof(LevelsVerticesCount));
+				TotalUVsCount = s.Serialize<uint>(TotalUVsCount, name: nameof(TotalUVsCount));
+				LevelsUVsCount = s.SerializeArray<uint>(LevelsUVsCount, LevelsCount, name: nameof(LevelsUVsCount));
 			}
 		}
 	}

@@ -8,7 +8,7 @@ namespace R1Engine.Jade {
 		public uint Version { get; set; }
 		public uint VerticesCount { get; set; }
 		public int HasMRM { get; set; }
-		public int HasShortPerVertex { get; set; }
+		public int HasReorderBuffer { get; set; }
 		public uint ColorsCount { get; set; }
 		public uint UVsCount { get; set; }
 		public uint ElementsCount { get; set; }
@@ -26,10 +26,10 @@ namespace R1Engine.Jade {
 		public GEO_GeometricObjectElement[] Elements { get; set; }
 		public uint ElementsFlags { get; set; }
 
-		public GEO_GeometricObject_MRM_Levels MRM { get; set; }
+		public GEO_GeometricObject_MRM_Levels MRM_Levels { get; set; }
 
-		public uint Last_Count { get; set; }
-		public uint Type2_EndCode { get; set; }
+		public uint SpritesElementsCount { get; set; }
+		public uint Version2_EndCode { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -39,7 +39,7 @@ namespace R1Engine.Jade {
 				Version = s.Serialize<uint>(Version, name: nameof(Version));
 				VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
 				HasMRM = s.Serialize<int>(HasMRM, name: nameof(HasMRM));
-				if(HasMRM != 0) HasShortPerVertex = s.Serialize<int>(HasShortPerVertex, name: nameof(HasShortPerVertex));
+				if(HasMRM != 0) HasReorderBuffer = s.Serialize<int>(HasReorderBuffer, name: nameof(HasReorderBuffer));
 			} else {
 				VerticesCount = Code_00;
 				Version = 0;
@@ -78,18 +78,16 @@ namespace R1Engine.Jade {
 
 			// Serialize MRM
 			if (HasMRM != 0) {
-				MRM = s.SerializeObject<GEO_GeometricObject_MRM_Levels>(MRM, onPreSerialize: m => {
-					m.Type = Version;
-					m.VerticesCount = VerticesCount;
-					m.HasShortPerVertex = HasShortPerVertex != 0;
-				}, name: nameof(MRM));
+				MRM_Levels = s.SerializeObject<GEO_GeometricObject_MRM_Levels>(MRM_Levels, onPreSerialize: m => {
+					m.GeometricObject = this;
+				}, name: nameof(MRM_Levels));
 			}
 
-			Last_Count = s.Serialize<uint>(Last_Count, name: nameof(Last_Count));
-			if (Last_Count != 0 && BitHelpers.ExtractBits((int)Last_Count, 24, 8) == 0) {
-				throw new NotImplementedException($"TODO: Implement {GetType()}: Last");
+			SpritesElementsCount = s.Serialize<uint>(SpritesElementsCount, name: nameof(SpritesElementsCount));
+			if (SpritesElementsCount != 0 && BitHelpers.ExtractBits((int)SpritesElementsCount, 24, 8) == 0) {
+				throw new NotImplementedException($"TODO: Implement {GetType()}: SpritesElements");
 			}
-			if(Version >= 2) Type2_EndCode = s.Serialize<uint>(Type2_EndCode, name: nameof(Type2_EndCode));
+			if(Version >= 2) Version2_EndCode = s.Serialize<uint>(Version2_EndCode, name: nameof(Version2_EndCode));
 		}
 
 		public class UV : BinarySerializable {
