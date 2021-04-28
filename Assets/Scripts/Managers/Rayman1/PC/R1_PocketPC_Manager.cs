@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Image;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 

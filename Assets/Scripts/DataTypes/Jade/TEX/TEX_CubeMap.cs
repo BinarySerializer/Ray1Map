@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Image;
 
 namespace R1Engine.Jade
 {

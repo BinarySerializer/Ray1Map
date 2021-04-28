@@ -1,51 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BinarySerializer;
+using BinarySerializer.Image;
 using ImageMagick;
 using UnityEngine;
 
 namespace R1Engine
 {
-    // https://www.drdobbs.com/windows/the-flic-file-format/184408954
-    // https://github.com/aseprite/flic/blob/main/decoder.cpp
-    public class FLIC : BinarySerializable
+    public static class ImageExtensions
     {
-        public uint FileSize { get; set; }
-        public FLIC_Format FormatType { get; set; }
-        public ushort FramesCount { get; set; }
-        public ushort Width { get; set; }
-        public ushort Height { get; set; }
-        public ushort BitsPerPixel { get; set; }
-        public ushort Flags { get; set; }
-        public uint Speed { get; set; }
-        public ushort Ushort_14 { get; set; }
-        public uint CreationDate { get; set; }
-        public uint CreationProgramSerialNum { get; set; }
-        public uint UpdatedDate { get; set; }
-        public uint UpdatedProgramSerialNum { get; set; }
-        public ushort AspectX { get; set; }
-        public ushort AspectY { get; set; }
-        public byte[] Reserved_0 { get; set; }
-        public Pointer FirstFramePointer { get; set; }
-        public Pointer SecondFramePointer { get; set; }
-        public byte[] Reserved_1 { get; set; }
+        public static Texture2D ToTexture2D(this DDS_TextureItem img)
+        {
+            TextureFormat fmt = TextureFormat.RGBA32;
+            if (img.Header?.PixelFormat?.FourCC == "ATI2")
+            {
+                fmt = TextureFormat.RGB24;
+            }
+            Texture2D bitmap = new Texture2D((int)img.Width, (int)img.Height, fmt, false);
+            bitmap.LoadRawTextureData(img.ImageData);
+            bitmap.Apply();
+            return bitmap;
+        }
 
-        public FLIC_PrimaryChunk[] Chunks { get; set; }
-
-        public MagickImageCollection ToMagickImageCollection()
+        public static MagickImageCollection ToMagickImageCollection(this FLIC flic)
         {
             // Convert frames to Magick images
             var magickFrames = new List<MagickImage>();
 
             // Create a texture
-            Texture2D tex = TextureHelpers.CreateTexture2D(Width, Height);
+            Texture2D tex = TextureHelpers.CreateTexture2D(flic.Width, flic.Height);
 
             // Create a palette
             var palette = Enumerable.Repeat(Color.clear, 256).ToArray();
 
             // Enumerate every frame
-            foreach (var frame in Chunks.Where(x => x.Chunk_Frame != null).Select(x => x.Chunk_Frame))
+            foreach (var frame in flic.Chunks.Where(x => x.Chunk_Frame != null).Select(x => x.Chunk_Frame))
             {
                 // Enumerate every frame chunk
                 foreach (var chunk in frame.SubChunks)
@@ -67,7 +56,7 @@ namespace R1Engine
                     else if (chunk.ByteRun != null)
                     {
                         // Set every pixel in the texture
-                        for (int y = 0; y < Height; y++)
+                        for (int y = 0; y < flic.Height; y++)
                         {
                             var line = chunk.ByteRun.Lines[y];
 
@@ -120,9 +109,9 @@ namespace R1Engine
 
                         var p = 0;
 
-                        for (int y = 0; y < Height; y++)
+                        for (int y = 0; y < flic.Height; y++)
                         {
-                            for (int x = 0; x < Width; x++)
+                            for (int x = 0; x < flic.Width; x++)
                             {
                                 tex.SetPixel(x, tex.height - y - 1, palette[imgData[p++]]);
                             }
@@ -143,7 +132,7 @@ namespace R1Engine
             foreach (var img in magickFrames)
             {
                 collection.Add(img);
-                collection[index].AnimationDelay = (int)Speed;
+                collection[index].AnimationDelay = (int)flic.Speed;
                 collection[index].AnimationTicksPerSecond = 1000;
                 collection[index].GifDisposeMethod = GifDisposeMethod.Background;
                 index++;
@@ -152,44 +141,52 @@ namespace R1Engine
             return collection;
         }
 
-        public override void SerializeImpl(SerializerObject s)
+        public static Texture2D ToTexture(this PCX pcx, bool flip = false)
         {
-            FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
-            FormatType = s.Serialize<FLIC_Format>(FormatType, name: nameof(FormatType));
-            FramesCount = s.Serialize<ushort>(FramesCount, name: nameof(FramesCount));
-            Width = s.Serialize<ushort>(Width, name: nameof(Width));
-            Height = s.Serialize<ushort>(Height, name: nameof(Height));
+            // Create the texture
+            var tex = TextureHelpers.CreateTexture2D(pcx.ImageWidth, pcx.ImageHeight);
 
-            if (FileSize != 12)
+            // Set every pixel
+            for (int y = 0; y < pcx.ImageHeight; y++)
             {
-                BitsPerPixel = s.Serialize<ushort>(BitsPerPixel, name: nameof(BitsPerPixel));
-                Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
-                Speed = s.Serialize<uint>(Speed, name: nameof(Speed));
-                Ushort_14 = s.Serialize<ushort>(Ushort_14, name: nameof(Ushort_14));
-                CreationDate = s.Serialize<uint>(CreationDate, name: nameof(CreationDate));
-                CreationProgramSerialNum = s.Serialize<uint>(CreationProgramSerialNum, name: nameof(CreationProgramSerialNum));
-                UpdatedDate = s.Serialize<uint>(UpdatedDate, name: nameof(UpdatedDate));
-                UpdatedProgramSerialNum = s.Serialize<uint>(UpdatedProgramSerialNum, name: nameof(UpdatedProgramSerialNum));
-                AspectX = s.Serialize<ushort>(AspectX, name: nameof(AspectX));
-                AspectY = s.Serialize<ushort>(AspectY, name: nameof(AspectY));
-                Reserved_0 = s.SerializeArray<byte>(Reserved_0, 38, name: nameof(Reserved_0));
-                FirstFramePointer = s.SerializePointer(FirstFramePointer, name: nameof(FirstFramePointer), allowInvalid: true);
-                SecondFramePointer = s.SerializePointer(SecondFramePointer, name: nameof(SecondFramePointer), allowInvalid: true);
-                Reserved_1 = s.SerializeArray<byte>(Reserved_1, 40, name: nameof(Reserved_1));
-            }
-            else
-            {
-                Speed = 30;
-                FileSize = s.CurrentLength;
+                for (int x = 0; x < pcx.ImageWidth; x++)
+                {
+                    // Get the palette index
+                    var paletteIndex = pcx.ScanLines[y][x];
+
+                    // Set the pixel
+                    tex.SetPixel(x, flip ? (pcx.ImageHeight - y - 1) : y, pcx.VGAPalette[paletteIndex].GetColor());
+                }
             }
 
-            Chunks = s.SerializeObjectArrayUntil(Chunks, x => s.CurrentPointer.FileOffset >= Offset.FileOffset + FileSize, includeLastObj: true, onPreSerialize: x => x.Flic = this, name: nameof(Chunks));
+            // Apply the pixels
+            tex.Apply();
+
+            // Return the texture
+            return tex;
         }
 
-        public enum FLIC_Format : ushort
+        public static Texture2D ToTexture2D(this TGA tga)
         {
-            FLI = 0xAF11,
-            FLC = 0xAF12,
+            if (tga.Header.OriginX != 0 || tga.Header.OriginY != 0)
+                throw new NotImplementedException("Not implemented support for textures where origin is not 0");
+
+            var tex = TextureHelpers.CreateTexture2D(tga.Header.Width, tga.Header.Height);
+
+            switch (tga.Header.ImageType)
+            {
+                case TGA_ImageType.UnmappedRGB:
+                case TGA_ImageType.UnmappedRGB_RLE:
+                    tex.SetPixels(tga.RGBImageData.Select(x => x.GetColor()).ToArray());
+                    break;
+
+                default:
+                    throw new NotImplementedException($"Not implemented support for textures with type {tga.Header.ImageType}");
+            }
+
+            tex.Apply();
+
+            return tex;
         }
     }
 }

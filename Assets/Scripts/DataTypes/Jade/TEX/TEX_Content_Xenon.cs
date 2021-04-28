@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
 using System;
+using BinarySerializer.Image;
 using UnityEngine;
 
 namespace R1Engine.Jade
@@ -81,11 +82,11 @@ namespace R1Engine.Jade
 
             var dds = Format switch
             {
-                XenonFormat.DXT1 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT1, Width, Height),
-                XenonFormat.DXT5 => DDS.FromRawData(data, DDSParser.PixelFormat.DXT5, Width, Height),
-                XenonFormat.BC5U => DDS.FromRawData(data, DDSParser.PixelFormat.THREEDC, Width, Height),
-                XenonFormat.LUMINANCE => DDS.FromRawData(data, DDSParser.PixelFormat.LUMINANCE, Width, Height),
-                XenonFormat.RGBA8888 => DDS.FromRawData(data, DDSParser.PixelFormat.RGBA, Width, Height),
+                XenonFormat.DXT1 => DDS.FromRawData(data, DDS_Parser.PixelFormat.DXT1, Width, Height),
+                XenonFormat.DXT5 => DDS.FromRawData(data, DDS_Parser.PixelFormat.DXT5, Width, Height),
+                XenonFormat.BC5U => DDS.FromRawData(data, DDS_Parser.PixelFormat.THREEDC, Width, Height),
+                XenonFormat.LUMINANCE => DDS.FromRawData(data, DDS_Parser.PixelFormat.LUMINANCE, Width, Height),
+                XenonFormat.RGBA8888 => DDS.FromRawData(data, DDS_Parser.PixelFormat.RGBA, Width, Height),
                 _ => null
             };
             return dds?.PrimaryTexture?.ToTexture2D();

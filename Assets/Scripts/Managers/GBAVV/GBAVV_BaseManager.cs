@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
+using BinarySerializer.Image;
 using UnityEngine;
 
 namespace R1Engine
@@ -161,9 +162,9 @@ namespace R1Engine
                                 var isValid = s.DoAt(s.CurrentPointer, () =>
                                 {
                                     var fileSize = s.Serialize<uint>(default);
-                                    var format = s.Serialize<FLIC.FLIC_Format>(default);
+                                    var format = s.Serialize<FLIC_Format>(default);
 
-                                    return format == FLIC.FLIC_Format.FLC;
+                                    return format == FLIC_Format.FLC;
                                 });
 
                                 if (!isValid)

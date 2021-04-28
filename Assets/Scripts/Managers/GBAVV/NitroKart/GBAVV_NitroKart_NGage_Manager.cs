@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
+using BinarySerializer.Image;
 using UnityEngine;
 
 namespace R1Engine
