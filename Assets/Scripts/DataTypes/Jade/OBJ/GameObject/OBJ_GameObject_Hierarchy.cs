@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_HierarchyData : BinarySerializable {
-		public Jade_Reference<OBJ_GameObject> Parent { get; set; }
+	public class OBJ_GameObject_Hierarchy : BinarySerializable {
+		public Jade_Reference<OBJ_GameObject> Father { get; set; }
 		public Jade_Matrix LocalMatrix { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			Parent = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Parent, name: nameof(Parent))?.Resolve();
+			Father = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Father, name: nameof(Father))?.Resolve();
 			LocalMatrix = s.SerializeObject<Jade_Matrix>(LocalMatrix, name: nameof(LocalMatrix));
 		}
 	}

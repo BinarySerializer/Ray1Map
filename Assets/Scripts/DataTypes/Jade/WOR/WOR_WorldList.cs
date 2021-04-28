@@ -32,8 +32,8 @@ namespace R1Engine.Jade {
 							foreach (var gao in Loader.AttachedGameObjects) {
 								if (gao != null) {
 									// WOR_World_CheckFather
-									if (gao.Visual?.HierarchyData != null && gao.Visual.HierarchyData.Parent?.Value != null) {
-										var parent = gao.Visual.HierarchyData.Parent;
+									if (gao.Base?.HierarchyData != null && gao.Base.HierarchyData.Father?.Value != null) {
+										var parent = gao.Base.HierarchyData.Father;
 										//UnityEngine.Debug.Log($"Has parent: {parent.Key}");
 										if (!Loader.IsGameObjectAttached(parent.Value)) {
 											//UnityEngine.Debug.Log($"Removing parent: {parent.Key}");
@@ -45,7 +45,7 @@ namespace R1Engine.Jade {
 							foreach (var gao in Loader.AttachedGameObjects) {
 								if (gao != null && gaos.Any(g => g.Key == gao.Key)) {
 									// WOR_World_CheckGroup
-									var grp = gao.Extended?.GRP?.Value?.GroupObjectList?.Value?.GroupObjects;
+									var grp = gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects;
 									if (grp != null) {
 										foreach (var grp_obj in grp) {
 											var grp_gao = grp_obj.GameObject;
@@ -83,7 +83,7 @@ namespace R1Engine.Jade {
 			//if (gao?.Value == null || gao.Value.IsInitialized) continue;
 			gao.IsInitialized = true;
 			// Resolve references in ANI_pst_Load
-			var actionData = gao.Visual?.ActionData;
+			var actionData = gao.Base?.ActionData;
 			if (actionData != null) {
 				string prevState = Controller.DetailedState;
 				Controller.DetailedState = $"{prevState}\nLoading GameObject references: {gao.Name}";
@@ -102,7 +102,7 @@ namespace R1Engine.Jade {
 						if (grp_gao != null && !Loader.IsGameObjectAttached(grp_gao)) {
 							await JustAfterLoadObject(grp_gao);
 							// Attach each skeleton member's group members
-							var extendedGroup = grp_gao.Extended?.GRP?.Value?.GroupObjectList?.Value?.GroupObjects;
+							var extendedGroup = grp_gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects;
 							if (extendedGroup != null) {
 								foreach (var ext_grp_obj in extendedGroup) {
 									var ext_grp_gao = ext_grp_obj.GameObject?.Value;

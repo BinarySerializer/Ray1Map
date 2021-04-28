@@ -7,19 +7,19 @@ namespace R1Engine.Jade {
 		public uint Type { get; set; }
 		public uint UInt_04 { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; }
-		public ushort FlagsStatus { get; set; }
-		public ushort FlagsControl { get; set; }
-		public byte Byte_10 { get; set; }
-		public byte Byte_11 { get; set; }
+		public ushort StatusFlags { get; set; }
+		public ushort ControlFlags { get; set; }
+		public byte Secto { get; set; }
+		public byte VisiCoeff { get; set; }
 		public ushort UShort_12_Editor { get; set; }
-		public byte Byte_12 { get; set; }
-		public byte Byte_13 { get; set; }
-		public byte FlagsDesign { get; set; }
-		public byte FlagsFix { get; set; }
+		public byte LOD_Vis { get; set; }
+		public byte LOD_Dist { get; set; }
+		public byte DesignFlags { get; set; }
+		public byte FixFlags { get; set; }
 		public Jade_Matrix Matrix { get; set; }
 		
 		public OBJ_BV_BoundingVolume BoundingVolume { get; set; }
-		public OBJ_GameObject_Visual Visual { get; set; }
+		public OBJ_GameObject_Base Base { get; set; }
 		public OBJ_GameObject_Extended Extended { get; set; }
 		public Jade_Reference<COL_Instance> COL_Instance { get; set; }
 		public Jade_Reference<COL_ColMap> COL_ColMap { get; set; }
@@ -45,24 +45,24 @@ namespace R1Engine.Jade {
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
 			s.SerializeBitValues<uint>(bitFunc => {
-				FlagsStatus = (ushort)bitFunc(FlagsStatus, 16, name: nameof(FlagsStatus));
-				FlagsControl = (ushort)bitFunc(FlagsControl, 16, name: nameof(FlagsControl));
+				StatusFlags = (ushort)bitFunc(StatusFlags, 16, name: nameof(StatusFlags));
+				ControlFlags = (ushort)bitFunc(ControlFlags, 16, name: nameof(ControlFlags));
 			});
-			Byte_10 = s.Serialize<byte>(Byte_10, name: nameof(Byte_10));
-			Byte_11 = s.Serialize<byte>(Byte_11, name: nameof(Byte_11));
+			Secto = s.Serialize<byte>(Secto, name: nameof(Secto));
+			VisiCoeff = s.Serialize<byte>(VisiCoeff, name: nameof(VisiCoeff));
 			if(!Loader.IsBinaryData) UShort_12_Editor = s.Serialize<ushort>(UShort_12_Editor, name: nameof(UShort_12_Editor));
-			Byte_12 = s.Serialize<byte>(Byte_12, name: nameof(Byte_12));
-			Byte_13 = s.Serialize<byte>(Byte_13, name: nameof(Byte_13));
-			FlagsDesign = s.Serialize<byte>(FlagsDesign, name: nameof(FlagsDesign));
-			FlagsFix = s.Serialize<byte>(FlagsFix, name: nameof(FlagsFix));
+			LOD_Vis = s.Serialize<byte>(LOD_Vis, name: nameof(LOD_Vis));
+			LOD_Dist = s.Serialize<byte>(LOD_Dist, name: nameof(LOD_Dist));
+			DesignFlags = s.Serialize<byte>(DesignFlags, name: nameof(DesignFlags));
+			FixFlags = s.Serialize<byte>(FixFlags, name: nameof(FixFlags));
 			Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
 
 			BoundingVolume = s.SerializeObject<OBJ_BV_BoundingVolume>(BoundingVolume, onPreSerialize: bv => bv.FlagsIdentity = FlagsIdentity, name: nameof(BoundingVolume));
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasVisual)) {
-				Visual = s.SerializeObject<OBJ_GameObject_Visual>(Visual, onPreSerialize: o => {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasBase)) {
+				Base = s.SerializeObject<OBJ_GameObject_Base>(Base, onPreSerialize: o => {
 					o.FlagsIdentity = FlagsIdentity;
 					o.Type = Type;
-				}, name: nameof(Visual));
+				}, name: nameof(Base));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtended)) {
 				Extended = s.SerializeObject<OBJ_GameObject_Extended>(Extended, onPreSerialize: o => o.FlagsIdentity = FlagsIdentity, name: nameof(Extended));

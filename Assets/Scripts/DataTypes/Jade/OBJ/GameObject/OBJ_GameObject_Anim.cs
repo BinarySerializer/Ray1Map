@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class OBJ_GameObject_GeometricData : BinarySerializable {
+	public class OBJ_GameObject_Anim : BinarySerializable {
 		public uint Type { get; set; } // Set in on PreSerialize
 
 		public Jade_Reference<GEO_Object> GeometricObject { get; set; }
