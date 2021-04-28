@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class TGA : BinarySerializable
     {
-        public RGBColorFormat ColorFormat { get; set; } // Set before serializing
+        public RGBColorOrder ColorOrder { get; set; } // Set before serializing
         public bool SkipHeader { get; set; } // Set before serializing
 
         public TGA_Header Header { get; set; }
@@ -20,14 +20,14 @@ namespace R1Engine
 
             RGBImageData = Header.ImageType switch
             {
-                TGA_Header.TGA_ImageType.UnmappedRGB => (Header.BitsPerPixel switch
+                TGA_ImageType.UnmappedRGB => (Header.BitsPerPixel switch
                 {
-                    24 => ColorFormat == RGBColorFormat.RGB
+                    24 => ColorOrder == RGBColorOrder.RGB
                         ? (BaseColor[]) s.SerializeObjectArray<RGB888Color>((RGB888Color[]) RGBImageData,
                             Header.Width * Header.Height, name: nameof(RGBImageData))
                         : s.SerializeObjectArray<BGR888Color>((BGR888Color[]) RGBImageData,
                             Header.Width * Header.Height, name: nameof(RGBImageData)),
-                    32 => ColorFormat == RGBColorFormat.RGB
+                    32 => ColorOrder == RGBColorOrder.RGB
                         ? (BaseColor[]) s.SerializeObjectArray<RGBA8888Color>((RGBA8888Color[]) RGBImageData,
                             Header.Width * Header.Height, name: nameof(RGBImageData))
                         : s.SerializeObjectArray<BGRA8888Color>((BGRA8888Color[]) RGBImageData,
@@ -49,8 +49,8 @@ namespace R1Engine
 
             switch (Header.ImageType)
             {
-                case TGA_Header.TGA_ImageType.UnmappedRGB:
-                case TGA_Header.TGA_ImageType.UnmappedRGB_RLE:
+                case TGA_ImageType.UnmappedRGB:
+                case TGA_ImageType.UnmappedRGB_RLE:
                     tex.SetPixels(RGBImageData.Select(x => x.GetColor()).ToArray());
                     break;
 
@@ -62,7 +62,7 @@ namespace R1Engine
             return tex;
         }
 
-        public enum RGBColorFormat
+        public enum RGBColorOrder
         {
             RGB,
             BGR

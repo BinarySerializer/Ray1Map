@@ -53,27 +53,7 @@ namespace R1Engine
             });
 
             IdentificationField = s.SerializeArray<byte>(IdentificationField, IdentificationFieldLength, name: nameof(IdentificationField));
-            ColorMap = s.SerializeArray<byte>(ColorMap, !ForceNoColorMap ? ColorMapLength : 0, name: nameof(ColorMap));
-        }
-
-        public enum TGA_ImageType : byte
-        {
-            ColorMapped = 1,
-            UnmappedRGB = 2,
-            ColorMapped_RLE = 9,
-            UnmappedRGB_RLE = 10
-        }
-        public enum TGA_Origin : byte
-        {
-            BottomLeft = 0,
-            BottomRight = 1
-        }
-        public enum TGA_Interleaving : byte
-        {
-            None = 0,
-            TwoWay = 1,
-            FourWay = 2,
-            Reserved = 3
+            ColorMap = s.SerializeArray<byte>(ColorMap, !ForceNoColorMap ? (ColorMapLength * (ColorMapEntrySize / 8)) : 0, name: nameof(ColorMap));
         }
     }
 }

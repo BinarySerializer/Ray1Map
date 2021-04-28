@@ -109,17 +109,17 @@ namespace R1Engine.Jade
                     case TexFileFormat.Tga:
                         if (IsContent)
                         {
-                            TGA.RGBColorFormat colorFormat = TGA.RGBColorFormat.RGB;
+                            TGA.RGBColorOrder colorOrder = TGA.RGBColorOrder.RGB;
 
                             if (s.GetR1Settings().Platform == Platform.PC
                                 && (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR
                                 || s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE
                                 || s.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_PCGamersEdition)) {
-                                colorFormat = TGA.RGBColorFormat.BGR;
+                                colorOrder = TGA.RGBColorOrder.BGR;
                             }
                             switch (s.GetR1Settings().GameModeSelection) {
                                 case GameModeSelection.RaymanRavingRabbidsWiiJP:
-                                    colorFormat = TGA.RGBColorFormat.BGR;
+                                    colorOrder = TGA.RGBColorOrder.BGR;
                                     break;
                             }
 
@@ -127,12 +127,12 @@ namespace R1Engine.Jade
                             Content_TGA_Header = s.SerializeObject<TGA_Header>(Content_TGA_Header, x => x.ForceNoColorMap = true, name: nameof(Content_TGA_Header));
                             Content_TGA = s.SerializeObject<TGA>(Content_TGA, x =>
                             {
-                                x.ColorFormat = colorFormat;
+                                x.ColorOrder = colorOrder;
                                 x.SkipHeader = true;
                                 x.Header = new TGA_Header
                                 {
                                     HasColorMap = false,
-                                    ImageType = TGA_Header.TGA_ImageType.UnmappedRGB,
+                                    ImageType = TGA_ImageType.UnmappedRGB,
                                     Width = Width,
                                     Height = Height,
                                     BitsPerPixel = (byte)(ColorFormat == TexColorFormat.BPP_24 ? 24 : 32),
