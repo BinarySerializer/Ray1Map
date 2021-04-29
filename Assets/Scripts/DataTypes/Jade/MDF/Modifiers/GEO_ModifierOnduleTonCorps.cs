@@ -9,22 +9,22 @@ namespace R1Engine.Jade {
 	// Found in GEO_ul_ModifierOnduleTonCorps_Load
 	public class GEO_ModifierOnduleTonCorps : MDF_Modifier {
 		public uint UInt_Editor_00 { get; set; }
-		public uint UInt_00 { get; set; }
-		public float Float_04 { get; set; }
-		public float Float_08 { get; set; }
-		public float Float_0C { get; set; }
-		public float Float_10 { get; set; }
+		public uint Flags { get; set; }
+		public float Angle { get; set; }
+		public float Amplitude { get; set; }
+		public float Factor { get; set; }
+		public float Delta { get; set; }
 		public uint UInt_Editor_14 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 			if(!Loader.IsBinaryData) UInt_Editor_00 = s.Serialize<uint>(UInt_Editor_00, name: nameof(UInt_Editor_00));
-			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-			Float_04 = s.Serialize<float>(Float_04, name: nameof(Float_04));
-			Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
-			Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-			Float_10 = s.Serialize<float>(Float_10, name: nameof(Float_10));
+			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+			Angle = s.Serialize<float>(Angle, name: nameof(Angle));
+			Amplitude = s.Serialize<float>(Amplitude, name: nameof(Amplitude));
+			Factor = s.Serialize<float>(Factor, name: nameof(Factor));
+			Delta = s.Serialize<float>(Delta, name: nameof(Delta));
 			if (!Loader.IsBinaryData) UInt_Editor_14 = s.Serialize<uint>(UInt_Editor_14, name: nameof(UInt_Editor_14));
 		}
 	}

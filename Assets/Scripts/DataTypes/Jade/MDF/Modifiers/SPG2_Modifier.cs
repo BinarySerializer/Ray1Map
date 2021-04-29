@@ -3,55 +3,55 @@
 namespace R1Engine.Jade {
 	public class SPG2_Modifier : MDF_Modifier {
 		public uint UInt_00 { get; set; }
-		public uint Type { get; set; }
-		public uint UInt_04 { get; set; }
-		public float Float_08 { get; set; }
-		public float Float_0C { get; set; }
-		public float Float_10 { get; set; }
-		public uint UInt_14 { get; set; }
-		public float Float_18 { get; set; }
+		public uint Version { get; set; }
+		public uint Flags { get; set; }
+		public float GlobalSize { get; set; }
+		public float GlobalRatio { get; set; }
+		public float Density { get; set; }
+		public uint SubMaterialMask { get; set; }
+		public float Noise { get; set; }
 
-		public float Type1_Float_0 { get; set; }
-		public float Type1_Float_1 { get; set; }
+		public float Near { get; set; }
+		public float Far { get; set; }
 
-		public uint Type2_UInt_0 { get; set; }
-		public uint Type2_UInt_1 { get; set; }
+		public uint SubMaterial_LOOKAT { get; set; }
+		public uint SubMaterial_SPRITE { get; set; }
 
-		public float Type3_Float { get; set; }
-		public uint Type3_UInt { get; set; }
+		public float Extraction { get; set; }
+		public uint SubMaterialNum { get; set; }
 
-		public float Type4_Float { get; set; }
+		public float ExtractionOfHorizontalPlane { get; set; }
 
-		public float Type5_Float_00 { get; set; }
-		public uint Type5_UInt_01 { get; set; }
-		public uint Type5_UInt_02 { get; set; }
-		public uint Type5_UInt_03 { get; set; }
-		public float Type5_Float_04 { get; set; }
-		public float Type5_Float_05 { get; set; }
-		public float Type5_Float_06 { get; set; }
-		public float Type5_Float_07 { get; set; }
-		public float Type5_Float_08 { get; set; }
-		public uint Type5_UInt_09 { get; set; }
-		public float Type5_Float_10 { get; set; }
-		public float Type5_Float_11 { get; set; }
-		public uint Type5_UInt_12 { get; set; }
-		public float Type5_Float_13 { get; set; }
-		public float Type5_Float_14 { get; set; }
+		public float SwitchDistance { get; set; }
+		public Jade_Key GameObjectKey { get; set; }
+		public uint AlphaThreshold { get; set; }
+		public uint NumberOfSegments { get; set; }
+		public float Gravity { get; set; }
+		public float SringStrength { get; set; }
+		public float SpeedAbsorbtion { get; set; }
+		public float Freedom { get; set; }
+		public float WindSensibility { get; set; }
+		public uint NumberOfSprites { get; set; }
+		public float SpriteSize { get; set; }
+		public float SpriteGeneratorRadius { get; set; }
+		public uint AlphaFromPondSelector { get; set; }
+		public float VShift { get; set; }
+		public float Trapeze { get; set; }
 
-		public uint Type6_UInt { get; set; }
+		public uint TileNumber { get; set; }
 
-		public uint Type7_UInt { get; set; }
+		public uint GridFilter { get; set; }
 		
-		public float Type8_Float { get; set; }
-		public uint Type8_UInt { get; set; }
+		public float SphereCollideRadius { get; set; }
+		public uint Preset { get; set; }
 
-		public float Type9_Float { get; set; }
-		public uint Type9_UInt_0 { get; set; }
-		public uint Type9_UInt_1 { get; set; }
+		public float AnimTextureSpeed { get; set; }
+		public uint AnimTextureTileUPo2 { get; set; }
+		public uint AnimTextureTileVPo2 { get; set; }
 
-		public float Type10_Float { get; set; }
+		public float GridNoise { get; set; }
 
-		public uint Type11_UInt { get; set; }
+		public uint Flags1 { get; set; }
 
 		public uint Type12_UInt_0 { get; set; }
 		public uint Type12_UInt_1 { get; set; }
@@ -71,81 +71,81 @@ namespace R1Engine.Jade {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-			Type = s.Serialize<uint>(Type, name: nameof(Type));
-			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
-			Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
-			Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-			Float_10 = s.Serialize<float>(Float_10, name: nameof(Float_10));
-			UInt_14 = s.Serialize<uint>(UInt_14, name: nameof(UInt_14));
-			Float_18 = s.Serialize<float>(Float_18, name: nameof(Float_18));
+			Version = s.Serialize<uint>(Version, name: nameof(Version));
+			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+			GlobalSize = s.Serialize<float>(GlobalSize, name: nameof(GlobalSize));
+			GlobalRatio = s.Serialize<float>(GlobalRatio, name: nameof(GlobalRatio));
+			Density = s.Serialize<float>(Density, name: nameof(Density));
+			SubMaterialMask = s.Serialize<uint>(SubMaterialMask, name: nameof(SubMaterialMask));
+			Noise = s.Serialize<float>(Noise, name: nameof(Noise));
 
-			if (Type >= 1) {
-				Type1_Float_0 = s.Serialize<float>(Type1_Float_0, name: nameof(Type1_Float_0));
-				Type1_Float_1 = s.Serialize<float>(Type1_Float_1, name: nameof(Type1_Float_1));
+			if (Version >= 1) {
+				Near = s.Serialize<float>(Near, name: nameof(Near));
+				Far = s.Serialize<float>(Far, name: nameof(Far));
 			}
-			if (Type >= 2) {
-				Type2_UInt_0 = s.Serialize<uint>(Type2_UInt_0, name: nameof(Type2_UInt_0));
-				Type2_UInt_1 = s.Serialize<uint>(Type2_UInt_1, name: nameof(Type2_UInt_1));
+			if (Version >= 2) {
+				SubMaterial_LOOKAT = s.Serialize<uint>(SubMaterial_LOOKAT, name: nameof(SubMaterial_LOOKAT));
+				SubMaterial_SPRITE = s.Serialize<uint>(SubMaterial_SPRITE, name: nameof(SubMaterial_SPRITE));
 			}
-			if (Type >= 3) {
-				Type3_Float = s.Serialize<float>(Type3_Float, name: nameof(Type3_Float));
-				Type3_UInt = s.Serialize<uint>(Type3_UInt, name: nameof(Type3_UInt));
+			if (Version >= 3) {
+				Extraction = s.Serialize<float>(Extraction, name: nameof(Extraction));
+				SubMaterialNum = s.Serialize<uint>(SubMaterialNum, name: nameof(SubMaterialNum));
 			}
-			if (Type >= 4) {
-				Type4_Float = s.Serialize<float>(Type4_Float, name: nameof(Type4_Float));
+			if (Version >= 4) {
+				ExtractionOfHorizontalPlane = s.Serialize<float>(ExtractionOfHorizontalPlane, name: nameof(ExtractionOfHorizontalPlane));
 			}
-			if (Type >= 5) {
-				Type5_Float_00 = s.Serialize<float>(Type5_Float_00, name: nameof(Type5_Float_00));
-				Type5_UInt_01 = s.Serialize<uint>(Type5_UInt_01, name: nameof(Type5_UInt_01));
-				Type5_UInt_02 = s.Serialize<uint>(Type5_UInt_02, name: nameof(Type5_UInt_02));
-				Type5_UInt_03 = s.Serialize<uint>(Type5_UInt_03, name: nameof(Type5_UInt_03));
-				Type5_Float_04 = s.Serialize<float>(Type5_Float_04, name: nameof(Type5_Float_04));
-				Type5_Float_05 = s.Serialize<float>(Type5_Float_05, name: nameof(Type5_Float_05));
-				Type5_Float_06 = s.Serialize<float>(Type5_Float_06, name: nameof(Type5_Float_06));
-				Type5_Float_07 = s.Serialize<float>(Type5_Float_07, name: nameof(Type5_Float_07));
-				Type5_Float_08 = s.Serialize<float>(Type5_Float_08, name: nameof(Type5_Float_08));
-				Type5_UInt_09 = s.Serialize<uint>(Type5_UInt_09, name: nameof(Type5_UInt_09));
-				Type5_Float_10 = s.Serialize<float>(Type5_Float_10, name: nameof(Type5_Float_10));
-				Type5_Float_11 = s.Serialize<float>(Type5_Float_11, name: nameof(Type5_Float_11));
-				Type5_UInt_12 = s.Serialize<uint>(Type5_UInt_12, name: nameof(Type5_UInt_12));
-				Type5_Float_13 = s.Serialize<float>(Type5_Float_13, name: nameof(Type5_Float_13));
-				Type5_Float_14 = s.Serialize<float>(Type5_Float_14, name: nameof(Type5_Float_14));
+			if (Version >= 5) {
+				SwitchDistance = s.Serialize<float>(SwitchDistance, name: nameof(SwitchDistance));
+				GameObjectKey = s.Serialize<Jade_Key>(GameObjectKey, name: nameof(GameObjectKey));
+				AlphaThreshold = s.Serialize<uint>(AlphaThreshold, name: nameof(AlphaThreshold));
+				NumberOfSegments = s.Serialize<uint>(NumberOfSegments, name: nameof(NumberOfSegments));
+				Gravity = s.Serialize<float>(Gravity, name: nameof(Gravity));
+				SringStrength = s.Serialize<float>(SringStrength, name: nameof(SringStrength));
+				SpeedAbsorbtion = s.Serialize<float>(SpeedAbsorbtion, name: nameof(SpeedAbsorbtion));
+				Freedom = s.Serialize<float>(Freedom, name: nameof(Freedom));
+				WindSensibility = s.Serialize<float>(WindSensibility, name: nameof(WindSensibility));
+				NumberOfSprites = s.Serialize<uint>(NumberOfSprites, name: nameof(NumberOfSprites));
+				SpriteSize = s.Serialize<float>(SpriteSize, name: nameof(SpriteSize));
+				SpriteGeneratorRadius = s.Serialize<float>(SpriteGeneratorRadius, name: nameof(SpriteGeneratorRadius));
+				AlphaFromPondSelector = s.Serialize<uint>(AlphaFromPondSelector, name: nameof(AlphaFromPondSelector));
+				VShift = s.Serialize<float>(VShift, name: nameof(VShift));
+				Trapeze = s.Serialize<float>(Trapeze, name: nameof(Trapeze));
 			}
-			if (Type >= 6) Type6_UInt = s.Serialize<uint>(Type6_UInt, name: nameof(Type6_UInt));
-			if (Type >= 7) Type7_UInt = s.Serialize<uint>(Type7_UInt, name: nameof(Type7_UInt));
-			if (Type >= 8) {
-				Type8_Float = s.Serialize<float>(Type8_Float, name: nameof(Type8_Float));
-				Type8_UInt = s.Serialize<uint>(Type8_UInt, name: nameof(Type8_UInt));
+			if (Version >= 6) TileNumber = s.Serialize<uint>(TileNumber, name: nameof(TileNumber));
+			if (Version >= 7) GridFilter = s.Serialize<uint>(GridFilter, name: nameof(GridFilter));
+			if (Version >= 8) {
+				SphereCollideRadius = s.Serialize<float>(SphereCollideRadius, name: nameof(SphereCollideRadius));
+				Preset = s.Serialize<uint>(Preset, name: nameof(Preset));
 			}
-			if (Type >= 9) {
-				Type9_Float = s.Serialize<float>(Type9_Float, name: nameof(Type9_Float));
-				Type9_UInt_0 = s.Serialize<uint>(Type9_UInt_0, name: nameof(Type9_UInt_0));
-				Type9_UInt_1 = s.Serialize<uint>(Type9_UInt_1, name: nameof(Type9_UInt_1));
+			if (Version >= 9) {
+				AnimTextureSpeed = s.Serialize<float>(AnimTextureSpeed, name: nameof(AnimTextureSpeed));
+				AnimTextureTileUPo2 = s.Serialize<uint>(AnimTextureTileUPo2, name: nameof(AnimTextureTileUPo2));
+				AnimTextureTileVPo2 = s.Serialize<uint>(AnimTextureTileVPo2, name: nameof(AnimTextureTileVPo2));
 			}
-			if (Type >= 10) Type10_Float = s.Serialize<float>(Type10_Float, name: nameof(Type10_Float));
-			if (Type >= 11) Type11_UInt = s.Serialize<uint>(Type11_UInt, name: nameof(Type11_UInt));
+			if (Version >= 10) GridNoise = s.Serialize<float>(GridNoise, name: nameof(GridNoise));
+			if (Version >= 11) Flags1 = s.Serialize<uint>(Flags1, name: nameof(Flags1));
 			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
-				if (Type >= 12) {
+				if (Version >= 12) {
 					Type12_UInt_0 = s.Serialize<uint>(Type12_UInt_0, name: nameof(Type12_UInt_0));
 					Type12_UInt_1 = s.Serialize<uint>(Type12_UInt_1, name: nameof(Type12_UInt_1));
 				}
-				if (Type >= 13) {
+				if (Version >= 13) {
 					Type13_Float_0 = s.Serialize<float>(Type13_Float_0, name: nameof(Type13_Float_0));
 					Type13_Float_1 = s.Serialize<float>(Type13_Float_1, name: nameof(Type13_Float_1));
 				}
 			}
-			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && Type != 0x111) {
+			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && Version != 0x111) {
 				var maxType = (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) ? 14 : 12;
-				if (Type >= maxType) {
+				if (Version >= maxType) {
 					Type14_Float_0 = s.Serialize<float>(Type14_Float_0, name: nameof(Type14_Float_0));
 					Type14_Float_1 = s.Serialize<float>(Type14_Float_1, name: nameof(Type14_Float_1));
 					Type14_Float_2 = s.Serialize<float>(Type14_Float_2, name: nameof(Type14_Float_2));
 					Type14_Float_3 = s.Serialize<float>(Type14_Float_3, name: nameof(Type14_Float_3));
 				}
-				if (Type >= maxType + 1) {
+				if (Version >= maxType + 1) {
 					Type15_Float = s.Serialize<float>(Type15_Float, name: nameof(Type15_Float));
 				}
-				if (Type >= 0x111) {
+				if (Version >= 0x111) {
 					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 				}
 			}

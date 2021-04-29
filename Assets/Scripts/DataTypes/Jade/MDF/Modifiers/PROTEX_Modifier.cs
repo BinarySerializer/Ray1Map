@@ -8,21 +8,21 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class PROTEX_Modifier : MDF_Modifier {
 		public uint UInt_00 { get; set; }
-		public uint UInt_04 { get; set; }
-		public uint Bytes0Count { get; set; }
-		public byte[] Bytes0 { get; set; }
-		public uint Bytes1Count { get; set; }
-		public byte[] Bytes1 { get; set; }
+		public uint Version { get; set; }
+		public uint NumberOfHLines { get; set; }
+		public byte[] AllDotNumbers { get; set; }
+		public uint NumberOfDots { get; set; }
+		public byte[] AllDot { get; set; }
 
 
 		public override void SerializeImpl(SerializerObject s) {
 			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
-			if (UInt_04 != 0) {
-				Bytes0Count = s.Serialize<uint>(Bytes0Count, name: nameof(Bytes0Count));
-				Bytes0 = s.SerializeArray<byte>(Bytes0, Bytes0Count, name: nameof(Bytes0));
-				Bytes1Count = s.Serialize<uint>(Bytes1Count, name: nameof(Bytes1Count));
-				Bytes1 = s.SerializeArray<byte>(Bytes1, Bytes1Count, name: nameof(Bytes1));
+			Version = s.Serialize<uint>(Version, name: nameof(Version));
+			if (Version != 0) {
+				NumberOfHLines = s.Serialize<uint>(NumberOfHLines, name: nameof(NumberOfHLines));
+				AllDotNumbers = s.SerializeArray<byte>(AllDotNumbers, NumberOfHLines, name: nameof(AllDotNumbers));
+				NumberOfDots = s.Serialize<uint>(NumberOfDots, name: nameof(NumberOfDots));
+				AllDot = s.SerializeArray<byte>(AllDot, NumberOfDots, name: nameof(AllDot));
 			}
 
 		}

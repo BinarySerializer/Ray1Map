@@ -3,39 +3,48 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
     public class SND_SModifier : Jade_File {
-        public uint Type { get; set; }
+        public uint FormatVersion { get; set; }
         public uint UInt_01 { get; set; }
         public uint UInt_02 { get; set; }
         public uint UInt_03 { get; set; }
         public SoundRef Sound { get; set; }
-        public int Int_06 { get; set; }
-        public uint UInt_07 { get; set; }
-        public uint UInt_08 { get; set; }
-        public uint UInt_09 { get; set; }
-        public uint UInt_09_Editor { get; set; }
-        public uint UInt_10 { get; set; }
-        public float Float_11 { get; set; }
-        public float Float_12 { get; set; }
-        public float Float_13 { get; set; }
-        public float Float_14 { get; set; }
-        public Jade_Reference<SND_Insert> Insert_15 { get; set; }
-        public int Int_15_Editor { get; set; }
-        public Jade_Reference<SND_Insert> Insert_16 { get; set; }
-        public int Int_16_Editor { get; set; }
-        public uint UInt_17 { get; set; }
-        public uint UInt_18 { get; set; }
-        public float Float_19 { get; set; }
+        public int SndIndex { get; set; }
+        public uint Version { get; set; }
+        public Jade_Key FileKey { get; set; }
+        public uint SndExtFlags { get; set; }
+        public uint Template { get; set; }
+        public uint PlayerFlag { get; set; }
+        public float DryVol { get; set; }
+        public float DryVol_FactMin { get; set; }
+        public float DryVol_FactMax { get; set; }
+        public float FxVolLeft { get; set; }
+        public Jade_Reference<SND_Insert> FadeIn { get; set; }
+        public int FadeInPointer { get; set; }
+        public Jade_Reference<SND_Insert> FadeOut { get; set; }
+        public int FadeOutPointer { get; set; }
+        public int Pan { get; set; }
+        public int Span { get; set; }
+        public float MinPan { get; set; }
         public float Type3_Float_20 { get; set; }
-        public uint Type2_UInt_20 { get; set; }
-        public float[] Floats_21 { get; set; }
+        public uint Freq { get; set; }
+        public float Freq_FactMin { get; set; }
+        public float Freq_FactMax { get; set; }
+        public float Doppler { get; set; }
+        public float[] Near { get; set; }
+        public float[] Far { get; set; }
+        public float[] MiddleBlend { get; set; }
+        public float FarCoeff { get; set; }
+        public float MiddleCoeff { get; set; }
+        public float CylinderHeight { get; set; }
+        public float FxVolRight { get; set; }
         public byte[] Editor_Bytes_21 { get; set; }
-        public ushort SoundsCount { get; set; }
-        public ushort UShort_23 { get; set; }
-        public ushort UIntCount { get; set; }
-        public ushort UShort_25 { get; set; }
+        public ushort PlayListSize { get; set; }
+        public ushort PlayListFlags { get; set; }
+        public ushort InsertListSize { get; set; }
+        public ushort InsertListFlags { get; set; }
 
-        public SoundRef[] Sounds { get; set; }
-        public Jade_Reference<SND_Insert>[] Inserts { get; set; }
+        public SoundRef[] PlayList { get; set; }
+        public Jade_Reference<SND_Insert>[] InsertList { get; set; }
         
         public uint UInt_26 { get; set; }
         public uint UInt_27 { get; set; }
@@ -47,55 +56,65 @@ namespace R1Engine.Jade {
                 Bytes = s.SerializeArray<byte>(Bytes, FileSize, name: nameof(Bytes));
                 return;
             }
-            Type = s.Serialize<uint>(Type, name: nameof(Type));
+            FormatVersion = s.Serialize<uint>(FormatVersion, name: nameof(FormatVersion));
             UInt_01 = s.Serialize<uint>(UInt_01, name: nameof(UInt_01));
             UInt_02 = s.Serialize<uint>(UInt_02, name: nameof(UInt_02));
             UInt_03 = s.Serialize<uint>(UInt_03, name: nameof(UInt_03));
             Sound = s.SerializeObject<SoundRef>(Sound, name: nameof(Sound));
-            Int_06 = s.Serialize<int>(Int_06, name: nameof(Int_06));
-            UInt_07 = s.Serialize<uint>(UInt_07, name: nameof(UInt_07));
-            UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
-            UInt_09 = s.Serialize<uint>(UInt_09, name: nameof(UInt_09));
-            if(!Loader.IsBinaryData) UInt_09_Editor = s.Serialize<uint>(UInt_09_Editor, name: nameof(UInt_09_Editor));
-            UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
-            Float_11 = s.Serialize<float>(Float_11, name: nameof(Float_11));
-            Float_12 = s.Serialize<float>(Float_12, name: nameof(Float_12));
-            Float_13 = s.Serialize<float>(Float_13, name: nameof(Float_13));
-            Float_14 = s.Serialize<float>(Float_14, name: nameof(Float_14));
-            Insert_15 = s.SerializeObject<Jade_Reference<SND_Insert>>(Insert_15, name: nameof(Insert_15));
-            if (!Loader.IsBinaryData) Int_15_Editor = s.Serialize<int>(Int_15_Editor, name: nameof(Int_15_Editor));
-            Insert_16 = s.SerializeObject<Jade_Reference<SND_Insert>>(Insert_16, name: nameof(Insert_16));
-            if (!Loader.IsBinaryData) Int_16_Editor = s.Serialize<int>(Int_16_Editor, name: nameof(Int_16_Editor));
-            UInt_17 = s.Serialize<uint>(UInt_17, name: nameof(UInt_17));
-            UInt_18 = s.Serialize<uint>(UInt_18, name: nameof(UInt_18));
-            Float_19 = s.Serialize<float>(Float_19, name: nameof(Float_19));
-            if (Type >= 3 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+            SndIndex = s.Serialize<int>(SndIndex, name: nameof(SndIndex));
+            Version = s.Serialize<uint>(Version, name: nameof(Version));
+            FileKey = s.SerializeObject<Jade_Key>(FileKey, name: nameof(FileKey));
+            SndExtFlags = s.Serialize<uint>(SndExtFlags, name: nameof(SndExtFlags));
+            if(!Loader.IsBinaryData) Template = s.Serialize<uint>(Template, name: nameof(Template));
+            PlayerFlag = s.Serialize<uint>(PlayerFlag, name: nameof(PlayerFlag));
+            DryVol = s.Serialize<float>(DryVol, name: nameof(DryVol));
+            DryVol_FactMin = s.Serialize<float>(DryVol_FactMin, name: nameof(DryVol_FactMin));
+            DryVol_FactMax = s.Serialize<float>(DryVol_FactMax, name: nameof(DryVol_FactMax));
+            FxVolLeft = s.Serialize<float>(FxVolLeft, name: nameof(FxVolLeft));
+            FadeIn = s.SerializeObject<Jade_Reference<SND_Insert>>(FadeIn, name: nameof(FadeIn));
+            if (!Loader.IsBinaryData) FadeInPointer = s.Serialize<int>(FadeInPointer, name: nameof(FadeInPointer));
+            FadeOut = s.SerializeObject<Jade_Reference<SND_Insert>>(FadeOut, name: nameof(FadeOut));
+            if (!Loader.IsBinaryData) FadeOutPointer = s.Serialize<int>(FadeOutPointer, name: nameof(FadeOutPointer));
+            Pan = s.Serialize<int>(Pan, name: nameof(Pan));
+            Span = s.Serialize<int>(Span, name: nameof(Span));
+            MinPan = s.Serialize<float>(MinPan, name: nameof(MinPan));
+            if (FormatVersion >= 3 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
                 Type3_Float_20 = s.Serialize<float>(Type3_Float_20, name: nameof(Type3_Float_20));
             } else {
-                Type2_UInt_20 = s.Serialize<uint>(Type2_UInt_20, name: nameof(Type2_UInt_20));
+                Freq = s.Serialize<uint>(Freq, name: nameof(Freq));
                 Type3_Float_20 = 1f;
             }
-            Floats_21 = s.SerializeArray<float>(Floats_21, 16, name: nameof(Floats_21));
-            if(!Loader.IsBinaryData) Editor_Bytes_21 = s.SerializeArray<byte>(Editor_Bytes_21, 72, name: nameof(Editor_Bytes_21));
-            SoundsCount = s.Serialize<ushort>(SoundsCount, name: nameof(SoundsCount));
-            UShort_23 = s.Serialize<ushort>(UShort_23, name: nameof(UShort_23));
-            UIntCount = s.Serialize<ushort>(UIntCount, name: nameof(UIntCount));
-            UShort_25 = s.Serialize<ushort>(UShort_25, name: nameof(UShort_25));
+            Freq_FactMin = s.Serialize<float>(Freq_FactMin, name: nameof(Freq_FactMin));
+            Freq_FactMax = s.Serialize<float>(Freq_FactMax, name: nameof(Freq_FactMax));
+            Doppler = s.Serialize<float>(Doppler, name: nameof(Doppler));
+            Near = s.SerializeArray<float>(Near, 3, name: nameof(Near));
+            Far = s.SerializeArray<float>(Far, 3, name: nameof(Far));
+            MiddleBlend = s.SerializeArray<float>(MiddleBlend, 3, name: nameof(MiddleBlend));
+            FarCoeff = s.Serialize<float>(FarCoeff, name: nameof(FarCoeff));
+            MiddleCoeff = s.Serialize<float>(MiddleCoeff, name: nameof(MiddleCoeff));
+            CylinderHeight = s.Serialize<float>(CylinderHeight, name: nameof(CylinderHeight));
+            FxVolRight = s.Serialize<float>(FxVolRight, name: nameof(FxVolRight));
 
-            Sounds = s.SerializeObjectArray<SoundRef>(Sounds, SoundsCount, name: nameof(Sounds));
-            Inserts = s.SerializeObjectArray<Jade_Reference<SND_Insert>>(Inserts, UIntCount, name: nameof(Inserts));
+            if(!Loader.IsBinaryData) Editor_Bytes_21 = s.SerializeArray<byte>(Editor_Bytes_21, 72, name: nameof(Editor_Bytes_21));
+            PlayListSize = s.Serialize<ushort>(PlayListSize, name: nameof(PlayListSize));
+            PlayListFlags = s.Serialize<ushort>(PlayListFlags, name: nameof(PlayListFlags));
+            InsertListSize = s.Serialize<ushort>(InsertListSize, name: nameof(InsertListSize));
+            InsertListFlags = s.Serialize<ushort>(InsertListFlags, name: nameof(InsertListFlags));
+
+            PlayList = s.SerializeObjectArray<SoundRef>(PlayList, PlayListSize, name: nameof(PlayList));
+            InsertList = s.SerializeObjectArray<Jade_Reference<SND_Insert>>(InsertList, InsertListSize, name: nameof(InsertList));
             UInt_26 = s.Serialize<uint>(UInt_26, name: nameof(UInt_26));
             UInt_27 = s.Serialize<uint>(UInt_27, name: nameof(UInt_27));
 
-            if (SoundsCount > 0) {
-                foreach(var sound in Sounds)
+            if (PlayListSize > 0) {
+                foreach(var sound in PlayList)
                     sound.Resolve(s);
             } else {
                 Sound.Resolve(s);
             }
-            Insert_15.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
-            Insert_16.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
-            foreach(var insert in Inserts)
+            FadeIn.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+            FadeOut.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+            foreach(var insert in InsertList)
                 insert.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
         }
 

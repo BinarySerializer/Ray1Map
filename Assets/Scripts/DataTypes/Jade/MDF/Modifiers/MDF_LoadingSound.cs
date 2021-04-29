@@ -4,13 +4,13 @@ using BinarySerializer;
 namespace R1Engine.Jade
 {
     public class MDF_LoadingSound : MDF_Modifier {
-        public uint UInt_00 { get; set; }
-        public uint UInt_04 { get; set; }
+        public uint Version { get; set; }
+        public uint Flags { get; set; }
         public Jade_Key SoundKey { get; set; }
         public SND_SModifier.SoundRef.SoundFlags SoundFlags { get; set; }
-        public uint UInt_10 { get; set; }
-        public float Float_14 { get; set; }
-        public byte[] Bytes_18_Editor { get; set; }
+        public int SoundIndex { get; set; }
+        public float LoadingDistance { get; set; }
+        public byte[] Reserved { get; set; }
 
         public Jade_Reference<SND_SModifier> SModifier { get; set; }
         public Jade_Reference<SND_Wave> Wave { get; set; }
@@ -27,6 +27,7 @@ namespace R1Engine.Jade
         public uint BGE_UInt_10 { get; set; }
         public uint BGE_UInt_11 { get; set; }
         public uint BGE_UInt_12 { get; set; }
+        public uint BGE_UInt_13 { get; set; }
         public uint BGE_UInt_14 { get; set; }
 
         public float BGE_Float_16 { get; set; }
@@ -52,8 +53,8 @@ namespace R1Engine.Jade
                 BGE_Flags = s.Serialize<uint>(BGE_Flags, name: nameof(BGE_Flags));
 
                 if (BGE_Flags == 0x100) {
-                    UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-                    UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
+                    Version = s.Serialize<uint>(Version, name: nameof(Version));
+                    Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
                     SoundKey = s.SerializeObject<Jade_Key>(SoundKey, name: nameof(SoundKey));
 
                     BGE_Float_3 = s.Serialize<float>(BGE_Float_3, name: nameof(BGE_Float_3));
@@ -66,7 +67,7 @@ namespace R1Engine.Jade
                     BGE_UInt_10 = s.Serialize<uint>(BGE_UInt_10, name: nameof(BGE_UInt_10));
                     BGE_UInt_11 = s.Serialize<uint>(BGE_UInt_11, name: nameof(BGE_UInt_11));
                     BGE_UInt_12 = s.Serialize<uint>(BGE_UInt_12, name: nameof(BGE_UInt_12));
-                    UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
+                    BGE_UInt_13 = s.Serialize<uint>(BGE_UInt_13, name: nameof(BGE_UInt_13));
                     BGE_UInt_14 = s.Serialize<uint>(BGE_UInt_14, name: nameof(BGE_UInt_14));
 
                     BGE_Float_16 = s.Serialize<float>(BGE_Float_16, name: nameof(BGE_Float_16));
@@ -86,17 +87,17 @@ namespace R1Engine.Jade
                     BGE_Float_29 = s.Serialize<float>(BGE_Float_29, name: nameof(BGE_Float_29));
                     BGE_Float_30 = s.Serialize<float>(BGE_Float_30, name: nameof(BGE_Float_30));
 
-                    if (!Loader.IsBinaryData) Bytes_18_Editor = s.SerializeArray(Bytes_18_Editor, 0x100, name: nameof(Bytes_18_Editor));
+                    if (!Loader.IsBinaryData) Reserved = s.SerializeArray(Reserved, 0x100, name: nameof(Reserved));
                 }
             } else {
-                UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-                UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
+                Version = s.Serialize<uint>(Version, name: nameof(Version));
+                Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
                 SoundKey = s.SerializeObject<Jade_Key>(SoundKey, name: nameof(SoundKey));
                 SoundFlags = s.Serialize<SND_SModifier.SoundRef.SoundFlags>(SoundFlags, name: nameof(SoundFlags));
-                UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
-                Float_14 = s.Serialize<float>(Float_14, name: nameof(Float_14));
+                SoundIndex = s.Serialize<int>(SoundIndex, name: nameof(SoundIndex));
+                LoadingDistance = s.Serialize<float>(LoadingDistance, name: nameof(LoadingDistance));
 
-                if (!Loader.IsBinaryData) Bytes_18_Editor = s.SerializeArray(Bytes_18_Editor, 0x100, name: nameof(Bytes_18_Editor));
+                if (!Loader.IsBinaryData) Reserved = s.SerializeArray(Reserved, 0x100, name: nameof(Reserved));
 
                 if (SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.LoadingSound)) {
                     Wave = new Jade_Reference<SND_Wave>(Context, SoundKey);
