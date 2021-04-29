@@ -4,9 +4,9 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	// MAT_pst_CreateSingleFromBuffer
 	public class MAT_SIN_SingleMaterial : GRO_GraphicRenderObject {
-		public uint Ambiant { get; set; }
-		public uint Diffuse { get; set; }
-		public uint Specular { get; set; } // Color?
+		public Jade_Color Ambiant { get; set; }
+		public Jade_Color Diffuse { get; set; }
+		public Jade_Color Specular { get; set; } // Color?
 		public uint SpecularExp { get; set; } // Read as a float, but it's 0x80000000, ie negative zero
 		public float Opacity { get; set; }
 		public uint Flags { get; set; }
@@ -14,9 +14,9 @@ namespace R1Engine.Jade {
 		public uint ValidateMask { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			Ambiant = s.Serialize<uint>(Ambiant, name: nameof(Ambiant));
-			Diffuse = s.Serialize<uint>(Diffuse, name: nameof(Diffuse));
-			Specular = s.Serialize<uint>(Specular, name: nameof(Specular));
+			Ambiant = s.SerializeObject<Jade_Color>(Ambiant, name: nameof(Ambiant));
+			Diffuse = s.SerializeObject<Jade_Color>(Diffuse, name: nameof(Diffuse));
+			Specular = s.SerializeObject<Jade_Color>(Specular, name: nameof(Specular));
 			SpecularExp = s.Serialize<uint>(SpecularExp, name: nameof(SpecularExp));
 			Opacity = s.Serialize<float>(Opacity, name: nameof(Opacity));
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));

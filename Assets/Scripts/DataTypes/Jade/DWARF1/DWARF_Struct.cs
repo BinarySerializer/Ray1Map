@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using BinarySerializer;
 
-namespace R1Engine.MW {
-	public class MW_Struct : BinarySerializable {
+namespace R1Engine.DWARF1 {
+	public class DWARF_Struct : BinarySerializable {
 		public uint StructSize { get; set; }
 
 		public bool HasHeader { get; set; } = true;
@@ -15,9 +15,9 @@ namespace R1Engine.MW {
 		public Pointer ChildStructsPointer => Offset + StructSize;
 		public bool IsEndOfArray => StructSize < 12;
 
-		public MW_Command[] Commands { get; set; }
+		public DWARF_Command[] Commands { get; set; }
 
-		public MW_Struct[] Children { get; set; }
+		public DWARF_Struct[] Children { get; set; }
 
 
 		protected override void OnPreSerialize(SerializerObject s) {
@@ -39,13 +39,13 @@ namespace R1Engine.MW {
 		public override void SerializeImpl(SerializerObject s) {
 			if (IsEndOfArray) return;
 
-			Commands = s.SerializeObjectArrayUntil<MW_Command>(Commands,
+			Commands = s.SerializeObjectArrayUntil<DWARF_Command>(Commands,
 				x => s.CurrentPointer.AbsoluteOffset >= ChildStructsPointer.AbsoluteOffset,
 				includeLastObj: true, name: nameof(Commands));
 
 			if (!IsEndOfArray && NextStructPointer != ChildStructsPointer) {
 				s.DoAt(ChildStructsPointer, () => {
-					Children = s.SerializeObjectArrayUntil<MW_Struct>(Children, f => f.IsEndOfArray,
+					Children = s.SerializeObjectArrayUntil<DWARF_Struct>(Children, f => f.IsEndOfArray,
 						includeLastObj: true, name: nameof(Children));
 				});
 			}

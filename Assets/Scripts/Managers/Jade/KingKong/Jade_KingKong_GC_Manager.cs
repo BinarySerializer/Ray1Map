@@ -2,7 +2,7 @@
 using Cysharp.Threading.Tasks;
 using System.IO;
 using System.Linq;
-using R1Engine.MW;
+using R1Engine.DWARF1;
 
 namespace R1Engine
 {
@@ -101,8 +101,8 @@ namespace R1Engine
 				StreamFile sf = context.AddStreamFile(key, ms, endianness: Endian.Big);
 				sf.AllowLocalPointers = true;
 
-				MW_Segment Segment = null;
-				Segment = FileFactory.Read<MW_Segment>(key, context);
+				DWARF_Segment Segment = null;
+				Segment = FileFactory.Read<DWARF_Segment>(key, context);
 			}
 		}
 

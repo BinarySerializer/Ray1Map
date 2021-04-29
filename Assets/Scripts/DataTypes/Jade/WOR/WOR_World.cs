@@ -9,13 +9,13 @@ namespace R1Engine.Jade {
 		public Jade_FileType FileType { get; set; }
 		public uint Version { get; set; }
 		public uint TotalGameObjectsCount { get; set; }
-		public uint AmbientColor { get; set; } // a key?
+		public Jade_Color AmbientColor { get; set; } // a key?
 		public string Name { get; set; }
 		public uint UInt_AfterName { get; set; }
 		public Jade_Matrix CameraPosSave { get; set; }
 		public float FieldOfVision { get; set; }
-		public uint BackgroundColor { get; set; } // a key?
-		public uint AmbientColor2 { get; set; } // a key?
+		public Jade_Color BackgroundColor { get; set; } // a key?
+		public Jade_Color AmbientColor2 { get; set; } // a key?
 		public uint UInt_9C_Version5 { get; set; }
 		public uint LODCut { get; set; }
 		public byte[] Bytes_A4 { get; set; }
@@ -39,14 +39,14 @@ namespace R1Engine.Jade {
 
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			TotalGameObjectsCount = s.Serialize<uint>(TotalGameObjectsCount, name: nameof(TotalGameObjectsCount));
-			AmbientColor = s.Serialize<uint>(AmbientColor, name: nameof(AmbientColor));
+			AmbientColor = s.SerializeObject<Jade_Color>(AmbientColor, name: nameof(AmbientColor));
 			Name = s.SerializeString(Name, length: 60, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 
 			if (!Loader.IsBinaryData) UInt_AfterName = s.Serialize<uint>(UInt_AfterName, name: nameof(UInt_AfterName));
 			CameraPosSave = s.SerializeObject<Jade_Matrix>(CameraPosSave, name: nameof(CameraPosSave));
 			FieldOfVision = s.Serialize<float>(FieldOfVision, name: nameof(FieldOfVision));
-			BackgroundColor = s.Serialize<uint>(BackgroundColor, name: nameof(BackgroundColor));
-			AmbientColor2 = s.Serialize<uint>(AmbientColor2, name: nameof(AmbientColor2));
+			BackgroundColor = s.SerializeObject<Jade_Color>(BackgroundColor, name: nameof(BackgroundColor));
+			AmbientColor2 = s.SerializeObject<Jade_Color>(AmbientColor2, name: nameof(AmbientColor2));
 			if (Version >= 5 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
 				UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
 			}

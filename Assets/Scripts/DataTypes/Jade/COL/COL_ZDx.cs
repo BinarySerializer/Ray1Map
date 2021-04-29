@@ -2,26 +2,21 @@
 using BinarySerializer;
 
 namespace R1Engine.Jade {
-    public class COL_ColSetStruct : BinarySerializable {
+    public class COL_ZDx : BinarySerializable {
         public bool IsInstance { get; set; } // Set in OnPreSerialize
 
-        public byte Byte_00 { get; set; }
-        public byte CobType { get; set; }
-        public byte Byte_02 { get; set; }
-        public byte Byte_03 { get; set; }
+        public byte Flag { get; set; }
+        public byte Type { get; set; } // Determines shape
+        public byte BoneIndex { get; set; }
+        public byte Design { get; set; }
         public byte Byte_04_Editor { get; set; }
         public uint NameLength { get; set; }
         public string Name { get; set; }
         public byte Name_Terminator { get; set; }
 
-        // Copied from COL_Cob
-        // Type 1
-        public Jade_Vector Type1_Vector_00 { get; set; }
-        public Jade_Vector Type1_Vector_04 { get; set; }
-
-        // Type 2
-        public Jade_Vector Type2_Vector { get; set; }
-        public float Type2_Float_04 { get; set; }
+        // Copied from COL_Cob-
+        public COL_Box Shape_Box { get; set; } // Type 1
+        public COL_Sphere Shape_Sphere { get; set; } // Type 2
 
         // Type 3
         public Jade_Vector Type3_Vector { get; set; }
@@ -31,10 +26,10 @@ namespace R1Engine.Jade {
         public override void SerializeImpl(SerializerObject s) {
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
-            CobType = s.Serialize<byte>(CobType, name: nameof(CobType));
-            Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
-            Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+            Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
+            Type = s.Serialize<byte>(Type, name: nameof(Type));
+            BoneIndex = s.Serialize<byte>(BoneIndex, name: nameof(BoneIndex));
+            Design = s.Serialize<byte>(Design, name: nameof(Design));
             if (IsInstance && !Loader.IsBinaryData) Byte_04_Editor = s.Serialize<byte>(Byte_04_Editor, name: nameof(Byte_04_Editor));
             NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
             if (!Loader.IsBinaryData) {
@@ -42,15 +37,13 @@ namespace R1Engine.Jade {
                 Name_Terminator = s.Serialize<byte>(Name_Terminator, name: nameof(Name_Terminator));
             }
 
-            switch (CobType) {
+            switch (Type) {
                 case 1:
-                    Type1_Vector_00 = s.SerializeObject<Jade_Vector>(Type1_Vector_00, name: nameof(Type1_Vector_00));
-                    Type1_Vector_04 = s.SerializeObject<Jade_Vector>(Type1_Vector_04, name: nameof(Type1_Vector_04));
+                    Shape_Box = s.SerializeObject<COL_Box>(Shape_Box, name: nameof(Shape_Box));
                     break;
 
                 case 2:
-                    Type2_Vector = s.SerializeObject<Jade_Vector>(Type2_Vector, name: nameof(Type2_Vector));
-                    Type2_Float_04 = s.Serialize<float>(Type2_Float_04, name: nameof(Type2_Float_04));
+                    Shape_Sphere = s.SerializeObject<COL_Sphere>(Shape_Sphere, name: nameof(Shape_Sphere));
                     break;
 
                 case 3:

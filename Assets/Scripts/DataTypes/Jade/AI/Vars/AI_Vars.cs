@@ -102,8 +102,8 @@ namespace R1Engine.Jade {
 					$"\n\t\tValue element size: {Vars[i].Link.Size}" +
 					$"\n\t\tValue count: {Vars[i].Info.ArrayLength}" +
 					$"\n\t\tValue dimensions count: {Vars[i].Info.ArrayDimensionsCount}" +
-					$"\n\t\tVariable flags: {Vars[i].Info.Short_0A:X4}" +
-					$"\n\t\tCopy to instance buffer: {(Vars[i].Info.Short_0A & 0x20) != 0}");
+					$"\n\t\tVariable flags: {Vars[i].Info.Flags:X4}" +
+					$"\n\t\tCopy to instance buffer: {(Vars[i].Info.Flags & 0x20) != 0}");
 			}
 
 		}

@@ -21,7 +21,7 @@ namespace R1Engine.Jade {
 		// (other stuff here)
 		public Jade_Vector[] Vertices { get; set; }
 		public Jade_Vector[] Normals { get; set; }
-		public uint[] Colors { get; set; }
+		public Jade_Color[] Colors { get; set; }
 		public UV[] UVs { get; set; }
 		public GEO_GeometricObjectElement[] Elements { get; set; }
 		public uint ElementsFlags { get; set; }
@@ -61,7 +61,7 @@ namespace R1Engine.Jade {
 			if (MRM_ObjectAdditionalInfoPointer != 0) {
 				throw new NotImplementedException($"TODO: Implement {GetType()}: MRM_ObjectAdditionalInfo");
 			}
-			Colors = s.SerializeArray<uint>(Colors, ColorsCount, name: nameof(Colors));
+			Colors = s.SerializeObjectArray<Jade_Color>(Colors, ColorsCount, name: nameof(Colors));
 			UVs = s.SerializeObjectArray<UV>(UVs, UVsCount, name: nameof(UVs));
 
 			// Serialize elements

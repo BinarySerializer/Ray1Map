@@ -7,7 +7,7 @@ namespace R1Engine.Jade
     public class TEX_Content_RawPal : BinarySerializable {
         public TEX_File Texture { get; set; }
 
-        public TexPaletteReference[] References { get; set; }
+        public Slot[] Slots { get; set; }
 
         public uint UInt_00 { get; set; }
         public int Int_04 { get; set; }
@@ -25,12 +25,12 @@ namespace R1Engine.Jade
                 var byteCount = (FileSize - (s.CurrentPointer - Texture.Offset));
                 var count = byteCount / 12 + ((byteCount % 12 >= 4) ? 1 : 0);
                 var startPtr = s.CurrentPointer;
-                References = s.SerializeObjectArray<TexPaletteReference>(References, count, onPreSerialize:
-                    r => {
-                        r.ReferenceArrayStart = startPtr;
-                        r.ReferenceArrayByteCount = byteCount;
-                    }, name: nameof(References));
-                UsedReference?.Resolve();
+                Slots = s.SerializeObjectArray<Slot>(Slots, count, onPreSerialize:
+                    slot => {
+                        slot.ReferenceArrayStart = startPtr;
+                        slot.ReferenceArrayByteCount = byteCount;
+                    }, name: nameof(Slots));
+                PreferredSlot?.Resolve();
             } else {
                 throw new BinarySerializableException(this, $"Invalid {nameof(TEX_Content_RawPal)}");
             }
@@ -48,14 +48,14 @@ namespace R1Engine.Jade
             }
         }
 
-        public TexPaletteReference UsedReference {
+        public Slot PreferredSlot {
             get {
-                var palOrder = GetPaletteOrder(Context.GetR1Settings());
+                var palOrder = GetSlotOrder(Context.GetR1Settings());
                 for (int i = 0; i < palOrder.Length; i++) {
                     var pi = palOrder[i];
                     if (pi < 0) break;
-                    if (pi >= References.Length) continue;
-                    var reference = References[pi];
+                    if (pi >= Slots.Length) continue;
+                    var reference = Slots[pi];
                     if (!reference.RawTexture.IsNull || !reference.Palette.IsNull || !reference.Unknown.IsNull) {
                         return reference;
                     }
@@ -64,24 +64,24 @@ namespace R1Engine.Jade
             }
         }
 
-        public static sbyte[] GetPaletteOrder(GameSettings settings) {
+        public static sbyte[] GetSlotOrder(GameSettings settings) {
             switch (settings.GameModeSelection) {
                 case GameModeSelection.RaymanRavingRabbidsWii:
                 case GameModeSelection.RaymanRavingRabbidsWiiJP:
                 case GameModeSelection.RaymanRavingRabbids2Wii:
                 case GameModeSelection.RaymanRavingRabbids2PC:
-                    return PaletteOrderWii;
+                    return SlotOrderWii;
                 case GameModeSelection.RaymanRavingRabbidsXbox360:
-                    return PaletteOrderXbox360;
+                    return SlotOrderXbox360;
                 default:
-                    return PaletteOrderPC;
+                    return SlotOrderPC;
             }
         }
-        public static sbyte[] PaletteOrderWii = new sbyte[] { 1, 0, -1, -1 };
-        public static sbyte[] PaletteOrderPC = new sbyte[] { 0, -1, -1, -1 };
-        public static sbyte[] PaletteOrderXbox360 = new sbyte[] { 0, 2, -1, -1 };
+        public static sbyte[] SlotOrderWii = new sbyte[] { 1, 0, -1, -1 };
+        public static sbyte[] SlotOrderPC = new sbyte[] { 0, -1, -1, -1 };
+        public static sbyte[] SlotOrderXbox360 = new sbyte[] { 0, 2, -1, -1 };
 
-        public class TexPaletteReference : BinarySerializable {
+        public class Slot : BinarySerializable {
             public Pointer ReferenceArrayStart { get; set; } // Set in onPreSerialize
             public long ReferenceArrayByteCount { get; set; }
 

@@ -5,29 +5,29 @@ namespace R1Engine.Jade
 {
     public class ANI_Shape : Jade_File
     {
-        public byte StructsCount { get; set; } // Max 64
-        public ANI_ShapeStruct[] Structs { get; set; }
+        public byte LastCanal { get; set; } // Max 64
+        public ANI_Shape_Canal[] Canals { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            StructsCount = s.Serialize<byte>(StructsCount, name: nameof(StructsCount));
-            Structs = s.SerializeObjectArray(Structs, Math.Min((byte)64, StructsCount), name: nameof(Structs));
+            LastCanal = s.Serialize<byte>(LastCanal, name: nameof(LastCanal));
+            Canals = s.SerializeObjectArray(Canals, Math.Min((byte)64, LastCanal), name: nameof(Canals));
         }
 
-        public class ANI_ShapeStruct : BinarySerializable
+        public class ANI_Shape_Canal : BinarySerializable
         {
-            public sbyte Byte_00 { get; set; }
-            public byte Byte_01 { get; set; }
-            public byte Byte_02 { get; set; }
+            public sbyte Canal { get; set; }
+            public byte AI_Canal_01 { get; set; }
+            public byte AI_Canal_02 { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
-                Byte_00 = s.Serialize<sbyte>(Byte_00, name: nameof(Byte_00));
+                Canal = s.Serialize<sbyte>(Canal, name: nameof(Canal));
 
-                if (Byte_00 >= 0 && Byte_00 < 64)
+                if (Canal >= 0 && Canal < 64)
                 {
-                    Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-                    Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+                    AI_Canal_01 = s.Serialize<byte>(AI_Canal_01, name: nameof(AI_Canal_01));
+                    AI_Canal_02 = s.Serialize<byte>(AI_Canal_02, name: nameof(AI_Canal_02));
                 }
             }
         }

@@ -19,7 +19,7 @@ namespace R1Engine.Jade
         public Jade_Key ContentKey {
             get {
                 if (IsRawPalUnsupported(Context) && FileFormat == TexFileFormat.RawPal) {
-                    return Content_RawPal?.UsedReference.TextureRef.Key;
+                    return Content_RawPal?.PreferredSlot.TextureRef.Key;
                 } else {
                     return Key;
                 }
@@ -212,7 +212,7 @@ namespace R1Engine.Jade
                 TexFileFormat.Procedural => null, // Points to nothing
                 TexFileFormat.Animated => null, // Points to various frames
                 TexFileFormat.Cubemap => null,
-                TexFileFormat.RawPal => (Info != null ? Info : this).Content_RawPal.UsedReference?.ToTexture2D(this),
+                TexFileFormat.RawPal => (Info != null ? Info : this).Content_RawPal.PreferredSlot?.ToTexture2D(this),
                 TexFileFormat.Tga => Content_TGA.ToTexture2D(),
                 TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
                 TexFileFormat.DDS => Content_DDS != null ? Content_DDS.PrimaryTexture?.ToTexture2D() : Content_Xenon.ToTexture2D(),

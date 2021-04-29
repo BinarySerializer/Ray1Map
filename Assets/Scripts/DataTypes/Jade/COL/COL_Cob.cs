@@ -6,55 +6,40 @@ namespace R1Engine.Jade
     public class COL_Cob : Jade_File 
     {
         public Jade_Reference<COL_GameMaterial> Material { get; set; }
-        public byte CobType { get; set; } // 1, 2, 3 or 5
+        public byte Type { get; set; } // 1, 2, 3 or 5
         public byte Flags { get; set; }
         public uint Uint_06 { get; set; }
 
-        // Type 1
-        public Jade_Vector Type1_Vector_00 { get; set; }
-        public Jade_Vector Type1_Vector_04 { get; set; }
-
-        // Type 2
-        public Jade_Vector Type2_Vector { get; set; }
-        public float Type2_Float_04 { get; set; }
+        public COL_Box Shape_Box { get; set; } // Type 1
+        public COL_Sphere Shape_Sphere { get; set; } // Type 2
 
         // Type 3
         public Jade_Vector Type3_Vector { get; set; }
         public float Type3_Float_04 { get; set; }
         public float Type3_Float_08 { get; set; }
 
-        // Type 5
-        public uint Type5_Vectors_04_Count { get; set; }
-        public Jade_Vector[] Type5_Vectors_04 { get; set; }
-        public uint Type5_Vectors_08_Count { get; set; }
-        public Jade_Vector[] Type5_Vectors_08 { get; set; }
-        public uint Type5_UnkStructs_Count { get; set; }
-        public UnkStruct[] Type5_UnkStructs { get; set; }
-        public ColMapPoint[][] Type5_AdditionalColMapPoints { get; set; }
-        public COL_OK3 Type5_CollisionData { get; set; }
+        public COL_IndexedTriangles Shape_IndexedTriangles { get; set; } // Type 5
 
         public override void SerializeImpl(SerializerObject s) 
         {
             Material = s.SerializeObject<Jade_Reference<COL_GameMaterial>>(Material, name: nameof(Material))?.Resolve();
-            CobType = s.Serialize(CobType, name: nameof(CobType));
+            Type = s.Serialize(Type, name: nameof(Type));
             Flags = s.Serialize(Flags, name: nameof(Flags));
 
-            if (CobType != 1 && CobType != 2 && CobType != 3 && CobType != 5)
+            if (Type != 1 && Type != 2 && Type != 3 && Type != 5)
                 return;
 
-            if (CobType != 5)
+            if (Type != 5)
                 Uint_06 = s.Serialize<uint>(Uint_06, name: nameof(Uint_06));
 
-            switch (CobType)
+            switch (Type)
             {
                 case 1:
-                    Type1_Vector_00 = s.SerializeObject<Jade_Vector>(Type1_Vector_00, name: nameof(Type1_Vector_00));
-                    Type1_Vector_04 = s.SerializeObject<Jade_Vector>(Type1_Vector_04, name: nameof(Type1_Vector_04));
+                    Shape_Box = s.SerializeObject<COL_Box>(Shape_Box, name: nameof(Shape_Box));
                     break;
 
                 case 2:
-                    Type2_Vector = s.SerializeObject<Jade_Vector>(Type2_Vector, name: nameof(Type2_Vector));
-                    Type2_Float_04 = s.Serialize<float>(Type2_Float_04, name: nameof(Type2_Float_04));
+                    Shape_Sphere = s.SerializeObject<COL_Sphere>(Shape_Sphere, name: nameof(Shape_Sphere));
                     break;
 
                 case 3:
@@ -64,27 +49,9 @@ namespace R1Engine.Jade
                     break;
 
                 case 5:
-                    Type5_Vectors_04_Count = s.Serialize<uint>(Type5_Vectors_04_Count, name: nameof(Type5_Vectors_04_Count));
-                    Type5_Vectors_04 = s.SerializeObjectArray<Jade_Vector>(Type5_Vectors_04, Type5_Vectors_04_Count, name: nameof(Type5_Vectors_04));
-
-                    Type5_Vectors_08_Count = s.Serialize<uint>(Type5_Vectors_08_Count, name: nameof(Type5_Vectors_08_Count));
-                    Type5_Vectors_08 = s.SerializeObjectArray<Jade_Vector>(Type5_Vectors_08, Type5_Vectors_08_Count, name: nameof(Type5_Vectors_08));
-
-                    Type5_UnkStructs_Count = s.Serialize<uint>(Type5_UnkStructs_Count, name: nameof(Type5_UnkStructs_Count));
-                    Type5_UnkStructs = s.SerializeObjectArray<UnkStruct>(Type5_UnkStructs, Type5_UnkStructs_Count, name: nameof(Type5_UnkStructs));
-
-                    if ((Flags & 0x80) != 0 && Loader.IsBinaryData)
-                    {
-                        if (Type5_AdditionalColMapPoints == null)
-                            Type5_AdditionalColMapPoints = new ColMapPoint[Type5_UnkStructs_Count][];
-
-                        for (int i = 0; i < Type5_AdditionalColMapPoints.Length; i++)
-                            Type5_AdditionalColMapPoints[i] = s.SerializeObjectArray(Type5_AdditionalColMapPoints[i], Type5_UnkStructs[i].ColMapPointsCount, name: $"{nameof(Type5_AdditionalColMapPoints)}[{i}]");
-
-                        if ((Flags & 8) == 8) {
-                            Type5_CollisionData = s.SerializeObject<COL_OK3>(Type5_CollisionData, name: nameof(Type5_CollisionData));
-                        }
-                    }
+                    Shape_IndexedTriangles = s.SerializeObject<COL_IndexedTriangles>(Shape_IndexedTriangles,
+                        onPreSerialize: it => it.Flags = Flags,
+                        name: nameof(Shape_IndexedTriangles));
 
                     break;
             }

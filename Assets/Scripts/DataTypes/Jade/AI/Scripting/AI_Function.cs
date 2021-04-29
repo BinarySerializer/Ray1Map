@@ -6,7 +6,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_Function : Jade_File {
-		public int Int_00 { get; set; }
+		public int SizeLocalStack { get; set; }
 		public uint FunctionBufferLength { get; set; }
 		public AI_Node[] Nodes { get; set; }
 		public uint UnknownBufferLength { get; set; }
@@ -25,7 +25,7 @@ namespace R1Engine.Jade {
 				s.Log($"Compiled function found! Function name: {FunctionDef.Name}");
 			}
 
-			Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
+			SizeLocalStack = s.Serialize<int>(SizeLocalStack, name: nameof(SizeLocalStack));
 			FunctionBufferLength = s.Serialize<uint>(FunctionBufferLength, name: nameof(FunctionBufferLength));
 
 			if (FunctionBufferLength > 0 && (FunctionDef == null || !Loader.IsBinaryData)) {

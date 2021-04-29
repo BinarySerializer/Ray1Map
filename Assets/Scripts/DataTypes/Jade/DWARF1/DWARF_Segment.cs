@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using BinarySerializer;
 
-namespace R1Engine.MW {
-	public class MW_Segment : BinarySerializable {
-		public MW_Struct[] Files { get; set; }
+namespace R1Engine.DWARF1 {
+	public class DWARF_Segment : BinarySerializable {
+		public DWARF_Struct[] Files { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			Files = s.SerializeObjectArrayUntil<MW_Struct>(Files,
+			Files = s.SerializeObjectArrayUntil<DWARF_Struct>(Files,
 				f => f.NextStructPointer.AbsoluteOffset >= Offset.AbsoluteOffset + s.CurrentLength,
 				includeLastObj: true, name: nameof(Files));
 		}

@@ -5,7 +5,7 @@ namespace R1Engine.Jade {
 	// Found in LIGHT_p_CreateFromBuffer
 	public class LIGHT_Light : GRO_GraphicRenderObject {
 		public uint Flags { get; set; }
-		public uint Color { get; set; }
+		public Jade_Color Color { get; set; }
 		public LIGHT_XenonData1 XenonData1 { get; set; }
 		public float AddMaterial { get; set; }
 		public float Float_0C { get; set; }
@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
-			Color = s.Serialize<uint>(Color, name: nameof(Color));
+			Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
 			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && BitHelpers.ExtractBits((int)Flags, 3, 0) == 7) {
 				XenonData1 = s.SerializeObject<LIGHT_XenonData1>(XenonData1, name: nameof(XenonData1));
 			}
