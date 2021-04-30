@@ -20,7 +20,7 @@ namespace R1Engine.Jade
         {
             EventsCount = s.Serialize<uint>(EventsCount, name: nameof(EventsCount));
 
-            if (Track.UInt_04 > 0)
+            if (Track.DataLength > 0)
             {
                 s.DoAt(s.CurrentPointer, () => {
                     if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_9))

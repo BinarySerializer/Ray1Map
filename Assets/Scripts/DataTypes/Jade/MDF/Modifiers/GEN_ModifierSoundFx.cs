@@ -4,23 +4,23 @@ using BinarySerializer;
 namespace R1Engine.Jade
 {
     public class GEN_ModifierSoundFx : MDF_Modifier {
-        public uint UInt_00 { get; set; }
-        public uint UInt_04 { get; set; }
+        public uint Version { get; set; }
+        public uint Flags { get; set; }
+        public float[] Distance { get; set; }
+
         public float Float_08 { get; set; }
         public float Float_0C { get; set; }
         public float Float_10 { get; set; }
-        public float Float_14 { get; set; }
-        public uint UInt_18 { get; set; }
-        public uint UInt_1C { get; set; }
-        public uint UInt_20 { get; set; }
-        public uint UInt_24 { get; set; }
-        public float Float_28 { get; set; }
-        public float Float_2C { get; set; }
-        public float Float_30 { get; set; }
-        public float Float_34 { get; set; }
-        public uint UInt_38 { get; set; }
-        public uint Uint_3C_Editor { get; set; }
-        public byte[] Bytes_40_Editor { get; set; }
+        public float Delta { get; set; }
+        public int CoreID { get; set; }
+        public int Mode { get; set; }
+        public int Delay { get; set; }
+        public uint Feedback { get; set; }
+        public float WetVol { get; set; }
+        public float[] Far { get; set; }
+        public uint NetIdx { get; set; }
+        public uint NextPointer { get; set; }
+        public byte[] Reserved { get; set; }
 
         public uint BGE_Flags { get; set; }
 
@@ -31,41 +31,37 @@ namespace R1Engine.Jade
             if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
                 BGE_Flags = s.Serialize<uint>(BGE_Flags, name: nameof(BGE_Flags));
                 if (BGE_Flags == 0x100) {
-                    UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-                    UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
+                    Version = s.Serialize<uint>(Version, name: nameof(Version));
+                    Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
                     Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
                     Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-                    UInt_18 = s.Serialize<uint>(UInt_18, name: nameof(UInt_18));
-                    UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
-                    UInt_20 = s.Serialize<uint>(UInt_20, name: nameof(UInt_20));
-                    Float_28 = s.Serialize<float>(Float_28, name: nameof(Float_28));
-                    UInt_38 = s.Serialize<uint>(UInt_38, name: nameof(UInt_38));
-                    if (!Loader.IsBinaryData) Bytes_40_Editor = s.SerializeArray(Bytes_40_Editor, 0x100, name: nameof(Bytes_40_Editor));
+                    CoreID = s.Serialize<int>(CoreID, name: nameof(CoreID));
+                    Mode = s.Serialize<int>(Mode, name: nameof(Mode));
+                    Delay = s.Serialize<int>(Delay, name: nameof(Delay));
+                    WetVol = s.Serialize<float>(WetVol, name: nameof(WetVol));
+                    NetIdx = s.Serialize<uint>(NetIdx, name: nameof(NetIdx));
+                    if (!Loader.IsBinaryData) Reserved = s.SerializeArray(Reserved, 0x100, name: nameof(Reserved));
                 }
             } else {
-                UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-                UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
+                Version = s.Serialize<uint>(Version, name: nameof(Version));
+                Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+                
+                Distance = s.SerializeArray<float>(Distance, 3, name: nameof(Distance));
+                Delta = s.Serialize<float>(Delta, name: nameof(Delta));
 
-                Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
-                Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-                Float_10 = s.Serialize<float>(Float_10, name: nameof(Float_10));
-                Float_14 = s.Serialize<float>(Float_14, name: nameof(Float_14));
+                CoreID = s.Serialize<int>(CoreID, name: nameof(CoreID));
+                Mode = s.Serialize<int>(Mode, name: nameof(Mode));
+                Delay = s.Serialize<int>(Delay, name: nameof(Delay));
+                Feedback = s.Serialize<uint>(Feedback, name: nameof(Feedback));
 
-                UInt_18 = s.Serialize<uint>(UInt_18, name: nameof(UInt_18));
-                UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
-                UInt_20 = s.Serialize<uint>(UInt_20, name: nameof(UInt_20));
-                UInt_24 = s.Serialize<uint>(UInt_24, name: nameof(UInt_24));
+                WetVol = s.Serialize<float>(WetVol, name: nameof(WetVol));
+                Far = s.SerializeArray<float>(Far, 3, name: nameof(Far));
 
-                Float_28 = s.Serialize<float>(Float_28, name: nameof(Float_28));
-                Float_2C = s.Serialize<float>(Float_2C, name: nameof(Float_2C));
-                Float_30 = s.Serialize<float>(Float_30, name: nameof(Float_30));
-                Float_34 = s.Serialize<float>(Float_34, name: nameof(Float_34));
-
-                UInt_38 = s.Serialize<uint>(UInt_38, name: nameof(UInt_38));
+                NetIdx = s.Serialize<uint>(NetIdx, name: nameof(NetIdx));
 
                 if (!Loader.IsBinaryData) {
-                    Uint_3C_Editor = s.Serialize<uint>(Uint_3C_Editor, name: nameof(Uint_3C_Editor));
-                    Bytes_40_Editor = s.SerializeArray(Bytes_40_Editor, 48, name: nameof(Bytes_40_Editor));
+                    NextPointer = s.Serialize<uint>(NextPointer, name: nameof(NextPointer));
+                    Reserved = s.SerializeArray(Reserved, 48, name: nameof(Reserved));
                 }
             }
         }

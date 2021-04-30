@@ -6,23 +6,23 @@ namespace R1Engine.Jade {
 	public class BIG_BigFile : BinarySerializable {
 		public static readonly byte[] XORKey = new byte[] { 0xb3, 0x98, 0xcc, 0x66 };
 		public static uint HeaderLength => 44;
-		public uint TotalFatFilesLength => FatFilesCount * (
+		public uint TotalFatFilesLength => NumFat * (
 			BIG_FatFile.HeaderLength
-			+ FatFileMaxEntries * BIG_FatFile.FileReference.StructSize
-			+ FatFileMaxEntries * BIG_FatFile.FileInfo.StructSize(Version)
-			+ FatFileMaxEntries * BIG_FatFile.DirectoryInfo.StructSize);
+			+ SizeOfFat * BIG_FatFile.FileReference.StructSize
+			+ SizeOfFat * BIG_FatFile.FileInfo.StructSize(Version)
+			+ SizeOfFat * BIG_FatFile.DirectoryInfo.StructSize);
 		
 		public string BIG_gst { get; set; }
 		public uint Version { get; set; }
-		public uint FilesCount { get; set; }
-		public uint DirectoriesCount { get; set; }
-		public uint UInt_10 { get; set; }
-		public uint UInt_14 { get; set; }
-		public int Int_18 { get; set; }
-		public int Int_1C { get; set; }
-		public uint FatFileMaxEntries { get; set; }
-		public uint FatFilesCount { get; set; }
-		public Jade_Key UniversKey { get; set; } // First file it loads
+		public uint MaxFile { get; set; }
+		public uint MaxDir { get; set; }
+		public uint MaxKey { get; set; }
+		public uint Root { get; set; }
+		public int FirstFreeFile { get; set; }
+		public int FirstFreeDIrectory { get; set; }
+		public uint SizeOfFat { get; set; }
+		public uint NumFat { get; set; }
+		public Jade_Key UniverseKey { get; set; } // First file it loads
 
 		public Pointer FatFilesOffset { get; set; }
 		public BIG_FatFile[] FatFiles { get; set; }
@@ -31,24 +31,24 @@ namespace R1Engine.Jade {
 			BIG_gst = s.SerializeString(BIG_gst, 4, name: nameof(BIG_gst));
 			XORIfNecessary(s, () => {
 				Version = s.Serialize<uint>(Version, name: nameof(Version));
-				FilesCount = s.Serialize<uint>(FilesCount, name: nameof(FilesCount));
-				DirectoriesCount = s.Serialize<uint>(DirectoriesCount, name: nameof(DirectoriesCount));
-				UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
-				UInt_14 = s.Serialize<uint>(UInt_14, name: nameof(UInt_14));
-				Int_18 = s.Serialize<int>(Int_18, name: nameof(Int_18));
-				Int_1C = s.Serialize<int>(Int_1C, name: nameof(Int_1C));
-				FatFileMaxEntries = s.Serialize<uint>(FatFileMaxEntries, name: nameof(FatFileMaxEntries));
-				FatFilesCount = s.Serialize<uint>(FatFilesCount, name: nameof(FatFilesCount));
+				MaxFile = s.Serialize<uint>(MaxFile, name: nameof(MaxFile));
+				MaxDir = s.Serialize<uint>(MaxDir, name: nameof(MaxDir));
+				MaxKey = s.Serialize<uint>(MaxKey, name: nameof(MaxKey));
+				Root = s.Serialize<uint>(Root, name: nameof(Root));
+				FirstFreeFile = s.Serialize<int>(FirstFreeFile, name: nameof(FirstFreeFile));
+				FirstFreeDIrectory = s.Serialize<int>(FirstFreeDIrectory, name: nameof(FirstFreeDIrectory));
+				SizeOfFat = s.Serialize<uint>(SizeOfFat, name: nameof(SizeOfFat));
+				NumFat = s.Serialize<uint>(NumFat, name: nameof(NumFat));
 			});
-			UniversKey = s.SerializeObject<Jade_Key>(UniversKey, name: nameof(UniversKey));
+			UniverseKey = s.SerializeObject<Jade_Key>(UniverseKey, name: nameof(UniverseKey));
 			FatFilesOffset = s.CurrentPointer;
 		}
 
 		public void SerializeFatFiles(SerializerObject s) {
 			s.DoAt(FatFilesOffset, () => {
 				XORIfNecessary(s, () => {
-					FatFiles = s.SerializeObjectArray<BIG_FatFile>(FatFiles, FatFilesCount, onPreSerialize: ff => {
-						ff.MaxEntries = FatFileMaxEntries;
+					FatFiles = s.SerializeObjectArray<BIG_FatFile>(FatFiles, NumFat, onPreSerialize: ff => {
+						ff.MaxEntries = SizeOfFat;
 						ff.Version = Version;
 					}, name: nameof(FatFiles));
 				});

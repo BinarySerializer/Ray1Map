@@ -7,17 +7,17 @@ namespace R1Engine.Jade
     {
         public uint UInt_00 { get; set; }
         public uint Uint_04_Editor { get; set; }
-        public uint Uint_04 { get; set; }
+        public uint ID { get; set; }
         public Jade_Reference<SND_SModifier> SModifier { get; set; }
         public uint Uint_0C_Editor { get; set; }
         public uint Uint_10_Editor { get; set; }
-        public float Float_0C { get; set; }
-        public uint Uint_10 { get; set; }
-        public uint Uint_14 { get; set; }
-        public float Float_18 { get; set; }
-        public float Float_1C { get; set; }
-        public int Int_20 { get; set; }
-        public byte[] Bytes_24_Editor { get; set; }
+        public float PrefetchDistance { get; set; }
+        public uint ConfigFlags { get; set; }
+        public uint CurrentFlags { get; set; }
+        public float Delay { get; set; }
+        public float DeltaFar { get; set; }
+        public int SndTrack { get; set; }
+        public byte[] Reserved { get; set; }
 
         public uint BGE_Flags { get; set; }
         public uint BGE_UInt_1 { get; set; }
@@ -124,7 +124,7 @@ namespace R1Engine.Jade
             } else if (UInt_00 == 274) {
                 if (!Loader.IsBinaryData) Uint_04_Editor = s.Serialize<uint>(Uint_04_Editor, name: nameof(Uint_04_Editor));
 
-                Uint_04 = s.Serialize<uint>(Uint_04, name: nameof(Uint_04));
+                ID = s.Serialize<uint>(ID, name: nameof(ID));
                 SModifier = s.SerializeObject<Jade_Reference<SND_SModifier>>(SModifier, name: nameof(SModifier))?
                     .Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
 
@@ -134,14 +134,14 @@ namespace R1Engine.Jade
                     Uint_10_Editor = s.Serialize<uint>(Uint_10_Editor, name: nameof(Uint_10_Editor));
                 }
 
-                Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-                Uint_10 = s.Serialize<uint>(Uint_10, name: nameof(Uint_10));
-                Uint_14 = s.Serialize<uint>(Uint_14, name: nameof(Uint_14));
-                Float_18 = s.Serialize<float>(Float_18, name: nameof(Float_18));
-                Float_1C = s.Serialize<float>(Float_1C, name: nameof(Float_1C));
-                Int_20 = s.Serialize<int>(Int_20, name: nameof(Int_20));
+                PrefetchDistance = s.Serialize<float>(PrefetchDistance, name: nameof(PrefetchDistance));
+                ConfigFlags = s.Serialize<uint>(ConfigFlags, name: nameof(ConfigFlags));
+                CurrentFlags = s.Serialize<uint>(CurrentFlags, name: nameof(CurrentFlags));
+                Delay = s.Serialize<float>(Delay, name: nameof(Delay));
+                DeltaFar = s.Serialize<float>(DeltaFar, name: nameof(DeltaFar));
+                SndTrack = s.Serialize<int>(SndTrack, name: nameof(SndTrack));
 
-                if (!Loader.IsBinaryData) Bytes_24_Editor = s.SerializeArray(Bytes_24_Editor, 40, name: nameof(Bytes_24_Editor));
+                if (!Loader.IsBinaryData) Reserved = s.SerializeArray(Reserved, 40, name: nameof(Reserved));
             }
         }
     }

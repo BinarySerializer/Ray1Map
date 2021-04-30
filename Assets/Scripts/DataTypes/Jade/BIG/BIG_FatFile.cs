@@ -4,12 +4,12 @@ namespace R1Engine.Jade {
 	public class BIG_FatFile : BinarySerializable {
 		public static uint HeaderLength => 0x18;
 		
-		public uint FilesCount { get; set; }
-		public uint DirectoriesCount { get; set; }
-		public Pointer FilesOffset { get; set; }
-		public int NextFatFileOffset { get; set; }
-		public uint UInt_14 { get; set; }
-		public uint UInt_18 { get; set; }
+		public uint MaxFile { get; set; } // File count
+		public uint MaxDir { get; set; } // Directory count
+		public Pointer PosFat { get; set; } // offset of file list
+		public int NextPosFat { get; set; }
+		public uint FirstIndex { get; set; }
+		public uint LastIndex { get; set; }
 
 		public FileReference[] Files { get; set; }
 		public FileInfo[] FileInfos { get; set; }
@@ -18,24 +18,24 @@ namespace R1Engine.Jade {
 		public uint Version { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			FilesCount = s.Serialize<uint>(FilesCount, name: nameof(FilesCount));
-			DirectoriesCount = s.Serialize<uint>(DirectoriesCount, name: nameof(DirectoriesCount));
-			FilesOffset = s.SerializePointer(FilesOffset, name: nameof(FilesOffset));
-			NextFatFileOffset = s.Serialize<int>(NextFatFileOffset, name: nameof(NextFatFileOffset));
-			UInt_14 = s.Serialize<uint>(UInt_14, name: nameof(UInt_14));
-			UInt_18 = s.Serialize<uint>(UInt_18, name: nameof(UInt_18));
+			MaxFile = s.Serialize<uint>(MaxFile, name: nameof(MaxFile));
+			MaxDir = s.Serialize<uint>(MaxDir, name: nameof(MaxDir));
+			PosFat = s.SerializePointer(PosFat, name: nameof(PosFat));
+			NextPosFat = s.Serialize<int>(NextPosFat, name: nameof(NextPosFat));
+			FirstIndex = s.Serialize<uint>(FirstIndex, name: nameof(FirstIndex));
+			LastIndex = s.Serialize<uint>(LastIndex, name: nameof(LastIndex));
 
-			s.DoAt(FilesOffset, () => {
-				Files = s.SerializeObjectArray<FileReference>(Files, FilesCount, name: nameof(Files));
+			s.DoAt(PosFat, () => {
+				Files = s.SerializeObjectArray<FileReference>(Files, MaxFile, name: nameof(Files));
 			});
-			s.DoAt(FilesOffset + MaxEntries * FileReference.StructSize, () => {
-				FileInfos = s.SerializeObjectArray<FileInfo>(FileInfos, FilesCount, onPreSerialize: fi => fi.Version = Version, name: nameof(FileInfos));
+			s.DoAt(PosFat + MaxEntries * FileReference.StructSize, () => {
+				FileInfos = s.SerializeObjectArray<FileInfo>(FileInfos, MaxFile, onPreSerialize: fi => fi.Version = Version, name: nameof(FileInfos));
 			});
-			s.DoAt(FilesOffset + MaxEntries * FileReference.StructSize + MaxEntries * FileInfo.StructSize(Version), () => {
-				DirectoryInfos = s.SerializeObjectArray<DirectoryInfo>(DirectoryInfos, DirectoriesCount, name: nameof(DirectoryInfos));
+			s.DoAt(PosFat + MaxEntries * FileReference.StructSize + MaxEntries * FileInfo.StructSize(Version), () => {
+				DirectoryInfos = s.SerializeObjectArray<DirectoryInfo>(DirectoryInfos, MaxDir, name: nameof(DirectoryInfos));
 			});
-			if (NextFatFileOffset != -1) {
-				s.Goto(s.CurrentPointer.File.StartPointer + NextFatFileOffset - HeaderLength);
+			if (NextPosFat != -1) {
+				s.Goto(s.CurrentPointer.File.StartPointer + NextPosFat - HeaderLength);
 			}
 		}
 

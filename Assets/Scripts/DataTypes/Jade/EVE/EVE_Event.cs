@@ -8,13 +8,13 @@ namespace R1Engine.Jade
         public EVE_ListEvents ListEvents { get; set; } // Set before serializing
         public int Index { get; set; } // Set before serializing
 
-        public ushort Ushort_00 { get; set; }
-        public ushort Ushort_00_InGame { get; set; }
+        public ushort NumFrames { get; set; }
+        public ushort NumFrames_InGame { get; set; }
         public ushort Flags_00 { get; set; }
         public ushort TypeCode { get; set; }
         public ushort Flags_01 { get; set; }
 
-        public uint? InterpolationKey_UInt { get; set; }
+        public uint? InterpolationKey_T { get; set; }
         public EVE_Event_InterpolationKey InterpolationKey { get; set; }
         public EVE_Event_AIFunction AIFunction { get; set; }
         public EVE_Event_MagicKey MagicKey { get; set; }
@@ -27,13 +27,13 @@ namespace R1Engine.Jade
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
             if (ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_9))
-                Ushort_00 = s.Serialize<byte>((byte)Ushort_00, name: nameof(Ushort_00));
+                NumFrames = s.Serialize<byte>((byte)NumFrames, name: nameof(NumFrames));
             else
-                Ushort_00 = s.Serialize<ushort>(Ushort_00, name: nameof(Ushort_00));
-            Ushort_00_InGame = Ushort_00;
+                NumFrames = s.Serialize<ushort>(NumFrames, name: nameof(NumFrames));
+            NumFrames_InGame = NumFrames;
 
             if (ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_11) && Index > 0) {
-                if (ListEvents.Track.UInt_04 > 0 &&
+                if (ListEvents.Track.DataLength > 0 &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12) &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13) &&
                     (ListEvents.Header_Flags & 0x80) != 0) {
@@ -61,7 +61,7 @@ namespace R1Engine.Jade
                     break;
                 case 0x2:
                     if ((Flags_00 & 0x20) != 0) {
-                        InterpolationKey_UInt = s.Serialize<uint>(InterpolationKey_UInt ?? 0, name: nameof(InterpolationKey_UInt));
+                        InterpolationKey_T = s.Serialize<uint>(InterpolationKey_T ?? 0, name: nameof(InterpolationKey_T));
                     } else {
                         InterpolationKey = s.SerializeObject<EVE_Event_InterpolationKey>(InterpolationKey, onPreSerialize: k => k.Event = this, name: nameof(InterpolationKey));
                     }

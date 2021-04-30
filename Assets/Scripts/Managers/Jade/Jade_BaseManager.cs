@@ -371,7 +371,7 @@ namespace R1Engine
 			Controller.DetailedState = $"Loading universe";
 			await Controller.WaitIfNecessary();
 
-			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniversKey);
+			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniverseKey);
 			univers.Resolve();
 			await loader.LoadLoop(context.Deserializer); // First resolve universe
 

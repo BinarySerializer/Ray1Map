@@ -32,8 +32,8 @@ namespace R1Engine.Jade
                 StructSize = s.Serialize<ushort>(StructSize, name: nameof(StructSize));
             } else {
                 var firstEvent = Event.ListEvents.Events[0];
-                if ((firstEvent.Ushort_00_InGame & 0x8000) == 0) {
-                    if (firstEvent.InterpolationKey_UInt.HasValue) {
+                if ((firstEvent.NumFrames_InGame & 0x8000) == 0) {
+                    if (firstEvent.InterpolationKey_T.HasValue) {
                         throw new NotImplementedException($"TODO: Implement {GetType()}: Figure out InterpolationKey");
                         //UShort_00 = (ushort)BitHelpers.ExtractBits((int)firstEvent.InterpolationKey_UInt, 15, 1);
                     } else if(firstEvent.InterpolationKey != null) {
@@ -45,9 +45,9 @@ namespace R1Engine.Jade
                 Type = s.Serialize<TypeFlags>(Type, name: nameof(Type));
             } else if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)) {
                 var firstEvent = Event.ListEvents.Events[0];
-                if ((firstEvent.Ushort_00_InGame & 0x8000) != 0) {
+                if ((firstEvent.NumFrames_InGame & 0x8000) != 0) {
                     Type = TypeFlags.Flag_4 | TypeFlags.Flag_7;
-                } else if (firstEvent.InterpolationKey_UInt.HasValue) {
+                } else if (firstEvent.InterpolationKey_T.HasValue) {
                     throw new NotImplementedException($"TODO: Implement {GetType()}: Figure out InterpolationKey");
                     //Type = (ushort)BitHelpers.ExtractBits((int)firstEvent.InterpolationKey_UInt, 16, 16);
                 } else if (firstEvent.InterpolationKey != null) {
@@ -57,9 +57,9 @@ namespace R1Engine.Jade
                 }
             } else {
                 var firstEvent = Event.ListEvents.Events[0];
-                if ((firstEvent.Ushort_00 & 0x8000) != 0) {
+                if ((firstEvent.NumFrames & 0x8000) != 0) {
                     Type = TypeFlags.Flag_4 | TypeFlags.Flag_7;
-                } else if (firstEvent.InterpolationKey_UInt.HasValue) {
+                } else if (firstEvent.InterpolationKey_T.HasValue) {
                     throw new NotImplementedException($"TODO: Implement {GetType()}: Figure out InterpolationKey");
                     //Type = (ushort)BitHelpers.ExtractBits((int)firstEvent.InterpolationKey_UInt, 16, 16);
                 } else if (firstEvent.InterpolationKey != null) {
@@ -83,7 +83,7 @@ namespace R1Engine.Jade
                 if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)
                     && Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12)
                     && Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_11)) {
-                    Event.Ushort_00_InGame |= 0x8000;
+                    Event.NumFrames_InGame |= 0x8000;
                     // If there's an error here later, good chance that it's here.
                     // It moves CompressedQuaternion into the event struct?
                 } else if (Event.ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13)) {

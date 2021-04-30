@@ -31,20 +31,20 @@ namespace R1Engine.Jade {
 			public class Link : BinarySerializable {
 				public ushort UseLongFormat { get; set; } // Set in onPreSerialize
 
-				public uint Unknown { get; set; }
-				public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
-				public byte Byte_08 { get; set; }
-				public short Short_09 { get; set; }
+				public uint Capacities { get; set; }
+				public Jade_Reference<OBJ_GameObject> Next { get; set; }
+				public byte Design { get; set; }
+				public short Design2 { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
 					if (UseLongFormat != 0) {
-						Unknown = s.Serialize<uint>(Unknown, name: nameof(Unknown));
+						Capacities = s.Serialize<uint>(Capacities, name: nameof(Capacities));
 					} else {
-						Unknown = s.Serialize<ushort>((ushort)Unknown, name: nameof(Unknown));
+						Capacities = s.Serialize<ushort>((ushort)Capacities, name: nameof(Capacities));
 					}
-					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
-					Byte_08 = s.Serialize<byte>(Byte_08, name: nameof(Byte_08));
-					Short_09 = s.Serialize<short>(Short_09, name: nameof(Short_09));
+					Next = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Next, name: nameof(Next))?.Resolve();
+					Design = s.Serialize<byte>(Design, name: nameof(Design));
+					Design2 = s.Serialize<short>(Design2, name: nameof(Design2));
 				}
 			}
 		}
