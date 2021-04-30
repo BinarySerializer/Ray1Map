@@ -875,6 +875,10 @@ NOTE: This project is currently in its early stages and may be unstable. Saving 
 
 Editor tutorial (Rayman 1): https://github.com/Adsolution/Ray1Map/wiki/Editor-(tutorial)
 
+If you download the repo as a zip folder the sub-modules won't be included, causing the project not to compile. To solve this, download the sub-module repos as well and place them in the specified folders:
+* [BinarySerializer](https://github.com/RayCarrot/BinarySerializer) (Assets\Scripts\Libraries\BinarySerializer)
+* [BinarySerializer.Image](https://github.com/RayCarrot/BinarySerializer.Image) (Assets\Scripts\Libraries\BinarySerializer.Image)
+
 ## Screenshots
 
 <div>
