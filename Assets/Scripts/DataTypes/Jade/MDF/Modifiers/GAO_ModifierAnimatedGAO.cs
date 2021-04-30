@@ -61,6 +61,8 @@ namespace R1Engine.Jade {
 				Linear = 0,
 				Noise = 1,
 				Sinus = 2,
+				NumberOfTypes = 3,
+				Align = 0xFFFFFFFF
 			}
 
 			public class LinearParams : BinarySerializable {

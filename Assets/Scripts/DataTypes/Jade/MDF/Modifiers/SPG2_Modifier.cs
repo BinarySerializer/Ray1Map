@@ -96,7 +96,7 @@ namespace R1Engine.Jade {
 			}
 			if (Version >= 5) {
 				SwitchDistance = s.Serialize<float>(SwitchDistance, name: nameof(SwitchDistance));
-				GameObjectKey = s.Serialize<Jade_Key>(GameObjectKey, name: nameof(GameObjectKey));
+				GameObjectKey = s.SerializeObject<Jade_Key>(GameObjectKey, name: nameof(GameObjectKey));
 				AlphaThreshold = s.Serialize<uint>(AlphaThreshold, name: nameof(AlphaThreshold));
 				NumberOfSegments = s.Serialize<uint>(NumberOfSegments, name: nameof(NumberOfSegments));
 				Gravity = s.Serialize<float>(Gravity, name: nameof(Gravity));
