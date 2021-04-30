@@ -72,6 +72,8 @@ namespace R1Engine.Jade {
 					links = new AI_Links_KingKong_PCGamersEdition();
 					break;
 				case GameModeSelection.KingKongPC:
+					links = new AI_Links_KingKong_PC();
+					break;
 				case GameModeSelection.KingKongGC:
 				case GameModeSelection.KingKongPS2:
 					links = new AI_Links_KingKong_GC();
