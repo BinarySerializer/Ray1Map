@@ -8,21 +8,21 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class GAO_ModifierROTR : MDF_Modifier {
 		public uint UInt_Editor_00 { get; set; }
-		public uint Type { get; set; }
-		public float Float_08 { get; set; }
-		public float Float_0C { get; set; }
-		public float Float_10 { get; set; }
-		public float Float_14 { get; set; }
+		public int Int1 { get; set; }
+		public float RetardX { get; set; } // Delay in French
+		public float RetardY { get; set; }
+		public float RetardZ { get; set; }
+		public float Float3 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 			if(!Loader.IsBinaryData) UInt_Editor_00 = s.Serialize<uint>(UInt_Editor_00, name: nameof(UInt_Editor_00));
-			Type = s.Serialize<uint>(Type, name: nameof(Type));
-			Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
-			Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-			Float_10 = s.Serialize<float>(Float_10, name: nameof(Float_10));
-			Float_14 = s.Serialize<float>(Float_14, name: nameof(Float_14));
+			Int1 = s.Serialize<int>(Int1, name: nameof(Int1));
+			RetardX = s.Serialize<float>(RetardX, name: nameof(RetardX));
+			RetardY = s.Serialize<float>(RetardY, name: nameof(RetardY));
+			RetardZ = s.Serialize<float>(RetardZ, name: nameof(RetardZ));
+			Float3 = s.Serialize<float>(Float3, name: nameof(Float3));
 		}
 	}
 }

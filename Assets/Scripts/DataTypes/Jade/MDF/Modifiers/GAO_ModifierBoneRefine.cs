@@ -14,8 +14,8 @@ namespace R1Engine.Jade {
 		public uint V0_UInt_1 { get; set; }
 		public uint V0_UInt_2 { get; set; }
 
-		public uint V1_UInt_0 { get; set; }
-		public float V3_Float_0 { get; set; }
+		public uint Mode { get; set; }
+		public float InterpolValue { get; set; }
 
 
 		public override void SerializeImpl(SerializerObject s) {
@@ -27,8 +27,8 @@ namespace R1Engine.Jade {
 				V0_UInt_1 = s.Serialize<uint>(V0_UInt_1, name: nameof(V0_UInt_1));
 				V0_UInt_2 = s.Serialize<uint>(V0_UInt_2, name: nameof(V0_UInt_2));
 			}
-			if (Version >= 1) V1_UInt_0 = s.Serialize<uint>(V1_UInt_0, name: nameof(V1_UInt_0));
-			if (Version >= 3) V3_Float_0 = s.Serialize<float>(V3_Float_0, name: nameof(V3_Float_0));
+			if (Version >= 1) Mode = s.Serialize<uint>(Mode, name: nameof(Mode));
+			if (Version >= 3) InterpolValue = s.Serialize<float>(InterpolValue, name: nameof(InterpolValue));
 		}
 	}
 }

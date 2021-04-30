@@ -10,20 +10,20 @@ namespace R1Engine.Jade {
 		public uint UInt_Editor_00 { get; set; }
 		public uint Flags { get; set; }
 		public Jade_TextureReference Texture { get; set; }
-		public float Float_08 { get; set; }
-		public float Float_0C { get; set; }
-		public uint UInt_10 { get; set; }
-		public uint UInt_Editor_14 { get; set; }
-		public uint UInt_Editor_18 { get; set; }
-		public float Float_14 { get; set; }
-		public uint UInt_18 { get; set; }
-		public float Float_1C { get; set; }
-		public Jade_Vector Vector_20 { get; set; }
-		public float Float_2C { get; set; }
-		public uint UInt_30 { get; set; }
-		public byte Byte_34 { get; set; }
-		public bool HasGameObject { get; set; }
-		public short Short_36 { get; set; }
+		public float XSizeFactor { get; set; }
+		public float YSizeFactor { get; set; }
+		public uint TextureIndex { get; set; }
+		public uint NextShadowModifierPointer { get; set; }
+		public uint GameObjectPointer { get; set; }
+		public float ZAttenuationFactor { get; set; }
+		public Jade_Color ShadowColor { get; set; }
+		public float ZStart { get; set; }
+		public Jade_Vector Center { get; set; }
+		public float ZSizeFactor { get; set; }
+		public uint ProjectionMethod { get; set; }
+		public byte TextureTiling { get; set; }
+		public byte Version { get; set; }
+		public short Dummy { get; set; }
 		public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
 
 
@@ -33,24 +33,24 @@ namespace R1Engine.Jade {
 			if(!Loader.IsBinaryData) UInt_Editor_00 = s.Serialize<uint>(UInt_Editor_00, name: nameof(UInt_Editor_00));
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 			Texture = s.SerializeObject<Jade_TextureReference>(Texture, name: nameof(Texture));
-			Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
-			Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-			UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
+			XSizeFactor = s.Serialize<float>(XSizeFactor, name: nameof(XSizeFactor));
+			YSizeFactor = s.Serialize<float>(YSizeFactor, name: nameof(YSizeFactor));
+			TextureIndex = s.Serialize<uint>(TextureIndex, name: nameof(TextureIndex));
 			if (!Loader.IsBinaryData) {
-				UInt_Editor_14 = s.Serialize<uint>(UInt_Editor_14, name: nameof(UInt_Editor_14));
-				UInt_Editor_18 = s.Serialize<uint>(UInt_Editor_18, name: nameof(UInt_Editor_18));
+				NextShadowModifierPointer = s.Serialize<uint>(NextShadowModifierPointer, name: nameof(NextShadowModifierPointer));
+				GameObjectPointer = s.Serialize<uint>(GameObjectPointer, name: nameof(GameObjectPointer));
 			}
-			Float_14 = s.Serialize<float>(Float_14, name: nameof(Float_14));
-			UInt_18 = s.Serialize<uint>(UInt_18, name: nameof(UInt_18));
-			Float_1C = s.Serialize<float>(Float_1C, name: nameof(Float_1C));
-			Vector_20 = s.SerializeObject<Jade_Vector>(Vector_20, name: nameof(Vector_20));
-			Float_2C = s.Serialize<float>(Float_2C, name: nameof(Float_2C));
-			UInt_30 = s.Serialize<uint>(UInt_30, name: nameof(UInt_30));
-			Byte_34 = s.Serialize<byte>(Byte_34, name: nameof(Byte_34));
+			ZAttenuationFactor = s.Serialize<float>(ZAttenuationFactor, name: nameof(ZAttenuationFactor));
+			ShadowColor = s.SerializeObject<Jade_Color>(ShadowColor, name: nameof(ShadowColor));
+			ZStart = s.Serialize<float>(ZStart, name: nameof(ZStart));
+			Center = s.SerializeObject<Jade_Vector>(Center, name: nameof(Center));
+			ZSizeFactor = s.Serialize<float>(ZSizeFactor, name: nameof(ZSizeFactor));
+			ProjectionMethod = s.Serialize<uint>(ProjectionMethod, name: nameof(ProjectionMethod));
+			TextureTiling = s.Serialize<byte>(TextureTiling, name: nameof(TextureTiling));
 			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_KingKong || !Loader.IsBinaryData) {
-				HasGameObject = s.Serialize<bool>(HasGameObject, name: nameof(HasGameObject));
-				Short_36 = s.Serialize<short>(Short_36, name: nameof(Short_36));
-				if (HasGameObject) {
+				Version = s.Serialize<byte>(Version, name: nameof(Version));
+				Dummy = s.Serialize<short>(Dummy, name: nameof(Dummy));
+				if (Version >= 1) {
 					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 				}
 			}
