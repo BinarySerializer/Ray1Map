@@ -152,7 +152,8 @@ namespace R1Engine.Jade {
 					Texture1 = s.SerializeObject<Jade_TextureReference>(Texture1, name: nameof(Texture1));
 					if ((Flags & 0x2000) == 0) Texture1?.Resolve();
 
-					CubeMap = s.SerializeObject<Jade_CubeMapReference>(CubeMap, name: nameof(CubeMap))?.Resolve();
+					CubeMap = s.SerializeObject<Jade_CubeMapReference>(CubeMap, name: nameof(CubeMap));
+					if ((Flags & 0x8000) == 0) CubeMap?.Resolve();
 
 					if (Type >= 10) {
 						Texture2 = s.SerializeObject<Jade_TextureReference>(Texture2, name: nameof(Texture2));

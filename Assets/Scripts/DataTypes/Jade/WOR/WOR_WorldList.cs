@@ -89,7 +89,9 @@ namespace R1Engine.Jade {
 				Controller.DetailedState = $"{prevState}\nLoading GameObject references: {gao.Name}";
 
 				actionData.Shape?.Resolve();
-				await Loader.LoadLoopBINAsync();
+				if (Context.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+					await Loader.LoadLoopBINAsync();
+				}
 
 				actionData.SkeletonGroup?.Resolve();
 				await Loader.LoadLoopBINAsync();
