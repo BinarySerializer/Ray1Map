@@ -134,8 +134,7 @@ namespace R1Engine
         Jade_BGE_HD_PS3,
         
         Jade_KingKong,
-        Jade_KingKong_Xbox360,
-        Jade_KingKong_PCGamersEdition,
+        Jade_KingKong_Xenon,
         Jade_KingKong_PSP,
 
         Jade_RRR,

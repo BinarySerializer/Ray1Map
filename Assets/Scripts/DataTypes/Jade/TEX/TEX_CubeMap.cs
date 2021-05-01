@@ -20,6 +20,7 @@ namespace R1Engine.Jade
                     Flags = DDS_Header.DDS_HeaderFlags.DDS_HEADER_FLAGS_TEXTURE,
                     Height = DDS_Header.Height,
                     Width = DDS_Header.Width,
+                    MipMapCount = DDS_Header.MipMapCount,
                     Caps = DDS_Header.DDS_CapsFlags.DDS_SURFACE_FLAGS_CUBEMAP,
                     Caps2 = DDS_Header.DDS_Caps2Flags.DDSCAPS2_CUBEMAP | DDS_Header.DDS_Caps2Flags.DDS_CUBEMAP_ALLFACES,
                     PixelFormat = new DDS_PixelFormat

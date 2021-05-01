@@ -143,7 +143,7 @@ namespace R1Engine.Jade {
                         if(RRR2_Bool) return;
                     }
                 }
-                if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_PCGamersEdition) return;
+                if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_Xenon) return;
                 Wave.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
             }
 
