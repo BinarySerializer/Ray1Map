@@ -43,6 +43,11 @@ namespace R1Engine
         /// </summary>
         public bool CreateBackupOnWrite => Settings.BackupFiles;
 
+        /// <summary>
+        /// Indicates if pointers should be saved in the Memory Map for relocation
+        /// </summary>
+        public bool SavePointersForRelocation => false;
+
         // Global settings
 
         /// <summary>

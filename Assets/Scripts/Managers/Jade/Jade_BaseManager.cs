@@ -10,6 +10,7 @@ using System.IO;
 using BinarySerializer;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using UnityEngine.Scripting;
 
 namespace R1Engine 
 {
@@ -217,6 +218,10 @@ namespace R1Engine
 				// Unload textures
 				await Controller.WaitIfNecessary();
 				await Resources.UnloadUnusedAssets();
+
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+				GC.WaitForPendingFinalizers();
+				await UniTask.Delay(2000);
 			}
 
             Debug.Log($"Finished export");
