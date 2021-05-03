@@ -57,6 +57,9 @@ namespace R1Engine.Jade {
 				case GameModeSelection.RaymanRavingRabbidsXbox360:
 					links = new AI_Links_RRR_Xbox360();
 					break;
+				case GameModeSelection.BeyondGoodAndEvilGC:
+					links = new AI_Links_BGE_GC();
+					break;
 				case GameModeSelection.BeyondGoodAndEvilPC:
 					links = new AI_Links_BGE_PC();
 					break;

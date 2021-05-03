@@ -1,10 +1,9 @@
 ﻿namespace R1Engine
 {
-    public class Jade_BGE_PS2_Manager : Jade_BGE_Manager 
+    public class Jade_BGE_GC_Manager : Jade_BGE_Manager
     {
         // Levels
-        public override LevelInfo[] LevelInfos => new LevelInfo[]
-        {
+        public override LevelInfo[] LevelInfos => new LevelInfo[] {
             new LevelInfo(0x00006334, "ROOT/EngineDatas/06 Levels/_main/_main_credits", "_main_credits.wol"),
             new LevelInfo(0x000084DF, "ROOT/EngineDatas/06 Levels/_main/_main_fix", "_main_fix.wol"),
             new LevelInfo(0x0000631B, "ROOT/EngineDatas/06 Levels/_main/_main_logo", "_main_logo.wol"),
@@ -100,8 +99,7 @@
 
         // Version properties
         public override string[] BFFiles => new string[] {
-            "SALLY.BF"
+            "sally.bf"
         };
-        public override string JadeSpePath => "JADE.SPE";
     }
 }

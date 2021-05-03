@@ -71,6 +71,7 @@ namespace R1Engine.Jade
                 case GameModeSelection.RaymanRavingRabbids2Wii:
                 case GameModeSelection.RaymanRavingRabbids2PC:
                 case GameModeSelection.KingKongGC:
+                case GameModeSelection.BeyondGoodAndEvilGC:
                     return SlotOrderWii;
                 case GameModeSelection.RaymanRavingRabbidsXbox360:
                     return SlotOrderXbox360;

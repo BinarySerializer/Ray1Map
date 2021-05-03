@@ -17,10 +17,5 @@
             new LevelInfo(0x00000988, "ROOT/EngineDatas/06 Levels/04_vaisseau/04_00_vaisseau_hyllis_planete", "04_00_vaisseau_hyllis_planete.wol"),
             new LevelInfo(0x00002C8D, "ROOT/EngineDatas/06 Levels/06_Animaux/06_12_animaux_garage", "06_12_animaux_garage.wol"),
         };
-
-        // Version properties
-        public override string[] BFFiles => new string[] {
-            "sally_clean.bf"
-        };
     }
 }

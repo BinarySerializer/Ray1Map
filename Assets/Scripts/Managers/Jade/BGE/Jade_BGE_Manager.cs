@@ -4,7 +4,7 @@
     {
         // Version properties
         public override string[] BFFiles => new string[] {
-            "SALLY.BF"
+            "sally.bf"
         };
 
         public override string[] FixWorlds => new string[] {

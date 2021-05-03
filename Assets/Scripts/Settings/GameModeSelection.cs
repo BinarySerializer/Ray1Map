@@ -679,6 +679,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PC - Demo)", typeof(Jade_BGE_PCDemo_Manager), Platform.PC)]
         BeyondGoodAndEvilPCDemo,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (GC)", typeof(Jade_BGE_GC_Manager), Platform.GC)]
+        BeyondGoodAndEvilGC,
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PS2 - Prototype 2003/08/14)", typeof(Jade_BGE_PS2_Prototype_Manager), Platform.PS2)]
         BeyondGoodAndEvilPS2_20030814,
 
