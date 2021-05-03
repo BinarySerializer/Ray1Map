@@ -85,7 +85,7 @@ namespace R1Engine
                             const string wavKey = "wav";
 
                             // Add the file to the context
-                            wavContext.AddFile(new StreamFile(wavKey, outputStream, wavContext));
+                            wavContext.AddFile(new StreamFile(wavContext, wavKey, outputStream));
 
                             // Write the data
                             FileFactory.Write<WAV>(wavKey, wav, wavContext);
@@ -123,7 +123,7 @@ namespace R1Engine
                             string xmKey = $"{h.ParsedName}.xm";
 
                             // Add the file to the context
-                            xmContext.AddFile(new StreamFile(xmKey, outputStream, context));
+                            xmContext.AddFile(new StreamFile(context, xmKey, outputStream));
 
                             // Write the data
                             FileFactory.Write<XM>(xmKey, xm, xmContext);

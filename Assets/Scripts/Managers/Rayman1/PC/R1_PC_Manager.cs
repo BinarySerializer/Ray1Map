@@ -114,17 +114,14 @@ namespace R1Engine
             {
                 foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.sav", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
                 {
-                    LinearSerializedFile f = new LinearSerializedFile(context)
-                    {
-                        FilePath = save
-                    };
+                    LinearSerializedFile f = new LinearSerializedFile(context, save);
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
                     byte[] saveData = null;
                     s.DoAt(f.StartPointer, () => {
                         s.DoEncoded(new PC_R1_SaveEncoder(), () => {
                             saveData = s.SerializeArray<byte>(saveData, s.CurrentLength, name: "SaveData");
-                            Util.ByteArrayToFile(context.BasePath + save + ".dec", saveData);
+                            Util.ByteArrayToFile(context.GetAbsoluteFilePath($"{save}.dec"), saveData);
                         });
                     });
                     /*LinearSerializedFile f2 = new LinearSerializedFile(context) {
@@ -147,10 +144,7 @@ namespace R1Engine
             {
                 foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.sav", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
                 {
-                    LinearSerializedFile f = new LinearSerializedFile(context)
-                    {
-                        FilePath = save
-                    };
+                    LinearSerializedFile f = new LinearSerializedFile(context, save);
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {
@@ -184,7 +178,7 @@ namespace R1Engine
         {
             var lngPath = GetLanguageFilePath();
 
-            await FileSystem.PrepareFile(context.BasePath + lngPath);
+            await FileSystem.PrepareFile(context.GetAbsoluteFilePath(lngPath));
 
             // Read the language file
             var lng = R1FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);

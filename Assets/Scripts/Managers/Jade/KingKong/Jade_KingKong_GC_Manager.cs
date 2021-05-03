@@ -98,8 +98,7 @@ namespace R1Engine
 				});
 				const string key = "DebugSegment";
 				MemoryStream ms = new MemoryStream(bytes);
-				StreamFile sf = context.AddStreamFile(key, ms, endianness: Endian.Big);
-				sf.AllowLocalPointers = true;
+				StreamFile sf = context.AddStreamFile(key, ms, endianness: Endian.Big, allowLocalPointers: true);
 
 				DWARF_Segment Segment = null;
 				Segment = FileFactory.Read<DWARF_Segment>(key, context);

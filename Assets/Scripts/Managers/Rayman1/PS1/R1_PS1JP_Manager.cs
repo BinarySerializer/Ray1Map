@@ -30,7 +30,7 @@ namespace R1Engine
         {
             var levelTileSetFileName = GetSpecialTileSetPath(context.GetR1Settings());
 
-            if (FileSystem.FileExists(context.BasePath + levelTileSetFileName))
+            if (FileSystem.FileExists(context.GetAbsoluteFilePath(levelTileSetFileName)))
             {
                 ObjectArray<RGBA5551Color> cols = FileFactory.Read<ObjectArray<RGBA5551Color>>(levelTileSetFileName, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
                 return cols.Value;

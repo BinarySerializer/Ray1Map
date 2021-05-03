@@ -115,30 +115,22 @@ namespace R1Engine
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[0];
 
-        public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress = 0)
+        public async UniTask<long> LoadFile(Context context, string path, long baseAddress = 0)
         {
-            await FileSystem.PrepareFile(context.BasePath + path);
-            if (!FileSystem.FileExists(context.BasePath + path)) {
+            await FileSystem.PrepareFile(context.GetAbsoluteFilePath(path));
+            if (!FileSystem.FileExists(context.GetAbsoluteFilePath(path))) {
                 return 0;
             }
             if (baseAddress != 0)
             {
-                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode)
-                {
-                    FilePath = path,
-                    Endianness = Endian.Big
-                };
+                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, path, (uint)baseAddress, InvalidPointerMode, Endian.Big);
                 context.AddFile(file);
 
                 return file.Length;
             }
             else
             {
-                LinearSerializedFile file = new LinearSerializedFile(context)
-                {
-                    FilePath = path,
-                    Endianness = Endian.Big
-                };
+                LinearSerializedFile file = new LinearSerializedFile(context, path, Endian.Big);
                 context.AddFile(file);
                 return 0;
             }
@@ -329,7 +321,7 @@ namespace R1Engine
             // Get the paths
             var allfixFilePath = GetAllfixFilePath();
 
-            uint baseAddress = BaseAddress;
+            long baseAddress = BaseAddress;
 
             // Load the memory mapped files
             baseAddress += await LoadFile(context, allfixFilePath, baseAddress);
@@ -356,7 +348,7 @@ namespace R1Engine
                 await LoadFile(context, tileSetFilePath);
                 await LoadFile(context, mapFilePath);
 
-                if (FileSystem.FileExists(context.BasePath + levelFilePath))
+                if (FileSystem.FileExists(context.GetAbsoluteFilePath(levelFilePath)))
                 {
                     await LoadFile(context, GetWorldImageFilePath(context));
                     await LoadFile(context, GetLevelImageFilePath(context));
@@ -365,7 +357,7 @@ namespace R1Engine
                 // Read the map block
                 mapData = FileFactory.Read<MapData>(mapFilePath, context);
 
-                if (FileSystem.FileExists(context.BasePath + levelFilePath))
+                if (FileSystem.FileExists(context.GetAbsoluteFilePath(levelFilePath)))
                     // Read the event block
                     eventBlock = FileFactory.Read<R1_PS1_EventBlock>(levelFilePath, context);
             }
@@ -400,11 +392,7 @@ namespace R1Engine
                 void exportBit(string file, int width = 16, bool swizzled = true, int blockWidth = 8, int blockHeight = 8, IList<Vector2> sizes = null)
                 {
                     // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context)
-                    {
-                        FilePath = file,
-                        Endianness = Endian.Big
-                    });
+                    context.AddFile(new LinearSerializedFile(context, file, Endian.Big));
 
                     // Read the file
                     BIT bit = FileFactory.Read<BIT>(file, context);
@@ -450,11 +438,7 @@ namespace R1Engine
                 void exportVig(string file, int width)
                 {
                     // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context)
-                    {
-                        FilePath = file,
-                        Endianness = Endian.Big
-                    });
+                    context.AddFile(new LinearSerializedFile(context, file, Endian.Big));
 
                     // Read the raw data
                     var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(file, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);

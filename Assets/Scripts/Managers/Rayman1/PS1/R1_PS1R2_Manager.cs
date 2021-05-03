@@ -196,21 +196,15 @@ namespace R1Engine
         }
 
         public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress) {
-            await FileSystem.PrepareFile(context.BasePath + path);
+            await FileSystem.PrepareFile(context.GetAbsoluteFilePath(path));
 
             if (baseAddress != 0) {
-                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode) {
-                    FilePath = path,
-                    Length = FileSizes[path]
-                };
+                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, path, baseAddress, InvalidPointerMode, fileLength: FileSizes[path]);
                 context.AddFile(file);
 
                 return FileSizes[path];
             } else {
-                LinearSerializedFile file = new LinearSerializedFile(context) {
-                    FilePath = path,
-                    Length = FileSizes.ContainsKey(path) ? FileSizes[path] : 0
-                };
+                LinearSerializedFile file = new LinearSerializedFile(context, path, fileLength: FileSizes.ContainsKey(path) ? FileSizes[path] : 0);
                 context.AddFile(file);
                 return 0;
             }

@@ -190,10 +190,7 @@ namespace R1Engine
                 foreach (var grxFilePath in Directory.GetFiles(settings.GameDirectory, "*.grx", SearchOption.TopDirectoryOnly)
                     .Select(Path.GetFileName))
                 {
-                    context.AddFile(new LinearSerializedFile(context)
-                    {
-                        FilePath = grxFilePath
-                    });
+                    context.AddFile(new LinearSerializedFile(context, grxFilePath));
 
                     var grx = await LoadGRXAsync(context, grxFilePath);
 

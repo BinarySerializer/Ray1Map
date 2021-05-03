@@ -199,7 +199,7 @@ namespace R1Engine
                     // Add the file to the context
                     await AddFile(context, evLocPath);
 
-                    if (!FileSystem.FileExists(context.BasePath + evLocPath))
+                    if (!FileSystem.FileExists(context.GetAbsoluteFilePath(evLocPath)))
                         continue;
 
                     // Read the file

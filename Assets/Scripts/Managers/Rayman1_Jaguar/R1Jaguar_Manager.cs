@@ -751,10 +751,7 @@ namespace R1Engine
                 foreach (string filepath in files) {
                     // Add the file
                     string path = filepath.Substring(context.BasePath.Length);
-                    var file = new LinearSerializedFile(context) {
-                        FilePath = path,
-                        Endianness = Endian.Little
-                    };
+                    var file = new LinearSerializedFile(context, path);
                     context.AddFile(file);
                     ushort[] data = s.DoAt(file.StartPointer, () => s.SerializeArray<ushort>(null, s.CurrentLength / 2, name: nameof(data)));
 
@@ -763,7 +760,7 @@ namespace R1Engine
                         foreach (ushort u in data)
                             w.Write(u);
                         ms.Position = 0;
-                        Util.ByteArrayToFile(context.BasePath + path + ".fixed", ms.ToArray());
+                        Util.ByteArrayToFile(context.GetAbsoluteFilePath(path + ".fixed"), ms.ToArray());
                     }
                 }
             }

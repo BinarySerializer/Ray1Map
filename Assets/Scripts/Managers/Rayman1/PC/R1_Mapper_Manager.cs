@@ -24,8 +24,8 @@ namespace R1Engine
         /// <returns>The level file path</returns>
         public async UniTask<string> GetLevelFolderPath(Context context) {
             var custom = GetWorldName(context.GetR1Settings().R1_World) + "/" + $"MAP{context.GetR1Settings().Level}" + "/";
-            await FileSystem.CheckDirectory(context.BasePath + custom); // check this and await, since it's a request in WebGL
-            if (FileSystem.DirectoryExists(context.BasePath + custom))
+            await FileSystem.CheckDirectory(context.GetAbsoluteFilePath(custom)); // check this and await, since it's a request in WebGL
+            if (FileSystem.DirectoryExists(context.GetAbsoluteFilePath(custom)))
                 return custom;
 
             return GetWorldName(context.GetR1Settings().R1_World) + "/" + $"MAP_{context.GetR1Settings().Level}" + "/";

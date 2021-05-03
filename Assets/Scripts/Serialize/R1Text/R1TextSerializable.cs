@@ -21,7 +21,7 @@ namespace R1Engine
 
             if (read)
             {
-                using (var s = FileSystem.GetFileReadStream(context.BasePath + path))
+                using (var s = FileSystem.GetFileReadStream(context.GetAbsoluteFilePath(path)))
                 {
                     if (s != null && s.Length > 0)
                     {
@@ -37,7 +37,7 @@ namespace R1Engine
             }
             else
             {
-                using (var s = FileSystem.GetFileWriteStream(context.BasePath + path))
+                using (var s = FileSystem.GetFileWriteStream(context.GetAbsoluteFilePath(path)))
                 {
                     if (s != null)
                     {

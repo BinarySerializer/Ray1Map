@@ -30,8 +30,6 @@ namespace R1Engine
 
             public Stream GetFileWriteStream(string path, bool recreateOnWrite = true) => FileSystem.GetFileWriteStream(path, recreateOnWrite);
 
-            public string NormalizePath(string path, bool isDirectory) => Util.NormalizePath(path, isDirectory);
-
             public async Task FillCacheForReadAsync(int length, Reader reader)
             {
                 if (reader.BaseStream.InnerStream is PartialHttpStream httpStream)

@@ -187,9 +187,9 @@ namespace R1Engine
 
         public virtual async UniTask LoadExtraFile(Context context, string path, bool recreateOnWrite) 
         {
-            await FileSystem.PrepareFile(context.BasePath + path);
+            await FileSystem.PrepareFile(context.GetAbsoluteFilePath(path));
 
-            if (!FileSystem.FileExists(context.BasePath + path))
+            if (!FileSystem.FileExists(context.GetAbsoluteFilePath(path)))
                 return;
 
             var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
@@ -198,10 +198,8 @@ namespace R1Engine
             if (entry == null)
                 throw new Exception($"No file entry found for path: {path}");
 
-            PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, entry.MemoryAddress, InvalidPointerMode)
+            PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, path, entry.MemoryAddress, InvalidPointerMode, fileLength: entry.FileSize)
             {
-                FilePath = path,
-                Length = entry.FileSize,
                 RecreateOnWrite = recreateOnWrite
             };
             context.AddFile(file);
@@ -727,10 +725,7 @@ namespace R1Engine
                 foreach (var fileInfo in GetVignetteInfo().Where(x => File.Exists(settings.GameDirectory + x.FilePath)))
                 {
                     // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context)
-                    {
-                        FilePath = fileInfo.FilePath
-                    });
+                    context.AddFile(new LinearSerializedFile(context, fileInfo.FilePath));
 
                     // Get the textures
                     var textures = new List<Texture2D>();

@@ -11,15 +11,16 @@ namespace R1Engine
 {
     public class ProcessMemoryStreamFile : BinaryFile 
     {
-        public ProcessMemoryStreamFile(string name, string processFileName, Context context) : base(context)
+        public ProcessMemoryStreamFile(Context context, string name, string processFileName) : base(context, name)
         {
             ProcessFileName = processFileName;
-            FilePath = name;
             stream = null;
         }
 
         private ProcessMemoryStream stream;
         private long baseStreamOffset;
+
+        public override long Length => 0; // TODO: Get length
 
         public string ProcessFileName { get; }
 
@@ -37,10 +38,10 @@ namespace R1Engine
             }
         }
 
-        public ProcessMemoryStream GetStream() => stream ?? (stream = new ProcessMemoryStream(ProcessFileName, ProcessMemoryStream.Mode.AllAccess)
+        public ProcessMemoryStream GetStream() => stream ??= new ProcessMemoryStream(ProcessFileName, ProcessMemoryStream.Mode.AllAccess)
         {
             BaseStreamOffset = BaseStreamOffset
-        });
+        };
         
         public Pointer GetPointerByName(string name) {
             GetStream();
@@ -112,7 +113,6 @@ namespace R1Engine
             return ptr;
         }
 
-        public override Pointer StartPointer => new Pointer((uint)BaseAddress, this);
 		public override Reader CreateReader() {
 			Reader reader = new Reader(new BufferedStream(new NonClosingStreamWrapper(GetStream())), isLittleEndian: Endianness == Endian.Little);
 			return reader;

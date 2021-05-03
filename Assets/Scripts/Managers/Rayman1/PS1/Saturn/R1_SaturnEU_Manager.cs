@@ -40,7 +40,7 @@ namespace R1Engine
             foreach (var lang in langs)
             {
                 var filePath = GetLanguageFilePath(lang.LangCode);
-                await FileSystem.PrepareFile(context.BasePath + filePath);
+                await FileSystem.PrepareFile(context.GetAbsoluteFilePath(filePath));
                 var langFile = R1FileFactory.ReadText<R1_TextLocFile>(filePath, context);
                 loc.Add(new KeyValuePair<string, string[]>(lang.Language, langFile.Strings));
             }

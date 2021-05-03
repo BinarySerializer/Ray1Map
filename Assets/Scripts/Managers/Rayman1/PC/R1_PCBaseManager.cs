@@ -167,10 +167,7 @@ namespace R1Engine
             // Create a new context
             using (var context = new R1Context(settings))
             {
-                context.AddFile(new LinearSerializedFile(context)
-                {
-                    FilePath = vigPath
-                });
+                context.AddFile(new LinearSerializedFile(context, vigPath));
 
                 // Read the archive
                 var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(vigPath, context);
@@ -230,7 +227,7 @@ namespace R1Engine
                         // Serialize the data
                         using (var stream = new MemoryStream(buffer.Skip(j).ToArray())) {
                             using (Context c = new R1Context(Settings.GetGameSettings)) {
-                                c.AddFile(new StreamFile("pcx", stream, c));
+                                c.AddFile(new StreamFile(c, "pcx", stream));
                                 var pcx = FileFactory.Read<PCX>("pcx", c);
 
                                 // Convert to a texture
@@ -288,7 +285,7 @@ namespace R1Engine
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
 
-                    if (!FileSystem.FileExists(context.BasePath + worldPath))
+                    if (!FileSystem.FileExists(context.GetAbsoluteFilePath(worldPath)))
                         return null;
 
                     // TODO: Update this to not include extensions
@@ -305,7 +302,7 @@ namespace R1Engine
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
 
-                    if (!FileSystem.FileExists(context.BasePath + worldPath))
+                    if (!FileSystem.FileExists(context.GetAbsoluteFilePath(worldPath)))
                         return null;
 
                     var a = FileFactory.Read<R1_PC_WorldFile>(worldPath, context).ETAFileNames?.ToArray();
@@ -352,7 +349,7 @@ namespace R1Engine
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
 
-                    if (!FileSystem.FileExists(context.BasePath + worldPath))
+                    if (!FileSystem.FileExists(context.GetAbsoluteFilePath(worldPath)))
                         continue;
 
                     // Export world
@@ -940,7 +937,7 @@ namespace R1Engine
             // Handle the additional archives
             foreach (var archiveData in GetAdditionalSoundArchives(context.GetR1Settings()))
             {
-                if (!File.Exists(context.BasePath + archiveData.ArchiveFile))
+                if (!File.Exists(context.GetAbsoluteFilePath(archiveData.ArchiveFile)))
                     continue;
 
                 await AddFile(context, archiveData.ArchiveFile);
@@ -1049,7 +1046,7 @@ namespace R1Engine
                                 const string wavKey = "wav";
 
                                 // Add the file to the context
-                                wavContext.AddFile(new StreamFile(wavKey, outputStream, wavContext));
+                                wavContext.AddFile(new StreamFile(wavContext, wavKey, outputStream));
 
                                 // Write the data
                                 FileFactory.Write<WAV>(wavKey, wav, wavContext);
@@ -1070,12 +1067,9 @@ namespace R1Engine
             using (var context = new R1Context(Settings.GetGameSettings))
             {
                 // Extract every archive file
-                foreach (var archiveFile in GetArchiveFiles(context.GetR1Settings()).Where(x => File.Exists(context.BasePath + x.FilePath)))
+                foreach (var archiveFile in GetArchiveFiles(context.GetR1Settings()).Where(x => File.Exists(context.GetAbsoluteFilePath(x.FilePath))))
                 {
-                    context.AddFile(new LinearSerializedFile(context)
-                    {
-                        FilePath = archiveFile.FilePath
-                    });
+                    context.AddFile(new LinearSerializedFile(context, archiveFile.FilePath));
 
                     // Get the output directory
                     var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile.FilePath), Path.GetFileNameWithoutExtension(archiveFile.FilePath));
@@ -1111,10 +1105,7 @@ namespace R1Engine
                         var path = GetLevelFilePath(settings);
 
                         // Load the level
-                        context.AddFile(new LinearSerializedFile(context)
-                        {
-                            FilePath = path
-                        });
+                        context.AddFile(new LinearSerializedFile(context, path));
 
                         // Read the level
                         var lvlData = FileFactory.Read<R1_PC_LevFile>(path, context);
@@ -1712,25 +1703,21 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <param name="filePath">The file path</param>
+        /// <param name="endianness">The endianness to use</param>
         /// <returns>The binary file</returns>
-        protected virtual BinaryFile GetFile(Context context, string filePath) => new LinearSerializedFile(context)
-        {
-            FilePath = filePath
-        };
+        protected virtual BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new LinearSerializedFile(context, filePath, endianness);
 
         public async UniTask AddFile(Context context, string filePath, bool isBigFile = false, Endian endianness = Endian.Little)
         {
             if (isBigFile)
-                await FileSystem.PrepareBigFile(context.BasePath + filePath, 8);
+                await FileSystem.PrepareBigFile(context.GetAbsoluteFilePath(filePath), 8);
             else
-                await FileSystem.PrepareFile(context.BasePath + filePath);
+                await FileSystem.PrepareFile(context.GetAbsoluteFilePath(filePath));
 
-            if (!FileSystem.FileExists(context.BasePath + filePath))
+            if (!FileSystem.FileExists(context.GetAbsoluteFilePath(filePath)))
                 return;
 
-            var file = GetFile(context, filePath);
-
-            file.Endianness = endianness;
+            var file = GetFile(context, filePath, endianness);
 
             context.AddFile(file);
         }
@@ -1764,13 +1751,10 @@ namespace R1Engine
             {
                 // Load every archive
                 var archives = GetArchiveFiles(settings).
-                    Where(x => File.Exists(context.BasePath + x.FilePath)).
+                    Where(x => File.Exists(context.GetAbsoluteFilePath(x.FilePath))).
                     Select(archive =>
                     {
-                        context.AddFile(new LinearSerializedFile(context)
-                        {
-                            FilePath = archive.FilePath
-                        });
+                        context.AddFile(new LinearSerializedFile(context, archive.FilePath));
                         return new
                         {
                             Archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archive.FilePath, context),

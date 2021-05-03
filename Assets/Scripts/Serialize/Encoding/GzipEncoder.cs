@@ -1,9 +1,9 @@
-﻿using System;
+﻿using BinarySerializer;
 using System.IO;
 using System.IO.Compression;
-using BinarySerializer;
 
-namespace R1Engine {
+namespace R1Engine
+{
     /// <summary>
     /// Compresses/decompresses data using Gzip
     /// </summary>

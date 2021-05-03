@@ -215,7 +215,7 @@ namespace R1Engine
                     }
                 }
             }
-            Util.ByteArrayToFile(s.Context.BasePath + "relocated.bin", data);
+            Util.ByteArrayToFile(s.Context.GetAbsoluteFilePath("relocated.bin"), data);
         }
     }
 

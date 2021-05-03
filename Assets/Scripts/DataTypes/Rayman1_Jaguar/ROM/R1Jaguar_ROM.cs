@@ -126,11 +126,7 @@ namespace R1Engine
                     {
                         byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, manager.EventCount * 0x28,
                             name: nameof(EventDefsDataBytes));
-                        var file = new MemoryMappedByteArrayFile("RAM_EventDefinitions", EventDefsDataBytes, s.Context,
-                            0x001f9000)
-                        {
-                            Endianness = Endian.Big
-                        };
+                        var file = new MemoryMappedByteArrayFile(s.Context, "RAM_EventDefinitions", 0x001f9000, EventDefsDataBytes, Endian.Big);
                         s.Context.AddFile(file);
                         s.DoAt(file.StartPointer,
                             () => EventDefinitions = s.SerializeObjectArray<R1Jaguar_EventDefinition>(EventDefinitions,

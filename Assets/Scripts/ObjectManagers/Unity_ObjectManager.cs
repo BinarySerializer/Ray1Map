@@ -121,7 +121,7 @@ namespace R1Engine
 
                 try
                 {
-                    var file = new ProcessMemoryStreamFile(memFileKey, Settings.ProcessName, gameMemoryContext);
+                    var file = new ProcessMemoryStreamFile(gameMemoryContext, memFileKey, Settings.ProcessName);
 
                     gameMemoryContext.AddFile(file);
 
