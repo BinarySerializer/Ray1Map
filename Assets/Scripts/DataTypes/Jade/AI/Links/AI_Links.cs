@@ -83,6 +83,9 @@ namespace R1Engine.Jade {
 				case GameModeSelection.KingKongPS2:
 					links = new AI_Links_KingKong_GC();
 					break;
+				case GameModeSelection.KingKongPSP:
+					links = new AI_Links_KingKong_PSP();
+					break;
 				case GameModeSelection.RaymanRavingRabbids2Wii:
 				case GameModeSelection.RaymanRavingRabbids2PC:
 					links = new AI_Links_RRR2_Wii();

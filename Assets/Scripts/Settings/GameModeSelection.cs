@@ -698,6 +698,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PS2)", typeof(Jade_KingKong_PS2_Manager), Platform.PS2)]
         KingKongPS2,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PSP)", typeof(Jade_KingKong_PSP_Manager), Platform.PSP)]
+        KingKongPSP,
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (PC - Gamer's Edition)", typeof(Jade_KingKong_PCGamersEdition_Manager), Platform.PC)]
         KingKongPCGamersEdition,
 
