@@ -9,7 +9,7 @@ namespace R1Engine.Jade {
 		public uint TotalFatFilesLength => NumFat * (
 			BIG_FatFile.HeaderLength
 			+ SizeOfFat * BIG_FatFile.FileReference.StructSize
-			+ SizeOfFat * BIG_FatFile.FileInfo.StructSize(Version)
+			+ SizeOfFat * BIG_FatFile.FileInfo.StructSize(this)
 			+ SizeOfFat * BIG_FatFile.DirectoryInfo.StructSize);
 		
 		public string BIG_gst { get; set; }
@@ -48,8 +48,7 @@ namespace R1Engine.Jade {
 			s.DoAt(FatFilesOffset, () => {
 				XORIfNecessary(s, () => {
 					FatFiles = s.SerializeObjectArray<BIG_FatFile>(FatFiles, NumFat, onPreSerialize: ff => {
-						ff.MaxEntries = SizeOfFat;
-						ff.Version = Version;
+						ff.Big = this;
 					}, name: nameof(FatFiles));
 				});
 			});
@@ -70,11 +69,15 @@ namespace R1Engine.Jade {
 			/*var sortedFileList = fat.Files.OrderBy(f => f.FileOffset.AbsoluteOffset).ToArray();
 			var indInSortedFileList = sortedFileList.FindItemIndex(f => f.FileOffset == off_target);*/
 			s.Goto(off_target);
+			uint FileSize = 0;
 			await s.FillCacheForReadAsync(4);
-			var fileSize = s.Serialize<uint>(default, name: "FileSize");
+			FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 			//var actualFileSize = (indInSortedFileList+1 >= sortedFileList.Length ? s.CurrentLength : sortedFileList[indInSortedFileList+1].FileOffset.AbsoluteOffset) - off_target.AbsoluteOffset - 4;
-			await s.FillCacheForReadAsync((int)fileSize);
-			action(fileSize);
+			/*if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD) {
+				FileSize = fat.FileInfos[fileIndex].FileSize;
+			}*/
+			await s.FillCacheForReadAsync((int)FileSize);
+			action(FileSize);
 			s.Goto(off_current);
 		}
 

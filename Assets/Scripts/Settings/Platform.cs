@@ -30,6 +30,7 @@ namespace R1Engine
         Wii,
         Xbox,
         Xbox360,
+        PS3,
         PSP,
     }
 }

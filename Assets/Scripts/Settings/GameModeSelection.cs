@@ -688,6 +688,15 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PS2)", typeof(Jade_BGE_PS2_Manager), Platform.PS2)]
         BeyondGoodAndEvilPS2,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (Xbox)", typeof(Jade_BGE_PS2_Manager), Platform.Xbox)]
+        BeyondGoodAndEvilXbox,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_HD, Game.Jade_BGE, "Beyond Good & Evil HD (PS3)", typeof(Jade_BGE_HD_Manager), Platform.PS3)]
+        BeyondGoodAndEvilPS3,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE_HD, Game.Jade_BGE, "Beyond Good & Evil HD (Xbox 360)", typeof(Jade_BGE_HD_Manager), Platform.Xbox360)]
+        BeyondGoodAndEvilXbox360,
+
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PC)", typeof(Jade_KingKong_PC_Manager), Platform.PC)]
         KingKongPC,
@@ -697,6 +706,9 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PS2)", typeof(Jade_KingKong_PS2_Manager), Platform.PS2)]
         KingKongPS2,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (Xbox)", typeof(Jade_KingKong_Xbox360_Manager), Platform.Xbox)]
+        KingKongXbox,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PSP)", typeof(Jade_KingKong_PSP_Manager), Platform.PSP)]
         KingKongPSP,

@@ -130,8 +130,7 @@ namespace R1Engine
 
         // Jade: Ubisoft Montpellier branch
         Jade_BGE,
-        Jade_BGE_HD_Xbox360,
-        Jade_BGE_HD_PS3,
+        Jade_BGE_HD,
         
         Jade_KingKong,
         Jade_KingKong_Xenon,

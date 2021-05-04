@@ -14,8 +14,8 @@ namespace R1Engine.Jade {
 		public FileReference[] Files { get; set; }
 		public FileInfo[] FileInfos { get; set; }
 		public DirectoryInfo[] DirectoryInfos { get; set; }
-		public uint MaxEntries { get; set; } // Set in OnPreSerialize
-		public uint Version { get; set; }
+
+		public BIG_BigFile Big { get; set; } // Set in OnPreSerialize
 
 		public override void SerializeImpl(SerializerObject s) {
 			MaxFile = s.Serialize<uint>(MaxFile, name: nameof(MaxFile));
@@ -28,10 +28,10 @@ namespace R1Engine.Jade {
 			s.DoAt(PosFat, () => {
 				Files = s.SerializeObjectArray<FileReference>(Files, MaxFile, name: nameof(Files));
 			});
-			s.DoAt(PosFat + MaxEntries * FileReference.StructSize, () => {
-				FileInfos = s.SerializeObjectArray<FileInfo>(FileInfos, MaxFile, onPreSerialize: fi => fi.Version = Version, name: nameof(FileInfos));
+			s.DoAt(PosFat + Big.SizeOfFat * FileReference.StructSize, () => {
+				FileInfos = s.SerializeObjectArray<FileInfo>(FileInfos, MaxFile, onPreSerialize: fi => fi.Big = Big, name: nameof(FileInfos));
 			});
-			s.DoAt(PosFat + MaxEntries * FileReference.StructSize + MaxEntries * FileInfo.StructSize(Version), () => {
+			s.DoAt(PosFat + Big.SizeOfFat * FileReference.StructSize + Big.SizeOfFat * FileInfo.StructSize(Big), () => {
 				DirectoryInfos = s.SerializeObjectArray<DirectoryInfo>(DirectoryInfos, MaxDir, name: nameof(DirectoryInfos));
 			});
 			if (NextPosFat != -1) {
@@ -54,11 +54,17 @@ namespace R1Engine.Jade {
 		/// File names. Not read by the engine
 		/// </summary>
 		public class FileInfo : BinarySerializable {
-			public static uint StructSize(uint version) => (version == 34 || version == 37) ? (uint)0x54 : 0x58;
-			public uint Version { get; set; }
+			public static uint StructSize(BIG_BigFile big) {
+				if(big.Context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD)
+					return 0x58;
+				if (big.Version == 34 || big.Version == 37)
+					return 0x54;
+				return 0x58;
+			}
+			public BIG_BigFile Big { get; set; }
 
 			public string Name { get; set; }
-			public uint UInt_00 { get; set; }
+			public uint FileSize { get; set; }
 			public int NextFile { get; set; }
 			public int PreviousFile { get; set; }
 			public int ParentDirectory { get; set; }
@@ -76,17 +82,17 @@ namespace R1Engine.Jade {
 					hasName = true;
 				}
 				if (hasName) {
-					UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+					FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 					NextFile = s.Serialize<int>(NextFile, name: nameof(NextFile));
 					PreviousFile = s.Serialize<int>(PreviousFile, name: nameof(PreviousFile));
 					ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
 					UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
 					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-					if (Version != 34 && Version != 37) {
+					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37)) {
 						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
 					}
 				} else {
-					s.Goto(s.CurrentPointer + StructSize(Version));
+					s.Goto(s.CurrentPointer + StructSize(Big));
 				}
 			}
 		}

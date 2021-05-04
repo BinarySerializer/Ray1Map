@@ -73,9 +73,16 @@ namespace R1Engine
 								await bf.SerializeFile(s, fatIndex, i, (fileSize) => {
 									fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileSize + 4));
 									if (fileIsCompressed) {
-										s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: settings.Jade_Version == Jade_Version.Xenon), () => {
-											fileBytes = s.SerializeArray<byte>(fileBytes, s.CurrentLength, name: "FileBytes");
-										});
+										try {
+											s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: settings.Jade_Version == Jade_Version.Xenon), () => {
+												fileBytes = s.SerializeArray<byte>(fileBytes, s.CurrentLength, name: "FileBytes");
+											});
+										} catch (Exception) {
+											UnityEngine.Debug.LogWarning($"File with key {f.Key} is not compressed, trying uncompressed version");
+											fileIsCompressed = false;
+											s.Goto(f.FileOffset + 4);
+											fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
+										}
 									} else {
 										fileBytes = s.SerializeArray<byte>(fileBytes, fileSize, name: "FileBytes");
 									}
