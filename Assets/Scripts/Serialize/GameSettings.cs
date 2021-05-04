@@ -48,6 +48,11 @@ namespace R1Engine
         /// </summary>
         public bool SavePointersForRelocation => false;
 
+        /// <summary>
+        /// Indicates if caching read objects should be ignored
+        /// </summary>
+        public bool IgnoreCacheOnRead => false;
+
         // Global settings
 
         /// <summary>
@@ -124,7 +129,6 @@ namespace R1Engine
                 }
             }
         }
-
 
         // Helpers
 
