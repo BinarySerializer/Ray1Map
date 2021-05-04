@@ -62,6 +62,7 @@ namespace R1Engine.Jade {
 					break;
 				case GameModeSelection.BeyondGoodAndEvilPC:
 				case GameModeSelection.BeyondGoodAndEvilXbox:
+				case GameModeSelection.BeyondGoodAndEvilPS2:
 					links = new AI_Links_BGE_PC();
 					break;
 				case GameModeSelection.BeyondGoodAndEvilXbox360:
@@ -74,7 +75,6 @@ namespace R1Engine.Jade {
 					links = new AI_Links_BGE_PCDemo();
 					break;
 				case GameModeSelection.BeyondGoodAndEvilPS2_20030814:
-				case GameModeSelection.BeyondGoodAndEvilPS2:
 					links = new AI_Links_BGE_PS2_Proto();
 					break;
 				case GameModeSelection.KingKongPCGamersEdition:
