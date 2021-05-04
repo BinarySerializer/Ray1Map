@@ -11,6 +11,8 @@ namespace R1Engine.Jade {
 
 			#region Function Defs (Unnamed)
 			uint[] overrides = new uint[] {
+				0x2C04581A,
+				0x2C04581B,
 				0x2C04581C,
 				0x2C04581D,
 			};

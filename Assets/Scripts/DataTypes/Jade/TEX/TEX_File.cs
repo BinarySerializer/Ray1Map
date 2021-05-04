@@ -121,6 +121,8 @@ namespace R1Engine.Jade
                             }
                             switch (s.GetR1Settings().GameModeSelection) {
                                 case GameModeSelection.RaymanRavingRabbidsWiiJP:
+                                case GameModeSelection.BeyondGoodAndEvilXbox360:
+                                case GameModeSelection.BeyondGoodAndEvilPS3:
                                     colorOrder = TGA.RGBColorOrder.BGR;
                                     break;
                             }
