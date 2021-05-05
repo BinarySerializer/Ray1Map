@@ -25,7 +25,8 @@ public class UnityWindowSerializer : SerializerObject
     public string GetFullName(string name) => String.Join(".", CurrentName.Append(name));
 
     public override uint CurrentLength => 0;
-    public override Pointer CurrentPointer => null;
+    public override BinaryFile CurrentBinaryFile => null;
+    public override long CurrentFileOffset => 0;
     public override void Goto(Pointer offset) { }
 
     public override void DoEncoded(IStreamEncoder encoder, Action action, Endian? endianness = null, bool allowLocalPointers = false, string filename = null) {

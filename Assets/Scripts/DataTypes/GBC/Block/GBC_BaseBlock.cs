@@ -32,7 +32,7 @@ namespace R1Engine
                         var offTable = Context.GetStoredObject<LUDI_GlobalOffsetTable>(GBC_BaseManager.GlobalOffsetTableKey);
                         uint? size = offTable?.GetBlockLength(LUDI_Header);
                         if (size.HasValue) {
-                            _cachedBlockLength = size.Value - DependencyTable.Size - 4;
+                            _cachedBlockLength = size.Value - (uint)DependencyTable.Size - 4;
                         } else {
                             _cachedBlockLength = 0;
                         }
