@@ -7,7 +7,7 @@ namespace R1Engine
     /// <summary>
     /// Common game settings
     /// </summary>
-    public class GameSettings : ISerializerSettings
+    public class GameSettings
     {
         /// <summary>
         /// Default constructor
@@ -30,28 +30,6 @@ namespace R1Engine
             World = world;
             Level = level;
         }
-
-        // Serializer settings
-
-        /// <summary>
-        /// The default string encoding to use when none is specified
-        /// </summary>
-        public Encoding DefaultStringEncoding => Settings.StringEncoding;
-
-        /// <summary>
-        /// Indicates if a backup file should be created when writing to a file
-        /// </summary>
-        public bool CreateBackupOnWrite => Settings.BackupFiles;
-
-        /// <summary>
-        /// Indicates if pointers should be saved in the Memory Map for relocation
-        /// </summary>
-        public bool SavePointersForRelocation => false;
-
-        /// <summary>
-        /// Indicates if caching read objects should be ignored
-        /// </summary>
-        public bool IgnoreCacheOnRead => false;
 
         // Global settings
 

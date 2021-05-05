@@ -11,14 +11,40 @@ namespace R1Engine
     {
         public R1Context(string basePath, GameSettings settings) : base(
             basePath: basePath, // Pass in the base path
-            settings: settings, // Pass in the settings
+            settings: new R1SerializerSettings(), // Pass in the settings
             serializerLog: new R1SerializerLog(), // Use R1 serializer log for logging to a file
             fileManager: new R1FileManager(), // Use R1 file manager for use with FileSystem
             logger: new UnityLogger()) // Use Unity logger
-        { }
+        {
+            // Add the game settings
+            AddSettings(settings);
+        }
         public R1Context(GameSettings settings) : this(settings.GameDirectory, settings) { }
 
-        public new GameSettings Settings => GetSettings<GameSettings>();
+        public GameSettings GameSettings => GetSettings<GameSettings>();
+
+        public class R1SerializerSettings : ISerializerSettings
+        {
+            /// <summary>
+            /// The default string encoding to use when none is specified
+            /// </summary>
+            public Encoding DefaultStringEncoding => R1Engine.Settings.StringEncoding;
+
+            /// <summary>
+            /// Indicates if a backup file should be created when writing to a file
+            /// </summary>
+            public bool CreateBackupOnWrite => R1Engine.Settings.BackupFiles;
+
+            /// <summary>
+            /// Indicates if pointers should be saved in the Memory Map for relocation
+            /// </summary>
+            public bool SavePointersForRelocation => false;
+
+            /// <summary>
+            /// Indicates if caching read objects should be ignored
+            /// </summary>
+            public bool IgnoreCacheOnRead => false;
+        }
 
         public class R1FileManager : IFileManager
         {
