@@ -56,7 +56,7 @@ namespace R1Engine
 
             public Stream GetFileWriteStream(string path, bool recreateOnWrite = true) => FileSystem.GetFileWriteStream(path, recreateOnWrite);
 
-            public async Task FillCacheForReadAsync(int length, Reader reader)
+            public async Task FillCacheForReadAsync(long length, Reader reader)
             {
                 if (reader.BaseStream.InnerStream is PartialHttpStream httpStream)
                     await httpStream.FillCacheForRead(length);

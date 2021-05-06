@@ -333,7 +333,7 @@ namespace R1Engine
                 BaseColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(256, true, wrap: 16) : null;
 
                 // Helper
-                void ExportConvertedMode7Block(string outPath, uint length) {
+                void ExportConvertedMode7Block(string outPath, long length) {
                     bool exported = false;
                     Pointer blockOff = s.CurrentPointer;
 

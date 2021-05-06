@@ -50,7 +50,7 @@ namespace R1Engine
 
             s.Goto(BaseOffset + file.FileOffset);
 
-            await s.FillCacheForReadAsync((int)file.FileSize);
+            await s.FillCacheForReadAsync(file.FileSize);
 
             // Read the bytes
             byte[] buffer = s.SerializeArray<byte>(default, file.FileSize, name: nameof(buffer));
@@ -66,7 +66,7 @@ namespace R1Engine
             Magic = s.SerializeArray<byte>(Magic, 4, name: nameof(Magic));
             BaseOffset = s.SerializePointer(BaseOffset, name: nameof(BaseOffset));
 
-            await s.FillCacheForReadAsync((int)BaseOffset.FileOffset - 8);
+            await s.FillCacheForReadAsync(BaseOffset.FileOffset - 8);
             
             FileCount = s.Serialize<uint>(FileCount, name: nameof(FileCount));
             Files = s.SerializeObjectArray<R1_PS1Edu_GRXFile>(Files, FileCount, name: nameof(Files));

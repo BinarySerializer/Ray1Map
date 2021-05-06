@@ -47,7 +47,7 @@ namespace R1Engine
                 s.SerializeObjectArray<WAVChunk>(Chunks, Chunks.Length, name: nameof(Chunks));
 
                 // Update file size
-                FileSize = s.CurrentPointer.FileOffset - Offset.FileOffset - 8;
+                FileSize = (uint)(s.CurrentPointer.FileOffset - Offset.FileOffset - 8);
                 s.DoAt(Offset + 4, () => FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize)));
             }
         }

@@ -13,7 +13,7 @@ namespace R1Engine
 
         public ushort Index { get; set; }
 
-        public T DoAtBlock<T>(Func<uint, T> action)
+        public T DoAtBlock<T>(Func<long, T> action)
             where T : class
         {
             return Context.GetStoredObject<GBAIsometric_Spyro_DataTable>(nameof(GBAIsometric_Spyro_ROM.DataTable)).DoAtBlock(Context, Index, action);

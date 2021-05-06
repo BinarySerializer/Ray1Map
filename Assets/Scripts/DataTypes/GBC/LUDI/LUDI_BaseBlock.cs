@@ -11,12 +11,12 @@ namespace R1Engine
                 return Offset + 4;
             }
         }
-        private uint? _cachedBlockLength { get; set; }
-        public uint BlockSize {
+        private long? _cachedBlockLength { get; set; }
+        public long BlockSize {
             get {
                 if (!_cachedBlockLength.HasValue) {
                     var offTable = Context.GetStoredObject<LUDI_GlobalOffsetTable>(GBC_BaseManager.GlobalOffsetTableKey);
-                    uint? size = offTable?.GetBlockLength(LUDI_Header);
+                    long? size = offTable?.GetBlockLength(LUDI_Header);
                     if (size.HasValue) {
                         _cachedBlockLength = size.Value - 4;
                     } else {

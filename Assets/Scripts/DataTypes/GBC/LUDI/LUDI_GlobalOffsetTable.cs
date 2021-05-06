@@ -17,7 +17,7 @@ namespace R1Engine
 			return file?.Resolve(blockID);
 		}
 
-		public uint? GetBlockLength(LUDI_BlockIdentifier blockHeader) {
+		public long? GetBlockLength(LUDI_BlockIdentifier blockHeader) {
 			LUDI_BaseDataFile file = Files.FirstOrDefault(f => f.Offset.File == blockHeader.Offset.File);
 			return file?.GetLength(blockHeader.BlockID);
 		}

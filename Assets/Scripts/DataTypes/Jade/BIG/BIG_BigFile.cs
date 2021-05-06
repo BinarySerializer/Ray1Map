@@ -76,7 +76,7 @@ namespace R1Engine.Jade {
 			/*if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD) {
 				FileSize = fat.FileInfos[fileIndex].FileSize;
 			}*/
-			await s.FillCacheForReadAsync((int)FileSize);
+			await s.FillCacheForReadAsync(FileSize);
 			action(FileSize);
 			s.Goto(off_current);
 		}
@@ -87,7 +87,7 @@ namespace R1Engine.Jade {
 			await s.FillCacheForReadAsync(4);
 			var fileSize = s.Serialize<uint>(default, name: "FileSize");
 			//var actualFileSize = (indInSortedFileList+1 >= sortedFileList.Length ? s.CurrentLength : sortedFileList[indInSortedFileList+1].FileOffset.AbsoluteOffset) - off_target.AbsoluteOffset - 4;
-			await s.FillCacheForReadAsync((int)fileSize);
+			await s.FillCacheForReadAsync(fileSize);
 			action(fileSize);
 			s.Goto(off_current);
 		}

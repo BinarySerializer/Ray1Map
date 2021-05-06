@@ -30,7 +30,7 @@ namespace R1Engine
             }
             Offsets = s.SerializeArray<uint>(Offsets, OffsetsCount, name: nameof(Offsets));
             StartPointer = s.CurrentPointer;
-            TotalSize = s.CurrentLength;
+            TotalSize = s.CurrentLength32;
             /*if (Offsets.Length > 0 && StartPointer.FileOffset + Offsets[Offsets.Length - 1] != s.CurrentLength) {
                 throw new System.Exception($"File {Offset.file.filePath} is not a valid resource file!");
             }*/

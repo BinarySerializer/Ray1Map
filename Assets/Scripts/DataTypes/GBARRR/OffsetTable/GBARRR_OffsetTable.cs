@@ -16,7 +16,7 @@ namespace R1Engine
             var s = context.Deserializer;
 
             if (offset.Header == GBARRR_OffsetTableEntryHeader.Compressed)
-                s.DoAtEncoded(pointer, new LZSSEncoder(offset.BlockSize), () => action(s.CurrentLength));
+                s.DoAtEncoded(pointer, new LZSSEncoder(offset.BlockSize), () => action(s.CurrentLength32));
             else
                 s.DoAt(pointer, () => action(offset.BlockSize));
         }

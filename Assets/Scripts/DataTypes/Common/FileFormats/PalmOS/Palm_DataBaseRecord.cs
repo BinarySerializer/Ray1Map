@@ -5,7 +5,7 @@ namespace R1Engine
     public class Palm_DatabaseRecord : BinarySerializable
     {
         public Palm_Database.DatabaseType Type { get; set; } // Set this before serializing
-        public uint Length { get; set; } // Set this after serializing
+        public long Length { get; set; } // Set this after serializing
 
         public Pointer DataPointer { get; set; }
 

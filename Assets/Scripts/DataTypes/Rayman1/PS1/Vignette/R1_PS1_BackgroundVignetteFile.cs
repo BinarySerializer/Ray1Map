@@ -54,7 +54,7 @@ namespace R1Engine
                 // TODO: Get correct length and parse
                 UnknownPaletteHeader = s.SerializeArray<byte>(UnknownPaletteHeader, (FileSize - PaletteBlockPointer.FileOffset) % 512, name: nameof(UnknownPaletteHeader));
 
-                uint numPalettes = (uint)(FileSize - s.CurrentPointer.FileOffset) / (256 * 2);
+                var numPalettes = (FileSize - s.CurrentPointer.FileOffset) / (256 * 2);
                 if (ParallaxPalettes == null)
                     ParallaxPalettes = new RGBA5551Color[numPalettes][];
 

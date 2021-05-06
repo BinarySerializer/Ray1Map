@@ -316,7 +316,7 @@ namespace R1Engine
 
             await LoadExtraFile(context, bgFilePath, true);
 
-            var bg = FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2));
+            var bg = FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
 
             return bg.ToTexture(context);
         }

@@ -22,15 +22,15 @@ namespace R1Engine
                 }
             }
         }
-        private uint? _cachedBlockLength { get; set; }
-        public uint BlockSize {
+        private long? _cachedBlockLength { get; set; }
+        public long BlockSize {
             get {
                 if (Context.GetR1Settings().EngineVersion == EngineVersion.GBC_R1) {
                     return GBC_DataLength;
                 } else {
                     if (!_cachedBlockLength.HasValue) {
                         var offTable = Context.GetStoredObject<LUDI_GlobalOffsetTable>(GBC_BaseManager.GlobalOffsetTableKey);
-                        uint? size = offTable?.GetBlockLength(LUDI_Header);
+                        long? size = offTable?.GetBlockLength(LUDI_Header);
                         if (size.HasValue) {
                             _cachedBlockLength = size.Value - (uint)DependencyTable.Size - 4;
                         } else {

@@ -341,7 +341,7 @@ namespace R1Engine
                 string bgFilePath = exe.FileTable[exe.GetFileTypeIndex(this, R1_PS1_FileType.img_file) + 2].ProcessedFilePath;
                 await LoadExtraFile(context, bgFilePath, true);
 
-                return FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2)).ToTexture(context);
+                return FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2).ToTexture(context);
             }
         }
 

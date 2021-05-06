@@ -13,7 +13,7 @@ namespace R1Engine
         /// <summary>
         /// The size of the block group, in pixels
         /// </summary>
-        public int BlockGroupSize { get; set; }
+        public long BlockGroupSize { get; set; }
 
         public ushort Unknown1 { get; set; }
 
