@@ -80,7 +80,7 @@ namespace R1Engine
                 if (values[i] == 5 && values[i + 1] == 1 && values[i + 2] > GBA_ROMBase.Address_ROM && values[i + 2] < GBA_ROMBase.Address_ROM + s.CurrentLength)
                 {
                     // Serialize the script
-                    var script = s.DoAt(new Pointer((uint)getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default));
+                    var script = s.DoAt(new Pointer(getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default));
 
                     // If the script is invalid we ignore it
                     if (!script.IsValid)

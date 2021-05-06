@@ -1069,8 +1069,8 @@ namespace R1Engine
                         // Make sure we've got valid pointers for the tiles and palettes
                         if (isValidPointer(values[i + 1]) && isValidPointer(values[i + 2]))
                         {
-                            var animSetsCount = s.DoAt(new Pointer((uint)getPointer(i + 3), s.CurrentPointer.File), () => s.Serialize<ushort>(default));
-                            var palettesCount = s.DoAt(new Pointer((uint)(getPointer(i + 3) + 2), s.CurrentPointer.File), () => s.Serialize<ushort>(default));
+                            var animSetsCount = s.DoAt(new Pointer(getPointer(i + 3), s.CurrentPointer.File), () => s.Serialize<ushort>(default));
+                            var palettesCount = s.DoAt(new Pointer(getPointer(i + 3) + 2, s.CurrentPointer.File), () => s.Serialize<ushort>(default));
 
                             // Make sure the animSets count and palette counts are reasonable
                             if (animSetsCount < 1000 && palettesCount < 10000)
@@ -1094,7 +1094,7 @@ namespace R1Engine
                     if (values[i] == primary && values[i + 1] == secondary && isValidPointer(values[i + 2]))
                     {
                         // Serialize the script
-                        var script = s.DoAt(new Pointer((uint)getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default, x => x.BaseFile = s.Context.GetFile(GetROMFilePath)));
+                        var script = s.DoAt(new Pointer(getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default, x => x.BaseFile = s.Context.GetFile(GetROMFilePath)));
 
                         // If the script is invalid we ignore it
                         if (!script.IsValid)
