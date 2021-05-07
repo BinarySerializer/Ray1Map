@@ -8,6 +8,6 @@ namespace R1Engine
         { }
 
         // Set to true for now since some pointers seem to be nulled out (0xFFFFFFFF)
-        public override bool AllowInvalidPointer(uint serializedValue, Pointer anchor = null) => true;
+        public override bool AllowInvalidPointer(long serializedValue, Pointer anchor = null) => true;
     }
 }

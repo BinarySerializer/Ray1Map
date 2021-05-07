@@ -21,11 +21,11 @@ namespace R1Engine
 			}
 			return false;
 		}
-		public override bool AllowInvalidPointer(uint serializedValue, Pointer anchor = null)
+		public override bool AllowInvalidPointer(long serializedValue, Pointer anchor = null)
         {
             return CurrentInvalidPointerMode switch
             {
-                InvalidPointerMode.DevPointerXOR => CheckIfDevPointer(serializedValue, anchor: anchor),
+                InvalidPointerMode.DevPointerXOR => CheckIfDevPointer((uint)serializedValue, anchor: anchor),
                 InvalidPointerMode.Allow => true,
                 _ => true
             };

@@ -63,7 +63,7 @@ namespace R1Engine
                 s.DoXOR((byte)(s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC ? 0 : 0xFF), () =>
                 {
                     // Read the offset table for the textures, based from the start of the tile texture arrays
-                    TexturesOffsetTable = s.SerializePointerArray(TexturesOffsetTable, 1200, s.CurrentPointer + 1200 * 4 + 3 * 4, name: nameof(TexturesOffsetTable));
+                    TexturesOffsetTable = s.SerializePointerArray(TexturesOffsetTable, 1200, anchor: s.CurrentPointer + 1200 * 4 + 3 * 4, name: nameof(TexturesOffsetTable));
 
                     // Read the textures count
                     TexturesCount = s.Serialize<uint>(TexturesCount, name: nameof(TexturesCount));
