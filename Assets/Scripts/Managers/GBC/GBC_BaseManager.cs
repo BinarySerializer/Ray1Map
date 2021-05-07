@@ -95,7 +95,7 @@ namespace R1Engine
                 {
                     foreach (var r in references.OrderBy(x => x.Key))
                     {
-                        writer.WriteLine($"{$"{r.Key}:",-30} {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
+                        writer.WriteLine($"{$"{r.Key}:",-30} {String.Join(", ", r.Value.Select(x => $"{x.StringAbsoluteOffset}"))}");
                     }
                 }
             }

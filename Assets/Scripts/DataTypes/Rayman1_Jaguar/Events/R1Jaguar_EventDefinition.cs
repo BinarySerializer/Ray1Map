@@ -191,7 +191,7 @@ namespace R1Engine
 					var index = 0;
 					while (true) {
 
-						if (s.CurrentPointer.AbsoluteOffset > CurrentStatePointer.AbsoluteOffset) {
+						if (s.CurrentAbsoluteOffset > CurrentStatePointer.AbsoluteOffset) {
 							Pointer CheckPtr0 = null, CheckPtr1 = null;
 							bool success = true;
 							s.DoAt(s.CurrentPointer + 0x2, () => {

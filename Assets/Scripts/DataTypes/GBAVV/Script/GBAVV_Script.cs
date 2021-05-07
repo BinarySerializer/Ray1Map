@@ -104,7 +104,7 @@ namespace R1Engine
                 var animSetIndex = animSets?.FindItemIndex(x => x.Animations.Any(a => a.Offset == p)) ?? -1;
                 var animIndex = animSets?.ElementAtOrDefault(animSetIndex)?.Animations.FindItemIndex(x => x.Offset == p) ?? -1;
 
-                return animIndex == -1 ? $"0x{p.AbsoluteOffset:X8}" : $"Animations[{animSetIndex}][{animIndex}]";
+                return animIndex == -1 ? $"0x{p.StringAbsoluteOffset}" : $"Animations[{animSetIndex}][{animIndex}]";
             }
 
             void logScriptCMD()

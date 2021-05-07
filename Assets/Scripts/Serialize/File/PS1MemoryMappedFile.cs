@@ -13,8 +13,8 @@ namespace R1Engine
 
 		private bool CheckIfDevPointer(uint serializedValue, Pointer anchor = null) 
         {
-			uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
-			uint offset = serializedValue + anchorOffset;
+			var anchorOffset = anchor?.AbsoluteOffset ?? 0;
+			var offset = serializedValue + anchorOffset;
 			offset ^= 0xFFFFFFFF;
 			if (offset >= 0x80000000 && offset < 0x807FFFFF) {
 				return true; // Probably

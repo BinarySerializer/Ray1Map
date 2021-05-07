@@ -22,7 +22,7 @@ namespace R1Engine
         }
 
         public AnimGroup[] AnimGroups { get; }
-        public Dictionary<uint, int> AnimGroupsLookup { get; } = new Dictionary<uint, int>();
+        public Dictionary<long, int> AnimGroupsLookup { get; } = new Dictionary<long, int>();
         public Sprite[] Sprites { get; }
         public R1_ImageDescriptor[] ImageDescriptors { get; }
         public R1_R2LevDataFile LevData { get; }

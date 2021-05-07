@@ -97,7 +97,7 @@ namespace R1Engine
                     for (int i = 0; i < song.Samples.Length; i++) {
                         var e = song.Samples[i];
                         string outPath = Path.Combine(directory, "Samples");
-                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15769, channels);
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.Sample, 15769, channels);
                     }
                     var h = song;
                     if(h.SampleRate == 0) return;
@@ -441,7 +441,7 @@ namespace R1Engine
 
                             if (gfxPath?.EndsWith(".gfx") == true)
                             {
-                                str.AppendLine($"0x{p.AbsoluteOffset:X8}, // {i}");
+                                str.AppendLine($"0x{p.StringAbsoluteOffset}, // {i}");
                                 foundPointer = true;
                             }
                         });

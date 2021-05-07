@@ -32,7 +32,7 @@ namespace R1Engine.Jade
                 };
             }, name: nameof(DDS));
 
-            if (s.CurrentPointer.AbsoluteOffset + 0x20 <= Offset.AbsoluteOffset + FileSize) {
+            if (s.CurrentAbsoluteOffset + 0x20 <= Offset.AbsoluteOffset + FileSize) {
                 Header = s.SerializeObject<TEX_File>(Header, onPreSerialize: h => {
                     h.FileSize = 0x20;
                     h.Loader = Loader;

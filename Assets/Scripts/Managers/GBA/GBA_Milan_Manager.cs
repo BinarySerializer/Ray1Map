@@ -84,7 +84,7 @@ namespace R1Engine
                                     continue;
 
                                 if (exportAnimFrames)
-                                    await ExportAnimations(puppet, Path.Combine(outputDir, $"{model.Milan_ActorID}_0x{puppet.Offset.AbsoluteOffset:X8}"), puppet.Milan_TileKit.Is8bpp, gbaData);
+                                    await ExportAnimations(puppet, Path.Combine(outputDir, $"{model.Milan_ActorID}_0x{puppet.Offset.StringAbsoluteOffset}"), puppet.Milan_TileKit.Is8bpp, gbaData);
                                 else
                                     ExportSpriteTileSet(puppet, outputDir, puppet.Milan_TileKit.Is8bpp, -1);
                             }

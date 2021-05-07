@@ -126,7 +126,7 @@ namespace R1Engine
                             // Make sure we got some data
                             if (data != null && data.Length > 32)
                             {
-                                Util.ByteArrayToFile(Path.Combine(outputDir, $"Block_0x{(file.StartPointer + i).AbsoluteOffset:X8}.dat"), data);
+                                Util.ByteArrayToFile(Path.Combine(outputDir, $"Block_0x{(file.StartPointer + i).StringAbsoluteOffset}.dat"), data);
 
                                 blocks.Add(new Tuple<long, long, int>((file.StartPointer + i).AbsoluteOffset, s.CurrentPointer - (file.StartPointer + i), data.Length));
                             }
@@ -235,7 +235,7 @@ namespace R1Engine
                     {
                         foreach (var r in references.OrderBy(x => x.Key))
                         {
-                            writer.WriteLine($"{r.Key}: {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
+                            writer.WriteLine($"{r.Key}: {String.Join(", ", r.Value.Select(x => $"{x.StringAbsoluteOffset}"))}");
                         }
                     }
                 }
@@ -308,7 +308,7 @@ namespace R1Engine
                 exported.Add(spr.Offset);
 
                 if (exportAnimFrames) {
-                    await ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit, data);
+                    await ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.StringAbsoluteOffset}"), is8bit, data);
                 } else {
                     ExportSpriteTileSet(spr, outputDir, is8bit, uioffset);
                 }
@@ -359,7 +359,7 @@ namespace R1Engine
 
                     tex.Apply();
 
-                    var fileName = $"{(uioffset != -1 ? $"MenuSprite{uioffset}_" : "Sprites_")}{spr.Offset.AbsoluteOffset:X8}_Pal{palIndex}.png";
+                    var fileName = $"{(uioffset != -1 ? $"MenuSprite{uioffset}_" : "Sprites_")}{spr.Offset.StringAbsoluteOffset}_Pal{palIndex}.png";
 
                     Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                 }

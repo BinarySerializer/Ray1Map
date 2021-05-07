@@ -79,7 +79,7 @@ namespace R1Engine
                     int index = 0;
 
                     foreach (var spr in LoadMadTraxSprites(context))
-                        Util.ByteArrayToFile(Path.Combine(outputDir, ((Files)world).ToString(), $"Sprite_{index++}_0x{spr.Offset.AbsoluteOffset:X8}.png"), spr.ToTexture2D().EncodeToPNG());
+                        Util.ByteArrayToFile(Path.Combine(outputDir, ((Files)world).ToString(), $"Sprite_{index++}_0x{spr.Offset.StringAbsoluteOffset}.png"), spr.ToTexture2D().EncodeToPNG());
                 }
             }
         }

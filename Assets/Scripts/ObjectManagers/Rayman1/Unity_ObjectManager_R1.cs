@@ -40,8 +40,8 @@ namespace R1Engine
 
         public DataContainer<DESData>[] DES { get; }
         public DataContainer<R1_EventState[][]>[] ETA { get; }
-        public Dictionary<uint, int> DESLookup { get; } = new Dictionary<uint, int>();
-        public Dictionary<uint, int> ETALookup { get; } = new Dictionary<uint, int>();
+        public Dictionary<long, int> DESLookup { get; } = new Dictionary<long, int>();
+        public Dictionary<long, int> ETALookup { get; } = new Dictionary<long, int>();
 
         public Dictionary<WldObjType, R1_EventData> EventTemplates { get; }
 
