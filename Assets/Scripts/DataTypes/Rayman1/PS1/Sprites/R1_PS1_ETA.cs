@@ -12,12 +12,12 @@ namespace R1Engine
         /// <summary>
         /// The number of Etats
         /// </summary>
-        public uint NumEtats { get; set; }
+        public long NumEtats { get; set; }
 
         /// <summary>
         /// The numbers of SubEtats
         /// </summary>
-        public uint[] NumSubEtats { get; set; }
+        public long[] NumSubEtats { get; set; }
 
         /// <summary>
         /// Pointers to the ETA descriptors
@@ -70,7 +70,7 @@ namespace R1Engine
                 else
                     stateSize = 8;
 
-                NumSubEtats = new uint[NumEtats];
+                NumSubEtats = new long[NumEtats];
                 
                 // Enumerate every Etat, except last one
                 for (int i = 0; i < EtatPointers.Length - 1; i++)

@@ -102,9 +102,9 @@ namespace R1Engine
 
                         if (includePointerInNames)
                         {
-                            dirName += $" - 0x{graphicsData.Offset.AbsoluteOffset:X8}";
-                            animSetName += $" 0x{animSet.Offset.AbsoluteOffset:X8}";
-                            animName += $" 0x{anim.Offset.AbsoluteOffset:X8}";
+                            dirName += $" - 0x{graphicsData.Offset.StringAbsoluteOffset}";
+                            animSetName += $" 0x{animSet.Offset.StringAbsoluteOffset}";
+                            animName += $" 0x{anim.Offset.StringAbsoluteOffset}";
                         }
 
                         Util.ExportAnim(
@@ -175,7 +175,7 @@ namespace R1Engine
 
                                 // Export
                                 using (var collection = flc.ToMagickImageCollection())
-                                    collection.Write(Path.Combine(outputDir, $"0x{(offset + i).AbsoluteOffset:X8}.gif"));
+                                    collection.Write(Path.Combine(outputDir, $"0x{(offset + i).StringAbsoluteOffset}.gif"));
                             }, allowLocalPointers: true);
                         }
                         catch (Exception ex)

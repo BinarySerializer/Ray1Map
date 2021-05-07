@@ -707,7 +707,7 @@ namespace R1Engine
                     for (int i = 0; i < MusicTable.Length; i++) {
                         w.Write(MusicTable[i],
                             Path.Combine(outputPath,
-                            $"Track{i}_{MusicTable[i].MusicDataPointer.AbsoluteOffset:X8}.mid"));
+                            $"Track{i}_{MusicTable[i].MusicDataPointer.StringAbsoluteOffset}.mid"));
                     }
                 });
             }

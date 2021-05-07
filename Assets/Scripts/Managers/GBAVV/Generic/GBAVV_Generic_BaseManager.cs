@@ -67,7 +67,7 @@ namespace R1Engine
                                 center: true,
                                 saveAsGif: saveAsGif,
                                 outputDir: Path.Combine(outputDir, "Mode7"),
-                                primaryName: $"{mode7Level}_{animSetIndex}{(animSet.Offset != null ? $"_0x{animSet.Offset.AbsoluteOffset:X8}" : "")}",
+                                primaryName: $"{mode7Level}_{animSetIndex}{(animSet.Offset != null ? $"_0x{animSet.Offset.StringAbsoluteOffset}" : "")}",
                                 secondaryName: $"{animIndex}");
                         }
                     }
@@ -83,7 +83,7 @@ namespace R1Engine
                             center: true,
                             saveAsGif: saveAsGif,
                             outputDir: Path.Combine(outputDir, "Mode7"),
-                            primaryName: $"{mode7Level}_0x{levInfo.SpecialFrames.Offset.AbsoluteOffset:X8}",
+                            primaryName: $"{mode7Level}_0x{levInfo.SpecialFrames.Offset.StringAbsoluteOffset}",
                             secondaryName: $"0");
                     }
                 }

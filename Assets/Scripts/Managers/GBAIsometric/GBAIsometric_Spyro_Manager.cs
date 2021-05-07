@@ -63,7 +63,7 @@ namespace R1Engine
                     {
                         var pal = rom.DataTable.DoAtBlock(context, i, size => s.SerializeObjectArray<RGBA5551Color>(default, 256, name: $"Pal[{i}]"));
 
-                        PaletteHelpers.ExportPalette(Path.Combine(outputPath, "Palettes", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), pal, optionalWrap: 16);
+                        PaletteHelpers.ExportPalette(Path.Combine(outputPath, "Palettes", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.png"), pal, optionalWrap: 16);
                     }
                     else
                     {
@@ -72,11 +72,11 @@ namespace R1Engine
                         if (categorize && length % 32 == 0)
                         {
                             var tex = Util.ToTileSetTexture(data, palette, Util.TileEncoding.Linear_4bpp, CellSize, true, wrap: 32);
-                            Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
+                            Util.ByteArrayToFile(Path.Combine(outputPath, "ObjTileSets", $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.png"), tex.EncodeToPNG());
                         }
                         else
                         {
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.AbsoluteOffset:X8}.dat"), data);
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i:000}_0x{rom.DataTable.DataEntries[i].DataPointer.StringAbsoluteOffset}.dat"), data);
                         }
                     }
                 }
@@ -101,7 +101,7 @@ namespace R1Engine
                         {
                             var data = d.DialogData;
 
-                            w.WriteLine($"# Cutscene {d.ID} (0x{d.Offset.AbsoluteOffset:X8})");
+                            w.WriteLine($"# Cutscene {d.ID} (0x{d.Offset.StringAbsoluteOffset})");
 
                             foreach (var e in data.Entries)
                             {
@@ -140,7 +140,7 @@ namespace R1Engine
 
                             foreach (var d in rom.MenuPages)
                             {
-                                w.WriteLine($"# Menu {menuIndex} (0x{d.Offset.AbsoluteOffset:X8})");
+                                w.WriteLine($"# Menu {menuIndex} (0x{d.Offset.StringAbsoluteOffset})");
 
                                 var header = d.Header.GetString(langIndex);
                                 var subHeader = d.SubHeader.GetString(langIndex);
@@ -870,7 +870,7 @@ namespace R1Engine
 
                     var outputStr = String.Empty;
 
-                    var usedOffsets = new HashSet<uint>();
+                    var usedOffsets = new HashSet<long>();
 
                     for (int i = 0; i < usRom.ObjectTypes.Length; i++)
                     {

@@ -234,7 +234,7 @@ namespace R1Engine
 
                             if (rom.Map2D_Graphics.Any(x => x.Offset == graphicsPointer))
                             {
-                                str.AppendLine($"0x{p.AbsoluteOffset:X8}, // {i}");
+                                str.AppendLine($"0x{p.StringAbsoluteOffset}, // {i}");
                                 foundPointer = true;
                             }
                         });

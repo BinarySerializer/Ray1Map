@@ -231,7 +231,7 @@ namespace R1Engine
                         // Make sure we got some data
                         if (data != null && data.Length >= minDecompSize)
                         {
-                            ByteArrayToFile(Path.Combine(outputDir, $"Block_0x{(offset + i).AbsoluteOffset:X8}.dat"), data);
+                            ByteArrayToFile(Path.Combine(outputDir, $"Block_0x{(offset + i).StringAbsoluteOffset}.dat"), data);
 
                             blocks.Add(new Tuple<long, long, int>((offset + i).AbsoluteOffset, s.CurrentPointer - (offset + i), data.Length));
                         }

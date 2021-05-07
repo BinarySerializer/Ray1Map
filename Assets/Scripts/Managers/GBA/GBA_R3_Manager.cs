@@ -217,7 +217,7 @@ namespace R1Engine
                     tex.Apply();
 
                     // Export
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"Vig_{i}_0x{offset.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"Vig_{i}_0x{offset.StringAbsoluteOffset}.png"), tex.EncodeToPNG());
 
                     // Align
                     s.Align();

@@ -5,7 +5,7 @@ namespace R1Engine
 {
     public static class GBAIsometric_Spyro_ObjInit
     {
-        public static Action<Unity_Object_GBAIsometricSpyro, Unity_Object_GBAIsometricSpyro[]> GetInitFunc(GameSettings settings, uint address)
+        public static Action<Unity_Object_GBAIsometricSpyro, Unity_Object_GBAIsometricSpyro[]> GetInitFunc(GameSettings settings, long address)
         {
             address = ConvertAddress(settings.GameModeSelection, address);
 
@@ -387,7 +387,7 @@ namespace R1Engine
             return (x, y) => x.AnimSetIndex = -1;
         }
 
-        private static uint ConvertAddress(GameModeSelection gameMode, uint address)
+        private static long ConvertAddress(GameModeSelection gameMode, long address)
         {
             if (gameMode == GameModeSelection.SpyroAdventureEU)
             {

@@ -135,7 +135,7 @@ namespace R1Engine
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
                         var instr = instruments.FirstOrDefault(ins => ins.Value != null && ins.Value.Sample == i+1);
-                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15769, 2);
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.Sample, 15769, 2);
                     }
                 });
                 s.DoAt(pointerTable[GBARRR_Pointer.SoundEffectSampleTable], () => {
@@ -143,7 +143,7 @@ namespace R1Engine
                     string outPath = outputPath + "/SoundEffects/";
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
-                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15769, 1);
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.StringAbsoluteOffset}", e.Sample, 15769, 1);
                     }
                 });
                 uint[] ptrs_eu = new uint[] {
@@ -460,7 +460,7 @@ namespace R1Engine
                     // Get the offset
                     var offset = rom.OffsetTable.OffsetTable[i];
 
-                    var append = includeAbsolutePointer ? $"_{(rom.OffsetTable.Offset + offset.BlockOffset).AbsoluteOffset:X8}" : String.Empty;
+                    var append = includeAbsolutePointer ? $"_{(rom.OffsetTable.Offset + offset.BlockOffset).StringAbsoluteOffset}" : String.Empty;
 
                     rom.OffsetTable.DoAtBlock(context, i, size =>
                     {
@@ -1449,7 +1449,7 @@ namespace R1Engine
 
                                     tex.SetPixel(x + bx * width, pixelY, paletteColors[v]);
                                 } else {
-                                    Debug.Log($"{spr.Offset.AbsoluteOffset:X8} - " + spr.TileData[i].Length + " - " + width + " - " + index);
+                                    Debug.Log($"{spr.Offset.StringAbsoluteOffset} - " + spr.TileData[i].Length + " - " + width + " - " + index);
                                 }
                             }
                         }
@@ -1469,13 +1469,13 @@ namespace R1Engine
                 // For each frame
                 foreach (var tex in GetSpriteFrames(spr, palette, paletteIndex))
                 {
-                    var append = includeAbsolutePointer ? $"_{spr.Offset.AbsoluteOffset:X8}" : String.Empty;
+                    var append = includeAbsolutePointer ? $"_{spr.Offset.StringAbsoluteOffset}" : String.Empty;
                     var fileName = $"Frames{append}-{speed}/{index}.png";
                     Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                     index++;
                 }
             } catch (Exception ex) {
-                Debug.LogError($"Error for GraphicsBlock {spr.Offset.AbsoluteOffset:X8} - Message: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
+                Debug.LogError($"Error for GraphicsBlock {spr.Offset.StringAbsoluteOffset} - Message: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
             }
         }
 
