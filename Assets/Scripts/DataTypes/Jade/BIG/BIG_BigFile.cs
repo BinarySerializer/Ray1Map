@@ -23,6 +23,7 @@ namespace R1Engine.Jade {
 		public uint SizeOfFat { get; set; }
 		public uint NumFat { get; set; }
 		public Jade_Key UniverseKey { get; set; } // First file it loads
+		public BIG_BigFile_V43Data V43Data { get; set; }
 
 		public Pointer FatFilesOffset { get; set; }
 		public BIG_FatFile[] FatFiles { get; set; }
@@ -41,6 +42,9 @@ namespace R1Engine.Jade {
 				NumFat = s.Serialize<uint>(NumFat, name: nameof(NumFat));
 			});
 			UniverseKey = s.SerializeObject<Jade_Key>(UniverseKey, name: nameof(UniverseKey));
+			if (Version >= 43) {
+				V43Data = s.SerializeObject<BIG_BigFile_V43Data>(V43Data, name: nameof(V43Data));
+			}
 			FatFilesOffset = s.CurrentPointer;
 		}
 

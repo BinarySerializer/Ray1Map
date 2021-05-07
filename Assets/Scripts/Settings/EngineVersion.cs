@@ -139,9 +139,13 @@ namespace R1Engine
         Jade_RRR,
         Jade_RRR_Xbox360,
 
+        Jade_Horsez2,
+        Jade_MovieGames,
+
         Jade_RRR2,
 
         // Jade: Ubisoft Montreal branch
         Jade_PoP_SandsOfTime,
+        Jade_RRRTVParty,
     }
 }

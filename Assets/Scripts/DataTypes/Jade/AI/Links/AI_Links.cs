@@ -101,6 +101,9 @@ namespace R1Engine.Jade {
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030819:
 					links = new AI_Links_PoP_SoT_PS2_Proto();
 					break;
+				case GameModeSelection.Horsez2Wii:
+					links = new AI_Links_Horsez2_Wii();
+					break;
 			}
 			if (links != null) {
 				links.Init();

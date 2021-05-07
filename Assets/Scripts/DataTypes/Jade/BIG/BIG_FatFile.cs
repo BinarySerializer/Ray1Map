@@ -59,6 +59,8 @@ namespace R1Engine.Jade {
 					return 0x58;
 				if (big.Version == 34 || big.Version == 37)
 					return 0x54;
+				if (big.Version >= 43)
+					return 0x7C;
 				return 0x58;
 			}
 			public BIG_BigFile Big { get; set; }
@@ -71,6 +73,9 @@ namespace R1Engine.Jade {
 			public uint UInt_10 { get; set; }
 			public uint UInt_14 { get; set; }
 			public uint UInt_54 { get; set; }
+			public string Hash { get; set; }
+			public uint V43_UInt { get; set; }
+
 			public override void SerializeImpl(SerializerObject s) {
 				bool hasName = false;
 				if (s.GetXOR() != null) {
@@ -90,6 +95,10 @@ namespace R1Engine.Jade {
 					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37)) {
 						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
+					}
+					if (Big.Version >= 43) {
+						Hash = s.SerializeString(Hash, 0x20, encoding: Jade_BaseManager.Encoding, name: nameof(Hash));
+						V43_UInt = s.Serialize<uint>(V43_UInt, name: nameof(V43_UInt));
 					}
 				} else {
 					s.Goto(s.CurrentPointer + StructSize(Big));

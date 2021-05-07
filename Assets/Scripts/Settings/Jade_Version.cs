@@ -8,6 +8,7 @@ namespace R1Engine
     {
         Default,
         Xenon,
+        Phoenix,
 
         Montreal
     }

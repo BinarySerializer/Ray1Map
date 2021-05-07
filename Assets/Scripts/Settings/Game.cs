@@ -109,7 +109,10 @@
         Jade_KingKong,
         Jade_RRR,
         Jade_RRR2,
+        Jade_Horsez2,
+        Jade_MovieGames,
 
         Jade_PoP_SandsOfTime,
+        Jade_RRRTVParty
     }
 }

@@ -62,6 +62,12 @@ namespace R1Engine.Jade {
         public uint Type0_Uint_28_Editor { get; set; }
         public uint Type0_Uint_2C_Editor { get; set; }
 
+        // Phoenix
+        public float Phoenix_Float_Min { get; set; }
+        public float Phoenix_Float_Max { get; set; }
+        public int Phoenix_Int_Min { get; set; }
+        public int Phoenix_Int_Max { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -198,6 +204,13 @@ namespace R1Engine.Jade {
 
                 if (Type >= 12) {
                     Byte_270 = s.Serialize<byte>(Byte_270, name: nameof(Byte_270));
+
+                    if (s.GetR1Settings().Jade_Version == Jade_Version.Phoenix) {
+                        Phoenix_Float_Min = s.Serialize<float>(Phoenix_Float_Min, name: nameof(Phoenix_Float_Min));
+                        Phoenix_Float_Max = s.Serialize<float>(Phoenix_Float_Max, name: nameof(Phoenix_Float_Max));
+                        Phoenix_Int_Min = s.Serialize<int>(Phoenix_Int_Min, name: nameof(Phoenix_Int_Min));
+                        Phoenix_Int_Max = s.Serialize<int>(Phoenix_Int_Max, name: nameof(Phoenix_Int_Max));
+                    }
                 }
             }
         }

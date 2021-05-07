@@ -97,7 +97,9 @@ namespace R1Engine
                 if (Game == Game.Jade_BGE) {
                     return Jade_Version.Default;
                 } else if (EngineVersion < EngineVersion.Jade_PoP_SandsOfTime) {
-                    if (Platform == Platform.Xbox360 || GameModeSelection == GameModeSelection.KingKongPCGamersEdition) {
+                    if (EngineVersion >= EngineVersion.Jade_Horsez2 && EngineVersion <= EngineVersion.Jade_MovieGames) {
+                        return Jade_Version.Phoenix;
+                    } else if (Platform == Platform.Xbox360 || GameModeSelection == GameModeSelection.KingKongPCGamersEdition) {
                         return Jade_Version.Xenon;
                     } else {
                         return Jade_Version.Default;

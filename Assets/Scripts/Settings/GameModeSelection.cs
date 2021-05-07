@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace R1Engine
-{
-    /// <summary>
-    /// The available game modes to select from
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
+namespace R1Engine {
+	/// <summary>
+	/// The available game modes to select from
+	/// </summary>
+	[JsonConverter(typeof(StringEnumConverter))]
     public enum GameModeSelection
     {
 		#region Rayman 1
@@ -738,6 +737,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PS2)", typeof(Jade_RRR_PS2_Manager), Platform.PS2)]
         RaymanRavingRabbidsPS2,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (Wii)", typeof(Jade_Horsez2_Wii_Manager), Platform.Wii)]
+        Horsez2Wii,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MovieGames, Game.Jade_MovieGames, "Movie Games (Wii)", typeof(Jade_MovieGames_Wii_Manager), Platform.Wii)]
+        MovieGamesWii,
+
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR2, Game.Jade_RRR2, "Rayman Raving Rabbids 2 (PC)", typeof(Jade_RRR2_PC_Manager), Platform.PC)]
         RaymanRavingRabbids2PC,
@@ -748,6 +753,9 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SandsOfTime, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PS2 - Prototype 2003/08/19)", typeof(Jade_PoP_SoT_PS2_Prototype_Manager), Platform.PS2)]
         PrinceOfPersiaTheSandsOfTimePS2_20030819,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]
+        RaymanRavingRabbidsTVPartyWii,
         #endregion
     }
 }
