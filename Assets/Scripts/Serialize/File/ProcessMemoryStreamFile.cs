@@ -107,10 +107,13 @@ namespace R1Engine
                     throw new InvalidDataException($"{stream.ExeFile} could not be parsed as a PE file ({result})");
             }
         }
-        public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
-            if((anchor == null || anchor.AbsoluteOffset == 0) && (serializedValue == 0 || serializedValue == 0xFFFFFFFF)) return null;
-            Pointer ptr = new Pointer(serializedValue, this, anchor: anchor);
-            return ptr;
+
+        public override BinaryFile GetPointerFile(long serializedValue, Pointer anchor = null)
+        {
+            if ((anchor == null || anchor.AbsoluteOffset == 0) && (serializedValue == 0 || serializedValue == 0xFFFFFFFF)) 
+                return null;
+
+            return this;
         }
 
 		public override Reader CreateReader() {
