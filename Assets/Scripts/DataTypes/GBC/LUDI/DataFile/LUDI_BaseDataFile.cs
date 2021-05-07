@@ -13,7 +13,7 @@ namespace R1Engine {
 		}
 		public abstract Pointer Resolve(ushort blockID);
 
-		public abstract uint? GetLength(ushort blockID);
+		public abstract long? GetLength(ushort blockID);
 
 		public virtual uint BlockCount => OffsetTable?.NumEntries ?? DataInfo?.NumDataBlocks ?? 0;
 	}

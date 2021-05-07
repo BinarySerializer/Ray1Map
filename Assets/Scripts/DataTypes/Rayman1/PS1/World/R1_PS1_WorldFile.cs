@@ -167,7 +167,7 @@ namespace R1Engine
                 // TILES
                 s.DoAt(TilesBlockPointer, () => {
                     // Get the tile count
-                    int tileCount = RawTiles?.Length ?? (int)((FileSize - s.CurrentPointer.FileOffset) / 2);
+                    var tileCount = RawTiles?.Length ?? (FileSize - s.CurrentPointer.FileOffset) / 2;
 
                     // Serialize the tiles
                     RawTiles = s.SerializeObjectArray<RGBA5551Color>(RawTiles, tileCount, name: nameof(RawTiles));

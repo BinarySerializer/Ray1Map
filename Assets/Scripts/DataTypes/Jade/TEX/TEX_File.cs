@@ -128,11 +128,11 @@ namespace R1Engine.Jade
                             }
 
                             // Serialize the header first, then set a custom one for the TGA struct based on the Jade properties instead
-                            Content_TGA_Header = s.SerializeObject<TGA_Header>(Content_TGA_Header, x => x.ForceNoColorMap = true, name: nameof(Content_TGA_Header));
+                            Content_TGA_Header = s.SerializeObject<TGA_Header>(Content_TGA_Header, x => x.Pre_ForceNoColorMap = true, name: nameof(Content_TGA_Header));
                             Content_TGA = s.SerializeObject<TGA>(Content_TGA, x =>
                             {
-                                x.ColorOrder = colorOrder;
-                                x.SkipHeader = true;
+                                x.Pre_ColorOrder = colorOrder;
+                                x.Pre_SkipHeader = true;
                                 x.Header = new TGA_Header
                                 {
                                     HasColorMap = false,
@@ -161,7 +161,7 @@ namespace R1Engine.Jade
                                     Content_DDS_Header = s.SerializeObject<DDS_Header>(Content_DDS_Header, name: nameof(Content_DDS_Header));
                                     Content_DDS = s.SerializeObject<DDS>(Content_DDS, x =>
                                     {
-                                        x.SkipHeader = true;
+                                        x.Pre_SkipHeader = true;
                                         x.Header = new DDS_Header
                                         {
                                             Flags = DDS_Header.DDS_HeaderFlags.DDS_HEADER_FLAGS_TEXTURE,

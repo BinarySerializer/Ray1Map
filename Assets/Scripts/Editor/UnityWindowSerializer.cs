@@ -24,7 +24,7 @@ public class UnityWindowSerializer : SerializerObject
     protected List<string> CurrentName { get; }
     public string GetFullName(string name) => String.Join(".", CurrentName.Append(name));
 
-    public override uint CurrentLength => 0;
+    public override long CurrentLength => 0;
     public override BinaryFile CurrentBinaryFile => null;
     public override long CurrentFileOffset => 0;
     public override void Goto(Pointer offset) { }

@@ -20,10 +20,10 @@ namespace R1Engine
                 if (FrameDataPPC == null) FrameDataPPC = new BGR565Color[FrameCount][];
                 for (int i = 0; i < FrameDataPPC.Length; i++) {
                     uint decompressedSize = Width * Height * 2;
-                    uint nextOff = i < FrameDataPPC.Length - 1 ? FrameOffsets[i + 1] : BlockSize;
-                    uint compressedSize = nextOff - FrameOffsets[i];
+                    long nextOff = i < FrameDataPPC.Length - 1 ? FrameOffsets[i + 1] : BlockSize;
+                    long compressedSize = nextOff - FrameOffsets[i];
                     s.DoAt(BlockStartPointer + FrameOffsets[i], () => {
-                        s.DoEncoded(new Lzo1xEncoder(compressedSize, decompressedSize), () => {
+                        s.DoEncoded(new Lzo1xEncoder((uint)compressedSize, decompressedSize), () => {
                             FrameDataPPC[i] = s.SerializeObjectArray<BGR565Color>(FrameDataPPC[i], Width * Height, name: $"{nameof(FrameDataPPC)}[{i}]");
                         });
                     });

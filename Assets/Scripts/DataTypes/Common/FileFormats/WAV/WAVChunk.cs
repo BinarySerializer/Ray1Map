@@ -22,7 +22,7 @@ namespace R1Engine
             SerializeChunk(s);
 
             // Update chunk size
-            ChunkSize = s.CurrentPointer.FileOffset - Offset.FileOffset - 8;
+            ChunkSize = (uint)(s.CurrentFileOffset - Offset.FileOffset - 8);
             s.DoAt(Offset + 4, () => ChunkSize = s.Serialize<uint>(ChunkSize, name: nameof(ChunkSize)));
         }
 

@@ -12,11 +12,11 @@ namespace R1Engine
         public static Texture2D ToTexture2D(this DDS_TextureItem img)
         {
             TextureFormat fmt = TextureFormat.RGBA32;
-            if (img.Header?.PixelFormat?.FourCC == "ATI2")
+            if (img.Pre_Header?.PixelFormat?.FourCC == "ATI2")
             {
                 fmt = TextureFormat.RGB24;
             }
-            Texture2D bitmap = new Texture2D((int)img.Width, (int)img.Height, fmt, false);
+            Texture2D bitmap = new Texture2D((int)img.Pre_Width, (int)img.Pre_Height, fmt, false);
             bitmap.LoadRawTextureData(img.ImageData);
             bitmap.Apply();
             return bitmap;

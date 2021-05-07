@@ -117,7 +117,7 @@ namespace R1Engine
                                 Pointer blockPtr = file.Resolve(id);
                                 if (!references.ContainsKey(blockPtr))
                                 {
-                                    uint? blockLength = file.GetLength(id);
+                                    long? blockLength = file.GetLength(id);
                                     if (blockLength.HasValue)
                                     {
                                         s.DoAt(blockPtr, () => {
@@ -136,7 +136,7 @@ namespace R1Engine
                                 Pointer blockPtr = file.Resolve(id);
                                 if (!references.ContainsKey(blockPtr))
                                 {
-                                    uint? blockLength = file.GetLength(id);
+                                    long? blockLength = file.GetLength(id);
                                     if (blockLength.HasValue)
                                     {
                                         s.DoAt(blockPtr, () => {
@@ -156,7 +156,7 @@ namespace R1Engine
                 for (int i = 0; i < dataFile.BlockCount; i++) {
                     ushort blockID = dataFile.OffsetTable.Entries[i].BlockID;
                     Pointer blockPtr = dataFile.Resolve(blockID);
-                    uint blockLength = dataFile.GetLength(blockID) ?? 0;
+                    long blockLength = dataFile.GetLength(blockID) ?? 0;
 
                     if (blockPtr == null)
                         continue;
@@ -171,7 +171,7 @@ namespace R1Engine
                 for (int i = 0; i < dataFile.DataInfo.NumDataBlocks; i++) {
                     ushort blockID = (ushort)(i + 1);
                     Pointer blockPtr = dataFile.Resolve(blockID);
-                    uint blockLength = dataFile.GetLength(blockID) ?? 0;
+                    long blockLength = dataFile.GetLength(blockID) ?? 0;
 
                     if (blockPtr == null)
                         continue;

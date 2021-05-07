@@ -38,7 +38,7 @@ namespace R1Engine {
 			return GetRecord(blockID)?.DataPointer;
 		}
 
-		public override uint? GetLength(ushort blockID) {
+		public override long? GetLength(ushort blockID) {
 			if(DataInfo != null) return DataInfo.DataSize + 4;
 			return GetRecord(blockID)?.Length;
 		}

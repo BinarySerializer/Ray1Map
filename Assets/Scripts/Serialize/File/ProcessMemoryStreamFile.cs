@@ -57,9 +57,9 @@ namespace R1Engine
                     // it seems, so we need to look up the symbol names in the string table manually.
                     var stringTable = elfFile.Sections[(int)symbolTable.Link];
                     foreach (var foundSymbol in symbolTable.Where(sym => exereader.ReadELFString(stringTable, sym.NameIndex).Equals(name))) {
-                        uint ptr = (uint)foundSymbol.Value;
+                        long ptr = (long)foundSymbol.Value;
                         if (foundSymbol.Binding == ElfSymbolBinding.Local)
-                            ptr += (uint)stream.BaseAddress;
+                            ptr += stream.BaseAddress;
                         return new Pointer(ptr, this);
                     }
                 }

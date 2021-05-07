@@ -24,13 +24,12 @@ namespace R1Engine
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
-            string str = reader.Value as string;
-            if (str != null) {
+            if (reader.Value is string str) {
                 Match match = Regex.Match(str, PointerPattern);
                 if (match.Success) {
                     string offset = match.Groups["offset"].Value;
                     string file = match.Groups["file"].Value;
-                    if (uint.TryParse(offset, System.Globalization.NumberStyles.HexNumber, default, out uint result)) {
+                    if (Int64.TryParse(offset, System.Globalization.NumberStyles.HexNumber, default, out long result)) {
                         BinaryFile f = LevelEditorData.MainContext.GetFile(file);
                         if (f != null) {
                             return new Pointer(result, f);

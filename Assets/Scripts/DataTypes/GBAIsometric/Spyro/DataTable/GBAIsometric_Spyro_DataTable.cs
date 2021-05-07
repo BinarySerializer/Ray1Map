@@ -8,7 +8,7 @@ namespace R1Engine
     {
         public GBAIsometric_Spyro_DataTableEntry[] DataEntries { get; set; }
 
-        public T DoAtBlock<T>(Context context, long index, Func<uint, T> action)
+        public T DoAtBlock<T>(Context context, long index, Func<long, T> action)
             where T : class
         {
             var entry = DataEntries[index];

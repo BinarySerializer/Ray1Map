@@ -14,7 +14,7 @@ namespace R1Engine.Jade
             DDS_Header = s.SerializeObject<DDS_Header>(DDS_Header, name: nameof(DDS_Header));
             DDS = s.SerializeObject<DDS>(DDS, x =>
             {
-                x.SkipHeader = true;
+                x.Pre_SkipHeader = true;
                 x.Header = new DDS_Header()
                 {
                     Flags = DDS_Header.DDS_HeaderFlags.DDS_HEADER_FLAGS_TEXTURE,

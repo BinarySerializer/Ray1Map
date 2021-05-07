@@ -168,7 +168,7 @@ namespace R1Engine.Jade {
 						await s.FillCacheForReadAsync(4);
 						var fileSize = s.Serialize<uint>(default, name: "FileSize");
 						if (fileSize != 0) {
-							await s.FillCacheForReadAsync((int)fileSize);
+							await s.FillCacheForReadAsync(fileSize);
 
 							// Add region
 							string regionName = f.FileRegionName ?? $"{currentRef.Name}_{currentRef.Key:X8}";
@@ -180,7 +180,7 @@ namespace R1Engine.Jade {
 										filename: regionName);
 									Bin.CurrentPosition = Bin.StartPosition;
 									s.Goto(Bin.StartPosition);
-									uint decompressedLength = s.CurrentLength;
+									uint decompressedLength = s.CurrentLength32;
 									Bin.Serializer = s;
 									Bin.TotalSize = decompressedLength;
 									if (Bin?.SerializeAction != null) {

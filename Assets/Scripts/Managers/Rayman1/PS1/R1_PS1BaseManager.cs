@@ -783,7 +783,7 @@ namespace R1Engine
                         if (fileInfo.FileType == VignetteFileType.BlockedXXX)
                             imageBlock = FileFactory.Read<R1_PS1_BackgroundVignetteFile>(fileInfo.FilePath, context).ImageBlock;
                         else
-                            imageBlock = FileFactory.Read<R1_PS1_VignetteBlockGroup>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2));
+                            imageBlock = FileFactory.Read<R1_PS1_VignetteBlockGroup>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
 
                         // Create the texture
                         textures.Add(imageBlock.ToTexture(context));

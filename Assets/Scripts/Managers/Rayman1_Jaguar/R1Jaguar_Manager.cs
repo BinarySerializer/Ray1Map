@@ -1026,7 +1026,7 @@ namespace R1Engine
                 }
             }
 
-            var forceNoAnimation = new uint[]
+            var forceNoAnimation = new long[]
             {
                 // Pencils
                 0x00003A98,
@@ -1034,7 +1034,7 @@ namespace R1Engine
                 0x00003AE8,
             };
 
-            var forceFrame1 = new uint[]
+            var forceFrame1 = new long[]
             {
                 // Pins
                 0x000038E0,
@@ -1048,7 +1048,7 @@ namespace R1Engine
                 0x00003A20,
                 0x00003A48
             };
-            var forceFrame2 = new uint[]
+            var forceFrame2 = new long[]
             {
                 // Falling pencils
                 0x00003E80,
