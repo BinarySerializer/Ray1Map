@@ -109,6 +109,7 @@
         Jade_KingKong,
         Jade_RRR,
         Jade_RRR2,
+        Jade_Horsez,
         Jade_Horsez2,
         Jade_MovieGames,
 

@@ -737,6 +737,9 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PS2)", typeof(Jade_RRR_PS2_Manager), Platform.PS2)]
         RaymanRavingRabbidsPS2,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez, Game.Jade_Horsez, "Horsez (PS2)", typeof(Jade_Horsez_PS2_Manager), Platform.PS2)]
+        HorsezPS2,
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (Wii)", typeof(Jade_Horsez2_Wii_Manager), Platform.Wii)]
         Horsez2Wii,
 

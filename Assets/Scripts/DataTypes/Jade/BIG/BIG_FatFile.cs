@@ -57,7 +57,7 @@ namespace R1Engine.Jade {
 			public static uint StructSize(BIG_BigFile big) {
 				if(big.Context.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD)
 					return 0x58;
-				if (big.Version == 34 || big.Version == 37)
+				if (big.Version == 34 || big.Version == 37 || big.Version == 38)
 					return 0x54;
 				if (big.Version >= 43)
 					return 0x7C;
@@ -93,7 +93,7 @@ namespace R1Engine.Jade {
 					ParentDirectory = s.Serialize<int>(ParentDirectory, name: nameof(ParentDirectory));
 					UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
 					Name = s.SerializeString(Name, 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37)) {
+					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37 && Big.Version != 38)) {
 						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
 					}
 					if (Big.Version >= 43) {

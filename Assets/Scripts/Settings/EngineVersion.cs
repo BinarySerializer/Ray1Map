@@ -139,6 +139,7 @@ namespace R1Engine
         Jade_RRR,
         Jade_RRR_Xbox360,
 
+        Jade_Horsez,
         Jade_Horsez2,
         Jade_MovieGames,
 
