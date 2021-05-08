@@ -56,7 +56,7 @@ namespace R1Engine.Jade
                     if (pi < 0) break;
                     if (pi >= Slots.Length) continue;
                     var reference = Slots[pi];
-                    if (!reference.RawTexture.IsNull || !reference.Palette.IsNull || !reference.Unknown.IsNull) {
+                    if (!reference.Raw4or8.IsNull || !reference.Palette.IsNull || !reference.Raw24or32.IsNull) {
                         return reference;
                     }
                 }
@@ -87,40 +87,40 @@ namespace R1Engine.Jade
             public Pointer ReferenceArrayStart { get; set; } // Set in onPreSerialize
             public long ReferenceArrayByteCount { get; set; }
 
-            public Jade_TextureReference RawTexture { get; set; }
+            public Jade_TextureReference Raw4or8 { get; set; }
             public Jade_PaletteReference Palette { get; set; }
-            public Jade_TextureReference Unknown { get; set; }
+            public Jade_TextureReference Raw24or32 { get; set; }
             public override void SerializeImpl(SerializerObject s) {
-				RawTexture = s.SerializeObject<Jade_TextureReference>(RawTexture, name: nameof(RawTexture));
+				Raw4or8 = s.SerializeObject<Jade_TextureReference>(Raw4or8, name: nameof(Raw4or8));
                 if (s.CurrentAbsoluteOffset >= ReferenceArrayStart.AbsoluteOffset + ReferenceArrayByteCount) {
                     Palette = new Jade_PaletteReference(Context, (Jade_Key)0xFFFFFFFF);
                 } else {
                     Palette = s.SerializeObject<Jade_PaletteReference>(Palette, name: nameof(Palette));
                 }
                 if (s.CurrentAbsoluteOffset >= ReferenceArrayStart.AbsoluteOffset + ReferenceArrayByteCount) {
-                    Unknown = new Jade_TextureReference(Context, (Jade_Key)0xFFFFFFFF);
+                    Raw24or32 = new Jade_TextureReference(Context, (Jade_Key)0xFFFFFFFF);
                 } else {
-                    Unknown = s.SerializeObject<Jade_TextureReference>(Unknown, name: nameof(Unknown));
+                    Raw24or32 = s.SerializeObject<Jade_TextureReference>(Raw24or32, name: nameof(Raw24or32));
                 }
             }
 
-            public bool HasTexture => RawTexture?.Info != null || Palette?.Value != null || Unknown?.Info != null;
+            public bool HasTexture => Raw4or8?.Info != null || Palette?.Value != null || Raw24or32?.Info != null;
 
             public Jade_TextureReference TextureRef {
                 get {
-                    if (RawTexture.IsNull && Palette.IsNull) {
-                        return Unknown;
+                    if (Raw4or8.IsNull && Palette.IsNull) {
+                        return Raw24or32;
                     } else {
-                        return RawTexture;
+                        return Raw4or8;
                     }
                 }
             }
 
             public void Resolve() {
-                if (RawTexture.IsNull && Palette.IsNull) {
-                    Unknown?.Resolve();
+                if (Raw4or8.IsNull && Palette.IsNull) {
+                    Raw24or32?.Resolve();
                 } else {//if (Unknown.IsNull) {
-                    RawTexture?.Resolve();
+                    Raw4or8?.Resolve();
                     Palette?.Resolve();
                 } /*else {
                     //throw new NotImplementedException("TODO: Implement RawPal textures where 
@@ -128,19 +128,19 @@ namespace R1Engine.Jade
             }
             public Texture2D ToTexture2D(TEX_File contentFile)
             {
-                var texture = TEX_File.IsRawPalUnsupported(Context) ? contentFile : RawTexture.Content;
+                var texture = TEX_File.IsRawPalUnsupported(Context) ? contentFile : Raw4or8.Content;
                 var pal = Palette.Value;
-                if (RawTexture.IsNull && Palette.IsNull) {
+                if (Raw4or8.IsNull && Palette.IsNull) {
                     throw new BinarySerializableException(this, $"Implement RawPal format Unknown for key {texture.Key}");
                 }
 
                 if (texture == null || pal == null)
                     return null;
 
-                if (texture.FileFormat != TEX_File.TexFileFormat.Raw) return null;
+                if (texture.Type != TEX_File.TexFileType.Raw) return null;
 
-                if (texture.ColorFormat != TEX_File.TexColorFormat.BPP_4 && texture.ColorFormat != TEX_File.TexColorFormat.BPP_8)
-                    throw new BinarySerializableException(this, $"Unsupported raw texture format {texture.ColorFormat}");
+                if (texture.Format != TEX_File.TexColorFormat.BPP_4 && texture.Format != TEX_File.TexColorFormat.BPP_8)
+                    throw new BinarySerializableException(this, $"Unsupported raw texture format {texture.Format}");
 
                 var tex = TextureHelpers.CreateTexture2D(texture.Width, texture.Height);
 
@@ -148,7 +148,7 @@ namespace R1Engine.Jade
                 {
                     for (int x = 0; x < texture.Width; x++)
                     {
-                        if (texture.ColorFormat == TEX_File.TexColorFormat.BPP_8)
+                        if (texture.Format == TEX_File.TexColorFormat.BPP_8)
                             tex.SetPixel(x, y, pal.Colors[texture.Content[(y * texture.Width + x)] % pal.Colors.Length].GetColor());
                         else
                             tex.SetPixel(x, y, pal.Colors[BitHelpers.ExtractBits(texture.Content[(y * texture.Width + x) / 2], 4, x % 2 == 1 ? 0 : 4) % pal.Colors.Length].GetColor());

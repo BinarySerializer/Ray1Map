@@ -10,15 +10,15 @@ namespace R1Engine.Jade
     public class TEX_File : Jade_File {
         public bool IsContent { get; set; }
         public bool HasContent
-            => (FileFormat != TexFileFormat.RawPal || (IsRawPalUnsupported(Context) && ContentKey != null)) // On Xbox 360 it resolves the raw texture
-            && FileFormat != TexFileFormat.Procedural
-            && FileFormat != TexFileFormat.SpriteGen
-            && FileFormat != TexFileFormat.Animated
-            && (FileFormat != TexFileFormat.Raw || !IsRawPalUnsupported(Context));
+            => (Type != TexFileType.RawPal || (IsRawPalUnsupported(Context) && ContentKey != null)) // On Xbox 360 it resolves the raw texture
+            && Type != TexFileType.Procedural
+            && Type != TexFileType.SpriteGen
+            && Type != TexFileType.Animated
+            && (Type != TexFileType.Raw || !IsRawPalUnsupported(Context));
 
         public Jade_Key ContentKey {
             get {
-                if (IsRawPalUnsupported(Context) && FileFormat == TexFileFormat.RawPal) {
+                if (IsRawPalUnsupported(Context) && Type == TexFileType.RawPal) {
                     return Content_RawPal?.PreferredSlot.TextureRef.Key;
                 } else {
                     return Key;
@@ -32,19 +32,19 @@ namespace R1Engine.Jade
         public TEX_File Info { get; set; } // Set in onPreSerialize
 
         public bool CanHaveFontDesc
-            => FileFormat == TexFileFormat.Tga
-            || FileFormat == TexFileFormat.Bmp
-            || FileFormat == TexFileFormat.Jpeg
-            || FileFormat == TexFileFormat.Raw
-            || FileFormat == TexFileFormat.DDS;
+            => Type == TexFileType.Tga
+            || Type == TexFileType.Bmp
+            || Type == TexFileType.Jpeg
+            || Type == TexFileType.Raw
+            || Type == TexFileType.DDS;
 
-        public int Int_00 { get; set; } // Always 0xFFFFFFFF in files
+        public int Mark { get; set; } // Always 0xFFFFFFFF in files
         public ushort Flags { get; set; }
-        public TexFileFormat FileFormat { get; set; }
-        public TexColorFormat ColorFormat { get; set; } // Determines bits per pixel
+        public TexFileType Type { get; set; }
+        public TexColorFormat Format { get; set; } // Determines bits per pixel
         public ushort Width { get; set; }
         public ushort Height { get; set; }
-        public uint Uint_0C { get; set; }
+        public uint Color { get; set; }
         public Jade_Reference<STR_FontDescriptor> FontDesc { get; set; }
         public Jade_Code Code_14 { get; set; } // Usually CAD01234
         public Jade_Code Code_18 { get; set; } // Checked for 0xFF00FF
@@ -66,14 +66,14 @@ namespace R1Engine.Jade
 			if (!Loader.IsBinaryData)
 				s.Goto(s.CurrentPointer + FileSize - 32);
 
-			Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
-            if (Int_00 == -1) {
+			Mark = s.Serialize<int>(Mark, name: nameof(Mark));
+            if (Mark == -1) {
                 Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
-                FileFormat = s.Serialize<TexFileFormat>(FileFormat, name: nameof(FileFormat));
-                ColorFormat = s.Serialize<TexColorFormat>(ColorFormat, name: nameof(ColorFormat));
+                Type = s.Serialize<TexFileType>(Type, name: nameof(Type));
+                Format = s.Serialize<TexColorFormat>(Format, name: nameof(Format));
                 Width = s.Serialize<ushort>(Width, name: nameof(Width));
                 Height = s.Serialize<ushort>(Height, name: nameof(Height));
-                Uint_0C = s.Serialize<uint>(Uint_0C, name: nameof(Uint_0C));
+                Color = s.Serialize<uint>(Color, name: nameof(Color));
                 FontDesc = s.SerializeObject<Jade_Reference<STR_FontDescriptor>>(FontDesc, name: nameof(FontDesc));
                 Code_14 = s.Serialize<Jade_Code>(Code_14, name: nameof(Code_14));
                 Code_18 = s.Serialize<Jade_Code>(Code_18, name: nameof(Code_18));
@@ -84,31 +84,31 @@ namespace R1Engine.Jade
 
                 bool hasReadContent = false;
                 uint contentSize = FileSize - (uint)(s.CurrentPointer - Offset);
-                switch (FileFormat) 
+                switch (Type) 
                 {
-                    case TexFileFormat.RawPal:
+                    case TexFileType.RawPal:
                         Content_RawPal = s.SerializeObject<TEX_Content_RawPal>(Content_RawPal, c => c.Texture = this, name: nameof(Content_RawPal));
                         break;
 
-                    case TexFileFormat.Procedural:
+                    case TexFileType.Procedural:
                         if (contentSize > 0) {
                             Content_Procedural = s.SerializeObject<TEX_Content_Procedural>(Content_Procedural, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Procedural));
                             hasReadContent = true;
                         }
                         break;
 
-                    case TexFileFormat.SpriteGen:
+                    case TexFileType.SpriteGen:
                         if (contentSize > 0) {
                             Content_SpriteGen = s.SerializeObject<MAT_SpriteGen>(Content_SpriteGen, name: nameof(Content_SpriteGen));
                         }
                         hasReadContent = true;
                         break;
 
-                    case TexFileFormat.Animated:
+                    case TexFileType.Animated:
                         Content_Animated = s.SerializeObject<TEX_Content_Animated>(Content_Animated, c => c.Texture = this, name: nameof(Content_Animated));
                         break;
 
-                    case TexFileFormat.Tga:
+                    case TexFileType.Tga:
                         if (IsContent)
                         {
                             TGA.RGBColorOrder colorOrder = TGA.RGBColorOrder.RGB;
@@ -139,14 +139,14 @@ namespace R1Engine.Jade
                                     ImageType = TGA_ImageType.UnmappedRGB,
                                     Width = Width,
                                     Height = Height,
-                                    BitsPerPixel = (byte)(ColorFormat == TexColorFormat.BPP_24 ? 24 : 32),
+                                    BitsPerPixel = (byte)(Format == TexColorFormat.BPP_24 ? 24 : 32),
                                 };
                             }, name: nameof(Content_TGA));
                             hasReadContent = true;
                         }
                         break;
 
-                    case TexFileFormat.DDS:
+                    case TexFileType.DDS:
                         if (IsContent) 
                         {
                             if (contentSize > 0) 
@@ -180,10 +180,10 @@ namespace R1Engine.Jade
                             }
                         }
                         break;
-                    case TexFileFormat.Raw:
-                    case TexFileFormat.Jpeg:
-                    case TexFileFormat.Bmp:
-                    case TexFileFormat.Cubemap:
+                    case TexFileType.Raw:
+                    case TexFileType.Jpeg:
+                    case TexFileType.Bmp:
+                    case TexFileType.Cubemap:
                     default:
                         if (IsContent) {
                             Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));
@@ -207,18 +207,18 @@ namespace R1Engine.Jade
 
         public Texture2D ToTexture2D()
         {
-            var fileFormat = Info?.FileFormat ?? FileFormat;
+            var fileFormat = Info?.Type ?? Type;
             return fileFormat switch
             {
-                TexFileFormat.Raw => null, // Gets parsed from RawPal
-                TexFileFormat.SpriteGen => null, // Points to a RawPal
-                TexFileFormat.Procedural => null, // Points to nothing
-                TexFileFormat.Animated => null, // Points to various frames
-                TexFileFormat.Cubemap => null,
-                TexFileFormat.RawPal => (Info != null ? Info : this).Content_RawPal.PreferredSlot?.ToTexture2D(this),
-                TexFileFormat.Tga => Content_TGA.ToTexture2D(),
-                TexFileFormat.Jpeg => ToTexture2DFromJpeg(),
-                TexFileFormat.DDS => Content_DDS != null ? Content_DDS.PrimaryTexture?.ToTexture2D() : Content_Xenon.ToTexture2D(),
+                TexFileType.Raw => null, // Gets parsed from RawPal
+                TexFileType.SpriteGen => null, // Points to a RawPal
+                TexFileType.Procedural => null, // Points to nothing
+                TexFileType.Animated => null, // Points to various frames
+                TexFileType.Cubemap => null,
+                TexFileType.RawPal => (Info != null ? Info : this).Content_RawPal.PreferredSlot?.ToTexture2D(this),
+                TexFileType.Tga => Content_TGA.ToTexture2D(),
+                TexFileType.Jpeg => ToTexture2DFromJpeg(),
+                TexFileType.DDS => Content_DDS != null ? Content_DDS.PrimaryTexture?.ToTexture2D() : Content_Xenon.ToTexture2D(),
                 _ => throw new NotImplementedException($"TODO: Implement texture type {fileFormat}")
             };
         }
@@ -232,7 +232,7 @@ namespace R1Engine.Jade
             return tex;
         }
 
-        public enum TexFileFormat : byte
+        public enum TexFileType : byte
         {
             Tga = 1,
             Bmp = 2,
