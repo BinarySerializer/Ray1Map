@@ -44,6 +44,11 @@ namespace R1Engine
             /// Indicates if caching read objects should be ignored
             /// </summary>
             public bool IgnoreCacheOnRead => false;
+
+            /// <summary>
+            /// The pointer size to use when logging a <see cref="Pointer"/>. Set to <see langword="null"/> to dynamically determine the appropriate size.
+            /// </summary>
+            public PointerSize? LoggingPointerSize => PointerSize.Pointer32;
         }
 
         public class R1FileManager : IFileManager
