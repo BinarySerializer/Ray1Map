@@ -9,7 +9,7 @@ namespace R1Engine.Jade
 		public override void SerializeImpl(SerializerObject s) 
         {
 			var fileEnd = Offset + FileSize;
-			GroupObjects = s.SerializeObjectArrayUntil(GroupObjects, x => s.CurrentAbsoluteOffset >= fileEnd.AbsoluteOffset, includeLastObj: true, name: nameof(GroupObjects));
+			GroupObjects = s.SerializeObjectArrayUntil(GroupObjects, x => s.CurrentAbsoluteOffset >= fileEnd.AbsoluteOffset, name: nameof(GroupObjects));
 		}
 
         public class GroupObject : BinarySerializable

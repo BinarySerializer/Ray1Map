@@ -7,8 +7,7 @@ namespace R1Engine
 
 		public override void SerializeImpl(SerializerObject s) {
 			Levels = s.SerializeObjectArrayUntil<Level>(Levels,
-				(o) => (s.CurrentPointer.AbsoluteOffset) >= (Offset + ResourceSize).AbsoluteOffset,
-				includeLastObj: true, name: nameof(Levels));
+				(o) => (s.CurrentPointer.AbsoluteOffset) >= (Offset + ResourceSize).AbsoluteOffset, name: nameof(Levels));
 		}
 
 		public class Level : BinarySerializable {

@@ -11,7 +11,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            AnimationPointers = s.SerializePointerArrayUntil(AnimationPointers, x => x == null, includeLastObj: false, name: nameof(AnimationPointers));
+            AnimationPointers = s.SerializePointerArrayUntil(AnimationPointers, x => x == null, getLastObjFunc: () => null, name: nameof(AnimationPointers));
 
             if (Animations == null)
                 Animations = new GBAVV_NitroKart_TileAnimation[AnimationPointers.Length];

@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			if (Version < 2) {
-				V0_Entries = s.SerializeObjectArrayUntil<Entry>(V0_Entries, e => e.Int_00 == -1, includeLastObj: true, name: nameof(V0_Entries));
+				V0_Entries = s.SerializeObjectArrayUntil<Entry>(V0_Entries, e => e.Int_00 == -1, name: nameof(V0_Entries));
 			} else if (Version == 2) {
 				V2_Count = s.Serialize<uint>(V2_Count, name: nameof(V2_Count));
 				if (V2_Count > 0x2800) return;

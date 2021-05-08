@@ -23,7 +23,7 @@ namespace R1Engine
             if (CommandsOffset > 2)
             {
                 var count = 0;
-                Commands = s.DoAt(BaseOffset + CommandsOffset, () => s.SerializeObjectArrayUntil<GBAVV_NitroKart_NGage_RLECommand>(Commands, x => (count += x.Count) >= Width, includeLastObj: true, name: nameof(Commands)));
+                Commands = s.DoAt(BaseOffset + CommandsOffset, () => s.SerializeObjectArrayUntil<GBAVV_NitroKart_NGage_RLECommand>(Commands, x => (count += x.Count) >= Width, name: nameof(Commands)));
 
                 ImgageData = s.DoAt(BaseOffset + ImageDataOffset, () => s.SerializeArray<byte>(ImgageData, Commands.Sum(x =>
                 {

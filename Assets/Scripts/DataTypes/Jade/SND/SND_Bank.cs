@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
                 References = s.SerializeObjectArray<SoundRef>(References, Count, name: nameof(References));
             } else {
                 References = s.SerializeObjectArrayUntil<SoundRef>(References,
-                    sr => s.CurrentAbsoluteOffset >= endPtr.AbsoluteOffset, includeLastObj: true,
+                    sr => s.CurrentAbsoluteOffset >= endPtr.AbsoluteOffset,
                     name: nameof(References));
             }
         }

@@ -10,8 +10,7 @@ namespace R1Engine.DWARF1 {
 
 		public override void SerializeImpl(SerializerObject s) {
 			Files = s.SerializeObjectArrayUntil<DWARF_Struct>(Files,
-				f => f.NextStructPointer.AbsoluteOffset >= Offset.AbsoluteOffset + s.CurrentLength,
-				includeLastObj: true, name: nameof(Files));
+				f => f.NextStructPointer.AbsoluteOffset >= Offset.AbsoluteOffset + s.CurrentLength, name: nameof(Files));
 		}
 	}
 }

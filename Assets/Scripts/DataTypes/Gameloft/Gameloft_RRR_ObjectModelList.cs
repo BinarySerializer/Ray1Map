@@ -7,8 +7,7 @@ namespace R1Engine
 
 		public override void SerializeImpl(SerializerObject s) {
 			Models = s.SerializeObjectArrayUntil<ObjectModel>(Models,
-				(o) => (s.CurrentPointer.AbsoluteOffset) >= (Offset + ResourceSize).AbsoluteOffset,
-				includeLastObj: true, name: nameof(Models));
+				(o) => (s.CurrentPointer.AbsoluteOffset) >= (Offset + ResourceSize).AbsoluteOffset, name: nameof(Models));
 		}
 
 		public class ObjectModel : BinarySerializable {

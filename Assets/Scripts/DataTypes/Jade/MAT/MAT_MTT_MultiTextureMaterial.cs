@@ -43,7 +43,7 @@ namespace R1Engine.Jade {
 			}
 
 			if (FirstLevelPointer != 0) {
-				Levels = s.SerializeObjectArrayUntil<MAT_MTT_Level>(Levels, t => t.TextureID == 0, includeLastObj: true, 
+				Levels = s.SerializeObjectArrayUntil<MAT_MTT_Level>(Levels, t => t.TextureID == 0, 
 					onPreSerialize: t => {
 						t.Version = Version;
 					}, name: nameof(Levels));

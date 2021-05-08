@@ -40,13 +40,11 @@ namespace R1Engine.DWARF1 {
 			if (IsEndOfArray) return;
 
 			Commands = s.SerializeObjectArrayUntil<DWARF_Command>(Commands,
-				x => s.CurrentPointer.AbsoluteOffset >= ChildStructsPointer.AbsoluteOffset,
-				includeLastObj: true, name: nameof(Commands));
+				x => s.CurrentPointer.AbsoluteOffset >= ChildStructsPointer.AbsoluteOffset, name: nameof(Commands));
 
 			if (!IsEndOfArray && NextStructPointer != ChildStructsPointer) {
 				s.DoAt(ChildStructsPointer, () => {
-					Children = s.SerializeObjectArrayUntil<DWARF_Struct>(Children, f => f.IsEndOfArray,
-						includeLastObj: true, name: nameof(Children));
+					Children = s.SerializeObjectArrayUntil<DWARF_Struct>(Children, f => f.IsEndOfArray, name: nameof(Children));
 				});
 			}
 		}

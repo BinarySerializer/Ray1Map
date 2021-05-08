@@ -33,10 +33,14 @@ namespace R1Engine
                 return;
 
             StartPositions = s.DoAt(StartPositionsPointer, () => s.SerializeObjectArray<GBAVV_Isometric_Position>(StartPositions, IsMultiplayer ? 2 : 1, name: nameof(StartPositions)));
-            MultiplayerFlags = s.DoAt(MultiplayerFlagsPointer, () => s.SerializeObjectArrayUntil<GBAVV_Isometric_MultiplayerFlag>(MultiplayerFlags, x => x.XPos == 0, name: nameof(MultiplayerFlags)));
-            MultiplayerCrowns = s.DoAt(MultiplayerCrownsPointer, () => s.SerializeObjectArrayUntil<GBAVV_Isometric_MultiplayerCrown>(MultiplayerCrowns, x => x.XPos == 0, name: nameof(MultiplayerCrowns)));
-            Objects =  s.DoAt(ObjectsPointer, () => s.SerializeObjectArrayUntil<GBAVV_Isometric_Object>(Objects, x => x.ObjType == GBAVV_Isometric_Object.GBAVV_Isometric_ObjType.Invalid, name: nameof(Objects)));
-            TargetObjects = s.DoAt(TargetObjectsPointer, () => s.SerializeObjectArrayUntil<GBAVV_Isometric_TargetObject>(TargetObjects, x => x.ObjType == GBAVV_Isometric_TargetObject.GBAVV_Isometric_TargetObjType.Invalid, name: nameof(TargetObjects)));
+            MultiplayerFlags = s.DoAt(MultiplayerFlagsPointer, 
+                () => s.SerializeObjectArrayUntil<GBAVV_Isometric_MultiplayerFlag>(MultiplayerFlags, x => x.XPos == 0, getLastObjFunc: () => new GBAVV_Isometric_MultiplayerFlag(), name: nameof(MultiplayerFlags)));
+            MultiplayerCrowns = s.DoAt(MultiplayerCrownsPointer, 
+                () => s.SerializeObjectArrayUntil<GBAVV_Isometric_MultiplayerCrown>(MultiplayerCrowns, x => x.XPos == 0, getLastObjFunc: () => new GBAVV_Isometric_MultiplayerCrown(), name: nameof(MultiplayerCrowns)));
+            Objects =  s.DoAt(ObjectsPointer, 
+                () => s.SerializeObjectArrayUntil<GBAVV_Isometric_Object>(Objects, x => x.ObjType == GBAVV_Isometric_Object.GBAVV_Isometric_ObjType.Invalid, getLastObjFunc: () => new GBAVV_Isometric_Object(), name: nameof(Objects)));
+            TargetObjects = s.DoAt(TargetObjectsPointer, 
+                () => s.SerializeObjectArrayUntil<GBAVV_Isometric_TargetObject>(TargetObjects, x => x.ObjType == GBAVV_Isometric_TargetObject.GBAVV_Isometric_TargetObjType.Invalid, getLastObjFunc: () => new GBAVV_Isometric_TargetObject(), name: nameof(TargetObjects)));
 
         }
     }

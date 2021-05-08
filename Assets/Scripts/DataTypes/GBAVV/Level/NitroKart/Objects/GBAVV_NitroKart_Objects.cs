@@ -33,9 +33,9 @@ namespace R1Engine
             if (s.GetR1Settings().EngineVersion == EngineVersion.GBAVV_CrashNitroKart_NGage)
                 ObjectsCount_BossRace = s.Serialize<int>(ObjectsCount_BossRace, name: nameof(ObjectsCount_BossRace));
 
-            Objects_Normal = s.DoAt(ObjectsPointer_Normal, () => s.SerializeObjectArrayUntil(Objects_Normal, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_Normal)));
-            Objects_TimeTrial = s.DoAt(ObjectsPointer_TimeTrial, () => s.SerializeObjectArrayUntil(Objects_TimeTrial, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_TimeTrial)));
-            Objects_BossRace = s.DoAt(ObjectsPointer_BossRace, () => s.SerializeObjectArrayUntil(Objects_BossRace, x => x.ObjType == 0, includeLastObj: false, name: nameof(Objects_BossRace)));
+            Objects_Normal = s.DoAt(ObjectsPointer_Normal, () => s.SerializeObjectArrayUntil(Objects_Normal, x => x.ObjType == 0, getLastObjFunc: () => new GBAVV_NitroKart_Object(), name: nameof(Objects_Normal)));
+            Objects_TimeTrial = s.DoAt(ObjectsPointer_TimeTrial, () => s.SerializeObjectArrayUntil(Objects_TimeTrial, x => x.ObjType == 0, getLastObjFunc: () => new GBAVV_NitroKart_Object(), name: nameof(Objects_TimeTrial)));
+            Objects_BossRace = s.DoAt(ObjectsPointer_BossRace, () => s.SerializeObjectArrayUntil(Objects_BossRace, x => x.ObjType == 0, getLastObjFunc: () => new GBAVV_NitroKart_Object(), name: nameof(Objects_BossRace)));
         }
     }
 }

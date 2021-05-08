@@ -10,7 +10,6 @@ namespace R1Engine.Jade {
 			Unknowns = s.SerializeObjectArrayUntil<Unknown>(
 				Unknowns,
 				u => s.CurrentPointer.AbsoluteOffset >= endPtr.AbsoluteOffset,
-				includeLastObj: true,
 				name: nameof(Unknowns));
 		}
 
@@ -23,7 +22,6 @@ namespace R1Engine.Jade {
 				Entries = s.SerializeObjectArrayUntil<Entry>(
 					Entries,
 					u => s.CurrentPointer.AbsoluteOffset >= endPtr.AbsoluteOffset,
-					includeLastObj: true,
 					name: nameof(Entries));
 			}
 

@@ -39,7 +39,7 @@ namespace R1Engine
                     {
                         x.SerializeFLC = SerializeFLC;
                         x.BaseFile = Offset.File;
-                    }, includeLastObj: true, name: nameof(HardCodedScripts)));
+                    }, name: nameof(HardCodedScripts)));
 
                 DialogScripts = s.DoAt(pointerTable.TryGetItem(GBAVV_Pointer.Fusion_DialogScripts), () => s.SerializeObjectArray<GBAVV_DialogScript>(DialogScripts, ((GBAVV_Fusion_Manager)s.GetR1Settings().GetGameManager).DialogScriptsCount, name: nameof(DialogScripts)));
             }
