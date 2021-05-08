@@ -33,8 +33,6 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            // TODO: Are there frames anywhere?
-
             // Serialize data
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
             s.Serialize<byte>(default, name: "Padding");

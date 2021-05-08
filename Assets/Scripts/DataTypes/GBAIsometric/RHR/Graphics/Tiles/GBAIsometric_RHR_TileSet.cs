@@ -32,7 +32,6 @@ namespace R1Engine
             }
             PalettesPointer = s.SerializePointer(PalettesPointer, name: nameof(PalettesPointer));
 
-            // Todo: Read these in a less hacky way
             s.DoAt(CombinedTileDataPointer, () => {
                 CombinedTileData = s.SerializeArray<ushort>(CombinedTileData, (CombinedTileOffsetsPointer - CombinedTileDataPointer) / 2, name: nameof(CombinedTileData));
             });

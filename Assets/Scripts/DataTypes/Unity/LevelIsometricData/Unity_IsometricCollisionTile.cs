@@ -155,7 +155,6 @@ namespace R1Engine
                     }
                     break;
                 case CollisionType.GBAVV_SlopeCorner_5: // Regular slope corner
-                    // TODO
                     mf.mesh = GeometryHelpers.CreateSlopeCornerOutward(1, Height, Height + 0.1875f, GBAVV_Rotation ?? 0, color: color);
                     break;
                 case CollisionType.GBAVV_Corner_6:

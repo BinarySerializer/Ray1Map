@@ -9,7 +9,6 @@ namespace R1Engine
 
         public byte[] TileSet_0000 { get; set; } // 4bpp for normal and foreground map
         public byte[] TileSet_8000 { get; set; } // 2bpp, for background map
-        // TODO: Animated tiles (OAM2)
 
         public MapData BG1_Map { get; set; }
         public MapTile[] BG1_Tiles { get; set; }

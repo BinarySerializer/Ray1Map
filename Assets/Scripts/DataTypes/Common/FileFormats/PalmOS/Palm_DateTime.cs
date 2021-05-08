@@ -12,7 +12,7 @@ namespace R1Engine
             get
             {
                 var baseDate = new DateTime(1904, 1, 1);
-                return baseDate.AddSeconds(Time); // TODO: This doesn't match the time it should be - why?
+                return baseDate.AddSeconds(Time);
             }
         }
 
