@@ -7,14 +7,14 @@ namespace R1Engine.Jade
     {
         public byte ActionItemsCount { get; set; }
         public byte ActionItemNumberForLoop { get; set; }
-        public ushort UShort_02_Editor { get; set; }
+        public ushort Counter { get; set; }
         public ACT_ActionItem[] ActionItems { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
             ActionItemsCount = s.Serialize<byte>(ActionItemsCount, name: nameof(ActionItemsCount));
             ActionItemNumberForLoop = s.Serialize<byte>(ActionItemNumberForLoop, name: nameof(ActionItemNumberForLoop));
-            if (!Loader.IsBinaryData) UShort_02_Editor = s.Serialize<ushort>(UShort_02_Editor, name: nameof(UShort_02_Editor));
+            if (!Loader.IsBinaryData) Counter = s.Serialize<ushort>(Counter, name: nameof(Counter));
 
             ActionItems = s.SerializeObjectArray<ACT_ActionItem>(ActionItems, ActionItemsCount, name: nameof(ActionItems));
             foreach (var item in ActionItems) {
