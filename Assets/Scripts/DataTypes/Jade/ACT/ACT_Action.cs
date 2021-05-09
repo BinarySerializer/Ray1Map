@@ -5,100 +5,100 @@ namespace R1Engine.Jade
 {
     public class ACT_Action : Jade_File 
     {
-        public byte StructsCount { get; set; }
-        public byte Byte_01 { get; set; }
-        public ushort Ushort_02_Editor { get; set; }
-        public ACT_ActionStruct1[] Structs1 { get; set; }
+        public byte ActionItemsCount { get; set; }
+        public byte ActionItemNumberForLoop { get; set; }
+        public ushort UShort_02_Editor { get; set; }
+        public ACT_ActionItem[] ActionItems { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
-            StructsCount = s.Serialize<byte>(StructsCount, name: nameof(StructsCount));
-            Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-            if (!Loader.IsBinaryData) Ushort_02_Editor = s.Serialize<ushort>(Ushort_02_Editor, name: nameof(Ushort_02_Editor));
+            ActionItemsCount = s.Serialize<byte>(ActionItemsCount, name: nameof(ActionItemsCount));
+            ActionItemNumberForLoop = s.Serialize<byte>(ActionItemNumberForLoop, name: nameof(ActionItemNumberForLoop));
+            if (!Loader.IsBinaryData) UShort_02_Editor = s.Serialize<ushort>(UShort_02_Editor, name: nameof(UShort_02_Editor));
 
-            Structs1 = s.SerializeObjectArray<ACT_ActionStruct1>(Structs1, StructsCount, name: nameof(Structs1));
-            foreach (var struct1 in Structs1) {
-                struct1.SerializeStruct2(s);
+            ActionItems = s.SerializeObjectArray<ACT_ActionItem>(ActionItems, ActionItemsCount, name: nameof(ActionItems));
+            foreach (var item in ActionItems) {
+                item.SerializeTransitions(s);
             }
         }
 
-        public class ACT_ActionStruct1 : BinarySerializable
+        public class ACT_ActionItem : BinarySerializable
         {
-            public Jade_Reference<EVE_ListTracks> ListTracks { get; set; }
-            public uint Uint_04 { get; set; }
+            public Jade_Reference<EVE_ListTracks> TrackList { get; set; }
+            public uint TransitionsPointer { get; set; }
             public Jade_Reference<ANI_Shape> Shape { get; set; }
-            public byte Byte_0C { get; set; }
-            public byte Byte_0D { get; set; }
-            public byte Byte_0E { get; set; }
-            public byte Byte_0F { get; set; }
-            public ushort Ushort_10 { get; set; }
-            public byte Byte_12 { get; set; }
-            public byte Byte_13_Editor { get; set; }
+            public byte Repetition { get; set; }
+            public byte FramesCountForBlend { get; set; }
+            public byte Flag { get; set; }
+            public byte CustomBit { get; set; }
+            public ushort DesignFlags { get; set; }
+            public byte Color { get; set; }
+            public byte UseCounter { get; set; }
 
-            public ACT_ActionStruct2 Struct2 { get; set; }
+            public BAS_Array_Transitions Transitions { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
 			    LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-                ListTracks = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(ListTracks, name: nameof(ListTracks))?.Resolve();
-                Uint_04 = s.Serialize<uint>(Uint_04, name: nameof(Uint_04));
+                TrackList = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(TrackList, name: nameof(TrackList))?.Resolve();
+                TransitionsPointer = s.Serialize<uint>(TransitionsPointer, name: nameof(TransitionsPointer));
                 Shape = s.SerializeObject<Jade_Reference<ANI_Shape>>(Shape, name: nameof(Shape))?.Resolve();
-                Byte_0C = s.Serialize<byte>(Byte_0C, name: nameof(Byte_0C));
-                Byte_0D = s.Serialize<byte>(Byte_0D, name: nameof(Byte_0D));
-                Byte_0E = s.Serialize<byte>(Byte_0E, name: nameof(Byte_0E));
-                Byte_0F = s.Serialize<byte>(Byte_0F, name: nameof(Byte_0F));
-                Ushort_10 = s.Serialize<ushort>(Ushort_10, name: nameof(Ushort_10));
-                Byte_12 = s.Serialize<byte>(Byte_12, name: nameof(Byte_12));
-                if (!Loader.IsBinaryData) Byte_13_Editor = s.Serialize<byte>(Byte_13_Editor, name: nameof(Byte_13_Editor));
+                Repetition = s.Serialize<byte>(Repetition, name: nameof(Repetition));
+                FramesCountForBlend = s.Serialize<byte>(FramesCountForBlend, name: nameof(FramesCountForBlend));
+                Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
+                CustomBit = s.Serialize<byte>(CustomBit, name: nameof(CustomBit));
+                DesignFlags = s.Serialize<ushort>(DesignFlags, name: nameof(DesignFlags));
+                Color = s.Serialize<byte>(Color, name: nameof(Color));
+                if (!Loader.IsBinaryData) UseCounter = s.Serialize<byte>(UseCounter, name: nameof(UseCounter));
             }
 
-            public void SerializeStruct2(SerializerObject s) {
-                if (Uint_04 != 0) {
-                    Struct2 = s.SerializeObject<ACT_ActionStruct2>(Struct2, name: nameof(Struct2));
+            public void SerializeTransitions(SerializerObject s) {
+                if (TransitionsPointer != 0) {
+                    Transitions = s.SerializeObject<BAS_Array_Transitions>(Transitions, name: nameof(Transitions));
                 }
             }
         }
-        public class ACT_ActionStruct2 : BinarySerializable {
-            public uint UInt_00_Editor { get; set; }
+        public class BAS_Array_Transitions : BinarySerializable {
+            public uint BAS_PreviousPointer { get; set; }
             public uint Count { get; set; }
-            public uint UInt_04_Editor { get; set; }
-            public uint UInt_04 { get; set; }
+            public uint BAS_Size { get; set; }
+            public uint Gran { get; set; }
 
-            public Unk0[] Unk0s { get; set; }
-            public Unk1[] Unk1s { get; set; }
+            public BAS_Key[] Keys { get; set; } // Keys for the lookup
+            public Transition[] Values { get; set; } // Values for the lookup
 
             public override void SerializeImpl(SerializerObject s) {
 			    LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-                if(!Loader.IsBinaryData) UInt_00_Editor = s.Serialize<uint>(UInt_00_Editor, name: nameof(UInt_00_Editor));
+                if(!Loader.IsBinaryData) BAS_PreviousPointer = s.Serialize<uint>(BAS_PreviousPointer, name: nameof(BAS_PreviousPointer));
                 Count = s.Serialize<uint>(Count, name: nameof(Count));
-                if (!Loader.IsBinaryData) UInt_04_Editor = s.Serialize<uint>(UInt_04_Editor, name: nameof(UInt_04_Editor));
-                UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
+                if (!Loader.IsBinaryData) BAS_Size = s.Serialize<uint>(BAS_Size, name: nameof(BAS_Size));
+                Gran = s.Serialize<uint>(Gran, name: nameof(Gran));
 
-                Unk0s = s.SerializeObjectArray<Unk0>(Unk0s, Count, name: nameof(Unk0s));
-                Unk1s = s.SerializeObjectArray<Unk1>(Unk1s, Count, name: nameof(Unk1s));
+                Keys = s.SerializeObjectArray<BAS_Key>(Keys, Count, name: nameof(Keys));
+                Values = s.SerializeObjectArray<Transition>(Values, Count, name: nameof(Values));
             }
 
-			public class Unk0 : BinarySerializable {
-                public uint UInt_00 { get; set; }
-                public uint UInt_04_Editor { get; set; }
+			public class BAS_Key : BinarySerializable {
+                public uint Key { get; set; }
+                public uint Value { get; set; }
 				public override void SerializeImpl(SerializerObject s) {
                     LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-                    UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-                    if (!Loader.IsBinaryData) UInt_04_Editor = s.Serialize<uint>(UInt_04_Editor, name: nameof(UInt_04_Editor));
+                    Key = s.Serialize<uint>(Key, name: nameof(Key));
+                    if (!Loader.IsBinaryData) Value = s.Serialize<uint>(Value, name: nameof(Value));
                 }
             }
 
-            public class Unk1 : BinarySerializable {
-                public ushort UShort_00 { get; set; }
-                public byte Byte_02 { get; set; }
-                public byte Byte_03 { get; set; }
+            public class Transition : BinarySerializable {
+                public ushort Action { get; set; }
+                public byte Flag { get; set; }
+                public byte Blend { get; set; }
                 public override void SerializeImpl(SerializerObject s) {
-                    UShort_00 = s.Serialize<ushort>(UShort_00, name: nameof(UShort_00));
-                    Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
-                    Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+                    Action = s.Serialize<ushort>(Action, name: nameof(Action));
+                    Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
+                    Blend = s.Serialize<byte>(Blend, name: nameof(Blend));
                 }
             }
         }

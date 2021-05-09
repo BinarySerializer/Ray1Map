@@ -21,7 +21,7 @@ namespace R1Engine.Jade {
 		public bool SpeedMode { get; set; } = true;
 		public Read ReadMode { get; set; } = Read.Full;
 		public bool IsCompressed { get; set; } = false;
-		public bool ReadSizes { get; set; } = false;
+		public bool ReadBinFileHeader { get; set; } = false;
 		public BinData Bin { get; set; }
 		public QueueType CurrentQueueType { get; set; } = QueueType.BigFat;
 		public CacheType CurrentCacheType { get; set; } = CacheType.Main;
@@ -279,6 +279,7 @@ namespace R1Engine.Jade {
 
 		private void LoadLoopBIN_ResolveReference(FileReference currentRef) {
 			SerializerObject s = Bin.Serializer;
+			LOA_BinFileHeader BinFileHeader = null;
 			uint FileSize = 0;
 			s.Goto(Bin.CurrentPosition);
 			CurrentCacheType = currentRef.Cache;
@@ -294,13 +295,16 @@ namespace R1Engine.Jade {
 					UnityEngine.Debug.Log($"Reserializing: {currentRef.Key}");
 				}*/
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
-					if (ReadSizes) {
-						FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+					if (ReadBinFileHeader) {
+
+						BinFileHeader = s.SerializeObject<LOA_BinFileHeader>(BinFileHeader, name: nameof(BinFileHeader));
+						Bin.CurrentPosition = s.CurrentPointer;
+						FileSize = BinFileHeader.FileSize;
 
 						// Add region
-						Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset + 4, FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
+						Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset, BinFileHeader.FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
 
-						Bin.CurrentPosition = Bin.CurrentPosition + 4 + FileSize;
+						Bin.CurrentPosition = Bin.CurrentPosition + BinFileHeader.FileSize;
 					} else {
 						FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - Bin.StartPosition);
 					}
@@ -317,7 +321,7 @@ namespace R1Engine.Jade {
 						Cache[currentRef.Key] = null;
 					}
 				}
-				if (ReadSizes && !currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
+				if (ReadBinFileHeader && !currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 					s.Goto(Bin.CurrentPosition); // count size uint and actual file
 				} else {
 					Bin.CurrentPosition = s.CurrentPointer;
@@ -411,7 +415,7 @@ namespace R1Engine.Jade {
 							Cache = IsLoadingFix ? CacheType.Fix : CacheType.Main,
 						});
 						IsCompressed = Bin.Key.IsCompressed;
-						ReadSizes = IsCompressed;
+						ReadBinFileHeader = IsCompressed;
 						UnityEngine.Debug.Log($"[{key}] ({key.Type}) - Entering Speed Mode");
 					} else {
 						EndSpeedMode();
@@ -422,7 +426,7 @@ namespace R1Engine.Jade {
 		public void EndSpeedMode() {
 			ReadMode = Read.Full;
 			IsCompressed = false;
-			ReadSizes = false;
+			ReadBinFileHeader = false;
 			Bin = null;
 			CurrentQueueType = QueueType.BigFat;
 		}

@@ -4,15 +4,14 @@ namespace R1Engine.Jade
 {
 	public class ACT_ActionKit : Jade_File 
     {
-        public ACT_ActionKitEntry[] Entries { get; set; }
+        public ActionRef[] Actions { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
-            Entries = s.SerializeObjectArray(Entries, FileSize / (Loader.IsBinaryData ? 4 : 8), name: nameof(Entries));
+            Actions = s.SerializeObjectArray(Actions, FileSize / (Loader.IsBinaryData ? 4 : 8), name: nameof(Actions));
         }
 
-        public class ACT_ActionKitEntry : BinarySerializable
-        {
+        public class ActionRef : BinarySerializable {
             public Jade_Reference<ACT_Action> Action { get; set; }
             public uint Uint_04_Editor { get; set; }
 

@@ -10,7 +10,7 @@ namespace R1Engine.Jade
         public Frame[] References { get; set; }
 
         public uint UInt_00 { get; set; }
-        public short Short_04 { get; set; }
+        public short Flags { get; set; }
         public byte FramesCount { get; set; }
         public byte Byte_07_Editor { get; set; }
 
@@ -22,7 +22,7 @@ namespace R1Engine.Jade
             
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
             UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-            Short_04 = s.Serialize<short>(Short_04, name: nameof(Short_04));
+            Flags = s.Serialize<short>(Flags, name: nameof(Flags));
             FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
             if (!Loader.IsBinaryData) Byte_07_Editor = s.Serialize<byte>(Byte_07_Editor, name: nameof(Byte_07_Editor));
 
