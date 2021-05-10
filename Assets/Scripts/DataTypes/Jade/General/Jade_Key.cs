@@ -13,9 +13,11 @@ namespace R1Engine.Jade {
 		}
 
 		public Jade_Key() { }
-		public Jade_Key(uint k) => Key = k;
+		public Jade_Key(Context context, uint k) {
+			Context = context;
+			Key = k;
+		}
 		public static implicit operator uint(Jade_Key k) => k.Key;
-		public static explicit operator Jade_Key(uint k) => new Jade_Key(k);
 		public override string ToString() {
 			return Key.ToString("X8");
 		}
@@ -43,9 +45,34 @@ namespace R1Engine.Jade {
 		public const uint KeyTypeTextures = 0xFF800000;
 		public const uint KeyTypeTextNoSound = 0xFD000000;
 		public const uint KeyTypeTextSound = 0xFE000000;
-		public static uint WorldKey(uint key) => (uint)BitHelpers.ExtractBits((int)key, 19, 0);
-		public static Jade_Key GetBinaryForKey(uint worldKey, KeyType type, int languageID = 0) {
-			uint newKey = WorldKey(worldKey);
+		public static uint WorldKey(Context context, uint key) {
+			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				return (uint)BitHelpers.ExtractBits((int)key, 20, 0);
+			} else {
+				return (uint)BitHelpers.ExtractBits((int)key, 19, 0);
+			}
+		}
+		public static uint ComposeMontrealKey(uint key) {
+			uint newKey = (uint)BitHelpers.ExtractBits((int)key, 16, 0);
+			uint topPart = (uint)BitHelpers.ExtractBits((int)key, 8, 24);
+			newKey = (uint)BitHelpers.SetBits((int)newKey, (int)topPart, 8, 16);
+			return newKey;
+		}
+		public static uint UncomposeBinKey(Context context, uint key) {
+			uint newKey = WorldKey(context, key);
+			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				uint bottom = (uint)BitHelpers.ExtractBits((int)newKey, 16, 0);
+				uint top = (uint)BitHelpers.ExtractBits((int)newKey, 8, 16);
+				newKey = (uint)BitHelpers.SetBits((int)bottom, (int)top, 8, 24);
+			}
+			return newKey;
+		}
+		public static Jade_Key GetBinaryForKey(Context context, uint worldKey, KeyType type, int languageID = 0) {
+			uint newKey = worldKey;
+			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				newKey = ComposeMontrealKey(newKey);
+			}
+			newKey = WorldKey(context, newKey);
 			switch (type) {
 				case KeyType.Map: newKey |= KeyTypeMap; break;
 				case KeyType.Sounds: newKey |= KeyTypeSounds; break;
@@ -54,18 +81,24 @@ namespace R1Engine.Jade {
 				case KeyType.TextSound: newKey |= KeyTypeTextSound; break;
 			}
 			if (type == KeyType.TextSound || type == KeyType.TextNoSound) {
-				newKey = (uint)BitHelpers.SetBits((int)newKey, languageID + 1, 5, 19);
+				if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+					newKey = (uint)BitHelpers.SetBits((int)newKey, languageID + 1, 4, 20);
+				} else {
+					newKey = (uint)BitHelpers.SetBits((int)newKey, languageID + 1, 5, 19);
+				}
 			}
-			return (Jade_Key)newKey;
+			return new Jade_Key(context, newKey);
 		}
 		public Jade_Key GetBinary(KeyType type, int languageID = 0) {
-			return GetBinaryForKey(this, type, languageID: languageID);
+			return GetBinaryForKey(Context, this, type, languageID: languageID);
 		}
 		public KeyType Type {
 			get {
 				switch (Key & 0xFF000000) {
 					case KeyTypeMap:
-						switch (Key & 0xFFF80000) {
+						uint mask = 0xFFF80000;
+						if(Context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) mask = 0xFFF00000;
+						switch (Key & mask) {
 							case KeyTypeTextures: return KeyType.Textures;
 							case KeyTypeSounds: return KeyType.Sounds;
 							case KeyTypeMap: return KeyType.Map;

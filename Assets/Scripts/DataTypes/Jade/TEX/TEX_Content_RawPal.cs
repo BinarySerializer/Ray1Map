@@ -93,12 +93,12 @@ namespace R1Engine.Jade
             public override void SerializeImpl(SerializerObject s) {
 				Raw4or8 = s.SerializeObject<Jade_TextureReference>(Raw4or8, name: nameof(Raw4or8));
                 if (s.CurrentAbsoluteOffset >= ReferenceArrayStart.AbsoluteOffset + ReferenceArrayByteCount) {
-                    Palette = new Jade_PaletteReference(Context, (Jade_Key)0xFFFFFFFF);
+                    Palette = new Jade_PaletteReference(Context, new Jade_Key(Context, 0xFFFFFFFF));
                 } else {
                     Palette = s.SerializeObject<Jade_PaletteReference>(Palette, name: nameof(Palette));
                 }
                 if (s.CurrentAbsoluteOffset >= ReferenceArrayStart.AbsoluteOffset + ReferenceArrayByteCount) {
-                    Raw24or32 = new Jade_TextureReference(Context, (Jade_Key)0xFFFFFFFF);
+                    Raw24or32 = new Jade_TextureReference(Context, new Jade_Key(Context, 0xFFFFFFFF));
                 } else {
                     Raw24or32 = s.SerializeObject<Jade_TextureReference>(Raw24or32, name: nameof(Raw24or32));
                 }

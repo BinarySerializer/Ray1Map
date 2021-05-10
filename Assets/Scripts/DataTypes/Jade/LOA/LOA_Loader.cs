@@ -8,6 +8,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class LOA_Loader {
+		public Context Context { get; set; }
 		public bool IsLoadingFix { get; set; }
 		public LOA_SpecialArray SpecialArray { get; set; }
 
@@ -82,7 +83,8 @@ namespace R1Engine.Jade {
 		}
 
 
-		public LOA_Loader(BIG_BigFile[] bigFiles) {
+		public LOA_Loader(BIG_BigFile[] bigFiles, Context context) {
+			Context = context;
 			BigFiles = bigFiles;
 			CreateFileDictionaries();
 			foreach (QueueType queue in (QueueType[])Enum.GetValues(typeof(QueueType))) {

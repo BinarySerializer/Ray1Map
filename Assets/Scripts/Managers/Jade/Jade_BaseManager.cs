@@ -169,7 +169,7 @@ namespace R1Engine
                     using (var context = new R1Context(settings)) {
 						currentKey = 0;
 						await LoadFilesAsync(context);
-                        await LoadJadeAsync(context, (Jade_Key)lev.Key);
+                        await LoadJadeAsync(context, new Jade_Key(context, lev.Key));
 
                         TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
 
@@ -241,7 +241,7 @@ namespace R1Engine
 
 		// Helpers
         public virtual void CreateLevelList(LOA_Loader l) {
-			var groups = l.FileInfos.GroupBy(l => Jade_Key.WorldKey(l.Key)).OrderBy(l => l.Key);
+			var groups = l.FileInfos.GroupBy(f => Jade_Key.UncomposeBinKey(l.Context, f.Key)).OrderBy(f => f.Key);
 			List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
 			foreach (var g in groups) {
 				if(!g.Any(f => f.Key.Type == Jade_Key.KeyType.Map)) continue;
@@ -303,7 +303,7 @@ namespace R1Engine
 			await loader.LoadLoop(context.Deserializer);
 			if (texList.Textures != null && texList.Textures.Any()) {
 				Controller.DetailedState = $"Loading textures";
-				loader.BeginSpeedMode((Jade_Key)Jade_Key.KeyTypeTextures, serializeAction: async s => {
+				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeTextures), serializeAction: async s => {
 					Controller.DetailedState = $"Loading textures: Info";
 					for (int i = 0; i < texList.Textures.Count; i++) {
 						texList.Textures[i].LoadInfo();
@@ -350,7 +350,7 @@ namespace R1Engine
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
 
-			var loader = await LoadJadeAsync(context, (Jade_Key)(uint)context.GetR1Settings().Level);
+			var loader = await LoadJadeAsync(context, new Jade_Key(context, (uint)context.GetR1Settings().Level));
 
 			stopWatch.Stop();
 
@@ -366,7 +366,7 @@ namespace R1Engine
 				bfs.Add(bf);
 			}
 			// Set up loader
-			LOA_Loader loader = new LOA_Loader(bfs.ToArray());
+			LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
 			context.StoreObject<LOA_Loader>(LoaderKey, loader);
 
 			// Load jade.spe
@@ -384,8 +384,17 @@ namespace R1Engine
 			await Controller.WaitIfNecessary();
 
 			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniverseKey);
-			univers.Resolve();
-			await loader.LoadLoop(context.Deserializer); // First resolve universe
+			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				univers.Resolve(queue: LOA_Loader.QueueType.Maps); // Univers is bin compressed in Montreal version
+				loader.BeginSpeedMode(univers.Key, serializeAction: async s => {
+					await loader.LoadLoopBINAsync();
+				});
+				await loader.LoadLoop(context.Deserializer); // First resolve universe
+				loader.EndSpeedMode();
+			} else {
+				univers.Resolve();
+				await loader.LoadLoop(context.Deserializer); // First resolve universe
+			}
 
 			// Load world
 			Controller.DetailedState = $"Loading worlds";
@@ -396,7 +405,7 @@ namespace R1Engine
 				foreach (var world in FixWorlds) {
 					var fixInfo = levelInfos.FindItem(li => li.MapName.Contains(world));
 					if (fixInfo != null) {
-						Jade_Key fixKey = (Jade_Key)fixInfo.Key;
+						Jade_Key fixKey = new Jade_Key(context, fixInfo.Key);
 						if (fixKey == worldKey) {
 							UnityEngine.Debug.LogWarning($"Loading fix world with name {world} as a regular map world");
 							break;
