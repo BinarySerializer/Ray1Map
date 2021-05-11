@@ -6,10 +6,13 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_Vars : Jade_File {
+		public uint RewindVarEndOffset { get; set; }
+		public AI_Vars_RewindZone[] RewindZones { get; set; }
+
 		public uint VarInfosBufferSize { get; set; }
 		public AI_VarInfo[] VarInfos { get; set; }
 		public uint NameBufferSize { get; set; }
-		public string[] Names { get; set; }
+		public AI_VarName[] Names { get; set; }
 		public uint VarEditorInfoBufferSize { get; set; }
 		public int VarEditorInfoStringBufferSize { get; set; }
 		public AI_VarEditorInfo[] VarEditorInfos { get; set; }
@@ -24,12 +27,23 @@ namespace R1Engine.Jade {
 		public AI_Var[] Vars { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
+			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				RewindVarEndOffset = s.Serialize<uint>(RewindVarEndOffset, name: nameof(RewindVarEndOffset));
+				if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRRTVParty) { // Probably added for T2T
+					if (BitHelpers.ExtractBits((int)RewindVarEndOffset, 1, 31) == 1) {
+						int count = BitHelpers.ExtractBits((int)RewindVarEndOffset, 31, 0);
+						RewindZones = s.SerializeObjectArray<AI_Vars_RewindZone>(RewindZones, count, name: nameof(RewindZones));
+					}
+				}
+			}
+
 			// Normal var data
 			VarInfosBufferSize = s.Serialize<uint>(VarInfosBufferSize, name: nameof(VarInfosBufferSize));
 			VarInfos = s.SerializeObjectArray<AI_VarInfo>(VarInfos, VarInfosBufferSize / 12, name: nameof(VarInfos));
+
 			NameBufferSize = s.Serialize<uint>(NameBufferSize, name: nameof(NameBufferSize));
 			if (NameBufferSize > 0) {
-				Names = s.SerializeStringArray(Names, VarInfos.Length, 30, name: nameof(Names));
+				Names = s.SerializeObjectArray<AI_VarName>(Names, VarInfos.Length, name: nameof(Names));
 			}
 
 			// Generate main Vars array
@@ -38,7 +52,7 @@ namespace R1Engine.Jade {
 				Vars[i] = new AI_Var() {
 					Index = i,
 					Info = VarInfos[i],
-					Name = Names[i],
+					Name = Names?[i]?.Name,
 				};
 				Vars[i].Init();
 			}
@@ -76,7 +90,8 @@ namespace R1Engine.Jade {
 				Functions[i] = s.SerializeObject<Jade_Reference<AI_Function>>(Functions[i], name: $"{nameof(Functions)}[{i}]")?.Resolve();
 			}
 
-			if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
+			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal
+				|| s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
 				if (s.CurrentPointer.AbsoluteOffset < (Offset + FileSize).AbsoluteOffset) {
 					ExtraFunctionsCount = s.Serialize<uint>(ExtraFunctionsCount, name: nameof(ExtraFunctionsCount));
 					ExtraFunctions = s.SerializeObjectArray<Jade_Reference<AI_Function>>(ExtraFunctions, ExtraFunctionsCount, name: nameof(ExtraFunctions));

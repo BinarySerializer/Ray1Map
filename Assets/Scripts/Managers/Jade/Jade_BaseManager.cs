@@ -386,9 +386,7 @@ namespace R1Engine
 			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniverseKey);
 			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
 				univers.Resolve(queue: LOA_Loader.QueueType.Maps); // Univers is bin compressed in Montreal version
-				loader.BeginSpeedMode(univers.Key, serializeAction: async s => {
-					await loader.LoadLoopBINAsync();
-				});
+				loader.BeginSpeedMode(univers.Key);
 				await loader.LoadLoop(context.Deserializer); // First resolve universe
 				loader.EndSpeedMode();
 			} else {

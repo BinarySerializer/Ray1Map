@@ -19,7 +19,7 @@ namespace R1Engine.Jade {
 		public override string ShortLog {
 			get {
 				if (Context.GetR1Settings().Jade_Version == Jade_Version.Montreal) {
-					return $"BinFileHeader(Size: 0x{FileSize:X}, Mark: {Mark:X8}, Key: {Key})";
+					return $"BinFileHeader(Size: 0x{FileSize:X}, Mark: {BitHelpers.ExtractBits((int)Mark,8,0):X2}{BitHelpers.ExtractBits((int)Mark, 8, 8):X2}{BitHelpers.ExtractBits((int)Mark, 8, 16):X2}{BitHelpers.ExtractBits((int)Mark, 8, 24):X2}, Key: {Key})";
 				} else {
 					return $"BinFileHeader(Size: 0x{FileSize:X})";
 				}

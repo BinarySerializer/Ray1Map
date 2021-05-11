@@ -28,7 +28,7 @@ namespace R1Engine.Jade {
 			SizeLocalStack = s.Serialize<int>(SizeLocalStack, name: nameof(SizeLocalStack));
 			FunctionBufferLength = s.Serialize<uint>(FunctionBufferLength, name: nameof(FunctionBufferLength));
 
-			if (FunctionBufferLength > 0 && (FunctionDef == null || !Loader.IsBinaryData)) {
+			if (FunctionBufferLength > 0 && (FunctionDef == null || !Loader.IsBinaryData || s.GetR1Settings().Jade_Version >= Jade_Version.Montreal)) {
 				Nodes = s.SerializeObjectArray<AI_Node>(Nodes, FunctionBufferLength / 8, name: nameof(Nodes));
 			}
 			if (!Loader.IsBinaryData) {

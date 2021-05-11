@@ -4,28 +4,33 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class AI_VarEditorInfo : BinarySerializable {
 		public int BufferOffset { get; set; }
-		public int Int_04 { get; set; }
-		public int Int_08 { get; set; }
-		public ushort UShort_0C { get; set; }
-		public ushort UShort_0E { get; set; }
-		public int Int_10 { get; set; }
+		public uint PointerSelectionString { get; set; }
+		public uint PointerDescription { get; set; }
+		public ushort Flags { get; set; }
+		public ushort P1 { get; set; }
+		public int P2 { get; set; }
 
-		public string SelectionString { get; set; }
-		public string Description { get; set; }
+		public int Editor_Index { get; set; }
+
+		public string SelectionString { get; set; } // StringCst
+		public string Description { get; set; } // StringHelp
 
 		public override void SerializeImpl(SerializerObject s) {
 			BufferOffset = s.Serialize<int>(BufferOffset, name: nameof(BufferOffset));
-			Int_04 = s.Serialize<int>(Int_04, name: nameof(Int_04));
-			Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
-			UShort_0C = s.Serialize<ushort>(UShort_0C, name: nameof(UShort_0C));
-			UShort_0E = s.Serialize<ushort>(UShort_0E, name: nameof(UShort_0E));
-			Int_10 = s.Serialize<int>(Int_10, name: nameof(Int_10));
+			PointerSelectionString = s.Serialize<uint>(PointerSelectionString, name: nameof(PointerSelectionString));
+			PointerDescription = s.Serialize<uint>(PointerDescription, name: nameof(PointerDescription));
+			Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
+			P1 = s.Serialize<ushort>(P1, name: nameof(P1));
+			P2 = s.Serialize<int>(P2, name: nameof(P2));
+			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				Editor_Index = s.Serialize<int>(Editor_Index, name: nameof(Editor_Index));
+			}
 		}
 
 		public void SerializeStrings(SerializerObject s) {
-			if (Int_04 != 0)
+			if (PointerSelectionString != 0)
 				SelectionString = s.SerializeString(SelectionString, encoding: Jade_BaseManager.Encoding, name: nameof(SelectionString));
-			if (Int_08 != 0)
+			if (PointerDescription != 0)
 				Description = s.SerializeString(Description, encoding: Jade_BaseManager.Encoding, name: nameof(Description));
 		}
 	}

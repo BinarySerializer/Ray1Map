@@ -190,6 +190,7 @@ namespace R1Engine.Jade {
 									} else {
 										await LoadLoopBINAsync();
 									}
+									LoadLoopBIN_End();
 									s.EndEncoded(Bin.CurrentPosition);
 								} else {
 									Bin.Serializer = s;
@@ -262,6 +263,25 @@ namespace R1Engine.Jade {
 				Controller.DetailedState = previousState;
 			}
 			s.Goto(curPointer);
+		}
+
+		private void LoadLoopBIN_End() {
+			if (Context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				if (Bin != null) {
+					CurrentQueueType = Bin.QueueType;
+				} else {
+					CurrentQueueType = QueueType.BigFat;
+					return;
+				}
+				SerializerObject s = Bin.Serializer;
+				var curPointer = s.CurrentPointer;
+				if (Bin.CurrentPosition == null) Bin.CurrentPosition = curPointer;
+				if (Bin.StartPosition == null) Bin.StartPosition = curPointer;
+				s.Goto(Bin.CurrentPosition);
+				LOA_BinFileHeader BinTerminator = s.SerializeObject<LOA_BinFileHeader>(default, name: nameof(BinTerminator));
+				Bin.CurrentPosition = s.CurrentPointer;
+				s.Goto(curPointer);
+			}
 		}
 
 		private bool GetLoadedFile(Jade_Key key, out Jade_File loadedFile) {
