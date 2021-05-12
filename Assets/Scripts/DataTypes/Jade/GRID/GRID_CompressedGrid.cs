@@ -3,37 +3,37 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GRID_CompressedGrid : Jade_File {
-		public Unknown[] Unknowns { get; set; }
+		public Group[] Groups { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Pointer endPtr = Offset + FileSize;
-			Unknowns = s.SerializeObjectArrayUntil<Unknown>(
-				Unknowns,
+			Groups = s.SerializeObjectArrayUntil<Group>(
+				Groups,
 				u => s.CurrentPointer.AbsoluteOffset >= endPtr.AbsoluteOffset,
-				name: nameof(Unknowns));
+				name: nameof(Groups));
 		}
 
-		public class Unknown : BinarySerializable {
-			public uint FileSize { get; set; }
+		public class Group : BinarySerializable {
+			public uint GroupSize { get; set; }
 			public Entry[] Entries { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
-				Pointer endPtr = Offset + FileSize;
+				GroupSize = s.Serialize<uint>(GroupSize, name: nameof(GroupSize));
+				Pointer endGroup = Offset + GroupSize;
 				Entries = s.SerializeObjectArrayUntil<Entry>(
 					Entries,
-					u => s.CurrentPointer.AbsoluteOffset >= endPtr.AbsoluteOffset,
+					u => s.CurrentPointer.AbsoluteOffset >= endGroup.AbsoluteOffset,
 					name: nameof(Entries));
 			}
 
 			public class Entry : BinarySerializable {
-				public byte Byte_00 { get; set; }
+				public byte Mask { get; set; }
 				public byte Byte_80_0 { get; set; }
 				public byte Byte_80_1 { get; set; }
 				public short Short_40_0 { get; set; }
 				public byte Byte_40_1 { get; set; }
 				public override void SerializeImpl(SerializerObject s) {
-					Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
-					switch (Byte_00) {
+					Mask = s.Serialize<byte>(Mask, name: nameof(Mask));
+					switch (Mask) {
 						case 0x40:
 							Short_40_0 = s.Serialize<short>(Short_40_0, name: nameof(Short_40_0));
 							Byte_40_1 = s.Serialize<byte>(Byte_40_1, name: nameof(Byte_40_1));

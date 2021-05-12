@@ -3,23 +3,23 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GRID_WorldGrid : Jade_File {
-		public uint UInt_Editor_00 { get; set; }
-		public uint UInt_Editor_04 { get; set; }
+		public uint PointerGroups { get; set; }
+		public uint PointerRealGroups { get; set; }
 		public Jade_Reference<GRID_CompressedGrid> CompressedGrid { get; set; }
-		public uint UInt_Editor_08 { get; set; }
-		public uint UInt_Editor_0C { get; set; }
-		public uint UInt_Editor_10 { get; set; }
-		public float Float_04 { get; set; }
-		public float Float_08 { get; set; }
-		public float Float_0C { get; set; }
-		public float Float_10 { get; set; }
-		public ushort Width { get; set; }
-		public ushort Height { get; set; }
-		public ushort UShort_Editor_14 { get; set; }
-		public ushort UShort_Editor_16 { get; set; }
-		public ushort UShort_14 { get; set; }
-		public ushort UShort_16 { get; set; }
-		public byte Byte_18 { get; set; }
+		public uint PointerRealArray { get; set; }
+		public uint PointerEvalArray { get; set; }
+		public float MinZTotal { get; set; }
+		public float MinXTotal { get; set; }
+		public float MinYTotal { get; set; }
+		public float MinXReal { get; set; }
+		public float MinYReal { get; set; }
+		public ushort GroupsCountX { get; set; }
+		public ushort GroupsCountY { get; set; }
+		public ushort RealGroupsCountX { get; set; }
+		public ushort RealGroupsCountY { get; set; }
+		public ushort XRealGroup { get; set; }
+		public ushort YRealGroup { get; set; }
+		public byte SizeGroup { get; set; }
 		public uint UInt_Editor_19 { get; set; }
 		public byte Byte_Editor_1D { get; set; }
 		public byte Byte_Editor_1E { get; set; }
@@ -28,35 +28,37 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (!Loader.IsBinaryData) {
-				UInt_Editor_00 = s.Serialize<uint>(UInt_Editor_00, name: nameof(UInt_Editor_00));
-				UInt_Editor_04 = s.Serialize<uint>(UInt_Editor_04, name: nameof(UInt_Editor_04));
+				PointerGroups = s.Serialize<uint>(PointerGroups, name: nameof(PointerGroups));
+				PointerRealGroups = s.Serialize<uint>(PointerRealGroups, name: nameof(PointerRealGroups));
 			}
 			CompressedGrid = s.SerializeObject<Jade_Reference<GRID_CompressedGrid>>(CompressedGrid, name: nameof(CompressedGrid))?.Resolve();
 			if (!Loader.IsBinaryData) {
-				UInt_Editor_08 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_08));
-				UInt_Editor_0C = s.Serialize<uint>(UInt_Editor_0C, name: nameof(UInt_Editor_0C));
-				UInt_Editor_10 = s.Serialize<uint>(UInt_Editor_10, name: nameof(UInt_Editor_10));
+				PointerRealArray = s.Serialize<uint>(PointerRealArray, name: nameof(PointerRealArray));
+				PointerEvalArray = s.Serialize<uint>(PointerEvalArray, name: nameof(PointerEvalArray));
 			}
-			Float_04 = s.Serialize<float>(Float_04, name: nameof(Float_04));
-			Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
-			Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
-			Float_10 = s.Serialize<float>(Float_10, name: nameof(Float_10));
-			Width = s.Serialize<ushort>(Width, name: nameof(Width));
-			Height = s.Serialize<ushort>(Height, name: nameof(Height));
+			if (!Loader.IsBinaryData || s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				MinZTotal = s.Serialize<float>(MinZTotal, name: nameof(MinZTotal));
+			}
+			MinXTotal = s.Serialize<float>(MinXTotal, name: nameof(MinXTotal));
+			MinYTotal = s.Serialize<float>(MinYTotal, name: nameof(MinYTotal));
+			MinXReal = s.Serialize<float>(MinXReal, name: nameof(MinXReal));
+			MinYReal = s.Serialize<float>(MinYReal, name: nameof(MinYReal));
+			GroupsCountX = s.Serialize<ushort>(GroupsCountX, name: nameof(GroupsCountX));
+			GroupsCountY = s.Serialize<ushort>(GroupsCountY, name: nameof(GroupsCountY));
 			if (!Loader.IsBinaryData) {
-				UShort_Editor_14 = s.Serialize<ushort>(UShort_Editor_14, name: nameof(UShort_Editor_14));
-				UShort_Editor_16 = s.Serialize<ushort>(UShort_Editor_16, name: nameof(UShort_Editor_16));
+				RealGroupsCountX = s.Serialize<ushort>(RealGroupsCountX, name: nameof(RealGroupsCountX));
+				RealGroupsCountY = s.Serialize<ushort>(RealGroupsCountY, name: nameof(RealGroupsCountY));
 			}
-			UShort_14 = s.Serialize<ushort>(UShort_14, name: nameof(UShort_14));
-			UShort_16 = s.Serialize<ushort>(UShort_16, name: nameof(UShort_16));
-			Byte_18 = s.Serialize<byte>(Byte_18, name: nameof(Byte_18));
+			XRealGroup = s.Serialize<ushort>(XRealGroup, name: nameof(XRealGroup));
+			YRealGroup = s.Serialize<ushort>(YRealGroup, name: nameof(YRealGroup));
+			SizeGroup = s.Serialize<byte>(SizeGroup, name: nameof(SizeGroup));
 			if (!Loader.IsBinaryData) {
 				UInt_Editor_19 = s.Serialize<uint>(UInt_Editor_19, name: nameof(UInt_Editor_19));
 				Byte_Editor_1D = s.Serialize<byte>(Byte_Editor_1D, name: nameof(Byte_Editor_1D));
 				Byte_Editor_1E = s.Serialize<byte>(Byte_Editor_1E, name: nameof(Byte_Editor_1E));
 				Byte_Editor_1F = s.Serialize<byte>(Byte_Editor_1F, name: nameof(Byte_Editor_1F));
 			}
-			Grid = s.SerializeArray<int>(Grid, Width * Height, name: nameof(Grid));
+			Grid = s.SerializeArray<int>(Grid, GroupsCountX * GroupsCountY, name: nameof(Grid));
 		}
 
 		public void Unload() {

@@ -12,16 +12,21 @@ namespace R1Engine.Jade {
 		public Jade_Color AmbientColor { get; set; } // a key?
 		public string Name { get; set; }
 		public uint UInt_AfterName { get; set; }
+		public Jade_Reference<DARE_InaudibleSector> InaudibleSector { get; set; }
 		public Jade_Matrix CameraPosSave { get; set; }
 		public float FieldOfVision { get; set; }
-		public Jade_Color BackgroundColor { get; set; } // a key?
-		public Jade_Color AmbientColor2 { get; set; } // a key?
+		public Jade_Color BackgroundColor { get; set; }
+		public Jade_Color AmbientColor2 { get; set; }
+		public uint Editor_UInt_Montreal_AfterBackgroundColor_V4 { get; set; }
+		public uint Editor_UInt_Montreal_AfterBackgroundColor { get; set; }
 		public uint UInt_9C_Version5 { get; set; }
 		public uint LODCut { get; set; }
 		public byte[] Bytes_A4 { get; set; }
 		public XenonStruct Xenon { get; set; }
 		public Jade_Reference<GRID_WorldGrid> Grid0 { get; set; }
 		public Jade_Reference<GRID_WorldGrid> Grid1 { get; set; }
+		public Jade_Reference<GRID_GridGroup> AllGrids0 { get; set; }
+		public Jade_Reference<GRID_GridGroup> AllGrids1 { get; set; }
 		public Jade_Reference<WOR_GameObjectGroup> GameObjects { get; set; }
 		public Jade_Reference<WAY_AllNetworks> AllNetworks { get; set; }
 		public Jade_TextReference Text { get; set; }
@@ -39,16 +44,30 @@ namespace R1Engine.Jade {
 
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			TotalGameObjectsCount = s.Serialize<uint>(TotalGameObjectsCount, name: nameof(TotalGameObjectsCount));
-			AmbientColor = s.SerializeObject<Jade_Color>(AmbientColor, name: nameof(AmbientColor));
+			if (!Loader.IsBinaryData || s.GetR1Settings().Jade_Version < Jade_Version.Montreal) {
+				AmbientColor = s.SerializeObject<Jade_Color>(AmbientColor, name: nameof(AmbientColor));
+			}
 			Name = s.SerializeString(Name, length: 60, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 
-			if (!Loader.IsBinaryData) UInt_AfterName = s.Serialize<uint>(UInt_AfterName, name: nameof(UInt_AfterName));
+			if (!Loader.IsBinaryData && s.GetR1Settings().Jade_Version < Jade_Version.Montreal) {
+				UInt_AfterName = s.Serialize<uint>(UInt_AfterName, name: nameof(UInt_AfterName));
+			} else if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				InaudibleSector = s.SerializeObject<Jade_Reference<DARE_InaudibleSector>>(InaudibleSector, name: nameof(InaudibleSector))?.Resolve();
+			}
 			CameraPosSave = s.SerializeObject<Jade_Matrix>(CameraPosSave, name: nameof(CameraPosSave));
 			FieldOfVision = s.Serialize<float>(FieldOfVision, name: nameof(FieldOfVision));
 			BackgroundColor = s.SerializeObject<Jade_Color>(BackgroundColor, name: nameof(BackgroundColor));
-			AmbientColor2 = s.SerializeObject<Jade_Color>(AmbientColor2, name: nameof(AmbientColor2));
-			if (Version >= 5 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
-				UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
+			if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal) {
+				AmbientColor2 = s.SerializeObject<Jade_Color>(AmbientColor2, name: nameof(AmbientColor2));
+				if (Version >= 5 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+					UInt_9C_Version5 = s.Serialize<uint>(UInt_9C_Version5, name: nameof(UInt_9C_Version5));
+				}
+			} else {
+				if (!Loader.IsBinaryData) {
+					if(Version >= 4)
+						Editor_UInt_Montreal_AfterBackgroundColor_V4 = s.Serialize<uint>(Editor_UInt_Montreal_AfterBackgroundColor_V4, name: nameof(Editor_UInt_Montreal_AfterBackgroundColor_V4));
+					Editor_UInt_Montreal_AfterBackgroundColor = s.Serialize<uint>(Editor_UInt_Montreal_AfterBackgroundColor, name: nameof(Editor_UInt_Montreal_AfterBackgroundColor));
+				}
 			}
 			LODCut = s.Serialize<uint>(LODCut, name: nameof(LODCut));
 			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
@@ -56,17 +75,29 @@ namespace R1Engine.Jade {
 			} else {
 				if (!Loader.IsBinaryData) Bytes_A4 = s.SerializeArray<byte>(Bytes_A4, 44, name: nameof(Bytes_A4));
 			}
-			Grid0 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid0, name: nameof(Grid0))?.Resolve();
-			Grid1 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid1, name: nameof(Grid1))?.Resolve();
+			if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal) {
+				Grid0 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid0, name: nameof(Grid0))?.Resolve();
+				Grid1 = s.SerializeObject<Jade_Reference<GRID_WorldGrid>>(Grid1, name: nameof(Grid1))?.Resolve();
+			} else {
+				AllGrids0 = s.SerializeObject<Jade_Reference<GRID_GridGroup>>(AllGrids0, name: nameof(AllGrids0));
+				AllGrids1 = s.SerializeObject<Jade_Reference<GRID_GridGroup>>(AllGrids1, name: nameof(AllGrids1));
+
+				var grids = !AllGrids1.IsNull ? AllGrids1 : AllGrids0;
+				grids?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+			}
 			GameObjects = s.SerializeObject<Jade_Reference<WOR_GameObjectGroup>>(GameObjects, name: nameof(GameObjects))
 				?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 			AllNetworks = s.SerializeObject<Jade_Reference<WAY_AllNetworks>>(AllNetworks, name: nameof(AllNetworks))?.Resolve();
 			Text = s.SerializeObject<Jade_TextReference>(Text, name: nameof(Text))?.Resolve();
-			if (Version >= 4) {
-				AllSectos = s.SerializeObjectArray<Secto>(AllSectos, 64, name: nameof(AllSectos));
-			}
-			if (Version > 4 && s.GetR1Settings().Jade_Version == Jade_Version.Xenon && s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
-				LightRejection = s.SerializeObject<Jade_Reference<LIGHT_Rejection>>(LightRejection, name: nameof(LightRejection))?.Resolve();
+
+			if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal) {
+				// Montpellier branches only
+				if (Version >= 4) {
+					AllSectos = s.SerializeObjectArray<Secto>(AllSectos, 64, name: nameof(AllSectos));
+				}
+				if (Version > 4 && s.GetR1Settings().Jade_Version == Jade_Version.Xenon && s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
+					LightRejection = s.SerializeObject<Jade_Reference<LIGHT_Rejection>>(LightRejection, name: nameof(LightRejection))?.Resolve();
+				}
 			}
 		}
 

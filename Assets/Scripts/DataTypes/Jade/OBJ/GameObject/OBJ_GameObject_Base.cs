@@ -10,7 +10,7 @@ namespace R1Engine.Jade {
 		public uint Type { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; } // Set in OnPreSerialize
 
-		public OBJ_GameObject_Anim GameObjectAnim { get; set; }
+		public OBJ_GameObject_Visual Visual { get; set; } // GameObjectAnim in Montpellier versions, Visu in Montreal
 		public OBJ_GameObject_Hierarchy HierarchyData { get; set; }
 		public OBJ_GameObject_ActionData ActionData { get; set; }
 		public DYN_ODE ODE { get; set; }
@@ -18,7 +18,7 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasGameObjectAnim)) {
-				GameObjectAnim = s.SerializeObject<OBJ_GameObject_Anim>(GameObjectAnim, onPreSerialize: o => o.Type = Type, name: nameof(GameObjectAnim));
+				Visual = s.SerializeObject<OBJ_GameObject_Visual>(Visual, onPreSerialize: o => o.Version = Type, name: nameof(Visual));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasHierarchy)) {
 				HierarchyData = s.SerializeObject<OBJ_GameObject_Hierarchy>(HierarchyData, name: nameof(HierarchyData));

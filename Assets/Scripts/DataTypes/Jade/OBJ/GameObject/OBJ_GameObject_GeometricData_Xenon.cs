@@ -7,7 +7,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class OBJ_GameObject_GeometricData_Xenon : BinarySerializable {
-		public uint Type { get; set; } // Set in on PreSerialize
+		public uint Version { get; set; } // Set in on PreSerialize
 
 		public uint UInt_00 { get; set; }
 		public Jade_TextureReference Lightmap { get; set; }
@@ -15,7 +15,7 @@ namespace R1Engine.Jade {
 		public LightmapStruct[] LightmapStructs { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			if (Type > 2) {
+			if (Version > 2) {
 				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
 				Lightmap = s.SerializeObject<Jade_TextureReference>(Lightmap, name: nameof(Lightmap))?.Resolve();
 				if (!Lightmap.IsNull) {

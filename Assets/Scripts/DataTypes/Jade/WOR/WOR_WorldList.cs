@@ -75,6 +75,44 @@ namespace R1Engine.Jade {
 			}
 		}
 
+		public async UniTask ResolveReferences_Montreal(SerializerObject s) {
+			Loader.Cache.Clear();
+			int worldIndex = 0;
+			foreach (var world in Worlds) {
+				if (world.IsNull) continue;
+
+				Controller.DetailedState = $"Loading world {worldIndex + 1}/{Worlds.Length}";
+				bool hasLoadedWorld = Loader.LoadedWorlds.Any(w => w.Key == world.Key);
+				bool isWOW = world.Type == Jade_FileType.FileType.WOR_World;
+				if (!isWOW) {
+					throw new NotImplementedException($"WOL: A non-WOW file was referenced: {world}");
+				}
+				if (!hasLoadedWorld) {
+					world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+					Loader.BeginSpeedMode(world.Key, serializeAction: async s => {
+						await Loader.LoadLoopBINAsync();
+
+						if (world?.Value != null && world.Value is WOR_World w) {
+							Controller.DetailedState = $"Loading world {worldIndex + 1}/{Worlds.Length}: {w.Name}";
+							var gaos = w.GameObjects?.Value?.GameObjects;
+							if (gaos != null) {
+								foreach (var gao in gaos) {
+									await JustAfterLoadObject(gao?.Value);
+								}
+							}
+							Loader.WorldToLoadIn = null;
+						}
+
+					});
+					await Loader.LoadLoop(s);
+					Loader.Cache.Clear();
+					Loader.EndSpeedMode();
+				}
+				worldIndex++;
+
+			}
+		}
+
 		private async UniTask JustAfterLoadObject(OBJ_GameObject gao) {
 			if(gao == null) return;
 			// Attach this

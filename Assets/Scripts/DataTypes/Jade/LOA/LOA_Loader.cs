@@ -190,7 +190,7 @@ namespace R1Engine.Jade {
 									} else {
 										await LoadLoopBINAsync();
 									}
-									LoadLoopBIN_End();
+									//LoadLoopBIN_End();
 									s.EndEncoded(Bin.CurrentPosition);
 								} else {
 									Bin.Serializer = s;
@@ -440,6 +440,7 @@ namespace R1Engine.Jade {
 						ReadBinFileHeader = IsCompressed;
 						UnityEngine.Debug.Log($"[{key}] ({key.Type}) - Entering Speed Mode");
 					} else {
+						UnityEngine.Debug.LogWarning($"[{key}] ({key.Type} - File not found, could not enter Speed Mode");
 						EndSpeedMode();
 					}
 				}

@@ -4,12 +4,13 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class OBJ_GameObject : Jade_File {
 		public Jade_FileType FileType { get; set; }
-		public uint Type { get; set; }
+		public uint Version { get; set; }
 		public uint UInt_04 { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; }
 		public ushort StatusFlags { get; set; }
 		public ushort ControlFlags { get; set; }
 		public byte Secto { get; set; }
+		public byte MiscFlags { get; set; }
 		public byte VisiCoeff { get; set; }
 		public ushort UShort_12_Editor { get; set; }
 		public byte LOD_Vis { get; set; }
@@ -41,14 +42,26 @@ namespace R1Engine.Jade {
 				throw new Exception($"Parsing failed: File at {Offset} was not of type {Jade_FileType.FileType.OBJ_GameObject}");
 			if(Loader?.WorldToLoadIn != null) Loader.WorldToLoadIn.SerializedGameObjects.Add(this);
 
-			if(!Loader.IsBinaryData || s.GetR1Settings().Jade_Version == Jade_Version.Xenon) Type = s.Serialize<uint>(Type, name: nameof(Type));
+			if (!Loader.IsBinaryData
+				|| s.GetR1Settings().Jade_Version == Jade_Version.Xenon
+				|| s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				Version = s.Serialize<uint>(Version, name: nameof(Version));
+			}
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
+			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
+				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+			}
 			s.SerializeBitValues<uint>(bitFunc => {
 				StatusFlags = (ushort)bitFunc(StatusFlags, 16, name: nameof(StatusFlags));
 				ControlFlags = (ushort)bitFunc(ControlFlags, 16, name: nameof(ControlFlags));
 			});
-			Secto = s.Serialize<byte>(Secto, name: nameof(Secto));
+			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				MiscFlags = s.Serialize<byte>(MiscFlags, name: nameof(MiscFlags));
+			} else {
+				Secto = s.Serialize<byte>(Secto, name: nameof(Secto));
+			}
 			VisiCoeff = s.Serialize<byte>(VisiCoeff, name: nameof(VisiCoeff));
 			if(!Loader.IsBinaryData) UShort_12_Editor = s.Serialize<ushort>(UShort_12_Editor, name: nameof(UShort_12_Editor));
 			LOD_Vis = s.Serialize<byte>(LOD_Vis, name: nameof(LOD_Vis));
@@ -61,7 +74,7 @@ namespace R1Engine.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasBase)) {
 				Base = s.SerializeObject<OBJ_GameObject_Base>(Base, onPreSerialize: o => {
 					o.FlagsIdentity = FlagsIdentity;
-					o.Type = Type;
+					o.Type = Version;
 				}, name: nameof(Base));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtended)) {

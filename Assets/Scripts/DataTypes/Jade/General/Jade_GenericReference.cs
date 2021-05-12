@@ -127,5 +127,8 @@ namespace R1Engine.Jade {
 
 		public override bool IsShortLog => true;
 		public override string ShortLog => $"GenericReference({Key}{FileType.Extension} - {Type})";
+		public override string ToString() {
+			return ShortLog;
+		}
 	}
 }

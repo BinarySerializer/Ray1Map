@@ -294,13 +294,21 @@ namespace R1Engine
 			loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
 			loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
 
-			loader.BeginSpeedMode(worldKey.GetBinary(Jade_Key.KeyType.Map), serializeAction: async s => {
+			loader.BeginSpeedMode(worldKey, serializeAction: async s => {
 				await loader.LoadLoopBINAsync();
-				if (worldList?.Value != null) {
-					await worldList.Value.ResolveReferences(s);
+				if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal) {
+					if (worldList?.Value != null) {
+						await worldList.Value.ResolveReferences(s);
+					}
 				}
 			});
 			await loader.LoadLoop(context.Deserializer);
+
+			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				await worldList.Value.ResolveReferences_Montreal(context.Deserializer);
+			}
+
+
 			if (texList.Textures != null && texList.Textures.Any()) {
 				Controller.DetailedState = $"Loading textures";
 				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeTextures), serializeAction: async s => {
@@ -358,6 +366,46 @@ namespace R1Engine
 
 			throw new NotImplementedException("BINs serialized. Time to do something with this data :)");
 		}
+
+		public async UniTask<Jade_Reference<AI_Instance>> LoadUniverse(Context context) {
+			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+
+			Controller.DetailedState = $"Loading universe";
+			await Controller.WaitIfNecessary();
+
+			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, loader.BigFiles[0].UniverseKey);
+			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				univers.Resolve(queue: LOA_Loader.QueueType.Maps); // Univers is bin compressed in Montreal version
+				loader.BeginSpeedMode(univers.Key);
+				await loader.LoadLoop(context.Deserializer); // First resolve universe
+				loader.EndSpeedMode();
+			} else {
+				univers.Resolve();
+				await loader.LoadLoop(context.Deserializer); // First resolve universe
+			}
+
+			return univers;
+		}
+
+		public async UniTask LoadFix(Context context, Jade_Key worldKey) {
+			if (FixWorlds != null && LevelInfos != null) {
+				var levelInfos = LevelInfos;
+				foreach (var world in FixWorlds) {
+					var fixInfo = levelInfos.FindItem(li => li.MapName.Contains(world));
+					if (fixInfo != null) {
+						Jade_Key fixKey = new Jade_Key(context, fixInfo.Key);
+						if (fixKey == worldKey) {
+							UnityEngine.Debug.LogWarning($"Loading fix world with name {world} as a regular map world");
+							break;
+						}
+						var fixWorldList = await LoadWorldList(context, fixKey, isFix: true);
+					} else {
+						UnityEngine.Debug.LogWarning($"Fix world with name {world} could not be found");
+					}
+				}
+			}
+		}
+
 		public async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey) 
         {
             List<BIG_BigFile> bfs = new List<BIG_BigFile>();
@@ -379,41 +427,14 @@ namespace R1Engine
 			AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
 			context.StoreObject<AI_Links>(AIKey, aiLinks);
 
-			// Load univers
-			Controller.DetailedState = $"Loading universe";
-			await Controller.WaitIfNecessary();
-
-			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, bfs[0].UniverseKey);
-			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
-				univers.Resolve(queue: LOA_Loader.QueueType.Maps); // Univers is bin compressed in Montreal version
-				loader.BeginSpeedMode(univers.Key);
-				await loader.LoadLoop(context.Deserializer); // First resolve universe
-				loader.EndSpeedMode();
-			} else {
-				univers.Resolve();
-				await loader.LoadLoop(context.Deserializer); // First resolve universe
-			}
+			// Load universe
+			var univers = await LoadUniverse(context);
 
 			// Load world
 			Controller.DetailedState = $"Loading worlds";
 			await Controller.WaitIfNecessary();
 
-			if (FixWorlds != null && LevelInfos != null) {
-				var levelInfos = LevelInfos;
-				foreach (var world in FixWorlds) {
-					var fixInfo = levelInfos.FindItem(li => li.MapName.Contains(world));
-					if (fixInfo != null) {
-						Jade_Key fixKey = new Jade_Key(context, fixInfo.Key);
-						if (fixKey == worldKey) {
-							UnityEngine.Debug.LogWarning($"Loading fix world with name {world} as a regular map world");
-							break;
-						}
-						var fixWorldList = await LoadWorldList(context, fixKey, isFix: true);
-					} else {
-						UnityEngine.Debug.LogWarning($"Fix world with name {world} could not be found");
-					}
-				}
-			}
+			await LoadFix(context, worldKey);
 			var worldList = await LoadWorldList(context, worldKey);
 
 			return loader;
