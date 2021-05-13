@@ -432,7 +432,7 @@ namespace R1Engine
             var processedImageData = desItem.RequiresBackgroundClearing ? ProcessImageData(desItem.ImageData) : desItem.ImageData;
 
             // Find the level with the correct palette
-            var lvl = levels.FindLast(x => x.BackgroundSpritesDES == desIndex || x.EventData.Events.Any(y => y.PC_ImageDescriptorsIndex == desIndex)) ?? levels.First();
+            var lvl = levels.FindLast(x => x.ScrollDiffSprites == desIndex || x.EventData.Events.Any(y => y.PC_SpritesIndex == desIndex)) ?? levels.First();
 
             // Enumerate each image
             for (int i = 0; i < desItem.ImageDescriptors.Length; i++)
@@ -536,7 +536,7 @@ namespace R1Engine
                 if (!(worldFile is R1_PC_BigRayFile))
                 {
                     // Search level events
-                    foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.PC_ImageDescriptorsIndex == desIndex))
+                    foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.PC_SpritesIndex == desIndex))
                         matchingStates.AddRange(eta[lvlEvent.PC_ETAIndex].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
 
                     var desNameTable = GetDESNameTable(context);
@@ -1380,9 +1380,9 @@ namespace R1Engine
 
             R1_EventData createEventDataTemplate(uint desIndex, uint etaIndex) => new R1_EventData()
             {
-                PC_ImageDescriptorsIndex = desIndex,
+                PC_SpritesIndex = desIndex,
                 PC_ImageBufferIndex = desIndex,
-                PC_AnimationDescriptorsIndex = desIndex,
+                PC_AnimationsIndex = desIndex,
                 PC_ETAIndex = etaIndex
             };
 
@@ -1605,14 +1605,14 @@ namespace R1Engine
                 if (r1Event.CollisionTypes == null)
                     r1Event.CollisionTypes = new R1_TileCollisionType[5];
 
-                if (r1Event.CMD_Contexts == null)
-                    r1Event.CMD_Contexts = new R1_EventData.CommandContext[]
+                if (r1Event.CommandContexts == null)
+                    r1Event.CommandContexts = new R1_EventData.CommandContext[]
                     {
                         new R1_EventData.CommandContext()
                     };
 
-                r1Event.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
-                r1Event.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
+                r1Event.SpritesCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
+                r1Event.AnimationsCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
                 // Add the event
                 events.Add(r1Event);

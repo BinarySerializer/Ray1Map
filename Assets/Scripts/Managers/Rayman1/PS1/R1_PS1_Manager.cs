@@ -246,19 +246,19 @@ namespace R1Engine
                 if (ed.CollisionTypes == null)
                     ed.CollisionTypes = new R1_TileCollisionType[5];
 
-                if (ed.CMD_Contexts == null)
-                    ed.CMD_Contexts = new R1_EventData.CommandContext[]
+                if (ed.CommandContexts == null)
+                    ed.CommandContexts = new R1_EventData.CommandContext[]
                     {
                         new R1_EventData.CommandContext()
                     };
 
                 // TODO: Do this in the Unity_Object instead
-                ed.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
-                ed.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
+                ed.SpritesCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
+                ed.AnimationsCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
                 // TODO: Get from DESData in obj manager instead?
-                ed.ImageDescriptors = FileFactory.Read<ObjectArray<R1_ImageDescriptor>>(ed.ImageDescriptorsPointer, context, (s, o) => o.Length = ed.ImageDescriptorCount).Value;
-                ed.AnimDescriptors = FileFactory.Read<ObjectArray<R1_PS1_AnimationDescriptor>>(ed.AnimDescriptorsPointer, context, (s, o) => o.Length = ed.AnimDescriptorCount).Value;
+                ed.ImageDescriptors = FileFactory.Read<ObjectArray<R1_ImageDescriptor>>(ed.SpritesPointer, context, (s, o) => o.Length = ed.SpritesCount).Value;
+                ed.AnimDescriptors = FileFactory.Read<ObjectArray<R1_PS1_AnimationDescriptor>>(ed.AnimationsPointer, context, (s, o) => o.Length = ed.AnimationsCount).Value;
                 ed.ETA = context.Cache.FromOffset<R1_PS1_ETA>(ed.ETAPointer);
                 
                 // TODO: Update this

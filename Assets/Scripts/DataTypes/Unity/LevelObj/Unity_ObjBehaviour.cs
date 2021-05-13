@@ -646,7 +646,7 @@ namespace R1Engine
                     int hy = -(r1bj.EventData.OffsetHY);
 
                     if (r1bj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings))
-                        hy -= anim.Frames[r1bj.EventData.RuntimeCurrentAnimFrame].SpriteLayers.ElementAtOrDefault(r1bj.EventData.FollowSprite)?.YPosition ?? 0;
+                        hy -= anim.Frames[r1bj.EventData.CurrentAnimationFrame].SpriteLayers.ElementAtOrDefault(r1bj.EventData.FollowSprite)?.YPosition ?? 0;
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy  / (float)LevelEditorData.Level.PixelsPerUnit);
                 }

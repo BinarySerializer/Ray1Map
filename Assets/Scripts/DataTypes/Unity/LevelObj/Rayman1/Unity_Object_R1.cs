@@ -23,7 +23,7 @@ namespace R1Engine
             EventData.InitialDisplayPrio = objManager.GetDisplayPrio(EventData.Type, EventData.HitPoints, EventData.DisplayPrio);
             EventData.InitialXPosition = (short)EventData.XPosition;
             EventData.InitialYPosition = (short)EventData.YPosition;
-            EventData.RuntimeCurrentAnimIndex = 0;
+            EventData.CurrentAnimationIndex = 0;
             EventData.InitialHitPoints = EventData.HitPoints;
             UpdateZDC();
 
@@ -56,20 +56,20 @@ namespace R1Engine
 
         public int DESIndex
         {
-            get => (ObjManager.UsesPointers ? ObjManager.DESLookup.TryGetItem(EventData.ImageDescriptorsPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PC_ImageDescriptorsIndex);
+            get => (ObjManager.UsesPointers ? ObjManager.DESLookup.TryGetItem(EventData.SpritesPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PC_SpritesIndex);
             set {
                 if (value != DESIndex) {
                     OverrideAnimIndex = null;
 
                     if (ObjManager.UsesPointers)
                     {
-                        EventData.ImageDescriptorsPointer = ObjManager.DES[value].Data.ImageDescriptorPointer;
-                        EventData.AnimDescriptorsPointer = ObjManager.DES[value].Data.AnimationDescriptorPointer;
+                        EventData.SpritesPointer = ObjManager.DES[value].Data.ImageDescriptorPointer;
+                        EventData.AnimationsPointer = ObjManager.DES[value].Data.AnimationDescriptorPointer;
                         EventData.ImageBufferPointer = ObjManager.DES[value].Data.ImageBufferPointer;
                     }
                     else
                     {
-                        EventData.PC_ImageDescriptorsIndex = EventData.PC_AnimationDescriptorsIndex = EventData.PC_ImageBufferIndex = (uint)value;
+                        EventData.PC_SpritesIndex = EventData.PC_AnimationsIndex = EventData.PC_ImageBufferIndex = (uint)value;
                     }
                 }
             }
@@ -223,7 +223,7 @@ namespace R1Engine
 
             if (EventData.HitSprite > 253)
             {
-                var typeZdc = EventData.Runtime_TypeZDC;
+                var typeZdc = EventData.TypeZDC;
 
                 for (int i = 0; i < (typeZdc?.ZDCCount ?? 0); i++)
                 {
@@ -311,14 +311,14 @@ namespace R1Engine
         public override Unity_ObjAnimation CurrentAnimation => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimationFrame
         {
-            get => EventData.RuntimeCurrentAnimFrame;
-            set => EventData.RuntimeCurrentAnimFrame = (byte)value;
+            get => EventData.CurrentAnimationFrame;
+            set => EventData.CurrentAnimationFrame = (byte)value;
         }
 
         public override int? AnimationIndex
         {
-            get => EventData.RuntimeCurrentAnimIndex;
-            set => EventData.RuntimeCurrentAnimIndex = (byte)(value ?? 0);
+            get => EventData.CurrentAnimationIndex;
+            set => EventData.CurrentAnimationIndex = (byte)(value ?? 0);
         }
 
         public override int AnimSpeed => (EventData.Type.IsHPFrame() ? 0 : CurrentState?.AnimationSpeed ?? 0);
@@ -333,18 +333,18 @@ namespace R1Engine
             // Set frame based on hit points for special events
             if (EventData.Type.IsHPFrame())
             {
-                EventData.RuntimeCurrentAnimFrame = EventData.HitPoints;
+                EventData.CurrentAnimationFrame = EventData.HitPoints;
                 AnimationFrameFloat = EventData.HitPoints;
                 return false;
             }
             else if (EventData.Type.UsesEditorFrame())
             {
-                AnimationFrameFloat = EventData.RuntimeCurrentAnimFrame;
+                AnimationFrameFloat = EventData.CurrentAnimationFrame;
                 return false;
             }
             else if (EventData.Type.UsesRandomFrame() || EventData.Type.UsesFrameFromLinkChain())
             {
-                EventData.RuntimeCurrentAnimFrame = ForceFrame;
+                EventData.CurrentAnimationFrame = ForceFrame;
                 AnimationFrameFloat = ForceFrame;
                 return false;
             }
@@ -417,7 +417,7 @@ namespace R1Engine
             var zdc = ObjManager.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type);
 
             if (zdc != null)
-                EventData.Runtime_TypeZDC = new R1_ZDCEntry()
+                EventData.TypeZDC = new R1_ZDCEntry()
                 {
                     ZDCCount = zdc.ZDCCount,
                     ZDCIndex = zdc.ZDCIndex

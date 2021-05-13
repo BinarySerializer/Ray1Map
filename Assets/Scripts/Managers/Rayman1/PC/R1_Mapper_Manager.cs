@@ -217,7 +217,7 @@ namespace R1Engine
                         PS1Demo_Unk1 = new byte[40],
                         CollisionTypes = new R1_TileCollisionType[5],
 
-                        CMD_Contexts = new R1_EventData.CommandContext[]
+                        CommandContexts = new R1_EventData.CommandContext[]
                         {
                             new R1_EventData.CommandContext()
                         },

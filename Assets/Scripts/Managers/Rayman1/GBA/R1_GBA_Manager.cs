@@ -1040,8 +1040,8 @@ namespace R1Engine
                 eventTemplates.Add(type, new R1_EventData()
                 {
                     ImageBufferPointer = graphics.ImageBufferPointer,
-                    ImageDescriptorsPointer = graphics.ImageDescriptorsPointer,
-                    AnimDescriptorsPointer = graphics.AnimDescriptorsPointer,
+                    SpritesPointer = graphics.ImageDescriptorsPointer,
+                    AnimationsPointer = graphics.AnimDescriptorsPointer,
                     ETAPointer = eta?.Offset,
                 });
             }
@@ -1113,8 +1113,8 @@ namespace R1Engine
                             DisplayPrio = (byte)dat.DisplayPrio,
                             HitSprite = dat.HitSprite,
 
-                            ImageDescriptorsPointer = graphics.ImageDescriptorsPointer,
-                            AnimDescriptorsPointer = graphics.AnimDescriptorsPointer,
+                            SpritesPointer = graphics.ImageDescriptorsPointer,
+                            AnimationsPointer = graphics.AnimDescriptorsPointer,
                             ImageBufferPointer = graphics.ImageBufferPointer,
                             ETAPointer = dat.ETAPointer,
 
@@ -1137,8 +1137,8 @@ namespace R1Engine
             var ray = R1_EventData.GetRayman(context, events.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS)?.EventData);
 
             ray.ImageBufferPointer = data.DES_Ray.ImageBufferPointer;
-            ray.ImageDescriptorsPointer = data.DES_Ray.ImageDescriptorsPointer;
-            ray.AnimDescriptorsPointer = data.DES_Ray.AnimDescriptorsPointer;
+            ray.SpritesPointer = data.DES_Ray.ImageDescriptorsPointer;
+            ray.AnimationsPointer = data.DES_Ray.AnimDescriptorsPointer;
             ray.ETAPointer = data.ETA_Ray?.Offset;
 
             return new Unity_Level(

@@ -124,7 +124,7 @@ namespace R1Engine
 
         public override async UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax)
         {
-            return (await LoadPCXAsync(context, world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex])).ToTexture(true);
+            return (await LoadPCXAsync(context, world.Plan0NumPcx[parallax ? level.ScrollDiffFNDIndex : level.FNDIndex])).ToTexture(true);
         }
 
         public override async UniTask<PCX> GetWorldMapVigAsync(Context context)

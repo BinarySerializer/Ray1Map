@@ -165,11 +165,11 @@ namespace R1Engine
         public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax)
         {
             // Return null if the parallax bg is the same as the normal one
-            if (parallax && level.ParallaxBackgroundIndex == level.BackgroundIndex)
+            if (parallax && level.ScrollDiffFNDIndex == level.FNDIndex)
                 return UniTask.FromResult<Texture2D>(null);
 
             var tex = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()),
-                world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex])?.ToTexture(true);
+                world.Plan0NumPcx[parallax ? level.ScrollDiffFNDIndex : level.FNDIndex])?.ToTexture(true);
 
             return UniTask.FromResult(tex);
         }
