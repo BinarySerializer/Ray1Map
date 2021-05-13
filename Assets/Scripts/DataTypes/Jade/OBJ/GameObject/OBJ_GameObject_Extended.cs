@@ -7,12 +7,13 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class OBJ_GameObject_Extended : BinarySerializable {
-		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; } // Set in OnPreSerialize
+		public OBJ_GameObject GameObject { get; set; } // Set in OnPreSerialize
+		public OBJ_GameObject_IdentityFlags FlagsIdentity => GameObject.FlagsIdentity;
 
 		public Jade_Reference<GRP_Grp> Group { get; set; }
 		public uint HasModifiers { get; set; }
-		public float Float_BGE_08 { get; set; }
-		public float Float_BGE_0C { get; set; }
+		public float LODai { get; set; }
+		public float DistCut { get; set; }
 		public uint UInt_Editor_08 { get; set; }
 		public uint UInt_Editor_0C { get; set; }
 		public uint UInt_Editor_10 { get; set; }
@@ -34,6 +35,7 @@ namespace R1Engine.Jade {
 		public OBJ_GameObject_DesignStruct Design { get; set; }
 		public OBJ_GameObject_ExtendedXenonData XenonData { get; set; }
 		public OBJ_GameObject_Modifier[] Modifiers { get; set; }
+		public OBJ_GameObject_Extended_CurrentStaticWind CurrentStaticWind { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -41,25 +43,32 @@ namespace R1Engine.Jade {
 			Group = s.SerializeObject<Jade_Reference<GRP_Grp>>(Group, name: nameof(Group));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag23)) Group?.Resolve();
 			HasModifiers = s.Serialize<uint>(HasModifiers, name: nameof(HasModifiers));
-			if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
-				Float_BGE_08 = s.Serialize<float>(Float_BGE_08, name: nameof(Float_BGE_08));
-				Float_BGE_0C = s.Serialize<float>(Float_BGE_0C, name: nameof(Float_BGE_0C));
+			if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong ||
+				s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				LODai = s.Serialize<float>(LODai, name: nameof(LODai));
+				DistCut = s.Serialize<float>(DistCut, name: nameof(DistCut));
+			}
+			if (!Loader.IsBinaryData
+				|| (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRRTVParty)) {
+				UInt_Editor_08 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_08));
 			}
 			if (!Loader.IsBinaryData) {
-				UInt_Editor_08 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_08));
 				UInt_Editor_0C = s.Serialize<uint>(UInt_Editor_0C, name: nameof(UInt_Editor_0C));
 				UInt_Editor_10 = s.Serialize<uint>(UInt_Editor_10, name: nameof(UInt_Editor_10));
 				UInt_Editor_14 = s.Serialize<uint>(UInt_Editor_14, name: nameof(UInt_Editor_14));
 				UInt_Editor_18 = s.Serialize<uint>(UInt_Editor_18, name: nameof(UInt_Editor_18));
 			}
-			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_KingKong) {
+			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_KingKong
+				&& s.GetR1Settings().Jade_Version < Jade_Version.Montreal) {
 				if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
 					Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
 				}
 				int Sectos_count = (Int_08 != -1 && Int_08 != 0) ? 8 : 4;
 				Sectos = s.SerializeArray<byte>(Sectos, Sectos_count, name: nameof(Sectos));
 			}
-			if (Int_08 == -1 || s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
+			if (Int_08 == -1
+				|| s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR
+				|| s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
 				Capacities = s.Serialize<ushort>((ushort)Capacities, name: nameof(Capacities));
 				if (!Loader.IsBinaryData)
 					UShort_Editor_12 = s.Serialize<ushort>(UShort_Editor_12, name: nameof(UShort_Editor_12));
@@ -95,6 +104,9 @@ namespace R1Engine.Jade {
 			}
 			if (HasModifiers != 0) {
 				Modifiers = s.SerializeObjectArrayUntil<OBJ_GameObject_Modifier>(Modifiers, m => m.Type == MDF_ModifierType.None, name: nameof(Modifiers));
+			}
+			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal && (GameObject.MiscFlags & 0x10) != 0) {
+				CurrentStaticWind = s.SerializeObject<OBJ_GameObject_Extended_CurrentStaticWind>(CurrentStaticWind, name: nameof(CurrentStaticWind));
 			}
 		}
 	}

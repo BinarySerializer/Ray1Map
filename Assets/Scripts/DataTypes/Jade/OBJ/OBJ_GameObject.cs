@@ -49,7 +49,7 @@ namespace R1Engine.Jade {
 			}
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
-			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal && Version >= 2) {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
@@ -78,7 +78,7 @@ namespace R1Engine.Jade {
 				}, name: nameof(Base));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtended)) {
-				Extended = s.SerializeObject<OBJ_GameObject_Extended>(Extended, onPreSerialize: o => o.FlagsIdentity = FlagsIdentity, name: nameof(Extended));
+				Extended = s.SerializeObject<OBJ_GameObject_Extended>(Extended, onPreSerialize: o => o.GameObject = this, name: nameof(Extended));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag9) || FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag10)) {
 				COL_Instance = s.SerializeObject<Jade_Reference<COL_Instance>>(COL_Instance, name: nameof(COL_Instance))?.Resolve();
@@ -87,18 +87,22 @@ namespace R1Engine.Jade {
 				COL_ColMap = s.SerializeObject<Jade_Reference<COL_ColMap>>(COL_ColMap, name: nameof(COL_ColMap))?
 					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseAlreadyLoadedCallback);
 			}
-			NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
-			Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+			if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal || Version < 2) {
+				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
+				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+			}
+			if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
 				UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
 				if (UInt_AfterName_00 != 0)
 					UInt_AfterName_04 = s.Serialize<uint>(UInt_AfterName_04, name: nameof(UInt_AfterName_04));
-				if (!Loader.IsBinaryData) {
-					UInt_AfterName_Editor_00 = s.Serialize<uint>(UInt_AfterName_Editor_00, name: nameof(UInt_AfterName_Editor_00));
-					UInt_AfterName_Editor_04 = s.Serialize<uint>(UInt_AfterName_Editor_04, name: nameof(UInt_AfterName_Editor_04));
-					UInt_AfterName_Editor_08 = s.Serialize<uint>(UInt_AfterName_Editor_08, name: nameof(UInt_AfterName_Editor_08));
-					UInt_AfterName_Editor_0C = s.Serialize<uint>(UInt_AfterName_Editor_0C, name: nameof(UInt_AfterName_Editor_0C));
-				}
+			} else {
+				if (!Loader.IsBinaryData) UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
+			}
+			if (!Loader.IsBinaryData) {
+				UInt_AfterName_Editor_00 = s.Serialize<uint>(UInt_AfterName_Editor_00, name: nameof(UInt_AfterName_Editor_00));
+				UInt_AfterName_Editor_04 = s.Serialize<uint>(UInt_AfterName_Editor_04, name: nameof(UInt_AfterName_Editor_04));
+				UInt_AfterName_Editor_08 = s.Serialize<uint>(UInt_AfterName_Editor_08, name: nameof(UInt_AfterName_Editor_08));
+				UInt_AfterName_Editor_0C = s.Serialize<uint>(UInt_AfterName_Editor_0C, name: nameof(UInt_AfterName_Editor_0C));
 			}
 		}
 	}
