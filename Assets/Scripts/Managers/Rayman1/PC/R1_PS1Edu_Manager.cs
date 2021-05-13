@@ -323,11 +323,11 @@ namespace R1Engine
             foreach (R1_EventData e in level.Events)
             {
                 // Get event DES index
-                var desIndex = (int)e.PC_ImageDescriptorsIndex;
+                var desIndex = (int)e.PC_SpritesIndex;
 
                 if (loadedDES.Contains(desIndex))
                 {
-                    globalGspIndex += e.ImageDescriptorCount;
+                    globalGspIndex += e.SpritesCount;
                     continue;
                 }
 
@@ -343,7 +343,7 @@ namespace R1Engine
                     var localGspIndex = globalGspIndex;
 
                     // Enumerate every image descriptor in the event DES
-                    for (int i = 0; i < e.ImageDescriptorCount; i++)
+                    for (int i = 0; i < e.SpritesCount; i++)
                     {
                         ushort texIndex = levelIndices[localGspIndex];
                         var d = levelTex.Descriptors[texIndex];
@@ -386,14 +386,14 @@ namespace R1Engine
                             p = newPal;
                         }
 
-                        if (!imageDescriptors[e.PC_ImageDescriptorsIndex][i].IsDummySprite())
-                            des[desIndex].Graphics.Sprites[color * e.ImageDescriptorCount + i] = GetSpriteTexture(levelTex, d, p).CreateSprite();
+                        if (!imageDescriptors[e.PC_SpritesIndex][i].IsDummySprite())
+                            des[desIndex].Graphics.Sprites[color * e.SpritesCount + i] = GetSpriteTexture(levelTex, d, p).CreateSprite();
 
                         localGspIndex++;
                     }
                 }
 
-                globalGspIndex += e.ImageDescriptorCount;
+                globalGspIndex += e.SpritesCount;
             }
 
             // Return the sprites

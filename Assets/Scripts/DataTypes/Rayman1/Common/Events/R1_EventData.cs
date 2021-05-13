@@ -1,27 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
 using BinarySerializer;
 using UnityEngine;
 
 namespace R1Engine
 {
-    /*
-     
-    PC 1.21 memory:
-
-    unkData 1 and 2 seems to be split up link tables?
-    0x16DDE8 - unkPointer1
-    0x16DDEC - unkPointer1DataCount
-    0x16DDF0 - pointer to events in memory
-    0x16DDF4 - event count
-    0x16DDF8 - unkPointer2
-    0x16DDFC - unkPointer2DataCount
-
-    0x16F650 - pointer to Rayman's event in memory (note: Rayman uses the "normal" x and y values rather than the runtime ones!)
-     
-     */
-
     // All offsets in the names are from the PC version
 
     /// <summary>
@@ -42,8 +25,8 @@ namespace R1Engine
         #region Header
 
         // These are indexes in the files and get replaced with pointers during runtime
-        public uint PC_ImageDescriptorsIndex { get; set; }
-        public uint PC_AnimationDescriptorsIndex { get; set; }
+        public uint PC_SpritesIndex { get; set; }
+        public uint PC_AnimationsIndex { get; set; }
         public uint PC_ImageBufferIndex { get; set; }
         public uint PC_ETAIndex { get; set; }
 
@@ -51,12 +34,9 @@ namespace R1Engine
         public uint PC_RuntimeCommandsPointer { get; set; }
         public uint PC_RuntimeLabelOffsetsPointer { get; set; }
 
-        public Pointer ImageDescriptorsPointer { get; set; }
-        public Pointer AnimDescriptorsPointer { get; set; }
-
-        // Only valid for vol3 PS1 demo and PC
-        public Pointer ImageBufferPointer { get; set; }
-
+        public Pointer SpritesPointer { get; set; }
+        public Pointer AnimationsPointer { get; set; }
+        public Pointer ImageBufferPointer { get; set; } // Only valid for vol3 PS1 demo and PC
         public Pointer ETAPointer { get; set; }
 
         public Pointer CommandsPointer { get; set; }
@@ -69,7 +49,7 @@ namespace R1Engine
         public byte[] PS1Demo_Unk1 { get; set; }
         public uint PS1_Unk1 { get; set; }
 
-        public CommandContext[] CMD_Contexts { get; set; }
+        public CommandContext[] CommandContexts { get; set; }
 
         // How many of these uints are a part of the CMD context array?
         public uint Uint_1C { get; set; }
@@ -83,8 +63,7 @@ namespace R1Engine
 
         public uint Uint_30 { get; set; }
 
-        // This index is used by the game to handle the event links during runtime
-        public short EventIndex { get; set; }
+        public short Index { get; set; } // This index is used by the game to handle the event links during runtime
 
         public short ScreenXPosition { get; set; }
         public short ScreenYPosition { get; set; }
@@ -98,9 +77,9 @@ namespace R1Engine
         public short SpeedX { get; set; }
         public short SpeedY { get; set; }
 
-        public ushort ImageDescriptorCount { get; set; }
+        public ushort SpritesCount { get; set; }
 
-        public short CMD_CurrentOffset { get; set; }
+        public short CurrentCommandOffset { get; set; }
         public short CMD_Arg0 { get; set; } // This along with CMD_Arg1 might be a more generic temp value, so might have other uses too
         public short Short_4A { get; set; } // For Rayman this holds the index of the object he's standing on. It most likely has different uses for other events based on type. In R2 this is in the type specific data.
         public short Short_4C { get; set; }
@@ -116,7 +95,7 @@ namespace R1Engine
         public short Short_58 { get; set; } // Prev collision type for moving platforms
         public short Short_5A { get; set; }
 
-        public R1_ZDCEntry Runtime_TypeZDC { get; set; }
+        public R1_ZDCEntry TypeZDC { get; set; }
         public short Short_5E { get; set; }
 
         public R1_EventType Type { get; set; }
@@ -128,8 +107,8 @@ namespace R1Engine
         public byte OffsetBX { get; set; }
         public byte OffsetBY { get; set; }
 
-        public byte RuntimeCurrentAnimIndex { get; set; }
-        public byte RuntimeCurrentAnimFrame { get; set; }
+        public byte CurrentAnimationIndex { get; set; }
+        public byte CurrentAnimationFrame { get; set; }
 
         public byte SubEtat { get; set; }
         public byte Etat { get; set; }
@@ -137,7 +116,7 @@ namespace R1Engine
         public byte InitialSubEtat { get; set; }
         public byte InitialEtat { get; set; }
 
-        public uint CMD_CurrentCommand { get; set; }
+        public uint CurrentCommand { get; set; }
 
         public byte OffsetHY { get; set; }
 
@@ -172,7 +151,7 @@ namespace R1Engine
 
         public byte Byte_7A { get; set; }
         public byte Byte_7B { get; set; }
-        public byte CMD_CurrentContext { get; set; }
+        public byte CurrentCommandContext { get; set; }
         public byte Byte_7D { get; set; }
         public byte PS1Demo_Unk5 { get; set; }
         public byte PS1Demo_Unk6 { get; set; }
@@ -183,7 +162,7 @@ namespace R1Engine
 
         public byte Byte_7F { get; set; }
 
-        public byte AnimDescriptorCount { get; set; }
+        public byte AnimationsCount { get; set; }
 
         public PC_EventFlags PC_Flags { get; set; }
 
@@ -276,8 +255,8 @@ namespace R1Engine
         {
             if (!IsPCFormat(s.GetR1Settings()) || Offset?.File is ProcessMemoryStreamFile || s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA || s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
             {
-                ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
-                AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
+                SpritesPointer = s.SerializePointer(SpritesPointer, name: nameof(SpritesPointer));
+                AnimationsPointer = s.SerializePointer(AnimationsPointer, name: nameof(AnimationsPointer));
                 ImageBufferPointer = s.SerializePointer(ImageBufferPointer, allowInvalid: true, name: nameof(ImageBufferPointer));
                 ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
 
@@ -287,7 +266,7 @@ namespace R1Engine
                 {
                     PS1Demo_Unk1 = s.SerializeArray<byte>(PS1Demo_Unk1, 40, name: nameof(PS1Demo_Unk1));
 
-                    EventIndex = s.Serialize<short>(EventIndex, name: nameof(EventIndex));
+                    Index = s.Serialize<short>(Index, name: nameof(Index));
                     ScreenXPosition = s.Serialize<short>(ScreenXPosition, name: nameof(ScreenXPosition));
                     ScreenYPosition = s.Serialize<short>(ScreenYPosition, name: nameof(ScreenYPosition));
                 }
@@ -301,8 +280,8 @@ namespace R1Engine
             }
             else
             {
-                PC_ImageDescriptorsIndex = s.Serialize<uint>(PC_ImageDescriptorsIndex, name: nameof(PC_ImageDescriptorsIndex));
-                PC_AnimationDescriptorsIndex = s.Serialize<uint>(PC_AnimationDescriptorsIndex, name: nameof(PC_AnimationDescriptorsIndex));
+                PC_SpritesIndex = s.Serialize<uint>(PC_SpritesIndex, name: nameof(PC_SpritesIndex));
+                PC_AnimationsIndex = s.Serialize<uint>(PC_AnimationsIndex, name: nameof(PC_AnimationsIndex));
                 PC_ImageBufferIndex = s.Serialize<uint>(PC_ImageBufferIndex, name: nameof(PC_ImageBufferIndex));
                 PC_ETAIndex = s.Serialize<uint>(PC_ETAIndex, name: nameof(PC_ETAIndex));
 
@@ -312,7 +291,7 @@ namespace R1Engine
 
             if (IsPCFormat(s.GetR1Settings()))
             {
-                CMD_Contexts = s.SerializeObjectArray<CommandContext>(CMD_Contexts, 1, name: nameof(CMD_Contexts));
+                CommandContexts = s.SerializeObjectArray<CommandContext>(CommandContexts, 1, name: nameof(CommandContexts));
                 Uint_1C = s.Serialize<uint>(Uint_1C, name: nameof(Uint_1C));
                 Uint_20 = s.Serialize<uint>(Uint_20, name: nameof(Uint_20));
                 IsActive = s.Serialize<uint>(IsActive, name: nameof(IsActive));
@@ -338,7 +317,7 @@ namespace R1Engine
                 if (IsPCFormat(s.GetR1Settings()))
                     Uint_30 = s.Serialize<uint>(Uint_30, name: nameof(Uint_30));
 
-                EventIndex = s.Serialize<short>(EventIndex, name: nameof(EventIndex));
+                Index = s.Serialize<short>(Index, name: nameof(Index));
                 ScreenXPosition = s.Serialize<short>(ScreenXPosition, name: nameof(ScreenXPosition));
                 ScreenYPosition = s.Serialize<short>(ScreenYPosition, name: nameof(ScreenYPosition));
                 Short_3A = s.Serialize<short>(Short_3A, name: nameof(Short_3A));
@@ -356,9 +335,9 @@ namespace R1Engine
             SpeedX = s.Serialize<short>(SpeedX, name: nameof(SpeedX));
             SpeedY = s.Serialize<short>(SpeedY, name: nameof(SpeedY));
 
-            ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
+            SpritesCount = s.Serialize<ushort>(SpritesCount, name: nameof(SpritesCount));
 
-            CMD_CurrentOffset = s.Serialize<short>(CMD_CurrentOffset, name: nameof(CMD_CurrentOffset));
+            CurrentCommandOffset = s.Serialize<short>(CurrentCommandOffset, name: nameof(CurrentCommandOffset));
             CMD_Arg0 = s.Serialize<short>(CMD_Arg0, name: nameof(CMD_Arg0));
 
             Short_4A = s.Serialize<short>(Short_4A, name: nameof(Short_4A));
@@ -377,7 +356,7 @@ namespace R1Engine
             
             Short_58 = s.Serialize<short>(Short_58, name: nameof(Short_58));
             Short_5A = s.Serialize<short>(Short_5A, name: nameof(Short_5A));
-            Runtime_TypeZDC = s.SerializeObject<R1_ZDCEntry>(Runtime_TypeZDC, name: nameof(Runtime_TypeZDC));
+            TypeZDC = s.SerializeObject<R1_ZDCEntry>(TypeZDC, name: nameof(TypeZDC));
             Short_5E = s.Serialize<short>(Short_5E, name: nameof(Short_5E));
 
             if (IsPCFormat(s.GetR1Settings()))
@@ -389,8 +368,8 @@ namespace R1Engine
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
             OffsetBY = s.Serialize<byte>(OffsetBY, name: nameof(OffsetBY));
 
-            RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
-            RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
+            CurrentAnimationIndex = s.Serialize<byte>(CurrentAnimationIndex, name: nameof(CurrentAnimationIndex));
+            CurrentAnimationFrame = s.Serialize<byte>(CurrentAnimationFrame, name: nameof(CurrentAnimationFrame));
 
             if (IsPCFormat(s.GetR1Settings()))
             {
@@ -408,7 +387,7 @@ namespace R1Engine
                 InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
             }
 
-            CMD_CurrentCommand = s.Serialize<uint>(CMD_CurrentCommand, name: nameof(CMD_CurrentCommand));
+            CurrentCommand = s.Serialize<uint>(CurrentCommand, name: nameof(CurrentCommand));
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
 
@@ -430,7 +409,7 @@ namespace R1Engine
 
             Byte_7A = s.Serialize<byte>(Byte_7A, name: nameof(Byte_7A));
             Byte_7B = s.Serialize<byte>(Byte_7B, name: nameof(Byte_7B));
-            CMD_CurrentContext = s.Serialize<byte>(CMD_CurrentContext, name: nameof(CMD_CurrentContext));
+            CurrentCommandContext = s.Serialize<byte>(CurrentCommandContext, name: nameof(CurrentCommandContext));
             Byte_7D = s.Serialize<byte>(Byte_7D, name: nameof(Byte_7D));
 
             if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
@@ -448,7 +427,7 @@ namespace R1Engine
             InitialDisplayPrio = s.Serialize<byte>(InitialDisplayPrio, name: nameof(InitialDisplayPrio));
             Byte_7F = s.Serialize<byte>(Byte_7F, name: nameof(Byte_7F));
 
-            AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
+            AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
 
             if (IsPCFormat(s.GetR1Settings()))
             {
@@ -473,10 +452,10 @@ namespace R1Engine
             if (!IsPCFormat(s.GetR1Settings()) && !(Offset?.File is ProcessMemoryStreamFile) && s.FullSerialize)
             {
                 // Serialize the image descriptors
-                s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors)));
+                s.DoAt(SpritesPointer, () => ImageDescriptors = s.SerializeObjectArray<R1_ImageDescriptor>(ImageDescriptors, SpritesCount, name: nameof(ImageDescriptors)));
 
                 // Serialize the animation descriptors
-                s.DoAt(AnimDescriptorsPointer, () => AnimDescriptors = s.SerializeObjectArray<R1_PS1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors)));
+                s.DoAt(AnimationsPointer, () => AnimDescriptors = s.SerializeObjectArray<R1_PS1_AnimationDescriptor>(AnimDescriptors, AnimationsCount, name: nameof(AnimDescriptors)));
 
                 if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                 {
@@ -567,12 +546,12 @@ namespace R1Engine
             InitialDisplayPrio = DisplayPrio = 7;
             HitSprite = 0;
 
-            PC_ImageDescriptorsIndex = 1;
-            PC_AnimationDescriptorsIndex = 1;
+            PC_SpritesIndex = 1;
+            PC_AnimationsIndex = 1;
             PC_ImageBufferIndex = 1;
             PC_ETAIndex = 0;
 
-            CMD_Contexts = new CommandContext[]
+            CommandContexts = new CommandContext[]
             {
                 new CommandContext()
             };
@@ -642,12 +621,12 @@ namespace R1Engine
                     SubEtat = 39;
             }
 
-            PC_ImageDescriptorsIndex = 4;
-            PC_AnimationDescriptorsIndex = 4;
+            PC_SpritesIndex = 4;
+            PC_AnimationsIndex = 4;
             PC_ImageBufferIndex = 4;
             PC_ETAIndex = 2;
 
-            CMD_Contexts = new CommandContext[]
+            CommandContexts = new CommandContext[]
             {
                 new CommandContext()
             };

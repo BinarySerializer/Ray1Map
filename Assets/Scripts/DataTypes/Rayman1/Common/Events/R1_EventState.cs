@@ -63,10 +63,6 @@ namespace R1Engine
         public byte SoundIndex { get; set; } // Is it really a sound index?
         public R1_ZDCFlags ZDCFlags { get; set; }
 
-        // For GBA
-        public bool IsFlippedHorizontally { get; set; }
-        public bool IsFlippedVertically { get; set; }
-
         /// <summary>
         /// Serializes the data
         /// </summary>

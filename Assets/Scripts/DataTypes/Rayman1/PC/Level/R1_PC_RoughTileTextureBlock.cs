@@ -8,44 +8,44 @@ namespace R1Engine
     public class R1_PC_RoughTileTextureBlock : BinarySerializable
     {
         /// <summary>
-        /// The length of <see cref="RoughTextures"/>
+        /// The length of <see cref="GrosPataiBlock"/>
         /// </summary>
-        public uint RoughTexturesCount { get; set; }
+        public uint GrosPataiBlockCount { get; set; }
 
         /// <summary>
-        /// The length of <see cref="Unknown3"/>
+        /// The length of <see cref="BlocksCode"/>
         /// </summary>
-        public uint Unknown3Count { get; set; }
+        public uint BlocksCodeCount { get; set; }
 
         /// <summary>
         /// The color indexes for the rough textures
         /// </summary>
-        public byte[][] RoughTextures { get; set; }
+        public byte[][] GrosPataiBlock { get; set; }
 
         /// <summary>
-        /// The checksum for the <see cref="RoughTextures"/>
+        /// The checksum for the <see cref="GrosPataiBlock"/>
         /// </summary>
-        public byte RoughTexturesChecksum { get; set; }
+        public byte GrosPataiBlockChecksum { get; set; }
 
         /// <summary>
-        /// The index table for the <see cref="RoughTextures"/>
+        /// The index table for the <see cref="GrosPataiBlock"/>
         /// </summary>
-        public uint[] RoughTexturesOffsetTable { get; set; }
+        public uint[] GrosPataiBlockOffsetTable { get; set; }
 
         /// <summary>
         /// Unknown array of bytes
         /// </summary>
-        public byte[] Unknown3 { get; set; }
+        public byte[] BlocksCode { get; set; }
 
         /// <summary>
-        /// The checksum for <see cref="Unknown3"/>
+        /// The checksum for <see cref="BlocksCode"/>
         /// </summary>
-        public byte Unknown3Checksum { get; set; }
+        public byte BlocksCodeChecksum { get; set; }
 
         /// <summary>
-        /// Offset table for <see cref="Unknown3"/>
+        /// Offset table for <see cref="BlocksCode"/>
         /// </summary>
-        public uint[] Unknown3OffsetTable { get; set; }
+        public uint[] BlocksCodeOffsetTable { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -56,37 +56,37 @@ namespace R1Engine
             // NOTE: This block is only parsed by the game if the rough textures should be used. Otherwise it skips to the texture block pointer.
 
             // Serialize the rough textures count
-            RoughTexturesCount = s.Serialize<uint>(RoughTexturesCount, name: nameof(RoughTexturesCount));
+            GrosPataiBlockCount = s.Serialize<uint>(GrosPataiBlockCount, name: nameof(GrosPataiBlockCount));
 
             // Serialize the length of the third unknown value
-            Unknown3Count = s.Serialize<uint>(Unknown3Count, name: nameof(Unknown3Count));
+            BlocksCodeCount = s.Serialize<uint>(BlocksCodeCount, name: nameof(BlocksCodeCount));
 
-            RoughTexturesChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
+            GrosPataiBlockChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
                 s.DoXOR(0x7D, () =>
                 {
                     // Create the collection of rough textures if necessary
-                    if (RoughTextures == null)
-                        RoughTextures = new byte[RoughTexturesCount][];
+                    if (GrosPataiBlock == null)
+                        GrosPataiBlock = new byte[GrosPataiBlockCount][];
 
                     // Serialize each rough texture
-                    for (int i = 0; i < RoughTexturesCount; i++)
-                        RoughTextures[i] = s.SerializeArray<byte>(RoughTextures[i], Settings.CellSize * Settings.CellSize, name:
-                            $"{nameof(RoughTextures)}[{i}]");
+                    for (int i = 0; i < GrosPataiBlockCount; i++)
+                        GrosPataiBlock[i] = s.SerializeArray<byte>(GrosPataiBlock[i], Settings.CellSize * Settings.CellSize, name:
+                            $"{nameof(GrosPataiBlock)}[{i}]");
                 });
-            }, ChecksumPlacement.After, name: nameof(RoughTexturesChecksum));
+            }, ChecksumPlacement.After, name: nameof(GrosPataiBlockChecksum));
 
             // Read the offset table for the rough textures
-            RoughTexturesOffsetTable = s.SerializeArray<uint>(RoughTexturesOffsetTable, 1200, name: nameof(RoughTexturesOffsetTable));
+            GrosPataiBlockOffsetTable = s.SerializeArray<uint>(GrosPataiBlockOffsetTable, 1200, name: nameof(GrosPataiBlockOffsetTable));
 
-            Unknown3Checksum = s.DoChecksum(new Checksum8Calculator(false), () =>
+            BlocksCodeChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
                 // Serialize the items for the third unknown value
-                s.DoXOR(0xF3, () => Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: nameof(Unknown3)));
-            }, ChecksumPlacement.After, name: nameof(Unknown3Checksum));
+                s.DoXOR(0xF3, () => BlocksCode = s.SerializeArray<byte>(BlocksCode, BlocksCodeCount, name: nameof(BlocksCode)));
+            }, ChecksumPlacement.After, name: nameof(BlocksCodeChecksum));
 
             // Read the offset table for the third unknown value
-            Unknown3OffsetTable = s.SerializeArray<uint>(Unknown3OffsetTable, 1200, name: nameof(Unknown3OffsetTable));
+            BlocksCodeOffsetTable = s.SerializeArray<uint>(BlocksCodeOffsetTable, 1200, name: nameof(BlocksCodeOffsetTable));
         }
     }
 }

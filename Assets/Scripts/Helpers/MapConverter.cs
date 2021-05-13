@@ -70,14 +70,14 @@ namespace R1Engine
                         var newEtaIndex = (uint)outputEtaNames.FindItemIndex(y => y == inputObjManager.ETA[x.ETAIndex].Name);
 
                         // Set DES and ETA indexes
-                        e.PC_ImageDescriptorsIndex = newDesIndex;
+                        e.PC_SpritesIndex = newDesIndex;
                         e.PC_ImageBufferIndex = newDesIndex;
-                        e.PC_AnimationDescriptorsIndex = newDesIndex;
+                        e.PC_AnimationsIndex = newDesIndex;
                         e.PC_ETAIndex = newEtaIndex;
 
                         // Set image and animation descriptor counts
-                        e.ImageDescriptorCount = (ushort)outputObjManager.DES[x.DESIndex].Data.Graphics.Sprites.Count;
-                        e.AnimDescriptorCount = (byte)outputObjManager.DES[x.DESIndex].Data.Graphics.Animations.Count;
+                        e.SpritesCount = (ushort)outputObjManager.DES[x.DESIndex].Data.Graphics.Sprites.Count;
+                        e.AnimationsCount = (byte)outputObjManager.DES[x.DESIndex].Data.Graphics.Animations.Count;
 
                         return e;
                     }).ToArray();

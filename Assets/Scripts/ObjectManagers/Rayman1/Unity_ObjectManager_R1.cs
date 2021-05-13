@@ -254,7 +254,7 @@ namespace R1Engine
             var miniRayDESIndex = miniRay?.DESIndex;
 
             if (miniRayDESIndex == null && EventTemplates.ContainsKey(WldObjType.RayLittle))
-                miniRayDESIndex = UsesPointers ? DESLookup.TryGetItem(EventTemplates[WldObjType.RayLittle].ImageDescriptorsPointer?.AbsoluteOffset ?? 0, -1) : (int)EventTemplates[WldObjType.RayLittle].PC_ImageDescriptorsIndex;
+                miniRayDESIndex = UsesPointers ? DESLookup.TryGetItem(EventTemplates[WldObjType.RayLittle].SpritesPointer?.AbsoluteOffset ?? 0, -1) : (int)EventTemplates[WldObjType.RayLittle].PC_SpritesIndex;
 
             if (miniRayDESIndex != null)
             {
@@ -358,14 +358,14 @@ namespace R1Engine
 
                 foreach (var e in level.EventData.Cast<Unity_Object_R1>().Select(x => x.EventData))
                 {
-                    e.ImageDescriptorsPointer = mapObj.ImageDescriptorsPointer;
+                    e.SpritesPointer = mapObj.SpritesPointer;
                     e.ImageBufferPointer = mapObj.ImageBufferPointer;
-                    e.AnimDescriptorsPointer = mapObj.AnimDescriptorsPointer;
+                    e.AnimationsPointer = mapObj.AnimationsPointer;
                     e.ETAPointer = mapObj.ETAPointer;
 
-                    e.PC_ImageDescriptorsIndex = mapObj.PC_ImageDescriptorsIndex;
+                    e.PC_SpritesIndex = mapObj.PC_SpritesIndex;
                     e.PC_ImageBufferIndex = mapObj.PC_ImageBufferIndex;
-                    e.PC_AnimationDescriptorsIndex = mapObj.PC_AnimationDescriptorsIndex;
+                    e.PC_AnimationsIndex = mapObj.PC_AnimationsIndex;
                     e.PC_ETAIndex = mapObj.PC_ETAIndex;
                 }
             }
@@ -438,7 +438,7 @@ namespace R1Engine
 
                 if (s is BinarySerializer.BinarySerializer)
                 {
-                    Debug.Log($"Edited event {ed.EventData.EventIndex}");
+                    Debug.Log($"Edited event {ed.EventData.Index}");
                     madeEdits = true;
                 }
 

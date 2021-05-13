@@ -30,17 +30,17 @@ namespace R1Engine
         /// <summary>
         /// The index of the background image
         /// </summary>
-        public byte BackgroundIndex { get; set; }
+        public byte FNDIndex { get; set; }
 
         /// <summary>
         /// The index of the parallax background image
         /// </summary>
-        public byte ParallaxBackgroundIndex { get; set; }
+        public byte ScrollDiffFNDIndex { get; set; }
 
         /// <summary>
         /// The DES for the background sprites when parallax scrolling is enabled
         /// </summary>
-        public int BackgroundSpritesDES { get; set; }
+        public int ScrollDiffSprites { get; set; }
 
         /// <summary>
         /// The rough tile texture data
@@ -94,9 +94,9 @@ namespace R1Engine
             if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PC || s.GetR1Settings().EngineVersion == EngineVersion.R1_PocketPC)
             {
                 // Serialize the background data
-                BackgroundIndex = s.Serialize<byte>(BackgroundIndex, name: nameof(BackgroundIndex));
-                ParallaxBackgroundIndex = s.Serialize<byte>(ParallaxBackgroundIndex, name: nameof(ParallaxBackgroundIndex));
-                BackgroundSpritesDES = s.Serialize<int>(BackgroundSpritesDES, name: nameof(BackgroundSpritesDES));
+                FNDIndex = s.Serialize<byte>(FNDIndex, name: nameof(FNDIndex));
+                ScrollDiffFNDIndex = s.Serialize<byte>(ScrollDiffFNDIndex, name: nameof(ScrollDiffFNDIndex));
+                ScrollDiffSprites = s.Serialize<int>(ScrollDiffSprites, name: nameof(ScrollDiffSprites));
             }
 
             // Serialize the rough tile textures

@@ -865,10 +865,10 @@ namespace R1Engine
 
             foreach (R1_EventData t in fixEvents)
             {
-                if (exportedImgDescr.Contains(t.ImageDescriptorsPointer))
+                if (exportedImgDescr.Contains(t.SpritesPointer))
                     continue;
 
-                exportedImgDescr.Add(t.ImageDescriptorsPointer);
+                exportedImgDescr.Add(t.SpritesPointer);
 
                 await ExportEventSpritesAsync(menuContext, t, Path.Combine(outputPath, "Menu"), index);
 
@@ -997,11 +997,11 @@ namespace R1Engine
         {
             return events.Select(x => new DES
             {
-                ImageDescriptorsPointer = x.ImageDescriptorsPointer,
-                AnimationDescriptorsPointer = x.AnimDescriptorsPointer,
+                ImageDescriptorsPointer = x.SpritesPointer,
+                AnimationDescriptorsPointer = x.AnimationsPointer,
                 ImageBufferPointer = x.ImageBufferPointer,
-                ImageDescriptorCount = x.ImageDescriptorCount,
-                AnimationDescriptorCount = x.AnimDescriptorCount,
+                ImageDescriptorCount = x.SpritesCount,
+                AnimationDescriptorCount = x.AnimationsCount,
                 ImageBufferLength = null,
                 Name = null,
                 EventData = x
