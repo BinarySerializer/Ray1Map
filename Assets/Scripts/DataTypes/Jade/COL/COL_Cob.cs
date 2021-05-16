@@ -6,18 +6,13 @@ namespace R1Engine.Jade
     public class COL_Cob : Jade_File 
     {
         public Jade_Reference<COL_GameMaterial> Material { get; set; }
-        public byte Type { get; set; } // 1, 2, 3 or 5
+        public COL_ZoneShape Type { get; set; } // 1, 2, 3 or 5
         public byte Flags { get; set; }
         public uint Uint_06 { get; set; }
 
         public COL_Box Shape_Box { get; set; } // Type 1
         public COL_Sphere Shape_Sphere { get; set; } // Type 2
-
-        // Type 3
-        public Jade_Vector Type3_Vector { get; set; }
-        public float Type3_Float_04 { get; set; }
-        public float Type3_Float_08 { get; set; }
-
+        public COL_Cylinder Shape_Cylinder { get; set; } // Type 3
         public COL_IndexedTriangles Shape_IndexedTriangles { get; set; } // Type 5
 
         public override void SerializeImpl(SerializerObject s) 
@@ -26,29 +21,28 @@ namespace R1Engine.Jade
             Type = s.Serialize(Type, name: nameof(Type));
             Flags = s.Serialize(Flags, name: nameof(Flags));
 
-            if (Type != 1 && Type != 2 && Type != 3 && Type != 5)
+            if (Type != COL_ZoneShape.Box && Type != COL_ZoneShape.Sphere
+                && Type != COL_ZoneShape.Cylinder && Type != COL_ZoneShape.Triangles)
                 return;
 
-            if (Type != 5)
+            if (Type != COL_ZoneShape.Triangles)
                 Uint_06 = s.Serialize<uint>(Uint_06, name: nameof(Uint_06));
 
             switch (Type)
             {
-                case 1:
+                case COL_ZoneShape.Box:
                     Shape_Box = s.SerializeObject<COL_Box>(Shape_Box, name: nameof(Shape_Box));
                     break;
 
-                case 2:
+                case COL_ZoneShape.Sphere:
                     Shape_Sphere = s.SerializeObject<COL_Sphere>(Shape_Sphere, name: nameof(Shape_Sphere));
                     break;
 
-                case 3:
-                    Type3_Vector = s.SerializeObject<Jade_Vector>(Type3_Vector, name: nameof(Type3_Vector));
-                    Type3_Float_04 = s.Serialize<float>(Type3_Float_04, name: nameof(Type3_Float_04));
-                    Type3_Float_08 = s.Serialize<float>(Type3_Float_08, name: nameof(Type3_Float_08));
+                case COL_ZoneShape.Cylinder:
+                    Shape_Cylinder = s.SerializeObject<COL_Cylinder>(Shape_Cylinder, name: nameof(Shape_Cylinder));
                     break;
 
-                case 5:
+                case COL_ZoneShape.Triangles:
                     Shape_IndexedTriangles = s.SerializeObject<COL_IndexedTriangles>(Shape_IndexedTriangles,
                         onPreSerialize: it => it.Flags = Flags,
                         name: nameof(Shape_IndexedTriangles));

@@ -8,7 +8,7 @@ namespace R1Engine.Jade {
 		public uint UInt_04 { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; }
 		public ushort StatusFlags { get; set; }
-		public ushort ControlFlags { get; set; }
+		public OBJ_GameObject_ControlFlags ControlFlags { get; set; }
 		public byte Secto { get; set; }
 		public byte MiscFlags { get; set; }
 		public byte VisiCoeff { get; set; }
@@ -55,7 +55,7 @@ namespace R1Engine.Jade {
 			}
 			s.SerializeBitValues<uint>(bitFunc => {
 				StatusFlags = (ushort)bitFunc(StatusFlags, 16, name: nameof(StatusFlags));
-				ControlFlags = (ushort)bitFunc(ControlFlags, 16, name: nameof(ControlFlags));
+				ControlFlags = (OBJ_GameObject_ControlFlags)bitFunc((ushort)ControlFlags, 16, name: nameof(ControlFlags));
 			});
 			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
 				MiscFlags = s.Serialize<byte>(MiscFlags, name: nameof(MiscFlags));
@@ -71,19 +71,19 @@ namespace R1Engine.Jade {
 			Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
 
 			BoundingVolume = s.SerializeObject<OBJ_BV_BoundingVolume>(BoundingVolume, onPreSerialize: bv => bv.FlagsIdentity = FlagsIdentity, name: nameof(BoundingVolume));
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasBase)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.BaseObject)) {
 				Base = s.SerializeObject<OBJ_GameObject_Base>(Base, onPreSerialize: o => {
 					o.FlagsIdentity = FlagsIdentity;
 					o.Type = Version;
 				}, name: nameof(Base));
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasExtended)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ExtendedObject)) {
 				Extended = s.SerializeObject<OBJ_GameObject_Extended>(Extended, onPreSerialize: o => o.GameObject = this, name: nameof(Extended));
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag9) || FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag10)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ZDM) || FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ZDE)) {
 				COL_Instance = s.SerializeObject<Jade_Reference<COL_Instance>>(COL_Instance, name: nameof(COL_Instance))?.Resolve();
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasCOL_ColMap)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ColMap)) {
 				COL_ColMap = s.SerializeObject<Jade_Reference<COL_ColMap>>(COL_ColMap, name: nameof(COL_ColMap))?
 					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseAlreadyLoadedCallback);
 			}

@@ -6,7 +6,7 @@ namespace R1Engine.Jade {
         public bool IsInstance { get; set; } // Set in OnPreSerialize
 
         public byte Flag { get; set; }
-        public byte Type { get; set; } // Determines shape
+        public COL_ZoneShape Type { get; set; } // Determines shape
         public byte BoneIndex { get; set; }
         public byte Design { get; set; }
         public byte Byte_04_Editor { get; set; }
@@ -14,20 +14,16 @@ namespace R1Engine.Jade {
         public string Name { get; set; }
         public byte Name_Terminator { get; set; }
 
-        // Copied from COL_Cob-
+        // Copied from COL_Cob
         public COL_Box Shape_Box { get; set; } // Type 1
         public COL_Sphere Shape_Sphere { get; set; } // Type 2
-
-        // Type 3
-        public Jade_Vector Type3_Vector { get; set; }
-        public float Type3_Float_04 { get; set; }
-        public float Type3_Float_08 { get; set; }
+        public COL_Cylinder Shape_Cylinder { get; set; } // Type 3
 
         public override void SerializeImpl(SerializerObject s) {
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
             Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
-            Type = s.Serialize<byte>(Type, name: nameof(Type));
+            Type = s.Serialize<COL_ZoneShape>(Type, name: nameof(Type));
             BoneIndex = s.Serialize<byte>(BoneIndex, name: nameof(BoneIndex));
             Design = s.Serialize<byte>(Design, name: nameof(Design));
             if (IsInstance && !Loader.IsBinaryData) Byte_04_Editor = s.Serialize<byte>(Byte_04_Editor, name: nameof(Byte_04_Editor));
@@ -38,18 +34,16 @@ namespace R1Engine.Jade {
             }
 
             switch (Type) {
-                case 1:
+                case COL_ZoneShape.Box:
                     Shape_Box = s.SerializeObject<COL_Box>(Shape_Box, name: nameof(Shape_Box));
                     break;
 
-                case 2:
+                case COL_ZoneShape.Sphere:
                     Shape_Sphere = s.SerializeObject<COL_Sphere>(Shape_Sphere, name: nameof(Shape_Sphere));
                     break;
 
-                case 3:
-                    Type3_Vector = s.SerializeObject<Jade_Vector>(Type3_Vector, name: nameof(Type3_Vector));
-                    Type3_Float_04 = s.Serialize<float>(Type3_Float_04, name: nameof(Type3_Float_04));
-                    Type3_Float_08 = s.Serialize<float>(Type3_Float_08, name: nameof(Type3_Float_08));
+                case COL_ZoneShape.Cylinder:
+                    Shape_Cylinder = s.SerializeObject<COL_Cylinder>(Shape_Cylinder, name: nameof(Shape_Cylinder));
                     break;
             }
         }

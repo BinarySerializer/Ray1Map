@@ -13,7 +13,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<GEO_Object> Material { get; set; }
 
 		// Montreal
-		public uint DrawMask { get; set; }
+		public DM DrawMask { get; set; }
 		public byte AdditionalFlags { get; set; }
 		public byte LightSetMask { get; set; }
 		public sbyte DisplayOrder { get; set; }
@@ -74,7 +74,7 @@ namespace R1Engine.Jade {
 				}
 			});
 			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
-				DrawMask = s.Serialize<uint>(DrawMask, name: nameof(DrawMask));
+				DrawMask = s.Serialize<DM>(DrawMask, name: nameof(DrawMask));
 				if (Version >= 3) AdditionalFlags = s.Serialize<byte>(AdditionalFlags, name: nameof(AdditionalFlags));
 				if (Version >= 5) LightSetMask = s.Serialize<byte>(LightSetMask, name: nameof(LightSetMask));
 				DisplayOrder = s.Serialize<sbyte>(DisplayOrder, name: nameof(DisplayOrder));
@@ -87,7 +87,7 @@ namespace R1Engine.Jade {
 				bool hasAmbientOfGAO = true;
 				bool hasLocalFog = true;
 				if (Version < 4) {
-					uint drawMaskTemp = DrawMask;
+					uint drawMaskTemp = (uint)DrawMask;
 					if (Version < 10) drawMaskTemp = (uint)BitHelpers.SetBits((int)drawMaskTemp, 0, 1, 9);
 					if (Version < 11) drawMaskTemp = (uint)BitHelpers.SetBits((int)drawMaskTemp, 0, 1, 10);
 					hasEditorData = BitHelpers.ExtractBits((int)drawMaskTemp, 1, 8) == 1;
@@ -168,6 +168,47 @@ namespace R1Engine.Jade {
 					Xenon2 = s.SerializeObject<OBJ_GameObject_GeometricData_Xenon2>(Xenon2, onPreSerialize: x => x.Version = Version, name: nameof(Xenon2));
 				}
 			}
+		}
+
+		[Flags]
+		public enum DM : uint {
+			None					= 0,
+			UseTexture				= 0x00000001,
+			DontForceColor			= 0x00000002,
+			DontShowBV				= 0x00000004,
+			Draw					= 0x00000008,
+			NotWired				= 0x00000010,
+			Lighted					= 0x00000020,
+			UseRLI					= 0x00000040,
+			MaterialColor			= 0x00000080,
+			UseAmbient				= 0x00000100,
+			DoNotSort				= 0x00000200,
+			ComputeSpecular			= 0x00000400,
+			TestBackFace			= 0x00000800,
+			HidePoint				= 0x00001000,
+			NotInvertBF				= 0x00002000,
+			Fogged					= 0x00004000,
+			Symetric				= 0x00008000,
+			ReceiveDynSdw			= 0x00010000,
+			ActiveSkin				= 0x00020000,
+			RadioCut				= 0x00040000,
+			EmitRadShadows			= 0x00080000,
+			UseNormalMaterial		= 0x00100000,
+			UseBVForLightRejection	= 0x00200000,
+			DontUseAmbient2			= 0x00400000,
+			DontRecomputeNormales	= 0x00800000,
+			ZTest					= 0x01000000,
+			DontScaleRLI			= 0x02000000,
+
+			// Not in Phoenix data
+			Unknown1				= 0x04000000,
+			Unknown2				= 0x08000000,
+			Unknown3				= 0x10000000,
+			Unknown4				= 0x20000000,
+			Unknown5				= 0x40000000,
+			Unknown6				= 0x80000000,
+
+			All						= 0xFFFFFFFF,
 		}
 	}
 }

@@ -44,6 +44,7 @@ namespace R1Engine.Jade {
 		Grid_Modifier = 31,
 		SND_ModifierSoundVol = 32,
 
+		// Xenon modifiers
 		MDF_ModifierWATER3D = 33, // Xenon only
 		MDF_ModifierDisturber = 34, // Xenon only
 		MDF_ModifierSFX = 35, // Xenon only
@@ -55,7 +56,7 @@ namespace R1Engine.Jade {
 		MDF_ModifierWeather = 39, // Xenon only
 		MDF_ModifierSoftBody = 40, // Xenon only
 		MDF_ModifierWind = 41, // Xenon only
-		FUR_ModifierXenon = 42, // Xenon only
+		FUR_ModifierDynFur = 42, // Xenon only
 		SPG2_ModifierHolder = 43, // Xenon only
 
 		VINE_Modifier = 49,

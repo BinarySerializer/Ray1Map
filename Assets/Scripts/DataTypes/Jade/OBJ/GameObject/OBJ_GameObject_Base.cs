@@ -17,19 +17,19 @@ namespace R1Engine.Jade {
 		public OBJ_GameObject_AdditionalMatrix AddMatrix { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasGameObjectAnim)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Visu)) {
 				Visual = s.SerializeObject<OBJ_GameObject_Visual>(Visual, onPreSerialize: o => o.Version = Type, name: nameof(Visual));
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasHierarchy)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Hierarchy)) {
 				HierarchyData = s.SerializeObject<OBJ_GameObject_Hierarchy>(HierarchyData, name: nameof(HierarchyData));
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasActionData)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Anims)) {
 				ActionData = s.SerializeObject<OBJ_GameObject_ActionData>(ActionData, name: nameof(ActionData));
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasDynamics)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ODE)) {
 				ODE = s.SerializeObject<DYN_ODE>(ODE, name: nameof(ODE));
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasAddMatrix)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AdditionalMatrix)) {
 				AddMatrix = s.SerializeObject<OBJ_GameObject_AdditionalMatrix>(AddMatrix, onPreSerialize: vu2 => vu2.FlagsIdentity = FlagsIdentity, name: nameof(AddMatrix));
 			}
 		}

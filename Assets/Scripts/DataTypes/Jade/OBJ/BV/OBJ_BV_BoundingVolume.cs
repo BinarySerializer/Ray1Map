@@ -17,7 +17,7 @@ namespace R1Engine.Jade {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (!Loader.IsBinaryData) UInt_00_Editor = s.Serialize<uint>(UInt_00_Editor, name: nameof(UInt_00_Editor));
 			AABB_Box = s.SerializeObject<OBJ_BV_Box>(AABB_Box, name: nameof(AABB_Box));
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasOBBox)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.OBBox)) {
 				OB_Box = s.SerializeObject<OBJ_BV_Box>(OB_Box, name: nameof(OB_Box));
 			}
 		}

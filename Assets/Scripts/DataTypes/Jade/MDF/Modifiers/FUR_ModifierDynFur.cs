@@ -1,7 +1,7 @@
 ﻿using BinarySerializer;
 
 namespace R1Engine.Jade {
-	public class FUR_ModifierXenon : MDF_Modifier {
+	public class FUR_ModifierDynFur : MDF_Modifier {
 		public uint UInt_00_Editor { get; set; }
 		public uint UInt_00 { get; set; }
 		public float Float_04 { get; set; }

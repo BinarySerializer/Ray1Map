@@ -41,7 +41,7 @@ namespace R1Engine.Jade {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 			Group = s.SerializeObject<Jade_Reference<GRP_Grp>>(Group, name: nameof(Group));
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag23)) Group?.Resolve();
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Group)) Group?.Resolve();
 			HasModifiers = s.Serialize<uint>(HasModifiers, name: nameof(HasModifiers));
 			if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong ||
 				s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
@@ -78,25 +78,25 @@ namespace R1Engine.Jade {
 			AiPrio = s.Serialize<byte>(AiPrio, name: nameof(AiPrio));
 			Blank = s.Serialize<byte>(Blank, name: nameof(Blank));
 			ExtraFlags = s.Serialize<ushort>(ExtraFlags, name: nameof(ExtraFlags));
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasAI)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AI)) {
 				AI = s.SerializeObject<Jade_Reference<AI_Instance>>(AI, name: nameof(AI))?
 					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasEvents)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Events)) {
 				Events = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(Events, name: nameof(Events))?.Resolve();
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasSound)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Sound)) {
 				Sound = s.SerializeObject<Jade_Reference<SND_UnknownBank>>(Sound, name: nameof(Sound))?
 					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasLinks)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Links)) {
 				Links = s.SerializeObject<Jade_Reference<WAY_AllLinkLists>>(Links, name: nameof(Links))?
 					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasLight)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Lights)) {
 				Light = s.SerializeObject<Jade_Reference<GEO_Object>>(Light, name: nameof(Light))?.Resolve();
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.HasDesign)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.DesignStruct)) {
 				Design = s.SerializeObject<OBJ_GameObject_DesignStruct>(Design, name: nameof(Design));
 			}
 			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && Int_08 >= 2 && FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag30)) {

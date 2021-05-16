@@ -26,7 +26,7 @@ namespace R1Engine.Jade {
 			public string Name { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Flag24)) {
+				if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AddMatArePointer)) {
 					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 					MatrixID = s.Serialize<uint>(MatrixID, name: nameof(MatrixID));
 				} else {
