@@ -49,7 +49,7 @@ namespace R1Engine.Jade {
 			}, (f) => {
 				Info = f?.ConvertType<TEX_File>();
 			}, immediate: false,
-			queue: LOA_Loader.QueueType.Textures,
+			queue: loader.IsBinaryData ? LOA_Loader.QueueType.Textures : LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureInfo,
 			name: typeof(TEX_File).Name);
 			return this;
@@ -71,7 +71,7 @@ namespace R1Engine.Jade {
 			}, (f) => {
 				Content = f?.ConvertType<TEX_File>(); ;
 			}, immediate: false,
-			queue: LOA_Loader.QueueType.Textures,
+			queue: loader.IsBinaryData ? LOA_Loader.QueueType.Textures : LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureContent,
 			name: typeof(TEX_File).Name);
 			return this;

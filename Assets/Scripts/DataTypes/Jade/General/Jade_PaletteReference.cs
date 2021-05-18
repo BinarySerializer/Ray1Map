@@ -42,7 +42,7 @@ namespace R1Engine.Jade {
 			}, (f) => {
 				Value = f?.ConvertType<TEX_Palette>();
 			}, immediate: false,
-			queue: LOA_Loader.QueueType.Textures,
+			queue: loader.IsBinaryData ? LOA_Loader.QueueType.Textures : LOA_Loader.QueueType.Current,
 			name: typeof(TEX_Palette).Name,
 			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 			return this;
@@ -59,7 +59,7 @@ namespace R1Engine.Jade {
 					}, (f) => {
 						RRR2Unknown = f?.ConvertType<TEX_Palette_RRR2_Unknown>();
 					}, immediate: false,
-					queue: LOA_Loader.QueueType.Textures,
+					queue: loader.IsBinaryData ? LOA_Loader.QueueType.Textures : LOA_Loader.QueueType.Current,
 					name: typeof(TEX_Palette).Name,
 					flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 				}

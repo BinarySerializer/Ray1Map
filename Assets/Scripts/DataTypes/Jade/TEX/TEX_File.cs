@@ -83,7 +83,7 @@ namespace R1Engine.Jade
                     s.Goto(Offset);
 
                 bool hasReadContent = false;
-                uint contentSize = FileSize - (uint)(s.CurrentPointer - Offset);
+                uint contentSize = Loader.IsBinaryData ? (FileSize - (uint)(s.CurrentPointer - Offset)) : (FileSize - 32);
                 switch (Type) 
                 {
                     case TexFileType.RawPal:
@@ -109,7 +109,7 @@ namespace R1Engine.Jade
                         break;
 
                     case TexFileType.Tga:
-                        if (IsContent)
+                        if (IsContent || !Loader.IsBinaryData)
                         {
                             TGA.RGBColorOrder colorOrder = TGA.RGBColorOrder.RGB;
 
@@ -147,7 +147,7 @@ namespace R1Engine.Jade
                         break;
 
                     case TexFileType.DDS:
-                        if (IsContent) 
+                        if (IsContent || !Loader.IsBinaryData) 
                         {
                             if (contentSize > 0) 
                             {
@@ -185,7 +185,7 @@ namespace R1Engine.Jade
                     case TexFileType.Bmp:
                     case TexFileType.Cubemap:
                     default:
-                        if (IsContent) {
+                        if (IsContent || !Loader.IsBinaryData) {
                             Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));
                             if (Content.Length > 0) 
                                 hasReadContent = true;

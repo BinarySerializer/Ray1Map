@@ -111,6 +111,7 @@
         Jade_RRR2,
         Jade_Horsez,
         Jade_Horsez2,
+        Jade_PetzHorseClub,
         Jade_MovieGames,
 
         Jade_PoP_SandsOfTime,

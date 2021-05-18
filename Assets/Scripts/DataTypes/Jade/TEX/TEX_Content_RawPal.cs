@@ -22,7 +22,7 @@ namespace R1Engine.Jade
             uint FileSize = Texture.FileSize;
             if(s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && FileSize > 0x50) FileSize = 0x50;
             if (!(FileSize > 0x50 || FileSize % 4 != 0)) {
-                var byteCount = (FileSize - (s.CurrentPointer - Texture.Offset));
+                var byteCount = Texture.Loader.IsBinaryData ? (FileSize - (s.CurrentPointer - Texture.Offset)) : (FileSize - 0x20);
                 var count = byteCount / 12 + ((byteCount % 12 >= 4) ? 1 : 0);
                 var startPtr = s.CurrentPointer;
                 Slots = s.SerializeObjectArray<Slot>(Slots, count, onPreSerialize:
