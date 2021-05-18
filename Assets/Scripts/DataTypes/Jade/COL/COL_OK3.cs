@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			BoxCount = s.Serialize<uint>(BoxCount, name: nameof(BoxCount));
 			Boxes = s.SerializeObjectArray<COL_OK3_Box>(Boxes, BoxCount, name: nameof(Boxes));
-			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_KingKong) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
 				Tree = s.SerializeObject<COL_OK3_Node>(Tree, name: nameof(Tree));
 			}
 		}
