@@ -57,7 +57,7 @@ namespace R1Engine.Jade {
 				OK3_Boxes = s.SerializeObject<COL_OK3>(OK3_Boxes, name: nameof(OK3_Boxes));
 			}
 			Vertices = s.SerializeObjectArray<Jade_Vector>(Vertices, VerticesCount, name: nameof(Vertices));
-			if (!Loader.IsBinaryData || s.GetR1Settings().Jade_Version == Jade_Version.Xenon) Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
+			if (!Loader.IsBinaryData || s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
 			if (MRM_ObjectAdditionalInfoPointer != 0) {
 				throw new NotImplementedException($"TODO: Implement {GetType()}: MRM_ObjectAdditionalInfo");
 			}

@@ -73,7 +73,7 @@ namespace R1Engine.Jade {
 					throw new Exception($"{f.Key}: Expected material, got {f.RenderObject.Type}");
 				}
 			});
-			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				DrawMask = s.Serialize<DM>(DrawMask, name: nameof(DrawMask));
 				if (Version >= 3) AdditionalFlags = s.Serialize<byte>(AdditionalFlags, name: nameof(AdditionalFlags));
 				if (Version >= 5) LightSetMask = s.Serialize<byte>(LightSetMask, name: nameof(LightSetMask));
@@ -152,7 +152,7 @@ namespace R1Engine.Jade {
 				Int_7A = s.Serialize<int>(Int_7A, name: nameof(Int_7A));
 				UInt_7E = s.Serialize<uint>(UInt_7E, name: nameof(UInt_7E));
 
-				if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
+				if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
 					Xenon = s.SerializeObject<OBJ_GameObject_GeometricData_Xenon>(Xenon, onPreSerialize: x => x.Version = Version, name: nameof(Xenon));
 				}
 
@@ -164,7 +164,7 @@ namespace R1Engine.Jade {
 					RLI_UInts = s.SerializeArray<uint>(RLI_UInts, Code, name: nameof(RLI_UInts));
 				}
 
-				if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) {
+				if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
 					Xenon2 = s.SerializeObject<OBJ_GameObject_GeometricData_Xenon2>(Xenon2, onPreSerialize: x => x.Version = Version, name: nameof(Xenon2));
 				}
 			}

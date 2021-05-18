@@ -129,24 +129,43 @@ namespace R1Engine
         Gameloft_RK,
 
         // Jade: Ubisoft Montpellier branch
+        Jade_Engine,
+        Jade_Montpellier,
+
         Jade_BGE,
         Jade_BGE_HD,
         
         Jade_KingKong,
         Jade_KingKong_Xenon,
-        Jade_KingKong_PSP,
 
         Jade_RRR,
-        Jade_RRR_Xbox360,
 
+        Jade_Phoenix,
         Jade_Horsez2,
+        Jade_PetzHorseClub,
         Jade_MovieGames,
 
         Jade_RRR2,
 
         // Jade: Ubisoft Montreal branch
-        Jade_PoP_SandsOfTime,
+        Jade_Montreal,
+
+        Jade_PoP_SoT,
+        Jade_PoP_WW,
+        Jade_PoP_T2T,
+        Jade_PoP_TFS,
+        Jade_PhoenixRayman4,
         Jade_Horsez,
+        Jade_MyWordCoach,
+        Jade_CloudyWithAChanceOfMeatballs,
+        Jade_NCIS,
+        Jade_JustDance,
+        Jade_Avatar,
+        Jade_TMNT,
         Jade_RRRTVParty,
+
+        Jade_Naruto,
+        Jade_Naruto1RiseOfANinja,
+        Jade_Naruto2TheBrokenBond,
     }
 }

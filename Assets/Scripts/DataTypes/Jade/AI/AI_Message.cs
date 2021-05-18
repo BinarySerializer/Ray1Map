@@ -25,7 +25,7 @@ namespace R1Engine.Jade {
 		public float BGE_Float_1 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
 				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
 				UInt_01 = s.Serialize<uint>(UInt_01, name: nameof(UInt_01));
 				Vector_06 = s.SerializeObject<Jade_Vector>(Vector_06, name: nameof(Vector_06));

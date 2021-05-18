@@ -25,10 +25,13 @@ namespace R1Engine
             Game = atr.Game;
             EngineVersion = atr.EngineVersion;
             MajorEngineVersion = atr.MajorEngineVersion;
+            EngineFlags = atr.EngineFlags;
             Platform = atr.Platform;
             GameDirectory = Util.NormalizePath(gameDirectory, isFolder: true);
             World = world;
             Level = level;
+
+            EngineVersionTree = EngineVersionTree.Create(this);
         }
 
         // Global settings
@@ -47,6 +50,16 @@ namespace R1Engine
         /// The engine version
         /// </summary>
         public EngineVersion EngineVersion { get; }
+
+        /// <summary>
+        /// Engine parameters that should not be cuonted as a separate version
+        /// </summary>
+        public EngineFlags EngineFlags { get; }
+
+        /// <summary>
+        /// Engine version tree for engines with many branches
+        /// </summary>
+        public EngineVersionTree EngineVersionTree { get; }
 
         /// <summary>
         /// The game
@@ -91,24 +104,6 @@ namespace R1Engine
         public bool GBA_IsCommon => EngineVersion >= EngineVersion.GBA_BatmanVengeance;
 
         public bool GBAVV_IsFusion => EngineVersion == EngineVersion.GBAVV_CrashFusion || EngineVersion == EngineVersion.GBAVV_SpyroFusion;
-
-        public Jade_Version Jade_Version {
-            get {
-                if (Game == Game.Jade_BGE) {
-                    return Jade_Version.Default;
-                } else if (EngineVersion < EngineVersion.Jade_PoP_SandsOfTime) {
-                    if (EngineVersion >= EngineVersion.Jade_Horsez2 && EngineVersion <= EngineVersion.Jade_MovieGames) {
-                        return Jade_Version.Phoenix;
-                    } else if (Platform == Platform.Xbox360 || GameModeSelection == GameModeSelection.KingKongPCGamersEdition) {
-                        return Jade_Version.Xenon;
-                    } else {
-                        return Jade_Version.Default;
-                    }
-                } else {
-                    return Jade_Version.Montreal;
-                }
-            }
-        }
 
         // Helpers
 

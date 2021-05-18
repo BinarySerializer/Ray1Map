@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
                 // Choose a key. Either the first valid one or the one with the current language
                 var firstValidRef = References.FindItem(r => !r.IsNull);
 
-                if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
+                if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
                     firstValidRef.Resolve(immediate: true, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount
                         | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
                 } else {

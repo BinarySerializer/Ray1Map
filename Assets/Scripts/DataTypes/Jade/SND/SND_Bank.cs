@@ -8,16 +8,17 @@ namespace R1Engine.Jade {
 
         public override void SerializeImpl(SerializerObject s) {
             Count = FileSize / 8;
-            if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong && Loader.IsBinaryData) {
+            if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) && Loader.IsBinaryData) {
                 Count = s.Serialize<uint>(Count, name: nameof(Count));
             }
             var endPtr = Offset + FileSize;
-            if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR2) {
-                References = s.SerializeObjectArray<SoundRef>(References, Count, name: nameof(References));
-            } else {
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
                 References = s.SerializeObjectArrayUntil<SoundRef>(References,
                     sr => s.CurrentAbsoluteOffset >= endPtr.AbsoluteOffset,
                     name: nameof(References));
+                Count = (uint)(References?.Length ?? 0);
+            } else {
+                References = s.SerializeObjectArray<SoundRef>(References, Count, name: nameof(References));
             }
         }
 
@@ -28,7 +29,7 @@ namespace R1Engine.Jade {
             public override void SerializeImpl(SerializerObject s) {
                 Reference = s.SerializeObject<Jade_GenericReference>(Reference, name: nameof(Reference));
 
-                if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
+                if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
                     if (Reference.Type == Jade_FileType.FileType.SND_SModifier) {
                         Reference.ResolveEmbedded(s, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
                     } /*else {
@@ -37,7 +38,7 @@ namespace R1Engine.Jade {
                 } else {
                     Reference.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
 
-                    if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
+                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
                         LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
                         if (!Reference.IsNull && Loader.IsBinaryData && IsSound) {
                             RRR2_Bool = s.Serialize<bool>(RRR2_Bool, name: nameof(RRR2_Bool));

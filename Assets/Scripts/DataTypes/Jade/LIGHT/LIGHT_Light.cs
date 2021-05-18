@@ -17,7 +17,7 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 			Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
-			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && BitHelpers.ExtractBits((int)Flags, 3, 0) == 7) {
+			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Flags, 3, 0) == 7) {
 				XenonData1 = s.SerializeObject<LIGHT_XenonData1>(XenonData1, name: nameof(XenonData1));
 			}
 			AddMaterial = s.Serialize<float>(AddMaterial, name: nameof(AddMaterial));
@@ -26,7 +26,7 @@ namespace R1Engine.Jade {
 			Float_14 = s.Serialize<float>(Float_14, name: nameof(Float_14));
 			GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 			if ((XenonData1 != null && BitHelpers.ExtractBits((int)XenonData1.LightFlags, 3, 0) == 5)
-				|| (XenonData1 == null && s.GetR1Settings().Jade_Version == Jade_Version.Xenon && BitHelpers.ExtractBits((int)Flags, 3, 0) == 5)) {
+				|| (XenonData1 == null && s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Flags, 3, 0) == 5)) {
 				XenonData2 = s.SerializeObject<LIGHT_XenonData2>(XenonData2, name: nameof(XenonData2));
 			}
 		}

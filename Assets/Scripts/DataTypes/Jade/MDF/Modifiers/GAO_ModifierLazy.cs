@@ -23,10 +23,10 @@ namespace R1Engine.Jade {
 			if(!Loader.IsBinaryData) UInt_Editor_00 = s.Serialize<uint>(UInt_Editor_00, name: nameof(UInt_Editor_00));
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			LazyFactor = s.Serialize<float>(LazyFactor, name: nameof(LazyFactor));
-			if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
-				Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
-			} else {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
 				Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
+			} else {
+				Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 			}
 			if (Version >= 1) BoundingVolume = s.SerializeObject<OBJ_BV_Box>(BoundingVolume, name: nameof(BoundingVolume));
 			if (Version >= 2) Gravity = s.Serialize<float>(Gravity, name: nameof(Gravity));

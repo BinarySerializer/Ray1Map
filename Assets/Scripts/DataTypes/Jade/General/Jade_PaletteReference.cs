@@ -49,7 +49,7 @@ namespace R1Engine.Jade {
 		}
 
 		private void LoadRRR2Unknown() {
-			if (Context.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
+			if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
 				LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 				if (loader.IsBinaryData) {
 					loader.RequestFile(Key, (s, configureAction) => {

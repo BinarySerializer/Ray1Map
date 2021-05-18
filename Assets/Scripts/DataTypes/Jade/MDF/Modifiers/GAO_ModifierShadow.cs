@@ -47,7 +47,7 @@ namespace R1Engine.Jade {
 			ZSizeFactor = s.Serialize<float>(ZSizeFactor, name: nameof(ZSizeFactor));
 			ProjectionMethod = s.Serialize<uint>(ProjectionMethod, name: nameof(ProjectionMethod));
 			TextureTiling = s.Serialize<byte>(TextureTiling, name: nameof(TextureTiling));
-			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_KingKong || !Loader.IsBinaryData) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) || !Loader.IsBinaryData) {
 				Version = s.Serialize<byte>(Version, name: nameof(Version));
 				Dummy = s.Serialize<short>(Dummy, name: nameof(Dummy));
 				if (Version >= 1) {

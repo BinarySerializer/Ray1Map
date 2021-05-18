@@ -178,7 +178,7 @@ namespace R1Engine.Jade {
 
 							if (currentRef.IsBin && Bin != null) {
 								if (IsCompressed) {
-									Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().Jade_Version == Jade_Version.Xenon),
+									Bin.StartPosition = s.BeginEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)),
 										filename: regionName);
 									Bin.CurrentPosition = Bin.StartPosition;
 									s.Goto(Bin.StartPosition);
@@ -266,7 +266,7 @@ namespace R1Engine.Jade {
 		}
 
 		private void LoadLoopBIN_End() {
-			if (Context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				if (Bin != null) {
 					CurrentQueueType = Bin.QueueType;
 				} else {

@@ -712,10 +712,10 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PSP)", typeof(Jade_KingKong_PSP_Manager), Platform.PSP)]
         KingKongPSP,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (PC - Gamer's Edition)", typeof(Jade_KingKong_PCGamersEdition_Manager), Platform.PC)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (PC - Gamer's Edition)", typeof(Jade_KingKong_PCGamersEdition_Manager), Platform.PC, flags: EngineFlags.Jade_Xenon)]
         KingKongPCGamersEdition,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (Xbox 360)", typeof(Jade_KingKong_Xbox360_Manager), Platform.Xbox360)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (Xbox 360)", typeof(Jade_KingKong_Xbox360_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
         KingKongXbox360,
 
 
@@ -731,7 +731,7 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (Wii - JP)", typeof(Jade_RRR_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbidsWiiJP,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR_Xbox360, Game.Jade_RRR, "Rayman Raving Rabbids (Xbox 360)", typeof(Jade_RRR_Xbox360_Manager), Platform.Xbox360)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (Xbox 360)", typeof(Jade_RRR_Xbox360_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
         RaymanRavingRabbidsXbox360,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PS2)", typeof(Jade_RRR_PS2_Manager), Platform.PS2)]
@@ -754,7 +754,7 @@ namespace R1Engine {
         RaymanRavingRabbids2Wii,
 
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SandsOfTime, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PS2 - Prototype 2003/08/19)", typeof(Jade_PoP_SoT_PS2_Prototype_Manager), Platform.PS2)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PS2 - Prototype 2003/08/19)", typeof(Jade_PoP_SoT_PS2_Prototype_Manager), Platform.PS2)]
         PrinceOfPersiaTheSandsOfTimePS2_20030819,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]

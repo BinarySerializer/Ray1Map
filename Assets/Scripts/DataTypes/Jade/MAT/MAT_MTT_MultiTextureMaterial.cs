@@ -35,7 +35,7 @@ namespace R1Engine.Jade {
 				Version = s.Serialize<byte>(Version, name: nameof(Version));
 				Sound = s.Serialize<byte>(Sound, name: nameof(Sound));
 				Dummy = s.Serialize<short>(Dummy, name: nameof(Dummy));
-				if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && Version == 3) {
+				if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Version == 3) {
 					NF_Xenon_UInt = s.Serialize<uint>(NF_Xenon_UInt, name: nameof(NF_Xenon_UInt));
 				}
 			} else {

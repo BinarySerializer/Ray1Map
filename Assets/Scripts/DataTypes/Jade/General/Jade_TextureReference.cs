@@ -26,7 +26,7 @@ namespace R1Engine.Jade {
 		public Jade_TextureReference Resolve(SerializerObject s = null, bool RRR2_readBool = false) {
 			if (IsNull) return this;
 			TEX_GlobalList lists = Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
-			if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR2 && RRR2_readBool && s != null) {
+			if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2) && RRR2_readBool && s != null) {
 				if (!lists.ContainsTexture(this)) {
 					RRR2_Bool = s.Serialize<bool>(RRR2_Bool, name: nameof(RRR2_Bool));
 					if (!RRR2_Bool) return this;

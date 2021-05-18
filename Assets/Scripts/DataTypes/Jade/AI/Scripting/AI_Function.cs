@@ -28,14 +28,14 @@ namespace R1Engine.Jade {
 			SizeLocalStack = s.Serialize<int>(SizeLocalStack, name: nameof(SizeLocalStack));
 			FunctionBufferLength = s.Serialize<uint>(FunctionBufferLength, name: nameof(FunctionBufferLength));
 
-			if (FunctionBufferLength > 0 && (FunctionDef == null || !Loader.IsBinaryData || s.GetR1Settings().Jade_Version >= Jade_Version.Montreal)) {
+			if (FunctionBufferLength > 0 && (FunctionDef == null || !Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal))) {
 				Nodes = s.SerializeObjectArray<AI_Node>(Nodes, FunctionBufferLength / 8, name: nameof(Nodes));
 			}
 			if (!Loader.IsBinaryData) {
 				UnknownBufferLength = s.Serialize<uint>(UnknownBufferLength, name: nameof(UnknownBufferLength));
 				Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, UnknownBufferLength / 8, name: nameof(Unknown));
 			}
-			if (s.GetR1Settings().Jade_Version != Jade_Version.Xenon) {
+			if (!s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
 				StringBufferLength = s.Serialize<uint>(StringBufferLength, name: nameof(StringBufferLength));
 			} else {
 				StringBufferLength = FileSize - (uint)(s.CurrentPointer - Offset);

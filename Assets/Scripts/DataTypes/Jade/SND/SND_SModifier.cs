@@ -52,7 +52,7 @@ namespace R1Engine.Jade {
         public byte[] Bytes { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
-            if (s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
+            if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
                 Bytes = s.SerializeArray<byte>(Bytes, FileSize, name: nameof(Bytes));
                 return;
             }
@@ -78,7 +78,7 @@ namespace R1Engine.Jade {
             Pan = s.Serialize<int>(Pan, name: nameof(Pan));
             Span = s.Serialize<int>(Span, name: nameof(Span));
             MinPan = s.Serialize<float>(MinPan, name: nameof(MinPan));
-            if (FormatVersion >= 3 && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+            if (FormatVersion >= 3 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
                 Type3_Float_20 = s.Serialize<float>(Type3_Float_20, name: nameof(Type3_Float_20));
             } else {
                 Freq = s.Serialize<uint>(Freq, name: nameof(Freq));
@@ -136,7 +136,7 @@ namespace R1Engine.Jade {
                 } else if (Flags.HasFlag(SoundFlags.LoadingSound)) {
                 } else { // Sound
                 }*/
-                if (Context.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
+                if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
                     LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
                     if (!Wave.IsNull && Loader.IsBinaryData) {
                         RRR2_Bool = s.Serialize<bool>(RRR2_Bool, name: nameof(RRR2_Bool));

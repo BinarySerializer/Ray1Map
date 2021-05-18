@@ -124,7 +124,7 @@ namespace R1Engine.Jade {
 			}
 			if (Version >= 10) GridNoise = s.Serialize<float>(GridNoise, name: nameof(GridNoise));
 			if (Version >= 11) Flags1 = s.Serialize<uint>(Flags1, name: nameof(Flags1));
-			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
 				if (Version >= 12) {
 					Type12_UInt_0 = s.Serialize<uint>(Type12_UInt_0, name: nameof(Type12_UInt_0));
 					Type12_UInt_1 = s.Serialize<uint>(Type12_UInt_1, name: nameof(Type12_UInt_1));
@@ -134,8 +134,8 @@ namespace R1Engine.Jade {
 					Type13_Float_1 = s.Serialize<float>(Type13_Float_1, name: nameof(Type13_Float_1));
 				}
 			}
-			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && Version != 0x111) {
-				var maxType = (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) ? 14 : 12;
+			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && Version != 0x111) {
+				var maxType = (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) ? 14 : 12;
 				if (Version >= maxType) {
 					Type14_Float_0 = s.Serialize<float>(Type14_Float_0, name: nameof(Type14_Float_0));
 					Type14_Float_1 = s.Serialize<float>(Type14_Float_1, name: nameof(Type14_Float_1));

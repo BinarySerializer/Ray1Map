@@ -46,7 +46,7 @@ namespace R1Engine.Jade {
 		public const uint KeyTypeTextNoSound = 0xFD000000;
 		public const uint KeyTypeTextSound = 0xFE000000;
 		public static uint WorldKey(Context context, uint key) {
-			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				return (uint)BitHelpers.ExtractBits((int)key, 20, 0);
 			} else {
 				return (uint)BitHelpers.ExtractBits((int)key, 19, 0);
@@ -60,7 +60,7 @@ namespace R1Engine.Jade {
 		}
 		public static uint UncomposeBinKey(Context context, uint key) {
 			uint newKey = WorldKey(context, key);
-			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				uint bottom = (uint)BitHelpers.ExtractBits((int)newKey, 16, 0);
 				uint top = (uint)BitHelpers.ExtractBits((int)newKey, 8, 16);
 				newKey = (uint)BitHelpers.SetBits((int)bottom, (int)top, 8, 24);
@@ -69,7 +69,7 @@ namespace R1Engine.Jade {
 		}
 		public static Jade_Key GetBinaryForKey(Context context, uint worldKey, KeyType type, int languageID = 0) {
 			uint newKey = worldKey;
-			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				newKey = ComposeMontrealKey(newKey);
 			}
 			newKey = WorldKey(context, newKey);
@@ -81,7 +81,7 @@ namespace R1Engine.Jade {
 				case KeyType.TextSound: newKey |= KeyTypeTextSound; break;
 			}
 			if (type == KeyType.TextSound || type == KeyType.TextNoSound) {
-				if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 					newKey = (uint)BitHelpers.SetBits((int)newKey, languageID + 1, 4, 20);
 				} else {
 					newKey = (uint)BitHelpers.SetBits((int)newKey, languageID + 1, 5, 19);
@@ -97,7 +97,7 @@ namespace R1Engine.Jade {
 				switch (Key & 0xFF000000) {
 					case KeyTypeMap:
 						uint mask = 0xFFF80000;
-						if(Context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) mask = 0xFFF00000;
+						if(Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) mask = 0xFFF00000;
 						switch (Key & mask) {
 							case KeyTypeTextures: return KeyType.Textures;
 							case KeyTypeSounds: return KeyType.Sounds;

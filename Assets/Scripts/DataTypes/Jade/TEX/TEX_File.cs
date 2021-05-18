@@ -26,7 +26,7 @@ namespace R1Engine.Jade
             }
         }
         public static bool IsRawPalUnsupported(Context c) =>
-            (c.GetR1Settings().Jade_Version == Jade_Version.Xenon) ||
+            (c.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) ||
             (c.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE && c.GetR1Settings().Platform == Platform.PC) ||
             (c.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD);
         public TEX_File Info { get; set; } // Set in onPreSerialize
@@ -151,7 +151,7 @@ namespace R1Engine.Jade
                         {
                             if (contentSize > 0) 
                             {
-                                if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon) 
+                                if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) 
                                 {
                                     Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Xenon));
                                 }

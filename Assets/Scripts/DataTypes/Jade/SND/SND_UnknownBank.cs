@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		// Irregular Jade_File format. The filesize is only read after the type
 		protected override void OnPreSerialize(SerializerObject s) {
 			base.OnPreSerialize(s);
-			if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR2) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
 				HeaderFileSize = s.Serialize<uint>(HeaderFileSize, name: nameof(HeaderFileSize));
 			}
 			Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));

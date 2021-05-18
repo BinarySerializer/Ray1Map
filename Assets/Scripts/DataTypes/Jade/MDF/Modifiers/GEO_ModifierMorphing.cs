@@ -22,7 +22,7 @@ namespace R1Engine.Jade {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 			UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
-			if (s.GetR1Settings().Jade_Version == Jade_Version.Xenon && UInt_00 == 0) {
+			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && UInt_00 == 0) {
 				Xenon_Type = s.Serialize<uint>(Xenon_Type, name: nameof(Xenon_Type));
 			}
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));

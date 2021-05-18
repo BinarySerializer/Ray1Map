@@ -74,7 +74,7 @@ namespace R1Engine
 									fileSizes.Add(new KeyValuePair<long, long>(f.FileOffset.AbsoluteOffset, fileSize + 4));
 									if (fileIsCompressed) {
 										try {
-											s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: settings.Jade_Version == Jade_Version.Xenon), () => {
+											s.DoEncoded(new Jade_Lzo1xEncoder(fileSize, xbox360Version: settings.EngineFlags.HasFlag(EngineFlags.Jade_Xenon)), () => {
 												fileBytes = s.SerializeArray<byte>(fileBytes, s.CurrentLength, name: "FileBytes");
 											});
 										} catch (Exception) {
@@ -296,7 +296,7 @@ namespace R1Engine
 
 			loader.BeginSpeedMode(worldKey, serializeAction: async s => {
 				await loader.LoadLoopBINAsync();
-				if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 					if (worldList?.Value != null) {
 						await worldList.Value.ResolveReferences(s);
 					}
@@ -304,7 +304,7 @@ namespace R1Engine
 			});
 			await loader.LoadLoop(context.Deserializer);
 
-			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				await worldList.Value.ResolveReferences_Montreal(context.Deserializer);
 			}
 
@@ -374,7 +374,7 @@ namespace R1Engine
 			await Controller.WaitIfNecessary();
 
 			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, loader.BigFiles[0].UniverseKey);
-			if (context.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				univers.Resolve(queue: LOA_Loader.QueueType.Maps); // Univers is bin compressed in Montreal version
 				loader.BeginSpeedMode(univers.Key);
 				await loader.LoadLoop(context.Deserializer); // First resolve universe

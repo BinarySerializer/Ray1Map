@@ -27,9 +27,9 @@ namespace R1Engine.Jade {
 		public AI_Var[] Vars { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				RewindVarEndOffset = s.Serialize<uint>(RewindVarEndOffset, name: nameof(RewindVarEndOffset));
-				if (s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRRTVParty) { // Probably added for T2T
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) { // Probably added for T2T
 					if (BitHelpers.ExtractBits((int)RewindVarEndOffset, 1, 31) == 1) {
 						int count = BitHelpers.ExtractBits((int)RewindVarEndOffset, 31, 0);
 						RewindZones = s.SerializeObjectArray<AI_Vars_RewindZone>(RewindZones, count, name: nameof(RewindZones));
@@ -90,8 +90,7 @@ namespace R1Engine.Jade {
 				Functions[i] = s.SerializeObject<Jade_Reference<AI_Function>>(Functions[i], name: $"{nameof(Functions)}[{i}]")?.Resolve();
 			}
 
-			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal
-				|| s.GetR1Settings().EngineVersion < EngineVersion.Jade_KingKong) {
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong)) {
 				if (s.CurrentPointer.AbsoluteOffset < (Offset + FileSize).AbsoluteOffset) {
 					ExtraFunctionsCount = s.Serialize<uint>(ExtraFunctionsCount, name: nameof(ExtraFunctionsCount));
 					ExtraFunctions = s.SerializeObjectArray<Jade_Reference<AI_Function>>(ExtraFunctions, ExtraFunctionsCount, name: nameof(ExtraFunctions));

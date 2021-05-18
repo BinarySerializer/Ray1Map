@@ -36,7 +36,7 @@ namespace R1Engine.Jade {
 				PointerRealArray = s.Serialize<uint>(PointerRealArray, name: nameof(PointerRealArray));
 				PointerEvalArray = s.Serialize<uint>(PointerEvalArray, name: nameof(PointerEvalArray));
 			}
-			if (!Loader.IsBinaryData || s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				MinZTotal = s.Serialize<float>(MinZTotal, name: nameof(MinZTotal));
 			}
 			MinXTotal = s.Serialize<float>(MinXTotal, name: nameof(MinXTotal));

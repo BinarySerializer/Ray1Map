@@ -205,7 +205,7 @@ namespace R1Engine.Jade {
                 if (Type >= 12) {
                     Byte_270 = s.Serialize<byte>(Byte_270, name: nameof(Byte_270));
 
-                    if (s.GetR1Settings().Jade_Version == Jade_Version.Phoenix) {
+                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)) {
                         Phoenix_Float_0 = s.Serialize<float>(Phoenix_Float_0, name: nameof(Phoenix_Float_0));
                         Phoenix_Float_1 = s.Serialize<float>(Phoenix_Float_1, name: nameof(Phoenix_Float_1));
                         Phoenix_Int_0 = s.Serialize<int>(Phoenix_Int_0, name: nameof(Phoenix_Int_0));

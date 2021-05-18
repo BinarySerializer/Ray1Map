@@ -22,7 +22,7 @@ namespace R1Engine.Jade {
 			Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
 			P1 = s.Serialize<ushort>(P1, name: nameof(P1));
 			P2 = s.Serialize<int>(P2, name: nameof(P2));
-			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				Editor_Index = s.Serialize<int>(Editor_Index, name: nameof(Editor_Index));
 			}
 		}

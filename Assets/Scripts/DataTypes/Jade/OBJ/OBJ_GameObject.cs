@@ -43,13 +43,13 @@ namespace R1Engine.Jade {
 			if(Loader?.WorldToLoadIn != null) Loader.WorldToLoadIn.SerializedGameObjects.Add(this);
 
 			if (!Loader.IsBinaryData
-				|| s.GetR1Settings().Jade_Version == Jade_Version.Xenon
-				|| s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+				|| s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)
+				|| s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				Version = s.Serialize<uint>(Version, name: nameof(Version));
 			}
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
-			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal && Version >= 2) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version >= 2) {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
@@ -57,7 +57,7 @@ namespace R1Engine.Jade {
 				StatusFlags = (ushort)bitFunc(StatusFlags, 16, name: nameof(StatusFlags));
 				ControlFlags = (OBJ_GameObject_ControlFlags)bitFunc((ushort)ControlFlags, 16, name: nameof(ControlFlags));
 			});
-			if (s.GetR1Settings().Jade_Version >= Jade_Version.Montreal) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				MiscFlags = s.Serialize<byte>(MiscFlags, name: nameof(MiscFlags));
 			} else {
 				Secto = s.Serialize<byte>(Secto, name: nameof(Secto));
@@ -87,11 +87,11 @@ namespace R1Engine.Jade {
 				COL_ColMap = s.SerializeObject<Jade_Reference<COL_ColMap>>(COL_ColMap, name: nameof(COL_ColMap))?
 					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseAlreadyLoadedCallback);
 			}
-			if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal || Version < 2) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || Version < 2) {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
-			if (s.GetR1Settings().Jade_Version < Jade_Version.Montreal && s.GetR1Settings().EngineVersion >= EngineVersion.Jade_RRR) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
 				UInt_AfterName_00 = s.Serialize<uint>(UInt_AfterName_00, name: nameof(UInt_AfterName_00));
 				if (UInt_AfterName_00 != 0)
 					UInt_AfterName_04 = s.Serialize<uint>(UInt_AfterName_04, name: nameof(UInt_AfterName_04));
