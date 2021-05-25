@@ -283,6 +283,7 @@ namespace R1Engine
                 var desNames = WorldHelpers.GetR1Worlds().ToDictionary(x => x, world => {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
+                    context.GetSettings<Ray1Settings>().World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
@@ -300,6 +301,7 @@ namespace R1Engine
                 var etaNames = WorldHelpers.GetR1Worlds().ToDictionary(x => x, world => {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
+                    context.GetSettings<Ray1Settings>().World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
@@ -313,6 +315,7 @@ namespace R1Engine
                 });
 
                 context.GetR1Settings().R1_World = World.Jungle;
+                context.GetSettings<Ray1Settings>().World = World.Jungle;
 
                 // Keep track of Rayman's anim
                 PC_Animation[] rayAnim = null;
@@ -347,6 +350,7 @@ namespace R1Engine
                 foreach (World world in WorldHelpers.GetR1Worlds()) {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
+                    context.GetSettings<Ray1Settings>().World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.GetR1Settings());
@@ -386,6 +390,7 @@ namespace R1Engine
             foreach (var i in GetLevels(context.GetR1Settings()).First(x => x.Name == context.GetR1Settings().EduVolume || x.Name == null).Worlds.First(x => x.Index == context.GetR1Settings().World).Maps.OrderBy(x => x)) {
                 // Set the level number
                 context.GetR1Settings().Level = i;
+                context.GetSettings<Ray1Settings>().Level = i;
 
                 // Get the level file path
                 var lvlPath = GetLevelFilePath(context.GetR1Settings());
@@ -482,6 +487,7 @@ namespace R1Engine
             {
                 // Set the level number
                 context.GetR1Settings().Level = i;
+                context.GetSettings<Ray1Settings>().Level = i;
 
                 // Get the level file path
                 var lvlPath = GetLevelFilePath(context.GetR1Settings());
@@ -1097,11 +1103,13 @@ namespace R1Engine
                 foreach (var world in GetLevels(settings).First().Worlds)
                 {
                     settings.World = world.Index;
+                    context.GetSettings<Ray1Settings>().World = (World)world.Index;
 
                     // Enumerate every level
                     foreach (var lvl in world.Maps)
                     {
                         settings.Level = lvl;
+                        context.GetSettings<Ray1Settings>().Level = lvl;
 
                         // Get the file path
                         var path = GetLevelFilePath(settings);
@@ -1684,6 +1692,7 @@ namespace R1Engine
             {
                 // Set the world
                 context.GetR1Settings().World = world;
+                context.GetSettings<Ray1Settings>().World = (World)world;
 
                 // Add world file
                 context.AddFile(GetFile(context, GetWorldFilePath(context.GetR1Settings())));
@@ -1693,6 +1702,7 @@ namespace R1Engine
                 {
                     // Set the level
                     context.GetR1Settings().Level = lvl;
+                    context.GetSettings<Ray1Settings>().Level = lvl;
 
                     // Add level file
                     context.AddFile(GetFile(context, GetLevelFilePath(context.GetR1Settings())));
@@ -1774,6 +1784,7 @@ namespace R1Engine
                     {
                         var index = archive.Archive.Entries.FindItemIndex(x => x.FileName == fileName.ToString());
                         context.GetR1Settings().EduVolume = archive.Volume;
+                        context.GetSettings<Ray1Settings>().Volume = archive.Volume;
                         archive.Archive.ReadFile<T>(context, index);
                     }
                 }

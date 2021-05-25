@@ -120,11 +120,13 @@ namespace R1Engine
             foreach (var world in GetLevels(baseGameSettings).First().Worlds)
             {
                 baseGameSettings.World = world.Index;
+                settings.World = (World)world.Index;
 
                 // Enumerate every level
                 foreach (var lvl in world.Maps)
                 {
                     baseGameSettings.Level = lvl;
+                    settings.Level = lvl;
                     var lvlIndex = data.WorldLevelOffsetTable[world.Index] + (lvl - 1);
 
                     // Serialize the event data
@@ -288,11 +290,13 @@ namespace R1Engine
             foreach (var world in GetLevels(baseGameSettings).First().Worlds)
             {
                 baseGameSettings.World = world.Index;
+                settings.World = (World)world.Index;
 
                 // Enumerate every level
                 foreach (var lvl in world.Maps)
                 {
                     baseGameSettings.Level = lvl;
+                    settings.Level = lvl;
 
                     var lvlIndex = data.WorldLevelOffsetTable[world.Index] + (lvl - 1);
 

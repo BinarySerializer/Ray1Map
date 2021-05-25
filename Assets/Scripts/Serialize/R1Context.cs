@@ -20,6 +20,8 @@ namespace R1Engine
             // Add the game settings
             AddSettings(settings);
 
+            // TODO: Move below code to managers
+
             // If Rayman 1 we add Ray1 settings
             if (settings.MajorEngineVersion == MajorEngineVersion.Rayman1 || 
                 settings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar ||

@@ -272,12 +272,16 @@ namespace R1Engine
                     R1_PCBaseManager otherGame = (R1_PCBaseManager)otherSettings.GetGameManager;
 
                     if (edu)
+                    {
                         otherContext.GetR1Settings().EduVolume = otherGame.GetLevels(otherContext.GetR1Settings()).First().Name;
+                        otherContext.GetSettings<Ray1Settings>().Volume = otherContext.GetR1Settings().EduVolume;
+                    }
 
                     // Loop through the worlds.
                     for (int w = 1; w < 7; w++)
                     {
                         context.GetR1Settings().World = otherContext.GetR1Settings().World = w;
+                        context.GetSettings<Ray1Settings>().World = otherContext.GetSettings<Ray1Settings>().World = (World)w;
                         var wldPath = GetWorldFilePath(context.GetR1Settings());
 
                         await LoadFilesAsync(context);
