@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
     public class Unity_Object_SNES : Unity_Object
     {
-        public Unity_Object_SNES(SNES_Proto_Object obj, Unity_ObjectManager_SNES objManager)
+        public Unity_Object_SNES(SNES_ObjData obj, Unity_ObjectManager_SNES objManager)
         {
             Object = obj;
             ObjManager = objManager;
         }
 
-        public SNES_Proto_Object Object { get; }
+        public SNES_ObjData Object { get; }
         public Unity_ObjectManager_SNES ObjManager { get; }
 
         public override short XPosition
@@ -49,8 +51,8 @@ namespace R1Engine
         public override BinarySerializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-		public override bool FlipHorizontally => !State.SNES_State.Flags.HasFlag(SNES_Proto_State.StateFlags.UseCurrentFlip)
-            && !State.SNES_State.Flags.HasFlag(SNES_Proto_State.StateFlags.HorizontalFlip);
+		public override bool FlipHorizontally => !State.SNES_State.Flags.HasFlag(SNES_State.StateFlags.UseCurrentFlip)
+            && !State.SNES_State.Flags.HasFlag(SNES_State.StateFlags.HorizontalFlip);
 
 		public override string PrimaryName => $"Rayman";
         public override string SecondaryName => null;

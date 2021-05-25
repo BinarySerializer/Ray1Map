@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -30,9 +31,9 @@ namespace R1Engine
                     isEditor = eventData.IsEditor
                 })
                 .Where(x => !x.isAlways && !x.isEditor)
-                .Where(x => x.obj.EventData.Type != R1_EventType.TYPE_RAY_POS &&
-                            x.obj.EventData.Type != R1_EventType.TYPE_PANCARTE &&
-                            x.obj.EventData.Type != R1_EventType.TYPE_SIGNPOST)
+                .Where(x => x.obj.EventData.Type != ObjType.TYPE_RAY_POS &&
+                            x.obj.EventData.Type != ObjType.TYPE_PANCARTE &&
+                            x.obj.EventData.Type != ObjType.TYPE_SIGNPOST)
                 .Select(x => x.obj))
             {
                 if (flags.HasFlag(RandomizerFlags.Pos))
@@ -63,7 +64,7 @@ namespace R1Engine
 
                 if (flags.HasFlag(RandomizerFlags.Follow))
                 {
-                    eventData.EventData.SetFollowEnabled(level.ObjManager.Context.GetR1Settings(), random.Next(0, 1) == 1);
+                    eventData.EventData.SetFollowEnabled(level.ObjManager.Context.GetSettings<Ray1Settings>(), random.Next(0, 1) == 1);
                     eventData.EventData.OffsetHY = (byte)random.Next(0, 10);
                 }
 
@@ -74,7 +75,7 @@ namespace R1Engine
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Type))
-                    eventData.EventData.Type = (R1_EventType)random.Next(0, 255);
+                    eventData.EventData.Type = (ObjType)random.Next(0, 255);
             }
         }
     }

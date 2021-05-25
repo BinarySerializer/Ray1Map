@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -98,22 +99,22 @@ namespace R1Engine
 
         #region Manager Methods
 
-        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_EDUDES[context.GetR1Settings().R1_World == R1_World.Menu ? 0 : context.GetR1Settings().World - 1];
-        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_EDUETA[context.GetR1Settings().R1_World == R1_World.Menu ? 0 : context.GetR1Settings().World - 1];
+        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_EDUDES[context.GetR1Settings().R1_World == World.Menu ? 0 : context.GetR1Settings().World - 1];
+        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_EDUETA[context.GetR1Settings().R1_World == World.Menu ? 0 : context.GetR1Settings().World - 1];
 
-        public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.EduPC_Type_ZDC;
-        public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.EduPC_ZDCTable;
-        public override byte[] GetEventFlagsBytes => R1_PC_EventFlagTables.EduPC_Flags;
+        public override byte[] GetTypeZDCBytes => PC_ZDCTables.EduPC_Type_ZDC;
+        public override byte[] GetZDCTableBytes => PC_ZDCTables.EduPC_ZDCTable;
+        public override byte[] GetEventFlagsBytes => PC_ObjTypeFlagTables.EduPC_Flags;
 
-        public override R1_WorldMapInfo[] GetWorldMapInfos(Context context)
+        public override WorldInfo[] GetWorldMapInfos(Context context)
         {
-            var wld = LoadArchiveFile<R1_PC_WorldMap>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.WLDMAP01);
+            var wld = LoadArchiveFile<PC_WorldMap>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.WLDMAP01);
             return wld.Levels.Take(wld.LevelsCount + 1).Where(x => x.XPosition != 0 && x.YPosition != 0).ToArray();
 
         }
 
-        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) =>
-            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
+        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax) =>
+            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.LevelDefines.BG_0])?.ToTexture(true));
 
         protected override UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
@@ -121,7 +122,7 @@ namespace R1Engine
             var localization = new KeyValuePair<string, string[]>[3];
 
             // Read the text data
-            var loc = LoadArchiveFile<R1_PC_LocFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.TEXT);
+            var loc = LoadArchiveFile<PC_LocFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.TEXT);
 
             // Save the localized name
             var locName = loc.LanguageNames[loc.LanguageUtilized];
@@ -133,13 +134,13 @@ namespace R1Engine
             localization[0] = new KeyValuePair<string, string[]>($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
 
             // Read the general data
-            var general = LoadArchiveFile<R1_PC_GeneralFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.GENERAL);
+            var general = LoadArchiveFile<PC_GeneralFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.GENERAL);
 
             // Add the localization
             localization[1] = new KeyValuePair<string, string[]>($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
 
             // Read the MOT data
-            var mot = LoadArchiveFile<R1_PCEdu_MOTFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.MOT);
+            var mot = LoadArchiveFile<PC_MOTFile>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.MOT);
 
             // Add the localization
             localization[2] = new KeyValuePair<string, string[]>($"MOT ({locName})", mot.TextDefine.Select(x => x.Value).ToArray());
@@ -163,7 +164,7 @@ namespace R1Engine
 
         public override UniTask<PCX> GetWorldMapVigAsync(Context context)
         {
-            var worldVig = LoadArchiveFile<R1_PC_WorldMap>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
+            var worldVig = LoadArchiveFile<PC_WorldMap>(context, GetSpecialArchiveFilePath(context.GetR1Settings().EduVolume), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
 
             return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), worldVig));
         }

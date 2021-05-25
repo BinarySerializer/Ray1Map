@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
@@ -35,7 +37,7 @@ namespace R1Engine
             {
                 // Load rom
                 await LoadFilesAsync(context);
-                var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<SNES_ROM>(GetROMFilePath, context);
 
                 var graphicsGroups = GetGraphicsGroups(rom);
 
@@ -83,7 +85,7 @@ namespace R1Engine
             {
                 // Load rom
                 await LoadFilesAsync(context);
-                var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<SNES_ROM>(GetROMFilePath, context);
 
                 foreach (var graphicsGroup in GetGraphicsGroups(rom))
                 {
@@ -107,10 +109,10 @@ namespace R1Engine
                         var spriteOffset = graphicsGroup.ImageDescriptors.Length * vramConfig;
 
                         // Calculate frame size
-                        int minX = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.XPosition);
-                        int minY = anim.Layers.Where(x => sprites[x.ImageIndex] != null).Min(x => x.YPosition);
-                        int frameWidth = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.width + x.XPosition);
-                        int frameHeight = (int)anim.Layers.Where(x => sprites[x.ImageIndex] != null).Max(x => sprites[x.ImageIndex].rect.height + x.YPosition);
+                        int minX = anim.Layers.Where(x => sprites[x.SpriteIndex] != null).Min(x => x.XPosition);
+                        int minY = anim.Layers.Where(x => sprites[x.SpriteIndex] != null).Min(x => x.YPosition);
+                        int frameWidth = (int)anim.Layers.Where(x => sprites[x.SpriteIndex] != null).Max(x => sprites[x.SpriteIndex].rect.width + x.XPosition);
+                        int frameHeight = (int)anim.Layers.Where(x => sprites[x.SpriteIndex] != null).Max(x => sprites[x.SpriteIndex].rect.height + x.YPosition);
 
                         // Create frame textures
                         var frames = new Texture2D[frameCount];
@@ -125,11 +127,11 @@ namespace R1Engine
                             {
                                 var animationLayer = anim.Layers[frameIndex * layersPerFrame + layerIndex];
 
-                                if ((spriteOffset + animationLayer.ImageIndex) >= sprites.Length)
+                                if ((spriteOffset + animationLayer.SpriteIndex) >= sprites.Length)
                                     continue;
 
                                 // Get the sprite
-                                var sprite = sprites[spriteOffset + animationLayer.ImageIndex];
+                                var sprite = sprites[spriteOffset + animationLayer.SpriteIndex];
 
                                 if (sprite == null)
                                     continue;
@@ -204,7 +206,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Read the rom
-            var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<SNES_ROM>(GetROMFilePath, context);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
@@ -236,7 +238,7 @@ namespace R1Engine
                     MapTiles = rom.BG3_Tiles.Select(x =>
                     {
                         x.TileMapY = (ushort)(x.PaletteIndex * tileSet_8000.SNES_BaseLength + x.TileMapY);
-                        return new Unity_Tile(x);
+                        return new Unity_Tile(MapTile.FromR1MapTile(x));
                     }).ToArray(),
                 },
                 // Map (no priority)
@@ -291,7 +293,7 @@ namespace R1Engine
                     MapTiles = rom.BG2_Tiles.Select(x =>
                     {
                         x.TileMapY = (ushort)(x.PaletteIndex * tileSet_0000.SNES_BaseLength + x.TileMapY);
-                        return new Unity_Tile(x);
+                        return new Unity_Tile(MapTile.FromR1MapTile(x));
                     }).ToArray(),
                     Layer = Unity_Map.MapLayer.Front,
                 },
@@ -302,7 +304,7 @@ namespace R1Engine
                     Width = rom.BG1_Map.Width,
                     Height = rom.BG1_Map.Height,
                     TileSet = new Unity_TileSet[0],
-                    MapTiles = rom.BG1_Map.Tiles.Select(x => new Unity_Tile(x)).ToArray()
+                    MapTiles = rom.BG1_Map.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray()
                 },
             };
 
@@ -318,8 +320,8 @@ namespace R1Engine
             return new Unity_Level(
                 maps: maps, 
                 objManager: objManager,
-                getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(),
+                getCollisionTypeNameFunc: x => ((JAG_BlockType)x).ToString(),
+                getCollisionTypeGraphicFunc: x => ((JAG_BlockType)x).GetCollisionTypeGraphic(),
                 rayman: rayman,
                 cellSize: 8)
             {
@@ -327,7 +329,7 @@ namespace R1Engine
             };
         }
 
-        public Unity_ObjectManager_SNES.GraphicsGroup[] GetGraphicsGroups(SNES_Proto_ROM rom)
+        public Unity_ObjectManager_SNES.GraphicsGroup[] GetGraphicsGroups(SNES_ROM rom)
         {
             return new Unity_ObjectManager_SNES.GraphicsGroup[]
             {
@@ -335,41 +337,41 @@ namespace R1Engine
                 GetGraphicsGroup(rom, rom.Rayman.States, rom.Rayman.ImageDescriptors, false, "Rayman"),
 
                 // Custom
-                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Enemy_Animations.Select(x => new SNES_Proto_State()
+                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Enemy_Animations.Select(x => new SNES_State()
                 {
                     Animation = x,
-                    Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
+                    Flags = SNES_State.StateFlags.UseCurrentFlip,
                     AnimSpeed = 8
                 }).ToArray(), SNES_Proto_CustomGraphicsGroups.Enemy_ImageDescriptors, true, "Unused Enemy (recreated)"),
-                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Orb_Animations.Select(x => new SNES_Proto_State()
+                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Orb_Animations.Select(x => new SNES_State()
                 {
                     Animation = x,
-                    Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
+                    Flags = SNES_State.StateFlags.UseCurrentFlip,
                     AnimSpeed = 5
                 }).ToArray(), SNES_Proto_CustomGraphicsGroups.Orb_ImageDescriptors, true, "Unused Orb (recreated)"),
-                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Fist_Animations.Select(x => new SNES_Proto_State()
+                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Fist_Animations.Select(x => new SNES_State()
                 {
                     Animation = x,
-                    Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
+                    Flags = SNES_State.StateFlags.UseCurrentFlip,
                     AnimSpeed = 8
                 }).ToArray(), SNES_Proto_CustomGraphicsGroups.Fist_ImageDescriptors, true, "Unused Fist (recreated)"),
-                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Effect_Animations.Select(x => new SNES_Proto_State()
+                GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Effect_Animations.Select(x => new SNES_State()
                 {
                     Animation = x,
-                    Flags = SNES_Proto_State.StateFlags.UseCurrentFlip,
+                    Flags = SNES_State.StateFlags.UseCurrentFlip,
                     AnimSpeed = 8
                 }).ToArray(), SNES_Proto_CustomGraphicsGroups.Effect_ImageDescriptors, true, "Unused Effects (recreated)"),
             };
         }
 
-        public Unity_ObjectManager_SNES.GraphicsGroup GetGraphicsGroup(SNES_Proto_ROM rom, SNES_Proto_State[] states, SNES_Proto_ImageDescriptor[] imgDescriptors, bool isRecreated, string name)
+        public Unity_ObjectManager_SNES.GraphicsGroup GetGraphicsGroup(SNES_ROM rom, SNES_State[] states, SNES_Sprite[] imgDescriptors, bool isRecreated, string name)
         {
             var objStates = states.Select(x => new Unity_ObjectManager_SNES.GraphicsGroup.State(x, x.Animation.ToCommonAnimation(x.VRAMConfigIndex * imgDescriptors.Length))).ToArray();
 
             return new Unity_ObjectManager_SNES.GraphicsGroup(objStates, imgDescriptors, GetSprites(rom, imgDescriptors), isRecreated, name);
         }
 
-        public Sprite[] GetSprites(SNES_Proto_ROM rom, SNES_Proto_ImageDescriptor[] imageDescriptors) 
+        public Sprite[] GetSprites(SNES_ROM rom, SNES_Sprite[] imageDescriptors) 
         {
             var sprites = new Sprite[imageDescriptors.Length * 3];
 
@@ -431,7 +433,7 @@ namespace R1Engine
             return sprites;
         }
 
-        public MapTile[] LoadMap(MapData map, MapTile[] tiles8)
+        public MapTile[] LoadMap(MapData map, BinarySerializer.Ray1.MapTile[] tiles8)
         {
             var output = new MapTile[map.Width * 2 * map.Height * 2];
 
@@ -449,7 +451,7 @@ namespace R1Engine
                     setTileAt(actualX, actualY, 0, 1, tiles8[mapTile.TileMapY * 4 + 2]);
                     setTileAt(actualX, actualY, 1, 1, tiles8[mapTile.TileMapY * 4 + 3]);
 
-                    void setTileAt(int baseX, int baseY, int offX, int offY, MapTile tile)
+                    void setTileAt(int baseX, int baseY, int offX, int offY, BinarySerializer.Ray1.MapTile tile)
                     {
                         var newTile = new MapTile()
                         {
@@ -483,7 +485,7 @@ namespace R1Engine
             return output;
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] palette, bool is2bpp, bool flipX, SNES_Proto_AnimatedTileEntry[] animatedTiles = null, bool shadow = false)
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] palette, bool is2bpp, bool flipX, SNES_AnimatedTileEntry[] animatedTiles = null, bool shadow = false)
         {
             var pal = is2bpp ? Util.ConvertAndSplitGBCPalette(palette) : Util.ConvertAndSplitGBAPalette(palette);
 

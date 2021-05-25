@@ -1,7 +1,7 @@
-﻿
-using System.Linq;
+﻿using System.Linq;
 using BinarySerializer;
-using UnityEngine;
+using BinarySerializer.Ray1;
+using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
@@ -16,7 +16,7 @@ namespace R1Engine
 
         public class GraphicsGroup
         {
-            public GraphicsGroup(State[] states, SNES_Proto_ImageDescriptor[] imageDescriptors, Sprite[] sprites, bool isRecreated, string name)
+            public GraphicsGroup(State[] states, SNES_Sprite[] imageDescriptors, Sprite[] sprites, bool isRecreated, string name)
             {
                 States = states;
                 ImageDescriptors = imageDescriptors;
@@ -26,20 +26,20 @@ namespace R1Engine
             }
 
             public State[] States { get; }
-            public SNES_Proto_ImageDescriptor[] ImageDescriptors { get; }
+            public SNES_Sprite[] ImageDescriptors { get; }
             public Sprite[] Sprites { get; }
             public bool IsRecreated { get; }
             public string Name { get; }
 
             public class State
             {
-                public State(SNES_Proto_State state, Unity_ObjAnimation animation)
+                public State(SNES_State state, Unity_ObjAnimation animation)
                 {
                     SNES_State = state;
                     Animation = animation;
                 }
 
-                public SNES_Proto_State SNES_State { get; }
+                public SNES_State SNES_State { get; }
                 public Unity_ObjAnimation Animation { get; }
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using BinarySerializer;
+using BinarySerializer.GBA;
 
 namespace R1Engine
 {
@@ -202,13 +203,13 @@ namespace R1Engine
 
                 // Serialize compressed tile data
                 s.DoAt(Mode7_MapTilesPointers[s.GetR1Settings().Level], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_MapTiles = s.SerializeArray<byte>(Mode7_MapTiles, s.CurrentLength, name: nameof(Mode7_MapTiles)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Mode7_MapTiles = s.SerializeArray<byte>(Mode7_MapTiles, s.CurrentLength, name: nameof(Mode7_MapTiles)));
                 });
                 s.DoAt(Mode7_BG0TilesPointers[s.GetR1Settings().Level], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG0Tiles = s.SerializeArray<byte>(Mode7_BG0Tiles, s.CurrentLength, name: nameof(Mode7_BG0Tiles)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Mode7_BG0Tiles = s.SerializeArray<byte>(Mode7_BG0Tiles, s.CurrentLength, name: nameof(Mode7_BG0Tiles)));
                 });
                 s.DoAt(Mode7_BG1TilesPointers[s.GetR1Settings().Level], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG1Tiles = s.SerializeArray<byte>(Mode7_BG1Tiles, s.CurrentLength, name: nameof(Mode7_BG1Tiles)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Mode7_BG1Tiles = s.SerializeArray<byte>(Mode7_BG1Tiles, s.CurrentLength, name: nameof(Mode7_BG1Tiles)));
                 });
 
                 // Serialize map data
@@ -220,24 +221,24 @@ namespace R1Engine
                 {
                     s.DoAt(Mode7_MapPointers[s.GetR1Settings().Level], () =>
                     {
-                        s.DoEncoded(new RNCEncoder(hasHeader: false), () =>
+                        s.DoEncoded(new RNC2Encoder(hasHeader: false), () =>
                             Mode7_MapData = s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Mode7Tiles, name: nameof(Mode7_MapData)));
                     });
                 }
                 s.DoAt(Mode7_BG0MapPointers[s.GetR1Settings().Level], () =>
                 {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG0MapData = s.SerializeObjectArray<MapTile>(Mode7_BG0MapData, 32 * 32,
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Mode7_BG0MapData = s.SerializeObjectArray<MapTile>(Mode7_BG0MapData, 32 * 32,
                         onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Foreground, name: nameof(Mode7_BG0MapData)));
                 });
                 s.DoAt(Mode7_BG1MapPointers[s.GetR1Settings().Level], () =>
                 {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG1MapData = s.SerializeObjectArray<MapTile>(Mode7_BG1MapData, 32 * 32,
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Mode7_BG1MapData = s.SerializeObjectArray<MapTile>(Mode7_BG1MapData, 32 * 32,
                         onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Foreground,
                         name: nameof(Mode7_BG1MapData)));
                 });
                 s.DoAt(Mode7_ObjectsPointers[s.GetR1Settings().Level], () =>
                 {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_Objects = s.SerializeObjectArray<GBARRR_Mode7Object>(Mode7_Objects, 141, name: nameof(Mode7_Objects)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Mode7_Objects = s.SerializeObjectArray<GBARRR_Mode7Object>(Mode7_Objects, 141, name: nameof(Mode7_Objects)));
                 });
                 if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAEU) {
                     s.DoAt(Mode7_CollisionMapDataPointers[s.GetR1Settings().Level], () => {
@@ -245,12 +246,12 @@ namespace R1Engine
                     });
                 } else {
                     s.DoAt(Mode7_CollisionMapDataPointers[s.GetR1Settings().Level], () => {
-                        s.DoEncoded(new RNCEncoder(hasHeader: false), () =>
+                        s.DoEncoded(new RNC2Encoder(hasHeader: false), () =>
                             Mode7_CollisionMapData = s.SerializeArray<ushort>(Mode7_CollisionMapData, 256 * 256, name: nameof(Mode7_CollisionMapData)));
                     });
                 }
                 s.DoAt(Mode7_CollisionTypesPointers[s.GetR1Settings().Level], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_CollisionTypes = s.SerializeArray<byte>(Mode7_CollisionTypes, s.CurrentLength, name: nameof(Mode7_CollisionTypes)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Mode7_CollisionTypes = s.SerializeArray<byte>(Mode7_CollisionTypes, s.CurrentLength, name: nameof(Mode7_CollisionTypes)));
                 });
                 s.DoAt(Mode7_WaypointsPointers[s.GetR1Settings().Level], () => {
                     Mode7_Waypoints = s.SerializeObjectArray<GBARRR_Mode7Waypoint>(Mode7_Waypoints, Mode7_WaypointsCount[s.GetR1Settings().Level], name: nameof(Mode7_Waypoints));
@@ -307,11 +308,11 @@ namespace R1Engine
                     if (isCompressed)
                     {
                         s.DoAt(Menu_Pointers[lvl * 3 + 0], () => {
-                            s.DoEncoded(new RNCEncoder(hasHeader: false), () => Menu_Tiles[i] = s.SerializeArray<byte>(Menu_Tiles[i], s.CurrentLength, name: $"{nameof(Menu_Tiles)}[{i}]"));
+                            s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Menu_Tiles[i] = s.SerializeArray<byte>(Menu_Tiles[i], s.CurrentLength, name: $"{nameof(Menu_Tiles)}[{i}]"));
                         });
                         s.DoAt(Menu_Pointers[lvl * 3 + 1], () =>
                         {
-                            s.DoEncoded(new RNCEncoder(hasHeader: false), () => Menu_MapData[i] = s.SerializeObjectArray<MapTile>(Menu_MapData[i], size.Width * size.Height, onPreSerialize: x => x.GBARRRType = mapType, name: $"{nameof(Menu_MapData)}[{i}]"));
+                            s.DoEncoded(new RNC2Encoder(hasHeader: false), () => Menu_MapData[i] = s.SerializeObjectArray<MapTile>(Menu_MapData[i], size.Width * size.Height, onPreSerialize: x => x.GBARRRType = mapType, name: $"{nameof(Menu_MapData)}[{i}]"));
                         });
                     }
                     else

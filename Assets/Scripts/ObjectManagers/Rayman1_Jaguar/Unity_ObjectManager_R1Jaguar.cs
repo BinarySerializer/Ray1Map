@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -68,7 +69,7 @@ namespace R1Engine
 
         public class EventDefinition
         {
-            public EventDefinition(Pointer pointer, Unity_ObjGraphics des, State[][] eta, string name, R1Jaguar_EventDefinition definition)
+            public EventDefinition(Pointer pointer, Unity_ObjGraphics des, State[][] eta, string name, JAG_EventDefinition definition)
             {
                 Pointer = pointer;
                 DES = des;
@@ -82,7 +83,7 @@ namespace R1Engine
             public State[][] ETA { get; }
             protected string Name { get; }
             public string DisplayName => Name ?? $"MS_0x{Pointer.FileOffset:X8}";
-            public R1Jaguar_EventDefinition Definition { get; }
+            public JAG_EventDefinition Definition { get; }
         }
     }
 }

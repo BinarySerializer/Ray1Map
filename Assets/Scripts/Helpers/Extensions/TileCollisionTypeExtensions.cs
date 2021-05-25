@@ -1,87 +1,89 @@
-﻿namespace R1Engine
+﻿using BinarySerializer.Ray1;
+
+namespace R1Engine
 {
     public static class TileCollisionTypeExtensions
     {
-        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this R1_TileCollisionType collisionType)
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this TileCollisionType collisionType)
         {
             switch (collisionType)
             {
-                case R1_TileCollisionType.None:
+                case TileCollisionType.None:
                     return Unity_MapCollisionTypeGraphic.None;
 
-                case R1_TileCollisionType.Reactionary:
+                case TileCollisionType.Reactionary:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
-                case R1_TileCollisionType.Hill_Steep_Left:
+                case TileCollisionType.Hill_Steep_Left:
                     return Unity_MapCollisionTypeGraphic.Hill_Steep_Left;
 
-                case R1_TileCollisionType.Hill_Steep_Right:
+                case TileCollisionType.Hill_Steep_Right:
                     return Unity_MapCollisionTypeGraphic.Hill_Steep_Right;
 
-                case R1_TileCollisionType.Hill_Slight_Left_1:
+                case TileCollisionType.Hill_Slight_Left_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
 
-                case R1_TileCollisionType.Hill_Slight_Left_2:
+                case TileCollisionType.Hill_Slight_Left_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2;
 
-                case R1_TileCollisionType.Hill_Slight_Right_2:
+                case TileCollisionType.Hill_Slight_Right_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
 
-                case R1_TileCollisionType.Hill_Slight_Right_1:
+                case TileCollisionType.Hill_Slight_Right_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
 
-                case R1_TileCollisionType.Damage:
+                case TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
 
-                case R1_TileCollisionType.Bounce:
+                case TileCollisionType.Bounce:
                     return Unity_MapCollisionTypeGraphic.Bounce;
 
-                case R1_TileCollisionType.Water:
+                case TileCollisionType.Water:
                     return Unity_MapCollisionTypeGraphic.Water;
 
-                case R1_TileCollisionType.Exit:
+                case TileCollisionType.Exit:
                     return Unity_MapCollisionTypeGraphic.Exit;
 
-                case R1_TileCollisionType.Climb:
+                case TileCollisionType.Climb:
                     return Unity_MapCollisionTypeGraphic.Climb;
 
-                case R1_TileCollisionType.WaterNoSplash:
+                case TileCollisionType.WaterNoSplash:
                     return Unity_MapCollisionTypeGraphic.Water_NoSplash;
 
-                case R1_TileCollisionType.Passthrough:
+                case TileCollisionType.Passthrough:
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
-                case R1_TileCollisionType.Solid:
+                case TileCollisionType.Solid:
                     return Unity_MapCollisionTypeGraphic.Solid;
 
-                case R1_TileCollisionType.Seed:
+                case TileCollisionType.Seed:
                     return Unity_MapCollisionTypeGraphic.Seed;
 
-                case R1_TileCollisionType.Slippery_Steep_Left:
+                case TileCollisionType.Slippery_Steep_Left:
                     return Unity_MapCollisionTypeGraphic.Slippery_Steep_Left;
 
-                case R1_TileCollisionType.Slippery_Steep_Right:
+                case TileCollisionType.Slippery_Steep_Right:
                     return Unity_MapCollisionTypeGraphic.Slippery_Steep_Right;
 
-                case R1_TileCollisionType.Slippery_Slight_Left_1:
+                case TileCollisionType.Slippery_Slight_Left_1:
                     return Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_1;
 
-                case R1_TileCollisionType.Slippery_Slight_Left_2:
+                case TileCollisionType.Slippery_Slight_Left_2:
                     return Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_2;
 
-                case R1_TileCollisionType.Slippery_Slight_Right_2:
+                case TileCollisionType.Slippery_Slight_Right_2:
                     return Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_2;
 
-                case R1_TileCollisionType.Slippery_Slight_Right_1:
+                case TileCollisionType.Slippery_Slight_Right_1:
                     return Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_1;
 
-                case R1_TileCollisionType.Spikes:
+                case TileCollisionType.Spikes:
                     return Unity_MapCollisionTypeGraphic.Spikes;
 
-                case R1_TileCollisionType.Cliff:
+                case TileCollisionType.Cliff:
                     return Unity_MapCollisionTypeGraphic.Cliff;
 
-                case R1_TileCollisionType.Slippery:
+                case TileCollisionType.Slippery:
                     return Unity_MapCollisionTypeGraphic.Slippery;
 
                 default:
@@ -89,56 +91,56 @@
             }
         }
 
-        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this R1Jaguar_TileCollisionType collisionType)
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this JAG_BlockType collisionType)
         {
             switch (collisionType)
             {
-                case R1Jaguar_TileCollisionType.None:
+                case JAG_BlockType.None:
                     return Unity_MapCollisionTypeGraphic.None;
 
-                case R1Jaguar_TileCollisionType.Reactionary:
+                case JAG_BlockType.Reactionary:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
 
-                case R1Jaguar_TileCollisionType.Hill_Steep_Left:
+                case JAG_BlockType.Hill_Steep_Left:
                     return Unity_MapCollisionTypeGraphic.Hill_Steep_Left;
 
-                case R1Jaguar_TileCollisionType.Hill_Steep_Right:
+                case JAG_BlockType.Hill_Steep_Right:
                     return Unity_MapCollisionTypeGraphic.Hill_Steep_Right;
 
-                case R1Jaguar_TileCollisionType.Hill_Slight_Left_1:
+                case JAG_BlockType.Hill_Slight_Left_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
 
-                case R1Jaguar_TileCollisionType.Hill_Slight_Left_2:
+                case JAG_BlockType.Hill_Slight_Left_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2;
 
-                case R1Jaguar_TileCollisionType.Hill_Slight_Right_2:
+                case JAG_BlockType.Hill_Slight_Right_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
 
-                case R1Jaguar_TileCollisionType.Hill_Slight_Right_1:
+                case JAG_BlockType.Hill_Slight_Right_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
 
-                case R1Jaguar_TileCollisionType.Damage:
+                case JAG_BlockType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
 
-                case R1Jaguar_TileCollisionType.Bounce:
+                case JAG_BlockType.Bounce:
                     return Unity_MapCollisionTypeGraphic.Bounce;
 
-                case R1Jaguar_TileCollisionType.Water:
+                case JAG_BlockType.Water:
                     return Unity_MapCollisionTypeGraphic.Water;
 
-                case R1Jaguar_TileCollisionType.Climb:
+                case JAG_BlockType.Climb:
                     return Unity_MapCollisionTypeGraphic.Climb;
 
-                case R1Jaguar_TileCollisionType.PassthroughProto:
+                case JAG_BlockType.PassthroughProto:
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
-                case R1Jaguar_TileCollisionType.Passthrough:
+                case JAG_BlockType.Passthrough:
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
-                case R1Jaguar_TileCollisionType.Solid:
+                case JAG_BlockType.Solid:
                     return Unity_MapCollisionTypeGraphic.Solid;
 
-                case R1Jaguar_TileCollisionType.Spikes:
+                case JAG_BlockType.Spikes:
                     return Unity_MapCollisionTypeGraphic.Spikes;
 
                 default:

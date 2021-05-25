@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -32,7 +34,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(R1_World world) => GetWorldName(world) + "/";
+        public string GetWorldFolderPath(World world) => GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the offset for the palettes in the game executable
@@ -143,11 +145,11 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override Unity_TileSet GetTileSet(Context context) 
         {
-            if (context.GetR1Settings().R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == World.Menu)
                 return new Unity_TileSet(Settings.CellSize);
 
             // Read the files
-            var tileSetPalette = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetTileSetPaletteFilePath(context), context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+            var tileSetPalette = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetTileSetPaletteFilePath(context), context, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
             var tileSetPaletteIndexTable = FileFactory.Read<Array<byte>>(GetTileSetPaletteIndexTableFilePath(context), context, onPreSerialize: (s, x) => x.Length = s.CurrentLength);
             var tileSet = FileFactory.Read<BIT>(GetTileSetFilePath(context), context, onPreSerialize: (s, b) =>
             {
@@ -181,25 +183,25 @@ namespace R1Engine
             int part2 = 19;
             int level = context.GetR1Settings().Level;
             switch (context.GetR1Settings().R1_World) {
-                case R1_World.Jungle:
+                case World.Jungle:
                     if (level == 9 || level == 16) { // Different palette for Moskito boss, but why Swamp 1?
                         return part2 + 1;
                     } else {
                         return 2;
                     }
-                case R1_World.Music:
+                case World.Music:
                     return 0;
-                case R1_World.Mountain:
+                case World.Mountain:
                     return 4;
-                case R1_World.Image:
+                case World.Image:
                     if (level == 4 || level == 11) { // Different palette for the boss levels
                         return part2 + 4;
                     } else {
                         return 3;
                     }
-                case R1_World.Cave:
+                case World.Cave:
                     return 1;
-                case R1_World.Cake:
+                case World.Cake:
                     return part2 + 3;
                 default:
                     return 0;
@@ -237,7 +239,7 @@ namespace R1Engine
         /// <param name="imgBuffer">The image buffer, if available</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, R1_ImageDescriptor img)
+        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite img)
         {
             if (img.ImageType != 2 && img.ImageType != 3) return null;
             if (img.Unknown2 == 0) return null;
@@ -250,11 +252,11 @@ namespace R1Engine
 
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
 
-            var palette = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).Saturn_Palettes;
-            var paletteOffset = img.PaletteInfo;
+            var palette = FileFactory.Read<PS1_Executable>(ExeFilePath, context).Saturn_Palettes;
+            ushort paletteOffset;
 
             var isBigRay = img.Offset.File.FilePath == GetBigRayFilePath();
-            var isFont = context.GetStoredObject<R1_PS1_FontData[]>("Font")?.SelectMany(x => x.ImageDescriptors).Contains(img) == true;
+            var isFont = context.GetStoredObject<PS1_FontData[]>("Font")?.SelectMany(x => x.Sprites).Contains(img) == true;
             
             //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
             if (img.ImageType == 3) {
@@ -326,10 +328,10 @@ namespace R1Engine
             // Load the memory mapped files
             baseAddress += await LoadFile(context, allfixFilePath, baseAddress);
 
-            R1_PS1_EventBlock eventBlock = null;
+            PS1_ObjBlock objBlock = null;
             MapData mapData;
 
-            if (context.GetR1Settings().R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != World.Menu)
             {
                 var worldFilePath = GetWorldFilePath(context.GetR1Settings());
                 var levelFilePath = GetLevelFilePath(context.GetR1Settings());
@@ -359,7 +361,7 @@ namespace R1Engine
 
                 if (FileSystem.FileExists(context.GetAbsoluteFilePath(levelFilePath)))
                     // Read the event block
-                    eventBlock = FileFactory.Read<R1_PS1_EventBlock>(levelFilePath, context);
+                    objBlock = FileFactory.Read<PS1_ObjBlock>(levelFilePath, context);
             }
             else
             {
@@ -370,7 +372,7 @@ namespace R1Engine
             await LoadFile(context, GetFixImageFilePath());
 
             // Load the level
-            return await LoadAsync(context, mapData, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(b => (ushort)b).ToArray(), loadTextures);
+            return await LoadAsync(context, mapData, objBlock?.Objects, objBlock?.ObjectLinkingTable.Select(b => (ushort)b).ToArray(), loadTextures);
         }
 
         /// <summary>
@@ -441,10 +443,10 @@ namespace R1Engine
                     context.AddFile(new LinearSerializedFile(context, file, Endian.Big));
 
                     // Read the raw data
-                    var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(file, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+                    var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(file, context, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
                     // Create the texture
-                    var tex = TextureHelpers.CreateTexture2D(width, (int)(rawData.Length / width));
+                    var tex = TextureHelpers.CreateTexture2D(width, (int)(rawData.Pre_Length / width));
 
                     // Set the pixels
                     for (int y = 0; y < tex.height; y++)
@@ -525,7 +527,7 @@ namespace R1Engine
                 {
                     // Load allfix
                     await LoadFile(menuContext, GetAllfixFilePath(), BaseAddress);
-                    var fix = FileFactory.Read<R1_PS1_AllfixBlock>(GetAllfixFilePath(), menuContext, onPreSerialize: (s, o) => o.Length = s.CurrentLength);
+                    var fix = FileFactory.Read<PS1_AllfixBlock>(GetAllfixFilePath(), menuContext, onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
                     await LoadFile(menuContext, GetFixImageFilePath());
                     
                     // Load exe
@@ -538,7 +540,7 @@ namespace R1Engine
                     // Read the BigRay file
                     await LoadFile(bigRayContext, GetBigRayFilePath(), 0x00280000);
                     await LoadFile(bigRayContext, GetBigRayImageFilePath());
-                    var br = FileFactory.Read<R1_PS1_BigRayBlock>(GetBigRayFilePath(), bigRayContext, onPreSerialize: (s, o) => o.Length = s.CurrentLength);
+                    var br = FileFactory.Read<PS1_BigRayBlock>(GetBigRayFilePath(), bigRayContext, onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
 
                     // Export
                     await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.FontData, fix.WldObj, br);
@@ -546,12 +548,12 @@ namespace R1Engine
             }
         }
 
-        public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
+        public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var allfix = FileFactory.Read<R1_PS1_AllfixBlock>(GetAllfixFilePath(), context, onPreSerialize: (s, o) => o.Length = s.CurrentLength);
+            var allfix = FileFactory.Read<PS1_AllfixBlock>(GetAllfixFilePath(), context, onPreSerialize: (s, o) => o.Pre_Length = s.CurrentLength);
             var wldObj = allfix.WldObj;
 
-            return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+            return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
                 [Unity_ObjectManager_R1.WldObjType.Ray] = wldObj[0],
                 [Unity_ObjectManager_R1.WldObjType.RayLittle] = wldObj[1],
@@ -565,13 +567,13 @@ namespace R1Engine
         {
             string bgFilePath;
 
-            if (context.GetR1Settings().R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == World.Menu)
             {
                 bgFilePath = "VIGNET/NWORLD.BIT";
             }
             else
             {
-                var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+                var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
                 var worldIndex = context.GetR1Settings().World - 1;
                 var lvlIndex = context.GetR1Settings().Level - 1;
 

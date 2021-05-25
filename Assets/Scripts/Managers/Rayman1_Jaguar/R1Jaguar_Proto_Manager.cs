@@ -1,9 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -110,7 +110,7 @@ namespace R1Engine
 
                             // Add complex data animations
                             HashSet<Pointer> complexDataSeen = new HashSet<Pointer>();
-                            void AddComplexData(R1Jaguar_EventComplexData cd)
+                            void AddComplexData(JAG_EventComplexData cd)
                             {
                                 if (cd == null || complexDataSeen.Contains(cd.Offset)) 
                                     return;
@@ -119,16 +119,16 @@ namespace R1Engine
                                 var animComplex = cd.States?.Where(x => x.Layers != null).Select(x => new ExportAnim()
                                 {
                                     Anim = x.ToCommonAnimation(ed),
-                                    AnimationSpeed = (byte)(x.UnkBytes[0] & 0b1111),
+                                    AnimationSpeed = (byte)(x.Bytes_09[0] & 0b1111),
                                     Pointer = x.AnimationPointer - 4
                                 });
 
-                                if (animComplex != null && cd.ImageDescriptorsPointer == imgDescr.First().Offset) 
+                                if (animComplex != null && cd.SpritesPointer == imgDescr.First().Offset) 
                                     animations.AddRange(animComplex);
 
                                 if (cd.Transitions != null)
                                 {
-                                    foreach (R1Jaguar_EventComplexDataTransition t in cd.Transitions)
+                                    foreach (JAG_EventComplexDataTransition t in cd.Transitions)
                                         AddComplexData(t.ComplexData);
                                 }
                             }
@@ -138,7 +138,7 @@ namespace R1Engine
                                 animations.AddRange(ed.ComplexData.States.Where(x => x.Layers != null).Select(x => new ExportAnim()
                                 {
                                     Anim = x.ToCommonAnimation(ed),
-                                    AnimationSpeed = (byte)(x.UnkBytes[0] & 0b1111),
+                                    AnimationSpeed = (byte)(x.Bytes_09[0] & 0b1111),
                                     Pointer = x.AnimationPointer - 4
                                 }));
 
@@ -298,19 +298,19 @@ namespace R1Engine
                 {
                     new
                     {
-                        Key = R1Jaguar_Proto_References.jun_plan0,
+                        Key = JAG_Proto_References.jun_plan0,
                         Width = 192,
                         Height = 246
                     },
                     new
                     {
-                        Key = R1Jaguar_Proto_References.jun_roseau,
+                        Key = JAG_Proto_References.jun_roseau,
                         Width = 48,
                         Height = 99
                     },
                     new
                     {
-                        Key = R1Jaguar_Proto_References.jun_feuilles,
+                        Key = JAG_Proto_References.jun_feuilles,
                         Width = 144,
                         Height = 67
                     },
@@ -388,7 +388,7 @@ namespace R1Engine
             }
         }
 
-        public Pointer GetDataPointer(Context context, R1Jaguar_Proto_References reference) => FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context).GetProtoDataPointer(reference);
+        public Pointer GetDataPointer(Context context, JAG_Proto_References reference) => FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context).GetProtoDataPointer(reference);
 
         #endregion
     }

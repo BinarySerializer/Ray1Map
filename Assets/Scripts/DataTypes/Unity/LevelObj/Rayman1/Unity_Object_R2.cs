@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
     public class Unity_Object_R2 : Unity_Object
     {
-        public Unity_Object_R2(R1_R2EventData eventData, Unity_ObjectManager_R2 objManager)
+        public Unity_Object_R2(R2_ObjData eventData, Unity_ObjectManager_R2 objManager)
         {
             // Set properties
             EventData = eventData;
             ObjManager = objManager;
-            TypeInfo = EventData.EventType.GetAttribute<ObjTypeInfoAttribute>();
+            TypeInfo = EventData.ObjType.GetAttribute<ObjTypeInfoAttribute>();
 
             // Set editor states
             EventData.InitialEtat = EventData.Etat;
@@ -25,31 +27,31 @@ namespace R1Engine
             EventData.RuntimeCurrentAnimIndex = 0;
             EventData.RuntimeMapLayer = EventData.MapLayer;
 
-            if (EventData.EventType == R1_R2EventType.Ting)
+            if (EventData.ObjType == R2_ObjType.Ting)
                 EventData.RuntimeCurrentAnimFrame = (byte)(EventData.HitPoints - 1);
         }
 
-        public R1_R2EventData EventData { get; }
+        public R2_ObjData EventData { get; }
 
         public Unity_ObjectManager_R2 ObjManager { get; }
 
-        public R1_EventState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
-        public R1_EventState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
-        public R1_EventState LinkedState => GetState(CurrentState?.LinkedEtat ?? -1, CurrentState?.LinkedSubEtat ?? -1);
+        public ObjState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
+        public ObjState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
+        public ObjState LinkedState => GetState(CurrentState?.LinkedEtat ?? -1, CurrentState?.LinkedSubEtat ?? -1);
 
-        protected R1_EventState GetState(int etat, int subEtat) => AnimGroup?.ETA?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
+        protected ObjState GetState(int etat, int subEtat) => AnimGroup?.ETA?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
 
         public Unity_ObjectManager_R2.AnimGroup AnimGroup => ObjManager.AnimGroups.ElementAtOrDefault(AnimGroupIndex);
 
         public int AnimGroupIndex
         {
-            get => ObjManager.AnimGroupsLookup.TryGetItem(EventData.AnimGroupPointer?.AbsoluteOffset ?? 0, -1);
+            get => ObjManager.AnimGroupsLookup.TryGetItem(EventData.AnimDataPointer?.AbsoluteOffset ?? 0, -1);
             set {
-                if (value != AnimGroupIndex && EventData.AnimGroupPointer != null) {
+                if (value != AnimGroupIndex && EventData.AnimDataPointer != null) {
                     EventData.Etat = EventData.InitialEtat = 0;
                     EventData.SubEtat = EventData.InitialSubEtat = 0;
                     OverrideAnimIndex = null;
-                    EventData.AnimGroupPointer = ObjManager.AnimGroups[value].Pointer;
+                    EventData.AnimDataPointer = ObjManager.AnimGroups[value].Pointer;
                 }
             }
         }
@@ -75,18 +77,18 @@ namespace R1Engine
 
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
-        public override bool IsEditor => (AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.Invalid) || EventData.DisplayPrio == 0;
+        public override bool IsEditor => (AnimGroup?.Animations?.Any() != true && EventData.ObjType != R2_ObjType.Invalid) || EventData.DisplayPrio == 0;
         public override ObjectType Type
         {
             get
             {
-                switch (EventData.EventType)
+                switch (EventData.ObjType)
                 {
-                    case R1_R2EventType.Gendoor:
-                    case R1_R2EventType.Trigger:
+                    case R2_ObjType.Gendoor:
+                    case R2_ObjType.Trigger:
                         return ObjectType.Trigger;
 
-                    case R1_R2EventType.RaymanPosition:
+                    case R2_ObjType.RaymanPosition:
                         return ObjectType.Waypoint;
 
                     default:
@@ -95,7 +97,7 @@ namespace R1Engine
             }
         }
 
-        public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.Invalid && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.SwitchedOn)));
+        public override bool IsActive => !Settings.LoadFromMemory || (EventData.ObjType != R2_ObjType.Invalid && (EventData.RuntimeFlags1.HasFlag(R2_ObjData.PS1_R2Demo_ObjRuntimeFlags1.SwitchedOn)));
         public override bool CanBeLinkedToGroup => true;
         public override bool CanBeLinked => EventData.ParamsGendoor != null || EventData.ParamsTrigger != null;
 
@@ -113,15 +115,15 @@ namespace R1Engine
             }
         }
 
-        public override string PrimaryName => $"TYPE_{(ushort)EventData.EventType}";
-        public override string SecondaryName => $"{EventData.EventType}";
+        public override string PrimaryName => $"TYPE_{(ushort)EventData.ObjType}";
+        public override string SecondaryName => $"{EventData.ObjType}";
         // TODO: Fix
         public override int? GetLayer(int index) => -(index + (EventData.DisplayPrio * 512));
 
-        public override int? MapLayer => EventData.RuntimeMapLayer == R1_R2EventData.ObjMapLayer.Back ? 2: 3;
+        public override int? MapLayer => EventData.RuntimeMapLayer == R2_ObjData.ObjMapLayer.Back ? 2: 3;
 
-        public override float Scale => EventData.RuntimeMapLayer == R1_R2EventData.ObjMapLayer.Back ? 0.5f : 1;
-        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlipX : EventData.Flags.HasFlag(R1_R2EventData.PS1_R2Demo_EventFlags.FlippedHorizontally);
+        public override float Scale => EventData.RuntimeMapLayer == R2_ObjData.ObjMapLayer.Back ? 0.5f : 1;
+        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlipX : EventData.Flags.HasFlag(R2_ObjData.PS1_R2Demo_ObjFlags.FlippedHorizontally);
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC() {
             var zdcEntry = EventData.CollisionData?.ZDC;
@@ -142,14 +144,14 @@ namespace R1Engine
                 if (zdc.ZDC_Flags != 0 && (zdc.ZDC_Flags & EventData.ZDCFlags) == 0) 
                     continue;
 
-                var hurtsRay = EventData.CollisionData?.Flags.HasFlag(R1_R2EventCollision.EventFlags.HurtsRayman) == true && 
-                               CurrentState?.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectRay) == true && 
-                               zdcTriggerFlags?.HasFlag(R1_R2LevDataFile.ZDC_TriggerFlags.Rayman) == true;
+                var hurtsRay = EventData.CollisionData?.Flags.HasFlag(R2_ObjCollision.EventFlags.HurtsRayman) == true && 
+                               CurrentState?.Flags.HasFlag(ObjState.StateFlags.DetectRay) == true && 
+                               zdcTriggerFlags?.HasFlag(R2_LevDataFile.ZDC_TriggerFlags.Rayman) == true;
 
                 // Attempt to set the collision type
                 var colType = hurtsRay 
                     ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox
-                    : zdcTriggerFlags?.HasFlag(R1_R2LevDataFile.ZDC_TriggerFlags.Poing_0) == true || zdcTriggerFlags?.HasFlag(R1_R2LevDataFile.ZDC_TriggerFlags.Poing_1) == true
+                    : zdcTriggerFlags?.HasFlag(R2_LevDataFile.ZDC_TriggerFlags.Poing_0) == true || zdcTriggerFlags?.HasFlag(R2_LevDataFile.ZDC_TriggerFlags.Poing_1) == true
                         ? Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox
                         : Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
 
@@ -224,8 +226,8 @@ namespace R1Engine
         public override IList<Sprite> Sprites => ObjManager.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.CollisionData?.OffsetBX ?? 0, -EventData.CollisionData?.OffsetBY ?? 0);
 
-        protected HashSet<R1_EventState> EncounteredStates { get; } = new HashSet<R1_EventState>(); // Keep track of "encountered" states if we have state switching set to loop to avoid entering an infinite loop
-        protected R1_EventState PrevInitialState { get; set; }
+        protected HashSet<ObjState> EncounteredStates { get; } = new HashSet<ObjState>(); // Keep track of "encountered" states if we have state switching set to loop to avoid entering an infinite loop
+        protected ObjState PrevInitialState { get; set; }
 
         protected override void OnFinishedAnimation()
         {
@@ -288,8 +290,8 @@ namespace R1Engine
 
             public ushort Type
             {
-                get => (ushort)Obj.EventData.EventType;
-                set => Obj.EventData.EventType = (R1_R2EventType)value;
+                get => (ushort)Obj.EventData.ObjType;
+                set => Obj.EventData.ObjType = (R2_ObjType)value;
             }
 
             public int DES

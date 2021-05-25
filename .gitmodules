@@ -4,3 +4,9 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Image"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Image
 	url = https://github.com/RayCarrot/BinarySerializer.Image
+[submodule "Assets/Scripts/Libraries/BinarySerializer.GBA"]
+	path = Assets/Scripts/Libraries/BinarySerializer.GBA
+	url = https://github.com/RayCarrot/BinarySerializer.GBA
+[submodule "Assets/Scripts/Libraries/BinarySerializer.Ray1"]
+	path = Assets/Scripts/Libraries/BinarySerializer.Ray1
+	url = https://github.com/RayCarrot/BinarySerializer.Ray1

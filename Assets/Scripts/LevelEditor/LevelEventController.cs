@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-
+using BinarySerializer.Ray1;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
@@ -142,7 +143,7 @@ namespace R1Engine
             // Fill eventinfo dropdown with the event types
             if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Rayman1)
             {
-                infoType.options.AddRange(EnumHelpers.GetValues<R1_EventType>().Select(x => new Dropdown.OptionData
+                infoType.options.AddRange(EnumHelpers.GetValues<ObjType>().Select(x => new Dropdown.OptionData
                 {
                     text = x.ToString()
                 }));
@@ -979,7 +980,7 @@ namespace R1Engine
             if (FileSystem.mode == FileSystem.Mode.Normal) {
                 if (SelectedEvent.ObjData is Unity_Object_R1 r1obj) {
                     // Fill out the commands
-                    foreach (var c in r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]) {
+                    foreach (var c in r1obj.EventData.Commands?.Commands ?? new Command[0]) {
                         CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<CommandLine>();
                         cmd.command = c;
                         cmd.transform.SetParent(commandListParent, false);

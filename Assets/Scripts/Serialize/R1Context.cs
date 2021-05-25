@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
 using ILogger = BinarySerializer.ILogger;
 
@@ -18,6 +19,10 @@ namespace R1Engine
         {
             // Add the game settings
             AddSettings(settings);
+
+            // If Rayman 1 we add Ray1 settings
+            if (settings.MajorEngineVersion == MajorEngineVersion.Rayman1 || settings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
+                AddSettings(settings.GetRay1Settings());
         }
         public R1Context(GameSettings settings) : this(settings.GameDirectory, settings) { }
 

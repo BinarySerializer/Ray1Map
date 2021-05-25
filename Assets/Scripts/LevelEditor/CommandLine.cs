@@ -1,13 +1,11 @@
-﻿using R1Engine;
+﻿using BinarySerializer.Ray1;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CommandLine : MonoBehaviour
 {
-    public R1_EventCommand command;
+    public Command command;
 
     //UI elements
     public Dropdown uiDropdown;
@@ -17,7 +15,7 @@ public class CommandLine : MonoBehaviour
 
     private void Start() {
         //Fill out the dropdown
-        var all = Enum.GetValues(typeof(R1_EventCommandType));
+        var all = Enum.GetValues(typeof(CommandType));
         foreach (var e in all) {
             Dropdown.OptionData dat = new Dropdown.OptionData {
                 text = e.ToString()
@@ -25,7 +23,7 @@ public class CommandLine : MonoBehaviour
             uiDropdown.options.Add(dat);
         }
 
-        uiDropdown.value = (int)command.Command;
+        uiDropdown.value = (int)command.CommandType;
 
         //Apply the values from this command to all the uis
         if (command.Arguments != null) {

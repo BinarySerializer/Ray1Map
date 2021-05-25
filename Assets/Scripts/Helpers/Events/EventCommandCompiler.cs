@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -15,10 +16,10 @@ namespace R1Engine
         /// <param name="commands">The commands</param>
         /// <param name="commandBytes">The command bytes</param>
         /// <returns>The compiled the command data</returns>
-        public static CompiledEventCommandData Compile(R1_EventCommandCollection commands, byte[] commandBytes)
+        public static CompiledEventCommandData Compile(CommandCollection commands, byte[] commandBytes)
         {
             // Create the lists to compile to
-            var compiledCommands = new List<R1_EventCommand>();
+            var compiledCommands = new List<Command>();
             var labelOffsets = new List<ushort>();
             
             // Keep track of the command byte index
@@ -30,49 +31,49 @@ namespace R1Engine
                 // Increment the index for the command declaration
                 commandByteIndex++;
 
-                R1_EventCommandType GetCompiledVersion()
+                CommandType GetCompiledVersion()
                 {
-                    switch (command.Command)
+                    switch (command.CommandType)
                     {
-                        case R1_EventCommandType.GO_GOSUB:
-                            return R1_EventCommandType.RESERVED_GO_GOSUB;
+                        case CommandType.GO_GOSUB:
+                            return CommandType.RESERVED_GO_GOSUB;
 
-                        case R1_EventCommandType.GO_GOTO:
-                            return R1_EventCommandType.RESERVED_GO_GOTO;
+                        case CommandType.GO_GOTO:
+                            return CommandType.RESERVED_GO_GOTO;
 
-                        case R1_EventCommandType.GO_BRANCHTRUE:
-                            return R1_EventCommandType.RESERVED_GO_GOTOT;
+                        case CommandType.GO_BRANCHTRUE:
+                            return CommandType.RESERVED_GO_GOTOT;
 
-                        case R1_EventCommandType.GO_BRANCHFALSE:
-                            return R1_EventCommandType.RESERVED_GO_GOTOF;
+                        case CommandType.GO_BRANCHFALSE:
+                            return CommandType.RESERVED_GO_GOTOF;
 
-                        case R1_EventCommandType.GO_SKIP:
-                            return R1_EventCommandType.RESERVED_GO_SKIP;
+                        case CommandType.GO_SKIP:
+                            return CommandType.RESERVED_GO_SKIP;
 
-                        case R1_EventCommandType.GO_SKIPTRUE:
-                            return R1_EventCommandType.RESERVED_GO_SKIPT;
+                        case CommandType.GO_SKIPTRUE:
+                            return CommandType.RESERVED_GO_SKIPT;
 
-                        case R1_EventCommandType.GO_SKIPFALSE:
-                            return R1_EventCommandType.RESERVED_GO_SKIPF;
+                        case CommandType.GO_SKIPFALSE:
+                            return CommandType.RESERVED_GO_SKIPF;
 
                         default:
-                            throw new ArgumentOutOfRangeException(nameof(command.Command), command.Command, null);
+                            throw new ArgumentOutOfRangeException(nameof(command.CommandType), command.CommandType, null);
                     }
                 }
 
-                switch (command.Command)
+                switch (command.CommandType)
                 {
                     // Handle commands with offsets
-                    case R1_EventCommandType.GO_GOSUB:
-                    case R1_EventCommandType.GO_GOTO:
-                    case R1_EventCommandType.GO_BRANCHTRUE:
-                    case R1_EventCommandType.GO_BRANCHFALSE:
+                    case CommandType.GO_GOSUB:
+                    case CommandType.GO_GOTO:
+                    case CommandType.GO_BRANCHTRUE:
+                    case CommandType.GO_BRANCHFALSE:
 
                         // Get the label
                         var label = command.Arguments[0];
 
                         // Find the matching commands
-                        var labelCmdIndex = commands.Commands.FindItemIndex(x => x.Command == R1_EventCommandType.GO_LABEL && x.Arguments.FirstOrDefault() == label);
+                        var labelCmdIndex = commands.Commands.FindItemIndex(x => x.CommandType == CommandType.GO_LABEL && x.Arguments.FirstOrDefault() == label);
 
                         // Get the offset 
                         var offset = commands.Commands.Take(labelCmdIndex).Sum(x => x.Length) + 1;
@@ -81,9 +82,9 @@ namespace R1Engine
                         labelOffsets.Add((ushort)offset);
 
                         // Add the command
-                        compiledCommands.Add(new R1_EventCommand()
+                        compiledCommands.Add(new Command()
                         {
-                            Command = GetCompiledVersion(),
+                            CommandType = GetCompiledVersion(),
                             Arguments = new byte[]
                             {
                                 (byte)(labelOffsets.Count - 1)
@@ -93,9 +94,9 @@ namespace R1Engine
                         break;
 
                     // Handle commands with offsets based on current position
-                    case R1_EventCommandType.GO_SKIP:
-                    case R1_EventCommandType.GO_SKIPTRUE:
-                    case R1_EventCommandType.GO_SKIPFALSE:
+                    case CommandType.GO_SKIP:
+                    case CommandType.GO_SKIPTRUE:
+                    case CommandType.GO_SKIPFALSE:
 
                         // Get the number of cmds to skip
                         var toSkip = command.Arguments[0];
@@ -108,7 +109,7 @@ namespace R1Engine
                         {
                             var cmd = commands.Commands[curCmd % commands.Commands.Length];
                             skipToOffset += cmd.Length;
-                            if (cmd.Command == R1_EventCommandType.INVALID_CMD)
+                            if (cmd.CommandType == CommandType.INVALID_CMD)
                             {
                                 curCmd = 0;
                                 skipToOffset = commands.Commands[curCmd].Length;
@@ -116,7 +117,7 @@ namespace R1Engine
                             curCmd++;
                         }
 
-                        if (commands.Commands[curCmd % commands.Commands.Length].Command == R1_EventCommandType.GO_LABEL)
+                        if (commands.Commands[curCmd % commands.Commands.Length].CommandType == CommandType.GO_LABEL)
                         {
                             skipToOffset += 2;
                             curCmd++;
@@ -131,9 +132,9 @@ namespace R1Engine
                         labelOffsets.Add((byte)skipToOffset);
 
                         // Add the command
-                        compiledCommands.Add(new R1_EventCommand()
+                        compiledCommands.Add(new Command()
                         {
-                            Command = GetCompiledVersion(),
+                            CommandType = GetCompiledVersion(),
                             Arguments = new byte[]
                             {
                                 (byte)(labelOffsets.Count - 1)
@@ -146,9 +147,9 @@ namespace R1Engine
                     default:
 
                         // Copy the command
-                        compiledCommands.Add(new R1_EventCommand()
+                        compiledCommands.Add(new Command()
                         {
-                            Command = command.Command,
+                            CommandType = command.CommandType,
                             Arguments = command.Arguments.ToArray()
                         });
 
@@ -161,7 +162,7 @@ namespace R1Engine
             }
 
             // Return the compiled commands
-            return new CompiledEventCommandData(new R1_EventCommandCollection()
+            return new CompiledEventCommandData(new CommandCollection()
             {
                 Commands = compiledCommands.ToArray()
             }, labelOffsets.ToArray());
@@ -173,7 +174,7 @@ namespace R1Engine
         /// <param name="commands">The commands</param>
         /// <param name="commandBytes">The command bytes</param>
         /// <returns>The decompiled commands</returns>
-        public static R1_EventCommandCollection Decompile(CompiledEventCommandData commands, byte[] commandBytes)
+        public static CommandCollection Decompile(CompiledEventCommandData commands, byte[] commandBytes)
         {
             throw new NotImplementedException();
         }
@@ -188,7 +189,7 @@ namespace R1Engine
             /// </summary>
             /// <param name="commands">The event commands</param>
             /// <param name="labelOffsets">The label offsets</param>
-            public CompiledEventCommandData(R1_EventCommandCollection commands, ushort[] labelOffsets)
+            public CompiledEventCommandData(CommandCollection commands, ushort[] labelOffsets)
             {
                 Commands = commands;
                 LabelOffsets = labelOffsets;
@@ -197,7 +198,7 @@ namespace R1Engine
             /// <summary>
             /// The event commands
             /// </summary>
-            public R1_EventCommandCollection Commands { get; }
+            public CommandCollection Commands { get; }
 
             /// <summary>
             /// The label offsets

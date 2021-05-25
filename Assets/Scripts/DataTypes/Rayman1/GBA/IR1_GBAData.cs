@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -10,28 +11,28 @@ namespace R1Engine
         /// <summary>
         /// The map data for the current level
         /// </summary>
-        R1_GBA_LevelMapData LevelMapData { get; }
+        GBA_LevelMapData LevelMapData { get; }
 
         /// <summary>
         /// The event data for the current level
         /// </summary>
-        R1_GBA_LevelEventData LevelEventData { get; }
+        GBA_LevelEventData LevelEventData { get; }
 
 
         /// <summary>
         /// The background vignette data
         /// </summary>
-        R1_GBA_BackgroundVignette[] BackgroundVignettes { get; }
+        GBA_BackgroundVignette[] BackgroundVignettes { get; }
 
         /// <summary>
         /// The intro vignette data
         /// </summary>
-        R1_GBA_IntroVignette[] IntroVignettes { get; }
+        GBA_IntroVignette[] IntroVignettes { get; }
 
         /// <summary>
         /// The world map vignette
         /// </summary>
-        R1_GBA_WorldMapVignette WorldMapVignette { get; }
+        GBA_WorldMapVignette WorldMapVignette { get; }
 
 
         /// <summary>
@@ -53,23 +54,23 @@ namespace R1Engine
         string[][] Strings { get; }
 
 
-        R1_ZDCEntry[] TypeZDC { get; } 
+        ZDCEntry[] TypeZDC { get; } 
 
-        R1_ZDCData[] ZdcData { get; }
+        ZDCData[] ZdcData { get; }
 
-        R1_EventFlags[] EventFlags { get; }
+        ObjTypeFlags[] EventFlags { get; }
 
         byte[] WorldVignetteIndices { get; }
-        R1_WorldMapInfo[] WorldInfos { get; }
+        WorldInfo[] WorldInfos { get; }
 
-        R1_GBA_EventGraphicsData DES_Ray { get; }
-        R1_GBA_EventGraphicsData DES_RayLittle { get; }
-        R1_GBA_EventGraphicsData DES_Clock { get; }
-        R1_GBA_EventGraphicsData DES_Div { get; }
-        R1_GBA_EventGraphicsData DES_Map { get; }
-        R1_GBA_ETA ETA_Ray { get; }
-        R1_GBA_ETA ETA_Clock { get; }
-        R1_GBA_ETA ETA_Div { get; }
-        R1_GBA_ETA ETA_Map { get; }
+        GBA_EventGraphicsData DES_Ray { get; }
+        GBA_EventGraphicsData DES_RayLittle { get; }
+        GBA_EventGraphicsData DES_Clock { get; }
+        GBA_EventGraphicsData DES_Div { get; }
+        GBA_EventGraphicsData DES_Map { get; }
+        GBA_ETA ETA_Ray { get; }
+        GBA_ETA ETA_Clock { get; }
+        GBA_ETA ETA_Div { get; }
+        GBA_ETA ETA_Map { get; }
     }
 }

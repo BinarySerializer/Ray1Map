@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.Ray1;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -47,7 +48,7 @@ namespace R1Engine
         public EditMode currentMode;
         //Current type
         [HideInInspector]
-        public R1_TileCollisionType currentType;
+        public TileCollisionType currentType;
 
         //Selected tiles
         public Unity_Tile[,] selection;
@@ -148,7 +149,7 @@ namespace R1Engine
 
         public void SetCurrentType(int type)
         {
-            currentType = (R1_TileCollisionType)type;
+            currentType = (TileCollisionType)type;
         }
 
         public void ClearSelection() {

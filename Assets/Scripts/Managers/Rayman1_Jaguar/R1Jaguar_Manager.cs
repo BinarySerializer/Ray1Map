@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -35,14 +37,14 @@ namespace R1Engine
         /// <summary>
         /// Gets the available levels ordered based on the global level array
         /// </summary>
-        public virtual KeyValuePair<R1_World, int>[] GetNumLevels => new KeyValuePair<R1_World, int>[]
+        public virtual KeyValuePair<World, int>[] GetNumLevels => new KeyValuePair<World, int>[]
         {
-            new KeyValuePair<R1_World, int>(R1_World.Jungle, 21),
-            new KeyValuePair<R1_World, int>(R1_World.Mountain, 14),
-            new KeyValuePair<R1_World, int>(R1_World.Cave, 13),
-            new KeyValuePair<R1_World, int>(R1_World.Music, 19),
-            new KeyValuePair<R1_World, int>(R1_World.Image, 14),
-            new KeyValuePair<R1_World, int>(R1_World.Cake, 4)
+            new KeyValuePair<World, int>(World.Jungle, 21),
+            new KeyValuePair<World, int>(World.Mountain, 14),
+            new KeyValuePair<World, int>(World.Cave, 13),
+            new KeyValuePair<World, int>(World.Music, 19),
+            new KeyValuePair<World, int>(World.Image, 14),
+            new KeyValuePair<World, int>(World.Cake, 4)
         };
 
         public virtual int[] ExtraMapCommands => new int[] {
@@ -129,7 +131,7 @@ namespace R1Engine
             public Unity_ObjAnimation Anim;
             public byte AnimationSpeed;
             public Pointer Pointer;
-            public R1_ImageDescriptor[] OverrideImageDescriptors;
+            public Sprite[] OverrideImageDescriptors;
         }
 
         public virtual uint EventCount => 0x1C4;
@@ -183,7 +185,7 @@ namespace R1Engine
                     var s = context.Deserializer;
 
                     // Get allfix sprite commands
-                    var allfixCmds = rom.AllfixLoadCommands.Commands.Where(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Sprites).ToArray();
+                    var allfixCmds = rom.AllfixLoadCommands.Commands.Where(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Sprites).ToArray();
 
                     // Export allfix
                     await ExportGroupAsync(allfixCmds, Enumerable.Repeat(rom.SpritePalette, allfixCmds.Length).ToArray(), "Allfix");
@@ -204,13 +206,13 @@ namespace R1Engine
 
                         // Get palettes for the levels
                         var palettes = lvlCmds.
-                            Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Palette
-                            || c.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.PaletteDemo)?.PalettePointer).
+                            Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Palette
+                            || c.Type == JAG_LevelLoadCommand.LevelLoadCommandType.PaletteDemo)?.PalettePointer).
                             Select((x, i) => x == null ? rom.SpritePalette : s.DoAt<GBR655Color[]>(x, () => s.SerializeObjectArray<GBR655Color>(default, 256, name: $"SpritePalette[{i}]"))).
                             ToArray();
 
                         // Get the world and level sprite commands and palettes
-                        var worldCmds = new List<R1Jaguar_LevelLoadCommand>();
+                        var worldCmds = new List<JAG_LevelLoadCommand>();
                         var worldPal = new List<GBR655Color[]>();
 
                         if (worldIndex < 6)
@@ -218,7 +220,7 @@ namespace R1Engine
                             // Add world data
                             foreach (var p in palettes)
                             {
-                                var sprCommands = rom.WorldLoadCommands[worldIndex]?.Commands?.Where(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Sprites) ?? new R1Jaguar_LevelLoadCommand[0];
+                                var sprCommands = rom.WorldLoadCommands[worldIndex]?.Commands?.Where(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Sprites) ?? new JAG_LevelLoadCommand[0];
                                 worldCmds.AddRange(sprCommands);
                                 worldPal.AddRange(Enumerable.Repeat(p, sprCommands.Count()));
                             }
@@ -228,8 +230,8 @@ namespace R1Engine
                         for (int lvl = 0; lvl < lvlCmds.Length; lvl++)
                         {
                             foreach (var c in lvlCmds[lvl]?.Commands?
-                                .Where(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Sprites)
-                                .Where(x => worldCmds.All(y => y.ImageBufferPointer != x.ImageBufferPointer)) ?? new R1Jaguar_LevelLoadCommand[0])
+                                .Where(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Sprites)
+                                .Where(x => worldCmds.All(y => y.ImageBufferPointer != x.ImageBufferPointer)) ?? new JAG_LevelLoadCommand[0])
                             {
                                 worldCmds.Add(c);
                                 worldPal.Add(palettes[lvl]);
@@ -241,7 +243,7 @@ namespace R1Engine
                     }
 
                     // Helper method for exporting a collection of DES
-                    async UniTask ExportGroupAsync(IReadOnlyList<R1Jaguar_LevelLoadCommand> cmds, IReadOnlyList<GBR655Color[]> palettes, string name)
+                    async UniTask ExportGroupAsync(IReadOnlyList<JAG_LevelLoadCommand> cmds, IReadOnlyList<GBR655Color[]> palettes, string name)
                     {
                         // Enumerate every graphics
                         for (var desIndex = 0; desIndex < cmds.Count; desIndex++)
@@ -293,7 +295,7 @@ namespace R1Engine
                                 // Set the deserializer
                                 s = imgBufferPointer.Context.Deserializer;
 
-                                s.DoAt(imgBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => {
+                                s.DoAt(imgBufferPointer, () => s.DoEncoded(new RNC2Encoder(), () => {
                                     imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer");
                                 }));
 
@@ -310,7 +312,7 @@ namespace R1Engine
                             // Export every event DES
                             foreach (var ed in eventDefinitions)
                             {
-                                var imageDescriptors = ed.ImageDescriptors ?? ed.ComplexData?.ImageDescriptors ?? new R1_ImageDescriptor[0];
+                                var imageDescriptors = ed.Sprites ?? ed.ComplexData?.Sprites ?? new Sprite[0];
 
                                 if (exportAnimFrames)
                                 {
@@ -332,21 +334,21 @@ namespace R1Engine
                                         Pointer = x.Animation.Offset
                                     });
                                     if (animNormal != null) animations.AddRange(animNormal);
-                                    void AddComplexData(R1Jaguar_EventComplexData cd)
+                                    void AddComplexData(JAG_EventComplexData cd)
                                     {
                                         if (cd == null || complexDataSeen.Contains(cd.Offset)) return;
                                         complexDataSeen.Add(cd.Offset);
                                         var animComplex = cd.States?.Where(x => x.Layers != null).Select(x => new ExportAnim()
                                         {
-                                            OverrideImageDescriptors = cd.ImageDescriptors,
+                                            OverrideImageDescriptors = cd.Sprites,
                                             Anim = x.ToCommonAnimation(ed),
-                                            AnimationSpeed = (byte)(x.UnkBytes[0] & 0b1111),
+                                            AnimationSpeed = (byte)(x.Bytes_09[0] & 0b1111),
                                             Pointer = x.Offset
                                         });
                                         if (animComplex != null) animations.AddRange(animComplex);
                                         if (cd.Transitions != null)
                                         {
-                                            foreach (R1Jaguar_EventComplexDataTransition t in cd.Transitions)
+                                            foreach (JAG_EventComplexDataTransition t in cd.Transitions)
                                             {
                                                 AddComplexData(t.ComplexData);
                                             }
@@ -517,13 +519,13 @@ namespace R1Engine
         /// <param name="pal">The palette</param>
         /// <param name="imgBuffer">The image buffer</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(R1_ImageDescriptor d, BaseColor[] pal, byte[] imgBuffer)
+        public Texture2D GetSpriteTexture(Sprite d, BaseColor[] pal, byte[] imgBuffer)
         {
             // Make sure the sprite is valid
             if (d.IsDummySprite())
                 return null;
 
-            bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;
+            bool is8Bit = BitHelpers.ExtractBits(d.JAG_Byte_0E, 1, 4) != 0;
 
             // Make sure the index is not out of bounds
             if (d.ImageBufferOffset + ((d.Height * d.Width) / (is8Bit ? 1 : 2)) > imgBuffer.Length)
@@ -553,7 +555,7 @@ namespace R1Engine
                     }
                     else
                     {
-                        int indexInPal = BitHelpers.ExtractBits(d.Jag_Byte0A, 4, 1);
+                        int indexInPal = BitHelpers.ExtractBits(d.JAG_Byte_0A, 4, 1);
                         palIndex = imgBuffer[d.ImageBufferOffset + index / 2];
                         palIndex = BitHelpers.ExtractBits(palIndex, 4, index % 2 == 0 ? 4 : 0);
 
@@ -596,7 +598,7 @@ namespace R1Engine
                 {
                     s.DoAt(new Pointer(vig.Key, file), () =>
                     {
-                        s.DoEncoded(new RNCEncoder(), () =>
+                        s.DoEncoded(new RNC2Encoder(), () =>
                         {
                             var values = s.SerializeObjectArray<GBR655Color>(default, s.CurrentLength / 2);
 
@@ -652,7 +654,7 @@ namespace R1Engine
                             // Get the current pointer
                             var p = s.CurrentPointer;
 
-                            s.DoEncoded(new RNCEncoder(), () =>
+                            s.DoEncoded(new RNC2Encoder(), () =>
                             {
                                 if (as888)
                                 {
@@ -699,7 +701,7 @@ namespace R1Engine
                 var pointerTable = PointerTables.JaguarR1_PointerTable(s.GetR1Settings().EngineVersion, file);
                 s.DoAt(pointerTable[JaguarR1_Pointer.Music], () => {
                     // Read the music table
-                    R1Jaguar_MusicDescriptor[] MusicTable = s.SerializeObjectArray<R1Jaguar_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
+                    JAG_MusicDescriptor[] MusicTable = s.SerializeObjectArray<JAG_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
                     // Immediately after this: pointer to sample buffer?
 
                     // For each entry
@@ -730,7 +732,7 @@ namespace R1Engine
                 var pal = rom.LevelLoadCommands.
                     SelectMany(x => x).
                     Where(x => x?.Commands != null).
-                    Select(x => x.Commands.First(y => y.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Palette || y.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.PaletteDemo)).
+                    Select(x => x.Commands.First(y => y.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Palette || y.Type == JAG_LevelLoadCommand.LevelLoadCommandType.PaletteDemo)).
                     Select(x => x.PalettePointer).
                     Distinct().
                     SelectMany(x => s.DoAt<GBR655Color[]>(x, () => s.SerializeObjectArray<GBR655Color>(default, 256, name: "SpritePalette"))).
@@ -766,7 +768,7 @@ namespace R1Engine
             }
         }
 
-        public Unity_Object_R1Jaguar CreateEventData(Context c, R1Jaguar_EventDefinition ed, List<Unity_ObjectManager_R1Jaguar.EventDefinition> eventDefinitions, bool loadTextures, Unity_ObjectManager_R1Jaguar objManager)
+        public Unity_Object_R1Jaguar CreateEventData(Context c, JAG_EventDefinition ed, List<Unity_ObjectManager_R1Jaguar.EventDefinition> eventDefinitions, bool loadTextures, Unity_ObjectManager_R1Jaguar objManager)
         {
             if (ed == null)
                 return null;
@@ -828,15 +830,15 @@ namespace R1Engine
             {
                 Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
                 {
-                    Sprites = new List<Sprite>(),
+                    Sprites = new List<UnityEngine.Sprite>(),
                     Animations = new List<Unity_ObjAnimation>()
                 };
 
                 // Get every sprite
-                void AddImageDescriptors(R1_ImageDescriptor[] imgDesc, uint key)
+                void AddImageDescriptors(Sprite[] imgDesc, uint key)
                 {
                     if (imgDesc == null) return;
-                    foreach (R1_ImageDescriptor img in imgDesc)
+                    foreach (Sprite img in imgDesc)
                     {
                         // Get the texture for the sprite, or null if not loading textures
                         Texture2D tex = loadTextures && rom.ImageBuffers.ContainsKey(key) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[key]) : null;
@@ -854,11 +856,11 @@ namespace R1Engine
                 }
                 else
                 {
-                    if (ed.ImageDescriptors != null)
-                        AddImageDescriptors(ed.ImageDescriptors, ed.ImageBufferMemoryPointerPointer);
+                    if (ed.Sprites != null)
+                        AddImageDescriptors(ed.Sprites, ed.ImageBufferMemoryPointerPointer);
 
                     if (ed.ComplexData != null)
-                        AddImageDescriptors(ed.ComplexData?.ImageDescriptors, ed.ImageBufferMemoryPointerPointer);
+                        AddImageDescriptors(ed.ComplexData?.Sprites, ed.ImageBufferMemoryPointerPointer);
                 }
 
                 // Add animations
@@ -876,7 +878,7 @@ namespace R1Engine
                     {
                         foreach (var transition in ed.ComplexData.Transitions)
                         {
-                            if (transition.ComplexData?.States == null || (c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && transition.ComplexData.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
+                            if (transition.ComplexData?.States == null || (c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && transition.ComplexData.SpritesPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
                                 continue;
                             finalDesign.Animations.AddRange(transition.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                         }
@@ -942,14 +944,14 @@ namespace R1Engine
                     }
                     else
                     {
-                        List<R1Jaguar_EventComplexData> cds = new List<R1Jaguar_EventComplexData>();
+                        List<JAG_EventComplexData> cds = new List<JAG_EventComplexData>();
                         List<Unity_ObjectManager_R1Jaguar.State[]> states = new List<Unity_ObjectManager_R1Jaguar.State[]>();
                         int curAnimIndex = 0;
-                        void AddComplexData(R1Jaguar_EventComplexData cd)
+                        void AddComplexData(JAG_EventComplexData cd)
                         {
                             if (cd == null || cds.Contains(cd)) return;
 
-                            if ((c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && cd.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
+                            if ((c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && cd.SpritesPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
                                 return;
 
                             cds.Add(cd);
@@ -966,7 +968,7 @@ namespace R1Engine
 
                                 substates[s] = new Unity_ObjectManager_R1Jaguar.State(
                                     animationIndex: (byte)curAnimIndex++, 
-                                    animSpeed: (byte)(validStates[s].UnkBytes[0] & 0b1111), 
+                                    animSpeed: (byte)(validStates[s].Bytes_09[0] & 0b1111), 
                                     //linkedComplexStateIndex: (byte)states.Count, 
                                     //linkedStateIndex: (byte)(stateLinkIndex == -1 ? s : stateLinkIndex), 
                                     name: GetPointerName(validStates[s].AnimationPointer - 4, s));
@@ -977,7 +979,7 @@ namespace R1Engine
                             if (cd.Transitions == null) 
                                 return;
 
-                            foreach (R1Jaguar_EventComplexDataTransition t in cd.Transitions)
+                            foreach (JAG_EventComplexDataTransition t in cd.Transitions)
                                 AddComplexData(t.ComplexData);
                         }
                         AddComplexData(ed.ComplexData);
@@ -1169,7 +1171,7 @@ namespace R1Engine
 
                     // Create the tile arrays
                     TileSet = new Unity_TileSet[1],
-                    MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = map.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray(),
                 }
             };
 
@@ -1194,10 +1196,10 @@ namespace R1Engine
             Dictionary<int, Unity_Object> uniqueEvents = new Dictionary<int, Unity_Object>();
 
             // Get all event definitions
-            var eventDefs = rom.EventDefinitions?.Concat(rom.AdditionalEventDefinitions ?? new R1Jaguar_EventDefinition[0]).ToArray() ?? new R1Jaguar_EventDefinition[0];
+            var eventDefs = rom.EventDefinitions?.Concat(rom.AdditionalEventDefinitions ?? new JAG_EventDefinition[0]).ToArray() ?? new JAG_EventDefinition[0];
 
             // Helper method for loading an event definition
-            Unity_Object_R1Jaguar loadEventDef(R1Jaguar_EventDefinition def) => CreateEventData(context, def, eventDefinitions, loadTextures, objManager);
+            Unity_Object_R1Jaguar loadEventDef(JAG_EventDefinition def) => CreateEventData(context, def, eventDefinitions, loadTextures, objManager);
 
             // Load special events so we can display them
             var specialPointers = GetSpecialEventPointers(context);
@@ -1206,7 +1208,7 @@ namespace R1Engine
             var gendoor = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual])) : null; // Gendoor
             var piranha = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual])) : null; // Piranha
             var scroll = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual])) : null; // Scroll
-            var rayBzzit = (correctEventStates && context.GetR1Settings().R1_World == R1_World.Jungle && context.GetR1Settings().Level == 7) ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual])) : null; // Rayman on Bzzit
+            var rayBzzit = (correctEventStates && context.GetR1Settings().R1_World == World.Jungle && context.GetR1Settings().Level == 7) ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual])) : null; // Rayman on Bzzit
             var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDefinitions, loadTextures, objManager) : null; // Bzzit (demo)
 
             var eventDataList = new List<Unity_Object>();
@@ -1328,7 +1330,7 @@ namespace R1Engine
                             else
                                 eventData.ComplexStateIndex = eventData.RuntimeComplexStateIndex = 2;
                         }
-                        else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.GetR1Settings().R1_World == R1_World.Jungle && context.GetR1Settings().Level == 7) // Rayman on Bzzit
+                        else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.GetR1Settings().R1_World == World.Jungle && context.GetR1Settings().Level == 7) // Rayman on Bzzit
                         {
                             if (rayBzzit != null)
                                 eventData.EventDefinitionIndex = rayBzzit.EventDefinitionIndex;
@@ -1353,7 +1355,7 @@ namespace R1Engine
             // Check if all events have been loaded
             foreach (var t in rom.EventData.EventData)
             {
-                foreach (R1Jaguar_EventInstance inst in t)
+                foreach (JAG_EventInstance inst in t)
                 {
                     if (!uniqueEvents.ContainsKey(inst.EventIndex))
                         Debug.LogWarning($"Event with index {inst.EventIndex} wasn't loaded!");
@@ -1364,19 +1366,19 @@ namespace R1Engine
 
             if (context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
             {
-                var ray = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(R1Jaguar_Proto_References.MS_rayman));
+                var ray = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(JAG_Proto_References.MS_rayman));
                 if (ray != null)
                 {
                     var eventData = loadEventDef(ray);
                     //uniqueEvents[e.EventIndex] = eventData;
-                    eventData.XPosition = (short)rom.GetProtoDataReference(R1Jaguar_Proto_References.ray_center_x).DataValue;
-                    eventData.YPosition = (short)rom.GetProtoDataReference(R1Jaguar_Proto_References.ray_center_y).DataValue;
+                    eventData.XPosition = (short)rom.GetProtoDataReference(JAG_Proto_References.ray_center_x).DataValue;
+                    eventData.YPosition = (short)rom.GetProtoDataReference(JAG_Proto_References.ray_center_y).DataValue;
                     eventData.StateIndex = eventData.RuntimeStateIndex = 7;
                     rayman = eventData;
                 }
 
                 // Load Mr Stone so the event def can be selected
-                var bb1 = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(R1Jaguar_Proto_References.MS_bb1));
+                var bb1 = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(JAG_Proto_References.MS_bb1));
                 if (bb1 != null)
                     loadEventDef(bb1);
 
@@ -1436,8 +1438,8 @@ namespace R1Engine
                 objManager: objManager, 
                 eventData: eventDataList, 
                 rayman: rayman,
-                getCollisionTypeNameFunc: x => ((R1Jaguar_TileCollisionType)x).ToString(),
-                getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(), 
+                getCollisionTypeNameFunc: x => ((JAG_BlockType)x).ToString(),
+                getCollisionTypeGraphicFunc: x => ((JAG_BlockType)x).GetCollisionTypeGraphic(), 
                 background: bg);
         }
 

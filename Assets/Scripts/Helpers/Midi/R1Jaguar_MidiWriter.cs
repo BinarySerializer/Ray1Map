@@ -13,10 +13,11 @@ using System.Text;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 
 namespace R1Engine {
 	public class R1Jaguar_MidiWriter {
-		public void Write(R1Jaguar_MusicDescriptor file, string outPath) {
+		public void Write(JAG_MusicDescriptor file, string outPath) {
 #if ISWINDOWS
             Sequence s = new Sequence();
 			Track t = new Track();
@@ -30,7 +31,7 @@ namespace R1Engine {
         }
 
 #if ISWINDOWS
-        private Track CreateTrack(R1Jaguar_MusicDescriptor jagFile) {
+        private Track CreateTrack(JAG_MusicDescriptor jagFile) {
 			Track t = new Track();
 			TempoChangeBuilder b = new TempoChangeBuilder();
 			b.Tempo = 22000;
@@ -40,7 +41,7 @@ namespace R1Engine {
             Dictionary<int, int> curNoteOnChannel = new Dictionary<int, int>();
 			int timeScale = 1;
 			for (int i = 0; i < jagFile.MusicData.Length; i++) {
-				R1Jaguar_MusicData e = jagFile.MusicData[i];
+				JAG_MusicData e = jagFile.MusicData[i];
 				if (e.Time != int.MaxValue) {
 					int channelByte = BitHelpers.ExtractBits(e.Command, 8, 24);
 					if (channelByte == 0x7F) { // special point in the song

@@ -1,5 +1,7 @@
 ﻿using System;
 using BinarySerializer;
+using BinarySerializer.GBA;
+
 
 namespace R1Engine
 {

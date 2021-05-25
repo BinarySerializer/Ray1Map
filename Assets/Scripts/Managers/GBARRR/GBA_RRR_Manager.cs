@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine
@@ -399,7 +400,7 @@ namespace R1Engine
                 void ExportMode7Block(Pointer ptr, string path, bool compressed = true, uint length = 0x200) {
                     s.DoAt(ptr, () => {
                         if (compressed) {
-                            s.DoEncoded(new RNCEncoder(hasHeader: false), () => {
+                            s.DoEncoded(new RNC2Encoder(hasHeader: false), () => {
                                 ExportConvertedMode7Block($"{outputPath}/Additional/{path}", s.CurrentLength);
                             });
                         } else {
@@ -640,11 +641,11 @@ namespace R1Engine
                 int levelIndex = 0; // it's the same data for all 3 levels
                 byte[] hudSprites = null;
                 s.DoAt(hudPointers[levelIndex], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => hudSprites = s.SerializeArray<byte>(hudSprites, s.CurrentLength, name: nameof(hudSprites)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => hudSprites = s.SerializeArray<byte>(hudSprites, s.CurrentLength, name: nameof(hudSprites)));
                 });
                 byte[] worldSprites = null;
                 s.DoAt(worldPointers[levelIndex], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => worldSprites = s.SerializeArray<byte>(worldSprites, s.CurrentLength, name: nameof(worldSprites)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => worldSprites = s.SerializeArray<byte>(worldSprites, s.CurrentLength, name: nameof(worldSprites)));
                 });
                 var palette2 = s.DoAt(palette2Pointers[levelIndex], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette2"));
                 var palette1 = s.DoAt(palette1Pointers[levelIndex], () => s.SerializeObject<GBARRR_Palette>(default, name: "Palette1"));
@@ -672,7 +673,7 @@ namespace R1Engine
             {
                 byte[] menuSprites0 = null;
                 s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu_Carrot], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
                 });
 
                 var menuPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_PauseMenu], () => s.SerializePointerArray(default, 12, name: "PauseMenuSpritePointers"));
@@ -698,7 +699,7 @@ namespace R1Engine
             {
                 byte[] gameOverCompressedSprites = null;
                 s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_GameOver], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => gameOverCompressedSprites = s.SerializeArray<byte>(gameOverCompressedSprites, s.CurrentLength, name: nameof(gameOverCompressedSprites)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => gameOverCompressedSprites = s.SerializeArray<byte>(gameOverCompressedSprites, s.CurrentLength, name: nameof(gameOverCompressedSprites)));
                 });
 
                 var gameOverPointers = s.DoAt(pointerTable[GBARRR_Pointer.Sprites_GameOver], () => s.SerializePointerArray(default, 47, name: "GameOverSpritePointers"));
@@ -732,7 +733,7 @@ namespace R1Engine
                 byte[] menuSprites0 = null;
                 s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_Unk], () => {
                     //menuSprites0 = s.SerializeArray<byte>(menuSprites0, 0x20, name: nameof(menuSprites0));
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
                 });
 
                 List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();
@@ -752,7 +753,7 @@ namespace R1Engine
             {
                 byte[] menuSprites0 = null;
                 s.DoAt(pointerTable[GBARRR_Pointer.Sprites_Compressed_MainMenu], () => {
-                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
+                    s.DoEncoded(new RNC2Encoder(hasHeader: false), () => menuSprites0 = s.SerializeArray<byte>(menuSprites0, s.CurrentLength, name: nameof(menuSprites0)));
                 });
 
                 List<Mode7VRAMEntry> vram = new List<Mode7VRAMEntry>();

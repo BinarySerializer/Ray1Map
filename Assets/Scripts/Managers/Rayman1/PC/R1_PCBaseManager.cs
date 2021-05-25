@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -25,19 +27,19 @@ namespace R1Engine
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
-        public string GetWorldName(R1_World world) {
+        public string GetWorldName(World world) {
             switch (world) {
-                case R1_World.Jungle:
+                case World.Jungle:
                     return "JUNGLE";
-                case R1_World.Music:
+                case World.Music:
                     return "MUSIC";
-                case R1_World.Mountain:
+                case World.Mountain:
                     return "MOUNTAIN";
-                case R1_World.Image:
+                case World.Image:
                     return "IMAGE";
-                case R1_World.Cave:
+                case World.Cave:
                     return "CAVE";
-                case R1_World.Cake:
+                case World.Cake:
                     return "CAKE";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
@@ -48,19 +50,19 @@ namespace R1Engine
         /// Gets the short name for the world
         /// </summary>
         /// <returns>The short world name</returns>
-        public virtual string GetShortWorldName(R1_World world) {
+        public virtual string GetShortWorldName(World world) {
             switch (world) {
-                case R1_World.Jungle:
+                case World.Jungle:
                     return "JUN";
-                case R1_World.Music:
+                case World.Music:
                     return "MUS";
-                case R1_World.Mountain:
+                case World.Mountain:
                     return "MON";
-                case R1_World.Image:
+                case World.Image:
                     return "IMA";
-                case R1_World.Cave:
+                case World.Cave:
                     return "CAV";
-                case R1_World.Cake:
+                case World.Cake:
                     return "CAK";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
@@ -144,12 +146,12 @@ namespace R1Engine
             // Hacky fix for French with Rayman
             if ((context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu) &&
                 (context.GetR1Settings().EduVolume[1] == 'F' || context.GetR1Settings().EduVolume[1] == 'f') && 
-                (context.GetR1Settings().R1_World == R1_World.Jungle || context.GetR1Settings().R1_World == R1_World.Cake))
+                (context.GetR1Settings().R1_World == World.Jungle || context.GetR1Settings().R1_World == World.Cake))
                 desIndex -= 4;
 
             var name = GetDESNameTable(context).ElementAtOrDefault(desIndex);
 
-            return generalEvents.Any(x => (x.DES == name && x.Worlds.Contains(context.GetR1Settings().R1_World)) && ((R1_EventType)x.Type).IsMultiColored());
+            return generalEvents.Any(x => (x.DES == name && x.Worlds.Contains(context.GetR1Settings().R1_World)) && ((ObjType)x.Type).IsMultiColored());
         }
 
         #endregion
@@ -170,7 +172,7 @@ namespace R1Engine
                 context.AddFile(new LinearSerializedFile(context, vigPath));
 
                 // Read the archive
-                var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(vigPath, context);
+                var archive = FileFactory.Read<PC_FileArchive>(vigPath, context);
 
                 // Extract every .pcx file
                 for (int i = 0; i < archive.Entries.Length; i++)
@@ -289,7 +291,7 @@ namespace R1Engine
                         return null;
 
                     // TODO: Update this to not include extensions
-                    var a = FileFactory.Read<R1_PC_WorldFile>(worldPath, context).DESFileNames?.Skip(1).ToArray();
+                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context).DESFileNames?.Skip(1).ToArray();
 
                     return a?.Any() == true ? a : null;
                 });
@@ -305,26 +307,26 @@ namespace R1Engine
                     if (!FileSystem.FileExists(context.GetAbsoluteFilePath(worldPath)))
                         return null;
 
-                    var a = FileFactory.Read<R1_PC_WorldFile>(worldPath, context).ETAFileNames?.ToArray();
+                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context).ETAFileNames?.ToArray();
 
                     return a?.Any() == true ? a : null;
                 });
 
-                context.GetR1Settings().R1_World = R1_World.Jungle;
+                context.GetR1Settings().R1_World = World.Jungle;
 
                 // Keep track of Rayman's anim
-                R1_PC_AnimationDescriptor[] rayAnim = null;
+                PC_Animation[] rayAnim = null;
 
                 // Helper method for exporting textures
-                async UniTask<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<R1_PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<BaseColor> palette = null)
-                    where Wld : R1_PC_BaseWorldFile, new()
+                async UniTask<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<BaseColor> palette = null)
+                    where Wld : PC_BaseWorldFile, new()
                 {
                     // Read the file
                     var file = FileFactory.Read<Wld>(filePath, context);
 
-                    if (rayAnim == null && file is R1_PC_AllfixFile)
+                    if (rayAnim == null && file is PC_AllfixFile)
                         // Rayman is always the first DES
-                        rayAnim = file.DesItems.First().AnimationDescriptors;
+                        rayAnim = file.DesItems.First().Animations;
 
                     // Export the sprite textures
                     if (exportAnimFrames)
@@ -336,13 +338,13 @@ namespace R1Engine
                 }
 
                 // Export big ray
-                await ExportTexturesAsync<R1_PC_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), "Bigray", 0, new R1_PC_ETA[0], null, null, GetBigRayPalette(context));
+                await ExportTexturesAsync<PC_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), "Bigray", 0, new PC_ETA[0], null, null, GetBigRayPalette(context));
 
                 // Export allfix
-                var allfix = await ExportTexturesAsync<R1_PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), "Allfix", 0, new R1_PC_ETA[0], desNames.Values.FirstOrDefault(), etaNames.Values.FirstOrDefault());
+                var allfix = await ExportTexturesAsync<PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), "Allfix", 0, new PC_ETA[0], desNames.Values.FirstOrDefault(), etaNames.Values.FirstOrDefault());
 
                 // Enumerate every world
-                foreach (R1_World world in WorldHelpers.GetR1Worlds()) {
+                foreach (World world in WorldHelpers.GetR1Worlds()) {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
 
@@ -353,7 +355,7 @@ namespace R1Engine
                         continue;
 
                     // Export world
-                    await ExportTexturesAsync<R1_PC_WorldFile>(worldPath, world.ToString(), allfix.DesItems.Length, allfix.Eta, desNames.TryGetItem(world), etaNames.TryGetItem(world));
+                    await ExportTexturesAsync<PC_WorldFile>(worldPath, world.ToString(), allfix.DesItems.Length, allfix.Eta, desNames.TryGetItem(world), etaNames.TryGetItem(world));
                 }
             }
         }
@@ -374,11 +376,11 @@ namespace R1Engine
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
         /// <param name="palette">Optional palette to use</param>
-        public void ExportSpriteTextures(Context context, R1_PC_BaseWorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<BaseColor> palette = null) {
+        public void ExportSpriteTextures(Context context, PC_BaseWorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<BaseColor> palette = null) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
-            var levels = new List<R1_PC_LevFile>();
+            var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
             foreach (var i in GetLevels(context.GetR1Settings()).First(x => x.Name == context.GetR1Settings().EduVolume || x.Name == null).Worlds.First(x => x.Index == context.GetR1Settings().World).Maps.OrderBy(x => x)) {
@@ -389,7 +391,7 @@ namespace R1Engine
                 var lvlPath = GetLevelFilePath(context.GetR1Settings());
 
                 // Load the level
-                levels.Add(FileFactory.Read<R1_PC_LevFile>(lvlPath, context));
+                levels.Add(FileFactory.Read<PC_LevFile>(lvlPath, context));
             }
 
             // Enumerate each sprite group
@@ -423,22 +425,22 @@ namespace R1Engine
         /// <param name="desIndex">The DES index</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprite textures</returns>
-        public Texture2D[] GetSpriteTextures(List<R1_PC_LevFile> levels, R1_PC_DES desItem, int desIndex, IList<BaseColor> palette = null)
+        public Texture2D[] GetSpriteTextures(List<PC_LevFile> levels, PC_DES desItem, int desIndex, IList<BaseColor> palette = null)
         {
             // Create the output array
-            var output = new Texture2D[desItem.ImageDescriptors.Length];
+            var output = new Texture2D[desItem.Sprites.Length];
 
             // Process the image data
             var processedImageData = desItem.RequiresBackgroundClearing ? ProcessImageData(desItem.ImageData) : desItem.ImageData;
 
             // Find the level with the correct palette
-            var lvl = levels.FindLast(x => x.ScrollDiffSprites == desIndex || x.EventData.Events.Any(y => y.PC_SpritesIndex == desIndex)) ?? levels.First();
+            var lvl = levels.FindLast(x => x.ScrollDiffSprites == desIndex || x.ObjData.Objects.Any(y => y.PC_SpritesIndex == desIndex)) ?? levels.First();
 
             // Enumerate each image
-            for (int i = 0; i < desItem.ImageDescriptors.Length; i++)
+            for (int i = 0; i < desItem.Sprites.Length; i++)
             {
                 // Get the image descriptor
-                var imgDescriptor = desItem.ImageDescriptors[i];
+                var imgDescriptor = desItem.Sprites[i];
 
                 // Ignore dummy sprites
                 if (imgDescriptor.IsDummySprite())
@@ -468,12 +470,12 @@ namespace R1Engine
         /// <param name="eventInfo">The event info</param>
         /// <param name="rayAnim">Rayman's animation</param>
         /// <param name="palette">Optional palette to use</param>
-        public async UniTask ExportAnimationFramesAsync(Context context, R1_PC_BaseWorldFile worldFile, string outputDir, int desOffset, R1_PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, R1_PC_AnimationDescriptor[] rayAnim, IList<BaseColor> palette = null)
+        public async UniTask ExportAnimationFramesAsync(Context context, PC_BaseWorldFile worldFile, string outputDir, int desOffset, PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, PC_Animation[] rayAnim, IList<BaseColor> palette = null)
         {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
-            var levels = new List<R1_PC_LevFile>();
+            var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
             foreach (var i in GetLevels(context.GetR1Settings()).First(x => x.Name == context.GetR1Settings().EduVolume).Worlds.FindItem(x => x.Index == context.GetR1Settings().World).Maps.OrderBy(x => x))
@@ -485,7 +487,7 @@ namespace R1Engine
                 var lvlPath = GetLevelFilePath(context.GetR1Settings());
 
                 // Load the level
-                levels.Add(FileFactory.Read<R1_PC_LevFile>(lvlPath, context));
+                levels.Add(FileFactory.Read<PC_LevFile>(lvlPath, context));
             }
 
             // Get special DES
@@ -493,9 +495,9 @@ namespace R1Engine
             int? darkRayDES = null;
 
             // Get the small Rayman DES if allfix
-            if (worldFile is R1_PC_AllfixFile)
+            if (worldFile is PC_AllfixFile)
             {
-                var ei = eventInfo.FindItem(x => x.Type == (int)R1_EventType.TYPE_DEMI_RAYMAN);
+                var ei = eventInfo.FindItem(x => x.Type == (int)ObjType.TYPE_DEMI_RAYMAN);
 
                 if (context.GetR1Settings().EngineVersion == EngineVersion.R1_PC)
                     smallRayDES = LevelEditorData.NameTable_R1PCDES[0].FindItemIndex(x => x == ei.DES);
@@ -506,9 +508,9 @@ namespace R1Engine
             }
 
             // Get the Dark Rayman DES if Cake
-            if (worldFile is R1_PC_WorldFile && context.GetR1Settings().World == (int)R1_World.Cake)
+            if (worldFile is PC_WorldFile && context.GetR1Settings().World == (int)World.Cake)
             {
-                var ei = eventInfo.FindItem(x => x.Type == (int)R1_EventType.TYPE_BLACK_RAY);
+                var ei = eventInfo.FindItem(x => x.Type == (int)ObjType.TYPE_BLACK_RAY);
 
                 if (context.GetR1Settings().EngineVersion == EngineVersion.R1_PC)
                     darkRayDES = LevelEditorData.NameTable_R1PCDES[6 - 1].FindItemIndex(x => x == ei.DES);
@@ -531,12 +533,12 @@ namespace R1Engine
                 var desName = desNames != null ? $" ({desNames[desIndex - 1]})" : String.Empty;
 
                 // Find matching ETA for this DES
-                List<R1_EventState> matchingStates = new List<R1_EventState>();
+                List<ObjState> matchingStates = new List<ObjState>();
 
-                if (!(worldFile is R1_PC_BigRayFile))
+                if (!(worldFile is PC_BigRayFile))
                 {
                     // Search level events
-                    foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.PC_SpritesIndex == desIndex))
+                    foreach (var lvlEvent in levels.SelectMany(x => x.ObjData.Objects).Where(x => x.PC_SpritesIndex == desIndex))
                         matchingStates.AddRange(eta[lvlEvent.PC_ETAIndex].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
 
                     var desNameTable = GetDESNameTable(context);
@@ -545,7 +547,7 @@ namespace R1Engine
                     // Search event info
                     foreach (var ei in eventInfo)
                     {
-                        R1_PC_ETA matchingEta = null;
+                        PC_ETA matchingEta = null;
 
                         if (ei.DES == desNameTable[desIndex])
                             matchingEta = eta[etaNameTable.FindItemIndex(x => x == ei.ETA)];
@@ -562,7 +564,7 @@ namespace R1Engine
                 var desFolderPath = Path.Combine(outputDir, $"{i}{desName}");
 
                 // Get the animations
-                var spriteAnim = des.AnimationDescriptors;
+                var spriteAnim = des.Animations;
 
                 // Use Rayman's animation if a special DES
                 if (desIndex == darkRayDES || desIndex == smallRayDES)
@@ -580,7 +582,7 @@ namespace R1Engine
                     string speed;
 
                     // Hard-code for big ray
-                    if (worldFile is R1_PC_BigRayFile)
+                    if (worldFile is PC_BigRayFile)
                         speed = "1";
                     // Hard-code for clock event
                     else if (desIndex == 7)
@@ -603,9 +605,9 @@ namespace R1Engine
                     {
                         var l = anim.Layers[tempLayer];
 
-                        if (l.ImageIndex < textures.Length)
+                        if (l.SpriteIndex < textures.Length)
                         {
-                            var s = textures[l.ImageIndex];
+                            var s = textures[l.SpriteIndex];
 
                             if (s != null)
                             {
@@ -637,11 +639,11 @@ namespace R1Engine
 
                             layer++;
 
-                            if (animationLayer.ImageIndex >= textures.Length)
+                            if (animationLayer.SpriteIndex >= textures.Length)
                                 continue;
 
                             // Get the sprite
-                            var sprite = textures[animationLayer.ImageIndex];
+                            var sprite = textures[animationLayer.SpriteIndex];
 
                             if (sprite == null)
                                 continue;
@@ -737,7 +739,7 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="processedImageData">The processed image data to use</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(R1_ImageDescriptor s, IList<BaseColor> palette, byte[] processedImageData)
+        public Texture2D GetSpriteTexture(Sprite s, IList<BaseColor> palette, byte[] processedImageData)
         {
             // Ignore dummy sprites
             if (s.IsDummySprite())
@@ -798,7 +800,7 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="desIndex">The DES index</param>
         /// <returns>The common design</returns>
-        public virtual Unity_ObjGraphics GetCommonDesign(Context context, R1_PC_DES des, IList<BaseColor> palette, int desIndex)
+        public virtual Unity_ObjGraphics GetCommonDesign(Context context, PC_DES des, IList<BaseColor> palette, int desIndex)
         {
             // Check if the DES is used for multi-colored events
             var isMultiColored = IsDESMultiColored(context, desIndex + 1, LevelEditorData.EventInfoData);
@@ -806,7 +808,7 @@ namespace R1Engine
             // Create the common design
             Unity_ObjGraphics graphics = new Unity_ObjGraphics
             {
-                Sprites = new List<Sprite>(),
+                Sprites = new List<UnityEngine.Sprite>(),
                 Animations = new List<Unity_ObjAnimation>()
             };
 
@@ -816,7 +818,7 @@ namespace R1Engine
             if (!isMultiColored)
             {
                 // Sprites
-                foreach (var s in des.ImageDescriptors)
+                foreach (var s in des.Sprites)
                 {
                     // Get the texture
                     Texture2D tex = GetSpriteTexture(s, palette, processedImageData);
@@ -839,7 +841,7 @@ namespace R1Engine
                         p[8] = palette[i * 8];
 
                     // Sprites
-                    foreach (var s in des.ImageDescriptors)
+                    foreach (var s in des.Sprites)
                     {
                         // Get the texture
                         Texture2D tex = GetSpriteTexture(s, p, processedImageData);
@@ -851,7 +853,7 @@ namespace R1Engine
             }
 
             // Animations
-            foreach (var a in des.AnimationDescriptors)
+            foreach (var a in des.Animations)
                 // Add the animation to list
                 graphics.Animations.Add(a.ToCommonAnimation());
 
@@ -879,8 +881,8 @@ namespace R1Engine
             await AddFile(context, soundManifestFile);
 
             // Extract the archives
-            var soundArchive = FileFactory.Read<R1_PC_EncryptedFileArchive>(soundFile, context);
-            var soundManifestArchive = FileFactory.Read<R1_PC_EncryptedFileArchive>(soundManifestFile, context);
+            var soundArchive = FileFactory.Read<PC_FileArchive>(soundFile, context);
+            var soundManifestArchive = FileFactory.Read<PC_FileArchive>(soundManifestFile, context);
 
             var index = 0;
 
@@ -890,7 +892,7 @@ namespace R1Engine
                 var manifestArchiveEntry = soundManifestArchive.Entries[index];
 
                 // Read the manifest data
-                var manifestData = soundManifestArchive.ReadFile<R1_PC_SoundManifest>(context, index, file => file.Length = manifestArchiveEntry.FileSize / (4 * 4));
+                var manifestData = soundManifestArchive.ReadFile<PC_SoundManifest>(context, index, file => file.Pre_Length = manifestArchiveEntry.FileSize / (4 * 4));
 
                 var groupName = manifestArchiveEntry.FileName ?? index.ToString();
 
@@ -943,7 +945,7 @@ namespace R1Engine
                 await AddFile(context, archiveData.ArchiveFile);
 
                 // Extract the archive
-                var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveData.ArchiveFile, context);
+                var archive = FileFactory.Read<PC_FileArchive>(archiveData.ArchiveFile, context);
 
                 // Create and add the group
                 output.Add(new SoundGroup()
@@ -1075,7 +1077,7 @@ namespace R1Engine
                     var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile.FilePath), Path.GetFileNameWithoutExtension(archiveFile.FilePath));
 
                     // Read archive
-                    var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile.FilePath, context);
+                    var archive = FileFactory.Read<PC_FileArchive>(archiveFile.FilePath, context);
 
                     // Extract every file
                     for (int i = 0; i < archive.Entries.Length; i++)
@@ -1108,7 +1110,7 @@ namespace R1Engine
                         context.AddFile(new LinearSerializedFile(context, path));
 
                         // Read the level
-                        var lvlData = FileFactory.Read<R1_PC_LevFile>(path, context);
+                        var lvlData = FileFactory.Read<PC_LevFile>(path, context);
 
                         // Add the palettes
                         foreach (var mapPal in lvlData.MapData.ColorPalettes)
@@ -1146,7 +1148,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="des">The DES item</param>
         /// <param name="rawImageData">The raw image data, categorized by image descriptor</param>
-        public void ImportRawImageData(R1_PC_DES des, IEnumerable<KeyValuePair<int, byte[]>> rawImageData)
+        public void ImportRawImageData(PC_DES des, IEnumerable<KeyValuePair<int, byte[]>> rawImageData)
         {
             // TODO: Clean this up
 
@@ -1154,7 +1156,7 @@ namespace R1Engine
             foreach (var data in rawImageData)
             {
                 // Get the descriptor
-                var imgDesc = des.ImageDescriptors[data.Key];
+                var imgDesc = des.Sprites[data.Key];
 
                 // Add every byte and encrypt it
                 for (int i = 0; i < data.Value.Length; i++)
@@ -1204,19 +1206,19 @@ namespace R1Engine
             Controller.DetailedState = $"Loading allfix";
 
             // Read the fixed data
-            var allfix = FileFactory.Read<R1_PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+            var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
 
             await Controller.WaitIfNecessary();
 
             IList<BaseColor> bigRayPalette;
-            R1_PC_DES[] des;
+            PC_DES[] des;
 
-            if (context.GetR1Settings().R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != World.Menu)
             {
                 Controller.DetailedState = $"Loading world";
 
                 // Read the world data
-                var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+                var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
                 await Controller.WaitIfNecessary();
 
@@ -1224,7 +1226,7 @@ namespace R1Engine
 
                 // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
                 // Read the big ray data
-                var bigRayData = FileFactory.Read<R1_PC_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
+                var bigRayData = FileFactory.Read<PC_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
 
                 // Get the big ray palette
                 bigRayPalette = GetBigRayPalette(context);
@@ -1248,7 +1250,7 @@ namespace R1Engine
             eventDesigns.Add(new Unity_ObjectManager_R1.DESData(new Unity_ObjGraphics(), null));
 
             // Read every DES item
-            foreach (R1_PC_DES d in des)
+            foreach (PC_DES d in des)
             {
                 Controller.DetailedState = $"Loading DES {desIndex}/{des.Length}";
 
@@ -1258,7 +1260,7 @@ namespace R1Engine
                 var p = desIndex == des.Length - 1 && bigRayPalette != null ? bigRayPalette : palette;
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DESData(GetCommonDesign(context, d, p, desIndex), d.ImageDescriptors));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DESData(GetCommonDesign(context, d, p, desIndex), d.Sprites));
 
                 desIndex++;
             }
@@ -1280,24 +1282,24 @@ namespace R1Engine
         {
             Controller.DetailedState = $"Loading map data";
 
-            R1_PC_MapBlock mapData;
-            R1_PC_EventBlock eventData;
+            PC_MapData mapData;
+            PC_ObjBlock objData;
             BaseColor[][] palettes;
-            R1_PC_TileTextureBlock tileTextureData = null;
+            PC_TileTextureBlock tileTextureData = null;
             Texture2D bg;
             Texture2D bg2;
-            R1_WorldMapInfo[] worldInfos = null;
+            WorldInfo[] worldInfos = null;
 
-            if (context.GetR1Settings().R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != World.Menu)
             {
                 // Read the level data
-                var levelData = FileFactory.Read<R1_PC_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+                var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
                 // Read the world data
-                var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+                var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
                 mapData = levelData.MapData;
-                eventData = levelData.EventData;
+                objData = levelData.ObjData;
                 palettes = mapData.ColorPalettes;
                 tileTextureData = levelData.TileTextureData;
 
@@ -1317,21 +1319,21 @@ namespace R1Engine
                 var width = (ushort)(vig.ImageWidth / Settings.CellSize);
                 var height = (ushort)(vig.ImageHeight / Settings.CellSize);
 
-                mapData = new R1_PC_MapBlock
+                mapData = new PC_MapData
                 {
                     MapBlockChecksum = 0,
                     Width = width,
                     Height = height,
-                    Tiles = Enumerable.Repeat(new MapTile(), width * height).ToArray()
+                    Tiles = Enumerable.Repeat(new BinarySerializer.Ray1.MapTile(), width * height).ToArray()
                 };
 
                 // Set event data
                 worldInfos = GetWorldMapInfos(context);
-                var events = worldInfos.Select((x, i) => R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit ? x.Unk2[3] : i)).ToArray();
-                eventData = new R1_PC_EventBlock()
+                var events = worldInfos.Select((x, i) => ObjData.GetMapObj(context, x.XPosition, x.YPosition, context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_Edu || context.GetR1Settings().EngineVersion == EngineVersion.R1_PC_Kit ? x.Unk2[3] : i)).ToArray();
+                objData = new PC_ObjBlock()
                 {
-                    Events = events,
-                    EventLinkingTable = Enumerable.Range(0, events.Length).Select(x => (ushort)x).ToArray()
+                    Objects = events,
+                    ObjLinkingTable = Enumerable.Range(0, events.Length).Select(x => (ushort)x).ToArray()
                 };
             }
 
@@ -1347,28 +1349,28 @@ namespace R1Engine
 
             var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, i == eventDesigns.Length - 1 ? bigRayName : desNameTable?.ElementAtOrDefault(i))).ToArray();
             var allEta = GetCurrentEventStates(context).ToArray();
-            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, i == allEta.Length - 1 ? bigRayName : etaNameTable?.ElementAtOrDefault(i))).ToArray();
+            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(x.States, i, i == allEta.Length - 1 ? bigRayName : etaNameTable?.ElementAtOrDefault(i))).ToArray();
 
             // Load ZDC (collision) and event flags
             var typeZDCBytes = GetTypeZDCBytes;
             var zdcTableBytes = GetZDCTableBytes;
             var eventFlagsBytes = GetEventFlagsBytes;
 
-            R1_ZDCEntry[] typeZDC = context.Deserializer.SerializeFromBytes<ObjectArray<R1_ZDCEntry>>(typeZDCBytes, "TypeZDC", x => x.Length = (uint)(typeZDCBytes.Length / 2), name: "TypeZDC").Value;
-            R1_ZDCData[] zdcData = context.Deserializer.SerializeFromBytes<ObjectArray<R1_ZDCData>>(zdcTableBytes, "ZDCTable", x => x.Length = (uint)(zdcTableBytes.Length / 8), name: "ZDCTable").Value;
-            R1_EventFlags[] eventFlags = context.Deserializer.SerializeFromBytes<Array<R1_EventFlags>>(eventFlagsBytes, "EventFlags", x => x.Length = (uint)(eventFlagsBytes.Length / 4), name: "EventFlags").Value;
+            ZDCEntry[] typeZDC = context.Deserializer.SerializeFromBytes<ObjectArray<ZDCEntry>>(typeZDCBytes, "TypeZDC", x => x.Pre_Length = (uint)(typeZDCBytes.Length / 2), name: "TypeZDC").Value;
+            ZDCData[] zdcData = context.Deserializer.SerializeFromBytes<ObjectArray<ZDCData>>(zdcTableBytes, "ZDCTable", x => x.Pre_Length = (uint)(zdcTableBytes.Length / 8), name: "ZDCTable").Value;
+            ObjTypeFlags[] eventFlags = context.Deserializer.SerializeFromBytes<Array<ObjTypeFlags>>(eventFlagsBytes, "EventFlags", x => x.Length = (uint)(eventFlagsBytes.Length / 4), name: "EventFlags").Value;
 
             // Read the world data
-            var allfix = FileFactory.Read<R1_PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+            var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
 
             // Create the object manager
-            var objManager = new Unity_ObjectManager_R1(context, des, eta, eventData.EventLinkingTable, 
+            var objManager = new Unity_ObjectManager_R1(context, des, eta, objData.ObjLinkingTable, 
                 usesPointers: false, 
                 typeZDC: typeZDC, 
                 zdcData: zdcData,
                 eventFlags: eventFlags,
                 hasDefinedDesEtaNames: true,
-                eventTemplates: new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+                eventTemplates: new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
                 {
                     // TODO: Match ETA using the property in the DES
                     [Unity_ObjectManager_R1.WldObjType.Ray] = createEventDataTemplate(allfix.DESIndex_Ray, 0),
@@ -1378,7 +1380,7 @@ namespace R1Engine
                     [Unity_ObjectManager_R1.WldObjType.DivObj] = createEventDataTemplate(allfix.DESIndex_DivObj, 1),
                 });
 
-            R1_EventData createEventDataTemplate(uint desIndex, uint etaIndex) => new R1_EventData()
+            ObjData createEventDataTemplate(uint desIndex, uint etaIndex) => new ObjData()
             {
                 PC_SpritesIndex = desIndex,
                 PC_ImageBufferIndex = desIndex,
@@ -1399,20 +1401,20 @@ namespace R1Engine
 
                     // Create the tile arrays
                     TileSet = new Unity_TileSet[palettes.Length],
-                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray(),
 
                     TileSetTransparencyModes = tileTextureData?.TexturesOffsetTable.Select(x => tileTextureData.NonTransparentTextures.Concat(tileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
                     {
                         if (x == null)
-                            return R1_PC_MapTileTransparencyMode.FullyTransparent;
+                            return BinarySerializer.Ray1.MapTile.PC_TransparencyMode.FullyTransparent;
 
                         if (x.TransparencyMode == 0xAAAAAAAA)
-                            return R1_PC_MapTileTransparencyMode.FullyTransparent;
+                            return BinarySerializer.Ray1.MapTile.PC_TransparencyMode.FullyTransparent;
 
                         if (x.TransparencyMode == 0x55555555)
-                            return R1_PC_MapTileTransparencyMode.NoTransparency;
+                            return BinarySerializer.Ray1.MapTile.PC_TransparencyMode.NoTransparency;
 
-                        return R1_PC_MapTileTransparencyMode.PartiallyTransparent;
+                        return BinarySerializer.Ray1.MapTile.PC_TransparencyMode.PartiallyTransparent;
                     }).ToArray(),
                     PCTileOffsetTable = tileTextureData?.TexturesOffsetTable
                 }
@@ -1428,7 +1430,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load Rayman
-            var rayman = new Unity_Object_R1(R1_EventData.GetRayman(context, eventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
+            var rayman = new Unity_Object_R1(ObjData.GetRayman(context, objData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
 
             // Create a level object
             Unity_Level level = new Unity_Level(
@@ -1439,14 +1441,14 @@ namespace R1Engine
                 background: bg,
                 parallaxBackground: bg2);
 
-            for (var i = 0; i < eventData.Events.Length; i++)
+            for (var i = 0; i < objData.Objects.Length; i++)
             {
-                R1_EventData e = eventData.Events[i];
+                ObjData e = objData.Objects[i];
 
-                if (context.GetR1Settings().R1_World != R1_World.Menu)
+                if (context.GetR1Settings().R1_World != World.Menu)
                 {
-                    e.Commands = eventData.EventCommands[i].Commands;
-                    e.LabelOffsets = eventData.EventCommands[i].LabelOffsetTable;
+                    e.Commands = objData.ObjCommands[i].Commands;
+                    e.LabelOffsets = objData.ObjCommands[i].LabelOffsetTable;
                 }
 
                 // Add the event
@@ -1457,10 +1459,10 @@ namespace R1Engine
 
             Controller.DetailedState = $"Loading tile set";
 
-            if (context.GetR1Settings().R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != World.Menu)
             {
                 // Read the 3 tile sets (one for each palette)
-                var tileSets = ReadTileSets(FileFactory.Read<R1_PC_LevFile>(GetLevelFilePath(context.GetR1Settings()), context));
+                var tileSets = ReadTileSets(FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.GetR1Settings()), context));
 
                 // Set the tile sets
                 for (int i = 0; i < level.Maps[0].TileSet.Length; i++)
@@ -1478,9 +1480,9 @@ namespace R1Engine
         public abstract byte[] GetTypeZDCBytes { get; }
         public abstract byte[] GetZDCTableBytes { get; }
         public abstract byte[] GetEventFlagsBytes { get; }
-        public abstract R1_WorldMapInfo[] GetWorldMapInfos(Context context);
+        public abstract WorldInfo[] GetWorldMapInfos(Context context);
 
-        public abstract UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax);
+        public abstract UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax);
 
         protected abstract UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context);
 
@@ -1489,7 +1491,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="levData">The level data to get the tile-set for</param>
         /// <returns>The 3 tile-sets</returns>
-        public Unity_TileSet[] ReadTileSets(R1_PC_LevFile levData) {
+        public Unity_TileSet[] ReadTileSets(PC_LevFile levData) {
             // Create the output array
             var output = new Unity_TileSet[]
             {
@@ -1528,13 +1530,13 @@ namespace R1Engine
                             var cellIndex = Settings.CellSize * y + x;
 
                             // Get the color from the current palette (or default to fully transparent if a valid tile texture was not found or it has the transparency flag)
-                            var c = tileTex == null || index == 0 ? new Color(0, 0, 0, 0) : levData.MapData.ColorPalettes[i][255 - tileTex.ColorIndexes[cellIndex]].GetColor();
+                            var c = tileTex == null || index == 0 ? new Color(0, 0, 0, 0) : levData.MapData.ColorPalettes[i][255 - tileTex.ImgData[cellIndex]].GetColor();
 
-                            if (tileTex != null && tileTex.ColorIndexes[cellIndex] != 242)
+                            if (tileTex != null && tileTex.ImgData[cellIndex] != 242)
                                 allRed = false;
 
                             // If the texture is transparent, add the alpha channel
-                            if (tileTex is R1_PC_TransparentTileTexture tt)
+                            if (tileTex is PC_TransparentTileTexture tt)
                                 c.a = (float)tt.Alpha[cellIndex] / Byte.MaxValue;
 
                             // Set the pixel
@@ -1567,7 +1569,7 @@ namespace R1Engine
         public UniTask SaveLevelAsync(Context context, Unity_Level level) 
         {
             // Menu levels can't be saved
-            if (context.GetR1Settings().R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == World.Menu)
                 return UniTask.CompletedTask;
 
             // Get the object manager
@@ -1577,22 +1579,22 @@ namespace R1Engine
             var lvlPath = GetLevelFilePath(context.GetR1Settings());
 
             // Get the level data
-            var lvlData = context.GetMainFileObject<R1_PC_LevFile>(lvlPath);
+            var lvlData = context.GetMainFileObject<PC_LevFile>(lvlPath);
 
             // Update the tiles
             for (int y = 0; y < lvlData.MapData.Height; y++) {
                 for (int x = 0; x < lvlData.MapData.Width; x++) {
                     // Set the tiles
-                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = level.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data;
+                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = level.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data.ToR1MapTile();
                 }
             }
 
             // Update link table
-            lvlData.EventData.EventLinkingTable = objManager.LinkTable;
+            lvlData.ObjData.ObjLinkingTable = objManager.LinkTable;
 
             // Temporary event lists
-            var events = new List<R1_EventData>();
-            var eventCommands = new List<R1_PC_EventCommand>();
+            var events = new List<ObjData>();
+            var eventCommands = new List<PC_CommandCollection>();
 
             // Read the world data
             foreach (var e in level.EventData.Cast<Unity_Object_R1>())
@@ -1603,12 +1605,12 @@ namespace R1Engine
                     r1Event.PS1Demo_Unk1 = new byte[40];
 
                 if (r1Event.CollisionTypes == null)
-                    r1Event.CollisionTypes = new R1_TileCollisionType[5];
+                    r1Event.CollisionTypes = new TileCollisionType[5];
 
                 if (r1Event.CommandContexts == null)
-                    r1Event.CommandContexts = new R1_EventData.CommandContext[]
+                    r1Event.CommandContexts = new ObjData.CommandContext[]
                     {
-                        new R1_EventData.CommandContext()
+                        new ObjData.CommandContext()
                     };
 
                 r1Event.SpritesCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
@@ -1617,14 +1619,14 @@ namespace R1Engine
                 // Add the event
                 events.Add(r1Event);
 
-                var cmds = e.EventData.Commands ?? new R1_EventCommandCollection()
+                var cmds = e.EventData.Commands ?? new CommandCollection()
                 {
-                    Commands = new R1_EventCommand[0]
+                    Commands = new Command[0]
                 };
                 var labelOffsets = e.EventData.LabelOffsets ?? new ushort[0];
 
                 // Add the event commands
-                eventCommands.Add(new R1_PC_EventCommand()
+                eventCommands.Add(new PC_CommandCollection()
                 {
                     CommandLength = (ushort)(cmds.Commands.Select(x => x.Length).Sum()),
                     Commands = cmds,
@@ -1634,12 +1636,12 @@ namespace R1Engine
             }
 
             // Update event values
-            lvlData.EventData.EventCount = (ushort)events.Count;
-            lvlData.EventData.Events = events.ToArray();
-            lvlData.EventData.EventCommands = eventCommands.ToArray();
+            lvlData.ObjData.ObjCount = (ushort)events.Count;
+            lvlData.ObjData.Objects = events.ToArray();
+            lvlData.ObjData.ObjCommands = eventCommands.ToArray();
 
             // Save the file
-            FileFactory.Write<R1_PC_LevFile>(lvlPath, context);
+            FileFactory.Write<PC_LevFile>(lvlPath, context);
 
             return UniTask.CompletedTask;
         }
@@ -1649,7 +1651,7 @@ namespace R1Engine
             // Allfix
             await AddFile(context, GetAllfixFilePath(context.GetR1Settings()));
 
-            if (context.GetR1Settings().R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != World.Menu)
             {
                 // World
                 await AddFile(context, GetWorldFilePath(context.GetR1Settings()));
@@ -1727,19 +1729,19 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The event states</returns>
-        public virtual IEnumerable<R1_PC_ETA> GetCurrentEventStates(Context context)
+        public virtual IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
         {
             // Read the fixed data
-            var allfix = FileFactory.Read<R1_PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+            var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
 
-            if (context.GetR1Settings().R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == World.Menu)
                 return allfix.Eta;
 
             // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
             // Read the big ray data
-            var bigRayData = FileFactory.Read<R1_PC_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
+            var bigRayData = FileFactory.Read<PC_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
 
             // Get the eta items
             return allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);
@@ -1757,7 +1759,7 @@ namespace R1Engine
                         context.AddFile(new LinearSerializedFile(context, archive.FilePath));
                         return new
                         {
-                            Archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archive.FilePath, context),
+                            Archive = FileFactory.Read<PC_FileArchive>(archive.FilePath, context),
                             Volume = archive.Volume
                         };
                     }).
@@ -1777,14 +1779,14 @@ namespace R1Engine
                 }
 
                 // Read all known files
-                LogFile<R1_PC_VersionFile>(R1_PC_ArchiveFileName.VERSION);
+                LogFile<PC_VersionFile>(R1_PC_ArchiveFileName.VERSION);
                 //LogFile<>("SCRIPT"); // TODO: Serialize script
-                LogFile<R1_PC_GeneralFile>(R1_PC_ArchiveFileName.GENERAL);
-                LogFile<R1_PC_GeneralFile>(R1_PC_ArchiveFileName.GENERAL0);
-                LogFile<R1_PCEdu_MOTFile>(R1_PC_ArchiveFileName.MOT);
-                LogFile<R1_PC_SampleNamesFile>(R1_PC_ArchiveFileName.SMPNAMES);
-                LogFile<R1_PC_LocFile>(R1_PC_ArchiveFileName.TEXT);
-                LogFile<R1_PC_WorldMap>(R1_PC_ArchiveFileName.WLDMAP01);
+                LogFile<PC_GeneralFile>(R1_PC_ArchiveFileName.GENERAL);
+                LogFile<PC_GeneralFile>(R1_PC_ArchiveFileName.GENERAL0);
+                LogFile<PC_MOTFile>(R1_PC_ArchiveFileName.MOT);
+                LogFile<PC_SampleNamesFile>(R1_PC_ArchiveFileName.SMPNAMES);
+                LogFile<PC_LocFile>(R1_PC_ArchiveFileName.TEXT);
+                LogFile<PC_WorldMap>(R1_PC_ArchiveFileName.WLDMAP01);
             }
         }
 
@@ -1861,7 +1863,7 @@ namespace R1Engine
             if (context.MemoryMap.Files.All(x => x.FilePath != archivePath))
                 return null;
 
-            return FileFactory.Read<R1_PC_EncryptedFileArchive>(archivePath, context).ReadFile<T>(context, fileName);
+            return FileFactory.Read<PC_FileArchive>(archivePath, context).ReadFile<T>(context, fileName);
         }
 
         public T LoadArchiveFile<T>(Context context, string archivePath, R1_PC_ArchiveFileName fileName)
@@ -1872,7 +1874,7 @@ namespace R1Engine
             if (context.MemoryMap.Files.All(x => x.FilePath != archivePath))
                 return null;
 
-            return FileFactory.Read<R1_PC_EncryptedFileArchive>(archivePath, context).ReadFile<T>(context, fileIndex);
+            return FileFactory.Read<PC_FileArchive>(archivePath, context).ReadFile<T>(context, fileIndex);
         }
 
         public abstract UniTask<PCX> GetWorldMapVigAsync(Context context);

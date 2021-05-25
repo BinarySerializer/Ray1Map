@@ -258,7 +258,7 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.R1_FollowSprite = r1obj.EventData.FollowSprite;
 					webObj.R1_HitPoints = r1obj.EventData.ActualHitPoints;
 					webObj.R1_HitSprite = r1obj.EventData.HitSprite;
-					webObj.R1_FollowEnabled = r1obj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings);
+					webObj.R1_FollowEnabled = r1obj.EventData.GetFollowEnabled(LevelEditorData.CurrentRay1Settings);
 					webObj.R1_DisplayPrio = r1obj.EventData.DisplayPrio;
 
 					if (includeLists) {
@@ -269,7 +269,7 @@ public class WebCommunicator : MonoBehaviour {
 					break;
 
 				case Unity_Object_R2 r2obj:
-					webObj.R1_Type = (ushort)r2obj.EventData.EventType;
+					webObj.R1_Type = (ushort)r2obj.EventData.ObjType;
 					webObj.R2_MapLayer = r2obj.EventData.MapLayer.ToString();
 					webObj.R1_Etat = r2obj.EventData.Etat;
 					webObj.R1_SubEtat = r2obj.EventData.SubEtat;

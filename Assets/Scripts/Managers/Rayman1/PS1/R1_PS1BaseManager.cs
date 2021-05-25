@@ -5,8 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Animation = BinarySerializer.Ray1.Animation;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -30,21 +33,21 @@ namespace R1Engine
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
-        public virtual string GetWorldName(R1_World world)
+        public virtual string GetWorldName(World world)
         {
             switch (world)
             {
-                case R1_World.Jungle:
+                case World.Jungle:
                     return "JUN";
-                case R1_World.Music:
+                case World.Music:
                     return "MUS";
-                case R1_World.Mountain:
+                case World.Mountain:
                     return "MON";
-                case R1_World.Image:
+                case World.Image:
                     return "IMG";
-                case R1_World.Cave:
+                case World.Cave:
                     return "CAV";
-                case R1_World.Cake:
+                case World.Cake:
                     return "CAK";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
@@ -104,7 +107,7 @@ namespace R1Engine
         /// <param name="imgBuffer">The image buffer, if available</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, R1_ImageDescriptor s)
+        public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s)
         {
             // Get the loaded v-ram
             PS1_VRAM vram = context.GetStoredObject<PS1_VRAM>("vram");
@@ -192,7 +195,7 @@ namespace R1Engine
             if (!FileSystem.FileExists(context.GetAbsoluteFilePath(path)))
                 return;
 
-            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+            var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
             var entry = exe.FileTable.FirstOrDefault(x => x.ProcessedFilePath == path);
 
             if (entry == null)
@@ -215,30 +218,30 @@ namespace R1Engine
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <param name="bg">The background block data if available</param>
         /// <returns>The level</returns>
-        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, R1_EventData[] events, ushort[] eventLinkingTable, bool loadTextures, R1_PS1_BackgroundBlock bg = null)
+        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, ObjData[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_BackgroundBlock bg = null)
         {
             Unity_TileSet tileSet = GetTileSet(context);
 
             var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>>();
-            var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
+            var eventETA = new List<Unity_ObjectManager_R1.DataContainer<ObjState[][]>>();
 
             // Only load the v-ram if we're loading textures
             if (loadTextures)
                 // Get the v-ram
-                FillVRAM(context, context.GetR1Settings().R1_World == R1_World.Menu ? VRAMMode.Menu : VRAMMode.Level);
+                FillVRAM(context, context.GetR1Settings().R1_World == World.Menu ? VRAMMode.Menu : VRAMMode.Level);
 
             // Load background sprites
             if (bg != null && loadTextures)
             {
                 Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
                 {
-                    Sprites = new List<Sprite>(),
+                    Sprites = new List<UnityEngine.Sprite>(),
                     Animations = new List<Unity_ObjAnimation>(),
                     FilePath = bg.Offset.File.FilePath
                 };
 
                 // Get every sprite
-                foreach (R1_ImageDescriptor i in bg.BackgroundLayerInfos)
+                foreach (Sprite i in bg.BackgroundLayerInfos)
                 {
                     // Get the texture for the sprite, or null if not loading textures
                     Texture2D tex = GetSpriteTexture(context, null, i);
@@ -257,7 +260,7 @@ namespace R1Engine
             // Load Rayman
             var rayman = eventTemplates?[Unity_ObjectManager_R1.WldObjType.Ray];
 
-            var allEvents = (events ?? (events = new R1_EventData[0])).Concat(eventTemplates?.Values).Where(x => x != null).ToArray();
+            var allEvents = (events ?? (events = new ObjData[0])).Concat(eventTemplates?.Values).Where(x => x != null).ToArray();
 
             // Load graphics
             foreach (var des in GetLevelDES(context, allEvents))
@@ -267,18 +270,18 @@ namespace R1Engine
                 {
                     Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
                     {
-                        Sprites = new List<Sprite>(),
+                        Sprites = new List<UnityEngine.Sprite>(),
                         Animations = new List<Unity_ObjAnimation>(),
                         FilePath = des.ImageDescriptorsPointer.File.FilePath
                     };
 
                     var s = context.Deserializer;
-                    var imgDescriptors = des.EventData?.ImageDescriptors ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<R1_ImageDescriptor>(default, des.ImageDescriptorCount, name: $"ImageDescriptors"));
-                    var animDescriptors = des.EventData?.AnimDescriptors ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<R1_PS1_AnimationDescriptor>(default, des.AnimationDescriptorCount, name: $"AnimationDescriptors"));
+                    var imgDescriptors = des.EventData?.ImageDescriptors ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<Sprite>(default, des.ImageDescriptorCount, name: $"ImageDescriptors"));
+                    var animDescriptors = des.EventData?.AnimDescriptors ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<Animation>(default, des.AnimationDescriptorCount, name: $"AnimationDescriptors"));
                     var imageBuffer = des.EventData?.ImageBuffer ?? s.DoAt(des.ImageBufferPointer, () => s.SerializeArray<byte>(default, des.ImageBufferLength ?? 0, name: $"ImageBuffer"));
 
                     // Get every sprite
-                    foreach (R1_ImageDescriptor i in imgDescriptors)
+                    foreach (Sprite i in imgDescriptors)
                     {
                         // Get the texture for the sprite, or null if not loading textures
                         Texture2D tex = loadTextures ? GetSpriteTexture(context, imageBuffer, i) : null;
@@ -309,18 +312,18 @@ namespace R1Engine
 
                     var s = context.Deserializer;
 
-                    var etaObj = eta.EventData?.ETA ?? s.DoAt(eta.ETAPointer, () => s.SerializeObject<R1_PS1_ETA>(default, name: $"ETA"));
+                    var etaObj = eta.EventData?.ETA ?? s.DoAt(eta.ETAPointer, () => s.SerializeObject<BinarySerializer.Ray1.ETA>(default, name: $"ETA"));
 
                     // Add to the ETA
-                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(etaObj.EventStates, eta.ETAPointer, name: etaName));
+                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(etaObj.EventStates, eta.ETAPointer, name: etaName));
                 }
             }
 
             // Read tables from exe
-            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+            var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
 
             // Create a dummy linking table
-            if (context.GetR1Settings().R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == World.Menu)
                 eventLinkingTable = Enumerable.Range(0, 24).Select(x => (ushort)x).ToArray();
 
             var objManager = new Unity_ObjectManager_R1(
@@ -337,11 +340,11 @@ namespace R1Engine
             List<Unity_Object> objects;
 
             // Create objects
-            if (context.GetR1Settings().R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == World.Menu)
             {
                 // Load map object events for the world map
-                objects = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).WorldInfo.
-                    Select((x, i) => (Unity_Object)new Unity_Object_R1(R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)).
+                objects = FileFactory.Read<PS1_Executable>(ExeFilePath, context).WorldInfo.
+                    Select((x, i) => (Unity_Object)new Unity_Object_R1(ObjData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)).
                     ToList();
             }
             else
@@ -370,12 +373,12 @@ namespace R1Engine
                         tileSet
                     },
                     TileSetWidth = TileSetWidth,
-                    MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray()
+                    MapTiles = map.Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray()
                 }
             };
 
             // Initialize Rayman
-            rayman?.InitRayman(context, events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS));
+            rayman?.InitRayman(context, events.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS));
 
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level(
@@ -404,7 +407,7 @@ namespace R1Engine
         public virtual uint? WorldInfoOffset => null;
 
         public abstract FileTableInfo[] FileTableInfos { get; }
-        public virtual Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context) => null;
+        public virtual Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context) => null;
 
         /// <summary>
         /// Loads the specified level for the editor
@@ -607,7 +610,7 @@ namespace R1Engine
             }
         }
 
-        public void ExportAnimationFrames(Texture2D[] textures, Unity_ObjAnimation[] spriteAnim, string outputDir, R1_EventState[] matchingStates)
+        public void ExportAnimationFrames(Texture2D[] textures, Unity_ObjAnimation[] spriteAnim, string outputDir, ObjState[] matchingStates)
         {
             // Enumerate the animations
             for (var j = 0; j < spriteAnim.Length; j++)
@@ -733,10 +736,10 @@ namespace R1Engine
                     if (fileInfo.FileType == VignetteFileType.Raw16)
                     {
                         // Read the raw data
-                        var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+                        var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
                         // Create the texture
-                        textures.Add(TextureHelpers.CreateTexture2D(fileInfo.Width, (int)(rawData.Length / fileInfo.Width)));
+                        textures.Add(TextureHelpers.CreateTexture2D(fileInfo.Width, (int)(rawData.Pre_Length / fileInfo.Width)));
 
                         // Set the pixels
                         for (int y = 0; y < textures.First().height; y++)
@@ -752,13 +755,13 @@ namespace R1Engine
                     else if (fileInfo.FileType == VignetteFileType.MultiXXX)
                     {
                         // Read the data
-                        var multiData = FileFactory.Read<R1_PS1_MultiVignetteFile>(fileInfo.FilePath, context);
+                        var multiData = FileFactory.Read<PS1_MultiVignetteFile>(fileInfo.FilePath, context);
 
                         // Get the textures
                         for (int i = 0; i < multiData.ImageBlocks.Length; i++)
                         {
                             // Create the texture
-                            var tex = TextureHelpers.CreateTexture2D(fileInfo.Widths[i], (int)(multiData.ImageBlocks[i].Length / fileInfo.Widths[i]));
+                            var tex = TextureHelpers.CreateTexture2D(fileInfo.Widths[i], (int)(multiData.ImageBlocks[i].Pre_Length / fileInfo.Widths[i]));
 
                             // Set the pixels
                             for (int y = 0; y < tex.height; y++)
@@ -777,13 +780,13 @@ namespace R1Engine
                     }
                     else
                     {
-                        R1_PS1_VignetteBlockGroup imageBlock;
+                        PS1_VignetteBlockGroup imageBlock;
 
                         // Get the block
                         if (fileInfo.FileType == VignetteFileType.BlockedXXX)
-                            imageBlock = FileFactory.Read<R1_PS1_BackgroundVignetteFile>(fileInfo.FilePath, context).ImageBlock;
+                            imageBlock = FileFactory.Read<PS1_BackgroundVignetteFile>(fileInfo.FilePath, context).ImageBlock;
                         else
-                            imageBlock = FileFactory.Read<R1_PS1_VignetteBlockGroup>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
+                            imageBlock = FileFactory.Read<PS1_VignetteBlockGroup>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
 
                         // Create the texture
                         textures.Add(imageBlock.ToTexture(context));
@@ -830,7 +833,7 @@ namespace R1Engine
 
         public abstract UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
 
-        protected async UniTask ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, R1_PS1_FontData[] fontData, R1_EventData[] fixEvents, R1_PS1_BigRayBlock bigRay)
+        protected async UniTask ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_FontData[] fontData, ObjData[] fixEvents, PS1_BigRayBlock bigRay)
         {
             // Fill the v-ram for each context
             FillVRAM(menuContext, VRAMMode.Menu);
@@ -844,10 +847,10 @@ namespace R1Engine
                 for (int fontIndex = 0; fontIndex < fontData.Length; fontIndex++)
                 {
                     // Export every sprite
-                    for (int spriteIndex = 0; spriteIndex < fontData[fontIndex].ImageDescriptorsCount; spriteIndex++)
+                    for (int spriteIndex = 0; spriteIndex < fontData[fontIndex].SpritesCount; spriteIndex++)
                     {
                         // Get the sprite texture
-                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].ImageDescriptors[spriteIndex]);
+                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].Sprites[spriteIndex]);
 
                         // Make sure it's not null
                         if (tex == null)
@@ -863,7 +866,7 @@ namespace R1Engine
             var exportedImgDescr = new List<Pointer>();
             var index = 0;
 
-            foreach (R1_EventData t in fixEvents)
+            foreach (ObjData t in fixEvents)
             {
                 if (exportedImgDescr.Contains(t.SpritesPointer))
                     continue;
@@ -879,7 +882,7 @@ namespace R1Engine
             if (bigRay != null)
                 await ExportEventSpritesAsync(bigRayContext, bigRay.BigRay, Path.Combine(outputPath, "BigRay"), 0);
 
-            async UniTask ExportEventSpritesAsync(Context context, R1_EventData e, string eventOutputDir, int desIndex)
+            async UniTask ExportEventSpritesAsync(Context context, ObjData e, string eventOutputDir, int desIndex)
             {
                 var sprites = e.ImageDescriptors.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
 
@@ -916,9 +919,9 @@ namespace R1Engine
                             {
                                 var l = anim.Layers[dummyFrame * anim.LayersPerFrame + dummyLayer];
 
-                                if (l.ImageIndex < sprites.Length)
+                                if (l.SpriteIndex < sprites.Length)
                                 {
-                                    var s = sprites[l.ImageIndex];
+                                    var s = sprites[l.SpriteIndex];
 
                                     if (s != null)
                                     {
@@ -947,11 +950,11 @@ namespace R1Engine
                             {
                                 var animationLayer = anim.Layers[frameIndex * anim.LayersPerFrame + layerIndex];
 
-                                if (animationLayer.ImageIndex >= sprites.Length)
+                                if (animationLayer.SpriteIndex >= sprites.Length)
                                     continue;
 
                                 // Get the sprite
-                                var sprite = sprites[animationLayer.ImageIndex];
+                                var sprite = sprites[animationLayer.SpriteIndex];
 
                                 if (sprite == null)
                                     continue;
@@ -993,7 +996,7 @@ namespace R1Engine
             }
         }
 
-        protected IEnumerable<DES> GetLevelDES(Context context, IEnumerable<R1_EventData> events)
+        protected IEnumerable<DES> GetLevelDES(Context context, IEnumerable<ObjData> events)
         {
             return events.Select(x => new DES
             {
@@ -1018,7 +1021,7 @@ namespace R1Engine
             })) ?? new DES[0]);
         }
 
-        protected IEnumerable<ETA> GetLevelETA(Context context, IEnumerable<R1_EventData> events)
+        protected IEnumerable<ETA> GetLevelETA(Context context, IEnumerable<ObjData> events)
         {
             return events.Select(x => new ETA
             {
@@ -1088,7 +1091,7 @@ namespace R1Engine
 
         public class FileTableInfo
         {
-            public FileTableInfo(uint offset, uint count, R1_PS1_FileType fileType)
+            public FileTableInfo(uint offset, uint count, PS1_FileType fileType)
             {
                 Offset = offset;
                 Count = count;
@@ -1097,7 +1100,7 @@ namespace R1Engine
 
             public uint Offset { get; }
             public uint Count { get; }
-            public R1_PS1_FileType FileType { get; }
+            public PS1_FileType FileType { get; }
         }
 
         protected class DES
@@ -1109,13 +1112,13 @@ namespace R1Engine
             public byte AnimationDescriptorCount { get; set; }
             public uint? ImageBufferLength { get; set; }
             public string Name { get; set; }
-            public R1_EventData EventData { get; set; }
+            public ObjData EventData { get; set; }
         }
         protected class ETA
         {
             public Pointer ETAPointer { get; set; }
             public string Name { get; set; }
-            public R1_EventData EventData { get; set; }
+            public ObjData EventData { get; set; }
         }
 
         #endregion

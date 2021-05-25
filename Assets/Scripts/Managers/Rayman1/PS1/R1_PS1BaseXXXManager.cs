@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -54,7 +56,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public virtual string GetWorldFolderPath(R1_World world) => GetDataPath() + GetWorldName(world) + "/";
+        public virtual string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the base path for the game data
@@ -232,11 +234,11 @@ namespace R1Engine
                 {
                     // Read the allfix file
                     await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
-                    var allfix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+                    var allfix = FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
 
                     // Read the BigRay file
                     await LoadExtraFile(context, GetBigRayFilePath(context.GetR1Settings()), false);
-                    var br = FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
+                    var br = FileFactory.Read<PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context);
 
                     Add(spritePals, allfix.Palette1);
                     Add(spritePals, allfix.Palette2);
@@ -249,10 +251,10 @@ namespace R1Engine
 
                     // Read the world file
                     await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
-                    var wld = FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+                    var wld = FileFactory.Read<PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
-                    Add(spritePals, wld.EventPalette1);
-                    Add(spritePals, wld.EventPalette2);
+                    Add(spritePals, wld.ObjPalette1);
+                    Add(spritePals, wld.ObjPalette2);
 
                     foreach (var tilePal in wld.TilePalettes ?? new RGBA5551Color[0][])
                         Add(tilePals, tilePal);
@@ -274,15 +276,15 @@ namespace R1Engine
 
                     // Read the allfix & font files for the menu
                     await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.GetR1Settings()), false);
-                    var fix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(menuContext.GetR1Settings()), menuContext);
+                    var fix = FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(menuContext.GetR1Settings()), menuContext);
                     await LoadExtraFile(menuContext, GetFontFilePath(menuContext.GetR1Settings()), false);
 
                     // Correct font palette
                     if (settings.EngineVersion == EngineVersion.R1_PS1_JP)
                     {
-                        foreach (R1_PS1_FontData font in fix.AllfixData.FontData)
+                        foreach (PS1_FontData font in fix.AllfixData.FontData)
                         {
-                            foreach (R1_ImageDescriptor imgDescr in font.ImageDescriptors)
+                            foreach (Sprite imgDescr in font.Sprites)
                             {
                                 var paletteInfo = imgDescr.PaletteInfo;
                                 paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 509, 10, 6);
@@ -292,9 +294,9 @@ namespace R1Engine
                     }
                     else
                     {
-                        foreach (R1_PS1_FontData font in fix.AllfixData.FontData)
+                        foreach (PS1_FontData font in fix.AllfixData.FontData)
                         {
-                            foreach (R1_ImageDescriptor imgDescr in font.ImageDescriptors)
+                            foreach (Sprite imgDescr in font.Sprites)
                             {
                                 var paletteInfo = imgDescr.PaletteInfo;
                                 paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 492, 10, 6);
@@ -305,7 +307,7 @@ namespace R1Engine
 
                     // Read the BigRay file
                     await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.GetR1Settings()), false);
-                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(bigRayContext.GetR1Settings()), bigRayContext) : null;
+                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.GetR1Settings())) ? FileFactory.Read<PS1_BigRayFile>(GetBigRayFilePath(bigRayContext.GetR1Settings()), bigRayContext) : null;
 
                     // Export
                     await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData.FontData, fix.AllfixData.WldObj, br?.BigRayData);
@@ -315,15 +317,15 @@ namespace R1Engine
 
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {
-            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+            var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
 
-            if (context.GetR1Settings().R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != World.Menu)
             {
                 if (exe.LevelBackgroundIndexTable == null)
                     return null;
 
                 var bgIndex = exe.LevelBackgroundIndexTable[context.GetR1Settings().World - 1][context.GetR1Settings().Level - 1];
-                var fndStartIndex = exe.GetFileTypeIndex(this, R1_PS1_FileType.fnd_file);
+                var fndStartIndex = exe.GetFileTypeIndex(this, PS1_FileType.fnd_file);
 
                 if (fndStartIndex == -1)
                     return null;
@@ -332,25 +334,25 @@ namespace R1Engine
 
                 await LoadExtraFile(context, bgFilePath, true);
 
-                var bg = FileFactory.Read<R1_PS1_BackgroundVignetteFile>(bgFilePath, context);
+                var bg = FileFactory.Read<PS1_BackgroundVignetteFile>(bgFilePath, context);
 
                 return bg.ImageBlock.ToTexture(context);
             }
             else
             {
-                string bgFilePath = exe.FileTable[exe.GetFileTypeIndex(this, R1_PS1_FileType.img_file) + 2].ProcessedFilePath;
+                string bgFilePath = exe.FileTable[exe.GetFileTypeIndex(this, PS1_FileType.img_file) + 2].ProcessedFilePath;
                 await LoadExtraFile(context, bgFilePath, true);
 
-                return FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2).ToTexture(context);
+                return FileFactory.Read<PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2).ToTexture(context);
             }
         }
 
-        public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
+        public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var allfix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context).AllfixData;
+            var allfix = FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context).AllfixData;
             var wldObj = allfix.WldObj;
 
-            return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+            return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
                 [Unity_ObjectManager_R1.WldObjType.Ray] = wldObj[0],
                 [Unity_ObjectManager_R1.WldObjType.RayLittle] = wldObj[1],

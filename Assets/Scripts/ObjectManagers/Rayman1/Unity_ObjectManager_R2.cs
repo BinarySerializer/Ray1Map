@@ -3,13 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
     public class Unity_ObjectManager_R2 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, Sprite[] sprites, R1_ImageDescriptor[] imageDescriptors, R1_R2LevDataFile levData) : base(context)
+        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, UnityEngine.Sprite[] sprites, Sprite[] imageDescriptors, R2_LevDataFile levData) : base(context)
         {
             LinkTable = linkTable;
             AnimGroups = animGroups;
@@ -23,15 +25,15 @@ namespace R1Engine
 
         public AnimGroup[] AnimGroups { get; }
         public Dictionary<long, int> AnimGroupsLookup { get; } = new Dictionary<long, int>();
-        public Sprite[] Sprites { get; }
-        public R1_ImageDescriptor[] ImageDescriptors { get; }
-        public R1_R2LevDataFile LevData { get; }
+        public UnityEngine.Sprite[] Sprites { get; }
+        public Sprite[] ImageDescriptors { get; }
+        public R2_LevDataFile LevData { get; }
 
         public ushort[] LinkTable { get; }
 
         public override int InitLinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R2>().FindItem(x => x.EventData.EventType == R1_R2EventType.RaymanPosition);
+        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R2>().FindItem(x => x.EventData.ObjType == R2_ObjType.RaymanPosition);
 
         public override string[] LegacyDESNames => AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
         public override string[] LegacyETANames => LegacyDESNames;
@@ -57,11 +59,20 @@ namespace R1Engine
                 s = ed.HasPendingEdits ? (SerializerObject)context.Serializer : context.Deserializer;
                 s.Goto(currentOffset);
                 ed.EventData.Init(s.CurrentPointer);
-                ed.EventData.Serialize(s);
+                ed.EventData.Pre_IsSerializingFromMemory = true;
+
+                try
+                {
+                    ed.EventData.Serialize(s);
+                }
+                finally
+                {
+                    ed.EventData.Pre_IsSerializingFromMemory = false;
+                }
 
                 if (s is BinarySerializer.BinarySerializer)
                 {
-                    Debug.Log($"Edited event {ed.EventData.EventIndex}");
+                    Debug.Log($"Edited event {ed.EventData.Index}");
                     madeEdits = true;
                 }
 
@@ -73,7 +84,7 @@ namespace R1Engine
             if (GameMemoryData.EventArrayOffset != null)
             {
                 currentOffset = GameMemoryData.EventArrayOffset;
-                foreach (var ed in lvl.EventData.OfType<Unity_Object_R2>().Take(LevData.LoadedEventCount))
+                foreach (var ed in lvl.EventData.OfType<Unity_Object_R2>().Take(LevData.LoadedObjectsCount))
                     SerializeEvent(ed, gameMemoryContext);
             }
 
@@ -127,7 +138,7 @@ namespace R1Engine
 
         public class AnimGroup
         {
-            public AnimGroup(Pointer pointer, R1_EventState[][] eta, Unity_ObjAnimation[] animations, string filePath)
+            public AnimGroup(Pointer pointer, ObjState[][] eta, Unity_ObjAnimation[] animations, string filePath)
             {
                 Pointer = pointer;
                 ETA = eta;
@@ -137,7 +148,7 @@ namespace R1Engine
 
             public Pointer Pointer { get; }
 
-            public R1_EventState[][] ETA { get; }
+            public ObjState[][] ETA { get; }
 
             public Unity_ObjAnimation[] Animations { get; }
 

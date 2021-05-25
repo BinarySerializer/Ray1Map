@@ -5,8 +5,10 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -202,9 +204,9 @@ namespace R1Engine
                             {
                                 string baseName = grxFile.FileName.Substring(0, grxFile.FileName.Length - 4);
 
-                                R1_PS1Edu_TEX texFile = null;
+                                PS1EDU_TEX texFile = null;
 
-                                s.DoAt(grx.BaseOffset + grxFile.FileOffset, () => texFile = s.SerializeObject<R1_PS1Edu_TEX>(default, name: nameof(texFile)));
+                                s.DoAt(grx.BaseOffset + grxFile.FileOffset, () => texFile = s.SerializeObject<PS1EDU_TEX>(default, name: nameof(texFile)));
 
                                 Texture2D[] tex = GetSpriteTextures(texFile, 
                                     // Use BigRay palette for BigRay sprites
@@ -223,18 +225,18 @@ namespace R1Engine
             }
         }
 
-        public async UniTask<R1_PS1Edu_GRX> LoadGRXAsync(Context context, string grxFilePath)
+        public async UniTask<PS1EDU_GRX> LoadGRXAsync(Context context, string grxFilePath)
         {
             var s = context.Deserializer;
             s.Goto(context.GetFile(grxFilePath).StartPointer);
 
-            var grx = new R1_PS1Edu_GRX();
+            var grx = new PS1EDU_GRX();
             await grx.SerializeHeaderAsync(s);
 
             return grx;
         }
 
-        public async UniTask<T> LoadGRXFileAsync<T>(Context context, IList<R1_PS1Edu_GRX> grx, string fileName, string name)
+        public async UniTask<T> LoadGRXFileAsync<T>(Context context, IList<PS1EDU_GRX> grx, string fileName, string name)
             where T : BinarySerializable, new()
         {
             // Get the file
@@ -270,12 +272,12 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the world files
-            var allfix = FileFactory.Read<R1_PS1Edu_WorldFile>(GetAllfixFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.Allfix);
-            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
-            var level = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+            var allfix = FileFactory.Read<PS1EDU_WorldFile>(GetAllfixFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.Allfix);
+            var world = FileFactory.Read<PS1EDU_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
+            var level = FileFactory.Read<PS1EDU_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
             // Load the .grx bundles
-            var grx = new List<R1_PS1Edu_GRX>();
+            var grx = new List<PS1EDU_GRX>();
 
             foreach (var grxFile in context.MemoryMap.Files.Where(x => x.FilePath.Contains(".GRX")).Select(x => x.FilePath))
                 grx.Add(await LoadGRXAsync(context, grxFile));
@@ -283,17 +285,17 @@ namespace R1Engine
             var s = context.Deserializer;
 
             // Load .grx files (.tex and .gsp)
-            R1_PS1Edu_TEX levelTex = await LoadGRXFileAsync<R1_PS1Edu_TEX>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".TEX", "LevelTex");
-            ushort[] levelIndices = (await LoadGRXFileAsync<R1_PS1Edu_GSP>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".GSP", "LevelIndices"))?.Indices;
+            PS1EDU_TEX levelTex = await LoadGRXFileAsync<PS1EDU_TEX>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".TEX", "LevelTex");
+            ushort[] levelIndices = (await LoadGRXFileAsync<PS1EDU_GSP>(context, grx, GetGRXLevelName(context.GetR1Settings()) + ".GSP", "LevelIndices"))?.Indices;
 
             if (levelTex == null || levelIndices == null)
                 return new Unity_ObjectManager_R1.DESData[0];
 
             Unity_ObjectManager_R1.DESData[] des = new Unity_ObjectManager_R1.DESData[allfix.DESCount + world.DESCount];
-            R1_ImageDescriptor[][] imageDescriptors = new R1_ImageDescriptor[allfix.DESCount + world.DESCount][];
+            Sprite[][] imageDescriptors = new Sprite[allfix.DESCount + world.DESCount][];
             for (int i = 0; i < des.Length; i++) {
-                R1_PS1Edu_DESData d = null;
-                R1_PS1Edu_AnimationDescriptor[] anims = null;
+                PS1EDU_DESTemplate d = null;
+                PS1EDU_Animation[] anims = null;
                 if (i < allfix.DESCount) {
                     d = allfix.DESData[i];
                     anims = allfix.AnimationDescriptors[i];
@@ -309,7 +311,7 @@ namespace R1Engine
 
                 des[i] = new Unity_ObjectManager_R1.DESData(new Unity_ObjGraphics
                 {
-                    Sprites = new Sprite[d.ImageDescriptorsCount * (isMultiColored ? 6 : 1)].ToList(),
+                    Sprites = new UnityEngine.Sprite[d.SpritesCount * (isMultiColored ? 6 : 1)].ToList(),
                     Animations = anims.Select(x => x.ToCommonAnimation()).ToList()
                 }, imageDescriptors[i]);
             }
@@ -320,7 +322,7 @@ namespace R1Engine
             var loadedDES = new List<int>();
 
             // Enumerate every event
-            foreach (R1_EventData e in level.Events)
+            foreach (ObjData e in level.Objects)
             {
                 // Get event DES index
                 var desIndex = (int)e.PC_SpritesIndex;
@@ -406,7 +408,7 @@ namespace R1Engine
         /// <param name="tex">The .tex file data</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprites</returns>
-        public IEnumerable<Texture2D> GetSpriteTextures(R1_PS1Edu_TEX tex, IList<BaseColor> palette = null)
+        public IEnumerable<Texture2D> GetSpriteTextures(PS1EDU_TEX tex, IList<BaseColor> palette = null)
         {
             // Parse the sprites from the texture pages
             for (int i = 0; i < tex.Descriptors.Length; i++)
@@ -421,7 +423,7 @@ namespace R1Engine
             }
         }
 
-        public Texture2D GetSpriteTexture(R1_PS1Edu_TEX tex, R1_PS1Edu_TEXDescriptor d, IList<BaseColor> p)
+        public Texture2D GetSpriteTexture(PS1EDU_TEX tex, PS1EDU_TEXDescriptor d, IList<BaseColor> p)
         {
             // Create the texture
             Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, clear: true);
@@ -479,7 +481,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading map data";
 
             // Load the level
-            var levelData = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+            var levelData = FileFactory.Read<PS1EDU_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
             await Controller.WaitIfNecessary();
 
@@ -491,14 +493,14 @@ namespace R1Engine
 
             var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, desNameTable?.ElementAtOrDefault(i))).ToArray();
             var allEta = GetCurrentEventStates(context).ToArray();
-            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, etaNameTable?.ElementAtOrDefault(i))).ToArray();
+            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(x.States, i, etaNameTable?.ElementAtOrDefault(i))).ToArray();
 
             // Create the object manager
             var objManager = new Unity_ObjectManager_R1(
                 context: context, 
                 des: des, 
                 eta: eta, 
-                linkTable: levelData.EventLinkTable, 
+                linkTable: levelData.ObjectsLinkTable, 
                 usesPointers: false,
                 hasDefinedDesEtaNames: true);
 
@@ -514,7 +516,7 @@ namespace R1Engine
 
                     // Create the tile arrays
                     TileSet = new Unity_TileSet[3],
-                    MapTiles = levelData.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = levelData.MapTiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray(),
                 }
             };
 
@@ -528,9 +530,9 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load Rayman
-            var rayman = new Unity_Object_R1(R1_EventData.GetRayman(context, levelData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
+            var rayman = new Unity_Object_R1(ObjData.GetRayman(context, levelData.Objects.FirstOrDefault(x => x.Type == ObjType.TYPE_RAY_POS)), objManager);
 
-            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
+            var world = FileFactory.Read<PS1EDU_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
 
             var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[levelData.LevelDefines.BG_0])?.ToTexture(true); 
 
@@ -542,12 +544,12 @@ namespace R1Engine
                 background: bg);
 
             // Add the events
-            for (var index = 0; index < levelData.Events.Length; index++)
+            for (var index = 0; index < levelData.Objects.Length; index++)
             {
-                var e = levelData.Events[index];
+                var e = levelData.Objects[index];
 
-                e.Commands = levelData.EventCommands[index].Commands;
-                e.LabelOffsets = levelData.EventCommands[index].LabelOffsetTable;
+                e.Commands = levelData.ObjCommands[index].Commands;
+                e.LabelOffsets = levelData.ObjCommands[index].LabelOffsetTable;
 
                 level.EventData.Add(new Unity_Object_R1(e, objManager));
             }
@@ -573,7 +575,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="levData">The level data to get the tile-set for</param>
         /// <returns>The 3 tile-sets</returns>
-        public Unity_TileSet[] ReadTileSets(R1_PS1Edu_LevFile levData)
+        public Unity_TileSet[] ReadTileSets(PS1EDU_LevFile levData)
         {
             // Create the output array
             var output = new Unity_TileSet[levData.ColorPalettes.Length];
@@ -590,14 +592,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The event states</returns>
-        public override IEnumerable<R1_PC_ETA> GetCurrentEventStates(Context context)
+        public override IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
         {
             // Load the world files
-            var allfix = FileFactory.Read<R1_PS1Edu_WorldFile>(GetAllfixFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.Allfix);
-            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
+            var allfix = FileFactory.Read<PS1EDU_WorldFile>(GetAllfixFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.Allfix);
+            var world = FileFactory.Read<PS1EDU_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
 
             // Return the ETA
-            return allfix.ETA.Concat(world.ETA).Select(x => new R1_PC_ETA()
+            return allfix.ETA.Concat(world.ETA).Select(x => new PC_ETA()
             {
                 States = x
             });

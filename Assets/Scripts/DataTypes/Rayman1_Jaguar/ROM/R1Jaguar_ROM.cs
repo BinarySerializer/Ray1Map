@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -14,7 +16,7 @@ namespace R1Engine
     {
         #region Prototype Reference Data
 
-        public R1Jaguar_ReferenceEntry[] References { get; set; }
+        public JAG_Proto_ReferenceEntry[] References { get; set; }
         public uint UnkReferenceValue { get; set; }
 
         #endregion
@@ -28,9 +30,9 @@ namespace R1Engine
 
         #region Global Data (Parsed)
 
-        public R1Jaguar_LevelLoadCommandCollection AllfixLoadCommands { get; set; }
-        public R1Jaguar_LevelLoadCommandCollection[] WorldLoadCommands { get; set; }
-        public R1Jaguar_LevelLoadCommandCollection[][] LevelLoadCommands { get; set; }
+        public JAG_LevelLoadCommandCollection AllfixLoadCommands { get; set; }
+        public JAG_LevelLoadCommandCollection[] WorldLoadCommands { get; set; }
+        public JAG_LevelLoadCommandCollection[][] LevelLoadCommands { get; set; }
 
         #endregion
 
@@ -44,7 +46,7 @@ namespace R1Engine
         /// <summary>
         /// The event data for the current level
         /// </summary>
-        public R1Jaguar_EventBlock EventData { get; set; }
+        public JAG_EventBlock EventData { get; set; }
 
         /// <summary>
         /// The current sprite palette
@@ -56,8 +58,8 @@ namespace R1Engine
         /// </summary>
         public GBR655Color[] TileData { get; set; }
 
-        public R1Jaguar_EventDefinition[] EventDefinitions { get; set; }
-        public R1Jaguar_EventDefinition[] AdditionalEventDefinitions { get; set; }
+        public JAG_EventDefinition[] EventDefinitions { get; set; }
+        public JAG_EventDefinition[] AdditionalEventDefinitions { get; set; }
 
         /// <summary>
         /// The image buffers for the current level, with the key being the memory pointer pointer
@@ -68,7 +70,7 @@ namespace R1Engine
         public GBR655Color[] Background { get; set; }
 
         // Prototype only
-        public Dictionary<uint, R1_ImageDescriptor[]> ImageBufferDescriptors { get; set; }
+        public Dictionary<uint, Sprite[]> ImageBufferDescriptors { get; set; }
 
         #endregion
 
@@ -79,7 +81,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="reference">The reference type</param>
         /// <returns>The pointer</returns>
-        public Pointer GetProtoDataPointer(R1Jaguar_Proto_References reference)
+        public Pointer GetProtoDataPointer(JAG_Proto_References reference)
         {
             var s = reference.ToString();
             return References.First(x => x.String.Replace(".", "__") == s).DataPointer;
@@ -90,8 +92,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="name">The reference name</param>
         /// <returns>The reference</returns>
-        public R1Jaguar_ReferenceEntry GetProtoDataReference(string name) => References.First(x => x.String.Replace(".", "__") == name);
-        public R1Jaguar_ReferenceEntry GetProtoDataReference(R1Jaguar_Proto_References reference) => GetProtoDataReference(reference.ToString());
+        public JAG_Proto_ReferenceEntry GetProtoDataReference(string name) => References.First(x => x.String.Replace(".", "__") == name);
+        public JAG_Proto_ReferenceEntry GetProtoDataReference(JAG_Proto_References reference) => GetProtoDataReference(reference.ToString());
 
         /// <summary>
         /// Handles the data serialization
@@ -109,7 +111,7 @@ namespace R1Engine
             {
                 s.DoAt(new Pointer(0x8BB6A8, Offset.File), () =>
                 {
-                    References = s.SerializeObjectArray<R1Jaguar_ReferenceEntry>(References, 1676, onPreSerialize: (x => x.StringBase = new Pointer(0x8C0538, Offset.File)), name: nameof(References));
+                    References = s.SerializeObjectArray<JAG_Proto_ReferenceEntry>(References, 1676, onPreSerialize: (x => x.Pre_StringBasePointer = new Pointer(0x8C0538, Offset.File)), name: nameof(References));
 
                     // Unknown initial 4 bytes, part of the string table
                     UnkReferenceValue = s.Serialize<uint>(UnkReferenceValue, name: nameof(UnkReferenceValue));
@@ -129,17 +131,17 @@ namespace R1Engine
                         var file = new MemoryMappedByteArrayFile(s.Context, "RAM_EventDefinitions", 0x001f9000, EventDefsDataBytes, Endian.Big);
                         s.Context.AddFile(file);
                         s.DoAt(file.StartPointer,
-                            () => EventDefinitions = s.SerializeObjectArray<R1Jaguar_EventDefinition>(EventDefinitions,
+                            () => EventDefinitions = s.SerializeObjectArray<JAG_EventDefinition>(EventDefinitions,
                                 manager.EventCount, name: nameof(EventDefinitions)));
                     });
                 }
             }
             else
             {
-                var offset = s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? GetProtoDataPointer(R1Jaguar_Proto_References.MS_rayman) : pointerTable[JaguarR1_Pointer.EventDefinitions];
+                var offset = s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? GetProtoDataPointer(JAG_Proto_References.MS_rayman) : pointerTable[JaguarR1_Pointer.EventDefinitions];
 
                 // Pointers all point to the ROM, not RAM
-                s.DoAt(offset, () => EventDefinitions = s.SerializeObjectArray<R1Jaguar_EventDefinition>(EventDefinitions,
+                s.DoAt(offset, () => EventDefinitions = s.SerializeObjectArray<JAG_EventDefinition>(EventDefinitions,
                     manager.EventCount, name: nameof(EventDefinitions)));
             }
 
@@ -149,7 +151,7 @@ namespace R1Engine
                 {
                     AdditionalEventDefinitions = manager.AdditionalEventDefinitionPointers.Select(p =>
                     {
-                        return s.DoAt(new Pointer(p, pointerTable[JaguarR1_Pointer.EventDefinitions].File), () => s.SerializeObject<R1Jaguar_EventDefinition>(default, name: nameof(AdditionalEventDefinitions)));
+                        return s.DoAt(new Pointer(p, pointerTable[JaguarR1_Pointer.EventDefinitions].File), () => s.SerializeObject<JAG_EventDefinition>(default, name: nameof(AdditionalEventDefinitions)));
                     }).ToArray();
                 }
                 else
@@ -162,7 +164,7 @@ namespace R1Engine
             if (s.GetR1Settings().EngineVersion != EngineVersion.R1Jaguar_Proto)
             {
                 // Serialize allfix sprite data
-                s.DoAt(pointerTable[JaguarR1_Pointer.FixSprites], () => AllfixLoadCommands = s.SerializeObject<R1Jaguar_LevelLoadCommandCollection>(AllfixLoadCommands, name: nameof(AllfixLoadCommands)));
+                s.DoAt(pointerTable[JaguarR1_Pointer.FixSprites], () => AllfixLoadCommands = s.SerializeObject<JAG_LevelLoadCommandCollection>(AllfixLoadCommands, name: nameof(AllfixLoadCommands)));
 
                 // Serialize world sprite data
                 s.DoAt(pointerTable[JaguarR1_Pointer.WorldSprites], () =>
@@ -171,7 +173,7 @@ namespace R1Engine
                         WorldLoadCommandPointers = new Pointer[6];
 
                     if (WorldLoadCommands == null)
-                        WorldLoadCommands = new R1Jaguar_LevelLoadCommandCollection[6];
+                        WorldLoadCommands = new JAG_LevelLoadCommandCollection[6];
 
                     for (int i = 0; i < 6; i++)
                     {
@@ -181,7 +183,7 @@ namespace R1Engine
                             ushort instruction = s.Serialize<ushort>(0x41f9, name: nameof(instruction)); // Load effective address
                             WorldLoadCommandPointers[i] = s.SerializePointer(WorldLoadCommandPointers[i], name: $"{nameof(WorldLoadCommandPointers)}[{i}]");
                             s.DoAt(WorldLoadCommandPointers[i], () => {
-                                WorldLoadCommands[i] = s.SerializeObject<R1Jaguar_LevelLoadCommandCollection>(WorldLoadCommands[i], name: $"{nameof(WorldLoadCommands)}[{i}]");
+                                WorldLoadCommands[i] = s.SerializeObject<JAG_LevelLoadCommandCollection>(WorldLoadCommands[i], name: $"{nameof(WorldLoadCommands)}[{i}]");
                             });
                         });
                     }
@@ -193,7 +195,7 @@ namespace R1Engine
                         LevelLoadCommandPointers = new Pointer[7][];
 
                     if (LevelLoadCommands == null)
-                        LevelLoadCommands = new R1Jaguar_LevelLoadCommandCollection[7][];
+                        LevelLoadCommands = new JAG_LevelLoadCommandCollection[7][];
 
                     // Serialize map data for each world (6 + extra)
                     for (int i = 0; i < 7; i++)
@@ -205,7 +207,7 @@ namespace R1Engine
                             LevelLoadCommandPointers[i] = new Pointer[numLevels];
 
                         if (LevelLoadCommands[i] == null)
-                            LevelLoadCommands[i] = new R1Jaguar_LevelLoadCommandCollection[numLevels];
+                            LevelLoadCommands[i] = new JAG_LevelLoadCommandCollection[numLevels];
 
                         // Get the levels to serialize for the extra map commands
                         int[] extraMapCommands = i == 6 ? manager.ExtraMapCommands : null;
@@ -256,7 +258,7 @@ namespace R1Engine
 
                                     // Serialize the load commands
                                     s.DoAt(LevelLoadCommandPointers[i][j], () => {
-                                        LevelLoadCommands[i][j] = s.SerializeObject<R1Jaguar_LevelLoadCommandCollection>(LevelLoadCommands[i][j], name: $"{nameof(LevelLoadCommands)}[{i}][{j}]");
+                                        LevelLoadCommands[i][j] = s.SerializeObject<JAG_LevelLoadCommandCollection>(LevelLoadCommands[i][j], name: $"{nameof(LevelLoadCommands)}[{i}][{j}]");
                                     });
                                 });
                             }
@@ -269,30 +271,30 @@ namespace R1Engine
                 var mapCommands = LevelLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)][s.GetR1Settings().Level - 1].Commands;
 
                 // Get pointers
-                var mapPointer = mapCommands.FindItem(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelMapBlockPointer;
-                var eventPointer = mapCommands.FindItem(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelEventBlockPointer;
-                var palPointer = mapCommands.FindItem(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Palette || x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.PaletteDemo).PalettePointer;
+                var mapPointer = mapCommands.FindItem(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelMapBlockPointer;
+                var eventPointer = mapCommands.FindItem(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelEventBlockPointer;
+                var palPointer = mapCommands.FindItem(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Palette || x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.PaletteDemo).PalettePointer;
 
                 Pointer tilesPointer;
 
                 if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar)
-                    tilesPointer = mapCommands.LastOrDefault(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)].Commands.First(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
+                    tilesPointer = mapCommands.LastOrDefault(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)].Commands.First(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
                 else
-                    tilesPointer = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)].Commands.Last(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001BD800).ImageBufferPointer;
+                    tilesPointer = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GetR1Settings().R1_World)].Commands.Last(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001BD800).ImageBufferPointer;
 
                 // Serialize map and event data
-                s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData))));
+                s.DoAt(mapPointer, () => s.DoEncoded(new RNC2Encoder(), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData))));
 
                 if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar)
-                    s.DoAt(eventPointer, () => s.DoEncoded(new RNCEncoder(), () => EventData = s.SerializeObject<R1Jaguar_EventBlock>(EventData, name: nameof(EventData))));
+                    s.DoAt(eventPointer, () => s.DoEncoded(new RNC2Encoder(), () => EventData = s.SerializeObject<JAG_EventBlock>(EventData, name: nameof(EventData))));
                 else if (s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Demo)
-                    s.DoAt(eventPointer, () => EventData = s.SerializeObject<R1Jaguar_EventBlock>(EventData, name: nameof(EventData)));
+                    s.DoAt(eventPointer, () => EventData = s.SerializeObject<JAG_EventBlock>(EventData, name: nameof(EventData)));
 
                 // Serialize sprite palette
                 s.DoAt<GBR655Color[]>(palPointer, () => SpritePalette = s.SerializeObjectArray<GBR655Color>(SpritePalette, 256, name: nameof(SpritePalette)));
 
                 // Serialize tile data
-                s.DoAt(tilesPointer, () => s.DoEncoded(new RNCEncoder(), () => TileData = s.SerializeObjectArray<GBR655Color>(TileData, s.CurrentLength / 2, name: nameof(TileData))));
+                s.DoAt(tilesPointer, () => s.DoEncoded(new RNC2Encoder(), () => TileData = s.SerializeObjectArray<GBR655Color>(TileData, s.CurrentLength / 2, name: nameof(TileData))));
 
                 // Serialize image buffers
                 if (ImageBuffers == null)
@@ -300,7 +302,7 @@ namespace R1Engine
                     ImageBuffers = new Dictionary<uint, byte[]>();
 
                     var index = 0;
-                    foreach (var cmd in AllfixLoadCommands.Commands.Concat(wldCommands.Commands).Concat(mapCommands).Where(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Sprites))
+                    foreach (var cmd in AllfixLoadCommands.Commands.Concat(wldCommands.Commands).Concat(mapCommands).Where(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Sprites))
                     {
                         // Later commands overwrite previous ones
                         /*if (ImageBuffers.ContainsKey(cmd.ImageBufferMemoryPointerPointer))
@@ -310,7 +312,7 @@ namespace R1Engine
                         // Temp fix for certain demo buffers
                         try
                         {
-                            s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () =>
+                            s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNC2Encoder(), () =>
                             {
                                 ImageBuffers[cmd.ImageBufferMemoryPointerPointer] = s.SerializeArray<byte>(default, s.CurrentLength, $"ImageBuffer[{index}]");
                             }));
@@ -326,35 +328,39 @@ namespace R1Engine
 
                 // Serialize background
                 var vigs = manager.GetVignette;
-                BackgroundPointer = mapCommands.Concat(wldCommands.Commands).FirstOrDefault(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && vigs.Any(y => y.Key == x.ImageBufferPointer.AbsoluteOffset))?.ImageBufferPointer;
+                BackgroundPointer = mapCommands.Concat(wldCommands.Commands).FirstOrDefault(x => x.Type == JAG_LevelLoadCommand.LevelLoadCommandType.Graphics && vigs.Any(y => y.Key == x.ImageBufferPointer.AbsoluteOffset))?.ImageBufferPointer;
 
                 if (BackgroundPointer != null)
-                    s.DoAt(BackgroundPointer, () => s.DoEncoded(new RNCEncoder(), () => Background = s.SerializeObjectArray<GBR655Color>(Background, s.CurrentLength / 2, name: nameof(Background))));
+                    s.DoAt(BackgroundPointer, () => s.DoEncoded(new RNC2Encoder(), () => Background = s.SerializeObjectArray<GBR655Color>(Background, s.CurrentLength / 2, name: nameof(Background))));
             }
             else
             {
                 // NOTE: ml_pics also has load commands, but only 1 and it's a duplicate from ml_jun
 
                 if (LevelLoadCommands == null)
-                    LevelLoadCommands = new R1Jaguar_LevelLoadCommandCollection[][]
+                    LevelLoadCommands = new JAG_LevelLoadCommandCollection[][]
                     {
-                        new R1Jaguar_LevelLoadCommandCollection[1], 
+                        new JAG_LevelLoadCommandCollection[1], 
                     };
 
                 // Level load commands
-                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.ml_jun), () => LevelLoadCommands[0][0] = s.SerializeObject<R1Jaguar_LevelLoadCommandCollection>(LevelLoadCommands[0][0], name: $"{nameof(LevelLoadCommands)}[0][0]"));
+                s.DoAt(GetProtoDataPointer(JAG_Proto_References.ml_jun), () => LevelLoadCommands[0][0] = s.SerializeObject<JAG_LevelLoadCommandCollection>(LevelLoadCommands[0][0], name: $"{nameof(LevelLoadCommands)}[0][0]"));
 
                 // Palette
-                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.coltable), () => SpritePalette = s.SerializeObjectArray<GBR655Color>(SpritePalette, 256, name: nameof(SpritePalette)));
+                s.DoAt(GetProtoDataPointer(JAG_Proto_References.coltable), () => SpritePalette = s.SerializeObjectArray<GBR655Color>(SpritePalette, 256, name: nameof(SpritePalette)));
                 
                 // Map
-                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.jun_map), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData)));
+                s.DoAt(GetProtoDataPointer(JAG_Proto_References.jun_map), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData)));
                 
                 // Events
-                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.test_mapevent), () => EventData = s.SerializeObject<R1Jaguar_EventBlock>(EventData, name: nameof(EventData)));
+                s.DoAt(GetProtoDataPointer(JAG_Proto_References.test_mapevent), () => EventData = s.SerializeObject<JAG_EventBlock>(EventData, onPreSerialize: x =>
+                {
+                    x.Pre_OffListPointer = GetProtoDataPointer(JAG_Proto_References.test_offlist);
+                    x.Pre_EventsPointer = GetProtoDataPointer(JAG_Proto_References.test_event);
+                }, name: nameof(EventData)));
                 
                 // Tilemap
-                s.DoAt(GetProtoDataPointer(R1Jaguar_Proto_References.jun_block), () => TileData = s.SerializeObjectArray<GBR655Color>(TileData, 440 * (16 * 16), name: nameof(TileData)));
+                s.DoAt(GetProtoDataPointer(JAG_Proto_References.jun_block), () => TileData = s.SerializeObjectArray<GBR655Color>(TileData, 440 * (16 * 16), name: nameof(TileData)));
 
                 // Serialize image buffers and descriptors
                 if (ImageBuffers == null)
@@ -384,7 +390,7 @@ namespace R1Engine
                     });
 
                     ImageBuffers = new Dictionary<uint, byte[]>();
-                    ImageBufferDescriptors = new Dictionary<uint, R1_ImageDescriptor[]>();
+                    ImageBufferDescriptors = new Dictionary<uint, Sprite[]>();
 
                     foreach (var spr in sprites)
                     {
@@ -395,12 +401,12 @@ namespace R1Engine
                         var imgDescLen = (orderedPointers[orderedPointers.FindItemIndex(x => x == spr.DescrAdr) + 1].AbsoluteOffset - spr.DescrAdr.AbsoluteOffset) / 0x10;
 
                         // Serialize image descriptors
-                        s.DoAt(spr.DescrAdr, () => ImageBufferDescriptors[spr.MemAdr] = s.SerializeObjectArray<R1_ImageDescriptor>(default, imgDescLen, name: $"ImageBufferDescriptors_{spr.Name}"));
+                        s.DoAt(spr.DescrAdr, () => ImageBufferDescriptors[spr.MemAdr] = s.SerializeObjectArray<Sprite>(default, imgDescLen, name: $"ImageBufferDescriptors_{spr.Name}"));
                     }
                 }
 
                 // Serialize background
-                BackgroundPointer = GetProtoDataPointer(R1Jaguar_Proto_References.jun_plan0);
+                BackgroundPointer = GetProtoDataPointer(JAG_Proto_References.jun_plan0);
                 s.DoAt(BackgroundPointer, () => Background = s.SerializeObjectArray<GBR655Color>(Background, 192 * 246, name: nameof(Background)));
             }
         }

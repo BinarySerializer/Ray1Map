@@ -29,7 +29,7 @@ namespace R1Engine
         #region Game Properties
 
         public byte PC_Unk1 { get; set; }
-        public R1_PC_MapTileTransparencyMode PC_TransparencyMode { get; set; }
+        public BinarySerializer.Ray1.MapTile.PC_TransparencyMode PC_TransparencyMode { get; set; }
         public byte PC_Unk2 { get; set; }
 
         public byte PaletteIndex { get; set; }
@@ -110,6 +110,8 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
+            // TODO: Remove all R1 code here since it's been moved to BinarySerializer.Ray1. We can't do it yet though as the memory loading still uses this.
+
             if (s.GetR1Settings().GameModeSelection == GameModeSelection.MapperPC || s.GetR1Settings().EngineVersion == EngineVersion.R1_GBA|| s.GetR1Settings().EngineVersion == EngineVersion.R1_DSi)
             {
                 TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
@@ -122,7 +124,7 @@ namespace R1Engine
                 TileMapX = 0;
                 CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
                 PC_Unk1 = s.Serialize<byte>(PC_Unk1, name: nameof(PC_Unk1));
-                PC_TransparencyMode = s.Serialize<R1_PC_MapTileTransparencyMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
+                PC_TransparencyMode = s.Serialize<BinarySerializer.Ray1.MapTile.PC_TransparencyMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
                 PC_Unk2 = s.Serialize<byte>(PC_Unk2, name: nameof(PC_Unk2));
             }
             else if (s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
@@ -412,5 +414,41 @@ namespace R1Engine
 
         public MapTile CloneObj() => (MapTile)Clone();
         public object Clone() => MemberwiseClone();
+
+        public BinarySerializer.Ray1.MapTile ToR1MapTile()
+        {
+            return new BinarySerializer.Ray1.MapTile
+            {
+                TileMapX = TileMapX,
+                TileMapY = TileMapY,
+                BlockType = CollisionType,
+                HorizontalFlip = HorizontalFlip,
+                VerticalFlip = VerticalFlip,
+                PC_Byte_03 = PC_Unk1,
+                TransparencyMode = PC_TransparencyMode,
+                PC_Byte_05 = PC_Unk2,
+                PaletteIndex = PaletteIndex,
+                Priority = Priority,
+                Pre_SNES_Is8PxTile = SNES_Is8PxTile
+            };
+        }
+
+        public static MapTile FromR1MapTile(BinarySerializer.Ray1.MapTile mapTile)
+        {
+            return new MapTile
+            {
+                TileMapX = mapTile.TileMapX,
+                TileMapY = mapTile.TileMapY,
+                CollisionType = mapTile.BlockType,
+                HorizontalFlip = mapTile.HorizontalFlip,
+                VerticalFlip = mapTile.VerticalFlip,
+                PC_Unk1 = mapTile.PC_Byte_03,
+                PC_TransparencyMode = mapTile.TransparencyMode,
+                PC_Unk2 = mapTile.PC_Byte_05,
+                PaletteIndex = mapTile.PaletteIndex,
+                Priority = mapTile.Priority,
+                SNES_Is8PxTile = mapTile.Pre_SNES_Is8PxTile
+            };
+        }
     }
 }

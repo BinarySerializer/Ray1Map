@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -76,7 +77,7 @@ namespace R1Engine
         public string GetDESFileName(Context context, int desIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
             // Get file names
             var desNames = worldData.DESFileNames ?? new string[0];
@@ -94,7 +95,7 @@ namespace R1Engine
         public string GetETAFileName(Context context, int etaIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
             // Get file names
             var etaNames = worldData.ETAFileNames ?? new string[0];
@@ -130,22 +131,22 @@ namespace R1Engine
                 Select(Path.GetFileName).
                 Select(x => new AdditionalSoundArchive($"SMP ({x})", GetSamplesArchiveFilePath(x))).ToArray();
 
-        public override string[] GetDESNameTable(Context context) => context.GetR1Settings().R1_World == R1_World.Menu ? new string[0] : FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetDESNameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
-        public override string[] GetETANameTable(Context context) => context.GetR1Settings().R1_World == R1_World.Menu ? new string[0] : FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetETANameTable(Context context) => context.GetR1Settings().R1_World == World.Menu ? new string[0] : FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
-        public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.KitPC_Type_ZDC;
-        public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.KitPC_ZDCTable;
-        public override byte[] GetEventFlagsBytes => R1_PC_EventFlagTables.KitPC_Flags;
+        public override byte[] GetTypeZDCBytes => PC_ZDCTables.KitPC_Type_ZDC;
+        public override byte[] GetZDCTableBytes => PC_ZDCTables.KitPC_ZDCTable;
+        public override byte[] GetEventFlagsBytes => PC_ObjTypeFlagTables.KitPC_Flags;
 
-        public override R1_WorldMapInfo[] GetWorldMapInfos(Context context)
+        public override WorldInfo[] GetWorldMapInfos(Context context)
         {
-            var wld = LoadArchiveFile<R1_PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01);
+            var wld = LoadArchiveFile<PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01);
             return wld.Levels.Take(wld.LevelsCount).ToArray();
         }
 
-        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => 
-            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
+        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax) => 
+            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.LevelDefines.BG_0])?.ToTexture(true));
 
         /// <summary>
         /// Gets the available game actions
@@ -168,10 +169,10 @@ namespace R1Engine
             var localization = new List<KeyValuePair<string, string[]>>();
 
             // Enumerate each language
-            foreach (var lang in LoadArchiveFile<R1_PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
+            foreach (var lang in LoadArchiveFile<PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
             {
                 // Read the text data
-                var loc = LoadArchiveFile<R1_PC_LocFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.TEXT);
+                var loc = LoadArchiveFile<PC_LocFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.TEXT);
 
                 // Save the localized name
                 var locName = loc?.LanguageNames[loc.LanguageUtilized];
@@ -184,7 +185,7 @@ namespace R1Engine
                     localization.Add(new KeyValuePair<string, string[]>($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray()));
 
                 // Read the general data
-                var general = LoadArchiveFile<R1_PC_GeneralFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.GENERAL);
+                var general = LoadArchiveFile<PC_GeneralFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.GENERAL);
 
                 // Add the localization
                 if (general != null)
@@ -203,7 +204,7 @@ namespace R1Engine
                         continue;
 
                     // Read the file
-                    var evLoc = FileFactory.Read<R1_Mapper_EventLocFile>(evLocPath, context);
+                    var evLoc = FileFactory.Read<Mapper_EventLocFile>(evLocPath, context);
 
                     // Add the localization
                     if (FileSystem.mode == FileSystem.Mode.Web) {
@@ -228,13 +229,13 @@ namespace R1Engine
             await AddFile(context, GetCommonArchiveFilePath());
             
             // Special
-            foreach (var version in LoadArchiveFile<R1_PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
+            foreach (var version in LoadArchiveFile<PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
                 await AddFile(context, GetSpecialArchiveFilePath(version));
         }
 
         public override UniTask<PCX> GetWorldMapVigAsync(Context context)
         {
-            var worldVig = LoadArchiveFile<R1_PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
+            var worldVig = LoadArchiveFile<PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
 
             return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), worldVig));
         }
@@ -283,8 +284,8 @@ namespace R1Engine
                         await otherGame.LoadFilesAsync(otherContext);
 
                         // Load our WLD file and the other game's.
-                        var wld = FileFactory.Read<R1_PC_WorldFile>(wldPath, context);
-                        var otherWld = FileFactory.Read<R1_PC_WorldFile>(otherGame.GetWorldFilePath(otherContext.GetR1Settings()), otherContext);
+                        var wld = FileFactory.Read<PC_WorldFile>(wldPath, context);
+                        var otherWld = FileFactory.Read<PC_WorldFile>(otherGame.GetWorldFilePath(otherContext.GetR1Settings()), otherContext);
 
                         // Get the list of existing ETA and DES files so we know what's missing.
                         var desNames = wld.DESFileNames.ToArray();
@@ -344,7 +345,7 @@ namespace R1Engine
                         wld.Eta = newEtaItems.ToArray();
 
                         // Save the WLD
-                        FileFactory.Write<R1_PC_WorldFile>(wldPath, context);
+                        FileFactory.Write<PC_WorldFile>(wldPath, context);
                     }
                 }
             }
@@ -361,9 +362,9 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 Debug.Log("Opening version file...");
-                var commonDat = FileFactory.Read<R1_PC_EncryptedFileArchive>(GetCommonArchiveFilePath(), context);
+                var commonDat = FileFactory.Read<PC_FileArchive>(GetCommonArchiveFilePath(), context);
                 var versionFileName = R1_PC_ArchiveFileName.VERSION.ToString();
-                var versionFile = commonDat.ReadFile<R1_PC_VersionFile>(context, versionFileName);
+                var versionFile = commonDat.ReadFile<PC_VersionFile>(context, versionFileName);
 
                 Debug.Log("Increasing memory allocation...");
                 // Increase the memory allocated for each version.
@@ -377,7 +378,7 @@ namespace R1Engine
                 Debug.Log("Saving version file...");
                 // Reserialize and save out the updated archive.
                 commonDat.RepackArchive(context, new Dictionary<string, Action<SerializerObject>> {
-                                {versionFileName, x => x.SerializeObject<R1_PC_VersionFile>(versionFile, name: versionFileName)}
+                                {versionFileName, x => x.SerializeObject<PC_VersionFile>(versionFile, name: versionFileName)}
                                 });
                 Debug.Log("Version file saved.");
             }

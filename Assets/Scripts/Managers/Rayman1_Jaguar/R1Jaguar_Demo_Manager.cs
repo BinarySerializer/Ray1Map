@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -37,14 +38,14 @@ namespace R1Engine
         /// <summary>
         /// Gets the available levels ordered based on the global level array
         /// </summary>
-        public override KeyValuePair<R1_World, int>[] GetNumLevels => new KeyValuePair<R1_World, int>[]
+        public override KeyValuePair<World, int>[] GetNumLevels => new KeyValuePair<World, int>[]
         {
-            new KeyValuePair<R1_World, int>(R1_World.Jungle, 14),
-            new KeyValuePair<R1_World, int>(R1_World.Mountain, 4),
-            new KeyValuePair<R1_World, int>(R1_World.Cave, 2),
-            new KeyValuePair<R1_World, int>(R1_World.Music, 5),
-            new KeyValuePair<R1_World, int>(R1_World.Image, 2),
-            new KeyValuePair<R1_World, int>(R1_World.Cake, 2)
+            new KeyValuePair<World, int>(World.Jungle, 14),
+            new KeyValuePair<World, int>(World.Mountain, 4),
+            new KeyValuePair<World, int>(World.Cave, 2),
+            new KeyValuePair<World, int>(World.Music, 5),
+            new KeyValuePair<World, int>(World.Image, 2),
+            new KeyValuePair<World, int>(World.Cake, 2)
         };
 
         public override int[] ExtraMapCommands => new int[] {

@@ -1,5 +1,4 @@
 ﻿using BinarySerializer;
-// For Where and OfType
 using BinaryTools.Elf; // To find symbols in Linux EXEs
 using BinaryTools.Elf.Io; // Make sure it has a reader it's happy with...
 using PE; // To find symbols in Windows EXEs

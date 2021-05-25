@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer.Ray1;
+
+namespace R1Engine
 {
     public abstract class R1_Mapper_BaseEventDefinition
     {
@@ -32,7 +34,7 @@
 
         public uint HitPoints { get; set; }
 
-        public R1_EventType Type { get; set; }
+        public ObjType Type { get; set; }
 
         public byte HitSprite { get; set; }
     }

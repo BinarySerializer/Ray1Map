@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 
 
@@ -31,7 +32,7 @@ namespace R1Engine
                     var outputObjManager = (Unity_ObjectManager_R1)outData.ObjManager;
 
                     // Load a dummy PC level as a base
-                    var outLev = FileFactory.Read<R1_PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
+                    var outLev = FileFactory.Read<PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
 
                     // TODO: Set background data
 
@@ -45,7 +46,7 @@ namespace R1Engine
 
                     // Set tiles while keeping track of the size changes
                     var prevTileSize = outLev.MapData.Tiles.Length * 6;
-                    outLev.MapData.Tiles = inputMap.MapTiles.Select(x => x.Data).ToArray();
+                    outLev.MapData.Tiles = inputMap.MapTiles.Select(x => x.Data.ToR1MapTile()).ToArray();
                     var newTileSize = outLev.MapData.Tiles.Length * 6;
 
                     // Update pointers
@@ -56,13 +57,13 @@ namespace R1Engine
                     //outLev.TileTextureData = null;
 
                     // Get the file tables
-                    var outputDesNames = FileFactory.Read<R1_PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).DESFileNames;
-                    var outputEtaNames = FileFactory.Read<R1_PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).ETAFileNames;
+                    var outputDesNames = FileFactory.Read<PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).DESFileNames;
+                    var outputEtaNames = FileFactory.Read<PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).ETAFileNames;
 
                     // Set event data
-                    outLev.EventData.EventCount = (ushort)inputLev.EventData.Count;
-                    outLev.EventData.EventLinkingTable = inputObjManager.LinkTable;
-                    outLev.EventData.Events = inputLev.EventData.Cast<Unity_Object_R1>().Select(x =>
+                    outLev.ObjData.ObjCount = (ushort)inputLev.EventData.Count;
+                    outLev.ObjData.ObjLinkingTable = inputObjManager.LinkTable;
+                    outLev.ObjData.Objects = inputLev.EventData.Cast<Unity_Object_R1>().Select(x =>
                     {
                         var e = x.EventData;
 
@@ -83,20 +84,20 @@ namespace R1Engine
                     }).ToArray();
 
                     // Set event commands
-                    outLev.EventData.EventCommands = inputLev.EventData.Cast<Unity_Object_R1>().Select(x =>
+                    outLev.ObjData.ObjCommands = inputLev.EventData.Cast<Unity_Object_R1>().Select(x =>
                     {
                         // Get the commands in the compiled format
-                        var cmds = EventCommandCompiler.Compile(x.EventData.Commands, x.EventData.Commands.ToBytes(inputSettings));
+                        var cmds = EventCommandCompiler.Compile(x.EventData.Commands, x.EventData.Commands.ToBytes(() => new R1Context(inputSettings)));
 
                         // Remove commands which only contain the invalid command
                         if (cmds.Commands.Commands.Length == 1)
-                            cmds = new EventCommandCompiler.CompiledEventCommandData(new R1_EventCommandCollection()
+                            cmds = new EventCommandCompiler.CompiledEventCommandData(new CommandCollection()
                             {
-                                Commands = new R1_EventCommand[0]
+                                Commands = new Command[0]
                             }, new ushort[0]);
 
                         // Create a command object
-                        return new R1_PC_EventCommand
+                        return new PC_CommandCollection
                         {
                             CommandLength = (ushort)cmds.Commands.Commands.Select(y => y.Length).Sum(),
                             Commands = cmds.Commands,
@@ -107,7 +108,7 @@ namespace R1Engine
 
                     // TODO: Get data from .ini file
                     // Set profile define data
-                    outLev.ProfileDefine = new R1_PC_ProfileDefine
+                    outLev.ProfileDefine = new PC_ProfileDefine
                     {
                         LevelName = "Test Export",
                         LevelAuthor = "RayCarrot",
@@ -121,7 +122,7 @@ namespace R1Engine
                     };
 
                     // Write the changes to the file
-                    FileFactory.Write<R1_PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
+                    FileFactory.Write<PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
                 }
             }
         }

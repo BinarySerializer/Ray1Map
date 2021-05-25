@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -20,6 +21,7 @@ namespace R1Engine
 
         public static Context MainContext { get; set; }
         public static GameSettings CurrentSettings => MainContext?.GetR1Settings();
+        public static Ray1Settings CurrentRay1Settings => MainContext?.GetSettings<Ray1Settings>();
 
         public static Unity_Level Level { get; set; }
         public static Unity_ObjectManager ObjManager => Level.ObjManager;

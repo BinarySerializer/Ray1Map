@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -35,7 +36,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(R1_World world) => GetDataPath() + GetWorldName(world) + "/";
+        public string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the file path for the big ray file
@@ -148,21 +149,21 @@ namespace R1Engine
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {
-                        s.DoEncoded(new PC_R1_SaveEncoder(), () => s.SerializeObject<R1_PC_SaveFile>(default, name: "SaveFile"));
+                        s.DoEncoded(new PC_R1_SaveEncoder(), () => s.SerializeObject<PC_SaveFile>(default, name: "SaveFile"));
                     });
                 }
             }
         }
 
-        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_R1PCDES[context.GetR1Settings().R1_World == R1_World.Menu ? 0 : context.GetR1Settings().World - 1];
-        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_R1PCETA[context.GetR1Settings().R1_World == R1_World.Menu ? 0 : context.GetR1Settings().World - 1];
+        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_R1PCDES[context.GetR1Settings().R1_World == World.Menu ? 0 : context.GetR1Settings().World - 1];
+        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_R1PCETA[context.GetR1Settings().R1_World == World.Menu ? 0 : context.GetR1Settings().World - 1];
 
-        public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.R1PC_Type_ZDC;
-        public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.R1PC_ZDCTable;
-        public override byte[] GetEventFlagsBytes => R1_PC_EventFlagTables.R1PC_Flags;
-        public override R1_WorldMapInfo[] GetWorldMapInfos(Context context) => context.Deserializer.SerializeFromBytes<ObjectArray<R1_WorldMapInfo>>(R1_PC_WorldInfoTables.R1PC_WorldInfo, "WorldInfo", x => x.Length = 24, name: "WorldInfos").Value;
+        public override byte[] GetTypeZDCBytes => PC_ZDCTables.R1PC_Type_ZDC;
+        public override byte[] GetZDCTableBytes => PC_ZDCTables.R1PC_ZDCTable;
+        public override byte[] GetEventFlagsBytes => PC_ObjTypeFlagTables.R1PC_Flags;
+        public override WorldInfo[] GetWorldMapInfos(Context context) => context.Deserializer.SerializeFromBytes<ObjectArray<WorldInfo>>(PC_WorldInfoTables.R1PC_WorldInfo, "WorldInfo", x => x.Pre_Length = 24, name: "WorldInfos").Value;
 
-        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax)
+        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax)
         {
             // Return null if the parallax bg is the same as the normal one
             if (parallax && level.ScrollDiffFNDIndex == level.FNDIndex)

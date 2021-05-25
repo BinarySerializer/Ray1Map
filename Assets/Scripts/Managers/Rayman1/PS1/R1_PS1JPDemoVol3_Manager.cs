@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -25,21 +27,21 @@ namespace R1Engine
         /// <returns>The allfix file path</returns>
         public virtual string GetAllfixFilePath() => $"RAY.FXS";
 
-        public string GetPalettePath(GameSettings settings, int i) => $"RAY{i}_{(settings.R1_World == R1_World.Jungle ? 1 : 2)}.PAL";
+        public string GetPalettePath(GameSettings settings, int i) => $"RAY{i}_{(settings.R1_World == World.Jungle ? 1 : 2)}.PAL";
 
         /// <summary>
         /// Gets the file path for the world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public virtual string GetWorldFilePath(GameSettings settings) => $"RAY.WL{(settings.R1_World == R1_World.Jungle ? 1 : 2)}";
+        public virtual string GetWorldFilePath(GameSettings settings) => $"RAY.WL{(settings.R1_World == World.Jungle ? 1 : 2)}";
 
         /// <summary>
         /// Gets the file path for the level file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public virtual string GetLevelFilePath(GameSettings settings) => $"RAY.LV{(settings.R1_World == R1_World.Jungle ? 1 : 2)}";
+        public virtual string GetLevelFilePath(GameSettings settings) => $"RAY.LV{(settings.R1_World == World.Jungle ? 1 : 2)}";
         
         /// <summary>
         /// Gets the file path for the level tile set file
@@ -59,7 +61,7 @@ namespace R1Engine
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
-        public override string GetWorldName(R1_World world) => base.GetWorldName(world).Substring(1);
+        public override string GetWorldName(World world) => base.GetWorldName(world).Substring(1);
 
         /// <summary>
         /// Gets the levels for each world
@@ -76,14 +78,14 @@ namespace R1Engine
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {
-            new FileTableInfo(0x801b5f3c, 1, R1_PS1_FileType.pal_file),
-            new FileTableInfo(0x801b5f74, 4, R1_PS1_FileType.demo_vig),
-            new FileTableInfo(0x801b6054, 1, R1_PS1_FileType.img_file),
-            new FileTableInfo(0x801b608c, 1, R1_PS1_FileType.filefxs),
-            new FileTableInfo(0x801b60c4, 0xb, R1_PS1_FileType.demo_w1),
-            new FileTableInfo(0x801b6594, 0xb, R1_PS1_FileType.demo_w2),
-            new FileTableInfo(0x801b67fc, 4, R1_PS1_FileType.fnd_file),
-            new FileTableInfo(0x801b68fc, 1, R1_PS1_FileType.demo_track)
+            new FileTableInfo(0x801b5f3c, 1, PS1_FileType.pal_file),
+            new FileTableInfo(0x801b5f74, 4, PS1_FileType.demo_vig),
+            new FileTableInfo(0x801b6054, 1, PS1_FileType.img_file),
+            new FileTableInfo(0x801b608c, 1, PS1_FileType.filefxs),
+            new FileTableInfo(0x801b60c4, 0xb, PS1_FileType.demo_w1),
+            new FileTableInfo(0x801b6594, 0xb, PS1_FileType.demo_w2),
+            new FileTableInfo(0x801b67fc, 4, PS1_FileType.fnd_file),
+            new FileTableInfo(0x801b68fc, 1, PS1_FileType.demo_track)
         };
 
         /// <summary>
@@ -97,7 +99,7 @@ namespace R1Engine
             var filename = GetTileSetFilePath(context.GetR1Settings());
 
             // Read the file
-            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
+            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
             // Return the tile set
             return new Unity_TileSet(tileSet.Value, TileSetWidth, Settings.CellSize);
@@ -122,7 +124,7 @@ namespace R1Engine
         /// <param name="imgBuffer">The image buffer, if available</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, R1_ImageDescriptor s)
+        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Sprite s)
         {
             if (s.ImageType != 2 && s.ImageType != 3) 
                 return null;
@@ -136,8 +138,8 @@ namespace R1Engine
             var height = s.Height;
             var offset = s.ImageBufferOffset;
 
-            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Length = 256);
-            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 8), context, (y, x) => x.Length = 256);
+            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Pre_Length = 256);
+            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 8), context, (y, x) => x.Pre_Length = 256);
 
             // Select correct palette
             var palette = s.ImageType == 3 ? pal8.Value : pal4.Value;
@@ -203,10 +205,10 @@ namespace R1Engine
 
             // Read the files
             var map = FileFactory.Read<MapData>(mapPath, context);
-            var lvl = FileFactory.Read<R1_PS1JPDemo_LevFile>(levelPath, context);
+            var lvl = FileFactory.Read<PS1_JPDemo_LevFile>(levelPath, context);
 
             // Load the level
-            return await LoadAsync(context, map, lvl.Events, lvl.EventLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
+            return await LoadAsync(context, map, lvl.Objects, lvl.ObjectLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
 
         public override async UniTask LoadFilesAsync(Context context)
@@ -279,35 +281,35 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Read level file
-                var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+                var level = FileFactory.Read<PS1_JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
                 // Export
-                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new R1_PS1_FontData[]
+                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_FontData[]
                 {
                     level.FontData
-                }, new R1_EventData[]
+                }, new ObjData[]
                 {
-                    level.RaymanEvent
+                    level.RaymanObj
                 }, null);
             }
         }
 
-        public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
+        public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+            var level = FileFactory.Read<PS1_JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
-            return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+            return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
-                [Unity_ObjectManager_R1.WldObjType.Ray] = level.RaymanEvent,
+                [Unity_ObjectManager_R1.WldObjType.Ray] = level.RaymanObj,
             };
         }
 
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {
-            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+            var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
 
-            var bgIndex = context.GetR1Settings().R1_World == R1_World.Jungle ? 0 : 2;
-            var fndStartIndex = exe.GetFileTypeIndex(this, R1_PS1_FileType.fnd_file);
+            var bgIndex = context.GetR1Settings().R1_World == World.Jungle ? 0 : 2;
+            var fndStartIndex = exe.GetFileTypeIndex(this, PS1_FileType.fnd_file);
 
             if (fndStartIndex == -1)
                 return null;
@@ -316,7 +318,7 @@ namespace R1Engine
 
             await LoadExtraFile(context, bgFilePath, true);
 
-            var bg = FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
+            var bg = FileFactory.Read<PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
 
             return bg.ToTexture(context);
         }

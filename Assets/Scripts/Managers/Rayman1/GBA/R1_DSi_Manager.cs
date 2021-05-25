@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 
 
 namespace R1Engine
@@ -16,14 +17,14 @@ namespace R1Engine
         /// </summary>
         public new const int LevelCount = 22 + 18 + 13 + 13 + 12 + 4;
 
-        public override KeyValuePair<R1_World, int>[] GetLevelCounts => new KeyValuePair<R1_World, int>[]
+        public override KeyValuePair<World, int>[] GetLevelCounts => new KeyValuePair<World, int>[]
         {
-            new KeyValuePair<R1_World, int>(R1_World.Jungle, 22),
-            new KeyValuePair<R1_World, int>(R1_World.Music, 18),
-            new KeyValuePair<R1_World, int>(R1_World.Mountain, 13),
-            new KeyValuePair<R1_World, int>(R1_World.Image, 13),
-            new KeyValuePair<R1_World, int>(R1_World.Cave, 12),
-            new KeyValuePair<R1_World, int>(R1_World.Cake, 4),
+            new KeyValuePair<World, int>(World.Jungle, 22),
+            new KeyValuePair<World, int>(World.Music, 18),
+            new KeyValuePair<World, int>(World.Mountain, 13),
+            new KeyValuePair<World, int>(World.Image, 13),
+            new KeyValuePair<World, int>(World.Cave, 12),
+            new KeyValuePair<World, int>(World.Cake, 4),
         };
 
         /// <summary>

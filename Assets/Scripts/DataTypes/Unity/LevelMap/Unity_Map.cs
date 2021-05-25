@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -34,7 +35,7 @@ namespace R1Engine
         /// <summary>
         /// The transparency mode for the tiles in the tileset on PC
         /// </summary>
-        public R1_PC_MapTileTransparencyMode[] TileSetTransparencyModes { get; set; }
+        public BinarySerializer.Ray1.MapTile.PC_TransparencyMode[] TileSetTransparencyModes { get; set; }
 
         /// <summary>
         /// Tile texture offset table for PC
@@ -91,7 +92,7 @@ namespace R1Engine
             if (tileIndex >= tiles.Length)
             {
                 // If it's out of bounds and the level is Jungle 27 in PS1 EDU, hard-code to 509, which is what the game uses there
-                if (settings.EngineVersion == EngineVersion.R1_PS1_Edu && settings.R1_World == R1_World.Jungle && settings.Level == 27)
+                if (settings.EngineVersion == EngineVersion.R1_PS1_Edu && settings.R1_World == World.Jungle && settings.Level == 27)
                 {
                     tileIndex = 509;
                 }

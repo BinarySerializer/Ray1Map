@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -75,11 +76,11 @@ namespace R1Engine
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {
-            new FileTableInfo(0x801b791c, 3, R1_PS1_FileType.filefxs),
-            new FileTableInfo(0x801b79d0, 1, R1_PS1_FileType.demo_vig),
-            new FileTableInfo(0x801b7a0c, 12, R1_PS1_FileType.vab_file),
+            new FileTableInfo(0x801b791c, 3, PS1_FileType.filefxs),
+            new FileTableInfo(0x801b79d0, 1, PS1_FileType.demo_vig),
+            new FileTableInfo(0x801b7a0c, 12, PS1_FileType.vab_file),
 
-            new FileTableInfo(0x801b7cdc, 5, R1_PS1_FileType.wld_file), // Jungle
+            new FileTableInfo(0x801b7cdc, 5, PS1_FileType.wld_file), // Jungle
 
             // Unused
             //new FileTableInfo(0x801B7E08, 5, R1_PS1_FileType.wld_file), // Music
@@ -88,7 +89,7 @@ namespace R1Engine
             //new FileTableInfo(0x801B818C, 5, R1_PS1_FileType.wld_file), // Cave
             //new FileTableInfo(0x801B82B8, 5, R1_PS1_FileType.wld_file), // Cake
 
-            new FileTableInfo(0x801b83e4, 64, R1_PS1_FileType.map_file), // Jungle
+            new FileTableInfo(0x801b83e4, 64, PS1_FileType.map_file), // Jungle
 
             // Unused
             //new FileTableInfo(0x801B92E4, 64, R1_PS1_FileType.map_file), // Music
@@ -97,10 +98,10 @@ namespace R1Engine
             //new FileTableInfo(0x801BBFE4, 64, R1_PS1_FileType.map_file), // Cave
             //new FileTableInfo(0x801BCEE4, 64, R1_PS1_FileType.map_file), // Cake
 
-            new FileTableInfo(0x801BDDE4, 11, R1_PS1_FileType.fnd_file),
-            new FileTableInfo(0x801be078, 11, R1_PS1_FileType.demo_file), // BGI (background data?)
+            new FileTableInfo(0x801BDDE4, 11, PS1_FileType.fnd_file),
+            new FileTableInfo(0x801be078, 11, PS1_FileType.demo_file), // BGI (background data?)
 
-            new FileTableInfo(0x801BE30C, 4, R1_PS1_FileType.trk_file)
+            new FileTableInfo(0x801BE30C, 4, PS1_FileType.trk_file)
         };
 
         /// <summary>
@@ -114,7 +115,7 @@ namespace R1Engine
             var filename = GetTileSetFilePath(context.GetR1Settings());
 
             // Read the file
-            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
+            var tileSet = FileFactory.Read<ObjectArray<RGBA5551Color>>(filename, context, (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
             // Return the tile set
             return new Unity_TileSet(tileSet.Value, TileSetWidth, Settings.CellSize);
@@ -129,9 +130,9 @@ namespace R1Engine
         protected override void FillVRAM(Context context, VRAMMode mode)
         {
             // Read palettes
-            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Length = y.CurrentLength / 2);
-            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 8), context, (y, x) => x.Length = y.CurrentLength / 2);
-            var palLettre = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetFontPalettePath(), context, (y, x) => x.Length = y.CurrentLength / 2);
+            var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Pre_Length = y.CurrentLength / 2);
+            var pal8 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 8), context, (y, x) => x.Pre_Length = y.CurrentLength / 2);
+            var palLettre = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetFontPalettePath(), context, (y, x) => x.Pre_Length = y.CurrentLength / 2);
 
             // Read the files
             var fixGraphics = FileFactory.Read<Array<byte>>(GetAllfixSpritePath(), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
@@ -179,10 +180,10 @@ namespace R1Engine
 
             // Read the files
             var map = FileFactory.Read<MapData>(mapPath, context);
-            var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(levelPath, context);
+            var level = FileFactory.Read<PS1_JPDemo_LevFile>(levelPath, context);
 
             // Load the level
-            return await LoadAsync(context, map, level.Events, level.EventLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
+            return await LoadAsync(context, map, level.Objects, level.ObjectLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
 
         public override async UniTask LoadFilesAsync(Context context)
@@ -256,26 +257,26 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Read level file
-                var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+                var level = FileFactory.Read<PS1_JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
                 // Export
-                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new R1_PS1_FontData[]
+                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_FontData[]
                 {
                     level.FontData
-                }, new R1_EventData[]
+                }, new ObjData[]
                 {
-                    level.RaymanEvent
+                    level.RaymanObj
                 }, null);
             }
         }
 
-        public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
+        public override Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context)
         {
-            var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+            var level = FileFactory.Read<PS1_JPDemo_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
-            return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+            return new Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData>()
             {
-                [Unity_ObjectManager_R1.WldObjType.Ray] = level.RaymanEvent,
+                [Unity_ObjectManager_R1.WldObjType.Ray] = level.RaymanObj,
             };
         }
 
@@ -285,7 +286,7 @@ namespace R1Engine
 
             await LoadExtraFile(context, bgFilePath, true);
 
-            var bg = FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
+            var bg = FileFactory.Read<PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2);
 
             return bg.ToTexture(context);
         }

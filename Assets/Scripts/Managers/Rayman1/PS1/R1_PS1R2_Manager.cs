@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = BinarySerializer.Ray1.Sprite;
 
 namespace R1Engine
 {
@@ -115,7 +117,7 @@ namespace R1Engine
             var tileSetPath = GetSubMapTilesetPath(map);
             var palettePath = GetSubMapPalettePath(map);
             var tileSet = FileFactory.Read<Array<byte>>(tileSetPath, context, (s, x) => x.Length = s.CurrentLength);
-            var palette = FileFactory.Read<ObjectArray<RGBA5551Color>>(palettePath, context, (s, x) => x.Length = s.CurrentLength / 2);
+            var palette = FileFactory.Read<ObjectArray<RGBA5551Color>>(palettePath, context, (s, x) => x.Pre_Length = s.CurrentLength / 2);
 
             return new Unity_TileSet(tileSet.Value.Select(ind => palette.Value[ind]).ToArray(), TileSetWidth, Settings.CellSize);
         }
@@ -138,11 +140,11 @@ namespace R1Engine
             // Read the files
             var fixGraphics = FileFactory.Read<Array<byte>>(FixGraphicsPath, context, onPreSerialize: (s,a) => a.Length = s.CurrentLength);
             var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelGraphicsPath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            var palettes = FileFactory.Read<ObjectArray<RGBA5551Color>>(SpritePalettesPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
+            var palettes = FileFactory.Read<ObjectArray<RGBA5551Color>>(SpritePalettesPath, context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2);
 
             var tilePalettes = new ObjectArray<RGBA5551Color>[4];
             for (int i = 0; i < MapCount; i++)
-                tilePalettes[i] = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetSubMapPalettePath(i), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
+                tilePalettes[i] = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetSubMapPalettePath(i), context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2);
             
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -236,9 +238,9 @@ namespace R1Engine
             baseAddress -= 94; // FIX.DTA header size
             Pointer fixDTAHeader = new Pointer(baseAddress, context.FilePointer(fixDTAPath).File);
 
-            R1_R2AllfixFooter footer = null;
+            R2_AllfixFooter footer = null;
 
-            context.Deserializer.DoAt(fixDTAHeader, () => footer = context.Deserializer.SerializeObject<R1_R2AllfixFooter>(null, name: "AllfixFooter"));
+            context.Deserializer.DoAt(fixDTAHeader, () => footer = context.Deserializer.SerializeObject<R2_AllfixFooter>(null, name: "AllfixFooter"));
             await LoadFile(context, fixGRPPath, 0);
             await LoadFile(context, sprPLSPath, 0);
             baseAddress += await LoadFile(context, levelSPRPath, baseAddress);
@@ -257,7 +259,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading level data";
 
             // Read the level data
-            var lvlData = FileFactory.Read<R1_R2LevDataFile>(levelDTAPath, context);
+            var lvlData = FileFactory.Read<R2_LevDataFile>(levelDTAPath, context);
 
             // Read the map blocks
             var maps = Enumerable.Range(0, MapCount).Select(x => FileFactory.Read<MapData>(GetSubMapPath(x), context)).ToArray();
@@ -274,41 +276,41 @@ namespace R1Engine
 
             // Create the global design list
 
-            var lvlImgDescriptors = FileFactory.Read<ObjectArray<R1_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC).Value;
+            var lvlImgDescriptors = FileFactory.Read<ObjectArray<Sprite>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 0xC).Value;
 
-            var imgDescriptors = lvlData.FixImageDescriptors.Concat(lvlImgDescriptors).ToArray();
+            var imgDescriptors = lvlData.FixSprites.Concat(lvlImgDescriptors).ToArray();
 
             // Get every sprite
             var globalDesigns = imgDescriptors.Select(img => GetSpriteTexture(context, null, img)).Select(tex => tex == null ? null : tex.CreateSprite()).ToArray();
 
             // Get the events
-            var events = lvlData.Events.Concat(lvlData.AlwaysEvents).ToArray();
+            var events = lvlData.Objects.Concat(lvlData.AlwaysObjects).ToArray();
 
             Controller.DetailedState = $"Loading animations";
             await Controller.WaitIfNecessary();
 
             // Get the animation groups
-            var r2AnimGroups = events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup).Where(x => x != null).Distinct().ToArray();
+            var r2AnimGroups = events.Select(x => x.AnimData).Append(footer.RaymanAnimData).Where(x => x != null).Distinct().ToArray();
             Unity_ObjectManager_R2.AnimGroup[] animGroups = new Unity_ObjectManager_R2.AnimGroup[r2AnimGroups.Length];
             for (int i = 0; i < animGroups.Length; i++) {
                 animGroups[i] = await getGroupAsync(r2AnimGroups[i]);
                 await Controller.WaitIfNecessary();
             }
 
-            async UniTask<Unity_ObjectManager_R2.AnimGroup> getGroupAsync(R1_R2EventAnimGroup animGroup) 
+            async UniTask<Unity_ObjectManager_R2.AnimGroup> getGroupAsync(R2_AnimationData animGroup) 
             {
                 await UniTask.CompletedTask;
 
                 // Add DES and ETA
                 return new Unity_ObjectManager_R2.AnimGroup(
-                    pointer: animGroup?.Offset, eta: animGroup?.ETA.EventStates ?? new R1_EventState[0][], 
-                    animations: animGroup?.AnimationDecriptors?.Select(x => x.ToCommonAnimation()).ToArray(), 
-                    filePath: animGroup?.AnimationDescriptorsPointer?.File.FilePath);
+                    pointer: animGroup?.Offset, eta: animGroup?.ETA.EventStates ?? new ObjState[0][], 
+                    animations: animGroup?.Animations?.Select(x => x.ToCommonAnimation()).ToArray(), 
+                    filePath: animGroup?.AnimationsPointer?.File.FilePath);
             }
 
             var objManager = new Unity_ObjectManager_R2(
                 context: context, 
-                linkTable: lvlData.EventLinkTable, 
+                linkTable: lvlData.ObjectLinkTable, 
                 animGroups: animGroups, 
                 sprites: globalDesigns, 
                 imageDescriptors: imgDescriptors,
@@ -323,7 +325,7 @@ namespace R1Engine
                 // Add the event
                 commonEvents.Add(new Unity_Object_R2(e, objManager)
                 {
-                    IsAlwaysEvent = lvlData.AlwaysEvents.Contains(e)
+                    IsAlwaysEvent = lvlData.AlwaysObjects.Contains(e)
                 });
             }
 
@@ -348,7 +350,7 @@ namespace R1Engine
                 maps: levelMaps, 
                 objManager: objManager, 
                 eventData: commonEvents,
-                rayman: new Unity_Object_R2(R1_R2EventData.GetRayman(events.FirstOrDefault(x => x.EventType == R1_R2EventType.RaymanPosition), footer), objManager),
+                rayman: new Unity_Object_R2(R2_ObjData.GetRayman(events.FirstOrDefault(x => x.ObjType == R2_ObjType.RaymanPosition), footer), objManager),
                 getCollisionTypeNameFunc: x => ((R2_TileCollisionType)x).ToString(),
                 getCollisionTypeGraphicFunc: x => ((R2_TileCollisionType)x).GetCollisionTypeGraphic());
 
@@ -363,7 +365,7 @@ namespace R1Engine
                 level.Maps[i].TileSet[0] = tileSet;
 
                 // Set the tiles
-                level.Maps[i].MapTiles = maps[i].Tiles.Select(x => new Unity_Tile(x)).ToArray();
+                level.Maps[i].MapTiles = maps[i].Tiles.Select(x => new Unity_Tile(MapTile.FromR1MapTile(x))).ToArray();
             }
 
             // Return the level

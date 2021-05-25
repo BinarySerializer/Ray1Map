@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -41,8 +42,8 @@ namespace R1Engine
             Localization = localization;
             PixelsPerUnit = pixelsPerUnit;
             CellSize = cellSize;
-            GetCollisionTypeNameFunc = getCollisionTypeNameFunc ?? (x => ((R1_TileCollisionType)x).ToString());
-            GetCollisionTypeGraphicFunc = getCollisionTypeGraphicFunc ?? (x => ((R1_TileCollisionType)x).GetCollisionTypeGraphic());
+            GetCollisionTypeNameFunc = getCollisionTypeNameFunc ?? (x => ((TileCollisionType)x).ToString());
+            GetCollisionTypeGraphicFunc = getCollisionTypeGraphicFunc ?? (x => ((TileCollisionType)x).GetCollisionTypeGraphic());
             Background = background;
             ParallaxBackground = parallaxBackground;
             Sectors = sectors;
@@ -175,8 +176,8 @@ namespace R1Engine
                 return;
 
             // Get the palette changers
-            var paletteXChangers = r1Events.Where(x => x.EventData.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat < 6).ToDictionary(x => x.XPosition + x.EventData.OffsetBX, x => (R1_PaletteChangerMode)x.EventData.SubEtat);
-            var paletteYChangers = r1Events.Where(x => x.EventData.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat >= 6).ToDictionary(x => x.YPosition + x.EventData.OffsetBY, x => (R1_PaletteChangerMode)x.EventData.SubEtat);
+            var paletteXChangers = r1Events.Where(x => x.EventData.Type == ObjType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat < 6).ToDictionary(x => x.XPosition + x.EventData.OffsetBX, x => (SE_PALETTE_SWAPPER)x.EventData.SubEtat);
+            var paletteYChangers = r1Events.Where(x => x.EventData.Type == ObjType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat >= 6).ToDictionary(x => x.YPosition + x.EventData.OffsetBY, x => (SE_PALETTE_SWAPPER)x.EventData.SubEtat);
 
             // NOTE: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
@@ -190,16 +191,16 @@ namespace R1Engine
             {
                 switch (paletteXChangers.OrderBy(x => x.Key).First().Value)
                 {
-                    case R1_PaletteChangerMode.Left1toRight2:
-                    case R1_PaletteChangerMode.Left1toRight3:
+                    case SE_PALETTE_SWAPPER.Left1toRight2:
+                    case SE_PALETTE_SWAPPER.Left1toRight3:
                         defaultPalette = 1;
                         break;
-                    case R1_PaletteChangerMode.Left2toRight1:
-                    case R1_PaletteChangerMode.Left2toRight3:
+                    case SE_PALETTE_SWAPPER.Left2toRight1:
+                    case SE_PALETTE_SWAPPER.Left2toRight3:
                         defaultPalette = 2;
                         break;
-                    case R1_PaletteChangerMode.Left3toRight1:
-                    case R1_PaletteChangerMode.Left3toRight2:
+                    case SE_PALETTE_SWAPPER.Left3toRight1:
+                    case SE_PALETTE_SWAPPER.Left3toRight2:
                         defaultPalette = 3;
                         break;
                 }
@@ -208,16 +209,16 @@ namespace R1Engine
             {
                 switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value)
                 {
-                    case R1_PaletteChangerMode.Top1tobottom2:
-                    case R1_PaletteChangerMode.Top1tobottom3:
+                    case SE_PALETTE_SWAPPER.Top1toBottom2:
+                    case SE_PALETTE_SWAPPER.Top1toBottom3:
                         defaultPalette = 1;
                         break;
-                    case R1_PaletteChangerMode.Top2tobottom1:
-                    case R1_PaletteChangerMode.Top2tobottom3:
+                    case SE_PALETTE_SWAPPER.Top2toBottom1:
+                    case SE_PALETTE_SWAPPER.Top2toBottom3:
                         defaultPalette = 2;
                         break;
-                    case R1_PaletteChangerMode.Top3tobottom1:
-                    case R1_PaletteChangerMode.Top3tobottom2:
+                    case SE_PALETTE_SWAPPER.Top3toBottom1:
+                    case SE_PALETTE_SWAPPER.Top3toBottom2:
                         defaultPalette = 3;
                         break;
                 }
@@ -242,23 +243,23 @@ namespace R1Engine
                     for (int y = 0; y < Settings.CellSize; y++)
                     {
                         // Attempt to find a matching palette changer on this pixel
-                        var py = paletteYChangers.TryGetValue((short)(Settings.CellSize * cellY + y), out R1_PaletteChangerMode pm) ? (R1_PaletteChangerMode?)pm : null;
+                        var py = paletteYChangers.TryGetValue((short)(Settings.CellSize * cellY + y), out SE_PALETTE_SWAPPER pm) ? (SE_PALETTE_SWAPPER?)pm : null;
 
                         // If one was found, change the palette based on type
                         if (py != null)
                         {
                             switch (py)
                             {
-                                case R1_PaletteChangerMode.Top2tobottom1:
-                                case R1_PaletteChangerMode.Top3tobottom1:
+                                case SE_PALETTE_SWAPPER.Top2toBottom1:
+                                case SE_PALETTE_SWAPPER.Top3toBottom1:
                                     currentPalette = 1;
                                     break;
-                                case R1_PaletteChangerMode.Top1tobottom2:
-                                case R1_PaletteChangerMode.Top3tobottom2:
+                                case SE_PALETTE_SWAPPER.Top1toBottom2:
+                                case SE_PALETTE_SWAPPER.Top3toBottom2:
                                     currentPalette = 2;
                                     break;
-                                case R1_PaletteChangerMode.Top1tobottom3:
-                                case R1_PaletteChangerMode.Top2tobottom3:
+                                case SE_PALETTE_SWAPPER.Top1toBottom3:
+                                case SE_PALETTE_SWAPPER.Top2toBottom3:
                                     currentPalette = 3;
                                     break;
                             }
@@ -275,23 +276,23 @@ namespace R1Engine
                         for (int x = 0; x < Settings.CellSize; x++)
                         {
                             // Attempt to find a matching palette changer on this pixel
-                            var px = paletteXChangers.TryGetValue((short)(Settings.CellSize * cellX + x), out R1_PaletteChangerMode pm) ? (R1_PaletteChangerMode?)pm : null;
+                            var px = paletteXChangers.TryGetValue((short)(Settings.CellSize * cellX + x), out SE_PALETTE_SWAPPER pm) ? (SE_PALETTE_SWAPPER?)pm : null;
 
                             // If one was found, change the palette based on type
                             if (px != null)
                             {
                                 switch (px)
                                 {
-                                    case R1_PaletteChangerMode.Left3toRight1:
-                                    case R1_PaletteChangerMode.Left2toRight1:
+                                    case SE_PALETTE_SWAPPER.Left3toRight1:
+                                    case SE_PALETTE_SWAPPER.Left2toRight1:
                                         currentPalette = 1;
                                         break;
-                                    case R1_PaletteChangerMode.Left1toRight2:
-                                    case R1_PaletteChangerMode.Left3toRight2:
+                                    case SE_PALETTE_SWAPPER.Left1toRight2:
+                                    case SE_PALETTE_SWAPPER.Left3toRight2:
                                         currentPalette = 2;
                                         break;
-                                    case R1_PaletteChangerMode.Left1toRight3:
-                                    case R1_PaletteChangerMode.Left2toRight3:
+                                    case SE_PALETTE_SWAPPER.Left1toRight3:
+                                    case SE_PALETTE_SWAPPER.Left2toRight3:
                                         currentPalette = 3;
                                         break;
                                 }

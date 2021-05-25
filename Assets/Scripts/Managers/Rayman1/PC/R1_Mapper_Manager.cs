@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -35,14 +36,14 @@ namespace R1Engine
         public string GetMapEventsFilePath(string levelDir) => levelDir + "EVENT.MEV";
         public string GetSaveEventsFilePath(string levelDir) => levelDir + "EVENT.SEV";
 
-        public string GetEventManfiestFilePath(R1_World world) => GetWorldFolderPath(world) + $"EVE.MLT";
+        public string GetEventManfiestFilePath(World world) => GetWorldFolderPath(world) + $"EVE.MLT";
 
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(R1_World world) => GetWorldName(world) + "/";
+        public string GetWorldFolderPath(World world) => GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the file path for the PCX tile map
@@ -95,12 +96,12 @@ namespace R1Engine
             Controller.DetailedState = $"Loading map data";
             await Controller.WaitIfNecessary();
 
-            var mapData = FileFactory.Read<MapData>(mapPath, context);
+            var mapData = FileFactory.Read<Mapper_MapData>(mapPath, context);
 
             Controller.DetailedState = $"Loading event data";
             await Controller.WaitIfNecessary();
 
-            var mapEvents = FileFactory.Read<R1Jaguar_MapEvents>(mapEventsPath, context);
+            var mapEvents = FileFactory.Read<JAG_MapEvents>(mapEventsPath, context);
             var saveEvents = R1FileFactory.ReadText<R1_Mapper_SaveEvents>(saveEventsPath, context);
             var csv = R1FileFactory.ReadText<R1_Mapper_EventManifest>(eventsCsvPath, context);
 
@@ -116,7 +117,7 @@ namespace R1Engine
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, vgaPalette) : new Unity_ObjectManager_R1.DESData[0];
 
             // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
             var maps = new Unity_Map[]
             {
@@ -130,7 +131,11 @@ namespace R1Engine
 
                     // Create the tile arrays
                     TileSet = new Unity_TileSet[1],
-                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(new MapTile()
+                    {
+                        TileMapY = x.TileIndex,
+                        CollisionType = x.BlockType
+                    })).ToArray(),
                 }
             };
 
@@ -166,7 +171,7 @@ namespace R1Engine
             var objManager = new Unity_ObjectManager_R1(
                 context: context, 
                 des: eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), 
-                eta: GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), 
+                eta: GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), 
                 linkTable: linkTable, 
                 usesPointers: false,
                 hasDefinedDesEtaNames: true);
@@ -199,7 +204,7 @@ namespace R1Engine
                     if (def == null)
                         throw new Exception($"No matching event definition found for {instance.EventDefinitionKey}");
 
-                    var ed = new R1_EventData()
+                    var ed = new ObjData()
                     {
                         Type = def.Type,
                         Etat = def.Etat,
@@ -215,18 +220,18 @@ namespace R1Engine
                         HitSprite = def.HitSprite,
 
                         PS1Demo_Unk1 = new byte[40],
-                        CollisionTypes = new R1_TileCollisionType[5],
+                        CollisionTypes = new TileCollisionType[5],
 
-                        CommandContexts = new R1_EventData.CommandContext[]
+                        CommandContexts = new ObjData.CommandContext[]
                         {
-                            new R1_EventData.CommandContext()
+                            new ObjData.CommandContext()
                         },
 
                         LabelOffsets = new ushort[0],
-                        Commands = R1_EventCommandCollection.FromBytes(def.EventCommands, context.GetR1Settings()),
+                        Commands = CommandCollection.FromBytes(def.EventCommands, () => new R1Context(context.GetR1Settings())),
                     };
 
-                    ed.SetFollowEnabled(context.GetR1Settings(), def.FollowEnabled > 0);
+                    ed.SetFollowEnabled(context.GetSettings<Ray1Settings>(), def.FollowEnabled > 0);
 
                     // Add the event
                     levelEvents.Add(new Unity_Object_R1(
@@ -244,7 +249,7 @@ namespace R1Engine
                 maps: maps,
                 objManager: objManager,
                 eventData: levelEvents,
-                rayman: new Unity_Object_R1(R1_EventData.GetRayman(context, levelEvents.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS)?.EventData), objManager));
+                rayman: new Unity_Object_R1(ObjData.GetRayman(context, levelEvents.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == ObjType.TYPE_RAY_POS)?.EventData), objManager));
 
             Controller.DetailedState = $"Creating tileset";
             await Controller.WaitIfNecessary();

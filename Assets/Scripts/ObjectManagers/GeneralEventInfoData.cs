@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -18,7 +19,7 @@ namespace R1Engine
             ushort type, string typeName, 
             byte etat, byte subEtat, 
             string des, string eta,
-            R1_World[] worlds, Engine[] engines,
+            World[] worlds, Engine[] engines,
             byte offsetBx, byte offsetBy, byte offsetHy,
             byte followSprite, uint hitPoints, byte hitSprite, bool followEnabled, 
             string[] connectedEvents, 
@@ -62,7 +63,7 @@ namespace R1Engine
         public string DES { get; }
         public string ETA { get; }
 
-        public R1_World[] Worlds { get; }
+        public World[] Worlds { get; }
         public Engine[] Engines { get; } // R1, EDU, KIT
 
         public byte OffsetBX { get; }
@@ -134,27 +135,27 @@ namespace R1Engine
                         byte nextByteValue() => Byte.Parse(nextValue());
                         //T? nextEnumValue<T>() where T : struct => Enum.TryParse(nextValue(), out T parsedEnum) ? (T?)parsedEnum : null;
                         ushort[] next16ArrayValue() => nextValue().Split('-').Where(x => !String.IsNullOrWhiteSpace(x)).Select(UInt16.Parse).ToArray();
-                        int?[] next32NullableArrayValue() => nextValue().Split('-').Select(x => String.IsNullOrWhiteSpace(x) ? null : (int?)Int32.Parse(x)).ToArray();
+                        //int?[] next32NullableArrayValue() => nextValue().Split('-').Select(x => String.IsNullOrWhiteSpace(x) ? null : (int?)Int32.Parse(x)).ToArray();
                         int[] next32ArrayValue() => nextValue().Split('-').Select(Int32.Parse).ToArray();
                         byte[] next8ArrayValue() => nextValue().Split('-').Where(x => !String.IsNullOrWhiteSpace(x)).Select(Byte.Parse).ToArray();
                         string[] nextStringArrayValue() => nextValue().Split('-').ToArray();
 
-                        IDictionary<R1_World, T> toDictionary<T>(IList<T> values)
-                        {
-                            var dict = WorldHelpers.GetR1Worlds().ToDictionary(x => x, x => default(T));
+                        //IDictionary<R1_World, T> toDictionary<T>(IList<T> values)
+                        //{
+                        //    var dict = WorldHelpers.GetR1Worlds().ToDictionary(x => x, x => default(T));
 
-                            for (int i = 1; i < values.Count + 1; i++)
-                                dict[(R1_World)i] = values[i - 1];
+                        //    for (int i = 1; i < values.Count + 1; i++)
+                        //        dict[(R1_World)i] = values[i - 1];
 
-                            return dict;
-                        }
+                        //    return dict;
+                        //}
 
                         // Add the item to the output
                         output.Add(new GeneralEventInfoData(name: nextValue(), codeNames: nextStringArrayValue(), 
                             type: nextUShortValue(), typeName: nextValue(), 
                             etat: nextByteValue(), subEtat: nextByteValue(), 
                             des: nextValue(), eta: nextValue(),
-                            worlds: next32ArrayValue().Select(x => (R1_World)x).ToArray(), engines: nextStringArrayValue().Select(x => (Engine)Enum.Parse(typeof(Engine), x)).ToArray(),
+                            worlds: next32ArrayValue().Select(x => (World)x).ToArray(), engines: nextStringArrayValue().Select(x => (Engine)Enum.Parse(typeof(Engine), x)).ToArray(),
                             offsetBx: nextByteValue(), offsetBy: nextByteValue(), offsetHy: nextByteValue(), 
                             followSprite: nextByteValue(), hitPoints: nextUIntValue(), hitSprite: nextByteValue(), followEnabled: nextBoolValue(), 
                             connectedEvents: nextStringArrayValue(), 

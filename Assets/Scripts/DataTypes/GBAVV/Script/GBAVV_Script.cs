@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-
+using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine

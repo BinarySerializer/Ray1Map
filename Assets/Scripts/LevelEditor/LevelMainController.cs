@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -242,14 +243,14 @@ namespace R1Engine
                 if (e.ObjData is Unity_Object_R1 r1Obj)
                 {
                     Enum[] exceptions = {
-                        R1_EventType.TYPE_GENERATING_DOOR,
-                        R1_EventType.TYPE_DESTROYING_DOOR,
-                        R1_EventType.MS_scintillement,
-                        R1_EventType.MS_super_gendoor,
-                        R1_EventType.MS_super_kildoor,
-                        R1_EventType.MS_compteur,
-                        R1_EventType.TYPE_RAY_POS,
-                        R1_EventType.TYPE_INDICATOR,
+                        ObjType.TYPE_GENERATING_DOOR,
+                        ObjType.TYPE_DESTROYING_DOOR,
+                        ObjType.MS_scintillement,
+                        ObjType.MS_super_gendoor,
+                        ObjType.MS_super_kildoor,
+                        ObjType.MS_compteur,
+                        ObjType.TYPE_RAY_POS,
+                        ObjType.TYPE_INDICATOR,
                     };
 
                     if (exceptions.Contains(r1Obj.EventData.Type))
@@ -282,12 +283,12 @@ namespace R1Engine
                 bool showLinksForObj(Unity_ObjBehaviour ee)
                 {
                     if (ee.ObjData is Unity_Object_R1 r1Object)
-                        return (r1Object.EventData.Type == R1_EventType.TYPE_GENERATING_DOOR ||
-                                r1Object.EventData.Type == R1_EventType.TYPE_DESTROYING_DOOR ||
-                                r1Object.EventData.Type == R1_EventType.MS_scintillement ||
-                                r1Object.EventData.Type == R1_EventType.MS_super_gendoor ||
-                                r1Object.EventData.Type == R1_EventType.MS_super_kildoor ||
-                                r1Object.EventData.Type == R1_EventType.MS_compteur);
+                        return (r1Object.EventData.Type == ObjType.TYPE_GENERATING_DOOR ||
+                                r1Object.EventData.Type == ObjType.TYPE_DESTROYING_DOOR ||
+                                r1Object.EventData.Type == ObjType.MS_scintillement ||
+                                r1Object.EventData.Type == ObjType.MS_super_gendoor ||
+                                r1Object.EventData.Type == ObjType.MS_super_kildoor ||
+                                r1Object.EventData.Type == ObjType.MS_compteur);
 
                     return ee.ObjData.EditorLinkGroup != 0;
                 }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using BinarySerializer;
 using BinarySerializer.Image;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -66,21 +67,21 @@ namespace R1Engine
         /// Gets the short name for the world
         /// </summary>
         /// <returns>The short world name</returns>
-        public override string GetShortWorldName(R1_World world)
+        public override string GetShortWorldName(World world)
         {
             switch (world)
             {
-                case R1_World.Jungle:
+                case World.Jungle:
                     return "JUN";
-                case R1_World.Music:
+                case World.Music:
                     return "MUS";
-                case R1_World.Mountain:
+                case World.Mountain:
                     return "MON";
-                case R1_World.Image:
+                case World.Image:
                     return "IMG";
-                case R1_World.Cave:
+                case World.Cave:
                     return "CAV";
-                case R1_World.Cake:
+                case World.Cake:
                     return "CAK";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
@@ -122,7 +123,7 @@ namespace R1Engine
             };
         }
 
-        public override async UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax)
+        public override async UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax)
         {
             return (await LoadPCXAsync(context, world.Plan0NumPcx[parallax ? level.ScrollDiffFNDIndex : level.FNDIndex])).ToTexture(true);
         }
@@ -155,17 +156,17 @@ namespace R1Engine
             return pcx;
         }
 
-        protected R1_PC_EncryptedFileArchiveEntry[] LoadVignetteHeader(Context context)
+        protected PC_FileArchiveEntry[] LoadVignetteHeader(Context context)
         {
             var s = context.Deserializer;
 
-            var headerBytes = R1_PC_ArchiveHeaders.GetHeader(context.GetR1Settings(), "VIGNET.DAT");
+            var headerBytes = PC_ArchiveHeaderTables.GetHeader(context.GetSettings<Ray1Settings>(), "VIGNET.DAT");
             var headerLength = headerBytes.Length / 12;
 
             var headerStream = new MemoryStream(headerBytes);
             var file = s.Context.AddStreamFile($"VIGNET_Header", headerStream);
 
-            return s.DoAt(file.StartPointer, () => s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(default, headerLength, name: "Entries"));
+            return s.DoAt(file.StartPointer, () => s.SerializeObjectArray<PC_FileArchiveEntry>(default, headerLength, name: "Entries"));
         }
 
         public override void ExtractVignette(GameSettings settings, string vigPath, string outputDir)
@@ -173,7 +174,7 @@ namespace R1Engine
             // Create a new context
             using (var context = new R1Context(settings))
             {
-                R1_PC_EncryptedFileArchiveEntry[] entries = LoadVignetteHeader(context);
+                PC_FileArchiveEntry[] entries = LoadVignetteHeader(context);
                 var s = context.Deserializer;
 
                 // Extract every .pcx file

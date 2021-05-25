@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BinarySerializer;
+using BinarySerializer.GBA;
 using BinarySerializer.Image;
 
 

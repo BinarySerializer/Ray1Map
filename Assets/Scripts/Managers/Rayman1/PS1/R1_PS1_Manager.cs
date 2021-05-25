@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -26,14 +27,14 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override Unity_TileSet GetTileSet(Context context)
         {
-            if (context.GetR1Settings().R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == World.Menu)
                 return new Unity_TileSet(Settings.CellSize);
 
             // Get the file name
             var filename = GetWorldFilePath(context.GetR1Settings());
 
             // Read the file
-            var worldFile = FileFactory.Read<R1_PS1_WorldFile>(filename, context);
+            var worldFile = FileFactory.Read<PS1_WorldFile>(filename, context);
 
             int tileCount = worldFile.TilePaletteIndexTable.Length;
             int width = TileSetWidth * Settings.CellSize;
@@ -77,10 +78,10 @@ namespace R1Engine
             // TODO: Support BigRay + font for US version
 
             // Read the files
-            var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context) : null;
-            var world = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context) : null;
-            var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context).TextureBlock : null;
-            var bigRay = mode == VRAMMode.BigRay ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context) : null;
+            var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context) : null;
+            var world = mode == VRAMMode.Level ? FileFactory.Read<PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context) : null;
+            var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context).TextureBlock : null;
+            var bigRay = mode == VRAMMode.BigRay ? FileFactory.Read<PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context) : null;
             var font = mode == VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.GetR1Settings()), context, (s, o) => o.Length = s.CurrentLength) : null;
 
             //var bgPath = GetLevelBackgroundFilePath(context.GetR1Settings(), true);
@@ -127,8 +128,8 @@ namespace R1Engine
                 /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
                 vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
                 if (mode == VRAMMode.Level) {
-                    vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                    vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
+                    vram.AddDataAt(12, 1, 0, paletteY++, world.ObjPalette1.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
+                    vram.AddDataAt(12, 1, 0, paletteY++, world.ObjPalette2.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
                 } else {
                     vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
                     vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
@@ -169,12 +170,12 @@ namespace R1Engine
         {
             // Read the allfix file
             await LoadExtraFile(context, GetAllfixFilePath(context.GetR1Settings()), false);
-            FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
+            FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context);
 
-            R1_PS1_EventBlock eventBlock = null;
+            PS1_ObjBlock objBlock = null;
             MapData mapData;
 
-            if (context.GetR1Settings().R1_World != R1_World.Menu)
+            if (context.GetR1Settings().R1_World != World.Menu)
             {
                 Controller.DetailedState = $"Loading world file";
 
@@ -182,15 +183,15 @@ namespace R1Engine
 
                 // Read the world file
                 await LoadExtraFile(context, GetWorldFilePath(context.GetR1Settings()), false);
-                FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
+                FileFactory.Read<PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);
 
                 Controller.DetailedState = $"Loading map data";
 
                 // Read the level data
                 await LoadExtraFile(context, GetLevelFilePath(context.GetR1Settings()), true);
-                var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
+                var level = FileFactory.Read<PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context);
 
-                eventBlock = level.EventData;
+                objBlock = level.ObjData;
                 mapData = level.MapData;
             }
             else
@@ -201,7 +202,7 @@ namespace R1Engine
             }
 
             // Load the level
-            return await LoadAsync(context, mapData, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, 
+            return await LoadAsync(context, mapData, objBlock?.Objects, objBlock?.ObjectLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, 
                 // TODO: Include bg block once we parse the palette correctly
                 null);
         }
@@ -214,14 +215,14 @@ namespace R1Engine
         public override UniTask SaveLevelAsync(Context context, Unity_Level lvl)
         {
             // Menu levels can't be saved
-            if (context.GetR1Settings().R1_World == R1_World.Menu)
+            if (context.GetR1Settings().R1_World == World.Menu)
                 return UniTask.CompletedTask;
 
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.GetR1Settings());
 
             // Get the level data
-            var lvlData = context.GetMainFileObject<R1_PS1_LevFile>(lvlPath);
+            var lvlData = context.GetMainFileObject<PS1_LevFile>(lvlPath);
 
             // Get the object manager
             var objManager = (Unity_ObjectManager_R1)lvl.ObjManager;
@@ -232,7 +233,7 @@ namespace R1Engine
                 for (int x = 0; x < lvlData.MapData.Width; x++)
                 {
                     // Set the tile
-                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = lvl.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data;
+                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = lvl.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data.ToR1MapTile();
                 }
             }
 
@@ -244,12 +245,12 @@ namespace R1Engine
                     ed.PS1Demo_Unk1 = new byte[40];
 
                 if (ed.CollisionTypes == null)
-                    ed.CollisionTypes = new R1_TileCollisionType[5];
+                    ed.CollisionTypes = new TileCollisionType[5];
 
                 if (ed.CommandContexts == null)
-                    ed.CommandContexts = new R1_EventData.CommandContext[]
+                    ed.CommandContexts = new ObjData.CommandContext[]
                     {
-                        new R1_EventData.CommandContext()
+                        new ObjData.CommandContext()
                     };
 
                 // TODO: Do this in the Unity_Object instead
@@ -257,9 +258,9 @@ namespace R1Engine
                 ed.AnimationsCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
                 // TODO: Get from DESData in obj manager instead?
-                ed.ImageDescriptors = FileFactory.Read<ObjectArray<R1_ImageDescriptor>>(ed.SpritesPointer, context, (s, o) => o.Length = ed.SpritesCount).Value;
-                ed.AnimDescriptors = FileFactory.Read<ObjectArray<R1_PS1_AnimationDescriptor>>(ed.AnimationsPointer, context, (s, o) => o.Length = ed.AnimationsCount).Value;
-                ed.ETA = context.Cache.FromOffset<R1_PS1_ETA>(ed.ETAPointer);
+                ed.ImageDescriptors = FileFactory.Read<ObjectArray<Sprite>>(ed.SpritesPointer, context, (s, o) => o.Pre_Length = ed.SpritesCount).Value;
+                ed.AnimDescriptors = FileFactory.Read<ObjectArray<Animation>>(ed.AnimationsPointer, context, (s, o) => o.Pre_Length = ed.AnimationsCount).Value;
+                ed.ETA = context.Cache.FromOffset<BinarySerializer.Ray1.ETA>(ed.ETAPointer);
                 
                 // TODO: Update this
                 //ed.ImageBuffer = des.ImageBuffer;
@@ -270,11 +271,11 @@ namespace R1Engine
             var newEventLinkTable = objManager.LinkTable.Select(x => (byte)x).ToArray();
 
             // Relocate pointers to a new block of data we append to the level file
-            UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.EventData, newEvents, newEventLinkTable, context.GetR1Settings());
+            UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.ObjData, newEvents, newEventLinkTable, context.GetR1Settings());
 
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
-            FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);
+            FileFactory.Write<PS1_LevFile>(lvlPath, context);
 
             // Create ISO for the modified data
             CreateISO(context);
@@ -282,7 +283,7 @@ namespace R1Engine
             return UniTask.CompletedTask;
         }
 
-        public void UpdateAndFillDataBlock(Pointer offset, R1_PS1_EventBlock originalBlock, R1_EventData[] events, byte[] eventLinkingTable, GameSettings settings)
+        public void UpdateAndFillDataBlock(Pointer offset, PS1_ObjBlock originalBlock, ObjData[] events, byte[] eventLinkingTable, GameSettings settings)
         {
             long currentOffset = 0;
             Pointer getCurrentBlockPointer()
@@ -294,15 +295,15 @@ namespace R1Engine
                 return offset + (1 * 4) + currentOffset;
             }
 
-            originalBlock.EventCount = (byte)events.Length;
-            originalBlock.EventsPointer = getCurrentBlockPointer();
-            originalBlock.Events = events;
+            originalBlock.ObjectsCount = (byte)events.Length;
+            originalBlock.ObjectsPointer = getCurrentBlockPointer();
+            originalBlock.Objects = events;
 
             currentOffset += events.Length * 112;
 
-            originalBlock.EventLinkCount = (byte)eventLinkingTable.Length;
-            originalBlock.EventLinksPointer = getCurrentBlockPointer();
-            originalBlock.EventLinkingTable = eventLinkingTable;
+            originalBlock.ObjectLinksCount = (byte)eventLinkingTable.Length;
+            originalBlock.ObjectLinksPointer = getCurrentBlockPointer();
+            originalBlock.ObjectLinkingTable = eventLinkingTable;
 
             currentOffset += eventLinkingTable.Length;
 
@@ -311,7 +312,7 @@ namespace R1Engine
                 if (e.Commands != null)
                 {
                     e.CommandsPointer = getCurrentBlockPointer();
-                    currentOffset += e.Commands.ToBytes(settings).Length;
+                    currentOffset += e.Commands.ToBytes(() => new R1Context(settings)).Length;
                 }
                 else
                 {
@@ -386,7 +387,7 @@ namespace R1Engine
                         }
 
                         // Read the game exe
-                        var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+                        var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
 
                         // Update every file path in the file table
                         foreach (var fileEntry in exe.FileTable)
@@ -408,7 +409,7 @@ namespace R1Engine
                         }
 
                         // Write the game exe
-                        FileFactory.Write<R1_PS1_Executable>(ExeFilePath, context);
+                        FileFactory.Write<PS1_Executable>(ExeFilePath, context);
                     }
                 }
             }

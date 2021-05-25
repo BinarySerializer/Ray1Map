@@ -1,7 +1,9 @@
-﻿namespace R1Engine
+﻿using BinarySerializer.Ray1;
+
+namespace R1Engine
 {
     /// <summary>
-    /// Extension methods for <see cref="IR1_AnimationDescriptor"/>
+    /// Extension methods for <see cref="IAnimation"/>
     /// </summary>
     public static class AnimationDescriptorExtensions
     {
@@ -10,7 +12,7 @@
         /// </summary>
         /// <param name="animationDescriptor">The animation descriptor</param>
         /// <returns>The common animation</returns>
-        public static Unity_ObjAnimation ToCommonAnimation(this IR1_AnimationDescriptor animationDescriptor, int baseSpriteIndex = 0)
+        public static Unity_ObjAnimation ToCommonAnimation(this IAnimation animationDescriptor, int baseSpriteIndex = 0)
         {
             // Create the animation
             var animation = new Unity_ObjAnimation
@@ -38,7 +40,7 @@
 
                         // Create the animation part
                         var part = new Unity_ObjAnimationPart {
-                            ImageIndex = animationLayer.ImageIndex + baseSpriteIndex,
+                            ImageIndex = animationLayer.SpriteIndex + baseSpriteIndex,
                             XPosition = animationLayer.XPosition,
                             YPosition = animationLayer.YPosition,
                             IsFlippedHorizontally = animationLayer.IsFlippedHorizontally,

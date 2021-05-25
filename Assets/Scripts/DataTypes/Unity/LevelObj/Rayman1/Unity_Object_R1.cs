@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using UnityEngine;
+using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
     public class Unity_Object_R1 : Unity_Object
     {
-        public Unity_Object_R1(R1_EventData eventData, Unity_ObjectManager_R1 objManager, int? ETAIndex = null, R1_WorldMapInfo worldInfo = null)
+        public Unity_Object_R1(ObjData eventData, Unity_ObjectManager_R1 objManager, int? ETAIndex = null, WorldInfo worldInfo = null)
         {
             // Set properties
             EventData = eventData;
@@ -42,17 +44,17 @@ namespace R1Engine
             }
         }
 
-        public R1_EventData EventData { get; }
-        public R1_WorldMapInfo WorldInfo { get; }
+        public ObjData EventData { get; }
+        public WorldInfo WorldInfo { get; }
         public byte ForceFrame { get; set; }
 
         public Unity_ObjectManager_R1 ObjManager { get; }
 
-        public R1_EventState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
-        public R1_EventState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
-        public R1_EventState LinkedState => GetState(CurrentState?.LinkedEtat ?? -1, CurrentState?.LinkedSubEtat ?? -1);
+        public ObjState CurrentState => GetState(EventData.Etat, EventData.SubEtat);
+        public ObjState InitialState => GetState(EventData.InitialEtat, EventData.InitialSubEtat);
+        public ObjState LinkedState => GetState(CurrentState?.LinkedEtat ?? -1, CurrentState?.LinkedSubEtat ?? -1);
 
-        protected R1_EventState GetState(int etat, int subEtat) => ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
+        protected ObjState GetState(int etat, int subEtat) => ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data?.ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat);
 
         public int DESIndex
         {
@@ -118,12 +120,12 @@ namespace R1Engine
             }
         }
 
-        public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.GetR1Settings());
+        public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.GetSettings<Ray1Settings>());
 
         public override BinarySerializable SerializableData => EventData;
 
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
-        public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == R1_EventType.TYPE_DARK2_PINK_FLY);
+        public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.GetR1Settings().EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == ObjType.TYPE_DARK2_PINK_FLY);
         public override bool IsEditor => TypeInfo?.Flag == ObjTypeFlag.Editor;
 
         public override bool IsActive
@@ -133,7 +135,7 @@ namespace R1Engine
                 if (IsPCFormat)
                 {
                     // Unk_28 is also some active flag, but it's 0 for Rayman
-                    return EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.SwitchedOn) && EventData.IsActive == 1;
+                    return EventData.PC_Flags.HasFlag(ObjData.PC_EventFlags.SwitchedOn) && EventData.IsActive == 1;
                 }
                 else
                 {
@@ -144,13 +146,13 @@ namespace R1Engine
                     }
                     else
                     {
-                        return EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.SwitchedOn);
+                        return EventData.PS1_RuntimeFlags.HasFlag(ObjData.PS1_EventFlags.SwitchedOn);
                     }
                 }
             }
         }
 
-        public override bool CanBeLinkedToGroup => !(ObjManager.EventFlags?[(int)EventData.Type].HasFlag(R1_EventFlags.NoLink) ?? false) && WorldInfo == null && EventData.Type != R1_EventType.TYPE_RAYMAN;
+        public override bool CanBeLinkedToGroup => !(ObjManager.EventFlags?[(int)EventData.Type].HasFlag(ObjTypeFlags.NoLink) ?? false) && WorldInfo == null && EventData.Type != ObjType.TYPE_RAYMAN;
         public override bool CanBeLinked => WorldInfo != null;
 
         public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type.ToString().Replace("TYPE_","")}" : $"TYPE_{(ushort)EventData.Type}";
@@ -164,7 +166,7 @@ namespace R1Engine
             {
                 if (IsPCFormat)
                 {
-                    if (EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.IsFlipped))
+                    if (EventData.PC_Flags.HasFlag(ObjData.PC_EventFlags.IsFlipped))
                         return true;
                 }
                 else
@@ -176,7 +178,7 @@ namespace R1Engine
                     }
                     else
                     {
-                        if (EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.IsFlipped))
+                        if (EventData.PS1_RuntimeFlags.HasFlag(ObjData.PS1_EventFlags.IsFlipped))
                             return true;
                     }
                 }
@@ -186,11 +188,11 @@ namespace R1Engine
                     return false;
 
                 // Check if it's the pin event and if the hp flag is set
-                if (EventData.Type == R1_EventType.TYPE_PUNAISE3 && EventData.HitPoints == 1)
+                if (EventData.Type == ObjType.TYPE_PUNAISE3 && EventData.HitPoints == 1)
                     return true;
 
                 // If the first command changes its direction to right, flip the event (a bit hacky, but works for trumpets etc.)
-                if (EventData.Commands?.Commands?.FirstOrDefault()?.Command == R1_EventCommandType.GO_RIGHT)
+                if (EventData.Commands?.Commands?.FirstOrDefault()?.CommandType == CommandType.GO_RIGHT)
                     return true;
 
                 return false;
@@ -209,15 +211,15 @@ namespace R1Engine
                 yield break;
 
             // Make sure the current state and type supports collision
-            if (CurrentState == null || CurrentState.ZDCFlags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.NoCollision)))
+            if (CurrentState == null || CurrentState.Flags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(ObjTypeFlags.NoCollision)))
                 yield break;
 
-            var hurtsRay = ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.HurtsRayman) && CurrentState?.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectRay) == true;
+            var hurtsRay = ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(ObjTypeFlags.HurtsRayman) && CurrentState?.Flags.HasFlag(ObjState.StateFlags.DetectRay) == true;
 
             // Attempt to set the collision type
             var colType = hurtsRay 
                 ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox 
-                : CurrentState.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectFist) 
+                : CurrentState.Flags.HasFlag(ObjState.StateFlags.DetectFist) 
                     ? Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox 
                     : Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
 
@@ -354,8 +356,8 @@ namespace R1Engine
             }
         }
 
-        protected HashSet<R1_EventState> EncounteredStates { get; } = new HashSet<R1_EventState>(); // Keep track of "encountered" states if we have state switching set to loop to avoid entering an infinite loop
-        protected R1_EventState PrevInitialState { get; set; }
+        protected HashSet<ObjState> EncounteredStates { get; } = new HashSet<ObjState>(); // Keep track of "encountered" states if we have state switching set to loop to avoid entering an infinite loop
+        protected ObjState PrevInitialState { get; set; }
 
         protected override void OnFinishedAnimation()
         {
@@ -417,7 +419,7 @@ namespace R1Engine
             var zdc = ObjManager.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type);
 
             if (zdc != null)
-                EventData.TypeZDC = new R1_ZDCEntry()
+                EventData.TypeZDC = new ZDCEntry()
                 {
                     ZDCCount = zdc.ZDCCount,
                     ZDCIndex = zdc.ZDCIndex
@@ -438,7 +440,7 @@ namespace R1Engine
                 get => (ushort)Obj.EventData.Type;
                 set
                 {
-                    Obj.EventData.Type = (R1_EventType) value;
+                    Obj.EventData.Type = (ObjType) value;
                     Obj.UpdateZDC();
                 }
             }
@@ -512,8 +514,8 @@ namespace R1Engine
 
             public bool FollowEnabled
             {
-                get => Obj.EventData.GetFollowEnabled(Obj.ObjManager.Context.GetR1Settings());
-                set => Obj.EventData.SetFollowEnabled(Obj.ObjManager.Context.GetR1Settings(), value);
+                get => Obj.EventData.GetFollowEnabled(Obj.ObjManager.Context.GetSettings<Ray1Settings>());
+                set => Obj.EventData.SetFollowEnabled(Obj.ObjManager.Context.GetSettings<Ray1Settings>(), value);
             }
         }
 

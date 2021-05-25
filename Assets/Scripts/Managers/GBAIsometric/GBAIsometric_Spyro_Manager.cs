@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using BinarySerializer;
+using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine

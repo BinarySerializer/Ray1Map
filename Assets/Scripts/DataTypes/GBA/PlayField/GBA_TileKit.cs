@@ -1,6 +1,7 @@
 ﻿
 using System;
 using BinarySerializer;
+using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine

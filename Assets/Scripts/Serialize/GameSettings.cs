@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Text;
-using BinarySerializer;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -93,9 +92,9 @@ namespace R1Engine
 
         // Specific game helpers
 
-        public R1_World R1_World
+        public World R1_World
         {
-            get => (R1_World)World;
+            get => (World)World;
             set => World = (int)value;
         }
 
@@ -109,5 +108,51 @@ namespace R1Engine
 
         public IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);
         public T GetGameManagerOfType<T>() where T : IGameManager => (T)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);
+        public Ray1Settings GetRay1Settings()
+        {
+            Ray1EngineVersion engineVersion = EngineVersion switch
+            {
+                EngineVersion.R1_PS1 => Ray1EngineVersion.R1_PS1,
+                EngineVersion.R2_PS1 => Ray1EngineVersion.R2_PS1,
+                EngineVersion.R1_PS1_JP => Ray1EngineVersion.R1_PS1_JP,
+                EngineVersion.R1_PS1_JPDemoVol3 => Ray1EngineVersion.R1_PS1_JPDemoVol3,
+                EngineVersion.R1_PS1_JPDemoVol6 => Ray1EngineVersion.R1_PS1_JPDemoVol6,
+                EngineVersion.R1_Saturn => Ray1EngineVersion.R1_Saturn,
+                EngineVersion.R1_PC => Ray1EngineVersion.R1_PC,
+                EngineVersion.R1_PocketPC => Ray1EngineVersion.R1_PocketPC,
+                EngineVersion.R1_PC_Kit => Ray1EngineVersion.R1_PC_Kit,
+                EngineVersion.R1_PC_Edu => Ray1EngineVersion.R1_PC_Edu,
+                EngineVersion.R1_PS1_Edu => Ray1EngineVersion.R1_PS1_Edu,
+                EngineVersion.R1_GBA => Ray1EngineVersion.R1_GBA,
+                EngineVersion.R1_DSi => Ray1EngineVersion.R1_DSi,
+                EngineVersion.R1Jaguar => Ray1EngineVersion.R1Jaguar,
+                EngineVersion.R1Jaguar_Proto => Ray1EngineVersion.R1Jaguar_Proto,
+                EngineVersion.R1Jaguar_Demo => Ray1EngineVersion.R1Jaguar_Demo,
+                _ => throw new ArgumentOutOfRangeException()
+            };            
+            
+            Ray1PCVersion pcVersion = GameModeSelection switch
+            {
+                GameModeSelection.RaymanPC_1_00 => Ray1PCVersion.PC_1_00,
+                GameModeSelection.RaymanPC_1_10 => Ray1PCVersion.PC_1_10,
+                GameModeSelection.RaymanPC_1_12 => Ray1PCVersion.PC_1_12,
+                GameModeSelection.RaymanPC_1_20 => Ray1PCVersion.PC_1_20,
+                GameModeSelection.RaymanPC_1_21_JP => Ray1PCVersion.PC_1_21_JP,
+                GameModeSelection.RaymanPC_1_21 => Ray1PCVersion.PC_1_21,
+                GameModeSelection.RaymanPC_Demo_1 => Ray1PCVersion.PC_Demo_1,
+                GameModeSelection.RaymanPC_Demo_2 => Ray1PCVersion.PC_Demo_2,
+                GameModeSelection.RaymanPocketPC => Ray1PCVersion.PocketPC,
+                GameModeSelection.RaymanClassicMobile => Ray1PCVersion.Android,
+                _ => Ray1PCVersion.None
+            };
+
+            return new Ray1Settings(
+                engineVersion: engineVersion, 
+                world: R1_World, 
+                level: Level, 
+                pcVersion: pcVersion,
+                volume: EduVolume,
+                isFan: GameModeSelection == GameModeSelection.RaymanByHisFansPC || GameModeSelection == GameModeSelection.Rayman60LevelsPC);
+        }
     }
 }

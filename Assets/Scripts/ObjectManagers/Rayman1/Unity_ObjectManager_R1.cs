@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
     public class Unity_ObjectManager_R1 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null, R1_EventFlags[] eventFlags = null, bool hasDefinedDesEtaNames = false, Dictionary<WldObjType, R1_EventData> eventTemplates = null) : base(context)
+        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<ObjState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, ZDCEntry[] typeZDC = null, ZDCData[] zdcData = null, ObjTypeFlags[] eventFlags = null, bool hasDefinedDesEtaNames = false, Dictionary<WldObjType, ObjData> eventTemplates = null) : base(context)
         {
             // Set properties
             DES = des;
@@ -22,7 +23,7 @@ namespace R1Engine
             EventFlags = eventFlags;
             HasDefinedDesEtaNames = hasDefinedDesEtaNames;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
-            EventTemplates = eventTemplates ?? new Dictionary<WldObjType, R1_EventData>();
+            EventTemplates = eventTemplates ?? new Dictionary<WldObjType, ObjData>();
 
             // Set initial random index to a random value
             RandomIndex = (byte)new Random().Next(0, 256);
@@ -39,11 +40,11 @@ namespace R1Engine
         }
 
         public DataContainer<DESData>[] DES { get; }
-        public DataContainer<R1_EventState[][]>[] ETA { get; }
+        public DataContainer<ObjState[][]>[] ETA { get; }
         public Dictionary<long, int> DESLookup { get; } = new Dictionary<long, int>();
         public Dictionary<long, int> ETALookup { get; } = new Dictionary<long, int>();
 
-        public Dictionary<WldObjType, R1_EventData> EventTemplates { get; }
+        public Dictionary<WldObjType, ObjData> EventTemplates { get; }
 
         public ushort[] RandomArray { get; }
         public byte RandomIndex { get; set; }
@@ -57,9 +58,9 @@ namespace R1Engine
 
         public bool UsesPointers { get; }
 
-        public R1_ZDCEntry[] TypeZDC { get; }
-        public R1_ZDCData[] ZDCData { get; }
-        public R1_EventFlags[] EventFlags { get; }
+        public ZDCEntry[] TypeZDC { get; }
+        public ZDCData[] ZDCData { get; }
+        public ObjTypeFlags[] EventFlags { get; }
         public bool HasDefinedDesEtaNames { get; }
 
         public GeneralEventInfoData[] AvailableEvents { get; }
@@ -85,20 +86,20 @@ namespace R1Engine
                 (!HasDefinedDesEtaNames || (DES.Any(d => d.Name == x.DES) && ETA.Any(e => e.Name == x.ETA))));
         }
         
-        public GeneralEventInfoData FindMatchingEventInfo(R1_EventData e)
+        public GeneralEventInfoData FindMatchingEventInfo(ObjData e)
         {
             byte[] compiledCmds;
             ushort[] labelOffsets;
 
             if (UsesLocalCommands)
             {
-                var compiledData = e.Commands == null ? null : EventCommandCompiler.Compile(e.Commands, e.Commands.ToBytes(Context.GetR1Settings()));
-                compiledCmds = compiledData?.Commands?.ToBytes(Context.GetR1Settings()) ?? new byte[0];
+                var compiledData = e.Commands == null ? null : EventCommandCompiler.Compile(e.Commands, e.Commands.ToBytes(() => new R1Context(Context.GetR1Settings())));
+                compiledCmds = compiledData?.Commands?.ToBytes(() => new R1Context(Context.GetR1Settings())) ?? new byte[0];
                 labelOffsets = compiledData?.LabelOffsets ?? new ushort[0];
             }
             else
             {
-                compiledCmds = e.Commands?.ToBytes(Context.GetR1Settings()) ?? new byte[0];
+                compiledCmds = e.Commands?.ToBytes(() => new R1Context(Context.GetR1Settings())) ?? new byte[0];
                 labelOffsets = e.LabelOffsets ?? new ushort[0];
             }
 
@@ -123,7 +124,7 @@ namespace R1Engine
                                                      (!flags.HasFlag(EventMatchFlags.FollowSprite) || x.FollowSprite == e.FollowSprite) &&
                                                      (!flags.HasFlag(EventMatchFlags.HitPoints) || x.HitPoints == e.ActualHitPoints) &&
                                                      (!flags.HasFlag(EventMatchFlags.HitSprite) || x.HitSprite == e.HitSprite) &&
-                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.GetFollowEnabled(Context.GetR1Settings())) &&
+                                                     (!flags.HasFlag(EventMatchFlags.FollowEnabled) || x.FollowEnabled == e.GetFollowEnabled(Context.GetSettings<Ray1Settings>())) &&
                                                      (!flags.HasFlag(EventMatchFlags.Commands) || compareCommands(x)));
             }
 
@@ -194,23 +195,23 @@ namespace R1Engine
             var e = AvailableEvents[index];
 
             // Get the commands and label offsets
-            R1_EventCommandCollection cmds = null;
+            CommandCollection cmds = null;
             ushort[] labelOffsets = null;
 
             // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
             if (UsesLocalCommands)
             {
-                cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(R1_EventCommandCollection.FromBytes(e.Commands, Context.GetR1Settings()), e.LabelOffsets), e.Commands);
+                cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(CommandCollection.FromBytes(e.Commands, () => new R1Context(Context.GetR1Settings())), e.LabelOffsets), e.Commands);
             }
             else if (e.Commands.Any())
             {
-                cmds = R1_EventCommandCollection.FromBytes(e.Commands, Context.GetR1Settings());
+                cmds = CommandCollection.FromBytes(e.Commands, () => new R1Context(Context.GetR1Settings()));
                 labelOffsets = e.LabelOffsets.Any() ? e.LabelOffsets : null;
             }
 
-            var eventData = new Unity_Object_R1(new R1_EventData()
+            var eventData = new Unity_Object_R1(new ObjData()
             {
-                Type = (R1_EventType)e.Type,
+                Type = (ObjType)e.Type,
                 Etat = e.Etat,
                 SubEtat = e.SubEtat,
                 OffsetBX = e.OffsetBX,
@@ -223,7 +224,7 @@ namespace R1Engine
                 LabelOffsets = labelOffsets
             }, this, ETAIndex: ETA.FindItemIndex(x => x.Name == e.ETA));
 
-            eventData.EventData.SetFollowEnabled(Context.GetR1Settings(), e.FollowEnabled);
+            eventData.EventData.SetFollowEnabled(Context.GetSettings<Ray1Settings>(), e.FollowEnabled);
 
             // We need to set the hit points after the type
             eventData.EventData.ActualHitPoints = e.HitPoints;
@@ -242,7 +243,7 @@ namespace R1Engine
             // Hard-code event animations for the different Rayman types
             Unity_ObjGraphics rayDes = null;
 
-            var rayEvent = (Unity_Object_R1)level.Rayman ?? level.EventData.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS);
+            var rayEvent = (Unity_Object_R1)level.Rayman ?? level.EventData.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == ObjType.TYPE_RAY_POS);
 
             if (rayEvent != null)
                 rayDes = DES.ElementAtOrDefault(rayEvent.DESIndex)?.Data.Graphics;
@@ -250,7 +251,7 @@ namespace R1Engine
             if (rayDes == null)
                 return;
 
-            var miniRay = level.EventData.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_DEMI_RAYMAN);
+            var miniRay = level.EventData.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == ObjType.TYPE_DEMI_RAYMAN);
             var miniRayDESIndex = miniRay?.DESIndex;
 
             if (miniRayDESIndex == null && EventTemplates.ContainsKey(WldObjType.RayLittle))
@@ -281,7 +282,7 @@ namespace R1Engine
                 }
             }
 
-            var badRay = level.EventData.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_BLACK_RAY);
+            var badRay = level.EventData.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == ObjType.TYPE_BLACK_RAY);
 
             if (badRay != null)
             {
@@ -317,7 +318,7 @@ namespace R1Engine
             }
 
             // Set DES and ETA for worldmap
-            if (Context.GetR1Settings().R1_World == R1_World.Menu)
+            if (Context.GetR1Settings().R1_World == World.Menu)
             {
                 var mapObj = EventTemplates[WldObjType.MapObj];
                 var rayman = level.Rayman as Unity_Object_R1;
@@ -347,7 +348,7 @@ namespace R1Engine
                         // ?
                         rayman.XPosition = (short)(level.EventData[0].XPosition + 42 + 44 - rayman.EventData.OffsetBX);
                         rayman.YPosition = (short)(level.EventData[0].YPosition + 48 + 24 - rayman.EventData.OffsetBY);
-                        rayman.EventData.PC_Flags |= R1_EventData.PC_EventFlags.IsFlipped;
+                        rayman.EventData.PC_Flags |= ObjData.PC_EventFlags.IsFlipped;
                     }
                     else
                     {
@@ -371,7 +372,7 @@ namespace R1Engine
             }
         }
 
-        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R1>().FindItem(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS || x.EventData.Type == R1_EventType.TYPE_PANCARTE);
+        public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R1>().FindItem(x => x.EventData.Type == ObjType.TYPE_RAY_POS || x.EventData.Type == ObjType.TYPE_PANCARTE);
 
         public override void SaveObjects(IList<Unity_Object> objects)
         {
@@ -397,7 +398,7 @@ namespace R1Engine
 
             for (int i = 0; i < EventFlags.Length; i++)
             {
-                var type = (R1_EventType)i;
+                var type = (ObjType)i;
                 var attrFlag = type.GetAttribute<ObjTypeInfoAttribute>()?.Flag ?? ObjTypeFlag.Normal;
 
                 var line = $"{Convert.ToString((int)EventFlags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}";
@@ -434,7 +435,16 @@ namespace R1Engine
                 s = ed.HasPendingEdits ? (SerializerObject)context.Serializer : context.Deserializer;
                 s.Goto(currentOffset);
                 ed.EventData.Init(s.CurrentPointer);
-                ed.EventData.Serialize(s);
+                ed.EventData.Pre_IsSerializingFromMemory = true;
+
+                try
+                {
+                    ed.EventData.Serialize(s);
+                }
+                finally
+                {
+                    ed.EventData.Pre_IsSerializingFromMemory = false;
+                }
 
                 if (s is BinarySerializer.BinarySerializer)
                 {
@@ -518,7 +528,7 @@ namespace R1Engine
             return madeEdits;
         }
 
-        public byte GetDisplayPrio(R1_EventType type, int hitPoints, byte originalDisplayPrio)
+        public byte GetDisplayPrio(ObjType type, int hitPoints, byte originalDisplayPrio)
         {
             var typeValue = (ushort)type;
 
@@ -691,17 +701,17 @@ namespace R1Engine
 
         public class DESData
         {
-            public DESData(Unity_ObjGraphics graphics, R1_ImageDescriptor[] imageDescriptors, Pointer imageDescriptorPointer = null, Pointer animationDescriptorPointer = null, Pointer imageBufferPointer = null)
+            public DESData(Unity_ObjGraphics graphics, Sprite[] imageDescriptors, Pointer imageDescriptorPointer = null, Pointer animationDescriptorPointer = null, Pointer imageBufferPointer = null)
             {
                 Graphics = graphics;
-                ImageDescriptors = imageDescriptors ?? new R1_ImageDescriptor[0];
+                ImageDescriptors = imageDescriptors ?? new Sprite[0];
                 ImageDescriptorPointer = imageDescriptorPointer;
                 AnimationDescriptorPointer = animationDescriptorPointer;
                 ImageBufferPointer = imageBufferPointer;
             }
 
             public Unity_ObjGraphics Graphics { get; }
-            public R1_ImageDescriptor[] ImageDescriptors { get; }
+            public Sprite[] ImageDescriptors { get; }
             public Pointer ImageDescriptorPointer { get; }
             public Pointer AnimationDescriptorPointer { get; }
             public Pointer ImageBufferPointer { get; }
@@ -712,13 +722,13 @@ namespace R1Engine
             public Dictionary<string, Pointer> Pointers { get; set; } = new Dictionary<string, Pointer>();
 
             public int MapTime { get; set; }
-            public R1_Poing Poing { get; set; }
-            public R1_StatusBar StatusBar { get; set; }
+            public Poing Poing { get; set; }
+            public StatusBar StatusBar { get; set; }
             public short ActiveObjCount { get; set; }
-            public R1_RayEvtsFlags RayEventFlags { get; set; }
+            public RayEvts RayEventFlags { get; set; }
             public short NumLevelChoice { get; set; }
             public short NumWorldChoice { get; set; }
-            public R1_RayMode RayMode { get; set; }
+            public RayMode RayMode { get; set; }
             public short RayWindForce { get; set; }
             public short NumLevel { get; set; }
             public short NumWorld { get; set; }
@@ -778,13 +788,13 @@ namespace R1Engine
             public void Update(SerializerObject s)
             {
                 s.DoAt(Pointers.TryGetItem(nameof(MapTime)), () => MapTime = s.Serialize<int>(MapTime, name: nameof(MapTime)));
-                s.DoAt(Pointers.TryGetItem(nameof(Poing)), () => Poing = s.SerializeObject<R1_Poing>(Poing, name: nameof(Poing)));
-                s.DoAt(Pointers.TryGetItem(nameof(StatusBar)), () => StatusBar = s.SerializeObject<R1_StatusBar>(StatusBar, name: nameof(StatusBar)));
+                s.DoAt(Pointers.TryGetItem(nameof(Poing)), () => Poing = s.SerializeObject<Poing>(Poing, name: nameof(Poing)));
+                s.DoAt(Pointers.TryGetItem(nameof(StatusBar)), () => StatusBar = s.SerializeObject<StatusBar>(StatusBar, name: nameof(StatusBar)));
                 s.DoAt(Pointers.TryGetItem(nameof(ActiveObjCount)), () => ActiveObjCount = s.Serialize<short>(ActiveObjCount, name: nameof(ActiveObjCount)));
-                s.DoAt(Pointers.TryGetItem(nameof(RayEventFlags)), () => RayEventFlags = s.Serialize<R1_RayEvtsFlags>(RayEventFlags, name: nameof(RayEventFlags)));
+                s.DoAt(Pointers.TryGetItem(nameof(RayEventFlags)), () => RayEventFlags = s.Serialize<RayEvts>(RayEventFlags, name: nameof(RayEventFlags)));
                 s.DoAt(Pointers.TryGetItem(nameof(NumLevelChoice)), () => NumLevelChoice = s.Serialize<short>(NumLevelChoice, name: nameof(NumLevelChoice)));
                 s.DoAt(Pointers.TryGetItem(nameof(NumWorldChoice)), () => NumWorldChoice = s.Serialize<short>(NumWorldChoice, name: nameof(NumWorldChoice)));
-                s.DoAt(Pointers.TryGetItem(nameof(RayMode)), () => RayMode = s.Serialize<R1_RayMode>(RayMode, name: nameof(RayMode)));
+                s.DoAt(Pointers.TryGetItem(nameof(RayMode)), () => RayMode = s.Serialize<RayMode>(RayMode, name: nameof(RayMode)));
                 s.DoAt(Pointers.TryGetItem(nameof(RayWindForce)), () => RayWindForce = s.Serialize<short>(RayWindForce, name: nameof(RayWindForce)));
                 s.DoAt(Pointers.TryGetItem(nameof(NumLevel)), () => NumLevel = s.Serialize<short>(NumLevel, name: nameof(NumLevel)));
                 s.DoAt(Pointers.TryGetItem(nameof(NumWorld)), () => NumWorld = s.Serialize<short>(NumWorld, name: nameof(NumWorld)));
@@ -804,7 +814,7 @@ namespace R1Engine
             // Get the event
             var e = AvailableEvents[index];
 
-            var flag = ((R1_EventType)e.Type).GetAttribute<ObjTypeInfoAttribute>()?.Flag;
+            var flag = ((ObjType)e.Type).GetAttribute<ObjTypeInfoAttribute>()?.Flag;
 
             return flag == ObjTypeFlag.Always;
         }

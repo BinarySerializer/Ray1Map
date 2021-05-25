@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer;
-
+using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -85,8 +85,8 @@ namespace R1Engine
 
                         context.AddFile(new LinearSerializedFile(context, specialPath));
 
-                        var wldMap = m.LoadArchiveFile<R1_PC_WorldMap>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.WLDMAP01);
-                        var text = m.LoadArchiveFile<R1_PC_LocFile>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT);
+                        var wldMap = m.LoadArchiveFile<PC_WorldMap>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.WLDMAP01);
+                        var text = m.LoadArchiveFile<PC_LocFile>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT);
 
                         var worlds = v.Worlds;
 
@@ -114,7 +114,7 @@ namespace R1Engine
                             {
                                 world = w.Index,
                                 level = lvl,
-                                nameInternal = $"{m.GetShortWorldName((R1_World)w.Index)}{lvl:00}",
+                                nameInternal = $"{m.GetShortWorldName((World)w.Index)}{lvl:00}",
                                 name = getLevelName(w.Index, lvl)
                             })).SelectMany(x => x)
                         };
@@ -152,7 +152,7 @@ namespace R1Engine
                                 }
                             }
 
-                            return $"{(R1_World)world} {level}";
+                            return $"{(World)world} {level}";
                         }
                     }
                 }

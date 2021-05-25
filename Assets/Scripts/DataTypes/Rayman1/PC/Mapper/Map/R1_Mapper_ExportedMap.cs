@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -66,9 +67,9 @@ namespace R1Engine
         /// <summary>
         /// The map data
         /// </summary>
-        public MapData MapData { get; set; }
+        public Mapper_MapData MapData { get; set; }
 
-        public byte[] EventMevData { get; set; }
+        public JAG_MapEvents EventMevData { get; set; }
 
         public byte[] EventSevData { get; set; }
 
@@ -76,10 +77,6 @@ namespace R1Engine
 
         #region Serializer Methods
 
-        /// <summary>
-        /// Serializes the data
-        /// </summary>
-        /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
             // Serialize the header
             Header = s.SerializeArray<byte>(Header, 4, name: nameof(Header));
@@ -94,8 +91,8 @@ namespace R1Engine
 
             // Read the data blocks
             MapProperties = s.SerializeArray<byte>(MapProperties, MapPropertiesLength, name: nameof(MapProperties));
-            MapData = s.Serialize<MapData>(MapData, name: nameof(MapData));
-            EventMevData = s.SerializeArray<byte>(EventMevData, EventMevDataLength, name: nameof(EventMevData));
+            MapData = s.SerializeObject<Mapper_MapData>(MapData, name: nameof(MapData));
+            EventMevData = s.SerializeObject<JAG_MapEvents>(EventMevData, name: nameof(EventMevData));
             EventSevData = s.SerializeArray<byte>(EventSevData, EventSevDataLength, name: nameof(EventSevData));
         }
 

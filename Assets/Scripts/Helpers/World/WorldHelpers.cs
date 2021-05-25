@@ -1,30 +1,32 @@
-﻿namespace R1Engine
+﻿using BinarySerializer.Ray1;
+
+namespace R1Engine
 {
     public static class WorldHelpers
     {
-        public static R1_World[] GetR1Worlds(bool includeSpecial = false)
+        public static World[] GetR1Worlds(bool includeSpecial = false)
         {
             if (includeSpecial)
-                return new R1_World[]
+                return new World[]
                 {
-                    R1_World.Jungle,
-                    R1_World.Music,
-                    R1_World.Mountain,
-                    R1_World.Image,
-                    R1_World.Cave,
-                    R1_World.Cake,
-                    R1_World.Menu,
-                    R1_World.Multiplayer,
+                    World.Jungle,
+                    World.Music,
+                    World.Mountain,
+                    World.Image,
+                    World.Cave,
+                    World.Cake,
+                    World.Menu,
+                    World.Multiplayer,
                 };
             else
-                return new R1_World[]
+                return new World[]
                 {
-                    R1_World.Jungle,
-                    R1_World.Music,
-                    R1_World.Mountain,
-                    R1_World.Image,
-                    R1_World.Cave,
-                    R1_World.Cake,
+                    World.Jungle,
+                    World.Music,
+                    World.Mountain,
+                    World.Image,
+                    World.Cave,
+                    World.Cake,
                 };
         }
     }

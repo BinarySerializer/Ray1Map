@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using BinarySerializer;
-using UnityEngine;
+using BinarySerializer.Ray1;
+using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
@@ -21,7 +22,7 @@ namespace R1Engine
 
         public Unity_ObjectManager_R1Jaguar ObjManager { get; }
 
-        public R1Jaguar_EventInstance Instance { get; set; }
+        public JAG_EventInstance Instance { get; set; }
 
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }

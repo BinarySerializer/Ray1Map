@@ -645,7 +645,7 @@ namespace R1Engine
                 {
                     int hy = -(r1bj.EventData.OffsetHY);
 
-                    if (r1bj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings))
+                    if (r1bj.EventData.GetFollowEnabled(LevelEditorData.CurrentRay1Settings))
                         hy -= anim.Frames[r1bj.EventData.CurrentAnimationFrame].SpriteLayers.ElementAtOrDefault(r1bj.EventData.FollowSprite)?.YPosition ?? 0;
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy  / (float)LevelEditorData.Level.PixelsPerUnit);
@@ -724,7 +724,7 @@ namespace R1Engine
             followSpriteLine.gameObject.SetActive(
                 ShowCollision && 
                 ObjData is Unity_Object_R1 r1o && 
-                r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings) && 
+                r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentRay1Settings) && 
                 !(engineVersion == EngineVersion.R1_PS1_JP || engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || engineVersion == EngineVersion.R1_Saturn));
 
             // Update one-way link lines

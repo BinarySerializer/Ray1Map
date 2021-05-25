@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BinarySerializer;
+using BinarySerializer.GBA;
 
 namespace R1Engine
 {

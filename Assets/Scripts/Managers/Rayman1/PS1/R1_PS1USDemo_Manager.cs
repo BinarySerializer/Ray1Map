@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using BinarySerializer.Ray1;
+
+namespace R1Engine
 {
     public class R1_PS1USDemo_Manager : R1_PS1_Manager
     {
@@ -13,22 +15,22 @@
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {
-            new FileTableInfo(0x801c269c,3,R1_PS1_FileType.img_file),
-            new FileTableInfo(0x801c2708,2,R1_PS1_FileType.ldr_file),
-            new FileTableInfo(0x801c2750,6,R1_PS1_FileType.vdo_file),
-            new FileTableInfo(0x801c2828,0x35,R1_PS1_FileType.trk_file),
-            new FileTableInfo(0x801c2f9c,5,R1_PS1_FileType.pre_file),
-            new FileTableInfo(0x801c3050,6,R1_PS1_FileType.crd_file),
-            new FileTableInfo(0x801c3128,6,R1_PS1_FileType.gam_file),
-            new FileTableInfo(0x801c3200,6,R1_PS1_FileType.vig_wld_file),
-            new FileTableInfo(0x801c32d8,6,R1_PS1_FileType.wld_file),
-            new FileTableInfo(0x801c33b0,0x7e,R1_PS1_FileType.map_file),
-            new FileTableInfo(0x801c4568,0x1f,R1_PS1_FileType.fnd_file ),
-            new FileTableInfo(0x801c49c4,7,R1_PS1_FileType.vab_file),
-            new FileTableInfo(0x801c4ac0,7,R1_PS1_FileType.big_file),
-            new FileTableInfo(0x801c4bbc,7,R1_PS1_FileType.vab4sep_file),
-            new FileTableInfo(0x801c4cb8,2,R1_PS1_FileType.filefxs),
-            new FileTableInfo(0x801c4d00,1,R1_PS1_FileType.ini_file),
+            new FileTableInfo(0x801c269c,3,PS1_FileType.img_file),
+            new FileTableInfo(0x801c2708,2,PS1_FileType.ldr_file),
+            new FileTableInfo(0x801c2750,6,PS1_FileType.vdo_file),
+            new FileTableInfo(0x801c2828,0x35,PS1_FileType.trk_file),
+            new FileTableInfo(0x801c2f9c,5,PS1_FileType.pre_file),
+            new FileTableInfo(0x801c3050,6,PS1_FileType.crd_file),
+            new FileTableInfo(0x801c3128,6,PS1_FileType.gam_file),
+            new FileTableInfo(0x801c3200,6,PS1_FileType.vig_wld_file),
+            new FileTableInfo(0x801c32d8,6,PS1_FileType.wld_file),
+            new FileTableInfo(0x801c33b0,0x7e,PS1_FileType.map_file),
+            new FileTableInfo(0x801c4568,0x1f,PS1_FileType.fnd_file ),
+            new FileTableInfo(0x801c49c4,7,PS1_FileType.vab_file),
+            new FileTableInfo(0x801c4ac0,7,PS1_FileType.big_file),
+            new FileTableInfo(0x801c4bbc,7,PS1_FileType.vab4sep_file),
+            new FileTableInfo(0x801c4cb8,2,PS1_FileType.filefxs),
+            new FileTableInfo(0x801c4d00,1,PS1_FileType.ini_file),
         };
     }
 }

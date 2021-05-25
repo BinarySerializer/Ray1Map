@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -82,7 +83,7 @@ namespace R1Engine
                 item.FollowSprite = parser.ReadByteValue();
                 item.HitPoints = parser.ReadUIntValue();
 
-                item.Type = (R1_EventType)parser.ReadShortValue();
+                item.Type = (ObjType)parser.ReadShortValue();
                 item.HitSprite = parser.ReadByteValue();
                 item.DesignerGroup = parser.ReadByteValue();
             }
