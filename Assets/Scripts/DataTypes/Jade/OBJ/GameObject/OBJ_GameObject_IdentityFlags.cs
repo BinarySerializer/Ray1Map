@@ -42,42 +42,8 @@ namespace R1Engine.Jade {
 		ODE				 = 0x10000000, // Objects "visible" for ODE solver
 
 		// Not used in Phoenix branch (so not added at the time of RRR)
-		Flag29 = 1 << 29,
+		Sound_DARE = 1 << 29,
 		Flag30 = 1 << 30,
 		Flag31 = (uint)1 << 31
-
-
-		/*Flag0 = 1 << 0,
-		HasActionData = 1 << 1,
-		DynOn = 1 << 2,
-		Flag3 = 1 << 3,
-		HasLight = 1 << 4,
-		HasAI = 1 << 5,
-		HasDesign = 1 << 6,
-		Flag7 = 1 << 7,
-		HasCOL_ColMap = 1 << 8,
-		Flag9 = 1 << 9,
-		Flag10 = 1 << 10,
-		Flag11 = 1 << 11,
-		HasBase = 1 << 12,
-		HasExtended = 1 << 13,
-		HasGameObjectAnim = 1 << 14,
-		MsgOn = 1 << 15,
-		StoreInitialPosition = 1 << 16,
-		Flag17 = 1 << 17,
-		HasLinks = 1 << 18,
-		HasOBBox = 1 << 19,
-		Flag20 = 1 << 20,
-		HasAddMatrix = 1 << 21,
-		HasHierarchy = 1 << 22,
-		Flag23 = 1 << 23,
-		Flag24 = 1 << 24,
-		HasEvents = 1 << 25,
-		HasFlashMatrix = 1 << 26, // What is this?
-		HasSound = 1 << 27,
-		HasDynamics = 1 << 28,
-		Flag29 = 1 << 29,
-		Flag30 = 1 << 30,
-		Flag31 = (uint)1 << 31*/
 	}
 }

@@ -30,6 +30,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<AI_Instance> AI { get; set; }
 		public Jade_Reference<EVE_ListTracks> Events { get; set; }
 		public Jade_Reference<SND_UnknownBank> Sound { get; set; }
+		public DARE_SoundParam SoundDARE { get; set; }
 		public Jade_Reference<WAY_AllLinkLists> Links { get; set; }
 		public Jade_Reference<GEO_Object> Light { get; set; }
 		public OBJ_GameObject_DesignStruct Design { get; set; }
@@ -82,8 +83,12 @@ namespace R1Engine.Jade {
 				Events = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(Events, name: nameof(Events))?.Resolve();
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Sound)) {
-				Sound = s.SerializeObject<Jade_Reference<SND_UnknownBank>>(Sound, name: nameof(Sound))?
-					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
+				Sound = s.SerializeObject<Jade_Reference<SND_UnknownBank>>(Sound, name: nameof(Sound));
+				if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier))
+					Sound?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount | LOA_Loader.ReferenceFlags.IsIrregularFileFormat);
+			}
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Sound_DARE) && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+				SoundDARE = s.SerializeObject<DARE_SoundParam>(SoundDARE, name: nameof(SoundDARE));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Links)) {
 				Links = s.SerializeObject<Jade_Reference<WAY_AllLinkLists>>(Links, name: nameof(Links))?
