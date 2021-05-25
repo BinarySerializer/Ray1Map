@@ -25,6 +25,26 @@ namespace R1Engine
                 settings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar ||
                 settings.MajorEngineVersion == MajorEngineVersion.SNES)
                 AddSettings(settings.GetRay1Settings());
+
+            // Add pointer-tables for specific game modes
+            switch (settings.GameModeSelection)
+            {
+                case GameModeSelection.RaymanAdvanceGBAUS:
+                    AddPreDefinedPointers(GBA_DefinedPointers.GBA_US);
+                    break;
+
+                case GameModeSelection.RaymanAdvanceGBAEU:
+                    AddPreDefinedPointers(GBA_DefinedPointers.GBA_EU);
+                    break;
+
+                case GameModeSelection.RaymanAdvanceGBAEUBeta:
+                    AddPreDefinedPointers(GBA_DefinedPointers.GBA_EUBeta);
+                    break;
+
+                case GameModeSelection.RaymanDSi:
+                    AddPreDefinedPointers(DSi_DefinedPointers.DSi);
+                    break;
+            }
         }
         public R1Context(GameSettings settings) : this(settings.GameDirectory, settings) { }
 

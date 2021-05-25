@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -73,7 +72,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The game data</returns>
-        public virtual IR1_GBAData LoadData(Context context) => FileFactory.Read<R1_GBA_ROM>(GetROMFilePath, context);
+        public virtual IGBAData LoadData(Context context) => FileFactory.Read<BinarySerializer.Ray1.GBA_ROM>(GetROMFilePath, context);
 
         /// <summary>
         /// Gets the available game actions
@@ -103,157 +102,164 @@ namespace R1Engine
             var isGBA = baseGameSettings.EngineVersion == EngineVersion.R1_GBA;
 
             // Create the context
-            using (var context = new R1Context(baseGameSettings))
+            using var context = new R1Context(baseGameSettings);
+
+            var settings = context.GetSettings<Ray1Settings>();
+
+            // Load the game data
+            await LoadFilesAsync(context);
+
+            // Serialize the rom
+            var data = LoadData(context);
+
+            var file = ((BinarySerializable)data).Offset.File;
+
+            var graphics = new Dictionary<Pointer, List<KeyValuePair<World, RGBA5551Color[]>>>();
+
+            // Enumerate every world
+            foreach (var world in GetLevels(baseGameSettings).First().Worlds)
             {
-                // Load the game data
-                await LoadFilesAsync(context);
+                baseGameSettings.World = world.Index;
 
-                // Serialize the rom
-                var data = LoadData(context);
-
-                // Get a pointer tables
-                var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((BinarySerializable)data).Offset.File) : null;
-                var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((BinarySerializable)data).Offset.File) : null;
-
-                var graphics = new Dictionary<Pointer, List<KeyValuePair<World, RGBA5551Color[]>>>();
-
-                // Enumerate every world
-                foreach (var world in GetLevels(baseGameSettings).First().Worlds)
+                // Enumerate every level
+                foreach (var lvl in world.Maps)
                 {
-                    baseGameSettings.World = world.Index;
+                    baseGameSettings.Level = lvl;
+                    var lvlIndex = data.WorldLevelOffsetTable[world.Index] + (lvl - 1);
 
-                    // Enumerate every level
-                    foreach (var lvl in world.Maps)
+                    // Serialize the event data
+                    var eventData = new GBA_LevelEventData();
+
+                    if (isGBA)
+                        eventData.SerializeData(context.Deserializer, 
+                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventGraphicsPointers, file), 
+                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventDataPointers, file), 
+                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventGraphicsGroupCountTablePointers, file), 
+                            context.GetPreDefinedPointer(GBA_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
+                    else
+                        eventData.SerializeData(context.Deserializer,
+                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventGraphicsPointers, file),
+                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventDataPointers, file),
+                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
+                            context.GetPreDefinedPointer(DSi_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
+
+                    // Get the event graphics
+                    for (var i = 0; i < eventData.GraphicData.Length; i++)
                     {
-                        baseGameSettings.Level = lvl;
-                        var lvlIndex = data.WorldLevelOffsetTable[world.Index] + (lvl - 1);
+                        var key = eventData.GraphicDataPointers[i];
 
-                        // Serialize the event data
-                        var eventData = new GBA_LevelEventData();
+                        if (!graphics.ContainsKey(key))
+                            graphics.Add(key, new List<KeyValuePair<World, RGBA5551Color[]>>());
 
-                        if (isGBA)
-                            eventData.SerializeData(context.Deserializer, gbaPointerTable[R1_GBA_ROMPointer.EventGraphicsPointers], gbaPointerTable[R1_GBA_ROMPointer.EventDataPointers], gbaPointerTable[R1_GBA_ROMPointer.EventGraphicsGroupCountTablePointers], gbaPointerTable[R1_GBA_ROMPointer.LevelEventGraphicsGroupCounts], lvlIndex);
-                        else
-                            eventData.SerializeData(context.Deserializer, dsiPointerTable[R1_DSi_Pointer.EventGraphicsPointers], dsiPointerTable[R1_DSi_Pointer.EventDataPointers], dsiPointerTable[R1_DSi_Pointer.EventGraphicsGroupCountTablePointers], dsiPointerTable[R1_DSi_Pointer.LevelEventGraphicsGroupCounts], lvlIndex);
-
-                        // Get the event graphics
-                        for (var i = 0; i < eventData.GraphicData.Length; i++)
-                        {
-                            var key = eventData.GraphicDataPointers[i];
-
-                            if (!graphics.ContainsKey(key))
-                                graphics.Add(key, new List<KeyValuePair<World, RGBA5551Color[]>>());
-
-                            if (graphics[key].All(x => x.Key != (World)world.Index))
-                                graphics[key].Add(new KeyValuePair<World, RGBA5551Color[]>((World)world.Index, data.GetSpritePalettes(baseGameSettings)));
-                        }
+                        if (graphics[key].All(x => x.Key != (World)world.Index))
+                            graphics[key].Add(new KeyValuePair<World, RGBA5551Color[]>((World)world.Index, data.GetSpritePalettes(settings)));
                     }
                 }
-
-                // Add unused graphics
-                if (isGBA)
-                {
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_DrumWalkerGraphics], new List<KeyValuePair<World, RGBA5551Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Clock], new List<KeyValuePair<World, RGBA5551Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_InkGraphics], new List<KeyValuePair<World, RGBA5551Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Alpha], new List<KeyValuePair<World, RGBA5551Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Alpha2], new List<KeyValuePair<World, RGBA5551Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_PinsGraphics], new List<KeyValuePair<World, RGBA5551Color[]>>());
-                }
-                else
-                {
-                    // TODO: Where is the font?
-                    graphics.Add(dsiPointerTable[R1_DSi_Pointer.DES_Clock], new List<KeyValuePair<World, RGBA5551Color[]>>());
-                }
-
-                var desIndex = 0;
-
-                // Enumerate every graphics
-                foreach (var gp in graphics)
-                {
-                    var imgIndex = 0;
-
-                    // Get the graphic data
-                    var g = FileFactory.Read<GBA_EventGraphicsData>(gp.Key, context);
-
-                    // Get the world name
-                    var worldName = gp.Value.Count > 1 ? "Allfix" : (!gp.Value.Any() ? "Other" : gp.Value.First().Key.ToString());
-
-                    // Enumerate every image descriptor
-                    foreach (var img in g.Sprites)
-                    {
-                        // Get the texture
-                        var tex = GetSpriteTexture(context, g.ImageBuffer, img, gp.Value?.FirstOrDefault().Value ?? data.GetSpritePalettes(baseGameSettings));
-
-                        // Make sure it's not null
-                        if (tex == null)
-                        {
-                            imgIndex++;
-                            continue;
-                        }
-
-                        Util.ByteArrayToFile(Path.Combine(outputDir, worldName, $"{desIndex} - {imgIndex}.png"), tex.EncodeToPNG());
-
-                        imgIndex++;
-                    }
-
-                    desIndex++;
-                }
-
-                // Export extended graphics
-                if (isGBA)
-                {
-                    var s = context.Deserializer;
-                    var extDES = 0;
-
-                    // Hard-code to 64x64 for now
-                    const ushort width = 64;
-                    const ushort height = 64;
-
-                    s.DoAt(gbaPointerTable[R1_GBA_ROMPointer.MultiplayerImgBuffers], () =>
-                    {
-                        for (int i = 0; i < 16; i++)
-                            exportExtDES(i);
-                    });
-
-                    extDES++;
-
-                    s.DoAt(gbaPointerTable[R1_GBA_ROMPointer.ExtFontImgBuffers], () =>
-                    {
-                        for (int i = 0; i < 44; i++)
-                            exportExtDES(i);
-                    });
-
-                    void exportExtDES(int index)
-                    {
-                        var length = ((width * height / 2) / 32) * 4 + (width * height / 2);
-
-                        s.DoAt(s.SerializePointer(default), () =>
-                        {
-                            var buffer = s.SerializeArray<byte>(default, length);
-                            var d = new Sprite()
-                            {
-                                Width = width,
-                                Height = height,
-                                Index = 1 // Make sure it's not treated as a dummy sprite
-                            };
-
-                            d.Init(s.CurrentPointer); // Init so it has a context, which is used for a check
-
-                            var tex = GetSpriteTexture(context, buffer, d, data.GetSpritePalettes(context.GetR1Settings()));
-
-                            Util.ByteArrayToFile(Path.Combine(outputDir, "Extended", $"{extDES} - {index}.png"), tex.EncodeToPNG());
-                        });
-                    }
-                }
-                else
-                {
-                    // TODO: Find on DSi
-                }
-
-                // Unload textures
-                await Resources.UnloadUnusedAssets();
             }
+
+            // Add unused graphics
+            if (isGBA)
+            {
+                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_DrumWalkerGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_Clock, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_InkGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_Alpha, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_Alpha2, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+                graphics.Add(context.GetPreDefinedPointer(GBA_DefinedPointer.DES_PinsGraphics, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+            }
+            else
+            {
+                // TODO: Where is the font?
+                graphics.Add(context.GetPreDefinedPointer(DSi_DefinedPointer.DES_Clock, file), new List<KeyValuePair<World, RGBA5551Color[]>>());
+            }
+
+            var desIndex = 0;
+
+            // Enumerate every graphics
+            foreach (var gp in graphics)
+            {
+                var imgIndex = 0;
+
+                // Get the graphic data
+                var g = FileFactory.Read<GBA_EventGraphicsData>(gp.Key, context);
+
+                // Get the world name
+                var worldName = gp.Value.Count > 1 ? "Allfix" : (!gp.Value.Any() ? "Other" : gp.Value.First().Key.ToString());
+
+                // Enumerate every image descriptor
+                foreach (var img in g.Sprites)
+                {
+                    // Get the texture
+                    var tex = GetSpriteTexture(context, g.ImageBuffer, img, gp.Value?.FirstOrDefault().Value ?? data.GetSpritePalettes(settings));
+
+                    // Make sure it's not null
+                    if (tex == null)
+                    {
+                        imgIndex++;
+                        continue;
+                    }
+
+                    Util.ByteArrayToFile(Path.Combine(outputDir, worldName, $"{desIndex} - {imgIndex}.png"), tex.EncodeToPNG());
+
+                    imgIndex++;
+                }
+
+                desIndex++;
+            }
+
+            // Export extended graphics
+            if (isGBA)
+            {
+                var s = context.Deserializer;
+                var extDES = 0;
+
+                // Hard-code to 64x64 for now
+                const ushort width = 64;
+                const ushort height = 64;
+
+                s.DoAt(context.GetPreDefinedPointer(GBA_DefinedPointer.MultiplayerImgBuffers, file), () =>
+                {
+                    for (int i = 0; i < 16; i++)
+                        exportExtDES(i);
+                });
+
+                extDES++;
+
+                s.DoAt(context.GetPreDefinedPointer(GBA_DefinedPointer.ExtFontImgBuffers, file), () =>
+                {
+                    for (int i = 0; i < 44; i++)
+                        exportExtDES(i);
+                });
+
+                void exportExtDES(int index)
+                {
+                    var length = ((width * height / 2) / 32) * 4 + (width * height / 2);
+
+                    s.DoAt(s.SerializePointer(default), () =>
+                    {
+                        var buffer = s.SerializeArray<byte>(default, length);
+                        var d = new Sprite()
+                        {
+                            Width = width,
+                            Height = height,
+                            Index = 1 // Make sure it's not treated as a dummy sprite
+                        };
+
+                        d.Init(s.CurrentPointer); // Init so it has a context, which is used for a check
+
+                        var tex = GetSpriteTexture(context, buffer, d, data.GetSpritePalettes(settings));
+
+                        Util.ByteArrayToFile(Path.Combine(outputDir, "Extended", $"{extDES} - {index}.png"), tex.EncodeToPNG());
+                    });
+                }
+            }
+            else
+            {
+                // TODO: Find on DSi
+            }
+
+            // Unload textures
+            await Resources.UnloadUnusedAssets();
         }
 
         // Hacky method for finding unused sprites - make sure you uncomment the code in GBA_R1_EventGraphicsData!
@@ -263,95 +269,102 @@ namespace R1Engine
             var isGBA = baseGameSettings.EngineVersion == EngineVersion.R1_GBA;
 
             // Create the context
-            using (var context = new R1Context(baseGameSettings))
+            using var context = new R1Context(baseGameSettings);
+            
+            var settings = context.GetSettings<Ray1Settings>();
+
+            // Load the rom
+            await LoadFilesAsync(context);
+
+            // Load the data
+            var data = LoadData(context);
+
+            var file = ((BinarySerializable)data).Offset.File;
+
+            // Get used graphics
+            var graphics = new List<Pointer>();
+
+            // Enumerate every world
+            foreach (var world in GetLevels(baseGameSettings).First().Worlds)
             {
-                // Load the rom
-                await LoadFilesAsync(context);
+                baseGameSettings.World = world.Index;
 
-                // Load the data
-                var data = LoadData(context);
-
-                // Get used graphics
-                var graphics = new List<Pointer>();
-
-                // Get a pointer tables
-                var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((BinarySerializable)data).Offset.File) : null;
-                var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((BinarySerializable)data).Offset.File) : null;
-
-                // Enumerate every world
-                foreach (var world in GetLevels(baseGameSettings).First().Worlds)
+                // Enumerate every level
+                foreach (var lvl in world.Maps)
                 {
-                    baseGameSettings.World = world.Index;
+                    baseGameSettings.Level = lvl;
 
-                    // Enumerate every level
-                    foreach (var lvl in world.Maps)
+                    var lvlIndex = data.WorldLevelOffsetTable[world.Index] + (lvl - 1);
+
+                    // Serialize the event data
+                    var eventData = new GBA_LevelEventData();
+
+                    if (isGBA)
+                        eventData.SerializeData(context.Deserializer, 
+                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventGraphicsPointers, file),
+                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventDataPointers, file),
+                            context.GetPreDefinedPointer(GBA_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
+                            context.GetPreDefinedPointer(GBA_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
+                    else
+                        eventData.SerializeData(context.Deserializer,
+                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventGraphicsPointers, file),
+                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventDataPointers, file),
+                            context.GetPreDefinedPointer(DSi_DefinedPointer.EventGraphicsGroupCountTablePointers, file),
+                            context.GetPreDefinedPointer(DSi_DefinedPointer.LevelEventGraphicsGroupCounts, file), lvlIndex);
+
+                    // Get the event graphics
+                    for (var i = 0; i < eventData.GraphicData.Length; i++)
                     {
-                        baseGameSettings.Level = lvl;
-
-                        var lvlIndex = data.WorldLevelOffsetTable[world.Index] + (lvl - 1);
-
-                        // Serialize the event data
-                        var eventData = new GBA_LevelEventData();
-
-                        if (isGBA)
-                            eventData.SerializeData(context.Deserializer, gbaPointerTable[R1_GBA_ROMPointer.EventGraphicsPointers], gbaPointerTable[R1_GBA_ROMPointer.EventDataPointers], gbaPointerTable[R1_GBA_ROMPointer.EventGraphicsGroupCountTablePointers], gbaPointerTable[R1_GBA_ROMPointer.LevelEventGraphicsGroupCounts], lvlIndex);
-                        else
-                            eventData.SerializeData(context.Deserializer, dsiPointerTable[R1_DSi_Pointer.EventGraphicsPointers], dsiPointerTable[R1_DSi_Pointer.EventDataPointers], dsiPointerTable[R1_DSi_Pointer.EventGraphicsGroupCountTablePointers], dsiPointerTable[R1_DSi_Pointer.LevelEventGraphicsGroupCounts], lvlIndex);
-
-                        // Get the event graphics
-                        for (var i = 0; i < eventData.GraphicData.Length; i++)
-                        {
-                            if (!graphics.Contains(eventData.GraphicDataPointers[i]))
-                                graphics.Add(eventData.GraphicDataPointers[i]);
-                        }
+                        if (!graphics.Contains(eventData.GraphicDataPointers[i]))
+                            graphics.Add(eventData.GraphicDataPointers[i]);
                     }
                 }
+            }
 
-                var s = context.Deserializer;
+            var s = context.Deserializer;
 
-                // Enumerate every fourth byte (we assume it's aligned this way)
-                for (int i = 0; i < s.CurrentLength; i += 4)
+            // Enumerate every fourth byte (we assume it's aligned this way)
+            for (int i = 0; i < s.CurrentLength; i += 4)
+            {
+                s.Goto(((BinarySerializable)data).Offset + i);
+
+                File.WriteAllText(Path.Combine(outputDir, "log.txt"), $"{s.CurrentPointer.FileOffset} / {s.CurrentLength}");
+
+                try
                 {
-                    s.Goto(((BinarySerializable)data).Offset + i);
+                    // Make sure the graphic isn't referenced already
+                    if (graphics.Any(x => x == s.CurrentPointer))
+                        continue;
 
-                    File.WriteAllText(Path.Combine(outputDir, "log.txt"), $"{s.CurrentPointer.FileOffset} / {s.CurrentLength}");
+                    // Serialize it
+                    var g = s.SerializeObject<GBA_EventGraphicsData>(default);
 
-                    try
+                    var imgIndex = 0;
+
+                    // Enumerate every image descriptor
+                    foreach (var img in g.Sprites)
                     {
-                        // Make sure the graphic isn't referenced already
-                        if (graphics.Any(x => x == s.CurrentPointer))
-                            continue;
+                        // Get the texture
+                        var tex = GetSpriteTexture(context, g.ImageBuffer, img, data.GetSpritePalettes(settings));
 
-                        // Serialize it
-                        var g = s.SerializeObject<GBA_EventGraphicsData>(default);
-
-                        var imgIndex = 0;
-
-                        // Enumerate every image descriptor
-                        foreach (var img in g.Sprites)
+                        // Make sure it's not null
+                        if (tex == null)
                         {
-                            // Get the texture
-                            var tex = GetSpriteTexture(context, g.ImageBuffer, img, data.GetSpritePalettes(baseGameSettings));
-
-                            // Make sure it's not null
-                            if (tex == null)
-                            {
-                                imgIndex++;
-                                continue;
-                            }
-
-                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{(((BinarySerializable)data).Offset + i).FileOffset} - {imgIndex}.png"), tex.EncodeToPNG());
-
                             imgIndex++;
+                            continue;
                         }
 
-                        // Unload textures
-                        await Resources.UnloadUnusedAssets();
+                        Util.ByteArrayToFile(Path.Combine(outputDir, $"{(((BinarySerializable)data).Offset + i).FileOffset} - {imgIndex}.png"), tex.EncodeToPNG());
+
+                        imgIndex++;
                     }
-                    catch
-                    {
-                        // Do nothing...
-                    }
+
+                    // Unload textures
+                    await Resources.UnloadUnusedAssets();
+                }
+                catch
+                {
+                    // Do nothing...
                 }
             }
         }
@@ -432,25 +445,24 @@ namespace R1Engine
                 {
                     settings.Level = lvl;
 
-                    using (var context = new R1Context(settings))
-                    {
-                        // Load the game data
-                        await LoadFilesAsync(context);
+                    using var context = new R1Context(settings);
 
-                        // Serialize the rom
-                        var data = LoadData(context);
-                        data.LevelMapData.SerializeLevelData(context.Deserializer);
+                    // Load the game data
+                    await LoadFilesAsync(context);
 
-                        // Add the tile palette
-                        if (data.LevelMapData.TilePalettes != null && !tilePals.Any(x => x.SequenceEqual(data.LevelMapData.TilePalettes)))
-                            tilePals.Add(data.LevelMapData.TilePalettes);
+                    // Serialize the rom
+                    var data = LoadData(context);
+                    data.LevelMapData.SerializeLevelData(context.Deserializer);
 
-                        // Add the sprite palette
-                        var spritePal = data.GetSpritePalettes(settings);
+                    // Add the tile palette
+                    if (data.LevelMapData.TilePalettes != null && !tilePals.Any(x => x.SequenceEqual(data.LevelMapData.TilePalettes)))
+                        tilePals.Add(data.LevelMapData.TilePalettes);
 
-                        if (spritePal != null && !spritePals.Any(x => x.SequenceEqual(spritePal)))
-                            spritePals.Add(spritePal);
-                    }
+                    // Add the sprite palette
+                    var spritePal = data.GetSpritePalettes(context.GetSettings<Ray1Settings>());
+
+                    if (spritePal != null && !spritePals.Any(x => x.SequenceEqual(spritePal)))
+                        spritePals.Add(spritePal);
                 }
             }
 
@@ -513,27 +525,27 @@ namespace R1Engine
                     var outputFilePath = Path.Combine(directory, filename + ".wav");
 
                     // Create and open the output file
-                    using (var outputStream = File.Create(outputFilePath)) {
-                        // Create a context
-                        using (var wavContext = new R1Context(settings)) {
-                            // Create a key
-                            const string wavKey = "wav";
+                    using var outputStream = File.Create(outputFilePath);
+                    
+                    // Create a context
+                    using var wavContext = new R1Context(settings);
+                    
+                    // Create a key
+                    const string wavKey = "wav";
 
-                            // Add the file to the context
-                            wavContext.AddFile(new StreamFile(wavContext, wavKey, outputStream));
+                    // Add the file to the context
+                    wavContext.AddFile(new StreamFile(wavContext, wavKey, outputStream));
 
-                            // Write the data
-                            FileFactory.Write<WAV>(wavKey, wav, wavContext);
-                        }
-                    }
+                    // Write the data
+                    FileFactory.Write<WAV>(wavKey, wav, wavContext);
                 }
 
                 await LoadFilesAsync(context);
 
-                var rom = FileFactory.Read<R1_GBA_ROM>(GetROMFilePath, context);
-                var pointerTable = PointerTables.R1_GBA_PointerTable(s.GetR1Settings().GameModeSelection, rom.Offset.File);
+                var rom = FileFactory.Read<BinarySerializer.Ray1.GBA_ROM>(GetROMFilePath, context);
+
                 MusyX_File musyxFile = null;
-                s.DoAt(pointerTable[R1_GBA_ROMPointer.MusyxFile], () => {
+                s.DoAt(s.GetPreDefinedPointer(GBA_DefinedPointer.MusyxFile), () => {
                     musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
                 });
                 string outPath = outputPath + "/Sounds/";
@@ -927,7 +939,7 @@ namespace R1Engine
                 eventData = null;
             }
 
-            var spritePalette = data.GetSpritePalettes(context.GetR1Settings());
+            var spritePalette = data.GetSpritePalettes(context.GetSettings<Ray1Settings>());
 
             var maps = new Unity_Map[]
             {
@@ -1164,7 +1176,7 @@ namespace R1Engine
         /// <param name="editorManager">The level</param>
         public UniTask SaveLevelAsync(Context context, Unity_Level editorManager) => throw new NotImplementedException();
 
-        public virtual KeyValuePair<string, string[]>[] LoadLocalization(IR1_GBAData data)
+        public virtual KeyValuePair<string, string[]>[] LoadLocalization(IGBAData data)
         {
             return new KeyValuePair<string, string[]>[]
             {

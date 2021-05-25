@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BinarySerializer;
 using BinarySerializer.Ray1;
-
 
 namespace R1Engine
 {
@@ -56,9 +56,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The game data</returns>
-        public override IR1_GBAData LoadData(Context context) => FileFactory.Read<R1_DSi_DataFile>(GetROMFilePath, context);
+        public override IGBAData LoadData(Context context) => FileFactory.Read<DSi_DataFile>(GetROMFilePath, context);
 
-        public override KeyValuePair<string, string[]>[] LoadLocalization(IR1_GBAData data)
+        public override KeyValuePair<string, string[]>[] LoadLocalization(IGBAData data)
         {
             return new KeyValuePair<string, string[]>[]
             {
@@ -82,6 +82,38 @@ namespace R1Engine
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
             };
+        }
+
+        /// <summary>
+        /// Creates a relocated 0.bin file, that is searchable with file offsets in big endian, prefixed with "DD".
+        /// e.g.: the bytes 010F1E02 (a pointer to 0x01) become DD000001.
+        /// </summary>
+        /// <param name="s"></param>
+        public void CreateRelocatedFile(SerializerObject s)
+        {
+            byte[] data = s.SerializeArray<byte>(null, s.CurrentLength, name: "fullfile");
+            const uint addr = 0x021E0F00;
+            for (int j = 0; j < data.Length; j++)
+            {
+                if (data[j] != 0x02)
+                    continue;
+
+                int off = j - 3;
+                uint ptr = BitConverter.ToUInt32(data, off);
+
+                if (ptr < addr || ptr >= addr + data.Length)
+                    continue;
+
+                ptr = (ptr - addr) + 0xDD000000;
+                byte[] newData = BitConverter.GetBytes(ptr);
+
+                for (int y = 0; y < 4; y++)
+                    data[off + 3 - y] = newData[y];
+
+                j += 3;
+            }
+
+            Util.ByteArrayToFile(s.Context.GetAbsoluteFilePath("relocated.bin"), data);
         }
 
         #endregion
