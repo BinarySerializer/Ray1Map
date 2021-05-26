@@ -1,11 +1,11 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using BinarySerializer;
+using BinarySerializer.Image;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Image;
-using BinarySerializer.Ray1;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -14,7 +14,8 @@ namespace R1Engine
     /// <summary>
     /// Base game manager for PC
     /// </summary>
-    public abstract class R1_PCBaseManager : IGameManager {
+    public abstract class R1_PCBaseManager : BaseGameManager
+    {
         #region Values and paths
 
         /// <summary>
@@ -121,13 +122,6 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
         public abstract string GetWorldFilePath(GameSettings settings);
-
-        /// <summary>
-        /// Gets the levels for each world
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The levels</returns>
-        public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the archive files which can be extracted
@@ -974,7 +968,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
-        public virtual GameAction[] GetGameActions(GameSettings settings)
+        public override GameAction[] GetGameActions(GameSettings settings)
         {
             return new GameAction[]
             {
@@ -1286,7 +1280,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading map data";
 
@@ -1574,7 +1568,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="level">The level</param>
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) 
+        public override UniTask SaveLevelAsync(Context context, Unity_Level level) 
         {
             // Menu levels can't be saved
             if (context.GetR1Settings().R1_World == World.Menu)
@@ -1654,7 +1648,7 @@ namespace R1Engine
             return UniTask.CompletedTask;
         }
 
-        public virtual async UniTask LoadFilesAsync(Context context)
+        public override async UniTask LoadFilesAsync(Context context)
         {
             // Allfix
             await AddFile(context, GetAllfixFilePath(context.GetR1Settings()));

@@ -10,17 +10,17 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public abstract class Gameloft_BaseManager : IGameManager
+    public abstract class Gameloft_BaseManager : BaseGameManager
     {
         public abstract string[] ResourceFiles { get; }
         public abstract string[] SingleResourceFiles { get; }
 
-        public virtual GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
         });
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Resources", false, true, (input, output) => ExportResourcesAsync(settings, output, ExportMethod.Resources)),
             new GameAction("Export Sprites", false, true, (input, output) => ExportResourcesAsync(settings, output, ExportMethod.Sprites)),
@@ -575,20 +575,5 @@ namespace R1Engine
                             i?.Dispose();
             }
         }
-
-        public async UniTask SaveLevelAsync(Context context, Unity_Level level) {
-            await UniTask.CompletedTask;
-            throw new NotImplementedException();
-        }
-
-        public virtual async UniTask LoadFilesAsync(Context context) {
-            await UniTask.CompletedTask;
-            throw new NotImplementedException();
-        }
-
-		public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
-            await UniTask.CompletedTask;
-            throw new NotImplementedException();
-		}
-	}
+    }
 }

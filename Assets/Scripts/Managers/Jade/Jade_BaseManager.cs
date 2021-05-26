@@ -1,23 +1,22 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using BinarySerializer;
+using Cysharp.Threading.Tasks;
+using R1Engine.Jade;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using R1Engine.Jade;
-using System.IO;
-using BinarySerializer;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-using UnityEngine.Scripting;
 
-namespace R1Engine 
+namespace R1Engine
 {
-	public abstract class Jade_BaseManager : IGameManager 
-    {
+    public abstract class Jade_BaseManager : BaseGameManager
+	{
 		// Levels
-        public virtual GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Select((x, i) =>
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Select((x, i) =>
         {
             return new GameInfo_World(
                 index: i, 
@@ -29,7 +28,7 @@ namespace R1Engine
 		public virtual string CommonLevelBasePath => @"ROOT\EngineDatas\06 Levels\";
 
 		// Game actions
-		public virtual GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+		public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
 		{
 			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
 			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
@@ -236,8 +235,8 @@ namespace R1Engine
 
         // Version properties
 		public abstract string[] BFFiles { get; }
-		public virtual string[] FixWorlds { get; }
-		public virtual string JadeSpePath { get; }
+		public virtual string[] FixWorlds => null;
+		public virtual string JadeSpePath => null;
 
 		// Helpers
         public virtual void CreateLevelList(LOA_Loader l) {
@@ -353,7 +352,7 @@ namespace R1Engine
 		}
 
 		// Load
-		public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) 
+		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) 
         {
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
@@ -440,17 +439,13 @@ namespace R1Engine
 			return loader;
         }
 
-        public async UniTask LoadFilesAsync(Context context) {
+        public override async UniTask LoadFilesAsync(Context context) {
 			foreach (var bfPath in BFFiles) {
 				await context.AddLinearSerializedFileAsync(bfPath, bigFileCacheLength: 8);
 			}
 			if (JadeSpePath != null) {
 				await context.AddLinearSerializedFileAsync(JadeSpePath);
 			}
-		}
-        public async UniTask SaveLevelAsync(Context context, Unity_Level level) {
-			await Task.CompletedTask;
-			throw new NotImplementedException();
 		}
 
 		// Constants

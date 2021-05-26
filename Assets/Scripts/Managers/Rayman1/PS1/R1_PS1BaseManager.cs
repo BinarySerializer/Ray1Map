@@ -1,12 +1,12 @@
 ﻿
+using BinarySerializer;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using BinarySerializer;
-using BinarySerializer.Ray1;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Animation = BinarySerializer.Ray1.Animation;
 using Sprite = BinarySerializer.Ray1.Sprite;
@@ -16,7 +16,7 @@ namespace R1Engine
     /// <summary>
     /// Base game manager for PS1
     /// </summary>
-    public abstract class R1_PS1BaseManager : IGameManager
+    public abstract class R1_PS1BaseManager : BaseGameManager
     {
         #region Values and paths
 
@@ -54,13 +54,6 @@ namespace R1Engine
             }
         }
 
-        /// <summary>
-        /// Gets the levels for each world
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The levels</returns>
-        public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
-
         public abstract string ExeFilePath { get; }
         public abstract uint? ExeBaseAddress { get; }
 
@@ -73,7 +66,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
-        public virtual GameAction[] GetGameActions(GameSettings settings)
+        public override GameAction[] GetGameActions(GameSettings settings)
         {
             return new GameAction[]
             {
@@ -410,25 +403,10 @@ namespace R1Engine
         public virtual Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context) => null;
 
         /// <summary>
-        /// Loads the specified level for the editor
-        /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The level</returns>
-        public abstract UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures);
-
-        /// <summary>
-        /// Saves the specified level
-        /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <param name="level">The level</param>
-        public virtual UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
-
-        /// <summary>
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public virtual UniTask LoadFilesAsync(Context context)
+        public override UniTask LoadFilesAsync(Context context)
         {
             // Load the exe
             return ExeBaseAddress == null

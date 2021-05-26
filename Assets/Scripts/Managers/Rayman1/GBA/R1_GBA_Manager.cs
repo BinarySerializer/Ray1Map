@@ -1,11 +1,11 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using BinarySerializer;
+using BinarySerializer.GBA;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.GBA;
-using BinarySerializer.Ray1;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -14,7 +14,8 @@ namespace R1Engine
     /// <summary>
     /// Base game manager for GBA
     /// </summary>
-    public class R1_GBA_Manager : IGameManager {
+    public class R1_GBA_Manager : BaseGameManager
+    {
         #region Values and paths
 
         /// <summary>
@@ -27,7 +28,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetLevelCounts.Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).Append(new GameInfo_World(7, new []
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetLevelCounts.Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).Append(new GameInfo_World(7, new []
         {
             0
         })).ToArray());
@@ -79,7 +80,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
-        public virtual GameAction[] GetGameActions(GameSettings settings)
+        public override GameAction[] GetGameActions(GameSettings settings)
         {
             return new GameAction[]
             {
@@ -888,7 +889,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -1173,13 +1174,6 @@ namespace R1Engine
                 rayman: new Unity_Object_R1(ray, objManager));
         }
 
-        /// <summary>
-        /// Saves the specified level
-        /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <param name="editorManager">The level</param>
-        public UniTask SaveLevelAsync(Context context, Unity_Level editorManager) => throw new NotImplementedException();
-
         public virtual KeyValuePair<string, string[]>[] LoadLocalization(IGBAData data)
         {
             return new KeyValuePair<string, string[]>[]
@@ -1196,7 +1190,7 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GetROMBaseAddress);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GetROMBaseAddress);
 
         #endregion
     }

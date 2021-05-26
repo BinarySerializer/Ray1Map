@@ -14,7 +14,8 @@ namespace R1Engine
     /// <summary>
     /// Game manager for Jaguar
     /// </summary>
-    public class R1Jaguar_Manager : IGameManager {
+    public class R1Jaguar_Manager : BaseGameManager
+    {
         #region Values and paths
 
         /// <summary>
@@ -22,7 +23,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public virtual GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetNumLevels.OrderBy(x => x.Key).Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray());
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetNumLevels.OrderBy(x => x.Key).Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray());
 
         /// <summary>
         /// Gets the file path to the ROM file
@@ -112,7 +113,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
-        public virtual GameAction[] GetGameActions(GameSettings settings)
+        public override GameAction[] GetGameActions(GameSettings settings)
         {
             return new GameAction[]
             {
@@ -1148,7 +1149,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -1443,13 +1444,11 @@ namespace R1Engine
                 background: bg);
         }
 
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
-
         /// <summary>
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public async UniTask LoadFilesAsync(Context context) => await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
+        public override async UniTask LoadFilesAsync(Context context) => await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
 
         public virtual async UniTask<MemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
         {

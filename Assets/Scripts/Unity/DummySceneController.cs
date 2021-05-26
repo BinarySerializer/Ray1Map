@@ -13,7 +13,7 @@ public class DummySceneController : MonoBehaviour
         Data = EnumHelpers.GetValues<GameModeSelection>().Select(x => new
         {
             Mode = x,
-            Manager = (IGameManager)Activator.CreateInstance(x.GetAttribute<GameModeAttribute>().ManagerType),
+            Manager = x.GetManager(),
         }).
             Where(x => Directory.Exists(Settings.GameDirectories.TryGetItem(x.Mode))).
             SelectMany(x => x.Manager.GetLevels(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode], 1, 1)).

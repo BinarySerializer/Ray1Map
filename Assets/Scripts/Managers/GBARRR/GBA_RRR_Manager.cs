@@ -1,21 +1,20 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using BinarySerializer;
+using BinarySerializer.GBA;
+using Cysharp.Threading.Tasks;
 using ImageMagick;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBA_RRR_Manager : IGameManager
+    public class GBA_RRR_Manager : BaseGameManager
     {
         public const int CellSize = 8;
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(0, Enumerable.Range(2, 5).Append(29).ToArray()), // Child
             new GameInfo_World(1, Enumerable.Range(7, 5).ToArray()), // Forest
@@ -59,7 +58,7 @@ namespace R1Engine
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Normal)), 
             new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Vignette)),
@@ -985,7 +984,7 @@ namespace R1Engine
             }
         }
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
             var gameMode = GetCurrentGameMode(context.GetR1Settings());
@@ -1674,9 +1673,7 @@ namespace R1Engine
             return loc.Strings.Select((t, i) => new KeyValuePair<string, string[]>(languages[i], t.Where(x => !String.IsNullOrWhiteSpace(x)).ToArray())).ToArray();
         }
 
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
-
-        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
 
 		#region Hardcoded methods
 		public Dictionary<uint, uint> GetActorGraphicsData(int level, int world) {

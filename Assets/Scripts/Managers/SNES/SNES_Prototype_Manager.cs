@@ -12,9 +12,9 @@ using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
-    public class SNES_Prototype_Manager : IGameManager
+    public class SNES_Prototype_Manager : BaseGameManager
     {
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(0, new int[]
             {
@@ -24,7 +24,7 @@ namespace R1Engine
 
         public virtual string GetROMFilePath => $"ROM.sfc";
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output)),
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
@@ -200,7 +200,7 @@ namespace R1Engine
             }
         }
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -590,8 +590,6 @@ namespace R1Engine
             };
         }
 
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
-
-        public async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
     }
 }

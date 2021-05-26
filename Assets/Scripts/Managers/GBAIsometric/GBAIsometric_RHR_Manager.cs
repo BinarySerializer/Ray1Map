@@ -1,20 +1,19 @@
-﻿using Cysharp.Threading.Tasks;
-
+﻿using BinarySerializer;
+using BinarySerializer.GBA;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAIsometric_RHR_Manager : IGameManager
+    public class GBAIsometric_RHR_Manager : BaseGameManager
     {
         public const int CellSize = 8;
 
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(0, Enumerable.Range(0, 20).ToArray()),
             new GameInfo_World(1, Enumerable.Range(0, 5).ToArray()),
@@ -67,7 +66,7 @@ namespace R1Engine
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
                 new GameAction("Export Assets", false, true, (input, output) => ExportAssetsAsync(settings, output)),
                 new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output))
@@ -454,7 +453,7 @@ namespace R1Engine
             };
         }
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -899,8 +898,6 @@ namespace R1Engine
             return t;
         }
 
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
-
-        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
     }
 }

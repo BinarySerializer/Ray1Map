@@ -6,41 +6,47 @@ namespace R1Engine
     /// <summary>
     /// Defines a generic game manager
     /// </summary>
-    public interface IGameManager
+    public abstract class BaseGameManager
     {
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        GameInfo_Volume[] GetLevels(GameSettings settings);
+        public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the available game actions
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
-        GameAction[] GetGameActions(GameSettings settings);
+        public virtual GameAction[] GetGameActions(GameSettings settings) => new GameAction[0];
 
         /// <summary>
-        /// Loads the specified level for the editor
+        /// Loads the level specified by the settings for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures);
+        public abstract UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures);
 
         /// <summary>
-        /// Saves the specified level
+        /// Saves the loaded level
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="level">The level</param>
-        UniTask SaveLevelAsync(Context context, Unity_Level level);
+        public virtual UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new System.NotImplementedException();
 
         /// <summary>
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        UniTask LoadFilesAsync(Context context);
+        public virtual UniTask LoadFilesAsync(Context context) => UniTask.CompletedTask;
+
+        /// <summary>
+        /// Allows additional setup to be performed on the context once created
+        /// </summary>
+        /// <param name="context">The newly created context</param>
+        public virtual void OnContextCreated(Context context) { }
     }
 }

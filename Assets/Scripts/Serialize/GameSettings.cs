@@ -106,8 +106,8 @@ namespace R1Engine
 
         // Helpers
 
-        public IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);
-        public T GetGameManagerOfType<T>() where T : IGameManager => (T)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);
+        public BaseGameManager GetGameManager => GameModeSelection.GetManager();
+        public T GetGameManagerOfType<T>() where T : BaseGameManager => (T)GetGameManager;
         public Ray1Settings GetRay1Settings()
         {
             Ray1EngineVersion engineVersion = EngineVersion switch

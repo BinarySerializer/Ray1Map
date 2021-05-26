@@ -41,7 +41,7 @@ namespace R1Engine
         /// </summary>
         public EditorHistory<Ray1MapEditorHistoryItem> History { get; set; }
 
-        public async UniTask LoadLevelAsync(IGameManager manager, Context context) 
+        public async UniTask LoadLevelAsync(BaseGameManager manager, Context context) 
         {
             // Create the context
             serializeContext = context;

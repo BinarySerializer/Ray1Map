@@ -1,28 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using BinarySerializer;
+﻿using BinarySerializer;
 using Cysharp.Threading.Tasks;
 using ImageMagick;
 using Newtonsoft.Json;
-
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public abstract class GBC_BaseManager : IGameManager
+    public abstract class GBC_BaseManager : BaseGameManager
     {
         public const int CellSize = 8;
         public const string GlobalOffsetTableKey = "GlobalOffsetTable";
 
         public abstract int LevelCount { get; }
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             new GameInfo_World(0, Enumerable.Range(0, LevelCount).ToArray()),
         });
 
-        public virtual GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
@@ -358,7 +357,7 @@ namespace R1Engine
 
         public abstract Unity_Map[] GetMaps(Context context, GBC_PlayField playField, GBC_Level level);
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -419,10 +418,6 @@ namespace R1Engine
                 getCollisionTypeGraphicFunc: x => ((GBC_TileCollisionType)x).GetCollisionTypeGraphic(),
                 getCollisionTypeNameFunc: x => ((GBC_TileCollisionType)x).ToString());
         }
-
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
-
-        public virtual UniTask LoadFilesAsync(Context context) => UniTask.CompletedTask;
 
         public Unity_ObjGraphics GetCommonDesign(GBC_Puppet puppet)
         {

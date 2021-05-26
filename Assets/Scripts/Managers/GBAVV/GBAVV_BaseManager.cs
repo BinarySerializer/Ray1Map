@@ -1,18 +1,17 @@
-﻿using Cysharp.Threading.Tasks;
-
+﻿using BinarySerializer;
+using BinarySerializer.GBA;
+using BinarySerializer.Image;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BinarySerializer;
-using BinarySerializer.GBA;
-using BinarySerializer.Image;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public abstract class GBAVV_BaseManager : IGameManager
+    public abstract class GBAVV_BaseManager : BaseGameManager
     {
         // Constants
         public const int CellSize = GBA_ROMBase.TileSize;
@@ -25,11 +24,8 @@ namespace R1Engine
         // Graphics
         public abstract uint[] GraphicsDataPointers { get; }
 
-        // Metadata
-        public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
-
         // Tools
-        public virtual GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Animation Frames", false, true, (input, output) => ExportAnimFramesAsync(settings, output, false)),
             new GameAction("Export Animations as GIF", false, true, (input, output) => ExportAnimFramesAsync(settings, output, true)),
@@ -190,8 +186,7 @@ namespace R1Engine
         }
 
         // Load
-        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
-        public abstract UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
         public async UniTask<Unity_Level> LoadMap2DAsync(Context context, GBAVV_BaseROM rom, GBAVV_Map map, bool hasAssignedObjTypeGraphics = true)
         {
             Controller.DetailedState = "Loading tilesets";
@@ -1024,9 +1019,6 @@ namespace R1Engine
 
             return (locList.ToArray(), pointerTable);
         }
-
-        // Save
-        public virtual UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         // Helpers
         public virtual void FindDataInROM(SerializerObject s, Pointer offset = null)

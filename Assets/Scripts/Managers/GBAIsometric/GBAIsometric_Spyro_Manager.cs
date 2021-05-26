@@ -1,21 +1,18 @@
-﻿using Cysharp.Threading.Tasks;
-
+﻿using BinarySerializer;
+using BinarySerializer.GBA;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using BinarySerializer;
-using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public abstract class GBAIsometric_Spyro_Manager : IGameManager
+    public abstract class GBAIsometric_Spyro_Manager : BaseGameManager
     {
         public const int CellSize = 8;
-
-        public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
@@ -32,7 +29,7 @@ namespace R1Engine
 
         public abstract IEnumerable<string> GetLanguages { get; }
 
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
+        public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Data Blocks", false, true, (input, output) => ExportDataBlocksAsync(settings, output, false, false)),
             new GameAction("Export Data Blocks (categorized)", false, true, (input, output) => ExportDataBlocksAsync(settings, output, true, false)),
@@ -310,7 +307,7 @@ namespace R1Engine
             };
         }
 
-        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -851,9 +848,7 @@ namespace R1Engine
             return texs;
         }
 
-        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
-
-        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
 
         public async UniTask CreateInitFuncUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
         {

@@ -16,7 +16,7 @@ namespace R1Engine
             foreach (var mode in EnumHelpers.GetValues<GameModeSelection>().Where(x => Settings.GameDirectories.ContainsKey(x) && Directory.Exists(Settings.GameDirectories[x])))
             {
                 var s = new GameSettings(mode, Settings.GameDirectories[mode], 0, 0);
-                var m = (IGameManager)Activator.CreateInstance(mode.GetAttribute<GameModeAttribute>().ManagerType);
+                var m = mode.GetManager();
 
                 foreach (var vol in m.GetLevels(s))
                 {
@@ -372,7 +372,7 @@ namespace R1Engine
         }
 
         private static void GenerateJSON<T>(GameModeSelection mode, string outputDir, string name, string variantName, string engineFolder, string gameFolderName, string gameVersionFileName, string versionImg, string versionName, bool fullContent, Action<StringBuilder, T> generateAction)
-            where T : IGameManager
+            where T : BaseGameManager
         {
             StringBuilder str = new StringBuilder();
 

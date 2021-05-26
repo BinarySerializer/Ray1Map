@@ -175,7 +175,7 @@ namespace R1Engine {
         /// Gets a new manager instance for the specified mode
         /// </summary>
         /// <returns></returns>
-        public static IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(SelectedGameMode.GetAttribute<GameModeAttribute>().ManagerType);
+        public static BaseGameManager GetGameManager => SelectedGameMode.GetManager();
 
         #endregion
 
