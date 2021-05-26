@@ -129,7 +129,10 @@ namespace R1Engine
                 EngineVersion.R1Jaguar_Proto => Ray1EngineVersion.Jaguar_Proto,
                 EngineVersion.R1Jaguar_Demo => Ray1EngineVersion.Jaguar_Demo,
                 _ => throw new ArgumentOutOfRangeException()
-            };            
+            };
+
+            if (GameModeSelection == GameModeSelection.RaymanByHisFansPC || GameModeSelection == GameModeSelection.Rayman60LevelsPC)
+                engineVersion = Ray1EngineVersion.PC_Fan;
             
             Ray1PCVersion pcVersion = GameModeSelection switch
             {
@@ -151,8 +154,7 @@ namespace R1Engine
                 world: R1_World, 
                 level: Level, 
                 pcVersion: pcVersion,
-                volume: EduVolume,
-                isFan: GameModeSelection == GameModeSelection.RaymanByHisFansPC || GameModeSelection == GameModeSelection.Rayman60LevelsPC);
+                volume: EduVolume);
         }
     }
 }
