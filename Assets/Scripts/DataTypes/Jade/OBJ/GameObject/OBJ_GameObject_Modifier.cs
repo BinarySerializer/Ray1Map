@@ -13,6 +13,16 @@ namespace R1Engine.Jade {
 		public uint UInt_00 { get; set; }
 		public MDF_Modifier Modifier { get; set; }
 
+        public bool IsNull {
+            get {
+                if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+                    return Type_Montreal == MDF_ModifierType_Montreal.None;
+                } else {
+                    return Type == MDF_ModifierType.None;
+                }
+            }
+        }
+
 		public override void SerializeImpl(SerializerObject s) {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
                 SerializeImpl_Montreal(s);
@@ -95,6 +105,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType_Montreal.GEO_ModifierOnduleTonCorps => s.SerializeObject<GEO_ModifierOnduleTonCorps>((GEO_ModifierOnduleTonCorps)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.Disturber_Modifier => s.SerializeObject<MDF_ModifierDisturber>((MDF_ModifierDisturber)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierBeamGen => s.SerializeObject<GAO_ModifierBeamGen>((GAO_ModifierBeamGen)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.DARE_ModifierSound => s.SerializeObject<DARE_ModifierSound>((DARE_ModifierSound)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }

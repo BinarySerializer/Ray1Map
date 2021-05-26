@@ -7,5 +7,6 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public abstract class GRO_GraphicRenderObject : BinarySerializable {
+		public uint ObjectVersion { get; set; }
 	}
 }

@@ -21,5 +21,12 @@ namespace R1Engine.Jade {
 		STR = 10,
 		PAG = 11,
 
+		// Added for Montreal
+		GEO_SubGeometry = 12,
+		PRO_Projector = 13,
+		// Added in PoP:TFS
+		GRA_GrassField = 14,
+		PRO_TextureProjector = 15,
+
 	}
 }
