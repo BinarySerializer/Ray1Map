@@ -7,7 +7,7 @@ namespace R1Engine.Jade {
 		public PAG_ParticleGenerator Data { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			Data = s.SerializeObject<PAG_ParticleGenerator>(Data, name: nameof(Data));
+			Data = s.SerializeObject<PAG_ParticleGenerator>(Data, onPreSerialize: o => o.ObjectVersion = ObjectVersion, name: nameof(Data));
 		}
 	}
 }

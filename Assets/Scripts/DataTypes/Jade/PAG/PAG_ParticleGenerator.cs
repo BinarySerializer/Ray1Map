@@ -3,8 +3,10 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
     public class PAG_ParticleGenerator : BinarySerializable {
-        public int Int_00 { get; set; }
-        public int Type { get; set; }
+        public uint ObjectVersion { get; set; }
+
+        public int InstancesNbMaxP { get; set; }
+        public int Version { get; set; }
 
         // Generator struct
         public int Flags { get; set; }
@@ -68,14 +70,20 @@ namespace R1Engine.Jade {
         public int Phoenix_Int_0 { get; set; }
         public int Phoenix_Int_1 { get; set; }
 
+        // Montreal
+        public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-            Int_00 = s.Serialize<int>(Int_00, name: nameof(Int_00));
-            Type = s.Serialize<int>(Type, name: nameof(Type));
+            InstancesNbMaxP = s.Serialize<int>(InstancesNbMaxP, name: nameof(InstancesNbMaxP));
+            Version = (int)ObjectVersion;
+            if (Version < 21) {
+                Version = s.Serialize<int>(Version, name: nameof(Version));
+            }
 
-            if (Type == 0)
+            if (Version == 0)
             {
                 Flags = s.Serialize<byte>((byte)Flags, name: nameof(Flags));
                 GenType = s.Serialize<byte>(GenType, name: nameof(GenType));
@@ -115,41 +123,41 @@ namespace R1Engine.Jade {
 
                 Acceleration = s.SerializeObject(Acceleration, name: nameof(Acceleration));
             }
-            else if (Type == 1)
+            else if (Version == 1)
             {
                 Flags = s.Serialize<byte>((byte)Flags, name: nameof(Flags));
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
+                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Type == 2)
+            else if (Version == 2)
             {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
+                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Type == 3)
+            else if (Version == 3)
             {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
+                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Type == 4)
+            else if (Version == 4)
             {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
+                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Type == 5)
+            else if (Version == 5)
             {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
+                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Type == 6)
+            else if (Version == 6)
             {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
+                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Type == 7)
+            else if (Version == 7)
             {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
+                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Type == 8)
+            else if (Version == 8)
             {
-                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Type}");
+                throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Type == 9 || Type == 10 || Type == 11 || Type == 12) {
-                if (Type >= 11) {
+            else if (Version == 9 || Version == 10 || Version == 11 || Version == 12) {
+                if (Version >= 11) {
                     Flags = s.Serialize<int>(Flags, name: nameof(Flags));
                 } else {
                     Flags = s.Serialize<ushort>((ushort)Flags, name: nameof(Flags));
@@ -163,7 +171,7 @@ namespace R1Engine.Jade {
                 GenParam2 = s.Serialize<float>(GenParam2, name: nameof(GenParam2));
 
                 GenCountPerSecondInit = s.Serialize<float>(GenCountPerSecondInit, name: nameof(GenCountPerSecondInit));
-                GenCountPerSecond = GenCountPerSecondInit;
+                GenCountPerSecond = GenCountPerSecondInit; // NbPerSecondWantedByUser in NCIS
 
                 Speed0 = s.Serialize<float>(Speed0, name: nameof(Speed0));
                 Speed1 = s.Serialize<float>(Speed1, name: nameof(Speed1));
@@ -173,8 +181,8 @@ namespace R1Engine.Jade {
                 SizeXMax = s.Serialize<float>(SizeXMax, name: nameof(SizeXMax));
                 SizeYMin = s.Serialize<float>(SizeYMin, name: nameof(SizeYMin));
                 SizeYMax = s.Serialize<float>(SizeYMax, name: nameof(SizeYMax));
-                TimeMin = s.Serialize<float>(TimeMin, name: nameof(TimeMin));
-                TimeMax = s.Serialize<float>(TimeMax, name: nameof(TimeMax));
+                TimeMin = s.Serialize<float>(TimeMin, name: nameof(TimeMin)); // TimeOriginalMin
+                TimeMax = s.Serialize<float>(TimeMax, name: nameof(TimeMax)); // TimeOriginalMax
                 TimeDeathMin = s.Serialize<float>(TimeDeathMin, name: nameof(TimeDeathMin));
                 TimeDeathMax = s.Serialize<float>(TimeDeathMax, name: nameof(TimeDeathMax));
                 TimeBirthMin = s.Serialize<float>(TimeBirthMin, name: nameof(TimeBirthMin));
@@ -182,7 +190,7 @@ namespace R1Engine.Jade {
 
                 Acceleration = s.SerializeObject(Acceleration, name: nameof(Acceleration));
 
-                Friction = s.Serialize<float>(Friction, name: nameof(Friction));
+                Friction = s.Serialize<float>(Friction, name: nameof(Friction)); // FrictionTranslationOriginal
                 SizeDeathFactor = s.Serialize<float>(SizeDeathFactor, name: nameof(SizeDeathFactor));
 
                 Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
@@ -195,22 +203,27 @@ namespace R1Engine.Jade {
                 RotationMax = s.Serialize<float>(RotationMax, name: nameof(RotationMax));
                 RotationSpeedMin = s.Serialize<float>(RotationSpeedMin, name: nameof(RotationSpeedMin));
                 RotationSpeedMax = s.Serialize<float>(RotationSpeedMax, name: nameof(RotationSpeedMax));
-                SinXFactor = s.Serialize<float>(SinXFactor, name: nameof(SinXFactor));
-                SinYFactor = s.Serialize<float>(SinYFactor, name: nameof(SinYFactor));
 
-                if (Type >= 10) {
-                    DistConstraint = s.Serialize<float>(DistConstraint, name: nameof(DistConstraint));
-                }
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+                    SinXFactor = s.Serialize<float>(SinXFactor, name: nameof(SinXFactor));
+                    SinYFactor = s.Serialize<float>(SinYFactor, name: nameof(SinYFactor));
 
-                if (Type >= 12) {
-                    Byte_270 = s.Serialize<byte>(Byte_270, name: nameof(Byte_270));
-
-                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)) {
-                        Phoenix_Float_0 = s.Serialize<float>(Phoenix_Float_0, name: nameof(Phoenix_Float_0));
-                        Phoenix_Float_1 = s.Serialize<float>(Phoenix_Float_1, name: nameof(Phoenix_Float_1));
-                        Phoenix_Int_0 = s.Serialize<int>(Phoenix_Int_0, name: nameof(Phoenix_Int_0));
-                        Phoenix_Int_1 = s.Serialize<int>(Phoenix_Int_1, name: nameof(Phoenix_Int_1));
+                    if (Version >= 10) {
+                        DistConstraint = s.Serialize<float>(DistConstraint, name: nameof(DistConstraint));
                     }
+
+                    if (Version >= 12) {
+                        Byte_270 = s.Serialize<byte>(Byte_270, name: nameof(Byte_270));
+
+                        if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)) {
+                            Phoenix_Float_0 = s.Serialize<float>(Phoenix_Float_0, name: nameof(Phoenix_Float_0));
+                            Phoenix_Float_1 = s.Serialize<float>(Phoenix_Float_1, name: nameof(Phoenix_Float_1));
+                            Phoenix_Int_0 = s.Serialize<int>(Phoenix_Int_0, name: nameof(Phoenix_Int_0));
+                            Phoenix_Int_1 = s.Serialize<int>(Phoenix_Int_1, name: nameof(Phoenix_Int_1));
+                        }
+                    }
+                } else {
+                    GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject));
                 }
             }
         }
