@@ -769,7 +769,7 @@ namespace R1Engine
             }
         }
 
-        public Unity_Object_R1Jaguar CreateEventData(Context c, JAG_EventDefinition ed, List<Unity_ObjectManager_R1Jaguar.EventDefinition> eventDefinitions, bool loadTextures, Unity_ObjectManager_R1Jaguar objManager)
+        public Unity_Object_R1Jaguar CreateEventData(Context c, JAG_EventDefinition ed, List<Unity_ObjectManager_R1Jaguar.EventDefinition> eventDefinitions, Unity_ObjectManager_R1Jaguar objManager)
         {
             if (ed == null)
                 return null;
@@ -842,7 +842,7 @@ namespace R1Engine
                     foreach (Sprite img in imgDesc)
                     {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures && rom.ImageBuffers.ContainsKey(key) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[key]) : null;
+                        Texture2D tex = rom.ImageBuffers.ContainsKey(key) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[key]) : null;
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
@@ -1144,12 +1144,11 @@ namespace R1Engine
         };
 
         /// <summary>
-        /// Loads the specified level for the editor
+        /// Loads the level specified by the settings for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -1200,7 +1199,7 @@ namespace R1Engine
             var eventDefs = rom.EventDefinitions?.Concat(rom.AdditionalEventDefinitions ?? new JAG_EventDefinition[0]).ToArray() ?? new JAG_EventDefinition[0];
 
             // Helper method for loading an event definition
-            Unity_Object_R1Jaguar loadEventDef(JAG_EventDefinition def) => CreateEventData(context, def, eventDefinitions, loadTextures, objManager);
+            Unity_Object_R1Jaguar loadEventDef(JAG_EventDefinition def) => CreateEventData(context, def, eventDefinitions, objManager);
 
             // Load special events so we can display them
             var specialPointers = GetSpecialEventPointers(context);
@@ -1210,7 +1209,7 @@ namespace R1Engine
             var piranha = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual])) : null; // Piranha
             var scroll = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual])) : null; // Scroll
             var rayBzzit = (correctEventStates && context.GetR1Settings().R1_World == World.Jungle && context.GetR1Settings().Level == 7) ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual])) : null; // Rayman on Bzzit
-            var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDefinitions, loadTextures, objManager) : null; // Bzzit (demo)
+            var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDefinitions, objManager) : null; // Bzzit (demo)
 
             var eventDataList = new List<Unity_Object>();
 

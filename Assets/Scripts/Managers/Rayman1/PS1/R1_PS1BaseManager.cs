@@ -211,20 +211,18 @@ namespace R1Engine
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <param name="bg">The background block data if available</param>
         /// <returns>The level</returns>
-        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, ObjData[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_BackgroundBlock bg = null)
+        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, ObjData[] events, ushort[] eventLinkingTable, PS1_BackgroundBlock bg = null)
         {
             Unity_TileSet tileSet = GetTileSet(context);
 
             var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>>();
             var eventETA = new List<Unity_ObjectManager_R1.DataContainer<ObjState[][]>>();
 
-            // Only load the v-ram if we're loading textures
-            if (loadTextures)
-                // Get the v-ram
-                FillVRAM(context, context.GetR1Settings().R1_World == World.Menu ? VRAMMode.Menu : VRAMMode.Level);
+            // Get the v-ram
+            FillVRAM(context, context.GetR1Settings().R1_World == World.Menu ? VRAMMode.Menu : VRAMMode.Level);
 
             // Load background sprites
-            if (bg != null && loadTextures)
+            if (bg != null)
             {
                 Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
                 {
@@ -277,7 +275,7 @@ namespace R1Engine
                     foreach (Sprite i in imgDescriptors)
                     {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures ? GetSpriteTexture(context, imageBuffer, i) : null;
+                        Texture2D tex = GetSpriteTexture(context, imageBuffer, i);
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
@@ -450,7 +448,7 @@ namespace R1Engine
                     using (var context = new R1Context(baseGameSettings))
                     {
                         // Load the editor manager
-                        var level = await LoadAsync(context, true);
+                        var level = await LoadAsync(context);
 
                         // Set up animations
                         level.ObjManager.InitObjects(level);
@@ -532,7 +530,7 @@ namespace R1Engine
                     using (var context = new R1Context(baseGameSettings))
                     {
                         // Load the level
-                        var level = await LoadAsync(context, true);
+                        var level = await LoadAsync(context);
 
                         var objManager = (Unity_ObjectManager_R1)level.ObjManager;
 

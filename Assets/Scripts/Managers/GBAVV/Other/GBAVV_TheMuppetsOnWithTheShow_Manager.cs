@@ -32,7 +32,7 @@ namespace R1Engine
         };
 
         // Load
-        public override UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override UniTask<Unity_Level> LoadAsync(Context context)
         {
             // All maps are hard-coded
             throw new System.NotImplementedException();

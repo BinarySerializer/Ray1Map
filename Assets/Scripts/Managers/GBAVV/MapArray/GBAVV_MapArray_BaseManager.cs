@@ -20,7 +20,7 @@ namespace R1Engine
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Load
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             if (GraphicsDataPointers.Length == 0)
                 FindDataInROM(context.Deserializer);

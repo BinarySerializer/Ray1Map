@@ -307,7 +307,7 @@ namespace R1Engine
             };
         }
 
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -963,7 +963,7 @@ namespace R1Engine
                         await LoadFilesAsync(context);
 
                         // Load level
-                        var level = await LoadAsync(context, false);
+                        var level = await LoadAsync(context);
 
                         // Init the objects
                         level.ObjManager.InitObjects(level);

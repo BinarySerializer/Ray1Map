@@ -42,7 +42,7 @@ namespace R1Engine
             Debug.Log($"Finished export");
         }
 
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             //FindDataInROM(context.Deserializer, context.FilePointer(GetROMFilePath));
             //FindObjTypeData(context);

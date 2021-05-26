@@ -313,12 +313,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level for the editor
+        /// Loads the level specified by the settings for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             // Get the paths
             var allfixFilePath = GetAllfixFilePath();
@@ -372,7 +371,7 @@ namespace R1Engine
             await LoadFile(context, GetFixImageFilePath());
 
             // Load the level
-            return await LoadAsync(context, mapData, objBlock?.Objects, objBlock?.ObjectLinkingTable.Select(b => (ushort)b).ToArray(), loadTextures);
+            return await LoadAsync(context, mapData, objBlock?.Objects, objBlock?.ObjectLinkingTable.Select(b => (ushort)b).ToArray());
         }
 
         /// <summary>

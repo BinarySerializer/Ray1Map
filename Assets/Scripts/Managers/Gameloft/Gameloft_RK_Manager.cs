@@ -1007,7 +1007,8 @@ namespace R1Engine
 		}
 		#endregion
 
-		public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) {
+		public override async UniTask<Unity_Level> LoadAsync(Context context)
+        {
 			await UniTask.CompletedTask;
 			var resf = FileFactory.Read<Gameloft_ResourceFile>(GetLevelPath(context.GetR1Settings()), context);
 			var ind = GetLevelResourceIndex(context.GetR1Settings());

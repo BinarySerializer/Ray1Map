@@ -21,12 +21,12 @@ namespace R1Engine
             await rdManager.LoadFilesAsync(outputContext);
 
             // Load the mapper level
-            var inputLev = (await mapperManager.LoadAsync(inputContext, false));
+            var inputLev = (await mapperManager.LoadAsync(inputContext));
             var inputMap = inputLev.Maps[0];
             var inputObjManager = (Unity_ObjectManager_R1)inputLev.ObjManager;
 
             // Load the editor manager data for the output level
-            var outData = await rdManager.LoadAsync(outputContext, true);
+            var outData = await rdManager.LoadAsync(outputContext);
             var outputObjManager = (Unity_ObjectManager_R1)outData.ObjManager;
 
             // Load a dummy PC level as a base

@@ -48,10 +48,10 @@ namespace R1Engine
             new ModifiedActorState(20, 3, 0, 1), // Sphere base
         };
 
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             if (GetLevelType(context) != LevelType.R3SinglePak)
-                return await base.LoadAsync(context, loadTextures);
+                return await base.LoadAsync(context);
 
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();

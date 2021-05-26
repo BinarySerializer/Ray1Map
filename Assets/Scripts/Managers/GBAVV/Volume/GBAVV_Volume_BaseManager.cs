@@ -1,9 +1,8 @@
-﻿using System;
+﻿using BinarySerializer;
 using Cysharp.Threading.Tasks;
-
+using System;
 using System.Linq;
 using System.Text;
-using BinarySerializer;
 
 namespace R1Engine
 {
@@ -22,7 +21,7 @@ namespace R1Engine
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Load
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             if (GraphicsDataPointers.Length == 0)
                 FindDataInROM(context.Deserializer);

@@ -1275,12 +1275,11 @@ namespace R1Engine
         public abstract string[] GetETANameTable(Context context);
 
         /// <summary>
-        /// Loads the specified level for the editor
+        /// Loads the level specified by the settings for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             Controller.DetailedState = $"Loading map data";
 
@@ -1342,7 +1341,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the sprites
-            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, palettes.First()) : new Unity_ObjectManager_R1.DESData[0];
+            var eventDesigns = await LoadSpritesAsync(context, palettes.First());
 
             var bigRayName = Path.GetFileNameWithoutExtension(GetBigRayFilePath(context.GetR1Settings()));
 

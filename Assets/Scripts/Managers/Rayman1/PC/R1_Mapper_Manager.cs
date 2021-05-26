@@ -71,9 +71,8 @@ namespace R1Engine
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             // Get the level folder path
             var basePath = await GetLevelFolderPath(context);
@@ -114,7 +113,7 @@ namespace R1Engine
             var vgaPalette = pcx.VGAPalette;
 
             // Load the sprites
-            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, vgaPalette) : new Unity_ObjectManager_R1.DESData[0];
+            var eventDesigns = await LoadSpritesAsync(context, vgaPalette);
 
             // Read the world data
             var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context);

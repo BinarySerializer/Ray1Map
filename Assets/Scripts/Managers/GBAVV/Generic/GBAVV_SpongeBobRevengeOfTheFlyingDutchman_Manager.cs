@@ -50,7 +50,7 @@ namespace R1Engine
         public override UniTask ExportCutscenesAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         // Load
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             Controller.DetailedState = "Loading data";
             await Controller.WaitIfNecessary();

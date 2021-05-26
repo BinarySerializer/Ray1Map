@@ -215,12 +215,11 @@ namespace R1Engine
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[0];
 
         /// <summary>
-        /// Loads the specified level for the editor
+        /// Loads the level specified by the settings for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             await Controller.WaitIfNecessary();
             Controller.DetailedState = $"Loading files";
@@ -269,9 +268,8 @@ namespace R1Engine
 
             var commonEvents = new List<Unity_Object>();
 
-            if (loadTextures)
-                // Get the v-ram
-                FillVRAM(context, VRAMMode.Level);
+            // Get the v-ram
+            FillVRAM(context, VRAMMode.Level);
 
 
             // Create the global design list
@@ -408,7 +406,7 @@ namespace R1Engine
             using (var context = new R1Context(baseGameSettings))
             {
                 // Load the level
-                var level = await LoadAsync(context, true);
+                var level = await LoadAsync(context);
 
                 var objManager = (Unity_ObjectManager_R2)level.ObjManager;
                 var sprites = objManager.Sprites.Select(x => x?.texture).ToArray();

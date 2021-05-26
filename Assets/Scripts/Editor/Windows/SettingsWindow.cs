@@ -590,7 +590,7 @@ public class SettingsWindow : UnityWindow
                     await manager.LoadFilesAsync(context);
 
                     // Load the level
-                    var level = await manager.LoadAsync(context, true);
+                    var level = await manager.LoadAsync(context);
 
                     // Randomize (only first map for now)
                     Randomizer.Randomize(level, flag, world.Index + lvl + RandomizerSeed, 0);

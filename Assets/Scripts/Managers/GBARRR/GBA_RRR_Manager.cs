@@ -984,7 +984,7 @@ namespace R1Engine
             }
         }
 
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
             var gameMode = GetCurrentGameMode(context.GetR1Settings());

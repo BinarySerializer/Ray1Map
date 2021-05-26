@@ -884,12 +884,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level for the editor
+        /// Loads the level specified by the settings for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -982,7 +981,7 @@ namespace R1Engine
                 foreach (Sprite img in graphics.Sprites)
                 {
                     // Get the texture for the sprite, or null if not loading textures
-                    Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics.ImageBuffer, img, spritePalette) : null;
+                    Texture2D tex = GetSpriteTexture(context, graphics.ImageBuffer, img, spritePalette);
 
                     // Add it to the array
                     finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());

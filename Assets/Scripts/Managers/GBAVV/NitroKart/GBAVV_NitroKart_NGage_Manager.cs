@@ -1023,7 +1023,7 @@ namespace R1Engine
             return new Vector2(width, height);
         }
 
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             // Load the data file
             var data = FileFactory.Read<GBAVV_NitroKart_NGage_DataFile>(DataFilePath, context);

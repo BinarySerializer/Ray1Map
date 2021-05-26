@@ -167,12 +167,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level for the editor
+        /// Loads the level specified by the settings for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The level</returns>
-        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             // Get the file paths
             var mapPath = GetMapFilePath(context.GetR1Settings());
@@ -183,7 +182,7 @@ namespace R1Engine
             var level = FileFactory.Read<PS1_JPDemo_LevFile>(levelPath, context);
 
             // Load the level
-            return await LoadAsync(context, map, level.Objects, level.ObjectLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
+            return await LoadAsync(context, map, level.Objects, level.ObjectLinkTable.Select(x => (ushort)x).ToArray());
         }
 
         public override async UniTask LoadFilesAsync(Context context)
