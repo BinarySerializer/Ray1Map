@@ -51,7 +51,7 @@ namespace R1Engine
         public EngineVersion EngineVersion { get; }
 
         /// <summary>
-        /// Engine parameters that should not be cuonted as a separate version
+        /// Engine parameters that should not be counted as a separate version
         /// </summary>
         public EngineFlags EngineFlags { get; }
 

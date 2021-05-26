@@ -1,60 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using BinarySerializer;
 
-namespace R1Engine {
-    public class EngineVersionTree {
-        public Node Root { get; set; }
-        public Node Current { get; set; }
-
-        public void Init() {
-            Root.PropagateParents();
-        }
-
-        public bool HasParent(EngineVersion version) => Current.HasParent(version);
-        public Node FindEngineVersion(EngineVersion version) => Root.FindEngineVersion(version);
-
-        public class Node {
-            public EngineVersion Version { get; set; }
-
-            public Node[] Children { get; set; }
-
-            protected HashSet<EngineVersion> ParentVersions { get; set; } = new HashSet<EngineVersion>();
-
-            public bool HasParent(EngineVersion version) => Version == version || ParentVersions.Contains(version);
-            public Node FindEngineVersion(EngineVersion version) {
-                if(Version == version) return this;
-                if(Children == null) return null;
-                foreach (var child in Children) {
-                    var result = child.FindEngineVersion(version);
-                    if(result != null) return result;
-                }
-                return null;
-            }
-
-            public void PropagateParents() {
-                if (Children == null) return;
-                foreach (var child in Children) {
-                    foreach (var pv in ParentVersions)
-                        child.ParentVersions.Add(pv);
-                    child.ParentVersions.Add(Version);
-                    child.PropagateParents();
-                }
-            }
-
-            public Node(EngineVersion version) {
-                Version = version;
-            }
-
-            public Node SetChildren(params Node[] nodes) {
-                Children = nodes;
-                return this;
-            }
-        }
-
-        public static EngineVersionTree Create(GameSettings settings) {
-            switch (settings.MajorEngineVersion) {
-                case MajorEngineVersion.Jade: return Create_Jade(settings);
-                default: return null;
-            }
+namespace R1Engine
+{
+    public class EngineVersionTree : VersionTree<EngineVersion>
+    {
+        public static EngineVersionTree Create(GameSettings settings)
+        {
+            return settings.MajorEngineVersion switch
+            {
+                MajorEngineVersion.Jade => Create_Jade(settings),
+                _ => null
+            };
         }
 
         public static EngineVersionTree Create_Jade(GameSettings settings) {
@@ -97,7 +53,7 @@ namespace R1Engine {
                 )
             };
             tree.Init();
-            tree.Current = tree.FindEngineVersion(settings.EngineVersion);
+            tree.Current = tree.FindVersion(settings.EngineVersion);
             
             return tree;
         }
