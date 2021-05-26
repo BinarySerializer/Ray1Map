@@ -128,6 +128,7 @@ namespace R1Engine
                 EngineVersion.R1Jaguar => Ray1EngineVersion.Jaguar,
                 EngineVersion.R1Jaguar_Proto => Ray1EngineVersion.Jaguar_Proto,
                 EngineVersion.R1Jaguar_Demo => Ray1EngineVersion.Jaguar_Demo,
+                EngineVersion.SNES => Ray1EngineVersion.SNES,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
