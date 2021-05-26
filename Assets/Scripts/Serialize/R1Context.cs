@@ -27,6 +27,8 @@ namespace R1Engine
                 settings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar ||
                 settings.MajorEngineVersion == MajorEngineVersion.SNES)
                 AddSettings(settings.GetRay1Settings());
+
+            settings.GetGameManager.OnContextCreated(this);
         }
         public R1Context(GameSettings settings) : this(settings.GameDirectory, settings) { }
 
