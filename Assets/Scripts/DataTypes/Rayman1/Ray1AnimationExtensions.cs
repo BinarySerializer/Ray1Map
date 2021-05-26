@@ -5,7 +5,7 @@ namespace R1Engine
     /// <summary>
     /// Extension methods for <see cref="IAnimation"/>
     /// </summary>
-    public static class AnimationDescriptorExtensions
+    public static class Ray1AnimationExtensions
     {
         /// <summary>
         /// Gets a common animation from the animation descriptor

@@ -69,7 +69,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Where(w => Directory.Exists(settings.GameDirectory + GetWorldFolderPath(w)))
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.EnumerateWorlds().Where(w => Directory.Exists(settings.GameDirectory + GetWorldFolderPath(w)))
             .Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"{GetWorldName(w)}**.XXX", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Where(x => x.Length == 5)

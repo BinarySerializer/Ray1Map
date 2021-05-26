@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 
 namespace R1Engine
@@ -256,7 +256,7 @@ namespace R1Engine
 
                 await AddFile(context, lngPath);
 
-                var langFile = R1FileFactory.ReadText<R1_TextLocFile>(lngPath, context, encoding: lang.Encoding);
+                var langFile = Ray1TextFileFactory.ReadText<TextLocFile>(lngPath, context, encoding: lang.Encoding);
 
                 loc.Add(new KeyValuePair<string, string[]>(lang.Language, langFile.Strings));
             }

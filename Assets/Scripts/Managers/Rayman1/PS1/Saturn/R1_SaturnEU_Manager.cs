@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BinarySerializer;
+using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
-
 
 namespace R1Engine
 {
@@ -41,7 +41,7 @@ namespace R1Engine
             {
                 var filePath = GetLanguageFilePath(lang.LangCode);
                 await FileSystem.PrepareFile(context.GetAbsoluteFilePath(filePath));
-                var langFile = R1FileFactory.ReadText<R1_TextLocFile>(filePath, context);
+                var langFile = Ray1TextFileFactory.ReadText<TextLocFile>(filePath, context);
                 loc.Add(new KeyValuePair<string, string[]>(lang.Language, langFile.Strings));
             }
 

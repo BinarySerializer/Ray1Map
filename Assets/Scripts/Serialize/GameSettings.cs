@@ -112,22 +112,22 @@ namespace R1Engine
         {
             Ray1EngineVersion engineVersion = EngineVersion switch
             {
-                EngineVersion.R1_PS1 => Ray1EngineVersion.R1_PS1,
+                EngineVersion.R1_PS1 => Ray1EngineVersion.PS1,
                 EngineVersion.R2_PS1 => Ray1EngineVersion.R2_PS1,
-                EngineVersion.R1_PS1_JP => Ray1EngineVersion.R1_PS1_JP,
-                EngineVersion.R1_PS1_JPDemoVol3 => Ray1EngineVersion.R1_PS1_JPDemoVol3,
-                EngineVersion.R1_PS1_JPDemoVol6 => Ray1EngineVersion.R1_PS1_JPDemoVol6,
-                EngineVersion.R1_Saturn => Ray1EngineVersion.R1_Saturn,
-                EngineVersion.R1_PC => Ray1EngineVersion.R1_PC,
-                EngineVersion.R1_PocketPC => Ray1EngineVersion.R1_PocketPC,
-                EngineVersion.R1_PC_Kit => Ray1EngineVersion.R1_PC_Kit,
-                EngineVersion.R1_PC_Edu => Ray1EngineVersion.R1_PC_Edu,
-                EngineVersion.R1_PS1_Edu => Ray1EngineVersion.R1_PS1_Edu,
-                EngineVersion.R1_GBA => Ray1EngineVersion.R1_GBA,
-                EngineVersion.R1_DSi => Ray1EngineVersion.R1_DSi,
-                EngineVersion.R1Jaguar => Ray1EngineVersion.R1Jaguar,
-                EngineVersion.R1Jaguar_Proto => Ray1EngineVersion.R1Jaguar_Proto,
-                EngineVersion.R1Jaguar_Demo => Ray1EngineVersion.R1Jaguar_Demo,
+                EngineVersion.R1_PS1_JP => Ray1EngineVersion.PS1_JP,
+                EngineVersion.R1_PS1_JPDemoVol3 => Ray1EngineVersion.PS1_JPDemoVol3,
+                EngineVersion.R1_PS1_JPDemoVol6 => Ray1EngineVersion.PS1_JPDemoVol6,
+                EngineVersion.R1_Saturn => Ray1EngineVersion.Saturn,
+                EngineVersion.R1_PC => Ray1EngineVersion.PC,
+                EngineVersion.R1_PocketPC => Ray1EngineVersion.PocketPC,
+                EngineVersion.R1_PC_Kit => Ray1EngineVersion.PC_Kit,
+                EngineVersion.R1_PC_Edu => Ray1EngineVersion.PC_Edu,
+                EngineVersion.R1_PS1_Edu => Ray1EngineVersion.PS1_Edu,
+                EngineVersion.R1_GBA => Ray1EngineVersion.GBA,
+                EngineVersion.R1_DSi => Ray1EngineVersion.DSi,
+                EngineVersion.R1Jaguar => Ray1EngineVersion.Jaguar,
+                EngineVersion.R1Jaguar_Proto => Ray1EngineVersion.Jaguar_Proto,
+                EngineVersion.R1Jaguar_Demo => Ray1EngineVersion.Jaguar_Demo,
                 _ => throw new ArgumentOutOfRangeException()
             };            
             

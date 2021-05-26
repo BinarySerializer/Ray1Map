@@ -2,7 +2,6 @@
 using BinarySerializer;
 using Cysharp.Threading.Tasks;
 
-
 namespace R1Engine
 {
     public static class ContextExtensions

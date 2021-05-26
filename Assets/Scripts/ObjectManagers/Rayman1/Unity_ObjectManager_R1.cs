@@ -93,7 +93,7 @@ namespace R1Engine
 
             if (UsesLocalCommands)
             {
-                var compiledData = e.Commands == null ? null : EventCommandCompiler.Compile(e.Commands, e.Commands.ToBytes(() => new R1Context(Context.GetR1Settings())));
+                var compiledData = e.Commands == null ? null : ObjCommandCompiler.Compile(e.Commands);
                 compiledCmds = compiledData?.Commands?.ToBytes(() => new R1Context(Context.GetR1Settings())) ?? new byte[0];
                 labelOffsets = compiledData?.LabelOffsets ?? new ushort[0];
             }
@@ -201,7 +201,7 @@ namespace R1Engine
             // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
             if (UsesLocalCommands)
             {
-                cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(CommandCollection.FromBytes(e.Commands, () => new R1Context(Context.GetR1Settings())), e.LabelOffsets), e.Commands);
+                cmds = ObjCommandCompiler.Decompile(new ObjCommandCompiler.CompiledObjCommandData(CommandCollection.FromBytes(e.Commands, () => new R1Context(Context.GetR1Settings())), e.LabelOffsets), e.Commands);
             }
             else if (e.Commands.Any())
             {

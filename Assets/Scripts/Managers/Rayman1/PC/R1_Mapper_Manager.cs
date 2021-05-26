@@ -57,7 +57,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(w), "MAP*", SearchOption.TopDirectoryOnly)
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.EnumerateWorlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(w), "MAP*", SearchOption.TopDirectoryOnly)
             .Select(Path.GetFileName)
             .Where(x => x.Length < 7)
             .Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3)))
@@ -102,8 +102,8 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var mapEvents = FileFactory.Read<JAG_MapEvents>(mapEventsPath, context);
-            var saveEvents = R1FileFactory.ReadText<R1_Mapper_SaveEvents>(saveEventsPath, context);
-            var csv = R1FileFactory.ReadText<R1_Mapper_EventManifest>(eventsCsvPath, context);
+            var saveEvents = Ray1TextFileFactory.ReadText<Mapper_SaveEvents>(saveEventsPath, context);
+            var csv = Ray1TextFileFactory.ReadText<Mapper_EventManifest>(eventsCsvPath, context);
 
             Controller.DetailedState = $"Loading tileset";
             await Controller.WaitIfNecessary();

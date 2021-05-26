@@ -280,7 +280,7 @@ namespace R1Engine
                 var eventInfo = LevelEditorData.EventInfoData;
 
                 // Get the DES names for every world
-                var desNames = WorldHelpers.GetR1Worlds().ToDictionary(x => x, world => {
+                var desNames = WorldHelpers.EnumerateWorlds().ToDictionary(x => x, world => {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
                     context.GetSettings<Ray1Settings>().World = world;
@@ -298,7 +298,7 @@ namespace R1Engine
                 });
 
                 // Get the ETA names for every world
-                var etaNames = WorldHelpers.GetR1Worlds().ToDictionary(x => x, world => {
+                var etaNames = WorldHelpers.EnumerateWorlds().ToDictionary(x => x, world => {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
                     context.GetSettings<Ray1Settings>().World = world;
@@ -347,7 +347,7 @@ namespace R1Engine
                 var allfix = await ExportTexturesAsync<PC_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), "Allfix", 0, new PC_ETA[0], desNames.Values.FirstOrDefault(), etaNames.Values.FirstOrDefault());
 
                 // Enumerate every world
-                foreach (World world in WorldHelpers.GetR1Worlds()) {
+                foreach (World world in WorldHelpers.EnumerateWorlds()) {
                     // Set the world
                     context.GetR1Settings().R1_World = world;
                     context.GetSettings<Ray1Settings>().World = world;

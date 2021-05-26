@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -29,5 +30,12 @@ namespace R1Engine
             // Return the first attribute
             return attributes?.FirstOrDefault<T>();
         }
+
+        /// <summary>
+        /// Gets the flags from an enum value
+        /// </summary>
+        /// <param name="e">The enum value</param>
+        /// <returns>The flags</returns>
+        public static IEnumerable<Enum> GetFlags(this Enum e) => Enum.GetValues(e.GetType()).Cast<Enum>().Where(v => !Equals((int)Convert.ChangeType(v, typeof(int)), 0) && e.HasFlag(v));
     }
 }

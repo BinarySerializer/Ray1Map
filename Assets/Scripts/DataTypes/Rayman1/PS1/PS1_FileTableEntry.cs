@@ -66,8 +66,8 @@ namespace BinarySerializer.Ray1
         {
             var settings = s.GetSettings<Ray1Settings>();
 
-            if (settings.EngineVersion == Ray1EngineVersion.R1_PS1_JPDemoVol3 ||
-                settings.EngineVersion == Ray1EngineVersion.R1_PS1_JPDemoVol6)
+            if (settings.EngineVersion == Ray1EngineVersion.PS1_JPDemoVol3 ||
+                settings.EngineVersion == Ray1EngineVersion.PS1_JPDemoVol6)
             {
                 FilePath = s.SerializeString(FilePath, 32, name: nameof(FilePath));
                 MemoryAddress = s.Serialize<uint>(MemoryAddress, name: nameof(MemoryAddress));
@@ -78,7 +78,7 @@ namespace BinarySerializer.Ray1
                 s.Serialize<byte>(default, name: "Padding");
                 s.Log($"LBA: {LBA}");
                 FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
-                s.SerializeArray<byte>(new byte[settings.EngineVersion == Ray1EngineVersion.R1_PS1_JPDemoVol6 ? 12 : 8], settings.EngineVersion == Ray1EngineVersion.R1_PS1_JPDemoVol6 ? 12 : 8, name: "Padding");
+                s.SerializeArray<byte>(new byte[settings.EngineVersion == Ray1EngineVersion.PS1_JPDemoVol6 ? 12 : 8], settings.EngineVersion == Ray1EngineVersion.PS1_JPDemoVol6 ? 12 : 8, name: "Padding");
             }
             else
             {
@@ -99,8 +99,8 @@ namespace BinarySerializer.Ray1
             ProcessedFilePath = FilePath.Replace('\\', '/').Replace(";1", "").TrimStart('/');
 
             if (s.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1EUDemo || 
-                settings.EngineVersion == Ray1EngineVersion.R1_PS1_JPDemoVol3 ||
-                settings.EngineVersion == Ray1EngineVersion.R1_PS1_JPDemoVol6)
+                settings.EngineVersion == Ray1EngineVersion.PS1_JPDemoVol3 ||
+                settings.EngineVersion == Ray1EngineVersion.PS1_JPDemoVol6)
                 ProcessedFilePath = ProcessedFilePath.Replace("RAY/", "");
         }
     }
