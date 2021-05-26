@@ -1191,6 +1191,24 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GetROMBaseAddress);
 
+        public override void OnContextCreated(Context context)
+        {
+            switch (context.GetR1Settings().GameModeSelection)
+            {
+                case GameModeSelection.RaymanAdvanceGBAUS:
+                    context.AddPreDefinedPointers(GBA_DefinedPointers.GBA_US);
+                    break;
+
+                case GameModeSelection.RaymanAdvanceGBAEU:
+                    context.AddPreDefinedPointers(GBA_DefinedPointers.GBA_EU);
+                    break;
+
+                case GameModeSelection.RaymanAdvanceGBAEUBeta:
+                    context.AddPreDefinedPointers(GBA_DefinedPointers.GBA_EUBeta);
+                    break;
+            }
+        }
+
         #endregion
     }
 }

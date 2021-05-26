@@ -116,6 +116,11 @@ namespace R1Engine
             Util.ByteArrayToFile(s.Context.GetAbsoluteFilePath("relocated.bin"), data);
         }
 
+        public override void OnContextCreated(Context context)
+        {
+            context.AddPreDefinedPointers(DSi_DefinedPointers.DSi);
+        }
+
         #endregion
     }
 }
