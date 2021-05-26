@@ -23,7 +23,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Where(x => Directory.Exists(settings.GameDirectory + GetWorldFolderPath(x))).Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"RAY??.LEV", SearchOption.TopDirectoryOnly)
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.EnumerateWorlds().Where(x => Directory.Exists(settings.GameDirectory + GetWorldFolderPath(x))).Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"RAY??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).Append(new GameInfo_World(7, new []
@@ -182,7 +182,7 @@ namespace R1Engine
             await FileSystem.PrepareFile(context.GetAbsoluteFilePath(lngPath));
 
             // Read the language file
-            var lng = R1FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
+            var lng = Ray1TextFileFactory.ReadText<PC_LNGFile>(lngPath, context);
 
             var loc = new List<KeyValuePair<string, string[]>>();
 

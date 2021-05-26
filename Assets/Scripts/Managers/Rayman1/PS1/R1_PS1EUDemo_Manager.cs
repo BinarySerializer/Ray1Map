@@ -39,7 +39,7 @@ namespace R1Engine
             // Create the dictionary
             return new KeyValuePair<string, string[]>[]
             {
-                new KeyValuePair<string, string[]>("English", R1FileFactory.ReadText<R1_TextLocFile>(filePath, context).Strings)
+                new KeyValuePair<string, string[]>("English", Ray1TextFileFactory.ReadText<TextLocFile>(filePath, context).Strings)
             };
         }
 

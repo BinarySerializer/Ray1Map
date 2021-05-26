@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace R1Engine
 {
@@ -18,12 +16,5 @@ namespace R1Engine
         /// <exception cref="InvalidOperationException">The method is invoked by reflection in a reflection-only context, -or- 
         /// input s a type from an assembly loaded in a reflection-only context</exception>
         public static T[] GetValues<T>() where T : Enum => (T[])Enum.GetValues(typeof(T));
-
-        /// <summary>
-        /// Gets the flags from an enum value
-        /// </summary>
-        /// <param name="e">The enum value</param>
-        /// <returns>The flags</returns>
-        public static IEnumerable<Enum> GetFlags(this Enum e) => Enum.GetValues(e.GetType()).Cast<Enum>().Where(v => !Equals((int)Convert.ChangeType(v, typeof(int)), 0) && e.HasFlag(v));
     }
 }
