@@ -118,6 +118,8 @@ namespace R1Engine
 
         public override void OnContextCreated(Context context)
         {
+            base.OnContextCreated(context);
+
             context.AddPreDefinedPointers(DSi_DefinedPointers.DSi);
         }
 

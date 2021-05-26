@@ -12,7 +12,7 @@ using Sprite = UnityEngine.Sprite;
 
 namespace R1Engine
 {
-    public class SNES_Prototype_Manager : BaseGameManager
+    public class SNES_Prototype_Manager : R1_BaseManager
     {
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {

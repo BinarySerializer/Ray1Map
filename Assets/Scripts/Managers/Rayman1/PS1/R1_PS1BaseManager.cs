@@ -16,7 +16,7 @@ namespace R1Engine
     /// <summary>
     /// Base game manager for PS1
     /// </summary>
-    public abstract class R1_PS1BaseManager : BaseGameManager
+    public abstract class R1_PS1BaseManager : R1_BaseManager
     {
         #region Values and paths
 

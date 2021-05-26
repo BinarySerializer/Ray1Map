@@ -14,7 +14,7 @@ namespace R1Engine
     /// <summary>
     /// Base game manager for GBA
     /// </summary>
-    public class R1_GBA_Manager : BaseGameManager
+    public class R1_GBA_Manager : R1_BaseManager
     {
         #region Values and paths
 
@@ -1193,6 +1193,8 @@ namespace R1Engine
 
         public override void OnContextCreated(Context context)
         {
+            base.OnContextCreated(context);
+
             switch (context.GetR1Settings().GameModeSelection)
             {
                 case GameModeSelection.RaymanAdvanceGBAUS:

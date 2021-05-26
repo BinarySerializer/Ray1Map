@@ -14,7 +14,7 @@ namespace R1Engine
     /// <summary>
     /// Game manager for Jaguar
     /// </summary>
-    public class R1Jaguar_Manager : BaseGameManager
+    public class R1Jaguar_Manager : R1_BaseManager
     {
         #region Values and paths
 

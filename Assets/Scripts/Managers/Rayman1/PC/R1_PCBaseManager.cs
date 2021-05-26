@@ -14,7 +14,7 @@ namespace R1Engine
     /// <summary>
     /// Base game manager for PC
     /// </summary>
-    public abstract class R1_PCBaseManager : BaseGameManager
+    public abstract class R1_PCBaseManager : R1_BaseManager
     {
         #region Values and paths
 
