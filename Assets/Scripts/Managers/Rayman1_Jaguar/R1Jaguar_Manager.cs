@@ -1128,6 +1128,9 @@ namespace R1Engine
                 // Get the map base position, based on the event map
                 var mapPos = rom.EventData.MapEvents.EventIndexMap.FindItemIndex(z => z == i + 1);
 
+                if (mapPos == -1)
+                    continue;
+
                 // Get the x and y positions
                 var mapY = (uint)Math.Floor(mapPos / (double)(rom.EventData.MapEvents.Width));
                 var mapX = (uint)(mapPos - (mapY * rom.EventData.MapEvents.Width));
