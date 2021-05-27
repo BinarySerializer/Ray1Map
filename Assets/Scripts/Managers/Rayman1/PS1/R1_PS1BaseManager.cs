@@ -406,6 +406,9 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         public override UniTask LoadFilesAsync(Context context)
         {
+            if (ExeFilePath == null)
+                return UniTask.CompletedTask;
+
             // Load the exe
             return ExeBaseAddress == null
                 ? (UniTask)context.AddLinearSerializedFileAsync(ExeFilePath, recreateOnWrite: false, endianness: Endianness)
