@@ -1,12 +1,11 @@
-﻿
+﻿using BinarySerializer;
+using BinarySerializer.Image;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Image;
-using BinarySerializer.Ray1;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -27,6 +26,13 @@ namespace R1Engine
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray());
+
+        /// <summary>
+        /// Gets the folder path for the specified world
+        /// </summary>
+        /// <param name="world">The world</param>
+        /// <returns>The world folder path</returns>
+        public override string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world).ToLower() + "/";
 
         /// <summary>
         /// Gets the file path for the big ray file
@@ -54,7 +60,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetShortWorldName(settings.R1_World)}{settings.Level}.lev.gz";
+        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetShortWorldName(settings.R1_World).ToLower()}{settings.Level}.lev.gz";
 
         /// <summary>
         /// Gets the file path for the specified world file

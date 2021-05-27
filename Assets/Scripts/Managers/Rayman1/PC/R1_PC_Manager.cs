@@ -36,7 +36,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world) + "/";
+        public virtual string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the file path for the big ray file
