@@ -25974,6 +25974,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlightedObject: {fileID: 0}
+  highlightedCollision3D: {fileID: 0}
 --- !u!1 &1956505444
 GameObject:
   m_ObjectHideFlags: 0

@@ -115,6 +115,7 @@ public class WebCommunicator : MonoBehaviour {
     public void SendHierarchy() {
         if ((Application.platform == RuntimePlatform.WebGLPlayer || debugMessages) && Controller.LoadState == Controller.State.Finished) {
 			allJSON = SerializeMessage(GetHierarchyMessageJSON());
+			if(debugMessages) print(allJSON);
 			if (Application.platform == RuntimePlatform.WebGLPlayer) {
 				SetAllJSON(allJSON);
 			}
