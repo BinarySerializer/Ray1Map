@@ -1191,10 +1191,8 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GetROMBaseAddress);
 
-        public override void OnContextCreated(Context context)
+        public override void AddContextPointers(Context context)
         {
-            base.OnContextCreated(context);
-
             switch (context.GetR1Settings().GameModeSelection)
             {
                 case GameModeSelection.RaymanAdvanceGBAUS:

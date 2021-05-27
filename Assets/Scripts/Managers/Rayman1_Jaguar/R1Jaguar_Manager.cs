@@ -1,11 +1,11 @@
 ﻿
+using BinarySerializer;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Ray1;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -23,7 +23,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetNumLevels.OrderBy(x => x.Key).Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray());
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(JAG_ROMConfig.FromEngineVersion(settings.GetRay1Settings().EngineVersion).NumLevels.OrderBy(x => x.Key).Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray());
 
         /// <summary>
         /// Gets the file path to the ROM file
@@ -34,75 +34,6 @@ namespace R1Engine
         /// Gets the base address for the ROM file
         /// </summary>
         protected virtual uint GetROMBaseAddress => 0x00800000;
-
-        /// <summary>
-        /// Gets the available levels ordered based on the global level array
-        /// </summary>
-        public virtual KeyValuePair<World, int>[] GetNumLevels => new KeyValuePair<World, int>[]
-        {
-            new KeyValuePair<World, int>(World.Jungle, 21),
-            new KeyValuePair<World, int>(World.Mountain, 14),
-            new KeyValuePair<World, int>(World.Cave, 13),
-            new KeyValuePair<World, int>(World.Music, 19),
-            new KeyValuePair<World, int>(World.Image, 14),
-            new KeyValuePair<World, int>(World.Cake, 4)
-        };
-
-        public virtual int[] ExtraMapCommands => new int[] {
-            0, 1, 3, 4, 5, 6, 7, 9
-        };
-
-        /// <summary>
-        /// Gets the vignette addresses and widths
-        /// </summary>
-        public virtual KeyValuePair<uint, int>[] GetVignette => new KeyValuePair<uint, int>[]
-        {
-            // Vignette
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 43680, 384),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 127930, 160),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 140541, 136),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 150788, 160),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 162259, 80),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 169031, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 246393, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 300827, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 329569, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 351048, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 372555, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 391386, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 409555, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 423273, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 429878, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 450942, 320),
-
-            // Background/foreground
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1353130, 192),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1395878, 384),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1462294, 384),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1553686, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1743668, 144),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1750880, 48),
-
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1809526, 192),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1845684, 384),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1928746, 192),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 1971368, 192),
-
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 2205640, 384),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 2269442, 384),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 2355852, 160),
-
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 2702140, 384),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 2803818, 192),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 2824590, 320),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 2916108, 192),
-
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 3078442, 192),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 3118496, 384),
-
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 3276778, 384),
-            new KeyValuePair<uint, int>(GetROMBaseAddress + 3323878, 320),
-        };
 
         #endregion
 
@@ -134,8 +65,6 @@ namespace R1Engine
             public Pointer Pointer;
             public Sprite[] OverrideImageDescriptors;
         }
-
-        public virtual uint EventCount => 0x1C4;
 
         /// <summary>
         /// Exports every sprite from the game
@@ -177,10 +106,12 @@ namespace R1Engine
                     await LoadFilesAsync(context);
 
                     // Serialize the rom
-                    var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context);
+                    var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
+
+                    var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
 
                     // Get the level counts
-                    var levels = GetNumLevels;
+                    var levels = config.NumLevels;
 
                     // Get the deserializer
                     var s = context.Deserializer;
@@ -192,7 +123,7 @@ namespace R1Engine
                     await ExportGroupAsync(allfixCmds, Enumerable.Repeat(rom.SpritePalette, allfixCmds.Length).ToArray(), "Allfix");
 
                     // Enumerate every world
-                    foreach (var world in GetNumLevels)// GetLevels(baseGameSettings))
+                    foreach (var world in levels)// GetLevels(baseGameSettings))
                                                        // Export world
                         await ExportWorldAsync(levels.FindItemIndex(x => x.Key == world.Key), world.Key.ToString());
 
@@ -594,8 +525,10 @@ namespace R1Engine
                 // Add the file
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
 
+                var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
+
                 // Export every vignette
-                foreach (var vig in GetVignette)
+                foreach (var vig in config.Vignette)
                 {
                     s.DoAt(new Pointer(vig.Key, file), () =>
                     {
@@ -691,29 +624,32 @@ namespace R1Engine
             }
         }
 
-        public async UniTask ConvertMusicAsync(GameSettings settings, string outputPath) {
+        public async UniTask ConvertMusicAsync(GameSettings settings, string outputPath)
+        {
             // Create a context
-            using (var context = new R1Context(settings)) {
-                // Get a deserializer
-                var s = context.Deserializer;
+            using var context = new R1Context(settings);
 
-                // Add the file
-                var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
-                var pointerTable = PointerTables.JaguarR1_PointerTable(s.GetR1Settings().EngineVersion, file);
-                s.DoAt(pointerTable[JaguarR1_Pointer.Music], () => {
-                    // Read the music table
-                    JAG_MusicDescriptor[] MusicTable = s.SerializeObjectArray<JAG_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
-                    // Immediately after this: pointer to sample buffer?
+            // Get a deserializer
+            var s = context.Deserializer;
 
-                    // For each entry
-                    R1Jaguar_MidiWriter w = new R1Jaguar_MidiWriter();
-                    for (int i = 0; i < MusicTable.Length; i++) {
-                        w.Write(MusicTable[i],
-                            Path.Combine(outputPath,
+            // Add the file
+            await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
+
+            s.DoAt(s.GetPreDefinedPointer(JAG_DefinedPointer.Music), () => 
+            {
+                // Read the music table
+                JAG_MusicDescriptor[] MusicTable = s.SerializeObjectArray<JAG_MusicDescriptor>(null, s.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
+                // Immediately after this: pointer to sample buffer?
+
+                // For each entry
+                R1Jaguar_MidiWriter w = new R1Jaguar_MidiWriter();
+                for (int i = 0; i < MusicTable.Length; i++) 
+                {
+                    w.Write(MusicTable[i],
+                        Path.Combine(outputPath,
                             $"Track{i}_{MusicTable[i].MusicDataPointer.StringAbsoluteOffset}.mid"));
-                    }
-                });
-            }
+                }
+            });
         }
 
         public virtual async UniTask ExportPaletteImage(GameSettings settings, string outputPath)
@@ -724,7 +660,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Serialize the rom
-                var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
 
                 // Get a deserializer
                 var s = context.Deserializer;
@@ -774,7 +710,7 @@ namespace R1Engine
             if (ed == null)
                 return null;
 
-            var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, c);
+            var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, c);
 
             var usedNames = new List<string>();
 
@@ -1096,7 +1032,7 @@ namespace R1Engine
         }
         protected virtual Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) {
             // Read the rom
-            var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
             Pointer baseOff = rom.EventDefinitions[0].Offset;
             return new Dictionary<SpecialEventType, Pointer>() {
                 [SpecialEventType.RayPos] = baseOff + 0x000023C8,
@@ -1116,32 +1052,6 @@ namespace R1Engine
                 [SpecialEventType.BzzitDemoVisual] = null,
             };
         }
-        public virtual uint[] AdditionalEventDefinitionPointers => new uint[] {
-            0x00BDBFDC,
-            0x00B6018C,
-
-            0x00B617EE,
-            0x00B61816,
-            0x00B6183E,
-            0x00B61866,
-            0x00B6188E,
-
-            0x00B5DF54,
-            0x00B5DF7C,
-
-            0x00BF8B90,
-            0x00BF8CA8,
-            0x00BF8D20,
-            0x00BF8E38,
-            0x00BF8EB8,
-            0x00BF8F9C,
-            0x00BF9094,
-            0x00BF90BC,
-            0x00BF90FC,
-            0x00BF9124,
-            0x00BF9164,
-
-        };
 
         /// <summary>
         /// Loads the level specified by the settings for the editor
@@ -1154,7 +1064,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Read the rom
-            var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
 
             // Get the map
             var map = rom.MapData;
@@ -1243,8 +1153,8 @@ namespace R1Engine
 
                     if (uniqueEvents.ContainsKey(e.EventIndex))
                     {
-
-                        if (uniqueEvents[e.EventIndex].XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].YPosition != (uint)(mapY + e.OffsetY))
+                        if (uniqueEvents[e.EventIndex].XPosition != (uint)(mapX + e.OffsetX) || 
+                            uniqueEvents[e.EventIndex].YPosition != (uint)(mapY + e.OffsetY))
                             Debug.LogWarning($"An event with an existing index (index {e.EventIndex} at EventData[{i}][{j}]) which was removed has a different map position");
 
                         continue; // Duplicate
@@ -1418,7 +1328,9 @@ namespace R1Engine
             
             if (rom.Background != null)
             {
-                var width = context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? 192 : GetVignette.First(x => x.Key == rom.BackgroundPointer.AbsoluteOffset).Value;
+                var config = JAG_ROMConfig.FromEngineVersion(context.GetSettings<Ray1Settings>().EngineVersion);
+
+                var width = context.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto ? 192 : config.Vignette.First(x => x.Key == rom.BackgroundPointer.AbsoluteOffset).Value;
                 bg = TextureHelpers.CreateTexture2D(width, rom.Background.Length / width);
 
                 for (int y = 0; y < bg.height; y++)
@@ -1452,6 +1364,11 @@ namespace R1Engine
         public virtual async UniTask<MemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
         {
             return await context.AddMemoryMappedFile(path, baseAddress, Endian.Big);
+        }
+
+        public override void AddContextPointers(Context context)
+        {
+            context.AddPreDefinedPointers(JAG_DefinedPointers.JAG);
         }
 
         #endregion

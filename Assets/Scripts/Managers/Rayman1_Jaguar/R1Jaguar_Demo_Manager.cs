@@ -1,8 +1,7 @@
-﻿
+﻿using BinarySerializer;
+using BinarySerializer.Ray1;
 using System.Collections.Generic;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -35,47 +34,9 @@ namespace R1Engine
         /// </summary>
         protected override uint GetROMBaseAddress => 0x00802000;
 
-        /// <summary>
-        /// Gets the available levels ordered based on the global level array
-        /// </summary>
-        public override KeyValuePair<World, int>[] GetNumLevels => new KeyValuePair<World, int>[]
-        {
-            new KeyValuePair<World, int>(World.Jungle, 14),
-            new KeyValuePair<World, int>(World.Mountain, 4),
-            new KeyValuePair<World, int>(World.Cave, 2),
-            new KeyValuePair<World, int>(World.Music, 5),
-            new KeyValuePair<World, int>(World.Image, 2),
-            new KeyValuePair<World, int>(World.Cake, 2)
-        };
-
-        public override int[] ExtraMapCommands => new int[] {
-            0, 1, 2
-        };
-
-        public override uint EventCount => 0xB5;
-
-        /// <summary>
-        /// Gets the vignette addresses and widths
-        /// </summary>
-        public override KeyValuePair<uint, int>[] GetVignette => new KeyValuePair<uint, int>[]
-        {
-            // World map
-            new KeyValuePair<uint, int>(0x875BC0, 320), 
-            
-            // Breakout
-            new KeyValuePair<uint, int>(0x8855F8, 320), 
-
-            // Jungle
-            new KeyValuePair<uint, int>(0x8B083E, 192), 
-            new KeyValuePair<uint, int>(0x8D735E, 144), 
-            new KeyValuePair<uint, int>(0x8D8F8A, 48), 
-
-            // Music
-            new KeyValuePair<uint, int>(0x8F64E6, 384), 
-        };
         protected override Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) {
             // Read the rom
-            var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
             Pointer baseOff = rom.EventDefinitions[0].Offset;
             return new Dictionary<SpecialEventType, Pointer>() {
                 [SpecialEventType.RayPos] = baseOff + 0x1BF8,
@@ -97,82 +58,11 @@ namespace R1Engine
             };
         }
 
-        public override uint[] AdditionalEventDefinitionPointers => new uint[] {
-            0x0086da20,
-            0x0091fcc8,
+        public override void AddContextPointers(Context context)
+        {
+            context.AddPreDefinedPointers(JAG_DefinedPointers.JAG_Demo);
+        }
 
-            0x0086940E,
-            0x0091FD24,
-            0x0091FD4C,
-            0x0091FE4A,
-            0x0091FE72,
-
-            0x00872194,
-            0x00872202,
-            0x008722DE,
-            0x00872426,
-            0x0087244e,
-            0x00872476,
-            0x0087249e,
-            0x008724c6,
-            0x008724ee,
-            0x00872516,
-
-            0x008695DA,
-            0x00869602,
-            0x0086962A,
-            0x00869652,
-            0x0086967A,
-            0x008696A2,
-            0x008696CA,
-            0x008696F2,
-            0x0086971A,
-
-            0x00873B52,
-            0x00873B7A,
-            0x00873CF2,
-            0x00873D1A,
-            0x00873e1e,
-            0x00873e46,
-            0x00873e6e,
-            0x00873e96,
-            0x00873ebe,
-            0x00873ee6,
-            0x00873f0e,
-            0x00873f8e,
-            0x00873fb6,
-            0x00874134,
-            0x0087415c,
-            0x008741a8,
-
-            0x0086DA20,
-
-            0x00866598,
-            0x0086869E,
-            0x00868C22,
-
-            0x0084E772,
-            0x00850CEE,
-            0x00851332,
-
-            0x00857D96,
-
-            0x0085A2D0,
-            0x00860E2E,
-            0x00860ED6,
-
-            0x0085F88C,
-            0x0086080C,
-
-            0x008726FE,
-
-            0x00862C00,
-            0x00863182,
-            
-            0x0086DAE6,
-
-            0x0086F23A,
-        };
         #endregion
     }
 }

@@ -1,9 +1,9 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using BinarySerializer;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Ray1;
 using UnityEngine;
 
 namespace R1Engine
@@ -28,16 +28,7 @@ namespace R1Engine
             }),
         });
 
-        public override uint EventCount => 28;
-
-        /// <summary>
-        /// Gets the vignette addresses and widths
-        /// </summary>
-        public override KeyValuePair<uint, int>[] GetVignette => null;
-
         protected override Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) => new Dictionary<SpecialEventType, Pointer>();
-
-        public override uint[] AdditionalEventDefinitionPointers => null;
 
         #endregion
 
@@ -59,7 +50,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Serialize the rom
-                var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
 
                 var usedNames = new List<string>();
                 // Helper method to get the name for a pointer
@@ -349,7 +340,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Serialize the rom
-                var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
 
                 // Export
                 PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), rom.SpritePalette, optionalWrap: 256);
@@ -365,7 +356,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Parse the rom
-                var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context);
+                var rom = FileFactory.Read<JAG_ROM>(GetROMFilePath, context);
 
                 // Get and order all references
                 var refs = rom.References.Where(x => x.DataPointer != null).OrderBy(x => x.DataPointer.FileOffset).ToArray();
@@ -388,7 +379,12 @@ namespace R1Engine
             }
         }
 
-        public Pointer GetDataPointer(Context context, JAG_Proto_References reference) => FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, context).GetProtoDataPointer(reference);
+        public Pointer GetDataPointer(Context context, JAG_Proto_References reference) => FileFactory.Read<JAG_ROM>(GetROMFilePath, context).GetProtoDataPointer(reference);
+
+        public override void AddContextPointers(Context context)
+        {
+            // Do nothing
+        }
 
         #endregion
     }

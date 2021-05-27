@@ -11,42 +11,6 @@ namespace R1Engine
     public static class PointerTables
     {
         /// <summary>
-        /// Gets the pointer table for the Jaguar version
-        /// </summary>
-        /// <param name="engine">The Jaguar engine version</param>
-        /// <param name="romFile">The rom file</param>
-        /// <returns>The pointer table</returns>
-        public static Dictionary<JaguarR1_Pointer, Pointer> JaguarR1_PointerTable(EngineVersion engine, BinaryFile romFile)
-        {
-            if (engine == EngineVersion.R1Jaguar)
-            {
-                return new Dictionary<JaguarR1_Pointer, uint>()
-                {
-                    [JaguarR1_Pointer.EventDefinitions] = 0x00906130,
-                    [JaguarR1_Pointer.FixSprites] = 0x009496C8,
-                    [JaguarR1_Pointer.WorldSprites] = 0x00949034,
-                    [JaguarR1_Pointer.MapData] = 0x00949054,
-                    [JaguarR1_Pointer.Music] = 0x009210F0,
-                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
-            }
-            else if (engine == EngineVersion.R1Jaguar_Demo)
-            {
-                return new Dictionary<JaguarR1_Pointer, uint>()
-                {
-                    [JaguarR1_Pointer.EventDefinitions] = 0x00918B40,
-                    [JaguarR1_Pointer.FixSprites] = 0x008028BA,
-                    [JaguarR1_Pointer.WorldSprites] = 0x00874F14,
-                    [JaguarR1_Pointer.MapData] = 0x00874F34,
-                    [JaguarR1_Pointer.Music] = 0x00846C80,
-                }.ToDictionary(x => x.Key, x => x.Value == 0 ? null : new Pointer(x.Value, romFile));
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(engine), engine, null);
-            }
-        }
-
-        /// <summary>
         /// Gets the pointer table for the specified GBA version
         /// </summary>
         /// <param name="context">The context</param>

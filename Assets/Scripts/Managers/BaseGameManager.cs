@@ -43,9 +43,15 @@ namespace R1Engine
         public virtual UniTask LoadFilesAsync(Context context) => UniTask.CompletedTask;
 
         /// <summary>
-        /// Allows additional setup to be performed on the context once created
+        /// Allows additional settings objects to be added to the context on creation
         /// </summary>
         /// <param name="context">The newly created context</param>
-        public virtual void OnContextCreated(Context context) { }
+        public virtual void AddContextSettings(Context context) { }
+
+        /// <summary>
+        /// Allows pre-defined pointers to be added to the context on creation
+        /// </summary>
+        /// <param name="context">The newly created context</param>
+        public virtual void AddContextPointers(Context context) { }
     }
 }

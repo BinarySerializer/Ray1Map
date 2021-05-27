@@ -20,7 +20,8 @@ namespace R1Engine
             // Add the game settings
             AddSettings(settings);
 
-            settings.GetGameManager.OnContextCreated(this);
+            settings.GetGameManager.AddContextSettings(this);
+            settings.GetGameManager.AddContextPointers(this);
         }
         public R1Context(GameSettings settings) : this(settings.GameDirectory, settings) { }
 
