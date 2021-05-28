@@ -134,7 +134,10 @@ namespace R1Engine
 
             if (GameModeSelection == GameModeSelection.RaymanByHisFansPC || GameModeSelection == GameModeSelection.Rayman60LevelsPC)
                 engineVersion = Ray1EngineVersion.PC_Fan;
-            
+
+            if (GameModeSelection == GameModeSelection.RaymanPS1EUDemo)
+                engineVersion = Ray1EngineVersion.PS1_EUDemo;
+
             Ray1PCVersion pcVersion = GameModeSelection switch
             {
                 GameModeSelection.RaymanPC_1_00 => Ray1PCVersion.PC_1_00,

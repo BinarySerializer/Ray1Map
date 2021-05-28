@@ -3,13 +3,13 @@ using BinarySerializer;
 using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 
-
 namespace R1Engine
 {
     public class R1_PS1EU_Manager : R1_PS1_Manager
     {
         public override string ExeFilePath => "SLES_000.49";
         public override uint? ExeBaseAddress => 0x80123000 - 0x800;
+        protected override PS1_ExecutableConfig GetExecutableConfig => PS1_ExecutableConfig.PS1_EU;
 
         public string GetLanguageFilePath(string langCode) => GetDataPath() + $"IMA/CRD/RAY{langCode}.TXT";
 
@@ -49,32 +49,9 @@ namespace R1Engine
             return loc.ToArray();
         }
 
-        public override uint? TypeZDCOffset => ExeBaseAddress + 0x9F754;
-        public override uint? ZDCDataOffset => ExeBaseAddress + 0x9E754;
-        public override uint? EventFlagsOffset => ExeBaseAddress + 0x9DF54;
-        public override uint? LevelBackgroundIndexTableOffset => ExeBaseAddress + 0xA0DC8;
-        public override uint? WorldInfoOffset => ExeBaseAddress + 0xA001C;
-
-        public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
+        public override void AddContextPointers(Context context)
         {
-            new FileTableInfo(0x801c3d5c,3,PS1_FileType.img_file),
-            new FileTableInfo(0x801c3dc8,2,PS1_FileType.ldr_file),
-            new FileTableInfo(0x801c3e10,2,PS1_FileType.div_file),
-            new FileTableInfo(0x801c3e58,0x12,PS1_FileType.vdo_file),
-            new FileTableInfo(0x801c40e0,0x35,PS1_FileType.trk_file),
-            new FileTableInfo(0x801c4854,3,PS1_FileType.lang_file),
-            new FileTableInfo(0x801c48c0,5,PS1_FileType.pre_file),
-            new FileTableInfo(0x801c4974,6,PS1_FileType.crd_file),
-            new FileTableInfo(0x801c4a4c,6,PS1_FileType.gam_file),
-            new FileTableInfo(0x801c4b24,6,PS1_FileType.vig_wld_file),
-            new FileTableInfo(0x801c4bfc,6,PS1_FileType.wld_file),
-            new FileTableInfo(0x801c4cd4,0x7e,PS1_FileType.map_file),
-            new FileTableInfo(0x801c5e8c,0x1f,PS1_FileType.fnd_file),
-            new FileTableInfo(0x801c62e8,7,PS1_FileType.vab_file),
-            new FileTableInfo(0x801c63e4,7,PS1_FileType.big_file),
-            new FileTableInfo(0x801c64e0,7,PS1_FileType.vab4sep_file),
-            new FileTableInfo(0x801c65dc,2,PS1_FileType.filefxs),
-            new FileTableInfo(0x801c6624,1,PS1_FileType.ini_file),
-        };
+            context.AddPreDefinedPointers(PS1_DefinedPointers.PS1_EU);
+        }
     }
 }

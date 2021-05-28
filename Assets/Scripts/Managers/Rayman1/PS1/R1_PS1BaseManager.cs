@@ -188,8 +188,8 @@ namespace R1Engine
             if (!FileSystem.FileExists(context.GetAbsoluteFilePath(path)))
                 return;
 
-            var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
-            var entry = exe.FileTable.FirstOrDefault(x => x.ProcessedFilePath == path);
+            var exe = LoadEXE(context);
+            var entry = exe.PS1_FileTable.FirstOrDefault(x => x.ProcessedFilePath == path);
 
             if (entry == null)
                 throw new Exception($"No file entry found for path: {path}");
@@ -311,7 +311,7 @@ namespace R1Engine
             }
 
             // Read tables from exe
-            var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
+            var exe = LoadEXE(context);
 
             // Create a dummy linking table
             if (context.GetR1Settings().R1_World == World.Menu)
@@ -334,7 +334,7 @@ namespace R1Engine
             if (context.GetR1Settings().R1_World == World.Menu)
             {
                 // Load map object events for the world map
-                objects = FileFactory.Read<PS1_Executable>(ExeFilePath, context).WorldInfo.
+                objects = LoadEXE(context).WorldInfo.
                     Select((x, i) => (Unity_Object)new Unity_Object_R1(ObjData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)).
                     ToList();
             }
@@ -388,16 +388,6 @@ namespace R1Engine
 
         public virtual UniTask<Texture2D> LoadLevelBackgroundAsync(Context context) => UniTask.FromResult<Texture2D>(null);
 
-        public virtual uint? TypeZDCOffset => null;
-        public virtual long TypeZDCCount => 256;
-        public virtual uint? ZDCDataOffset => null;
-        public virtual long ZDCDataCount => 200;
-        public virtual uint? EventFlagsOffset => null;
-        public virtual long EventFlagsCount => 256;
-        public virtual uint? LevelBackgroundIndexTableOffset => null;
-        public virtual uint? WorldInfoOffset => null;
-
-        public abstract FileTableInfo[] FileTableInfos { get; }
         public virtual Dictionary<Unity_ObjectManager_R1.WldObjType, ObjData> GetEventTemplates(Context context) => null;
 
         /// <summary>
@@ -1015,6 +1005,10 @@ namespace R1Engine
             })) ?? new ETA[0]);
         }
 
+        public PS1_Executable LoadEXE(Context context) => FileFactory.Read<PS1_Executable>(ExeFilePath, context, onPreSerialize: (s, o) => o.Pre_PS1_Config = GetExecutableConfig);
+
+        protected abstract PS1_ExecutableConfig GetExecutableConfig { get; }
+
         #endregion
 
         #region Value Types
@@ -1066,20 +1060,6 @@ namespace R1Engine
             Level,
             Menu,
             BigRay
-        }
-
-        public class FileTableInfo
-        {
-            public FileTableInfo(uint offset, uint count, PS1_FileType fileType)
-            {
-                Offset = offset;
-                Count = count;
-                FileType = fileType;
-            }
-
-            public uint Offset { get; }
-            public uint Count { get; }
-            public PS1_FileType FileType { get; }
         }
 
         protected class DES

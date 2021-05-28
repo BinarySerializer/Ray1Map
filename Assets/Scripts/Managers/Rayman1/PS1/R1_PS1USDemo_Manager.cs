@@ -1,4 +1,5 @@
-﻿using BinarySerializer.Ray1;
+﻿using BinarySerializer;
+using BinarySerializer.Ray1;
 
 namespace R1Engine
 {
@@ -6,31 +7,11 @@ namespace R1Engine
     {
         public override string ExeFilePath => "SLUS-900.01";
         public override uint? ExeBaseAddress => 0x80125000 - 0x800;
+        protected override PS1_ExecutableConfig GetExecutableConfig => PS1_ExecutableConfig.PS1_USDemo;
 
-        public override uint? TypeZDCOffset => ExeBaseAddress + 0x9BDF8;
-        public override uint? ZDCDataOffset => ExeBaseAddress + 0x9ADF8;
-        public override uint? EventFlagsOffset => ExeBaseAddress + 0x9A5F8;
-        public override uint? LevelBackgroundIndexTableOffset => ExeBaseAddress + 0x9D708;
-        public override uint? WorldInfoOffset => ExeBaseAddress + 0x9C6C0;
-
-        public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
+        public override void AddContextPointers(Context context)
         {
-            new FileTableInfo(0x801c269c,3,PS1_FileType.img_file),
-            new FileTableInfo(0x801c2708,2,PS1_FileType.ldr_file),
-            new FileTableInfo(0x801c2750,6,PS1_FileType.vdo_file),
-            new FileTableInfo(0x801c2828,0x35,PS1_FileType.trk_file),
-            new FileTableInfo(0x801c2f9c,5,PS1_FileType.pre_file),
-            new FileTableInfo(0x801c3050,6,PS1_FileType.crd_file),
-            new FileTableInfo(0x801c3128,6,PS1_FileType.gam_file),
-            new FileTableInfo(0x801c3200,6,PS1_FileType.vig_wld_file),
-            new FileTableInfo(0x801c32d8,6,PS1_FileType.wld_file),
-            new FileTableInfo(0x801c33b0,0x7e,PS1_FileType.map_file),
-            new FileTableInfo(0x801c4568,0x1f,PS1_FileType.fnd_file ),
-            new FileTableInfo(0x801c49c4,7,PS1_FileType.vab_file),
-            new FileTableInfo(0x801c4ac0,7,PS1_FileType.big_file),
-            new FileTableInfo(0x801c4bbc,7,PS1_FileType.vab4sep_file),
-            new FileTableInfo(0x801c4cb8,2,PS1_FileType.filefxs),
-            new FileTableInfo(0x801c4d00,1,PS1_FileType.ini_file),
-        };
+            context.AddPreDefinedPointers(PS1_DefinedPointers.PS1_USDemo);
+        }
     }
 }

@@ -317,20 +317,20 @@ namespace R1Engine
 
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {
-            var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
+            var exe = LoadEXE(context);
 
             if (context.GetR1Settings().R1_World != World.Menu)
             {
-                if (exe.LevelBackgroundIndexTable == null)
+                if (exe.PS1_LevelBackgroundIndexTable == null)
                     return null;
 
-                var bgIndex = exe.LevelBackgroundIndexTable[context.GetR1Settings().World - 1][context.GetR1Settings().Level - 1];
-                var fndStartIndex = exe.GetFileTypeIndex(this, PS1_FileType.fnd_file);
+                var bgIndex = exe.PS1_LevelBackgroundIndexTable[context.GetR1Settings().World - 1][context.GetR1Settings().Level - 1];
+                var fndStartIndex = exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.fnd_file);
 
                 if (fndStartIndex == -1)
                     return null;
 
-                string bgFilePath = exe.FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
+                string bgFilePath = exe.PS1_FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
 
                 await LoadExtraFile(context, bgFilePath, true);
 
@@ -340,7 +340,7 @@ namespace R1Engine
             }
             else
             {
-                string bgFilePath = exe.FileTable[exe.GetFileTypeIndex(this, PS1_FileType.img_file) + 2].ProcessedFilePath;
+                string bgFilePath = exe.PS1_FileTable[exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.img_file) + 2].ProcessedFilePath;
                 await LoadExtraFile(context, bgFilePath, true);
 
                 return FileFactory.Read<PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = s.CurrentLength / 2).ToTexture(context);

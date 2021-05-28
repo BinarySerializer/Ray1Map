@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +13,7 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman 1 (Saturn)
     /// </summary>
-    public abstract class R1_Saturn_Manager : R1_PS1BaseManager
+    public class R1_Saturn_Manager : R1_PS1BaseManager
     {
         /// <summary>
         /// The width of the tile set in tiles
@@ -26,8 +25,9 @@ namespace R1Engine
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
         public uint BaseAddress => 0x00200000;
+        protected override PS1_ExecutableConfig GetExecutableConfig => null;
 
-        public override Endian Endianness { get; } = Endian.Big;
+        public override Endian Endianness => Endian.Big;
 
         /// <summary>
         /// Gets the folder path for the specified world
@@ -35,14 +35,6 @@ namespace R1Engine
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
         public string GetWorldFolderPath(World world) => GetWorldName(world) + "/";
-
-        /// <summary>
-        /// Gets the offset for the palettes in the game executable
-        /// </summary>
-        public abstract uint GetPalOffset { get; }
-        public abstract uint GetFndFileTableOffset { get; }
-        public abstract uint GetFndSPFileTableOffset { get; }
-        public abstract uint GetFndIndexTableOffset { get; }
 
         /// <summary>
         /// Gets the allfix file path
@@ -113,9 +105,7 @@ namespace R1Engine
         })).ToArray());
 
         public override string ExeFilePath => "0";
-        public override uint? ExeBaseAddress => null;
-
-        public override FileTableInfo[] FileTableInfos => new FileTableInfo[0];
+        public override uint? ExeBaseAddress => 0x06010000;
 
         public async UniTask<long> LoadFile(Context context, string path, long baseAddress = 0)
         {
@@ -252,7 +242,7 @@ namespace R1Engine
 
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
 
-            var palette = FileFactory.Read<PS1_Executable>(ExeFilePath, context).Saturn_Palettes;
+            var palette = LoadEXE(context).SAT_Palettes;
             ushort paletteOffset;
 
             var isBigRay = img.Offset.File.FilePath == GetBigRayFilePath();
@@ -530,8 +520,8 @@ namespace R1Engine
                     await LoadFile(menuContext, GetFixImageFilePath());
                     
                     // Load exe
-                    await LoadFile(menuContext, ExeFilePath);
-                    await LoadFile(bigRayContext, ExeFilePath);
+                    await LoadFile(menuContext, ExeFilePath, baseAddress: ExeBaseAddress ?? 0);
+                    await LoadFile(bigRayContext, ExeFilePath, baseAddress: ExeBaseAddress ?? 0);
 
                     // Save font
                     menuContext.StoreObject("Font", fix.FontData);
@@ -572,15 +562,15 @@ namespace R1Engine
             }
             else
             {
-                var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
+                var exe = LoadEXE(context);
                 var worldIndex = context.GetR1Settings().World - 1;
                 var lvlIndex = context.GetR1Settings().Level - 1;
 
                 if (lvlIndex >= 25)
                     return null;
 
-                var bgIndex = exe.Saturn_FNDIndexTable[context.GetR1Settings().World][lvlIndex];
-                var bgFile = exe.Saturn_FNDFileTable[worldIndex][bgIndex];
+                var bgIndex = exe.SAT_FNDIndexTable[context.GetR1Settings().World][lvlIndex];
+                var bgFile = exe.SAT_FNDFileTable[worldIndex][bgIndex];
 
                 if (String.IsNullOrEmpty(bgFile))
                     return null;
@@ -699,5 +689,31 @@ namespace R1Engine
 
             // VIGNET/VRAM_A.BIT and VIGNET/VRAM_B.BIT contain multiple images
         };
+
+        public override void AddContextPointers(Context context)
+        {
+            switch (context.GetR1Settings().GameModeSelection)
+            {
+                case GameModeSelection.RaymanSaturnEU:
+                    context.AddPreDefinedPointers(PS1_DefinedPointers.SAT_EU);
+                    break;
+
+                case GameModeSelection.RaymanSaturnUS:
+                    context.AddPreDefinedPointers(PS1_DefinedPointers.SAT_US);
+                    break;
+
+                case GameModeSelection.RaymanSaturnJP:
+                    context.AddPreDefinedPointers(PS1_DefinedPointers.SAT_JP);
+                    break;
+
+                case GameModeSelection.RaymanSaturnProto:
+                    context.AddPreDefinedPointers(PS1_DefinedPointers.SAT_Proto);
+                    break;
+
+                case GameModeSelection.RaymanSaturnUSDemo:
+                    context.AddPreDefinedPointers(PS1_DefinedPointers.SAT_USDemo);
+                    break;
+            }
+        }
     }
 }

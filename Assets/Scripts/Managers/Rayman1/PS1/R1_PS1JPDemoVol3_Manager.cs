@@ -1,11 +1,10 @@
-﻿
+﻿using BinarySerializer;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Ray1;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -75,18 +74,7 @@ namespace R1Engine
 
         public override string ExeFilePath => "RAY.EXE";
         public override uint? ExeBaseAddress => 0x80180000 - 0x800;
-
-        public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
-        {
-            new FileTableInfo(0x801b5f3c, 1, PS1_FileType.pal_file),
-            new FileTableInfo(0x801b5f74, 4, PS1_FileType.demo_vig),
-            new FileTableInfo(0x801b6054, 1, PS1_FileType.img_file),
-            new FileTableInfo(0x801b608c, 1, PS1_FileType.filefxs),
-            new FileTableInfo(0x801b60c4, 0xb, PS1_FileType.demo_w1),
-            new FileTableInfo(0x801b6594, 0xb, PS1_FileType.demo_w2),
-            new FileTableInfo(0x801b67fc, 4, PS1_FileType.fnd_file),
-            new FileTableInfo(0x801b68fc, 1, PS1_FileType.demo_track)
-        };
+        protected override PS1_ExecutableConfig GetExecutableConfig => PS1_ExecutableConfig.PS1_JPDemoVol3;
 
         /// <summary>
         /// Gets the tile set to use
@@ -305,15 +293,15 @@ namespace R1Engine
 
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {
-            var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
+            var exe = LoadEXE(context);
 
             var bgIndex = context.GetR1Settings().R1_World == World.Jungle ? 0 : 2;
-            var fndStartIndex = exe.GetFileTypeIndex(this, PS1_FileType.fnd_file);
+            var fndStartIndex = exe.GetFileTypeIndex(GetExecutableConfig, PS1_FileType.fnd_file);
 
             if (fndStartIndex == -1)
                 return null;
 
-            var bgFilePath = exe.FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
+            var bgFilePath = exe.PS1_FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
 
             await LoadExtraFile(context, bgFilePath, true);
 

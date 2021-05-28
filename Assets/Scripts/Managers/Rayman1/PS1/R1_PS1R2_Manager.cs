@@ -1,11 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
-
+﻿using BinarySerializer;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Ray1;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -212,8 +211,6 @@ namespace R1Engine
             }
         }
 
-        public override FileTableInfo[] FileTableInfos => new FileTableInfo[0];
-
         /// <summary>
         /// Loads the level specified by the settings for the editor
         /// </summary>
@@ -393,6 +390,7 @@ namespace R1Engine
         }
 
         public override UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotSupportedException("Rayman 2 does not have menu sprites");
+        protected override PS1_ExecutableConfig GetExecutableConfig => null;
 
         /// <summary>
         /// Exports every animation frame from the game

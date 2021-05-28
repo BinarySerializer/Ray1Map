@@ -1,11 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
-
+﻿using BinarySerializer;
+using BinarySerializer.Ray1;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer;
-using BinarySerializer.Ray1;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -386,10 +385,10 @@ namespace R1Engine
                         }
 
                         // Read the game exe
-                        var exe = FileFactory.Read<PS1_Executable>(ExeFilePath, context);
+                        var exe = LoadEXE(context);
 
                         // Update every file path in the file table
-                        foreach (var fileEntry in exe.FileTable)
+                        foreach (var fileEntry in exe.PS1_FileTable)
                         {
                             // Get the matching entry
                             var entry = logEntries.FirstOrDefault(x => x.FullPath == fileEntry.FilePath);
