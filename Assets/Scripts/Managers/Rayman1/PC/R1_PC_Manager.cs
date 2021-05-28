@@ -120,7 +120,7 @@ namespace R1Engine
                     SerializerObject s = context.Deserializer;
                     byte[] saveData = null;
                     s.DoAt(f.StartPointer, () => {
-                        s.DoEncoded(new PC_R1_SaveEncoder(), () => {
+                        s.DoEncoded(new PC_SaveEncoder(), () => {
                             saveData = s.SerializeArray<byte>(saveData, s.CurrentLength, name: "SaveData");
                             Util.ByteArrayToFile(context.GetAbsoluteFilePath($"{save}.dec"), saveData);
                         });
@@ -149,7 +149,7 @@ namespace R1Engine
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {
-                        s.DoEncoded(new PC_R1_SaveEncoder(), () => s.SerializeObject<PC_SaveFile>(default, name: "SaveFile"));
+                        s.DoEncoded(new PC_SaveEncoder(), () => s.SerializeObject<PC_SaveFile>(default, name: "SaveFile"));
                     });
                 }
             }
