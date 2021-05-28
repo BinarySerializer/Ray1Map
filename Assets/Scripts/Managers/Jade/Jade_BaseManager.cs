@@ -304,7 +304,9 @@ namespace R1Engine
 			await loader.LoadLoop(context.Deserializer);
 
 			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+				loader.EndSpeedMode();
 				await worldList.Value.ResolveReferences_Montreal(context.Deserializer);
+				loader.BeginSpeedMode(worldKey);
 			}
 
 

@@ -4,6 +4,8 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	// Found in GEO_v_CreateElementsFromBuffer
 	public class GEO_GeometricObjectElement : BinarySerializable {
+		public GEO_GeometricObject GeometricObject { get; set; } // Set in onPreSerialize
+
 		public uint TrianglesCount { get; set; }
 		public uint MaterialID { get; set; }
 		public uint MrmElementAdditionalInfoPointer { get; set; }
@@ -25,14 +27,19 @@ namespace R1Engine.Jade {
 
 			TrianglesCount = s.Serialize<uint>(TrianglesCount, name: nameof(TrianglesCount));
 			MaterialID = s.Serialize<uint>(MaterialID, name: nameof(MaterialID));
-			MrmElementAdditionalInfoPointer = s.Serialize<uint>(MrmElementAdditionalInfoPointer, name: nameof(MrmElementAdditionalInfoPointer));
-			UsedIndexCount = s.Serialize<uint>(UsedIndexCount, name: nameof(UsedIndexCount));
+			if (GeometricObject.ObjectVersion < 2) {
+				MrmElementAdditionalInfoPointer = s.Serialize<uint>(MrmElementAdditionalInfoPointer, name: nameof(MrmElementAdditionalInfoPointer));
+				UsedIndexCount = s.Serialize<uint>(UsedIndexCount, name: nameof(UsedIndexCount));
+			}
 			if (!Loader.IsBinaryData) UInts_Editor = s.SerializeArray<uint>(UInts_Editor, 6, name: nameof(UInts_Editor));
 		}
 		public void SerializeArrays(SerializerObject s) {
 			Triangles = s.SerializeObjectArray<Triangle>(Triangles, TrianglesCount, name: nameof(Triangles));
-			if(MrmElementAdditionalInfoPointer != 0) MrmElementAdditionalInfo = s.SerializeObject<MRM_Element>(MrmElementAdditionalInfo, name: nameof(MrmElementAdditionalInfo));
-			ListOfUsedIndex = s.SerializeArray<ushort>(ListOfUsedIndex, UsedIndexCount, name: nameof(ListOfUsedIndex));
+
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+				if (MrmElementAdditionalInfoPointer != 0) MrmElementAdditionalInfo = s.SerializeObject<MRM_Element>(MrmElementAdditionalInfo, name: nameof(MrmElementAdditionalInfo));
+				ListOfUsedIndex = s.SerializeArray<ushort>(ListOfUsedIndex, UsedIndexCount, name: nameof(ListOfUsedIndex));
+			}
 		}
 		public void SerializeStripData(SerializerObject s) {
 			StripDataFlags = s.Serialize<uint>(StripDataFlags, name: nameof(StripDataFlags));
@@ -51,6 +58,8 @@ namespace R1Engine.Jade {
 			public uint UInt_10 { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
+				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
 				Vertex0 = s.Serialize<ushort>(Vertex0, name: nameof(Vertex0));
 				Vertex1 = s.Serialize<ushort>(Vertex1, name: nameof(Vertex1));
 				Vertex2 = s.Serialize<ushort>(Vertex2, name: nameof(Vertex2));
@@ -58,7 +67,10 @@ namespace R1Engine.Jade {
 				UV1 = s.Serialize<ushort>(UV1, name: nameof(UV1));
 				UV2 = s.Serialize<ushort>(UV2, name: nameof(UV2));
 				SmoothingGroup = s.Serialize<uint>(SmoothingGroup, name: nameof(SmoothingGroup));
-				UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
+
+				if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || !Loader.IsBinaryData) {
+					UInt_10 = s.Serialize<uint>(UInt_10, name: nameof(UInt_10));
+				}
 			}
 		}
 
@@ -87,7 +99,7 @@ namespace R1Engine.Jade {
 					VertexCount = bitFunc(VertexCount, 31, name: nameof(VertexCount));
 					HasEditorInts = bitFunc(HasEditorInts ? 1 : 0, 1, name: nameof(HasEditorInts)) == 1;
 				});
-				if (VertexCount >= 0 && !Loader.IsBinaryData) Ints_Editor = s.SerializeArray<int>(Ints_Editor, VertexCount, name: nameof(Ints_Editor));
+				if (VertexCount >= 0 && !Loader.IsBinaryData && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) Ints_Editor = s.SerializeArray<int>(Ints_Editor, VertexCount, name: nameof(Ints_Editor));
 				VertexUVMap = s.SerializeObjectArray<VertexUV>(VertexUVMap, VertexCount, name: nameof(VertexUVMap));
 			}
 

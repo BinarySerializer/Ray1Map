@@ -31,41 +31,78 @@ namespace R1Engine.Jade {
 		public uint SpritesElementsCount { get; set; }
 		public uint Version2_EndCode { get; set; }
 
+		// Montreal
+		public GEO_ObjFlags RawFlags { get; set; }
+		public uint Montreal_Editor_UInt_0 { get; set; }
+		public uint Montreal_Editor_UInt_1 { get; set; }
+		public uint Montreal_Editor_UInt_2 { get; set; }
+		public uint Montreal_Editor_UInt_3 { get; set; }
+		public uint Montreal_Editor_UInt_4 { get; set; }
+		public uint Montreal_Editor_UInt_5 { get; set; }
+		public uint Montreal_Flags2 { get; set; }
+		public int Montreal_HasColors { get; set; }
+		public int Montreal_HasNormals { get; set; }
+
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-			Code_00 = s.Serialize<uint>(Code_00, name: nameof(Code_00));
-			if (Code_00 == (uint)Jade_Code.Code2002) {
-				Version = s.Serialize<uint>(Version, name: nameof(Version));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+				if (ObjectVersion >= 4) RawFlags = s.Serialize<GEO_ObjFlags>(RawFlags, name: nameof(RawFlags));
+				if (ObjectVersion == 6 && !Loader.IsBinaryData) {
+					Montreal_Editor_UInt_0 = s.Serialize<uint>(Montreal_Editor_UInt_0, name: nameof(Montreal_Editor_UInt_0));
+					Montreal_Editor_UInt_1 = s.Serialize<uint>(Montreal_Editor_UInt_1, name: nameof(Montreal_Editor_UInt_1));
+					Montreal_Editor_UInt_2 = s.Serialize<uint>(Montreal_Editor_UInt_2, name: nameof(Montreal_Editor_UInt_2));
+					Montreal_Editor_UInt_3 = s.Serialize<uint>(Montreal_Editor_UInt_3, name: nameof(Montreal_Editor_UInt_3));
+					Montreal_Editor_UInt_4 = s.Serialize<uint>(Montreal_Editor_UInt_4, name: nameof(Montreal_Editor_UInt_4));
+					Montreal_Editor_UInt_5 = s.Serialize<uint>(Montreal_Editor_UInt_5, name: nameof(Montreal_Editor_UInt_5));
+				}
+				if (ObjectVersion >= 7) Montreal_Flags2 = s.Serialize<uint>(Montreal_Flags2, name: nameof(Montreal_Flags2));
 				VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
-				HasMRM = s.Serialize<int>(HasMRM, name: nameof(HasMRM));
-				if(HasMRM != 0) HasReorderBuffer = s.Serialize<int>(HasReorderBuffer, name: nameof(HasReorderBuffer));
 			} else {
-				VerticesCount = Code_00;
-				Version = 0;
+				Code_00 = s.Serialize<uint>(Code_00, name: nameof(Code_00));
+				if (Code_00 == (uint)Jade_Code.Code2002) {
+					Version = s.Serialize<uint>(Version, name: nameof(Version));
+					VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
+					HasMRM = s.Serialize<int>(HasMRM, name: nameof(HasMRM));
+					if (HasMRM != 0) HasReorderBuffer = s.Serialize<int>(HasReorderBuffer, name: nameof(HasReorderBuffer));
+				} else {
+					VerticesCount = Code_00;
+					Version = 0;
+				}
 			}
 			ColorsCount = s.Serialize<uint>(ColorsCount, name: nameof(ColorsCount));
+			if (ObjectVersion >= 3) Montreal_HasColors = s.Serialize<int>(Montreal_HasColors, name: nameof(Montreal_HasColors));
 			UVsCount = s.Serialize<uint>(UVsCount, name: nameof(UVsCount));
 			ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
 			if(!Loader.IsBinaryData) UInt_Editor = s.Serialize<uint>(UInt_Editor, name: nameof(UInt_Editor));
-			MRM_ObjectAdditionalInfoPointer = s.Serialize<uint>(MRM_ObjectAdditionalInfoPointer, name: nameof(MRM_ObjectAdditionalInfoPointer));
+			if (ObjectVersion < 2) MRM_ObjectAdditionalInfoPointer = s.Serialize<uint>(MRM_ObjectAdditionalInfoPointer, name: nameof(MRM_ObjectAdditionalInfoPointer));
 			Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
 			if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
 				ObjectPonderation = s.SerializeObject<GEO_GeometricObject_Ponderation>(ObjectPonderation, name: nameof(ObjectPonderation));
 			}
-			if ((Code_01 & 1) != 0) {
-				OK3_Boxes = s.SerializeObject<COL_OK3>(OK3_Boxes, name: nameof(OK3_Boxes));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+				if (ObjectVersion != 0) Montreal_HasNormals = s.Serialize<int>(Montreal_HasNormals, name: nameof(Montreal_HasNormals));
+			} else {
+				if ((Code_01 & 1) != 0) {
+					OK3_Boxes = s.SerializeObject<COL_OK3>(OK3_Boxes, name: nameof(OK3_Boxes));
+				}
 			}
 			Vertices = s.SerializeObjectArray<Jade_Vector>(Vertices, VerticesCount, name: nameof(Vertices));
-			if (!Loader.IsBinaryData || s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
+			if (!Loader.IsBinaryData || s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)
+				|| (Montreal_HasNormals != 0 && ObjectVersion >= 3)) {
+				Normals = s.SerializeObjectArray<Jade_Vector>(Normals, VerticesCount, name: nameof(Normals));
+			}
 			if (MRM_ObjectAdditionalInfoPointer != 0) {
 				throw new NotImplementedException($"TODO: Implement {GetType()}: MRM_ObjectAdditionalInfo");
 			}
-			Colors = s.SerializeObjectArray<Jade_Color>(Colors, ColorsCount, name: nameof(Colors));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)
+				|| !Loader.IsBinaryData || Montreal_HasColors != 0) {
+				Colors = s.SerializeObjectArray<Jade_Color>(Colors, ColorsCount, name: nameof(Colors));
+			}
 			UVs = s.SerializeObjectArray<UV>(UVs, UVsCount, name: nameof(UVs));
 
 			// Serialize elements
-			Elements = s.SerializeObjectArray<GEO_GeometricObjectElement>(Elements, ElementsCount, name: nameof(Elements));
+			Elements = s.SerializeObjectArray<GEO_GeometricObjectElement>(Elements, ElementsCount, onPreSerialize: e => e.GeometricObject = this, name: nameof(Elements));
 			foreach (var el in Elements) {
 				el.SerializeArrays(s);
 			}
@@ -97,6 +134,43 @@ namespace R1Engine.Jade {
 				U = s.Serialize<float>(U, name: nameof(U));
 				V = s.Serialize<float>(V, name: nameof(V));
 			}
+		}
+
+		[Flags]
+		public enum GEO_ObjFlags : uint {
+			None = 0,
+			UseNormalsInEngine = 1 << 0,
+			UseVertexPaintInEngine = 1 << 1,
+			StaticMesh = 1 << 2,
+			SkinnedMesh = 1 << 3,
+			IndexedMesh = 1 << 4,
+			ForceStatic = 1 << 5,
+			ForceIndexed = 1 << 6,
+			PositionIsStatic = 1 << 7,
+			MaterialIsStatic = 1 << 8,
+			ForceDynamicPosition = 1 << 9,
+			ForceDynamicMaterial = 1 << 10,
+			UseCompressedVertexInfo = 1 << 11,
+			CanBeInstanciated = 1 << 12,
+			ForceCanBeInstanciated = 1 << 13,
+			ForceNoInstanciation = 1 << 14,
+			CanHaveLightmaps = 1 << 15,
+			ForceLightmaps = 1 << 16,
+			CanUseChrome = 1 << 17,
+			CanHaveNormalMaps = 1 << 18,
+			OnlyInstanceBecauseOfAnims = 1 << 19,
+			Full3DClipping = 1 << 20,
+			Index8Bits = 1 << 21,
+			HasLightMap = 1 << 22,
+			HasShadow = 1 << 23,
+			KeepDuplicatedVertex = 1 << 24,
+			AllowPerPixelLighting = 1 << 25,
+			Vtx16Bits = 1 << 26,
+			NCIS_RenderAOOnWii_TFS_CanBeDisplaced = 1 << 27,
+			TFS_ForceLoadTextures = 1 << 28,
+			Unused29 = 1 << 29,
+			Unused30 = 1 << 30,
+			Unused31 = (uint)1 << 31
 		}
 	}
 }

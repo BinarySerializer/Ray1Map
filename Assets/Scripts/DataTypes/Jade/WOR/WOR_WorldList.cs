@@ -88,8 +88,8 @@ namespace R1Engine.Jade {
 					throw new NotImplementedException($"WOL: A non-WOW file was referenced: {world}");
 				}
 				if (!hasLoadedWorld) {
-					world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 					Loader.BeginSpeedMode(world.Key, serializeAction: async s => {
+						world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 						await Loader.LoadLoopBINAsync();
 
 						if (world?.Value != null && world.Value is WOR_World w) {
