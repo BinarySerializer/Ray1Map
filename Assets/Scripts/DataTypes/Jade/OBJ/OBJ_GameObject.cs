@@ -73,8 +73,7 @@ namespace R1Engine.Jade {
 			BoundingVolume = s.SerializeObject<OBJ_BV_BoundingVolume>(BoundingVolume, onPreSerialize: bv => bv.FlagsIdentity = FlagsIdentity, name: nameof(BoundingVolume));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.BaseObject)) {
 				Base = s.SerializeObject<OBJ_GameObject_Base>(Base, onPreSerialize: o => {
-					o.FlagsIdentity = FlagsIdentity;
-					o.Type = Version;
+					o.GameObject = this;
 				}, name: nameof(Base));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ExtendedObject)) {
