@@ -117,7 +117,7 @@ namespace R1Engine.Jade {
 					DispOffsetV = s.Serialize<float>(DispOffsetV, name: nameof(DispOffsetV));
 				}
 				if (Material.ObjectVersion >= 4) {
-					s.SerializeBitValues<uint>(bitFunc => {
+					s.SerializeBitValues<int>(bitFunc => {
 						RotationSpeed = bitFunc(RotationSpeed, 15, name: nameof(RotationSpeed));
 						IsRotationAnim = bitFunc(IsRotationAnim ? 1 : 0, 1, name: nameof(IsRotationAnim)) == 1;
 						FrameCycle = bitFunc(FrameCycle, 4, name: nameof(FrameCycle));
