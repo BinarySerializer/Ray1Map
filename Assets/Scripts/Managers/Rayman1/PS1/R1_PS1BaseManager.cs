@@ -267,8 +267,8 @@ namespace R1Engine
                     };
 
                     var s = context.Deserializer;
-                    var imgDescriptors = des.EventData?.ImageDescriptors ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<Sprite>(default, des.ImageDescriptorCount, name: $"ImageDescriptors"));
-                    var animDescriptors = des.EventData?.AnimDescriptors ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<Animation>(default, des.AnimationDescriptorCount, name: $"AnimationDescriptors"));
+                    var imgDescriptors = des.EventData?.Sprites ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<Sprite>(default, des.ImageDescriptorCount, name: $"ImageDescriptors"));
+                    var animDescriptors = des.EventData?.Animations ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<Animation>(default, des.AnimationDescriptorCount, name: $"AnimationDescriptors"));
                     var imageBuffer = des.EventData?.ImageBuffer ?? s.DoAt(des.ImageBufferPointer, () => s.SerializeArray<byte>(default, des.ImageBufferLength ?? 0, name: $"ImageBuffer"));
 
                     // Get every sprite
@@ -306,7 +306,7 @@ namespace R1Engine
                     var etaObj = eta.EventData?.ETA ?? s.DoAt(eta.ETAPointer, () => s.SerializeObject<BinarySerializer.Ray1.ETA>(default, name: $"ETA"));
 
                     // Add to the ETA
-                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(etaObj.EventStates, eta.ETAPointer, name: etaName));
+                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<ObjState[][]>(etaObj.States, eta.ETAPointer, name: etaName));
                 }
             }
 
@@ -324,7 +324,7 @@ namespace R1Engine
                 linkTable: eventLinkingTable,
                 typeZDC: exe?.TypeZDC,
                 zdcData: exe?.ZDCData,
-                eventFlags: exe?.EventFlags,
+                eventFlags: exe?.ObjTypeFlags,
                 hasDefinedDesEtaNames: LevelEditorData.NameTable_R1PS1DES != null,
                 eventTemplates: eventTemplates);
 
@@ -853,7 +853,7 @@ namespace R1Engine
 
             async UniTask ExportEventSpritesAsync(Context context, ObjData e, string eventOutputDir, int desIndex)
             {
-                var sprites = e.ImageDescriptors.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
+                var sprites = e.Sprites.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
 
                 if (!exportAnimFrames)
                 {
@@ -868,13 +868,13 @@ namespace R1Engine
                 else
                 {
                     // Enumerate the animations
-                    for (var j = 0; j < e.AnimDescriptors.Length; j++)
+                    for (var j = 0; j < e.Animations.Length; j++)
                     {
                         // Get the animation descriptor
-                        var anim = e.AnimDescriptors[j];
+                        var anim = e.Animations[j];
 
                         // Get the speed
-                        var speed = String.Join("-", e.ETA.EventStates.SelectMany(x => x).Where(x => x.AnimationIndex == j).Select(x => x.AnimationSpeed).Distinct());
+                        var speed = String.Join("-", e.ETA.States.SelectMany(x => x).Where(x => x.AnimationIndex == j).Select(x => x.AnimationSpeed).Distinct());
 
                         // Get the folder
                         var animFolderPath = Path.Combine(eventOutputDir, desIndex.ToString(), $"{j}-{speed}");

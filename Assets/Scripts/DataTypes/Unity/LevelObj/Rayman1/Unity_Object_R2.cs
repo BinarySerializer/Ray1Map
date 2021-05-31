@@ -144,7 +144,7 @@ namespace R1Engine
                 if (zdc.ZDC_Flags != 0 && (zdc.ZDC_Flags & EventData.ZDCFlags) == 0) 
                     continue;
 
-                var hurtsRay = EventData.CollisionData?.Flags.HasFlag(R2_ObjCollision.EventFlags.HurtsRayman) == true && 
+                var hurtsRay = EventData.CollisionData?.Flags.HasFlag(R2_ObjCollision.ObjFlags.HurtsRayman) == true && 
                                CurrentState?.Flags.HasFlag(ObjState.StateFlags.DetectRay) == true && 
                                zdcTriggerFlags?.HasFlag(R2_LevDataFile.ZDC_TriggerFlags.Rayman) == true;
 

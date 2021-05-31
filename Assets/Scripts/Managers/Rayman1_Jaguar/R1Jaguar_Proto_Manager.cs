@@ -69,7 +69,7 @@ namespace R1Engine
                 {
                     // Get data
                     var imgBuffer = rom.ImageBuffers[sprKey];
-                    var imgDescr = rom.ImageBufferDescriptors[sprKey];
+                    var imgDescr = rom.ImageBufferSprites[sprKey];
                     var pal = rom.SpritePalette;
                     var desName = rom.References.Last(x => x.DataValue == sprKey).String.Substring(4);
 

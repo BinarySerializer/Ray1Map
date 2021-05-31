@@ -256,8 +256,8 @@ namespace R1Engine
                 ed.AnimationsCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
                 // TODO: Get from DESData in obj manager instead?
-                ed.ImageDescriptors = FileFactory.Read<ObjectArray<Sprite>>(ed.SpritesPointer, context, (s, o) => o.Pre_Length = ed.SpritesCount).Value;
-                ed.AnimDescriptors = FileFactory.Read<ObjectArray<Animation>>(ed.AnimationsPointer, context, (s, o) => o.Pre_Length = ed.AnimationsCount).Value;
+                ed.Sprites = FileFactory.Read<ObjectArray<Sprite>>(ed.SpritesPointer, context, (s, o) => o.Pre_Length = ed.SpritesCount).Value;
+                ed.Animations = FileFactory.Read<ObjectArray<Animation>>(ed.AnimationsPointer, context, (s, o) => o.Pre_Length = ed.AnimationsCount).Value;
                 ed.ETA = context.Cache.FromOffset<BinarySerializer.Ray1.ETA>(ed.ETAPointer);
                 
                 // TODO: Update this

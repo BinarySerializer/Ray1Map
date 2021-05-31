@@ -135,7 +135,7 @@ namespace R1Engine
                 if (IsPCFormat)
                 {
                     // Unk_28 is also some active flag, but it's 0 for Rayman
-                    return EventData.PC_Flags.HasFlag(ObjData.PC_EventFlags.SwitchedOn) && EventData.IsActive == 1;
+                    return EventData.PC_Flags.HasFlag(ObjData.PC_ObjFlags.SwitchedOn) && EventData.IsActive == 1;
                 }
                 else
                 {
@@ -146,7 +146,7 @@ namespace R1Engine
                     }
                     else
                     {
-                        return EventData.PS1_RuntimeFlags.HasFlag(ObjData.PS1_EventFlags.SwitchedOn);
+                        return EventData.PS1_RuntimeFlags.HasFlag(ObjData.PS1_ObjFlags.SwitchedOn);
                     }
                 }
             }
@@ -166,7 +166,7 @@ namespace R1Engine
             {
                 if (IsPCFormat)
                 {
-                    if (EventData.PC_Flags.HasFlag(ObjData.PC_EventFlags.IsFlipped))
+                    if (EventData.PC_Flags.HasFlag(ObjData.PC_ObjFlags.IsFlipped))
                         return true;
                 }
                 else
@@ -178,7 +178,7 @@ namespace R1Engine
                     }
                     else
                     {
-                        if (EventData.PS1_RuntimeFlags.HasFlag(ObjData.PS1_EventFlags.IsFlipped))
+                        if (EventData.PS1_RuntimeFlags.HasFlag(ObjData.PS1_ObjFlags.IsFlipped))
                             return true;
                     }
                 }

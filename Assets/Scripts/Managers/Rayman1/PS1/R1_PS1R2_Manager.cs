@@ -298,7 +298,7 @@ namespace R1Engine
 
                 // Add DES and ETA
                 return new Unity_ObjectManager_R2.AnimGroup(
-                    pointer: animGroup?.Offset, eta: animGroup?.ETA.EventStates ?? new ObjState[0][], 
+                    pointer: animGroup?.Offset, eta: animGroup?.ETA.States ?? new ObjState[0][], 
                     animations: animGroup?.Animations?.Select(x => x.ToCommonAnimation()).ToArray(), 
                     filePath: animGroup?.AnimationsPointer?.File.FilePath);
             }

@@ -334,7 +334,7 @@ namespace R1Engine
             return new Unity_ObjectManager_SNES.GraphicsGroup[]
             {
                 // Rayman
-                GetGraphicsGroup(rom, rom.Rayman.States, rom.Rayman.ImageDescriptors, false, "Rayman"),
+                GetGraphicsGroup(rom, rom.Rayman.States, rom.Rayman.Sprites, false, "Rayman"),
 
                 // Custom
                 GetGraphicsGroup(rom, SNES_Proto_CustomGraphicsGroups.Enemy_Animations.Select(x => new SNES_State()
