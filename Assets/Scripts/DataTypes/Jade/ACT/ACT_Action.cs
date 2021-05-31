@@ -37,11 +37,21 @@ namespace R1Engine.Jade
 
             public BAS_Array_Transitions Transitions { get; set; }
 
+            // Montreal
+
+            public Jade_Reference<EVE_ListTracks>[] TrackLists { get; set; }
+            public float Float_00 { get; set; }
+
             public override void SerializeImpl(SerializerObject s)
             {
 			    LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-                TrackList = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(TrackList, name: nameof(TrackList))?.Resolve();
+                if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT) {
+                    TrackLists = s.SerializeObjectArray<Jade_Reference<EVE_ListTracks>>(TrackLists, 8, name: nameof(TrackLists))?.Resolve();
+					Float_00 = s.Serialize<float>(Float_00, name: nameof(Float_00));
+				} else {
+                    TrackList = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(TrackList, name: nameof(TrackList))?.Resolve();
+                }
                 TransitionsPointer = s.Serialize<uint>(TransitionsPointer, name: nameof(TransitionsPointer));
                 Shape = s.SerializeObject<Jade_Reference<ANI_Shape>>(Shape, name: nameof(Shape))?.Resolve();
                 Repetition = s.Serialize<byte>(Repetition, name: nameof(Repetition));
@@ -49,8 +59,10 @@ namespace R1Engine.Jade
                 Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
                 CustomBit = s.Serialize<byte>(CustomBit, name: nameof(CustomBit));
                 DesignFlags = s.Serialize<ushort>(DesignFlags, name: nameof(DesignFlags));
-                Color = s.Serialize<byte>(Color, name: nameof(Color));
-                if (!Loader.IsBinaryData) UseCounter = s.Serialize<byte>(UseCounter, name: nameof(UseCounter));
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || !Loader.IsBinaryData) {
+                    Color = s.Serialize<byte>(Color, name: nameof(Color));
+                    if (!Loader.IsBinaryData) UseCounter = s.Serialize<byte>(UseCounter, name: nameof(UseCounter));
+                }
             }
 
             public void SerializeTransitions(SerializerObject s) {
