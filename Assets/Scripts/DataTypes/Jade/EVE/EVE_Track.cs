@@ -3,8 +3,9 @@ using BinarySerializer;
 
 namespace R1Engine.Jade
 {
-    public class EVE_Track : BinarySerializable
-    {
+    public class EVE_Track : BinarySerializable {
+        public EVE_ListTracks ListTracks { get; set; } // Set in onPreSerialize
+        
         public TrackFlags Flags { get; set; }
         public ushort Gizmo { get; set; }
         public uint DataLength { get; set; }

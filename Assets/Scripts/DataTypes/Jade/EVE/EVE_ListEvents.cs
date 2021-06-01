@@ -7,12 +7,12 @@ namespace R1Engine.Jade
         public EVE_Track Track { get; set; } // Set before serializing
         public uint EventsCount { get; set; }
 
-        public ushort Header_UShort_00 { get; set; }
-        public short Header_Short_02 { get; set; }
-        public ushort Header_Ushort_04 { get; set; }
-        public ushort Header_Flags { get; set; }
-        public byte[] Header_Bytes { get; set; }
-        public int Header_Int { get; set; }
+        public ushort FirstEvent_FramesCount { get; set; }
+        public uint FirstEvent_Flags { get; set; }
+        public ushort FirstEvent_UShort_04 { get; set; }
+        public ushort FirstEvent_UShort_06 { get; set; }
+        public byte[] FirstEvent_Bytes { get; set; }
+        public int FirstEvent_Int { get; set; }
 
         public EVE_Event[] Events { get; set; }
 
@@ -22,27 +22,32 @@ namespace R1Engine.Jade
 
             if (Track.DataLength > 0)
             {
+                // Lookahead
                 s.DoAt(s.CurrentPointer, () => {
                     if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_9))
-                        Header_UShort_00 = s.Serialize<byte>((byte)Header_UShort_00, name: nameof(Header_UShort_00));
+                        FirstEvent_FramesCount = s.Serialize<byte>((byte)FirstEvent_FramesCount, name: nameof(FirstEvent_FramesCount));
                     else
-                        Header_UShort_00 = s.Serialize<ushort>(Header_UShort_00, name: nameof(Header_UShort_00));
+                        FirstEvent_FramesCount = s.Serialize<ushort>(FirstEvent_FramesCount, name: nameof(FirstEvent_FramesCount));
 
-                    Header_Short_02 = s.Serialize<short>(Header_Short_02, name: nameof(Header_Short_02));
-                    Header_Ushort_04 = s.Serialize<ushort>(Header_Ushort_04, name: nameof(Header_Ushort_04));
-                    Header_Flags = s.Serialize<ushort>(Header_Flags, name: nameof(Header_Flags));
+                    if (Track.ListTracks.Montreal_Version >= 0x8000)
+						FirstEvent_Flags = s.Serialize<uint>(FirstEvent_Flags, name: nameof(FirstEvent_Flags));
+					else
+						FirstEvent_Flags = s.Serialize<ushort>((ushort)FirstEvent_Flags, name: nameof(FirstEvent_Flags));
 
-                    if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13) && (Header_Flags & 8) != 0) {
-                        long count = Header_Ushort_04;
+                    FirstEvent_UShort_04 = s.Serialize<ushort>(FirstEvent_UShort_04, name: nameof(FirstEvent_UShort_04));
+                    FirstEvent_UShort_06 = s.Serialize<ushort>(FirstEvent_UShort_06, name: nameof(FirstEvent_UShort_06));
 
-                        if ((Header_Flags & 0x10) != 0 && (Header_Flags & 0x80) != 0)
+                    if (Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13) && (FirstEvent_UShort_06 & 8) != 0) {
+                        long count = FirstEvent_UShort_04;
+
+                        if ((FirstEvent_UShort_06 & 0x10) != 0 && (FirstEvent_UShort_06 & 0x80) != 0)
                             count = Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12) ? 6 : 16;
 
-                        if ((Header_Flags & 3) != 0)
-                            count = 12 * (Header_Flags & 3);
+                        if ((FirstEvent_UShort_06 & 3) != 0)
+                            count = 12 * (FirstEvent_UShort_06 & 3);
 
-                        Header_Bytes = s.SerializeArray(Header_Bytes, count, name: nameof(Header_Bytes));
-                        Header_Int = s.Serialize<int>(Header_Int, name: nameof(Header_Int));
+                        FirstEvent_Bytes = s.SerializeArray(FirstEvent_Bytes, count, name: nameof(FirstEvent_Bytes));
+                        FirstEvent_Int = s.Serialize<int>(FirstEvent_Int, name: nameof(FirstEvent_Int));
                     }
                 });
             }

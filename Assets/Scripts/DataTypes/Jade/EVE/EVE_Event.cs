@@ -12,7 +12,7 @@ namespace R1Engine.Jade
         public ushort NumFrames_InGame { get; set; }
         public ushort Flags_00 { get; set; }
         public ushort TypeCode { get; set; }
-        public ushort Flags_01 { get; set; }
+        public int Flags_01 { get; set; }
 
         public uint? InterpolationKey_T { get; set; }
         public EVE_Event_InterpolationKey InterpolationKey { get; set; }
@@ -36,7 +36,7 @@ namespace R1Engine.Jade
                 if (ListEvents.Track.DataLength > 0 &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_12) &&
                     ListEvents.Track.Flags.HasFlag(EVE_Track.TrackFlags.Flag_13) &&
-                    (ListEvents.Header_Flags & 0x80) != 0) {
+                    (ListEvents.FirstEvent_UShort_06 & 0x80) != 0) {
                     Flags_00 = 0;
                     Flags_01 = 0;
                     TypeCode = 2; // InterpolationKey
@@ -48,11 +48,19 @@ namespace R1Engine.Jade
 
                 //Ushort_02 &= 0xFFFB;
             } else {
-                s.SerializeBitValues<ushort>(bitFunc => {
-                    Flags_00 = (ushort)bitFunc(Flags_00, 6, name: nameof(Flags_00));
-                    TypeCode = (ushort)bitFunc(TypeCode, 5, name: nameof(TypeCode));
-                    Flags_01 = (ushort)bitFunc(Flags_01, 5, name: nameof(Flags_01));
-                });
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && ListEvents.Track.ListTracks.Montreal_Version >= 0x8000) {
+                    s.SerializeBitValues<int>(bitFunc => {
+                        Flags_00 = (ushort)bitFunc(Flags_00, 6, name: nameof(Flags_00));
+                        TypeCode = (ushort)bitFunc(TypeCode, 5, name: nameof(TypeCode));
+                        Flags_01 = bitFunc(Flags_01, 5 + 16, name: nameof(Flags_01));
+                    });
+                } else {
+                    s.SerializeBitValues<ushort>(bitFunc => {
+                        Flags_00 = (ushort)bitFunc(Flags_00, 6, name: nameof(Flags_00));
+                        TypeCode = (ushort)bitFunc(TypeCode, 5, name: nameof(TypeCode));
+                        Flags_01 = bitFunc(Flags_01, 5, name: nameof(Flags_01));
+                    });
+                }
             }
 
             switch (TypeCode) {
