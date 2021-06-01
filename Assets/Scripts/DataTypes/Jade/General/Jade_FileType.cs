@@ -34,6 +34,7 @@ namespace R1Engine.Jade {
 			[".ova"] = FileType.AI_Vars,
 			[".ofc"] = FileType.AI_Function,
 			[".fce"] = FileType.AI_ProcList,
+			[".ttt"] = FileType.AI_TT,
 
 			// Sound
 			[".snk"] = FileType.SND_Metabank,
@@ -55,6 +56,7 @@ namespace R1Engine.Jade {
 			AI_Vars,
 			AI_Model,
 			AI_ProcList,
+			AI_TT,
 			AI_Function,
 			SND_Metabank,
 			SND_Sound,

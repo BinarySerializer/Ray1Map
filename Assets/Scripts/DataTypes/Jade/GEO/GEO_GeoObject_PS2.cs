@@ -57,6 +57,7 @@ namespace R1Engine.Jade {
 			public float Float1 { get; set; }
 			public uint UInt2 { get; set; }
 			public uint Count0 { get; set; }
+			public byte[] Bytes0 { get; set; }
 			public uint Count1 { get; set; }
 			public Struct1[] Structs1 { get; set; }
 			public uint Count2 { get; set; }
@@ -69,9 +70,7 @@ namespace R1Engine.Jade {
 				Float1 = s.Serialize<float>(Float1, name: nameof(Float1));
 				UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
 				Count0 = s.Serialize<uint>(Count0, name: nameof(Count0));
-				if (Count0 > 0) {
-					throw new NotImplementedException("MeshElement Struct0");
-				}
+				Bytes0 = s.SerializeArray<byte>(Bytes0, Count0, name: nameof(Bytes0));
 				Count1 = s.Serialize<uint>(Count1, name: nameof(Count1));
 				Structs1 = s.SerializeObjectArray<Struct1>(Structs1, Count1, name: nameof(Structs1));
 				Count2 = s.Serialize<uint>(Count2, name: nameof(Count2));
