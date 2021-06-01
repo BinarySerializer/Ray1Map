@@ -298,12 +298,12 @@ namespace R1Engine
                 PS1EDU_Animation[] anims = null;
                 if (i < allfix.DESCount) {
                     d = allfix.DESData[i];
-                    anims = allfix.AnimationDescriptors[i];
-                    imageDescriptors[i] = allfix.ImageDescriptors[i];
+                    anims = allfix.Animations[i];
+                    imageDescriptors[i] = allfix.Sprites[i];
                 } else {
                     d = world.DESData[i - allfix.DESCount];
-                    anims = world.AnimationDescriptors[i - allfix.DESCount];
-                    imageDescriptors[i] = world.ImageDescriptors[i - allfix.DESCount];
+                    anims = world.Animations[i - allfix.DESCount];
+                    imageDescriptors[i] = world.Sprites[i - allfix.DESCount];
                 }
 
                 // Check if it's multi-colored

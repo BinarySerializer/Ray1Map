@@ -788,8 +788,8 @@ namespace R1Engine
                 if (c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto)
                 {
                     var p = ed.ImageBufferMemoryPointerPointer >> 8;
-                    if (rom.ImageBufferDescriptors.ContainsKey(p))
-                        AddImageDescriptors(rom.ImageBufferDescriptors[p], p);
+                    if (rom.ImageBufferSprites.ContainsKey(p))
+                        AddImageDescriptors(rom.ImageBufferSprites[p], p);
                 }
                 else
                 {
@@ -815,7 +815,7 @@ namespace R1Engine
                     {
                         foreach (var transition in ed.ComplexData.Transitions)
                         {
-                            if (transition.ComplexData?.States == null || (c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && transition.ComplexData.SpritesPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
+                            if (transition.ComplexData?.States == null || (c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && transition.ComplexData.SpritesPointer != rom.ImageBufferSprites[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
                                 continue;
                             finalDesign.Animations.AddRange(transition.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                         }
@@ -888,7 +888,7 @@ namespace R1Engine
                         {
                             if (cd == null || cds.Contains(cd)) return;
 
-                            if ((c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && cd.SpritesPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
+                            if ((c.GetR1Settings().EngineVersion == EngineVersion.R1Jaguar_Proto && cd.SpritesPointer != rom.ImageBufferSprites[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
                                 return;
 
                             cds.Add(cd);

@@ -348,7 +348,7 @@ namespace R1Engine
                         // ?
                         rayman.XPosition = (short)(level.EventData[0].XPosition + 42 + 44 - rayman.EventData.OffsetBX);
                         rayman.YPosition = (short)(level.EventData[0].YPosition + 48 + 24 - rayman.EventData.OffsetBY);
-                        rayman.EventData.PC_Flags |= ObjData.PC_EventFlags.IsFlipped;
+                        rayman.EventData.PC_Flags |= ObjData.PC_ObjFlags.IsFlipped;
                     }
                     else
                     {

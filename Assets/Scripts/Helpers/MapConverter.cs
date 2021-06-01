@@ -48,7 +48,7 @@ namespace R1Engine
             var newTileSize = outLev.MapData.Tiles.Length * 6;
 
             // Update pointers
-            outLev.EventBlockPointer += newTileSize - prevTileSize;
+            outLev.ObjDataBlockPointer += newTileSize - prevTileSize;
             outLev.TextureBlockPointer += newTileSize - prevTileSize;
 
             // TODO: Set tileset from .pcx file
