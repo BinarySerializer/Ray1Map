@@ -327,6 +327,13 @@ namespace R1Engine.Jade {
 						Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset, BinFileHeader.FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
 
 						Bin.CurrentPosition = Bin.CurrentPosition + BinFileHeader.FileSize;
+
+						if (BinFileHeader.Key != null) {
+							if (BinFileHeader.Key != currentRef.Key) {
+								UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}");
+							}
+						}
+
 					} else {
 						FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - Bin.StartPosition);
 					}

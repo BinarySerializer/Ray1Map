@@ -11,7 +11,14 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			References = s.SerializeObjectArray<Jade_GenericReference>(References, FileSize / 8, name: nameof(References));
 			foreach (var reference in References) {
-				reference.Resolve();
+				switch (reference.Type) {
+					case Jade_FileType.FileType.AI_TT:
+						reference.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache);
+						break;
+					default:
+						reference.Resolve();
+						break;
+				}
 			}
 		}
 	}

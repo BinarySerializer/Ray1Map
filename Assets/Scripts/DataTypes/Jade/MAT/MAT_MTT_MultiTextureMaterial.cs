@@ -62,7 +62,9 @@ namespace R1Engine.Jade {
 					Version = 1;
 				}
 			} else {
-				if (!Loader.IsBinaryData) Float_Editor_Montreal = s.Serialize<float>(Float_Editor_Montreal, name: nameof(Float_Editor_Montreal));
+				if (ObjectVersion >= 1) {
+					if (!Loader.IsBinaryData) Float_Editor_Montreal = s.Serialize<float>(Float_Editor_Montreal, name: nameof(Float_Editor_Montreal));
+				}
 			}
 
 			if (FirstLevelPointer != 0) {
@@ -116,7 +118,7 @@ namespace R1Engine.Jade {
 					DispOffsetU = s.Serialize<float>(DispOffsetU, name: nameof(DispOffsetU));
 					DispOffsetV = s.Serialize<float>(DispOffsetV, name: nameof(DispOffsetV));
 				}
-				if (Material.ObjectVersion >= 4) {
+				if (Material.ObjectVersion >= 3) {
 					s.SerializeBitValues<int>(bitFunc => {
 						RotationSpeed = bitFunc(RotationSpeed, 15, name: nameof(RotationSpeed));
 						IsRotationAnim = bitFunc(IsRotationAnim ? 1 : 0, 1, name: nameof(IsRotationAnim)) == 1;
