@@ -430,7 +430,7 @@ namespace R1Engine
             var output = new Texture2D[desItem.Sprites.Length];
 
             // Process the image data
-            var processedImageData = desItem.RequiresBackgroundClearing ? ProcessImageData(desItem.ImageData) : desItem.ImageData;
+            var processedImageData = desItem.RequiresBackgroundClearing ? PC_DES.ProcessImageData(desItem.ImageData) : desItem.ImageData;
 
             // Find the level with the correct palette
             var lvl = levels.FindLast(x => x.ScrollDiffSprites == desIndex || x.ObjData.Objects.Any(y => y.PC_SpritesIndex == desIndex)) ?? levels.First();
@@ -688,51 +688,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Processes the image data
-        /// </summary>
-        /// <param name="imageData">The image data to process</param>
-        /// <param name="requiresBackgroundClearing">Indicates if the data requires background clearing</param>
-        /// <returns>The processed image data</returns>
-        public byte[] ProcessImageData(byte[] imageData)
-        {
-            // Create the output array
-            var processedData = new byte[imageData.Length];
-
-            int flag = -1;
-
-            for (int i = imageData.Length - 1; i >= 0; i--)
-            {
-                // Get the byte
-                var b = imageData[i];
-
-                if (b == 161 || b == 250)
-                {
-                    flag = b;
-                    b = 0;
-                }
-                else if (flag != -1)
-                {
-                    int num6 = (flag < 0xFF) ? (flag + 1) : 0xFF;
-
-                    if (b == num6)
-                    {
-                        b = 0;
-                        flag = num6;
-                    }
-                    else
-                    {
-                        flag = -1;
-                    }
-                }
-
-                // Set the byte
-                processedData[i] = b;
-            }
-
-            return processedData;
-        }
-
-        /// <summary>
         /// Gets the texture for a sprite
         /// </summary>
         /// <param name="s">The image descriptor</param>
@@ -813,7 +768,7 @@ namespace R1Engine
             };
 
             // Process the image data
-            var processedImageData = des.RequiresBackgroundClearing ? ProcessImageData(des.ImageData) : des.ImageData;
+            var processedImageData = des.RequiresBackgroundClearing ? PC_DES.ProcessImageData(des.ImageData) : des.ImageData;
 
             if (!isMultiColored)
             {
