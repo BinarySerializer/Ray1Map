@@ -2561,6 +2561,7 @@ namespace R1Engine.Jade {
 				new AI_Link(44, 8, "AI_EvalType_GetText"),
 				new AI_Link(45, 4, "AI_EvalType_GetKey"),
 				new AI_Link(46, 4, "AI_EvalType_GetColor"),
+				new AI_Link(47, 4, "AI_EvalType_GetSound"),
 				new AI_Link(48, 4, "AI_EvalType_GetColor"),
 				new AI_Link(49, 4, "AI_EvalType_GetColor"),
 				new AI_Link(50, 8, "AI_EvalType_GetMessageId"),

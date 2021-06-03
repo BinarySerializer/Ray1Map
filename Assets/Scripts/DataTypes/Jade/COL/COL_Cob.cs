@@ -15,6 +15,8 @@ namespace R1Engine.Jade
         public COL_Cylinder Shape_Cylinder { get; set; } // Type 3
         public COL_IndexedTriangles Shape_IndexedTriangles { get; set; } // Type 5
 
+        public COL_EventObject EventObject { get; set; }
+
         public override void SerializeImpl(SerializerObject s) 
         {
             Material = s.SerializeObject<Jade_Reference<COL_GameMaterial>>(Material, name: nameof(Material))?.Resolve();
@@ -49,7 +51,11 @@ namespace R1Engine.Jade
 
                     break;
             }
-        }
+
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+                EventObject = s.SerializeObject<COL_EventObject>(EventObject, name: nameof(EventObject));
+            }
+		}
 
         public class UnkStruct : BinarySerializable
         {

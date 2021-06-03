@@ -26,7 +26,7 @@ namespace R1Engine.Jade {
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.Anims)) {
 				ActionData = s.SerializeObject<OBJ_GameObject_ActionData>(ActionData, o => o.Base = this, name: nameof(ActionData));
 			}
-			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ODE)) {
+			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.ODE) && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				ODE = s.SerializeObject<DYN_ODE>(ODE, name: nameof(ODE));
 			}
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AdditionalMatrix)) {
