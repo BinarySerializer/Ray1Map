@@ -10,9 +10,10 @@ namespace R1Engine.Jade
         public Jade_Vector[] Vertices { get; set; }
         public uint FacesCount { get; set; }
         public Jade_Vector[] FaceNormals { get; set; }
+        public uint UVsCount { get; set; }
+        public UV[] UVs { get; set; } // NCIS only
         public uint ElementsCount { get; set; }
         public COL_ElementIndexedTriangles[] Elements { get; set; }
-        public Triangle[][] Prox { get; set; }
         public COL_OK3 OK3 { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
@@ -27,7 +28,7 @@ namespace R1Engine.Jade
             ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
             Elements = s.SerializeObjectArray<COL_ElementIndexedTriangles>(Elements, ElementsCount, name: nameof(Elements));
 
-            if ((Flags & 0x80) != 0 && Loader.IsBinaryData)
+            if (((Flags & 0x80) != 0 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) && Loader.IsBinaryData)
             {
                 foreach (var element in Elements) {
                     element.SerializeProx(s);
@@ -44,6 +45,7 @@ namespace R1Engine.Jade
             public ushort TrianglesCount { get; set; }
             public byte Design { get; set; }
             public byte Flag { get; set; }
+            public ushort Flag_Montreal { get; set; }
             public uint MaterialID { get; set; }
             public Triangle[] Triangles { get; set; }
             public Triangle[] Prox { get; set; }
@@ -51,8 +53,12 @@ namespace R1Engine.Jade
             public override void SerializeImpl(SerializerObject s)
             {
                 TrianglesCount = s.Serialize<ushort>(TrianglesCount, name: nameof(TrianglesCount));
-                Design = s.Serialize<byte>(Design, name: nameof(Design));
-                Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+					Flag_Montreal = s.Serialize<ushort>(Flag_Montreal, name: nameof(Flag_Montreal));
+				} else {
+                    Design = s.Serialize<byte>(Design, name: nameof(Design));
+                    Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
+                }
                 MaterialID = s.Serialize<uint>(MaterialID, name: nameof(MaterialID));
                 Triangles = s.SerializeObjectArray<Triangle>(Triangles, TrianglesCount, name: nameof(Triangles));
             }
@@ -73,6 +79,15 @@ namespace R1Engine.Jade
                 Index0 = s.Serialize<short>(Index0, name: nameof(Index0));
                 Index1 = s.Serialize<short>(Index1, name: nameof(Index1));
                 Index2 = s.Serialize<short>(Index2, name: nameof(Index2));
+            }
+        }
+        public class UV : BinarySerializable {
+            public float U { get; set; }
+            public float V { get; set; }
+
+            public override void SerializeImpl(SerializerObject s) {
+                U = s.Serialize<float>(U, name: nameof(U));
+                V = s.Serialize<float>(V, name: nameof(V));
             }
         }
     }
