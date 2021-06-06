@@ -12,7 +12,12 @@ namespace R1Engine.Jade {
 		private Dictionary<Jade_Key, List<Jade_TextureReference>> KeyTextureDictionary { get; set; }
 		private Dictionary<Jade_Key, List<Jade_CubeMapReference>> KeyCubeMapDictionary { get; set; }
 		public Dictionary<Jade_Key, Jade_Reference<STR_FontDescriptor>> FontDescriptors { get; set; } = new Dictionary<Jade_Key, Jade_Reference<STR_FontDescriptor>>(); // Texture key - font descriptor
-
+		public void SortTexturesList_Montreal() {
+			Textures.Sort((t1, t2) => t1.Key.Key.CompareTo(t2.Key.Key));
+		}
+		public void SortPalettesList_Montreal() {
+			Palettes.Sort((p1, p2) => p1.Key.Key.CompareTo(p2.Key.Key));
+		}
 		public void AddTexture(Jade_TextureReference tex) {
 			if (tex == null || tex.IsNull) return;
 			if (Textures == null) Textures = new List<Jade_TextureReference>();

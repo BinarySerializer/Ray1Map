@@ -7,6 +7,7 @@ namespace R1Engine.Jade {
 		public Jade_Key Key { get; set; }
 		public T Value { get; set; }
 		public bool IsNull => Key.IsNull;
+		public bool ForceResolve { get; set; }
 
 		public uint EmbeddedFileSize { get; set; }
 
@@ -27,7 +28,7 @@ namespace R1Engine.Jade {
 			LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current,
 			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log) {
 
-			if (IsNull) return this;
+			if (IsNull && !ForceResolve) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			loader.RequestFile(Key, (s, configureAction) => {
 				SerializeFile(s, configureAction, onPreSerialize, onPostSerialize);
@@ -44,7 +45,7 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, T> onPreSerialize = null,
 			Action<SerializerObject, T> onPostSerialize = null,
 			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log) {
-			if (IsNull) return this;
+			if (IsNull && !ForceResolve) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (loader.Cache.ContainsKey(Key)) {
 				Value = loader.Cache[Key]?.ConvertType<T>();

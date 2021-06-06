@@ -88,6 +88,7 @@ namespace R1Engine.Jade {
 					throw new NotImplementedException($"WOL: A non-WOW file was referenced: {world}");
 				}
 				if (!hasLoadedWorld) {
+					Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(Context, new Jade_Key(Context, 0x0FF7C0DE));
 					Loader.BeginSpeedMode(world.Key, serializeAction: async s => {
 						world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 						await Loader.LoadLoopBINAsync();
@@ -100,17 +101,67 @@ namespace R1Engine.Jade {
 									await JustAfterLoadObject(gao?.Value);
 								}
 							}
+							await LoadTextures_Montreal(s, w);
 							Loader.WorldToLoadIn = null;
 						}
+						terminator.Resolve();
+						await Loader.LoadLoopBINAsync();
 
 					});
 					await Loader.LoadLoop(s);
+					Loader.CurrentCacheType = LOA_Loader.CacheType.Main;
 					Loader.Cache.Clear();
 					Loader.EndSpeedMode();
 				}
 				worldIndex++;
 
 			}
+		}
+
+		private async UniTask LoadTextures_Montreal(SerializerObject s, WOR_World w) {
+			TEX_GlobalList texList = s.Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
+
+			Controller.DetailedState = $"Loading textures: Info";
+			texList.SortTexturesList_Montreal();
+			for (int i = 0; i < texList.Textures.Count; i++) {
+				texList.Textures[i].LoadInfo();
+				await Loader.LoadLoopBINAsync();
+			}
+
+			Controller.DetailedState = $"Loading textures: Palettes";
+			texList.SortPalettesList_Montreal();
+			if (texList.Palettes != null) {
+				for (int i = 0; i < (texList.Palettes?.Count ?? 0); i++) {
+					texList.Palettes[i].Load();
+				}
+				await Loader.LoadLoopBINAsync();
+			}
+			Controller.DetailedState = $"Loading textures: Content";
+			for (int i = 0; i < texList.Textures.Count; i++) {
+				texList.Textures[i].LoadContent();
+				await Loader.LoadLoopBINAsync();
+				if (texList.Textures[i].Content != null && texList.Textures[i].Info.Type != TEX_File.TexFileType.RawPal) {
+					if (texList.Textures[i].Content.Width != texList.Textures[i].Info.Width ||
+						texList.Textures[i].Content.Height != texList.Textures[i].Info.Height ||
+						texList.Textures[i].Content.Color != texList.Textures[i].Info.Color) {
+						throw new Exception($"Info & Content width/height mismatch for texture with key {texList.Textures[i].Key}");
+					}
+				}
+			}
+			Controller.DetailedState = $"Loading textures: CubeMaps";
+			for (int i = 0; i < (texList.CubeMaps?.Count ?? 0); i++) {
+				texList.CubeMaps[i].Load();
+				await Loader.LoadLoopBINAsync();
+			}
+			Controller.DetailedState = $"Loading textures: End";
+			texList.FillInReferences();
+
+			w.TextureList_Montreal = texList;
+
+			texList = new TEX_GlobalList();
+			s.Context.StoreObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey, texList);
+			Loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
+			Loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
 		}
 
 		private async UniTask JustAfterLoadObject(OBJ_GameObject gao) {

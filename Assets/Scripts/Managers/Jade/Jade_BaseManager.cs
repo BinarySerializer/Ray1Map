@@ -310,7 +310,8 @@ namespace R1Engine
 			}
 
 
-			if (texList.Textures != null && texList.Textures.Any()) {
+			if (texList.Textures != null && texList.Textures.Any()
+				&& context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				Controller.DetailedState = $"Loading textures";
 				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeTextures), serializeAction: async s => {
 					Controller.DetailedState = $"Loading textures: Info";
@@ -376,8 +377,13 @@ namespace R1Engine
 
 			Jade_Reference<AI_Instance> univers = new Jade_Reference<AI_Instance>(context, loader.BigFiles[0].UniverseKey);
 			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				univers.Resolve(queue: LOA_Loader.QueueType.Maps); // Univers is bin compressed in Montreal version
-				loader.BeginSpeedMode(univers.Key);
+				Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(context, new Jade_Key(context, 0)) { ForceResolve = true };
+				loader.BeginSpeedMode(univers.Key, async s => { // Univers is bin compressed in Montreal version
+					univers.Resolve();
+					await loader.LoadLoopBINAsync();
+					terminator.Resolve();
+					await loader.LoadLoopBINAsync();
+				});
 				await loader.LoadLoop(context.Deserializer); // First resolve universe
 				loader.EndSpeedMode();
 			} else {

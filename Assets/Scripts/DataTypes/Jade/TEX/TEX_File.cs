@@ -38,6 +38,7 @@ namespace R1Engine.Jade
             || Type == TexFileType.Raw
             || Type == TexFileType.DDS;
 
+        public Jade_Key Montreal_Key { get; set; }
         public int Mark { get; set; } // Always 0xFFFFFFFF in files
         public ushort Flags { get; set; }
         public TexFileType Type { get; set; }
@@ -57,6 +58,7 @@ namespace R1Engine.Jade
         public TEX_Content_Animated Content_Animated { get; set; }
         public MAT_SpriteGen Content_SpriteGen { get; set; }
         public TEX_Content_Xenon Content_Xenon { get; set; }
+        public TEX_Content_JTX Content_JTX { get; set; }
         public DDS_Header Content_DDS_Header { get; set; }
         public DDS Content_DDS { get; set; }
         public byte[] Content { get; set; }
@@ -66,6 +68,8 @@ namespace R1Engine.Jade
 			if (!Loader.IsBinaryData)
 				s.Goto(s.CurrentPointer + FileSize - 32);
 
+            if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Loader.IsBinaryData)
+				Montreal_Key = s.SerializeObject<Jade_Key>(Montreal_Key, name: nameof(Montreal_Key));
 			Mark = s.Serialize<int>(Mark, name: nameof(Mark));
             if (Mark == -1) {
                 Flags = s.Serialize<ushort>(Flags, name: nameof(Flags));
@@ -106,6 +110,21 @@ namespace R1Engine.Jade
 
                     case TexFileType.Animated:
                         Content_Animated = s.SerializeObject<TEX_Content_Animated>(Content_Animated, c => c.Texture = this, name: nameof(Content_Animated));
+                        break;
+
+                    case TexFileType.JTX:
+                        if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+                            if (contentSize > 0) {
+                                Content_JTX = s.SerializeObject<TEX_Content_JTX>(Content_JTX, c => c.Texture = this, name: nameof(Content_JTX));
+                            }
+                            hasReadContent = true;
+                        } else {
+                            if (IsContent || !Loader.IsBinaryData) {
+                                Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));
+                                if (Content.Length > 0)
+                                    hasReadContent = true;
+                            }
+                        }
                         break;
 
                     case TexFileType.Tga:
@@ -183,7 +202,6 @@ namespace R1Engine.Jade
                     case TexFileType.Raw:
                     case TexFileType.Jpeg:
                     case TexFileType.Bmp:
-                    case TexFileType.Cubemap:
                     default:
                         if (IsContent || !Loader.IsBinaryData) {
                             Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));
@@ -214,7 +232,7 @@ namespace R1Engine.Jade
                 TexFileType.SpriteGen => null, // Points to a RawPal
                 TexFileType.Procedural => null, // Points to nothing
                 TexFileType.Animated => null, // Points to various frames
-                TexFileType.Cubemap => null,
+                TexFileType.JTX => null,
                 TexFileType.RawPal => (Info != null ? Info : this).Content_RawPal.PreferredSlot?.ToTexture2D(this),
                 TexFileType.Tga => Content_TGA.ToTexture2D(),
                 TexFileType.Jpeg => ToTexture2DFromJpeg(),
@@ -242,7 +260,7 @@ namespace R1Engine.Jade
             Raw = 6,
             RawPal = 7,
             Animated = 9,
-            Cubemap = 10,
+            JTX = 10,
             DDS = 11,
         }
 

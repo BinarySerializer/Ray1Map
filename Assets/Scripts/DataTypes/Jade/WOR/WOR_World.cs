@@ -34,6 +34,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<LIGHT_Rejection> LightRejection { get; set; }
 
 		public List<OBJ_GameObject> SerializedGameObjects { get; set; } = new List<OBJ_GameObject>();
+		public TEX_GlobalList TextureList_Montreal { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			FileType = s.SerializeObject<Jade_FileType>(FileType, name: nameof(FileType));
