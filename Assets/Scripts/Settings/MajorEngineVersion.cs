@@ -15,5 +15,6 @@
         GBAVV,          // Vicarious Visions (GBA)
         Gameloft,       // Gameloft (Java)
         Jade,           // Jade Engine
+        GEN,            // GEN Engine
     }
 }

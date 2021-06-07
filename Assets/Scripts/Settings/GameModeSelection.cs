@@ -763,5 +763,10 @@ namespace R1Engine {
         RaymanRavingRabbidsTVPartyWii,
 
         #endregion
+
+        #region GEN
+        [GameMode(MajorEngineVersion.GEN, EngineVersion.GEN, Game.GEN_RaymanEveil, "Rayman Eveil (PC)", typeof(GEN_BaseManager), Platform.PC)]
+        RaymanEveilPC,
+        #endregion
     }
 }

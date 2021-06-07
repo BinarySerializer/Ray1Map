@@ -115,6 +115,10 @@
         Jade_MovieGames,
 
         Jade_PoP_SandsOfTime,
-        Jade_RRRTVParty
+        Jade_RRRTVParty,
+
+        // GEN
+
+        GEN_RaymanEveil,
     }
 }

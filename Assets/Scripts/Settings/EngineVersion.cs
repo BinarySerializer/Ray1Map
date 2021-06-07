@@ -167,5 +167,7 @@ namespace R1Engine
         Jade_Naruto,
         Jade_Naruto1RiseOfANinja,
         Jade_Naruto2TheBrokenBond,
+
+        GEN,
     }
 }
