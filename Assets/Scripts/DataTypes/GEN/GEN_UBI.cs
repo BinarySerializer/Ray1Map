@@ -46,7 +46,7 @@ namespace R1Engine
                     Pointer Current = s.CurrentPointer;
                     SpriteData = s.SerializeObject<UBI_SpriteData>(SpriteData, name: nameof(SpriteData));
                     if (s.CurrentPointer != Current + SpriteDataLength)
-                        throw new Exception($"Data length was {(s.CurrentPointer - Current):X8}, not {SpriteDataLength:X8}");
+                        throw new BinarySerializableException(this, $"Data length was {(s.CurrentPointer - Current):X8}, not {SpriteDataLength:X8}");
                 }
 			}
 		}
