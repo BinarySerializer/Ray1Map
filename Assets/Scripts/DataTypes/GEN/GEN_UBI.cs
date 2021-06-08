@@ -61,14 +61,19 @@ namespace R1Engine
 			}
 
             public class Section : BinarySerializable {
-                public byte Type { get; set; }
+                public byte SectionType { get; set; }
                 public uint Length { get; set; }
-                public byte[] Data { get; set; }
+                public byte[] SectionData { get; set; }
+                public GEN_RLX RLX { get; set; }
 
                 public override void SerializeImpl(SerializerObject s) {
-                    Type = s.Serialize<byte>(Type, name: nameof(Type));
+                    SectionType = s.Serialize<byte>(SectionType, name: nameof(SectionType));
                     Length = s.Serialize<uint>(Length, name: nameof(Length));
-                    Data = s.SerializeArray<byte>(Data, Length, name: nameof(Data));
+                    if (SectionType == 3 && Length > 0) {
+						RLX = s.SerializeObject<GEN_RLX>(RLX, rlx => rlx.FileSize = Length, name: nameof(RLX));
+					} else {
+                        SectionData = s.SerializeArray<byte>(SectionData, Length, name: nameof(SectionData));
+                    }
                 }
 			}
 		}

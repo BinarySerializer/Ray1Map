@@ -42,11 +42,8 @@ namespace R1Engine {
 		}
 
 		public Texture2D ToTexture2D() {
-			Texture2D tex = TextureHelpers.CreateTexture2D(Width, Height);
 			var pal = Util.CreateDummyPalette(256, false);
-			var data = Data.Select(d => pal[d].GetColor()).ToArray();
-			tex.SetPixels(data);
-			tex.Apply();
+			var tex = Util.ToTileSetTexture(Data, pal.Select(p => p.GetColor()).ToArray(), Util.TileEncoding.Linear_8bpp, 1, true, wrap: Width);
 			return tex;
 		}
 	}
