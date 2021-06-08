@@ -46,7 +46,7 @@ namespace R1Engine
                     Pointer Current = s.CurrentPointer;
                     SpriteData = s.SerializeObject<UBI_SpriteData>(SpriteData, name: nameof(SpriteData));
                     if (s.CurrentPointer != Current + SpriteDataLength)
-                        throw new Exception($"Data length was {(s.CurrentPointer - Current):X8}, not {SpriteDataLength:X8}");
+                        throw new Exception($"Data length was {(s.CurrentPointer - Current):X8}, but it's supposed to be {SpriteDataLength:X8}");
                 }
 			}
 		}
@@ -61,14 +61,19 @@ namespace R1Engine
 			}
 
             public class Section : BinarySerializable {
-                public byte Type { get; set; }
+                public byte SectionType { get; set; }
                 public uint Length { get; set; }
-                public byte[] Data { get; set; }
+                public byte[] SectionData { get; set; }
+                public GEN_RLX RLX { get; set; }
 
                 public override void SerializeImpl(SerializerObject s) {
-                    Type = s.Serialize<byte>(Type, name: nameof(Type));
+                    SectionType = s.Serialize<byte>(SectionType, name: nameof(SectionType));
                     Length = s.Serialize<uint>(Length, name: nameof(Length));
-                    Data = s.SerializeArray<byte>(Data, Length, name: nameof(Data));
+                    if (SectionType == 3 && Length > 0) {
+						RLX = s.SerializeObject<GEN_RLX>(RLX, rlx => rlx.FileSize = Length, name: nameof(RLX));
+					} else {
+                        SectionData = s.SerializeArray<byte>(SectionData, Length, name: nameof(SectionData));
+                    }
                 }
 			}
 		}
