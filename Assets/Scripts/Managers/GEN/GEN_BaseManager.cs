@@ -26,11 +26,12 @@ namespace R1Engine
             string palettePath = "Root/COMMUN/PAL.PAL";
             await context.AddLinearSerializedFileAsync(palettePath, Endian.Little);
             GEN_Palette paletteFile = FileFactory.Read<GEN_Palette>(palettePath, context);
+            //GEN_Palette paletteFile = null;
 
             foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.ubi", SearchOption.AllDirectories).
                 Concat(Directory.EnumerateFiles(context.BasePath, "*.UBI", SearchOption.AllDirectories))) 
             {
-                var ubiPal = paletteFile.Palette;
+                var ubiPal = paletteFile?.Palette ?? pal;
                 string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
                 await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
                 GEN_UBI ubi = FileFactory.Read<GEN_UBI>(fileName, context);
@@ -41,7 +42,7 @@ namespace R1Engine
                         if (section.Palette != null) ubiPal = section.Palette;
                         if (section.RLX != null) {
                             var rlx = section.RLX.Data;
-                            if (rlx.RLXType != 2) continue;
+                            if (!(rlx.RLXType == 1 || rlx.RLXType == 2)) continue;
                             var tex = rlx.ToTexture2D(ubiPal);
                             var path = Path.Combine(outputDir, $"{fileName}_{i}.png");
                             Util.ByteArrayToFile(path, tex.EncodeToPNG());
@@ -50,6 +51,21 @@ namespace R1Engine
                 }
                 await Controller.WaitFrame();
             }
+            /*foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.rlx", SearchOption.AllDirectories).
+                Concat(Directory.EnumerateFiles(context.BasePath, "*.RLX", SearchOption.AllDirectories))) {
+                var ubiPal = paletteFile.Palette;
+                string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
+                await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+                GEN_RLX ubi = FileFactory.Read<GEN_RLX>(fileName, context);
+                {
+                    var rlx = ubi.Data;
+                    if (rlx.RLXType != 2) continue;
+                    var tex = rlx.ToTexture2D(ubiPal);
+                    var path = Path.Combine(outputDir, $"{fileName}.png");
+                    Util.ByteArrayToFile(path, tex.EncodeToPNG());
+                }
+                await Controller.WaitFrame();
+            }*/
         }
 
 		// Load

@@ -18,6 +18,29 @@ namespace R1Engine
             RLX = rlx;
         }
 
+        private void Decompress_1(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+            while (toDecompress > 0) {
+                byte curByte = compressed[inPos++];
+                toDecompress--;
+                if ((curByte & 0x80) != 0) {
+                    int compressedCount = BitHelpers.ExtractBits(curByte, 7, 0) + 1;
+                    byte repeatByte = compressed[inPos++];
+                    for (int i = 0; i < compressedCount; i++) {
+                        decompressed[outPos + i] = repeatByte;
+                    }
+                    outPos += compressedCount;
+                    toDecompress--;
+                } else {
+                    int literalCount = curByte + 1;
+                    for (int i = 0; i < literalCount; i++) {
+                        decompressed[outPos + i] = compressed[inPos++];
+                    }
+                    outPos += literalCount;
+                    toDecompress -=  literalCount;
+                }
+            }
+        }
+
         private void Decompress_2(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
             while (toDecompress > 0) {
                 byte curByte = compressed[inPos++];
@@ -32,7 +55,6 @@ namespace R1Engine
                     outPos += compressedCount;
                     toDecompress--;
                 } else {
-
                     if (RLX.LookupTable != null && curByte < RLX.LookupTableCount) curByte = RLX.LookupTable[curByte];
                     decompressed[outPos++] = curByte;
                 }
@@ -44,6 +66,9 @@ namespace R1Engine
             int inPos = 0, outPos = 0;
             int toDecompress = compressed.Length;
             switch (RLX.RLXType) {
+                case 1:
+                    Decompress_1(compressed, decompressed, ref inPos, ref outPos, ref toDecompress);
+                    break;
                 case 2:
                     Decompress_2(compressed, decompressed, ref inPos, ref outPos, ref toDecompress);
                     break;
