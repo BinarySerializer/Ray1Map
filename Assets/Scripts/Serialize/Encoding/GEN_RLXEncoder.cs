@@ -25,12 +25,15 @@ namespace R1Engine
                 if ((curByte & 0x80) != 0) {
                     int compressedCount = BitHelpers.ExtractBits(curByte, 7, 0) + 1;
                     byte repeatByte = compressed[inPos++];
+                    if(RLX.LookupTable != null && repeatByte < RLX.LookupTableCount) repeatByte = RLX.LookupTable[repeatByte];
                     for (int i = 0; i < compressedCount; i++) {
                         decompressed[outPos + i] = repeatByte;
                     }
                     outPos += compressedCount;
                     toDecompress--;
                 } else {
+
+                    if (RLX.LookupTable != null && curByte < RLX.LookupTableCount) curByte = RLX.LookupTable[curByte];
                     decompressed[outPos++] = curByte;
                 }
             }

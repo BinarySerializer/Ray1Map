@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -20,13 +21,34 @@ namespace R1Engine
         {
             using var context = new R1Context(settings);
             var s = context.Deserializer;
+            var pal = Util.CreateDummyPalette(256, false);
+
+            string palettePath = "Root/COMMUN/PAL.PAL";
+            await context.AddLinearSerializedFileAsync(palettePath, Endian.Little);
+            GEN_Palette paletteFile = FileFactory.Read<GEN_Palette>(palettePath, context);
 
             foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.ubi", SearchOption.AllDirectories).
                 Concat(Directory.EnumerateFiles(context.BasePath, "*.UBI", SearchOption.AllDirectories))) 
             {
+                var ubiPal = paletteFile.Palette;
                 string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
-                var file = await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+                await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
                 GEN_UBI ubi = FileFactory.Read<GEN_UBI>(fileName, context);
+                for (int i = 0; i < ubi.Frames.Length; i++) {
+                    var f = ubi.Frames[i];
+                    for (int j = 0; j < f.SpriteData?.Sections.Length; j++) {
+                        var section = f.SpriteData.Sections[j];
+                        if (section.Palette != null) ubiPal = section.Palette;
+                        if (section.RLX != null) {
+                            var rlx = section.RLX.Data;
+                            if (rlx.RLXType != 2) continue;
+                            var tex = rlx.ToTexture2D(ubiPal);
+                            var path = Path.Combine(outputDir, $"{fileName}_{i}.png");
+                            Util.ByteArrayToFile(path, tex.EncodeToPNG());
+                        }
+                    }
+                }
+                await Controller.WaitFrame();
             }
         }
 

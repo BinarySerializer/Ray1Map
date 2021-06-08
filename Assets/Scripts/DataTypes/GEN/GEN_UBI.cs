@@ -11,10 +11,10 @@ namespace R1Engine
         public string Version { get; set; }
         public byte Type { get; set; }
         public byte Unknown { get; set; }
-        public ushort ChunkSizeAudio { get; set; }
-        public ushort ChunkSizeSprite { get; set; }
-        public ushort ChunksCount { get; set; }
-        public Chunk[] Chunks { get; set; }
+        public ushort FrameSizeAudio { get; set; }
+        public ushort FrameSizeSprite { get; set; }
+        public ushort FramesCount { get; set; }
+        public Frame[] Frames { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -25,13 +25,13 @@ namespace R1Engine
 
             Type = s.Serialize<byte>(Type, name: nameof(Type));
 			Unknown = s.Serialize<byte>(Unknown, name: nameof(Unknown));
-			ChunkSizeAudio = s.Serialize<ushort>(ChunkSizeAudio, name: nameof(ChunkSizeAudio));
-			ChunkSizeSprite = s.Serialize<ushort>(ChunkSizeSprite, name: nameof(ChunkSizeSprite));
-			ChunksCount = s.Serialize<ushort>(ChunksCount, name: nameof(ChunksCount));
-			Chunks = s.SerializeObjectArray<Chunk>(Chunks, ChunksCount, onPreSerialize: c => c.UBI = this, name: nameof(Chunks));
+			FrameSizeAudio = s.Serialize<ushort>(FrameSizeAudio, name: nameof(FrameSizeAudio));
+			FrameSizeSprite = s.Serialize<ushort>(FrameSizeSprite, name: nameof(FrameSizeSprite));
+			FramesCount = s.Serialize<ushort>(FramesCount, name: nameof(FramesCount));
+			Frames = s.SerializeObjectArray<Frame>(Frames, FramesCount, onPreSerialize: c => c.UBI = this, name: nameof(Frames));
 		}
 
-		public class Chunk : BinarySerializable {
+		public class Frame : BinarySerializable {
             public GEN_UBI UBI { get; set; } // Set in onPreSerialize
 
             public byte[] AudioData { get; set; }
@@ -39,14 +39,16 @@ namespace R1Engine
             public UBI_SpriteData SpriteData { get; set; }
 
             public override void SerializeImpl(SerializerObject s) {
-				AudioData = s.SerializeArray<byte>(AudioData, UBI.ChunkSizeAudio, name: nameof(AudioData));
+				AudioData = s.SerializeArray<byte>(AudioData, UBI.FrameSizeAudio, name: nameof(AudioData));
                 if (s.CurrentPointer.AbsoluteOffset >= s.CurrentLength) return;
 				SpriteDataLength = s.Serialize<uint>(SpriteDataLength, name: nameof(SpriteDataLength));
                 if (SpriteDataLength > 0) {
                     Pointer Current = s.CurrentPointer;
                     SpriteData = s.SerializeObject<UBI_SpriteData>(SpriteData, name: nameof(SpriteData));
-                    if (s.CurrentPointer != Current + SpriteDataLength)
-                        throw new BinarySerializableException(this, $"Data length was {(s.CurrentPointer - Current):X8}, not {SpriteDataLength:X8}");
+                    if (s.CurrentPointer != Current + SpriteDataLength) {
+                        UnityEngine.Debug.LogWarning($"{Offset}: Data length was {(s.CurrentPointer - Current):X8}, not {SpriteDataLength:X8}");
+                        s.Goto(Current + SpriteDataLength);
+                    }
                 }
 			}
 		}
@@ -65,12 +67,16 @@ namespace R1Engine
                 public uint Length { get; set; }
                 public byte[] SectionData { get; set; }
                 public GEN_RLX RLX { get; set; }
+                public RGBA8888Color[] Palette { get; set; }
 
                 public override void SerializeImpl(SerializerObject s) {
                     SectionType = s.Serialize<byte>(SectionType, name: nameof(SectionType));
                     Length = s.Serialize<uint>(Length, name: nameof(Length));
                     if (SectionType == 3 && Length > 0) {
-						RLX = s.SerializeObject<GEN_RLX>(RLX, rlx => rlx.FileSize = Length, name: nameof(RLX));
+                        RLX = s.SerializeObject<GEN_RLX>(RLX, rlx => rlx.FileSize = Length, name: nameof(RLX));
+                    } else if (SectionType == 20 && Length > 0) {
+                        SectionData = s.SerializeArray<byte>(SectionData, 0x18, name: nameof(SectionData));
+                        Palette = s.SerializeObjectArray<RGBA8888Color>(Palette, Math.Min(Length / 4, 256), name: nameof(Palette));
 					} else {
                         SectionData = s.SerializeArray<byte>(SectionData, Length, name: nameof(SectionData));
                     }
