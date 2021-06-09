@@ -42,7 +42,6 @@ namespace R1Engine
                         if (section.Palette != null) ubiPal = section.Palette;
                         if (section.RLX != null) {
                             var rlx = section.RLX.Data;
-                            if (!(rlx.RLXType == 1 || rlx.RLXType == 2)) continue;
                             var tex = rlx.ToTexture2D(ubiPal);
                             var path = Path.Combine(outputDir, $"{fileName}_{i}.png");
                             Util.ByteArrayToFile(path, tex.EncodeToPNG());
@@ -51,7 +50,7 @@ namespace R1Engine
                 }
                 await Controller.WaitFrame();
             }
-            /*foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.rlx", SearchOption.AllDirectories).
+            foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.rlx", SearchOption.AllDirectories).
                 Concat(Directory.EnumerateFiles(context.BasePath, "*.RLX", SearchOption.AllDirectories))) {
                 var ubiPal = paletteFile.Palette;
                 string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
@@ -59,13 +58,12 @@ namespace R1Engine
                 GEN_RLX ubi = FileFactory.Read<GEN_RLX>(fileName, context);
                 {
                     var rlx = ubi.Data;
-                    if (rlx.RLXType != 2) continue;
                     var tex = rlx.ToTexture2D(ubiPal);
                     var path = Path.Combine(outputDir, $"{fileName}.png");
                     Util.ByteArrayToFile(path, tex.EncodeToPNG());
                 }
                 await Controller.WaitFrame();
-            }*/
+            }
         }
 
 		// Load

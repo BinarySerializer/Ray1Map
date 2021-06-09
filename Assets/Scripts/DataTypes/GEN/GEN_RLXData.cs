@@ -30,11 +30,6 @@ namespace R1Engine {
 				}
 				DataLength = FileSize.Value - (uint)(s.CurrentPointer - Offset);
 				Data = s.DoEncoded(new GEN_RLXEncoder(this), () => s.SerializeArray<byte>(Data, s.CurrentLength, name: nameof(Data)));
-				/*if (RLXType == 2) {
-					Texture2D tex = ToTexture2D();
-					Util.ByteArrayToFile($"{Context.BasePath}/temp_images/{Offset.File.FilePath}_{Offset.StringFileOffset}.png", tex.EncodeToPNG());
-					//Util.ByteArrayToFile($"{Context.BasePath}/temp_ext/{Offset.File.FilePath}_{Offset.StringFileOffset}.bin", Data);
-				}*/
 			} else {
 				DataLength = FileSize.Value - (uint)(s.CurrentPointer - Offset);
 				Data = s.SerializeArray<byte>(Data, DataLength, name: nameof(Data));

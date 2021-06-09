@@ -61,6 +61,84 @@ namespace R1Engine
             }
         }
 
+        private void Decompress_3(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+            while (toDecompress > 0) {
+                byte curByte = compressed[inPos++];
+                toDecompress--;
+                if ((curByte & 0x80) != 0) {
+                    int compressedCount = ((BitHelpers.ExtractBits(curByte, 7, 0) + 1) * 2 + 1) >> 1;
+                    byte bytesToWrite = compressed[inPos++];
+                    byte byte1 = (byte)BitHelpers.ExtractBits(bytesToWrite, 4, 4);
+                    byte byte2 = (byte)BitHelpers.ExtractBits(bytesToWrite, 4, 0);
+                    if (RLX.LookupTable != null && byte1 < RLX.LookupTableCount) byte1 = RLX.LookupTable[byte1];
+                    if (RLX.LookupTable != null && byte2 < RLX.LookupTableCount) byte2 = RLX.LookupTable[byte2];
+                    toDecompress--;
+                    for (int i = 0; i < compressedCount; i++) {
+                        decompressed[outPos++] = byte1;
+                    }
+                    for (int i = 0; i < compressedCount; i++) {
+                        decompressed[outPos++] = byte2;
+                    }
+                } else {
+                    int compressedCount = ((curByte + 1) * 2 + 1) >> 1;
+                    for (int i = 0; i < compressedCount; i++) {
+                        byte bytesToWrite = compressed[inPos++];
+                        byte byte1 = (byte)BitHelpers.ExtractBits(bytesToWrite, 4, 4);
+                        byte byte2 = (byte)BitHelpers.ExtractBits(bytesToWrite, 4, 0);
+                        if (RLX.LookupTable != null && byte1 < RLX.LookupTableCount) byte1 = RLX.LookupTable[byte1];
+                        if (RLX.LookupTable != null && byte2 < RLX.LookupTableCount) byte2 = RLX.LookupTable[byte2];
+                        decompressed[outPos++] = byte1;
+                        decompressed[outPos++] = byte2;
+                        toDecompress--;
+                    }
+                }
+            }
+        }
+
+        private void Decompress_4(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+            while (toDecompress > 0) {
+                byte curByte = compressed[inPos++];
+                toDecompress--;
+
+                for (int i = 0; i < 8; i++) {
+                    byte toWrite = (byte)BitHelpers.ExtractBits(curByte, 1, 7-i);
+                    if (RLX.LookupTable != null && toWrite < RLX.LookupTableCount) toWrite = RLX.LookupTable[toWrite];
+                    decompressed[outPos++] = toWrite;
+                    if(outPos >= decompressed.Length) break;
+                }
+            }
+        }
+        
+        private void Decompress_5(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+            while (toDecompress > 0) {
+                byte curByte = compressed[inPos++];
+                toDecompress--;
+
+                byte toWrite = (byte)BitHelpers.ExtractBits(curByte, 1, 0);
+                if (RLX.LookupTable != null && toWrite < RLX.LookupTableCount) toWrite = RLX.LookupTable[toWrite];
+
+                int count = BitHelpers.ExtractBits(curByte, 7, 1) + 1;
+
+                for (int i = 0; i < count; i++) {
+                    decompressed[outPos++] = toWrite;
+                }
+            }
+        }
+
+        private void Decompress_6(byte[] compressed, byte[] decompressed, ref int inPos, ref int outPos, ref int toDecompress) {
+            while (toDecompress > 0) {
+                byte curByte = compressed[inPos++];
+                toDecompress--;
+
+                for (int i = 0; i < 4; i++) {
+                    byte toWrite = (byte)BitHelpers.ExtractBits(curByte, 1, 6 - (i * 2));
+                    if (RLX.LookupTable != null && toWrite < RLX.LookupTableCount) toWrite = RLX.LookupTable[toWrite];
+                    decompressed[outPos++] = toWrite;
+                    if (outPos >= decompressed.Length) break;
+                }
+            }
+        }
+
         private byte[] Decompress(byte[] compressed) {
             byte[] decompressed = new byte[RLX.Width * RLX.Height];
             int inPos = 0, outPos = 0;
@@ -72,8 +150,23 @@ namespace R1Engine
                 case 2:
                     Decompress_2(compressed, decompressed, ref inPos, ref outPos, ref toDecompress);
                     break;
+                case 3:
+                    Decompress_3(compressed, decompressed, ref inPos, ref outPos, ref toDecompress);
+                    break;
+                case 4:
+                    Decompress_4(compressed, decompressed, ref inPos, ref outPos, ref toDecompress);
+                    break;
+                case 5:
+                    Decompress_5(compressed, decompressed, ref inPos, ref outPos, ref toDecompress);
+                    break;
+                case 6:
+                    Decompress_6(compressed, decompressed, ref inPos, ref outPos, ref toDecompress);
+                    break;
                 default:
                     return compressed;
+            }
+            if (outPos < decompressed.Length) {
+                UnityEngine.Debug.LogWarning($"{RLX.Offset}: RLX Type {RLX.RLXType} did not fully decompress");
             }
             return decompressed;
         }
