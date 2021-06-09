@@ -65,7 +65,12 @@ namespace R1Engine
                 var ubiPal = mainPal;
                 string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
                 await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
-                GEN_UBI ubi = FileFactory.Read<GEN_UBI>(fileName, context);
+                GEN_UBI ubi = null;
+                try {
+                    ubi = FileFactory.Read<GEN_UBI>(fileName, context);
+                } catch (Exception) {
+                    continue;
+                }
                 if(!ubi.Frames.Any(f => f.SpriteData?.Sections.Any(sec => (sec.RLX?.Data?.Data?.Length ?? 0) > 0) ?? false)) continue;
 
                 /*if (!hasMainPal)*/ {
@@ -105,7 +110,7 @@ namespace R1Engine
                     }
                 }
                 if (exportGif && frames.Any()) {
-                    Util.ExportAnimAsGif(frames, 1, false, true, Path.Combine(outputDir, $"{fileName}.gif"));
+                    Util.ExportAnimAsGif(frames, 1, false, false, Path.Combine(outputDir, $"{fileName}.gif"));
                 }
                 await Controller.WaitFrame();
             }
@@ -114,9 +119,14 @@ namespace R1Engine
                 var ubiPal = mainPal;
                 string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
                 await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
-                GEN_RLX ubi = FileFactory.Read<GEN_RLX>(fileName, context);
+                GEN_RLX rlxFile = null;
+                try {
+                    rlxFile = FileFactory.Read<GEN_RLX>(fileName, context);
+                } catch (Exception) {
+                    continue;
+                }
                 {
-                    var rlx = ubi.Data;
+                    var rlx = rlxFile.Data;
                     if(rlx == null) continue;
                     var tex = rlx.ToTexture2D(ubiPal);
                     var path = Path.Combine(outputDir, $"{fileName}.png");
