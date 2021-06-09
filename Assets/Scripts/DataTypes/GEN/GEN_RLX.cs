@@ -14,6 +14,7 @@ namespace R1Engine {
 
 		public override void SerializeImpl(SerializerObject s) {
 			if(!FileSize.HasValue) FileSize = s.CurrentLength32;
+			if (FileSize == 0) return;
 
 			RectsCount = s.Serialize<short>(RectsCount, name: nameof(RectsCount));
 			Rects = s.SerializeObjectArray<Rect>(Rects, RectsCount, name: nameof(Rects));

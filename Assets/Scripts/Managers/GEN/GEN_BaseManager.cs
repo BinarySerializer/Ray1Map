@@ -32,12 +32,32 @@ namespace R1Engine
             var s = context.Deserializer;
             var pal = Util.CreateDummyPalette(256, false);
 
-            string palettePath = "Root/COMMUN/PAL.PAL";
-            await context.AddLinearSerializedFileAsync(palettePath, Endian.Little);
-            GEN_Palette paletteFile = FileFactory.Read<GEN_Palette>(palettePath, context);
-            //GEN_Palette paletteFile = null;
 
-            var mainPal = ProcessPalette(paletteFile?.Palette ?? pal);
+            async UniTask<BaseColor[]> LoadPalFromDIB(string filePath) {
+                string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
+                var file = await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+                BGRA8888Color[] Palette = null;
+                return s.DoAt(file.StartPointer + 0x36, () => s.SerializeObjectArray<BGRA8888Color>(Palette, 256, name: nameof(Palette)));
+            }
+
+            bool hasMainPal = false;
+            string palettePath = "Root/COMMUN/PAL.PAL";
+            GEN_Palette paletteFile = null;
+            if (File.Exists(context.BasePath + palettePath)) {
+                await context.AddLinearSerializedFileAsync(palettePath, Endian.Little);
+                paletteFile = FileFactory.Read<GEN_Palette>(palettePath, context);
+                hasMainPal = true;
+            }
+            BaseColor[] dibPalette = null;
+            if (!hasMainPal) {
+                foreach (var dibPath in Directory.EnumerateFiles(context.BasePath, "*.dib", SearchOption.AllDirectories).
+                    Concat(Directory.EnumerateFiles(context.BasePath, "*.DIB", SearchOption.AllDirectories))) {
+                    dibPalette = await LoadPalFromDIB(dibPath);
+                    break;
+                }
+            }
+
+            var mainPal = ProcessPalette(paletteFile?.Palette ?? dibPalette ?? pal);
 
             foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.ubi", SearchOption.AllDirectories).
                 Concat(Directory.EnumerateFiles(context.BasePath, "*.UBI", SearchOption.AllDirectories))) 
@@ -47,6 +67,18 @@ namespace R1Engine
                 await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
                 GEN_UBI ubi = FileFactory.Read<GEN_UBI>(fileName, context);
                 if(!ubi.Frames.Any(f => f.SpriteData?.Sections.Any(sec => (sec.RLX?.Data?.Data?.Length ?? 0) > 0) ?? false)) continue;
+
+                /*if (!hasMainPal)*/ {
+                    string dir = Path.GetDirectoryName(filePath);
+                    BaseColor[] curDibPalette = null;
+                    foreach (var dibPath in Directory.EnumerateFiles(dir, "*.dib", SearchOption.TopDirectoryOnly).
+                        Concat(Directory.EnumerateFiles(dir, "*.DIB", SearchOption.TopDirectoryOnly))) {
+                        curDibPalette = await LoadPalFromDIB(dibPath);
+                        break;
+                    }
+                    if(curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
+                }
+
                 int width = ubi.Frames.Max(f => f.SpriteData?.Sections.Max(sec => (sec.RLX?.Data?.X ?? 0) + (sec.RLX?.Data?.Width ?? 0)) ?? 0);
                 int height = ubi.Frames.Max(f => f.SpriteData?.Sections.Max(sec => (sec.RLX?.Data?.Y ?? 0) + (sec.RLX?.Data?.Height ?? 0)) ?? 0);
                 Texture2D workingTexture = TextureHelpers.CreateTexture2D(width, height, clear: true, applyClear: true);
@@ -85,6 +117,7 @@ namespace R1Engine
                 GEN_RLX ubi = FileFactory.Read<GEN_RLX>(fileName, context);
                 {
                     var rlx = ubi.Data;
+                    if(rlx == null) continue;
                     var tex = rlx.ToTexture2D(ubiPal);
                     var path = Path.Combine(outputDir, $"{fileName}.png");
                     Util.ByteArrayToFile(path, tex.EncodeToPNG());
