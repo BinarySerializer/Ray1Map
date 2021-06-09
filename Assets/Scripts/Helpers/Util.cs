@@ -318,46 +318,57 @@ namespace R1Engine
 
         public static void FillInTile(this Texture2D tex, byte[] imgData, int imgDataOffset, Color[] pal, TileEncoding encoding, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false, bool flipTextureX = false)
         {
+            FillRegion(tex, imgData, imgDataOffset, pal, encoding,
+                tileX, tileY, tileWidth, tileWidth,
+                flipTextureX: flipTextureX, flipTextureY: flipTextureY,
+                flipRegionX: flipTileX, flipRegionY: flipTileY,
+                ignoreTransparent: ignoreTransparent);
+        }
+
+        public static void FillRegion(this Texture2D tex, byte[] imgData, int imgDataOffset,
+            Color[] pal, TileEncoding encoding,
+            int regionX, int regionY,
+            int regionWidth, int regionHeight,
+            bool flipTextureX = false, bool flipTextureY = false,            
+            bool flipRegionX = false, bool flipRegionY = false,
+            bool ignoreTransparent = false, Func<int,int,int,Color?> paletteFunction = null) {
             bool reverseOrder = (encoding == TileEncoding.Linear_4bpp_ReverseOrder);
 
             // Fill in tile pixels
-            for (int y = 0; y < tileWidth; y++) {
+            for (int y = 0; y < regionHeight; y++) {
 
-                var yy = tileY + y;
+                var yy = regionY + y;
 
                 if (flipTextureY)
                     yy = tex.height - yy - 1;
                 if (yy < 0 || yy >= tex.height) continue;
 
-                for (int x = 0; x < tileWidth; x++) {
-                    var xx = tileX + x;
+                for (int x = 0; x < regionWidth; x++) {
+                    var xx = regionX + x;
 
                     if (flipTextureX)
                         xx = tex.width - xx - 1;
 
                     if (xx < 0 || xx >= tex.width) continue;
-                    Color c;
+                    Color? c = null;
 
-                    if (encoding == TileEncoding.Linear_8bpp) 
-                    {
-                        int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)));
-
-                        var b = imgData[index];
-                        c = pal[b];
-                    } 
-                    else if (encoding == TileEncoding.Linear_4bpp || encoding == TileEncoding.Linear_4bpp_ReverseOrder)
-                    {
-                        int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)) / 2);
+                    if (encoding == TileEncoding.Linear_8bpp) {
+                        int index = imgDataOffset + (((flipRegionY ? (regionHeight - y - 1) : y) * regionWidth + (flipRegionX ? (regionWidth - x - 1) : x)));
 
                         var b = imgData[index];
-                        var v = (flipTileX ^ reverseOrder) ? 
-                            BitHelpers.ExtractBits(b, 4, x % 2 == 1 ? 0 : 4) : 
+
+                        c = paletteFunction != null ? paletteFunction.Invoke(b, xx, yy) : pal[b];
+					} else if (encoding == TileEncoding.Linear_4bpp || encoding == TileEncoding.Linear_4bpp_ReverseOrder) {
+                        int index = imgDataOffset + (((flipRegionY ? (regionHeight - y - 1) : y) * regionWidth + (flipRegionX ? (regionWidth - x - 1) : x)) / 2);
+
+                        var b = imgData[index];
+                        var v = (flipRegionX ^ reverseOrder) ?
+                            BitHelpers.ExtractBits(b, 4, x % 2 == 1 ? 0 : 4) :
                             BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
-                        c = pal[v];
-                    } 
-                    else if (encoding == TileEncoding.Planar_4bpp)
-                    {
-                        int off = (flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x);
+
+                        c = paletteFunction != null ? paletteFunction.Invoke(v, xx, yy) : pal[v];
+                    } else if (encoding == TileEncoding.Planar_4bpp) {
+                        int off = (flipRegionY ? (regionHeight - y - 1) : y) * regionWidth + (flipRegionX ? (regionWidth - x - 1) : x);
 
                         var offset1 = imgDataOffset;
                         var offset2 = imgDataOffset + 16;
@@ -374,24 +385,23 @@ namespace R1Engine
                         b = BitHelpers.SetBits(b, bit2, 1, 2);
                         b = BitHelpers.SetBits(b, bit3, 1, 3);
 
-                        c = pal[b];
-                    }
-                    else if (encoding == TileEncoding.Planar_2bpp) 
-                    {
-                        int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)) / 8) * 2;
+                        c = paletteFunction != null ? paletteFunction.Invoke(b, xx, yy) : pal[b];
+                    } else if (encoding == TileEncoding.Planar_2bpp) {
+                        int index = imgDataOffset + (((flipRegionY ? (regionHeight - y - 1) : y) * regionWidth + (flipRegionX ? (regionWidth - x - 1) : x)) / 8) * 2;
                         var b0 = imgData[index];
                         var b1 = imgData[index + 1];
-                        int actualX = flipTileX ? x : 7 - x;
+                        int actualX = flipRegionX ? x : 7 - x;
                         var v = (BitHelpers.ExtractBits(b1, 1, actualX) << 1) | BitHelpers.ExtractBits(b0, 1, actualX);
-                        c = pal[v];
-                    } 
-                    else 
-                    {
+
+                        c = paletteFunction != null ? paletteFunction.Invoke(v, xx, yy) : pal[v];
+                    } else {
                         c = Color.clear;
                     }
 
-                    if (!ignoreTransparent || c.a > 0) {
-                        tex.SetPixel(xx, yy, c);
+                    if (c.HasValue) {
+                        if (!ignoreTransparent || c.Value.a > 0) {
+                            tex.SetPixel(xx, yy, c.Value);
+                        }
                     }
                 }
             }
@@ -411,7 +421,7 @@ namespace R1Engine
                 int tileY = ((i / wrap)) * tileWidth;
                 int tileX = (i % wrap) * tileWidth;
 
-                tex.FillInTile(imgData, i * tileSize, tileWidth, flipY, tileX, tileY);
+                tex.FillRegion(imgData, i * tileSize, tileX, tileY, tileWidth, tileWidth, flipY);
             }
 
             tex.Apply();
@@ -419,22 +429,33 @@ namespace R1Engine
             return tex;
         }
 
-        public static void FillInTile(this Texture2D tex, BaseColor[] imgData, int imgDataOffset, int tileWidth, bool flipTextureY, int tileX, int tileY, bool flipTileX = false, bool flipTileY = false, bool ignoreTransparent = false) {
+        public static void FillRegion(this Texture2D tex,
+            BaseColor[] imgData, int imgDataOffset,
+            int regionX, int regionY,
+            int regionWidth, int regionHeight,
+            bool flipTextureX = false, bool flipTextureY = false,
+            bool flipRegionX = false, bool flipRegionY = false,
+            bool ignoreTransparent = false) {
             // Fill in tile pixels
-            for (int y = 0; y < tileWidth; y++) {
+            for (int y = 0; y < regionHeight; y++) {
 
-                var yy = tileY + y;
+                var yy = regionY + y;
 
                 if (flipTextureY)
                     yy = tex.height - yy - 1;
                 if (yy < 0 || yy >= tex.height) continue;
 
-                for (int x = 0; x < tileWidth; x++) {
-                    var xx = tileX + x;
+                for (int x = 0; x < regionWidth; x++) {
+                    var xx = regionX + x;
+                    
+                    if (flipTextureX)
+                        xx = tex.width - xx - 1;
                     if (xx < 0 || xx >= tex.width) continue;
                     Color c;
 
-                    int index = imgDataOffset + (((flipTileY ? (tileWidth - y - 1) : y) * tileWidth + (flipTileX ? (tileWidth - x - 1) : x)));
+                    int index = imgDataOffset
+                        + (((flipRegionY ? (regionHeight - y - 1) : y) * regionWidth
+                        + (flipRegionX ? (regionWidth - x - 1) : x)));
                     c = imgData[index].GetColor();
 
                     if (!ignoreTransparent || c.a > 0) {

@@ -36,13 +36,21 @@ namespace R1Engine {
 			}
 		}
 
-		public Texture2D ToTexture2D(BaseColor[] palette) {
-			var pal = palette.Select(p => {
-				Color c = p.GetColor();
-				c.a = 1f;
-				return c;
-			}).ToArray();
-			var tex = Util.ToTileSetTexture(Data, pal, Util.TileEncoding.Linear_8bpp, 1, true, wrap: Width);
+		public Texture2D ToTexture2D(Color[] palette, Texture2D texture = null) {
+			var tex = texture ?? TextureHelpers.CreateTexture2D(X + Width, Y + Height, clear: true);
+			tex.FillRegion(Data, 0, null, Util.TileEncoding.Linear_8bpp,
+				X, Y, Width, Height,
+				flipTextureY: true,
+				paletteFunction: (palIndex,x,y) => {
+					if (palIndex == 0) { // Transparent color
+						return Color.clear;
+					} else if (palIndex == 1) { // Red: Clear previous frame
+						return Color.clear;
+					} else if (palIndex == 2) { // Green: Unchanged
+						return null;
+					} else return palette[palIndex];
+				});
+			tex.Apply();
 			return tex;
 		}
 	}
