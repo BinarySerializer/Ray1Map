@@ -36,7 +36,8 @@ namespace R1Engine.Jade
             || Type == TexFileType.Bmp
             || Type == TexFileType.Jpeg
             || Type == TexFileType.Raw
-            || Type == TexFileType.DDS;
+            || Type == TexFileType.DDS
+            || Type == TexFileType.JTX;
 
         public Jade_Key Montreal_Key { get; set; }
         public int Mark { get; set; } // Always 0xFFFFFFFF in files
@@ -117,7 +118,7 @@ namespace R1Engine.Jade
                             if (contentSize > 0) {
                                 Content_JTX = s.SerializeObject<TEX_Content_JTX>(Content_JTX, c => c.Texture = this, name: nameof(Content_JTX));
                             }
-                            hasReadContent = true;
+                            if (IsContent || !Loader.IsBinaryData) hasReadContent = true;
                         } else {
                             if (IsContent || !Loader.IsBinaryData) {
                                 Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));

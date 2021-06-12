@@ -123,7 +123,7 @@ namespace R1Engine.Jade {
 
 			Controller.DetailedState = $"Loading textures: Info";
 			texList.SortTexturesList_Montreal();
-			for (int i = 0; i < texList.Textures.Count; i++) {
+			for (int i = 0; i < (texList.Textures?.Count ?? 0); i++) {
 				texList.Textures[i].LoadInfo();
 				await Loader.LoadLoopBINAsync();
 			}
@@ -137,7 +137,7 @@ namespace R1Engine.Jade {
 				await Loader.LoadLoopBINAsync();
 			}
 			Controller.DetailedState = $"Loading textures: Content";
-			for (int i = 0; i < texList.Textures.Count; i++) {
+			for (int i = 0; i < (texList.Textures?.Count ?? 0); i++) {
 				texList.Textures[i].LoadContent();
 				await Loader.LoadLoopBINAsync();
 				if (texList.Textures[i].Content != null && texList.Textures[i].Info.Type != TEX_File.TexFileType.RawPal) {

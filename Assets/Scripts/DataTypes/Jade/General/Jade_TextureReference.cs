@@ -51,6 +51,7 @@ namespace R1Engine.Jade {
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureInfo,
+			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
 			name: typeof(TEX_File).Name);
 			return this;
 		}
@@ -59,6 +60,7 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, TEX_File> onPreSerialize = null,
 			Action<SerializerObject, TEX_File> onPostSerialize = null) {
 			if (IsNull) return this;
+			if (Info == null) return this;
 			if (!Info.HasContent) return this;
 
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -73,6 +75,7 @@ namespace R1Engine.Jade {
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.TextureContent,
+			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
 			name: typeof(TEX_File).Name);
 			return this;
 		}

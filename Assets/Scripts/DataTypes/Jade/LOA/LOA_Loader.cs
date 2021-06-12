@@ -79,7 +79,8 @@ namespace R1Engine.Jade {
 			
 			// Custom
 			IsIrregularFileFormat = 1 << 16,
-			DontUseCachedFile = 1 << 17
+			DontUseCachedFile = 1 << 17,
+			Montreal_AllowSkip = 1 << 18,
 		}
 
 
@@ -320,6 +321,19 @@ namespace R1Engine.Jade {
 					if (ReadBinFileHeader) {
 
 						BinFileHeader = s.SerializeObject<LOA_BinFileHeader>(BinFileHeader, name: nameof(BinFileHeader));
+
+						if (BinFileHeader.Key != null) {
+							if (BinFileHeader.Key != currentRef.Key) {
+								if (currentRef.Flags.HasFlag(ReferenceFlags.Montreal_AllowSkip)) {
+									UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}. Skipping!");
+									s.Goto(Bin.CurrentPosition);
+									return;
+								} else {
+									UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}");
+								}
+							}
+						}
+
 						Bin.CurrentPosition = s.CurrentPointer;
 						FileSize = BinFileHeader.FileSize;
 
@@ -327,12 +341,6 @@ namespace R1Engine.Jade {
 						Bin.CurrentPosition.File.AddRegion(Bin.CurrentPosition.FileOffset, BinFileHeader.FileSize, $"{currentRef.Name}_{currentRef.Key:X8}");
 
 						Bin.CurrentPosition = Bin.CurrentPosition + BinFileHeader.FileSize;
-
-						if (BinFileHeader.Key != null) {
-							if (BinFileHeader.Key != currentRef.Key) {
-								UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}");
-							}
-						}
 
 					} else {
 						FileSize = Bin.TotalSize - (uint)(Bin.CurrentPosition - Bin.StartPosition);

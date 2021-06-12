@@ -111,6 +111,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType_Montreal.GAO_ModifierAnimIK => s.SerializeObject<GAO_ModifierAnimIK>((GAO_ModifierAnimIK)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GEO_ModifierBridge => s.SerializeObject<GEO_ModifierBridge>((GEO_ModifierBridge)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierSfx => s.SerializeObject<GAO_ModifierSfx>((GAO_ModifierSfx)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierSoftBody => s.SerializeObject<GAO_ModifierSoftBody>((GAO_ModifierSoftBody)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }
