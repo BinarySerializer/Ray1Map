@@ -7,7 +7,7 @@ namespace R1Engine.Jade {
 		public uint Version { get; set; }
 		public uint UInt_04 { get; set; }
 		public OBJ_GameObject_IdentityFlags FlagsIdentity { get; set; }
-		public ushort StatusFlags { get; set; }
+		public OBJ_GameObject_StatusFlags StatusFlags { get; set; }
 		public OBJ_GameObject_ControlFlags ControlFlags { get; set; }
 		public byte Secto { get; set; }
 		public byte MiscFlags { get; set; }
@@ -15,7 +15,7 @@ namespace R1Engine.Jade {
 		public ushort UShort_12_Editor { get; set; }
 		public byte LOD_Vis { get; set; }
 		public byte LOD_Dist { get; set; }
-		public byte DesignFlags { get; set; }
+		public OBJ_GameObject_TypeFlags DesignFlags { get; set; }
 		public byte FixFlags { get; set; }
 		public Jade_Matrix Matrix { get; set; }
 		
@@ -54,7 +54,7 @@ namespace R1Engine.Jade {
 				Name = s.SerializeString(Name, NameLength, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			}
 			s.SerializeBitValues<uint>(bitFunc => {
-				StatusFlags = (ushort)bitFunc(StatusFlags, 16, name: nameof(StatusFlags));
+				StatusFlags = (OBJ_GameObject_StatusFlags)bitFunc((ushort)StatusFlags, 16, name: nameof(StatusFlags));
 				ControlFlags = (OBJ_GameObject_ControlFlags)bitFunc((ushort)ControlFlags, 16, name: nameof(ControlFlags));
 			});
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
@@ -66,7 +66,7 @@ namespace R1Engine.Jade {
 			if(!Loader.IsBinaryData) UShort_12_Editor = s.Serialize<ushort>(UShort_12_Editor, name: nameof(UShort_12_Editor));
 			LOD_Vis = s.Serialize<byte>(LOD_Vis, name: nameof(LOD_Vis));
 			LOD_Dist = s.Serialize<byte>(LOD_Dist, name: nameof(LOD_Dist));
-			DesignFlags = s.Serialize<byte>(DesignFlags, name: nameof(DesignFlags));
+			DesignFlags = s.Serialize<OBJ_GameObject_TypeFlags>(DesignFlags, name: nameof(DesignFlags));
 			FixFlags = s.Serialize<byte>(FixFlags, name: nameof(FixFlags));
 			Matrix = s.SerializeObject<Jade_Matrix>(Matrix, name: nameof(Matrix));
 

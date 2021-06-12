@@ -9,7 +9,7 @@ namespace R1Engine.Jade {
         public int Version { get; set; }
 
         // Generator struct
-        public int Flags { get; set; }
+        public PAG_ParticleGeneratorFlags Flags { get; set; }
         public byte GenType { get; set; }
         public byte SpeedType { get; set; }
 
@@ -146,7 +146,7 @@ namespace R1Engine.Jade {
 
             if (Version == 0)
             {
-                Flags = s.Serialize<byte>((byte)Flags, name: nameof(Flags));
+                Flags = (PAG_ParticleGeneratorFlags)s.Serialize<byte>((byte)Flags, name: nameof(Flags));
                 GenType = s.Serialize<byte>(GenType, name: nameof(GenType));
                 SpeedType = s.Serialize<byte>(SpeedType, name: nameof(SpeedType));
 
@@ -186,7 +186,7 @@ namespace R1Engine.Jade {
             }
             else if (Version == 1)
             {
-                Flags = s.Serialize<byte>((byte)Flags, name: nameof(Flags));
+                Flags = (PAG_ParticleGeneratorFlags)s.Serialize<byte>((byte)Flags, name: nameof(Flags));
                 throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
             else if (Version == 2)
@@ -219,9 +219,9 @@ namespace R1Engine.Jade {
             }
             else if (Version == 9 || Version == 10 || Version == 11 || (Version == 12 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier))) {
                 if (Version >= 11 || (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version == 10)) {
-                    Flags = s.Serialize<int>(Flags, name: nameof(Flags));
+                    Flags = s.Serialize<PAG_ParticleGeneratorFlags>(Flags, name: nameof(Flags));
                 } else {
-                    Flags = s.Serialize<ushort>((ushort)Flags, name: nameof(Flags));
+                    Flags = (PAG_ParticleGeneratorFlags)s.Serialize<ushort>((ushort)Flags, name: nameof(Flags));
                 }
                 GenType = s.Serialize<byte>(GenType, name: nameof(GenType));
                 SpeedType = s.Serialize<byte>(SpeedType, name: nameof(SpeedType));
@@ -295,7 +295,7 @@ namespace R1Engine.Jade {
                 }
             }
             else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version > 11) {
-                Flags = s.Serialize<int>(Flags, name: nameof(Flags));
+                Flags = s.Serialize<PAG_ParticleGeneratorFlags>(Flags, name: nameof(Flags));
                 if (Version >= 20) MoreFlags = s.Serialize<uint>(MoreFlags, name: nameof(MoreFlags));
 
                 GenType = s.Serialize<byte>(GenType, name: nameof(GenType));
