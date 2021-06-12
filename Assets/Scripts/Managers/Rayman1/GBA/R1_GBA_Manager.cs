@@ -1132,7 +1132,7 @@ namespace R1Engine
                             OffsetHY = dat.OffsetHY,
                             FollowSprite = dat.FollowSprite,
                             ActualHitPoints = dat.HitPoints,
-                            DisplayPrio = (byte)dat.DisplayPrio,
+                            UnusedDisplayPrio = (byte)dat.DisplayPrio,
                             HitSprite = dat.HitSprite,
 
                             SpritesPointer = graphics.SpritesPointer,

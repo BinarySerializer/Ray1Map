@@ -218,7 +218,6 @@ namespace R1Engine
                 OffsetBY = e.OffsetBY,
                 OffsetHY = e.OffsetHY,
                 FollowSprite = e.FollowSprite,
-                DisplayPrio = 0,
                 HitSprite = e.HitSprite,
                 Commands = cmds,
                 LabelOffsets = labelOffsets
@@ -380,7 +379,6 @@ namespace R1Engine
             {
                 obj.EventData.Etat = obj.EventData.InitialEtat;
                 obj.EventData.SubEtat = obj.EventData.InitialSubEtat;
-                obj.EventData.DisplayPrio = obj.EventData.InitialDisplayPrio;
 
                 // TODO: Set other runtime values like hp etc.?
             }

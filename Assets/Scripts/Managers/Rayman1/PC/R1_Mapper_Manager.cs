@@ -215,7 +215,7 @@ namespace R1Engine
                         OffsetHY = def.OffsetHY,
                         FollowSprite = def.FollowSprite,
                         ActualHitPoints = (uint)instance.HitPoints,
-                        DisplayPrio = instance.DisplayPrio,
+                        UnusedDisplayPrio = instance.DisplayPrio,
                         HitSprite = def.HitSprite,
 
                         PS1Demo_Unk1 = new byte[40],

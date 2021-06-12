@@ -21,8 +21,7 @@ namespace R1Engine
             // Set editor states
             EventData.InitialEtat = EventData.Etat;
             EventData.InitialSubEtat = EventData.SubEtat;
-            //EventData.InitialDisplayPrio = EventData.DisplayPrio;
-            EventData.InitialDisplayPrio = objManager.GetDisplayPrio(EventData.Type, EventData.HitPoints, EventData.DisplayPrio);
+            EventData.DisplayPrio = objManager.GetDisplayPrio(EventData.Type, EventData.HitPoints, EventData.DisplayPrio);
             EventData.InitialXPosition = (short)EventData.XPosition;
             EventData.InitialYPosition = (short)EventData.YPosition;
             EventData.CurrentAnimationIndex = 0;
@@ -158,7 +157,7 @@ namespace R1Engine
         public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type.ToString().Replace("TYPE_","")}" : $"TYPE_{(ushort)EventData.Type}";
         public override string SecondaryName { get; }
 
-        public override int? GetLayer(int index) => (index + (EventData.InitialDisplayPrio * 1000));
+        public override int? GetLayer(int index) => (index + (EventData.DisplayPrio * 1000));
 
         public override bool FlipHorizontally
         {
