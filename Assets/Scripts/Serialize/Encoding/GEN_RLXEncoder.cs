@@ -75,8 +75,6 @@ namespace R1Engine
                     toDecompress--;
                     for (int i = 0; i < compressedCount; i++) {
                         decompressed[outPos++] = byte1;
-                    }
-                    for (int i = 0; i < compressedCount; i++) {
                         decompressed[outPos++] = byte2;
                     }
                 } else {

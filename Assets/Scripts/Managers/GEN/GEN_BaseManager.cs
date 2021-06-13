@@ -58,6 +58,7 @@ namespace R1Engine
             Dictionary<string, string> backgroundsForSprite = new Dictionary<string, string>();
 
             async UniTask CheckScriptUnbinarized(string scriptPath) {
+                await UniTask.CompletedTask;
                 var lines = File.ReadAllLines(scriptPath, Encoding);
                 List<string> rlxs = new List<string>();
                 List<string> ubis = new List<string>();
@@ -228,13 +229,16 @@ namespace R1Engine
             List<Texture2D> frames = new List<Texture2D>();
             for (int i = 0; i < ubi.Frames.Length; i++) {
                 var f = ubi.Frames[i];
+                int rlxType = 0;
                 for (int j = 0; j < f.SpriteData?.Sections.Length; j++) {
                     var section = f.SpriteData.Sections[j];
                     if (section.Palette != null) ubiPal = ProcessPalette(section.Palette);
                     if(section.SectionType != 3) continue;
                     if (section.RLX != null) {
                         var rlx = section.RLX.Data;
+                        rlxType = rlx.RLXType;
                         workingTexture = rlx.ToTexture2D(ubiPal, texture: workingTexture);
+                        //workingTexture = rlx.ToTexture2D(ubiPal, raw: true);
                     }
                 }
                 if (exportGif) {
@@ -243,7 +247,7 @@ namespace R1Engine
                     frameTexture.Apply();
                     frames.Add(frameTexture);
                 } else {
-                    var path = Path.Combine(outputDir, $"{fileName}_{i}.png");
+                    var path = Path.Combine(outputDir, $"{fileName}/{i}_{rlxType}.png");
                     Util.ByteArrayToFile(path, workingTexture.EncodeToPNG());
                 }
             }
