@@ -231,7 +231,7 @@ namespace R1Engine
                 for (int j = 0; j < f.SpriteData?.Sections.Length; j++) {
                     var section = f.SpriteData.Sections[j];
                     if (section.Palette != null) ubiPal = ProcessPalette(section.Palette);
-
+                    if(section.SectionType != 3) continue;
                     if (section.RLX != null) {
                         var rlx = section.RLX.Data;
                         workingTexture = rlx.ToTexture2D(ubiPal, texture: workingTexture);
