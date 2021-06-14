@@ -533,7 +533,7 @@ namespace R1Engine
 
             var world = FileFactory.Read<PS1EDU_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context, (ss, o) => o.FileType = PS1EDU_WorldFile.Type.World);
 
-            var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[levelData.LevelDefines.BG_0])?.ToTexture(true); 
+            var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[levelData.LevelDefines.FNDIndex])?.ToTexture(true); 
 
             Unity_Level level = new Unity_Level(
                 maps: maps,

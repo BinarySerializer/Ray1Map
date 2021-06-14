@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -114,7 +113,7 @@ namespace R1Engine
         }
 
         public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, PC_WorldFile world, PC_LevFile level, bool parallax) =>
-            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.LevelDefines.BG_0])?.ToTexture(true));
+            UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.GetR1Settings()), world.Plan0NumPcxFiles[level.LevelDefines.FNDIndex])?.ToTexture(true));
 
         protected override UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
