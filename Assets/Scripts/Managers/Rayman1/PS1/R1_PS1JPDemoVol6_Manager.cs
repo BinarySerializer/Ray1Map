@@ -98,7 +98,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        protected override void FillVRAM(Context context, VRAMMode mode)
+        protected override void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode)
         {
             // Read palettes
             var pal4 = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetPalettePath(context.GetR1Settings(), 4), context, (y, x) => x.Pre_Length = y.CurrentLength / 2);
@@ -109,31 +109,9 @@ namespace R1Engine
             var fixGraphics = FileFactory.Read<Array<byte>>(GetAllfixSpritePath(), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
             var wldGraphics = FileFactory.Read<Array<byte>>(GetWorldSpritePath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
             var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelSpritePath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
-            
-            PS1_VRAM vram = new PS1_VRAM();
 
-            // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
-            // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
-            vram.CurrentXPage = 5;
+            var vram = PS1VramHelpers.PS1_JPDemoVol6_FillVRAM(pal4.Value, pal8.Value, palLettre.Value, fixGraphics.Value, wldGraphics.Value, lvlGraphics.Value);
 
-            // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
-            // storing the first bit of sprites we load as 1x2
-            byte[] cageSprites = new byte[128 * (256 * 2)];
-            Array.Copy(fixGraphics.Value, 0, cageSprites, 0, cageSprites.Length);
-            byte[] allFixSprites = new byte[fixGraphics.Value.Length - cageSprites.Length];
-            Array.Copy(fixGraphics.Value, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
-            /*byte[] unknown = new byte[128 * 8];
-            vram.AddData(unknown, 128);*/
-            vram.AddData(cageSprites, 128);
-            vram.AddData(allFixSprites, 256);
-
-            vram.AddData(wldGraphics.Value, 256);
-            vram.AddData(lvlGraphics.Value, 256);
-
-            int paletteY = 256 - 3; // 480 - 1 page height
-            vram.AddDataAt(1, 1, 0, paletteY++, palLettre.Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(1, 1, 0, paletteY++, pal4.Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(1, 1, 0, paletteY++, pal8.Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
             context.StoreObject("vram", vram);
         }
 

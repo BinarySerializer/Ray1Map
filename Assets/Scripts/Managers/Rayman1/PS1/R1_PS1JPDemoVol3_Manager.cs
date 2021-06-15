@@ -99,7 +99,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        protected override void FillVRAM(Context context, VRAMMode mode)
+        protected override void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode)
         {
             // We don't need to emulate the v-ram for this version
             return;// null;

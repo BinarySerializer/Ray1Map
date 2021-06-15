@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinarySerializer.PS1;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -73,89 +72,16 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        protected override void FillVRAM(Context context, VRAMMode mode)
+        protected override void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode)
         {
-            // TODO: Support BigRay + font for US version
-
             // Read the files
-            var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context) : null;
-            var world = mode == VRAMMode.Level ? FileFactory.Read<PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context) : null;
-            var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context).TextureBlock : null;
-            var bigRay = mode == VRAMMode.BigRay ? FileFactory.Read<PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context) : null;
-            var font = mode == VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.GetR1Settings()), context, (s, o) => o.Length = s.CurrentLength) : null;
+            var allFix = mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_AllfixFile>(GetAllfixFilePath(context.GetR1Settings()), context) : null;
+            var world = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_WorldFile>(GetWorldFilePath(context.GetR1Settings()), context) : null;
+            var lev = mode == PS1VramHelpers.VRAMMode.Level ? FileFactory.Read<PS1_LevFile>(GetLevelFilePath(context.GetR1Settings()), context) : null;
+            var bigRay = mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<PS1_BigRayFile>(GetBigRayFilePath(context.GetR1Settings()), context) : null;
+            var font = mode == PS1VramHelpers.VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.GetR1Settings()), context, (s, o) => o.Length = s.CurrentLength) : null;
 
-            //var bgPath = GetLevelBackgroundFilePath(context.GetR1Settings(), true);
-            //ARGB1555Color[][] bgPalette = new ARGB1555Color[0][];
-            //if (bgPath != null)
-            //    bgPalette = FileFactory.Read<PS1_R1_BackgroundVignetteFile>(bgPath, context).ParallaxPalettes;
-
-            PS1_VRAM vram = new PS1_VRAM();
-
-            // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
-            // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
-            vram.CurrentXPage = 5;
-
-            if (mode != VRAMMode.BigRay) {
-                // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
-                // storing the first bit of sprites we load as 1x2
-                byte[] cageSprites = new byte[128 * (256 * 2 - 8)];
-                Array.Copy(allFix.TextureBlock, 0, cageSprites, 0, cageSprites.Length);
-                byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
-                Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
-                byte[] unknown = new byte[128 * 8];
-                vram.AddData(unknown, 128);
-                vram.AddData(cageSprites, 128);
-                vram.AddData(allFixSprites, 256);
-            }
-
-            if (mode == VRAMMode.Level) {
-                vram.AddData(world.TextureBlock, 256);
-                vram.AddData(levelTextureBlock, 256);
-            } 
-            else if (mode == VRAMMode.Menu) 
-            {
-                if (context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1US)
-                    vram.AddDataAt(10, 1, 0, 80, font.Value, 256);
-                else 
-                    vram.AddDataAt(10, 0, 0, 226, font.Value, 256);
-            } else if (mode == VRAMMode.BigRay) {
-                vram.AddDataAt(10, 0, 0, 0, bigRay.TextureBlock, 256);
-            }
-
-            // Palettes start at y = 256 + 234 (= 490), so page 1 and y=234
-            int paletteY = 234;
-            if (mode != VRAMMode.BigRay) {
-                /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
-                if (mode == VRAMMode.Level) {
-                    vram.AddDataAt(12, 1, 0, paletteY++, world.ObjPalette1.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                    vram.AddDataAt(12, 1, 0, paletteY++, world.ObjPalette2.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                } else {
-                    vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                    vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                }
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-
-                // TODO: How are these aligned? Seems different for every background...
-                //// Add background parallax palettes
-                //foreach (var p in bgPalette.Reverse())
-                //    vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-
-                if (mode == VRAMMode.Level) {
-                    paletteY += 13 - world.TilePalettes.Length;
-
-                    // Add tile palettes
-                    foreach (var p in world.TilePalettes)
-                        vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                }
-            } else {
-                // BigRay
-                vram.AddDataAt(12, 1, 0, paletteY++, bigRay.Palette1.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, bigRay.Palette2.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            }
+            var vram = PS1VramHelpers.PS1_FillVRAM(mode, allFix, world, bigRay, lev, font?.Value, context.GetR1Settings().GameModeSelection == GameModeSelection.RaymanPS1US);
 
             context.StoreObject("vram", vram);
         }

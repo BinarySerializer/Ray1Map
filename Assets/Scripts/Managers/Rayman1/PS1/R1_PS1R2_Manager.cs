@@ -135,66 +135,20 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        protected override void FillVRAM(Context context, VRAMMode mode)
+        protected override void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode)
         {
             // Read the files
             var fixGraphics = FileFactory.Read<Array<byte>>(FixGraphicsPath, context, onPreSerialize: (s,a) => a.Length = s.CurrentLength);
             var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelGraphicsPath(context.GetR1Settings()), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
             var palettes = FileFactory.Read<ObjectArray<RGBA5551Color>>(SpritePalettesPath, context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2);
 
-            var tilePalettes = new ObjectArray<RGBA5551Color>[4];
+            var tilePalettes = new RGBA5551Color[4][];
             for (int i = 0; i < MapCount; i++)
-                tilePalettes[i] = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetSubMapPalettePath(i), context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2);
-            
-            PS1_VRAM vram = new PS1_VRAM();
+                tilePalettes[i] = FileFactory.Read<ObjectArray<RGBA5551Color>>(GetSubMapPalettePath(i), context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 2).Value;
 
-            // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
-            // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
-            vram.CurrentXPage = 5;
-
-            // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
-            // storing the first bit of sprites we load as 1x2
-            byte[] cageSprites = new byte[128 * (256 * 2)];
-            Array.Copy(fixGraphics.Value, 0, cageSprites, 0, cageSprites.Length);
-            byte[] allFixSprites = new byte[fixGraphics.Value.Length - cageSprites.Length];
-            Array.Copy(fixGraphics.Value, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
-            /*byte[] unknown = new byte[128 * 8];
-            vram.AddData(unknown, 128);*/
-            vram.AddData(cageSprites, 128);
-            vram.AddData(allFixSprites, 256);
-
-            vram.AddData(lvlGraphics.Value, 256);
-
-            // Palettes start at y = 256 + 234 (= 490), so page 1 and y=234
-            int paletteY = 240;
-            vram.AddDataAt(0, 0, 0, paletteY, palettes.Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-
-            paletteY = 248;
-            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[3].Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[2].Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[2].Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[2].Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[2].Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[1].Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[0].Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[0].Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512);
-            /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
-            /*vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-
-            paletteY += 13 - world.TilePalettes.Length;
-
-            foreach (var p in world.TilePalettes)
-                vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
-            vram.AddDataAt(0, 0, 0, paletteY, palettes.Value.SelectMany(c => BitConverter.GetBytes((ushort)c.ColorValue)).ToArray(), 512); 
+            var vram = PS1VramHelpers.PS1_R2_FillVRAM(fixGraphics.Value, lvlGraphics.Value, palettes.Value, tilePalettes);
 
             context.StoreObject("vram", vram);
-            //PaletteHelpers.ExportVram(context.GetR1Settings().GameDirectory + "vram.png", vram);
         }
 
         public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress) {
@@ -267,7 +221,7 @@ namespace R1Engine
             var commonEvents = new List<Unity_Object>();
 
             // Get the v-ram
-            FillVRAM(context, VRAMMode.Level);
+            FillVRAM(context, PS1VramHelpers.VRAMMode.Level);
 
 
             // Create the global design list
