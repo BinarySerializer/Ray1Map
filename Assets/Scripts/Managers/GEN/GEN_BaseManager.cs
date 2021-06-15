@@ -35,7 +35,7 @@ namespace R1Engine
             var pal = Util.CreateDummyPalette(256, false);
 
             bool hasMainPal = false;
-            string palettePath = "Root/COMMUN/PAL.PAL";
+            string palettePath = "COMMUN/PAL.PAL";
             GEN_Palette paletteFile = null;
             if (File.Exists(context.BasePath + palettePath)) {
                 await context.AddLinearSerializedFileAsync(palettePath, Endian.Little);
@@ -232,8 +232,11 @@ namespace R1Engine
                 int rlxType = 0;
                 for (int j = 0; j < f.SpriteData?.Sections.Length; j++) {
                     var section = f.SpriteData.Sections[j];
-                    if (section.Palette != null) ubiPal = ProcessPalette(section.Palette);
-                    if(section.SectionType != 3) continue;
+                    if (section.Palette != null
+                        && (section.SectionType == GEN_UBI.UBI_SpriteData.Section.Type.Palette_15
+                        || section.SectionType == GEN_UBI.UBI_SpriteData.Section.Type.Palette_20))
+                        ubiPal = ProcessPalette(section.Palette);
+                    if(section.SectionType != GEN_UBI.UBI_SpriteData.Section.Type.RLX_Sprite) continue;
                     if (section.RLX != null) {
                         var rlx = section.RLX.Data;
                         rlxType = rlx.RLXType;
@@ -293,11 +296,13 @@ namespace R1Engine
         // Load
         public override async UniTask<Unity_Level> LoadAsync(Context context) 
         {
+            await UniTask.CompletedTask;
 			throw new NotImplementedException();
 		}
 
         public override async UniTask LoadFilesAsync(Context context) {
-			throw new NotImplementedException();
+            await UniTask.CompletedTask;
+            throw new NotImplementedException();
 		}
     }
 }

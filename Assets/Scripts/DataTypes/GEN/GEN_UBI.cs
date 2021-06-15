@@ -63,38 +63,28 @@ namespace R1Engine
 			}
 
             public class Section : BinarySerializable {
-                /*
-                 * Section types:
-                 * 3 : RLX - Sprite layer
-                 * 8 : Palette (888) - Background layer
-                 * 9 : Command: Push background layer (write to texture)
-                 * 10: RLX - Background layer
-                 * 15: Palette (8888) with a RIFF header (can be garbage data) - Sprite layer?
-                 * 20: Palette (8888) with a RIFF header (can be garbage data)
-                 * 
-                 * */
-                public byte SectionType { get; set; }
+                public Type SectionType { get; set; }
                 public uint Length { get; set; }
                 public byte[] SectionData { get; set; }
                 public GEN_RLX RLX { get; set; }
                 public BaseColor[] Palette { get; set; }
 
                 public override void SerializeImpl(SerializerObject s) {
-                    SectionType = s.Serialize<byte>(SectionType, name: nameof(SectionType));
+                    SectionType = s.Serialize<Type>(SectionType, name: nameof(SectionType));
                     Length = s.Serialize<uint>(Length, name: nameof(Length));
                     if (Length > 0) {
                         switch (SectionType) {
-                            case 3:
+                            case Type.RLX_Sprite:
                                 RLX = s.SerializeObject<GEN_RLX>(RLX, rlx => rlx.FileSize = Length, name: nameof(RLX));
                                 break;
-                            case 8:
+                            case Type.Palette_8:
                                 Palette = s.SerializeObjectArray<RGB888Color>((RGB888Color[])Palette, Math.Min(Length / 3, 256), name: nameof(Palette));
                                 break;
-                            case 10:
+                            case Type.RLX_BackgroundPart:
                                 RLX = s.SerializeObject<GEN_RLX>(RLX, rlx => rlx.FileSize = Length, name: nameof(RLX));
                                 break;
-                            case 15:
-                            case 20:
+                            case Type.Palette_15:
+                            case Type.Palette_20:
                                 SectionData = s.SerializeArray<byte>(SectionData, 0x18, name: nameof(SectionData));
                                 Palette = s.SerializeObjectArray<RGBA8888Color>((RGBA8888Color[])Palette, Math.Min(Length / 4, 256), name: nameof(Palette));
                                 break;
@@ -103,6 +93,15 @@ namespace R1Engine
                                 break;
                         }
                     }
+                }
+
+                public enum Type : byte {
+                    RLX_Sprite = 3,
+                    Palette_8 = 8, // 888
+                    PushBackgroundLayer = 9, // write to texture
+                    RLX_BackgroundPart = 10,
+                    Palette_15 = 15, // 8888 with a RIFF header that can be garbage data
+                    Palette_20 = 20, // 8888 with a RIFF header that can be garbage data
                 }
 			}
 		}
