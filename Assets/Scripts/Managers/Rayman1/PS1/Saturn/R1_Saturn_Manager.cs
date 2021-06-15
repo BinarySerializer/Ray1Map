@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.PS1;
 using BinarySerializer.Ray1;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -22,7 +23,7 @@ namespace R1Engine
 
         public virtual string GetLanguageFilePath(string langCode) => $"RAY{langCode}.TXT";
 
-        protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
+        protected override PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.Allow;
 
         public uint BaseAddress => 0x00200000;
         protected override PS1_ExecutableConfig GetExecutableConfig => null;
@@ -115,7 +116,7 @@ namespace R1Engine
             }
             if (baseAddress != 0)
             {
-                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, path, (uint)baseAddress, InvalidPointerMode, Endian.Big);
+                PS1_MemoryMappedFile file = new PS1_MemoryMappedFile(context, path, (uint)baseAddress, InvalidPointerMode, Endian.Big);
                 context.AddFile(file);
 
                 return file.Length;
@@ -253,7 +254,7 @@ namespace R1Engine
                 //paletteOffset = 20 * 256;
                 paletteOffset = isBigRay ? (ushort)(21 * 256) : isFont ? (ushort)(19 * 256) : (ushort)((GetPaletteIndex(context) * 256));
             } else {
-                paletteOffset = isBigRay ? (ushort)(21 * 256) : isFont ? (ushort)(19 * 256) : (ushort)((GetPaletteIndex(context) * 256) + ((img.PaletteInfo >> 8)) * 16);
+                paletteOffset = isBigRay ? (ushort)(21 * 256) : isFont ? (ushort)(19 * 256) : (ushort)((GetPaletteIndex(context) * 256) + ((img.Saturn_PaletteInfo >> 8)) * 16);
                 //paletteOffset = (ushort)((GetPaletteIndex(context) * 256) + ((img.Unknown2 >> 4) - 1) * 16);
                 //paletteOffset = (ushort)(19 * 256 + ((img.Unknown2 >> 4) - 1) * 16);
             }

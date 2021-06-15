@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer.PS1;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -92,7 +93,7 @@ namespace R1Engine
 
             // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
             // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
-            vram.currentXPage = 5;
+            vram.CurrentXPage = 5;
 
             if (mode != VRAMMode.BigRay) {
                 // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by

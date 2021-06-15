@@ -880,6 +880,7 @@ If you download the repo as a zip folder the sub-modules won't be included, caus
 * [BinarySerializer.Image](https://github.com/RayCarrot/BinarySerializer.Image) (Assets\Scripts\Libraries\BinarySerializer.Image)
 * [BinarySerializer.Ray1](https://github.com/RayCarrot/BinarySerializer.Ray1) (Assets\Scripts\Libraries\BinarySerializer.Ray1)
 * [BinarySerializer.GBA](https://github.com/RayCarrot/BinarySerializer.GBA) (Assets\Scripts\Libraries\BinarySerializer.GBA)
+* [BinarySerializer.PS1](https://github.com/RayCarrot/BinarySerializer.PS1) (Assets\Scripts\Libraries\BinarySerializer.PS1)
 
 ## Screenshots
 

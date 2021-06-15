@@ -286,9 +286,7 @@ namespace R1Engine
                         {
                             foreach (Sprite imgDescr in font.Sprites)
                             {
-                                var paletteInfo = imgDescr.PaletteInfo;
-                                paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 509, 10, 6);
-                                imgDescr.PaletteInfo = paletteInfo;
+                                imgDescr.PaletteY = 509;
                             }
                         }
                     }
@@ -298,9 +296,7 @@ namespace R1Engine
                         {
                             foreach (Sprite imgDescr in font.Sprites)
                             {
-                                var paletteInfo = imgDescr.PaletteInfo;
-                                paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 492, 10, 6);
-                                imgDescr.PaletteInfo = paletteInfo;
+                                imgDescr.PaletteY = 492;
                             }
                         }
                     }
