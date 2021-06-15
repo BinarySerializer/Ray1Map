@@ -45,9 +45,7 @@ namespace R1Engine
             BaseColor[] dibPalette = null;
             if (!hasMainPal) {
                 foreach (var dibPath in Directory.EnumerateFiles(context.BasePath, "*.dib", SearchOption.AllDirectories).
-                    Concat(Directory.EnumerateFiles(context.BasePath, "*.DIB", SearchOption.AllDirectories)).
-                    Concat(Directory.EnumerateFiles(context.BasePath, "*.bmp", SearchOption.AllDirectories)).
-                    Concat(Directory.EnumerateFiles(context.BasePath, "*.BMP", SearchOption.AllDirectories))) {
+                    Concat(Directory.EnumerateFiles(context.BasePath, "*.bmp", SearchOption.AllDirectories))) {
                     dibPalette = await LoadPalFromDIB(s, dibPath);
                     break;
                 }
@@ -102,29 +100,22 @@ namespace R1Engine
             }
 
             // Unbinarized scripts
-            foreach (var scriptPath in Directory.EnumerateFiles(context.BasePath, "*.mms", SearchOption.AllDirectories).
-                Concat(Directory.EnumerateFiles(context.BasePath, "*.MMS", SearchOption.AllDirectories)).
-                Concat(Directory.EnumerateFiles(context.BasePath, "*.MMs", SearchOption.AllDirectories))) {
+            foreach (var scriptPath in Directory.EnumerateFiles(context.BasePath, "*.mms", SearchOption.AllDirectories)) {
                 await CheckScriptUnbinarized(scriptPath);
             }
 
             bool mmbIsBinary = false;
             bool isDictees = false;
-            var mmiFiles = Directory.EnumerateFiles(context.BasePath, "*.mmi", SearchOption.AllDirectories).
-                Concat(Directory.EnumerateFiles(context.BasePath, "*.MMI", SearchOption.AllDirectories)).
-                Concat(Directory.EnumerateFiles(context.BasePath, "*.MMi", SearchOption.AllDirectories));
+            var mmiFiles = Directory.EnumerateFiles(context.BasePath, "*.mmi", SearchOption.AllDirectories);
             if (mmiFiles.Any()) mmbIsBinary = true;
             if (!mmbIsBinary) {
-                foreach (var scriptPath in Directory.EnumerateFiles(context.BasePath, "*.mmb", SearchOption.AllDirectories).
-                    Concat(Directory.EnumerateFiles(context.BasePath, "*.MMB", SearchOption.AllDirectories)).
-                    Concat(Directory.EnumerateFiles(context.BasePath, "*.MMb", SearchOption.AllDirectories))) {
+                foreach (var scriptPath in Directory.EnumerateFiles(context.BasePath, "*.mmb", SearchOption.AllDirectories)) {
                     await CheckScriptUnbinarized(scriptPath);
                     isDictees = true;
                 }
             }
 
-            foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.ubi", SearchOption.AllDirectories).
-                Concat(Directory.EnumerateFiles(context.BasePath, "*.UBI", SearchOption.AllDirectories))) {
+            foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.ubi", SearchOption.AllDirectories)) {
                 string lookup = filePath.Substring(context.BasePath.Length).Replace("\\", "/").ToLower();
                 BaseColor[] curDibPalette = null;
                 if (backgroundsForSprite.ContainsKey(lookup)) {
@@ -136,8 +127,7 @@ namespace R1Engine
                     await ConvertUBI(s, filePath, mainPal, true, exportGif, outputDir, isDictees);
                 }
             }
-            foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.rlx", SearchOption.AllDirectories).
-                Concat(Directory.EnumerateFiles(context.BasePath, "*.RLX", SearchOption.AllDirectories))) {
+            foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.rlx", SearchOption.AllDirectories)) {
                 string lookup = filePath.Substring(context.BasePath.Length).Replace("\\", "/").ToLower();
                 BaseColor[] curDibPalette = null;
                 if (backgroundsForSprite.ContainsKey(lookup)) {
@@ -178,7 +168,9 @@ namespace R1Engine
             var ubiPal = mainPal;
             var context = s.Context;
             string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
-            await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+            if (!context.FileExists(fileName)) {
+                await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+            }
             GEN_UBI ubi = null;
             try {
                 ubi = FileFactory.Read<GEN_UBI>(fileName, context);
@@ -187,16 +179,30 @@ namespace R1Engine
             }
             if (!ubi.Frames.Any(f => f.SpriteData?.Sections.Any(sec => (sec.RLX?.Data?.Data?.Length ?? 0) > 0) ?? false)) return;
 
-            if (searchForPalette)
-            {
+            if (searchForPalette) {
                 string dir = Path.GetDirectoryName(filePath);
                 BaseColor[] curDibPalette = null;
-                foreach (var dibPath in Directory.EnumerateFiles(dir, "*.dib", SearchOption.TopDirectoryOnly).
-                    Concat(Directory.EnumerateFiles(dir, "*.DIB", SearchOption.TopDirectoryOnly))) {
-                    curDibPalette = await LoadPalFromDIB(s, dibPath);
-                    break;
+                // Step 1: Try from specific file
+                if (curDibPalette == null) {
+                    string baseName = Path.GetFileNameWithoutExtension(filePath);
+                    string RayEduNamePattern = @"(?<firstPart>...)[SA]_(?<lastPart>.*)";
+                    var m = Regex.Match(baseName, RayEduNamePattern, RegexOptions.IgnoreCase);
+                    if (m.Success) {
+                        string dibPath = Path.Combine(Path.GetDirectoryName(filePath), $"{m.Groups["firstPart"]}S_fnd.dib");
+                        if (File.Exists(dibPath)) {
+                            curDibPalette = await LoadPalFromDIB(s, dibPath);
+                        }
+                    }
+                    if (curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
                 }
-                if (curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
+                // Step 2: Any dib file in the directory really
+                if (curDibPalette ==  null) {
+                    foreach (var dibPath in Directory.EnumerateFiles(dir, "*.dib", SearchOption.TopDirectoryOnly)) {
+                        curDibPalette = await LoadPalFromDIB(s, dibPath);
+                        break;
+                    }
+                    if (curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
+                }
             }
 
             GEN_RLX rlxFile = null;
@@ -212,6 +218,25 @@ namespace R1Engine
                         rlxFile = FileFactory.Read<GEN_RLX>(rlxfileName, context);
                         firstFrame = rlxFile.Data;
                     } catch (Exception) {
+                    }
+                }
+            }
+            if (firstFrame == null) {
+                string baseName = Path.GetFileNameWithoutExtension(filePath);
+                string RayEduNamePattern = @"(?<firstPart>...)A_(?<lastPart>.*)";
+                var m = Regex.Match(baseName, RayEduNamePattern, RegexOptions.IgnoreCase);
+                if (m.Success) {
+                    string rlxPath = Path.Combine(Path.GetDirectoryName(filePath), $"{m.Groups["firstPart"]}S_{m.Groups["lastPart"]}.rlx");
+                    if (File.Exists(rlxPath)) {
+                        string rlxfileName = rlxPath.Substring(context.BasePath.Length).Replace("\\", "/");
+                        if (!context.FileExists(rlxfileName)) {
+                            await context.AddLinearSerializedFileAsync(rlxfileName, Endian.Little);
+                        }
+                        try {
+                            rlxFile = FileFactory.Read<GEN_RLX>(rlxfileName, context);
+                            firstFrame = rlxFile.Data;
+                        } catch (Exception) {
+                        }
                     }
                 }
             }
@@ -264,7 +289,9 @@ namespace R1Engine
             var context = s.Context;
             var ubiPal = mainPal;
             string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
-            await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+            if (!context.FileExists(fileName)) {
+                await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+            }
             GEN_RLX rlxFile = null;
             try {
                 rlxFile = FileFactory.Read<GEN_RLX>(fileName, context);
@@ -276,12 +303,27 @@ namespace R1Engine
             if (searchForPalette) {
                 string dir = Path.GetDirectoryName(filePath);
                 BaseColor[] curDibPalette = null;
-                foreach (var dibPath in Directory.EnumerateFiles(dir, "*.dib", SearchOption.TopDirectoryOnly).
-                    Concat(Directory.EnumerateFiles(dir, "*.DIB", SearchOption.TopDirectoryOnly))) {
-                    curDibPalette = await LoadPalFromDIB(s, dibPath);
-                    break;
+                // Step 1: Try from specific file
+                if (curDibPalette == null) {
+                    string baseName = Path.GetFileNameWithoutExtension(filePath);
+                    string RayEduNamePattern = @"(?<firstPart>...)[SA]_(?<lastPart>.*)";
+                    var m = Regex.Match(baseName, RayEduNamePattern, RegexOptions.IgnoreCase);
+                    if (m.Success) {
+                        string dibPath = Path.Combine(Path.GetDirectoryName(filePath), $"{m.Groups["firstPart"]}S_fnd.dib");
+                        if (File.Exists(dibPath)) {
+                            curDibPalette = await LoadPalFromDIB(s, dibPath);
+                        }
+                    }
+                    if (curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
                 }
-                if (curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
+                // Step 2: Any dib file in the directory really
+                if (curDibPalette == null) {
+                    foreach (var dibPath in Directory.EnumerateFiles(dir, "*.dib", SearchOption.TopDirectoryOnly)) {
+                        curDibPalette = await LoadPalFromDIB(s, dibPath);
+                        break;
+                    }
+                    if (curDibPalette != null) ubiPal = ProcessPalette(curDibPalette);
+                }
             }
 
             {
