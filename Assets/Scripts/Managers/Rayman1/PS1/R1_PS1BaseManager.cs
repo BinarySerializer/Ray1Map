@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using BinarySerializer.PS1;
 using UnityEngine;
 using Animation = BinarySerializer.Ray1.Animation;
 using Sprite = BinarySerializer.Ray1.Sprite;
@@ -25,7 +26,7 @@ namespace R1Engine
         /// </summary>
         public abstract int TileSetWidth { get; }
 
-        protected virtual PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.DevPointerXOR;
+        protected virtual PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.DevPointerXOR;
 
         public virtual Endian Endianness { get; } = Endian.Little;
 
@@ -108,23 +109,17 @@ namespace R1Engine
             // Get the image properties
             var width = s.Width;
             var height = s.Height;
-            var texturePageInfo = s.TexturePageInfo;
-            var paletteInfo = s.PaletteInfo;
 
-            // see http://hitmen.c02.at/files/docs/psx/psx.pdf page 37
-            int pageX = BitHelpers.ExtractBits(texturePageInfo, 4, 0);
-            int pageY = BitHelpers.ExtractBits(texturePageInfo, 1, 4);
-            int abr = BitHelpers.ExtractBits(texturePageInfo, 2, 5);
-            int tp = BitHelpers.ExtractBits(texturePageInfo, 2, 7); // 0: 4-bit, 1: 8-bit, 2: 15-bit direct
+            int pageX = s.TexturePageInfo.TX;
+            int pageY = s.TexturePageInfo.TY;
+            var tp = s.TexturePageInfo.TP;
 
             if (pageX < 5)
                 return null;
 
             // Get palette coordinates
-            int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
-            int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
-
-            //Debug.Log(paletteX + " - " + paletteY + " - " + pageX + " - " + pageY + " - " + tp);
+            int paletteX = s.PaletteX;
+            int paletteY = s.PaletteY;
 
             // Get the palette size
             var palette = tp == 0 ? new RGBA5551Color[16] : new RGBA5551Color[256];
@@ -133,7 +128,7 @@ namespace R1Engine
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
 
             // Set every pixel
-            if (tp == 1)
+            if (tp == PS1_TexturePageInfo.TexturePageTP.CLUT_8Bit)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -150,7 +145,7 @@ namespace R1Engine
                     }
                 }
             }
-            else if (tp == 0)
+            else if (tp == PS1_TexturePageInfo.TexturePageTP.CLUT_4Bit)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -194,7 +189,7 @@ namespace R1Engine
             if (entry == null)
                 throw new Exception($"No file entry found for path: {path}");
 
-            PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, path, entry.MemoryAddress, InvalidPointerMode, fileLength: entry.FileSize)
+            PS1_MemoryMappedFile file = new PS1_MemoryMappedFile(context, path, entry.MemoryAddress, InvalidPointerMode, fileLength: entry.FileSize)
             {
                 RecreateOnWrite = recreateOnWrite
             };

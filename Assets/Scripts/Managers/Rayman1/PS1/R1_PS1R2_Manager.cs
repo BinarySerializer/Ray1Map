@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinarySerializer.PS1;
 using UnityEngine;
 using Sprite = BinarySerializer.Ray1.Sprite;
 
@@ -62,7 +63,7 @@ namespace R1Engine
             ["JUNGLE/JUN.BBX"] = 0
         };
 
-        protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
+        protected override PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.Allow;
 
         /// <summary>
         /// Gets the levels for each world
@@ -149,7 +150,7 @@ namespace R1Engine
 
             // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
             // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
-            vram.currentXPage = 5;
+            vram.CurrentXPage = 5;
 
             // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
             // storing the first bit of sprites we load as 1x2
@@ -200,7 +201,7 @@ namespace R1Engine
             await FileSystem.PrepareFile(context.GetAbsoluteFilePath(path));
 
             if (baseAddress != 0) {
-                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, path, baseAddress, InvalidPointerMode, fileLength: FileSizes[path]);
+                PS1_MemoryMappedFile file = new PS1_MemoryMappedFile(context, path, baseAddress, InvalidPointerMode, fileLength: FileSizes[path]);
                 context.AddFile(file);
 
                 return FileSizes[path];

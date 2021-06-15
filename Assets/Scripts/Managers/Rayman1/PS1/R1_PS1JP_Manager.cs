@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.PS1;
 
 namespace R1Engine
 {
@@ -17,7 +18,7 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 1;
 
-        protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
+        protected override PS1_MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1_MemoryMappedFile.InvalidPointerMode.Allow;
 
         public string GetSpecialTileSetPath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetWorldName(settings.R1_World)}{settings.Level:00}.BLC";
 
@@ -84,7 +85,7 @@ namespace R1Engine
 
             // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
             // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
-            vram.currentXPage = 5;
+            vram.CurrentXPage = 5;
 
             // Reserve spot for tiles in vram
             if (mode == VRAMMode.Level)

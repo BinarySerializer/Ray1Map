@@ -10,3 +10,6 @@
 [submodule "Assets/Scripts/Libraries/BinarySerializer.Ray1"]
 	path = Assets/Scripts/Libraries/BinarySerializer.Ray1
 	url = https://github.com/RayCarrot/BinarySerializer.Ray1
+[submodule "Assets/Scripts/Libraries/BinarySerializer.PS1"]
+	path = Assets/Scripts/Libraries/BinarySerializer.PS1
+	url = https://github.com/RayCarrot/BinarySerializer.PS1
