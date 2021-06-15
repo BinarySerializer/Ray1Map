@@ -205,15 +205,15 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        protected override void FillVRAM(Context context, VRAMMode mode)
+        protected override void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode)
         {
             string fixPath = GetFixImageFilePath();
             string bigRayPath = GetBigRayImageFilePath();
 
-            var fixImg = context.FileExists(fixPath) && mode != VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(fixPath, context, (y, x) => x.Length = y.CurrentLength) : null;
-            var worldImg = mode == VRAMMode.Level && context.FileExists(GetWorldImageFilePath(context)) ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
-            var levelImg = mode == VRAMMode.Level && context.FileExists(GetLevelImageFilePath(context)) ? FileFactory.Read<Array<byte>>(GetLevelImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
-            var bigRayImg = context.FileExists(bigRayPath) && mode == VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(bigRayPath, context, (y, x) => x.Length = y.CurrentLength) : null;
+            var fixImg = context.FileExists(fixPath) && mode != PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(fixPath, context, (y, x) => x.Length = y.CurrentLength) : null;
+            var worldImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetWorldImageFilePath(context)) ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
+            var levelImg = mode == PS1VramHelpers.VRAMMode.Level && context.FileExists(GetLevelImageFilePath(context)) ? FileFactory.Read<Array<byte>>(GetLevelImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
+            var bigRayImg = context.FileExists(bigRayPath) && mode == PS1VramHelpers.VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(bigRayPath, context, (y, x) => x.Length = y.CurrentLength) : null;
 
             ImageBuffer buf = new ImageBuffer();
             if (fixImg != null) buf.AddData(fixImg.Value);

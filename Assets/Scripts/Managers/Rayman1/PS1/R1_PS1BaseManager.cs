@@ -92,7 +92,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        protected abstract void FillVRAM(Context context, VRAMMode mode);
+        protected abstract void FillVRAM(Context context, PS1VramHelpers.VRAMMode mode);
 
         /// <summary>
         /// Gets the sprite texture for an event
@@ -214,7 +214,7 @@ namespace R1Engine
             var eventETA = new List<Unity_ObjectManager_R1.DataContainer<ObjState[][]>>();
 
             // Get the v-ram
-            FillVRAM(context, context.GetR1Settings().R1_World == World.Menu ? VRAMMode.Menu : VRAMMode.Level);
+            FillVRAM(context, context.GetR1Settings().R1_World == World.Menu ? PS1VramHelpers.VRAMMode.Menu : PS1VramHelpers.VRAMMode.Level);
 
             // Load background sprites
             if (bg != null)
@@ -800,10 +800,10 @@ namespace R1Engine
         protected async UniTask ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_FontData[] fontData, ObjData[] fixEvents, PS1_BigRayBlock bigRay)
         {
             // Fill the v-ram for each context
-            FillVRAM(menuContext, VRAMMode.Menu);
+            FillVRAM(menuContext, PS1VramHelpers.VRAMMode.Menu);
 
             if (bigRayContext != null && bigRay != null)
-                FillVRAM(bigRayContext, VRAMMode.BigRay);
+                FillVRAM(bigRayContext, PS1VramHelpers.VRAMMode.BigRay);
 
             // Export each font DES
             if (!exportAnimFrames)
@@ -1048,13 +1048,6 @@ namespace R1Engine
             Blocked,
             BlockedXXX,
             MultiXXX
-        }
-
-        protected enum VRAMMode
-        {
-            Level,
-            Menu,
-            BigRay
         }
 
         protected class DES
