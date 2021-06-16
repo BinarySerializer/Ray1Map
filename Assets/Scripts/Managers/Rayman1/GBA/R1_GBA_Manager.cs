@@ -190,7 +190,7 @@ namespace R1Engine
                 var worldName = gp.Value.Count > 1 ? "Allfix" : (!gp.Value.Any() ? "Other" : gp.Value.First().Key.ToString());
 
                 // Enumerate every image descriptor
-                foreach (var img in g.Sprites)
+                foreach (var img in g.SpriteCollection.Sprites)
                 {
                     // Get the texture
                     var tex = GetSpriteTexture(context, g.ImageBuffer, img, gp.Value?.FirstOrDefault().Value ?? data.GetSpritePalettes(settings));
@@ -347,7 +347,7 @@ namespace R1Engine
                     var imgIndex = 0;
 
                     // Enumerate every image descriptor
-                    foreach (var img in g.Sprites)
+                    foreach (var img in g.SpriteCollection.Sprites)
                     {
                         // Get the texture
                         var tex = GetSpriteTexture(context, g.ImageBuffer, img, data.GetSpritePalettes(settings));
@@ -978,7 +978,7 @@ namespace R1Engine
                 };
 
                 // Get every sprite
-                foreach (Sprite img in graphics.Sprites)
+                foreach (Sprite img in graphics.SpriteCollection.Sprites)
                 {
                     // Get the texture for the sprite, or null if not loading textures
                     Texture2D tex = GetSpriteTexture(context, graphics.ImageBuffer, img, spritePalette);
@@ -987,12 +987,12 @@ namespace R1Engine
                     finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
                 }
 
-                if (graphics.Animations != null)
+                if (graphics.AnimationCollection != null)
                     // Add animations
-                    finalDesign.Animations.AddRange(graphics.Animations.Select(x => x.ToCommonAnimation()));
+                    finalDesign.Animations.AddRange(graphics.AnimationCollection.Animations.Select(x => x.ToCommonAnimation()));
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, graphics.Sprites, graphics.SpritesPointer, graphics.AnimationsPointer, graphics.ImageBufferPointer), graphics.SpritesPointer));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, graphics.SpriteCollection.Sprites, graphics.SpritesPointer, graphics.AnimationsPointer, graphics.ImageBufferPointer), graphics.SpritesPointer));
             }
 
             // Helper for loading ETA

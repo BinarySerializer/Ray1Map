@@ -284,7 +284,7 @@ namespace R1Engine
                     {
                         foreach (PS1_FontData font in fix.AllfixData.FontData)
                         {
-                            foreach (Sprite imgDescr in font.Sprites)
+                            foreach (Sprite imgDescr in font.SpriteCollection.Sprites)
                             {
                                 imgDescr.PaletteY = 509;
                             }
@@ -294,7 +294,7 @@ namespace R1Engine
                     {
                         foreach (PS1_FontData font in fix.AllfixData.FontData)
                         {
-                            foreach (Sprite imgDescr in font.Sprites)
+                            foreach (Sprite imgDescr in font.SpriteCollection.Sprites)
                             {
                                 imgDescr.PaletteY = 492;
                             }

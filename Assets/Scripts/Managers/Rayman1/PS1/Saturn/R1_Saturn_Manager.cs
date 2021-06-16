@@ -247,7 +247,7 @@ namespace R1Engine
             ushort paletteOffset;
 
             var isBigRay = img.Offset.File.FilePath == GetBigRayFilePath();
-            var isFont = context.GetStoredObject<PS1_FontData[]>("Font")?.SelectMany(x => x.Sprites).Contains(img) == true;
+            var isFont = context.GetStoredObject<PS1_FontData[]>("Font")?.SelectMany(x => x.SpriteCollection.Sprites).Contains(img) == true;
             
             //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
             if (img.ImageType == 3) {

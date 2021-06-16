@@ -227,7 +227,7 @@ namespace R1Engine
                 };
 
                 // Get every sprite
-                foreach (Sprite i in bg.BackgroundLayerInfos)
+                foreach (Sprite i in bg.SpriteCollection.Sprites)
                 {
                     // Get the texture for the sprite, or null if not loading textures
                     Texture2D tex = GetSpriteTexture(context, null, i);
@@ -237,7 +237,7 @@ namespace R1Engine
                 }
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.BackgroundLayerInfos, bg.BackgroundLayerInfos.First().Offset, null, null), bg.Offset));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.SpriteCollection.Sprites, bg.SpriteCollection.Sprites.First().Offset, null, null), bg.Offset));
             }
 
             // Load event templates
@@ -262,8 +262,8 @@ namespace R1Engine
                     };
 
                     var s = context.Deserializer;
-                    var imgDescriptors = des.EventData?.Sprites ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<Sprite>(default, des.ImageDescriptorCount, name: $"ImageDescriptors"));
-                    var animDescriptors = des.EventData?.Animations ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<Animation>(default, des.AnimationDescriptorCount, name: $"AnimationDescriptors"));
+                    var imgDescriptors = des.EventData?.SpriteCollection.Sprites ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<Sprite>(default, des.ImageDescriptorCount, name: $"Sprites"));
+                    var animDescriptors = des.EventData?.AnimationCollection.Animations ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<Animation>(default, des.AnimationDescriptorCount, name: $"Animations"));
                     var imageBuffer = des.EventData?.ImageBuffer ?? s.DoAt(des.ImageBufferPointer, () => s.SerializeArray<byte>(default, des.ImageBufferLength ?? 0, name: $"ImageBuffer"));
 
                     // Get every sprite
@@ -814,7 +814,7 @@ namespace R1Engine
                     for (int spriteIndex = 0; spriteIndex < fontData[fontIndex].SpritesCount; spriteIndex++)
                     {
                         // Get the sprite texture
-                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].Sprites[spriteIndex]);
+                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].SpriteCollection.Sprites[spriteIndex]);
 
                         // Make sure it's not null
                         if (tex == null)
@@ -848,7 +848,7 @@ namespace R1Engine
 
             async UniTask ExportEventSpritesAsync(Context context, ObjData e, string eventOutputDir, int desIndex)
             {
-                var sprites = e.Sprites.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
+                var sprites = e.SpriteCollection.Sprites.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
 
                 if (!exportAnimFrames)
                 {
@@ -863,10 +863,10 @@ namespace R1Engine
                 else
                 {
                     // Enumerate the animations
-                    for (var j = 0; j < e.Animations.Length; j++)
+                    for (var j = 0; j < e.AnimationCollection.Animations.Length; j++)
                     {
                         // Get the animation descriptor
-                        var anim = e.Animations[j];
+                        var anim = e.AnimationCollection.Animations[j];
 
                         // Get the speed
                         var speed = String.Join("-", e.ETA.States.SelectMany(x => x).Where(x => x.AnimationIndex == j).Select(x => x.AnimationSpeed).Distinct());

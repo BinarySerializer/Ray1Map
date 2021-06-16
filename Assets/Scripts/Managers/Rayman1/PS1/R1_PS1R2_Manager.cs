@@ -228,7 +228,7 @@ namespace R1Engine
 
             var lvlImgDescriptors = FileFactory.Read<ObjectArray<Sprite>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Pre_Length = s.CurrentLength / 0xC).Value;
 
-            var imgDescriptors = lvlData.FixSprites.Concat(lvlImgDescriptors).ToArray();
+            var imgDescriptors = lvlData.FixSpriteCollection.Sprites.Concat(lvlImgDescriptors).ToArray();
 
             // Get every sprite
             var globalDesigns = imgDescriptors.Select(img => GetSpriteTexture(context, null, img)).Select(tex => tex == null ? null : tex.CreateSprite()).ToArray();

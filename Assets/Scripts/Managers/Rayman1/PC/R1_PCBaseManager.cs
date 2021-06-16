@@ -427,7 +427,7 @@ namespace R1Engine
         public Texture2D[] GetSpriteTextures(List<PC_LevFile> levels, PC_DES desItem, int desIndex, IList<BaseColor> palette = null)
         {
             // Create the output array
-            var output = new Texture2D[desItem.Sprites.Length];
+            var output = new Texture2D[desItem.SpriteCollection.Sprites.Length];
 
             // Process the image data
             var processedImageData = desItem.RequiresBackgroundClearing ? PC_DES.ProcessImageData(desItem.ImageData) : desItem.ImageData;
@@ -436,10 +436,10 @@ namespace R1Engine
             var lvl = levels.FindLast(x => x.ScrollDiffSprites == desIndex || x.ObjData.Objects.Any(y => y.PC_SpritesIndex == desIndex)) ?? levels.First();
 
             // Enumerate each image
-            for (int i = 0; i < desItem.Sprites.Length; i++)
+            for (int i = 0; i < desItem.SpriteCollection.Sprites.Length; i++)
             {
                 // Get the image descriptor
-                var imgDescriptor = desItem.Sprites[i];
+                var imgDescriptor = desItem.SpriteCollection.Sprites[i];
 
                 // Ignore dummy sprites
                 if (imgDescriptor.IsDummySprite())
@@ -773,7 +773,7 @@ namespace R1Engine
             if (!isMultiColored)
             {
                 // Sprites
-                foreach (var s in des.Sprites)
+                foreach (var s in des.SpriteCollection.Sprites)
                 {
                     // Get the texture
                     Texture2D tex = GetSpriteTexture(s, palette, processedImageData);
@@ -796,7 +796,7 @@ namespace R1Engine
                         p[8] = palette[i * 8];
 
                     // Sprites
-                    foreach (var s in des.Sprites)
+                    foreach (var s in des.SpriteCollection.Sprites)
                     {
                         // Get the texture
                         Texture2D tex = GetSpriteTexture(s, p, processedImageData);
@@ -1113,7 +1113,7 @@ namespace R1Engine
             foreach (var data in rawImageData)
             {
                 // Get the descriptor
-                var imgDesc = des.Sprites[data.Key];
+                var imgDesc = des.SpriteCollection.Sprites[data.Key];
 
                 // Add every byte and encrypt it
                 for (int i = 0; i < data.Value.Length; i++)
@@ -1217,7 +1217,7 @@ namespace R1Engine
                 var p = desIndex == des.Length - 1 && bigRayPalette != null ? bigRayPalette : palette;
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DESData(GetCommonDesign(context, d, p, desIndex), d.Sprites));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DESData(GetCommonDesign(context, d, p, desIndex), d.SpriteCollection.Sprites));
 
                 desIndex++;
             }

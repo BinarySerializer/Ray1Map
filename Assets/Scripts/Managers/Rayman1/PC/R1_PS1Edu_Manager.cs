@@ -299,11 +299,11 @@ namespace R1Engine
                 if (i < allfix.DESCount) {
                     d = allfix.DESData[i];
                     anims = allfix.Animations[i];
-                    imageDescriptors[i] = allfix.Sprites[i];
+                    imageDescriptors[i] = allfix.SpriteCollections[i].Sprites;
                 } else {
                     d = world.DESData[i - allfix.DESCount];
                     anims = world.Animations[i - allfix.DESCount];
-                    imageDescriptors[i] = world.Sprites[i - allfix.DESCount];
+                    imageDescriptors[i] = world.SpriteCollections[i - allfix.DESCount].Sprites;
                 }
 
                 // Check if it's multi-colored
