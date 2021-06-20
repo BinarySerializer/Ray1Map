@@ -143,6 +143,15 @@ namespace R1Engine
                     }
                 } catch (Exception) { }
             }
+            foreach (var filePath in Directory.EnumerateFiles(context.BasePath, "*.dib", SearchOption.AllDirectories)
+                .Concat(Directory.EnumerateFiles(context.BasePath, "*.png", SearchOption.AllDirectories))
+                .Concat(Directory.EnumerateFiles(context.BasePath, "*.bmp", SearchOption.AllDirectories))) {
+                try {
+                    string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
+                    byte[] fileBytes = File.ReadAllBytes(filePath);
+                    Util.ByteArrayToFile(Path.Combine(outputDir,fileName), fileBytes);
+                } catch (Exception) { }
+            }
         }
 
 
