@@ -268,46 +268,58 @@ namespace R1Engine
                 }
             }
 
-            int width = ubi.Frames.Max(f => f.SpriteData?.Sections.Max(sec => (sec.RLX?.Data?.X ?? 0) + (sec.RLX?.Data?.Width ?? 0)) ?? 0);
-            int height = ubi.Frames.Max(f => f.SpriteData?.Sections.Max(sec => (sec.RLX?.Data?.Y ?? 0) + (sec.RLX?.Data?.Height ?? 0)) ?? 0);
-            if (firstFrame != null) {
-                width = Math.Max(width, firstFrame.X + firstFrame.Width);
-                height = Math.Max(height, firstFrame.Y + firstFrame.Height);
-            }
-            Texture2D workingTexture = TextureHelpers.CreateTexture2D(width, height, clear: true, applyClear: true);
-            if(firstFrame != null) {
-                workingTexture = firstFrame.ToTexture2D(ubiPal, texture: workingTexture);
-            }
-            List<Texture2D> frames = new List<Texture2D>();
-            for (int i = 0; i < ubi.Frames.Length; i++) {
-                var f = ubi.Frames[i];
-                int rlxType = 0;
-                for (int j = 0; j < f.SpriteData?.Sections.Length; j++) {
-                    var section = f.SpriteData.Sections[j];
-                    if (section.Palette != null
-                        && (section.SectionType == GEN_UBI.UBI_SpriteData.Section.Type.Palette_15
-                        || section.SectionType == GEN_UBI.UBI_SpriteData.Section.Type.Palette_20))
-                        ubiPal = ProcessPalette(section.Palette);
-                    if(section.SectionType != GEN_UBI.UBI_SpriteData.Section.Type.RLX_Sprite) continue;
-                    if (section.RLX != null) {
-                        var rlx = section.RLX.Data;
-                        rlxType = rlx.RLXType;
-                        workingTexture = rlx.ToTexture2D(ubiPal, texture: workingTexture);
-                        //workingTexture = rlx.ToTexture2D(ubiPal, raw: true);
+            if(firstFrame != null) ConvertUBIFrames();
+            firstFrame = null;
+            ConvertUBIFrames();
+
+            void ConvertUBIFrames() {
+                string newFileName = fileName;
+                if(firstFrame != null)  newFileName += "_f0";
+
+
+
+                int width = ubi.Frames.Max(f => f.SpriteData?.Sections.Max(sec => (sec.RLX?.Data?.X ?? 0) + (sec.RLX?.Data?.Width ?? 0)) ?? 0);
+                int height = ubi.Frames.Max(f => f.SpriteData?.Sections.Max(sec => (sec.RLX?.Data?.Y ?? 0) + (sec.RLX?.Data?.Height ?? 0)) ?? 0);
+                if (firstFrame != null) {
+                    width = Math.Max(width, firstFrame.X + firstFrame.Width);
+                    height = Math.Max(height, firstFrame.Y + firstFrame.Height);
+                }
+
+                Texture2D workingTexture = TextureHelpers.CreateTexture2D(width, height, clear: true, applyClear: true);
+                if (firstFrame != null) {
+                    workingTexture = firstFrame.ToTexture2D(ubiPal, texture: workingTexture);
+                }
+                List<Texture2D> frames = new List<Texture2D>();
+                for (int i = 0; i < ubi.Frames.Length; i++) {
+                    var f = ubi.Frames[i];
+                    int rlxType = 0;
+                    for (int j = 0; j < f.SpriteData?.Sections.Length; j++) {
+                        var section = f.SpriteData.Sections[j];
+                        if (section.Palette != null
+                            && (section.SectionType == GEN_UBI.UBI_SpriteData.Section.Type.Palette_15
+                            || section.SectionType == GEN_UBI.UBI_SpriteData.Section.Type.Palette_20))
+                            ubiPal = ProcessPalette(section.Palette);
+                        if (section.SectionType != GEN_UBI.UBI_SpriteData.Section.Type.RLX_Sprite) continue;
+                        if (section.RLX != null) {
+                            var rlx = section.RLX.Data;
+                            rlxType = rlx.RLXType;
+                            workingTexture = rlx.ToTexture2D(ubiPal, texture: workingTexture);
+                            //workingTexture = rlx.ToTexture2D(ubiPal, raw: true);
+                        }
+                    }
+                    if (exportGif) {
+                        Texture2D frameTexture = TextureHelpers.CreateTexture2D(workingTexture.width, workingTexture.height);
+                        Graphics.CopyTexture(workingTexture, frameTexture);
+                        frameTexture.Apply();
+                        frames.Add(frameTexture);
+                    } else {
+                        var path = Path.Combine(outputDir, $"{newFileName}/{i}_{rlxType}.png");
+                        Util.ByteArrayToFile(path, workingTexture.EncodeToPNG());
                     }
                 }
-                if (exportGif) {
-                    Texture2D frameTexture = TextureHelpers.CreateTexture2D(workingTexture.width, workingTexture.height);
-                    Graphics.CopyTexture(workingTexture, frameTexture);
-                    frameTexture.Apply();
-                    frames.Add(frameTexture);
-                } else {
-                    var path = Path.Combine(outputDir, $"{fileName}/{i}_{rlxType}.png");
-                    Util.ByteArrayToFile(path, workingTexture.EncodeToPNG());
+                if (exportGif && frames.Any()) {
+                    Util.ExportAnimAsGif(frames, 1, false, false, Path.Combine(outputDir, $"{newFileName}.gif"));
                 }
-            }
-            if (exportGif && frames.Any()) {
-                Util.ExportAnimAsGif(frames, 1, false, false, Path.Combine(outputDir, $"{fileName}.gif"));
             }
             await Controller.WaitFrame();
         }
