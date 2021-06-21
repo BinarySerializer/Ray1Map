@@ -71,7 +71,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.MDF_LoadingSound => s.SerializeObject<MDF_LoadingSound>((MDF_LoadingSound)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MDF_ModifierDisturber => s.SerializeObject<MDF_ModifierDisturber>((MDF_ModifierDisturber)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MDF_ModifierWeather => s.SerializeObject<MDF_ModifierWeather>((MDF_ModifierWeather)Modifier, name: nameof(Modifier)),
-                MDF_ModifierType.MDF_ModifierWATER3D => s.SerializeObject<MDF_ModifierWATER3D>((MDF_ModifierWATER3D)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.WATER3D_Modifier => s.SerializeObject<WATER3D_Modifier>((WATER3D_Modifier)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type}")
             };
         }
@@ -112,6 +112,10 @@ namespace R1Engine.Jade {
                 MDF_ModifierType_Montreal.GEO_ModifierBridge => s.SerializeObject<GEO_ModifierBridge>((GEO_ModifierBridge)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierSfx => s.SerializeObject<GAO_ModifierSfx>((GAO_ModifierSfx)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierSoftBody => s.SerializeObject<GAO_ModifierSoftBody>((GAO_ModifierSoftBody)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierWind => s.SerializeObject<GAO_ModifierWind>((GAO_ModifierWind)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.WATER3D_Modifier => s.SerializeObject<WATER3D_Modifier>((WATER3D_Modifier)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.Halo_Modifier => s.SerializeObject<Halo_Modifier>((Halo_Modifier)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierPlant => s.SerializeObject<GAO_ModifierPlant>((GAO_ModifierPlant)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }

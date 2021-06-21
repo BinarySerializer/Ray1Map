@@ -27,6 +27,7 @@ namespace R1Engine.Jade {
 			[".gao"] = FileType.OBJ_GameObject,
 			[".wol"] = FileType.WOR_WorldList,
 			[".wow"] = FileType.WOR_World,
+			[".gri"] = FileType.GRID_WorldGrid,
 
 			// AI
 			[".oin"] = FileType.AI_Instance,
@@ -65,6 +66,7 @@ namespace R1Engine.Jade {
 			SND_Music,
 			SND_Ambience,
 			SND_SModifier,
+			GRID_WorldGrid,
 		}
 	}
 }

@@ -45,7 +45,7 @@ namespace R1Engine.Jade {
 		SND_ModifierSoundVol = 32,
 
 		// Xenon modifiers
-		MDF_ModifierWATER3D = 33, // Xenon only
+		WATER3D_Modifier = 33, // Xenon only
 		MDF_ModifierDisturber = 34, // Xenon only
 		MDF_ModifierSFX = 35, // Xenon only
 

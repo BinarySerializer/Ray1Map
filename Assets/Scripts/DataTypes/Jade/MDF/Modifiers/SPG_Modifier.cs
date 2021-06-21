@@ -21,6 +21,18 @@ namespace R1Engine.Jade {
 		public float SpecialFogFar { get; set; }
 		public Jade_Color SpecialFogColor { get; set; }
 
+		public float V8_Montreal_Float { get; set; }
+		public float V9_Montreal_Float0 { get; set; }
+		public float V9_Montreal_Float1 { get; set; }
+		public uint  V9_Montreal_UInt2  { get; set; }
+		public float V9_Montreal_Float3 { get; set; }
+		public float V9_Montreal_Float4 { get; set; }
+		public float V9_Montreal_Float5 { get; set; }
+		public float V9_Montreal_Float6 { get; set; }
+		public float V10_Montreal_Float0 { get; set; }
+		public float V10_Montreal_Float1 { get; set; }
+		public float V10_Montreal_Float2 { get; set; }
+
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -41,10 +53,28 @@ namespace R1Engine.Jade {
 			if (Version >= 5) SpriteElementDescriptors = s.SerializeObjectArray<SPG_SpriteElementDescriptor>(SpriteElementDescriptors, 4, name: nameof(SpriteElementDescriptors));
 			if (Version >= 6) LODCorrectionFactor = s.Serialize<float>(LODCorrectionFactor, name: nameof(LODCorrectionFactor));
 			if (Version >= 7) Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
-			if (Version >= 8) {
-				SpecialFogNear = s.Serialize<float>(SpecialFogNear, name: nameof(SpecialFogNear));
-				SpecialFogFar = s.Serialize<float>(SpecialFogFar, name: nameof(SpecialFogFar));
-				SpecialFogColor = s.SerializeObject<Jade_Color>(SpecialFogColor, name: nameof(SpecialFogColor));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+				if (Version >= 8) {
+					SpecialFogNear = s.Serialize<float>(SpecialFogNear, name: nameof(SpecialFogNear));
+					SpecialFogFar = s.Serialize<float>(SpecialFogFar, name: nameof(SpecialFogFar));
+					SpecialFogColor = s.SerializeObject<Jade_Color>(SpecialFogColor, name: nameof(SpecialFogColor));
+				}
+			} else {
+				if (Version >= 8) V8_Montreal_Float = s.Serialize<float>(V8_Montreal_Float, name: nameof(V8_Montreal_Float));
+				if (Version >= 9) {
+					V9_Montreal_Float0 = s.Serialize<float>(V9_Montreal_Float0, name: nameof(V9_Montreal_Float0));
+					V9_Montreal_Float1 = s.Serialize<float>(V9_Montreal_Float1, name: nameof(V9_Montreal_Float1));
+					V9_Montreal_UInt2 = s.Serialize<uint>(V9_Montreal_UInt2, name: nameof(V9_Montreal_UInt2));
+					V9_Montreal_Float3 = s.Serialize<float>(V9_Montreal_Float3, name: nameof(V9_Montreal_Float3));
+					V9_Montreal_Float4 = s.Serialize<float>(V9_Montreal_Float4, name: nameof(V9_Montreal_Float4));
+					V9_Montreal_Float5 = s.Serialize<float>(V9_Montreal_Float5, name: nameof(V9_Montreal_Float5));
+					V9_Montreal_Float6 = s.Serialize<float>(V9_Montreal_Float6, name: nameof(V9_Montreal_Float6));
+				}
+				if (Version >= 10) {
+					V10_Montreal_Float0 = s.Serialize<float>(V10_Montreal_Float0, name: nameof(V10_Montreal_Float0));
+					V10_Montreal_Float1 = s.Serialize<float>(V10_Montreal_Float1, name: nameof(V10_Montreal_Float1));
+					V10_Montreal_Float2 = s.Serialize<float>(V10_Montreal_Float2, name: nameof(V10_Montreal_Float2));
+				}
 			}
 		}
 

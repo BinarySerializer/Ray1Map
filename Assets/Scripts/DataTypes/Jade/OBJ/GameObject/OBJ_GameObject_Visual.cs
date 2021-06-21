@@ -107,7 +107,7 @@ namespace R1Engine.Jade {
 				if (hasLightMap) {
 					AmbientUnknown = s.Serialize<uint>(AmbientUnknown, name: nameof(AmbientUnknown));
 					AmbientTexture = s.SerializeObject<Jade_TextureReference>(AmbientTexture, name: nameof(AmbientTexture))?.Resolve();
-					if (!AmbientTexture.IsNull) {
+					if (!AmbientTexture.IsNull && (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T) || !Loader.IsBinaryData)) {
 						AmbientElementCount = s.Serialize<uint>(AmbientElementCount, name: nameof(AmbientElementCount));
 						if ((AmbientElementCount & 0xFFFF) != 0) {
 							AmbientElements = s.SerializeObjectArray<OBJ_GameObject_Visual_AmbientElement>(AmbientElements, AmbientElementCount, name: nameof(AmbientElements));

@@ -124,6 +124,11 @@ namespace R1Engine.Jade {
 						configureAction(f); onPreSerialize?.Invoke(s, f);
 					}, name: nameof(Value));
 					break;
+				case Jade_FileType.FileType.GRID_WorldGrid:
+					Value = s.SerializeObject<GRID_WorldGrid>((GRID_WorldGrid)Value, onPreSerialize: f => {
+						configureAction(f); onPreSerialize?.Invoke(s, f);
+					}, name: nameof(Value));
+					break;
 				default:
 					throw new NotImplementedException($"GenericReference: Could not resolve key {Key} of type {Type} ({FileType.Extension})");
 			}

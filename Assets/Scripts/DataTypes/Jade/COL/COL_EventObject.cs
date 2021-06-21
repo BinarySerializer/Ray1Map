@@ -28,6 +28,7 @@ namespace R1Engine.Jade
             public GEOSubType_TFS SubTypeTFS { get; set; }
             public Jade_Vector[] Points { get; set; }
             public Jade_Vector Normal { get; set; }
+            public uint UInt_00 { get; set; }
             public uint SoundMaterial { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
@@ -38,7 +39,8 @@ namespace R1Engine.Jade
                 }
 				Points = s.SerializeObjectArray<Jade_Vector>(Points, 2, name: nameof(Points));
 				Normal = s.SerializeObject<Jade_Vector>(Normal, name: nameof(Normal));
-                if (SubType.HasFlag(GEOSubType_T2T.GEO_LoadSndAIMaterial) || SubTypeTFS.HasFlag(GEOSubType_TFS.GEO_LoadSndAIMaterial)) {
+				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+				if (SubType.HasFlag(GEOSubType_T2T.GEO_LoadSndAIMaterial) || SubTypeTFS.HasFlag(GEOSubType_TFS.GEO_LoadSndAIMaterial)) {
                     SoundMaterial = s.Serialize<uint>(SoundMaterial, name: nameof(SoundMaterial));
                 }
 

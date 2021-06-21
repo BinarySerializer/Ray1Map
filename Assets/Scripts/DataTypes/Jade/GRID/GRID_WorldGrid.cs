@@ -45,7 +45,7 @@ namespace R1Engine.Jade {
 			MinYReal = s.Serialize<float>(MinYReal, name: nameof(MinYReal));
 			GroupsCountX = s.Serialize<ushort>(GroupsCountX, name: nameof(GroupsCountX));
 			GroupsCountY = s.Serialize<ushort>(GroupsCountY, name: nameof(GroupsCountY));
-			if (!Loader.IsBinaryData) {
+			if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				RealGroupsCountX = s.Serialize<ushort>(RealGroupsCountX, name: nameof(RealGroupsCountX));
 				RealGroupsCountY = s.Serialize<ushort>(RealGroupsCountY, name: nameof(RealGroupsCountY));
 			}

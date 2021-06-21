@@ -62,9 +62,11 @@ namespace R1Engine.Jade
 					Palette = s.SerializeObject<Jade_PaletteReference>(Palette, name: nameof(Palette))?.Resolve();
 					break;
                 case JTX_Format.Intensity_8:
+                case JTX_Format.AlphaIntensity_8:
                     BPP = 8;
                     break;
                 case JTX_Format.Intensity_4:
+                case JTX_Format.AlphaIntensity_4:
                     BPP = 4;
                     break;
                 default:
