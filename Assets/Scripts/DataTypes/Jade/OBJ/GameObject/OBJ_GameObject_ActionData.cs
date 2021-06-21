@@ -36,11 +36,13 @@ namespace R1Engine.Jade {
 		public class VisuForBones : BinarySerializable {
 			public OBJ_GameObject_ActionData ActionData { get; set; } // Set in onPreSerialize
 
-			public uint Unknown { get; set; }
+			public uint HasVisu { get; set; } // Boolean
 			public OBJ_GameObject_Visual Visu { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
-				Unknown = s.Serialize<uint>(Unknown, name: nameof(Unknown));
-				Visu = s.SerializeObject<OBJ_GameObject_Visual>(Visu, onPreSerialize: o => o.Version = ActionData.Base.GameObject.Version, name: nameof(Visu));
+				HasVisu = s.Serialize<uint>(HasVisu, name: nameof(HasVisu));
+				if (HasVisu != 0) {
+					Visu = s.SerializeObject<OBJ_GameObject_Visual>(Visu, onPreSerialize: o => o.Version = ActionData.Base.GameObject.Version, name: nameof(Visu));
+				}
 			}
 		}
 	}
