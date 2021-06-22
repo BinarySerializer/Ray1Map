@@ -116,6 +116,8 @@ namespace R1Engine.Jade {
                 MDF_ModifierType_Montreal.WATER3D_Modifier => s.SerializeObject<WATER3D_Modifier>((WATER3D_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.Halo_Modifier => s.SerializeObject<Halo_Modifier>((Halo_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierPlant => s.SerializeObject<GAO_ModifierPlant>((GAO_ModifierPlant)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierRope => s.SerializeObject<GAO_ModifierRope>((GAO_ModifierRope)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierVirtualAnim => s.SerializeObject<GAO_ModifierVirtualAnim>((GAO_ModifierVirtualAnim)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }
