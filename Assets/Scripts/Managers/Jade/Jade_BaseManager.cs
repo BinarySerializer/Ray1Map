@@ -7,25 +7,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
-    public abstract class Jade_BaseManager : BaseGameManager
-	{
-		// Levels
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Select((x, i) =>
-        {
-            return new GameInfo_World(
-                index: i, 
-                worldName: x.Key.ReplaceFirst(CommonLevelBasePath, String.Empty),
-                maps: x.Select(m => (int) m.Key).ToArray(),
-                mapNames: x.Select(m => m.MapName).ToArray());
-        }).ToArray() ?? new GameInfo_World[0]);
+    public abstract class Jade_BaseManager : BaseGameManager {
+
 		public abstract LevelInfo[] LevelInfos { get; }
-		public virtual string CommonLevelBasePath => @"ROOT\EngineDatas\06 Levels\";
 
 		// Game actions
 		public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
@@ -161,6 +152,7 @@ namespace R1Engine
 
             foreach (var lev in LevelInfos)
             {
+				if(lev?.Type == LevelInfo.FileType.WOW) continue;
 				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
 
                 try
@@ -464,16 +456,29 @@ namespace R1Engine
 
 		public class LevelInfo
         {
-            public LevelInfo(uint key, string directoryPath, string filePath)
+            public LevelInfo(uint key, string directoryPath, string filePath, string worldName = null, string mapName = null, FileType? type = null)
             {
+				OriginalMapName = mapName;
+				OriginalWorldName = worldName;
+				OriginalType = type;
                 Key = key;
                 DirectoryPath = directoryPath;
                 FilePath = filePath;
-
-				WorldName = Path.GetDirectoryName(DirectoryPath);
-				MapName = Path.GetFileNameWithoutExtension(FilePath);
+				MapName = mapName ?? Path.GetFileNameWithoutExtension(FilePath);
+				WorldName = worldName ?? (DirectoryPath.Contains('/') ? DirectoryPath.Substring(0, DirectoryPath.LastIndexOf('/')) : DirectoryPath);
+				Type = type;
             }
 
+			public enum FileType {
+				WOL,
+				WOW
+			}
+
+			public string OriginalWorldName { get; }
+			public string OriginalMapName { get; }
+			public FileType? OriginalType { get; }
+
+			public FileType? Type { get; }
             public uint Key { get; }
 			public string DirectoryPath { get; }
 			public string FilePath { get; }
