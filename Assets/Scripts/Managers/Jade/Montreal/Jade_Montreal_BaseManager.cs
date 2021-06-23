@@ -1,4 +1,6 @@
-﻿using R1Engine.Jade;
+﻿using BinarySerializer;
+using Cysharp.Threading.Tasks;
+using R1Engine.Jade;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,17 +10,6 @@ using System.Text.RegularExpressions;
 namespace R1Engine
 {
     public abstract class Jade_Montreal_BaseManager : Jade_BaseManager {
-        // Levels
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Select((x, i) => {
-            return new GameInfo_World(
-                index: i,
-                worldName: x.Key.ReplaceFirst(CommonLevelBasePath, String.Empty),
-                maps: x.Select(m => (int)m.Key).ToArray(),
-                mapNames: x.Select(m => m.MapName).ToArray());
-        }).ToArray() ?? new GameInfo_World[0]);
-
-        public virtual string CommonLevelBasePath => @"ROOT/Bin/";
-
 		public override void CreateLevelList(LOA_Loader l) {
 			var groups = l.FileInfos.GroupBy(f => Jade_Key.UncomposeBinKey(l.Context, f.Key)).OrderBy(f => f.Key);
 			//List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
@@ -77,6 +68,79 @@ namespace R1Engine
 			}
 
 			str.ToString().CopyToClipboard();
+		}
+
+		public static async UniTask LoadTextures_Montreal(SerializerObject s, WOR_World w) {
+			LOA_Loader Loader = s.Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			TEX_GlobalList texList = s.Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
+
+			Controller.DetailedState = $"Loading textures: Info";
+			texList.SortTexturesList_Montreal();
+			for (int i = 0; i < (texList.Textures?.Count ?? 0); i++) {
+				texList.Textures[i].LoadInfo();
+				await Loader.LoadLoopBINAsync();
+			}
+
+			Controller.DetailedState = $"Loading textures: Palettes";
+			texList.SortPalettesList_Montreal();
+			if (texList.Palettes != null) {
+				for (int i = 0; i < (texList.Palettes?.Count ?? 0); i++) {
+					texList.Palettes[i].Load();
+				}
+				await Loader.LoadLoopBINAsync();
+			}
+			Controller.DetailedState = $"Loading textures: Content";
+			for (int i = 0; i < (texList.Textures?.Count ?? 0); i++) {
+				texList.Textures[i].LoadContent();
+				await Loader.LoadLoopBINAsync();
+				if (texList.Textures[i].Content != null && texList.Textures[i].Info.Type != TEX_File.TexFileType.RawPal) {
+					if (texList.Textures[i].Content.Width != texList.Textures[i].Info.Width ||
+						texList.Textures[i].Content.Height != texList.Textures[i].Info.Height ||
+						texList.Textures[i].Content.Color != texList.Textures[i].Info.Color) {
+						throw new Exception($"Info & Content width/height mismatch for texture with key {texList.Textures[i].Key}");
+					}
+				}
+			}
+			Controller.DetailedState = $"Loading textures: CubeMaps";
+			for (int i = 0; i < (texList.CubeMaps?.Count ?? 0); i++) {
+				texList.CubeMaps[i].Load();
+				await Loader.LoadLoopBINAsync();
+			}
+			Controller.DetailedState = $"Loading textures: End";
+			texList.FillInReferences();
+
+			w.TextureList_Montreal = texList;
+
+			texList = new TEX_GlobalList();
+			s.Context.StoreObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey, texList);
+			Loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
+			Loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
+		}
+
+		public static async UniTask LoadWorld_Montreal(SerializerObject s, Jade_GenericReference world, int index, int count) {
+			LOA_Loader Loader = s.Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(s.Context, new Jade_Key(s.Context, 0x0FF7C0DE));
+			Loader.BeginSpeedMode(world.Key, serializeAction: async s => {
+				world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+				await Loader.LoadLoopBINAsync();
+
+				if (world?.Value != null && world.Value is WOR_World w) {
+					if (count == 1) {
+						Controller.DetailedState = $"Loading world: {w.Name}";
+					} else {
+						Controller.DetailedState = $"Loading world {index + 1}/{count}: {w.Name}";
+					}
+					await w.JustAfterLoad_Montreal(s, false);
+					await Jade_Montreal_BaseManager.LoadTextures_Montreal(s, w);
+				}
+				terminator.Resolve();
+				await Loader.LoadLoopBINAsync();
+
+			});
+			await Loader.LoadLoop(s);
+			Loader.CurrentCacheType = LOA_Loader.CacheType.Main;
+			Loader.Cache.Clear();
+			Loader.EndSpeedMode();
 		}
 	}
 }
