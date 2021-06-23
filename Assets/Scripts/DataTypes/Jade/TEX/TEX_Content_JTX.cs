@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BinarySerializer;
 using UnityEngine;
 
@@ -19,12 +20,12 @@ namespace R1Engine.Jade
         public int BPP { get; set; }
         public uint MipmapSize { get; set; }
 
-        public uint PoPSoT_UInt0 { get; set; }
-        public uint PoPSoT_UInt1 { get; set; }
-        public uint PoPSoT_UInt2 { get; set; }
-        public uint PoPSoT_UInt3 { get; set; }
-        public uint PoPSoT_Size { get; set; }
-        public byte[] PoPSoT_Content { get; set; }
+        public uint PS2_UInt0 { get; set; }
+        public uint PS2_UInt1 { get; set; }
+        public uint PS2_UInt2 { get; set; }
+        public uint PS2_IsSwizzled { get; set; }
+        public uint PS2_Size { get; set; }
+        public TEX_Content_JTX_PS2 PS2_Content { get; set; }
 
         public byte[] Content { get; set; }
 
@@ -79,13 +80,13 @@ namespace R1Engine.Jade
                 }
 
                 if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT && Version >= 2) {
-                    PoPSoT_UInt0 = s.Serialize<uint>(PoPSoT_UInt0, name: nameof(PoPSoT_UInt0));
-                    if (PoPSoT_UInt0 == 0) return;
-                    PoPSoT_UInt1 = s.Serialize<uint>(PoPSoT_UInt1, name: nameof(PoPSoT_UInt1));
-                    PoPSoT_UInt2 = s.Serialize<uint>(PoPSoT_UInt2, name: nameof(PoPSoT_UInt2));
-                    PoPSoT_UInt3 = s.Serialize<uint>(PoPSoT_UInt3, name: nameof(PoPSoT_UInt3));
-                    PoPSoT_Size = s.Serialize<uint>(PoPSoT_Size, name: nameof(PoPSoT_Size));
-                    PoPSoT_Content = s.SerializeArray<byte>(PoPSoT_Content, PoPSoT_Size, name: nameof(PoPSoT_Content));
+                    PS2_UInt0 = s.Serialize<uint>(PS2_UInt0, name: nameof(PS2_UInt0));
+                    if (PS2_UInt0 == 0) return;
+                    PS2_UInt1 = s.Serialize<uint>(PS2_UInt1, name: nameof(PS2_UInt1));
+                    PS2_UInt2 = s.Serialize<uint>(PS2_UInt2, name: nameof(PS2_UInt2));
+                    PS2_IsSwizzled = s.Serialize<uint>(PS2_IsSwizzled, name: nameof(PS2_IsSwizzled));
+                    PS2_Size = s.Serialize<uint>(PS2_Size, name: nameof(PS2_Size));
+					PS2_Content = s.SerializeObject<TEX_Content_JTX_PS2>(PS2_Content, onPreSerialize: cont => cont.JTX = this, name: nameof(PS2_Content));
                 }
             }
 		}
@@ -108,6 +109,48 @@ namespace R1Engine.Jade
             // Added for NCIS
             DXN = 13,
             JTX_Format_DXN_DXT5A = 14
+        }
+
+        public Texture2D ToTexture2D() {
+            var tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
+            byte[] content = Content;
+            if (PS2_Content != null) {
+                if (PS2_IsSwizzled != 0) {
+                    content = new byte[PS2_Content.Content.Length];
+                    Array.Copy(PS2_Content.Content, content, content.Length);
+                    if (BPP == 4) {
+                        ezSwizzle.writeTexPSMCT32(0, (int)Width / 128, 0, 0, (int)PS2_Content.Width, (int)PS2_Content.Height, content);
+                        Array.Resize<byte>(ref content, (int)(Height * Width));
+                        ezSwizzle.readTexPSMT4_mod(0, (int)Width / 64, 0, 0, (int)Width, (int)Height, ref content);
+                    } else {
+                        ezSwizzle.writeTexPSMCT32(0, (int)Width / 128, 0, 0, (int)PS2_Content.Width, (int)PS2_Content.Height, content);
+                        //texData = new byte[h.height * h.width];
+                        ezSwizzle.readTexPSMT8(0, (int)Width / 64, 0, 0, (int)Width, (int)Height, ref content);
+                    }
+                } else {
+                    content = PS2_Content.Content;
+                }
+            }
+            Color[] palette = Palette?.Value != null ? Palette.Value.Colors.Select(c => c.GetColor()).ToArray() : null;
+            switch (Format) {
+                case JTX_Format.Palette_8:
+                case JTX_Format.Alpha_8:
+                case JTX_Format.AlphaIntensity_8:
+                case JTX_Format.Intensity_8:
+                    tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_8bpp, 0, 0, (int)Width, (int)Height);
+                    break;
+                case JTX_Format.Palette_4:
+                case JTX_Format.Alpha_4:
+                case JTX_Format.AlphaIntensity_4:
+                case JTX_Format.Intensity_4:
+                    if (PS2_IsSwizzled != 0) {
+                        tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_8bpp, 0, 0, (int)Width, (int)Height);
+                    } else {
+                        tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp, 0, 0, (int)Width, (int)Height);
+                    }
+                    break;
+            }
+            return tex;
         }
 	}
 }

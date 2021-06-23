@@ -233,7 +233,7 @@ namespace R1Engine.Jade
                 TexFileType.SpriteGen => null, // Points to a RawPal
                 TexFileType.Procedural => null, // Points to nothing
                 TexFileType.Animated => null, // Points to various frames
-                TexFileType.JTX => null,
+                TexFileType.JTX => Content_JTX != null ? Content_JTX.ToTexture2D() : null,
                 TexFileType.RawPal => (Info != null ? Info : this).Content_RawPal.PreferredSlot?.ToTexture2D(this),
                 TexFileType.Tga => Content_TGA.ToTexture2D(),
                 TexFileType.Jpeg => ToTexture2DFromJpeg(),

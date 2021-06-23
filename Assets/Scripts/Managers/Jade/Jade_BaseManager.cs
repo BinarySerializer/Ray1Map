@@ -162,7 +162,12 @@ namespace R1Engine
 
             foreach (var lev in LevelInfos)
             {
-				if(lev?.Type == LevelInfo.FileType.WOW) continue;
+				// If there are WOW files, there are also raw WOW files. It's better to process those one by one.
+				if (lev?.Type == LevelInfo.FileType.WOL) {
+					levIndex++;
+					continue;
+				}
+
 				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
 
                 try
@@ -170,9 +175,16 @@ namespace R1Engine
                     using (var context = new R1Context(settings)) {
 						currentKey = 0;
 						await LoadFilesAsync(context);
-                        await LoadJadeAsync(context, new Jade_Key(context, lev.Key));
+                        await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Textures);
 
-                        TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
+						TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
+
+						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+							LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+							if (loader.LoadedWorlds.Any()) {
+								texList = loader.LoadedWorlds.FirstOrDefault()?.TextureList_Montreal;
+							}
+						}
 
 						if (texList.Textures != null && texList.Textures.Any()) {
 							Debug.Log($"Loaded level. Exporting {texList?.Textures?.Count} textures...");
@@ -181,6 +193,9 @@ namespace R1Engine
 							foreach (var t in texList.Textures) {
 								if (parsedTexs.Contains(t.Key.Key))
 									continue;
+
+								if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)
+									&& t.Content == null && t.Info == null) continue;
 
 								parsedTexs.Add(t.Key.Key);
 
@@ -282,7 +297,7 @@ namespace R1Engine
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 			loader.SpecialArray = FileFactory.Read<LOA_SpecialArray>(JadeSpePath, context);
 		}
-		public async UniTask<Jade_Reference<WOR_WorldList>> LoadWorldList(Context context, Jade_Key worldKey, bool isFix = false) {
+		public async UniTask<Jade_Reference<WOR_WorldList>> LoadWorldList(Context context, Jade_Key worldKey, LoadFlags loadFlags, bool isFix = false) {
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 			loader.IsLoadingFix = isFix;
 
@@ -311,8 +326,7 @@ namespace R1Engine
 				loader.BeginSpeedMode(worldKey);
 			}
 
-
-			if (texList.Textures != null && texList.Textures.Any()
+			if (loadFlags.HasFlag(LoadFlags.Textures) && texList.Textures != null && texList.Textures.Any()
 				&& context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				Controller.DetailedState = $"Loading textures";
 				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeTextures), serializeAction: async s => {
@@ -380,7 +394,7 @@ namespace R1Engine
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
 
-			var loader = await LoadJadeAsync(context, new Jade_Key(context, (uint)context.GetR1Settings().Level));
+			var loader = await LoadJadeAsync(context, new Jade_Key(context, (uint)context.GetR1Settings().Level), LoadFlags.All);
 
 			stopWatch.Stop();
 
@@ -414,7 +428,7 @@ namespace R1Engine
 			return univers;
 		}
 
-		public async UniTask LoadFix(Context context, Jade_Key worldKey) {
+		public async UniTask LoadFix(Context context, Jade_Key worldKey, LoadFlags loadFlags) {
 			if (FixWorlds != null && LevelInfos != null) {
 				var levelInfos = LevelInfos;
 				foreach (var world in FixWorlds) {
@@ -425,7 +439,7 @@ namespace R1Engine
 							UnityEngine.Debug.LogWarning($"Loading fix world with name {world} as a regular map world");
 							break;
 						}
-						var fixWorldList = await LoadWorldList(context, fixKey, isFix: true);
+						var fixWorldList = await LoadWorldList(context, fixKey, loadFlags, isFix: true);
 					} else {
 						UnityEngine.Debug.LogWarning($"Fix world with name {world} could not be found");
 					}
@@ -433,7 +447,7 @@ namespace R1Engine
 			}
 		}
 
-		public async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey) 
+		public async UniTask<LOA_Loader> LoadJadeAsync(Context context, Jade_Key worldKey, LoadFlags loadFlags) 
         {
             List<BIG_BigFile> bfs = new List<BIG_BigFile>();
 			foreach (var bfPath in BFFiles) {
@@ -461,18 +475,22 @@ namespace R1Engine
 			AI_Links aiLinks = AI_Links.GetAILinks(context.GetR1Settings());
 			context.StoreObject<AI_Links>(AIKey, aiLinks);
 
-			// Load universe
-			var univers = await LoadUniverse(context);
+			if (loadFlags.HasFlag(LoadFlags.Universe)) {
+				// Load universe
+				var univers = await LoadUniverse(context);
+			}
 
-			// Load world
-			Controller.DetailedState = $"Loading worlds";
-			await Controller.WaitIfNecessary();
+			if (loadFlags.HasFlag(LoadFlags.Maps) || loadFlags.HasFlag(LoadFlags.Textures)) {
+				// Load world
+				Controller.DetailedState = $"Loading worlds";
+				await Controller.WaitIfNecessary();
 
-			await LoadFix(context, worldKey);
-			if (isWOW) {
-				var world = await LoadWorld(context, worldKey);
-			} else {
-				var worldList = await LoadWorldList(context, worldKey);
+				await LoadFix(context, worldKey, loadFlags);
+				if (isWOW) {
+					var world = await LoadWorld(context, worldKey);
+				} else {
+					var worldList = await LoadWorldList(context, worldKey, loadFlags);
+				}
 			}
 
 			return loader;
@@ -524,6 +542,17 @@ namespace R1Engine
 
 			public string WorldName { get; }
 			public string MapName { get; }
+		}
+
+		[Flags]
+		public enum LoadFlags : uint {
+			None = 0,
+			Universe = 1 << 0,
+			Maps = 1 << 1,
+			Textures = 1 << 2,
+			Text = 1 << 3,
+			Sound = 1 << 4,
+			All = (uint)0xFFFFFFFF
 		}
     }
 }
