@@ -319,7 +319,6 @@ namespace R1Engine.Jade {
 				}*/
 				if (!currentRef.Flags.HasFlag(ReferenceFlags.IsIrregularFileFormat)) {
 					if (ReadBinFileHeader) {
-
 						BinFileHeader = s.SerializeObject<LOA_BinFileHeader>(BinFileHeader, name: nameof(BinFileHeader));
 
 						if (BinFileHeader.Key != null) {

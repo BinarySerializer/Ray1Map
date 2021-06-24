@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using R1Engine.Jade;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,18 +20,28 @@ namespace R1Engine
 				var kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Value.FileName.EndsWith(".wol"));
 				string mapName = null;
 				string worldName = null;
+				uint? overrideKey = null;
 				LevelInfo.FileType? fileType = null;
 				if (kvpair.Value == null) {
 					kvpair = g.FirstOrDefault(f => f.Value.FileName != null && f.Key.Type == Jade_Key.KeyType.Map);
 
 					if (kvpair.Value != null) {
 						if(kvpair.Value.DirectoryName == "ROOT/Bin") {
-							string FilenamePattern = @"^(?<name>.*)_(?<type>(wow|wol|oin))_(?<key>[0-9a-f]{1,8}).bin";
+							string FilenamePattern = @"^(?<name>.*)_(?<type>(wow|wol|oin))(?<optionalKey> \[0X(?<actualKey>[0-9a-f]{1,8})\])?_(?<key>[0-9a-f]{1,8}).bin";
 							Match m = Regex.Match(kvpair.Value.FileName, FilenamePattern, RegexOptions.IgnoreCase);
 							if (m.Success) {
 								var name = m.Groups["name"].Value;
 								var keyStr = m.Groups["key"].Value;
 								var type = m.Groups["type"].Value;
+								var optionalKey = m.Groups["actualKey"];
+								if (optionalKey.Success) {
+									var hex = optionalKey.Value;
+									uint actualKey = 0;
+									bool parsedSuccessfully = uint.TryParse(hex, System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture, out actualKey);
+									if (Jade_Key.GetBinaryForKey(l.Context, actualKey, Jade_Key.KeyType.Map) == Jade_Key.GetBinaryForKey(l.Context, g.Key, Jade_Key.KeyType.Map)) {
+										overrideKey = actualKey;
+									}
+								}
 								if (type.ToLower() == "oin") {
 									continue;
 								} else {
@@ -47,8 +58,8 @@ namespace R1Engine
 				//if (kvpair.Value != null) {
 				//	Debug.Log($"{g.Key:X8} - {kvpair.Value.FilePath }");
 				//}
-				levels.Add(new KeyValuePair<uint, LevelInfo>(g.Key, new LevelInfo(
-					g.Key,
+				levels.Add(new KeyValuePair<uint, LevelInfo>(overrideKey ?? g.Key, new LevelInfo(
+					overrideKey ?? g.Key,
 					kvpair.Value?.DirectoryName ?? "null",
 					kvpair.Value?.FileName ?? "null",
 					worldName: worldName,
