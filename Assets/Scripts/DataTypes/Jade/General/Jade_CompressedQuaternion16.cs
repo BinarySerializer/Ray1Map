@@ -14,7 +14,7 @@ namespace R1Engine.Jade {
 			W = s.Serialize<short>(W, name: nameof(W));
 		}
 		public override string ToString() {
-			return $"CompressedQuaternion({X}, {Y}, {Z}, {W})";
+			return $"CompressedQuaternion16({X}, {Y}, {Z}, {W})";
 		}
 
 		public override bool IsShortLog => true;

@@ -25,8 +25,8 @@ namespace R1Engine.Jade {
 		public Jade_Reference<COL_Instance> COL_Instance { get; set; }
 		public Jade_Reference<COL_ColMap> COL_ColMap { get; set; }
 
-		public uint PhoenixMtl_V12 { get; set; }
-		public uint PhoenixMtl_V14 { get; set; }
+		public uint PhoenixMontreal_V12 { get; set; }
+		public uint PhoenixMontreal_V14 { get; set; }
 		public uint NameLength { get; set; }
 		public string Name { get; set; }
 		public uint UInt_AfterName_00 { get; set; }
@@ -35,7 +35,7 @@ namespace R1Engine.Jade {
 		public uint UInt_AfterName_Editor_04 { get; set; }
 		public uint UInt_AfterName_Editor_08 { get; set; }
 		public uint UInt_AfterName_Editor_0C { get; set; }
-		public long PhoenixMtl_V12_Long { get; set; }
+		public long PhoenixMontreal_V12_Long { get; set; }
 
 		public bool IsInitialized { get; set; }
 
@@ -53,8 +53,8 @@ namespace R1Engine.Jade {
 			UInt_04 = s.Serialize<uint>(UInt_04, name: nameof(UInt_04));
 			FlagsIdentity = s.Serialize<OBJ_GameObject_IdentityFlags>(FlagsIdentity, name: nameof(FlagsIdentity));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
-				if (Version >= 12) PhoenixMtl_V12 = s.Serialize<uint>(PhoenixMtl_V12, name: nameof(PhoenixMtl_V12));
-				if (Version >= 14) PhoenixMtl_V14 = s.Serialize<uint>(PhoenixMtl_V14, name: nameof(PhoenixMtl_V14));
+				if (Version >= 12) PhoenixMontreal_V12 = s.Serialize<uint>(PhoenixMontreal_V12, name: nameof(PhoenixMontreal_V12));
+				if (Version >= 14) PhoenixMontreal_V14 = s.Serialize<uint>(PhoenixMontreal_V14, name: nameof(PhoenixMontreal_V14));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version >= 2) {
 				NameLength = s.Serialize<uint>(NameLength, name: nameof(NameLength));
@@ -111,7 +111,7 @@ namespace R1Engine.Jade {
 				UInt_AfterName_Editor_0C = s.Serialize<uint>(UInt_AfterName_Editor_0C, name: nameof(UInt_AfterName_Editor_0C));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
-				if (Version > 12) PhoenixMtl_V12_Long = s.Serialize<long>(PhoenixMtl_V12_Long, name: nameof(PhoenixMtl_V12_Long));
+				if (Version > 12) PhoenixMontreal_V12_Long = s.Serialize<long>(PhoenixMontreal_V12_Long, name: nameof(PhoenixMontreal_V12_Long));
 			}
 		}
 	}

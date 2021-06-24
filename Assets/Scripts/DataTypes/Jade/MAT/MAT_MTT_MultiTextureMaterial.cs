@@ -27,12 +27,12 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_NCIS) || !Loader.IsBinaryData) {
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) || !Loader.IsBinaryData) {
 				Ambiant = s.SerializeObject<Jade_Color>(Ambiant, name: nameof(Ambiant));
 				Diffuse = s.SerializeObject<Jade_Color>(Diffuse, name: nameof(Diffuse));
 			}
 			Specular = s.SerializeObject<Jade_Color>(Specular, name: nameof(Specular));
-			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_NCIS)) {
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
 				SpecularExp = s.Serialize<uint>(SpecularExp, name: nameof(SpecularExp));
 			} else {
 				if (ObjectVersion < 8) {
@@ -43,7 +43,7 @@ namespace R1Engine.Jade {
 					SpecularExp = s.Serialize<uint>(SpecularExp, name: nameof(SpecularExp));
 				}
 			}
-			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_NCIS) || !Loader.IsBinaryData) {
+			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) || !Loader.IsBinaryData) {
 				Opacity = s.Serialize<float>(Opacity, name: nameof(Opacity));
 			}
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));

@@ -57,6 +57,8 @@ namespace R1Engine.Jade {
 		GAO_ModifierAnimatedPAG = 44,
 		GAO_ModifierAnimatedGAO = 45,
 
+		GAO_ModifierCharacterFX = 47,
+
 		GAO_ModifierMotionBlur = 51,
 		GAO_ModifierAlphaFade = 52,
 		GAO_ModifierAlphaOccluder = 53,

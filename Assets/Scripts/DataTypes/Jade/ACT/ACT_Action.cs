@@ -46,7 +46,7 @@ namespace R1Engine.Jade
             {
 			    LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-                if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT) {
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
                     TrackLists = s.SerializeObjectArray<Jade_Reference<EVE_ListTracks>>(TrackLists, 8, name: nameof(TrackLists))?.Resolve();
 					Float_00 = s.Serialize<float>(Float_00, name: nameof(Float_00));
 				} else {

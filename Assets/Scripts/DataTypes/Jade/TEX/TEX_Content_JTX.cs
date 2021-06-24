@@ -75,11 +75,11 @@ namespace R1Engine.Jade
             }
 
             if (Texture.IsContent) {
-                if (s.GetR1Settings().EngineVersion != EngineVersion.Jade_PoP_SoT || !Loader.IsBinaryData) {
+                if (s.GetR1Settings().Platform != Platform.PS2|| !Loader.IsBinaryData) {
                     Content = s.SerializeArray<byte>(Content, BPP * Height * Width / 8 + MipmapSize, name: nameof(Content));
                 }
 
-                if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT && Version >= 2) {
+                if (s.GetR1Settings().Platform == Platform.PS2 && Version >= 2) {
                     PS2_UInt0 = s.Serialize<uint>(PS2_UInt0, name: nameof(PS2_UInt0));
                     if (PS2_UInt0 == 0) return;
                     PS2_UInt1 = s.Serialize<uint>(PS2_UInt1, name: nameof(PS2_UInt1));

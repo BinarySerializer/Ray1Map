@@ -19,6 +19,7 @@ namespace R1Engine.Jade
 
         public Jade_Quaternion Quaternion { get; set; }
         public Jade_CompressedQuaternion16 CompressedQuaternion16 { get; set; }
+        public Jade_CompressedQuaternion10 CompressedQuaternion10 { get; set; }
         public Jade_Matrix Matrix { get; set; }
         public Jade_Vector Vector0 { get; set; }
         public Jade_Vector Vector1 { get; set; }
@@ -117,7 +118,11 @@ namespace R1Engine.Jade
                         case 0:
                             if (Type.HasFlag(TypeFlags.Flag_4)) {
                                 if (Loader.IsBinaryData) {
-									CompressedQuaternion16 = s.SerializeObject<Jade_CompressedQuaternion16>(CompressedQuaternion16, name: nameof(CompressedQuaternion16));
+                                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+										CompressedQuaternion10 = s.SerializeObject<Jade_CompressedQuaternion10>(CompressedQuaternion10, name: nameof(CompressedQuaternion10));
+									} else {
+                                        CompressedQuaternion16 = s.SerializeObject<Jade_CompressedQuaternion16>(CompressedQuaternion16, name: nameof(CompressedQuaternion16));
+                                    }
 								} else {
                                     Quaternion = s.SerializeObject<Jade_Quaternion>(Quaternion, name: nameof(Quaternion));
                                 }
