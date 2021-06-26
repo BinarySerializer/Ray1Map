@@ -26,6 +26,7 @@ namespace R1Engine.Jade
         public uint PS2_IsSwizzled { get; set; }
         public uint PS2_Size { get; set; }
         public TEX_Content_JTX_PS2 PS2_Content { get; set; }
+        public uint PS2_ExtraUInt_Phoenix { get; set; }
 
         public byte[] Content { get; set; }
 
@@ -87,6 +88,9 @@ namespace R1Engine.Jade
                     PS2_IsSwizzled = s.Serialize<uint>(PS2_IsSwizzled, name: nameof(PS2_IsSwizzled));
                     PS2_Size = s.Serialize<uint>(PS2_Size, name: nameof(PS2_Size));
 					PS2_Content = s.SerializeObject<TEX_Content_JTX_PS2>(PS2_Content, onPreSerialize: cont => cont.JTX = this, name: nameof(PS2_Content));
+                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+						PS2_ExtraUInt_Phoenix = s.Serialize<uint>(PS2_ExtraUInt_Phoenix, name: nameof(PS2_ExtraUInt_Phoenix));
+					}
                 }
             }
 		}

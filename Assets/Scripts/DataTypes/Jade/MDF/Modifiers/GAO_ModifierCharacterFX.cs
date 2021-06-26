@@ -22,6 +22,8 @@ namespace R1Engine.Jade {
 		public CharacterFX_AlphaManager[] AlphaManagers { get; set; }
 		public CharacterFX_BeamManager[] BeamManagers { get; set; }
 		public CharacterFX_SoundManager[] SoundManagers { get; set; }
+		public CharacterFX_AfterEffectManager[] AfterEffectManagers { get; set; }
+		public CharacterFX_LightManager[] LightManagers { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
@@ -46,7 +48,8 @@ namespace R1Engine.Jade {
 			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
 				if (Version >= 2) BeamManagers = s.SerializeObjectArray<CharacterFX_BeamManager>(BeamManagers, TotalBeamManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(BeamManagers));
 				if (Version >= 3) SoundManagers = s.SerializeObjectArray<CharacterFX_SoundManager>(SoundManagers, TotalSoundManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(SoundManagers));
-				throw new NotImplementedException($"TODO: Implement {GetType()}");
+				if (Version >= 5) AfterEffectManagers = s.SerializeObjectArray<CharacterFX_AfterEffectManager>(AfterEffectManagers, TotalAfterEffectManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(AfterEffectManagers));
+				if (Version >= 32) LightManagers = s.SerializeObjectArray<CharacterFX_LightManager>(LightManagers, TotalLightManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(LightManagers));
 			}
 			throw new NotImplementedException($"TODO: Implement {GetType()}");
 		}
@@ -57,7 +60,7 @@ namespace R1Engine.Jade {
 			public int Id { get; set; }
 			public int AnimationChannelID { get; set; }
 			public ParticleFlags Flags { get; set; }
-			public Jade_Vector ParticleManagerOffset { get; set; }
+			public Jade_Vector ParticleOffset { get; set; }
 			public Jade_Vector OrientationOffset { get; set; }
 			public string Name { get; set; }
 			public Jade_Key PAG { get; set; }
@@ -72,7 +75,7 @@ namespace R1Engine.Jade {
 				Id = s.Serialize<int>(Id, name: nameof(Id));
 				AnimationChannelID = s.Serialize<int>(AnimationChannelID, name: nameof(AnimationChannelID));
 				Flags = s.Serialize<ParticleFlags>(Flags, name: nameof(Flags));
-				ParticleManagerOffset = s.SerializeObject<Jade_Vector>(ParticleManagerOffset, name: nameof(ParticleManagerOffset));
+				ParticleOffset = s.SerializeObject<Jade_Vector>(ParticleOffset, name: nameof(ParticleOffset));
 				OrientationOffset = s.SerializeObject<Jade_Vector>(OrientationOffset, name: nameof(OrientationOffset));
 				if(!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 				PAG = s.SerializeObject<Jade_Key>(PAG, name: nameof(PAG));
@@ -139,7 +142,7 @@ namespace R1Engine.Jade {
 			public int Id { get; set; }
 			public int AnimationChannelID { get; set; }
 			public BeamFlags Flags { get; set; }
-			public Jade_Vector BeamManagerOffset { get; set; }
+			public Jade_Vector BeamOffset { get; set; }
 			public Jade_Vector OrientationOffset { get; set; }
 			public string Name { get; set; }
 			public Jade_Key Beam { get; set; }
@@ -159,7 +162,7 @@ namespace R1Engine.Jade {
 				Id = s.Serialize<int>(Id, name: nameof(Id));
 				AnimationChannelID = s.Serialize<int>(AnimationChannelID, name: nameof(AnimationChannelID));
 				Flags = s.Serialize<BeamFlags>(Flags, name: nameof(Flags));
-				BeamManagerOffset = s.SerializeObject<Jade_Vector>(BeamManagerOffset, name: nameof(BeamManagerOffset));
+				BeamOffset = s.SerializeObject<Jade_Vector>(BeamOffset, name: nameof(BeamOffset));
 				OrientationOffset = s.SerializeObject<Jade_Vector>(OrientationOffset, name: nameof(OrientationOffset));
 				if (!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 				Beam = s.SerializeObject<Jade_Key>(Beam, name: nameof(Beam));
@@ -269,6 +272,164 @@ namespace R1Engine.Jade {
 				Ambiance_2D = 0x1f,
 				Volumetric = 0x20,
 				Count = 0x21,
+			}
+		}
+
+		public class CharacterFX_AfterEffectManager : BinarySerializable {
+			public GAO_ModifierCharacterFX CharacterFX { get; set; }
+
+			public AfterEffectFlags Flags { get; set; }
+			public int Id { get; set; }
+			public AfterEffectType AEType { get; set; }
+			public Jade_Vector Vector { get; set; }
+			public float Duration { get; set; }
+
+			public CharacterFX_ColorOperation_Params ColorOperationParams { get; set; }
+			public CharacterFX_MotionBlur_Params MotionBlurParams { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
+				Flags = s.Serialize<AfterEffectFlags>(Flags, name: nameof(Flags));
+				Id = s.Serialize<int>(Id, name: nameof(Id));
+				AEType = s.Serialize<AfterEffectType>(AEType, name: nameof(AEType));
+				if (CharacterFX.Version < 31) Vector = s.SerializeObject<Jade_Vector>(Vector, name: nameof(Vector));
+				Duration = s.Serialize<float>(Duration, name: nameof(Duration));
+
+				if (CharacterFX.Version >= 14) {
+					switch (AEType) {
+						case AfterEffectType.ColorOperation:
+							ColorOperationParams = s.SerializeObject<CharacterFX_ColorOperation_Params>(ColorOperationParams, onPreSerialize: p => p.Manager = this, name: nameof(ColorOperationParams));
+							break;
+						case AfterEffectType.MotionBlur:
+							MotionBlurParams = s.SerializeObject<CharacterFX_MotionBlur_Params>(MotionBlurParams, onPreSerialize: p => p.Manager = this, name: nameof(MotionBlurParams));
+							break;
+					}
+				}
+			}
+
+			[Flags]
+			public enum AfterEffectFlags : uint {
+				None = 0,
+				Frozen = 1 << 0,
+				Trigger = 1 << 1,
+				Active = 1 << 2,
+				// Rest is unused
+			}
+
+			// Taken from PoP:TFS Wii
+			public enum AfterEffectType : uint {
+				None = 0,
+				ColorOperation = 1,
+				MotionBlur = 2,
+				Count = 3
+			}
+
+
+			public class CharacterFX_ColorOperation_Params : BinarySerializable {
+				public CharacterFX_AfterEffectManager Manager { get; set; }
+
+				public ColorOperationFlags Flags { get; set; }
+				public float ContrastFactor { get; set; }
+				public float BrightnessFactor { get; set; }
+				public Jade_Vector ColorVector { get; set; }
+				public Jade_Color Color { get; set; }
+				public float BirthTime { get; set; }
+				public float LifeTime { get; set; }
+				public float DeathTime { get; set; }
+
+				public Jade_Vector MonochromaticColorVector { get; set; }
+				public Jade_Color MonochromaticColor { get; set; }
+				public float ColorBalance_Intensity { get; set; }
+				public float ColorBalance_Spectre { get; set; }
+
+				public override void SerializeImpl(SerializerObject s) {
+					Flags = s.Serialize<ColorOperationFlags>(Flags, name: nameof(Flags));
+					ContrastFactor = s.Serialize<float>(ContrastFactor, name: nameof(ContrastFactor));
+					BrightnessFactor = s.Serialize<float>(BrightnessFactor, name: nameof(BrightnessFactor));
+					if (Manager.CharacterFX.Version == 14) {
+						ColorVector = s.SerializeObject<Jade_Vector>(ColorVector, name: nameof(ColorVector));
+					} else if (Manager.CharacterFX.Version > 14) {
+						Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
+					}
+					BirthTime = s.Serialize<float>(BirthTime, name: nameof(BirthTime));
+					LifeTime = s.Serialize<float>(LifeTime, name: nameof(LifeTime));
+					DeathTime = s.Serialize<float>(DeathTime, name: nameof(DeathTime));
+
+					if (Manager.CharacterFX.Version >= 17) {
+						if (Manager.CharacterFX.Version >= 29) {
+							MonochromaticColor = s.SerializeObject<Jade_Color>(MonochromaticColor, name: nameof(MonochromaticColor));
+						} else {
+							MonochromaticColorVector = s.SerializeObject<Jade_Vector>(MonochromaticColorVector, name: nameof(MonochromaticColorVector));
+						}
+					}
+					if (Manager.CharacterFX.Version >= 24) {
+						ColorBalance_Intensity = s.Serialize<float>(ColorBalance_Intensity, name: nameof(ColorBalance_Intensity));
+						ColorBalance_Spectre = s.Serialize<float>(ColorBalance_Spectre, name: nameof(ColorBalance_Spectre));
+					}
+				}
+
+				[Flags]
+				public enum ColorOperationFlags : uint {
+					None = 0,
+					Contrast = 1 << 0,
+					Brightness = 1 << 1,
+					Colorize = 1 << 2,
+					Monochromatic = 1 << 3,
+					ColorBalance = 1 << 4,
+					// Rest is unused
+				}
+
+				// Taken from PoP:TFS Wii
+				public enum AfterEffectType : uint {
+					None = 0,
+					ColorOperation = 1,
+					MotionBlur = 2,
+					Count = 3
+				}
+			}
+
+			public class CharacterFX_MotionBlur_Params : BinarySerializable {
+				public CharacterFX_AfterEffectManager Manager { get; set; }
+
+				public float Value { get; set; }
+				public float Duration { get; set; }
+
+				public override void SerializeImpl(SerializerObject s) {
+					Value = s.Serialize<float>(Value, name: nameof(Value));
+					Duration = s.Serialize<float>(Duration, name: nameof(Duration));
+				}
+			}
+		}
+
+		public class CharacterFX_LightManager : BinarySerializable {
+			public GAO_ModifierCharacterFX CharacterFX { get; set; }
+
+			public int Id { get; set; }
+			public int AnimationChannelID { get; set; }
+			public LightFlags Flags { get; set; }
+			public Jade_Vector LightOffset { get; set; }
+			public string Name { get; set; }
+			public Jade_Key Target { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
+				Id = s.Serialize<int>(Id, name: nameof(Id));
+				AnimationChannelID = s.Serialize<int>(AnimationChannelID, name: nameof(AnimationChannelID));
+				Flags = s.Serialize<LightFlags>(Flags, name: nameof(Flags));
+				LightOffset = s.SerializeObject<Jade_Vector>(LightOffset, name: nameof(LightOffset));
+				if (!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+				Target = s.SerializeObject<Jade_Key>(Target, name: nameof(Target));
+			}
+
+			[Flags]
+			public enum LightFlags : uint {
+				None = 0,
+				Frozen = 1 << 0,
+				Trigger = 1 << 1,
+				Active = 1 << 2,
+				// Rest is unused
 			}
 		}
 	}

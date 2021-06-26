@@ -311,7 +311,7 @@ namespace R1Engine.Jade {
 					ZMaxRotationStrength = s.Serialize<float>(ZMaxRotationStrength, name: nameof(ZMaxRotationStrength));
 					FrictionRotation = s.Serialize<float>(FrictionRotation, name: nameof(FrictionRotation));
 
-                    if (Version >= 32) {
+                    if (Version >= 32 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
                         ZMinRotationStrengthY = s.Serialize<float>(ZMinRotationStrengthY, name: nameof(ZMinRotationStrengthY));
                         ZMaxRotationStrengthY = s.Serialize<float>(ZMaxRotationStrengthY, name: nameof(ZMaxRotationStrengthY));
                         FrictionRotationY = s.Serialize<float>(FrictionRotationY, name: nameof(FrictionRotationY));
@@ -426,7 +426,10 @@ namespace R1Engine.Jade {
 				if (Version >= 19) PoolsCount = s.Serialize<int>(PoolsCount, name: nameof(PoolsCount));
                 if (Version >= 22) {
                     AttractorType = s.Serialize<byte>(AttractorType, name: nameof(AttractorType));
-					if (Version >= 28) Attractor = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Attractor, name: nameof(Attractor))?.Resolve();
+					if (Version >= 28) Attractor = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Attractor, name: nameof(Attractor));
+                    if (Attractor != null && !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+                        Attractor?.Resolve();
+                    }
 					AttractorParam1 = s.Serialize<float>(AttractorParam1, name: nameof(AttractorParam1));
                     AttractorParam2 = s.Serialize<float>(AttractorParam2, name: nameof(AttractorParam2));
                     AttractorParam3 = s.Serialize<float>(AttractorParam3, name: nameof(AttractorParam3));
