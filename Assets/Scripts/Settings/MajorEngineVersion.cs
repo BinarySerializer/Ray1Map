@@ -16,5 +16,6 @@
         Gameloft,       // Gameloft (Java)
         Jade,           // Jade Engine
         GEN,            // GEN Engine
+        GBAKlonoa,      // Klonoa (GBA)
     }
 }

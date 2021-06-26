@@ -120,5 +120,9 @@
         // GEN
 
         GEN_RaymanEveil,
+
+        // Klonoa GBA
+
+        KlonoaGBA_EmpireOfDreams,
     }
 }

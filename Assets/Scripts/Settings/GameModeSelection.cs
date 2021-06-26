@@ -765,8 +765,17 @@ namespace R1Engine {
         #endregion
 
         #region GEN
+
         [GameMode(MajorEngineVersion.GEN, EngineVersion.GEN, Game.GEN_RaymanEveil, "Rayman Eveil (PC)", typeof(GEN_BaseManager), Platform.PC)]
         RaymanEveilPC,
+
+        #endregion
+
+        #region GBA Klonoa
+
+        [GameMode(MajorEngineVersion.GBAKlonoa, EngineVersion.KlonoaGBA, Game.KlonoaGBA_EmpireOfDreams, "Klonoa Empire of Dreams (GBA - US)", typeof(GBAKlonoa_Manager), Platform.GBA)]
+        KlonoaEmpireOfDreamsGBA,
+
         #endregion
     }
 }

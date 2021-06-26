@@ -54,6 +54,8 @@ namespace R1Engine
         public bool GBAVV_IsWorldMap { get; set; }
         public bool IsFirstBlock { get; set; }
 
+        public bool Pre_GBAKlonoa_Is8Bit { get; set; }
+
         public GBARRR_MapBlock.MapType GBARRRType { get; set; }
 
         public enum GBA_TileType
@@ -409,6 +411,23 @@ namespace R1Engine
                     TileMapY = (ushort)bitFunc(TileMapY, 7, name: nameof(TileMapY));
                     HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                 });
+            }
+            else if (s.GetR1Settings().MajorEngineVersion == MajorEngineVersion.GBAKlonoa)
+            {
+                if (Pre_GBAKlonoa_Is8Bit)
+                {
+                    TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
+                }
+                else
+                {
+                    s.SerializeBitValues<ushort>(bitFunc =>
+                    {
+                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
+                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                    });
+                }
             }
         }
 

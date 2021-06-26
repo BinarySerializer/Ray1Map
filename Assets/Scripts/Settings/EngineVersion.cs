@@ -169,5 +169,7 @@ namespace R1Engine
         Jade_Naruto2TheBrokenBond,
 
         GEN,
+
+        KlonoaGBA,
     }
 }
