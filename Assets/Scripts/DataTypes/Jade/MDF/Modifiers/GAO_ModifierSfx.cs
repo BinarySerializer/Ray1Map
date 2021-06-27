@@ -44,6 +44,9 @@ namespace R1Engine.Jade
 
         public Jade_Vector Type2_Vector { get; set; }
         public float Type2_Float { get; set; }
+        public float Type2_V22_Float { get; set; }
+        public float Type2_V23_Float { get; set; }
+        public float Type2_V25_Float { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
@@ -105,6 +108,9 @@ namespace R1Engine.Jade
                 case 2:
 					Type2_Vector = s.SerializeObject<Jade_Vector>(Type2_Vector, name: nameof(Type2_Vector));
 					Type2_Float = s.Serialize<float>(Type2_Float, name: nameof(Type2_Float));
+					if (Version >= 22) Type2_V22_Float = s.Serialize<float>(Type2_V22_Float, name: nameof(Type2_V22_Float));
+					if (Version >= 23) Type2_V23_Float = s.Serialize<float>(Type2_V23_Float, name: nameof(Type2_V23_Float));
+					if (Version >= 25) Type2_V25_Float = s.Serialize<float>(Type2_V25_Float, name: nameof(Type2_V25_Float));
 					break;
             }
 		}

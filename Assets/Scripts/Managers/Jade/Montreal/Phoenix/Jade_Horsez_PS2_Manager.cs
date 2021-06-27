@@ -630,7 +630,6 @@
             new LevelInfo(0x0310C9A5, "ROOT/Bin", "PHOTO_350_wow [0X310C9A5]_ff03c9a5.bin", worldName: "WOW", mapName: "PHOTO_350", type: LevelInfo.FileType.WOW),
             new LevelInfo(0x0311A0B6, "ROOT/Bin", "POULAIN_INTERFACE_wol [0X311A0B6]_ff03a0b6.bin", worldName: "WOL", mapName: "POULAIN_INTERFACE", type: LevelInfo.FileType.WOL),
             new LevelInfo(0x0311A0B5, "ROOT/Bin", "POULAIN_INTERFACE_wow [0X311A0B5]_ff03a0b5.bin", worldName: "WOW", mapName: "POULAIN_INTERFACE", type: LevelInfo.FileType.WOW),
-            new LevelInfo(0x0400E7E7, "ROOT/Bin", "PS2_Loading_Bar_bin [0XF402E7E7]_ff04e7e7.bin"),
             new LevelInfo(0x2400287A, "ROOT/Bin", "RTC_100_60_wol [0X2400287A]_ff04287a.bin", worldName: "WOL", mapName: "RTC_100_60", type: LevelInfo.FileType.WOL),
             new LevelInfo(0x24002879, "ROOT/Bin", "RTC_100_60_wow [0X24002879]_ff042879.bin", worldName: "WOW", mapName: "RTC_100_60", type: LevelInfo.FileType.WOW),
             new LevelInfo(0x030E0008, "ROOT/Bin", "RTC_101_04_wol [0X30E0008]_ff030008.bin", worldName: "WOL", mapName: "RTC_101_04", type: LevelInfo.FileType.WOL),
