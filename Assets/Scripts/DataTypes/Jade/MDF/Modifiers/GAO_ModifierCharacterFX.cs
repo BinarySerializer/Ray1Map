@@ -24,6 +24,7 @@ namespace R1Engine.Jade {
 		public CharacterFX_SoundManager[] SoundManagers { get; set; }
 		public CharacterFX_AfterEffectManager[] AfterEffectManagers { get; set; }
 		public CharacterFX_LightManager[] LightManagers { get; set; }
+		public CharacterFX_GroupManager[] GroupManagers { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
@@ -51,7 +52,10 @@ namespace R1Engine.Jade {
 				if (Version >= 5) AfterEffectManagers = s.SerializeObjectArray<CharacterFX_AfterEffectManager>(AfterEffectManagers, TotalAfterEffectManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(AfterEffectManagers));
 				if (Version >= 32) LightManagers = s.SerializeObjectArray<CharacterFX_LightManager>(LightManagers, TotalLightManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(LightManagers));
 			}
-			throw new NotImplementedException($"TODO: Implement {GetType()}");
+			GroupManagers = s.SerializeObjectArray<CharacterFX_GroupManager>(GroupManagers, TotalGroupManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(GroupManagers));
+			if (GroupManagers != null) {
+				foreach(var g in GroupManagers) g?.SerializeElements(s);
+			}
 		}
 
 		public class CharacterFX_ParticleManager : BinarySerializable {
@@ -63,7 +67,7 @@ namespace R1Engine.Jade {
 			public Jade_Vector ParticleOffset { get; set; }
 			public Jade_Vector OrientationOffset { get; set; }
 			public string Name { get; set; }
-			public Jade_Key PAG { get; set; }
+			public Jade_Reference<OBJ_GameObject> PAG { get; set; }
 			public uint TargetObject { get; set; }
 			public int AddToCameraSpace { get; set; } // Boolean
 			public int UseParentMatrix { get; set; } // Boolean
@@ -78,7 +82,7 @@ namespace R1Engine.Jade {
 				ParticleOffset = s.SerializeObject<Jade_Vector>(ParticleOffset, name: nameof(ParticleOffset));
 				OrientationOffset = s.SerializeObject<Jade_Vector>(OrientationOffset, name: nameof(OrientationOffset));
 				if(!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-				PAG = s.SerializeObject<Jade_Key>(PAG, name: nameof(PAG));
+				PAG = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(PAG, name: nameof(PAG))?.Resolve();
 				if (CharacterFX.Version >= 30) TargetObject = s.Serialize<uint>(TargetObject, name: nameof(TargetObject));
 				if (CharacterFX.Version >= 23) AddToCameraSpace = s.Serialize<int>(AddToCameraSpace, name: nameof(AddToCameraSpace));
 				if (CharacterFX.Version >= 25) UseParentMatrix = s.Serialize<int>(UseParentMatrix, name: nameof(UseParentMatrix));
@@ -145,7 +149,7 @@ namespace R1Engine.Jade {
 			public Jade_Vector BeamOffset { get; set; }
 			public Jade_Vector OrientationOffset { get; set; }
 			public string Name { get; set; }
-			public Jade_Key Beam { get; set; }
+			public Jade_Reference<OBJ_GameObject> Beam { get; set; }
 			public int GrowEffect { get; set; } // Boolean
 			public float BirthTime { get; set; }
 			public float LifeTime { get; set; }
@@ -165,7 +169,7 @@ namespace R1Engine.Jade {
 				BeamOffset = s.SerializeObject<Jade_Vector>(BeamOffset, name: nameof(BeamOffset));
 				OrientationOffset = s.SerializeObject<Jade_Vector>(OrientationOffset, name: nameof(OrientationOffset));
 				if (!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-				Beam = s.SerializeObject<Jade_Key>(Beam, name: nameof(Beam));
+				Beam = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Beam, name: nameof(Beam))?.Resolve();
 				if (CharacterFX.Version < 4) GrowEffect = s.Serialize<int>(GrowEffect, name: nameof(GrowEffect));
 				BirthTime = s.Serialize<float>(BirthTime, name: nameof(BirthTime));
 				LifeTime = s.Serialize<float>(LifeTime, name: nameof(LifeTime));
@@ -410,7 +414,7 @@ namespace R1Engine.Jade {
 			public LightFlags Flags { get; set; }
 			public Jade_Vector LightOffset { get; set; }
 			public string Name { get; set; }
-			public Jade_Key Target { get; set; }
+			public Jade_Reference<OBJ_GameObject> Target { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -420,7 +424,7 @@ namespace R1Engine.Jade {
 				Flags = s.Serialize<LightFlags>(Flags, name: nameof(Flags));
 				LightOffset = s.SerializeObject<Jade_Vector>(LightOffset, name: nameof(LightOffset));
 				if (!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-				Target = s.SerializeObject<Jade_Key>(Target, name: nameof(Target));
+				Target = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Target, name: nameof(Target))?.Resolve();
 			}
 
 			[Flags]
@@ -431,6 +435,116 @@ namespace R1Engine.Jade {
 				Active = 1 << 2,
 				// Rest is unused
 			}
+		}
+
+		public class CharacterFX_GroupManager : BinarySerializable {
+			public GAO_ModifierCharacterFX CharacterFX { get; set; }
+
+			public int Id { get; set; }
+			public short ColMatIDsCount { get; set; }
+			public uint[] ColMatIDs { get; set; }
+			public int SpecialFilterValue { get; set; }
+			public int ActionToStartOnOwner { get; set; }
+			public int NumberOfAlphaEffectsInGroup { get; set; }
+			public int NumberOfParticleEffectsInGroup { get; set; }
+			public int NumberOfBeamEffectsInGroup { get; set; }
+			public int NumberOfSoundEffectsInGroup { get; set; }
+			public int NumberOfAfterEffectsInGroup { get; set; }
+			public int NumberOfLightsInGroup { get; set; }
+			public GroupFlags Flags { get; set; }
+			public string Name { get; set; }
+			public float V22_Float { get; set; }
+			public uint V2_Phoenix_Dword { get; set; }
+
+			public CharacterFX_GroupParticleElement[] ParticleEffectElements { get; set; }
+			public CharacterFX_GroupAlphaElement[] AlphaEffectElements { get; set; }
+			public CharacterFX_GroupBeamElement[] BeamEffectElements { get; set; }
+			public CharacterFX_GroupSoundElement[] SoundEffectElements { get; set; }
+			public CharacterFX_GroupAfterEffectElement[] AfterEffectElements { get; set; }
+			public CharacterFX_GroupLightElement[] LightElements { get; set; }
+
+			public override void SerializeImpl(SerializerObject s) {
+				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
+				Id = s.Serialize<int>(Id, name: nameof(Id));
+				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+					if (CharacterFX.Version >= 12) {
+						ColMatIDsCount = s.Serialize<short>(ColMatIDsCount, name: nameof(ColMatIDsCount));
+						ColMatIDs = s.SerializeArray<uint>(ColMatIDs, ColMatIDsCount, name: nameof(ColMatIDs));
+						SpecialFilterValue = s.Serialize<int>(SpecialFilterValue, name: nameof(SpecialFilterValue));
+					}
+					if (CharacterFX.Version >= 27) ActionToStartOnOwner = s.Serialize<int>(ActionToStartOnOwner, name: nameof(ActionToStartOnOwner));
+					NumberOfAlphaEffectsInGroup = s.Serialize<short>((short)NumberOfAlphaEffectsInGroup, name: nameof(NumberOfAlphaEffectsInGroup));
+					NumberOfParticleEffectsInGroup = s.Serialize<short>((short)NumberOfParticleEffectsInGroup, name: nameof(NumberOfParticleEffectsInGroup));
+					if (CharacterFX.Version >= 2) NumberOfBeamEffectsInGroup = s.Serialize<short>((short)NumberOfBeamEffectsInGroup, name: nameof(NumberOfBeamEffectsInGroup));
+					if (CharacterFX.Version >= 3) NumberOfSoundEffectsInGroup = s.Serialize<short>((short)NumberOfSoundEffectsInGroup, name: nameof(NumberOfSoundEffectsInGroup));
+					if (CharacterFX.Version >= 5) NumberOfAfterEffectsInGroup = s.Serialize<short>((short)NumberOfAfterEffectsInGroup, name: nameof(NumberOfAfterEffectsInGroup));
+					if (CharacterFX.Version >= 32) NumberOfLightsInGroup = s.Serialize<short>((short)NumberOfLightsInGroup, name: nameof(NumberOfLightsInGroup));
+				} else {
+					NumberOfAlphaEffectsInGroup = s.Serialize<int>(NumberOfAlphaEffectsInGroup, name: nameof(NumberOfAlphaEffectsInGroup));
+					NumberOfParticleEffectsInGroup = s.Serialize<int>(NumberOfParticleEffectsInGroup, name: nameof(NumberOfParticleEffectsInGroup));
+					if (CharacterFX.Version >= 2) V2_Phoenix_Dword = s.Serialize<uint>(V2_Phoenix_Dword, name: nameof(V2_Phoenix_Dword));
+				}
+				Flags = s.Serialize<GroupFlags>(Flags, name: nameof(Flags));
+				if (!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
+				if (CharacterFX.Version >= 22 && !Loader.IsBinaryData) V22_Float = s.Serialize<float>(V22_Float, name: nameof(V22_Float));
+			}
+
+			public void SerializeElements(SerializerObject s) {
+				ParticleEffectElements = s.SerializeObjectArray<CharacterFX_GroupParticleElement>(ParticleEffectElements, NumberOfParticleEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(ParticleEffectElements));
+				AlphaEffectElements = s.SerializeObjectArray<CharacterFX_GroupAlphaElement>(AlphaEffectElements, NumberOfAlphaEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(AlphaEffectElements));
+				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+					if (CharacterFX.Version >= 2) BeamEffectElements = s.SerializeObjectArray<CharacterFX_GroupBeamElement>(BeamEffectElements, NumberOfBeamEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(BeamEffectElements));
+					if (CharacterFX.Version >= 3) SoundEffectElements = s.SerializeObjectArray<CharacterFX_GroupSoundElement>(SoundEffectElements, NumberOfSoundEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(SoundEffectElements));
+					if (CharacterFX.Version >= 5) AfterEffectElements = s.SerializeObjectArray<CharacterFX_GroupAfterEffectElement>(AfterEffectElements, NumberOfAfterEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(AfterEffectElements));
+					if (CharacterFX.Version >= 32) LightElements = s.SerializeObjectArray<CharacterFX_GroupLightElement>(LightElements, NumberOfLightsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(LightElements));
+				}
+			}
+
+			[Flags]
+			public enum GroupFlags : uint {
+				None = 0,
+				VisualActive = 1 << 0,
+				Frozen = 1 << 1,
+				Trigger = 1 << 2,
+				Active = 1 << 3,
+				// Rest is unused
+			}
+
+			public abstract class CharacterFX_BaseElement : BinarySerializable {
+				public virtual bool HasDuration => true;
+				public CharacterFX_GroupManager Manager { get; set; }
+
+				public int Id { get; set; }
+				public float TriggerDelay { get; set; }
+				public float Duration { get; set; }
+
+				public override void SerializeImpl(SerializerObject s) {
+					Id = s.Serialize<int>(Id, name: nameof(Id));
+					TriggerDelay = s.Serialize<float>(TriggerDelay, name: nameof(TriggerDelay));
+					if(HasDuration) Duration = s.Serialize<float>(Duration, name: nameof(Duration));
+				}
+			}
+			public class CharacterFX_GroupParticleElement : CharacterFX_BaseElement {
+
+				public override bool HasDuration => !Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4) || Manager.CharacterFX.Version >= 1;
+
+				public int ForceStop { get; set; } // Boolean
+				public int StopGenerating { get; set; } // Boolean
+
+				public override void SerializeImpl(SerializerObject s) {
+					base.SerializeImpl(s);
+					if (Manager.CharacterFX.Version >= 20) ForceStop = s.Serialize<int>(ForceStop, name: nameof(ForceStop));
+					if (Manager.CharacterFX.Version >= 21) StopGenerating = s.Serialize<int>(StopGenerating, name: nameof(StopGenerating));
+				}
+			}
+			public class CharacterFX_GroupAlphaElement : CharacterFX_BaseElement {
+				public override bool HasDuration => false;
+			}
+			public class CharacterFX_GroupBeamElement : CharacterFX_BaseElement { }
+			public class CharacterFX_GroupSoundElement : CharacterFX_BaseElement { }
+			public class CharacterFX_GroupAfterEffectElement : CharacterFX_BaseElement { }
+			public class CharacterFX_GroupLightElement : CharacterFX_BaseElement { }
 		}
 	}
 }
