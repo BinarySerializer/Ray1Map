@@ -153,6 +153,11 @@ namespace R1Engine.Jade
                         tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp, 0, 0, (int)Width, (int)Height);
                     }
                     break;
+                case JTX_Format.Raw32:
+                    tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_32bpp_RGBA, 0, 0, (int)Width, (int)Height);
+                    break;
+                default:
+                    throw new NotImplementedException($"TODO: Implement JTX type {Format}");
             }
             return tex;
         }

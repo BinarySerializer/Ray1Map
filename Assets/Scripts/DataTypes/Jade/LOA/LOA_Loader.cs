@@ -351,6 +351,7 @@ namespace R1Engine.Jade {
 						f.Key = currentRef.Key;
 						f.FileSize = FileSize;
 						f.Loader = this;
+						f.BinFileHeader = BinFileHeader;
 						if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
 					});
 				} else {
