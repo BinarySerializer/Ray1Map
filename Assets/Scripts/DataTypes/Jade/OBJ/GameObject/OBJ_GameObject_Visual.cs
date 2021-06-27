@@ -60,6 +60,7 @@ namespace R1Engine.Jade {
 				if (f.RenderObject.Type != GRO_Type.GEO
 				&& f.RenderObject.Type != GRO_Type.PAG
 				&& f.RenderObject.Type != GRO_Type.GEO_StaticLOD
+				&& f.RenderObject.Type != GRO_Type.GEO_SubGeometry
 				&& f.RenderObject.Type != GRO_Type.CAM
 				&& f.RenderObject.Type != GRO_Type.STR
 				&& f.RenderObject.Type != GRO_Type.Unknown) {
