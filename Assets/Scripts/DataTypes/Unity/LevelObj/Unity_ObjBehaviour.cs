@@ -83,6 +83,9 @@ namespace R1Engine
         [HideInInspector]
         public Vector3 midpoint;
 
+        private Vector2 colliderCenter = new Vector2(0,0);
+        private Vector2 colliderSize = new Vector2(1,1);
+
         public AudioClip currentSoundEffect;
         public Unity_Object.ObjectType PrevObjType;
 
@@ -251,8 +254,8 @@ namespace R1Engine
                 if (boxCollider == null) { // Check if object is destroyed
                     boxCollider = null; // Remove the reference. Despite the null check earlier the reference still exists.
                     boxCollider3D = gameObject.AddComponent<BoxCollider>();
-                    boxCollider3D.center = Vector3.zero;
-                    boxCollider3D.size = new Vector3(1,1,0.1f);
+                    boxCollider3D.center = new Vector3(colliderCenter.x, colliderCenter.y);
+                    boxCollider3D.size = new Vector3(colliderSize.x, colliderSize.y,0.1f);
                 }
             }
         }
@@ -587,7 +590,7 @@ namespace R1Engine
                         hasSprites = true;
 
                         Bounds b = part.bounds;
-                        if (boxCollider3D != null) {
+                        if (ObjData is Unity_Object_3D && LevelEditorData.Level?.IsometricData != null) {
                             b = part.sprite?.bounds ?? b;
                             var scl = part.transform.localScale;
                             if (part.flipX) scl.x = scl.x * -1;
@@ -617,13 +620,15 @@ namespace R1Engine
                         centerY = topY / LevelEditorData.Level.PixelsPerUnit - h / 2f;
                         w = Mathf.Abs(w);
                         h = Mathf.Abs(h);
+                        colliderSize = new Vector2(w, h);
+                        colliderCenter = new Vector2(centerX, centerY);
                         if (boxCollider != null) {
-                            boxCollider.size = new Vector2(w, h);
-                            boxCollider.offset = new Vector2(centerX, centerY);
+                            boxCollider.size = colliderSize;
+                            boxCollider.offset = colliderCenter;
 
                         } else if (boxCollider3D != null) {
-                            boxCollider3D.size = new Vector3(w, h, 0.1f);
-                            boxCollider3D.center = new Vector2(centerX, centerY);
+                            boxCollider3D.size = new Vector3(colliderSize.x, colliderSize.y, 0.1f);
+                            boxCollider3D.center = colliderCenter;
                         }
                     }
                 } else {
