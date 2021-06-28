@@ -59,7 +59,7 @@ namespace R1Engine
             var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
 
             // Helper for getting a pointer
-            long getPointer(int index) => GBA_ROMBase.Address_ROM + index * 4;
+            long getPointer(int index) => GBAConstants.Address_ROM + index * 4;
 
             // Keep track of found data
             var foundAnimSets = new List<long>();
@@ -78,7 +78,7 @@ namespace R1Engine
             // Find scripts by finding the name command which is always the first one
             for (int i = 0; i < values.Length - 2; i++)
             {
-                if (values[i] == 5 && values[i + 1] == 1 && values[i + 2] > GBA_ROMBase.Address_ROM && values[i + 2] < GBA_ROMBase.Address_ROM + s.CurrentLength)
+                if (values[i] == 5 && values[i + 1] == 1 && values[i + 2] > GBAConstants.Address_ROM && values[i + 2] < GBAConstants.Address_ROM + s.CurrentLength)
                 {
                     // Serialize the script
                     var script = s.DoAt(new Pointer(getPointer(i), offset.File), () => s.SerializeObject<GBAVV_Script>(default));

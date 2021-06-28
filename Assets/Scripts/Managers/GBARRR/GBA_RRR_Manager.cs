@@ -1673,7 +1673,7 @@ namespace R1Engine
             return loc.Strings.Select((t, i) => new KeyValuePair<string, string[]>(languages[i], t.Where(x => !String.IsNullOrWhiteSpace(x)).ToArray())).ToArray();
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
 
 		#region Hardcoded methods
 		public Dictionary<uint, uint> GetActorGraphicsData(int level, int world) {

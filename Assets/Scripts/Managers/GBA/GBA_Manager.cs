@@ -1402,7 +1402,7 @@ namespace R1Engine
             return output;
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath(context), GBA_ROMBase.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath(context), GBAConstants.Address_ROM);
 
         public enum LevelType
         {

@@ -14,7 +14,7 @@ namespace R1Engine
     public abstract class GBAVV_BaseManager : BaseGameManager
     {
         // Constants
-        public const int CellSize = GBA_ROMBase.TileSize;
+        public const int CellSize = GBAConstants.TileSize;
         public const string GetROMFilePath = "ROM.gba";
 
         // Scripts
@@ -186,7 +186,7 @@ namespace R1Engine
         }
 
         // Load
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
         public async UniTask<Unity_Level> LoadMap2DAsync(Context context, GBAVV_BaseROM rom, GBAVV_Map map, bool hasAssignedObjTypeGraphics = true)
         {
             Controller.DetailedState = "Loading tilesets";
@@ -1030,8 +1030,8 @@ namespace R1Engine
             var values = s.DoAt(offset, () => s.SerializeArray<uint>(default, s.CurrentLength / 4, name: "Values"));
 
             // Helper for getting a pointer
-            long getPointer(int index) => GBA_ROMBase.Address_ROM + index * 4;
-            bool isValidPointer(uint value) => value >= GBA_ROMBase.Address_ROM && value < GBA_ROMBase.Address_ROM + s.CurrentLength;
+            long getPointer(int index) => GBAConstants.Address_ROM + index * 4;
+            bool isValidPointer(uint value) => value >= GBAConstants.Address_ROM && value < GBAConstants.Address_ROM + s.CurrentLength;
 
             // Keep track of found data
             var foundGraphics = new List<long>();

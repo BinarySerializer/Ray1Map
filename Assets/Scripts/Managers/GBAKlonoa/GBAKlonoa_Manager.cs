@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using BinarySerializer;
 using BinarySerializer.GBA;
 using Cysharp.Threading.Tasks;
@@ -10,8 +11,10 @@ namespace R1Engine
 {
     public class GBAKlonoa_Manager : BaseGameManager
     {
-        public const int CellSize = GBA_ROMBase.TileSize;
+        public const int CellSize = GBAConstants.TileSize;
         public const string GetROMFilePath = "ROM.gba";
+
+        public const int FixCount = 0x0D;
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Enumerable.Range(1, 6).Select(w => new GameInfo_World(w, Enumerable.Range(0, 9).ToArray())).ToArray());
 
@@ -19,19 +22,24 @@ namespace R1Engine
         {
             var rom = FileFactory.Read<GBAKlonoa_ROM>(GetROMFilePath, context);
             var settings = context.GetR1Settings();
-            var globalLevel = (settings.World - 1) * 9 + settings.Level;
+            var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
+            var normalLevelIndex = (settings.World - 1) * 7 + (settings.Level - 1);
+            var isMap = settings.Level == 0;
+            var isBoss = settings.Level == 8;
+
+            //GenerateAnimSetTable(context, rom);
 
             Controller.DetailedState = "Loading maps";
             await Controller.WaitIfNecessary();
 
-            var pal_8 = Util.ConvertGBAPalette(rom.MapPalettes[globalLevel]);
-            var pal_4 = Util.ConvertAndSplitGBAPalette(rom.MapPalettes[globalLevel]);
+            var pal_8 = Util.ConvertGBAPalette(rom.MapPalettes[globalLevelIndex]);
+            var pal_4 = Util.ConvertAndSplitGBAPalette(rom.MapPalettes[globalLevelIndex]);
 
             var maps = Enumerable.Range(0, 3).Select(mapIndex =>
             {
-                var width = rom.MapWidths[globalLevel].Widths[mapIndex];
+                var width = rom.MapWidths[globalLevelIndex].Widths[mapIndex];
                 var is8Bit = mapIndex == 2;
-                var map = rom.Maps[globalLevel].Maps[mapIndex];
+                var map = rom.Maps[globalLevelIndex].Maps[mapIndex];
 
                 Func<int, Color[]> getPalFunc = null;
 
@@ -57,7 +65,7 @@ namespace R1Engine
                     TileSet = new Unity_TileSet[]
                     {
                         new Unity_TileSet(Util.ToTileSetTexture(
-                            imgData: rom.TileSets[globalLevel].TileSets[mapIndex],
+                            imgData: rom.TileSets[globalLevelIndex].TileSets[mapIndex],
                             pal: pal_8,
                             encoding: is8Bit ? Util.TileEncoding.Linear_8bpp : Util.TileEncoding.Linear_4bpp,
                             tileWidth: CellSize, 
@@ -72,20 +80,267 @@ namespace R1Engine
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
+            var allAnimSets = rom.FixObjectGraphics.Concat(rom.LevelObjectGraphics[globalLevelIndex]);
+            var allOAMCollections = rom.FixObjectOAMCollections.Concat(rom.LevelObjectOAMCollections[globalLevelIndex]).ToArray();
+            var objPal = Util.ConvertAndSplitGBAPalette(rom.GetLevelObjPal(globalLevelIndex));
+
+            var fixObjects = rom.FixObjects;
+
+            GBAKlonoa_LoadedObject[][] levelObjects;
+            
+            if (isMap)
+            {
+                levelObjects = new GBAKlonoa_LoadedObject[][]
+                {
+                    rom.WorldMapObjectCollection.Objects.Select((x, i) => x.ToLoadedObject((short)i)).ToArray()
+                };
+            }
+            else
+            {
+                levelObjects = Enumerable.Range(0, 5).Select(sector => rom.LevelObjectCollection.Objects.Select((obj, index) => obj.ToLoadedObject((short)(FixCount + index), sector)).ToArray()).ToArray();
+            }
+
             var objmanager = new Unity_ObjectManager_GBAKlonoa(
                 context: context,
-                animSets: new Unity_ObjectManager_GBAKlonoa.AnimSet[0]);
+                animSets: LoadAnimSets(allAnimSets, allOAMCollections, objPal, fixObjects.Concat(levelObjects[0]).ToArray()));
 
-            var objects = Enumerable.Range(0, 5).Select(sector => rom.Objects.Objects.Select(x => new Unity_Object_GBAKlonoa(objmanager, x, sector))).SelectMany(x => x);
+            var objects = new List<Unity_Object>();
 
+            // If we're in an actual level we add Klonoa to each defined start position
+            if (!isMap)
+            {
+                GBAKlonoa_LevelStartInfo[] startInfos;
+
+                // Boss levels have a separate array with a single entry
+                if (isBoss)
+                {
+                    startInfos = new GBAKlonoa_LevelStartInfo[]
+                    {
+                        rom.BossLevelStartInfos[settings.World - 1]
+                    };
+                }
+                else
+                {
+                    startInfos = rom.LevelStartInfos[normalLevelIndex].StartInfos;
+                }
+
+                // Add Klonoa at each start position
+                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), null)));
+            }
+
+            // Add fixed objects, except Klonoa (first one)
+            objects.AddRange(fixObjects.Skip(1).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null)));
+
+            // Add level objects, duplicating them for each sector they appear in (if at 0,0 we assume it's unused in the sector)
+            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => !(x.XPos == 0 && x.YPos == 0)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, x.LevelObj)));
+            
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
-                eventData: new List<Unity_Object>(objects),
+                eventData: objects,
                 cellSize: CellSize,
-                defaultLayer: 2);
+                defaultLayer: 2,
+                isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null);
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+        public Texture2D[] GetAnimFrames(GBAKlonoa_ObjectGraphics objectGraphics, int animIndex, int shapeIndex, Color[] pal)
+        {
+            // Get properties
+            var shape = GBAConstants.TileShapes[shapeIndex];
+            var anim = objectGraphics.Animations[animIndex];
+            var frames = anim.Frames;
+
+            var output = new Texture2D[frames.Length];
+
+            var frameCache = new Dictionary<GBAKlonoa_AnimationFrame, Texture2D>();
+
+            for (int frameIndex = 0; frameIndex < frames.Length; frameIndex++)
+            {
+                GBAKlonoa_AnimationFrame frame = frames[frameIndex];
+
+                if (!frameCache.ContainsKey(frame))
+                {
+                    var tex = TextureHelpers.CreateTexture2D(shape.Width, shape.Height);
+
+                    var tileIndex = 0;
+
+                    for (int y = 0; y < shape.Height; y += CellSize)
+                    {
+                        for (int x = 0; x < shape.Width; x += CellSize)
+                        {
+                            tex.FillInTile(
+                                imgData: frame.ImgData,
+                                imgDataOffset: tileIndex * 0x20,
+                                pal: pal,
+                                encoding: Util.TileEncoding.Linear_4bpp,
+                                tileWidth: CellSize,
+                                flipTextureY: true,
+                                flipTextureX: false,
+                                tileX: x,
+                                tileY: y);
+
+                            tileIndex++;
+                        }
+                    }
+
+                    tex.Apply();
+
+                    frameCache.Add(frame, tex);
+                }
+
+                output[frameIndex] = frameCache[frame];
+            }
+
+            return output;
+        }
+
+        public Unity_ObjectManager_GBAKlonoa.AnimSet LoadAnimSet(GBAKlonoa_ObjectGraphics objectGraphics, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes)
+        {
+            var r = oamCollection.OAMs[0];
+
+            var pal = palettes.ElementAtOrDefault(r.PaletteIndex) ?? Util.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
+
+            return new Unity_ObjectManager_GBAKlonoa.AnimSet(
+                animations: Enumerable.Range(0, objectGraphics.Animations.Length).
+                    Select(animIndex => objectGraphics.Animations[animIndex]?.Frames?.Length == 0 ? null : new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
+                        animFrameFunc: () => GetAnimFrames(objectGraphics, animIndex, r.Shape, pal).Select(x => x.CreateSprite()).ToArray(), 
+                        oamCollection: oamCollection)).ToArray(), 
+                displayName: $"{objectGraphics.AnimationsPointer}", 
+                oamCollection: oamCollection);
+        }
+
+        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, GBAKlonoa_LoadedObject[] objects)
+        {
+            var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
+            var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
+
+            foreach (var animSet in animSets)
+            {
+                var oam = oamCollections[objects[animSet.ObjIndex].OAMIndex];
+
+                if (animSet.AnimationsPointer != null)
+                {
+                    if (!loadedAnimSetsDictionary.ContainsKey(animSet.AnimationsPointer))
+                    {
+                        loadedAnimSetsDictionary[animSet.AnimationsPointer] = LoadAnimSet(animSet, oam, palettes);
+                        loadedAnimSets.Add(loadedAnimSetsDictionary[animSet.AnimationsPointer]);
+                    }
+
+                    loadedAnimSetsDictionary[animSet.AnimationsPointer].ObjIndices.Add(animSet.ObjIndex);
+                }
+                else
+                {
+                    var set = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL ({animSet.Offset})", oam);
+                    set.ObjIndices.Add(animSet.ObjIndex);
+                    loadedAnimSets.Add(set);
+                }
+            }
+
+            return loadedAnimSets.ToArray();
+        }
+
+        public void GenerateAnimSetTable(Context context, GBAKlonoa_ROM rom)
+        {
+            var s = context.Deserializer;
+            var file = rom.Offset.File;
+
+            var levelObjectGraphics = new GBAKlonoa_ObjectGraphics[rom.LevelObjectGraphicsPointers.Length][];
+
+            for (int i = 0; i < levelObjectGraphics.Length; i++)
+            {
+                s.DoAt(rom.LevelObjectGraphicsPointers[i], () =>
+                {
+                    levelObjectGraphics[i] = s.SerializeObjectArrayUntil<GBAKlonoa_ObjectGraphics>(levelObjectGraphics[i], x => x.AnimationsPointerValue == 0, () => new GBAKlonoa_ObjectGraphics(), name: $"{nameof(levelObjectGraphics)}[{i}]");
+                });
+            }
+
+            var fixGraphics1 = s.DoAt(new Pointer(0x0805553c, file), () => s.SerializeObjectArray<GBAKlonoa_ObjectGraphics>(null, 9));
+            var fixGraphics2 = s.DoAt(new Pointer(0x080555a8, file), () => s.SerializeObjectArray<GBAKlonoa_ObjectGraphics>(null, 9));
+
+
+            var str = new StringBuilder();
+
+            var allGraphics = levelObjectGraphics.
+                SelectMany(x => x).
+                Concat(fixGraphics1).
+                Concat(fixGraphics2).
+                Select(x => x.AnimationsPointer).
+                Where(x => x != null).
+                Distinct().
+                OrderBy(x => x.AbsoluteOffset).
+                ToArray();
+
+            foreach (var p in allGraphics)
+            {
+                var index = allGraphics.FindItemIndex(x => x == p) + 1;
+
+                long length = 1;
+
+                if (index < allGraphics.Length)
+                    length = (allGraphics[index].AbsoluteOffset - p.AbsoluteOffset) / 4;
+
+                str.AppendLine($"new AnimSetInfo(0x{p.AbsoluteOffset:X8}, {length}),");
+            }
+
+            str.ToString().CopyToClipboard();
+        }
+
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
+
+        // TODO: Support EU and JP versions
+        public AnimSetInfo[] AnimSetInfos => new AnimSetInfo[]
+        {
+            new AnimSetInfo(0x0818958C, 19),
+            new AnimSetInfo(0x081895D8, 9),
+            new AnimSetInfo(0x081895FC, 3),
+            new AnimSetInfo(0x08189608, 13),
+            new AnimSetInfo(0x0818963C, 12),
+            new AnimSetInfo(0x0818966C, 19),
+            new AnimSetInfo(0x081896B8, 28),
+            new AnimSetInfo(0x08189728, 38),
+            new AnimSetInfo(0x081897C0, 72),
+            new AnimSetInfo(0x081898E0, 4),
+            new AnimSetInfo(0x081898F0, 2),
+            new AnimSetInfo(0x081898F8, 2),
+            new AnimSetInfo(0x08189900, 1),
+            new AnimSetInfo(0x08189904, 3),
+            new AnimSetInfo(0x08189910, 2),
+            new AnimSetInfo(0x08189918, 3),
+            new AnimSetInfo(0x08189924, 1),
+            new AnimSetInfo(0x08189928, 3),
+            new AnimSetInfo(0x08189934, 2),
+            new AnimSetInfo(0x0818993C, 3),
+            new AnimSetInfo(0x08189948, 1),
+            new AnimSetInfo(0x0818994C, 1),
+            new AnimSetInfo(0x08189950, 2),
+            new AnimSetInfo(0x08189958, 1),
+            new AnimSetInfo(0x0818995C, 3),
+            new AnimSetInfo(0x08189968, 3),
+            new AnimSetInfo(0x08189974, 3),
+            new AnimSetInfo(0x08189980, 3),
+            new AnimSetInfo(0x0818998C, 2),
+            new AnimSetInfo(0x08189994, 1),
+            new AnimSetInfo(0x08189998, 1),
+            new AnimSetInfo(0x0818999C, 3),
+            new AnimSetInfo(0x081899A8, 1),
+            new AnimSetInfo(0x081899AC, 19),
+            new AnimSetInfo(0x081899F8, 7),
+            new AnimSetInfo(0x08189A14, 1),
+            new AnimSetInfo(0x08189A18, 1),
+            new AnimSetInfo(0x08189A1C, 1),
+            new AnimSetInfo(0x08189A20, 1),
+        };
+
+        public class AnimSetInfo
+        {
+            public AnimSetInfo(long offset, int animCount)
+            {
+                Offset = offset;
+                AnimCount = animCount;
+            }
+
+            public long Offset { get; }
+            public int AnimCount { get; }
+        }
     }
 }

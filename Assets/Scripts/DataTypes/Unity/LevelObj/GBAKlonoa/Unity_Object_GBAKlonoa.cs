@@ -6,39 +6,52 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_Object_GBAKlonoa : Unity_Object
+    public class Unity_Object_GBAKlonoa : Unity_Object_3D
     {
-        public Unity_Object_GBAKlonoa(Unity_ObjectManager_GBAKlonoa objManager, GBAKlonoa_Object obj, int sectorIndex)
+        public Unity_Object_GBAKlonoa(Unity_ObjectManager_GBAKlonoa objManager, GBAKlonoa_LoadedObject obj, BinarySerializable serializable)
         {
             ObjManager = objManager;
             Object = obj;
-            SectorIndex = sectorIndex;
+            Serializable = serializable;
+
+            AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.ObjIndices.Contains(obj.Index));
         }
 
         public Unity_ObjectManager_GBAKlonoa ObjManager { get; }
-        public GBAKlonoa_Object Object { get; set; }
-        public GBAKlonoa_Object.SectorState SectorState => Object.SectorStates[SectorIndex];
-        public int SectorIndex { get; }
-
+        public GBAKlonoa_LoadedObject Object { get; set; }
+        public BinarySerializable Serializable { get; }
+        public string AdditionalDebug { get; set; }
 
         public override short XPosition
         {
-            get => SectorState.XPos;
-            set => SectorState.XPos = value;
+            get => Object.XPos;
+            set => Object.XPos = value;
         }
 
         public override short YPosition
         {
-            get => SectorState.YPos;
-            set => SectorState.YPos = value;
+            get => Object.YPos;
+            set => Object.YPos = value;
         }
 
-        public override string DebugText => String.Empty;
+        public override Vector3 Position
+        {
+            get => new Vector3(Object.XPos, Object.YPos, Object.ZPos);
+            set
+            {
+                Object.XPos = (short)value.x;
+                Object.YPos = (short)value.y;
+                Object.ZPos = (byte)value.z;
+            }
+        }
+
+        public override string DebugText => $"Index: {Object.Index}{Environment.NewLine}" +
+                                            $"{AdditionalDebug}";
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBAKlonoa.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
 
-        public override BinarySerializable SerializableData => Object;
+        public override BinarySerializable SerializableData => Serializable;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override string PrimaryName => $"Type_{Object.ObjType}";
@@ -61,7 +74,7 @@ namespace R1Engine
         public byte AnimIndex { get; set; }
 
         public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
-        public override int AnimSpeed => 2;
+        public override int AnimSpeed => 4;
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Animation?.AnimFrames;
@@ -75,11 +88,7 @@ namespace R1Engine
 
             private Unity_Object_GBAKlonoa Obj { get; }
 
-            public ushort Type
-            {
-                get => Obj.Object.ObjType;
-                set => Obj.Object.ObjType = (byte)value;
-            }
+            public ushort Type { get; set; }
 
             public int DES
             {

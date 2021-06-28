@@ -75,7 +75,7 @@ namespace R1Engine
                 {
                     settings.World = world;
 
-                    await context.AddMemoryMappedFile(GetROMFilePath(context), GBA_ROMBase.Address_ROM);
+                    await context.AddMemoryMappedFile(GetROMFilePath(context), GBAConstants.Address_ROM);
 
                     int index = 0;
 

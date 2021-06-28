@@ -226,7 +226,7 @@ namespace R1Engine
                         if (cmd.ParamPointer != null)
                             logUnknownCommand(cmd, getAnimString(cmd.ParamPointer));
                         // RAM pointer
-                        else if (cmd.Param >= GBA_ROMBase.Address_WRAM && cmd.Param < GBA_ROMBase.Address_WRAM + 0x40000)
+                        else if (cmd.Param >= GBAConstants.Address_WRAM && cmd.Param < GBAConstants.Address_WRAM + 0x40000)
                             logUnknownCommand(cmd, $"0x{cmd.Param:X8}");
                         // Value
                         else

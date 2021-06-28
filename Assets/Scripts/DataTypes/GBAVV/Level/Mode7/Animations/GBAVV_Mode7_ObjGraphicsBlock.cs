@@ -31,7 +31,7 @@ namespace R1Engine
                     {
                         var offset = animSet.FrameOffsets[frameIndex];
 
-                        var pointer = offset > GBA_ROMBase.Address_ROM ? new Pointer(offset, Offset.File) : baseOffset + offset;
+                        var pointer = offset > GBAConstants.Address_ROM ? new Pointer(offset, Offset.File) : baseOffset + offset;
 
                         var frame = s.DoAt(pointer, () => s.SerializeObject<GBAVV_Mode7_ObjFrame>(default, name: $"{nameof(AnimSets)}[{animSetIndex}].{nameof(animSet.ObjFrames)}[{frameIndex}]"));
 

@@ -329,8 +329,8 @@ namespace R1Engine
             Controller.DetailedState = "Loading maps & tilesets";
             await Controller.WaitIfNecessary();
 
-            const int width = GBA_ROMBase.ScreenWidth / CellSize;
-            const int height = GBA_ROMBase.ScreenHeight / CellSize;
+            const int width = GBAConstants.ScreenWidth / CellSize;
+            const int height = GBAConstants.ScreenHeight / CellSize;
 
             var tilePal = rom.Mode7_GetTilePal(levelInfo);
 
@@ -674,8 +674,8 @@ namespace R1Engine
         {
             var palettes = Util.ConvertAndSplitGBAPalette(pal);
 
-            const int width = GBA_ROMBase.ScreenWidth / CellSize;
-            const int height = GBA_ROMBase.ScreenHeight / CellSize;
+            const int width = GBAConstants.ScreenWidth / CellSize;
+            const int height = GBAConstants.ScreenHeight / CellSize;
             int framesCount = tileMaps.Length;
 
             var tex = TextureHelpers.CreateTexture2D(width * CellSize, height * CellSize * framesCount);

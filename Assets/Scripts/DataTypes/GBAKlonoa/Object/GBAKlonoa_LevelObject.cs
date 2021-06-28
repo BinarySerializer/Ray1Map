@@ -2,16 +2,28 @@
 
 namespace R1Engine
 {
-    public class GBAKlonoa_Object : BinarySerializable
+    public class GBAKlonoa_LevelObject : BinarySerializable
     {
         public SectorState[] SectorStates { get; set; }
-        public byte GraphicsIndex { get; set; }
+        public byte OAMIndex { get; set; }
         public byte ObjType { get; set; }
+
+        public GBAKlonoa_LoadedObject ToLoadedObject(short index, int sectorIndex) => new GBAKlonoa_LoadedObject(
+            index: index, 
+            oamIndex: OAMIndex, 
+            xPos: SectorStates[sectorIndex].XPos, 
+            yPos: SectorStates[sectorIndex].YPos, 
+            value5: SectorStates[sectorIndex].Byte_04, 
+            value6: 0, 
+            value7: SectorStates[sectorIndex].Byte_05, 
+            value8: SectorStates[sectorIndex].Byte_06, 
+            objType: ObjType,
+            levelObj: this);
 
         public override void SerializeImpl(SerializerObject s)
         {
             SectorStates = s.SerializeObjectArray<SectorState>(SectorStates, 5, name: nameof(SectorStates));
-            GraphicsIndex = s.Serialize<byte>(GraphicsIndex, name: nameof(GraphicsIndex));
+            OAMIndex = s.Serialize<byte>(OAMIndex, name: nameof(OAMIndex));
             ObjType = s.Serialize<byte>(ObjType, name: nameof(ObjType));
 
             s.SerializePadding(2, logIfNotNull: true);

@@ -848,7 +848,7 @@ namespace R1Engine
             return texs;
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBA_ROMBase.Address_ROM);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
 
         public async UniTask CreateInitFuncUSToEUTableAsync(GameSettings usSettings, GameSettings euSettings)
         {

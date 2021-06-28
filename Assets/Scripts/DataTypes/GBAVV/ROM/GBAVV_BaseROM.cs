@@ -51,8 +51,8 @@ namespace R1Engine
             // Get the graphics pointers
             var graphicsDataPointers = s.GetR1Settings().EngineVersion >= EngineVersion.GBAVV_CrashFusion && s.GetR1Settings().EngineVersion != EngineVersion.GBAVV_KidsNextDoorOperationSODA ? new uint[]
             {
-                Address_ROM // Dummy pointer
-            }: s.GetR1Settings().GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;
+                GBAConstants.Address_ROM // Dummy pointer
+            } : s.GetR1Settings().GetGameManagerOfType<GBAVV_BaseManager>().GraphicsDataPointers;
 
             // Serialize graphics
             if (Map2D_Graphics == null)
