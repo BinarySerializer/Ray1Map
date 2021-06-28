@@ -26,11 +26,13 @@ namespace R1Engine
                 DisplayName = displayName;
                 OAMCollection = oamCollection;
                 ObjIndices = new List<int>();
+                ObjTypeIndices = new List<int>();
             }
 
             public Animation[] Animations { get; }
             public GBAKlonoa_ObjectOAMCollection OAMCollection { get; }
             public List<int> ObjIndices { get; }
+            public List<int> ObjTypeIndices { get; }
             public string DisplayName { get; }
 
             public class Animation
@@ -58,7 +60,6 @@ namespace R1Engine
                             new Unity_ObjAnimationPart()
                             {
                                 ImageIndex = x,
-                                // TODO: Why do some have multiple ones?
                                 XPosition = OAMCollection.OAMs[0].XPos,
                                 YPosition = OAMCollection.OAMs[0].YPos,
                             }

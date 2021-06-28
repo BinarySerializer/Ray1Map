@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -92,7 +93,7 @@ namespace R1Engine
             {
                 levelObjects = new GBAKlonoa_LoadedObject[][]
                 {
-                    rom.WorldMapObjectCollection.Objects.Select((x, i) => x.ToLoadedObject((short)i)).ToArray()
+                    rom.WorldMapObjectCollection.Objects.Select((x, index) => x.ToLoadedObject((short)(FixCount + index))).ToArray()
                 };
             }
             else
@@ -102,7 +103,13 @@ namespace R1Engine
 
             var objmanager = new Unity_ObjectManager_GBAKlonoa(
                 context: context,
-                animSets: LoadAnimSets(allAnimSets, allOAMCollections, objPal, fixObjects.Concat(levelObjects[0]).ToArray()));
+                animSets: LoadAnimSets(
+                    context: context, 
+                    animSets: allAnimSets, 
+                    oamCollections: allOAMCollections, 
+                    palettes: objPal, 
+                    objects: fixObjects.Concat(levelObjects[0]).ToArray(),
+                    levelTextSpritePointer: isMap || isBoss ? null : rom.LevelTextSpritePointers[normalLevelIndex]));
 
             var objects = new List<Unity_Object>();
 
@@ -125,14 +132,14 @@ namespace R1Engine
                 }
 
                 // Add Klonoa at each start position
-                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), null)));
+                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), null, allOAMCollections[0])));
             }
 
             // Add fixed objects, except Klonoa (first one)
-            objects.AddRange(fixObjects.Skip(1).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null)));
+            objects.AddRange(fixObjects.Skip(1).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
 
             // Add level objects, duplicating them for each sector they appear in (if at 0,0 we assume it's unused in the sector)
-            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => !(x.XPos == 0 && x.YPos == 0)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, x.LevelObj)));
+            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => !(x.XPos == 0 && x.YPos == 0)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, x.LevelObj, allOAMCollections[x.OAMIndex])));
             
             return new Unity_Level(
                 maps: maps,
@@ -143,16 +150,13 @@ namespace R1Engine
                 isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null);
         }
 
-        public Texture2D[] GetAnimFrames(GBAKlonoa_ObjectGraphics objectGraphics, int animIndex, int shapeIndex, Color[] pal)
+        public Texture2D[] GetAnimFrames(GBAKlonoa_AnimationFrame[] frames, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes)
         {
-            // Get properties
-            var shape = GBAConstants.TileShapes[shapeIndex];
-            var anim = objectGraphics.Animations[animIndex];
-            var frames = anim.Frames;
-
             var output = new Texture2D[frames.Length];
 
             var frameCache = new Dictionary<GBAKlonoa_AnimationFrame, Texture2D>();
+
+            var shapes = GBAConstants.SpriteShapes;
 
             for (int frameIndex = 0; frameIndex < frames.Length; frameIndex++)
             {
@@ -160,26 +164,35 @@ namespace R1Engine
 
                 if (!frameCache.ContainsKey(frame))
                 {
-                    var tex = TextureHelpers.CreateTexture2D(shape.Width, shape.Height);
+                    var spriteRects = oamCollection.OAMs.Select(x =>
+                        new RectInt(x.XPos - oamCollection.OAMs[0].XPos, x.YPos - oamCollection.OAMs[0].YPos, shapes[x.Shape].Width, shapes[x.Shape].Height)).ToArray();
+
+                    var tex = TextureHelpers.CreateTexture2D(spriteRects.Max(x => x.xMax), spriteRects.Max(x => x.yMax));
 
                     var tileIndex = 0;
 
-                    for (int y = 0; y < shape.Height; y += CellSize)
+                    for (int spriteIndex = 0; spriteIndex < oamCollection.Count; spriteIndex++)
                     {
-                        for (int x = 0; x < shape.Width; x += CellSize)
-                        {
-                            tex.FillInTile(
-                                imgData: frame.ImgData,
-                                imgDataOffset: tileIndex * 0x20,
-                                pal: pal,
-                                encoding: Util.TileEncoding.Linear_4bpp,
-                                tileWidth: CellSize,
-                                flipTextureY: true,
-                                flipTextureX: false,
-                                tileX: x,
-                                tileY: y);
+                        var oam = oamCollection.OAMs[spriteIndex];
+                        var shape = shapes[oam.Shape];
 
-                            tileIndex++;
+                        for (int y = 0; y < shape.Height; y += CellSize)
+                        {
+                            for (int x = 0; x < shape.Width; x += CellSize)
+                            {
+                                tex.FillInTile(
+                                    imgData: frame.ImgData,
+                                    imgDataOffset: tileIndex * 0x20,
+                                    pal: palettes.ElementAtOrDefault(oam.PaletteIndex) ?? Util.CreateDummyPalette(16).Select(c => c.GetColor()).ToArray(),
+                                    encoding: Util.TileEncoding.Linear_4bpp,
+                                    tileWidth: CellSize,
+                                    flipTextureY: true,
+                                    flipTextureX: false,
+                                    tileX: x + spriteRects[spriteIndex].x,
+                                    tileY: y + spriteRects[spriteIndex].y);
+
+                                tileIndex++;
+                            }
                         }
                     }
 
@@ -196,44 +209,101 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet LoadAnimSet(GBAKlonoa_ObjectGraphics objectGraphics, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes)
         {
-            var r = oamCollection.OAMs[0];
-
-            var pal = palettes.ElementAtOrDefault(r.PaletteIndex) ?? Util.CreateDummyPalette(16).Select(x => x.GetColor()).ToArray();
+            if (oamCollection.Count != 1)
+                Debug.LogWarning($"Animation uses multiple sprites!");
 
             return new Unity_ObjectManager_GBAKlonoa.AnimSet(
                 animations: Enumerable.Range(0, objectGraphics.Animations.Length).
                     Select(animIndex => objectGraphics.Animations[animIndex]?.Frames?.Length == 0 ? null : new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
-                        animFrameFunc: () => GetAnimFrames(objectGraphics, animIndex, r.Shape, pal).Select(x => x.CreateSprite()).ToArray(), 
+                        animFrameFunc: () => GetAnimFrames(objectGraphics.Animations[animIndex].Frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), 
                         oamCollection: oamCollection)).ToArray(), 
                 displayName: $"{objectGraphics.AnimationsPointer}", 
                 oamCollection: oamCollection);
         }
 
-        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, GBAKlonoa_LoadedObject[] objects)
+        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, GBAKlonoa_LoadedObject[] objects, Pointer levelTextSpritePointer)
         {
             var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
             var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
+
+            // Start by adding a null entry to use as default
+            loadedAnimSets.Add(new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL", null));
 
             foreach (var animSet in animSets)
             {
                 var oam = oamCollections[objects[animSet.ObjIndex].OAMIndex];
 
-                if (animSet.AnimationsPointer != null)
+                if (animSet.AnimationsPointer == null) 
+                    continue;
+                
+                if (!loadedAnimSetsDictionary.ContainsKey(animSet.AnimationsPointer))
                 {
-                    if (!loadedAnimSetsDictionary.ContainsKey(animSet.AnimationsPointer))
-                    {
-                        loadedAnimSetsDictionary[animSet.AnimationsPointer] = LoadAnimSet(animSet, oam, palettes);
-                        loadedAnimSets.Add(loadedAnimSetsDictionary[animSet.AnimationsPointer]);
-                    }
+                    loadedAnimSetsDictionary[animSet.AnimationsPointer] = LoadAnimSet(animSet, oam, palettes);
+                    loadedAnimSets.Add(loadedAnimSetsDictionary[animSet.AnimationsPointer]);
+                }
 
-                    loadedAnimSetsDictionary[animSet.AnimationsPointer].ObjIndices.Add(animSet.ObjIndex);
-                }
-                else
+                loadedAnimSetsDictionary[animSet.AnimationsPointer].ObjIndices.Add(animSet.ObjIndex);
+            }
+
+            var s = context.Deserializer;
+            var file = context.GetFile(GetROMFilePath);
+            var specialAnimIndex = 0;
+            var shapes = GBAConstants.SpriteShapes;
+
+            IEnumerable<SpecialAnimation> specialAnims = SpecialAnimations;
+
+            // Manually append the level text to the special animations
+            if (levelTextSpritePointer != null)
+                specialAnims = specialAnims.Append(new SpecialAnimation(new long[]
                 {
-                    var set = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL ({animSet.Offset})", oam);
-                    set.ObjIndices.Add(animSet.ObjIndex);
-                    loadedAnimSets.Add(set);
+                    levelTextSpritePointer.AbsoluteOffset
+                }, true, 12));
+
+            // Load special animations. These are all manually loaded into VRAM by the game.
+            foreach (var specialAnim in specialAnims)
+            {
+                // Find an object which uses this animation
+                var obj = objects.FirstOrDefault(x => specialAnim.IsFix && x.Index == specialAnim.Index || !specialAnim.IsFix && x.ObjType == specialAnim.Index);
+
+                if (obj == null)
+                    continue;
+
+                var oam = oamCollections[obj.OAMIndex];
+                var imgDataLength = oam.OAMs.Select(o => (shapes[o.Shape].Width / CellSize) * (shapes[o.Shape].Height / CellSize) * 0x20).Sum();
+                var animsPointer = new Pointer(specialAnim.Offset ?? specialAnim.FrameOffsets[0], file);
+
+                Pointer[] framePointers;
+
+                if (specialAnim.Offset != null)
+                    framePointers = s.DoAt(animsPointer, () => s.SerializePointerArray(null, specialAnim.FramesCount, name: $"SpecialAnimations[{specialAnimIndex}]"));
+                else
+                    framePointers = specialAnim.FrameOffsets.Select(p => new Pointer(p, file)).ToArray();
+
+                var frames = new GBAKlonoa_AnimationFrame[framePointers.Length];
+
+                for (int frameIndex = 0; frameIndex < framePointers.Length; frameIndex++)
+                {
+                    var imgData = s.DoAt(framePointers[frameIndex], () => s.SerializeArray<byte>(null, imgDataLength, name: $"SpecialAnimations[{specialAnimIndex}][{frameIndex}]"));
+                    
+                    frames[frameIndex] = new GBAKlonoa_AnimationFrame()
+                    {
+                        ImgData = imgData
+                    };
                 }
+
+                var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
+                {
+                    new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oam, palettes).Select(x => x.CreateSprite()).ToArray(), oam)
+                }, $"{animsPointer}", oam);
+
+                if (specialAnim.IsFix)
+                    animSet.ObjIndices.Add(specialAnim.Index);
+                else
+                    animSet.ObjTypeIndices.Add(specialAnim.Index);
+
+                loadedAnimSets.Add(animSet);
+
+                specialAnimIndex++;
             }
 
             return loadedAnimSets.ToArray();
@@ -330,6 +400,30 @@ namespace R1Engine
             new AnimSetInfo(0x08189A1C, 1),
             new AnimSetInfo(0x08189A20, 1),
         };
+        public SpecialAnimation[] SpecialAnimations => new SpecialAnimation[]
+        {
+            // Fix
+            new SpecialAnimation(new long[]
+            {
+                0x0805c8e8,
+                0x0809ac08
+            }, true, 9), // Klonoa's attack
+            new SpecialAnimation(new long[]
+            {
+                0x0805c968,
+                0x0809ac88,
+            }, true, 10), // Klonoa's attack (small)
+            new SpecialAnimation(new long[]
+            {
+                0x0805c9e8,
+            }, true, 11), // Level text (VISION)
+            
+            // Collectibles
+            new SpecialAnimation(0x0818b9b8, 4, false, 44), // Green gem
+            new SpecialAnimation(0x0818b9c8, 4, false, 45), // Blue gem
+            new SpecialAnimation(0x0818b9d8, 4, false, 7), // Heart
+            new SpecialAnimation(0x0818b9e8, 4, false, 3), // Star
+        };
 
         public class AnimSetInfo
         {
@@ -341,6 +435,29 @@ namespace R1Engine
 
             public long Offset { get; }
             public int AnimCount { get; }
+        }
+
+        public class SpecialAnimation
+        {
+            public SpecialAnimation(long offset, int framesCount, bool isFix, int index)
+            {
+                Offset = offset;
+                FramesCount = framesCount;
+                IsFix = isFix;
+                Index = index;
+            }
+            public SpecialAnimation(long[] frameOffsets, bool isFix, int index)
+            {
+                FrameOffsets = frameOffsets;
+                IsFix = isFix;
+                Index = index;
+            }
+
+            public long[] FrameOffsets { get; }
+            public long? Offset { get; }
+            public int FramesCount { get; }
+            public bool IsFix { get; }
+            public int Index { get; } // If fix this is the object index, otherwise it's the object type
         }
     }
 }

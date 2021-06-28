@@ -30,6 +30,7 @@ namespace R1Engine
         public Pointer[] LevelObjectOAMCollectionPointers { get; set; }
         public GBAKlonoa_ObjectOAMCollection[][] LevelObjectOAMCollections { get; set; }
         public GBAKlonoa_ObjPal[] ObjectPalettes { get; set; }
+        public Pointer[] LevelTextSpritePointers { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -38,6 +39,7 @@ namespace R1Engine
 
             var settings = s.GetR1Settings();
             var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
+            var normalLevelIndex = (settings.World - 1) * 7 + (settings.Level - 1);
             const int normalWorldsCount = 6;
             const int levelsCount = normalWorldsCount * 9; // Map + 7 levels + boss
             const int normalLevelsCount = normalWorldsCount * 7; // 7 levels
@@ -147,6 +149,10 @@ namespace R1Engine
 
             // Serialize object palettes
             s.DoAt(new Pointer(0x08077e28, Offset.File), () => ObjectPalettes = s.SerializeObjectArray<GBAKlonoa_ObjPal>(ObjectPalettes, 141, name: nameof(ObjectPalettes)));
+
+            // Serialize level text sprites
+            if (!isMap && !isBoss)
+                s.DoAt(new Pointer(0x0818b800, Offset.File), () => LevelTextSpritePointers = s.SerializePointerArray(LevelTextSpritePointers, normalLevelsCount, name: nameof(LevelTextSpritePointers)));
         }
 
         public RGBA5551Color[] GetLevelObjPal(int levelIndex)

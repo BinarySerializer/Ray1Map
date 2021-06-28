@@ -8,19 +8,30 @@ namespace R1Engine
 {
     public class Unity_Object_GBAKlonoa : Unity_Object_3D
     {
-        public Unity_Object_GBAKlonoa(Unity_ObjectManager_GBAKlonoa objManager, GBAKlonoa_LoadedObject obj, BinarySerializable serializable)
+        public Unity_Object_GBAKlonoa(Unity_ObjectManager_GBAKlonoa objManager, GBAKlonoa_LoadedObject obj, BinarySerializable serializable, GBAKlonoa_ObjectOAMCollection oamCollection)
         {
             ObjManager = objManager;
             Object = obj;
             Serializable = serializable;
+            OAMCollection = oamCollection;
 
-            AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.ObjIndices.Contains(obj.Index));
+            AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.ObjIndices.Contains(obj.Index) || x.ObjTypeIndices.Contains(obj.ObjType));
+
+            if (AnimSetIndex == -1)
+            {
+                AnimSetIndex = 0;
+                Debug.LogWarning($"No matching animation set found for object {obj.Index} of type {obj.ObjType} and OAM index {obj.OAMIndex}");
+            }
+
+            // Anim 0 is blank by default for these world map objects
+            if (Object.ObjType == 82)
+                AnimIndex = 1;
         }
 
         public Unity_ObjectManager_GBAKlonoa ObjManager { get; }
         public GBAKlonoa_LoadedObject Object { get; set; }
         public BinarySerializable Serializable { get; }
-        public string AdditionalDebug { get; set; }
+        public GBAKlonoa_ObjectOAMCollection OAMCollection { get; }
 
         public override short XPosition
         {
@@ -46,7 +57,10 @@ namespace R1Engine
         }
 
         public override string DebugText => $"Index: {Object.Index}{Environment.NewLine}" +
-                                            $"{AdditionalDebug}";
+                                            String.Join(Environment.NewLine, OAMCollection.OAMs.Select((x, i) =>
+                                                $"Pal_{i}: {x.PaletteIndex}{Environment.NewLine}" +
+                                                $"Tile_{i}: {x.TileIndex}{Environment.NewLine}" +
+                                                $"Shape_{i}: {x.Shape}{Environment.NewLine}"));
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBAKlonoa.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
@@ -74,7 +88,7 @@ namespace R1Engine
         public byte AnimIndex { get; set; }
 
         public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
-        public override int AnimSpeed => 4;
+        public override int AnimSpeed => 6; // TODO: Correct this
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Animation?.AnimFrames;
