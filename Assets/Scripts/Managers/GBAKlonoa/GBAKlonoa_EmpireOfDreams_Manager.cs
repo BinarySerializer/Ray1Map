@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GBAKlonoa_Manager : BaseGameManager
+    public class GBAKlonoa_EmpireOfDreams_Manager : BaseGameManager
     {
         public const int CellSize = GBAConstants.TileSize;
         public const string GetROMFilePath = "ROM.gba";
@@ -21,7 +21,7 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
-            var rom = FileFactory.Read<GBAKlonoa_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
             var settings = context.GetR1Settings();
             var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
             var normalLevelIndex = (settings.World - 1) * 7 + (settings.Level - 1);
@@ -309,7 +309,7 @@ namespace R1Engine
             return loadedAnimSets.ToArray();
         }
 
-        public void GenerateAnimSetTable(Context context, GBAKlonoa_ROM rom)
+        public void GenerateAnimSetTable(Context context, GBAKlonoa_EmpireOfDreams_ROM rom)
         {
             var s = context.Deserializer;
             var file = rom.Offset.File;

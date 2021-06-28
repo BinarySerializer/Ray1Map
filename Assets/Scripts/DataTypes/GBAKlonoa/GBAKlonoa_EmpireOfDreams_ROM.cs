@@ -4,7 +4,7 @@ using BinarySerializer.GBA;
 
 namespace R1Engine
 {
-    public class GBAKlonoa_ROM : GBA_ROMBase
+    public class GBAKlonoa_EmpireOfDreams_ROM : GBA_ROMBase
     {
         // Info
         public GBAKlonoa_WaterSkiInfo[] WaterSkiInfos { get; set; }

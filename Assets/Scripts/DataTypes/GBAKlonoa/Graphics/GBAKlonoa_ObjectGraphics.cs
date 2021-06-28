@@ -32,7 +32,7 @@ namespace R1Engine
             if (AnimationsPointer == null)
                 return;
 
-            var animCount = s.GetR1Settings().GetGameManagerOfType<GBAKlonoa_Manager>().AnimSetInfos.FirstOrDefault(x => x.Offset == AnimationsPointer.AbsoluteOffset)?.AnimCount ?? throw new Exception($"Anim count not specified for anim set at {AnimationsPointer}");
+            var animCount = s.GetR1Settings().GetGameManagerOfType<GBAKlonoa_EmpireOfDreams_Manager>().AnimSetInfos.FirstOrDefault(x => x.Offset == AnimationsPointer.AbsoluteOffset)?.AnimCount ?? throw new Exception($"Anim count not specified for anim set at {AnimationsPointer}");
 
             s.DoAt(AnimationsPointer, () => AnimationPointers = s.SerializePointerArray(AnimationPointers, animCount, allowInvalid: true, name: nameof(AnimationPointers)));
 

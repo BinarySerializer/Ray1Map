@@ -779,7 +779,7 @@ namespace R1Engine {
 
         #region GBA Klonoa
 
-        [GameMode(MajorEngineVersion.GBAKlonoa, EngineVersion.KlonoaGBA, Game.KlonoaGBA_EmpireOfDreams, "Klonoa Empire of Dreams (GBA - US)", typeof(GBAKlonoa_Manager), Platform.GBA)]
+        [GameMode(MajorEngineVersion.GBAKlonoa, EngineVersion.KlonoaGBA, Game.KlonoaGBA_EmpireOfDreams, "Klonoa Empire of Dreams (GBA - US)", typeof(GBAKlonoa_EmpireOfDreams_Manager), Platform.GBA)]
         KlonoaEmpireOfDreamsGBA,
 
         #endregion
