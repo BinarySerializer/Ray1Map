@@ -5,7 +5,7 @@ namespace R1Engine.Jade {
 	// Found in GEO_LoadPS2GeoObject
 	public class GEO_GeoObject_PS2 : BinarySerializable {
 		public uint ElementsCount { get; set; }
-		public uint[] Elements_UInts { get; set; }
+		public uint[] Elements_MaterialId { get; set; }
 		public uint BonesCount { get; set; }
 		public Bone[] Bones { get; set; }
 		public uint ElementsCount2 { get; set; }
@@ -16,7 +16,7 @@ namespace R1Engine.Jade {
 
 			if (Loader.IsBinaryData) {
 				ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
-				Elements_UInts = s.SerializeArray<uint>(Elements_UInts, ElementsCount, name: nameof(Elements_UInts));
+				Elements_MaterialId = s.SerializeArray<uint>(Elements_MaterialId, ElementsCount, name: nameof(Elements_MaterialId));
 				BonesCount = s.Serialize<uint>(BonesCount, name: nameof(BonesCount));
 				Bones = s.SerializeObjectArray<Bone>(Bones, BonesCount, name: nameof(Bones));
 			}
@@ -37,16 +37,16 @@ namespace R1Engine.Jade {
 		}
 
 		public class Element : BinarySerializable {
-			public uint Element_StartCode { get; set; } // 0xF0CEFACE
+			public Jade_Code Element_StartCode { get; set; } // 0xF0CEFACE
 			public uint Count { get; set; }
 			public MeshElement[] MeshElements { get; set; }
-			public uint Element_EndCode { get; set; } // 0xDEADBEEF
+			public Jade_Code Element_EndCode { get; set; } // 0xDEADBEEF
 
 			public override void SerializeImpl(SerializerObject s) {
-				Element_StartCode = s.Serialize<uint>(Element_StartCode, name: nameof(Element_StartCode));
+				Element_StartCode = s.Serialize<Jade_Code>(Element_StartCode, name: nameof(Element_StartCode));
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
 				MeshElements = s.SerializeObjectArray<MeshElement>(MeshElements, Count, name: nameof(MeshElements));
-				Element_EndCode = s.Serialize<uint>(Element_EndCode, name: nameof(Element_EndCode));
+				Element_EndCode = s.Serialize<Jade_Code>(Element_EndCode, name: nameof(Element_EndCode));
 			}
 		}
 

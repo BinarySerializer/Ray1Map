@@ -12,10 +12,13 @@ namespace R1Engine.Jade {
 		Code2009 = 0xC0DE2009,
 		Code6660 = 0xC0DE6660,
 		CodeCode  = 0xC0DEC0DE,
-		CAD01234 = 0xCAD01234,
+		CAD01234 = 0xCAD01234, // "cadeau 1234"?
 		OffsetCode = 0x0FF7C0DE, // OFF (sept) CODE :)
 		FF00FF = 0xFF00FF,
 		All6 = 0x66666666,
 		RLI = 0x494C5280, // Spells out "RLI\x80"
+		DEADBABE = 0xDEADBABE,
+		F0CEFACE = 0xF0CEFACE, // "faut (que X) se fasse" = "X must be done"?
+		DEADBEEF = 0xDEADBEEF
 	}
 }

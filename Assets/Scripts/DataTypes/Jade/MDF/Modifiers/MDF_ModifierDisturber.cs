@@ -57,7 +57,7 @@ namespace R1Engine.Jade {
 				StaticDisturberForce = s.Serialize<float>(StaticDisturberForce, name: nameof(StaticDisturberForce));
 				StaticDisturberDelay = s.Serialize<float>(StaticDisturberDelay, name: nameof(StaticDisturberDelay));
 			}
-			if (Version == 2 || (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT && Version >= 2)) {
+			if (Version == 2 || (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT_20030819 && Version >= 2)) {
 				V2_UInt_3  = s.Serialize<uint>(V2_UInt_3 , name: nameof(V2_UInt_3 ));
 				V2_UInt_4  = s.Serialize<uint>(V2_UInt_4 , name: nameof(V2_UInt_4 ));
 				V2_GameObject1 = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(V2_GameObject1, name: nameof(V2_GameObject1));
@@ -69,14 +69,14 @@ namespace R1Engine.Jade {
 				V2_GameObject3 = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(V2_GameObject3, name: nameof(V2_GameObject3));
 				V2_UInt_12 = s.Serialize<uint>(V2_UInt_12, name: nameof(V2_UInt_12));
 
-				if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT) {
+				if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT_20030819) {
 					V2_GameObject1?.Resolve();
 					V2_GameObject2?.Resolve();
 					V2_GameObject3?.Resolve();
 				}
 			}
 
-			if(s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT) return;
+			if(s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT_20030819) return;
 
 			if (Version >= 10 && !s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) V10_UInt_0 = s.Serialize<uint>(V10_UInt_0, name: nameof(V10_UInt_0));
 			if (Version >= 3) {
