@@ -34,7 +34,7 @@ namespace R1Engine
 			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
 			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
 			new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
-			new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output)),
+			new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
 		};
         public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false) {
             using (var context = new R1Context(settings)) {
@@ -154,7 +154,7 @@ namespace R1Engine
 				}
             }
         }
-        public async UniTask ExportTexturesAsync(GameSettings settings, string outputDir)
+        public async UniTask ExportTexturesAsync(GameSettings settings, string outputDir, bool useComplexNames)
         {
 			var parsedTexs = new HashSet<uint>();
 
@@ -180,10 +180,12 @@ namespace R1Engine
 
 						TEX_GlobalList texList = context.GetStoredObject<TEX_GlobalList>(TextureListKey);
 
+						string worldName = null;
 						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 							LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 							if (loader.LoadedWorlds.Any()) {
 								texList = loader.LoadedWorlds.FirstOrDefault()?.TextureList_Montreal;
+								worldName = loader.LoadedWorlds.FirstOrDefault()?.Name;
 							}
 						}
 
@@ -208,9 +210,16 @@ namespace R1Engine
 									continue;
 
 								string name = $"{t.Key.Key:X8}";
-								/*if ((t.Content ?? t.Info)?.Content_Xenon != null) {
-									name += "_" + (t.Content ?? t.Info).Content_Xenon.Format.ToString();
-								}*/
+								if (useComplexNames) {
+									if(worldName != null) name = $"{worldName}/{name}";
+									var file = (t.Content ?? t.Info);
+									if (file != null) {
+										name += $"_{file.Type}";
+										if (file.Content_Xenon != null) name += $"_{file.Content_Xenon.Format}";
+										if (file.Content_JTX != null) name += $"_{file.Content_JTX.Format}";
+									}
+								}
+
 								Util.ByteArrayToFile(Path.Combine(outputDir, $"{name}.png"), tex.EncodeToPNG());
 							}
 						}

@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		Friend		= 0x01,		// Friend of the main character
 		Enemy		= 0x02,		// Enemy of the main character
 		Projectile	= 0x04,		// Projectile
-		Custom1		= 0x08,		//
+		Custom1		= 0x08,		// "Camera" in Spelling Spree
 		Custom2		= 0x10,		//
 		DodgeCamera	= 0x20,		// L'objet gêne la camera
 		Space		= 0x40,		// Objet espace

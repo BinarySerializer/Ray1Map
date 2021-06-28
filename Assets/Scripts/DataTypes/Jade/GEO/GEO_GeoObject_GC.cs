@@ -40,6 +40,8 @@ namespace R1Engine.Jade {
 				Elements_MaterialId = s.SerializeArray<uint>(Elements_MaterialId, ElementsCount, name: nameof(Elements_MaterialId));
 			}
 
+			if(s.CurrentAbsoluteOffset >=( GeometricObject.GRO.Object.Offset + GeometricObject.GRO.Object.FileSize).AbsoluteOffset) return;
+
 			// TODO: If !IsBinaryData, the following data is in another file (key given by optimizedkey in GeometricObject)...
 			DeadBabe = s.Serialize<Jade_Code>(DeadBabe, name: nameof(DeadBabe));
 			if (DeadBabe != Jade_Code.DEADBABE)

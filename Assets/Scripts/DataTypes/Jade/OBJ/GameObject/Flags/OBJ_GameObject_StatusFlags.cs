@@ -11,7 +11,7 @@ namespace R1Engine.Jade {
 		Active		= 1 << 0,		// Flag that indicates if the object is active or not
 		Visible		= 1 << 1,		// Indicates if object is visible by one or more world views
 		Culled		= 1 << 2,		// Indicates if object has a father or not
-		//HasFather	= 1 << 2,		// Indicates if object has a father or not <-- was commented out in Horsez
+		//HasFather	= 1 << 2,		// Indicates if object has a father or not <-- was commented out in Horsez, also in Spelling Spree
 		Unknown3	= 1 << 3,
 		Unknown4	= 1 << 4,
 		Unknown5	= 1 << 5,

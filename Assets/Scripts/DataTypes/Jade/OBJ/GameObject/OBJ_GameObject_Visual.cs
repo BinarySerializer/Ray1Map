@@ -14,9 +14,11 @@ namespace R1Engine.Jade {
 
 		// Montreal
 		public DM DrawMask { get; set; }
+		public uint ActualDrawMask { get; set; }
 		public byte AdditionalFlags { get; set; }
 		public byte LightSetMask { get; set; }
 		public sbyte DisplayOrder { get; set; }
+		public Unknown UnknownFlags { get; set; }
 		public byte[] Padding { get; set; }
 		public uint VertexColorsCount { get; set; }
 		public Jade_Color[] VertexColors { get; set; }
@@ -79,7 +81,8 @@ namespace R1Engine.Jade {
 				if (Version >= 3) AdditionalFlags = s.Serialize<byte>(AdditionalFlags, name: nameof(AdditionalFlags));
 				if (Version >= 5) LightSetMask = s.Serialize<byte>(LightSetMask, name: nameof(LightSetMask));
 				DisplayOrder = s.Serialize<sbyte>(DisplayOrder, name: nameof(DisplayOrder));
-				Padding = s.SerializeArray<byte>(Padding, 3, name: nameof(Padding));
+				UnknownFlags = s.Serialize<Unknown>(UnknownFlags, name: nameof(UnknownFlags));
+				Padding = s.SerializeArray<byte>(Padding, 2, name: nameof(Padding));
 				VertexColorsCount = s.Serialize<uint>(VertexColorsCount, name: nameof(VertexColorsCount));
 				VertexColors = s.SerializeObjectArray<Jade_Color>(VertexColors, VertexColorsCount, name: nameof(VertexColors));
 
@@ -88,14 +91,12 @@ namespace R1Engine.Jade {
 				bool hasAmbientOfGAO = true;
 				bool hasLocalFog = true;
 				if (Version < 4) {
-					uint drawMaskTemp = (uint)DrawMask;
-					if (Version < 10) drawMaskTemp = (uint)BitHelpers.SetBits((int)drawMaskTemp, 0, 1, 9);
-					if (Version < 11) drawMaskTemp = (uint)BitHelpers.SetBits((int)drawMaskTemp, 0, 1, 10);
-					hasEditorData = BitHelpers.ExtractBits((int)drawMaskTemp, 1, 8) == 1;
-					hasLightMap = BitHelpers.ExtractBits((int)drawMaskTemp, 1, 9) == 1;
-					hasAmbientOfGAO = BitHelpers.ExtractBits((int)drawMaskTemp, 1, 10) == 1;
-					hasLocalFog = BitHelpers.ExtractBits((int)drawMaskTemp, 1, 13) == 1;
-					UnityEngine.Debug.LogWarning($"TODO: Check OBJ_GameObject_Visual format @ {s.CurrentPointer}");
+					/*if (Version < 10) drawMaskTemp = (uint)BitHelpers.SetBits((int)drawMaskTemp, 0, 1, 9);
+					if (Version < 11) drawMaskTemp = (uint)BitHelpers.SetBits((int)drawMaskTemp, 0, 1, 10);*/
+					hasEditorData = !UnknownFlags.HasFlag(Unknown.NoEditorData);
+					hasLightMap = !UnknownFlags.HasFlag(Unknown.NoLightMap);
+					hasAmbientOfGAO = !UnknownFlags.HasFlag(Unknown.NoAmbientOfGAO);
+					hasLocalFog = !UnknownFlags.HasFlag(Unknown.NoLocalFog);
 				}
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 				if (hasEditorData && !Loader.IsBinaryData) {
@@ -173,6 +174,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
+		// Montpellier
 		[Flags]
 		public enum DM : uint {
 			None					= 0,
@@ -212,6 +214,20 @@ namespace R1Engine.Jade {
 			Unknown6				= 0x80000000,
 
 			All						= 0xFFFFFFFF,
+		}
+
+		// Montreal
+		[Flags]
+		public enum Unknown : byte {
+			None = 0,
+			NoEditorData = 1 << 0,
+			NoLightMap = 1 << 1,
+			NoAmbientOfGAO = 1 << 2,
+			Unknown3 = 1 << 3,
+			Unknown4 = 1 << 4,
+			NoLocalFog = 1 << 5,
+			Unknown6 = 1 << 6,
+			Unknown7 = 1 << 7,
 		}
 	}
 }

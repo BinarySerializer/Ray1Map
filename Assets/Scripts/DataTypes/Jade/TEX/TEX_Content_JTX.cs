@@ -198,11 +198,14 @@ namespace R1Engine.Jade
                     if (PS2_IsSwizzled != 0) {
                         tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_8bpp, 0, 0, (int)Width, (int)Height);
                     } else {
-                        tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp, 0, 0, (int)Width, (int)Height);
+                        tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp_ReverseOrder, 0, 0, (int)Width, (int)Height);
                     }
                     break;
                 case JTX_Format.Raw32:
                     tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_32bpp_RGBA, 0, 0, (int)Width, (int)Height);
+                    break;
+                case JTX_Format.S3TC:
+                case JTX_Format.S3TC_A:
                     break;
                 default:
                     throw new NotImplementedException($"TODO: Implement JTX type {Format}");
