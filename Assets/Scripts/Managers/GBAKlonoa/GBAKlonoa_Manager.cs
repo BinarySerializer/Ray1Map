@@ -138,8 +138,8 @@ namespace R1Engine
             // Add fixed objects, except Klonoa (first one)
             objects.AddRange(fixObjects.Skip(1).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
 
-            // Add level objects, duplicating them for each sector they appear in (if at 0,0 we assume it's unused in the sector)
-            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => !(x.XPos == 0 && x.YPos == 0)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, x.LevelObj, allOAMCollections[x.OAMIndex])));
+            // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
+            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, x.LevelObj, allOAMCollections[x.OAMIndex])));
             
             return new Unity_Level(
                 maps: maps,

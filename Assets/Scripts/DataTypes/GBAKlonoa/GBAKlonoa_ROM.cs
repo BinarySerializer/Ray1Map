@@ -161,10 +161,10 @@ namespace R1Engine
             {
                 0 => createObjPal(02, 03, 04, 05, 06, 07, 08, 09, 10),
                 1 => createObjPal(39, 40, 41, 42, 43, 44),
-                2 => createObjPal(39, 40, 41, 42, 43, 44),
-                3 => createObjPal(39, 40, 41, 42, 43, 44),
+                2 => createObjPal(39, 40, 45, 46, 42, 43, 44),
+                3 => createObjPal(39, 40, 41, 45, 46, 47, 42, 43, 44),
                 4 => createObjPal(40, 41, 45, 48, 43, 44),
-                _ => new RGBA5551Color[0]
+                _ => createObjPal()
             };
 
             RGBA5551Color[] createObjPal(params int[] indices)
