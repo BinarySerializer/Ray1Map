@@ -120,6 +120,8 @@ namespace R1Engine.Jade {
                 MDF_ModifierType_Montreal.GAO_ModifierRope => s.SerializeObject<GAO_ModifierRope>((GAO_ModifierRope)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierVirtualAnim => s.SerializeObject<GAO_ModifierVirtualAnim>((GAO_ModifierVirtualAnim)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierCharacterFX => s.SerializeObject<GAO_ModifierCharacterFX>((GAO_ModifierCharacterFX)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierVoiceManager => s.SerializeObject<GAO_ModifierVoiceManager>((GAO_ModifierVoiceManager)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.Ambiance_Modifier => s.SerializeObject<Ambiance_Modifier>((Ambiance_Modifier)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }

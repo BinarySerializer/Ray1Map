@@ -8,6 +8,7 @@ namespace R1Engine.Jade {
 		public uint FileSize { get; set; }
 		public uint ReferencesCount { get; set; } = 1;
 		public uint CachedCount { get; set; } = 1;
+		public LOA_BinFileHeader BinFileHeader { get; set; }
 
 		protected override void OnPostSerialize(SerializerObject s) {
 			CheckFileSize(s);

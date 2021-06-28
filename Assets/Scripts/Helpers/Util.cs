@@ -358,7 +358,7 @@ namespace R1Engine
                         var b = imgData[index];
 
                         c = paletteFunction != null ? paletteFunction.Invoke(b, xx, yy) : pal[b];
-					} else if (encoding == TileEncoding.Linear_4bpp || encoding == TileEncoding.Linear_4bpp_ReverseOrder) {
+                    } else if (encoding == TileEncoding.Linear_4bpp || encoding == TileEncoding.Linear_4bpp_ReverseOrder) {
                         int index = imgDataOffset + (((flipRegionY ? (regionHeight - y - 1) : y) * regionWidth + (flipRegionX ? (regionWidth - x - 1) : x)) / 2);
 
                         var b = imgData[index];
@@ -394,6 +394,13 @@ namespace R1Engine
                         var v = (BitHelpers.ExtractBits(b1, 1, actualX) << 1) | BitHelpers.ExtractBits(b0, 1, actualX);
 
                         c = paletteFunction != null ? paletteFunction.Invoke(v, xx, yy) : pal[v];
+                    } else if (encoding == TileEncoding.Linear_32bpp_RGBA) {
+                        int index = imgDataOffset + (((flipRegionY ? (regionHeight - y - 1) : y) * regionWidth + (flipRegionX ? (regionWidth - x - 1) : x))) * 4;
+                        var r = imgData[index + 0];
+                        var g = imgData[index + 1];
+                        var b = imgData[index + 2];
+                        var a = imgData[index + 3];
+                        c = new Color(r / 255f, g / 255f, b / 255f, a / 255f);
                     } else {
                         c = Color.clear;
                     }
@@ -574,6 +581,7 @@ namespace R1Engine
             Linear_4bpp,
             Linear_4bpp_ReverseOrder,
             Linear_8bpp,
+            Linear_32bpp_RGBA,
         }
 
         public static void ExportAnim(IList<Texture2D> frames, int speed, bool center, bool saveAsGif, string outputDir, string primaryName, string secondaryName)

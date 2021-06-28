@@ -28,6 +28,7 @@ namespace R1Engine.Jade {
                 GRO_Type.Unknown => null,
                 GRO_Type.GEO => Value = s.SerializeObject<GEO_GeometricObject>((GEO_GeometricObject)Value, onPreSerialize: o => o.ObjectVersion = ObjectVersion, name: nameof(Value)),
                 GRO_Type.GEO_StaticLOD => Value = s.SerializeObject<GEO_StaticLOD>((GEO_StaticLOD)Value, onPreSerialize: o => o.ObjectVersion = ObjectVersion, name: nameof(Value)),
+                GRO_Type.GEO_SubGeometry => Value = s.SerializeObject<GEO_SubGeometry>((GEO_SubGeometry)Value, onPreSerialize: o => o.ObjectVersion = ObjectVersion, name: nameof(Value)),
                 GRO_Type.MAT_SIN => Value = s.SerializeObject<MAT_SIN_SingleMaterial>((MAT_SIN_SingleMaterial)Value, onPreSerialize: o => o.ObjectVersion = ObjectVersion, name: nameof(Value)),
                 GRO_Type.MAT_MSM => Value = s.SerializeObject<MAT_MSM_MultiSingleMaterial>((MAT_MSM_MultiSingleMaterial)Value, onPreSerialize: o => o.ObjectVersion = ObjectVersion, name: nameof(Value)),
                 GRO_Type.MAT_MTT => Value = s.SerializeObject<MAT_MTT_MultiTextureMaterial>((MAT_MTT_MultiTextureMaterial)Value, onPreSerialize: o => o.ObjectVersion = ObjectVersion, name: nameof(Value)),

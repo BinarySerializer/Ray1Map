@@ -11,7 +11,8 @@ using System.Text.RegularExpressions;
 namespace R1Engine
 {
     public abstract class Jade_Montreal_BaseManager : Jade_BaseManager {
-		public override void CreateLevelList(LOA_Loader l) {
+		public override async UniTask CreateLevelList(LOA_Loader l) {
+			await UniTask.CompletedTask;
 			var groups = l.FileInfos.GroupBy(f => Jade_Key.UncomposeBinKey(l.Context, f.Key)).OrderBy(f => f.Key);
 			//List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
 			List<KeyValuePair<uint, LevelInfo>> levels = new List<KeyValuePair<uint, LevelInfo>>();
@@ -53,6 +54,25 @@ namespace R1Engine
 								}
 							}
 						}
+					}
+				}
+				if (!overrideKey.HasValue) {
+					try {
+						Jade_Reference<Jade_DummyFile> dummy = new Jade_Reference<Jade_DummyFile>(l.Context, new Jade_Key(l.Context, g.Key));
+						l.BeginSpeedMode(dummy.Key, serializeAction: async s => {
+							dummy.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+							await l.LoadLoopBINAsync();
+						});
+						await l.LoadLoop(l.Context.Deserializer);
+						l.EndSpeedMode();
+						var newKey = dummy?.Value?.BinFileHeader?.Key;
+						if (newKey != null) {
+							if (Jade_Key.GetBinaryForKey(l.Context, newKey, Jade_Key.KeyType.Map) == Jade_Key.GetBinaryForKey(l.Context, g.Key, Jade_Key.KeyType.Map)) {
+								overrideKey = newKey;
+							}
+						}
+					} catch (Exception) {
+						l.EndSpeedMode();
 					}
 				}
 				//if (kvpair.Value != null) {

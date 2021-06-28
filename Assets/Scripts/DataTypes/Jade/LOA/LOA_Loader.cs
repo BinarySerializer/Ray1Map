@@ -324,7 +324,8 @@ namespace R1Engine.Jade {
 						if (BinFileHeader.Key != null) {
 							if (BinFileHeader.Key != currentRef.Key) {
 								if (currentRef.Flags.HasFlag(ReferenceFlags.Montreal_AllowSkip)) {
-									UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}. Skipping!");
+									// Activate this warning in case of weird texture problems
+									//UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}. Skipping!");
 									s.Goto(Bin.CurrentPosition);
 									return;
 								} else {
@@ -350,6 +351,7 @@ namespace R1Engine.Jade {
 						f.Key = currentRef.Key;
 						f.FileSize = FileSize;
 						f.Loader = this;
+						f.BinFileHeader = BinFileHeader;
 						if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
 					});
 				} else {

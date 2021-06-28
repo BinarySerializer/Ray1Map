@@ -33,6 +33,7 @@ namespace R1Engine
 		{
 			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
 			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
+			new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
 			new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output)),
 		};
         public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false) {
@@ -244,19 +245,44 @@ namespace R1Engine
 
 				GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
 				GC.WaitForPendingFinalizers();
-				await UniTask.Delay(2000);
+				if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+					await UniTask.Delay(2000);
+				}
 			}
 
             Debug.Log($"Finished export");
 		}
 
-        // Version properties
+		public async UniTask CreateLevelListAsync(GameSettings settings) {
+
+			using (var context = new R1Context(settings)) {
+				await LoadFilesAsync(context);
+				List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+				foreach (var bfPath in BFFiles) {
+					var bf = await LoadBF(context, bfPath);
+					bfs.Add(bf);
+				}
+				// Set up loader
+				LOA_Loader loader = new LOA_Loader(bfs.ToArray(), context);
+				context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+				// Load jade.spe
+				LoadJadeSPE(context);
+				
+				// Create level list				
+				await CreateLevelList(loader);
+				Debug.Log($"Copied to clipboard.");
+			}
+		}
+
+		// Version properties
 		public abstract string[] BFFiles { get; }
 		public virtual string[] FixWorlds => null;
 		public virtual string JadeSpePath => null;
 
 		// Helpers
-        public virtual void CreateLevelList(LOA_Loader l) {
+        public virtual async UniTask CreateLevelList(LOA_Loader l) {
+			await Task.CompletedTask;
 			var groups = l.FileInfos.GroupBy(f => Jade_Key.UncomposeBinKey(l.Context, f.Key)).OrderBy(f => f.Key);
 			List<KeyValuePair<uint, LOA_Loader.FileInfo>> levels = new List<KeyValuePair<uint, LOA_Loader.FileInfo>>();
 			foreach (var g in groups) {
@@ -467,7 +493,7 @@ namespace R1Engine
 			var levelInfos = LevelInfos;
 			bool isWOW = false;
 			if (levelInfos == null) {
-				CreateLevelList(loader);
+				throw new Exception($"Before loading, add the level list using the Create Level List game action.");
 			} else {
 				var levInfo = levelInfos.FirstOrDefault(l => l.Key == worldKey.Key);
 				isWOW = levInfo != null && levInfo.Type == LevelInfo.FileType.WOW;
