@@ -32,7 +32,8 @@ namespace R1Engine.Jade {
 		public uint Version2_EndCode { get; set; }
 
 		// Montreal
-		public GEO_ObjFlags RawFlags { get; set; }
+		public GEO_ObjFlags Flags { get; set; }
+		public GEO_ObjFlags_PoPSoT Flags_SoT { get; set; }
 		public uint Montreal_Editor_UInt_0 { get; set; }
 		public uint Montreal_Editor_UInt_1 { get; set; }
 		public uint Montreal_Editor_UInt_2 { get; set; }
@@ -41,22 +42,47 @@ namespace R1Engine.Jade {
 		public uint Montreal_Editor_UInt_5 { get; set; }
 		public uint Montreal_Flags2 { get; set; }
 		public int Montreal_HasColors { get; set; }
-		public int Montreal_HasNormals { get; set; }
+		public int Montreal_HasNormals { get; set; } // Boolean
 
-		public bool Montreal_IsOptimized { get; set; }
-		public bool Montreal_HasUnoptimizedData { get; set; }
+		public bool Montreal_IsOptimized_PS2 => (Montreal_Flags2 & 1) == 1;
+		public bool Montreal_IsOptimized_GC => (Montreal_Flags2 & 2) == 2;
+		public bool Montreal_IsOptimized_Wii => (Montreal_Flags2 & 0x40) == 0x40;
+		public bool Montreal_IsOptimized(GameSettings s) {
+			switch (s.Platform) {
+				case Platform.PS2:
+					return (Montreal_Flags2 & 1) == 1;
+				case Platform.GC:
+					return (Montreal_Flags2 & 2) == 2;
+				case Platform.Wii:
+					return (Montreal_Flags2 & 0x40) == 0x40;
+				default:
+					return false;
+			}
+		}
+		public bool Montreal_HasUnoptimizedData(GameSettings s) {
+			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			return !(Montreal_IsOptimized(s) && Loader.IsBinaryData)
+				|| (s.Platform == Platform.GC && s.EngineVersion == EngineVersion.Jade_PoP_SoT);
+		}
 
-		public Jade_Key OptimizedGeoObjectKey { get; set; }
-		public uint Montreal_Editor_UInt_7 { get; set; }
+		public Jade_Key OptimizedGeoObjectKey_PS2 { get; set; }
+		public Jade_Key OptimizedGeoObjectKey_GC { get; set; }
 		public uint Montreal_Editor_UInt_8 { get; set; }
 		public uint Montreal_Editor_UInt_9 { get; set; }
 		public GEO_GeoObject_PS2 OptimizedGeoObject_PS2 { get; set; }
+		public GEO_GeoObject_GC OptimizedGeoObject_GC { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				if (ObjectVersion >= 4) RawFlags = s.Serialize<GEO_ObjFlags>(RawFlags, name: nameof(RawFlags));
+				if (ObjectVersion >= 4) {
+					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+						Flags = s.Serialize<GEO_ObjFlags>(Flags, name: nameof(Flags));
+					} else {
+						Flags_SoT = s.Serialize<GEO_ObjFlags_PoPSoT>(Flags_SoT, name: nameof(Flags_SoT));
+					}
+				}
 				if (ObjectVersion == 6 && !Loader.IsBinaryData) {
 					Montreal_Editor_UInt_0 = s.Serialize<uint>(Montreal_Editor_UInt_0, name: nameof(Montreal_Editor_UInt_0));
 					Montreal_Editor_UInt_1 = s.Serialize<uint>(Montreal_Editor_UInt_1, name: nameof(Montreal_Editor_UInt_1));
@@ -66,9 +92,7 @@ namespace R1Engine.Jade {
 					Montreal_Editor_UInt_5 = s.Serialize<uint>(Montreal_Editor_UInt_5, name: nameof(Montreal_Editor_UInt_5));
 				}
 				if (ObjectVersion >= 7) Montreal_Flags2 = s.Serialize<uint>(Montreal_Flags2, name: nameof(Montreal_Flags2));
-				Montreal_IsOptimized = (Montreal_Flags2 & 1) == 1;
-				Montreal_HasUnoptimizedData = !(Montreal_IsOptimized && Loader.IsBinaryData);
-				if (Montreal_HasUnoptimizedData) VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
+				if (Montreal_HasUnoptimizedData(s.GetR1Settings())) VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
 			} else {
 				Code_00 = s.Serialize<uint>(Code_00, name: nameof(Code_00));
 				if (Code_00 == (uint)Jade_Code.Code2002) {
@@ -81,7 +105,7 @@ namespace R1Engine.Jade {
 					Version = 0;
 				}
 			}
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || Montreal_HasUnoptimizedData) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) || Montreal_HasUnoptimizedData(s.GetR1Settings())) {
 				ColorsCount = s.Serialize<uint>(ColorsCount, name: nameof(ColorsCount));
 				if (ObjectVersion >= 3) Montreal_HasColors = s.Serialize<int>(Montreal_HasColors, name: nameof(Montreal_HasColors));
 				UVsCount = s.Serialize<uint>(UVsCount, name: nameof(UVsCount));
@@ -139,17 +163,19 @@ namespace R1Engine.Jade {
 				if (Version >= 2) Version2_EndCode = s.Serialize<uint>(Version2_EndCode, name: nameof(Version2_EndCode));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && ObjectVersion >= 7 && !Loader.IsBinaryData) {
-				OptimizedGeoObjectKey = s.SerializeObject<Jade_Key>(OptimizedGeoObjectKey, name: nameof(OptimizedGeoObjectKey));
-				Montreal_Editor_UInt_7 = s.Serialize<uint>(Montreal_Editor_UInt_7, name: nameof(Montreal_Editor_UInt_7));
+				OptimizedGeoObjectKey_PS2 = s.SerializeObject<Jade_Key>(OptimizedGeoObjectKey_PS2, name: nameof(OptimizedGeoObjectKey_PS2));
+				OptimizedGeoObjectKey_GC = s.SerializeObject<Jade_Key>(OptimizedGeoObjectKey_GC, name: nameof(OptimizedGeoObjectKey_GC));
 				Montreal_Editor_UInt_8 = s.Serialize<uint>(Montreal_Editor_UInt_8, name: nameof(Montreal_Editor_UInt_8));
 				Montreal_Editor_UInt_9 = s.Serialize<uint>(Montreal_Editor_UInt_9, name: nameof(Montreal_Editor_UInt_9));
 			}
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Montreal_IsOptimized) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Montreal_IsOptimized(s.GetR1Settings())) {
 				switch (s.GetR1Settings().Platform) {
 					case Platform.PS2:
 						OptimizedGeoObject_PS2 = s.SerializeObject<GEO_GeoObject_PS2>(OptimizedGeoObject_PS2, name: nameof(OptimizedGeoObject_PS2));
 						break;
-					case Platform.Wii: break;
+					case Platform.GC:
+						OptimizedGeoObject_GC = s.SerializeObject<GEO_GeoObject_GC>(OptimizedGeoObject_GC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_GC));
+						break;
 					default:
 						UnityEngine.Debug.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
 						break;
@@ -200,6 +226,45 @@ namespace R1Engine.Jade {
 			TFS_ForceLoadTextures = 1 << 28,
 			Unused29 = 1 << 29,
 			Unused30 = 1 << 30,
+			Unused31 = (uint)1 << 31
+		}
+
+
+		[Flags]
+		public enum GEO_ObjFlags_PoPSoT : uint {
+			None = 0,
+			UseNormalsInEngine = 1 << 0,
+			UseVertexPaintInEngine = 1 << 1,
+			StaticMesh = 1 << 2,
+			SkinnedMesh = 1 << 3,
+			IndexedMesh = 1 << 4,
+			ForceStatic = 1 << 5,
+			ForceIndexed = 1 << 6,
+			PositionIsStatic = 1 << 7,
+			MaterialIsStatic = 1 << 8,
+			ForceDynamicPosition = 1 << 9,
+			ForceDynamicMaterial = 1 << 10,
+			UseCompressedVertexInfo = 1 << 11,
+			CanBeInstanciated = 1 << 12,
+			ForceCanBeInstanciated = 1 << 13,
+			ForceNoInstanciation = 1 << 14,
+			CanHaveLightmaps = 1 << 15,
+			ForceLightmaps = 1 << 16,
+			CanUseChrome = 1 << 17,
+			CanHaveNormalMaps = 1 << 18,
+			OnlyInstanceBecauseOfAnims = 1 << 19,
+			//Full3DClipping = 1 << 20, // Not sure if this one was missing in SoT, but it's before Index8Bits
+			Index8Bits = 1 << 20,
+			HasLightMap = 1 << 21,
+			HasShadow = 1 << 22,
+			KeepDuplicatedVertex = 1 << 23,
+			AllowPerPixelLighting = 1 << 24,
+			Vtx16Bits = 1 << 25,
+			NCIS_RenderAOOnWii_TFS_CanBeDisplaced = 1 << 26,
+			TFS_ForceLoadTextures = 1 << 27,
+			Unused28 = 1 << 28,
+			Unused29 = 1 << 29,
+			Unused30 = (uint)1 << 30,
 			Unused31 = (uint)1 << 31
 		}
 	}

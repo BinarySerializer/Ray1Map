@@ -6,7 +6,7 @@ namespace R1Engine.Jade {
 		public GRO_Struct RenderObject { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			RenderObject = s.SerializeObject<GRO_Struct>(RenderObject, name: nameof(RenderObject));
+			RenderObject = s.SerializeObject<GRO_Struct>(RenderObject, onPreSerialize: o => o.Object = this, name: nameof(RenderObject));
 		}
 	}
 }

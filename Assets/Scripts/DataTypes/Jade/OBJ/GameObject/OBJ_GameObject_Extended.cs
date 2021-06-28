@@ -25,7 +25,7 @@ namespace R1Engine.Jade {
 		public ushort UShort_Editor_12 { get; set; }
 		public byte AiPrio { get; set; }
 		public byte Blank { get; set; }
-		public ushort ExtraFlags { get; set; } // Flags
+		public OBJ_GameObject_ExtraFlags ExtraFlags { get; set; } // Flags
 
 		public Jade_Reference<AI_Instance> AI { get; set; }
 		public Jade_Reference<EVE_ListTracks> Events { get; set; }
@@ -74,7 +74,7 @@ namespace R1Engine.Jade {
 			}
 			AiPrio = s.Serialize<byte>(AiPrio, name: nameof(AiPrio));
 			Blank = s.Serialize<byte>(Blank, name: nameof(Blank));
-			ExtraFlags = s.Serialize<ushort>(ExtraFlags, name: nameof(ExtraFlags));
+			ExtraFlags = s.Serialize<OBJ_GameObject_ExtraFlags>(ExtraFlags, name: nameof(ExtraFlags));
 			if (FlagsIdentity.HasFlag(OBJ_GameObject_IdentityFlags.AI)) {
 				AI = s.SerializeObject<Jade_Reference<AI_Instance>>(AI, name: nameof(AI))?
 					.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Flag6);

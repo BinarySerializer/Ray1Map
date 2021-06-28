@@ -99,6 +99,8 @@ namespace R1Engine.Jade {
 					links = new AI_Links_RRR2_Wii();
 					break;
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030819:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeGC:
 					links = new AI_Links_PoP_SoT_PS2_Proto();
 					break;
 				case GameModeSelection.HorsezPS2:

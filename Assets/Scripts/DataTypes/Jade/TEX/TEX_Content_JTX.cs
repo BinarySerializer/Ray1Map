@@ -12,13 +12,15 @@ namespace R1Engine.Jade
         public JTX_Format Format { get; set; }
         public uint Width { get; set; }
         public uint Height { get; set; }
-        public int HasMipmaps { get; set; }
+        public int MipmapCount { get; set; }
         public float MipmapBias { get; set; }
 
         public Jade_PaletteReference Palette { get; set; }
 
         public int BPP { get; set; }
         public uint MipmapSize { get; set; }
+        public uint ContentSize { get; set; }
+        public uint Content2Size { get; set; }
 
         public uint PS2_UInt0 { get; set; }
         public uint PS2_UInt1 { get; set; }
@@ -26,9 +28,12 @@ namespace R1Engine.Jade
         public uint PS2_IsSwizzled { get; set; }
         public uint PS2_Size { get; set; }
         public TEX_Content_JTX_PS2 PS2_Content { get; set; }
-        public uint PS2_ExtraUInt_Phoenix { get; set; }
 
         public byte[] Content { get; set; }
+        public byte[] Content2 { get; set; }
+        public int HasContentOverride { get; set; } // Boolean
+        public uint ContentOverrideSize { get; set; }
+        public byte[] ContentOverride { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
             uint FileSize = (uint)(Texture.FileSize - (s.CurrentPointer - Texture.Offset));
@@ -40,7 +45,7 @@ namespace R1Engine.Jade
 			Format = s.Serialize<JTX_Format>(Format, name: nameof(Format));
 			Width = s.Serialize<uint>(Width, name: nameof(Width));
 			Height = s.Serialize<uint>(Height, name: nameof(Height));
-			HasMipmaps = s.Serialize<int>(HasMipmaps, name: nameof(HasMipmaps));
+			MipmapCount = s.Serialize<int>(MipmapCount, name: nameof(MipmapCount));
 			if (Version >= 3) MipmapBias = s.Serialize<float>(MipmapBias, name: nameof(MipmapBias));
 
             uint paletteKey = Format switch {
@@ -62,7 +67,7 @@ namespace R1Engine.Jade
                 case JTX_Format.Palette_8:
                     BPP = Format == JTX_Format.Palette_4 ? 4 : 8;
 					Palette = s.SerializeObject<Jade_PaletteReference>(Palette, name: nameof(Palette))?.Resolve();
-					break;
+                    break;
                 case JTX_Format.Intensity_8:
                 case JTX_Format.AlphaIntensity_8:
                     BPP = 8;
@@ -71,14 +76,24 @@ namespace R1Engine.Jade
                 case JTX_Format.AlphaIntensity_4:
                     BPP = 4;
                     break;
+                case JTX_Format.S3TC:
+                case JTX_Format.S3TC_A:
+                    BPP = 4;
+                    break;
+                case JTX_Format.DXT3:
+                case JTX_Format.DXT5:
+                    BPP = 8;
+                    break;
                 default:
                     throw new NotImplementedException($"Unimplemented TEX_Content_JTX Format: {Format}");
             }
+            CalculateContentSize();
 
             if (Texture.IsContent) {
-                if (s.GetR1Settings().Platform != Platform.PS2|| !Loader.IsBinaryData) {
-                    Content = s.SerializeArray<byte>(Content, BPP * Height * Width / 8 + MipmapSize, name: nameof(Content));
-                }
+                if (s.GetR1Settings().Platform != Platform.PS2 || !Loader.IsBinaryData) {
+                    Content = s.SerializeArray<byte>(Content, ContentSize, name: nameof(Content));
+					if (Content2Size > 0) Content2 = s.SerializeArray<byte>(Content2, Content2Size, name: nameof(Content2));
+				}
 
                 if (s.GetR1Settings().Platform == Platform.PS2 && Version >= 2) {
                     PS2_UInt0 = s.Serialize<uint>(PS2_UInt0, name: nameof(PS2_UInt0));
@@ -88,12 +103,45 @@ namespace R1Engine.Jade
                     PS2_IsSwizzled = s.Serialize<uint>(PS2_IsSwizzled, name: nameof(PS2_IsSwizzled));
                     PS2_Size = s.Serialize<uint>(PS2_Size, name: nameof(PS2_Size));
 					PS2_Content = s.SerializeObject<TEX_Content_JTX_PS2>(PS2_Content, onPreSerialize: cont => cont.JTX = this, name: nameof(PS2_Content));
-                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
-						PS2_ExtraUInt_Phoenix = s.Serialize<uint>(PS2_ExtraUInt_Phoenix, name: nameof(PS2_ExtraUInt_Phoenix));
-					}
                 }
+
+                if (Version >= 2 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT)) {
+					HasContentOverride = s.Serialize<int>(HasContentOverride, name: nameof(HasContentOverride));
+                    if (HasContentOverride == 1 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CloudyWithAChanceOfMeatballs)) {
+						ContentOverrideSize = s.Serialize<uint>(ContentOverrideSize, name: nameof(ContentOverrideSize));
+						ContentOverride = s.SerializeArray<byte>(ContentOverride, ContentOverrideSize, name: nameof(ContentOverride));
+					}
+				}
             }
 		}
+
+        public void CalculateContentSize() {
+            // Calculate mipmap size
+            uint bpp = (uint)BPP;
+            MipmapSize = 0;
+            uint cur_w = Width;
+            uint cur_h = Height;
+            for (int i = 0; i < MipmapCount; i++) {
+                if (cur_w > 8) cur_w >>= 1;
+                if (cur_h > 8) cur_h >>= 1;
+                MipmapSize += (cur_w / 8) * cur_h * bpp;
+            }
+
+            switch (Format) {
+                case JTX_Format.DXT3:
+                case JTX_Format.DXT5:
+                    ContentSize = (uint)((Height >> 2) * (Width >> 2) * 16 + MipmapSize);
+                    break;
+                case JTX_Format.S3TC:
+                case JTX_Format.S3TC_A:
+                    ContentSize = (uint)((Height >> 2) * (Width >> 2) * 8 + MipmapSize);
+                    if(Format == JTX_Format.S3TC_A) Content2Size = ContentSize;
+                    break;
+                default:
+                    ContentSize = (uint)(BPP * Height * Width / 8 + MipmapSize);
+                    break;
+            }
+        }
 
         public enum JTX_Format : uint {
             Raw32 = 0,
@@ -101,7 +149,7 @@ namespace R1Engine.Jade
             Palette_4 = 2,
             Alpha_8 = 3,
             Intensity_8 = 4,
-            S3TC = 5,
+            S3TC = 5, // DXT1?
             DXT3 = 6,
             DXT5 = 7,
             Alpha_4 = 8,
@@ -150,11 +198,14 @@ namespace R1Engine.Jade
                     if (PS2_IsSwizzled != 0) {
                         tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_8bpp, 0, 0, (int)Width, (int)Height);
                     } else {
-                        tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp, 0, 0, (int)Width, (int)Height);
+                        tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp_ReverseOrder, 0, 0, (int)Width, (int)Height);
                     }
                     break;
                 case JTX_Format.Raw32:
                     tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_32bpp_RGBA, 0, 0, (int)Width, (int)Height);
+                    break;
+                case JTX_Format.S3TC:
+                case JTX_Format.S3TC_A:
                     break;
                 default:
                     throw new NotImplementedException($"TODO: Implement JTX type {Format}");

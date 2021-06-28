@@ -56,7 +56,7 @@ namespace R1Engine.Jade {
 		GAO_ModifierTranslationPaste = 43,
 		GAO_ModifierAnimatedPAG = 44,
 		GAO_ModifierAnimatedGAO = 45,
-
+		GAO_ModifierEyeTrail = 46, // Found in Spree
 		GAO_ModifierCharacterFX = 47,
 
 		GAO_ModifierMotionBlur = 51,

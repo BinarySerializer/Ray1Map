@@ -35,16 +35,18 @@ namespace R1Engine
                         )
                     ),
                     new Node(EngineVersion.Jade_Montreal).SetChildren(
-                        new Node(EngineVersion.Jade_PoP_SoT).SetChildren(
-                            new Node(EngineVersion.Jade_PoP_WW).SetChildren(
-                                new Node(EngineVersion.Jade_PhoenixRayman4).SetChildren(
-                                    new Node(EngineVersion.Jade_Horsez)
-                                ),
-                                new Node(EngineVersion.Jade_PoP_T2T).SetChildren(
-                                    new Node(EngineVersion.Jade_PoP_TFS),
-                                    new Node(EngineVersion.Jade_RRRTVParty),
-                                    new Node(EngineVersion.Jade_CloudyWithAChanceOfMeatballs).SetChildren(
-                                        new Node(EngineVersion.Jade_NCIS)
+                        new Node(EngineVersion.Jade_PoP_SoT_20030819).SetChildren(
+                            new Node(EngineVersion.Jade_PoP_SoT).SetChildren(
+                                new Node(EngineVersion.Jade_PoP_WW).SetChildren(
+                                    new Node(EngineVersion.Jade_PhoenixRayman4).SetChildren(
+                                        new Node(EngineVersion.Jade_Horsez)
+                                    ),
+                                    new Node(EngineVersion.Jade_PoP_T2T).SetChildren(
+                                        new Node(EngineVersion.Jade_PoP_TFS),
+                                        new Node(EngineVersion.Jade_RRRTVParty),
+                                        new Node(EngineVersion.Jade_CloudyWithAChanceOfMeatballs).SetChildren(
+                                            new Node(EngineVersion.Jade_NCIS)
+                                        )
                                     )
                                 )
                             )

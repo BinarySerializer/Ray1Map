@@ -46,16 +46,16 @@ namespace R1Engine.Jade {
 
 		// Xenon modifiers
 		WATER3D_Modifier = 33, // Xenon only
-		MDF_ModifierDisturber = 34, // Xenon only
-		MDF_ModifierSFX = 35, // Xenon only
+		Disturber_Modifier = 34, // Xenon only
+		GAO_ModifierSfx = 35, // Xenon only
 
 		GAO_ModifierRotationPaste = 36,
 		GAO_ModifierTranslationPaste = 37,
 		GAO_ModifierAnimatedGAO = 38,
 		
 		MDF_ModifierWeather = 39, // Xenon only
-		MDF_ModifierSoftBody = 40, // Xenon only
-		MDF_ModifierWind = 41, // Xenon only
+		GAO_ModifierSoftBody = 40, // Xenon only
+		GAO_ModifierWind = 41, // Xenon only
 		FUR_ModifierDynFur = 42, // Xenon only
 		SPG2_ModifierHolder = 43, // Xenon only
 
