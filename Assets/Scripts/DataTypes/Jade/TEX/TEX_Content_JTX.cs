@@ -207,7 +207,9 @@ namespace R1Engine.Jade
                     break;
                 case JTX_Format.Raw32:
                     tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
-                    tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_32bpp_RGBA, 0, 0, (int)Width, (int)Height);
+                    var tileEncoding = Util.TileEncoding.Linear_32bpp_RGBA;
+                    if(Context.GetR1Settings().Platform == Platform.GC || Context.GetR1Settings().Platform == Platform.Wii) tileEncoding = Util.TileEncoding.Linear_32bpp_BGRA;
+                    tex.FillRegion(content, 0, palette, tileEncoding, 0, 0, (int)Width, (int)Height);
                     break;
                 case JTX_Format.S3TC:
                     dds = DDS.FromRawData(content, DDS_Parser.PixelFormat.DXT1, Width, Height);
