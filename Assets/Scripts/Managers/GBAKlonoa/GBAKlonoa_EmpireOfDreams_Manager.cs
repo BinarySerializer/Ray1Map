@@ -21,6 +21,8 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
+            //await GenerateLevelObjPalettesAsync(context.GetR1Settings());
+            //return null;
             var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
             var settings = context.GetR1Settings();
             var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
@@ -139,7 +141,7 @@ namespace R1Engine
             objects.AddRange(fixObjects.Skip(1).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
 
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
-            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, x.LevelObj, allOAMCollections[x.OAMIndex])));
+            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, (BinarySerializable)x.LevelObj ?? x.WorldMapObj, allOAMCollections[x.OAMIndex])));
             
             return new Unity_Level(
                 maps: maps,
@@ -353,6 +355,159 @@ namespace R1Engine
             }
 
             str.ToString().CopyToClipboard();
+        }
+
+        public async UniTask GenerateLevelObjPalettesAsync(GameSettings gameSettings)
+        {
+            var graphicsPalettes = new Dictionary<long, int>();
+            var output = new StringBuilder();
+
+            var hasFilledDictionary = false;
+
+            for (int i = 0; i < 2; i++)
+            {
+                foreach (var world in GetLevels(gameSettings).First().Worlds)
+                {
+                    foreach (var level in world.Maps)
+                    {
+                        Controller.DetailedState = $"Processing {world.Index}-{level}";
+                        await Controller.WaitIfNecessary();
+
+                        var settings = new GameSettings(gameSettings.GameModeSelection, gameSettings.GameDirectory, world.Index, level);
+                        using var context = new R1Context(settings);
+
+                        await LoadFilesAsync(context);
+
+                        var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
+
+                        if (settings.Level == 0)
+                            continue;
+
+                        var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
+                        var normalLevelIndex = (settings.World - 1) * 7 + (settings.Level - 1);
+
+                        var objGraphics = rom.LevelObjectGraphics[globalLevelIndex];
+                        var objects = rom.LevelObjectCollection.Objects;
+                        var objOAM = rom.LevelObjectOAMCollections[globalLevelIndex];
+
+                        var objPalIndices = rom.GetLevelObjPalIndices(globalLevelIndex);
+
+                        try
+                        {
+                            if (!hasFilledDictionary)
+                            {
+                                if (objPalIndices.Length == 0)
+                                    continue;
+
+                                foreach (var graphic in objGraphics)
+                                {
+                                    if (graphic.AnimationsPointer == null)
+                                        continue;
+
+                                    if (graphicsPalettes.ContainsKey(graphic.AnimationsPointer.AbsoluteOffset))
+                                        continue;
+
+                                    var obj = objects[graphic.ObjIndex - FixCount];
+                                    var oam = objOAM[obj.OAMIndex - FixCount];
+                                    var palIndex = oam.OAMs[0].PaletteIndex;
+
+                                    // Ignore fix palette
+                                    if (palIndex < 2)
+                                        continue;
+
+                                    var globalPalIndex = objPalIndices[palIndex - 2];
+                                    graphicsPalettes.Add(graphic.AnimationsPointer.AbsoluteOffset, globalPalIndex);
+                                }
+
+                                foreach (var specialAnim in SpecialAnimations.Where(x => !x.IsFix))
+                                {
+                                    if (graphicsPalettes.ContainsKey(specialAnim.Offset.Value))
+                                        continue;
+
+                                    var obj = objects.FirstOrDefault(x => x.ObjType == specialAnim.Index);
+
+                                    if (obj == null)
+                                        continue;
+
+                                    var oam = objOAM[obj.OAMIndex - FixCount];
+                                    var palIndex = oam.OAMs[0].PaletteIndex;
+
+                                    // Ignore fix palette
+                                    if (palIndex < 2)
+                                        continue;
+
+                                    var globalPalIndex = objPalIndices[palIndex - 2];
+                                    graphicsPalettes.Add(specialAnim.Offset.Value, globalPalIndex);
+                                }
+                            }
+                            else
+                            {
+                                var palIndices = new int[objOAM.SelectMany(x => x.OAMs).Max(x => x.PaletteIndex) - 2 + 1];
+
+                                for (int j = 0; j < palIndices.Length; j++)
+                                    palIndices[j] = -1;
+
+                                foreach (var graphic in objGraphics)
+                                {
+                                    if (graphic.AnimationsPointer == null)
+                                        continue;
+
+                                    if (!graphicsPalettes.ContainsKey(graphic.AnimationsPointer.AbsoluteOffset))
+                                        continue;
+
+                                    var globalPalIndex = graphicsPalettes[graphic.AnimationsPointer.AbsoluteOffset];
+
+                                    var obj = objects[graphic.ObjIndex - FixCount];
+                                    var oam = objOAM[obj.OAMIndex - FixCount];
+                                    var palIndex = oam.OAMs[0].PaletteIndex;
+
+                                    palIndices[palIndex - 2] = globalPalIndex;
+                                }
+
+                                foreach (var specialAnim in SpecialAnimations.Where(x => !x.IsFix))
+                                {
+                                    if (!graphicsPalettes.ContainsKey(specialAnim.Offset.Value))
+                                        continue;
+
+                                    var globalPalIndex = graphicsPalettes[specialAnim.Offset.Value];
+
+                                    var obj = objects.FirstOrDefault(x => x.ObjType == specialAnim.Index);
+
+                                    if (obj == null)
+                                        continue;
+
+                                    var oam = objOAM[obj.OAMIndex - FixCount];
+                                    var palIndex = oam.OAMs[0].PaletteIndex;
+
+                                    palIndices[palIndex - 2] = globalPalIndex;
+                                }
+
+                                output.AppendLine($"{globalLevelIndex} => new int[] {{ {String.Join(", ", palIndices)} }},");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"Error at level {world.Index}-{level}: {ex.Message}{Environment.NewLine}{ex}");
+                        }
+                    }
+                }
+
+                if (!hasFilledDictionary)
+                {
+                    var str = new StringBuilder();
+
+                    foreach (var g in graphicsPalettes)
+                    {
+                        str.AppendLine($"0x{g.Key} -> {g.Value}");
+                    }
+
+                    str.ToString().CopyToClipboard();
+                }
+
+                hasFilledDictionary = true;
+            }
+
+            output.ToString().CopyToClipboard();
         }
 
         public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);

@@ -155,27 +155,67 @@ namespace R1Engine
                 s.DoAt(new Pointer(0x0818b800, Offset.File), () => LevelTextSpritePointers = s.SerializePointerArray(LevelTextSpritePointers, normalLevelsCount, name: nameof(LevelTextSpritePointers)));
         }
 
-        public RGBA5551Color[] GetLevelObjPal(int levelIndex)
+        public int[] GetLevelObjPalIndices(int levelIndex)
         {
             return levelIndex switch
             {
-                0 => createObjPal(02, 03, 04, 05, 06, 07, 08, 09, 10),
-                1 => createObjPal(39, 40, 41, 42, 43, 44),
-                2 => createObjPal(39, 40, 45, 46, 42, 43, 44),
-                3 => createObjPal(39, 40, 41, 45, 46, 47, 42, 43, 44),
-                4 => createObjPal(40, 41, 45, 48, 43, 44),
-                _ => createObjPal()
+                0 => new int[] { 02, 03, 04, 05, 06, 07, 08, 09, 10 },
+                1 => new int[] { 39, 40, 41, 42, 43, 44 },
+                2 => new int[] { 39, 40, 45, 46, 42, 43, 44 },
+                3 => new int[] { 39, 40, 41, 45, 46, 47, 42, 43, 44 },
+                4 => new int[] { 40, 41, 45, 48, 43, 44 },
+                5 => new int[] { 39, 40, 41, -1, 45, -1, -1, 42, 43, 44 },
+                6 => new int[] { -1, 41, -1, 45, 43, 44 },
+                7 => new int[] { 39, 40, -1, 45, -1, -1, -1, 42, 43, 44 },
+                8 => new int[] { -1, -1, -1, -1, 40, -1, 44, -1 },
+                10 => new int[] { 39, 40, 41, 45, -1, -1, -1, 42, 43, 44 },
+                11 => new int[] { 39, 40, 41, -1, -1, 45, -1, -1, 42, 43, 44 },
+                12 => new int[] { 39, 40, 41, -1, -1, -1, -1, -1, 42, 43, 44 },
+                13 => new int[] { 40, 41, 45, -1, -1, 43, 44 },
+                14 => new int[] { 39, 40, 41, 45, -1, -1, -1, 42, -1, -1, 43, 44 },
+                15 => new int[] { -1, 40, 41, -1, 45, -1, 43, 44 },
+                16 => new int[] { 39, 40, 41, -1, -1, 42, -1, -1, -1, 43, 44 },
+                17 => new int[] { -1, -1, -1, -1, 40, -1, -1, -1, 44 },
+                19 => new int[] { 39, 40, -1, -1, -1, -1, -1, 42, 43, 44 },
+                20 => new int[] { 39, 41, -1, -1, -1, -1, -1, 42, 43, 44 },
+                21 => new int[] { 39, 41, -1, -1, -1, -1, -1, 42, 43, 44 },
+                22 => new int[] { 40, 41, 45, -1, -1, 43, 44 },
+                23 => new int[] { 39, -1, -1, -1, -1, 42, -1, 43 },
+                24 => new int[] { -1, 40, 41, -1, -1, 45, 43, 44 },
+                25 => new int[] { 39, 41, -1, -1, -1, -1, 42, -1, 43, 44 },
+                26 => new int[] { -1, -1, -1, -1, 41, -1, -1, -1, 44 },
+                28 => new int[] { 39, 40, 41, -1, -1, -1, -1, -1, -1, -1, 42, 43, 44 },
+                29 => new int[] { 39, 40, 41, -1, -1, -1, -1, 43, -1, -1, 42, 44 },
+                30 => new int[] { 39, 41, -1, -1, 45, -1, -1, -1, 42, 43, 44 },
+                31 => new int[] { 40, 41, 45, -1, -1, 43, 44 },
+                32 => new int[] { 39, 40, -1, -1, -1, -1, -1, -1, 42, 43, 44 },
+                33 => new int[] { -1, 40, 41, -1, -1, 45, -1, 43, 44 },
+                34 => new int[] { 39, 40, 41, -1, -1, -1, 42, 43, -1, -1, -1, 44 },
+                35 => new int[] { -1, -1, -1, -1, 40, -1, -1, 44 },
+                37 => new int[] { 39, 40, 45, -1, -1, 42, 43, 44 },
+                38 => new int[] { 39, 40, 41, 45, -1, -1, -1, 42, -1, 43, 44 },
+                39 => new int[] { 39, 40, 45, -1, -1, -1, -1, 42, -1, 43, 44 },
+                40 => new int[] { 40, 41, 45, -1, -1, 43, 44 },
+                41 => new int[] { 39, 40, 41, -1, 45, -1, -1, -1, -1, -1, 42, 43, 44 },
+                42 => new int[] { -1, 40, 41, -1, -1, 45, 43, 44 },
+                43 => new int[] { 39, 40, 41, -1, -1, 45, -1, -1, -1, -1, -1, 42, 43, 44 },
+                44 => new int[] { -1, -1, -1, -1, 40, -1, -1, 44 },
+                46 => new int[] { 39, 40, 41, -1, -1, 45, -1, -1, -1, 42, 43, 44 },
+                47 => new int[] { 39, 40, 41, -1, -1, -1, -1, -1, 45, -1, 42, -1, 43, 44 },
+                48 => new int[] { 39, 40, 41, 45, -1, -1, -1, 42, 43, 44 },
+                53 => new int[] { -1, -1, -1, -1, -1, 40, 40, -1, -1, -1, 44 },
+                _ => new int[0]
+            };
+        }
+
+        public BaseColor[] GetLevelObjPal(int levelIndex)
+        {
+            var fix = new int[]
+            {
+                0, 1
             };
 
-            RGBA5551Color[] createObjPal(params int[] indices)
-            {
-                var fix = new int[]
-                {
-                    0, 1
-                };
-
-                return fix.Concat(indices).Select(x => ObjectPalettes[x].Colors).SelectMany(x => x).ToArray();
-            }
+            return fix.Concat(GetLevelObjPalIndices(levelIndex)).Select(x => x == -1 ? Util.CreateDummyPalette(16) : ObjectPalettes[x].Colors).SelectMany(x => x).ToArray();
         }
     }
 }

@@ -103,7 +103,7 @@ namespace R1Engine
                 }
                 else
                 {
-                    Debug.LogWarning($"Out of bounds tile with index {tileIndex} in {settings.GameModeSelection} - {settings.World}{settings.Level}");
+                    Debug.LogWarning($"Out of bounds tile with index {tileIndex} in {settings.GameModeSelection} - {settings.World}-{settings.Level} (tiles count is {tiles.Length})");
 
                     tileIndex = 0;
                 }
