@@ -462,7 +462,7 @@ namespace R1Engine
 
                                 foreach (var specialAnim in SpecialAnimations.Where(x => !x.IsFix))
                                 {
-                                    if (graphicsPalettes.ContainsKey(specialAnim.Offset.Value))
+                                    if (graphicsPalettes.ContainsKey(specialAnim.Offset ?? specialAnim.FrameOffsets[0]))
                                         continue;
 
                                     var obj = objects.FirstOrDefault(x => x.ObjType == specialAnim.Index);
@@ -478,7 +478,7 @@ namespace R1Engine
                                         continue;
 
                                     var globalPalIndex = objPalIndices[palIndex - 2];
-                                    graphicsPalettes.Add(specialAnim.Offset.Value, globalPalIndex);
+                                    graphicsPalettes.Add(specialAnim.Offset ?? specialAnim.FrameOffsets[0], globalPalIndex);
                                 }
                             }
                             else
@@ -507,10 +507,10 @@ namespace R1Engine
 
                                 foreach (var specialAnim in SpecialAnimations.Where(x => !x.IsFix))
                                 {
-                                    if (!graphicsPalettes.ContainsKey(specialAnim.Offset.Value))
+                                    if (!graphicsPalettes.ContainsKey(specialAnim.Offset ?? specialAnim.FrameOffsets[0]))
                                         continue;
 
-                                    var globalPalIndex = graphicsPalettes[specialAnim.Offset.Value];
+                                    var globalPalIndex = graphicsPalettes[specialAnim.Offset ?? specialAnim.FrameOffsets[0]];
 
                                     var obj = objects.FirstOrDefault(x => x.ObjType == specialAnim.Index);
 
@@ -638,6 +638,7 @@ namespace R1Engine
 
             // Boss fight 1?
 
+            new SpecialAnimation(0x08061c28, false, 42), // Fence
             new SpecialAnimation(0x08061d28, false, 9), // Leaf
             new SpecialAnimation(0x08061d28, false, 10, groupCount: 5), // Leaves
         };
