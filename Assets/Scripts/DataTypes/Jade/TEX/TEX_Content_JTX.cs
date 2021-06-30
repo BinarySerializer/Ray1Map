@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BinarySerializer;
+using BinarySerializer.Image;
 using UnityEngine;
 
 namespace R1Engine.Jade
@@ -164,7 +165,8 @@ namespace R1Engine.Jade
         }
 
         public Texture2D ToTexture2D() {
-            var tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
+            Texture2D tex = null;
+            DDS dds = null;
             byte[] content = Content;
             if (PS2_Content != null) {
                 if (PS2_IsSwizzled != 0) {
@@ -189,12 +191,14 @@ namespace R1Engine.Jade
                 case JTX_Format.Alpha_8:
                 case JTX_Format.AlphaIntensity_8:
                 case JTX_Format.Intensity_8:
+                    tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
                     tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_8bpp, 0, 0, (int)Width, (int)Height);
                     break;
                 case JTX_Format.Palette_4:
                 case JTX_Format.Alpha_4:
                 case JTX_Format.AlphaIntensity_4:
                 case JTX_Format.Intensity_4:
+                    tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
                     if (PS2_IsSwizzled != 0) {
                         tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_8bpp, 0, 0, (int)Width, (int)Height);
                     } else {
@@ -202,10 +206,31 @@ namespace R1Engine.Jade
                     }
                     break;
                 case JTX_Format.Raw32:
-                    tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_32bpp_RGBA, 0, 0, (int)Width, (int)Height);
+                    tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
+                    var tileEncoding = Util.TileEncoding.Linear_32bpp_RGBA;
+                    if(Context.GetR1Settings().Platform == Platform.GC || Context.GetR1Settings().Platform == Platform.Wii) tileEncoding = Util.TileEncoding.Linear_32bpp_BGRA;
+                    tex.FillRegion(content, 0, palette, tileEncoding, 0, 0, (int)Width, (int)Height);
                     break;
                 case JTX_Format.S3TC:
+                    dds = DDS.FromRawData(content, DDS_Parser.PixelFormat.DXT1, Width, Height);
+                    tex = dds.PrimaryTexture?.ToTexture2D();
+                    break;
                 case JTX_Format.S3TC_A:
+                    dds = DDS.FromRawData(Content, DDS_Parser.PixelFormat.DXT1, Width, Height);
+                    tex = dds.PrimaryTexture?.ToTexture2D();
+                    var dds_a = DDS.FromRawData(Content2, DDS_Parser.PixelFormat.DXT1, Width, Height);
+                    var tex_a = dds_a.PrimaryTexture?.ToTexture2D();
+                    if (tex_a != null) {
+                        var pixels_base = tex.GetPixels();
+                        var pixels_a = tex_a.GetPixels();
+                        for (int i = 0; i < pixels_base.Length; i++) {
+                            var p = pixels_base[i];
+                            var p_a = pixels_a[i];
+                            pixels_base[i] = new Color(p.r, p.g, p.b, p_a.r);
+                        }
+                        tex.SetPixels(pixels_base);
+                        tex.Apply();
+                    }
                     break;
                 default:
                     throw new NotImplementedException($"TODO: Implement JTX type {Format}");
