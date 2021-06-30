@@ -11,14 +11,39 @@ namespace R1Engine.Jade {
 
 		public uint VertexDataBufferSize { get; set; }
 		public uint VertexDataBufferType { get; set; }
-		public VertexDataBuffer VertexData { get; set; }
+		public PointDataBuffer VertexData { get; set; }
 
 		public uint ElementDataBufferSize { get; set; }
 		public ElementDataBuffer ElementData { get; set; }
 
+
+
+		public GEO_GeometricObject.GEO_ObjFlags? Flags => Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) ? (GEO_GeometricObject.GEO_ObjFlags?)GeometricObject.Flags : null;
+		public GEO_GeometricObject.GEO_ObjFlags_PoPSoT? Flags_SoT => !Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) ? (GEO_GeometricObject.GEO_ObjFlags_PoPSoT?)GeometricObject.Flags_SoT : null;
+		public bool UseNormals =>
+			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.UseNormalsInEngine)
+			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.UseNormalsInEngine)
+			?? false;
+		public bool HasLightmap =>
+			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.HasLightMap)
+			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.HasLightMap)
+			?? false;
+		public bool Index8Bits =>
+			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.Index8Bits)
+			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.Index8Bits)
+			?? false;
+		public bool RenderAOOnWii =>
+			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.NCIS_RenderAOOnWii_TFS_CanBeDisplaced)
+			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.NCIS_RenderAOOnWii_TFS_CanBeDisplaced)
+			?? false;
+		public bool StaticMesh =>
+			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.StaticMesh)
+			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.StaticMesh)
+			?? false;
+
+
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-
 			if (Loader.IsBinaryData) {
 				ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
 				ElementHeaders = s.SerializeObjectArray<ElementHeader>(ElementHeaders, ElementsCount, name: nameof(ElementHeaders));
@@ -31,7 +56,7 @@ namespace R1Engine.Jade {
 			VertexDataBufferSize = s.Serialize<uint>(VertexDataBufferSize, name: nameof(VertexDataBufferSize));
 			if (VertexDataBufferSize != 0) {
 				VertexDataBufferType = s.Serialize<uint>(VertexDataBufferType, name: nameof(VertexDataBufferType));
-				VertexData = s.SerializeObject<VertexDataBuffer>(VertexData, onPreSerialize: b => b.Geo = this, name: nameof(VertexData));
+				VertexData = s.SerializeObject<PointDataBuffer>(VertexData, onPreSerialize: b => b.Geo = this, name: nameof(VertexData));
 			}
 
 			ElementDataBufferSize = s.Serialize<uint>(ElementDataBufferSize, name: nameof(ElementDataBufferSize));
@@ -53,18 +78,18 @@ namespace R1Engine.Jade {
 
 
 
-		public class VertexDataBuffer : BinarySerializable {
+		public class PointDataBuffer : BinarySerializable {
 			public GEO_GeoObject_PC Geo { get; set; }
 			public uint TotalSize => Geo.VertexDataBufferSize;
 
 			public uint Count { get; set; }
-			public uint VertexSize { get; set; }
-			public Vertex[] Vertices { get; set; }
+			public uint PointDataSize { get; set; }
+			public Point[] Points { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
-				VertexSize = s.Serialize<uint>(VertexSize, name: nameof(VertexSize));
-				Vertices = s.SerializeObjectArray<Vertex>(Vertices, Count, onPreSerialize: v => v.VertexSize = VertexSize, name: nameof(Vertices));
+				PointDataSize = s.Serialize<uint>(PointDataSize, name: nameof(PointDataSize));
+				Points = s.SerializeObjectArray<Point>(Points, Count, onPreSerialize: v => v.Buffer = this, name: nameof(Points));
 
 				if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + TotalSize) {
 					s.LogWarning($"Vertex Buffer at {Offset} wasn't serialized properly.");
@@ -72,13 +97,20 @@ namespace R1Engine.Jade {
 				}
 
 			}
-			public class Vertex : BinarySerializable {
-				public uint VertexSize { get; set; }
+			public class Point : BinarySerializable {
+				public PointDataBuffer Buffer { get; set; }
 
-				public float[] Floats { get; set; } // Seems like first Vertex, then Normal, then UV, then ...?
+				public Jade_Vector Vertex { get; set; }
+				public Jade_Vector Normal { get; set; }
+				public Jade_Vector StaticMesh { get; set; }
+				public byte[] PointBytes { get; set; }
+				public GEO_GeometricObject.UV UV { get; set; }
 
 				public override void SerializeImpl(SerializerObject s) {
-					Floats = s.SerializeArray<float>(Floats, VertexSize / 4, name: nameof(Floats));
+					Vertex = s.SerializeObject<Jade_Vector>(Vertex, name: nameof(Vertex));
+					if (Buffer.Geo.VertexDataBufferType != 0) Normal = s.SerializeObject<Jade_Vector>(Normal, name: nameof(Normal));
+					PointBytes = s.SerializeArray<byte>(PointBytes, (Buffer.PointDataSize - (s.CurrentAbsoluteOffset - Offset.AbsoluteOffset) - 8), name: nameof(PointBytes));
+					UV = s.SerializeObject<GEO_GeometricObject.UV>(UV, name: nameof(UV));
 				}
 			}
 		}

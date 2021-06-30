@@ -51,6 +51,7 @@ namespace R1Engine.Jade {
 				case Platform.GC:
 					return (Montreal_Flags2 & 2) == 2;
 				case Platform.PC:
+				case Platform.Xbox:
 					return (Montreal_Flags2 & 4) == 4;
 				case Platform.Wii:
 					return (Montreal_Flags2 & 0x40) == 0x40;
@@ -177,6 +178,13 @@ namespace R1Engine.Jade {
 						OptimizedGeoObject_GC = s.SerializeObject<GEO_GeoObject_GC>(OptimizedGeoObject_GC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_GC));
 						break;
 					case Platform.PC:
+						OptimizedGeoObject_PC = s.SerializeObject<GEO_GeoObject_PC>(OptimizedGeoObject_PC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_PC));
+						break;
+					case Platform.Xbox:
+						Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
+						if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
+							ObjectPonderation = s.SerializeObject<GEO_GeometricObject_Ponderation>(ObjectPonderation, name: nameof(ObjectPonderation));
+						}
 						OptimizedGeoObject_PC = s.SerializeObject<GEO_GeoObject_PC>(OptimizedGeoObject_PC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_PC));
 						break;
 					default:

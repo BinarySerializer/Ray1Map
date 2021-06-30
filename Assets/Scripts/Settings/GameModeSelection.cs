@@ -771,6 +771,9 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PC - Limited Demo)", typeof(Jade_PoP_SoT_PC_LimitedDemo_Manager), Platform.PC)]
         PrinceOfPersiaTheSandsOfTimePCLimitedDemo,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (Xbox)", typeof(Jade_PoP_SoT_Xbox_Manager), Platform.Xbox)]
+        PrinceOfPersiaTheSandsOfTimeXbox,
+
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]
         MyWordCoachWii,
