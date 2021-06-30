@@ -57,11 +57,11 @@ namespace R1Engine.Jade {
 			if (VertexDataBufferSize != 0) {
 				VertexDataBufferType = s.Serialize<uint>(VertexDataBufferType, name: nameof(VertexDataBufferType));
 				VertexData = s.SerializeObject<PointDataBuffer>(VertexData, onPreSerialize: b => b.Geo = this, name: nameof(VertexData));
-			}
 
-			ElementDataBufferSize = s.Serialize<uint>(ElementDataBufferSize, name: nameof(ElementDataBufferSize));
-			if (ElementDataBufferSize != 0) {
-				ElementData = s.SerializeObject<ElementDataBuffer>(ElementData, onPreSerialize: b => b.Geo = this, name: nameof(ElementData));
+				ElementDataBufferSize = s.Serialize<uint>(ElementDataBufferSize, name: nameof(ElementDataBufferSize));
+				if (ElementDataBufferSize != 0) {
+					ElementData = s.SerializeObject<ElementDataBuffer>(ElementData, onPreSerialize: b => b.Geo = this, name: nameof(ElementData));
+				}
 			}
 
 		}
