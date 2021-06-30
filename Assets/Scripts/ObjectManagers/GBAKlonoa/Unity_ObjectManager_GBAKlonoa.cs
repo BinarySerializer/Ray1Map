@@ -25,14 +25,10 @@ namespace R1Engine
                 Animations = animations;
                 DisplayName = displayName;
                 OAMCollection = oamCollection;
-                ObjIndices = new List<int>();
-                ObjTypeIndices = new List<int>();
             }
 
             public Animation[] Animations { get; }
             public GBAKlonoa_ObjectOAMCollection OAMCollection { get; }
-            public List<int> ObjIndices { get; }
-            public List<int> ObjTypeIndices { get; }
             public string DisplayName { get; }
 
             public class Animation

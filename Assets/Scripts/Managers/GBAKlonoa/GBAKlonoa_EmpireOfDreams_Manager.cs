@@ -21,6 +21,8 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
+            //await GenerateLevelObjPalettesAsync(context.GetR1Settings());
+            //return null;
             var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
             var settings = context.GetR1Settings();
             var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
@@ -59,6 +61,12 @@ namespace R1Engine
                     getPalFunc = x => pal_4[tilesetPalettes.TryGetItem(x)];
                 }
 
+                var imgData = rom.TileSets[globalLevelIndex].TileSets[mapIndex];
+
+                // First map can use tiles from the second tileset as well
+                if (mapIndex == 0)
+                    imgData = imgData.Concat(new byte[512 * 0x20 - imgData.Length]).Concat(rom.TileSets[globalLevelIndex].TileSets[1]).ToArray();
+
                 return new Unity_Map
                 {
                     Width = width,
@@ -66,7 +74,7 @@ namespace R1Engine
                     TileSet = new Unity_TileSet[]
                     {
                         new Unity_TileSet(Util.ToTileSetTexture(
-                            imgData: rom.TileSets[globalLevelIndex].TileSets[mapIndex],
+                            imgData: imgData,
                             pal: pal_8,
                             encoding: is8Bit ? Util.TileEncoding.Linear_8bpp : Util.TileEncoding.Linear_4bpp,
                             tileWidth: CellSize, 
@@ -139,7 +147,7 @@ namespace R1Engine
             objects.AddRange(fixObjects.Skip(1).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
 
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
-            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, x.LevelObj, allOAMCollections[x.OAMIndex])));
+            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, (BinarySerializable)x.LevelObj ?? x.WorldMapObj, allOAMCollections[x.OAMIndex])));
             
             return new Unity_Level(
                 maps: maps,
@@ -223,7 +231,11 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, GBAKlonoa_LoadedObject[] objects, Pointer levelTextSpritePointer)
         {
-            var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
+            // Cache animations based on the tile index in VRAM they get loaded into. This will load duplicate animations since some are 
+            // duplicated into VRAM, but it's easier to manage this way due to the tile index being used to match the objects with their
+            // animations in the editor. Otherwise animations which are loaded in multiple times, such as enemies, would only show graphics
+            // for the first object in the editor.
+            var loadedAnimSetsDictionary = new Dictionary<ushort, Unity_ObjectManager_GBAKlonoa.AnimSet>();
             var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
 
             // Start by adding a null entry to use as default
@@ -236,13 +248,11 @@ namespace R1Engine
                 if (animSet.AnimationsPointer == null) 
                     continue;
                 
-                if (!loadedAnimSetsDictionary.ContainsKey(animSet.AnimationsPointer))
+                if (!loadedAnimSetsDictionary.ContainsKey(oam.OAMs[0].TileIndex))
                 {
-                    loadedAnimSetsDictionary[animSet.AnimationsPointer] = LoadAnimSet(animSet, oam, palettes);
-                    loadedAnimSets.Add(loadedAnimSetsDictionary[animSet.AnimationsPointer]);
+                    loadedAnimSetsDictionary[oam.OAMs[0].TileIndex] = LoadAnimSet(animSet, oam, palettes);
+                    loadedAnimSets.Add(loadedAnimSetsDictionary[oam.OAMs[0].TileIndex]);
                 }
-
-                loadedAnimSetsDictionary[animSet.AnimationsPointer].ObjIndices.Add(animSet.ObjIndex);
             }
 
             var s = context.Deserializer;
@@ -262,48 +272,81 @@ namespace R1Engine
             // Load special animations. These are all manually loaded into VRAM by the game.
             foreach (var specialAnim in specialAnims)
             {
-                // Find an object which uses this animation
-                var obj = objects.FirstOrDefault(x => specialAnim.IsFix && x.Index == specialAnim.Index || !specialAnim.IsFix && x.ObjType == specialAnim.Index);
-
-                if (obj == null)
-                    continue;
-
-                var oam = oamCollections[obj.OAMIndex];
-                var imgDataLength = oam.OAMs.Select(o => (shapes[o.Shape].Width / CellSize) * (shapes[o.Shape].Height / CellSize) * 0x20).Sum();
-                var animsPointer = new Pointer(specialAnim.Offset ?? specialAnim.FrameOffsets[0], file);
-
-                Pointer[] framePointers;
-
-                if (specialAnim.Offset != null)
-                    framePointers = s.DoAt(animsPointer, () => s.SerializePointerArray(null, specialAnim.FramesCount, name: $"SpecialAnimations[{specialAnimIndex}]"));
-                else
-                    framePointers = specialAnim.FrameOffsets.Select(p => new Pointer(p, file)).ToArray();
-
-                var frames = new GBAKlonoa_AnimationFrame[framePointers.Length];
-
-                for (int frameIndex = 0; frameIndex < framePointers.Length; frameIndex++)
+                // If a group count is specified we read x sprites one after another assumed to be stored in VRAM in the same order
+                if (specialAnim.GroupCount != null)
                 {
-                    var imgData = s.DoAt(framePointers[frameIndex], () => s.SerializeArray<byte>(null, imgDataLength, name: $"SpecialAnimations[{specialAnimIndex}][{frameIndex}]"));
-                    
-                    frames[frameIndex] = new GBAKlonoa_AnimationFrame()
+                    var oams = objects.Where(x => specialAnim.IsFix && x.Index == specialAnim.Index || !specialAnim.IsFix && x.ObjType == specialAnim.Index).Select(x => oamCollections[x.OAMIndex]).ToArray();
+
+                    if (!oams.Any())
+                        continue;
+
+                    // We assume each object only has a single sprite (OAM)
+                    int tileIndex = oams.Min(x => x.OAMs[0].TileIndex);
+
+                    // We assume every animation has a single frame
+                    var offset = specialAnim.FrameOffsets[0];
+
+                    for (int groupSprite = 0; groupSprite < specialAnim.GroupCount.Value; groupSprite++)
                     {
-                        ImgData = imgData
-                    };
+                        var oam = oams.First(x => x.OAMs[0].TileIndex == tileIndex);
+
+                        loadSpecialAnimation(oam, null, new long[]
+                        {
+                            offset
+                        }, specialAnim.FramesCount);
+
+                        var tilesCount = (shapes[oam.OAMs[0].Shape].Width / CellSize) * (shapes[oam.OAMs[0].Shape].Height / CellSize);
+                        tileIndex += tilesCount;
+                        offset += tilesCount * 0x20;
+                    }
+                }
+                else
+                {
+                    // Find an object which uses this animation
+                    var obj = objects.FirstOrDefault(x => specialAnim.IsFix && x.Index == specialAnim.Index || !specialAnim.IsFix && x.ObjType == specialAnim.Index);
+
+                    if (obj == null)
+                        continue;
+
+                    loadSpecialAnimation(oamCollections[obj.OAMIndex], specialAnim.Offset, specialAnim.FrameOffsets, specialAnim.FramesCount);
                 }
 
-                var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
+                void loadSpecialAnimation(GBAKlonoa_ObjectOAMCollection oam, long? offset, IReadOnlyList<long> frameOffsets, int framesCount)
                 {
-                    new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oam, palettes).Select(x => x.CreateSprite()).ToArray(), oam)
-                }, $"{animsPointer}", oam);
+                    var imgDataLength = oam.OAMs.Select(o => (shapes[o.Shape].Width / CellSize) * (shapes[o.Shape].Height / CellSize) * 0x20).Sum();
+                    var animsPointer = new Pointer(offset ?? frameOffsets[0], file);
 
-                if (specialAnim.IsFix)
-                    animSet.ObjIndices.Add(specialAnim.Index);
-                else
-                    animSet.ObjTypeIndices.Add(specialAnim.Index);
+                    Pointer[] framePointers;
 
-                loadedAnimSets.Add(animSet);
+                    if (offset != null)
+                        framePointers = s.DoAt(animsPointer, () => s.SerializePointerArray(null, framesCount, name: $"SpecialAnimations[{specialAnimIndex}]"));
+                    else
+                        framePointers = frameOffsets.Select(p => new Pointer(p, file)).ToArray();
 
-                specialAnimIndex++;
+                    var frames = new GBAKlonoa_AnimationFrame[framePointers.Length];
+
+                    for (int frameIndex = 0; frameIndex < framePointers.Length; frameIndex++)
+                    {
+                        var imgData = s.DoAt(framePointers[frameIndex], () => s.SerializeArray<byte>(null, imgDataLength, name: $"SpecialAnimations[{specialAnimIndex}][{frameIndex}]"));
+
+                        if (imgData == null)
+                            throw new Exception($"Image data is null for special animation! Pointer: {framePointers[frameIndex]}");
+
+                        frames[frameIndex] = new GBAKlonoa_AnimationFrame()
+                        {
+                            ImgData = imgData
+                        };
+                    }
+
+                    var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
+                    {
+                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oam, palettes).Select(x => x.CreateSprite()).ToArray(), oam)
+                    }, $"{animsPointer}", oam);
+
+                    loadedAnimSets.Add(animSet);
+
+                    specialAnimIndex++;
+                }
             }
 
             return loadedAnimSets.ToArray();
@@ -355,6 +398,159 @@ namespace R1Engine
             str.ToString().CopyToClipboard();
         }
 
+        public async UniTask GenerateLevelObjPalettesAsync(GameSettings gameSettings)
+        {
+            var graphicsPalettes = new Dictionary<long, int>();
+            var output = new StringBuilder();
+
+            var hasFilledDictionary = false;
+
+            for (int i = 0; i < 2; i++)
+            {
+                foreach (var world in GetLevels(gameSettings).First().Worlds)
+                {
+                    foreach (var level in world.Maps)
+                    {
+                        Controller.DetailedState = $"Processing {world.Index}-{level}";
+                        await Controller.WaitIfNecessary();
+
+                        var settings = new GameSettings(gameSettings.GameModeSelection, gameSettings.GameDirectory, world.Index, level);
+                        using var context = new R1Context(settings);
+
+                        await LoadFilesAsync(context);
+
+                        var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
+
+                        if (settings.Level == 0)
+                            continue;
+
+                        var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
+                        var normalLevelIndex = (settings.World - 1) * 7 + (settings.Level - 1);
+
+                        var objGraphics = rom.LevelObjectGraphics[globalLevelIndex];
+                        var objects = rom.LevelObjectCollection.Objects;
+                        var objOAM = rom.LevelObjectOAMCollections[globalLevelIndex];
+
+                        var objPalIndices = rom.GetLevelObjPalIndices(globalLevelIndex);
+
+                        try
+                        {
+                            if (!hasFilledDictionary)
+                            {
+                                if (objPalIndices.Length == 0)
+                                    continue;
+
+                                foreach (var graphic in objGraphics)
+                                {
+                                    if (graphic.AnimationsPointer == null)
+                                        continue;
+
+                                    if (graphicsPalettes.ContainsKey(graphic.AnimationsPointer.AbsoluteOffset))
+                                        continue;
+
+                                    var obj = objects[graphic.ObjIndex - FixCount];
+                                    var oam = objOAM[obj.OAMIndex - FixCount];
+                                    var palIndex = oam.OAMs[0].PaletteIndex;
+
+                                    // Ignore fix palette
+                                    if (palIndex < 2)
+                                        continue;
+
+                                    var globalPalIndex = objPalIndices[palIndex - 2];
+                                    graphicsPalettes.Add(graphic.AnimationsPointer.AbsoluteOffset, globalPalIndex);
+                                }
+
+                                foreach (var specialAnim in SpecialAnimations.Where(x => !x.IsFix))
+                                {
+                                    if (graphicsPalettes.ContainsKey(specialAnim.Offset ?? specialAnim.FrameOffsets[0]))
+                                        continue;
+
+                                    var obj = objects.FirstOrDefault(x => x.ObjType == specialAnim.Index);
+
+                                    if (obj == null)
+                                        continue;
+
+                                    var oam = objOAM[obj.OAMIndex - FixCount];
+                                    var palIndex = oam.OAMs[0].PaletteIndex;
+
+                                    // Ignore fix palette
+                                    if (palIndex < 2)
+                                        continue;
+
+                                    var globalPalIndex = objPalIndices[palIndex - 2];
+                                    graphicsPalettes.Add(specialAnim.Offset ?? specialAnim.FrameOffsets[0], globalPalIndex);
+                                }
+                            }
+                            else
+                            {
+                                var palIndices = new int[objOAM.SelectMany(x => x.OAMs).Max(x => x.PaletteIndex) - 2 + 1];
+
+                                for (int j = 0; j < palIndices.Length; j++)
+                                    palIndices[j] = -1;
+
+                                foreach (var graphic in objGraphics)
+                                {
+                                    if (graphic.AnimationsPointer == null)
+                                        continue;
+
+                                    if (!graphicsPalettes.ContainsKey(graphic.AnimationsPointer.AbsoluteOffset))
+                                        continue;
+
+                                    var globalPalIndex = graphicsPalettes[graphic.AnimationsPointer.AbsoluteOffset];
+
+                                    var obj = objects[graphic.ObjIndex - FixCount];
+                                    var oam = objOAM[obj.OAMIndex - FixCount];
+                                    var palIndex = oam.OAMs[0].PaletteIndex;
+
+                                    palIndices[palIndex - 2] = globalPalIndex;
+                                }
+
+                                foreach (var specialAnim in SpecialAnimations.Where(x => !x.IsFix))
+                                {
+                                    if (!graphicsPalettes.ContainsKey(specialAnim.Offset ?? specialAnim.FrameOffsets[0]))
+                                        continue;
+
+                                    var globalPalIndex = graphicsPalettes[specialAnim.Offset ?? specialAnim.FrameOffsets[0]];
+
+                                    var obj = objects.FirstOrDefault(x => x.ObjType == specialAnim.Index);
+
+                                    if (obj == null)
+                                        continue;
+
+                                    var oam = objOAM[obj.OAMIndex - FixCount];
+                                    var palIndex = oam.OAMs[0].PaletteIndex;
+
+                                    palIndices[palIndex - 2] = globalPalIndex;
+                                }
+
+                                output.AppendLine($"{globalLevelIndex} => new int[] {{ {String.Join(", ", palIndices)} }},");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"Error at level {world.Index}-{level}: {ex.Message}{Environment.NewLine}{ex}");
+                        }
+                    }
+                }
+
+                if (!hasFilledDictionary)
+                {
+                    var str = new StringBuilder();
+
+                    foreach (var g in graphicsPalettes)
+                    {
+                        str.AppendLine($"0x{g.Key} -> {g.Value}");
+                    }
+
+                    str.ToString().CopyToClipboard();
+                }
+
+                hasFilledDictionary = true;
+            }
+
+            output.ToString().CopyToClipboard();
+        }
+
         public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
 
         // TODO: Support EU and JP versions
@@ -400,6 +596,13 @@ namespace R1Engine
             new AnimSetInfo(0x08189A1C, 1),
             new AnimSetInfo(0x08189A20, 1),
         };
+
+        // NOTE: These animations are handled by the game manually copying the image data to VRAM, either in a global function or in one of the
+        //       level load functions. For simplicity we match them with the objects based on index if fix or object type if not. Hopefully this
+        //       will always work, assuming that every object of the same type will always have the same graphics. The way the game does this is
+        //       by having each object specify a tile index in VRAM (the OAM data) for what it should display. This allows each object to display
+        //       different graphics. Problem is we don't know what the tile index corresponds to as the VRAM is allocated differently for each
+        //       level and it is almost entirely hard-coded in the level load functions.
         public SpecialAnimation[] SpecialAnimations => new SpecialAnimation[]
         {
             // Fix
@@ -423,6 +626,21 @@ namespace R1Engine
             new SpecialAnimation(0x0818b9c8, 4, false, 45), // Blue gem
             new SpecialAnimation(0x0818b9d8, 4, false, 7), // Heart
             new SpecialAnimation(0x0818b9e8, 4, false, 3), // Star
+
+            // Other
+            new SpecialAnimation(0x0805f508, false, 111), // Block
+            new SpecialAnimation(0x0805f708, false, 1), // Red key
+            new SpecialAnimation(0x0805f788, false, 2), // Blue key
+            new SpecialAnimation(0x0805f808, false, 5), // Locked door
+            new SpecialAnimation(0x0805fb08, false, 64), // Ramp
+            new SpecialAnimation(0x08060608, false, 39), // Vertical platform
+            new SpecialAnimation(0x08060708, false, 41), // Horizontal platform
+
+            // Boss fight 1?
+
+            new SpecialAnimation(0x08061c28, false, 42), // Fence
+            new SpecialAnimation(0x08061d28, false, 9), // Leaf
+            new SpecialAnimation(0x08061d28, false, 10, groupCount: 5), // Leaves
         };
 
         public class AnimSetInfo
@@ -439,12 +657,22 @@ namespace R1Engine
 
         public class SpecialAnimation
         {
-            public SpecialAnimation(long offset, int framesCount, bool isFix, int index)
+            public SpecialAnimation(long framesArrayOffset, int framesCount, bool isFix, int index)
             {
-                Offset = offset;
+                Offset = framesArrayOffset;
                 FramesCount = framesCount;
                 IsFix = isFix;
                 Index = index;
+            }
+            public SpecialAnimation(long frameOffset, bool isFix, int index, int? groupCount = null)
+            {
+                FrameOffsets = new long[]
+                {
+                    frameOffset
+                };
+                IsFix = isFix;
+                Index = index;
+                GroupCount = groupCount;
             }
             public SpecialAnimation(long[] frameOffsets, bool isFix, int index)
             {
@@ -453,11 +681,35 @@ namespace R1Engine
                 Index = index;
             }
 
+            /// <summary>
+            /// The offset for every frame in the animation
+            /// </summary>
             public long[] FrameOffsets { get; }
+
+            /// <summary>
+            /// If specified this is the offset to the frames pointer array, otherwise <see cref="FrameOffsets"/> should be set
+            /// </summary>
             public long? Offset { get; }
+
+            /// <summary>
+            /// The amount of frames in the animation if <see cref="Offset"/> is specified
+            /// </summary>
             public int FramesCount { get; }
+
+            /// <summary>
+            /// Indicates if the animation is for a fix object, otherwise it's for a level object
+            /// </summary>
             public bool IsFix { get; }
-            public int Index { get; } // If fix this is the object index, otherwise it's the object type
+
+            /// <summary>
+            /// If <see cref="IsFix"/> this is the object index (0-12), otherwise it's the object type
+            /// </summary>
+            public int Index { get; }
+
+            /// <summary>
+            /// If specified this indicates how many sprites are used for this group of sprites. A very hacky solution to the wind leaves.
+            /// </summary>
+            public int? GroupCount { get; }
         }
     }
 }

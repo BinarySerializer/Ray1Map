@@ -15,7 +15,7 @@ namespace R1Engine
             Serializable = serializable;
             OAMCollection = oamCollection;
 
-            AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.ObjIndices.Contains(obj.Index) || x.ObjTypeIndices.Contains(obj.ObjType));
+            AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.OAMCollection != null && x.OAMCollection.OAMs[0].TileIndex == oamCollection.OAMs[0].TileIndex);
 
             if (AnimSetIndex == -1)
             {
