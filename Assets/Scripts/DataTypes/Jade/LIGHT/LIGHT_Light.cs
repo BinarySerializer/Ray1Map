@@ -34,7 +34,7 @@ namespace R1Engine.Jade {
 				Flags = bitFunc(Flags, 28, name: nameof(Flags));
 			});
 			Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
-			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Flags, 3, 0) == 7) {
+			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Type, 3, 0) == 7) {
 				XenonData1 = s.SerializeObject<LIGHT_XenonData1>(XenonData1, name: nameof(XenonData1));
 			}
 			if (!Loader.IsBinaryData && ObjectVersion >= 5)

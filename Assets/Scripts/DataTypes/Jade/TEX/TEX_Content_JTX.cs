@@ -202,13 +202,17 @@ namespace R1Engine.Jade
                     if (PS2_IsSwizzled != 0) {
                         tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_8bpp, 0, 0, (int)Width, (int)Height);
                     } else {
-                        tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp_ReverseOrder, 0, 0, (int)Width, (int)Height);
+                        if (Context.GetR1Settings().Platform != Platform.PS2) {
+                            tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp_ReverseOrder, 0, 0, (int)Width, (int)Height);
+                        } else {
+                            tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_4bpp, 0, 0, (int)Width, (int)Height);
+                        }
                     }
                     break;
                 case JTX_Format.Raw32:
                     tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
                     var tileEncoding = Util.TileEncoding.Linear_32bpp_RGBA;
-                    if(Context.GetR1Settings().Platform == Platform.GC || Context.GetR1Settings().Platform == Platform.Wii) tileEncoding = Util.TileEncoding.Linear_32bpp_BGRA;
+                    if(Context.GetR1Settings().Platform != Platform.PS2) tileEncoding = Util.TileEncoding.Linear_32bpp_BGRA;
                     tex.FillRegion(content, 0, palette, tileEncoding, 0, 0, (int)Width, (int)Height);
                     break;
                 case JTX_Format.S3TC:
@@ -231,6 +235,14 @@ namespace R1Engine.Jade
                         tex.SetPixels(pixels_base);
                         tex.Apply();
                     }
+                    break;
+                case JTX_Format.DXT3:
+                    dds = DDS.FromRawData(content, DDS_Parser.PixelFormat.DXT3, Width, Height);
+                    tex = dds.PrimaryTexture?.ToTexture2D();
+                    break;
+                case JTX_Format.DXT5:
+                    dds = DDS.FromRawData(content, DDS_Parser.PixelFormat.DXT5, Width, Height);
+                    tex = dds.PrimaryTexture?.ToTexture2D();
                     break;
                 default:
                     throw new NotImplementedException($"TODO: Implement JTX type {Format}");

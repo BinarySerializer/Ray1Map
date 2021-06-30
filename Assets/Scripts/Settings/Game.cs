@@ -115,6 +115,7 @@
         Jade_MovieGames,
 
         Jade_PoP_SandsOfTime,
+        Jade_MyWordCoach,
         Jade_RRRTVParty,
 
         // GEN

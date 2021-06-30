@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Jade_PetzHorseClub_PC_Manager : Jade_Montpellier_BaseManager {
+    public class Jade_MyWordCoach_Wii_Manager : Jade_Montpellier_BaseManager {
 
 		// Game actions
 		public override GameAction[] GetGameActions(GameSettings settings) {
@@ -22,7 +22,7 @@ namespace R1Engine
 		public override LevelInfo[] LevelInfos => null;
 
 		public override string[] BFFiles => new string[] {
-			"Horsez2_HD.bf"
+			"DATA/spree.bf"
 		};
 	}
 }

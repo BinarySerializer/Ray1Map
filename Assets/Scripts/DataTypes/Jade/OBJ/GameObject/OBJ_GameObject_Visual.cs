@@ -36,14 +36,15 @@ namespace R1Engine.Jade {
 		public Jade_Reference<OBJ_GameObject> LocalFog { get; set; }
 
 		public short V4_Short { get; set; }
-		public uint PlatformOptimizedMeshKey { get; set; }
-		public uint V7_Editor_UInt_1 { get; set; }
-		public uint V7_Editor_UInt_2 { get; set; }
+		public uint OptimizedMeshKeyPS2 { get; set; }
+		public uint OptimizedMeshKeyGC { get; set; }
+		public uint OptimizedMeshKeyPC { get; set; }
 		public uint V7_Editor_UInt_3 { get; set; }
 		public uint V13_Editor_UInt_0 { get; set; }
 		public uint V13_Editor_UInt_1 { get; set; }
 		public uint V13_Editor_UInt_2 { get; set; }
 		public GEO_GaoVisu_PS2 VisuPS2 { get; set; }
+		public GEO_GaoVisu_PC VisuPC { get; set; }
 
 		// Montpellier
 		public int Int_7A { get; set; }
@@ -109,7 +110,7 @@ namespace R1Engine.Jade {
 				if (hasLightMap) {
 					AmbientUnknown = s.Serialize<uint>(AmbientUnknown, name: nameof(AmbientUnknown));
 					AmbientTexture = s.SerializeObject<Jade_TextureReference>(AmbientTexture, name: nameof(AmbientTexture))?.Resolve();
-					if (!AmbientTexture.IsNull && (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT) || !Loader.IsBinaryData)) {
+					if (!AmbientTexture.IsNull && ((s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT) && s.GetR1Settings().Platform != Platform.PC) || !Loader.IsBinaryData)) {
 						AmbientElementCount = s.Serialize<uint>(AmbientElementCount, name: nameof(AmbientElementCount));
 						if ((AmbientElementCount & 0xFFFF) != 0) {
 							AmbientElements = s.SerializeObjectArray<OBJ_GameObject_Visual_AmbientElement>(AmbientElements, AmbientElementCount, name: nameof(AmbientElements));
@@ -127,9 +128,9 @@ namespace R1Engine.Jade {
 				}
 				if (Version >= 7) {
 					if (!Loader.IsBinaryData) {
-						PlatformOptimizedMeshKey = s.Serialize<uint>(PlatformOptimizedMeshKey, name: nameof(PlatformOptimizedMeshKey));
-						V7_Editor_UInt_1 = s.Serialize<uint>(V7_Editor_UInt_1, name: nameof(V7_Editor_UInt_1));
-						V7_Editor_UInt_2 = s.Serialize<uint>(V7_Editor_UInt_2, name: nameof(V7_Editor_UInt_2));
+						OptimizedMeshKeyPS2 = s.Serialize<uint>(OptimizedMeshKeyPS2, name: nameof(OptimizedMeshKeyPS2));
+						OptimizedMeshKeyGC = s.Serialize<uint>(OptimizedMeshKeyGC, name: nameof(OptimizedMeshKeyGC));
+						OptimizedMeshKeyPC = s.Serialize<uint>(OptimizedMeshKeyPC, name: nameof(OptimizedMeshKeyPC));
 						V7_Editor_UInt_3 = s.Serialize<uint>(V7_Editor_UInt_3, name: nameof(V7_Editor_UInt_3));
 					}
 					if (Version >= 13) {
@@ -142,6 +143,10 @@ namespace R1Engine.Jade {
 					switch (s.GetR1Settings().Platform) {
 						case Platform.PS2:
 							VisuPS2 = s.SerializeObject<GEO_GaoVisu_PS2>(VisuPS2, name: nameof(VisuPS2));
+							break;
+						case Platform.PC:
+							// If !Loader.IsBinaryData, then this is in another file given by the key
+							VisuPC = s.SerializeObject<GEO_GaoVisu_PC>(VisuPC, name: nameof(VisuPC));
 							break;
 						case Platform.Wii:
 						case Platform.GC:

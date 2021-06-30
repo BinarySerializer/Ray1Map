@@ -44,15 +44,14 @@ namespace R1Engine.Jade {
 		public int Montreal_HasColors { get; set; }
 		public int Montreal_HasNormals { get; set; } // Boolean
 
-		public bool Montreal_IsOptimized_PS2 => (Montreal_Flags2 & 1) == 1;
-		public bool Montreal_IsOptimized_GC => (Montreal_Flags2 & 2) == 2;
-		public bool Montreal_IsOptimized_Wii => (Montreal_Flags2 & 0x40) == 0x40;
 		public bool Montreal_IsOptimized(GameSettings s) {
 			switch (s.Platform) {
 				case Platform.PS2:
 					return (Montreal_Flags2 & 1) == 1;
 				case Platform.GC:
 					return (Montreal_Flags2 & 2) == 2;
+				case Platform.PC:
+					return (Montreal_Flags2 & 4) == 4;
 				case Platform.Wii:
 					return (Montreal_Flags2 & 0x40) == 0x40;
 				default:
@@ -62,15 +61,16 @@ namespace R1Engine.Jade {
 		public bool Montreal_HasUnoptimizedData(GameSettings s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			return !(Montreal_IsOptimized(s) && Loader.IsBinaryData)
-				|| (s.Platform == Platform.GC && s.EngineVersion == EngineVersion.Jade_PoP_SoT);
+				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC) && s.EngineVersion == EngineVersion.Jade_PoP_SoT);
 		}
 
 		public Jade_Key OptimizedGeoObjectKey_PS2 { get; set; }
 		public Jade_Key OptimizedGeoObjectKey_GC { get; set; }
-		public uint Montreal_Editor_UInt_8 { get; set; }
+		public Jade_Key OptimizedGeoObjectKey_PC { get; set; }
 		public uint Montreal_Editor_UInt_9 { get; set; }
 		public GEO_GeoObject_PS2 OptimizedGeoObject_PS2 { get; set; }
 		public GEO_GeoObject_GC OptimizedGeoObject_GC { get; set; }
+		public GEO_GeoObject_PC OptimizedGeoObject_PC { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -165,7 +165,7 @@ namespace R1Engine.Jade {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && ObjectVersion >= 7 && !Loader.IsBinaryData) {
 				OptimizedGeoObjectKey_PS2 = s.SerializeObject<Jade_Key>(OptimizedGeoObjectKey_PS2, name: nameof(OptimizedGeoObjectKey_PS2));
 				OptimizedGeoObjectKey_GC = s.SerializeObject<Jade_Key>(OptimizedGeoObjectKey_GC, name: nameof(OptimizedGeoObjectKey_GC));
-				Montreal_Editor_UInt_8 = s.Serialize<uint>(Montreal_Editor_UInt_8, name: nameof(Montreal_Editor_UInt_8));
+				OptimizedGeoObjectKey_PC = s.SerializeObject<Jade_Key>(OptimizedGeoObjectKey_PC, name: nameof(OptimizedGeoObjectKey_PC));
 				Montreal_Editor_UInt_9 = s.Serialize<uint>(Montreal_Editor_UInt_9, name: nameof(Montreal_Editor_UInt_9));
 			}
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Montreal_IsOptimized(s.GetR1Settings())) {
@@ -175,6 +175,9 @@ namespace R1Engine.Jade {
 						break;
 					case Platform.GC:
 						OptimizedGeoObject_GC = s.SerializeObject<GEO_GeoObject_GC>(OptimizedGeoObject_GC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_GC));
+						break;
+					case Platform.PC:
+						OptimizedGeoObject_PC = s.SerializeObject<GEO_GeoObject_PC>(OptimizedGeoObject_PC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_PC));
 						break;
 					default:
 						UnityEngine.Debug.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");

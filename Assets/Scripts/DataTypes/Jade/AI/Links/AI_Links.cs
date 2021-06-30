@@ -101,6 +101,8 @@ namespace R1Engine.Jade {
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030819:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeGC:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePC:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePCLimitedDemo:
 					links = new AI_Links_PoP_SoT_PS2_Proto();
 					break;
 				case GameModeSelection.HorsezPS2:
