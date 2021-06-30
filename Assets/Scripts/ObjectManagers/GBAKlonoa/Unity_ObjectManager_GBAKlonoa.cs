@@ -20,15 +20,15 @@ namespace R1Engine
 
         public class AnimSet
         {
-            public AnimSet(Animation[] animations, string displayName, GBAKlonoa_ObjectOAMCollection oamCollection)
+            public AnimSet(Animation[] animations, string displayName, IEnumerable<GBAKlonoa_ObjectOAMCollection> oamCollections)
             {
                 Animations = animations;
                 DisplayName = displayName;
-                OAMCollection = oamCollection;
+                OAMCollections = new List<GBAKlonoa_ObjectOAMCollection>(oamCollections);
             }
 
             public Animation[] Animations { get; }
-            public GBAKlonoa_ObjectOAMCollection OAMCollection { get; }
+            public List<GBAKlonoa_ObjectOAMCollection> OAMCollections { get; }
             public string DisplayName { get; }
 
             public class Animation

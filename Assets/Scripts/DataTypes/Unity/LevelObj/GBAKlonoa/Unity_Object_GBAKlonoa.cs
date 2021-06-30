@@ -15,7 +15,7 @@ namespace R1Engine
             Serializable = serializable;
             OAMCollection = oamCollection;
 
-            AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.OAMCollection != null && x.OAMCollection.OAMs[0].TileIndex == oamCollection.OAMs[0].TileIndex);
+            AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.OAMCollections.Any(o => o.OAMs[0].TileIndex == oamCollection.OAMs[0].TileIndex));
 
             if (AnimSetIndex == -1)
             {
@@ -70,6 +70,8 @@ namespace R1Engine
 
         public override string PrimaryName => $"Type_{Object.ObjType}";
         public override string SecondaryName => null;
+
+        public override bool FlipHorizontally => (Object.Value_7 & 1) == 1;
 
         public override ObjectType Type => ObjectType.Object;
 
