@@ -36,11 +36,19 @@ namespace R1Engine.Jade
         public uint ContentOverrideSize { get; set; }
         public byte[] ContentOverride { get; set; }
 
+        // Editor
+        public Jade_GenericReference[] Editor_Dependencies { get; set; }
+
         public override void SerializeImpl(SerializerObject s) {
-            uint FileSize = (uint)(Texture.FileSize - (s.CurrentPointer - Texture.Offset));
+            uint FileSize = Texture.ContentSize;
             if (FileSize == 0) return;
             
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
+            if (!Loader.IsBinaryData) {
+                Editor_Dependencies = s.SerializeObjectArrayUntil<Jade_GenericReference>(Editor_Dependencies, dep => dep.IsNull, name: nameof(Editor_Dependencies));
+            }
+
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
             if (Version == 0) return;
 			Format = s.Serialize<JTX_Format>(Format, name: nameof(Format));
@@ -90,7 +98,7 @@ namespace R1Engine.Jade
             }
             CalculateContentSize();
 
-            if (Texture.IsContent) {
+            if (Texture.IsContent || !Loader.IsBinaryData) {
                 if (s.GetR1Settings().Platform != Platform.PS2 || !Loader.IsBinaryData) {
                     Content = s.SerializeArray<byte>(Content, ContentSize, name: nameof(Content));
 					if (Content2Size > 0) Content2 = s.SerializeArray<byte>(Content2, Content2Size, name: nameof(Content2));

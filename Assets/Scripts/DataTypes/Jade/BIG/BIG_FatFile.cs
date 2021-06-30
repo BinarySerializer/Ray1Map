@@ -59,7 +59,7 @@ namespace R1Engine.Jade {
 					return 0x58;
 				if (big.Version == 34 || big.Version == 37 || big.Version == 38)
 					return 0x54;
-				if (big.Version >= 43)
+				if (big.Version >= 42)
 					return 0x7C;
 				return 0x58;
 			}
@@ -96,7 +96,7 @@ namespace R1Engine.Jade {
 					if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD || (Big.Version != 34 && Big.Version != 37 && Big.Version != 38)) {
 						UInt_54 = s.Serialize<uint>(UInt_54, name: nameof(UInt_54));
 					}
-					if (Big.Version >= 43) {
+					if (Big.Version >= 42) {
 						Hash = s.SerializeString(Hash, 0x20, encoding: Jade_BaseManager.Encoding, name: nameof(Hash));
 						V43_UInt = s.Serialize<uint>(V43_UInt, name: nameof(V43_UInt));
 					}

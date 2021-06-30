@@ -325,8 +325,8 @@ namespace R1Engine
 						} catch (Exception ex) {
 							UnityEngine.Debug.LogError(ex);
 						} finally {
-							texList.Textures.Clear();
-							texList.Palettes.Clear();
+							texList.Textures?.Clear();
+							texList.Palettes?.Clear();
 						}
 						await Controller.WaitIfNecessary();
 					}

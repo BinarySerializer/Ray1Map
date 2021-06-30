@@ -45,6 +45,9 @@ namespace R1Engine.Jade {
 			[".wad"] = FileType.SND_Dialog,
 			[".wam"] = FileType.SND_Music,
 			[".waa"] = FileType.SND_Ambience,
+
+			// Texture
+			[".pal"] = FileType.TEX_Palette,
 		};
 
 		public enum FileType {
@@ -67,6 +70,9 @@ namespace R1Engine.Jade {
 			SND_Ambience,
 			SND_SModifier,
 			GRID_WorldGrid,
+
+			TEX_File,
+			TEX_Palette,
 		}
 	}
 }

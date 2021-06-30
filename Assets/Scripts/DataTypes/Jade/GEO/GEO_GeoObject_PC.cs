@@ -16,32 +16,6 @@ namespace R1Engine.Jade {
 		public uint ElementDataBufferSize { get; set; }
 		public ElementDataBuffer ElementData { get; set; }
 
-
-
-		public GEO_GeometricObject.GEO_ObjFlags? Flags => Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) ? (GEO_GeometricObject.GEO_ObjFlags?)GeometricObject.Flags : null;
-		public GEO_GeometricObject.GEO_ObjFlags_PoPSoT? Flags_SoT => !Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) ? (GEO_GeometricObject.GEO_ObjFlags_PoPSoT?)GeometricObject.Flags_SoT : null;
-		public bool UseNormals =>
-			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.UseNormalsInEngine)
-			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.UseNormalsInEngine)
-			?? false;
-		public bool HasLightmap =>
-			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.HasLightMap)
-			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.HasLightMap)
-			?? false;
-		public bool Index8Bits =>
-			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.Index8Bits)
-			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.Index8Bits)
-			?? false;
-		public bool RenderAOOnWii =>
-			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.NCIS_RenderAOOnWii_TFS_CanBeDisplaced)
-			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.NCIS_RenderAOOnWii_TFS_CanBeDisplaced)
-			?? false;
-		public bool StaticMesh =>
-			Flags?.HasFlag(GEO_GeometricObject.GEO_ObjFlags.StaticMesh)
-			?? Flags_SoT?.HasFlag(GEO_GeometricObject.GEO_ObjFlags_PoPSoT.StaticMesh)
-			?? false;
-
-
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			if (Loader.IsBinaryData) {
@@ -75,9 +49,6 @@ namespace R1Engine.Jade {
 				TriCount = s.Serialize<uint>(TriCount, name: nameof(TriCount));
 			}
 		}
-
-
-
 		public class PointDataBuffer : BinarySerializable {
 			public GEO_GeoObject_PC Geo { get; set; }
 			public uint TotalSize => Geo.VertexDataBufferSize;
@@ -114,8 +85,6 @@ namespace R1Engine.Jade {
 				}
 			}
 		}
-
-
 		public class ElementDataBuffer : BinarySerializable {
 			public GEO_GeoObject_PC Geo { get; set; }
 			public uint TotalSize => Geo.ElementDataBufferSize;

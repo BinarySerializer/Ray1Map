@@ -52,6 +52,7 @@ namespace R1Engine.Jade
         public Jade_Code Code_18 { get; set; } // Checked for 0xFF00FF
         public Jade_Code Code_1C { get; set; } // Checked for 0xC0DEC0DE
 
+        public uint ContentSize { get; set; }
         public TEX_Content_RawPal Content_RawPal { get; set; }
         public TGA_Header Content_TGA_Header { get; set; }
         public TGA Content_TGA { get; set; }
@@ -88,7 +89,7 @@ namespace R1Engine.Jade
                     s.Goto(Offset);
 
                 bool hasReadContent = false;
-                uint contentSize = Loader.IsBinaryData ? (FileSize - (uint)(s.CurrentPointer - Offset)) : (FileSize - 32);
+                ContentSize = Loader.IsBinaryData ? (FileSize - (uint)(s.CurrentPointer - Offset)) : (FileSize - 32);
                 switch (Type) 
                 {
                     case TexFileType.RawPal:
@@ -96,14 +97,14 @@ namespace R1Engine.Jade
                         break;
 
                     case TexFileType.Procedural:
-                        if (contentSize > 0) {
-                            Content_Procedural = s.SerializeObject<TEX_Content_Procedural>(Content_Procedural, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Procedural));
+                        if (ContentSize > 0) {
+                            Content_Procedural = s.SerializeObject<TEX_Content_Procedural>(Content_Procedural, onPreSerialize: c => c.FileSize = ContentSize, name: nameof(Content_Procedural));
                             hasReadContent = true;
                         }
                         break;
 
                     case TexFileType.SpriteGen:
-                        if (contentSize > 0) {
+                        if (ContentSize > 0) {
                             Content_SpriteGen = s.SerializeObject<MAT_SpriteGen>(Content_SpriteGen, name: nameof(Content_SpriteGen));
                         }
                         hasReadContent = true;
@@ -115,13 +116,13 @@ namespace R1Engine.Jade
 
                     case TexFileType.JTX:
                         if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-                            if (contentSize > 0) {
+                            if (ContentSize > 0) {
                                 Content_JTX = s.SerializeObject<TEX_Content_JTX>(Content_JTX, c => c.Texture = this, name: nameof(Content_JTX));
                             }
                             if (IsContent || !Loader.IsBinaryData) hasReadContent = true;
                         } else {
                             if (IsContent || !Loader.IsBinaryData) {
-                                Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));
+                                Content = s.SerializeArray<byte>(Content, ContentSize, name: nameof(Content));
                                 if (Content.Length > 0)
                                     hasReadContent = true;
                             }
@@ -169,11 +170,11 @@ namespace R1Engine.Jade
                     case TexFileType.DDS:
                         if (IsContent || !Loader.IsBinaryData) 
                         {
-                            if (contentSize > 0) 
+                            if (ContentSize > 0) 
                             {
                                 if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) 
                                 {
-                                    Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = contentSize, name: nameof(Content_Xenon));
+                                    Content_Xenon = s.SerializeObject<TEX_Content_Xenon>(Content_Xenon, onPreSerialize: c => c.FileSize = ContentSize, name: nameof(Content_Xenon));
                                 }
                                 else 
                                 { 
@@ -205,7 +206,7 @@ namespace R1Engine.Jade
                     case TexFileType.Bmp:
                     default:
                         if (IsContent || !Loader.IsBinaryData) {
-                            Content = s.SerializeArray<byte>(Content, contentSize, name: nameof(Content));
+                            Content = s.SerializeArray<byte>(Content, ContentSize, name: nameof(Content));
                             if (Content.Length > 0) 
                                 hasReadContent = true;
                         }
