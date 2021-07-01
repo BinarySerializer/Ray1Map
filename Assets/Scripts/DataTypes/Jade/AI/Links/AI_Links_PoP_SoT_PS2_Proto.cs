@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace R1Engine.Jade {
-	public class AI_Links_PoP_SoT_PS2_Proto : AI_Links_BGE_PS2_Proto {
+	public class AI_Links_PoP_SoT_PS2_Proto : AI_Links_BGE_PS2_20030814 {
 		protected override void InitFunctionDefs() {
 
 			#region Function Defs

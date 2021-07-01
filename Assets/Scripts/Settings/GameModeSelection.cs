@@ -680,7 +680,10 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (GC)", typeof(Jade_BGE_GC_Manager), Platform.GC)]
         BeyondGoodAndEvilGC,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PS2 - Prototype 2003/08/14)", typeof(Jade_BGE_PS2_Prototype_Manager), Platform.PS2)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PS2 - Demo 2003/08/05)", typeof(Jade_BGE_PS2_20030805_Manager), Platform.PS2)]
+        BeyondGoodAndEvilPS2_20030805,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PS2 - Prototype 2003/08/14)", typeof(Jade_BGE_PS2_20030814_Manager), Platform.PS2)]
         BeyondGoodAndEvilPS2_20030814,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_BGE, Game.Jade_BGE, "Beyond Good & Evil (PS2)", typeof(Jade_BGE_PS2_Manager), Platform.PS2)]
@@ -755,12 +758,14 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR2, Game.Jade_RRR2, "Rayman Raving Rabbids 2 (Wii)", typeof(Jade_RRR2_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbids2Wii,
 
-
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030819, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PS2 - Prototype 2003/08/19)", typeof(Jade_PoP_SoT_PS2_Prototype_Manager), Platform.PS2)]
-        PrinceOfPersiaTheSandsOfTimePS2_20030819,
-
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PS2)", typeof(Jade_PoP_SoT_PS2_Manager), Platform.PS2)]
         PrinceOfPersiaTheSandsOfTimePS2,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030723, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PS2 - Demo 2003/07/23)", typeof(Jade_PoP_SoT_PS2_20030723_Manager), Platform.PS2)]
+        PrinceOfPersiaTheSandsOfTimePS2_20030723,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030819, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (PS2 - Prototype 2003/08/19)", typeof(Jade_PoP_SoT_PS2_20030819_Manager), Platform.PS2)]
+        PrinceOfPersiaTheSandsOfTimePS2_20030819,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (GC)", typeof(Jade_PoP_SoT_GC_Manager), Platform.GC)]
         PrinceOfPersiaTheSandsOfTimeGC,
@@ -773,6 +778,9 @@ namespace R1Engine {
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (Xbox)", typeof(Jade_PoP_SoT_Xbox_Manager), Platform.Xbox)]
         PrinceOfPersiaTheSandsOfTimeXbox,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030723, Game.Jade_PoP_SandsOfTime, "Prince of Persia: The Sands of Time (Xbox - Demo 2003/07/23)", typeof(Jade_PoP_SoT_Xbox_20030723_Manager), Platform.Xbox)]
+        PrinceOfPersiaTheSandsOfTimeXbox_20030723,
 
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]

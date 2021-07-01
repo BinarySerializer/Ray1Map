@@ -46,7 +46,9 @@ namespace R1Engine.Jade {
 
 			public override void SerializeImpl(SerializerObject s) {
 				MaterialId = s.Serialize<uint>(MaterialId, name: nameof(MaterialId));
-				TriCount = s.Serialize<uint>(TriCount, name: nameof(TriCount));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT)) {
+					TriCount = s.Serialize<uint>(TriCount, name: nameof(TriCount));
+				}
 			}
 		}
 		public class PointDataBuffer : BinarySerializable {
@@ -94,7 +96,13 @@ namespace R1Engine.Jade {
 			public override void SerializeImpl(SerializerObject s) {
 				if (ElementDatas == null) ElementDatas = new ElementData[Geo.ElementsCount];
 				for (int i = 0; i < Geo.ElementsCount; i++) {
-					uint triCount = Geo.ElementHeaders[i].TriCount;
+					uint triCount = 0;
+
+					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT)) {
+						triCount = Geo.ElementHeaders[i].TriCount;
+					} else {
+						triCount = Geo.GeometricObject.Elements[i].TrianglesCount;
+					}
 					if(triCount == 0) continue;
 					ElementDatas[i] = s.SerializeObject<ElementData>(ElementDatas[i], onPreSerialize: ed => ed.TriCount = triCount, name: $"{nameof(ElementDatas)}[{i}]");
 				}

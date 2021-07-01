@@ -112,6 +112,7 @@ namespace R1Engine.Jade {
 					AmbientTexture = s.SerializeObject<Jade_TextureReference>(AmbientTexture, name: nameof(AmbientTexture))?.Resolve();
 					if (!AmbientTexture.IsNull
 						&& ((s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && (s.GetR1Settings().Platform == Platform.GC || s.GetR1Settings().Platform == Platform.Wii))
+						|| (s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT_20030723 && s.GetR1Settings().Platform == Platform.Xbox)
 						|| !Loader.IsBinaryData)) {
 						AmbientElementCount = s.Serialize<uint>(AmbientElementCount, name: nameof(AmbientElementCount));
 						if ((AmbientElementCount & 0xFFFF) != 0) {

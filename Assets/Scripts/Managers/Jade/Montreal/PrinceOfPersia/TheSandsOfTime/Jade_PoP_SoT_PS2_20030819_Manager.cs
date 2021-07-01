@@ -1,7 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class Jade_PoP_SoT_PS2_Prototype_Manager : Jade_Montreal_BaseManager
-    {
+    public class Jade_PoP_SoT_PS2_20030819_Manager : Jade_PoP_SoT_PS2_Manager {
         // Levels
         public override LevelInfo[] LevelInfos => new LevelInfo[] {
             new LevelInfo(0x0200B526, "ROOT/Bin", "0101_Entree_wol_ff02b526.bin", worldName: "WOL", mapName: "0101_Entree", type: LevelInfo.FileType.WOL),
@@ -548,10 +547,6 @@
             new LevelInfo(0x4A0008DD, "ROOT/Bin", "ULD25_Background_wow_ff0a08dd.bin", worldName: "WOW", mapName: "ULD25_Background", type: LevelInfo.FileType.WOW),
             new LevelInfo(0x0B00784A, "ROOT/Bin", "WhiteRoom_wol_ff0b784a.bin", worldName: "WOL", mapName: "WhiteRoom", type: LevelInfo.FileType.WOL),
             new LevelInfo(0x2B007848, "ROOT/Bin", "WhiteRoom_wow_ff0b7848.bin", worldName: "WOW", mapName: "WhiteRoom", type: LevelInfo.FileType.WOW),
-        };
-
-		public override string[] BFFiles => new string[] {
-            "DATA/PRINCE.BF"
         };
 	}
 }

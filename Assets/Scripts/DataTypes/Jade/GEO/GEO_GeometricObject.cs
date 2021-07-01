@@ -62,7 +62,8 @@ namespace R1Engine.Jade {
 		public bool Montreal_HasUnoptimizedData(GameSettings s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			return !(Montreal_IsOptimized(s) && Loader.IsBinaryData)
-				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC) && s.EngineVersion == EngineVersion.Jade_PoP_SoT);
+				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC) && s.EngineVersion == EngineVersion.Jade_PoP_SoT)
+				|| (s.Platform == Platform.Xbox && s.EngineVersion == EngineVersion.Jade_PoP_SoT_20030723);
 		}
 
 		public Jade_Key OptimizedGeoObjectKey_PS2 { get; set; }
@@ -181,9 +182,11 @@ namespace R1Engine.Jade {
 						OptimizedGeoObject_PC = s.SerializeObject<GEO_GeoObject_PC>(OptimizedGeoObject_PC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_PC));
 						break;
 					case Platform.Xbox:
-						Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
-						if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
-							ObjectPonderation = s.SerializeObject<GEO_GeometricObject_Ponderation>(ObjectPonderation, name: nameof(ObjectPonderation));
+						if (!Montreal_HasUnoptimizedData(s.GetR1Settings())) {
+							Code_01 = s.Serialize<uint>(Code_01, name: nameof(Code_01));
+							if ((Code_01 & (uint)Jade_Code.Code2002) == (uint)Jade_Code.Code2002) {
+								ObjectPonderation = s.SerializeObject<GEO_GeometricObject_Ponderation>(ObjectPonderation, name: nameof(ObjectPonderation));
+							}
 						}
 						OptimizedGeoObject_PC = s.SerializeObject<GEO_GeoObject_PC>(OptimizedGeoObject_PC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_PC));
 						break;

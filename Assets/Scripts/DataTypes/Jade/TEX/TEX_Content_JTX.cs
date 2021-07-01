@@ -130,9 +130,10 @@ namespace R1Engine.Jade
             MipmapSize = 0;
             uint cur_w = Width;
             uint cur_h = Height;
+            bool CanGoUnder8 = (!Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT) && Context.GetR1Settings().Platform == Platform.Xbox);
             for (int i = 0; i < MipmapCount; i++) {
-                if (cur_w > 8) cur_w >>= 1;
-                if (cur_h > 8) cur_h >>= 1;
+                if (cur_w > 8 || CanGoUnder8) cur_w >>= 1;
+                if (cur_h > 8 || CanGoUnder8) cur_h >>= 1;
                 MipmapSize += (cur_w / 8) * cur_h * bpp;
             }
 

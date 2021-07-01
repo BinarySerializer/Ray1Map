@@ -75,7 +75,10 @@ namespace R1Engine.Jade {
 					links = new AI_Links_BGE_PCDemo();
 					break;
 				case GameModeSelection.BeyondGoodAndEvilPS2_20030814:
-					links = new AI_Links_BGE_PS2_Proto();
+					links = new AI_Links_BGE_PS2_20030814();
+					break;
+				case GameModeSelection.BeyondGoodAndEvilPS2_20030805:
+					links = new AI_Links_BGE_PS2_20030805();
 					break;
 				case GameModeSelection.KingKongPCGamersEdition:
 					links = new AI_Links_KingKong_PCGamersEdition();
@@ -99,6 +102,8 @@ namespace R1Engine.Jade {
 					links = new AI_Links_RRR2_Wii();
 					break;
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030819:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2_20030723:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeXbox_20030723:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS2:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeGC:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePC:

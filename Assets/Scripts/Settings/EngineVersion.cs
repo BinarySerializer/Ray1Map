@@ -150,6 +150,7 @@ namespace R1Engine
         // Jade: Ubisoft Montreal branch
         Jade_Montreal,
 
+        Jade_PoP_SoT_20030723,
         Jade_PoP_SoT_20030819,
         Jade_PoP_SoT,
         Jade_PoP_WW,

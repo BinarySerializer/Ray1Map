@@ -7,7 +7,7 @@ namespace R1Engine.Jade {
 		public int Editor_Index { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_SoT_20030819)) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 				if (Loader.IsBinaryData) {
 					NameChecksum = s.Serialize<uint>(NameChecksum, name: nameof(NameChecksum));
