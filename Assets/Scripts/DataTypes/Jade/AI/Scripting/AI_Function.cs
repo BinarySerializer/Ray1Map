@@ -9,11 +9,12 @@ namespace R1Engine.Jade {
 		public int SizeLocalStack { get; set; }
 		public uint FunctionBufferLength { get; set; }
 		public AI_Node[] Nodes { get; set; }
-		public uint UnknownBufferLength { get; set; }
-		public AI_Node_Unknown[] Unknown { get; set; }
+		public uint DebugBufferLength { get; set; }
+		public AI_Node_DebugLink[] DebugLinks { get; set; }
 		public uint StringBufferLength { get; set; }
 		public byte[] StringBuffer { get; set; }
 		public string[] Strings { get; set; }
+		public Dictionary<long, int> StringOffsetToIndex { get; set; }
 
 		// Custom
 		public AI_FunctionDef FunctionDef { get; set; }
@@ -32,10 +33,10 @@ namespace R1Engine.Jade {
 				Nodes = s.SerializeObjectArray<AI_Node>(Nodes, FunctionBufferLength / 8, name: nameof(Nodes));
 			}
 			if (!Loader.IsBinaryData) {
-				UnknownBufferLength = s.Serialize<uint>(UnknownBufferLength, name: nameof(UnknownBufferLength));
-				Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, UnknownBufferLength / 8, name: nameof(Unknown));
+				DebugBufferLength = s.Serialize<uint>(DebugBufferLength, name: nameof(DebugBufferLength));
+				DebugLinks = s.SerializeObjectArray<AI_Node_DebugLink>(DebugLinks, DebugBufferLength / 8, name: nameof(DebugLinks));
 			}
-			if (!s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon)) {
+			if (!s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) || !Loader.IsBinaryData) {
 				StringBufferLength = s.Serialize<uint>(StringBufferLength, name: nameof(StringBufferLength));
 			} else {
 				StringBufferLength = FileSize - (uint)(s.CurrentPointer - Offset);
@@ -44,9 +45,12 @@ namespace R1Engine.Jade {
 			s.DoAt(stringBufferStart, () => {
 				if (Strings == null) {
 					List<string> strings = new List<string>();
+					StringOffsetToIndex = new Dictionary<long, int>();
 					Pointer targetPointer = s.CurrentPointer + StringBufferLength;
 					int ind = 0;
 					while (s.CurrentPointer.AbsoluteOffset < targetPointer.AbsoluteOffset) {
+						long stringoffset = s.CurrentPointer.AbsoluteOffset - stringBufferStart.AbsoluteOffset;
+						StringOffsetToIndex[stringoffset] = ind;
 						strings.Add(s.SerializeString(default, encoding: Jade_BaseManager.Encoding, name: $"{nameof(Strings)}[{ind}]"));
 						ind++;
 					}
@@ -61,6 +65,20 @@ namespace R1Engine.Jade {
 			if (!Loader.SpeedMode) {
 				throw new NotImplementedException("AI_Function: Implement Locals");
 			}
+			//if (!Loader.IsBinaryData) ExportScript(s);
+		}
+
+		public void ExportScript(SerializerObject s) {
+			StringBuilder b = new StringBuilder();
+			//b.AppendLine("[Translated]");
+
+			for (int i = 0; i < Nodes.Length; i++) {
+				b.AppendLine($"{DebugLinks[i].DebugLinkContent.PadRight(32)}{Nodes[i].ToString(StringOffsetToIndex, Strings)}");
+			}
+			string basePath = Context.BasePath;
+			string path = basePath + "scripts/" + FunctionDef.Name + "_" + s.GetR1Settings().Platform + ".ofcdec";
+			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
+			System.IO.File.WriteAllText(path, b.ToString());
 		}
 	}
 }

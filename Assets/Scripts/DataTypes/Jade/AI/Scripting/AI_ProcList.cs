@@ -33,7 +33,7 @@ namespace R1Engine.Jade {
 			public ushort UShort_Code { get; set; }
 			public uint NodesCount { get; set; }
 			public AI_Node[] Nodes { get; set; }
-			public AI_Node_Unknown[] Unknown { get; set; }
+			public AI_Node_DebugLink[] DebugLinks { get; set; }
 			public uint Code2 { get; set; }
 			public uint LocalsCount { get; set; }
 			public byte[] LocalsStringBuffer { get; set; }
@@ -52,7 +52,7 @@ namespace R1Engine.Jade {
 				if (!Loader.IsBinaryData || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
 					Nodes = s.SerializeObjectArray<AI_Node>(Nodes, NodesCount, name: nameof(Nodes));
 					if (!Loader.IsBinaryData) {
-						Unknown = s.SerializeObjectArray<AI_Node_Unknown>(Unknown, NodesCount, name: nameof(Unknown));
+						DebugLinks = s.SerializeObjectArray<AI_Node_DebugLink>(DebugLinks, NodesCount, name: nameof(DebugLinks));
 						Code2 = s.Serialize<uint>(Code2, name: nameof(Code2));
 						if (Code2 == (uint)Jade_Code.All6) {
 							LocalsCount = s.Serialize<uint>(LocalsCount, name: nameof(LocalsCount));

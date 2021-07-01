@@ -99,14 +99,15 @@ namespace R1Engine.Jade {
 					}
 				}
 			}
-
-			//PrintVarsOverview(s);
+			//ExportVarsOverview(s);
 		}
 
-		public void PrintVarsOverview(SerializerObject s) {
-			s.Log($"VARS COUNT: {Vars.Length}");
+		public void ExportVarsOverview(SerializerObject s) {
+			StringBuilder b = new StringBuilder();
+			b.AppendLine($"VARS COUNT: {Vars.Length}");
+
 			for (int i = 0; i < Vars.Length; i++) {
-				s.Log($"Vars[{i}]: {Vars[i].Name}" +
+				b.AppendLine($"Vars[{i}]: {Vars[i].Name}" +
 					$"\n\t\tDescription: {Vars[i].EditorInfo?.Description?.Trim() ?? "null"}" +
 					$"\n\t\tToggle text: {Vars[i].EditorInfo?.SelectionString?.Trim() ?? "null"}" +
 					$"\n\t\tValue: {Vars[i].Value}" +
@@ -119,6 +120,10 @@ namespace R1Engine.Jade {
 					$"\n\t\tVariable flags: {Vars[i].Info.Flags:X4}" +
 					$"\n\t\tCopy to instance buffer: {(Vars[i].Info.Flags & 0x20) != 0}");
 			}
+			string basePath = Context.BasePath;
+			string path = basePath + "vars/" + Key + "_" + s.GetR1Settings().Platform + ".vardec";
+			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
+			System.IO.File.WriteAllText(path, b.ToString());
 
 		}
 	}
