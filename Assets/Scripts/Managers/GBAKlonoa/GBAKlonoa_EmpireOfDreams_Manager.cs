@@ -140,7 +140,7 @@ namespace R1Engine
                 }
 
                 // Add Klonoa at each start position
-                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), null, allOAMCollections[0])));
+                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), x, allOAMCollections[0])));
             }
 
             // Add fixed objects, except Klonoa (first one)
@@ -226,32 +226,35 @@ namespace R1Engine
                         animFrameFunc: () => GetAnimFrames(objectGraphics.Animations[animIndex].Frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), 
                         oamCollection: oamCollection)).ToArray(), 
                 displayName: $"{objectGraphics.AnimationsPointer}", 
-                oamCollection: oamCollection);
+                oamCollections: new GBAKlonoa_ObjectOAMCollection[]
+                {
+                    oamCollection
+                });
         }
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, GBAKlonoa_LoadedObject[] objects, Pointer levelTextSpritePointer)
         {
-            // Cache animations based on the tile index in VRAM they get loaded into. This will load duplicate animations since some are 
-            // duplicated into VRAM, but it's easier to manage this way due to the tile index being used to match the objects with their
-            // animations in the editor. Otherwise animations which are loaded in multiple times, such as enemies, would only show graphics
-            // for the first object in the editor.
-            var loadedAnimSetsDictionary = new Dictionary<ushort, Unity_ObjectManager_GBAKlonoa.AnimSet>();
+            var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
             var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
 
             // Start by adding a null entry to use as default
-            loadedAnimSets.Add(new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL", null));
+            loadedAnimSets.Add(new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL", new GBAKlonoa_ObjectOAMCollection[0]));
 
             foreach (var animSet in animSets)
             {
-                var oam = oamCollections[objects[animSet.ObjIndex].OAMIndex];
+                var oam = oamCollections.ElementAtOrDefault(objects.ElementAtOrDefault(animSet.ObjIndex)?.OAMIndex ?? -1);
 
-                if (animSet.AnimationsPointer == null) 
+                if (animSet.AnimationsPointer == null || oam == null) 
                     continue;
                 
-                if (!loadedAnimSetsDictionary.ContainsKey(oam.OAMs[0].TileIndex))
+                if (!loadedAnimSetsDictionary.ContainsKey(animSet.AnimationsPointer))
                 {
-                    loadedAnimSetsDictionary[oam.OAMs[0].TileIndex] = LoadAnimSet(animSet, oam, palettes);
-                    loadedAnimSets.Add(loadedAnimSetsDictionary[oam.OAMs[0].TileIndex]);
+                    loadedAnimSetsDictionary[animSet.AnimationsPointer] = LoadAnimSet(animSet, oam, palettes);
+                    loadedAnimSets.Add(loadedAnimSetsDictionary[animSet.AnimationsPointer]);
+                }
+                else
+                {
+                    loadedAnimSetsDictionary[animSet.AnimationsPointer].OAMCollections.Add(oam);
                 }
             }
 
@@ -290,7 +293,10 @@ namespace R1Engine
                     {
                         var oam = oams.First(x => x.OAMs[0].TileIndex == tileIndex);
 
-                        loadSpecialAnimation(oam, null, new long[]
+                        loadSpecialAnimation(new GBAKlonoa_ObjectOAMCollection[]
+                        {
+                            oam
+                        }, null, new long[]
                         {
                             offset
                         }, specialAnim.FramesCount);
@@ -303,17 +309,17 @@ namespace R1Engine
                 else
                 {
                     // Find an object which uses this animation
-                    var obj = objects.FirstOrDefault(x => specialAnim.IsFix && x.Index == specialAnim.Index || !specialAnim.IsFix && x.ObjType == specialAnim.Index);
+                    var oams = objects.Where(x => specialAnim.IsFix && x.Index == specialAnim.Index || !specialAnim.IsFix && x.ObjType == specialAnim.Index).Select(x => oamCollections[x.OAMIndex]).ToArray();
 
-                    if (obj == null)
+                    if (!oams.Any())
                         continue;
 
-                    loadSpecialAnimation(oamCollections[obj.OAMIndex], specialAnim.Offset, specialAnim.FrameOffsets, specialAnim.FramesCount);
+                    loadSpecialAnimation(oams, specialAnim.Offset, specialAnim.FrameOffsets, specialAnim.FramesCount);
                 }
 
-                void loadSpecialAnimation(GBAKlonoa_ObjectOAMCollection oam, long? offset, IReadOnlyList<long> frameOffsets, int framesCount)
+                void loadSpecialAnimation(IReadOnlyList<GBAKlonoa_ObjectOAMCollection> oams, long? offset, IReadOnlyList<long> frameOffsets, int framesCount)
                 {
-                    var imgDataLength = oam.OAMs.Select(o => (shapes[o.Shape].Width / CellSize) * (shapes[o.Shape].Height / CellSize) * 0x20).Sum();
+                    var imgDataLength = oams[0].OAMs.Select(o => (shapes[o.Shape].Width / CellSize) * (shapes[o.Shape].Height / CellSize) * 0x20).Sum();
                     var animsPointer = new Pointer(offset ?? frameOffsets[0], file);
 
                     Pointer[] framePointers;
@@ -340,8 +346,8 @@ namespace R1Engine
 
                     var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
                     {
-                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oam, palettes).Select(x => x.CreateSprite()).ToArray(), oam)
-                    }, $"{animsPointer}", oam);
+                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oams[0], palettes).Select(x => x.CreateSprite()).ToArray(), oams[0])
+                    }, $"{animsPointer}", oams);
 
                     loadedAnimSets.Add(animSet);
 
@@ -641,6 +647,13 @@ namespace R1Engine
             new SpecialAnimation(0x08061c28, false, 42), // Fence
             new SpecialAnimation(0x08061d28, false, 9), // Leaf
             new SpecialAnimation(0x08061d28, false, 10, groupCount: 5), // Leaves
+            new SpecialAnimation(0x08061fc8, false, 114), // Red switch
+            new SpecialAnimation(0x08062048, false, 60), // Blocked door
+            new SpecialAnimation(0x08062148, false, 59), // One-way door
+            new SpecialAnimation(0x08062248, false, 43), // Blue platform
+            new SpecialAnimation(0x08062348, false, 62), // Weight platform top
+            new SpecialAnimation(0x080623c8, false, 61), // Weight platform spring
+            new SpecialAnimation(0x080627c8, false, 115), // Rotation switch
         };
 
         public class AnimSetInfo
