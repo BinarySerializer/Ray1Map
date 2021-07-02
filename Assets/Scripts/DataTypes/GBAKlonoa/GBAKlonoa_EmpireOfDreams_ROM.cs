@@ -132,7 +132,12 @@ namespace R1Engine
             LevelObjectGraphics ??= new GBAKlonoa_ObjectGraphics[LevelObjectGraphicsPointers.Length][];
             s.DoAt(LevelObjectGraphicsPointers[globalLevelIndex], () =>
             {
-                LevelObjectGraphics[globalLevelIndex] = s.SerializeObjectArrayUntil<GBAKlonoa_ObjectGraphics>(LevelObjectGraphics[globalLevelIndex], x => x.AnimationsPointerValue == 0, () => new GBAKlonoa_ObjectGraphics(), name: $"{nameof(LevelObjectGraphics)}[{globalLevelIndex}]");
+                LevelObjectGraphics[globalLevelIndex] = s.SerializeObjectArrayUntil<GBAKlonoa_ObjectGraphics>(
+                    obj: LevelObjectGraphics[globalLevelIndex], 
+                    conditionCheckFunc: x => x.AnimationsPointerValue == 0, 
+                    getLastObjFunc: () => new GBAKlonoa_ObjectGraphics(),
+                    onPreSerialize: x => x.Pre_LevelObjects = LevelObjectCollection,
+                    name: $"{nameof(LevelObjectGraphics)}[{globalLevelIndex}]");
             });
 
             // Serialize fixed OAM collections
@@ -178,13 +183,13 @@ namespace R1Engine
                 17 => new int[] { -1, -1, -1, -1, 40, -1, -1, 45, 44 },
                 19 => new int[] { 39, 40, -1, -1, 46, 45, 47, 42, 43, 44 },
                 20 => new int[] { 39, 41, -1, -1, 46, 45, 47, 42, 43, 44 },
-                21 => new int[] { 39, 41, -1, -1, 46, 45, 47, 42, 43, 44 },
+                21 => new int[] { 39, 41, 49, 51, 68, 69, 47, 42, 43, 44 }, // This was wrong with pal script
                 22 => new int[] { 40, 41, 45, -1, 48, 43, 44 },
                 23 => new int[] { 39, -1, -1, 46, 45, 42, 47, 43 },
                 24 => new int[] { -1, 40, 41, -1, -1, 45, 43, 44 },
                 25 => new int[] { 39, 41, -1, -1, 46, 45, 42, -1, 43, 44 },
                 26 => new int[] { -1, -1, -1, -1, 41, -1, -1, -1, 44 },
-                28 => new int[] { 39, 40, 41, -1, -1, -1, 46, -1, -1, 47, 42, 43, 44 },
+                28 => new int[] { 39, 40, 41, 58, 49, 76, 46, 77, 83, 47, 42, 43, 44 },
                 29 => new int[] { 39, 40, 41, -1, -1, -1, 46, 43, -1, 47, 42, 44 },
                 30 => new int[] { 39, 41, -1, -1, 45, -1, 46, 47, 42, 43, 44 },
                 31 => new int[] { 40, 41, 45, -1, 48, 43, 44 },

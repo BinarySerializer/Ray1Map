@@ -6,12 +6,13 @@ namespace R1Engine
 {
     public class GBAKlonoa_ObjectGraphics : BinarySerializable
     {
+        public GBAKlonoa_LevelObjectCollection Pre_LevelObjects { get; set; }
+
         public uint AnimationsPointerValue { get; set; }
         public Pointer AnimationsPointer { get; set; }
         public uint VRAMPointer { get; set; }
         public ushort ImgDataLength { get; set; }
         public byte ObjIndex { get; set; }
-        public byte Byte_0B { get; set; }
 
         // Serialized from pointers
         public Pointer[] AnimationPointers { get; set; }
@@ -21,13 +22,23 @@ namespace R1Engine
         {
             AnimationsPointerValue = s.Serialize<uint>(AnimationsPointerValue, name: nameof(AnimationsPointerValue));
 
-            if (AnimationsPointerValue != 0 && AnimationsPointerValue != 1)
-                AnimationsPointer = new Pointer(AnimationsPointerValue, Offset.File);
-
             VRAMPointer = s.Serialize<uint>(VRAMPointer, name: nameof(VRAMPointer));
             ImgDataLength = s.Serialize<ushort>(ImgDataLength, name: nameof(ImgDataLength));
             ObjIndex = s.Serialize<byte>(ObjIndex, name: nameof(ObjIndex));
-            Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
+            s.SerializePadding(1, logIfNotNull: true);
+
+            if (AnimationsPointerValue != 0 && AnimationsPointerValue != 1)
+            {
+                var value = AnimationsPointerValue;
+
+                // Hack for waterfall due to the set having animations with different shapes
+                if (Pre_LevelObjects != null && 
+                    (Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EmpireOfDreams_Manager.FixCount)?.ObjType == 57 ||
+                    Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EmpireOfDreams_Manager.FixCount)?.ObjType == 58))
+                    value += 4;
+
+                AnimationsPointer = new Pointer(value, Offset.File);
+            }
 
             if (AnimationsPointer == null)
                 return;

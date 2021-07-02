@@ -26,6 +26,10 @@ namespace R1Engine
             // Anim 0 is blank by default for these world map objects
             if (Object.ObjType == 82)
                 AnimIndex = 1;
+
+            // Waterfall fix
+            if (Object.ObjType == 58)
+                AnimIndex = 1;
         }
 
         public Unity_ObjectManager_GBAKlonoa ObjManager { get; }
@@ -47,12 +51,12 @@ namespace R1Engine
 
         public override Vector3 Position
         {
-            get => new Vector3(Object.XPos, Object.YPos, Object.ZPos);
+            get => new Vector3(Object.XPos, Object.YPos, Object.Param_1);
             set
             {
                 Object.XPos = (short)value.x;
                 Object.YPos = (short)value.y;
-                Object.ZPos = (byte)value.z;
+                Object.Param_1 = (byte)value.z;
             }
         }
 
@@ -60,7 +64,8 @@ namespace R1Engine
                                             String.Join(Environment.NewLine, OAMCollection.OAMs.Select((x, i) =>
                                                 $"Pal_{i}: {x.PaletteIndex}{Environment.NewLine}" +
                                                 $"Tile_{i}: {x.TileIndex}{Environment.NewLine}" +
-                                                $"Shape_{i}: {x.Shape}{Environment.NewLine}"));
+                                                $"Shape_{i}: {x.Shape}{Environment.NewLine}")) +
+                                            $"Param: {Object.Param_1}";
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBAKlonoa.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);
@@ -71,7 +76,9 @@ namespace R1Engine
         public override string PrimaryName => $"Type_{Object.ObjType}";
         public override string SecondaryName => null;
 
-        public override bool FlipHorizontally => (Object.Value_7 & 1) == 1;
+        public override bool FlipHorizontally => (Object.Param_2 & 1) == 1;
+
+        public override int? GetLayer(int index) => Object.Index == 0 ? 0 : -index; // Force Klonoa to be in front
 
         public override ObjectType Type => ObjectType.Object;
 

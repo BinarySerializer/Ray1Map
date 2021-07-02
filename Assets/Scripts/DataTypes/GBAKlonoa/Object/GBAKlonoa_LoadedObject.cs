@@ -2,15 +2,15 @@
 {
     public class GBAKlonoa_LoadedObject
     {
-        public GBAKlonoa_LoadedObject(short index, byte oamIndex, short xPos, short yPos, byte value5, byte value6, byte value7, byte value8, byte objType, GBAKlonoa_LevelObject levelObj = null, GBAKlonoa_WorldMapObject worldMapObj = null)
+        public GBAKlonoa_LoadedObject(short index, byte oamIndex, short xPos, short yPos, byte param_1, byte value6, byte param_2, byte value8, byte objType, GBAKlonoa_LevelObject levelObj = null, GBAKlonoa_WorldMapObject worldMapObj = null)
         {
             Index = index;
             OAMIndex = oamIndex;
             XPos = xPos;
             YPos = yPos;
-            ZPos = value5;
+            Param_1 = param_1;
             Value_6 = value6;
-            Value_7 = value7;
+            Param_2 = param_2;
             Value_8 = value8;
             ObjType = objType;
             LevelObj = levelObj;
@@ -21,9 +21,9 @@
         public byte OAMIndex { get; }
         public short XPos { get; set; }
         public short YPos { get; set; }
-        public byte ZPos { get; set; }
+        public byte Param_1 { get; set; } // ZPos for maps
         public byte Value_6 { get; }
-        public byte Value_7 { get; }
+        public byte Param_2 { get; }
         public byte Value_8 { get; }
         public byte ObjType { get; }
         public GBAKlonoa_LevelObject LevelObj { get; }

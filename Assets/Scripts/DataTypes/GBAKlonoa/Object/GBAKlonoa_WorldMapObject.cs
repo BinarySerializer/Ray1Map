@@ -15,9 +15,9 @@ namespace R1Engine
             oamIndex: OAMIndex,
             xPos: XPos,
             yPos: YPos,
-            value5: ZPos,
+            param_1: ZPos,
             value6: 1,
-            value7: 0,
+            param_2: 0,
             value8: 0x1C,
             objType: ObjType,
             worldMapObj: this);

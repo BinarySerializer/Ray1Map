@@ -13,9 +13,9 @@ namespace R1Engine
             oamIndex: OAMIndex, 
             xPos: SectorStates[sectorIndex].XPos, 
             yPos: SectorStates[sectorIndex].YPos, 
-            value5: SectorStates[sectorIndex].Byte_04, 
+            param_1: SectorStates[sectorIndex].Param_1, 
             value6: 0, 
-            value7: SectorStates[sectorIndex].Byte_05, 
+            param_2: SectorStates[sectorIndex].Param_2, 
             value8: SectorStates[sectorIndex].Byte_06, 
             objType: ObjType,
             levelObj: this);
@@ -33,8 +33,8 @@ namespace R1Engine
         {
             public short XPos { get; set; }
             public short YPos { get; set; }
-            public byte Byte_04 { get; set; }
-            public byte Byte_05 { get; set; }
+            public byte Param_1 { get; set; }
+            public byte Param_2 { get; set; }
             public byte Byte_06 { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
@@ -42,8 +42,8 @@ namespace R1Engine
                 XPos = s.Serialize<short>(XPos, name: nameof(XPos));
                 YPos = s.Serialize<short>(YPos, name: nameof(YPos));
 
-                Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-                Byte_05 = s.Serialize<byte>(Byte_05, name: nameof(Byte_05));
+                Param_1 = s.Serialize<byte>(Param_1, name: nameof(Param_1));
+                Param_2 = s.Serialize<byte>(Param_2, name: nameof(Param_2));
                 Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
 
                 s.SerializePadding(1, logIfNotNull: true);

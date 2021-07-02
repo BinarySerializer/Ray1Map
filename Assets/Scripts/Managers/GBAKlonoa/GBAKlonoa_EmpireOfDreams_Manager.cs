@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections;
+﻿using BinarySerializer;
+using BinarySerializer.GBA;
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BinarySerializer;
-using BinarySerializer.GBA;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
@@ -109,6 +109,13 @@ namespace R1Engine
                 levelObjects = Enumerable.Range(0, 5).Select(sector => rom.LevelObjectCollection.Objects.Select((obj, index) => obj.ToLoadedObject((short)(FixCount + index), sector)).ToArray()).ToArray();
             }
 
+            var firstLoadedObjects = new List<GBAKlonoa_LoadedObject>();
+
+            firstLoadedObjects.AddRange(fixObjects);
+
+            for (int lvlObjIndex = 0; lvlObjIndex < rom.LevelObjectCollection.Objects.Length; lvlObjIndex++)
+                firstLoadedObjects.Add(levelObjects.Select(x => x[lvlObjIndex]).FirstOrDefault(x => isMap || x.Value_8 != 28) ?? levelObjects[0][lvlObjIndex]);
+
             var objmanager = new Unity_ObjectManager_GBAKlonoa(
                 context: context,
                 animSets: LoadAnimSets(
@@ -116,7 +123,7 @@ namespace R1Engine
                     animSets: allAnimSets, 
                     oamCollections: allOAMCollections, 
                     palettes: objPal, 
-                    objects: fixObjects.Concat(levelObjects[0]).ToArray(),
+                    objects: firstLoadedObjects,
                     levelTextSpritePointer: isMap || isBoss ? null : rom.LevelTextSpritePointers[normalLevelIndex]));
 
             var objects = new List<Unity_Object>();
@@ -232,7 +239,7 @@ namespace R1Engine
                 });
         }
 
-        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, GBAKlonoa_LoadedObject[] objects, Pointer levelTextSpritePointer)
+        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)
         {
             var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
             var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
@@ -278,7 +285,7 @@ namespace R1Engine
                 // If a group count is specified we read x sprites one after another assumed to be stored in VRAM in the same order
                 if (specialAnim.GroupCount != null)
                 {
-                    var oams = objects.Where(x => specialAnim.IsFix && x.Index == specialAnim.Index || !specialAnim.IsFix && x.ObjType == specialAnim.Index).Select(x => oamCollections[x.OAMIndex]).ToArray();
+                    var oams = objects.Where(x => specialAnim.MatchesObject(x)).Select(x => oamCollections[x.OAMIndex]).ToArray();
 
                     if (!oams.Any())
                         continue;
@@ -309,7 +316,7 @@ namespace R1Engine
                 else
                 {
                     // Find an object which uses this animation
-                    var oams = objects.Where(x => specialAnim.IsFix && x.Index == specialAnim.Index || !specialAnim.IsFix && x.ObjType == specialAnim.Index).Select(x => oamCollections[x.OAMIndex]).ToArray();
+                    var oams = objects.Where(x => specialAnim.MatchesObject(x)).Select(x => oamCollections[x.OAMIndex]).ToArray();
 
                     if (!oams.Any())
                         continue;
@@ -471,6 +478,9 @@ namespace R1Engine
                                     if (graphicsPalettes.ContainsKey(specialAnim.Offset ?? specialAnim.FrameOffsets[0]))
                                         continue;
 
+                                    if (specialAnim.ObjParam_1 != null || specialAnim.ObjParam_2 != null)
+                                        continue;
+
                                     var obj = objects.FirstOrDefault(x => x.ObjType == specialAnim.Index);
 
                                     if (obj == null)
@@ -514,6 +524,9 @@ namespace R1Engine
                                 foreach (var specialAnim in SpecialAnimations.Where(x => !x.IsFix))
                                 {
                                     if (!graphicsPalettes.ContainsKey(specialAnim.Offset ?? specialAnim.FrameOffsets[0]))
+                                        continue;
+
+                                    if (specialAnim.ObjParam_1 != null || specialAnim.ObjParam_2 != null)
                                         continue;
 
                                     var globalPalIndex = graphicsPalettes[specialAnim.Offset ?? specialAnim.FrameOffsets[0]];
@@ -586,7 +599,11 @@ namespace R1Engine
             new AnimSetInfo(0x0818994C, 1),
             new AnimSetInfo(0x08189950, 2),
             new AnimSetInfo(0x08189958, 1),
-            new AnimSetInfo(0x0818995C, 3),
+
+            // This is actually a single set of 3 animations, but due to the last two using a different shape we split them up
+            new AnimSetInfo(0x0818995C, 1),
+            new AnimSetInfo(0x0818995C + 4, 2),
+
             new AnimSetInfo(0x08189968, 3),
             new AnimSetInfo(0x08189974, 3),
             new AnimSetInfo(0x08189980, 3),
@@ -634,7 +651,7 @@ namespace R1Engine
             new SpecialAnimation(0x0818b9e8, 4, false, 3), // Star
 
             // Other
-            new SpecialAnimation(0x0805f508, false, 111), // Block
+            new SpecialAnimation(0x0805f508, false, 111, objParam_1: 0), // Block
             new SpecialAnimation(0x0805f708, false, 1), // Red key
             new SpecialAnimation(0x0805f788, false, 2), // Blue key
             new SpecialAnimation(0x0805f808, false, 5), // Locked door
@@ -647,13 +664,24 @@ namespace R1Engine
             new SpecialAnimation(0x08061c28, false, 42), // Fence
             new SpecialAnimation(0x08061d28, false, 9), // Leaf
             new SpecialAnimation(0x08061d28, false, 10, groupCount: 5), // Leaves
-            new SpecialAnimation(0x08061fc8, false, 114), // Red switch
+            new SpecialAnimation(0x08061fc8, false, 114, objParam_2: 1), // Red switch
             new SpecialAnimation(0x08062048, false, 60), // Blocked door
             new SpecialAnimation(0x08062148, false, 59), // One-way door
             new SpecialAnimation(0x08062248, false, 43), // Blue platform
             new SpecialAnimation(0x08062348, false, 62), // Weight platform top
             new SpecialAnimation(0x080623c8, false, 61), // Weight platform spring
             new SpecialAnimation(0x080627c8, false, 115), // Rotation switch
+            new SpecialAnimation(0x08062848, false, 4), // Green key
+            new SpecialAnimation(0x08062ae8, false, 112), // Breakable door
+            new SpecialAnimation(0x08062ee8, false, 111, objParam_1: 2), // Up block
+            new SpecialAnimation(0x080630e8, false, 55), // Weight switch
+            new SpecialAnimation(0x08063168, false, 111, objParam_1: 4), // Right block
+            new SpecialAnimation(0x08063368, false, 116), // Big-small block toggle
+            new SpecialAnimation(0x080633e8, false, 53), // Big-small block
+            new SpecialAnimation(0x080635e8, false, 114, objParam_2: 3), // Triple red switch
+            new SpecialAnimation(0x08063668, false, 111, objParam_1: 3), // Down block
+            new SpecialAnimation(0x08063ae8, false, 40), // Vertical water platform
+            new SpecialAnimation(0x08063fe8, false, 113), // Water switch
         };
 
         public class AnimSetInfo
@@ -677,7 +705,7 @@ namespace R1Engine
                 IsFix = isFix;
                 Index = index;
             }
-            public SpecialAnimation(long frameOffset, bool isFix, int index, int? groupCount = null)
+            public SpecialAnimation(long frameOffset, bool isFix, int index, int? groupCount = null, int? objParam_1 = null, int? objParam_2 = null)
             {
                 FrameOffsets = new long[]
                 {
@@ -686,6 +714,8 @@ namespace R1Engine
                 IsFix = isFix;
                 Index = index;
                 GroupCount = groupCount;
+                ObjParam_1 = objParam_1;
+                ObjParam_2 = objParam_2;
             }
             public SpecialAnimation(long[] frameOffsets, bool isFix, int index)
             {
@@ -723,6 +753,25 @@ namespace R1Engine
             /// If specified this indicates how many sprites are used for this group of sprites. A very hacky solution to the wind leaves.
             /// </summary>
             public int? GroupCount { get; }
+
+            /// <summary>
+            /// The param the object has to be set to for this animation to be applied
+            /// </summary>
+            public int? ObjParam_1 { get; }
+
+            public int? ObjParam_2 { get; }
+
+            public bool MatchesObject(GBAKlonoa_LoadedObject obj)
+            {
+                if (ObjParam_1 != null && ObjParam_1 != obj.Param_1)
+                    return false;
+
+                if (ObjParam_2 != null && ObjParam_2 != obj.Param_2)
+                    return false;
+
+                return IsFix && obj.Index == Index ||
+                       !IsFix && obj.ObjType == Index;
+            }
         }
     }
 }
