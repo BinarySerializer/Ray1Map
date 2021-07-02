@@ -113,8 +113,8 @@ namespace R1Engine
 
             firstLoadedObjects.AddRange(fixObjects);
 
-            for (int lvlObjIndex = 0; lvlObjIndex < rom.LevelObjectCollection.Objects.Length; lvlObjIndex++)
-                firstLoadedObjects.Add(levelObjects.Select(x => x[lvlObjIndex]).FirstOrDefault(x => isMap || x.Value_8 != 28) ?? levelObjects[0][lvlObjIndex]);
+            for (int lvlObjIndex = 0; lvlObjIndex < levelObjects[0].Length; lvlObjIndex++)
+                firstLoadedObjects.Add(levelObjects.Select(x => x[lvlObjIndex]).FirstOrDefault(x => isMap || x.Value_8 != 28 ));
 
             var objmanager = new Unity_ObjectManager_GBAKlonoa(
                 context: context,
@@ -162,7 +162,7 @@ namespace R1Engine
                 eventData: objects,
                 cellSize: CellSize,
                 defaultLayer: 2,
-                isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null);
+                isometricData: isMap && settings.World != 6 ? Unity_IsometricData.Mode7(CellSize) : null);
         }
 
         public Texture2D[] GetAnimFrames(GBAKlonoa_AnimationFrame[] frames, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes)
@@ -285,7 +285,7 @@ namespace R1Engine
                 // If a group count is specified we read x sprites one after another assumed to be stored in VRAM in the same order
                 if (specialAnim.GroupCount != null)
                 {
-                    var oams = objects.Where(x => specialAnim.MatchesObject(x)).Select(x => oamCollections[x.OAMIndex]).ToArray();
+                    var oams = objects.Where(x => x != null && specialAnim.MatchesObject(x)).Select(x => oamCollections[x.OAMIndex]).ToArray();
 
                     if (!oams.Any())
                         continue;
@@ -315,8 +315,8 @@ namespace R1Engine
                 }
                 else
                 {
-                    // Find an object which uses this animation
-                    var oams = objects.Where(x => specialAnim.MatchesObject(x)).Select(x => oamCollections[x.OAMIndex]).ToArray();
+                    // Find an object which uses this animation (filter out 0,0 objects here too since some unused objects get placed there with wrong graphics...)
+                    var oams = objects.Where(x => x != null && (!(x.XPos == 0 && x.YPos == 0) || x.Index < FixCount) && specialAnim.MatchesObject(x)).Select(x => oamCollections[x.OAMIndex]).ToArray();
 
                     if (!oams.Any())
                         continue;
@@ -682,6 +682,13 @@ namespace R1Engine
             new SpecialAnimation(0x08063668, false, 111, objParam_1: 3), // Down block
             new SpecialAnimation(0x08063ae8, false, 40), // Vertical water platform
             new SpecialAnimation(0x08063fe8, false, 113), // Water switch
+            new SpecialAnimation(0x08064868, false, 54), // Red arrow
+            new SpecialAnimation(0x08064a68, false, 117), // Blue arrow
+            new SpecialAnimation(0x08065168, false, 37, objParam_1: 0), // Attachment block
+            new SpecialAnimation(0x08065368, false, 37, objParam_1: 1), // Stationary attachment block
+            new SpecialAnimation(0x08065568, false, 111, objParam_1: 5), // Left block
+
+            // 0x08064c68 - bubble enemies from boss
         };
 
         public class AnimSetInfo

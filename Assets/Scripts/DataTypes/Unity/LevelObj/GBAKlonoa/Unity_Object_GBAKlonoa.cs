@@ -60,6 +60,21 @@ namespace R1Engine
             }
         }
 
+        public override float? Rotation => Object.ObjType == 54 || Object.ObjType == 117 ? 90 * (Object.Param_2 - 1) : (float?)null;
+        public override Vector2 Pivot
+        {
+            get
+            {
+                var animLayer = Animation?.ObjAnimation?.Frames?.ElementAtOrDefault(AnimationFrame)?.SpriteLayers.FirstOrDefault();
+                var frame = Animation?.AnimFrames?.ElementAtOrDefault(AnimationFrame);
+
+                if (animLayer == null || frame == null)
+                    return base.Pivot;
+
+                return new Vector2(animLayer.XPosition + frame.rect.width / 2, -(animLayer.YPosition + frame.rect.height / 2));
+            }
+        }
+
         public override string DebugText => $"Index: {Object.Index}{Environment.NewLine}" +
                                             String.Join(Environment.NewLine, OAMCollection.OAMs.Select((x, i) =>
                                                 $"Pal_{i}: {x.PaletteIndex}{Environment.NewLine}" +
