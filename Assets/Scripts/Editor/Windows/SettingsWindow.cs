@@ -150,12 +150,14 @@ public class SettingsWindow : UnityWindow
             BrowseButton(rbutton, "Next map", EditorGUIUtility.IconContent("Profiler.NextFrame"), () => {
                 var vol = MapSelectionDropdown.GameVolumes.First();
                 var world = vol.Worlds[MapSelectionDropdown.SelectedWorld];
-                MapSelectionDropdown.SelectedMap++;
+                var curMap = world.Maps.FindItemIndex(m => m == MapSelectionDropdown.SelectedMap);
 
-                if (MapSelectionDropdown.SelectedMap >= world.Maps.Length) {
+                if (curMap >= world.Maps.Length) {
                     MapSelectionDropdown.SelectedWorld++;
                     if (MapSelectionDropdown.SelectedWorld >= vol.Worlds.Length) MapSelectionDropdown.SelectedWorld = 0;
-                    MapSelectionDropdown.SelectedMap = 0;
+                    MapSelectionDropdown.SelectedMap = vol.Worlds[MapSelectionDropdown.SelectedWorld].Maps[0];
+                } else {
+                    MapSelectionDropdown.SelectedMap = world.Maps[curMap+1];
                 }
 
                 MapSelectionDropdown.HasChanged = true;
@@ -164,12 +166,15 @@ public class SettingsWindow : UnityWindow
             BrowseButton(rbutton, "Previous map", EditorGUIUtility.IconContent("Profiler.PrevFrame"), () => {
                 var vol = MapSelectionDropdown.GameVolumes.First();
                 var world = vol.Worlds[MapSelectionDropdown.SelectedWorld];
-                MapSelectionDropdown.SelectedMap--;
+                var curMap = world.Maps.FindItemIndex(m => m == MapSelectionDropdown.SelectedMap);
 
-                if (MapSelectionDropdown.SelectedMap < 0) {
+                if (curMap <= 0) {
                     MapSelectionDropdown.SelectedWorld--;
                     if (MapSelectionDropdown.SelectedWorld < 0) MapSelectionDropdown.SelectedWorld = vol.Worlds.Length - 1;
-                    MapSelectionDropdown.SelectedMap = vol.Worlds[MapSelectionDropdown.SelectedWorld].Maps.Length - 1;
+                    world = vol.Worlds[MapSelectionDropdown.SelectedWorld];
+                    MapSelectionDropdown.SelectedMap = world.Maps[world.Maps.Length-1];
+                } else {
+                    MapSelectionDropdown.SelectedMap = world.Maps[curMap - 1];
                 }
 
                 MapSelectionDropdown.HasChanged = true;
