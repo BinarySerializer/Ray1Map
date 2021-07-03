@@ -15,7 +15,16 @@ namespace R1Engine
         public const int CellSize = GBAConstants.TileSize;
         public const string GetROMFilePath = "ROM.gba";
 
-        public const int FixCount = 0x0D;
+        public const string CompressedObjTileBlockName = "CompressedObjTileBlock";
+
+        public const int FixCount = 0x0D; // Fixed objects loaded into every level
+        public const int NormalWorldsCount = 6; // World 0 is reserved for either menus or cutscenes, so normal worlds are 1-6
+        public const int LevelsCount = NormalWorldsCount * 9; // Map + 7 levels + boss
+        public const int NormalLevelsCount = NormalWorldsCount * 7; // 7 levels
+
+        public static int GetGlobalLevelIndex(int world, int level) => (world - 1) * 9 + level;
+        public static int GetNormalLevelIndex(int world, int level) => (world - 1) * 7 + (level - 1);
+        public static int GetCompressedMapOrBossBlockIndex(int world, int level) => ((level << 0x18) >> 0x1b) * 6 + -1 + world;
 
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Enumerable.Range(1, 6).Select(w => new GameInfo_World(w, Enumerable.Range(0, 9).ToArray())).ToArray());
 
@@ -25,8 +34,8 @@ namespace R1Engine
             //return null;
             var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
             var settings = context.GetR1Settings();
-            var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
-            var normalLevelIndex = (settings.World - 1) * 7 + (settings.Level - 1);
+            var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
+            var normalLevelIndex = GetNormalLevelIndex(settings.World, settings.Level);
             var isMap = settings.Level == 0;
             var isBoss = settings.Level == 8;
 
@@ -120,6 +129,7 @@ namespace R1Engine
                 context: context,
                 animSets: LoadAnimSets(
                     context: context, 
+                    rom: rom,
                     animSets: allAnimSets, 
                     oamCollections: allOAMCollections, 
                     palettes: objPal, 
@@ -150,12 +160,12 @@ namespace R1Engine
                 objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), x, allOAMCollections[0])));
             }
 
-            // Add fixed objects, except Klonoa (first one)
-            objects.AddRange(fixObjects.Skip(1).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
+            // Add fixed objects, except Klonoa (first one) and object 12 for maps since it's not used and has no graphics
+            objects.AddRange(fixObjects.Skip(1).Where(x => !isMap || x.Index != 12).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
 
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
             objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, (BinarySerializable)x.LevelObj ?? x.WorldMapObj, allOAMCollections[x.OAMIndex])));
-            
+
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
@@ -165,7 +175,7 @@ namespace R1Engine
                 isometricData: isMap && settings.World != 6 ? Unity_IsometricData.Mode7(CellSize) : null);
         }
 
-        public Texture2D[] GetAnimFrames(GBAKlonoa_AnimationFrame[] frames, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes)
+        public Texture2D[] GetAnimFrames(GBAKlonoa_AnimationFrame[] frames, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes, int imgDataOffset = 0)
         {
             var output = new Texture2D[frames.Length];
 
@@ -197,7 +207,7 @@ namespace R1Engine
                             {
                                 tex.FillInTile(
                                     imgData: frame.ImgData,
-                                    imgDataOffset: tileIndex * 0x20,
+                                    imgDataOffset: imgDataOffset + tileIndex * 0x20,
                                     pal: palettes.ElementAtOrDefault(oam.PaletteIndex) ?? Util.CreateDummyPalette(16).Select(c => c.GetColor()).ToArray(),
                                     encoding: Util.TileEncoding.Linear_4bpp,
                                     tileWidth: CellSize,
@@ -232,21 +242,27 @@ namespace R1Engine
                     Select(animIndex => objectGraphics.Animations[animIndex]?.Frames?.Length == 0 ? null : new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
                         animFrameFunc: () => GetAnimFrames(objectGraphics.Animations[animIndex].Frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), 
                         oamCollection: oamCollection)).ToArray(), 
-                displayName: $"{objectGraphics.AnimationsPointer}", 
+                displayName: $"0x{objectGraphics.AnimationsPointer.StringAbsoluteOffset}", 
                 oamCollections: new GBAKlonoa_ObjectOAMCollection[]
                 {
                     oamCollection
                 });
         }
 
-        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)
+        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_EmpireOfDreams_ROM rom, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)
         {
+            var settings = context.GetR1Settings();
+            var s = context.Deserializer;
+            var romFile = context.GetFile(GetROMFilePath);
+            var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
+
             var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
             var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
 
             // Start by adding a null entry to use as default
             loadedAnimSets.Add(new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL", new GBAKlonoa_ObjectOAMCollection[0]));
 
+            // Load animations declared through the graphics data
             foreach (var animSet in animSets)
             {
                 var oam = oamCollections.ElementAtOrDefault(objects.ElementAtOrDefault(animSet.ObjIndex)?.OAMIndex ?? -1);
@@ -265,8 +281,65 @@ namespace R1Engine
                 }
             }
 
-            var s = context.Deserializer;
-            var file = context.GetFile(GetROMFilePath);
+            // Load animations from allocated tiles. This is what the game does for practically all animations, but for simplicity we mainly do this for the maps.
+            var allocationInfos = LevelVRAMAllocationInfos.TryGetItem(globalLevelIndex);
+
+            if (allocationInfos != null)
+            {
+                var allocatedVRAMImgData = new List<byte>();
+
+                var memFile = context.GetFile(CompressedObjTileBlockName);
+
+                var originalOffsets = new Dictionary<int, Pointer>();
+                int initialTile = LevelVRAMAllocationInfoInitialTiles[globalLevelIndex];
+
+                var alloctionIndex = 0;
+                foreach (var allocationInfo in allocationInfos)
+                {
+                    var p = new Pointer(allocationInfo.Offset, allocationInfo.Offset >= GBAConstants.Address_ROM ? romFile : memFile);
+                    originalOffsets.Add(initialTile + (allocatedVRAMImgData.Count / 0x20), p);
+                    var bytes = s.DoAt(p, () => s.SerializeArray<byte>(null, allocationInfo.Length, $"ObjTiles[{alloctionIndex}]"));
+
+                    allocatedVRAMImgData.AddRange(bytes);
+                    alloctionIndex++;
+                }
+
+                var frames = new GBAKlonoa_AnimationFrame[]
+                {
+                    new GBAKlonoa_AnimationFrame()
+                    {
+                        ImgData = allocatedVRAMImgData.ToArray()
+                    }
+                };
+
+                var loadedTiles = new HashSet<int>();
+
+                foreach (var oamCollection in oamCollections)
+                {
+                    var oam = oamCollection.OAMs[0];
+
+                    if (oam.TileIndex < initialTile || loadedTiles.Contains(oam.TileIndex))
+                        continue;
+
+                    var imgDataOffset = (oam.TileIndex - initialTile) * 0x20;
+
+                    var originalOffset = originalOffsets[oam.TileIndex];
+
+                    var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
+                    {
+                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oamCollection, palettes, imgDataOffset: imgDataOffset).Select(x => x.CreateSprite()).ToArray(), oamCollection)
+                    }, $"0x{originalOffset.StringAbsoluteOffset}", new GBAKlonoa_ObjectOAMCollection[]
+                    {
+                        oamCollection
+                    });
+
+                    loadedAnimSets.Add(animSet);
+
+                    loadedTiles.Add(oam.TileIndex);
+                }
+            }
+
+            // Load special (hard-coded) animations
             var specialAnimIndex = 0;
             var shapes = GBAConstants.SpriteShapes;
 
@@ -327,14 +400,14 @@ namespace R1Engine
                 void loadSpecialAnimation(IReadOnlyList<GBAKlonoa_ObjectOAMCollection> oams, long? offset, IReadOnlyList<long> frameOffsets, int framesCount)
                 {
                     var imgDataLength = oams[0].OAMs.Select(o => (shapes[o.Shape].Width / CellSize) * (shapes[o.Shape].Height / CellSize) * 0x20).Sum();
-                    var animsPointer = new Pointer(offset ?? frameOffsets[0], file);
+                    var animsPointer = new Pointer(offset ?? frameOffsets[0], romFile);
 
                     Pointer[] framePointers;
 
                     if (offset != null)
                         framePointers = s.DoAt(animsPointer, () => s.SerializePointerArray(null, framesCount, name: $"SpecialAnimations[{specialAnimIndex}]"));
                     else
-                        framePointers = frameOffsets.Select(p => new Pointer(p, file)).ToArray();
+                        framePointers = frameOffsets.Select(p => new Pointer(p, romFile)).ToArray();
 
                     var frames = new GBAKlonoa_AnimationFrame[framePointers.Length];
 
@@ -354,7 +427,7 @@ namespace R1Engine
                     var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
                     {
                         new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oams[0], palettes).Select(x => x.CreateSprite()).ToArray(), oams[0])
-                    }, $"{animsPointer}", oams);
+                    }, $"0x{animsPointer.StringAbsoluteOffset}", oams);
 
                     loadedAnimSets.Add(animSet);
 
@@ -437,8 +510,7 @@ namespace R1Engine
                         if (settings.Level == 0)
                             continue;
 
-                        var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
-                        var normalLevelIndex = (settings.World - 1) * 7 + (settings.Level - 1);
+                        var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
 
                         var objGraphics = rom.LevelObjectGraphics[globalLevelIndex];
                         var objects = rom.LevelObjectCollection.Objects;
@@ -691,6 +763,98 @@ namespace R1Engine
             // 0x08064c68 - bubble enemies from boss
         };
 
+        public Dictionary<int, MapVRAMAllocationInfo[]> LevelVRAMAllocationInfos => new Dictionary<int, MapVRAMAllocationInfo[]>()
+        {
+            // 1-0
+            [0] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x0805dbe8, 0x300),
+                new MapVRAMAllocationInfo(0x0805dee8, 0x200),
+                new MapVRAMAllocationInfo(0x0805e0e8, 0x200),
+                new MapVRAMAllocationInfo(0x0805e2e8, 0x400),
+                new MapVRAMAllocationInfo(0x0805e6e8, 0x400),
+
+                new MapVRAMAllocationInfo(0x0805eae8, 0x200),
+                new MapVRAMAllocationInfo(0x0805eae8, 0x200),
+                new MapVRAMAllocationInfo(0x0805eae8, 0x200),
+                new MapVRAMAllocationInfo(0x0805eae8, 0x200),
+                new MapVRAMAllocationInfo(0x0805eae8, 0x200),
+                new MapVRAMAllocationInfo(0x0805eae8, 0x200),
+                new MapVRAMAllocationInfo(0x0805eae8, 0x200),
+                new MapVRAMAllocationInfo(0x0805eae8, 0x200),
+
+                new MapVRAMAllocationInfo(0x02000904, 0x800),
+                new MapVRAMAllocationInfo(0x02001104, 0x800),
+                new MapVRAMAllocationInfo(0x02001904, 0x200),
+                new MapVRAMAllocationInfo(0x02001b04, 0x200),
+                new MapVRAMAllocationInfo(0x02001d04, 0x200),
+                new MapVRAMAllocationInfo(0x02002704, 0x200),
+                new MapVRAMAllocationInfo(0x02002904, 0x200),
+                new MapVRAMAllocationInfo(0x02002b04, 0x200),
+                new MapVRAMAllocationInfo(0x02002d04, 0x200),
+                new MapVRAMAllocationInfo(0x02002104, 0x200),
+                new MapVRAMAllocationInfo(0x02002304, 0x200),
+                new MapVRAMAllocationInfo(0x02002504, 0x200),
+                new MapVRAMAllocationInfo(0x02001f04, 0x200),
+            },
+
+            // 2-0
+            [9] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x02000904, 0x800),
+                new MapVRAMAllocationInfo(0x02001104, 0x800),
+                new MapVRAMAllocationInfo(0x02001904, 0x200),
+                new MapVRAMAllocationInfo(0x02001b04, 0x200),
+                new MapVRAMAllocationInfo(0x02001d04, 0x200),
+                new MapVRAMAllocationInfo(0x02001f04, 0x200),
+            },
+
+            // 3-0
+            [18] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x02000904, 0x800),
+                new MapVRAMAllocationInfo(0x02001104, 0x200),
+                new MapVRAMAllocationInfo(0x02001d04, 0x200),
+                new MapVRAMAllocationInfo(0x02001f04, 0x200),
+                new MapVRAMAllocationInfo(0x02001904, 0x200),
+                new MapVRAMAllocationInfo(0x02001704, 0x200),
+                new MapVRAMAllocationInfo(0x02001b04, 0x200),
+            },
+
+            // 4-0
+            [27] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x02000904, 0x800),
+                new MapVRAMAllocationInfo(0x02002304, 0x200),
+                new MapVRAMAllocationInfo(0x02002104, 0x200),
+                new MapVRAMAllocationInfo(0x02002504, 0x200),
+                new MapVRAMAllocationInfo(0x02002704, 0x200),
+                new MapVRAMAllocationInfo(0x02002904, 0x200),
+                new MapVRAMAllocationInfo(0x02002b04, 0x200),
+                new MapVRAMAllocationInfo(0x02002d04, 0x200),
+                new MapVRAMAllocationInfo(0x02002f04, 0x200),
+            },
+
+            // 5-0
+            [36] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x02004704, 0x200),
+                new MapVRAMAllocationInfo(0x02001104, 0x800),
+                new MapVRAMAllocationInfo(0x02000904, 0x800),
+                new MapVRAMAllocationInfo(0x02004104, 0x200),
+                new MapVRAMAllocationInfo(0x02004304, 0x200),
+                new MapVRAMAllocationInfo(0x02004504, 0x200),
+            },
+        };
+        public Dictionary<int, int> LevelVRAMAllocationInfoInitialTiles => new Dictionary<int, int>()
+        {
+            [0] = 296,
+            [9] = 408,
+            [18] = 408,
+            [27] = 408,
+            [36] = 408,
+        };
+
         public class AnimSetInfo
         {
             public AnimSetInfo(long offset, int animCount)
@@ -779,6 +943,18 @@ namespace R1Engine
                 return IsFix && obj.Index == Index ||
                        !IsFix && obj.ObjType == Index;
             }
+        }
+
+        public class MapVRAMAllocationInfo
+        {
+            public MapVRAMAllocationInfo(int offset, int length)
+            {
+                Offset = offset;
+                Length = length;
+            }
+
+            public int Offset { get; }
+            public int Length { get; }
         }
     }
 }

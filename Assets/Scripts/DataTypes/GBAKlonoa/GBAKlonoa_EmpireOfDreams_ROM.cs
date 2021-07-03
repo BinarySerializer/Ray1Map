@@ -20,6 +20,8 @@ namespace R1Engine
         public RGBA5551Color[][] MapPalettes { get; set; }
 
         // Objects
+        public Pointer[] CompressedObjTileBlockPointer { get; set; }
+        public byte[][] CompressedObjTileBlocks { get; set; }
         public GBAKlonoa_LoadedObject[] FixObjects { get; set; }
         public GBAKlonoa_LevelObjectCollection LevelObjectCollection { get; set; } // For current level only - too slow to read all of them
         public GBAKlonoaWorldMapObjectCollection WorldMapObjectCollection { get; set; }
@@ -32,17 +34,17 @@ namespace R1Engine
         public GBAKlonoa_ObjPal[] ObjectPalettes { get; set; }
         public Pointer[] LevelTextSpritePointers { get; set; }
 
+        // TODO: Use pointer tables
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize ROM header
             base.SerializeImpl(s);
 
             var settings = s.GetR1Settings();
-            var globalLevelIndex = (settings.World - 1) * 9 + settings.Level;
-            var normalLevelIndex = (settings.World - 1) * 7 + (settings.Level - 1);
-            const int normalWorldsCount = 6;
-            const int levelsCount = normalWorldsCount * 9; // Map + 7 levels + boss
-            const int normalLevelsCount = normalWorldsCount * 7; // 7 levels
+            var globalLevelIndex = GBAKlonoa_EmpireOfDreams_Manager.GetGlobalLevelIndex(settings.World, settings.Level);
+            const int normalWorldsCount = GBAKlonoa_EmpireOfDreams_Manager.NormalWorldsCount;
+            const int levelsCount = GBAKlonoa_EmpireOfDreams_Manager.LevelsCount;
+            const int normalLevelsCount = GBAKlonoa_EmpireOfDreams_Manager.NormalLevelsCount;
             var isMap = settings.Level == 0;
             var isBoss = settings.Level == 8;
 
@@ -97,6 +99,27 @@ namespace R1Engine
                 });
             });
 
+            // Serialize compressed object tiles
+            if (isMap || isBoss)
+            {
+                s.DoAt(new Pointer(0x0818b7ac, Offset.File), () => CompressedObjTileBlockPointer = s.SerializePointerArray(CompressedObjTileBlockPointer, normalWorldsCount * 2, name: nameof(CompressedObjTileBlockPointer)));
+
+                var compressedBlockIndex = GBAKlonoa_EmpireOfDreams_Manager.GetCompressedMapOrBossBlockIndex(settings.World, settings.Level);
+
+                CompressedObjTileBlocks ??= new byte[CompressedObjTileBlockPointer.Length][];
+                s.DoAt(CompressedObjTileBlockPointer[compressedBlockIndex], () =>
+                {
+                    s.DoEncoded(new GBAKlonoa_Encoder(), () =>
+                    {
+                        CompressedObjTileBlocks[compressedBlockIndex] = s.SerializeArray<byte>(CompressedObjTileBlocks[compressedBlockIndex], s.CurrentLength, name: $"{nameof(CompressedObjTileBlocks)}[{compressedBlockIndex}]");
+                    });
+                });
+
+                // Allocate the compressed block. This fixes animations which use pointers to ram, such as the bosses.
+                var file = new MemoryMappedByteArrayFile(s.Context, GBAKlonoa_EmpireOfDreams_Manager.CompressedObjTileBlockName, 0x02000904, CompressedObjTileBlocks[compressedBlockIndex]);
+                s.Context.AddFile(file);
+            }
+
             // Initialize fixed objects
             FixObjects = GBAKlonoa_LoadedObject.FixedObjects;
 
@@ -149,7 +172,9 @@ namespace R1Engine
             LevelObjectOAMCollections ??= new GBAKlonoa_ObjectOAMCollection[LevelObjectOAMCollectionPointers.Length][];
             s.DoAt(LevelObjectOAMCollectionPointers[globalLevelIndex], () =>
             {
-                LevelObjectOAMCollections[globalLevelIndex] = s.SerializeObjectArray<GBAKlonoa_ObjectOAMCollection>(LevelObjectOAMCollections[globalLevelIndex], isMap ? WorldMapObjectCollection.Objects.Length : LevelObjectCollection.Objects.Length, name: $"{nameof(LevelObjectOAMCollections)}[{globalLevelIndex}]");
+                var max = isMap ? WorldMapObjectCollection.Objects.Max(x => x.OAMIndex) : LevelObjectCollection.Objects.Max(x => x.OAMIndex);
+
+                LevelObjectOAMCollections[globalLevelIndex] = s.SerializeObjectArray<GBAKlonoa_ObjectOAMCollection>(LevelObjectOAMCollections[globalLevelIndex], max - GBAKlonoa_EmpireOfDreams_Manager.FixCount + 1, name: $"{nameof(LevelObjectOAMCollections)}[{globalLevelIndex}]");
             });
 
             // Serialize object palettes
@@ -173,6 +198,7 @@ namespace R1Engine
                 6 => new int[] { -1, 41, -1, 45, 43, 44 },
                 7 => new int[] { 39, 40, -1, 45, -1, 46, 47, 42, 43, 44 },
                 8 => new int[] { -1, -1, -1, -1, 40, -1, 44, -1 },
+                9 => new int[] { 06, 11, 12, 13, 14, 15, 16 },
                 10 => new int[] { 39, 40, 41, 45, -1, 46, 47, 42, 43, 44 },
                 11 => new int[] { 39, 40, 41, -1, -1, 45, 46, 47, 42, 43, 44 },
                 12 => new int[] { 39, 40, 41, -1, -1, 46, 45, 47, 42, 43, 44 },
@@ -181,6 +207,7 @@ namespace R1Engine
                 15 => new int[] { -1, 40, 41, -1, 45, -1, 43, 44 },
                 16 => new int[] { 39, 40, 41, -1, 45, 42, -1, 46, 47, 43, 44 },
                 17 => new int[] { -1, -1, -1, -1, 40, -1, -1, 45, 44 },
+                18 => new int[] { 06, 17, 18, 19, 20, 21, 22, 23 },
                 19 => new int[] { 39, 40, -1, -1, 46, 45, 47, 42, 43, 44 },
                 20 => new int[] { 39, 41, -1, -1, 46, 45, 47, 42, 43, 44 },
                 21 => new int[] { 39, 41, 49, 51, 68, 69, 47, 42, 43, 44 }, // This was wrong with pal script
@@ -189,6 +216,7 @@ namespace R1Engine
                 24 => new int[] { -1, 40, 41, -1, -1, 45, 43, 44 },
                 25 => new int[] { 39, 41, -1, -1, 46, 45, 42, -1, 43, 44 },
                 26 => new int[] { -1, -1, -1, -1, 41, -1, -1, -1, 44 },
+                27 => new int[] { 06, 24, 25, 26, 27, 28, 29, 30, 31, 32 },
                 28 => new int[] { 39, 40, 41, 58, 49, 76, 46, 77, 83, 47, 42, 43, 44 },
                 29 => new int[] { 39, 40, 41, -1, -1, -1, 46, 43, -1, 47, 42, 44 },
                 30 => new int[] { 39, 41, 59, 49, 45, 76, 46, 47, 42, 43, 44 },
@@ -197,6 +225,7 @@ namespace R1Engine
                 33 => new int[] { -1, 40, 41, -1, -1, 45, -1, 43, 44 },
                 34 => new int[] { 39, 40, 41, -1, 45, 46, 42, 43, -1, -1, 47, 44 },
                 35 => new int[] { -1, -1, -1, -1, 40, -1, -1, 44 },
+                36 => new int[] { 06, 33, 34, 35, 36, 37, 38 },
                 37 => new int[] { 39, 40, 45, 86, 47, 42, 43, 44 },
                 38 => new int[] { 39, 40, 41, 45, -1, 46, -1, 42, 47, 43, 44 },
                 39 => new int[] { 39, 40, 45, -1, 46, -1, -1, 42, -1, 43, 44 },
@@ -205,6 +234,7 @@ namespace R1Engine
                 42 => new int[] { -1, 40, 41, -1, -1, 45, 43, 44 },
                 43 => new int[] { 39, 40, 41, -1, -1, 45, -1, -1, 46, 47, -1, 42, 43, 44 },
                 44 => new int[] { -1, -1, -1, -1, 40, -1, -1, 44 },
+                45 => new int[] { 06 },
                 46 => new int[] { 39, 40, 41, -1, -1, 45, -1, -1, -1, 42, 43, 44 },
                 47 => new int[] { 39, 40, 41, 59, 49, 51, 58, 68, 45, 46, 42, 47, 43, 44 },
                 48 => new int[] { 39, 40, 41, 45, -1, -1, -1, 42, 43, 44 },
