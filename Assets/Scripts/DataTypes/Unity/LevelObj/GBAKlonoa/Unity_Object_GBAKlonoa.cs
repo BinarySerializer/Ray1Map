@@ -15,6 +15,17 @@ namespace R1Engine
             Serializable = serializable;
             OAMCollection = oamCollection;
 
+            // Hack for final boss
+            if (objManager.Context.GetR1Settings().World == 5 && objManager.Context.GetR1Settings().Level == 8 && obj.ObjType == 23)
+            {
+                oamCollection.OAMs[0].TileIndex = 492;
+
+                if (obj.Index == 28)
+                    AnimIndex = 1;
+                else if (obj.Index == 29)
+                    AnimIndex = 2;
+            }
+
             AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.OAMCollections.Any(o => o.OAMs[0].TileIndex == oamCollection.OAMs[0].TileIndex));
 
             if (AnimSetIndex == -1)
@@ -30,6 +41,15 @@ namespace R1Engine
             // Waterfall fix
             if (Object.ObjType == 58)
                 AnimIndex = 1;
+
+            // Final boss fix
+            if (objManager.Context.GetR1Settings().World == 5 && objManager.Context.GetR1Settings().Level == 8 && obj.ObjType == 23)
+            {
+                if (obj.Index == 28)
+                    AnimIndex = 1;
+                else if (obj.Index == 29)
+                    AnimIndex = 2;
+            }
         }
 
         public Unity_ObjectManager_GBAKlonoa ObjManager { get; }

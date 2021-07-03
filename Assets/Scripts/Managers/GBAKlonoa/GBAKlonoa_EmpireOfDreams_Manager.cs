@@ -696,7 +696,11 @@ namespace R1Engine
             new AnimSetInfo(0x081895FC, 3),
             new AnimSetInfo(0x08189608, 13),
             new AnimSetInfo(0x0818963C, 12),
-            new AnimSetInfo(0x0818966C, 19),
+
+            // This is actually a single set of 19 animations, but due to different palettes being used we split them up
+            new AnimSetInfo(0x0818966C, 8),
+            new AnimSetInfo(0x0818966C + (4 * 8), 11),
+
             new AnimSetInfo(0x081896B8, 28),
             new AnimSetInfo(0x08189728, 38),
             new AnimSetInfo(0x081897C0, 72),
@@ -906,6 +910,18 @@ namespace R1Engine
                 new MapVRAMAllocationInfo(0x02004104, 0x200),
                 new MapVRAMAllocationInfo(0x02004304, 0x200),
                 new MapVRAMAllocationInfo(0x02004504, 0x200),
+            },
+
+            // 5-8
+            [44] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x08060a88, 0x600, tileIndex: 284), // Boss health bar
+            },
+
+            // 6-8
+            [53] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x08060a88, 0x600, tileIndex: 284), // Boss health bar
             },
         };
 

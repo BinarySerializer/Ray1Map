@@ -37,6 +37,12 @@ namespace R1Engine
                     Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EmpireOfDreams_Manager.FixCount)?.ObjType == 58))
                     value += 4;
 
+                // Hack for final boss due to the set having animations with different palettes
+                if (Pre_LevelObjects != null && 
+                    s.GetR1Settings().Level == 8 && s.GetR1Settings().World == 5 &&
+                    Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EmpireOfDreams_Manager.FixCount)?.ObjType == 34)
+                    value += 4 * 8;
+
                 AnimationsPointer = new Pointer(value, Offset.File);
             }
 
