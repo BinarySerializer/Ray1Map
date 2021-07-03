@@ -116,7 +116,8 @@ namespace R1Engine
             }
             else
             {
-                levelObjects = Enumerable.Range(0, 5).Select(sector => rom.LevelObjectCollection.Objects.Select((obj, index) => obj.ToLoadedObject((short)(FixCount + index), sector)).ToArray()).ToArray();
+                // Get the objects for every sector (except for in bosses)
+                levelObjects = Enumerable.Range(0, isBoss ? 1 : 5).Select(sector => rom.LevelObjectCollection.Objects.Select((obj, index) => obj.ToLoadedObject((short)(FixCount + index), sector)).ToArray()).ToArray();
             }
 
             var firstLoadedObjects = new List<GBAKlonoa_LoadedObject>();
@@ -161,8 +162,8 @@ namespace R1Engine
                 objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), x, allOAMCollections[0])));
             }
 
-            // Add fixed objects, except Klonoa (first one) and object 12 for maps since it's not used and has no graphics
-            objects.AddRange(fixObjects.Skip(1).Where(x => !isMap || x.Index != 12).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
+            // Add fixed objects, except Klonoa (first one) and object 11/12 for maps since it's not used
+            objects.AddRange(fixObjects.Skip(1).Where(x => !isMap || (x.Index != 11 && x.Index != 12)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
 
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
             objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, (BinarySerializable)x.LevelObj ?? x.WorldMapObj, allOAMCollections[x.OAMIndex])));
@@ -255,10 +256,16 @@ namespace R1Engine
             if (oamCollection.Count != 1)
                 Debug.LogWarning($"Animation uses multiple sprites!");
 
+            var anims = objectGraphics.Animations;
+
+            // Sometimes the last animation is null
+            if (anims.Length > 1 && anims.Last() == null)
+                anims = anims.Take(anims.Length - 1).ToArray();
+
             return new Unity_ObjectManager_GBAKlonoa.AnimSet(
-                animations: Enumerable.Range(0, objectGraphics.Animations.Length).
-                    Select(animIndex => objectGraphics.Animations[animIndex]?.Frames?.Length == 0 ? null : new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
-                        animFrameFunc: () => GetAnimFrames(objectGraphics.Animations[animIndex].Frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), 
+                animations: Enumerable.Range(0, anims.Length).
+                    Select(animIndex => anims[animIndex]?.Frames?.Length == 0 ? null : new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
+                        animFrameFunc: () => GetAnimFrames(anims[animIndex].Frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), 
                         oamCollection: oamCollection)).ToArray(), 
                 displayName: $"0x{objectGraphics.AnimationsPointer.StringAbsoluteOffset}", 
                 oamCollections: new GBAKlonoa_ObjectOAMCollection[]
@@ -273,6 +280,7 @@ namespace R1Engine
             var s = context.Deserializer;
             var romFile = context.GetFile(GetROMFilePath);
             var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
+            var isBoss = settings.Level == 8;
 
             var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
             var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
@@ -304,31 +312,28 @@ namespace R1Engine
 
             if (allocationInfos != null)
             {
-                var allocatedVRAMImgData = new List<byte>();
-
                 var memFile = context.GetFile(CompressedObjTileBlockName);
 
-                var originalOffsets = new Dictionary<int, Pointer>();
-                int initialTile = LevelVRAMAllocationInfoInitialTiles[globalLevelIndex];
+                var vramTileIndex = 0;
 
-                var alloctionIndex = 0;
-                foreach (var allocationInfo in allocationInfos)
+                var allocatedVRAMData = allocationInfos.Select((allocationInfo, alloctionIndex) =>
                 {
+                    if (allocationInfo.TileIndex != null)
+                        vramTileIndex = allocationInfo.TileIndex.Value;
+
+                    var tileIndex = vramTileIndex;
                     var p = new Pointer(allocationInfo.Offset, allocationInfo.Offset >= GBAConstants.Address_ROM ? romFile : memFile);
-                    originalOffsets.Add(initialTile + (allocatedVRAMImgData.Count / 0x20), p);
                     var bytes = s.DoAt(p, () => s.SerializeArray<byte>(null, allocationInfo.Length, $"ObjTiles[{alloctionIndex}]"));
 
-                    allocatedVRAMImgData.AddRange(bytes);
-                    alloctionIndex++;
-                }
+                    vramTileIndex += (allocationInfo.Length / 0x20);
 
-                var frames = new GBAKlonoa_AnimationFrame[]
-                {
-                    new GBAKlonoa_AnimationFrame()
+                    return new
                     {
-                        ImgData = allocatedVRAMImgData.ToArray()
-                    }
-                };
+                        SourcePointer = p,
+                        ImgData = bytes,
+                        TileIndex = tileIndex
+                    };
+                }).ToArray();
 
                 var loadedTiles = new HashSet<int>();
 
@@ -336,17 +341,26 @@ namespace R1Engine
                 {
                     var oam = oamCollection.OAMs[0];
 
-                    if (oam.TileIndex < initialTile || loadedTiles.Contains(oam.TileIndex))
+                    if (loadedTiles.Contains(oam.TileIndex))
                         continue;
 
-                    var imgDataOffset = (oam.TileIndex - initialTile) * 0x20;
+                    var data = allocatedVRAMData.FirstOrDefault(x => x.TileIndex == oam.TileIndex);
 
-                    var originalOffset = originalOffsets[oam.TileIndex];
+                    if (data == null)
+                        continue;
+
+                    var frames = new GBAKlonoa_AnimationFrame[]
+                    {
+                        new GBAKlonoa_AnimationFrame()
+                        {
+                            ImgData = data.ImgData
+                        }
+                    };
 
                     var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
                     {
-                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oamCollection, palettes, imgDataOffset: imgDataOffset).Select(x => x.CreateSprite()).ToArray(), oamCollection)
-                    }, $"0x{originalOffset.StringAbsoluteOffset}", new GBAKlonoa_ObjectOAMCollection[]
+                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), oamCollection)
+                    }, $"0x{data.SourcePointer.StringAbsoluteOffset}", new GBAKlonoa_ObjectOAMCollection[]
                     {
                         oamCollection
                     });
@@ -363,12 +377,24 @@ namespace R1Engine
 
             IEnumerable<SpecialAnimation> specialAnims = SpecialAnimations;
 
-            // Manually append the level text to the special animations
-            if (levelTextSpritePointer != null)
-                specialAnims = specialAnims.Append(new SpecialAnimation(new long[]
-                {
-                    levelTextSpritePointer.AbsoluteOffset
-                }, true, 12));
+            // Manually append the level text to the special animations (VISION/BOSS)
+            if (isBoss)
+            {
+                // BOSS
+                specialAnims = specialAnims.Append(new SpecialAnimation(0x080a4888, true, 11));
+
+                // CLEAR
+                specialAnims = specialAnims.Append(new SpecialAnimation(0x080a5088, true, 12));
+            }
+            else
+            {
+                // VISION
+                specialAnims = specialAnims.Append(new SpecialAnimation(0x0805c9e8, true, 11));
+
+                // Level text (1-1 etc.)
+                if (levelTextSpritePointer != null)
+                    specialAnims = specialAnims.Append(new SpecialAnimation(levelTextSpritePointer.AbsoluteOffset, true, 12));
+            }
 
             // Load special animations. These are all manually loaded into VRAM by the game.
             foreach (var specialAnim in specialAnims)
@@ -729,10 +755,6 @@ namespace R1Engine
                 0x0805c968,
                 0x0809ac88,
             }, true, 10), // Klonoa's attack (small)
-            new SpecialAnimation(new long[]
-            {
-                0x0805c9e8,
-            }, true, 11), // Level text (VISION)
             
             // Collectibles
             new SpecialAnimation(0x0818b9b8, 4, false, 44), // Green gem
@@ -748,9 +770,6 @@ namespace R1Engine
             new SpecialAnimation(0x0805fb08, false, 64), // Ramp
             new SpecialAnimation(0x08060608, false, 39), // Vertical platform
             new SpecialAnimation(0x08060708, false, 41), // Horizontal platform
-
-            // Boss fight 1?
-
             new SpecialAnimation(0x08061c28, false, 42), // Fence
             new SpecialAnimation(0x08061d28, false, 9), // Leaf
             new SpecialAnimation(0x08061d28, false, 10, groupCount: 5), // Leaves
@@ -786,7 +805,7 @@ namespace R1Engine
             // 1-0
             [0] = new MapVRAMAllocationInfo[]
             {
-                new MapVRAMAllocationInfo(0x0805dbe8, 0x300),
+                new MapVRAMAllocationInfo(0x0805dbe8, 0x300, tileIndex: 296),
                 new MapVRAMAllocationInfo(0x0805dee8, 0x200),
                 new MapVRAMAllocationInfo(0x0805e0e8, 0x200),
                 new MapVRAMAllocationInfo(0x0805e2e8, 0x400),
@@ -816,10 +835,17 @@ namespace R1Engine
                 new MapVRAMAllocationInfo(0x02001f04, 0x200),
             },
 
+            // 1-8
+            [8] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x08060a88, 0x600, tileIndex: 284), // Boss health bar
+                new MapVRAMAllocationInfo(0x08061888, 0x100, tileIndex: 620), // Shadow
+            },
+
             // 2-0
             [9] = new MapVRAMAllocationInfo[]
             {
-                new MapVRAMAllocationInfo(0x02000904, 0x800),
+                new MapVRAMAllocationInfo(0x02000904, 0x800, tileIndex: 408),
                 new MapVRAMAllocationInfo(0x02001104, 0x800),
                 new MapVRAMAllocationInfo(0x02001904, 0x200),
                 new MapVRAMAllocationInfo(0x02001b04, 0x200),
@@ -827,10 +853,16 @@ namespace R1Engine
                 new MapVRAMAllocationInfo(0x02001f04, 0x200),
             },
 
+            // 2-8
+            [17] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x08060a88, 0x600, tileIndex: 284), // Boss health bar
+            },
+
             // 3-0
             [18] = new MapVRAMAllocationInfo[]
             {
-                new MapVRAMAllocationInfo(0x02000904, 0x800),
+                new MapVRAMAllocationInfo(0x02000904, 0x800, tileIndex: 408),
                 new MapVRAMAllocationInfo(0x02001104, 0x200),
                 new MapVRAMAllocationInfo(0x02001d04, 0x200),
                 new MapVRAMAllocationInfo(0x02001f04, 0x200),
@@ -842,7 +874,7 @@ namespace R1Engine
             // 4-0
             [27] = new MapVRAMAllocationInfo[]
             {
-                new MapVRAMAllocationInfo(0x02000904, 0x800),
+                new MapVRAMAllocationInfo(0x02000904, 0x800, tileIndex: 408),
                 new MapVRAMAllocationInfo(0x02002304, 0x200),
                 new MapVRAMAllocationInfo(0x02002104, 0x200),
                 new MapVRAMAllocationInfo(0x02002504, 0x200),
@@ -856,21 +888,13 @@ namespace R1Engine
             // 5-0
             [36] = new MapVRAMAllocationInfo[]
             {
-                new MapVRAMAllocationInfo(0x02004704, 0x200),
+                new MapVRAMAllocationInfo(0x02004704, 0x200, tileIndex: 408),
                 new MapVRAMAllocationInfo(0x02001104, 0x800),
                 new MapVRAMAllocationInfo(0x02000904, 0x800),
                 new MapVRAMAllocationInfo(0x02004104, 0x200),
                 new MapVRAMAllocationInfo(0x02004304, 0x200),
                 new MapVRAMAllocationInfo(0x02004504, 0x200),
             },
-        };
-        public Dictionary<int, int> LevelVRAMAllocationInfoInitialTiles => new Dictionary<int, int>()
-        {
-            [0] = 296,
-            [9] = 408,
-            [18] = 408,
-            [27] = 408,
-            [36] = 408,
         };
 
         public class AnimSetInfo
@@ -965,14 +989,16 @@ namespace R1Engine
 
         public class MapVRAMAllocationInfo
         {
-            public MapVRAMAllocationInfo(int offset, int length)
+            public MapVRAMAllocationInfo(int offset, int length, int? tileIndex = null)
             {
                 Offset = offset;
                 Length = length;
+                TileIndex = tileIndex;
             }
 
             public int Offset { get; }
             public int Length { get; }
+            public int? TileIndex { get; }
         }
     }
 }

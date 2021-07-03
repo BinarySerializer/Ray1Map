@@ -172,7 +172,19 @@ namespace R1Engine
             LevelObjectOAMCollections ??= new GBAKlonoa_ObjectOAMCollection[LevelObjectOAMCollectionPointers.Length][];
             s.DoAt(LevelObjectOAMCollectionPointers[globalLevelIndex], () =>
             {
-                var max = isMap ? WorldMapObjectCollection.Objects.Max(x => x.OAMIndex) : LevelObjectCollection.Objects.Max(x => x.OAMIndex);
+                byte max;
+                
+                if (isMap)
+                {
+                    max = WorldMapObjectCollection.Objects.Max(x => x.OAMIndex);
+                }
+                else
+                {
+                    if (LevelObjectCollection.Objects.Any())
+                        max = LevelObjectCollection.Objects.Max(x => x.OAMIndex);
+                    else
+                        max = GBAKlonoa_EmpireOfDreams_Manager.FixCount - 1;
+                }
 
                 LevelObjectOAMCollections[globalLevelIndex] = s.SerializeObjectArray<GBAKlonoa_ObjectOAMCollection>(LevelObjectOAMCollections[globalLevelIndex], max - GBAKlonoa_EmpireOfDreams_Manager.FixCount + 1, name: $"{nameof(LevelObjectOAMCollections)}[{globalLevelIndex}]");
             });
@@ -189,33 +201,38 @@ namespace R1Engine
         {
             return levelIndex switch
             {
+                // World 1
                 0 => new int[] { 02, 03, 04, 05, 06, 07, 08, 09, 10 },
                 1 => new int[] { 39, 40, 41, 42, 43, 44 },
                 2 => new int[] { 39, 40, 45, 46, 42, 43, 44 },
                 3 => new int[] { 39, 40, 41, 45, 46, 47, 42, 43, 44 },
                 4 => new int[] { 40, 41, 45, 48, 43, 44 },
-                5 => new int[] { 39, 40, 41, -1, 45, 46, 47, 42, 43, 44 },
-                6 => new int[] { -1, 41, -1, 45, 43, 44 },
-                7 => new int[] { 39, 40, -1, 45, -1, 46, 47, 42, 43, 44 },
-                8 => new int[] { -1, -1, -1, -1, 40, -1, 44, -1 },
+                5 => new int[] { 39, 40, 41, 49, 45, 46, 47, 42, 43, 44 },
+                6 => new int[] { 50, 41, 49, 45, 43, 44 },
+                7 => new int[] { 39, 40, 49, 45, 51, 46, 47, 42, 43, 44 },
+                8 => new int[] { 52, 53, 54, 55, 40, 56, 54, 57 },
+
+                // World 2
                 9 => new int[] { 06, 11, 12, 13, 14, 15, 16 },
-                10 => new int[] { 39, 40, 41, 45, -1, 46, 47, 42, 43, 44 },
-                11 => new int[] { 39, 40, 41, -1, -1, 45, 46, 47, 42, 43, 44 },
-                12 => new int[] { 39, 40, 41, -1, -1, 46, 45, 47, 42, 43, 44 },
-                13 => new int[] { 40, 41, 45, -1, 48, 43, 44 },
-                14 => new int[] { 39, 40, 41, 45, -1, -1, -1, 42, 46, 47, 43, 44 },
-                15 => new int[] { -1, 40, 41, -1, 45, -1, 43, 44 },
-                16 => new int[] { 39, 40, 41, -1, 45, 42, -1, 46, 47, 43, 44 },
-                17 => new int[] { -1, -1, -1, -1, 40, -1, -1, 45, 44 },
+                10 => new int[] { 39, 40, 41, 45, 58, 46, 47, 42, 43, 44 },
+                11 => new int[] { 39, 40, 41, 59, 58, 45, 46, 47, 42, 43, 44 },
+                12 => new int[] { 39, 40, 41, 59, 49, 46, 60, 47, 42, 43, 44 },
+                13 => new int[] { 40, 41, 45, 58, 48, 43, 44 },
+                14 => new int[] { 39, 40, 41, 45, 49, 51, 58, 61, 46, 47, 43, 44 },
+                15 => new int[] { 50, 40, 41, 49, 45, 51, 43, 44 },
+                16 => new int[] { 39, 40, 41, 58, 62, 61, 63, 46, 47, 43, 44 },
+                17 => new int[] { 52, 53, 54, 64, 40, 65, 66, 67, 44 },
+
                 18 => new int[] { 06, 17, 18, 19, 20, 21, 22, 23 },
                 19 => new int[] { 39, 40, -1, -1, 46, 45, 47, 42, 43, 44 },
                 20 => new int[] { 39, 41, -1, -1, 46, 45, 47, 42, 43, 44 },
-                21 => new int[] { 39, 41, 49, 51, 68, 69, 47, 42, 43, 44 }, // This was wrong with pal script
+                21 => new int[] { 39, 41, 49, 51, 68, 69, 47, 42, 43, 44 },
                 22 => new int[] { 40, 41, 45, -1, 48, 43, 44 },
                 23 => new int[] { 39, -1, -1, 46, 45, 42, 47, 43 },
                 24 => new int[] { -1, 40, 41, -1, -1, 45, 43, 44 },
                 25 => new int[] { 39, 41, -1, -1, 46, 45, 42, -1, 43, 44 },
                 26 => new int[] { -1, -1, -1, -1, 41, -1, -1, -1, 44 },
+
                 27 => new int[] { 06, 24, 25, 26, 27, 28, 29, 30, 31, 32 },
                 28 => new int[] { 39, 40, 41, 58, 49, 76, 46, 77, 83, 47, 42, 43, 44 },
                 29 => new int[] { 39, 40, 41, -1, -1, -1, 46, 43, -1, 47, 42, 44 },
@@ -225,6 +242,7 @@ namespace R1Engine
                 33 => new int[] { -1, 40, 41, -1, -1, 45, -1, 43, 44 },
                 34 => new int[] { 39, 40, 41, -1, 45, 46, 42, 43, -1, -1, 47, 44 },
                 35 => new int[] { -1, -1, -1, -1, 40, -1, -1, 44 },
+
                 36 => new int[] { 06, 33, 34, 35, 36, 37, 38 },
                 37 => new int[] { 39, 40, 45, 86, 47, 42, 43, 44 },
                 38 => new int[] { 39, 40, 41, 45, -1, 46, -1, 42, 47, 43, 44 },
@@ -234,6 +252,7 @@ namespace R1Engine
                 42 => new int[] { -1, 40, 41, -1, -1, 45, 43, 44 },
                 43 => new int[] { 39, 40, 41, -1, -1, 45, -1, -1, 46, 47, -1, 42, 43, 44 },
                 44 => new int[] { -1, -1, -1, -1, 40, -1, -1, 44 },
+
                 45 => new int[] { 06 },
                 46 => new int[] { 39, 40, 41, -1, -1, 45, -1, -1, -1, 42, 43, 44 },
                 47 => new int[] { 39, 40, 41, 59, 49, 51, 58, 68, 45, 46, 42, 47, 43, 44 },
