@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using System;
 
 namespace R1Engine.Jade {
 	public class Jade_Matrix : BinarySerializable {
@@ -24,7 +25,7 @@ namespace R1Engine.Jade {
 		public float M32 { get; set; }
 		public float M33 { get; set; }
 
-		public int Type { get; set; }
+		public TypeFlags Type { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			M00 = s.Serialize<float>(M00, name: nameof(M00));
@@ -47,7 +48,16 @@ namespace R1Engine.Jade {
 			M32 = s.Serialize<float>(M32, name: nameof(M32));
 			M33 = s.Serialize<float>(M33, name: nameof(M33));
 
-			Type = s.Serialize<int>(Type, name: nameof(Type));
+			Type = s.Serialize<TypeFlags>(Type, name: nameof(Type));
 		}
+	}
+
+	[Flags]
+	public enum TypeFlags : int {
+		None = 0,
+		_1 = 1 << 0,
+		Translation = 1 << 1,
+		Rotation = 1 << 2,
+		Scale = 1 << 3,
 	}
 }

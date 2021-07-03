@@ -30,7 +30,7 @@ namespace R1Engine.Jade {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			TotalParticleManagers = s.Serialize<int>(TotalParticleManagers, name: nameof(TotalParticleManagers));
 			TotalAlphaManagers = s.Serialize<int>(TotalAlphaManagers, name: nameof(TotalAlphaManagers));
-			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
 				if (Version >= 2) TotalBeamManagers = s.Serialize<int>(TotalBeamManagers, name: nameof(TotalBeamManagers));
 				if (Version >= 3) TotalSoundManagers = s.Serialize<int>(TotalSoundManagers, name: nameof(TotalSoundManagers));
 				if (Version >= 5) TotalAfterEffectManagers = s.Serialize<int>(TotalAfterEffectManagers, name: nameof(TotalAfterEffectManagers));
@@ -46,7 +46,7 @@ namespace R1Engine.Jade {
 
 			ParticleManagers = s.SerializeObjectArray<CharacterFX_ParticleManager>(ParticleManagers, TotalParticleManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(ParticleManagers));
 			AlphaManagers = s.SerializeObjectArray<CharacterFX_AlphaManager>(AlphaManagers, TotalAlphaManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(AlphaManagers));
-			if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
 				if (Version >= 2) BeamManagers = s.SerializeObjectArray<CharacterFX_BeamManager>(BeamManagers, TotalBeamManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(BeamManagers));
 				if (Version >= 3) SoundManagers = s.SerializeObjectArray<CharacterFX_SoundManager>(SoundManagers, TotalSoundManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(SoundManagers));
 				if (Version >= 5) AfterEffectManagers = s.SerializeObjectArray<CharacterFX_AfterEffectManager>(AfterEffectManagers, TotalAfterEffectManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(AfterEffectManagers));
@@ -467,7 +467,7 @@ namespace R1Engine.Jade {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
 				Id = s.Serialize<int>(Id, name: nameof(Id));
-				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
 					if (CharacterFX.Version >= 12) {
 						ColMatIDsCount = s.Serialize<short>(ColMatIDsCount, name: nameof(ColMatIDsCount));
 						ColMatIDs = s.SerializeArray<uint>(ColMatIDs, ColMatIDsCount, name: nameof(ColMatIDs));
@@ -493,7 +493,7 @@ namespace R1Engine.Jade {
 			public void SerializeElements(SerializerObject s) {
 				ParticleEffectElements = s.SerializeObjectArray<CharacterFX_GroupParticleElement>(ParticleEffectElements, NumberOfParticleEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(ParticleEffectElements));
 				AlphaEffectElements = s.SerializeObjectArray<CharacterFX_GroupAlphaElement>(AlphaEffectElements, NumberOfAlphaEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(AlphaEffectElements));
-				if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
 					if (CharacterFX.Version >= 2) BeamEffectElements = s.SerializeObjectArray<CharacterFX_GroupBeamElement>(BeamEffectElements, NumberOfBeamEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(BeamEffectElements));
 					if (CharacterFX.Version >= 3) SoundEffectElements = s.SerializeObjectArray<CharacterFX_GroupSoundElement>(SoundEffectElements, NumberOfSoundEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(SoundEffectElements));
 					if (CharacterFX.Version >= 5) AfterEffectElements = s.SerializeObjectArray<CharacterFX_GroupAfterEffectElement>(AfterEffectElements, NumberOfAfterEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(AfterEffectElements));
@@ -527,7 +527,7 @@ namespace R1Engine.Jade {
 			}
 			public class CharacterFX_GroupParticleElement : CharacterFX_BaseElement {
 
-				public override bool HasDuration => !Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4) || Manager.CharacterFX.Version >= 1;
+				public override bool HasDuration => Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T) || Manager.CharacterFX.Version >= 1;
 
 				public int ForceStop { get; set; } // Boolean
 				public int StopGenerating { get; set; } // Boolean

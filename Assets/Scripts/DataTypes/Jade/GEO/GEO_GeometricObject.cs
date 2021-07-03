@@ -51,6 +51,11 @@ namespace R1Engine.Jade {
 				case Platform.GC:
 					return (Montreal_Flags2 & 2) == 2;
 				case Platform.PC:
+					if (s.EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+						return (Montreal_Flags2 & 8) == 8;
+					} else {
+						return (Montreal_Flags2 & 4) == 4;
+					}
 				case Platform.Xbox:
 					return (Montreal_Flags2 & 4) == 4;
 				case Platform.Wii:
@@ -62,7 +67,7 @@ namespace R1Engine.Jade {
 		public bool Montreal_HasUnoptimizedData(GameSettings s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			return !(Montreal_IsOptimized(s) && Loader.IsBinaryData)
-				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC) && s.EngineVersion == EngineVersion.Jade_PoP_SoT)
+				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC))
 				|| (s.Platform == Platform.Xbox && s.EngineVersion == EngineVersion.Jade_PoP_SoT_20030723);
 		}
 

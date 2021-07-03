@@ -521,7 +521,7 @@ namespace R1Engine
 				loader.BeginSpeedMode(univers.Key, async s => { // Univers is bin compressed in Montreal version
 					univers.Resolve();
 					await loader.LoadLoopBINAsync();
-					if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+					if (!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
 						terminator.Resolve();
 						await loader.LoadLoopBINAsync();
 					}

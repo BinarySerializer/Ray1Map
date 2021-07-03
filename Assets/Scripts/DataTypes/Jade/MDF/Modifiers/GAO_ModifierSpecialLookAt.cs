@@ -17,6 +17,7 @@ namespace R1Engine.Jade {
 		public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
 		public float Value1 { get; set; } = 1000f;
 		public float Value2 { get; set; } = 1000f;
+		public uint AnimationCanal { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
@@ -25,12 +26,16 @@ namespace R1Engine.Jade {
 			Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
 			Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
 			Z = s.Serialize<float>(Z, name: nameof(Z));
-			if(Version == 28) GaoRank = s.Serialize<int>(GaoRank, name: nameof(GaoRank));
+			if(Version == 28 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal))
+				GaoRank = s.Serialize<int>(GaoRank, name: nameof(GaoRank));
 			GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject));
 			if(GaoRank == -1) GameObject?.Resolve();
-			if (Version != 4) {
+			if (Version != 4 || s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 				Value1 = s.Serialize<float>(Value1, name: nameof(Value1));
 				Value2 = s.Serialize<float>(Value2, name: nameof(Value2));
+			}
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version >= 29) {
+				AnimationCanal = s.Serialize<uint>(AnimationCanal, name: nameof(AnimationCanal));
 			}
 		}
 	}

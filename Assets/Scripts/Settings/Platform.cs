@@ -32,5 +32,6 @@ namespace R1Engine
         Xbox360,
         PS3,
         PSP,
+        iOS,
     }
 }

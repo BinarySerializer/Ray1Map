@@ -7,7 +7,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GAO_ModifierShadow : MDF_Modifier {
-		public uint UInt_Editor_00 { get; set; }
+		public uint Version { get; set; }
 		public uint Flags { get; set; }
 		public Jade_TextureReference Texture { get; set; }
 		public float XSizeFactor { get; set; }
@@ -22,7 +22,7 @@ namespace R1Engine.Jade {
 		public float ZSizeFactor { get; set; }
 		public uint ProjectionMethod { get; set; }
 		public byte TextureTiling { get; set; }
-		public byte Version { get; set; }
+		public byte KK_Version { get; set; }
 		public short Dummy { get; set; }
 		public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
 
@@ -30,7 +30,7 @@ namespace R1Engine.Jade {
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-			if(!Loader.IsBinaryData) UInt_Editor_00 = s.Serialize<uint>(UInt_Editor_00, name: nameof(UInt_Editor_00));
+			if(!Loader.IsBinaryData) Version = s.Serialize<uint>(Version, name: nameof(Version));
 			Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 			Texture = s.SerializeObject<Jade_TextureReference>(Texture, name: nameof(Texture));
 			XSizeFactor = s.Serialize<float>(XSizeFactor, name: nameof(XSizeFactor));
@@ -48,9 +48,9 @@ namespace R1Engine.Jade {
 			ProjectionMethod = s.Serialize<uint>(ProjectionMethod, name: nameof(ProjectionMethod));
 			TextureTiling = s.Serialize<byte>(TextureTiling, name: nameof(TextureTiling));
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) || !Loader.IsBinaryData) {
-				Version = s.Serialize<byte>(Version, name: nameof(Version));
+				KK_Version = s.Serialize<byte>(KK_Version, name: nameof(KK_Version));
 				Dummy = s.Serialize<short>(Dummy, name: nameof(Dummy));
-				if (Version >= 1) {
+				if (KK_Version >= 1) {
 					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
 				}
 			}

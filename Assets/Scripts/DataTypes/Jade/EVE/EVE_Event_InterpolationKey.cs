@@ -118,7 +118,7 @@ namespace R1Engine.Jade
                         case 0:
                             if (Type.HasFlag(TypeFlags.Flag_4)) {
                                 if (Loader.IsBinaryData) {
-                                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PhoenixRayman4)) {
+                                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
 										CompressedQuaternion10 = s.SerializeObject<Jade_CompressedQuaternion10>(CompressedQuaternion10, name: nameof(CompressedQuaternion10));
 									} else {
                                         CompressedQuaternion16 = s.SerializeObject<Jade_CompressedQuaternion16>(CompressedQuaternion16, name: nameof(CompressedQuaternion16));

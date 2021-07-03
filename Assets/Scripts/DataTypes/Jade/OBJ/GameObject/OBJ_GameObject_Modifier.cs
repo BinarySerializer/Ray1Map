@@ -10,8 +10,9 @@ namespace R1Engine.Jade {
 		public MDF_ModifierType Type { get; set; }
         public MDF_ModifierType_Montreal Type_Montreal { get; set; }
         public MDF_ModifierType_RRRTVP Type_RRRTVP { get; set; }
-		public uint UInt_00 { get; set; }
-		public MDF_Modifier Modifier { get; set; }
+		public uint Flags { get; set; }
+        public uint Platform { get; set; }
+        public MDF_Modifier Modifier { get; set; }
 
         public bool IsNull {
             get {
@@ -30,7 +31,7 @@ namespace R1Engine.Jade {
             }
 
 			Type = s.Serialize<MDF_ModifierType>(Type, name: nameof(Type));
-			if(Type != MDF_ModifierType.None) UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+			if(Type != MDF_ModifierType.None) Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 
             Modifier = Type switch
             {
@@ -79,7 +80,12 @@ namespace R1Engine.Jade {
 
         public void SerializeImpl_Montreal(SerializerObject s) {
             Type_Montreal = s.Serialize<MDF_ModifierType_Montreal>(Type_Montreal, name: nameof(Type_Montreal));
-            if (Type_Montreal != MDF_ModifierType_Montreal.None) UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+            if (Type_Montreal != MDF_ModifierType_Montreal.None) {
+                Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+                if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) && (Flags & 0x20000000) != 0) {
+					Platform = s.Serialize<uint>(Platform, name: nameof(Platform));
+				}
+            }
 
             Modifier = Type_Montreal switch
             {
