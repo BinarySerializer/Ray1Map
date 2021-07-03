@@ -92,7 +92,7 @@ namespace R1Engine
                     },
                     MapTiles = map.Select(x => new Unity_Tile(x)).ToArray(),
                     Type = Unity_Map.MapType.Graphics,
-                    Settings3D = isMap && settings.World != 6 && mapIndex == 2 ? Unity_Map.FreeCameraSettings.Mode7 : null,
+                    Settings3D = isMap &&  mapIndex == 2 ? Unity_Map.FreeCameraSettings.Mode7 : null,
                 };
             }).ToArray();
 
@@ -168,7 +168,7 @@ namespace R1Engine
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
             objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, (BinarySerializable)x.LevelObj ?? x.WorldMapObj, allOAMCollections[x.OAMIndex])));
 
-            if (isMap && settings.World != 6) 
+            if (isMap) 
             {
                 foreach (var obj in objects) 
                 {
@@ -191,7 +191,7 @@ namespace R1Engine
                 eventData: objects,
                 cellSize: CellSize,
                 defaultLayer: 2,
-                isometricData: isMap && settings.World != 6 ? Unity_IsometricData.Mode7(CellSize) : null);
+                isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null);
         }
 
         public Texture2D[] GetAnimFrames(GBAKlonoa_AnimationFrame[] frames, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes, int imgDataOffset = 0)
