@@ -162,6 +162,17 @@ public class WebJSON {
 		// Gameloft RK
 		public int? GameloftRK_TriggerFlags { get; set; }
 		public string GameloftRK_TriggerParams { get; set; }
+
+		// Klonoa
+		public int? GBAKlonoa_AnimSetIndex { get; set; }
+		public string[] GBAKlonoa_AnimSetNames { get; set; }
+		public int? GBAKlonoa_Index { get; set; }
+		public int? GBAKlonoa_ObjType { get; set; }
+		public string GBAKlonoa_Palettes { get; set; }
+		public string GBAKlonoa_Tiles { get; set; }
+		public string GBAKlonoa_Shapes { get; set; }
+		public int? GBAKlonoa_Param1 { get; set; }
+		public int? GBAKlonoa_Param2 { get; set; }
 	}
 	public class Layer {
 		public string Name { get; set; }

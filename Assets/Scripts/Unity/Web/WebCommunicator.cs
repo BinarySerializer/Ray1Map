@@ -439,6 +439,24 @@ public class WebCommunicator : MonoBehaviour {
 						webObj.GameloftRK_TriggerParams = string.Join(",", glRKObj.Trigger.Parameters);
 					}
 					break;
+
+                case Unity_Object_GBAKlonoa klonoaObj:
+					if (klonoaObj.AnimSetIndex != -1) 
+                    {
+						webObj.GBAKlonoa_AnimSetIndex = klonoaObj.AnimSetIndex;
+
+						if(includeLists)
+							webObj.GBAKlonoa_AnimSetNames = klonoaObj.ObjManager.AnimSets.Select(x => x.DisplayName).ToArray();
+					}
+
+					webObj.GBAKlonoa_Index = klonoaObj.Object.Index;
+					webObj.GBAKlonoa_ObjType = klonoaObj.Object.ObjType;
+					webObj.GBAKlonoa_Palettes = String.Join(", ", klonoaObj.OAMCollection.OAMs.Select(x => x.PaletteIndex));
+					webObj.GBAKlonoa_Tiles = String.Join(", ", klonoaObj.OAMCollection.OAMs.Select(x => x.TileIndex));
+					webObj.GBAKlonoa_Shapes = String.Join(", ", klonoaObj.OAMCollection.OAMs.Select(x => x.Shape));
+					webObj.GBAKlonoa_Param1 = klonoaObj.Object.Param_1;
+					webObj.GBAKlonoa_Param2 = klonoaObj.Object.Param_2;
+					break;
             }
 		}
 		return webObj;
@@ -808,7 +826,14 @@ public class WebCommunicator : MonoBehaviour {
 					refreshObjectLists = true;
 				}
 				break;
-		}
+            case Unity_Object_GBAKlonoa klonoaObj:
+                if (msg.GBAKlonoa_AnimSetIndex.HasValue && klonoaObj.AnimSetIndex != msg.GBAKlonoa_AnimSetIndex.Value)
+                {
+                    klonoaObj.AnimSetIndex = msg.GBAKlonoa_AnimSetIndex.Value;
+                    refreshObjectLists = true;
+                }
+                break;
+        }
 
 		if (refreshObjectLists)
 			Send(GetSelectionMessageJSON(includeLists: true, includeDetails: true));

@@ -329,6 +329,20 @@
 			]
 		},
 		{
+			"name": "Klonoa games",
+			"games": [
+				{
+					"title": "Klonoa: Empire of Dreams",
+					"viewer": "ray1map",
+					"json": "gba_klonoa\/empire_of_dreams",
+					"image": ".\/img\/logo\/empire_of_dreams.png",
+					"versions": [
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_klonoa/empire_of_dreams_us" }
+					]
+				}
+			]
+		},
+		{
 			"name": "Ubisoft games",
 			"games": [
 				{
