@@ -167,9 +167,11 @@ namespace R1Engine
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
             objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, (BinarySerializable)x.LevelObj ?? x.WorldMapObj, allOAMCollections[x.OAMIndex])));
 
-            if (settings.World == 1 && settings.Level == 0) {
-                foreach (var obj in objects) {
-                    var o = obj as Unity_Object_GBAKlonoa;
+            if (isMap && settings.World != 6) 
+            {
+                foreach (var obj in objects) 
+                {
+                    var o = (Unity_Object_GBAKlonoa)obj;
                     var x = o.XPosition;
                     var y = o.YPosition;
                     var fx = maps[2].Width * CellSize;
@@ -181,7 +183,6 @@ namespace R1Engine
                     o.YPosition = (short)(sin + fy / 2);
                 }
             }
-
 
             return new Unity_Level(
                 maps: maps,
