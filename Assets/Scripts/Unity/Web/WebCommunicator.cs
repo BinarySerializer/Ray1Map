@@ -454,8 +454,12 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.GBAKlonoa_Palettes = String.Join(", ", klonoaObj.OAMCollection.OAMs.Select(x => x.PaletteIndex));
 					webObj.GBAKlonoa_Tiles = String.Join(", ", klonoaObj.OAMCollection.OAMs.Select(x => x.TileIndex));
 					webObj.GBAKlonoa_Shapes = String.Join(", ", klonoaObj.OAMCollection.OAMs.Select(x => x.Shape));
-					webObj.GBAKlonoa_Param1 = klonoaObj.Object.Param_1;
-					webObj.GBAKlonoa_Param2 = klonoaObj.Object.Param_2;
+
+					if (klonoaObj.ObjManager.Context.GetR1Settings().Level != 0)
+                    {
+                        webObj.GBAKlonoa_Param1 = klonoaObj.Object.Param_1;
+                        webObj.GBAKlonoa_Param2 = klonoaObj.Object.Param_2;
+                    }
 					break;
             }
 		}
