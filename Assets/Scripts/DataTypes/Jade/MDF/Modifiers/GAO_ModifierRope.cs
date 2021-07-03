@@ -8,6 +8,9 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class GAO_ModifierRope : MDF_Modifier {
 		public uint Version { get; set; }
+		public float V7_Float0 { get; set; }
+		public float V8_Float0 { get; set; } = 0.0005f;
+		public float V6_Float0 { get; set; }
 		public float V4_Float0 { get; set; }
 		public float V4_Float1 { get; set; }
 		public float V3_Float0 { get; set; }
@@ -16,14 +19,17 @@ namespace R1Engine.Jade {
 		public float V2_Float1 { get; set; }
 		public float V1_Float0 { get; set; }
 		public Jade_Vector V1_Vector1 { get; set; }
-		public uint V1_UInt2 { get; set; }
-		public uint V1_UInt3 { get; set; }
+		public float V1_Float2 { get; set; }
+		public float V1_Float3 { get; set; }
 		public uint V1_UInt4 { get; set; }
-		public uint V1_UInt5_Count { get; set; }
-		public V1_Element[] V1_Elements { get; set; }
+		public uint RopeVertexCount { get; set; }
+		public RopeVertex[] RopeVertices { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
+			if (Version >= 7) V7_Float0 = s.Serialize<float>(V7_Float0, name: nameof(V7_Float0));
+			if (Version >= 8) V8_Float0 = s.Serialize<float>(V8_Float0, name: nameof(V8_Float0));
+			if (Version >= 6) V6_Float0 = s.Serialize<float>(V6_Float0, name: nameof(V6_Float0));
 			if (Version >= 4) {
 				V4_Float0 = s.Serialize<float>(V4_Float0, name: nameof(V4_Float0));
 				V4_Float1 = s.Serialize<float>(V4_Float1, name: nameof(V4_Float1));
@@ -39,15 +45,15 @@ namespace R1Engine.Jade {
 			if (Version >= 1) {
 				V1_Float0 = s.Serialize<float>(V1_Float0, name: nameof(V1_Float0));
 				V1_Vector1 = s.SerializeObject<Jade_Vector>(V1_Vector1, name: nameof(V1_Vector1));
-				V1_UInt2 = s.Serialize<uint>(V1_UInt2, name: nameof(V1_UInt2));
-				V1_UInt3 = s.Serialize<uint>(V1_UInt3, name: nameof(V1_UInt3));
+				V1_Float2 = s.Serialize<float>(V1_Float2, name: nameof(V1_Float2));
+				V1_Float3 = s.Serialize<float>(V1_Float3, name: nameof(V1_Float3));
 				V1_UInt4 = s.Serialize<uint>(V1_UInt4, name: nameof(V1_UInt4));
-				V1_UInt5_Count = s.Serialize<uint>(V1_UInt5_Count, name: nameof(V1_UInt5_Count));
-				V1_Elements = s.SerializeObjectArray<V1_Element>(V1_Elements, V1_UInt5_Count, name: nameof(V1_Elements));
+				RopeVertexCount = s.Serialize<uint>(RopeVertexCount, name: nameof(RopeVertexCount));
+				RopeVertices = s.SerializeObjectArray<RopeVertex>(RopeVertices, RopeVertexCount, name: nameof(RopeVertices));
 			}
 		}
 
-		public class V1_Element : BinarySerializable {
+		public class RopeVertex : BinarySerializable {
 			public uint UInt0 { get; set; }
 			public uint UInt1 { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
