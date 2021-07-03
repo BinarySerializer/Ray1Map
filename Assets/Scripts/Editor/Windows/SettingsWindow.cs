@@ -115,7 +115,8 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("Map");
 
-        if (fileMode == FileSystem.Mode.Normal) {
+        if (fileMode == FileSystem.Mode.Normal) 
+        {
             rectTemp = GetNextRect(ref YPos);
             rbutton = EditorGUI.PrefixLabel(rectTemp, new GUIContent("Map"));
             rectTemp = new Rect(rbutton.x + rbutton.width - Mathf.Max(400f, rbutton.width), rbutton.y, Mathf.Max(400f, rbutton.width), rbutton.height);
@@ -146,7 +147,9 @@ public class SettingsWindow : UnityWindow
 
             if (EditorGUI.DropdownButton(rbutton, new GUIContent($"{(!string.IsNullOrEmpty(Settings.EduVolume) ? $"{Settings.EduVolume} - " : String.Empty)}{MapSelectionDropdown.GetWorldName(Settings.World)} {MapSelectionDropdown.GetLevelName(Settings.World, Settings.Level)}"), FocusType.Passive))
                 MapSelectionDropdown.Show(rectTemp);
-        } else if (fileMode == FileSystem.Mode.Web) {
+        } 
+        else if (fileMode == FileSystem.Mode.Web)
+        {
             if (GameModeDropdown.HasChanged) {
                 Settings.SelectedGameMode = GameModeDropdown.Selection;
                 GameModeDropdown.HasChanged = false;
@@ -155,6 +158,21 @@ public class SettingsWindow : UnityWindow
             Settings.World = EditorField("World", Settings.World);
             Settings.Level = EditorField("Level", Settings.Level);
             Settings.EduVolume = EditorField("Volume", Settings.EduVolume);
+        }
+
+        if (MapSelectionDropdown != null && EditorButton("Next map"))
+        {
+            var vol = MapSelectionDropdown.GameVolumes.First();
+            var world = vol.Worlds[MapSelectionDropdown.SelectedWorld];
+            MapSelectionDropdown.SelectedMap++;
+
+            if (MapSelectionDropdown.SelectedMap >= world.Maps.Length)
+            {
+                MapSelectionDropdown.SelectedWorld++;
+                MapSelectionDropdown.SelectedMap = 0;
+            }
+
+            MapSelectionDropdown.HasChanged = true;
         }
 
         // Directories

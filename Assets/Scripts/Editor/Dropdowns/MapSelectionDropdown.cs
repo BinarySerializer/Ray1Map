@@ -71,7 +71,7 @@ public class MapSelectionDropdown : AdvancedDropdown
     }
 
     public bool HasVolumes => GameVolumes.Any() && (GameVolumes.Length > 1 || GameVolumes.First().Name != null);
-    protected GameInfo_Volume[] GameVolumes { get; }
+    public GameInfo_Volume[] GameVolumes { get; }
     public Dictionary<int, Dictionary<int, string>> LevelNames { get; }
     public Dictionary<int, string> WorldNames { get; }
 
