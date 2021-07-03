@@ -42,6 +42,13 @@ namespace R1Engine
             if (Object.ObjType == 58)
                 AnimIndex = 1;
 
+            // Boss 2 fix
+            if (objManager.Context.GetR1Settings().World == 2 && objManager.Context.GetR1Settings().Level == 8)
+            {
+                if (obj.Index == 25 || obj.Index == 26)
+                    AnimIndex = 1;
+            }
+
             // Final boss fix
             if (objManager.Context.GetR1Settings().World == 5 && objManager.Context.GetR1Settings().Level == 8 && obj.ObjType == 23)
             {
