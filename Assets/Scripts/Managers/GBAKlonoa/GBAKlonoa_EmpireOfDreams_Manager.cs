@@ -871,6 +871,12 @@ namespace R1Engine
                 new MapVRAMAllocationInfo(0x02001b04, 0x200),
             },
 
+            // 3-8
+            [26] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x08060a88, 0x600, tileIndex: 284), // Boss health bar
+            },
+
             // 4-0
             [27] = new MapVRAMAllocationInfo[]
             {
@@ -883,6 +889,12 @@ namespace R1Engine
                 new MapVRAMAllocationInfo(0x02002b04, 0x200),
                 new MapVRAMAllocationInfo(0x02002d04, 0x200),
                 new MapVRAMAllocationInfo(0x02002f04, 0x200),
+            },
+
+            // 4-8
+            [35] = new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x08060a88, 0x600, tileIndex: 284), // Boss health bar
             },
 
             // 5-0
