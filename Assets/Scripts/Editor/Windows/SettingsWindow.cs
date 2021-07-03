@@ -121,6 +121,7 @@ public class SettingsWindow : UnityWindow
             rbutton = EditorGUI.PrefixLabel(rectTemp, new GUIContent("Map"));
             rectTemp = new Rect(rbutton.x + rbutton.width - Mathf.Max(400f, rbutton.width), rbutton.y, Mathf.Max(400f, rbutton.width), rbutton.height);
 
+            // Map selection dropdown
             if (MapSelectionDropdown == null || GameModeDropdown.HasChanged) {
                 if (GameModeDropdown.HasChanged) {
                     Settings.SelectedGameMode = GameModeDropdown.Selection;
@@ -145,6 +146,37 @@ public class SettingsWindow : UnityWindow
                 // Debug.Log($"Map selection updated with {volumes.Length} volumes");
             }
 
+            // Next & previous map buttons
+            BrowseButton(rbutton, "Next map", EditorGUIUtility.IconContent("Profiler.NextFrame"), () => {
+                var vol = MapSelectionDropdown.GameVolumes.First();
+                var world = vol.Worlds[MapSelectionDropdown.SelectedWorld];
+                MapSelectionDropdown.SelectedMap++;
+
+                if (MapSelectionDropdown.SelectedMap >= world.Maps.Length) {
+                    MapSelectionDropdown.SelectedWorld++;
+                    if (MapSelectionDropdown.SelectedWorld >= vol.Worlds.Length) MapSelectionDropdown.SelectedWorld = 0;
+                    MapSelectionDropdown.SelectedMap = 0;
+                }
+
+                MapSelectionDropdown.HasChanged = true;
+            }, ButtonWidth);
+            rbutton = new Rect(rbutton.x, rbutton.y, rbutton.width - ButtonWidth, rbutton.height);
+            BrowseButton(rbutton, "Previous map", EditorGUIUtility.IconContent("Profiler.PrevFrame"), () => {
+                var vol = MapSelectionDropdown.GameVolumes.First();
+                var world = vol.Worlds[MapSelectionDropdown.SelectedWorld];
+                MapSelectionDropdown.SelectedMap--;
+
+                if (MapSelectionDropdown.SelectedMap < 0) {
+                    MapSelectionDropdown.SelectedWorld--;
+                    if (MapSelectionDropdown.SelectedWorld < 0) MapSelectionDropdown.SelectedWorld = vol.Worlds.Length - 1;
+                    MapSelectionDropdown.SelectedMap = vol.Worlds[MapSelectionDropdown.SelectedWorld].Maps.Length - 1;
+                }
+
+                MapSelectionDropdown.HasChanged = true;
+            }, ButtonWidth);
+            rbutton = new Rect(rbutton.x, rbutton.y, rbutton.width - ButtonWidth, rbutton.height);
+
+            // Map selection dropdown button
             if (EditorGUI.DropdownButton(rbutton, new GUIContent($"{(!string.IsNullOrEmpty(Settings.EduVolume) ? $"{Settings.EduVolume} - " : String.Empty)}{MapSelectionDropdown.GetWorldName(Settings.World)} {MapSelectionDropdown.GetLevelName(Settings.World, Settings.Level)}"), FocusType.Passive))
                 MapSelectionDropdown.Show(rectTemp);
         } 
@@ -158,21 +190,6 @@ public class SettingsWindow : UnityWindow
             Settings.World = EditorField("World", Settings.World);
             Settings.Level = EditorField("Level", Settings.Level);
             Settings.EduVolume = EditorField("Volume", Settings.EduVolume);
-        }
-
-        if (MapSelectionDropdown != null && EditorButton("Next map"))
-        {
-            var vol = MapSelectionDropdown.GameVolumes.First();
-            var world = vol.Worlds[MapSelectionDropdown.SelectedWorld];
-            MapSelectionDropdown.SelectedMap++;
-
-            if (MapSelectionDropdown.SelectedMap >= world.Maps.Length)
-            {
-                MapSelectionDropdown.SelectedWorld++;
-                MapSelectionDropdown.SelectedMap = 0;
-            }
-
-            MapSelectionDropdown.HasChanged = true;
         }
 
         // Directories
