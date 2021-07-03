@@ -7,7 +7,10 @@ namespace R1Engine
         public ushort Pre_ImgDataLength { get; set; }
 
         public Pointer ImgDataPointer { get; set; }
-        public uint Uint_04 { get; set; } // Frame delay?
+        public byte Speed { get; set; }
+        public byte Byte_05 { get; set; }
+        public byte Byte_06 { get; set; }
+        public byte Byte_07 { get; set; }
 
         // Serialized from pointers
         public byte[] ImgData { get; set; }
@@ -15,7 +18,10 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             ImgDataPointer = s.SerializePointer(ImgDataPointer, allowInvalid: true, name: nameof(ImgDataPointer));
-            Uint_04 = s.Serialize<uint>(Uint_04, name: nameof(Uint_04));
+            Speed = s.Serialize<byte>(Speed, name: nameof(Speed));
+            Byte_05 = s.Serialize<byte>(Byte_05, name: nameof(Byte_05));
+            Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
+            Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
 
             s.DoAt(ImgDataPointer, () => ImgData = s.SerializeArray<byte>(ImgData, Pre_ImgDataLength, name: nameof(ImgData)));
         }

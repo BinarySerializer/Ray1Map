@@ -132,7 +132,7 @@ namespace R1Engine
         public byte AnimIndex { get; set; }
 
         public override Unity_ObjAnimation CurrentAnimation => Animation?.ObjAnimation;
-        public override int AnimSpeed => 6; // TODO: Correct this
+        public override int AnimSpeed => (Animation?.AnimSpeeds?.ElementAtOrDefault(AnimationFrame) + 1) ?? 6;
         public override int? GetAnimIndex => AnimIndex;
         protected override int GetSpriteID => AnimSetIndex;
         public override IList<Sprite> Sprites => Animation?.AnimFrames;

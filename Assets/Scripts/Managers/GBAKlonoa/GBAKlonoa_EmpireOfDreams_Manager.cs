@@ -264,9 +264,10 @@ namespace R1Engine
 
             return new Unity_ObjectManager_GBAKlonoa.AnimSet(
                 animations: Enumerable.Range(0, anims.Length).
-                    Select(animIndex => anims[animIndex]?.Frames?.Length == 0 ? null : new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
+                    Select(animIndex => anims[animIndex]?.Frames?.Length > 0 ? new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
                         animFrameFunc: () => GetAnimFrames(anims[animIndex].Frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), 
-                        oamCollection: oamCollection)).ToArray(), 
+                        oamCollection: oamCollection,
+                        animSpeeds: anims[animIndex]?.Frames?.Select(f => (int?)f?.Speed).ToArray()) : null).ToArray(), 
                 displayName: $"0x{objectGraphics.AnimationsPointer.StringAbsoluteOffset}", 
                 oamCollections: new GBAKlonoa_ObjectOAMCollection[]
                 {
