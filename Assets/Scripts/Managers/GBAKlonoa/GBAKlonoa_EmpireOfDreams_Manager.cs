@@ -70,6 +70,41 @@ namespace R1Engine
                 };
             }).ToArray();
 
+            // Add line collision for the sector bounds
+            var collisionLines = new List<Unity_CollisionLine>();
+
+            if (!isMap && !isBoss)
+            {
+                var sectorIndex = 0;
+
+                foreach (var sector in rom.MapSectors[normalLevelIndex].Sectors)
+                {
+                    var color = new Color(1, 0.92f - (0.1f * sectorIndex), 0.016f + (0.15f * sectorIndex));
+
+                    collisionLines.Add(new Unity_CollisionLine(
+                        new Vector2(sector.X, sector.Y), 
+                        new Vector2(sector.X, sector.Y + sector.Height), 
+                        color));
+
+                    collisionLines.Add(new Unity_CollisionLine(
+                        new Vector2(sector.X, sector.Y + sector.Height), 
+                        new Vector2(sector.X + sector.Width, sector.Y + sector.Height),
+                        color));
+
+                    collisionLines.Add(new Unity_CollisionLine(
+                        new Vector2(sector.X + sector.Width, sector.Y),
+                        new Vector2(sector.X + sector.Width, sector.Y + sector.Height),
+                        color));
+
+                    collisionLines.Add(new Unity_CollisionLine(
+                        new Vector2(sector.X, sector.Y),
+                        new Vector2(sector.X + sector.Width, sector.Y),
+                        color));
+
+                    sectorIndex++;
+                }
+            }
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
@@ -129,7 +164,11 @@ namespace R1Engine
                 }
                 else
                 {
-                    startInfos = rom.LevelStartInfos[normalLevelIndex].StartInfos;
+                    startInfos = new GBAKlonoa_LevelStartInfo[0].
+                        Append(rom.LevelStartInfos[normalLevelIndex].StartInfo_Entry).
+                        Concat(rom.LevelStartInfos[normalLevelIndex].StartInfos_Yellow).
+                        Concat(rom.LevelStartInfos[normalLevelIndex].StartInfos_Green).
+                        ToArray();
                 }
 
                 // Add Klonoa at each start position
@@ -165,7 +204,8 @@ namespace R1Engine
                 eventData: objects,
                 cellSize: CellSize,
                 defaultLayer: 2,
-                isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null);
+                isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null,
+                collisionLines: collisionLines.ToArray());
         }
 
         public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, MapTile[] mapTiles_4)

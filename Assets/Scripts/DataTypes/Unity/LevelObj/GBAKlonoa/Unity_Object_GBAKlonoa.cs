@@ -111,7 +111,7 @@ namespace R1Engine
         public override string PrimaryName => $"Type_{Object.ObjType}";
         public override string SecondaryName => null;
 
-        public override bool FlipHorizontally => (Object.Param_2 & 1) == 1;
+        public override bool FlipHorizontally => (Object.Param_2 & 1) == 1 || Serializable is GBAKlonoa_LevelStartInfo start && start.IsFlipped;
 
         public override int? GetLayer(int index) => Object.Index == 0 ? 0 : -index; // Force Klonoa to be in front
 
