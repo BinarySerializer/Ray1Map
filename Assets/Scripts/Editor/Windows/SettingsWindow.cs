@@ -152,7 +152,7 @@ public class SettingsWindow : UnityWindow
                 var world = vol.Worlds[MapSelectionDropdown.SelectedWorld];
                 var curMap = world.Maps.FindItemIndex(m => m == MapSelectionDropdown.SelectedMap);
 
-                if (curMap >= world.Maps.Length) {
+                if (curMap + 1 >= world.Maps.Length) {
                     MapSelectionDropdown.SelectedWorld++;
                     if (MapSelectionDropdown.SelectedWorld >= vol.Worlds.Length) MapSelectionDropdown.SelectedWorld = 0;
                     MapSelectionDropdown.SelectedMap = vol.Worlds[MapSelectionDropdown.SelectedWorld].Maps[0];
