@@ -131,6 +131,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType_Montreal.Ambiance_Modifier => s.SerializeObject<Ambiance_Modifier>((Ambiance_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.AmbianceLinker_Modifier => s.SerializeObject<AmbianceLinker_Modifier>((AmbianceLinker_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierSectorisationElement => s.SerializeObject<GAO_ModifierSectorisationElement>((GAO_ModifierSectorisationElement)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierEyeTrail => s.SerializeObject<GAO_ModifierEyeTrail>((GAO_ModifierEyeTrail)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }

@@ -52,6 +52,25 @@ namespace R1Engine.Jade
         public uint Type3_UInt1 { get; set; }
         public uint Type3_UInt2 { get; set; }
 
+        public uint Type4_UInt1 { get; set; }
+        public Jade_Vector Type4_Vector2 { get; set; }
+        public float Type4_Float3 { get; set; }
+        public uint Type4_UInt4 { get; set; }
+        public uint Type4_UInt5 { get; set; }
+        public uint Type4_UInt6 { get; set; }
+        public uint Type4_UInt7 { get; set; }
+        public uint Type4_UInt8 { get; set; }
+
+        public float Type5_Float1 { get; set; }
+        public uint Type5_UInt2 { get; set; }
+        public uint Type5_UInt3 { get; set; }
+        public uint Type5_UInt4 { get; set; }
+        public uint Type5_UInt5 { get; set; }
+        public uint Type5_UInt6 { get; set; }
+
+        public uint Type6_UInt1 { get; set; }
+        public uint Type6_UInt2 { get; set; }
+
         public override void SerializeImpl(SerializerObject s) 
         {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -120,6 +139,36 @@ namespace R1Engine.Jade
                 case 3:
 					Type3_UInt1 = s.Serialize<uint>(Type3_UInt1, name: nameof(Type3_UInt1));
 					Type3_UInt2 = s.Serialize<uint>(Type3_UInt2, name: nameof(Type3_UInt2));
+					break;
+                case 4:
+                    if (Version >= 17) {
+                        if (Version <= 18) Type4_UInt1 = s.Serialize<uint>(Type4_UInt1, name: nameof(Type4_UInt1));
+                        if (Version == 17) Type4_Vector2 = s.SerializeObject<Jade_Vector>(Type4_Vector2, name: nameof(Type4_Vector2));
+                        if (Version >= 18) {
+                            Type4_Float3 = s.Serialize<float>(Type4_Float3, name: nameof(Type4_Float3));
+                            Type4_UInt4 = s.Serialize<uint>(Type4_UInt4, name: nameof(Type4_UInt4));
+                            Type4_UInt5 = s.Serialize<uint>(Type4_UInt5, name: nameof(Type4_UInt5));
+                            Type4_UInt6 = s.Serialize<uint>(Type4_UInt6, name: nameof(Type4_UInt6));
+                        }
+                        if (Version >= 19) Type4_UInt7 = s.Serialize<uint>(Type4_UInt7, name: nameof(Type4_UInt7));
+                        if (Version >= 24) Type4_UInt8 = s.Serialize<uint>(Type4_UInt8, name: nameof(Type4_UInt8));
+                    }
+					break;
+                case 5:
+                    if (Version >= 19) {
+						Type5_Float1 = s.Serialize<float>(Type5_Float1, name: nameof(Type5_Float1));
+						Type5_UInt2 = s.Serialize<uint>(Type5_UInt2, name: nameof(Type5_UInt2));
+						Type5_UInt3 = s.Serialize<uint>(Type5_UInt3, name: nameof(Type5_UInt3));
+						Type5_UInt4 = s.Serialize<uint>(Type5_UInt4, name: nameof(Type5_UInt4));
+						Type5_UInt5 = s.Serialize<uint>(Type5_UInt5, name: nameof(Type5_UInt5));
+						if (Version >= 20) Type5_UInt6 = s.Serialize<uint>(Type5_UInt6, name: nameof(Type5_UInt6));
+					}
+                    break;
+                case 6:
+                    if (Version >= 21) {
+                        Type6_UInt1 = s.Serialize<uint>(Type6_UInt1, name: nameof(Type6_UInt1));
+                        Type6_UInt2 = s.Serialize<uint>(Type6_UInt2, name: nameof(Type6_UInt2));
+                    }
 					break;
             }
 		}

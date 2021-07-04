@@ -8,7 +8,7 @@ namespace R1Engine.Jade
         public Jade_Reference<COL_GameMaterial> Material { get; set; }
         public COL_ZoneShape Type { get; set; } // 1, 2, 3 or 5
         public byte Flags { get; set; }
-        public uint Uint_06 { get; set; }
+        public uint FacesCount { get; set; }
 
         public COL_Box Shape_Box { get; set; } // Type 1
         public COL_Sphere Shape_Sphere { get; set; } // Type 2
@@ -22,12 +22,12 @@ namespace R1Engine.Jade
             Type = s.Serialize(Type, name: nameof(Type));
             Flags = s.Serialize(Flags, name: nameof(Flags));
 
-            if (Type != COL_ZoneShape.Box && Type != COL_ZoneShape.Sphere
-                && Type != COL_ZoneShape.Cylinder && Type != COL_ZoneShape.Triangles)
+            if (Type != COL_ZoneShape.Box && Type != COL_ZoneShape.Sphere && Type != COL_ZoneShape.Cylinder
+                && Type != COL_ZoneShape.Triangles && Type != COL_ZoneShape.Unknown7)
                 return;
 
-            if (Type != COL_ZoneShape.Triangles)
-                Uint_06 = s.Serialize<uint>(Uint_06, name: nameof(Uint_06));
+            if (Type != COL_ZoneShape.Triangles && Type != COL_ZoneShape.Unknown7)
+                FacesCount = s.Serialize<uint>(FacesCount, name: nameof(FacesCount));
 
             switch (Type)
             {
