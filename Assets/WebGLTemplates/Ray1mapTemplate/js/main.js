@@ -961,6 +961,14 @@ function getObjVars(obj) {
 	// GBAVV
 	if(obj.hasOwnProperty("GBAVV_ObjParams")) objVars.push({"Name": "ObjParams", "Value": obj.GBAVV_ObjParams});
 
+	// GBAKlonoa
+	if(obj.hasOwnProperty("GBAKlonoa_ObjType")) objVars.push({"Name": "ObjectType", "Value": obj.GBAKlonoa_ObjType});
+	if(obj.hasOwnProperty("GBAKlonoa_Palettes")) objVars.push({"Name": "Palettes", "Value": obj.GBAKlonoa_Palettes});
+	if(obj.hasOwnProperty("GBAKlonoa_Tiles")) objVars.push({"Name": "Tiles", "Value": obj.GBAKlonoa_Tiles});
+	if(obj.hasOwnProperty("GBAKlonoa_Shapes")) objVars.push({"Name": "Shapes", "Value": obj.GBAKlonoa_Shapes});
+	if(obj.hasOwnProperty("GBAKlonoa_Param1")) objVars.push({"Name": "Param1", "Value": obj.GBAKlonoa_Param1});
+	if(obj.hasOwnProperty("GBAKlonoa_Param2")) objVars.push({"Name": "Param2", "Value": obj.GBAKlonoa_Param2});
+
 	// Gameloft
 	if(obj.hasOwnProperty("GameloftRRR_ObjectID")) objVars.push({"Name": "ObjectID", "Value": obj.GameloftRRR_ObjectID});
 	if(obj.hasOwnProperty("GameloftRRR_ObjectParams")) objVars.push({"Name": "Parameters", "Value": obj.GameloftRRR_ObjectParams});
@@ -1166,6 +1174,11 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 				fillSelectorList(graphicsSelector, obj.GBAVV_AnimSetNames);
 				graphicsSelector.prop("selectedIndex", obj.GBAVV_AnimSetIndex);
 				graphicsLabel.text("Animation Set");
+			} else if(obj.hasOwnProperty("GBAKlonoa_AnimSetNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.GBAKlonoa_AnimSetNames);
+				graphicsSelector.prop("selectedIndex", obj.GBAKlonoa_AnimSetIndex);
+				graphicsLabel.text("Animation Set");
 			} else if(obj.hasOwnProperty("SNES_GraphicsGroupNames")) {
 				hasGraphics = true;
 				fillSelectorList(graphicsSelector, obj.SNES_GraphicsGroupNames);
@@ -1208,6 +1221,9 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			} else if(obj.hasOwnProperty("GBAVV_AnimSetNames")) {
 				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.GBAVV_AnimSetIndex);
+			} else if(obj.hasOwnProperty("GBAKlonoa_AnimSetNames")) {
+				hasGraphics = true;
+				graphicsSelector.prop("selectedIndex", obj.GBAKlonoa_AnimSetIndex);
 			} else if(obj.hasOwnProperty("SNES_GraphicsGroupNames")) {
 				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.SNES_GraphicsGroupIndex);
@@ -1400,6 +1416,9 @@ function sendObject() {
 		} else if(currentObject.hasOwnProperty("GBAVV_AnimSetNames")) {
 			jsonObj.Object.GBAVV_AnimSetIndex = graphicsSelector.prop("selectedIndex");
 			graphicsSelector.prop("selectedIndex", currentObject.GBAVV_AnimSetIndex);
+		} else if(currentObject.hasOwnProperty("GBAKlonoa_AnimSetNames")) {
+			jsonObj.Object.GBAKlonoa_AnimSetIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", currentObject.GBAKlonoa_AnimSetIndex);
 		} else if(currentObject.hasOwnProperty("SNES_GraphicsGroupNames")) {
 			jsonObj.Object.SNES_GraphicsGroupIndex = graphicsSelector.prop("selectedIndex");
 			graphicsSelector.prop("selectedIndex", currentObject.SNES_GraphicsGroupIndex);
@@ -1538,6 +1557,15 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBAVV_ScriptIndex")) oldObj.GBAVV_ScriptIndex = newObj.GBAVV_ScriptIndex;
 	if(newObj.hasOwnProperty("GBAVV_ScriptContent")) oldObj.GBAVV_ScriptContent = newObj.GBAVV_ScriptContent;
 
+	// GBAKlonoa
+	if(newObj.hasOwnProperty("GBAKlonoa_AnimSetIndex")) oldObj.GBAKlonoa_AnimSetIndex = newObj.GBAKlonoa_AnimSetIndex;
+	if(newObj.hasOwnProperty("GBAKlonoa_ObjType")) oldObj.GBAKlonoa_ObjType = newObj.GBAKlonoa_ObjType;
+	if(newObj.hasOwnProperty("GBAKlonoa_Palettes")) oldObj.GBAKlonoa_Palettes = newObj.GBAKlonoa_Palettes;
+	if(newObj.hasOwnProperty("GBAKlonoa_Tiles")) oldObj.GBAKlonoa_Tiles = newObj.GBAKlonoa_Tiles;
+	if(newObj.hasOwnProperty("GBAKlonoa_Shapes")) oldObj.GBAKlonoa_Shapes = newObj.GBAKlonoa_Shapes;
+	if(newObj.hasOwnProperty("GBAKlonoa_Param1")) oldObj.GBAKlonoa_Param1 = newObj.GBAKlonoa_Param1;
+	if(newObj.hasOwnProperty("GBAKlonoa_Param2")) oldObj.GBAKlonoa_Param2 = newObj.GBAKlonoa_Param2;
+
 	// SNES
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupIndex")) oldObj.SNES_GraphicsGroupIndex = newObj.SNES_GraphicsGroupIndex;
 
@@ -1560,6 +1588,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBC_ActorModelNames")) oldObj.GBC_ActorModelNames = newObj.GBC_ActorModelNames;
 	if(newObj.hasOwnProperty("GBAIsometric_AnimSetNames")) oldObj.GBAIsometric_AnimSetNames = newObj.GBAIsometric_AnimSetNames;
 	if(newObj.hasOwnProperty("GBAVV_AnimSetNames")) oldObj.GBAVV_AnimSetNames = newObj.GBAVV_AnimSetNames;
+	if(newObj.hasOwnProperty("GBAKlonoa_AnimSetNames")) oldObj.GBAKlonoa_AnimSetNames = newObj.GBAKlonoa_AnimSetNames;
 	if(newObj.hasOwnProperty("GBAVV_ScriptNames")) oldObj.GBAVV_ScriptNames = newObj.GBAVV_ScriptNames;
 	if(newObj.hasOwnProperty("GBARRR_AnimationGroupNames")) oldObj.GBARRR_AnimationGroupNames = newObj.GBARRR_AnimationGroupNames;
 	if(newObj.hasOwnProperty("SNES_GraphicsGroupNames")) oldObj.SNES_GraphicsGroupNames = newObj.SNES_GraphicsGroupNames;
