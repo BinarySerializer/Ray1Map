@@ -17,7 +17,10 @@ namespace R1Engine.Jade {
 				Group2 = s.Serialize<uint>(Group2, name: nameof(Group2));
 				Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 				if (Type == SectoElementType.Sector && Version >= 2) {
-					Group = s.SerializeObject<Jade_Reference<OBJ_World_GroupObjectList>>(Group, name: nameof(Group))?.Resolve(onPreSerialize: (_, gol) => gol.ResolveObjects = false);
+					Group = s.SerializeObject<Jade_Reference<OBJ_World_GroupObjectList>>(Group, name: nameof(Group))
+						?.Resolve(onPreSerialize: (_, gol) => gol.ResolveObjects =
+						(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_CloudyWithAChanceOfMeatballs) ? false : true),
+						flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Log);
 				}
 			}
 		}

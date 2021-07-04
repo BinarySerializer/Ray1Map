@@ -25,7 +25,7 @@ namespace R1Engine.Jade
                 LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
                 GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject));
-                if(List.ResolveObjects) GameObject?.Resolve();
+                if (List.ResolveObjects) GameObject?.Resolve();
                 if (!Loader.IsBinaryData) Uint_04_Editor = s.Serialize<uint>(Uint_04_Editor, name: nameof(Uint_04_Editor));
             }
         }
