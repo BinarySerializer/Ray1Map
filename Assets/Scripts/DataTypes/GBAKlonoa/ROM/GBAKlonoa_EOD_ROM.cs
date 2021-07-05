@@ -4,7 +4,7 @@ using BinarySerializer.GBA;
 
 namespace R1Engine
 {
-    public class GBAKlonoa_EmpireOfDreams_ROM : GBA_ROMBase
+    public class GBAKlonoa_EOD_ROM : GBA_ROMBase
     {
         // Info
         public GBAKlonoa_WaterSkiInfo[] WaterSkiInfos { get; set; }
@@ -12,10 +12,10 @@ namespace R1Engine
         public GBAKlonoa_LevelStartInfo[] BossLevelStartInfos { get; set; }
 
         // Maps
-        public GBAKlonoa_Maps[] Maps { get; set; }
-        public GBAKlonoa_MapWidths[] MapWidths { get; set; }
+        public GBAKlonoa_EOD_Maps[] Maps { get; set; }
+        public GBAKlonoa_EOD_MapWidths[] MapWidths { get; set; }
         public GBAKlonoa_MapSectors[] MapSectors { get; set; }
-        public GBAKlonoa_TileSets[] TileSets { get; set; }
+        public GBAKlonoa_EOD_TileSets[] TileSets { get; set; }
         public Pointer[] MapPalettePointers { get; set; }
         public RGBA5551Color[][] MapPalettes { get; set; }
 
@@ -41,10 +41,10 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             var settings = s.GetR1Settings();
-            var globalLevelIndex = GBAKlonoa_EmpireOfDreams_Manager.GetGlobalLevelIndex(settings.World, settings.Level);
-            const int normalWorldsCount = GBAKlonoa_EmpireOfDreams_Manager.NormalWorldsCount;
-            const int levelsCount = GBAKlonoa_EmpireOfDreams_Manager.LevelsCount;
-            const int normalLevelsCount = GBAKlonoa_EmpireOfDreams_Manager.NormalLevelsCount;
+            var globalLevelIndex = GBAKlonoa_EOD_Manager.GetGlobalLevelIndex(settings.World, settings.Level);
+            const int normalWorldsCount = GBAKlonoa_EOD_Manager.NormalWorldsCount;
+            const int levelsCount = GBAKlonoa_EOD_Manager.LevelsCount;
+            const int normalLevelsCount = GBAKlonoa_EOD_Manager.NormalLevelsCount;
             var isMap = settings.Level == 0;
             var isBoss = settings.Level == 8;
 
@@ -66,14 +66,14 @@ namespace R1Engine
             // Serialize maps
             s.DoAt(new Pointer(0x081892BC, Offset.File), () =>
             {
-                Maps ??= new GBAKlonoa_Maps[levelsCount];
+                Maps ??= new GBAKlonoa_EOD_Maps[levelsCount];
 
                 for (int i = 0; i < Maps.Length; i++)
-                    Maps[i] = s.SerializeObject<GBAKlonoa_Maps>(Maps[i], x => x.Pre_SerializeData = i == globalLevelIndex, name: $"{nameof(Maps)}[{i}]");
+                    Maps[i] = s.SerializeObject<GBAKlonoa_EOD_Maps>(Maps[i], x => x.Pre_SerializeData = i == globalLevelIndex, name: $"{nameof(Maps)}[{i}]");
             });
 
             // Serialize map widths
-            s.DoAt(new Pointer(0x08051c76, Offset.File), () => MapWidths = s.SerializeObjectArray<GBAKlonoa_MapWidths>(MapWidths, levelsCount, name: nameof(MapWidths)));
+            s.DoAt(new Pointer(0x08051c76, Offset.File), () => MapWidths = s.SerializeObjectArray<GBAKlonoa_EOD_MapWidths>(MapWidths, levelsCount, name: nameof(MapWidths)));
             
             // Serialize map sectors
             s.DoAt(new Pointer(0x080d2e88, Offset.File), () => MapSectors = s.SerializeObjectArray<GBAKlonoa_MapSectors>(MapSectors, normalLevelsCount, name: nameof(MapSectors)));
@@ -81,10 +81,10 @@ namespace R1Engine
             // Serialize tile sets
             s.DoAt(new Pointer(0x08189034, Offset.File), () =>
             {
-                TileSets ??= new GBAKlonoa_TileSets[levelsCount];
+                TileSets ??= new GBAKlonoa_EOD_TileSets[levelsCount];
 
                 for (int i = 0; i < TileSets.Length; i++)
-                    TileSets[i] = s.SerializeObject<GBAKlonoa_TileSets>(TileSets[i], x => x.Pre_SerializeData = i == globalLevelIndex, name: $"{nameof(TileSets)}[{i}]");
+                    TileSets[i] = s.SerializeObject<GBAKlonoa_EOD_TileSets>(TileSets[i], x => x.Pre_SerializeData = i == globalLevelIndex, name: $"{nameof(TileSets)}[{i}]");
             });
 
             // Serialize palettes
@@ -93,7 +93,7 @@ namespace R1Engine
             MapPalettes ??= new RGBA5551Color[MapPalettePointers.Length][];
             s.DoAt(MapPalettePointers[globalLevelIndex], () =>
             {
-                s.DoEncoded(new GBAKlonoa_Encoder(), () =>
+                s.DoEncoded(new GBAKlonoa_EOD_Encoder(), () =>
                 {
                     MapPalettes[globalLevelIndex] = s.SerializeObjectArray<RGBA5551Color>(MapPalettes[globalLevelIndex], 256, name: $"{nameof(MapPalettes)}[{globalLevelIndex}]");
                 });
@@ -104,19 +104,19 @@ namespace R1Engine
             {
                 s.DoAt(new Pointer(0x0818b7ac, Offset.File), () => CompressedObjTileBlockPointer = s.SerializePointerArray(CompressedObjTileBlockPointer, normalWorldsCount * 2, name: nameof(CompressedObjTileBlockPointer)));
 
-                var compressedBlockIndex = GBAKlonoa_EmpireOfDreams_Manager.GetCompressedMapOrBossBlockIndex(settings.World, settings.Level);
+                var compressedBlockIndex = GBAKlonoa_EOD_Manager.GetCompressedMapOrBossBlockIndex(settings.World, settings.Level);
 
                 CompressedObjTileBlocks ??= new byte[CompressedObjTileBlockPointer.Length][];
                 s.DoAt(CompressedObjTileBlockPointer[compressedBlockIndex], () =>
                 {
-                    s.DoEncoded(new GBAKlonoa_Encoder(), () =>
+                    s.DoEncoded(new GBAKlonoa_EOD_Encoder(), () =>
                     {
                         CompressedObjTileBlocks[compressedBlockIndex] = s.SerializeArray<byte>(CompressedObjTileBlocks[compressedBlockIndex], s.CurrentLength, name: $"{nameof(CompressedObjTileBlocks)}[{compressedBlockIndex}]");
                     });
                 });
 
                 // Allocate the compressed block. This fixes animations which use pointers to ram, such as the bosses.
-                var file = new MemoryMappedByteArrayFile(s.Context, GBAKlonoa_EmpireOfDreams_Manager.CompressedObjTileBlockName, 0x02000904, CompressedObjTileBlocks[compressedBlockIndex]);
+                var file = new MemoryMappedByteArrayFile(s.Context, GBAKlonoa_EOD_Manager.CompressedObjTileBlockName, 0x02000904, CompressedObjTileBlocks[compressedBlockIndex]);
                 s.Context.AddFile(file);
             }
 
@@ -183,10 +183,10 @@ namespace R1Engine
                     if (LevelObjectCollection.Objects.Any())
                         max = LevelObjectCollection.Objects.Max(x => x.OAMIndex);
                     else
-                        max = GBAKlonoa_EmpireOfDreams_Manager.FixCount - 1;
+                        max = GBAKlonoa_EOD_Manager.FixCount - 1;
                 }
 
-                LevelObjectOAMCollections[globalLevelIndex] = s.SerializeObjectArray<GBAKlonoa_ObjectOAMCollection>(LevelObjectOAMCollections[globalLevelIndex], max - GBAKlonoa_EmpireOfDreams_Manager.FixCount + 1, name: $"{nameof(LevelObjectOAMCollections)}[{globalLevelIndex}]");
+                LevelObjectOAMCollections[globalLevelIndex] = s.SerializeObjectArray<GBAKlonoa_ObjectOAMCollection>(LevelObjectOAMCollections[globalLevelIndex], max - GBAKlonoa_EOD_Manager.FixCount + 1, name: $"{nameof(LevelObjectOAMCollections)}[{globalLevelIndex}]");
             });
 
             // Serialize object palettes

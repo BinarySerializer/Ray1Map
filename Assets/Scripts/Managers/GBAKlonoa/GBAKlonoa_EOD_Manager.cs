@@ -10,11 +10,8 @@ using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
-    public class GBAKlonoa_EmpireOfDreams_Manager : BaseGameManager
+    public class GBAKlonoa_EOD_Manager : GBAKlonoa_BaseManager
     {
-        public const int CellSize = GBAConstants.TileSize;
-        public const string GetROMFilePath = "ROM.gba";
-
         public const string CompressedObjTileBlockName = "CompressedObjTileBlock";
 
         public const int FixCount = 0x0D; // Fixed objects loaded into every level
@@ -32,7 +29,7 @@ namespace R1Engine
         {
             //await GenerateLevelObjPalettesAsync(context.GetR1Settings());
             //return null;
-            var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAKlonoa_EOD_ROM>(GetROMFilePath, context);
             var settings = context.GetR1Settings();
             var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
             var normalLevelIndex = GetNormalLevelIndex(settings.World, settings.Level);
@@ -208,92 +205,6 @@ namespace R1Engine
                 collisionLines: collisionLines.ToArray());
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, MapTile[] mapTiles_4)
-        {
-            Texture2D tex;
-            var additionalTiles = new List<Texture2D>();
-            var tileSize = is8bit ? 0x40 : 0x20;
-            var paletteIndices = Enumerable.Range(0, tileSet.Length / tileSize).Select(x => new List<byte>()).ToArray();
-            var tilesCount = tileSet.Length / tileSize;
-
-            if (is8bit)
-            {
-                tex = Util.ToTileSetTexture(tileSet, Util.ConvertGBAPalette(pal), Util.TileEncoding.Linear_8bpp, CellSize, false);
-            }
-            else
-            {
-                var palettes = Util.ConvertAndSplitGBAPalette(pal);
-
-                foreach (var m in mapTiles_4)
-                {
-                    if (m.TileMapY < paletteIndices.Length && !paletteIndices[m.TileMapY].Contains(m.PaletteIndex))
-                        paletteIndices[m.TileMapY].Add(m.PaletteIndex);
-                }
-
-                tex = Util.ToTileSetTexture(tileSet, palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: x =>
-                {
-                    var p = paletteIndices[x].ElementAtOrDefault(0);
-                    return palettes[p];
-                });
-
-                // Add additional tiles for tiles with multiple palettes
-                for (int tileIndex = 0; tileIndex < paletteIndices.Length; tileIndex++)
-                {
-                    for (int palIndex = 1; palIndex < paletteIndices[tileIndex].Count; palIndex++)
-                    {
-                        var p = paletteIndices[tileIndex][palIndex];
-
-                        var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
-
-                        // Create a new tile
-                        tileTex.FillInTile(
-                            imgData: tileSet,
-                            imgDataOffset: tileSize * tileIndex,
-                            pal: palettes[p],
-                            encoding: Util.TileEncoding.Linear_4bpp,
-                            tileWidth: CellSize,
-                            flipTextureY: false,
-                            tileX: 0,
-                            tileY: 0);
-
-                        // Modify all tiles where this is used
-                        foreach (MapTile t in mapTiles_4.Where(x => x.TileMapY == tileIndex && x.PaletteIndex == p))
-                        {
-                            t.TileMapY = (ushort)(tilesCount + additionalTiles.Count);
-                        }
-
-                        // Add to additional tiles list
-                        additionalTiles.Add(tileTex);
-                    }
-                }
-            }
-
-            // Create the tile array
-            var tiles = new Unity_TileTexture[tilesCount + additionalTiles.Count];
-
-            // Keep track of the index
-            var index = 0;
-
-            // Add every normal tile
-            for (int y = 0; y < tex.height; y += CellSize)
-            {
-                for (int x = 0; x < tex.width; x += CellSize)
-                {
-                    if (index >= tilesCount)
-                        break;
-
-                    // Create a tile
-                    tiles[index++] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
-                }
-            }
-
-            // Add additional tiles
-            foreach (Texture2D t in additionalTiles)
-                tiles[index++] = t.CreateTile();
-
-            return new Unity_TileSet(tiles);
-        }
-
         public Texture2D[] GetAnimFrames(GBAKlonoa_AnimationFrame[] frames, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes, int imgDataOffset = 0)
         {
             var output = new Texture2D[frames.Length];
@@ -375,7 +286,7 @@ namespace R1Engine
                 });
         }
 
-        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_EmpireOfDreams_ROM rom, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)
+        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_EOD_ROM rom, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)
         {
             var settings = context.GetR1Settings();
             var s = context.Deserializer;
@@ -583,7 +494,7 @@ namespace R1Engine
             return loadedAnimSets.ToArray();
         }
 
-        public void GenerateAnimSetTable(Context context, GBAKlonoa_EmpireOfDreams_ROM rom)
+        public void GenerateAnimSetTable(Context context, GBAKlonoa_EOD_ROM rom)
         {
             var s = context.Deserializer;
             var file = rom.Offset.File;
@@ -650,7 +561,7 @@ namespace R1Engine
 
                         await LoadFilesAsync(context);
 
-                        var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
+                        var rom = FileFactory.Read<GBAKlonoa_EOD_ROM>(GetROMFilePath, context);
 
                         if (settings.Level == 0)
                             continue;
@@ -786,8 +697,6 @@ namespace R1Engine
 
             output.ToString().CopyToClipboard();
         }
-
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
 
         // TODO: Support EU and JP versions
         public AnimSetInfo[] AnimSetInfos => new AnimSetInfo[]

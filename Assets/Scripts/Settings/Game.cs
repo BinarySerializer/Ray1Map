@@ -127,5 +127,6 @@
         // Klonoa GBA
 
         KlonoaGBA_EmpireOfDreams,
+        KlonoaGBA_DreamChampTournament,
     }
 }

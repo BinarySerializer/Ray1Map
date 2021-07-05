@@ -7,6 +7,13 @@ namespace R1Engine
 {
     public class GBAKlonoa_Encoder : IStreamEncoder
     {
+        public GBAKlonoa_Encoder(bool isDct)
+        {
+            IsDCT = isDct;
+        }
+
+        public bool IsDCT { get; }
+
         public string Name => $"GBAKlonoa_Encoder";
 
         public Stream DecodeStream(Stream s)
@@ -14,12 +21,13 @@ namespace R1Engine
             using var reader = new Reader(s, leaveOpen: true);
 
             var lengthValue = reader.ReadInt32();
-            var length = BitHelpers.ExtractBits(lengthValue, 31, 0);
+            var length = BitHelpers.ExtractBits(lengthValue, IsDCT ? 30 : 31, 0);
 
             Stream decompStream = null;
 
             try
             {
+                // Huffman + LZSS
                 if (lengthValue < 0)
                 {
                     var huff = new GBA_Huffman4Encoder();
@@ -30,9 +38,22 @@ namespace R1Engine
                 }
                 else
                 {
-                    var lzss = new GBA_LZSSEncoder();
+                    // Not compressed
+                    if (IsDCT && (lengthValue & 0x40000000) == 0)
+                    {
+                        var buffer = new byte[length];
 
-                    decompStream = lzss.DecodeStream(s);
+                        s.Read(buffer, 0, length);
+
+                        return new MemoryStream(buffer);
+                    }
+                    // LZSS
+                    else
+                    {
+                        var lzss = new GBA_LZSSEncoder();
+
+                        decompStream = lzss.DecodeStream(s);
+                    }
                 }
 
                 if (decompStream.Length != length)

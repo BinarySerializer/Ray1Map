@@ -2,7 +2,7 @@
 
 namespace R1Engine
 {
-    public class GBAKlonoa_Maps : BinarySerializable
+    public class GBAKlonoa_EOD_Maps : BinarySerializable
     {
         public bool Pre_SerializeData { get; set; }
 
@@ -22,7 +22,7 @@ namespace R1Engine
             {
                 s.DoAt(MapPointers[i], () =>
                 {
-                    s.DoEncoded(new GBAKlonoa_Encoder(), () =>
+                    s.DoEncoded(new GBAKlonoa_EOD_Encoder(), () =>
                     {
                         var is8Bit = i == 2;
 
