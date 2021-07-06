@@ -15,8 +15,10 @@ namespace R1Engine
             Serializable = serializable;
             OAMCollection = oamCollection;
 
+            var engineVersion = objManager.Context.GetR1Settings().EngineVersion;
+
             // Hack for final boss
-            if (objManager.Context.GetR1Settings().World == 5 && objManager.Context.GetR1Settings().Level == 8 && obj.ObjType == 23)
+            if (engineVersion == EngineVersion.KlonoaGBA_EOD && objManager.Context.GetR1Settings().World == 5 && objManager.Context.GetR1Settings().Level == 8 && obj.ObjType == 23)
             {
                 oamCollection.OAMs[0].TileIndex = 492;
 
@@ -26,7 +28,10 @@ namespace R1Engine
                     AnimIndex = 2;
             }
 
-            AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.OAMCollections.Any(o => o.OAMs[0].TileIndex == oamCollection.OAMs[0].TileIndex));
+            if (oamCollection != null)
+                AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.OAMCollections.Any(o => o[0].TileIndex == oamCollection.OAMs[0].TileIndex));
+            else if (engineVersion == EngineVersion.KlonoaGBA_DCT)
+                AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.DCT_GraphisIndex == Object.DCT_GraphicsIndex);
 
             if (AnimSetIndex == -1)
             {
@@ -34,28 +39,33 @@ namespace R1Engine
                 Debug.LogWarning($"No matching animation set found for object {obj.Index} of type {obj.ObjType} and OAM index {obj.OAMIndex}");
             }
 
-            // Anim 0 is blank by default for these world map objects
-            if (Object.ObjType == 82)
-                AnimIndex = 1;
-
-            // Waterfall fix
-            if (Object.ObjType == 58)
-                AnimIndex = 1;
-
-            // Boss 2 fix
-            if (objManager.Context.GetR1Settings().World == 2 && objManager.Context.GetR1Settings().Level == 8)
+            if (engineVersion == EngineVersion.KlonoaGBA_EOD)
             {
-                if (obj.Index == 25 || obj.Index == 26)
+                // Anim 0 is blank by default for these world map objects
+                if (Object.ObjType == 82)
                     AnimIndex = 1;
-            }
 
-            // Final boss fix
-            if (objManager.Context.GetR1Settings().World == 5 && objManager.Context.GetR1Settings().Level == 8 && obj.ObjType == 23)
-            {
-                if (obj.Index == 28)
+                // Waterfall fix
+                if (Object.ObjType == 58)
                     AnimIndex = 1;
-                else if (obj.Index == 29)
-                    AnimIndex = 2;
+
+                // Boss 2 fix
+                if (objManager.Context.GetR1Settings().World == 2 && objManager.Context.GetR1Settings().Level == 8)
+                {
+                    if (obj.Index == 25 || obj.Index == 26)
+                        AnimIndex = 1;
+                }
+
+                // Final boss fix
+                if (objManager.Context.GetR1Settings().World == 5 && objManager.Context.GetR1Settings().Level == 8 && obj.ObjType == 23)
+                {
+                    if (obj.Index == 28)
+                        AnimIndex = 1;
+                    else if (obj.Index == 29)
+                        AnimIndex = 2;
+                }
+
+                Rotation = Object.ObjType == 54 || Object.ObjType == 117 ? 90 * (Object.Param_2 - 1) : (float?)null;
             }
         }
 
@@ -87,7 +97,7 @@ namespace R1Engine
             }
         }
 
-        public override float? Rotation => Object.ObjType == 54 || Object.ObjType == 117 ? 90 * (Object.Param_2 - 1) : (float?)null;
+        public override float? Rotation { get; }
         public override Vector2 Pivot
         {
             get
@@ -103,11 +113,11 @@ namespace R1Engine
         }
 
         public override string DebugText => $"Index: {Object.Index}{Environment.NewLine}" +
-                                            String.Join(Environment.NewLine, OAMCollection.OAMs.Select((x, i) =>
+                                            (OAMCollection != null ? String.Join(Environment.NewLine, OAMCollection.OAMs.Select((x, i) =>
                                                 $"Pal_{i}: {x.PaletteIndex}{Environment.NewLine}" +
                                                 $"Tile_{i}: {x.TileIndex}{Environment.NewLine}" +
-                                                $"Shape_{i}: {x.Shape}{Environment.NewLine}")) +
-                                            $"Param: {Object.Param_1}";
+                                                $"Shape_{i}: {x.Shape}{Environment.NewLine}")) : String.Empty) +
+                                            $"Param1: {Object.Param_1}";
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet AnimSet => ObjManager.AnimSets.ElementAtOrDefault(AnimSetIndex);
         public Unity_ObjectManager_GBAKlonoa.AnimSet.Animation Animation => AnimSet?.Animations.ElementAtOrDefault(AnimIndex);

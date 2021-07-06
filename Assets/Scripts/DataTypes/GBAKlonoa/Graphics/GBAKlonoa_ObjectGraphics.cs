@@ -31,17 +31,20 @@ namespace R1Engine
             {
                 var value = AnimationsPointerValue;
 
-                // Hack for waterfall due to the set having animations with different shapes
-                if (Pre_LevelObjects != null && 
-                    (Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EOD_Manager.FixCount)?.ObjType == 57 ||
-                    Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EOD_Manager.FixCount)?.ObjType == 58))
-                    value += 4;
+                if (s.GetR1Settings().EngineVersion == EngineVersion.KlonoaGBA_EOD)
+                {
+                    // Hack for waterfall due to the set having animations with different shapes
+                    if (Pre_LevelObjects != null &&
+                        (Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EOD_Manager.FixCount)?.ObjType == 57 ||
+                         Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EOD_Manager.FixCount)?.ObjType == 58))
+                        value += 4;
 
-                // Hack for final boss due to the set having animations with different palettes
-                if (Pre_LevelObjects != null && 
-                    s.GetR1Settings().Level == 8 && s.GetR1Settings().World == 5 &&
-                    Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EOD_Manager.FixCount)?.ObjType == 34)
-                    value += 4 * 8;
+                    // Hack for final boss due to the set having animations with different palettes
+                    if (Pre_LevelObjects != null &&
+                        s.GetR1Settings().Level == 8 && s.GetR1Settings().World == 5 &&
+                        Pre_LevelObjects.Objects.ElementAtOrDefault(ObjIndex - GBAKlonoa_EOD_Manager.FixCount)?.ObjType == 34)
+                        value += 4 * 8;
+                }
 
                 AnimationsPointer = new Pointer(value, Offset.File);
             }
@@ -49,7 +52,7 @@ namespace R1Engine
             if (AnimationsPointer == null)
                 return;
 
-            var animCount = s.GetR1Settings().GetGameManagerOfType<GBAKlonoa_EOD_Manager>().AnimSetInfos.FirstOrDefault(x => x.Offset == AnimationsPointer.AbsoluteOffset)?.AnimCount ?? throw new Exception($"Anim count not specified for anim set at {AnimationsPointer}");
+            var animCount = s.GetR1Settings().GetGameManagerOfType<GBAKlonoa_BaseManager>().AnimSetInfos.FirstOrDefault(x => x.Offset == AnimationsPointer.AbsoluteOffset)?.AnimCount ?? throw new Exception($"Anim count not specified for anim set at {AnimationsPointer}");
 
             s.DoAt(AnimationsPointer, () => AnimationPointers = s.SerializePointerArray(AnimationPointers, animCount, allowInvalid: true, name: nameof(AnimationPointers)));
 

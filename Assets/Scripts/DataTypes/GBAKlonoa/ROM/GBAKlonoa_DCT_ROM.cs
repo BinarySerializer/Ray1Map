@@ -1,14 +1,26 @@
-﻿using BinarySerializer;
+﻿using System.Linq;
+using BinarySerializer;
 using BinarySerializer.GBA;
 
 namespace R1Engine
 {
     public class GBAKlonoa_DCT_ROM : GBA_ROMBase
     {
+        // Info
+        public GBAKlonoa_LevelStartInfos[] LevelStartInfos { get; set; }
+
         // Maps
         public GBAKlonoa_DCT_Map[] Maps { get; set; }
         public RGBA5551Color[] FixTilePalette { get; set; }
         public GBAKlonoa_MapSectors[] MapSectors { get; set; }
+
+        // Objects
+        public GBAKlonoa_LoadedObject[] FixObjects { get; set; }
+        public GBAKlonoa_LevelObjectCollection LevelObjectCollection { get; set; } // For current level only - too slow to read all of them
+        public GBAKlonoa_ObjectGraphics[] FixObjectGraphics { get; set; }
+        public GBAKlonoa_DCT_GraphicsData[] GraphicsDatas { get; set; }
+        public GBAKlonoa_ObjectOAMCollection[] FixObjectOAMCollections { get; set; }
+        public GBAKlonoa_ObjPal[] FixObjectPalettes { get; set; }
 
         // TODO: Use pointer tables
         public override void SerializeImpl(SerializerObject s)
@@ -21,6 +33,13 @@ namespace R1Engine
             const int normalWorldsCount = GBAKlonoa_DCT_Manager.NormalWorldsCount;
             const int levelsCount = GBAKlonoa_DCT_Manager.LevelsCount;
             const int normalLevelsCount = GBAKlonoa_DCT_Manager.NormalLevelsCount;
+            var isMap = settings.Level == 0;
+            var isWaterSkii = settings.Level == 4;
+            var isUnderWater = settings.World == 4 && (settings.Level == 5 || settings.Level == 1 || settings.Level == 7);
+
+            // Serialize level start positions
+            if (!isMap && !isWaterSkii)
+                s.DoAt(new Pointer(0x0810ca00, Offset.File), () => LevelStartInfos = s.SerializeObjectArray<GBAKlonoa_LevelStartInfos>(LevelStartInfos, normalLevelsCount, name: nameof(LevelStartInfos)));
 
             // Serialize maps
             s.DoAt(new Pointer(0x8052AFC, Offset.File), () =>
@@ -35,6 +54,46 @@ namespace R1Engine
 
             // Serialize map sectors
             s.DoAt(new Pointer(0x0810a480, Offset.File), () => MapSectors = s.SerializeObjectArray<GBAKlonoa_MapSectors>(MapSectors, normalLevelsCount, name: nameof(MapSectors)));
+
+            // Initialize fixed objects
+            FixObjects = GBAKlonoa_LoadedObject.GetFixedObjects(settings.EngineVersion, settings.World, settings.Level).ToArray();
+
+            if (isMap)
+            {
+
+            }
+            else if (isWaterSkii)
+            {
+
+            }
+            else
+            {
+                // Each level has 90 object slots, each world has 9 level slots and each object is 44 bytes
+                var lvlObjOffset = ((settings.World - 1) * 900 + (settings.Level - 1) * 90) * 44;
+
+                s.DoAt(new Pointer(0x08110260 + lvlObjOffset, Offset.File), () => LevelObjectCollection = s.SerializeObject<GBAKlonoa_LevelObjectCollection>(LevelObjectCollection, name: nameof(LevelObjectCollection)));
+            }
+
+            // Serialize fixed graphics
+            Pointer fixGraphicsPointer;
+
+            if (isWaterSkii)
+                fixGraphicsPointer = new Pointer(0x08070ae8, Offset.File);
+            else if (isUnderWater)
+                fixGraphicsPointer = new Pointer(0x08070b54, Offset.File);
+            else
+                fixGraphicsPointer = new Pointer(0x08070a10, Offset.File);
+
+            s.DoAt(fixGraphicsPointer, () => FixObjectGraphics = s.SerializeObjectArray<GBAKlonoa_ObjectGraphics>(FixObjectGraphics, 9, name: nameof(FixObjectGraphics)));
+
+            // Serialize graphics data
+            s.DoAt(new Pointer(0x08070d40, Offset.File), () => GraphicsDatas = s.SerializeObjectArray<GBAKlonoa_DCT_GraphicsData>(GraphicsDatas, 154, name: nameof(GraphicsDatas)));
+
+            // Serialize fixed OAM collections
+            s.DoAt(new Pointer(0x0808ec68, Offset.File), () => FixObjectOAMCollections = s.SerializeObjectArray<GBAKlonoa_ObjectOAMCollection>(FixObjectOAMCollections, FixObjects.Length, name: nameof(FixObjectOAMCollections)));
+
+            // Serialize fixed object palettes
+            s.DoAt(new Pointer(0x0808d988, Offset.File), () => FixObjectPalettes = s.SerializeObjectArray<GBAKlonoa_ObjPal>(FixObjectPalettes, 3, name: nameof(FixObjectPalettes)));
         }
     }
 }

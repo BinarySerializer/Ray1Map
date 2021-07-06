@@ -7,7 +7,7 @@ namespace R1Engine
     public class GBAKlonoa_EOD_ROM : GBA_ROMBase
     {
         // Info
-        public GBAKlonoa_WaterSkiInfo[] WaterSkiInfos { get; set; }
+        public GBAKlonoa_EOD_WaterSkiInfo[] WaterSkiInfos { get; set; }
         public GBAKlonoa_LevelStartInfos[] LevelStartInfos { get; set; }
         public GBAKlonoa_LevelStartInfo[] BossLevelStartInfos { get; set; }
 
@@ -24,7 +24,7 @@ namespace R1Engine
         public byte[][] CompressedObjTileBlocks { get; set; }
         public GBAKlonoa_LoadedObject[] FixObjects { get; set; }
         public GBAKlonoa_LevelObjectCollection LevelObjectCollection { get; set; } // For current level only - too slow to read all of them
-        public GBAKlonoaWorldMapObjectCollection WorldMapObjectCollection { get; set; }
+        public GBAKlonoa_WorldMapObjectCollection WorldMapObjectCollection { get; set; }
         public GBAKlonoa_ObjectGraphics[] FixObjectGraphics { get; set; }
         public Pointer[] LevelObjectGraphicsPointers { get; set; }
         public GBAKlonoa_ObjectGraphics[][] LevelObjectGraphics { get; set; }
@@ -49,7 +49,7 @@ namespace R1Engine
             var isBoss = settings.Level == 8;
 
             // Serialize water-ski infos
-            s.DoAt(new Pointer(0x080d821c, Offset.File), () => WaterSkiInfos = s.SerializeObjectArray<GBAKlonoa_WaterSkiInfo>(WaterSkiInfos, 7, name: nameof(WaterSkiInfos)));
+            s.DoAt(new Pointer(0x080d821c, Offset.File), () => WaterSkiInfos = s.SerializeObjectArray<GBAKlonoa_EOD_WaterSkiInfo>(WaterSkiInfos, 7, name: nameof(WaterSkiInfos)));
 
             var isWaterSkii = WaterSkiInfos.Any(x => x.World == settings.World && x.Level == settings.Level);
 
@@ -121,7 +121,7 @@ namespace R1Engine
             }
 
             // Initialize fixed objects
-            FixObjects = GBAKlonoa_LoadedObject.FixedObjects;
+            FixObjects = GBAKlonoa_LoadedObject.GetFixedObjects(settings.EngineVersion, settings.World, settings.Level).ToArray();
 
             // Serialize level objects
             if (isMap)
@@ -129,7 +129,7 @@ namespace R1Engine
                 // Each level has 25 object slots and each object is 8 bytes
                 var mapObjOffset = (settings.World - 1) * 25 * 8;
 
-                s.DoAt(new Pointer(0x0811717c + mapObjOffset, Offset.File), () => WorldMapObjectCollection = s.SerializeObject<GBAKlonoaWorldMapObjectCollection>(WorldMapObjectCollection, name: nameof(WorldMapObjectCollection)));
+                s.DoAt(new Pointer(0x0811717c + mapObjOffset, Offset.File), () => WorldMapObjectCollection = s.SerializeObject<GBAKlonoa_WorldMapObjectCollection>(WorldMapObjectCollection, name: nameof(WorldMapObjectCollection)));
             }
             else
             {
