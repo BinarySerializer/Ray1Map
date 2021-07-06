@@ -492,7 +492,7 @@ namespace R1Engine.Jade {
 
 			public void SerializeElements(SerializerObject s) {
 				ParticleEffectElements = s.SerializeObjectArray<CharacterFX_GroupParticleElement>(ParticleEffectElements, NumberOfParticleEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(ParticleEffectElements));
-				AlphaEffectElements = s.SerializeObjectArray<CharacterFX_GroupAlphaElement>(AlphaEffectElements, NumberOfAlphaEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(AlphaEffectElements));
+				AlphaEffectElements = s.SerializeObjectArray<CharacterFX_GroupAlphaElement>(AlphaEffectElements, Math.Max(0, NumberOfAlphaEffectsInGroup), onPreSerialize: e => e.Manager = this, name: nameof(AlphaEffectElements));
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
 					if (CharacterFX.Version >= 2) BeamEffectElements = s.SerializeObjectArray<CharacterFX_GroupBeamElement>(BeamEffectElements, NumberOfBeamEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(BeamEffectElements));
 					if (CharacterFX.Version >= 3) SoundEffectElements = s.SerializeObjectArray<CharacterFX_GroupSoundElement>(SoundEffectElements, NumberOfSoundEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(SoundEffectElements));

@@ -16,13 +16,15 @@ namespace R1Engine
 {
     public abstract class Jade_BaseManager : BaseGameManager {
 		// Levels
-		public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Select((x, i) => {
-			return new GameInfo_World(
-				index: i,
-				worldName: x.Key.ReplaceFirst(CommonLevelBasePath, String.Empty),
-				maps: x.Select(m => (int)m.Key).ToArray(),
-				mapNames: x.Select(m => m.MapName).ToArray());
-		}).ToArray() ?? new GameInfo_World[0]);
+		public override GameInfo_Volume[] GetLevels(GameSettings settings) {
+			return GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Where(w => AllowWOW || w.Key != "WOW").Select((x, i) => {
+				return new GameInfo_World(
+					index: i,
+					worldName: x.Key.ReplaceFirst(CommonLevelBasePath, String.Empty),
+					maps: x.Select(m => (int)m.Key).ToArray(),
+					mapNames: x.Select(m => m.MapName).ToArray());
+			}).ToArray() ?? new GameInfo_World[0]);
+		}
 
 		public virtual string CommonLevelBasePath => @"ROOT/EngineDatas/06 Levels/";
 
@@ -163,10 +165,18 @@ namespace R1Engine
 
             foreach (var lev in LevelInfos)
             {
-				// If there are WOW files, there are also raw WOW files. It's better to process those one by one.
-				if (lev?.Type == LevelInfo.FileType.WOL) {
-					levIndex++;
-					continue;
+				if (AllowWOW) {
+					// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
+					if (lev?.Type == LevelInfo.FileType.WOL) {
+						levIndex++;
+						continue;
+					}
+				} else {
+					// WOW loading is not allowed
+					if (lev?.Type == LevelInfo.FileType.WOW) {
+						levIndex++;
+						continue;
+					}
 				}
 
 				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
@@ -183,57 +193,59 @@ namespace R1Engine
 						string worldName = null;
 						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 							LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
-							if (loader.LoadedWorlds.Any()) {
-								texList = loader.LoadedWorlds.FirstOrDefault()?.TextureList_Montreal;
-								worldName = loader.LoadedWorlds.FirstOrDefault()?.Name;
+							foreach (var w in loader.LoadedWorlds) {
+								texList = w?.TextureList_Montreal;
+								worldName = w?.Name;
+								await ExportTexList(texList);
 							}
 						}
 
-						if (texList.Textures != null && texList.Textures.Any()) {
-							Debug.Log($"Loaded level. Exporting {texList?.Textures?.Count} textures...");
-							await Controller.WaitIfNecessary();
+						async UniTask ExportTexList(TEX_GlobalList texList) {
+							if (texList.Textures != null && texList.Textures.Any()) {
+								Debug.Log($"Loaded level. Exporting {texList?.Textures?.Count} textures...");
+								await Controller.WaitIfNecessary();
 
-							foreach (var t in texList.Textures) {
-								if (parsedTexs.Contains(t.Key.Key))
-									continue;
+								foreach (var t in texList.Textures) {
+									if (parsedTexs.Contains(t.Key.Key))
+										continue;
 
-								if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)
-									&& t.Content == null && t.Info == null) continue;
+									if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)
+										&& t.Content == null && t.Info == null) continue;
 
-								parsedTexs.Add(t.Key.Key);
+									parsedTexs.Add(t.Key.Key);
 
-								Texture2D tex = null;
-								currentKey = t.Key;
-								tex = (t.Content ?? t.Info).ToTexture2D();
-								
-								if (tex == null)
-									continue;
+									Texture2D tex = null;
+									currentKey = t.Key;
+									tex = (t.Content ?? t.Info).ToTexture2D();
 
-								string name = $"{t.Key.Key:X8}";
-								if (useComplexNames) {
-									if(worldName != null) name = $"{worldName}/{name}";
-									var file = (t.Content ?? t.Info);
-									if (file != null) {
-										name += $"_{file.Type}";
-										if (file.Content_Xenon != null) name += $"_{file.Content_Xenon.Format}";
-										if (file.Content_JTX != null) name += $"_{file.Content_JTX.Format}";
+									if (tex == null)
+										continue;
+
+									string name = $"{t.Key.Key:X8}";
+									if (useComplexNames) {
+										if (worldName != null) name = $"{worldName}/{name}";
+										var file = (t.Content ?? t.Info);
+										if (file != null) {
+											name += $"_{file.Type}";
+											if (file.Content_Xenon != null) name += $"_{file.Content_Xenon.Format}";
+											if (file.Content_JTX != null) name += $"_{file.Content_JTX.Format}";
+										}
+									}
+
+									Util.ByteArrayToFile(Path.Combine(outputDir, $"{name}.png"), tex.EncodeToPNG());
+								}
+							}
+							if (texList.CubeMaps != null && texList.CubeMaps.Any()) {
+								foreach (var t in texList.CubeMaps) {
+									if (parsedTexs.Contains(t.Key.Key))
+										continue;
+									parsedTexs.Add(t.Key.Key);
+									var dds = t.Value.DDS;
+
+									for (int i = 0; i < dds.Textures.Length; i++) {
+										Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"{t.Key.Key:X8}_{i}.png"), dds.Textures[i].Items[0].ToTexture2D().EncodeToPNG());
 									}
 								}
-
-								Util.ByteArrayToFile(Path.Combine(outputDir, $"{name}.png"), tex.EncodeToPNG());
-							}
-						}
-						if (texList.CubeMaps != null && texList.CubeMaps.Any()) {
-							foreach (var t in texList.CubeMaps) {
-								if (parsedTexs.Contains(t.Key.Key))
-									continue;
-								parsedTexs.Add(t.Key.Key);
-								var dds = t.Value.DDS;
-
-                                for (int i = 0; i < dds.Textures.Length; i++)
-                                {
-								    Util.ByteArrayToFile(Path.Combine(outputDir, "Cubemaps", $"{t.Key.Key:X8}_{i}.png"), dds.Textures[i].Items[0].ToTexture2D().EncodeToPNG());
-                                }
 							}
 						}
                     }
@@ -359,6 +371,7 @@ namespace R1Engine
 		public abstract string[] BFFiles { get; }
 		public virtual string[] FixWorlds => null;
 		public virtual string JadeSpePath => null;
+		public virtual bool AllowWOW => true;
 
 		// Helpers
         public virtual async UniTask CreateLevelList(LOA_Loader l) {

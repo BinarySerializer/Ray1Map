@@ -105,6 +105,29 @@ namespace R1Engine
 			LOA_Loader Loader = s.Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			TEX_GlobalList texList = s.Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
 
+			// Hack so we can load WOWs separately in Montreal version
+			Controller.DetailedState = $"Loading textures: Checks";
+			var curPos = Loader.Bin.CurrentPosition;
+			Jade_Key currentBinHeaderKey = null;
+			while (currentBinHeaderKey == null || currentBinHeaderKey != (uint)Jade_Code.OffsetCode) {
+				Jade_Reference<TEX_File_Montreal_Dummy> dummyFile = new Jade_Reference<TEX_File_Montreal_Dummy>(s.Context, new Jade_Key(s.Context, 0)) { ForceResolve = true };
+				dummyFile?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Montreal_UnknownKey);
+				await Loader.LoadLoopBINAsync();
+				currentBinHeaderKey = dummyFile?.Value?.Key ?? null;
+				if (dummyFile?.Value != null && dummyFile.Value.IsTexture) {
+					var key = dummyFile.Value.BinFileHeader.Key;
+					if (!texList.ContainsTextureKey(key)) new Jade_TextureReference(s.Context, key)?.Resolve();
+				}
+			}
+			Loader.Bin.CurrentPosition = curPos;
+			// End of hack
+
+			texList.SortTexturesList_Montreal();
+			for (int i = 0; i < (texList.Textures?.Count ?? 0); i++) {
+				texList.Textures[i].LoadInfo();
+				await Loader.LoadLoopBINAsync();
+			}
+
 			Controller.DetailedState = $"Loading textures: Info";
 			texList.SortTexturesList_Montreal();
 			for (int i = 0; i < (texList.Textures?.Count ?? 0); i++) {
@@ -146,11 +169,16 @@ namespace R1Engine
 			s.Context.StoreObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey, texList);
 			Loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
 			Loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
+			for (int i = 0; i < (w.TextureList_Montreal.Textures?.Count ?? 0); i++) {
+				var t = w.TextureList_Montreal.Textures[i];
+				Jade_TextureReference tref = new Jade_TextureReference(s.Context, t.Key);
+				tref.Resolve();
+			}
 		}
 
 		public static async UniTask LoadWorld_Montreal(SerializerObject s, Jade_GenericReference world, int index, int count) {
 			LOA_Loader Loader = s.Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(s.Context, new Jade_Key(s.Context, 0x0FF7C0DE));
+			Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(s.Context, new Jade_Key(s.Context, (uint)Jade_Code.OffsetCode));
 			Loader.BeginSpeedMode(world.Key, serializeAction: async s => {
 				world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
 				await Loader.LoadLoopBINAsync();
