@@ -60,7 +60,7 @@ namespace R1Engine
             }
             else
             {
-                if ((level == 4) || ((world == 4 && ((level == 5 || level == 1) || level == 7))))
+                if (level == 4 || ((world == 4 && ((level == 5 || level == 1) || level == 7))))
                 {
                     // Klonoa
                     // Third to last param gets set to ((uint)DAT_03002f10 << 0x1c) >> 0x1e
