@@ -421,7 +421,13 @@ namespace R1Engine
 			loader.IsLoadingFix = isFix;
 
 			Jade_Reference<WOR_WorldList> worldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
-			worldList.Resolve(queue: LOA_Loader.QueueType.Maps); 
+			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+				worldList.Resolve(queue: LOA_Loader.QueueType.Maps, flags:
+					LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks |
+					LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+			} else {
+				worldList.Resolve(queue: LOA_Loader.QueueType.Maps);
+			}
 
 			// Set up texture list
 			TEX_GlobalList texList = new TEX_GlobalList();

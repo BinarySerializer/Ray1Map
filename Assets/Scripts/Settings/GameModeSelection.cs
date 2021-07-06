@@ -786,6 +786,10 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PC)", typeof(Jade_PoP_WW_PC_Manager), Platform.PC)]
         PrinceOfPersiaWarriorWithinPC,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (GC)", typeof(Jade_PoP_WW_GC_Manager), Platform.GC)]
+        PrinceOfPersiaWarriorWithinGC,
+
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]
         MyWordCoachWii,
 

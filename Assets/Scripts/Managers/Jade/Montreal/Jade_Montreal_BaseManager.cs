@@ -111,7 +111,7 @@ namespace R1Engine
 			Jade_Key currentBinHeaderKey = null;
 			while (currentBinHeaderKey == null || currentBinHeaderKey != (uint)Jade_Code.OffsetCode) {
 				Jade_Reference<TEX_File_Montreal_Dummy> dummyFile = new Jade_Reference<TEX_File_Montreal_Dummy>(s.Context, new Jade_Key(s.Context, 0)) { ForceResolve = true };
-				dummyFile?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Montreal_UnknownKey);
+				dummyFile?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks);
 				await Loader.LoadLoopBINAsync();
 				currentBinHeaderKey = dummyFile?.Value?.Key ?? null;
 				if (dummyFile?.Value != null && dummyFile.Value.IsTexture) {
