@@ -725,7 +725,6 @@
 			new LevelInfo(0x1F000F69, "ROOT/Bin", "Prince_For_Load_wow_ff0f0f69.bin", worldName: "WOW", mapName: "Prince_For_Load", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x057CC7FE, "ROOT/Bin", "Prince_Weapons_wow_ff05c7fe.bin", worldName: "WOW", mapName: "Prince_Weapons", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0xCC000226, "ROOT/Bin", "Prince_wow_ff0c0226.bin", worldName: "WOW", mapName: "Prince", type: LevelInfo.FileType.WOW),
-			new LevelInfo(0x0400E7E7, "ROOT/Bin", "PS2_Loading_Bar_bin_ff04e7e7.bin"),
 			new LevelInfo(0x280000CD, "ROOT/Bin", "SandOfTime_wow_ff0800cd.bin", worldName: "WOW", mapName: "SandOfTime", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x1F000F72, "ROOT/Bin", "Sandwraith_For_Load_wow_ff0f0f72.bin", worldName: "WOW", mapName: "Sandwraith_For_Load", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x3001B994, "ROOT/Bin", "SE_040_020_FX_MARK_wow_ff00b994.bin", worldName: "WOW", mapName: "SE_040_020_FX_MARK", type: LevelInfo.FileType.WOW),
