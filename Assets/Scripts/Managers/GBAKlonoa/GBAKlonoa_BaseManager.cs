@@ -118,7 +118,7 @@ namespace R1Engine
                                 tileTex.FillInTile(
                                     imgData: frame.ImgData,
                                     imgDataOffset: tileOffset,
-                                    pal: palettes[tilePals.First()],
+                                    pal: palettes[tilePals.FirstOrDefault()],
                                     encoding: Util.TileEncoding.Linear_4bpp,
                                     tileWidth: CellSize,
                                     flipTextureY: false,

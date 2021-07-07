@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BinarySerializer;
+using BinarySerializer.GBA;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -45,22 +46,12 @@ namespace R1Engine
                 if (layer == null)
                     return null;
 
-                var tileOffset = 0;
-
                 if (!layer.Is8Bit)
                 {
-                    // TODO: How does the game determine this?
-                    if (isWaterSki)
-                    {
-                        if (mapIndex == 2)
-                            tileOffset = 512;
-                        else if (mapIndex == 3)
-                            tileOffset = 512 * 2;
-                    }
-                    else
-                    {
-                        tileOffset = mapIndex * 512;
-                    }
+                    // The game hard-codes the base block for waterski levels
+                    var baseBlock = isWaterSki && mapIndex == 0 ? 0 : layer.CNT.CharacterBaseBlock;
+
+                    var tileOffset = baseBlock * 512;
 
                     // Correct map tiles
                     if (tileOffset != 0)
