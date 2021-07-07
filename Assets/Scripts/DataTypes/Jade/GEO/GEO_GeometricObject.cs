@@ -60,6 +60,8 @@ namespace R1Engine.Jade {
 					}
 				case Platform.iOS:
 					return (Montreal_Flags2 & 0x10) == 0x10;
+				case Platform.PSP:
+					return (Montreal_Flags2 & 0x20) == 0x20;
 				case Platform.Wii:
 					return (Montreal_Flags2 & 0x40) == 0x40;
 				default:
@@ -180,6 +182,7 @@ namespace R1Engine.Jade {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Montreal_IsOptimized(s.GetR1Settings())) {
 				switch (s.GetR1Settings().Platform) {
 					case Platform.PS2:
+					case Platform.PSP:
 						OptimizedGeoObject_PS2 = s.SerializeObject<GEO_GeoObject_PS2>(OptimizedGeoObject_PS2, name: nameof(OptimizedGeoObject_PS2));
 						break;
 					case Platform.GC:

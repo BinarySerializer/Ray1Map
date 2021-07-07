@@ -52,16 +52,16 @@ namespace R1Engine.Jade {
 
 			}
 			public class ElementData : BinarySerializable {
-				public Jade_Code Element_StartCode { get; set; } // 0xF0CEFACE
+				public Jade_Code FoceFace { get; set; } // 0xF0CEFACE
 				public uint Count { get; set; }
 				public MeshElement[] MeshElements { get; set; }
-				public Jade_Code Element_EndCode { get; set; } // 0xDEADBEEF
+				public Jade_Code Deadbeef { get; set; } // 0xDEADBEEF
 
 				public override void SerializeImpl(SerializerObject s) {
-					Element_StartCode = s.Serialize<Jade_Code>(Element_StartCode, name: nameof(Element_StartCode));
+					FoceFace = s.Serialize<Jade_Code>(FoceFace, name: nameof(FoceFace));
 					Count = s.Serialize<uint>(Count, name: nameof(Count));
 					MeshElements = s.SerializeObjectArray<MeshElement>(MeshElements, Count, name: nameof(MeshElements));
-					Element_EndCode = s.Serialize<Jade_Code>(Element_EndCode, name: nameof(Element_EndCode));
+					Deadbeef = s.Serialize<Jade_Code>(Deadbeef, name: nameof(Deadbeef));
 				}
 			}
 			public class MeshElement : BinarySerializable {
@@ -79,7 +79,7 @@ namespace R1Engine.Jade {
 
 				public override void SerializeImpl(SerializerObject s) {
 					Vector0 = s.SerializeObject<Jade_Vector>(Vector0, name: nameof(Vector0));
-					Float0 = s.Serialize<float>(Float0, name: nameof(Float0));
+					if(s.GetR1Settings().Platform != Platform.PSP) Float0 = s.Serialize<float>(Float0, name: nameof(Float0));
 					Vector1 = s.SerializeObject<Jade_Vector>(Vector1, name: nameof(Vector1));
 					Float1 = s.Serialize<float>(Float1, name: nameof(Float1));
 					UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
@@ -87,8 +87,10 @@ namespace R1Engine.Jade {
 					Bytes0 = s.SerializeArray<byte>(Bytes0, Count0, name: nameof(Bytes0));
 					Count1 = s.Serialize<uint>(Count1, name: nameof(Count1));
 					Structs1 = s.SerializeObjectArray<Struct1>(Structs1, Count1, name: nameof(Structs1));
-					Count2 = s.Serialize<uint>(Count2, name: nameof(Count2));
-					Structs2 = s.SerializeObjectArray<Struct2>(Structs2, Count2, name: nameof(Structs2));
+					if (s.GetR1Settings().Platform != Platform.PSP) {
+						Count2 = s.Serialize<uint>(Count2, name: nameof(Count2));
+						Structs2 = s.SerializeObjectArray<Struct2>(Structs2, Count2, name: nameof(Structs2));
+					}
 				}
 
 				public class Struct2 : BinarySerializable {
@@ -107,7 +109,11 @@ namespace R1Engine.Jade {
 					public uint DataSize { get; set; }
 					public byte[] Bytes { get; set; }
 					public override void SerializeImpl(SerializerObject s) {
-						UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+						if (s.GetR1Settings().Platform == Platform.PSP) {
+							UInt_00 = s.Serialize<ushort>((ushort)UInt_00, name: nameof(UInt_00));
+						} else {
+							UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+						}
 						DataSize = s.Serialize<uint>(DataSize, name: nameof(DataSize));
 						Bytes = s.SerializeArray<byte>(Bytes, DataSize, name: nameof(Bytes));
 					}

@@ -145,6 +145,7 @@ namespace R1Engine.Jade {
 					}
 					switch (s.GetR1Settings().Platform) {
 						case Platform.PS2:
+						case Platform.PSP:
 							VisuPS2 = s.SerializeObject<GEO_GaoVisu_PS2>(VisuPS2, name: nameof(VisuPS2));
 							break;
 						case Platform.PC:
@@ -156,8 +157,8 @@ namespace R1Engine.Jade {
 						case Platform.Wii:
 						case Platform.GC:
 							break;
-						case Platform.PSP:
-							throw new NotImplementedException($"TODO: Implement {GetType()} for PSP");
+						/*case Platform.PSP:
+							throw new NotImplementedException($"TODO: Implement {GetType()} for PSP");*/
 						default:
 							UnityEngine.Debug.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
 							break;
