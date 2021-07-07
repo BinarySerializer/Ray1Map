@@ -148,6 +148,7 @@ namespace R1Engine.Jade {
 							VisuPS2 = s.SerializeObject<GEO_GaoVisu_PS2>(VisuPS2, name: nameof(VisuPS2));
 							break;
 						case Platform.PC:
+						case Platform.iOS:
 						case Platform.Xbox:
 							// If !Loader.IsBinaryData, then this is in another file given by the key
 							VisuPC = s.SerializeObject<GEO_GaoVisu_PC>(VisuPC, name: nameof(VisuPC));
@@ -155,6 +156,8 @@ namespace R1Engine.Jade {
 						case Platform.Wii:
 						case Platform.GC:
 							break;
+						case Platform.PSP:
+							throw new NotImplementedException($"TODO: Implement {GetType()} for PSP");
 						default:
 							UnityEngine.Debug.LogWarning($"{GetType()}: Skipping unimplemented platform {s.GetR1Settings().Platform}. In case of errors, check this");
 							break;
