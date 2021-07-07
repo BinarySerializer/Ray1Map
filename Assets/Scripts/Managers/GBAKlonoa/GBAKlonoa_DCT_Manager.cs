@@ -30,6 +30,7 @@ namespace R1Engine
             var normalLevelIndex = GetNormalLevelIndex(settings.World, settings.Level);
             var isMap = settings.Level == 0;
             var isWaterSki = settings.Level == 4;
+            var isUnderWater = settings.World == 4 && (settings.Level == 5 || settings.Level == 1 || settings.Level == 7);
 
             //GenerateAnimSetTable(context, rom);
 
@@ -99,6 +100,23 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             var fixObjects = rom.FixObjects;
+            var fixOam = rom.FixObjectOAMCollections;
+
+            // Klonoa uses OAM 0x0D for these levels which is the first OAM from the level objects. This object is only used to allocate the palette
+            // and copy the OAM.
+            if (isWaterSki || isUnderWater)
+            {
+                var additionalOAMs = rom.GraphicsDatas[rom.LevelObjectCollection.Objects.First().DCT_GraphicsIndex].OAMs;
+
+                // Fix the palette index
+                foreach (GBAKlonoa_OAM o in additionalOAMs)
+                    o.PaletteIndex = 0;
+
+                fixOam = fixOam.Append(new GBAKlonoa_ObjectOAMCollection()
+                {
+                    OAMs = additionalOAMs
+                }).ToArray();
+            }
 
             GBAKlonoa_LoadedObject[][] levelObjects;
 
@@ -117,7 +135,7 @@ namespace R1Engine
 
             var objmanager = new Unity_ObjectManager_GBAKlonoa(
                 context: context,
-                animSets: LoadAnimSets(context, rom, isMap));
+                animSets: LoadAnimSets(context, rom, isMap, fixOam));
 
             var objects = new List<Unity_Object>();
 
@@ -132,12 +150,23 @@ namespace R1Engine
                     Concat(rom.LevelStartInfos[normalLevelIndex].StartInfos_Green).
                     Where(x => !(x.XPos == 0 && x.YPos == 0));
 
+                var klonoa = fixObjects[0];
+
                 // Add Klonoa at each start position
-                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), x, rom.FixObjectOAMCollections[0])));
+                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(
+                        index: klonoa.Index, 
+                        oamIndex: klonoa.OAMIndex, 
+                        xPos: x.XPos, 
+                        yPos: x.YPos, 
+                        param_1: klonoa.Param_1, 
+                        value6: klonoa.Value_6, 
+                        param_2: klonoa.Param_2, 
+                        value8: klonoa.Value_8, 
+                        objType: klonoa.ObjType), x, fixOam[klonoa.OAMIndex])));
             }
 
             // Add fixed objects, except Klonoa (first one) and object 11/12 for maps since it's not used
-            objects.AddRange(fixObjects.Skip(!hasStartPositions ? 0 : 1).Where(x => !isMap || (x.Index != 11 && x.Index != 12)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, rom.FixObjectOAMCollections[x.OAMIndex])));
+            objects.AddRange(fixObjects.Skip(!hasStartPositions ? 0 : 1).Where(x => !isMap || (x.Index != 11 && x.Index != 12)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, fixOam[x.OAMIndex])));
 
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
             objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 31).Select(x => new Unity_Object_GBAKlonoa(
@@ -172,7 +201,7 @@ namespace R1Engine
             return tileSet;
         }
 
-        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_DCT_ROM rom, bool isMap)
+        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_DCT_ROM rom, bool isMap, GBAKlonoa_ObjectOAMCollection[] fixOam)
         {
             var settings = context.GetR1Settings();
             var isBoss = settings.Level == 9;
@@ -182,16 +211,29 @@ namespace R1Engine
             // Start by adding a null entry to use as default
             loadedAnimSets.Add(new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL", new GBAKlonoa_OAM[0][]));
 
-            var fixPal = Util.ConvertAndSplitGBAPalette(rom.FixObjectPalettes.SelectMany(x => x.Colors).ToArray());
-
-            // Load animations declared through the graphics data
-            LoadAnimSets_ObjGraphics(loadedAnimSets, rom.FixObjectGraphics, rom.FixObjectOAMCollections, fixPal, rom.FixObjects);
+            // We need to allocate the palette like the game does to fix some animations not loaded from the graphics datas
+            var pal = rom.FixObjectPalettes.ToList();
 
             var graphicsIndex = 0;
 
             // Load animations sets from the graphics datas
             if (!isMap)
             {
+                /*
+                // Start by filling out the palette. This is based on the available objects in the level.
+                foreach (var obj in rom.LevelObjectCollection.Objects)
+                {
+                    var graphics = rom.GraphicsDatas[obj.DCT_GraphicsIndex];
+
+                    var p = graphics.Palette;
+
+                    if ((graphics.Flags1 & GBAKlonoa_DCT_GraphicsData.GraphicsFlags1.AllocatePalette) != 0 && !pal.Contains(p))
+                        pal.Add(p);
+                }*/
+
+                PaletteHelpers.ExportPalette(@"C:\Users\RayCarrot\Downloads\pal.png", pal.SelectMany(x => x.Colors).ToArray(), optionalWrap: 16);
+
+                // Load the graphics datas. The game only loads the ones used in the current level, but we load all of them.
                 foreach (var graphics in rom.GraphicsDatas)
                 {
                     GBAKlonoa_Animation[] anims;
@@ -221,6 +263,11 @@ namespace R1Engine
                     graphicsIndex++;
                 }
             }
+
+            var fullTilePalette = Util.ConvertAndSplitGBAPalette(pal.SelectMany(x => x.Colors).ToArray());
+
+            // Load animations declared through the graphics data
+            LoadAnimSets_ObjGraphics(loadedAnimSets, rom.FixObjectGraphics, fixOam, fullTilePalette, rom.FixObjects);
 
             // Load special (hard-coded) animations
             IEnumerable<SpecialAnimation> specialAnims = new SpecialAnimation[0];
@@ -312,13 +359,13 @@ namespace R1Engine
 
                 var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
                 {
-                    new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oams[0], fixPal).Select(x => x.CreateSprite()).ToArray(), oams[0])
+                    new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oams[0], fullTilePalette).Select(x => x.CreateSprite()).ToArray(), oams[0])
                 }, $"0x081d6700", oams);
 
                 loadedAnimSets.Add(animSet);
             }
 
-            LoadAnimSets_SpecialAnims(loadedAnimSets, context, specialAnims, fixPal, rom.FixObjects, rom.FixObjectOAMCollections, FixCount);
+            LoadAnimSets_SpecialAnims(loadedAnimSets, context, specialAnims, fullTilePalette, rom.FixObjects, rom.FixObjectOAMCollections, FixCount);
 
             return loadedAnimSets.ToArray();
         }

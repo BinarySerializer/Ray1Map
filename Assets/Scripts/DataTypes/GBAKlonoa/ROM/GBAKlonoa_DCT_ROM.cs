@@ -212,7 +212,7 @@ namespace R1Engine
             }
 
             // Serialize fixed OAM collections
-            s.DoAt(new Pointer(0x0808ec68, Offset.File), () => FixObjectOAMCollections = s.SerializeObjectArray<GBAKlonoa_ObjectOAMCollection>(FixObjectOAMCollections, FixObjects.Max(x => x.OAMIndex) + 1, name: nameof(FixObjectOAMCollections)));
+            s.DoAt(new Pointer(0x0808ec68, Offset.File), () => FixObjectOAMCollections = s.SerializeObjectArray<GBAKlonoa_ObjectOAMCollection>(FixObjectOAMCollections, FixObjects.Length, name: nameof(FixObjectOAMCollections)));
 
             if (isMap)
             {

@@ -29,7 +29,7 @@ namespace R1Engine
             }
 
             if (oamCollection != null)
-                AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.OAMCollections.Any(o => o[0].TileIndex == oamCollection.OAMs[0].TileIndex));
+                AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.DCT_GraphisIndex == -1 && x.OAMCollections.Any(o => o[0].TileIndex == oamCollection.OAMs[0].TileIndex));
             else if (engineVersion == EngineVersion.KlonoaGBA_DCT)
                 AnimSetIndex = objManager.AnimSets.FindItemIndex(x => x.DCT_GraphisIndex == Object.DCT_GraphicsIndex);
 
