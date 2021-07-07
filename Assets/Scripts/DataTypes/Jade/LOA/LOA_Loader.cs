@@ -81,6 +81,7 @@ namespace R1Engine.Jade {
 			IsIrregularFileFormat = 1 << 16,
 			DontUseCachedFile = 1 << 17,
 			Montreal_AllowSkip = 1 << 18,
+			Montreal_NoKeyChecks = 1 << 19,
 		}
 
 
@@ -328,6 +329,8 @@ namespace R1Engine.Jade {
 									//UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}. Skipping!");
 									s.Goto(Bin.CurrentPosition);
 									return;
+								} else if (currentRef.Flags.HasFlag(ReferenceFlags.Montreal_NoKeyChecks)) {
+									currentRef.Key = BinFileHeader.Key;
 								} else {
 									UnityEngine.Debug.LogWarning($"BinFileHeader Key {BinFileHeader.Key} does not match Expected Key {currentRef.Key}");
 								}

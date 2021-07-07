@@ -26,7 +26,7 @@ namespace R1Engine.Jade {
 			Characters = s.SerializeObjectArrayUntil<Character>(Characters,
 				conditionCheckFunc: c => (s.CurrentPointer.AbsoluteOffset >= (Offset.AbsoluteOffset + FileSize)) || c.Char == -1,
 				name: nameof(Characters));
-			if (Version >= 1) {
+			if (Version >= 1 && s.CurrentPointer.AbsoluteOffset < (Offset.AbsoluteOffset + FileSize)) {
 				CharacterACs = s.SerializeObjectArrayUntil<CharacterAC>(CharacterACs,
 				conditionCheckFunc: c => (s.CurrentPointer.AbsoluteOffset >= (Offset.AbsoluteOffset + FileSize)) || c.Char == -1,
 				name: nameof(CharacterACs));

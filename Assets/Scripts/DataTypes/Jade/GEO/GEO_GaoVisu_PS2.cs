@@ -12,16 +12,16 @@ namespace R1Engine.Jade {
 		}
 
 		public class Element : BinarySerializable {
-			public uint UInt_00 { get; set; }
+			public Jade_Code Foceface { get; set; }
 			public uint Count { get; set; }
 			public MeshElementRef[] Refs { get; set; }
-			public uint UInt_Last { get; set; }
+			public Jade_Code Deadbeef { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
-				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+				Foceface = s.Serialize<Jade_Code>(Foceface, name: nameof(Foceface));
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
 				Refs = s.SerializeObjectArray<MeshElementRef>(Refs, Count, name: nameof(Refs));
-				UInt_Last = s.Serialize<uint>(UInt_Last, name: nameof(UInt_Last));
+				Deadbeef = s.Serialize<Jade_Code>(Deadbeef, name: nameof(Deadbeef));
 			}
 		}
 
