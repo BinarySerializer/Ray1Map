@@ -109,6 +109,7 @@ namespace R1Engine.Jade {
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePC:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePCLimitedDemo:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeXbox:
+
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPC:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPCDemo:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPS2:

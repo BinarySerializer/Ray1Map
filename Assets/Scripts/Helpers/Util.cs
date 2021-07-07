@@ -408,6 +408,13 @@ namespace R1Engine
                         var r = imgData[index + 2];
                         var a = imgData[index + 3];
                         c = new Color(r / 255f, g / 255f, b / 255f, a / 255f);
+                    } else if (encoding == TileEncoding.Linear_16bpp_4444_ABGR) {
+                        int index = imgDataOffset + (((flipRegionY ? (regionHeight - y - 1) : y) * regionWidth + (flipRegionX ? (regionWidth - x - 1) : x))) * 2;
+                        var a = BitHelpers.ExtractBits(imgData[index + 0], 4, 0);
+                        var b = BitHelpers.ExtractBits(imgData[index + 0], 4, 4);
+                        var g = BitHelpers.ExtractBits(imgData[index + 1], 4, 0);
+                        var r = BitHelpers.ExtractBits(imgData[index + 1], 4, 4);
+                        c = new Color(r / 15f, g / 15f, b / 15f, a / 15f);
                     } else {
                         c = Color.clear;
                     }
@@ -590,6 +597,7 @@ namespace R1Engine
             Linear_8bpp,
             Linear_32bpp_RGBA,
             Linear_32bpp_BGRA,
+            Linear_16bpp_4444_ABGR,
         }
 
         public static void ExportAnim(IList<Texture2D> frames, int speed, bool center, bool saveAsGif, string outputDir, string primaryName, string secondaryName)

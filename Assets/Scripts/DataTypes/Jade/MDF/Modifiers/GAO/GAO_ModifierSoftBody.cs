@@ -9,9 +9,9 @@ namespace R1Engine.Jade
         public uint V3_UInt { get; set; }
         public uint UInt_00 { get; set; }
         public uint UInt_01 { get; set; }
-        public uint UInt_02_Struct0Count { get; set; }
-        public uint UInt_03_Struct1Count { get; set; }
-        public uint UInt_04_Struct2Count { get; set; }
+        public uint VerticesCount { get; set; }
+        public uint LengthConstraintsCount { get; set; }
+        public uint PlaneConstraintsCount { get; set; }
         public Jade_Vector Vector_05 { get; set; }
         public Jade_Vector V10_Vector_06 { get; set; }
         public float Float_06 { get; set; }
@@ -37,9 +37,9 @@ namespace R1Engine.Jade
         public float V8_Float_26 { get; set; }
         public float V8_Float_27 { get; set; }
         public float V9_Float_28 { get; set; }
-        public Struct0[] Structs0 { get; set; }
-        public Struct1[] Structs1 { get; set; }
-        public Struct2[] Structs2 { get; set; }
+        public SoftBodyVertex[] Vertices { get; set; }
+        public SoftBodyLengthConstraint[] LengthConstraints { get; set; }
+        public SoftBodyPlaneConstraint[] PlaneConstraints { get; set; }
         public uint[] V7_UInts { get; set; }
 
 
@@ -53,9 +53,9 @@ namespace R1Engine.Jade
             if (Version >= 1) {
 				UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
 				UInt_01 = s.Serialize<uint>(UInt_01, name: nameof(UInt_01));
-				UInt_02_Struct0Count = s.Serialize<uint>(UInt_02_Struct0Count, name: nameof(UInt_02_Struct0Count));
-				UInt_03_Struct1Count = s.Serialize<uint>(UInt_03_Struct1Count, name: nameof(UInt_03_Struct1Count));
-				UInt_04_Struct2Count = s.Serialize<uint>(UInt_04_Struct2Count, name: nameof(UInt_04_Struct2Count));
+				VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
+				LengthConstraintsCount = s.Serialize<uint>(LengthConstraintsCount, name: nameof(LengthConstraintsCount));
+				PlaneConstraintsCount = s.Serialize<uint>(PlaneConstraintsCount, name: nameof(PlaneConstraintsCount));
 				Vector_05 = s.SerializeObject<Jade_Vector>(Vector_05, name: nameof(Vector_05));
 				if (Version >= 10) V10_Vector_06 = s.SerializeObject<Jade_Vector>(V10_Vector_06, name: nameof(V10_Vector_06));
 				Float_06 = s.Serialize<float>(Float_06, name: nameof(Float_06));
@@ -79,7 +79,7 @@ namespace R1Engine.Jade
                 }
                 if (Version >= 6) {
 					V6_UInt_21 = s.Serialize<uint>(V6_UInt_21, name: nameof(V6_UInt_21));
-					V6_GameObject_22 = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(V6_GameObject_22, name: nameof(V6_GameObject_22));
+					V6_GameObject_22 = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(V6_GameObject_22, name: nameof(V6_GameObject_22))?.Resolve();
 					V6_Float_23 = s.Serialize<float>(V6_Float_23, name: nameof(V6_Float_23));
 					V6_Float_24 = s.Serialize<float>(V6_Float_24, name: nameof(V6_Float_24));
 				}
@@ -89,15 +89,15 @@ namespace R1Engine.Jade
 					V8_Float_27 = s.Serialize<float>(V8_Float_27, name: nameof(V8_Float_27));
 				}
 				if (Version >= 9) V9_Float_28 = s.Serialize<float>(V9_Float_28, name: nameof(V9_Float_28));
-				Structs0 = s.SerializeObjectArray<Struct0>(Structs0, UInt_02_Struct0Count, onPreSerialize: st => st.Modifier = this, name: nameof(Structs0));
-				Structs1 = s.SerializeObjectArray<Struct1>(Structs1, UInt_03_Struct1Count, onPreSerialize: st => st.Modifier = this, name: nameof(Structs1));
-				Structs2 = s.SerializeObjectArray<Struct2>(Structs2, UInt_04_Struct2Count, onPreSerialize: st => st.Modifier = this, name: nameof(Structs2));
+				Vertices = s.SerializeObjectArray<SoftBodyVertex>(Vertices, VerticesCount, onPreSerialize: st => st.Modifier = this, name: nameof(Vertices));
+				LengthConstraints = s.SerializeObjectArray<SoftBodyLengthConstraint>(LengthConstraints, LengthConstraintsCount, onPreSerialize: st => st.Modifier = this, name: nameof(LengthConstraints));
+				PlaneConstraints = s.SerializeObjectArray<SoftBodyPlaneConstraint>(PlaneConstraints, PlaneConstraintsCount, onPreSerialize: st => st.Modifier = this, name: nameof(PlaneConstraints));
 				V7_UInts = s.SerializeArray<uint>(V7_UInts, V7_UInt_25_Count, name: nameof(V7_UInts));
 			}
         }
 
 
-		public class Struct0 : BinarySerializable {
+		public class SoftBodyVertex : BinarySerializable {
             public GAO_ModifierSoftBody Modifier { get; set; }
             public uint Flags { get; set; }
             public uint UInt_1 { get; set; }
@@ -114,7 +114,7 @@ namespace R1Engine.Jade
 			}
         }
 
-        public class Struct1 : BinarySerializable {
+        public class SoftBodyLengthConstraint : BinarySerializable {
             public GAO_ModifierSoftBody Modifier { get; set; }
             public uint UInt_0 { get; set; }
             public uint UInt_1 { get; set; }
@@ -127,7 +127,7 @@ namespace R1Engine.Jade
             }
         }
 
-        public class Struct2 : BinarySerializable {
+        public class SoftBodyPlaneConstraint : BinarySerializable {
             public GAO_ModifierSoftBody Modifier { get; set; }
             public float Float_0 { get; set; }
             public float Float_1 { get; set; }

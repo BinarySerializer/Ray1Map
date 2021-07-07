@@ -93,6 +93,21 @@ namespace R1Engine.Jade
                 case JTX_Format.DXT5:
                     BPP = 8;
                     break;
+                case JTX_Format.DXN__iOS_PVRTC_4bpp:
+                    if (s.GetR1Settings().Platform == Platform.iOS) {
+                        BPP = 4;
+                    } else throw new NotImplementedException($"Unimplemented TEX_Content_JTX Format: {Format}");
+                    break;
+                case JTX_Format.DXN_DXT5A__iOS14:
+                    if (s.GetR1Settings().Platform == Platform.iOS) {
+                        BPP = 2;
+                    } else throw new NotImplementedException($"Unimplemented TEX_Content_JTX Format: {Format}");
+                    break;
+                case JTX_Format.iOS_Raw16:
+                    if (s.GetR1Settings().Platform == Platform.iOS) {
+                        BPP = 16;
+                    } else throw new NotImplementedException($"Unimplemented TEX_Content_JTX Format: {Format}");
+                    break;
                 default:
                     throw new NotImplementedException($"Unimplemented TEX_Content_JTX Format: {Format}");
             }
@@ -147,6 +162,21 @@ namespace R1Engine.Jade
                     ContentSize = (uint)((Height >> 2) * (Width >> 2) * 8 + MipmapSize);
                     if(Format == JTX_Format.S3TC_A) Content2Size = ContentSize;
                     break;
+                case JTX_Format.DXN__iOS_PVRTC_4bpp:
+                    if (Context.GetR1Settings().Platform == Platform.iOS) {
+                        ContentSize = (uint)((Height >> 2) * (Width >> 2) * 8);
+                    } else throw new NotImplementedException($"Unimplemented TEX_Content_JTX Format: {Format}");
+                    break;
+                case JTX_Format.DXN_DXT5A__iOS14:
+                    if (Context.GetR1Settings().Platform == Platform.iOS) {
+                        ContentSize = (uint)((Height >> 2) * (Width >> 2) * 4);
+                    } else throw new NotImplementedException($"Unimplemented TEX_Content_JTX Format: {Format}");
+                    break;
+                case JTX_Format.iOS_Raw16:
+                    if (Context.GetR1Settings().Platform == Platform.iOS) {
+                        ContentSize = Width * Height * 2;
+                    } else throw new NotImplementedException($"Unimplemented TEX_Content_JTX Format: {Format}");
+                    break;
                 default:
                     ContentSize = (uint)(BPP * Height * Width / 8 + MipmapSize);
                     break;
@@ -168,9 +198,10 @@ namespace R1Engine.Jade
             AlphaIntensity_4 = 11,
             S3TC_A = 12,
 
-            // Added for NCIS
-            DXN = 13,
-            JTX_Format_DXN_DXT5A = 14
+            // Added for NCIS or PoP:WW iOS
+            DXN__iOS_PVRTC_4bpp = 13,
+            DXN_DXT5A__iOS14 = 14,
+            iOS_Raw16 = 15,
         }
 
         public Texture2D ToTexture2D() {
@@ -224,6 +255,10 @@ namespace R1Engine.Jade
                     if(Context.GetR1Settings().Platform != Platform.PS2) tileEncoding = Util.TileEncoding.Linear_32bpp_BGRA;
                     tex.FillRegion(content, 0, palette, tileEncoding, 0, 0, (int)Width, (int)Height);
                     break;
+                case JTX_Format.iOS_Raw16:
+                    tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
+                    tex.FillRegion(content, 0, palette, Util.TileEncoding.Linear_16bpp_4444_ABGR, 0, 0, (int)Width, (int)Height);
+                    break;
                 case JTX_Format.S3TC:
                     dds = DDS.FromRawData(content, DDS_Parser.PixelFormat.DXT1, Width, Height);
                     tex = dds.PrimaryTexture?.ToTexture2D();
@@ -252,6 +287,22 @@ namespace R1Engine.Jade
                 case JTX_Format.DXT5:
                     dds = DDS.FromRawData(content, DDS_Parser.PixelFormat.DXT5, Width, Height);
                     tex = dds.PrimaryTexture?.ToTexture2D();
+                    break;
+                case JTX_Format.DXN__iOS_PVRTC_4bpp:
+                    if (Context.GetR1Settings().Platform == Platform.iOS) {
+                        tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
+                        var tbif = CSharp_PVRTC_EncDec.PvrtcDecompress.DecodeRgba4Bpp(content, (int)Math.Max(Width, Height));
+                        for (int y = 0; y < Height; y++) {
+                            for (int x = 0; x < Width; x++) {
+                                var r = tbif.GetPixelChannel(x, y, 0) / 255f;
+                                var g = tbif.GetPixelChannel(x, y, 1) / 255f;
+                                var b = tbif.GetPixelChannel(x, y, 2) / 255f;
+                                var a = tbif.GetPixelChannel(x, y, 3) / 255f;
+                                tex.SetPixel(x,y, new Color(r,g,b,a));
+                            }
+                        }
+                        tex.Apply();
+                    } else throw new NotImplementedException($"TODO: Implement JTX type {Format}");
                     break;
                 default:
                     throw new NotImplementedException($"TODO: Implement JTX type {Format}");

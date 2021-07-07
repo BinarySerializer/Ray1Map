@@ -144,6 +144,7 @@ namespace R1Engine.Jade
                                 case GameModeSelection.RaymanRavingRabbidsWiiJP:
                                 case GameModeSelection.BeyondGoodAndEvilXbox360:
                                 case GameModeSelection.BeyondGoodAndEvilPS3:
+                                case GameModeSelection.PrinceOfPersiaWarriorWithinIOS:
                                     colorOrder = TGA.RGBColorOrder.BGR;
                                     break;
                             }
