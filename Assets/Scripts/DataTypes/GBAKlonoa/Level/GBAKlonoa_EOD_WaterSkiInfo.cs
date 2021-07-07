@@ -2,7 +2,7 @@
 
 namespace R1Engine
 {
-    public class GBAKlonoa_WaterSkiInfo : BinarySerializable
+    public class GBAKlonoa_EOD_WaterSkiInfo : BinarySerializable
     {
         public byte[] Bytes_00 { get; set; }
         public Pointer Pointer_04 { get; set; }

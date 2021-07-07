@@ -20,32 +20,36 @@ namespace R1Engine
 
         public class AnimSet
         {
-            public AnimSet(Animation[] animations, string displayName, IEnumerable<GBAKlonoa_ObjectOAMCollection> oamCollections)
+            public AnimSet(Animation[] animations, string displayName, IEnumerable<GBAKlonoa_OAM[]> oamCollections, int dct_GraphisIndex = -1)
             {
                 Animations = animations;
                 DisplayName = displayName;
-                OAMCollections = new List<GBAKlonoa_ObjectOAMCollection>(oamCollections);
+                DCT_GraphisIndex = dct_GraphisIndex;
+                OAMCollections = new List<GBAKlonoa_OAM[]>(oamCollections);
             }
 
             public Animation[] Animations { get; }
-            public List<GBAKlonoa_ObjectOAMCollection> OAMCollections { get; }
+            public List<GBAKlonoa_OAM[]> OAMCollections { get; }
             public string DisplayName { get; }
+            public int DCT_GraphisIndex { get; }
 
             public class Animation
             {
-                public Animation(Func<Sprite[]> animFrameFunc, GBAKlonoa_ObjectOAMCollection oamCollection, int?[] animSpeeds = null)
+                public Animation(Func<Sprite[]> animFrameFunc, GBAKlonoa_OAM[] oamCollection, int?[] animSpeeds = null, byte? linkedAnimIndex = null)
                 {
                     AnimFrameFunc = animFrameFunc;
                     OAMCollection = oamCollection;
                     AnimSpeeds = animSpeeds;
+                    LinkedAnimIndex = linkedAnimIndex;
                 }
 
                 private Sprite[] Frames;
                 private Unity_ObjAnimation Anim;
 
                 protected Func<Sprite[]> AnimFrameFunc { get; }
-                public GBAKlonoa_ObjectOAMCollection OAMCollection { get; }
+                public GBAKlonoa_OAM[] OAMCollection { get; }
                 public int?[] AnimSpeeds { get; }
+                public byte? LinkedAnimIndex { get; }
 
                 public Sprite[] AnimFrames => Frames ??= AnimFrameFunc();
 
@@ -58,8 +62,8 @@ namespace R1Engine
                             new Unity_ObjAnimationPart()
                             {
                                 ImageIndex = x,
-                                XPosition = OAMCollection.OAMs[0].XPos,
-                                YPosition = OAMCollection.OAMs[0].YPos,
+                                XPosition = OAMCollection[0].XPos,
+                                YPosition = OAMCollection[0].YPos,
                             }
                         });
                     }).ToArray()

@@ -1114,6 +1114,9 @@ namespace R1Engine
                     int oldTileIndex = at.tileIndex;
                     at.tileIndex = (oldTileIndex + frames) % at.animatedTile.TileIndices.Length;
 
+                    if (animatedTile.IgnoreFirstTile && at.tileIndex == 0 && at.animatedTile.TileIndices.Length > 1)
+                        at.tileIndex++;
+
                     int oldIndexInTileset = at.animatedTile.TileIndices[oldTileIndex];
                     int newIndexInTileset = at.animatedTile.TileIndices[at.tileIndex];
                     if (oldIndexInTileset != newIndexInTileset) {

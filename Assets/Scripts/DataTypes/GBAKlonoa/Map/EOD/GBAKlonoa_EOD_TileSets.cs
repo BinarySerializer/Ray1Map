@@ -2,7 +2,7 @@
 
 namespace R1Engine
 {
-    public class GBAKlonoa_TileSets : BinarySerializable
+    public class GBAKlonoa_EOD_TileSets : BinarySerializable
     {
         public bool Pre_SerializeData { get; set; }
 
@@ -22,7 +22,7 @@ namespace R1Engine
             {
                 s.DoAt(TileSetPointers[i], () =>
                 {
-                    s.DoEncoded(new GBAKlonoa_Encoder(), () =>
+                    s.DoEncoded(new GBAKlonoa_EOD_Encoder(), () =>
                     {
                         TileSets[i] = s.SerializeArray<byte>(TileSets[i], s.CurrentLength, name: $"{nameof(TileSets)}[{i}]");
                     });

@@ -2,7 +2,7 @@
 
 namespace R1Engine
 {
-    public class GBAKlonoa_MapWidths : BinarySerializable
+    public class GBAKlonoa_EOD_MapWidths : BinarySerializable
     {
         public ushort[] Widths { get; set; }
 

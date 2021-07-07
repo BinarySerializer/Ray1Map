@@ -6,6 +6,7 @@ namespace R1Engine
     {
         public SectorState[] SectorStates { get; set; }
         public byte OAMIndex { get; set; }
+        public byte DCT_GraphicsIndex { get; set; }
         public byte ObjType { get; set; }
 
         public GBAKlonoa_LoadedObject ToLoadedObject(short index, int sectorIndex) => new GBAKlonoa_LoadedObject(
@@ -18,15 +19,27 @@ namespace R1Engine
             param_2: SectorStates[sectorIndex].Param_2, 
             value8: SectorStates[sectorIndex].Byte_06, 
             objType: ObjType,
-            levelObj: this);
+            levelObj: this,
+            dct_GraphicsIndex: DCT_GraphicsIndex);
 
         public override void SerializeImpl(SerializerObject s)
         {
             SectorStates = s.SerializeObjectArray<SectorState>(SectorStates, 5, name: nameof(SectorStates));
-            OAMIndex = s.Serialize<byte>(OAMIndex, name: nameof(OAMIndex));
-            ObjType = s.Serialize<byte>(ObjType, name: nameof(ObjType));
 
-            s.SerializePadding(2, logIfNotNull: true);
+            if (s.GetR1Settings().EngineVersion == EngineVersion.KlonoaGBA_DCT)
+            {
+                s.SerializePadding(2, logIfNotNull: true);
+
+                ObjType = s.Serialize<byte>(ObjType, name: nameof(ObjType));
+                DCT_GraphicsIndex = s.Serialize<byte>(DCT_GraphicsIndex, name: nameof(DCT_GraphicsIndex));
+            }
+            else
+            {
+                OAMIndex = s.Serialize<byte>(OAMIndex, name: nameof(OAMIndex));
+                ObjType = s.Serialize<byte>(ObjType, name: nameof(ObjType));
+
+                s.SerializePadding(2, logIfNotNull: true);
+            }
         }
 
         public class SectorState : BinarySerializable

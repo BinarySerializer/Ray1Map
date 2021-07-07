@@ -2,7 +2,7 @@
 
 namespace R1Engine
 {
-    public class GBAKlonoaWorldMapObjectCollection : BinarySerializable
+    public class GBAKlonoa_WorldMapObjectCollection : BinarySerializable
     {
         public GBAKlonoa_WorldMapObject[] Objects { get; set; }
 

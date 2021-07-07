@@ -172,6 +172,7 @@ namespace R1Engine
 
         GEN,
 
-        KlonoaGBA,
+        KlonoaGBA_EOD,
+        KlonoaGBA_DCT,
     }
 }

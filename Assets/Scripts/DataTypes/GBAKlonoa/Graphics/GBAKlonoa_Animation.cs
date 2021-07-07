@@ -1,16 +1,27 @@
-﻿using BinarySerializer;
+﻿using System.Linq;
+using BinarySerializer;
 
 namespace R1Engine
 {
     public class GBAKlonoa_Animation : BinarySerializable
     {
         public ushort Pre_ImgDataLength { get; set; }
+        public bool Pre_IsReferencedInLevel { get; set; }
+        public bool Pre_IsMapAnimation { get; set; }
 
+        public GBAKlonoa_AnimationFrame[] SerializedFrames { get; set; }
         public GBAKlonoa_AnimationFrame[] Frames { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Frames = s.SerializeObjectArrayUntil(Frames, x => x.ImgDataPointer == null, () => new GBAKlonoa_AnimationFrame(), x => x.Pre_ImgDataLength = Pre_ImgDataLength, name: nameof(Frames));
+            SerializedFrames = s.SerializeObjectArrayUntil(SerializedFrames, x => x.ImgDataPointer == null, onPreSerialize: x =>
+            {
+                x.Pre_ImgDataLength = Pre_ImgDataLength;
+                x.Pre_IsReferencedInLevel = Pre_IsReferencedInLevel;
+                x.Pre_IsMapAnimation = Pre_IsMapAnimation;
+            }, name: nameof(SerializedFrames));
+
+            Frames = SerializedFrames.Take(SerializedFrames.Length - 1).ToArray();
         }
     }
 }

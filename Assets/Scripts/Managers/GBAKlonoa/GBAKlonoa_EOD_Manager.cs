@@ -10,13 +10,8 @@ using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
-    public class GBAKlonoa_EmpireOfDreams_Manager : BaseGameManager
+    public class GBAKlonoa_EOD_Manager : GBAKlonoa_BaseManager
     {
-        public const int CellSize = GBAConstants.TileSize;
-        public const string GetROMFilePath = "ROM.gba";
-
-        public const string CompressedObjTileBlockName = "CompressedObjTileBlock";
-
         public const int FixCount = 0x0D; // Fixed objects loaded into every level
         public const int NormalWorldsCount = 6; // World 0 is reserved for either menus or cutscenes, so normal worlds are 1-6
         public const int LevelsCount = NormalWorldsCount * 9; // Map + 7 levels + boss
@@ -32,7 +27,7 @@ namespace R1Engine
         {
             //await GenerateLevelObjPalettesAsync(context.GetR1Settings());
             //return null;
-            var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBAKlonoa_EOD_ROM>(GetROMFilePath, context);
             var settings = context.GetR1Settings();
             var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
             var normalLevelIndex = GetNormalLevelIndex(settings.World, settings.Level);
@@ -70,40 +65,7 @@ namespace R1Engine
                 };
             }).ToArray();
 
-            // Add line collision for the sector bounds
-            var collisionLines = new List<Unity_CollisionLine>();
-
-            if (!isMap && !isBoss)
-            {
-                var sectorIndex = 0;
-
-                foreach (var sector in rom.MapSectors[normalLevelIndex].Sectors)
-                {
-                    var color = new Color(1, 0.92f - (0.1f * sectorIndex), 0.016f + (0.15f * sectorIndex));
-
-                    collisionLines.Add(new Unity_CollisionLine(
-                        new Vector2(sector.X, sector.Y), 
-                        new Vector2(sector.X, sector.Y + sector.Height), 
-                        color));
-
-                    collisionLines.Add(new Unity_CollisionLine(
-                        new Vector2(sector.X, sector.Y + sector.Height), 
-                        new Vector2(sector.X + sector.Width, sector.Y + sector.Height),
-                        color));
-
-                    collisionLines.Add(new Unity_CollisionLine(
-                        new Vector2(sector.X + sector.Width, sector.Y),
-                        new Vector2(sector.X + sector.Width, sector.Y + sector.Height),
-                        color));
-
-                    collisionLines.Add(new Unity_CollisionLine(
-                        new Vector2(sector.X, sector.Y),
-                        new Vector2(sector.X + sector.Width, sector.Y),
-                        color));
-
-                    sectorIndex++;
-                }
-            }
+            var collisionLines = !isMap && !isBoss ? GetSectorCollisionLines(rom.MapSectors[normalLevelIndex]) : null;
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
@@ -182,21 +144,7 @@ namespace R1Engine
             objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, (BinarySerializable)x.LevelObj ?? x.WorldMapObj, allOAMCollections[x.OAMIndex])));
 
             if (isMap) 
-            {
-                foreach (var obj in objects) 
-                {
-                    var o = (Unity_Object_GBAKlonoa)obj;
-                    var x = o.XPosition;
-                    var y = o.YPosition;
-                    var fx = maps[2].Width * CellSize;
-                    var fy = maps[2].Height * CellSize;
-
-                    var cos = Mathf.Cos(((y / 128f) + 0.5f) * Mathf.PI) * x;
-                    var sin = Mathf.Sin(((y / 128f) + 0.5f) * Mathf.PI) * x;
-                    o.XPosition = (short)(cos + fx / 2);
-                    o.YPosition = (short)(sin + fy / 2);
-                }
-            }
+                CorrectWorldMapObjectPositions(objects, maps[2].Width, maps[2].Height);
 
             return new Unity_Level(
                 maps: maps,
@@ -205,177 +153,10 @@ namespace R1Engine
                 cellSize: CellSize,
                 defaultLayer: 2,
                 isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null,
-                collisionLines: collisionLines.ToArray());
+                collisionLines: collisionLines);
         }
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, MapTile[] mapTiles_4)
-        {
-            Texture2D tex;
-            var additionalTiles = new List<Texture2D>();
-            var tileSize = is8bit ? 0x40 : 0x20;
-            var paletteIndices = Enumerable.Range(0, tileSet.Length / tileSize).Select(x => new List<byte>()).ToArray();
-            var tilesCount = tileSet.Length / tileSize;
-
-            if (is8bit)
-            {
-                tex = Util.ToTileSetTexture(tileSet, Util.ConvertGBAPalette(pal), Util.TileEncoding.Linear_8bpp, CellSize, false);
-            }
-            else
-            {
-                var palettes = Util.ConvertAndSplitGBAPalette(pal);
-
-                foreach (var m in mapTiles_4)
-                {
-                    if (m.TileMapY < paletteIndices.Length && !paletteIndices[m.TileMapY].Contains(m.PaletteIndex))
-                        paletteIndices[m.TileMapY].Add(m.PaletteIndex);
-                }
-
-                tex = Util.ToTileSetTexture(tileSet, palettes[0], Util.TileEncoding.Linear_4bpp, CellSize, false, getPalFunc: x =>
-                {
-                    var p = paletteIndices[x].ElementAtOrDefault(0);
-                    return palettes[p];
-                });
-
-                // Add additional tiles for tiles with multiple palettes
-                for (int tileIndex = 0; tileIndex < paletteIndices.Length; tileIndex++)
-                {
-                    for (int palIndex = 1; palIndex < paletteIndices[tileIndex].Count; palIndex++)
-                    {
-                        var p = paletteIndices[tileIndex][palIndex];
-
-                        var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
-
-                        // Create a new tile
-                        tileTex.FillInTile(
-                            imgData: tileSet,
-                            imgDataOffset: tileSize * tileIndex,
-                            pal: palettes[p],
-                            encoding: Util.TileEncoding.Linear_4bpp,
-                            tileWidth: CellSize,
-                            flipTextureY: false,
-                            tileX: 0,
-                            tileY: 0);
-
-                        // Modify all tiles where this is used
-                        foreach (MapTile t in mapTiles_4.Where(x => x.TileMapY == tileIndex && x.PaletteIndex == p))
-                        {
-                            t.TileMapY = (ushort)(tilesCount + additionalTiles.Count);
-                        }
-
-                        // Add to additional tiles list
-                        additionalTiles.Add(tileTex);
-                    }
-                }
-            }
-
-            // Create the tile array
-            var tiles = new Unity_TileTexture[tilesCount + additionalTiles.Count];
-
-            // Keep track of the index
-            var index = 0;
-
-            // Add every normal tile
-            for (int y = 0; y < tex.height; y += CellSize)
-            {
-                for (int x = 0; x < tex.width; x += CellSize)
-                {
-                    if (index >= tilesCount)
-                        break;
-
-                    // Create a tile
-                    tiles[index++] = tex.CreateTile(new Rect(x, y, CellSize, CellSize));
-                }
-            }
-
-            // Add additional tiles
-            foreach (Texture2D t in additionalTiles)
-                tiles[index++] = t.CreateTile();
-
-            return new Unity_TileSet(tiles);
-        }
-
-        public Texture2D[] GetAnimFrames(GBAKlonoa_AnimationFrame[] frames, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes, int imgDataOffset = 0)
-        {
-            var output = new Texture2D[frames.Length];
-
-            var frameCache = new Dictionary<GBAKlonoa_AnimationFrame, Texture2D>();
-
-            var shapes = GBAConstants.SpriteShapes;
-
-            for (int frameIndex = 0; frameIndex < frames.Length; frameIndex++)
-            {
-                GBAKlonoa_AnimationFrame frame = frames[frameIndex];
-
-                if (!frameCache.ContainsKey(frame))
-                {
-                    var spriteRects = oamCollection.OAMs.Select(x =>
-                        new RectInt(x.XPos - oamCollection.OAMs[0].XPos, x.YPos - oamCollection.OAMs[0].YPos, shapes[x.Shape].Width, shapes[x.Shape].Height)).ToArray();
-
-                    var tex = TextureHelpers.CreateTexture2D(spriteRects.Max(x => x.xMax), spriteRects.Max(x => x.yMax));
-
-                    var tileIndex = 0;
-
-                    for (int spriteIndex = 0; spriteIndex < oamCollection.Count; spriteIndex++)
-                    {
-                        var oam = oamCollection.OAMs[spriteIndex];
-                        var shape = shapes[oam.Shape];
-
-                        for (int y = 0; y < shape.Height; y += CellSize)
-                        {
-                            for (int x = 0; x < shape.Width; x += CellSize)
-                            {
-                                tex.FillInTile(
-                                    imgData: frame.ImgData,
-                                    imgDataOffset: imgDataOffset + tileIndex * 0x20,
-                                    pal: palettes.ElementAtOrDefault(oam.PaletteIndex) ?? Util.CreateDummyPalette(16).Select(c => c.GetColor()).ToArray(),
-                                    encoding: Util.TileEncoding.Linear_4bpp,
-                                    tileWidth: CellSize,
-                                    flipTextureY: true,
-                                    flipTextureX: false,
-                                    tileX: x + spriteRects[spriteIndex].x,
-                                    tileY: y + spriteRects[spriteIndex].y);
-
-                                tileIndex++;
-                            }
-                        }
-                    }
-
-                    tex.Apply();
-
-                    frameCache.Add(frame, tex);
-                }
-
-                output[frameIndex] = frameCache[frame];
-            }
-
-            return output;
-        }
-
-        public Unity_ObjectManager_GBAKlonoa.AnimSet LoadAnimSet(GBAKlonoa_ObjectGraphics objectGraphics, GBAKlonoa_ObjectOAMCollection oamCollection, Color[][] palettes)
-        {
-            if (oamCollection.Count != 1)
-                Debug.LogWarning($"Animation uses multiple sprites!");
-
-            var anims = objectGraphics.Animations;
-
-            // Sometimes the last animation is null
-            if (anims.Length > 1 && anims.Last() == null)
-                anims = anims.Take(anims.Length - 1).ToArray();
-
-            return new Unity_ObjectManager_GBAKlonoa.AnimSet(
-                animations: Enumerable.Range(0, anims.Length).
-                    Select(animIndex => anims[animIndex]?.Frames?.Length > 0 ? new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
-                        animFrameFunc: () => GetAnimFrames(anims[animIndex].Frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), 
-                        oamCollection: oamCollection,
-                        animSpeeds: anims[animIndex]?.Frames?.Select(f => (int?)f?.Speed).ToArray()) : null).ToArray(), 
-                displayName: $"0x{objectGraphics.AnimationsPointer.StringAbsoluteOffset}", 
-                oamCollections: new GBAKlonoa_ObjectOAMCollection[]
-                {
-                    oamCollection
-                });
-        }
-
-        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_EmpireOfDreams_ROM rom, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)
+        public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_EOD_ROM rom, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)
         {
             var settings = context.GetR1Settings();
             var s = context.Deserializer;
@@ -383,30 +164,13 @@ namespace R1Engine
             var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
             var isBoss = settings.Level == 8;
 
-            var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
             var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
 
             // Start by adding a null entry to use as default
-            loadedAnimSets.Add(new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL", new GBAKlonoa_ObjectOAMCollection[0]));
+            loadedAnimSets.Add(new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL", new GBAKlonoa_OAM[0][]));
 
             // Load animations declared through the graphics data
-            foreach (var animSet in animSets)
-            {
-                var oam = oamCollections.ElementAtOrDefault(objects.ElementAtOrDefault(animSet.ObjIndex)?.OAMIndex ?? -1);
-
-                if (animSet.AnimationsPointer == null || oam == null) 
-                    continue;
-                
-                if (!loadedAnimSetsDictionary.ContainsKey(animSet.AnimationsPointer))
-                {
-                    loadedAnimSetsDictionary[animSet.AnimationsPointer] = LoadAnimSet(animSet, oam, palettes);
-                    loadedAnimSets.Add(loadedAnimSetsDictionary[animSet.AnimationsPointer]);
-                }
-                else
-                {
-                    loadedAnimSetsDictionary[animSet.AnimationsPointer].OAMCollections.Add(oam);
-                }
-            }
+            LoadAnimSets_ObjGraphics(loadedAnimSets, animSets, oamCollections, palettes, objects);
 
             // Load animations from allocated tiles. This is what the game does for practically all animations, but for simplicity we mainly do this for the maps.
             var allocationInfos = LevelVRAMAllocationInfos.TryGetItem(globalLevelIndex);
@@ -460,10 +224,10 @@ namespace R1Engine
 
                     var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
                     {
-                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oamCollection, palettes).Select(x => x.CreateSprite()).ToArray(), oamCollection)
-                    }, $"0x{data.SourcePointer.StringAbsoluteOffset}", new GBAKlonoa_ObjectOAMCollection[]
+                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oamCollection.OAMs, palettes).Select(x => x.CreateSprite()).ToArray(), oamCollection.OAMs)
+                    }, $"0x{data.SourcePointer.StringAbsoluteOffset}", new GBAKlonoa_OAM[][]
                     {
-                        oamCollection
+                        oamCollection.OAMs
                     });
 
                     loadedAnimSets.Add(animSet);
@@ -473,9 +237,6 @@ namespace R1Engine
             }
 
             // Load special (hard-coded) animations
-            var specialAnimIndex = 0;
-            var shapes = GBAConstants.SpriteShapes;
-
             IEnumerable<SpecialAnimation> specialAnims = SpecialAnimations;
 
             // Manually append the level text to the special animations (VISION/BOSS)
@@ -497,93 +258,12 @@ namespace R1Engine
                     specialAnims = specialAnims.Append(new SpecialAnimation(levelTextSpritePointer.AbsoluteOffset, true, 12));
             }
 
-            // Load special animations. These are all manually loaded into VRAM by the game.
-            foreach (var specialAnim in specialAnims)
-            {
-                // If a group count is specified we read x sprites one after another assumed to be stored in VRAM in the same order
-                if (specialAnim.GroupCount != null)
-                {
-                    var oams = objects.Where(x => x != null && specialAnim.MatchesObject(x)).Select(x => oamCollections[x.OAMIndex]).ToArray();
-
-                    if (!oams.Any())
-                        continue;
-
-                    // We assume each object only has a single sprite (OAM)
-                    int tileIndex = oams.Min(x => x.OAMs[0].TileIndex);
-
-                    // We assume every animation has a single frame
-                    var offset = specialAnim.FrameOffsets[0];
-
-                    for (int groupSprite = 0; groupSprite < specialAnim.GroupCount.Value; groupSprite++)
-                    {
-                        var oam = oams.First(x => x.OAMs[0].TileIndex == tileIndex);
-
-                        loadSpecialAnimation(new GBAKlonoa_ObjectOAMCollection[]
-                        {
-                            oam
-                        }, null, new long[]
-                        {
-                            offset
-                        }, specialAnim.FramesCount);
-
-                        var tilesCount = (shapes[oam.OAMs[0].Shape].Width / CellSize) * (shapes[oam.OAMs[0].Shape].Height / CellSize);
-                        tileIndex += tilesCount;
-                        offset += tilesCount * 0x20;
-                    }
-                }
-                else
-                {
-                    // Find an object which uses this animation (filter out 0,0 objects here too since some unused objects get placed there with wrong graphics...)
-                    var oams = objects.Where(x => x != null && (!(x.XPos == 0 && x.YPos == 0) || x.Index < FixCount) && specialAnim.MatchesObject(x)).Select(x => oamCollections[x.OAMIndex]).ToArray();
-
-                    if (!oams.Any())
-                        continue;
-
-                    loadSpecialAnimation(oams, specialAnim.Offset, specialAnim.FrameOffsets, specialAnim.FramesCount);
-                }
-
-                void loadSpecialAnimation(IReadOnlyList<GBAKlonoa_ObjectOAMCollection> oams, long? offset, IReadOnlyList<long> frameOffsets, int framesCount)
-                {
-                    var imgDataLength = oams[0].OAMs.Select(o => (shapes[o.Shape].Width / CellSize) * (shapes[o.Shape].Height / CellSize) * 0x20).Sum();
-                    var animsPointer = new Pointer(offset ?? frameOffsets[0], romFile);
-
-                    Pointer[] framePointers;
-
-                    if (offset != null)
-                        framePointers = s.DoAt(animsPointer, () => s.SerializePointerArray(null, framesCount, name: $"SpecialAnimations[{specialAnimIndex}]"));
-                    else
-                        framePointers = frameOffsets.Select(p => new Pointer(p, romFile)).ToArray();
-
-                    var frames = new GBAKlonoa_AnimationFrame[framePointers.Length];
-
-                    for (int frameIndex = 0; frameIndex < framePointers.Length; frameIndex++)
-                    {
-                        var imgData = s.DoAt(framePointers[frameIndex], () => s.SerializeArray<byte>(null, imgDataLength, name: $"SpecialAnimations[{specialAnimIndex}][{frameIndex}]"));
-
-                        if (imgData == null)
-                            throw new Exception($"Image data is null for special animation! Pointer: {framePointers[frameIndex]}");
-
-                        frames[frameIndex] = new GBAKlonoa_AnimationFrame()
-                        {
-                            ImgData = imgData
-                        };
-                    }
-
-                    var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
-                    {
-                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oams[0], palettes).Select(x => x.CreateSprite()).ToArray(), oams[0])
-                    }, $"0x{animsPointer.StringAbsoluteOffset}", oams);
-
-                    loadedAnimSets.Add(animSet);
-
-                    specialAnimIndex++;
-                }
-            }
+            LoadAnimSets_SpecialAnims(loadedAnimSets, context, specialAnims, palettes, objects, oamCollections, FixCount);
 
             return loadedAnimSets.ToArray();
         }
 
-        public void GenerateAnimSetTable(Context context, GBAKlonoa_EmpireOfDreams_ROM rom)
+        public void GenerateAnimSetTable(Context context, GBAKlonoa_EOD_ROM rom)
         {
             var s = context.Deserializer;
             var file = rom.Offset.File;
@@ -650,7 +330,7 @@ namespace R1Engine
 
                         await LoadFilesAsync(context);
 
-                        var rom = FileFactory.Read<GBAKlonoa_EmpireOfDreams_ROM>(GetROMFilePath, context);
+                        var rom = FileFactory.Read<GBAKlonoa_EOD_ROM>(GetROMFilePath, context);
 
                         if (settings.Level == 0)
                             continue;
@@ -787,10 +467,8 @@ namespace R1Engine
             output.ToString().CopyToClipboard();
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddMemoryMappedFile(GetROMFilePath, GBAConstants.Address_ROM);
-
         // TODO: Support EU and JP versions
-        public AnimSetInfo[] AnimSetInfos => new AnimSetInfo[]
+        public override AnimSetInfo[] AnimSetInfos => new AnimSetInfo[]
         {
             new AnimSetInfo(0x0818958C, 19),
             new AnimSetInfo(0x081895D8, 9),
@@ -1025,96 +703,6 @@ namespace R1Engine
                 new MapVRAMAllocationInfo(0x08060a88, 0x600, tileIndex: 284), // Boss health bar
             },
         };
-
-        public class AnimSetInfo
-        {
-            public AnimSetInfo(long offset, int animCount)
-            {
-                Offset = offset;
-                AnimCount = animCount;
-            }
-
-            public long Offset { get; }
-            public int AnimCount { get; }
-        }
-
-        public class SpecialAnimation
-        {
-            public SpecialAnimation(long framesArrayOffset, int framesCount, bool isFix, int index)
-            {
-                Offset = framesArrayOffset;
-                FramesCount = framesCount;
-                IsFix = isFix;
-                Index = index;
-            }
-            public SpecialAnimation(long frameOffset, bool isFix, int index, int? groupCount = null, int? objParam_1 = null, int? objParam_2 = null)
-            {
-                FrameOffsets = new long[]
-                {
-                    frameOffset
-                };
-                IsFix = isFix;
-                Index = index;
-                GroupCount = groupCount;
-                ObjParam_1 = objParam_1;
-                ObjParam_2 = objParam_2;
-            }
-            public SpecialAnimation(long[] frameOffsets, bool isFix, int index)
-            {
-                FrameOffsets = frameOffsets;
-                IsFix = isFix;
-                Index = index;
-            }
-
-            /// <summary>
-            /// The offset for every frame in the animation
-            /// </summary>
-            public long[] FrameOffsets { get; }
-
-            /// <summary>
-            /// If specified this is the offset to the frames pointer array, otherwise <see cref="FrameOffsets"/> should be set
-            /// </summary>
-            public long? Offset { get; }
-
-            /// <summary>
-            /// The amount of frames in the animation if <see cref="Offset"/> is specified
-            /// </summary>
-            public int FramesCount { get; }
-
-            /// <summary>
-            /// Indicates if the animation is for a fix object, otherwise it's for a level object
-            /// </summary>
-            public bool IsFix { get; }
-
-            /// <summary>
-            /// If <see cref="IsFix"/> this is the object index (0-12), otherwise it's the object type
-            /// </summary>
-            public int Index { get; }
-
-            /// <summary>
-            /// If specified this indicates how many sprites are used for this group of sprites. A very hacky solution to the wind leaves.
-            /// </summary>
-            public int? GroupCount { get; }
-
-            /// <summary>
-            /// The param the object has to be set to for this animation to be applied
-            /// </summary>
-            public int? ObjParam_1 { get; }
-
-            public int? ObjParam_2 { get; }
-
-            public bool MatchesObject(GBAKlonoa_LoadedObject obj)
-            {
-                if (ObjParam_1 != null && ObjParam_1 != obj.Param_1)
-                    return false;
-
-                if (ObjParam_2 != null && ObjParam_2 != obj.Param_2)
-                    return false;
-
-                return IsFix && obj.Index == Index ||
-                       !IsFix && obj.ObjType == Index;
-            }
-        }
 
         public class MapVRAMAllocationInfo
         {
