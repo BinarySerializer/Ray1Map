@@ -13,13 +13,18 @@ namespace R1Engine
         public const int CellSize = GBAConstants.TileSize;
         public const string GetROMFilePath = "ROM.gba";
 
-        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, MapTile[] mapTiles_4)
+        public const string CompressedObjTileBlockName = "CompressedObjTileBlock";
+        public const string CompressedWorldObjTileBlockName = "CompressedWorldObjTileBlock";
+
+        public Unity_TileSet LoadTileSet(byte[] tileSet, RGBA5551Color[] pal, bool is8bit, MapTile[] mapTiles_4, GBAKlonoa_ObjectGraphics[] mapGraphics = null)
         {
             Texture2D tex;
             var additionalTiles = new List<Texture2D>();
             var tileSize = is8bit ? 0x40 : 0x20;
             var paletteIndices = Enumerable.Range(0, tileSet.Length / tileSize).Select(x => new List<byte>()).ToArray();
             var tilesCount = tileSet.Length / tileSize;
+
+            var tileAnimations = new List<Unity_AnimatedTile>();
 
             if (is8bit)
             {
@@ -71,6 +76,63 @@ namespace R1Engine
                         additionalTiles.Add(tileTex);
                     }
                 }
+
+                // Add animated tiles, currently only supported for 4-bit
+                if (mapGraphics != null)
+                {
+                    foreach (GBAKlonoa_ObjectGraphics graphics in mapGraphics)
+                    {
+                        var count = graphics.ImgDataLength / tileSize;
+                        var anim = graphics.Animations[0];
+
+                        for (int i = 0; i < count; i++)
+                        {
+                            var tileAnim = new Unity_AnimatedTile();
+
+                            var tileOffset = i * tileSize;
+                            var framesCount = anim.Frames.Length;
+
+                            // We assume the tileset we're parsing is located at the start of the VRAM
+                            var tileIndex = (int)((graphics.VRAMPointer - GBAConstants.Address_VRAM + tileOffset) / tileSize);
+
+                            tileAnim.AnimationSpeeds = new float[]
+                            {
+                                1
+                            }.Concat(anim.Frames.Select(x => (float)(x.Speed + 1))).ToArray();
+                            tileAnim.TileIndices = new int[]
+                            {
+                                tileIndex
+                            }.Concat(Enumerable.Range(tilesCount + additionalTiles.Count, framesCount)).ToArray();
+                            tileAnim.IgnoreFirstTile = true;
+
+                            foreach (var frame in anim.Frames)
+                            {
+                                var tileTex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+
+                                var tilePals = paletteIndices[tileIndex];
+
+                                if (tilePals.Count > 1)
+                                    Debug.LogWarning($"Animated tile has multiple palettes!");
+
+                                // Create a new tile
+                                tileTex.FillInTile(
+                                    imgData: frame.ImgData,
+                                    imgDataOffset: tileOffset,
+                                    pal: palettes[tilePals.First()],
+                                    encoding: Util.TileEncoding.Linear_4bpp,
+                                    tileWidth: CellSize,
+                                    flipTextureY: false,
+                                    tileX: 0,
+                                    tileY: 0);
+
+                                // Add to additional tiles list
+                                additionalTiles.Add(tileTex);
+                            }
+
+                            tileAnimations.Add(tileAnim);
+                        }
+                    }
+                }
             }
 
             // Create the tile array
@@ -96,7 +158,10 @@ namespace R1Engine
             foreach (Texture2D t in additionalTiles)
                 tiles[index++] = t.CreateTile();
 
-            return new Unity_TileSet(tiles);
+            return new Unity_TileSet(tiles)
+            {
+                AnimatedTiles = tileAnimations.ToArray()
+            };
         }
 
         public Unity_CollisionLine[] GetSectorCollisionLines(GBAKlonoa_MapSectors sectors)
@@ -202,9 +267,6 @@ namespace R1Engine
 
         public Unity_ObjectManager_GBAKlonoa.AnimSet LoadAnimSet(GBAKlonoa_Animation[] anims, GBAKlonoa_OAM[] oamCollection, Color[][] palettes, bool singlePal = false, int dct_GraphicsIndex = -1)
         {
-            if (oamCollection.Length != 1)
-                Debug.LogWarning($"Animation uses multiple sprites!");
-
             // Sometimes the last animation is null
             if (anims.Length > 1 && anims.Last() == null)
                 anims = anims.Take(anims.Length - 1).ToArray();
@@ -214,7 +276,8 @@ namespace R1Engine
                     Select(animIndex => anims[animIndex]?.Frames?.Length > 0 ? new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
                         animFrameFunc: () => GetAnimFrames(anims[animIndex].Frames, oamCollection, palettes, singlePal: singlePal).Select(x => x.CreateSprite()).ToArray(),
                         oamCollection: oamCollection,
-                        animSpeeds: anims[animIndex]?.Frames?.Select(f => (int?)f?.Speed).ToArray()) : null).ToArray(),
+                        animSpeeds: anims[animIndex]?.Frames?.Select(f => (int?)f?.Speed).ToArray(),
+                        linkedAnimIndex: anims[animIndex]?.SerializedFrames?.LastOrDefault()?.LinkedAnimIndex) : null).ToArray(),
                 displayName: dct_GraphicsIndex != -1 ? $"{dct_GraphicsIndex}" : $"0x{anims.First().Offset.StringAbsoluteOffset}",
                 oamCollections: new GBAKlonoa_OAM[][]
                 {

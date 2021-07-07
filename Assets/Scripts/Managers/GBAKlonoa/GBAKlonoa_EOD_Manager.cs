@@ -12,8 +12,6 @@ namespace R1Engine
 {
     public class GBAKlonoa_EOD_Manager : GBAKlonoa_BaseManager
     {
-        public const string CompressedObjTileBlockName = "CompressedObjTileBlock";
-
         public const int FixCount = 0x0D; // Fixed objects loaded into every level
         public const int NormalWorldsCount = 6; // World 0 is reserved for either menus or cutscenes, so normal worlds are 1-6
         public const int LevelsCount = NormalWorldsCount * 9; // Map + 7 levels + boss

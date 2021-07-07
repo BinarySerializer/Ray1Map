@@ -7,6 +7,7 @@ namespace R1Engine
     public class GBAKlonoa_ObjectGraphics : BinarySerializable
     {
         public GBAKlonoa_LevelObjectCollection Pre_LevelObjects { get; set; }
+        public bool Pre_IsMapAnimations { get; set; }
 
         public uint AnimationsPointerValue { get; set; }
         public Pointer AnimationsPointer { get; set; }
@@ -52,14 +53,20 @@ namespace R1Engine
             if (AnimationsPointer == null)
                 return;
 
-            var animCount = s.GetR1Settings().GetGameManagerOfType<GBAKlonoa_BaseManager>().AnimSetInfos.FirstOrDefault(x => x.Offset == AnimationsPointer.AbsoluteOffset)?.AnimCount ?? throw new Exception($"Anim count not specified for anim set at {AnimationsPointer}");
+            var animCount = Pre_IsMapAnimations
+                ? 1 
+                : (s.GetR1Settings().GetGameManagerOfType<GBAKlonoa_BaseManager>().AnimSetInfos.FirstOrDefault(x => x.Offset == AnimationsPointer.AbsoluteOffset)?.AnimCount ?? throw new Exception($"Anim count not specified for anim set at {AnimationsPointer}"));
 
             s.DoAt(AnimationsPointer, () => AnimationPointers = s.SerializePointerArray(AnimationPointers, animCount, allowInvalid: true, name: nameof(AnimationPointers)));
 
             Animations ??= new GBAKlonoa_Animation[AnimationPointers.Length];
 
             for (int i = 0; i < Animations.Length; i++)
-                s.DoAt(AnimationPointers[i], () => Animations[i] = s.SerializeObject<GBAKlonoa_Animation>(Animations[i], x => x.Pre_ImgDataLength = ImgDataLength, name: $"{nameof(Animations)}[{i}]"));
+                s.DoAt(AnimationPointers[i], () => Animations[i] = s.SerializeObject<GBAKlonoa_Animation>(Animations[i], x =>
+                {
+                    x.Pre_ImgDataLength = ImgDataLength;
+                    x.Pre_IsMapAnimation = Pre_IsMapAnimations;
+                }, name: $"{nameof(Animations)}[{i}]"));
         }
     }
 }

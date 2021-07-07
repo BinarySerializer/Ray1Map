@@ -20,7 +20,7 @@ namespace R1Engine
         public RGBA5551Color[][] MapPalettes { get; set; }
 
         // Objects
-        public Pointer[] CompressedObjTileBlockPointer { get; set; }
+        public Pointer[] CompressedObjTileBlockPointers { get; set; }
         public byte[][] CompressedObjTileBlocks { get; set; }
         public GBAKlonoa_LoadedObject[] FixObjects { get; set; }
         public GBAKlonoa_LevelObjectCollection LevelObjectCollection { get; set; } // For current level only - too slow to read all of them
@@ -102,12 +102,12 @@ namespace R1Engine
             // Serialize compressed object tiles
             if (isMap || isBoss)
             {
-                s.DoAt(new Pointer(0x0818b7ac, Offset.File), () => CompressedObjTileBlockPointer = s.SerializePointerArray(CompressedObjTileBlockPointer, normalWorldsCount * 2, name: nameof(CompressedObjTileBlockPointer)));
+                s.DoAt(new Pointer(0x0818b7ac, Offset.File), () => CompressedObjTileBlockPointers = s.SerializePointerArray(CompressedObjTileBlockPointers, normalWorldsCount * 2, name: nameof(CompressedObjTileBlockPointers)));
 
                 var compressedBlockIndex = GBAKlonoa_EOD_Manager.GetCompressedMapOrBossBlockIndex(settings.World, settings.Level);
 
-                CompressedObjTileBlocks ??= new byte[CompressedObjTileBlockPointer.Length][];
-                s.DoAt(CompressedObjTileBlockPointer[compressedBlockIndex], () =>
+                CompressedObjTileBlocks ??= new byte[CompressedObjTileBlockPointers.Length][];
+                s.DoAt(CompressedObjTileBlockPointers[compressedBlockIndex], () =>
                 {
                     s.DoEncoded(new GBAKlonoa_EOD_Encoder(), () =>
                     {
@@ -116,7 +116,7 @@ namespace R1Engine
                 });
 
                 // Allocate the compressed block. This fixes animations which use pointers to ram, such as the bosses.
-                var file = new MemoryMappedByteArrayFile(s.Context, GBAKlonoa_EOD_Manager.CompressedObjTileBlockName, 0x02000904, CompressedObjTileBlocks[compressedBlockIndex]);
+                var file = new MemoryMappedByteArrayFile(s.Context, GBAKlonoa_BaseManager.CompressedObjTileBlockName, 0x02000904, CompressedObjTileBlocks[compressedBlockIndex]);
                 s.Context.AddFile(file);
             }
 

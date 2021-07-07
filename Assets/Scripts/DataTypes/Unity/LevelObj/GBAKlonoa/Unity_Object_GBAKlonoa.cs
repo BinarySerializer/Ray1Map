@@ -67,6 +67,17 @@ namespace R1Engine
 
                 Rotation = Object.ObjType == 54 || Object.ObjType == 117 ? 90 * (Object.Param_2 - 1) : (float?)null;
             }
+            else
+            {
+                // Rotate tornados
+                if (Object.ObjType == 78)
+                {
+                    if (Object.Param_1 == 1)
+                        Rotation = -45;
+                    else if (Object.Param_1 == 2)
+                        Rotation = 45;
+                }
+            }
         }
 
         public Unity_ObjectManager_GBAKlonoa ObjManager { get; }
@@ -230,7 +241,7 @@ namespace R1Engine
             List<UIState> uiStates = new List<UIState>();
 
             for (byte i = 0; i < (AnimSet?.Animations?.Length ?? 0); i++)
-                uiStates.Add(new GBAKlonoa_UIState($"Animation {i}", animIndex: i));
+                uiStates.Add(new GBAKlonoa_UIState($"Animation {i}{(AnimSet.Animations[i].LinkedAnimIndex != null ? $" -> {AnimSet.Animations[i].LinkedAnimIndex}" : String.Empty)}", animIndex: i));
 
             UIStates = uiStates.ToArray();
         }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using BinarySerializer;
 using BinarySerializer.GBA;
 
@@ -13,8 +14,15 @@ namespace R1Engine
         public GBAKlonoa_DCT_Map[] Maps { get; set; }
         public RGBA5551Color[] FixTilePalette { get; set; }
         public GBAKlonoa_MapSectors[] MapSectors { get; set; }
+        public Pointer[] MapGraphicsPointers { get; set; }
+        public GBAKlonoa_ObjectGraphics[][] MapGraphics { get; set; }
 
         // Objects
+        public Pointer[] CompressedWorldObjTileBlockPointers { get; set; }
+        public byte[][] CompressedWorldObjTileBlocks { get; set; }
+        public Pointer[] CompressedBossObjTileBlockPointers { get; set; }
+        public byte[][] CompressedBossObjTileBlocks { get; set; }
+        public byte[] CompressedWorldMapObjTileBlock { get; set; }
         public GBAKlonoa_LoadedObject[] FixObjects { get; set; }
         public GBAKlonoa_LevelObjectCollection LevelObjectCollection { get; set; } // For current level only - too slow to read all of them
         public GBAKlonoa_WorldMapObjectCollection WorldMapObjectCollection { get; set; }
@@ -32,19 +40,37 @@ namespace R1Engine
             // Serialize ROM header
             base.SerializeImpl(s);
 
+            // Serialize game info
+            SerializeInfo(s);
+
+            // Serialize map data
+            SerializeMapData(s);
+
+            // Serialize compressed block data
+            SerializeCompressedBlockData(s);
+
+            // Serialize object data
+            SerializeObjData(s);
+        }
+
+        protected void SerializeInfo(SerializerObject s)
+        {
             var settings = s.GetR1Settings();
-            var globalLevelIndex = GBAKlonoa_DCT_Manager.GetGlobalLevelIndex(settings.World, settings.Level);
-            const int normalWorldsCount = GBAKlonoa_DCT_Manager.NormalWorldsCount;
-            const int levelsCount = GBAKlonoa_DCT_Manager.LevelsCount;
             const int normalLevelsCount = GBAKlonoa_DCT_Manager.NormalLevelsCount;
             var isMap = settings.Level == 0;
-            var isBoss = settings.Level == 9;
             var isWaterSki = settings.Level == 4;
-            var isUnderWater = settings.World == 4 && (settings.Level == 5 || settings.Level == 1 || settings.Level == 7);
 
             // Serialize level start positions
             if (!isMap && !isWaterSki)
                 s.DoAt(new Pointer(0x0810ca00, Offset.File), () => LevelStartInfos = s.SerializeObjectArray<GBAKlonoa_LevelStartInfos>(LevelStartInfos, normalLevelsCount, name: nameof(LevelStartInfos)));
+        }
+
+        protected void SerializeMapData(SerializerObject s)
+        {
+            var settings = s.GetR1Settings();
+            var globalLevelIndex = GBAKlonoa_DCT_Manager.GetGlobalLevelIndex(settings.World, settings.Level);
+            const int levelsCount = GBAKlonoa_DCT_Manager.LevelsCount;
+            const int normalLevelsCount = GBAKlonoa_DCT_Manager.NormalLevelsCount;
 
             // Serialize maps
             s.DoAt(new Pointer(0x8052AFC, Offset.File), () =>
@@ -59,6 +85,87 @@ namespace R1Engine
 
             // Serialize map sectors
             s.DoAt(new Pointer(0x0810a480, Offset.File), () => MapSectors = s.SerializeObjectArray<GBAKlonoa_MapSectors>(MapSectors, normalLevelsCount, name: nameof(MapSectors)));
+        }
+
+        protected void SerializeCompressedBlockData(SerializerObject s)
+        {
+            var settings = s.GetR1Settings();
+            const int normalWorldsCount = GBAKlonoa_DCT_Manager.NormalWorldsCount;
+            var isMap = settings.Level == 0;
+            var isBoss = settings.Level == 9;
+            var worldIndex = settings.World - 1;
+
+            // Serialize compressed world object tile blocks
+            s.DoAt(new Pointer(0x081d65e0, Offset.File), () => CompressedWorldObjTileBlockPointers = s.SerializePointerArray(CompressedWorldObjTileBlockPointers, normalWorldsCount, name: nameof(CompressedWorldObjTileBlockPointers)));
+
+            CompressedWorldObjTileBlocks ??= new byte[CompressedWorldObjTileBlockPointers.Length][];
+            s.DoAt(CompressedWorldObjTileBlockPointers[worldIndex], () =>
+            {
+                s.DoEncoded(new GBAKlonoa_DCT_Encoder(), () =>
+                {
+                    CompressedWorldObjTileBlocks[worldIndex] = s.SerializeArray<byte>(CompressedWorldObjTileBlocks[worldIndex], s.CurrentLength, name: $"{nameof(CompressedWorldObjTileBlocks)}[{worldIndex}]");
+                });
+            });
+
+            var worldBlockFile = new StreamFile(s.Context, GBAKlonoa_BaseManager.CompressedWorldObjTileBlockName, new MemoryStream(CompressedWorldObjTileBlocks[worldIndex]));
+            s.Context.AddFile(worldBlockFile);
+            
+            // Serialize compressed boss object tile blocks
+            if (isBoss)
+            {
+                s.DoAt(new Pointer(0x081d65c8, Offset.File), () => CompressedBossObjTileBlockPointers = s.SerializePointerArray(CompressedBossObjTileBlockPointers, normalWorldsCount, name: nameof(CompressedBossObjTileBlockPointers)));
+
+                CompressedBossObjTileBlocks ??= new byte[CompressedBossObjTileBlockPointers.Length][];
+                s.DoAt(CompressedBossObjTileBlockPointers[worldIndex], () =>
+                {
+                    s.DoEncoded(new GBAKlonoa_DCT_Encoder(), () =>
+                    {
+                        CompressedBossObjTileBlocks[worldIndex] = s.SerializeArray<byte>(CompressedBossObjTileBlocks[worldIndex], s.CurrentLength, name: $"{nameof(CompressedBossObjTileBlocks)}[{worldIndex}]");
+                    });
+                });
+
+                var blockFile = new StreamFile(s.Context, GBAKlonoa_BaseManager.CompressedObjTileBlockName, new MemoryStream(CompressedBossObjTileBlocks[worldIndex]));
+                s.Context.AddFile(blockFile);
+            }
+            else if (isMap)
+            {
+                s.DoAt(new Pointer(0x083bc12c, Offset.File), () =>
+                {
+                    s.DoEncoded(new GBAKlonoa_DCT_Encoder(), () =>
+                    {
+                        CompressedWorldMapObjTileBlock = s.SerializeArray<byte>(CompressedWorldMapObjTileBlock, s.CurrentLength, name: nameof(CompressedWorldMapObjTileBlock));
+                    });
+                });
+
+                var blockFile = new StreamFile(s.Context, GBAKlonoa_BaseManager.CompressedObjTileBlockName, new MemoryStream(CompressedWorldMapObjTileBlock));
+                s.Context.AddFile(blockFile);
+            }
+        }
+
+        protected void SerializeObjData(SerializerObject s)
+        {
+            var settings = s.GetR1Settings();
+            var globalLevelIndex = GBAKlonoa_DCT_Manager.GetGlobalLevelIndex(settings.World, settings.Level);
+            const int normalWorldsCount = GBAKlonoa_DCT_Manager.NormalWorldsCount;
+            const int levelsCount = GBAKlonoa_DCT_Manager.LevelsCount;
+            var isMap = settings.Level == 0;
+            var isBoss = settings.Level == 9;
+            var isWaterSki = settings.Level == 4;
+            var isUnderWater = settings.World == 4 && (settings.Level == 5 || settings.Level == 1 || settings.Level == 7);
+
+            // Serialize map graphics
+            s.DoAt(new Pointer(0x081d6084, Offset.File), () => MapGraphicsPointers = s.SerializePointerArray(MapGraphicsPointers, levelsCount, name: nameof(MapGraphicsPointers)));
+
+            MapGraphics ??= new GBAKlonoa_ObjectGraphics[MapGraphicsPointers.Length][];
+            s.DoAt(MapGraphicsPointers[globalLevelIndex], () =>
+            {
+                MapGraphics[globalLevelIndex] = s.SerializeObjectArrayUntil<GBAKlonoa_ObjectGraphics>(
+                    obj: MapGraphics[globalLevelIndex],
+                    conditionCheckFunc: x => x.AnimationsPointer == null,
+                    getLastObjFunc: () => new GBAKlonoa_ObjectGraphics(),
+                    onPreSerialize: x => x.Pre_IsMapAnimations = true,
+                    name: $"{nameof(MapGraphics)}[{globalLevelIndex}]");
+            });
 
             // Initialize fixed objects
             FixObjects = GBAKlonoa_LoadedObject.GetFixedObjects(settings.EngineVersion, settings.World, settings.Level).ToArray();
@@ -92,7 +199,16 @@ namespace R1Engine
             if (!isMap)
             {
                 // Serialize graphics data
-                s.DoAt(new Pointer(0x08070d40, Offset.File), () => GraphicsDatas = s.SerializeObjectArray<GBAKlonoa_DCT_GraphicsData>(GraphicsDatas, 154, name: nameof(GraphicsDatas)));
+                s.DoAt(new Pointer(0x08070d40, Offset.File), () =>
+                {
+                    GraphicsDatas ??= new GBAKlonoa_DCT_GraphicsData[154];
+
+                    for (int i = 0; i < GraphicsDatas.Length; i++)
+                        GraphicsDatas[i] = s.SerializeObject<GBAKlonoa_DCT_GraphicsData>(GraphicsDatas[i], x =>
+                        {
+                            x.Pre_IsReferencedInLevel = LevelObjectCollection.Objects.Any(o => o.DCT_GraphicsIndex == i);
+                        }, name: $"{nameof(GraphicsDatas)}[{i}]");
+                });
             }
 
             // Serialize fixed OAM collections

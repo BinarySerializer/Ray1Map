@@ -35,11 +35,12 @@ namespace R1Engine
 
             public class Animation
             {
-                public Animation(Func<Sprite[]> animFrameFunc, GBAKlonoa_OAM[] oamCollection, int?[] animSpeeds = null)
+                public Animation(Func<Sprite[]> animFrameFunc, GBAKlonoa_OAM[] oamCollection, int?[] animSpeeds = null, byte? linkedAnimIndex = null)
                 {
                     AnimFrameFunc = animFrameFunc;
                     OAMCollection = oamCollection;
                     AnimSpeeds = animSpeeds;
+                    LinkedAnimIndex = linkedAnimIndex;
                 }
 
                 private Sprite[] Frames;
@@ -48,6 +49,7 @@ namespace R1Engine
                 protected Func<Sprite[]> AnimFrameFunc { get; }
                 public GBAKlonoa_OAM[] OAMCollection { get; }
                 public int?[] AnimSpeeds { get; }
+                public byte? LinkedAnimIndex { get; }
 
                 public Sprite[] AnimFrames => Frames ??= AnimFrameFunc();
 

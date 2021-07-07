@@ -1,14 +1,11 @@
-﻿using System.Linq;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public class Unity_AnimatedTile
     {
         public float AnimationSpeed { get; set; } // In frames, for 60FPS
         public float[] AnimationSpeeds { get; set; }
         public int[] TileIndices { get; set; }
+        public bool IgnoreFirstTile { get; set; }
 
         public class Instance {
             public Unity_AnimatedTile animatedTile;

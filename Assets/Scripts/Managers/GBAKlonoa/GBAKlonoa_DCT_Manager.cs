@@ -88,9 +88,19 @@ namespace R1Engine
                     },
                     CNT = layer.CNT
                 };
-            }).Where(x => x != null).OrderBy(x => -x.CNT.Priority).Select(x => x.Map).ToArray();
+            }).Where(x => x != null).Reverse().OrderBy(x => -x.CNT.Priority).Select(x => x.Map).ToArray();
 
-            unityTileSet_4bit[0] = LoadTileSet(tileSet, tilePal, false, rom.Maps[globalLevelIndex].MapLayers.Where(x => x != null && !x.Is8Bit).SelectMany(x => x.Map).ToArray());
+            var mapGraphics = rom.MapGraphics[globalLevelIndex];
+
+            if (mapGraphics.Any() && rom.Maps[globalLevelIndex].MapLayers.Any(x => x.Is8Bit))
+                Debug.LogWarning($"There are map animations in a level with an 8-bit tileset! Currently this is not supported due to them using separate tilesets in Ray1Map.");
+
+            unityTileSet_4bit[0] = LoadTileSet(
+                tileSet: tileSet, 
+                pal: tilePal, 
+                is8bit: false, 
+                mapTiles_4: rom.Maps[globalLevelIndex].MapLayers.Where(x => x != null && !x.Is8Bit).SelectMany(x => x.Map).ToArray(),
+                mapGraphics: mapGraphics);
 
             var collisionLines = !isMap && !isWaterSki ? GetSectorCollisionLines(rom.MapSectors[normalLevelIndex]) : null;
 
@@ -113,13 +123,6 @@ namespace R1Engine
                 // Get the objects for every sector
                 levelObjects = Enumerable.Range(0, 5).Select(sector => rom.LevelObjectCollection.Objects.Select((obj, index) => obj.ToLoadedObject((short)(FixCount + index), sector)).ToArray()).ToArray();
             }
-
-            var firstLoadedObjects = new List<GBAKlonoa_LoadedObject>();
-
-            firstLoadedObjects.AddRange(fixObjects);
-
-            for (int lvlObjIndex = 0; lvlObjIndex < levelObjects[0].Length; lvlObjIndex++)
-                firstLoadedObjects.Add(levelObjects.Select(x => x[lvlObjIndex]).FirstOrDefault(x => isMap || x.Value_8 != 28));
 
             var objmanager = new Unity_ObjectManager_GBAKlonoa(
                 context: context,
@@ -231,6 +234,21 @@ namespace R1Engine
             // Load special (hard-coded) animations
             IEnumerable<SpecialAnimation> specialAnims = new SpecialAnimation[0];
 
+            // Add Klonoa's attack
+            specialAnims = specialAnims.Concat(new SpecialAnimation[]
+            {
+                new SpecialAnimation(new long[]
+                {
+                    0x080757a8,
+                    0x080a3500
+                }, true, 9), // Klonoa's attack
+                new SpecialAnimation(new long[]
+                {
+                    0x08075828,
+                    0x080a3580,
+                }, true, 10), // Klonoa's attack (small)
+            });
+
             // Manually append the level text to the special animations (VISION/BOSS)
             if (isBoss)
             {
@@ -240,7 +258,7 @@ namespace R1Engine
                 // GO!!!
                 specialAnims = specialAnims.Append(new SpecialAnimation(0x080d0180, true, 12));
             }
-            else
+            else if (!isMap)
             {
                 // VISION
                 specialAnims = specialAnims.Append(new SpecialAnimation(0x080758a8, true, 11));
