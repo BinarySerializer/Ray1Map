@@ -33,8 +33,10 @@ namespace R1Engine.Jade {
 			public override void SerializeImpl(SerializerObject s) {
 				Struct0Count = s.Serialize<uint>(Struct0Count, name: nameof(Struct0Count));
 				Struct0Array = s.SerializeObjectArray<Struct0>(Struct0Array, Struct0Count, name: nameof(Struct0Array));
-				Struct1Count = s.Serialize<uint>(Struct1Count, name: nameof(Struct1Count));
-				Struct1Array = s.SerializeObjectArray<Struct1>(Struct1Array, Struct1Count, name: nameof(Struct1Array));
+				if (s.GetR1Settings().Platform == Platform.PS2) {
+					Struct1Count = s.Serialize<uint>(Struct1Count, name: nameof(Struct1Count));
+					Struct1Array = s.SerializeObjectArray<Struct1>(Struct1Array, Struct1Count, name: nameof(Struct1Array));
+				}
 			}
 
 			public class Struct0 : BinarySerializable {

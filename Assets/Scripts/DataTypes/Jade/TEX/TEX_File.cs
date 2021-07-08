@@ -134,6 +134,8 @@ namespace R1Engine.Jade
                         {
                             TGA.RGBColorOrder colorOrder = TGA.RGBColorOrder.RGB;
 
+                            if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) colorOrder = TGA.RGBColorOrder.BGR;
+
                             if (s.GetR1Settings().Platform == Platform.PC
                                 && (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR
                                 || s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE

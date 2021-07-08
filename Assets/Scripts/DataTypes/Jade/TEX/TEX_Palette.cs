@@ -17,8 +17,12 @@ namespace R1Engine.Jade
                 case 0x400:
                 case 0x880:
                 case 0x100:
-                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) && (size == 0x880 || size == 0x100)) {
-                        throw new NotImplementedException($"Invalid palette size");
+                case 0x820:
+                case 0xa0:
+                    if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier) && (size == 0x880 || size == 0x100 || size == 0xa0 || size == 0x820)) {
+                        throw new NotImplementedException($"Invalid palette size 0x{size:X8}");
+                    } else if (s.GetR1Settings().Platform != Platform.PSP && (size == 0x820 || size == 0xa0)) {
+                        throw new NotImplementedException($"Invalid palette size 0x{size:X8}");
                     }
                     Colors = s.SerializeObjectArray<BGRA8888Color>((BGRA8888Color[]) Colors, size / 4, name: nameof(Colors));
                     break;
@@ -28,8 +32,9 @@ namespace R1Engine.Jade
                     Colors = s.SerializeObjectArray<BGR888Color>((BGR888Color[]) Colors, size / 3, name: nameof(Colors));
                     break;
 
+
                 default:
-                    throw new NotImplementedException($"Invalid palette size");
+                    throw new NotImplementedException($"Invalid palette size 0x{size:X8}");
             }
         }
     }

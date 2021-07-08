@@ -50,15 +50,18 @@ namespace R1Engine.Jade {
 					return (Montreal_Flags2 & 1) == 1;
 				case Platform.GC:
 					return (Montreal_Flags2 & 2) == 2;
+				case Platform.Xbox:
+					return (Montreal_Flags2 & 4) == 4;
 				case Platform.PC:
-				case Platform.iOS:
 					if (s.EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
 						return (Montreal_Flags2 & 8) == 8;
 					} else {
 						return (Montreal_Flags2 & 4) == 4;
 					}
-				case Platform.Xbox:
-					return (Montreal_Flags2 & 4) == 4;
+				case Platform.iOS:
+					return (Montreal_Flags2 & 0x10) == 0x10;
+				case Platform.PSP:
+					return (Montreal_Flags2 & 0x20) == 0x20;
 				case Platform.Wii:
 					return (Montreal_Flags2 & 0x40) == 0x40;
 				default:
@@ -179,12 +182,14 @@ namespace R1Engine.Jade {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Montreal_IsOptimized(s.GetR1Settings())) {
 				switch (s.GetR1Settings().Platform) {
 					case Platform.PS2:
+					case Platform.PSP:
 						OptimizedGeoObject_PS2 = s.SerializeObject<GEO_GeoObject_PS2>(OptimizedGeoObject_PS2, name: nameof(OptimizedGeoObject_PS2));
 						break;
 					case Platform.GC:
 						OptimizedGeoObject_GC = s.SerializeObject<GEO_GeoObject_GC>(OptimizedGeoObject_GC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_GC));
 						break;
 					case Platform.PC:
+					case Platform.iOS:
 						OptimizedGeoObject_PC = s.SerializeObject<GEO_GeoObject_PC>(OptimizedGeoObject_PC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_PC));
 						break;
 					case Platform.Xbox:

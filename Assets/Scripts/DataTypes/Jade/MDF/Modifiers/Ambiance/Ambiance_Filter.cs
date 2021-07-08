@@ -136,7 +136,7 @@ namespace R1Engine.Jade {
 			public float YCenter { get; set; }
 			public override void SerializeImpl(SerializerObject s) {
 				AngleMax = s.Serialize<float>(AngleMax, name: nameof(AngleMax));
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
 					AngleOffset = s.Serialize<float>(AngleOffset, name: nameof(AngleOffset));
 					AngleOffsetSpeed = s.Serialize<float>(AngleOffsetSpeed, name: nameof(AngleOffsetSpeed));
 					AngleScale = s.Serialize<float>(AngleScale, name: nameof(AngleScale));
