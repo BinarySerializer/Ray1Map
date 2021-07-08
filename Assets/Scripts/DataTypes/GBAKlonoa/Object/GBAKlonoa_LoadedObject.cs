@@ -4,7 +4,7 @@ namespace R1Engine
 {
     public class GBAKlonoa_LoadedObject
     {
-        public GBAKlonoa_LoadedObject(short index, byte oamIndex, short xPos, short yPos, byte param_1, byte value6, byte param_2, byte value8, byte objType, GBAKlonoa_LevelObject levelObj = null, GBAKlonoa_WorldMapObject worldMapObj = null, byte? dct_GraphicsIndex = null)
+        public GBAKlonoa_LoadedObject(short index, byte oamIndex, short xPos, short yPos, short param_1, byte value6, byte param_2, byte value8, byte objType, GBAKlonoa_LevelObject levelObj = null, GBAKlonoa_WorldMapObject worldMapObj = null, byte? dct_GraphicsIndex = null)
         {
             Index = index;
             OAMIndex = oamIndex;
@@ -24,10 +24,15 @@ namespace R1Engine
         public byte OAMIndex { get; }
         public short XPos { get; set; }
         public short YPos { get; set; }
-        public byte Param_1 { get; set; } // ZPos for maps
-        public byte Value_6 { get; }
-        public byte Param_2 { get; }
-        public byte Value_8 { get; }
+        public short ZPos
+        {
+            get => Param_1;
+            set => Param_1 = value;
+        }
+        public short Param_1 { get; set; } // ZPos for maps
+        public byte Value_6 { get; set; }
+        public byte Param_2 { get; set; }
+        public byte Value_8 { get; set; }
         public byte ObjType { get; }
         public GBAKlonoa_LevelObject LevelObj { get; }
         public GBAKlonoa_WorldMapObject WorldMapObj { get; }

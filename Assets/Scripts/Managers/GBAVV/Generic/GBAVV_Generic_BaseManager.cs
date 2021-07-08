@@ -630,7 +630,7 @@ namespace R1Engine
                 },
                 cellSize: CellSize,
                 localization: loc.Item1,
-                trackManager: new Unity_TrackManager_GBAVV_Mode7(levelInfo.LevelType == 0));
+                trackManager: new Unity_TrackManager_ObjectsLinear(levelInfo.LevelType == 0));
         }
         public virtual int[] Mode7AnimSetCounts => new int[0];
         public virtual int Mode7LevelsCount => 0;

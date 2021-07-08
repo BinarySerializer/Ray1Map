@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_TrackManager_GBAVV_Mode7 : Unity_TrackManager
+    public class Unity_TrackManager_ObjectsLinear : Unity_TrackManager
     {
-        public Unity_TrackManager_GBAVV_Mode7(bool isReversed)
+        public Unity_TrackManager_ObjectsLinear(bool isReversed)
         {
             IsReversed = isReversed;
         }

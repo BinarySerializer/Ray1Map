@@ -24,76 +24,24 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
+            // Read the ROM
             var rom = FileFactory.Read<GBAKlonoa_DCT_ROM>(GetROMFilePath, context);
+            
+            // Get settings
             var settings = context.GetR1Settings();
-            var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
             var normalLevelIndex = GetNormalLevelIndex(settings.World, settings.Level);
+            var worldIndex = settings.World - 1;
             var isMap = settings.Level == 0;
             var isWaterSki = settings.Level == 4;
             var isUnderWater = settings.World == 4 && (settings.Level == 5 || settings.Level == 1 || settings.Level == 7);
 
-            //GenerateAnimSetTable(context, rom);
-
             Controller.DetailedState = "Loading maps";
             await Controller.WaitIfNecessary();
 
-            var tilePal = rom.Maps[globalLevelIndex].Palette.Take(0x1E0).Concat(rom.FixTilePalette).ToArray();
-            var tileSet = CreateTileSet(rom.Maps[globalLevelIndex].MapLayers);
+            // Load maps
+            var maps = LoadMaps(context, rom);
 
-            var unityTileSet_4bit = new Unity_TileSet[1];
-
-            var maps = rom.Maps[globalLevelIndex].MapLayers.Select((layer, mapIndex) =>
-            {
-                if (layer == null)
-                    return null;
-
-                if (!layer.Is8Bit)
-                {
-                    // The game hard-codes the base block for waterski levels
-                    var baseBlock = isWaterSki && mapIndex == 0 ? 0 : layer.CNT.CharacterBaseBlock;
-
-                    var tileOffset = baseBlock * 512;
-
-                    // Correct map tiles
-                    if (tileOffset != 0)
-                    {
-                        foreach (var tile in layer.Map)
-                        {
-                            tile.TileMapY = (ushort)(tile.TileMapY + tileOffset);
-                        }
-                    }
-                }
-
-                return new
-                {
-                    Map = new Unity_Map
-                    {
-                        Width = layer.Width,
-                        Height = layer.Height,
-                        TileSet = layer.Is8Bit ? new Unity_TileSet[]
-                        {
-                            LoadTileSet(layer.TileSet, tilePal, true, null)
-                        }: unityTileSet_4bit,
-                        MapTiles = layer.Map.Select(x => new Unity_Tile(x)).ToArray(),
-                        Type = Unity_Map.MapType.Graphics,
-                        Settings3D = isMap && mapIndex == 2 ? Unity_Map.FreeCameraSettings.Mode7 : null,
-                    },
-                    CNT = layer.CNT
-                };
-            }).Where(x => x != null).Reverse().OrderBy(x => -x.CNT.Priority).Select(x => x.Map).ToArray();
-
-            var mapGraphics = rom.MapGraphics[globalLevelIndex];
-
-            if (mapGraphics.Any() && rom.Maps[globalLevelIndex].MapLayers.Any(x => x.Is8Bit))
-                Debug.LogWarning($"There are map animations in a level with an 8-bit tileset! Currently this is not supported due to them using separate tilesets in Ray1Map.");
-
-            unityTileSet_4bit[0] = LoadTileSet(
-                tileSet: tileSet, 
-                pal: tilePal, 
-                is8bit: false, 
-                mapTiles_4: rom.Maps[globalLevelIndex].MapLayers.Where(x => x != null && !x.Is8Bit).SelectMany(x => x.Map).ToArray(),
-                mapGraphics: mapGraphics);
-
+            // Create collision lines for the sectors
             var collisionLines = !isMap && !isWaterSki ? GetSectorCollisionLines(rom.MapSectors[normalLevelIndex]) : null;
 
             Controller.DetailedState = "Loading objects";
@@ -125,6 +73,30 @@ namespace R1Engine
                 levelObjects = new GBAKlonoa_LoadedObject[][]
                 {
                     rom.WorldMapObjectCollection.Objects.Select((x, index) => x.ToLoadedObject((short)(FixCount + index))).ToArray()
+                };
+            }
+            else if (isWaterSki)
+            {
+                // Create an object for every position it can be in. The game reuses objects, but we duplicate them so they can all be shown at once.
+                var cmds = rom.WaterSkiDatas[worldIndex];
+                var objs = new List<GBAKlonoa_LoadedObject>();
+
+                // Enumerate every command. We only care about the object commands.
+                foreach (var cmd in cmds.Commands.Commands.Where(x => x.CmdType == GBAKlonoa_DCT_WaterSkiCommand.WaterSkiCommandType.Object_0 || x.CmdType == GBAKlonoa_DCT_WaterSkiCommand.WaterSkiCommandType.Object_1))
+                {
+                    var obj = rom.LevelObjectCollection.Objects[cmd.ObjIndex - FixCount].ToLoadedObject(cmd.ObjIndex, 0);
+
+                    // We handle positions differently than the game
+                    obj.XPos = (short)(cmd.ZPos + GBAConstants.ScreenWidth / 2);
+                    obj.YPos = (short)-cmd.XPos;
+                    obj.ZPos = (short)-cmd.YPos;
+
+                    objs.Add(obj);
+                }
+
+                levelObjects = new GBAKlonoa_LoadedObject[][]
+                {
+                    objs.ToArray()
                 };
             }
             else
@@ -169,7 +141,7 @@ namespace R1Engine
             objects.AddRange(fixObjects.Skip(!hasStartPositions ? 0 : 1).Where(x => !isMap || (x.Index != 11 && x.Index != 12)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, fixOam[x.OAMIndex])));
 
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
-            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 31).Select(x => new Unity_Object_GBAKlonoa(
+            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || isWaterSki || x.Value_8 != 31).Select(x => new Unity_Object_GBAKlonoa(
                 objManager: objmanager, 
                 obj: x, 
                 serializable: (BinarySerializable)x.LevelObj ?? x.WorldMapObj, 
@@ -178,14 +150,103 @@ namespace R1Engine
             if (isMap)
                 CorrectWorldMapObjectPositions(objects, maps.Last().Width, maps.Last().Height);
 
+            Unity_TrackManager trackManager = null;
+
+            if (isWaterSki)
+            {
+                const float x = GBAConstants.ScreenWidth / 2f;
+                const float z = 20;
+
+                var cmds = rom.WaterSkiDatas[worldIndex].Commands.Commands;
+
+                trackManager = new Unity_TrackManager_Linear(
+                    start: new Vector3(x, 0, z), 
+                    end: new Vector3(x, -cmds.Last(c => c.CmdType == GBAKlonoa_DCT_WaterSkiCommand.WaterSkiCommandType.EndOfSector).XPos, z));
+            }
+
             return new Unity_Level(
                 maps: maps,
                 objManager: objmanager,
                 eventData: objects,
                 cellSize: CellSize,
                 defaultLayer: 2,
-                isometricData: isMap ? Unity_IsometricData.Mode7(CellSize) : null,
-                collisionLines: collisionLines);
+                isometricData: isMap || isWaterSki ? Unity_IsometricData.Mode7(CellSize) : null,
+                collisionLines: collisionLines,
+                trackManager: trackManager);
+        }
+
+        public Unity_Map[] LoadMaps(Context context, GBAKlonoa_DCT_ROM rom)
+        {
+            var settings = context.GetR1Settings();
+            var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
+            var isMap = settings.Level == 0;
+            var isWaterSki = settings.Level == 4;
+
+            var tilePal = rom.Maps[globalLevelIndex].Palette.Take(0x1E0).Concat(rom.FixTilePalette).ToArray();
+            var tileSet = CreateTileSet(rom.Maps[globalLevelIndex].MapLayers);
+
+            var unityTileSet_4bit = new Unity_TileSet[1];
+
+            var maps = rom.Maps[globalLevelIndex].MapLayers.Select((layer, mapIndex) =>
+            {
+                if (layer == null)
+                    return null;
+
+                if (!layer.Is8Bit)
+                {
+                    // The game hard-codes the base block for waterski levels
+                    var baseBlock = isWaterSki && mapIndex == 0 ? 0 : layer.CNT.CharacterBaseBlock;
+
+                    var tileOffset = baseBlock * 512;
+
+                    // Correct map tiles
+                    if (tileOffset != 0)
+                    {
+                        foreach (var tile in layer.Map)
+                        {
+                            tile.TileMapY = (ushort)(tile.TileMapY + tileOffset);
+                        }
+                    }
+                }
+
+                bool is3D = false;
+
+                if (isMap && mapIndex == 2)
+                    is3D = true;
+                else if (isWaterSki && (mapIndex == 1 || mapIndex == 2))
+                    is3D = true;
+
+                return new
+                {
+                    Map = new Unity_Map
+                    {
+                        Width = layer.Width,
+                        Height = layer.Height,
+                        TileSet = layer.Is8Bit ? new Unity_TileSet[]
+                        {
+                            LoadTileSet(layer.TileSet, tilePal, true, null)
+                        } : unityTileSet_4bit,
+                        MapTiles = layer.Map.Select(x => new Unity_Tile(x)).ToArray(),
+                        Type = Unity_Map.MapType.Graphics,
+                        Settings3D = is3D ? Unity_Map.FreeCameraSettings.Mode7 : null,
+                    },
+                    CNT = layer.CNT
+                };
+            }).Where(x => x != null).Reverse().OrderBy(x => -x.CNT.Priority).Select(x => x.Map).ToArray();
+
+            var mapGraphics = rom.MapGraphics[globalLevelIndex];
+
+            if (mapGraphics.Any() && rom.Maps[globalLevelIndex].MapLayers.Any(x => x.Is8Bit))
+                Debug.LogWarning($"There are map animations in a level with an 8-bit tileset! Currently this is not supported due to them using separate tilesets in Ray1Map.");
+
+            unityTileSet_4bit[0] = LoadTileSet(
+                tileSet: tileSet,
+                pal: tilePal,
+                is8bit: false,
+                mapTiles_4: rom.Maps[globalLevelIndex].MapLayers.Where(x => x != null && !x.Is8Bit).SelectMany(x => x.Map).ToArray(),
+                mapGraphics: mapGraphics);
+
+            return maps;
         }
 
         public byte[] CreateTileSet(GBAKlonoa_DCT_MapLayer[] layers)

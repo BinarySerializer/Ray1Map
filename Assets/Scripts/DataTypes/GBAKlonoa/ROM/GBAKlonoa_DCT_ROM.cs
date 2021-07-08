@@ -9,6 +9,8 @@ namespace R1Engine
     {
         // Info
         public GBAKlonoa_LevelStartInfos[] LevelStartInfos { get; set; }
+        public Pointer[] WaterSkiDataPointers { get; set; }
+        public GBAKlonoa_DCT_WaterSkiData[] WaterSkiDatas { get; set; }
 
         // Maps
         public GBAKlonoa_DCT_Map[] Maps { get; set; }
@@ -59,10 +61,23 @@ namespace R1Engine
             const int normalLevelsCount = GBAKlonoa_DCT_Manager.NormalLevelsCount;
             var isMap = settings.Level == 0;
             var isWaterSki = settings.Level == 4;
+            var worldIndex = settings.World - 1;
 
             // Serialize level start positions
             if (!isMap && !isWaterSki)
                 s.DoAt(new Pointer(0x0810ca00, Offset.File), () => LevelStartInfos = s.SerializeObjectArray<GBAKlonoa_LevelStartInfos>(LevelStartInfos, normalLevelsCount, name: nameof(LevelStartInfos)));
+
+            // Serialize waterski data
+            if (isWaterSki)
+            {
+                s.DoAt(new Pointer(0x081d6e60, Offset.File), () => WaterSkiDataPointers = s.SerializePointerArray(WaterSkiDataPointers, 5, name: nameof(WaterSkiDataPointers)));
+
+                WaterSkiDatas ??= new GBAKlonoa_DCT_WaterSkiData[WaterSkiDataPointers.Length];
+                s.DoAt(WaterSkiDataPointers[worldIndex], () =>
+                {
+                    WaterSkiDatas[worldIndex] = s.SerializeObject<GBAKlonoa_DCT_WaterSkiData>(WaterSkiDatas[worldIndex], name: $"{nameof(WaterSkiDatas)}[{worldIndex}]");
+                });
+            }
         }
 
         protected void SerializeMapData(SerializerObject s)

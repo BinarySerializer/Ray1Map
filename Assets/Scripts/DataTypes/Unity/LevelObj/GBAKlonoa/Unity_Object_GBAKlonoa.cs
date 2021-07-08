@@ -99,12 +99,12 @@ namespace R1Engine
 
         public override Vector3 Position
         {
-            get => new Vector3(Object.XPos, Object.YPos, Object.Param_1);
+            get => new Vector3(Object.XPos, Object.YPos, Object.ZPos);
             set
             {
                 Object.XPos = (short)value.x;
                 Object.YPos = (short)value.y;
-                Object.Param_1 = (byte)value.z;
+                Object.ZPos = (byte)value.z;
             }
         }
 
