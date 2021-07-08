@@ -120,6 +120,7 @@ namespace R1Engine
                     Append(rom.LevelStartInfos[normalLevelIndex].StartInfo_Entry).
                     Concat(rom.LevelStartInfos[normalLevelIndex].StartInfos_Yellow).
                     Concat(rom.LevelStartInfos[normalLevelIndex].StartInfos_Green).
+                    Append(rom.LevelStartInfos[normalLevelIndex].DCT_StartInfo_Unknown).
                     Where(x => !(x.XPos == 0 && x.YPos == 0));
 
                 var klonoa = fixObjects[0];
