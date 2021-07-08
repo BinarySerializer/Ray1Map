@@ -294,7 +294,7 @@ namespace R1Engine
                     // Enumerate every graphic group
                     await Controller.WaitFrame();
 
-                    foreach (var spr in lvl.GetAllActors(settings).Select(x => x.ActorModel.Puppet).Distinct())
+                    foreach (var spr in lvl.GetAllActors(settings).Select(x => x?.ActorModel?.Puppet).Where(x => x != null).Distinct())
                         await ExportSpriteGroup(spr, false, -1);
                 }
             }
