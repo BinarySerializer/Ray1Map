@@ -259,7 +259,7 @@ namespace R1Engine.Jade
                 case JTX_Format.Raw32:
                     tex = TextureHelpers.CreateTexture2D((int)Width, (int)Height);
                     var tileEncoding = Util.TileEncoding.Linear_32bpp_RGBA;
-                    if(Context.GetR1Settings().Platform != Platform.PS2) tileEncoding = Util.TileEncoding.Linear_32bpp_BGRA;
+                    if(Context.GetR1Settings().Platform != Platform.PS2 && Context.GetR1Settings().Platform != Platform.PSP) tileEncoding = Util.TileEncoding.Linear_32bpp_BGRA;
                     tex.FillRegion(content, 0, palette, tileEncoding, 0, 0, (int)Width, (int)Height);
                     break;
                 case JTX_Format.iOS_Raw16:

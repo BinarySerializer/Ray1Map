@@ -134,6 +134,8 @@ namespace R1Engine.Jade
                         {
                             TGA.RGBColorOrder colorOrder = TGA.RGBColorOrder.RGB;
 
+                            if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) colorOrder = TGA.RGBColorOrder.BGR;
+
                             if (s.GetR1Settings().Platform == Platform.PC
                                 && (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR
                                 || s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE
@@ -144,7 +146,6 @@ namespace R1Engine.Jade
                                 case GameModeSelection.RaymanRavingRabbidsWiiJP:
                                 case GameModeSelection.BeyondGoodAndEvilXbox360:
                                 case GameModeSelection.BeyondGoodAndEvilPS3:
-                                case GameModeSelection.PrinceOfPersiaWarriorWithinIOS:
                                     colorOrder = TGA.RGBColorOrder.BGR;
                                     break;
                             }
