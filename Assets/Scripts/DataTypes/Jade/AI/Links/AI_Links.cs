@@ -119,6 +119,8 @@ namespace R1Engine.Jade {
 				case GameModeSelection.PrinceOfPersiaWarriorWithinXbox:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinIOS:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinGC:
+
+				case GameModeSelection.PrinceOfPersiaTheTwoThronesPS2:
 					links = new AI_Links_PoP_SoT_PS2_Proto();
 					break;
 				case GameModeSelection.HorsezPS2:

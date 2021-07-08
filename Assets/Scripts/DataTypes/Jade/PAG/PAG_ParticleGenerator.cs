@@ -311,7 +311,7 @@ namespace R1Engine.Jade {
 					ZMaxRotationStrength = s.Serialize<float>(ZMaxRotationStrength, name: nameof(ZMaxRotationStrength));
 					FrictionRotation = s.Serialize<float>(FrictionRotation, name: nameof(FrictionRotation));
 
-                    if (Version >= 32 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+                    if (Version >= 32 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
                         ZMinRotationStrengthY = s.Serialize<float>(ZMinRotationStrengthY, name: nameof(ZMinRotationStrengthY));
                         ZMaxRotationStrengthY = s.Serialize<float>(ZMaxRotationStrengthY, name: nameof(ZMaxRotationStrengthY));
                         FrictionRotationY = s.Serialize<float>(FrictionRotationY, name: nameof(FrictionRotationY));

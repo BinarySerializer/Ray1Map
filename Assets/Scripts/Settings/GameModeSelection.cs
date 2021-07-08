@@ -811,6 +811,10 @@ namespace R1Engine {
         PrinceOfPersiaWarriorWithinIOS,
 
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PS2)", typeof(Jade_PoP_T2T_PS2_Manager), Platform.PS2)]
+        PrinceOfPersiaTheTwoThronesPS2,
+
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]
         MyWordCoachWii,
 
