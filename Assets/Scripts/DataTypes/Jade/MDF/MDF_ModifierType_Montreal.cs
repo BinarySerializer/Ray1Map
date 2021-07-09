@@ -45,7 +45,7 @@ namespace R1Engine.Jade {
 		GAO_ModifierPlant = 34,
 		GAO_ModifierVoiceManager = 35,
 
-		// Introduced after PoP:SoT, found in NCIS
+		// Introduced after PoP:SoT
 		GAO_ModifierSectorisationElement = 36,
 		GAO_ModifierAnimatedMaterial = 37,
 		GAO_ModifierRotationPaste = 38,
@@ -58,11 +58,13 @@ namespace R1Engine.Jade {
 		GAO_ModifierAnimatedGAO = 45,
 		GAO_ModifierEyeTrail = 46, // Found in Spree
 		GAO_ModifierCharacterFX = 47,
-
+		GAO_ModifierEcharpe = 48, // Added in T2T
+		GAO_ModifierSoftBodyColl = 49, // Added in TMNT
+		GAO_ModifierBeamCutter = 50, // Added in TMNT
 		GAO_ModifierMotionBlur = 51,
 		GAO_ModifierAlphaFade = 52,
 		GAO_ModifierAlphaOccluder = 53,
-
+		GAO_ModifierInteractivePlant = 54,
 		SPG2_Modifier = 55,
 		FakeHDR_Modifier = 56,
 		DARE_ModifierSoundVolumetric = 57,

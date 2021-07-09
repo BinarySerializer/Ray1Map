@@ -139,6 +139,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType_Montreal.GEO_ModifierMeshToParticles => s.SerializeObject<GEO_ModiferMeshToParticles>((GEO_ModiferMeshToParticles)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierRotationPaste => s.SerializeObject<GAO_ModifierRotationPaste>((GAO_ModifierRotationPaste)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierExplode => s.SerializeObject<GAO_ModifierExplode>((GAO_ModifierExplode)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierEcharpe => s.SerializeObject<GAO_ModifierEcharpe>((GAO_ModifierEcharpe)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }
