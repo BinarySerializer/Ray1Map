@@ -159,8 +159,6 @@ namespace R1Engine
         public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_EOD_ROM rom, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, Pointer levelTextSpritePointer)
         {
             var settings = context.GetR1Settings();
-            var s = context.Deserializer;
-            var romFile = context.GetFile(GetROMFilePath);
             var globalLevelIndex = GetGlobalLevelIndex(settings.World, settings.Level);
             var isBoss = settings.Level == 8;
 
@@ -176,65 +174,7 @@ namespace R1Engine
             var allocationInfos = LevelVRAMAllocationInfos.TryGetItem(globalLevelIndex);
 
             if (allocationInfos != null)
-            {
-                var memFile = context.GetFile(CompressedObjTileBlockName);
-
-                var vramTileIndex = 0;
-
-                var allocatedVRAMData = allocationInfos.Select((allocationInfo, alloctionIndex) =>
-                {
-                    if (allocationInfo.TileIndex != null)
-                        vramTileIndex = allocationInfo.TileIndex.Value;
-
-                    var tileIndex = vramTileIndex;
-                    var p = new Pointer(allocationInfo.Offset, allocationInfo.Offset >= GBAConstants.Address_ROM ? romFile : memFile);
-                    var bytes = s.DoAt(p, () => s.SerializeArray<byte>(null, allocationInfo.Length, $"ObjTiles[{alloctionIndex}]"));
-
-                    vramTileIndex += (allocationInfo.Length / 0x20);
-
-                    return new
-                    {
-                        SourcePointer = p,
-                        ImgData = bytes,
-                        TileIndex = tileIndex
-                    };
-                }).ToArray();
-
-                var loadedTiles = new HashSet<int>();
-
-                foreach (var oamCollection in oamCollections)
-                {
-                    var oam = oamCollection.OAMs[0];
-
-                    if (loadedTiles.Contains(oam.TileIndex))
-                        continue;
-
-                    var data = allocatedVRAMData.FirstOrDefault(x => x.TileIndex == oam.TileIndex);
-
-                    if (data == null)
-                        continue;
-
-                    var frames = new GBAKlonoa_AnimationFrame[]
-                    {
-                        new GBAKlonoa_AnimationFrame()
-                        {
-                            ImgData = data.ImgData
-                        }
-                    };
-
-                    var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
-                    {
-                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oamCollection.OAMs, palettes).Select(x => x.CreateSprite()).ToArray(), oamCollection.OAMs)
-                    }, $"0x{data.SourcePointer.StringAbsoluteOffset}", new GBAKlonoa_OAM[][]
-                    {
-                        oamCollection.OAMs
-                    });
-
-                    loadedAnimSets.Add(animSet);
-
-                    loadedTiles.Add(oam.TileIndex);
-                }
-            }
+                LoadAnimSets_AllocatedTiles(loadedAnimSets, context, allocationInfos, oamCollections, palettes);
 
             // Load special (hard-coded) animations
             IEnumerable<SpecialAnimation> specialAnims = SpecialAnimations;
@@ -703,19 +643,5 @@ namespace R1Engine
                 new MapVRAMAllocationInfo(0x08060a88, 0x600, tileIndex: 284), // Boss health bar
             },
         };
-
-        public class MapVRAMAllocationInfo
-        {
-            public MapVRAMAllocationInfo(int offset, int length, int? tileIndex = null)
-            {
-                Offset = offset;
-                Length = length;
-                TileIndex = tileIndex;
-            }
-
-            public int Offset { get; }
-            public int Length { get; }
-            public int? TileIndex { get; }
-        }
     }
 }

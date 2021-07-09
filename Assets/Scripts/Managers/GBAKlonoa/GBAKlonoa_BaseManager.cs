@@ -286,19 +286,24 @@ namespace R1Engine
                 dct_GraphisIndex: dct_GraphicsIndex);
         }
 
-        public void LoadAnimSets_ObjGraphics(List<Unity_ObjectManager_GBAKlonoa.AnimSet> loadedAnimSets, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects)
+        public void LoadAnimSets_ObjGraphics(List<Unity_ObjectManager_GBAKlonoa.AnimSet> loadedAnimSets, IEnumerable<GBAKlonoa_ObjectGraphics> animSets, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, bool disableCache = false)
         {
             var loadedAnimSetsDictionary = new Dictionary<Pointer, Unity_ObjectManager_GBAKlonoa.AnimSet>();
 
             // Load animations declared through the graphics data
             foreach (var animSet in animSets)
             {
-                var oam = oamCollections.ElementAtOrDefault(objects.ElementAtOrDefault(animSet.ObjIndex)?.OAMIndex ?? -1);
+                GBAKlonoa_ObjectOAMCollection oam;
+
+                if (objects != null)
+                    oam = oamCollections.ElementAtOrDefault(objects.ElementAtOrDefault(animSet.ObjIndex)?.OAMIndex ?? -1);
+                else
+                    oam = oamCollections.ElementAtOrDefault(animSet.ObjIndex);
 
                 if (animSet.AnimationsPointer == null || oam == null)
                     continue;
 
-                if (!loadedAnimSetsDictionary.ContainsKey(animSet.AnimationsPointer))
+                if (!loadedAnimSetsDictionary.ContainsKey(animSet.AnimationsPointer) || disableCache)
                 {
                     loadedAnimSetsDictionary[animSet.AnimationsPointer] = LoadAnimSet(animSet.Animations, oam.OAMs, palettes);
                     loadedAnimSets.Add(loadedAnimSetsDictionary[animSet.AnimationsPointer]);
@@ -398,6 +403,99 @@ namespace R1Engine
 
                     specialAnimIndex++;
                 }
+            }
+        }
+
+        public void LoadAnimSets_AllocatedTiles(List<Unity_ObjectManager_GBAKlonoa.AnimSet> loadedAnimSets, Context context, MapVRAMAllocationInfo[] allocationInfos, GBAKlonoa_ObjectOAMCollection[] oamCollections, Color[][] palettes)
+        {
+            var s = context.Deserializer;
+            var romFile = context.GetFile(GetROMFilePath);
+            var memFile = context.GetFile(CompressedObjTileBlockName);
+
+            var vramTileIndex = 0;
+            var isEncoded = false;
+            Pointer encodedOffset = null;
+
+            var allocatedVRAMData = allocationInfos.Select((allocationInfo, alloctionIndex) =>
+            {
+                if (allocationInfo.TileIndex != null)
+                    vramTileIndex = allocationInfo.TileIndex.Value;
+
+                var tileIndex = vramTileIndex;
+                var p = allocationInfo.Offset != null 
+                    ? new Pointer(allocationInfo.Offset.Value, allocationInfo.Offset >= GBAConstants.Address_ROM ? romFile : memFile) 
+                    : s.CurrentPointer;
+                
+                if (allocationInfo.Offset != null)
+                {
+                    if (isEncoded)
+                    {
+                        s.EndEncoded(s.CurrentPointer);
+                        isEncoded = false;
+                    }
+
+                    s.Goto(p);
+                }
+
+                if (allocationInfo.IsCompressed)
+                {
+                    encodedOffset = s.CurrentPointer;
+                    p = s.BeginEncoded(new GBAKlonoa_DCT_Encoder());
+                    s.Goto(p);
+                    isEncoded = true;
+                }
+
+                var bytes = s.SerializeArray<byte>(null, allocationInfo.Length * allocationInfo.FramesCount, $"ObjTiles[{alloctionIndex}]");
+
+                vramTileIndex += ((allocationInfo.Length * allocationInfo.FramesCount) / 0x20);
+
+                return new
+                {
+                    DisplayName = isEncoded ? $"{encodedOffset.StringAbsoluteOffset}_{p.StringAbsoluteOffset}" : $"{p.StringAbsoluteOffset}",
+                    ImgData = bytes,
+                    TileIndex = tileIndex,
+                    FramesCount = allocationInfo.FramesCount
+                };
+            }).ToArray();
+
+            if (isEncoded)
+            {
+                s.EndEncoded(s.CurrentPointer);
+                s.Goto(romFile.StartPointer);
+            }
+
+            var loadedTiles = new HashSet<int>();
+
+            foreach (var oamCollection in oamCollections)
+            {
+                var oam = oamCollection.OAMs[0];
+
+                if (loadedTiles.Contains(oam.TileIndex))
+                    continue;
+
+                var data = allocatedVRAMData.FirstOrDefault(x => x.TileIndex == oam.TileIndex);
+
+                if (data == null)
+                    continue;
+
+                var imgDataLength = data.ImgData.Length / data.FramesCount;
+
+                var frames = Enumerable.Range(0, data.FramesCount).Select(f => new GBAKlonoa_AnimationFrame()
+                {
+                    ImgData = data.FramesCount > 1 ? data.ImgData.Skip(imgDataLength * f).Take(imgDataLength).ToArray() : data.ImgData
+                }).ToArray();
+
+                var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
+                {
+                    new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oamCollection.OAMs, palettes).Select(x => x.CreateSprite()).ToArray(), oamCollection.OAMs)
+                }, $"0x{data.DisplayName}", new GBAKlonoa_OAM[][]
+                {
+                    oamCollection.OAMs
+                });
+
+                loadedAnimSets.Add(animSet);
+
+                loadedTiles.Add(oam.TileIndex);
             }
         }
 
@@ -509,6 +607,24 @@ namespace R1Engine
                 return IsFix && obj.Index == Index ||
                        !IsFix && obj.ObjType == Index;
             }
+        }
+
+        public class MapVRAMAllocationInfo
+        {
+            public MapVRAMAllocationInfo(int? offset, int length, int? tileIndex = null, bool isCompressed = false, int framesCount = 1)
+            {
+                Offset = offset;
+                Length = length;
+                TileIndex = tileIndex;
+                IsCompressed = isCompressed;
+                FramesCount = framesCount;
+            }
+
+            public int? Offset { get; }
+            public int Length { get; }
+            public int? TileIndex { get; }
+            public bool IsCompressed { get; }
+            public int FramesCount { get; }
         }
     }
 }

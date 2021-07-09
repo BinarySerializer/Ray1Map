@@ -266,9 +266,17 @@ namespace R1Engine
         public Unity_ObjectManager_GBAKlonoa.AnimSet[] LoadAnimSets(Context context, GBAKlonoa_DCT_ROM rom, bool isMap, GBAKlonoa_ObjectOAMCollection[] fixOam)
         {
             var settings = context.GetR1Settings();
+            var worldIndex = settings.World - 1;
             var isBoss = settings.Level == 9;
             var isEx = settings.Level == 10;
             var loadedAnimSets = new List<Unity_ObjectManager_GBAKlonoa.AnimSet>();
+
+            GBAKlonoa_ObjectOAMCollection[] oam;
+
+            if (isMap)
+                oam = fixOam.Concat(rom.WorldMapObjectOAMCollections[worldIndex]).ToArray();
+            else
+                oam = fixOam;
 
             // Start by adding a null entry to use as default
             loadedAnimSets.Add(new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[0], $"NULL", new GBAKlonoa_OAM[0][]));
@@ -292,8 +300,6 @@ namespace R1Engine
                     if ((graphics.Flags1 & GBAKlonoa_DCT_GraphicsData.GraphicsFlags1.AllocatePalette) != 0 && !pal.Contains(p))
                         pal.Add(p);
                 }*/
-
-                PaletteHelpers.ExportPalette(@"C:\Users\RayCarrot\Downloads\pal.png", pal.SelectMany(x => x.Colors).ToArray(), optionalWrap: 16);
 
                 // Load the graphics datas. The game only loads the ones used in the current level, but we load all of them.
                 foreach (var graphics in rom.GraphicsDatas)
@@ -326,10 +332,34 @@ namespace R1Engine
                 }
             }
 
-            var fullTilePalette = Util.ConvertAndSplitGBAPalette(pal.SelectMany(x => x.Colors).ToArray());
+            if (isMap)
+            {
+                var palPointers = FixedWorldMapPalettes.Concat(WorldMapPalettes[worldIndex]).Select(x => new Pointer(x, context.GetFile(GetROMFilePath)));
+                var s = context.Deserializer;
+
+                var index = 0;
+                foreach (var p in palPointers)
+                {
+                    var palette = s.DoAt(p, () => s.SerializeObject<GBAKlonoa_ObjPal>(null, name: $"Palette[{index}]"));
+                    pal.Add(palette);
+                    index++;
+                }
+            }
+
+            var fullObjPal = Util.ConvertAndSplitGBAPalette(pal.SelectMany(x => x.Colors).ToArray());
 
             // Load animations declared through the graphics data
-            LoadAnimSets_ObjGraphics(loadedAnimSets, rom.FixObjectGraphics, fixOam, fullTilePalette, rom.FixObjects);
+            LoadAnimSets_ObjGraphics(loadedAnimSets, rom.FixObjectGraphics, oam, fullObjPal, rom.FixObjects);
+
+            if (isMap)
+            {
+                // Disable the cache here since different animations in the same set use different palettes
+                LoadAnimSets_ObjGraphics(loadedAnimSets, rom.WorldMapObjectGraphics[worldIndex], oam, fullObjPal, null, disableCache: true);
+
+                var allocationInfos = FixedWorldMapVRAMAllocationInfos.Concat(WorldMapVRAMAllocationInfos[worldIndex]).ToArray();
+
+                LoadAnimSets_AllocatedTiles(loadedAnimSets, context, allocationInfos, rom.WorldMapObjectOAMCollections[worldIndex], fullObjPal);
+            }
 
             // Load special (hard-coded) animations
             IEnumerable<SpecialAnimation> specialAnims = new SpecialAnimation[0];
@@ -421,13 +451,13 @@ namespace R1Engine
 
                 var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
                 {
-                    new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oams[0], fullTilePalette).Select(x => x.CreateSprite()).ToArray(), oams[0])
+                    new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oams[0], fullObjPal).Select(x => x.CreateSprite()).ToArray(), oams[0])
                 }, $"0x081d6700", oams);
 
                 loadedAnimSets.Add(animSet);
             }
 
-            LoadAnimSets_SpecialAnims(loadedAnimSets, context, specialAnims, fullTilePalette, rom.FixObjects, rom.FixObjectOAMCollections, FixCount);
+            LoadAnimSets_SpecialAnims(loadedAnimSets, context, specialAnims, fullObjPal, rom.FixObjects, rom.FixObjectOAMCollections, FixCount);
 
             return loadedAnimSets.ToArray();
         }
@@ -555,6 +585,121 @@ namespace R1Engine
             new AnimSetInfo(0x081D5E48, 4),
             new AnimSetInfo(0x081D5E58, 4),
             new AnimSetInfo(0x081D5E68, 1),
+
+            // World map
+            new AnimSetInfo(0x081d5e70, 4),
+            new AnimSetInfo(0x081d5e80, 4),
+            new AnimSetInfo(0x081d5e90, 3),
+            new AnimSetInfo(0x081d5e9c, 4),
+            new AnimSetInfo(0x081d5eac, 5),
+        };
+
+        public MapVRAMAllocationInfo[] FixedWorldMapVRAMAllocationInfos => new MapVRAMAllocationInfo[]
+        {
+            new MapVRAMAllocationInfo(0x083be710, 0x200, isCompressed: true, tileIndex: 280),
+            new MapVRAMAllocationInfo(null, 0x200),
+            new MapVRAMAllocationInfo(null, 0x200),
+            new MapVRAMAllocationInfo(null, 0x200),
+            new MapVRAMAllocationInfo(null, 0x200),
+            new MapVRAMAllocationInfo(null, 0x200),
+            new MapVRAMAllocationInfo(null, 0x200),
+            new MapVRAMAllocationInfo(null, 0x200),
+        };
+
+        public MapVRAMAllocationInfo[][] WorldMapVRAMAllocationInfos => new MapVRAMAllocationInfo[][]
+        {
+            // World 1
+            new MapVRAMAllocationInfo[]
+            {
+                new MapVRAMAllocationInfo(0x083bec08, 0x800, isCompressed: true),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x800),
+
+                new MapVRAMAllocationInfo(0x083c214c, 0x200, isCompressed: true, tileIndex: 680, framesCount: 8),
+            },
+
+            // World 2
+            new MapVRAMAllocationInfo[]
+            {
+
+            },
+
+            // World 3
+            new MapVRAMAllocationInfo[]
+            {
+
+            },
+
+            // World 4
+            new MapVRAMAllocationInfo[]
+            {
+
+            },
+
+            // World 5
+            new MapVRAMAllocationInfo[]
+            {
+
+            },
+
+            // World 6
+            new MapVRAMAllocationInfo[]
+            {
+
+            },
+        };
+
+        public uint[] FixedWorldMapPalettes => new uint[]
+        {
+            0x0808e308,
+            0x0808e328,
+        };
+
+        public uint[][] WorldMapPalettes => new uint[][]
+        {
+            // World 1
+            new uint[]
+            {
+                0x0808e348,
+                0x0808e368,
+                0x0808e388,
+                0x0808e3a8,
+                0x0808e3c8
+            },
+
+            // World 2
+            new uint[]
+            {
+
+            },
+
+            // World 3
+            new uint[]
+            {
+
+            },
+
+            // World 4
+            new uint[]
+            {
+
+            },
+
+            // World 5
+            new uint[]
+            {
+
+            },
+
+            // World 6
+            new uint[]
+            {
+
+            },
         };
     }
 }

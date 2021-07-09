@@ -84,6 +84,9 @@ namespace R1Engine
                 ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
             }
 
+            if (ImgDataPointer == null)
+                Debug.LogWarning($"Animation frame data is null at {Offset}");
+
             s.Log($"{nameof(ImgDataPointer)}: {ImgDataPointer}");
 
             Speed = s.Serialize<byte>(Speed, name: nameof(Speed));

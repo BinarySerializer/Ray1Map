@@ -29,6 +29,8 @@ namespace R1Engine
         public GBAKlonoa_LevelObjectCollection LevelObjectCollection { get; set; } // For current level only - too slow to read all of them
         public GBAKlonoa_WorldMapObjectCollection WorldMapObjectCollection { get; set; }
         public GBAKlonoa_ObjectGraphics[] FixObjectGraphics { get; set; }
+        public Pointer[] WorldMapObjectGraphicPointers { get; set; }
+        public GBAKlonoa_ObjectGraphics[][] WorldMapObjectGraphics { get; set; }
         public GBAKlonoa_DCT_GraphicsData[] GraphicsDatas { get; set; }
         public GBAKlonoa_ObjectOAMCollection[] FixObjectOAMCollections { get; set; }
         public Pointer[] WorldMapObjectOAMCollectionPointers { get; set; }
@@ -210,6 +212,22 @@ namespace R1Engine
                 fixGraphicsPointer = new Pointer(0x08070a10, Offset.File);
 
             s.DoAt(fixGraphicsPointer, () => FixObjectGraphics = s.SerializeObjectArray<GBAKlonoa_ObjectGraphics>(FixObjectGraphics, 9, name: nameof(FixObjectGraphics)));
+
+            if (isMap)
+            {
+                // Serialize world map object graphics
+                s.DoAt(new Pointer(0x081d5ec0, Offset.File), () => WorldMapObjectGraphicPointers = s.SerializePointerArray(WorldMapObjectGraphicPointers, normalWorldsCount, name: nameof(WorldMapObjectGraphicPointers)));
+
+                WorldMapObjectGraphics ??= new GBAKlonoa_ObjectGraphics[WorldMapObjectGraphicPointers.Length][];
+                s.DoAt(WorldMapObjectGraphicPointers[settings.World - 1], () =>
+                {
+                    WorldMapObjectGraphics[settings.World - 1] = s.SerializeObjectArrayUntil<GBAKlonoa_ObjectGraphics>(
+                        obj: WorldMapObjectGraphics[settings.World - 1],
+                        conditionCheckFunc: x => x.AnimationsPointerValue == 0,
+                        getLastObjFunc: () => new GBAKlonoa_ObjectGraphics(),
+                        name: $"{nameof(WorldMapObjectGraphics)}[{settings.World - 1}]");
+                });
+            }
 
             if (!isMap)
             {
