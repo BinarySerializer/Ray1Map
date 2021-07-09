@@ -1,6 +1,6 @@
 {
   "name": "Klonoa: Empire of Dreams (GBA - US)",
-  "mode": "KlonoaEmpireOfDreamsGBA",
+  "mode": "KlonoaEmpireOfDreamsGBAUS",
   "folder": "gba_klonoa/empire_of_dreams_us",
   "levels": [
     { "world": 1, "level": 0, "nameInternal": "1-0", "name": "Ghazzaland" },
