@@ -625,25 +625,62 @@ namespace R1Engine
             // World 2
             new MapVRAMAllocationInfo[]
             {
+                new MapVRAMAllocationInfo(0x083bf63c, 0x800, isCompressed: true),
+                new MapVRAMAllocationInfo(null, 0x800),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
 
+                new MapVRAMAllocationInfo(0x083c214c, 0x200, isCompressed: true, tileIndex: 728, framesCount: 8),
             },
 
             // World 3
             new MapVRAMAllocationInfo[]
             {
+                new MapVRAMAllocationInfo(0x083c03cc, 0x200, isCompressed: true),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x800),
+                new MapVRAMAllocationInfo(null, 0x200),
 
+                new MapVRAMAllocationInfo(0x083c214c, 0x200, isCompressed: true, tileIndex: 600, framesCount: 8),
             },
 
             // World 4
             new MapVRAMAllocationInfo[]
             {
+                new MapVRAMAllocationInfo(0x083c0d68, 0x200, isCompressed: true),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x800),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
 
+                new MapVRAMAllocationInfo(0x083c214c, 0x200, isCompressed: true, tileIndex: 616, framesCount: 8),
             },
 
             // World 5
             new MapVRAMAllocationInfo[]
             {
+                new MapVRAMAllocationInfo(0x083c1454, 0x200, isCompressed: true),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x800),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x800),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x200),
+                new MapVRAMAllocationInfo(null, 0x1c0),
+                new MapVRAMAllocationInfo(null, 0x1c0),
+                new MapVRAMAllocationInfo(null, 0x1C0),
 
+                new MapVRAMAllocationInfo(0x083c214c, 0x200, isCompressed: true, tileIndex: 754, framesCount: 8),
             },
 
             // World 6
@@ -674,25 +711,39 @@ namespace R1Engine
             // World 2
             new uint[]
             {
-
+                0x0808e3e8,
+                0x0808e408,
+                0x0808e428,
+                0x0808e3c8
             },
 
             // World 3
             new uint[]
             {
-
+                0x0808e448,
+                0x0808e468,
+                0x0808e488,
+                0x0808e4a8,
             },
 
             // World 4
             new uint[]
             {
-
+                0x0808e4c8,
+                0x0808e4e8,
+                0x0808e508,
+                0x0808e528,
+                0x0808e548
             },
 
             // World 5
             new uint[]
             {
-
+                0x0808e568,
+                0x0808e588,
+                0x0808e5a8,
+                0x0808e5c8,
+                0x0808e5e8,
             },
 
             // World 6
