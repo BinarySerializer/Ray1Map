@@ -14,7 +14,9 @@ namespace R1Engine
             StartInfo_Entry = s.SerializeObject<GBAKlonoa_LevelStartInfo>(StartInfo_Entry, name: nameof(StartInfo_Entry));
             StartInfos_Yellow = s.SerializeObjectArray<GBAKlonoa_LevelStartInfo>(StartInfos_Yellow, 10, name: nameof(StartInfos_Yellow));
             StartInfos_Green = s.SerializeObjectArray<GBAKlonoa_LevelStartInfo>(StartInfos_Green, 10, name: nameof(StartInfos_Green));
-            DCT_StartInfo_Unknown = s.SerializeObject<GBAKlonoa_LevelStartInfo>(DCT_StartInfo_Unknown, name: nameof(DCT_StartInfo_Unknown));
+
+            if (s.GetR1Settings().EngineVersion == EngineVersion.KlonoaGBA_DCT)
+                DCT_StartInfo_Unknown = s.SerializeObject<GBAKlonoa_LevelStartInfo>(DCT_StartInfo_Unknown, name: nameof(DCT_StartInfo_Unknown));
         }
     }
 }
