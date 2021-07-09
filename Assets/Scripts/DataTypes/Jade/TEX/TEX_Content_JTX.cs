@@ -232,6 +232,7 @@ namespace R1Engine.Jade
             } else if (PSP_Content != null) {
                 content = PSP_Content.UnswizzledContent;
             }
+            if(content == null) return null;
             Color[] palette = Palette?.Value != null ? Palette.Value.Colors.Select(c => c.GetColor()).ToArray() : null;
             switch (Format) {
                 case JTX_Format.Palette_8:

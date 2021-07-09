@@ -811,8 +811,26 @@ namespace R1Engine {
         PrinceOfPersiaWarriorWithinIOS,
 
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PC)", typeof(Jade_PoP_T2T_PC_Manager), Platform.PC)]
+        PrinceOfPersiaTheTwoThronesPC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (GC)", typeof(Jade_PoP_T2T_GC_Manager), Platform.GC)]
+        PrinceOfPersiaTheTwoThronesGC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (Wii)", typeof(Jade_PoP_T2T_Wii_Manager), Platform.Wii)]
+        PrinceOfPersiaTheTwoThronesWii,
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PS2)", typeof(Jade_PoP_T2T_PS2_Manager), Platform.PS2)]
         PrinceOfPersiaTheTwoThronesPS2,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PSP)", typeof(Jade_PoP_T2T_PSP_Manager), Platform.PSP)]
+        PrinceOfPersiaTheTwoThronesPSP,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (Xbox)", typeof(Jade_PoP_T2T_Xbox_Manager), Platform.Xbox)]
+        PrinceOfPersiaTheTwoThronesXbox,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (Xbox - Prototype 2005/10/02)", typeof(Jade_PoP_T2T_Xbox_20051002_Manager), Platform.Xbox)]
+        PrinceOfPersiaTheTwoThronesXbox_20051002,
 
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]
