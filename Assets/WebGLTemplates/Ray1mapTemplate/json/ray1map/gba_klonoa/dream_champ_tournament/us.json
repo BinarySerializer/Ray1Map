@@ -1,6 +1,6 @@
 {
   "name": "Klonoa 2: Dream Champ Tournament (GBA - US)",
-  "mode": "",
+  "mode": "KlonoaDreamChampTournamentGBAUS",
   "folder": "gba_klonoa/dream_champ_tournament_us",
   "levels": [
     { "world": 1, "level": 0, "nameInternal": "1-0", "name": "Western Jungle" },
