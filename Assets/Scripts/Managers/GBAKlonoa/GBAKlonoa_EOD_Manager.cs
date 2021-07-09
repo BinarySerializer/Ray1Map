@@ -134,14 +134,18 @@ namespace R1Engine
                 }
 
                 // Add Klonoa at each start position
-                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), x, allOAMCollections[0])));
+                objects.AddRange(startInfos.Select(x => new Unity_Object_GBAKlonoa(objmanager, new GBAKlonoa_LoadedObject(0, 0, x.XPos, x.YPos, 0, 0, 0, 0, 0x6e), x, allOAMCollections[0], x.Sector - 1)));
             }
 
             // Add fixed objects, except Klonoa (first one) and object 11/12 for maps since it's not used
-            objects.AddRange(fixObjects.Skip(isMap ? 0 : 1).Where(x => !isMap || (x.Index != 11 && x.Index != 12)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex])));
+            objects.AddRange(fixObjects.Skip(isMap ? 0 : 1).Where(x => !isMap || (x.Index != 11 && x.Index != 12)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, allOAMCollections[x.OAMIndex], -1)));
 
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
-            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || x.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, (BinarySerializable)x.LevelObj ?? x.WorldMapObj, allOAMCollections[x.OAMIndex])));
+            objects.AddRange(levelObjects.SelectMany((x, i) => x.Select(o => new
+            {
+                Data = o,
+                SectorIndex = i
+            })).Where(x => isMap || x.Data.Value_8 != 28).Select(x => new Unity_Object_GBAKlonoa(objmanager, x.Data, (BinarySerializable)x.Data.LevelObj ?? x.Data.WorldMapObj, allOAMCollections[x.Data.OAMIndex], levelObjects.Length > 1 ? x.SectorIndex : -1)));
 
             if (isMap) 
                 CorrectWorldMapObjectPositions(objects, maps[2].Width, maps[2].Height);

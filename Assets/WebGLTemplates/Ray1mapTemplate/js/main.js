@@ -963,6 +963,7 @@ function getObjVars(obj) {
 
 	// GBAKlonoa
 	if(obj.hasOwnProperty("GBAKlonoa_ObjType")) objVars.push({"Name": "ObjectType", "Value": obj.GBAKlonoa_ObjType});
+	if(obj.hasOwnProperty("GBAKlonoa_Sector")) objVars.push({"Name": "Sector", "Value": obj.GBAKlonoa_Sector});
 	if(obj.hasOwnProperty("GBAKlonoa_Palettes")) objVars.push({"Name": "Palettes", "Value": obj.GBAKlonoa_Palettes});
 	if(obj.hasOwnProperty("GBAKlonoa_Tiles")) objVars.push({"Name": "Tiles", "Value": obj.GBAKlonoa_Tiles});
 	if(obj.hasOwnProperty("GBAKlonoa_Shapes")) objVars.push({"Name": "Shapes", "Value": obj.GBAKlonoa_Shapes});
@@ -1560,6 +1561,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	// GBAKlonoa
 	if(newObj.hasOwnProperty("GBAKlonoa_AnimSetIndex")) oldObj.GBAKlonoa_AnimSetIndex = newObj.GBAKlonoa_AnimSetIndex;
 	if(newObj.hasOwnProperty("GBAKlonoa_ObjType")) oldObj.GBAKlonoa_ObjType = newObj.GBAKlonoa_ObjType;
+	if(newObj.hasOwnProperty("GBAKlonoa_Sector")) oldObj.GBAKlonoa_Sector = newObj.GBAKlonoa_Sector;
 	if(newObj.hasOwnProperty("GBAKlonoa_Palettes")) oldObj.GBAKlonoa_Palettes = newObj.GBAKlonoa_Palettes;
 	if(newObj.hasOwnProperty("GBAKlonoa_Tiles")) oldObj.GBAKlonoa_Tiles = newObj.GBAKlonoa_Tiles;
 	if(newObj.hasOwnProperty("GBAKlonoa_Shapes")) oldObj.GBAKlonoa_Shapes = newObj.GBAKlonoa_Shapes;

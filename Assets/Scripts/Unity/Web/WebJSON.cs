@@ -168,6 +168,7 @@ public class WebJSON {
 		public string[] GBAKlonoa_AnimSetNames { get; set; }
 		public int? GBAKlonoa_Index { get; set; }
 		public int? GBAKlonoa_ObjType { get; set; }
+		public int? GBAKlonoa_Sector { get; set; }
 		public string GBAKlonoa_Palettes { get; set; }
 		public string GBAKlonoa_Tiles { get; set; }
 		public string GBAKlonoa_Shapes { get; set; }
