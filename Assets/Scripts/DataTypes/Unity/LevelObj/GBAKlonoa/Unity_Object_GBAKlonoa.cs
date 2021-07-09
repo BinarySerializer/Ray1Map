@@ -79,7 +79,13 @@ namespace R1Engine
                         Rotation = 45;
                 }
 
-                Rotation = Object.ObjType == 62 ? 90 * (Object.Param_2 - 1) : (float?)null;
+                // Waterfall fix
+                if (Object.ObjType == 68)
+                    AnimIndex = 1;
+                else if (Object.ObjType == 69)
+                    AnimIndex = 2;
+
+                Rotation = Object.ObjType == 62 || Object.ObjType == 121 ? 90 * (Object.Param_2 - 1) : (float?)null;
 
                 // Hack for world map objects
                 if (settings.Level == 0 && Object.Index >= GBAKlonoa_DCT_Manager.FixCount)
