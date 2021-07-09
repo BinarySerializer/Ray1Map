@@ -8,12 +8,13 @@ namespace R1Engine
 {
     public class Unity_Object_GBAKlonoa : Unity_Object_3D
     {
-        public Unity_Object_GBAKlonoa(Unity_ObjectManager_GBAKlonoa objManager, GBAKlonoa_LoadedObject obj, BinarySerializable serializable, GBAKlonoa_ObjectOAMCollection oamCollection)
+        public Unity_Object_GBAKlonoa(Unity_ObjectManager_GBAKlonoa objManager, GBAKlonoa_LoadedObject obj, BinarySerializable serializable, GBAKlonoa_ObjectOAMCollection oamCollection, int sectorIndex)
         {
             ObjManager = objManager;
             Object = obj;
             Serializable = serializable;
             OAMCollection = oamCollection;
+            SectorIndex = sectorIndex;
 
             var settings = objManager.Context.GetR1Settings();
             var engineVersion = settings.EngineVersion;
@@ -79,6 +80,14 @@ namespace R1Engine
                         Rotation = 45;
                 }
 
+                // Waterfall fix
+                if (Object.ObjType == 68)
+                    AnimIndex = 1;
+                else if (Object.ObjType == 69)
+                    AnimIndex = 2;
+
+                Rotation = Object.ObjType == 62 || Object.ObjType == 121 ? 90 * (Object.Param_2 - 1) : (float?)null;
+
                 // Hack for world map objects
                 if (settings.Level == 0 && Object.Index >= GBAKlonoa_DCT_Manager.FixCount)
                 {
@@ -106,6 +115,7 @@ namespace R1Engine
         public GBAKlonoa_LoadedObject Object { get; set; }
         public BinarySerializable Serializable { get; }
         public GBAKlonoa_ObjectOAMCollection OAMCollection { get; }
+        public int SectorIndex { get; }
 
         public override short XPosition
         {
@@ -146,6 +156,7 @@ namespace R1Engine
         }
 
         public override string DebugText => $"Index: {Object.Index}{Environment.NewLine}" +
+                                            $"Sector: {SectorIndex}{Environment.NewLine}" +
                                             (OAMCollection != null ? String.Join(Environment.NewLine, OAMCollection.OAMs.Select((x, i) =>
                                                 $"Pal_{i}: {x.PaletteIndex}{Environment.NewLine}" +
                                                 $"Tile_{i}: {x.TileIndex}{Environment.NewLine}" +

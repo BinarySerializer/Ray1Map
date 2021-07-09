@@ -238,16 +238,24 @@ namespace R1Engine
                         {
                             for (int x = 0; x < shape.Width; x += CellSize)
                             {
-                                tex.FillInTile(
-                                    imgData: frame.ImgData,
-                                    imgDataOffset: imgDataOffset + tileIndex * 0x20,
-                                    pal: pal,
-                                    encoding: Util.TileEncoding.Linear_4bpp,
-                                    tileWidth: CellSize,
-                                    flipTextureY: true,
-                                    flipTextureX: false,
-                                    tileX: x + spriteRects[spriteIndex].x,
-                                    tileY: y + spriteRects[spriteIndex].y);
+                                try
+                                {
+                                    tex.FillInTile(
+                                        imgData: frame.ImgData,
+                                        imgDataOffset: imgDataOffset + tileIndex * 0x20,
+                                        pal: pal,
+                                        encoding: Util.TileEncoding.Linear_4bpp,
+                                        tileWidth: CellSize,
+                                        flipTextureY: true,
+                                        flipTextureX: false,
+                                        tileX: x + spriteRects[spriteIndex].x,
+                                        tileY: y + spriteRects[spriteIndex].y);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.LogWarning($"Error filling in tile for frames at {frames.First().Offset} with buffer length {frame.ImgData.Length} and size {shape.Width}x{shape.Height}" +
+                                                     $"{Environment.NewLine}Exception {ex}");
+                                }
 
                                 tileIndex++;
                             }

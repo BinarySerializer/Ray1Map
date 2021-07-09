@@ -339,6 +339,15 @@
 					"versions": [
 						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_klonoa/empire_of_dreams_us" }
 					]
+				},
+				{
+					"title": "Klonoa 2: Dream Champ Tournament",
+					"viewer": "ray1map",
+					"json": "gba_klonoa\/dream_champ_tournament",
+					"image": ".\/img\/logo\/klonoa_dream_champ_tournament.png",
+					"versions": [
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_klonoa/dream_champ_tournament_us" }
+					]
 				}
 			]
 		},

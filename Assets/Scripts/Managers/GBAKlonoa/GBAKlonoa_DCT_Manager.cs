@@ -135,18 +135,23 @@ namespace R1Engine
                         value6: klonoa.Value_6, 
                         param_2: klonoa.Param_2, 
                         value8: klonoa.Value_8, 
-                        objType: klonoa.ObjType), x, fixOam[klonoa.OAMIndex])));
+                        objType: klonoa.ObjType), x, fixOam[klonoa.OAMIndex], x.Sector - 1)));
             }
 
             // Add fixed objects, except Klonoa (first one) and object 11/12 for maps since it's not used
-            objects.AddRange(fixObjects.Skip(!hasStartPositions ? 0 : 1).Where(x => !isMap || (x.Index != 11 && x.Index != 12)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, fixOam[x.OAMIndex])));
+            objects.AddRange(fixObjects.Skip(!hasStartPositions ? 0 : 1).Where(x => !isMap || (x.Index != 11 && x.Index != 12)).Select(x => new Unity_Object_GBAKlonoa(objmanager, x, null, fixOam[x.OAMIndex], -1)));
 
             // Add level objects, duplicating them for each sector they appear in (if flags is 28 we assume it's unused in the sector)
-            objects.AddRange(levelObjects.SelectMany(x => x).Where(x => isMap || isWaterSki || x.Value_8 != 31).Select(x => new Unity_Object_GBAKlonoa(
+            objects.AddRange(levelObjects.SelectMany((x, i) => x.Select(o => new
+            {
+                Data = o,
+                SectorIndex = i
+            })).Where(x => isMap || isWaterSki || x.Data.Value_8 != 31).Select(x => new Unity_Object_GBAKlonoa(
                 objManager: objmanager, 
-                obj: x, 
-                serializable: (BinarySerializable)x.LevelObj ?? x.WorldMapObj, 
-                oamCollection: isMap ? rom.WorldMapObjectOAMCollections[settings.World - 1][x.OAMIndex - FixCount] : null)));
+                obj: x.Data, 
+                serializable: (BinarySerializable)x.Data.LevelObj ?? x.Data.WorldMapObj, 
+                oamCollection: isMap ? rom.WorldMapObjectOAMCollections[settings.World - 1][x.Data.OAMIndex - FixCount] : null,
+                sectorIndex: levelObjects.Length > 1 ? x.SectorIndex : -1)));
 
             if (isMap)
                 CorrectWorldMapObjectPositions(objects, maps.Last().Width, maps.Last().Height);
@@ -162,7 +167,7 @@ namespace R1Engine
 
                 trackManager = new Unity_TrackManager_Linear(
                     start: new Vector3(x, 0, z), 
-                    end: new Vector3(x, -cmds.Last(c => c.CmdType == GBAKlonoa_DCT_WaterSkiCommand.WaterSkiCommandType.EndOfSector).XPos, z));
+                    end: new Vector3(x, -cmds.Where(c => c.CmdType == GBAKlonoa_DCT_WaterSkiCommand.WaterSkiCommandType.Object_0).Max(c => c.XPos) - 20, z));
             }
 
             return new Unity_Level(
@@ -509,7 +514,7 @@ namespace R1Engine
         public override AnimSetInfo[] AnimSetInfos => new AnimSetInfo[]
         {
             new AnimSetInfo(0x081D57F4, 39),
-            new AnimSetInfo(0x081D5890, 76),
+            new AnimSetInfo(0x081D5890, 76), // Actually multiple sets, but easiest to read as 1 since the game switches between them
             new AnimSetInfo(0x081D59C0, 39),
             new AnimSetInfo(0x081D5A5C, 3),
             new AnimSetInfo(0x081D5A68, 5),

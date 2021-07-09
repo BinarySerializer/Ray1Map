@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine
@@ -81,7 +82,10 @@ namespace R1Engine
             }
             else
             {
-                ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
+                if (ImgDataPointerValue >= GBAConstants.Address_ROM)
+                    ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
+                else
+                    ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.Context.GetFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
             }
 
             s.Log($"{nameof(ImgDataPointer)}: {ImgDataPointer}");
@@ -92,6 +96,9 @@ namespace R1Engine
             Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
 
             s.DoAt(ImgDataPointer, () => s.DoEncodedIf(new GBA_RLEEncoder(), IsRLECompressed, () => ImgData = s.SerializeArray<byte>(ImgData, Pre_ImgDataLength, name: nameof(ImgData))));
+
+            if (ImgData != null && ImgData.Length != Pre_ImgDataLength)
+                Debug.LogWarning($"Incorrect frame data length of {ImgData.Length} (should be {Pre_ImgDataLength}) at {Offset}");
         }
     }
 }
