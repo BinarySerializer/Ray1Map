@@ -59,7 +59,7 @@ namespace R1Engine.Jade {
 		GAO_ModifierEyeTrail = 46, // Found in Spree
 		GAO_ModifierCharacterFX = 47,
 		GAO_ModifierEcharpe = 48, // Added in T2T
-		GAO_ModifierSoftBodyColl = 49, // Added in TMNT
+		GAO_ModifierSoftBodyColl = 49, // Added in T2T
 		GAO_ModifierBeamCutter = 50, // Added in TMNT
 		GAO_ModifierMotionBlur = 51,
 		GAO_ModifierAlphaFade = 52,
