@@ -367,7 +367,7 @@ namespace R1Engine
             }
 
             // Load special (hard-coded) animations
-            IEnumerable<SpecialAnimation> specialAnims = new SpecialAnimation[0];
+            IEnumerable<SpecialAnimation> specialAnims = SpecialAnimations;
 
             // Add Klonoa's attack
             specialAnims = specialAnims.Concat(new SpecialAnimation[]
@@ -462,7 +462,7 @@ namespace R1Engine
                 loadedAnimSets.Add(animSet);
             }
 
-            LoadAnimSets_SpecialAnims(loadedAnimSets, context, specialAnims, fullObjPal, rom.FixObjects, rom.FixObjectOAMCollections, FixCount);
+            LoadAnimSets_SpecialAnims(loadedAnimSets, context, specialAnims, fullObjPal, rom.FixObjects, rom.FixObjectOAMCollections, FixCount, rom.GraphicsDatas);
 
             return loadedAnimSets.ToArray();
         }
@@ -597,6 +597,14 @@ namespace R1Engine
             new AnimSetInfo(0x081d5e90, 3),
             new AnimSetInfo(0x081d5e9c, 4),
             new AnimSetInfo(0x081d5eac, 5),
+        };
+
+        public SpecialAnimation[] SpecialAnimations => new SpecialAnimation[]
+        {
+            new SpecialAnimation(0x081d6670, 4, false, -1, dct_GraphisIndex: 41), // Green gem
+            new SpecialAnimation(0x081d6680, 4, false, -1, dct_GraphisIndex: 42), // Blue gem
+            new SpecialAnimation(0x081d6690, 4, false, -1, dct_GraphisIndex: 43), // Heart
+            new SpecialAnimation(0x081d66a0, 4, false, -1, dct_GraphisIndex: 39), // Star
         };
 
         public MapVRAMAllocationInfo[] FixedWorldMapVRAMAllocationInfos => new MapVRAMAllocationInfo[]

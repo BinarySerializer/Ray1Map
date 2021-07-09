@@ -315,7 +315,7 @@ namespace R1Engine
             }
         }
 
-        public void LoadAnimSets_SpecialAnims(List<Unity_ObjectManager_GBAKlonoa.AnimSet> loadedAnimSets, Context context, IEnumerable<SpecialAnimation> specialAnims, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, GBAKlonoa_ObjectOAMCollection[] oamCollections, int fixCount)
+        public void LoadAnimSets_SpecialAnims(List<Unity_ObjectManager_GBAKlonoa.AnimSet> loadedAnimSets, Context context, IEnumerable<SpecialAnimation> specialAnims, Color[][] palettes, IList<GBAKlonoa_LoadedObject> objects, GBAKlonoa_ObjectOAMCollection[] oamCollections, int fixCount, GBAKlonoa_DCT_GraphicsData[] graphicsDatas = null)
         {
             var romFile = context.GetFile(GetROMFilePath);
             var s = context.Deserializer;
@@ -356,6 +356,21 @@ namespace R1Engine
                         offset += tilesCount * 0x20;
                     }
                 }
+                else if (specialAnim.DCT_GraphisIndex != -1)
+                {
+                    var g = graphicsDatas?.ElementAtOrDefault(specialAnim.DCT_GraphisIndex);
+                    var oams = g?.OAMs;
+
+                    if (oams == null)
+                        continue;
+
+                    loadedAnimSets.RemoveAll(x => x.DCT_GraphisIndex == specialAnim.DCT_GraphisIndex);
+                    
+                    loadSpecialAnimation(new GBAKlonoa_OAM[][]
+                    {
+                        oams
+                    }, specialAnim.Offset, specialAnim.FrameOffsets, specialAnim.FramesCount, pal: Util.ConvertAndSplitGBAPalette(g.Palette.Colors), singlePal: true);
+                }
                 else
                 {
                     // Find an object which uses this animation (filter out 0,0 objects here too since some unused objects get placed there with wrong graphics...)
@@ -367,8 +382,9 @@ namespace R1Engine
                     loadSpecialAnimation(oams, specialAnim.Offset, specialAnim.FrameOffsets, specialAnim.FramesCount);
                 }
 
-                void loadSpecialAnimation(IReadOnlyList<GBAKlonoa_OAM[]> oams, long? offset, IReadOnlyList<long> frameOffsets, int framesCount)
+                void loadSpecialAnimation(IReadOnlyList<GBAKlonoa_OAM[]> oams, long? offset, IReadOnlyList<long> frameOffsets, int framesCount, Color[][] pal = null, bool singlePal = false)
                 {
+                    pal ??= palettes;
                     var imgDataLength = oams[0].Select(o => (shapes[o.Shape].Width / CellSize) * (shapes[o.Shape].Height / CellSize) * 0x20).Sum();
                     var animsPointer = new Pointer(offset ?? frameOffsets[0], romFile);
 
@@ -390,14 +406,20 @@ namespace R1Engine
 
                         frames[frameIndex] = new GBAKlonoa_AnimationFrame()
                         {
-                            ImgData = imgData
+                            ImgData = imgData,
+                            Speed = 3 // This will be different for different animations, so we default to 3
                         };
                     }
 
-                    var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
-                    {
-                        new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(() => GetAnimFrames(frames, oams[0], palettes).Select(x => x.CreateSprite()).ToArray(), oams[0])
-                    }, $"0x{animsPointer.StringAbsoluteOffset}", oams);
+                    var animSet = new Unity_ObjectManager_GBAKlonoa.AnimSet(
+                        animations: new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation[]
+                        {
+                            new Unity_ObjectManager_GBAKlonoa.AnimSet.Animation(
+                                animFrameFunc: () => GetAnimFrames(frames, oams[0], pal, singlePal: singlePal).Select(x => x.CreateSprite()).ToArray(), 
+                                oamCollection: oams[0])
+                        }, displayName: $"0x{animsPointer.StringAbsoluteOffset}", 
+                        oamCollections: oams,
+                        dct_GraphisIndex: specialAnim.DCT_GraphisIndex);
 
                     loadedAnimSets.Add(animSet);
 
@@ -533,12 +555,13 @@ namespace R1Engine
 
         public class SpecialAnimation
         {
-            public SpecialAnimation(long framesArrayOffset, int framesCount, bool isFix, int index)
+            public SpecialAnimation(long framesArrayOffset, int framesCount, bool isFix, int index, int dct_GraphisIndex = -1)
             {
                 Offset = framesArrayOffset;
                 FramesCount = framesCount;
                 IsFix = isFix;
                 Index = index;
+                DCT_GraphisIndex = dct_GraphisIndex;
             }
             public SpecialAnimation(long frameOffset, bool isFix, int index, int? groupCount = null, int? objParam_1 = null, int? objParam_2 = null)
             {
@@ -551,12 +574,14 @@ namespace R1Engine
                 GroupCount = groupCount;
                 ObjParam_1 = objParam_1;
                 ObjParam_2 = objParam_2;
+                DCT_GraphisIndex = -1;
             }
             public SpecialAnimation(long[] frameOffsets, bool isFix, int index)
             {
                 FrameOffsets = frameOffsets;
                 IsFix = isFix;
                 Index = index;
+                DCT_GraphisIndex = -1;
             }
 
             /// <summary>
@@ -595,6 +620,8 @@ namespace R1Engine
             public int? ObjParam_1 { get; }
 
             public int? ObjParam_2 { get; }
+
+            public int DCT_GraphisIndex { get; }
 
             public bool MatchesObject(GBAKlonoa_LoadedObject obj)
             {
