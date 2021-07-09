@@ -79,6 +79,8 @@ namespace R1Engine
                         Rotation = 45;
                 }
 
+                Rotation = Object.ObjType == 62 ? 90 * (Object.Param_2 - 1) : (float?)null;
+
                 // Hack for world map objects
                 if (settings.Level == 0 && Object.Index >= GBAKlonoa_DCT_Manager.FixCount)
                 {

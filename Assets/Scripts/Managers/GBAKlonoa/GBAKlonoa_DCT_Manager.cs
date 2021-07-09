@@ -509,7 +509,7 @@ namespace R1Engine
         public override AnimSetInfo[] AnimSetInfos => new AnimSetInfo[]
         {
             new AnimSetInfo(0x081D57F4, 39),
-            new AnimSetInfo(0x081D5890, 76),
+            new AnimSetInfo(0x081D5890, 76), // Actually multiple sets, but easiest to read as 1 since the game switches between them
             new AnimSetInfo(0x081D59C0, 39),
             new AnimSetInfo(0x081D5A5C, 3),
             new AnimSetInfo(0x081D5A68, 5),

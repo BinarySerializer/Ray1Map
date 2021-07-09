@@ -54,12 +54,14 @@ namespace R1Engine
 
                     break;
 
-                case WaterSkiCommandType.CMD_02:
+                case WaterSkiCommandType.ChangeDirection:
 
                     Ushort_00 = s.Serialize<ushort>(Ushort_00, name: nameof(Ushort_00));
 
                     if (Ushort_00 * 0x1000000 < 1)
-                        Debug.LogWarning($"Fixed graphics should change");
+                    {
+                        // This changes the animations of Klonoa facing him towards the camera
+                    }
                     
                     break;
 
@@ -163,7 +165,7 @@ namespace R1Engine
         {
             Object_0 = 0x00,
             CMD_01 = 0x01,
-            CMD_02 = 0x02,
+            ChangeDirection = 0x02,
             EndOfSector = 0x03,
             CMD_04 = 0x04,
             CMD_05 = 0x05,
