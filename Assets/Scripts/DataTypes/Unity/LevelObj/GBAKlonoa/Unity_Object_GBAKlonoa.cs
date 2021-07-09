@@ -85,14 +85,17 @@ namespace R1Engine
                     var rom = ObjManager.Context.GetMainFileObject<GBAKlonoa_DCT_ROM>(GBAKlonoa_BaseManager.GetROMFilePath);
                     var graphics = rom.WorldMapObjectGraphics[settings.World - 1];
 
-                    for (int i = 0; i < graphics.Length; i++)
+                    if (graphics != null)
                     {
-                        var g = graphics[i];
-
-                        if ((g.VRAMPointer - 0x06010000) / 0x20 == OAMCollection.OAMs[0].TileIndex)
+                        for (int i = 0; i < graphics.Length; i++)
                         {
-                            AnimIndex = (byte)i;
-                            break;
+                            var g = graphics[i];
+
+                            if ((g.VRAMPointer - 0x06010000) / 0x20 == OAMCollection.OAMs[0].TileIndex)
+                            {
+                                AnimIndex = (byte)i;
+                                break;
+                            }
                         }
                     }
                 }

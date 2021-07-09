@@ -70,7 +70,7 @@ namespace R1Engine
                 s.DoAt(new Pointer(0x0810ca00, Offset.File), () => LevelStartInfos = s.SerializeObjectArray<GBAKlonoa_LevelStartInfos>(LevelStartInfos, normalLevelsCount, name: nameof(LevelStartInfos)));
 
             // Serialize waterski data
-            if (isWaterSki)
+            if (isWaterSki && settings.World != 6)
             {
                 s.DoAt(new Pointer(0x081d6e60, Offset.File), () => WaterSkiDataPointers = s.SerializePointerArray(WaterSkiDataPointers, 5, name: nameof(WaterSkiDataPointers)));
 

@@ -353,8 +353,13 @@ namespace R1Engine
 
             if (isMap)
             {
-                // Disable the cache here since different animations in the same set use different palettes
-                LoadAnimSets_ObjGraphics(loadedAnimSets, rom.WorldMapObjectGraphics[worldIndex], oam, fullObjPal, null, disableCache: true);
+                var graphics = rom.WorldMapObjectGraphics[worldIndex];
+
+                if (graphics != null)
+                {
+                    // Disable the cache here since different animations in the same set use different palettes
+                    LoadAnimSets_ObjGraphics(loadedAnimSets, graphics, oam, fullObjPal, null, disableCache: true);
+                }
 
                 var allocationInfos = FixedWorldMapVRAMAllocationInfos.Concat(WorldMapVRAMAllocationInfos[worldIndex]).ToArray();
 
