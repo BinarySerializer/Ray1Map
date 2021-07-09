@@ -1,4 +1,5 @@
 ﻿using BinarySerializer;
+using BinarySerializer.GBA;
 using UnityEngine;
 
 namespace R1Engine
@@ -81,7 +82,10 @@ namespace R1Engine
             }
             else
             {
-                ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
+                if (ImgDataPointerValue >= GBAConstants.Address_ROM)
+                    ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.File);
+                else
+                    ImgDataPointer = new Pointer(ImgDataPointerValue, Offset.Context.GetFile(GBAKlonoa_BaseManager.CompressedObjTileBlockName));
             }
 
             s.Log($"{nameof(ImgDataPointer)}: {ImgDataPointer}");
