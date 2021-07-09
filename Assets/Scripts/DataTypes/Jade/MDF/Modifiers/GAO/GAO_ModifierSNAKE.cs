@@ -22,7 +22,13 @@ namespace R1Engine.Jade {
 			Attenuation = s.Serialize<float>(Attenuation, name: nameof(Attenuation));
 			Bones = s.SerializeArray<int>(Bones, 20, name: nameof(Bones));
 
-			if (Version >= 9) Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+				if (Version >= 9) Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+			} else {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+					Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
+				}
+			}
 		}
 	}
 }

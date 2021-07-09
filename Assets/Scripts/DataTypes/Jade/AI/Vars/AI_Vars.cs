@@ -7,6 +7,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class AI_Vars : Jade_File {
 		public uint RewindVarEndOffset { get; set; }
+		public bool HasRewindZones { get; set; }
 		public AI_Vars_RewindZone[] RewindZones { get; set; }
 
 		public uint VarInfosBufferSize { get; set; }
@@ -28,12 +29,14 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				RewindVarEndOffset = s.Serialize<uint>(RewindVarEndOffset, name: nameof(RewindVarEndOffset));
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRRTVParty)) { // Probably added for T2T
-					if (BitHelpers.ExtractBits((int)RewindVarEndOffset, 1, 31) == 1) {
-						int count = BitHelpers.ExtractBits((int)RewindVarEndOffset, 31, 0);
-						RewindZones = s.SerializeObjectArray<AI_Vars_RewindZone>(RewindZones, count, name: nameof(RewindZones));
-					}
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+					s.SerializeBitValues<int>(bitFunc => {
+						RewindVarEndOffset = (uint)bitFunc((int)RewindVarEndOffset, 31, name: nameof(RewindVarEndOffset));
+						HasRewindZones = bitFunc(HasRewindZones ? 1 : 0, 1, name: nameof(HasRewindZones)) == 1;
+					});
+					if (HasRewindZones) RewindZones = s.SerializeObjectArray<AI_Vars_RewindZone>(RewindZones, RewindVarEndOffset, name: nameof(RewindZones));
+				} else {
+					RewindVarEndOffset = s.Serialize<uint>(RewindVarEndOffset, name: nameof(RewindVarEndOffset));
 				}
 			}
 

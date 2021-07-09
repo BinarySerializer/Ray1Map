@@ -73,6 +73,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.Disturber_Modifier => s.SerializeObject<Disturber_Modifier>((Disturber_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.MDF_ModifierWeather => s.SerializeObject<MDF_ModifierWeather>((MDF_ModifierWeather)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.WATER3D_Modifier => s.SerializeObject<WATER3D_Modifier>((WATER3D_Modifier)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.GAO_ModifierExplode => s.SerializeObject<GAO_ModifierExplode>((GAO_ModifierExplode)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type}")
             };
         }
@@ -137,6 +138,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType_Montreal.GAO_ModifierPendula => s.SerializeObject<GAO_ModifierPendula>((GAO_ModifierPendula)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GEO_ModifierMeshToParticles => s.SerializeObject<GEO_ModiferMeshToParticles>((GEO_ModiferMeshToParticles)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType_Montreal.GAO_ModifierRotationPaste => s.SerializeObject<GAO_ModifierRotationPaste>((GAO_ModifierRotationPaste)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType_Montreal.GAO_ModifierExplode => s.SerializeObject<GAO_ModifierExplode>((GAO_ModifierExplode)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type_Montreal}")
             };
         }

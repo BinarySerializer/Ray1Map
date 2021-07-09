@@ -5,7 +5,7 @@ namespace R1Engine.Jade {
 	// Found in LIGHT_p_CreateFromBuffer
 	public class LIGHT_Light : GRO_GraphicRenderObject {
 		public LightType Type { get; set; }
-		public int Flags { get; set; }
+		public LightFlags Flags { get; set; }
 		public Jade_Color Color { get; set; }
 		public LIGHT_XenonData1 XenonData1 { get; set; }
 		public uint UInt_Editor_00 { get; set; }
@@ -31,7 +31,7 @@ namespace R1Engine.Jade {
 
 			s.SerializeBitValues<int>(bitFunc => {
 				Type = (LightType)bitFunc((int)Type, 4, name: nameof(Type));
-				Flags = bitFunc(Flags, 28, name: nameof(Flags));
+				Flags = (LightFlags)bitFunc((int)Flags, 28, name: nameof(Flags));
 			});
 			Color = s.SerializeObject<Jade_Color>(Color, name: nameof(Color));
 			if (s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && BitHelpers.ExtractBits((int)Type, 3, 0) == 7) {
@@ -74,22 +74,43 @@ namespace R1Engine.Jade {
 		}
 
 		public enum LightType : int {
-			Type0 = 0,
-			Type1 = 1,
-			Type2 = 2,
+			Omni = 0,
+			Direct = 1,
+			Spot = 2,
 			Fog = 3,
-			Type4 = 4,
-			Type5 = 5,
-			Type6 = 6,
-			Type7 = 7,
-			Type8 = 8,
-			Type9 = 9,
-			Type10 = 10,
-			Type11 = 11,
-			Type12 = 12,
-			Type13 = 13,
-			Type14 = 14,
-			Type15 = 15,
+			AddMaterial = 4,
+			Ambient = 5,
+			_6 = 6, // Types from 6 on were unused in the Montreal branch at least at the time of My Word Coach
+			_7 = 7,
+			_8 = 8,
+			_9 = 9,
+			_10 = 10,
+			_11 = 11,
+			_12 = 12,
+			_13 = 13,
+			_14 = 14,
+			_15 = 15,
+		}
+
+		[Flags]
+		public enum LightFlags : int {
+			None = 0,
+			Paint							= 0x00000001,
+			Absorb							= 0x00000008,
+			AffectStatic		 			= 0x00000010,
+			AffectDynamic		 			= 0x00000020,
+			DoesntCastLMShadows 			= 0x00000040,
+			OnlyForLMShadows				= 0x00000080,
+			UseDifferentColorForStatic		= 0x00000100,
+			OmniIsDirectional				= 0x00000200,
+			FogIsAbsolute					= 0x00000400,
+			DoNotExcludeFromDirectionals	= 0x00000800,
+			RLICastRay						= 0x00002000,
+			CastShadows		   				= 0x00008000,
+			OmniConst						= 0x00010000,
+			Active							= 0x00020000,
+			DoesNotAffectPerPixelLighting 	= 0x00040000,
+			AffectPerPixelLightingOnly		= 0x00080000,
 		}
 
 		public class FogLink : BinarySerializable {

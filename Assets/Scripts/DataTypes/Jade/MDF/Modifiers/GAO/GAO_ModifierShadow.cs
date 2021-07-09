@@ -24,7 +24,10 @@ namespace R1Engine.Jade {
 		public byte TextureTiling { get; set; }
 		public byte KK_Version { get; set; }
 		public short Dummy { get; set; }
-		public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
+		public Jade_Reference<OBJ_GameObject> LightGameObject { get; set; }
+
+		public uint T2T_UInt { get; set; }
+		public float T2T_Float { get; set; }
 
 
 		public override void SerializeImpl(SerializerObject s) {
@@ -51,8 +54,12 @@ namespace R1Engine.Jade {
 				KK_Version = s.Serialize<byte>(KK_Version, name: nameof(KK_Version));
 				Dummy = s.Serialize<short>(Dummy, name: nameof(Dummy));
 				if (KK_Version >= 1) {
-					GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
+					LightGameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(LightGameObject, name: nameof(LightGameObject))?.Resolve();
 				}
+			}
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+				T2T_UInt = s.Serialize<uint>(T2T_UInt, name: nameof(T2T_UInt));
+				if (T2T_UInt > 1) T2T_Float = s.Serialize<float>(T2T_Float, name: nameof(T2T_Float));
 			}
 			Texture?.Resolve(s, RRR2_readBool: true);
 		}
