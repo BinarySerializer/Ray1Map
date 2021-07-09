@@ -127,7 +127,7 @@ namespace R1Engine.Jade
                     PS2_UInt2 = s.Serialize<uint>(PS2_UInt2, name: nameof(PS2_UInt2));
                     PS2_IsSwizzled = s.Serialize<uint>(PS2_IsSwizzled, name: nameof(PS2_IsSwizzled));
                     PS2_Size = s.Serialize<uint>(PS2_Size, name: nameof(PS2_Size));
-                    if (s.GetR1Settings().Platform == Platform.PSP) {
+                    if (s.GetR1Settings().Platform == Platform.PSP && PS2_IsSwizzled == 0) {
                         PSP_Content = s.SerializeObject<TEX_Content_JTX_PSP>(PSP_Content, onPreSerialize: cont => cont.JTX = this, name: nameof(PSP_Content));
                     } else {
                         PS2_Content = s.SerializeObject<TEX_Content_JTX_PS2>(PS2_Content, onPreSerialize: cont => cont.JTX = this, name: nameof(PS2_Content));
