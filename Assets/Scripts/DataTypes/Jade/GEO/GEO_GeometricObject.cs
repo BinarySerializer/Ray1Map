@@ -63,7 +63,11 @@ namespace R1Engine.Jade {
 				case Platform.PSP:
 					return (Montreal_Flags2 & 0x20) == 0x20;
 				case Platform.Wii:
-					return (Montreal_Flags2 & 0x40) == 0x40;
+					if (s.EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
+						return (Montreal_Flags2 & 0x40) == 0x40;
+					} else {
+						return (Montreal_Flags2 & 2) == 2;
+					}
 				default:
 					return false;
 			}
@@ -71,7 +75,7 @@ namespace R1Engine.Jade {
 		public bool Montreal_HasUnoptimizedData(GameSettings s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			return !(Montreal_IsOptimized(s) && Loader.IsBinaryData)
-				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC || s.Platform == Platform.iOS))
+				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC || s.Platform == Platform.iOS || s.Platform == Platform.Wii))
 				|| (s.Platform == Platform.Xbox && s.EngineVersion == EngineVersion.Jade_PoP_SoT_20030723);
 		}
 
@@ -186,6 +190,7 @@ namespace R1Engine.Jade {
 						OptimizedGeoObject_PS2 = s.SerializeObject<GEO_GeoObject_PS2>(OptimizedGeoObject_PS2, name: nameof(OptimizedGeoObject_PS2));
 						break;
 					case Platform.GC:
+					case Platform.Wii:
 						OptimizedGeoObject_GC = s.SerializeObject<GEO_GeoObject_GC>(OptimizedGeoObject_GC, onPreSerialize: opt => opt.GeometricObject = this, name: nameof(OptimizedGeoObject_GC));
 						break;
 					case Platform.PC:
