@@ -162,7 +162,7 @@ namespace R1Engine
 
                 trackManager = new Unity_TrackManager_Linear(
                     start: new Vector3(x, 0, z), 
-                    end: new Vector3(x, -cmds.Last(c => c.CmdType == GBAKlonoa_DCT_WaterSkiCommand.WaterSkiCommandType.EndOfSector).XPos, z));
+                    end: new Vector3(x, -cmds.Where(c => c.CmdType == GBAKlonoa_DCT_WaterSkiCommand.WaterSkiCommandType.Object_0).Max(c => c.XPos) - 20, z));
             }
 
             return new Unity_Level(
