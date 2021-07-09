@@ -56,8 +56,8 @@ namespace R1Engine
                     }
                 }
 
-                if (decompStream.Length != length)
-                    Debug.LogWarning($"Incorrect size for decompressed data! {decompStream.Length} != {length}");
+                //if (decompStream.Length != length)
+                //    Debug.LogWarning($"Incorrect size for decompressed data! {decompStream.Length} != {length}");
 
                 // First 4 bytes are irrelevant
                 var returnStream = new MemoryStream((int)decompStream.Length - 4);

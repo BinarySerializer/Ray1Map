@@ -15,7 +15,8 @@ namespace R1Engine
             Serializable = serializable;
             OAMCollection = oamCollection;
 
-            var engineVersion = objManager.Context.GetR1Settings().EngineVersion;
+            var settings = objManager.Context.GetR1Settings();
+            var engineVersion = settings.EngineVersion;
 
             // Hack for final boss
             if (engineVersion == EngineVersion.KlonoaGBA_EOD && objManager.Context.GetR1Settings().World == 5 && objManager.Context.GetR1Settings().Level == 8 && obj.ObjType == 23)
@@ -67,7 +68,7 @@ namespace R1Engine
 
                 Rotation = Object.ObjType == 54 || Object.ObjType == 117 ? 90 * (Object.Param_2 - 1) : (float?)null;
             }
-            else
+            else if (engineVersion == EngineVersion.KlonoaGBA_DCT)
             {
                 // Rotate tornados
                 if (Object.ObjType == 78)
@@ -76,6 +77,27 @@ namespace R1Engine
                         Rotation = -45;
                     else if (Object.Param_1 == 2)
                         Rotation = 45;
+                }
+
+                // Hack for world map objects
+                if (settings.Level == 0 && Object.Index >= GBAKlonoa_DCT_Manager.FixCount)
+                {
+                    var rom = ObjManager.Context.GetMainFileObject<GBAKlonoa_DCT_ROM>(GBAKlonoa_BaseManager.GetROMFilePath);
+                    var graphics = rom.WorldMapObjectGraphics[settings.World - 1];
+
+                    if (graphics != null)
+                    {
+                        for (int i = 0; i < graphics.Length; i++)
+                        {
+                            var g = graphics[i];
+
+                            if ((g.VRAMPointer - 0x06010000) / 0x20 == OAMCollection.OAMs[0].TileIndex)
+                            {
+                                AnimIndex = (byte)i;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }

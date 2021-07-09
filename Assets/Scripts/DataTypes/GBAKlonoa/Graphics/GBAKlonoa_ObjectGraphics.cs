@@ -66,6 +66,7 @@ namespace R1Engine
                 {
                     x.Pre_ImgDataLength = ImgDataLength;
                     x.Pre_IsMapAnimation = Pre_IsMapAnimations;
+                    x.Pre_IsReferencedInLevel = true; // Always set to true here
                 }, name: $"{nameof(Animations)}[{i}]"));
         }
     }

@@ -11,7 +11,7 @@
     { "world": 1, "level": 5, "nameInternal": "1-5", "name": "Vision 1-5" },
     { "world": 1, "level": 6, "nameInternal": "1-6", "name": "Vision 1-6" },
     { "world": 1, "level": 7, "nameInternal": "1-7", "name": "Vision 1-7" },
-    { "world": 1, "level": 8, "nameInternal": "1-8", "name": "Vision 1-8" },
+    { "world": 1, "level": 8, "nameInternal": "1-8", "name": "Ghazzaland - Boss" },
 
     { "world": 2, "level": 0, "nameInternal": "2-0", "name": "Priamill" },
     { "world": 2, "level": 1, "nameInternal": "2-1", "name": "Vision 2-1" },
@@ -21,7 +21,7 @@
     { "world": 2, "level": 5, "nameInternal": "2-5", "name": "Vision 2-5" },
     { "world": 2, "level": 6, "nameInternal": "2-6", "name": "Vision 2-6" },
     { "world": 2, "level": 7, "nameInternal": "2-7", "name": "Vision 2-7" },
-    { "world": 2, "level": 8, "nameInternal": "2-8", "name": "Vision 2-8" },
+    { "world": 2, "level": 8, "nameInternal": "2-8", "name": "Priamill - Boss" },
 
     { "world": 3, "level": 0, "nameInternal": "3-0", "name": "Jiobob" },
     { "world": 3, "level": 1, "nameInternal": "3-1", "name": "Vision 3-1" },
@@ -31,7 +31,7 @@
     { "world": 3, "level": 5, "nameInternal": "3-5", "name": "Vision 3-5" },
     { "world": 3, "level": 6, "nameInternal": "3-6", "name": "Vision 3-6" },
     { "world": 3, "level": 7, "nameInternal": "3-7", "name": "Vision 3-7" },
-    { "world": 3, "level": 8, "nameInternal": "3-8", "name": "Vision 3-8" },
+    { "world": 3, "level": 8, "nameInternal": "3-8", "name": "Jiobob - Boss" },
 
     { "world": 4, "level": 0, "nameInternal": "4-0", "name": "Santal" },
     { "world": 4, "level": 1, "nameInternal": "4-1", "name": "Vision 4-1" },
@@ -41,7 +41,7 @@
     { "world": 4, "level": 5, "nameInternal": "4-5", "name": "Vision 4-5" },
     { "world": 4, "level": 6, "nameInternal": "4-6", "name": "Vision 4-6" },
     { "world": 4, "level": 7, "nameInternal": "4-7", "name": "Vision 4-7" },
-    { "world": 4, "level": 8, "nameInternal": "4-8", "name": "Vision 4-8" },
+    { "world": 4, "level": 8, "nameInternal": "4-8", "name": "Santal - Boss" },
 
     { "world": 5, "level": 0, "nameInternal": "5-0", "name": "Leljimba" },
     { "world": 5, "level": 1, "nameInternal": "5-1", "name": "Vision 5-1" },
@@ -51,16 +51,12 @@
     { "world": 5, "level": 5, "nameInternal": "5-5", "name": "Vision 5-5" },
     { "world": 5, "level": 6, "nameInternal": "5-6", "name": "Vision 5-6" },
     { "world": 5, "level": 7, "nameInternal": "5-7", "name": "Vision 5-7" },
-    { "world": 5, "level": 8, "nameInternal": "5-8", "name": "Vision 5-8" },
+    { "world": 5, "level": 8, "nameInternal": "5-8", "name": "Leljimba - Boss 1" },
+    { "world": 6, "level": 8, "nameInternal": "6-8", "name": "Leljimba - Boss 2" },
 
-    { "world": 6, "level": 0, "nameInternal": "6-0", "name": "EX (Unused)" },
-    { "world": 6, "level": 1, "nameInternal": "6-1", "name": "Vision 6-1" },
-    { "world": 6, "level": 2, "nameInternal": "6-2", "name": "Vision 6-2" },
-    { "world": 6, "level": 3, "nameInternal": "6-3", "name": "Vision 6-3" },
-    { "world": 6, "level": 4, "nameInternal": "6-4", "name": "Vision 6-4 (Unused)" },
-    { "world": 6, "level": 5, "nameInternal": "6-5", "name": "Vision 6-5 (Unused)" },
-    { "world": 6, "level": 6, "nameInternal": "6-6", "name": "Vision 6-6 (Unused)" },
-    { "world": 6, "level": 7, "nameInternal": "6-7", "name": "Vision 6-7 (Unused)" },
-    { "world": 6, "level": 8, "nameInternal": "6-8", "name": "Vision 6-8" }
+    { "world": 6, "level": 0, "nameInternal": "6-0", "name": "(Unused) EX" },
+    { "world": 6, "level": 1, "nameInternal": "6-1", "name": "EX 1" },
+    { "world": 6, "level": 2, "nameInternal": "6-2", "name": "EX 2" },
+    { "world": 6, "level": 3, "nameInternal": "6-3", "name": "EX 3" }
   ]
 }
