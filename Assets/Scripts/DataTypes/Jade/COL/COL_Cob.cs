@@ -19,8 +19,8 @@ namespace R1Engine.Jade
 
         public override void SerializeImpl(SerializerObject s) {
             Material = s.SerializeObject<Jade_Reference<COL_GameMaterial>>(Material, name: nameof(Material))?.Resolve();
-            Type = s.Serialize(Type, name: nameof(Type));
-            Flags = s.Serialize(Flags, name: nameof(Flags));
+            Type = s.Serialize<COL_ZoneShape>(Type, name: nameof(Type));
+            Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 
             if (Type != COL_ZoneShape.Box && Type != COL_ZoneShape.Sphere && Type != COL_ZoneShape.Cylinder
                 && Type != COL_ZoneShape.Triangles && Type != COL_ZoneShape.Unknown7)

@@ -74,6 +74,7 @@ namespace R1Engine.Jade {
                 MDF_ModifierType.MDF_ModifierWeather => s.SerializeObject<MDF_ModifierWeather>((MDF_ModifierWeather)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.WATER3D_Modifier => s.SerializeObject<WATER3D_Modifier>((WATER3D_Modifier)Modifier, name: nameof(Modifier)),
                 MDF_ModifierType.GAO_ModifierExplode => s.SerializeObject<GAO_ModifierExplode>((GAO_ModifierExplode)Modifier, name: nameof(Modifier)),
+                MDF_ModifierType.GAO_ModifierCharacterFX => s.SerializeObject<GAO_ModifierCharacterFX>((GAO_ModifierCharacterFX)Modifier, name: nameof(Modifier)),
                 _ => throw new NotImplementedException($"TODO: Implement Modifier Type {Type}")
             };
         }

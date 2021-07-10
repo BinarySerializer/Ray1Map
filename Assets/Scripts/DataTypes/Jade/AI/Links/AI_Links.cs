@@ -135,6 +135,9 @@ namespace R1Engine.Jade {
 				case GameModeSelection.Horsez2Wii:
 					links = new AI_Links_Horsez2_Wii();
 					break;
+				case GameModeSelection.MovieGamesWii:
+					links = new AI_Links_MovieGames_Wii();
+					break;
 			}
 			if (links != null) {
 				links.Init();

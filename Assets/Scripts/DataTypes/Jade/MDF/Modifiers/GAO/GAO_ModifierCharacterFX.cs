@@ -42,7 +42,7 @@ namespace R1Engine.Jade {
 			} else {
 				TotalBeamInstances = 10;
 			}
-			if (Version >= 26) MaterialID = s.Serialize<int>(MaterialID, name: nameof(MaterialID));
+			if (Version >= 26 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) MaterialID = s.Serialize<int>(MaterialID, name: nameof(MaterialID));
 
 			ParticleManagers = s.SerializeObjectArray<CharacterFX_ParticleManager>(ParticleManagers, TotalParticleManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(ParticleManagers));
 			AlphaManagers = s.SerializeObjectArray<CharacterFX_AlphaManager>(AlphaManagers, TotalAlphaManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(AlphaManagers));
@@ -72,6 +72,7 @@ namespace R1Engine.Jade {
 			public int AddToCameraSpace { get; set; } // Boolean
 			public int UseParentMatrix { get; set; } // Boolean
 			public int OwnerIsGenerator { get; set; } // Boolean
+			public Jade_Reference<OBJ_GameObject> Phoenix_GameObject { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -83,10 +84,14 @@ namespace R1Engine.Jade {
 				OrientationOffset = s.SerializeObject<Jade_Vector>(OrientationOffset, name: nameof(OrientationOffset));
 				if(!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 				PAG = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(PAG, name: nameof(PAG))?.Resolve();
-				if (CharacterFX.Version >= 30) TargetObject = s.Serialize<uint>(TargetObject, name: nameof(TargetObject));
-				if (CharacterFX.Version >= 23) AddToCameraSpace = s.Serialize<int>(AddToCameraSpace, name: nameof(AddToCameraSpace));
-				if (CharacterFX.Version >= 25) UseParentMatrix = s.Serialize<int>(UseParentMatrix, name: nameof(UseParentMatrix));
-				if (CharacterFX.Version >= 28) OwnerIsGenerator = s.Serialize<int>(OwnerIsGenerator, name: nameof(OwnerIsGenerator));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+					if (CharacterFX.Version >= 30) TargetObject = s.Serialize<uint>(TargetObject, name: nameof(TargetObject));
+					if (CharacterFX.Version >= 23) AddToCameraSpace = s.Serialize<int>(AddToCameraSpace, name: nameof(AddToCameraSpace));
+					if (CharacterFX.Version >= 25) UseParentMatrix = s.Serialize<int>(UseParentMatrix, name: nameof(UseParentMatrix));
+					if (CharacterFX.Version >= 28) OwnerIsGenerator = s.Serialize<int>(OwnerIsGenerator, name: nameof(OwnerIsGenerator));
+				} else {
+					if (CharacterFX.Version >= 3) Phoenix_GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(Phoenix_GameObject, name: nameof(Phoenix_GameObject))?.Resolve();
+				}
 			}
 
 			[Flags]
@@ -458,6 +463,7 @@ namespace R1Engine.Jade {
 			public GroupFlags Flags { get; set; }
 			public string Name { get; set; }
 			public float V22_Float { get; set; }
+			public uint V2_UInt_Montpellier { get; set; }
 
 			public CharacterFX_GroupParticleElement[] ParticleEffectElements { get; set; }
 			public CharacterFX_GroupAlphaElement[] AlphaEffectElements { get; set; }
@@ -486,20 +492,23 @@ namespace R1Engine.Jade {
 				} else {
 					NumberOfAlphaEffectsInGroup = s.Serialize<int>(NumberOfAlphaEffectsInGroup, name: nameof(NumberOfAlphaEffectsInGroup));
 					NumberOfParticleEffectsInGroup = s.Serialize<int>(NumberOfParticleEffectsInGroup, name: nameof(NumberOfParticleEffectsInGroup));
-					if (CharacterFX.Version >= 2) NumberOfBeamEffectsInGroup = s.Serialize<int>(NumberOfBeamEffectsInGroup, name: nameof(NumberOfBeamEffectsInGroup));
+					if (CharacterFX.Version >= 2 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) NumberOfBeamEffectsInGroup = s.Serialize<int>(NumberOfBeamEffectsInGroup, name: nameof(NumberOfBeamEffectsInGroup));
 				}
 				Flags = s.Serialize<GroupFlags>(Flags, name: nameof(Flags));
 				if (!Loader.IsBinaryData) Name = s.SerializeString(Name, 0x80, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
-				if (CharacterFX.Version >= 22 && !Loader.IsBinaryData) V22_Float = s.Serialize<float>(V22_Float, name: nameof(V22_Float));
+				if (CharacterFX.Version >= 22 && !Loader.IsBinaryData && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) V22_Float = s.Serialize<float>(V22_Float, name: nameof(V22_Float));
+				if (CharacterFX.Version >= 2 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) V2_UInt_Montpellier = s.Serialize<uint>(V2_UInt_Montpellier, name: nameof(V2_UInt_Montpellier));
 			}
 
 			public void SerializeElements(SerializerObject s) {
 				ParticleEffectElements = s.SerializeObjectArray<CharacterFX_GroupParticleElement>(ParticleEffectElements, Math.Max(0, NumberOfParticleEffectsInGroup), onPreSerialize: e => e.Manager = this, name: nameof(ParticleEffectElements));
 				AlphaEffectElements = s.SerializeObjectArray<CharacterFX_GroupAlphaElement>(AlphaEffectElements, Math.Max(0, NumberOfAlphaEffectsInGroup), onPreSerialize: e => e.Manager = this, name: nameof(AlphaEffectElements));
-				if (CharacterFX.Version >= 2) BeamEffectElements = s.SerializeObjectArray<CharacterFX_GroupBeamElement>(BeamEffectElements, NumberOfBeamEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(BeamEffectElements));
-				if (CharacterFX.Version >= 3) SoundEffectElements = s.SerializeObjectArray<CharacterFX_GroupSoundElement>(SoundEffectElements, NumberOfSoundEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(SoundEffectElements));
-				if (CharacterFX.Version >= 5) AfterEffectElements = s.SerializeObjectArray<CharacterFX_GroupAfterEffectElement>(AfterEffectElements, NumberOfAfterEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(AfterEffectElements));
-				if (CharacterFX.Version >= 32) LightElements = s.SerializeObjectArray<CharacterFX_GroupLightElement>(LightElements, NumberOfLightsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(LightElements));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+					if (CharacterFX.Version >= 2) BeamEffectElements = s.SerializeObjectArray<CharacterFX_GroupBeamElement>(BeamEffectElements, NumberOfBeamEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(BeamEffectElements));
+					if (CharacterFX.Version >= 3) SoundEffectElements = s.SerializeObjectArray<CharacterFX_GroupSoundElement>(SoundEffectElements, NumberOfSoundEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(SoundEffectElements));
+					if (CharacterFX.Version >= 5) AfterEffectElements = s.SerializeObjectArray<CharacterFX_GroupAfterEffectElement>(AfterEffectElements, NumberOfAfterEffectsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(AfterEffectElements));
+					if (CharacterFX.Version >= 32) LightElements = s.SerializeObjectArray<CharacterFX_GroupLightElement>(LightElements, NumberOfLightsInGroup, onPreSerialize: e => e.Manager = this, name: nameof(LightElements));
+				}
 			}
 
 			[Flags]

@@ -47,6 +47,7 @@ namespace R1Engine.Jade
             public byte Flag { get; set; }
             public ushort Flag_Montreal { get; set; }
             public uint MaterialID { get; set; }
+            public uint PhoenixMovieGames_Design10_UInt { get; set; }
             public Triangle[] Triangles { get; set; }
             public Triangle[] Prox { get; set; }
 
@@ -60,7 +61,9 @@ namespace R1Engine.Jade
                     Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
                 }
                 MaterialID = s.Serialize<uint>(MaterialID, name: nameof(MaterialID));
-                Triangles = s.SerializeObjectArray<Triangle>(Triangles, TrianglesCount, name: nameof(Triangles));
+                if(s.GetR1Settings().EngineVersion == EngineVersion.Jade_MovieGames && Design == 10)
+					PhoenixMovieGames_Design10_UInt = s.Serialize<uint>(PhoenixMovieGames_Design10_UInt, name: nameof(PhoenixMovieGames_Design10_UInt));
+				Triangles = s.SerializeObjectArray<Triangle>(Triangles, TrianglesCount, name: nameof(Triangles));
             }
 
             public void SerializeProx(SerializerObject s) {

@@ -198,6 +198,8 @@ namespace R1Engine
 								worldName = w?.Name;
 								await ExportTexList(texList);
 							}
+						} else {
+							await ExportTexList(texList);
 						}
 
 						async UniTask ExportTexList(TEX_GlobalList texList) {
