@@ -30,7 +30,7 @@ namespace R1Engine.Jade {
 			Version = s.Serialize<uint>(Version, name: nameof(Version));
 			TotalParticleManagers = s.Serialize<int>(TotalParticleManagers, name: nameof(TotalParticleManagers));
 			TotalAlphaManagers = s.Serialize<int>(TotalAlphaManagers, name: nameof(TotalAlphaManagers));
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
 				if (Version >= 2) TotalBeamManagers = s.Serialize<int>(TotalBeamManagers, name: nameof(TotalBeamManagers));
 				if (Version >= 3) TotalSoundManagers = s.Serialize<int>(TotalSoundManagers, name: nameof(TotalSoundManagers));
 				if (Version >= 5) TotalAfterEffectManagers = s.Serialize<int>(TotalAfterEffectManagers, name: nameof(TotalAfterEffectManagers));
@@ -46,7 +46,7 @@ namespace R1Engine.Jade {
 
 			ParticleManagers = s.SerializeObjectArray<CharacterFX_ParticleManager>(ParticleManagers, TotalParticleManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(ParticleManagers));
 			AlphaManagers = s.SerializeObjectArray<CharacterFX_AlphaManager>(AlphaManagers, TotalAlphaManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(AlphaManagers));
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
 				if (Version >= 2) BeamManagers = s.SerializeObjectArray<CharacterFX_BeamManager>(BeamManagers, TotalBeamManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(BeamManagers));
 				if (Version >= 3) SoundManagers = s.SerializeObjectArray<CharacterFX_SoundManager>(SoundManagers, TotalSoundManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(SoundManagers));
 				if (Version >= 5) AfterEffectManagers = s.SerializeObjectArray<CharacterFX_AfterEffectManager>(AfterEffectManagers, TotalAfterEffectManagers, onPreSerialize: m => m.CharacterFX = this, name: nameof(AfterEffectManagers));

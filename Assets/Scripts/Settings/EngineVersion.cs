@@ -154,6 +154,7 @@ namespace R1Engine
         Jade_PoP_SoT_20030819,
         Jade_PoP_SoT,
         Jade_PoP_WW,
+        Jade_PoP_T2T_20051002,
         Jade_PoP_T2T,
         Jade_PoP_TFS,
         Jade_PhoenixRayman4,

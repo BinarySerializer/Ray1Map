@@ -29,7 +29,7 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
 					s.SerializeBitValues<int>(bitFunc => {
 						RewindVarEndOffset = (uint)bitFunc((int)RewindVarEndOffset, 31, name: nameof(RewindVarEndOffset));
 						HasRewindZones = bitFunc(HasRewindZones ? 1 : 0, 1, name: nameof(HasRewindZones)) == 1;

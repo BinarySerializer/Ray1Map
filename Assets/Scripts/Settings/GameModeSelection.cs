@@ -829,7 +829,7 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (Xbox)", typeof(Jade_PoP_T2T_Xbox_Manager), Platform.Xbox)]
         PrinceOfPersiaTheTwoThronesXbox,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (Xbox - Prototype 2005/10/02)", typeof(Jade_PoP_T2T_Xbox_20051002_Manager), Platform.Xbox)]
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T_20051002, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (Xbox - Prototype 2005/10/02)", typeof(Jade_PoP_T2T_Xbox_20051002_Manager), Platform.Xbox)]
         PrinceOfPersiaTheTwoThronesXbox_20051002,
 
 

@@ -49,7 +49,7 @@ namespace R1Engine.Jade {
 				DistCut = s.Serialize<float>(DistCut, name: nameof(DistCut));
 			}
 			if (!Loader.IsBinaryData
-				|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T))) {
+				|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002))) {
 				UInt_Editor_08 = s.Serialize<uint>(UInt_Editor_08, name: nameof(UInt_Editor_08));
 			}
 			if (!Loader.IsBinaryData) {

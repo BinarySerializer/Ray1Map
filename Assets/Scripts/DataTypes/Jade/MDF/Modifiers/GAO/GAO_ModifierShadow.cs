@@ -57,7 +57,7 @@ namespace R1Engine.Jade {
 					LightGameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(LightGameObject, name: nameof(LightGameObject))?.Resolve();
 				}
 			}
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
 				T2T_UInt = s.Serialize<uint>(T2T_UInt, name: nameof(T2T_UInt));
 				if (T2T_UInt > 1) T2T_Float = s.Serialize<float>(T2T_Float, name: nameof(T2T_Float));
 			}

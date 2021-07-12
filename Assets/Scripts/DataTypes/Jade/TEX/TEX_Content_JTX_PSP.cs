@@ -68,7 +68,7 @@ namespace R1Engine.Jade
             int tileHeight = Math.Min(Height, 8);
             int lineSize = Math.Min(tileWidth, (tileWidth * bpp) / 8);
 
-            if (bpp == 4 && Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+            if (bpp == 4 && Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
                 if (Width > 16) lineSize = tileWidth;
             }
             int i = 0;

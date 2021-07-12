@@ -25,7 +25,7 @@ namespace R1Engine.Jade {
 			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				if (Version >= 9) Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 			} else {
-				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)) {
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T_20051002)) {
 					Flags = s.Serialize<uint>(Flags, name: nameof(Flags));
 				}
 			}

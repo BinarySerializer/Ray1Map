@@ -76,7 +76,7 @@ namespace R1Engine.Jade {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			return !(Montreal_IsOptimized(s) && Loader.IsBinaryData)
 				|| ((s.Platform == Platform.GC || s.Platform == Platform.PC || s.Platform == Platform.iOS || s.Platform == Platform.Wii))
-				|| (s.Platform == Platform.Xbox && s.EngineVersion == EngineVersion.Jade_PoP_SoT_20030723);
+				|| (s.Platform == Platform.Xbox && (s.EngineVersion == EngineVersion.Jade_PoP_SoT_20030723));
 		}
 
 		public Jade_Key OptimizedGeoObjectKey_PS2 { get; set; }
@@ -107,7 +107,10 @@ namespace R1Engine.Jade {
 					Montreal_Editor_UInt_5 = s.Serialize<uint>(Montreal_Editor_UInt_5, name: nameof(Montreal_Editor_UInt_5));
 				}
 				if (ObjectVersion >= 7) Montreal_Flags2 = s.Serialize<uint>(Montreal_Flags2, name: nameof(Montreal_Flags2));
-				if (Montreal_HasUnoptimizedData(s.GetR1Settings())) VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
+				if (Montreal_HasUnoptimizedData(s.GetR1Settings())
+					|| (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_T2T)
+					&& s.GetR1Settings().Platform == Platform.Xbox))
+					VerticesCount = s.Serialize<uint>(VerticesCount, name: nameof(VerticesCount));
 			} else {
 				Code_00 = s.Serialize<uint>(Code_00, name: nameof(Code_00));
 				if (Code_00 == (uint)Jade_Code.Code2002) {
