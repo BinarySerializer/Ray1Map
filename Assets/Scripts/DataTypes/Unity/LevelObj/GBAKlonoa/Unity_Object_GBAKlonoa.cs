@@ -86,7 +86,9 @@ namespace R1Engine
                 else if (Object.ObjType == 69)
                     AnimIndex = 2;
 
-                Rotation = Object.ObjType == 62 || Object.ObjType == 121 ? 90 * (Object.Param_2 - 1) : (float?)null;
+                // Rotate arrows
+                if (Object.ObjType == 62 || Object.ObjType == 121)
+                    Rotation =  90 * (Object.Param_2 - 1);
 
                 // Hack for world map objects
                 if (settings.Level == 0 && Object.Index >= GBAKlonoa_DCT_Manager.FixCount)
