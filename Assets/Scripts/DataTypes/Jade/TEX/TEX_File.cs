@@ -241,6 +241,7 @@ namespace R1Engine.Jade
                 TexFileType.Tga => Content_TGA.ToTexture2D(),
                 TexFileType.Jpeg => ToTexture2DFromJpeg(),
                 TexFileType.DDS => Content_DDS != null ? Content_DDS.PrimaryTexture?.ToTexture2D() : Content_Xenon.ToTexture2D(),
+                TexFileType.Bmp when (Content == null || Content.Length == 0) => null,
                 _ => throw new NotImplementedException($"TODO: Implement texture type {fileFormat}")
             };
         }

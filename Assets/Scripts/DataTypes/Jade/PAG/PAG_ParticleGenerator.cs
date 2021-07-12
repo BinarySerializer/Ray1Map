@@ -69,6 +69,7 @@ namespace R1Engine.Jade {
         public float Phoenix_Float_1 { get; set; }
         public int Phoenix_Int_0 { get; set; }
         public int Phoenix_Int_1 { get; set; }
+        public float Phoenix_Float_2 { get; set; }
 
         // Montreal
         public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
@@ -217,7 +218,8 @@ namespace R1Engine.Jade {
             {
                 throw new NotImplementedException($"TODO: Implement ModifierMPAG Type {Version}");
             }
-            else if (Version == 9 || Version == 10 || Version == 11 || (Version == 12 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier))) {
+            else if (Version == 9 || Version == 10 || Version == 11
+                || ((Version == 12 || Version == 13) && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier))) {
                 if (Version >= 11 || (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && Version == 10)) {
                     Flags = s.Serialize<PAG_ParticleGeneratorFlags>(Flags, name: nameof(Flags));
                 } else {
@@ -288,7 +290,8 @@ namespace R1Engine.Jade {
                             Phoenix_Float_1 = s.Serialize<float>(Phoenix_Float_1, name: nameof(Phoenix_Float_1));
                             Phoenix_Int_0 = s.Serialize<int>(Phoenix_Int_0, name: nameof(Phoenix_Int_0));
                             Phoenix_Int_1 = s.Serialize<int>(Phoenix_Int_1, name: nameof(Phoenix_Int_1));
-                        }
+							if (Version >= 13) Phoenix_Float_2 = s.Serialize<float>(Phoenix_Float_2, name: nameof(Phoenix_Float_2));
+						}
                     }
                 } else {
                     GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject))?.Resolve();
