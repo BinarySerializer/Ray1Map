@@ -150,9 +150,9 @@ namespace R1Engine
                     else if (cmd.FILE_Type == PS1Klonoa_IDXLoadCommand.FileType.Archive_SpritePack)
                     {
                         // Read the data
-                        PS1Klonoa_ArchiveFile_SpritePack spritePack = Load_BINFile<PS1Klonoa_ArchiveFile_SpritePack>(context, cmd, blockIndex, i);
+                        PS1Klonoa_ArchiveFile_LevelSpritePack spritePack = Load_BINFile<PS1Klonoa_ArchiveFile_LevelSpritePack>(context, cmd, blockIndex, i);
 
-                        var exported = new HashSet<PS1Klonoa_ArchiveFile_SpritePack.PlayerSpritesArchive.PlayerSpritesArchiveFile>();
+                        var exported = new HashSet<PS1Klonoa_File_PlayerSprite>();
 
                         var index = 0;
 
@@ -476,6 +476,10 @@ namespace R1Engine
 
         public void LoadGameData(Context context, PS1Klonoa_IDXEntry entry, GameData data, int blockIndex)
         {
+            data.BackgroundPack = null;
+            data.OA05 = null;
+            data.LevelPack = null;
+
             ProcessBINFiles(context, entry, (cmd, i) =>
             {
                 // Load the file
@@ -511,16 +515,21 @@ namespace R1Engine
                         break;
 
                     // The fixed sprites are always the last set of sprite frames
-                    case PS1Klonoa_ArchiveFile_SpriteFrames file:
+                    case PS1Klonoa_ArchiveFile_Sprites file:
                         data.SpriteFrames[69] = file;
                         break;
 
                     // Add the level sprite frames
-                    case PS1Klonoa_ArchiveFile_SpritePack file:
+                    case PS1Klonoa_ArchiveFile_LevelSpritePack file:
                         
                         for (int j = 0; j < 69; j++)
-                            data.SpriteFrames[j] = file.SpriteFrames[j];
+                            data.SpriteFrames[j] = file.Sprites[j];
                         
+                        break;
+
+                    // Save for later
+                    case PS1Klonoa_ArchiveFile_LevelPack file:
+                        data.LevelPack = file;
                         break;
                 }
             });
@@ -550,14 +559,14 @@ namespace R1Engine
                 case PS1Klonoa_IDXLoadCommand.FileType.Archive_Unk0:
                     return Load_BINFile<PS1Klonoa_ArchiveFile_Unk0>(context, cmd, blockIndex, cmdIndex);
 
-                case PS1Klonoa_IDXLoadCommand.FileType.Archive_FixedSpriteFrames:
-                    return Load_BINFile<PS1Klonoa_ArchiveFile_SpriteFrames>(context, cmd, blockIndex, cmdIndex);
+                case PS1Klonoa_IDXLoadCommand.FileType.FixedSprites:
+                    return Load_BINFile<PS1Klonoa_ArchiveFile_Sprites>(context, cmd, blockIndex, cmdIndex);
 
                 case PS1Klonoa_IDXLoadCommand.FileType.Archive_SpritePack:
-                    return Load_BINFile<PS1Klonoa_ArchiveFile_SpritePack>(context, cmd, blockIndex, cmdIndex);
+                    return Load_BINFile<PS1Klonoa_ArchiveFile_LevelSpritePack>(context, cmd, blockIndex, cmdIndex);
 
-                case PS1Klonoa_IDXLoadCommand.FileType.Archive_TMDPack:
-                    return Load_BINFile<PS1Klonoa_ArchiveFile_RawData>(context, cmd, blockIndex, cmdIndex);
+                case PS1Klonoa_IDXLoadCommand.FileType.Archive_LevelPack:
+                    return Load_BINFile<PS1Klonoa_ArchiveFile_LevelPack>(context, cmd, blockIndex, cmdIndex);
 
                 case PS1Klonoa_IDXLoadCommand.FileType.Archive_Unk4:
                     return Load_BINFile<PS1Klonoa_ArchiveFile_RawData>(context, cmd, blockIndex, cmdIndex);
@@ -714,13 +723,14 @@ namespace R1Engine
             public GameData()
             {
                 VRAM = new PS1_VRAM();
-                SpriteFrames = new PS1Klonoa_ArchiveFile_SpriteFrames[70];
+                SpriteFrames = new PS1Klonoa_ArchiveFile_Sprites[70];
             }
 
             public PS1_VRAM VRAM { get; }
-            public PS1Klonoa_ArchiveFile_SpriteFrames[] SpriteFrames { get; }
+            public PS1Klonoa_ArchiveFile_Sprites[] SpriteFrames { get; }
             public PS1Klonoa_ArchiveFile_BackgroundPack BackgroundPack { get; set; }
             public PS1Klonoa_File_OA05 OA05 { get; set; }
+            public PS1Klonoa_ArchiveFile_LevelPack LevelPack { get; set; }
         }
     }
 }

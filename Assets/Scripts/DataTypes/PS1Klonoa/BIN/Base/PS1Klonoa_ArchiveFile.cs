@@ -57,8 +57,17 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
+            // Serialize the offset table
             OffsetTable = s.SerializeObject<PS1Klonoa_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
+
+            // Serialize the files
+            SerializeFiles(s);
+
+            // Go to the end of the archive
+            s.Goto(Offset + Pre_FileSize);
         }
+
+        protected abstract void SerializeFiles(SerializerObject s);
 
         /// <summary>
         /// A file wrapper when serializing files from an archive to fix files not being cached when compressed
@@ -113,17 +122,12 @@ namespace R1Engine
 
         protected virtual void OnPreSerialize(T obj, long fileSize) { }
 
-        public override void SerializeImpl(SerializerObject s)
+        protected override void SerializeFiles(SerializerObject s)
         {
-            base.SerializeImpl(s);
-
             Files ??= new T[OffsetTable.FilesCount];
 
             for (int i = 0; i < Files.Length; i++)
                 Files[i] = SerializeFile<T>(s, Files[i], i, name: $"{nameof(Files)}[{i}]");
-
-            // Go to the end of the file
-            s.Goto(Offset + Pre_FileSize);
         }
     }
 }

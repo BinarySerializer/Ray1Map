@@ -66,13 +66,14 @@ namespace R1Engine
 
             [0x80034A88] = FileType.OA05,
             [0x80036ECC] = FileType.SEQ,
+            [0x80034EB0] = FileType.SEQ,
 
             [0x8002304C] = FileType.Archive_BackgroundPack,
 
             [0x800264d8] = FileType.Archive_Unk0,
-            [0x80073930] = FileType.Archive_FixedSpriteFrames,
+            [0x80073930] = FileType.FixedSprites,
             [0x800737F4] = FileType.Archive_SpritePack,
-            [0x8001845C] = FileType.Archive_TMDPack,
+            [0x8001845C] = FileType.Archive_LevelPack,
 
             [0x8007825C] = FileType.Code,
             [0x80078274] = FileType.Code,
@@ -90,9 +91,9 @@ namespace R1Engine
             [FileType.SEQ] = ".SEQ",
             [FileType.Archive_BackgroundPack] = ".BGPACK",
             [FileType.Archive_Unk0] = ".UNK0",
-            [FileType.Archive_FixedSpriteFrames] = ".SPRITEFRAMES",
+            [FileType.FixedSprites] = ".FIXSPRITES",
             [FileType.Archive_SpritePack] = ".SPRITEPACK",
-            [FileType.Archive_TMDPack] = ".TMDPACK",
+            [FileType.Archive_LevelPack] = ".LEV",
             [FileType.Code] = ".CODE",
             [FileType.Archive_Unk4] = ".UNK4",
         };
@@ -105,9 +106,9 @@ namespace R1Engine
             [FileType.SEQ] = 0,
             [FileType.Archive_BackgroundPack] = 2,
             [FileType.Archive_Unk0] = 1,
-            [FileType.Archive_FixedSpriteFrames] = 1,
+            [FileType.FixedSprites] = 1,
             [FileType.Archive_SpritePack] = 1,
-            [FileType.Archive_TMDPack] = 1,
+            [FileType.Archive_LevelPack] = 1,
             [FileType.Code] = 0,
             [FileType.Archive_Unk4] = 2,
         };
@@ -121,9 +122,9 @@ namespace R1Engine
             SEQ, // Sound
             Archive_BackgroundPack, // Backgrounds
             Archive_Unk0,
-            Archive_FixedSpriteFrames, // Fixed sprite descriptors
+            FixedSprites, // Fixed sprite descriptors
             Archive_SpritePack, // Sprites
-            Archive_TMDPack, // Models
+            Archive_LevelPack, // Level data
             Code, // Compiled code
             Archive_Unk4,
         }

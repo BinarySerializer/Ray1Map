@@ -3,6 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine
 {
+    // Some sound related pack
     public class PS1Klonoa_File_OA05 : PS1Klonoa_BaseFile
     {
         public string Header { get; set; }

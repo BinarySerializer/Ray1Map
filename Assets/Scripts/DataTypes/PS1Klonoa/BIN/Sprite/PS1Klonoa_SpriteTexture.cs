@@ -2,7 +2,10 @@
 
 namespace R1Engine
 {
-    public class PS1Klonoa_Sprite : BinarySerializable
+    /// <summary>
+    /// A texture for a sprite
+    /// </summary>
+    public class PS1Klonoa_SpriteTexture : BinarySerializable
     {
         public short XPos { get; set; }
         public short YPos { get; set; }
