@@ -311,9 +311,6 @@ namespace R1Engine
                 {
                     Debug.LogWarning($"Error exporting VRAM: {ex}");
                 }
-
-                if (blockIndex == 5)
-                    throw new Exception();
             }
         }
 
@@ -326,9 +323,11 @@ namespace R1Engine
             var idxData = Load_IDX(context);
 
             // Enumerate every entry
-            for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
+            for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
             {
                 var entry = idxData.Entries[blockIndex];
+
+                var vram = new PS1_VRAM();
 
                 // Process each BIN file
                 ProcessBINFiles(context, entry, (cmd, i) =>
@@ -341,8 +340,6 @@ namespace R1Engine
 
                         // Read the data
                         var bg = Load_BINFile<PS1Klonoa_ArchiveFile_BackgroundPack>(context, cmd, blockIndex, i);
-
-                        var vram = new PS1_VRAM();
 
                         // TODO: Some maps use different textures! How do we find the index? For now export all variants
                         for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
@@ -391,7 +388,7 @@ namespace R1Engine
                                             colorFormat: tim.ColorFormat, 
                                             texX: mapX * map.CellWidth, 
                                             texY: mapY * map.CellHeight, 
-                                            clutX: (cell.ClutX * 16 / 2), 
+                                            clutX: cell.ClutX * 16, 
                                             clutY: cell.ClutY, 
                                             texturePageOriginX: tim.XPos, 
                                             texturePageOriginY: tim.YPos, 
@@ -411,6 +408,8 @@ namespace R1Engine
                         Debug.LogWarning($"Error exporting with ex: {ex}");
                     }
                 });
+
+                PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), vram);
             }
         }
 
