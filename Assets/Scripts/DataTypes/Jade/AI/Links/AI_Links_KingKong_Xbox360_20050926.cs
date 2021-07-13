@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace R1Engine.Jade {
-	public class AI_Links_KingKong_Xbox360_KioskDemo : AI_Links_KingKong_Xbox360 {
+	public class AI_Links_KingKong_Xbox360_20050926 : AI_Links_KingKong_Xbox360 {
 		protected override void InitFunctionDefs() {
 			#region Function Defs
 			FunctionDefs = new AI_FunctionDef[] {

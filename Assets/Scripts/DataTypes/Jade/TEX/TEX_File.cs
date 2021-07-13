@@ -142,7 +142,7 @@ namespace R1Engine.Jade
                                 else if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD) colorOrder = TGA.RGBColorOrder.BGR;
                                 switch (s.GetR1Settings().GameModeSelection) {
                                     case GameModeSelection.RaymanRavingRabbidsWiiJP:
-                                    case GameModeSelection.KingKongXbox360KioskDemo:
+                                    case GameModeSelection.KingKongXbox360_20050926:
                                         colorOrder = TGA.RGBColorOrder.BGR;
                                         break;
                                 }

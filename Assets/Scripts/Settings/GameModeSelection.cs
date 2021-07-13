@@ -723,8 +723,8 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (Xbox 360)", typeof(Jade_KingKong_Xbox360_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
         KingKongXbox360,
 
-        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (Xbox 360 - Kiosk Demo)", typeof(Jade_KingKong_Xbox360KioskDemo_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
-        KingKongXbox360KioskDemo,
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (Xbox 360 - Demo 2005/09/26)", typeof(Jade_KingKong_Xbox360_20050926_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
+        KingKongXbox360_20050926,
 
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PC)", typeof(Jade_RRR_PC_Manager), Platform.PC)]

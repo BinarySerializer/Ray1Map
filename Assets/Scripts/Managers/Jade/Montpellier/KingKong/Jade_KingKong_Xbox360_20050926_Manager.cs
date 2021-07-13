@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class Jade_KingKong_Xbox360KioskDemo_Manager : Jade_KingKong_Xbox360_Manager {
+    public class Jade_KingKong_Xbox360_20050926_Manager : Jade_KingKong_Xbox360_Manager {
 		// Levels
 		public override LevelInfo[] LevelInfos => new LevelInfo[] {
 			new LevelInfo(0x0002EA59, "ROOT/EngineDatas/06 Levels/_main/_main_bootup", "_main_bootup.wol"),

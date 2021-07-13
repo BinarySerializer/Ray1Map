@@ -86,8 +86,8 @@ namespace R1Engine.Jade {
 				case GameModeSelection.KingKongXbox360:
 					links = new AI_Links_KingKong_Xbox360();
 					break;
-				case GameModeSelection.KingKongXbox360KioskDemo:
-					links = new AI_Links_KingKong_Xbox360_KioskDemo();
+				case GameModeSelection.KingKongXbox360_20050926:
+					links = new AI_Links_KingKong_Xbox360_20050926();
 					break;
 				case GameModeSelection.KingKongPC:
 					links = new AI_Links_KingKong_PC();
