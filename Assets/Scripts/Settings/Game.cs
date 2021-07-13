@@ -128,5 +128,8 @@
 
         KlonoaGBA_EmpireOfDreams,
         KlonoaGBA_DreamChampTournament,
+
+        // Klonoa PS1
+        PS1Klonoa_DoorToPhantomile,
     }
 }

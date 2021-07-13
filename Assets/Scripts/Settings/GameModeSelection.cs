@@ -857,5 +857,12 @@ namespace R1Engine {
         KlonoaDreamChampTournamentGBAUS,
 
         #endregion
+
+        #region PS1 Klonoa
+
+        [GameMode(MajorEngineVersion.PS1Klonoa, EngineVersion.PS1Klonoa, Game.PS1Klonoa_DoorToPhantomile, "Klonoa Door to Phantomile (PS1 - US)", typeof(PS1Klonoa_Manager), Platform.PS1)]
+        KlonoaDoorToPhantomilePS1US,
+
+        #endregion
     }
 }

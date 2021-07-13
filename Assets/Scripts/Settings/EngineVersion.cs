@@ -174,5 +174,7 @@ namespace R1Engine
 
         KlonoaGBA_EOD,
         KlonoaGBA_DCT,
+
+        PS1Klonoa,
     }
 }
