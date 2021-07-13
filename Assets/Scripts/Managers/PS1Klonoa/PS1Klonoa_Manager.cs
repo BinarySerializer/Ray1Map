@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using BinarySerializer;
+﻿using BinarySerializer;
 using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -200,112 +198,85 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var vram = new PS1_VRAM();
+            var data = new GameData();
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
             {
                 var entry = idxData.Entries[blockIndex];
 
-                // Process each BIN file
-                ProcessBINFiles(context, entry, (cmd, i) =>
+                // Load the BIN
+                LoadGameData(context, entry, data, blockIndex);
+
+                // Enumerate every set of frames
+                for (int framesSet = 0; framesSet < data.SpriteFrames.Length; framesSet++)
                 {
-                    // Check the file type
-                    if (cmd.FILE_Type == PS1Klonoa_IDXLoadCommand.FileType.Archive_TIM)
+                    var spriteFrames = data.SpriteFrames[framesSet];
+
+                    if (spriteFrames == null)
+                        continue;
+
+                    // Enumerate every frame
+                    for (int frameIndex = 0; frameIndex < spriteFrames.Files.Length; frameIndex++)
                     {
-                        PS1Klonoa_ArchiveFile_TIM timFiles = Load_BINFile<PS1Klonoa_ArchiveFile_TIM>(context, cmd, blockIndex, i);
-
-                        foreach (var tim in timFiles.Files)
-                            AddToVRAM(vram, tim);
-                    }
-                    else if (cmd.FILE_Type == PS1Klonoa_IDXLoadCommand.FileType.Archive_SpritePack ||
-                             cmd.FILE_Type == PS1Klonoa_IDXLoadCommand.FileType.Archive_SpriteFrames)
-                    {
-                        PS1Klonoa_ArchiveFile_SpriteFrames[] spriteFrameArchives;
-
-                        // Read the data
-                        if (cmd.FILE_Type == PS1Klonoa_IDXLoadCommand.FileType.Archive_SpritePack)
-                            spriteFrameArchives = Load_BINFile<PS1Klonoa_ArchiveFile_SpritePack>(context, cmd, blockIndex, i).SpriteFrames;
-                        else
-                            spriteFrameArchives = new PS1Klonoa_ArchiveFile_SpriteFrames[]
-                            {
-                                Load_BINFile<PS1Klonoa_ArchiveFile_SpriteFrames>(context, cmd, blockIndex, i)
-                            };
-
-                        //foreach (var tim in spritePack.TIMFiles.TIMFiles.Where(x => x != null))
-                        //    AddToVRAM(vram, tim);
-
-                        // Enumerate every set of frames
-                        for (int framesSet = 0; framesSet < spriteFrameArchives.Length; framesSet++)
+                        try
                         {
-                            var spriteFrames = spriteFrameArchives[framesSet];
+                            var sprites = spriteFrames.Files[frameIndex].Sprites;
 
-                            if (spriteFrames == null)
-                                continue;
-
-                            // Enumerate every frame
-                            for (int frameIndex = 0; frameIndex < spriteFrames.Files.Length; frameIndex++)
+                            foreach (var s in sprites)
                             {
-                                try
-                                {
-                                    var sprites = spriteFrames.Files[frameIndex].Sprites;
-
-                                    foreach (var s in sprites)
-                                    {
-                                        if (s.FlipX)
-                                            s.XPos = (short)(s.XPos - s.Width - 1);
-                                        if (s.FlipY)
-                                            s.YPos = (short)(s.YPos - s.Height - 1);
-                                    }
-
-                                    var minX = sprites.Min(x => x.XPos);
-                                    var minY = sprites.Min(x => x.YPos);
-                                    var maxX = sprites.Max(x => x.XPos + x.Width);
-                                    var maxY = sprites.Max(x => x.YPos + x.Height);
-
-                                    var width = maxX - minX;
-                                    var height = maxY - minY;
-
-                                    var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
-
-                                    foreach (var sprite in sprites)
-                                    {
-                                        var texPage = sprite.TexturePage;
-
-                                        FillTextureFromVRAM(
-                                            tex: tex, 
-                                            vram: vram, 
-                                            width: sprite.Width, 
-                                            height: sprite.Height, 
-                                            colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4, 
-                                            texX: sprite.XPos - minX, 
-                                            texY: sprite.YPos - minY, 
-                                            clutX: sprite.PalOffsetX,
-                                            clutY: 500 + sprite.PalOffsetY,
-                                            texturePageOriginX: 64 * (texPage % 16),
-                                            texturePageOriginY: 128 * (texPage / 16), // TODO: Fix this
-                                            texturePageOffsetX: sprite.TexturePageOffsetX, 
-                                            texturePageOffsetY: sprite.TexturePageOffsetY, 
-                                            flipX: sprite.FlipX,
-                                            flipY: sprite.FlipY);
-                                    }
-
-                                    tex.Apply();
-
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{framesSet} - {frameIndex}.png"), tex.EncodeToPNG());
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.LogWarning($"Error exporting sprite frame: {ex}");
-                                }
+                                if (s.FlipX)
+                                    s.XPos = (short)(s.XPos - s.Width - 1);
+                                if (s.FlipY)
+                                    s.YPos = (short)(s.YPos - s.Height - 1);
                             }
+
+                            var minX = sprites.Min(x => x.XPos);
+                            var minY = sprites.Min(x => x.YPos);
+                            var maxX = sprites.Max(x => x.XPos + x.Width);
+                            var maxY = sprites.Max(x => x.YPos + x.Height);
+
+                            var width = maxX - minX;
+                            var height = maxY - minY;
+
+                            var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
+
+                            foreach (var sprite in sprites)
+                            {
+                                var texPage = sprite.TexturePage;
+
+                                FillTextureFromVRAM(
+                                    tex: tex,
+                                    vram: data.VRAM,
+                                    width: sprite.Width,
+                                    height: sprite.Height,
+                                    colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
+                                    texX: sprite.XPos - minX,
+                                    texY: sprite.YPos - minY,
+                                    clutX: sprite.PalOffsetX,
+                                    clutY: 500 + sprite.PalOffsetY,
+                                    texturePageOriginX: 64 * (texPage % 16),
+                                    texturePageOriginY: 128 * (texPage / 16), // TODO: Fix this
+                                    texturePageOffsetX: sprite.TexturePageOffsetX,
+                                    texturePageOffsetY: sprite.TexturePageOffsetY,
+                                    flipX: sprite.FlipX,
+                                    flipY: sprite.FlipY);
+                            }
+
+                            tex.Apply();
+
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{framesSet} - {frameIndex}.png"), tex.EncodeToPNG());
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning($"Error exporting sprite frame: {ex}");
                         }
                     }
-                });
+                }
 
                 try
                 {
-                    PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), vram);
+                    PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), data.VRAM);
                 }
                 catch (Exception ex)
                 {
@@ -464,11 +435,13 @@ namespace R1Engine
             Controller.DetailedState = "Loading BIN";
             await Controller.WaitIfNecessary();
 
-            // Process the BIN files
-            ProcessBINFiles(context, entry, (cmd, i) =>
-            {
-                var file = Load_BINFile(context, cmd, settings.Level, i);
-            });
+            // Create the game data
+            var data = new GameData();
+
+            // TODO: Load fixed first (and menu?)
+
+            // Load the game data
+            LoadGameData(context, entry, data, settings.Level);
 
             throw new NotImplementedException();
         }
@@ -501,6 +474,58 @@ namespace R1Engine
             }
         }
 
+        public void LoadGameData(Context context, PS1Klonoa_IDXEntry entry, GameData data, int blockIndex)
+        {
+            ProcessBINFiles(context, entry, (cmd, i) =>
+            {
+                // Load the file
+                var binFile = Load_BINFile(context, cmd, blockIndex, i);
+
+                switch (binFile)
+                {
+                    // Copy the TIM files data to VRAM
+                    case PS1Klonoa_ArchiveFile_TIM file:
+                        
+                        foreach (PS1_TIM tim in file.Files)
+                            AddToVRAM(data.VRAM, tim);
+                        
+                        break;
+
+                    // Save for later
+                    case PS1Klonoa_File_OA05 file:
+                        data.OA05 = file;
+                        break;
+
+                    // Save for later and copy the TIM files data to VRAM
+                    case PS1Klonoa_ArchiveFile_BackgroundPack file:
+                        
+                        data.BackgroundPack = file;
+
+                        foreach (PS1_TIM tim in file.TIMFiles.Files)
+                            AddToVRAM(data.VRAM, tim);
+
+                        break;
+
+                    case PS1Klonoa_ArchiveFile_Unk0 file:
+                        // TODO: Use file
+                        break;
+
+                    // The fixed sprites are always the last set of sprite frames
+                    case PS1Klonoa_ArchiveFile_SpriteFrames file:
+                        data.SpriteFrames[69] = file;
+                        break;
+
+                    // Add the level sprite frames
+                    case PS1Klonoa_ArchiveFile_SpritePack file:
+                        
+                        for (int j = 0; j < 69; j++)
+                            data.SpriteFrames[j] = file.SpriteFrames[j];
+                        
+                        break;
+                }
+            });
+        }
+
         public PS1Klonoa_BaseFile Load_BINFile(Context context, PS1Klonoa_IDXLoadCommand cmd, int blockIndex, int cmdIndex)
         {
             switch (cmd.FILE_Type)
@@ -525,13 +550,16 @@ namespace R1Engine
                 case PS1Klonoa_IDXLoadCommand.FileType.Archive_Unk0:
                     return Load_BINFile<PS1Klonoa_ArchiveFile_Unk0>(context, cmd, blockIndex, cmdIndex);
 
-                case PS1Klonoa_IDXLoadCommand.FileType.Archive_SpriteFrames:
+                case PS1Klonoa_IDXLoadCommand.FileType.Archive_FixedSpriteFrames:
                     return Load_BINFile<PS1Klonoa_ArchiveFile_SpriteFrames>(context, cmd, blockIndex, cmdIndex);
 
                 case PS1Klonoa_IDXLoadCommand.FileType.Archive_SpritePack:
                     return Load_BINFile<PS1Klonoa_ArchiveFile_SpritePack>(context, cmd, blockIndex, cmdIndex);
 
                 case PS1Klonoa_IDXLoadCommand.FileType.Archive_TMDPack:
+                    return Load_BINFile<PS1Klonoa_ArchiveFile_RawData>(context, cmd, blockIndex, cmdIndex);
+
+                case PS1Klonoa_IDXLoadCommand.FileType.Archive_Unk4:
                     return Load_BINFile<PS1Klonoa_ArchiveFile_RawData>(context, cmd, blockIndex, cmdIndex);
 
                 case PS1Klonoa_IDXLoadCommand.FileType.Unknown:
@@ -560,7 +588,8 @@ namespace R1Engine
                 vram.AddPalette(tim.Clut.Palette, 0, 0, tim.Clut.XPos * 2, tim.Clut.YPos, tim.Clut.Width * 2, tim.Clut.Height);
             
             // Add the image data
-            vram.AddDataAt(0, 0, tim.XPos * 2, tim.YPos, tim.ImgData, tim.Width * 2, tim.Height);
+            if (!(tim.XPos == 0 && tim.YPos == 0) && tim.Width != 0 && tim.Height != 0)
+                vram.AddDataAt(0, 0, tim.XPos * 2, tim.YPos, tim.ImgData, tim.Width * 2, tim.Height);
         }
 
         public void FillTextureFromVRAM(
@@ -678,6 +707,20 @@ namespace R1Engine
             
             // The IDX gets loaded into a fixed memory location
             await context.AddMemoryMappedFile(FilePath_IDX, 0x80010000);
+        }
+
+        public class GameData
+        {
+            public GameData()
+            {
+                VRAM = new PS1_VRAM();
+                SpriteFrames = new PS1Klonoa_ArchiveFile_SpriteFrames[70];
+            }
+
+            public PS1_VRAM VRAM { get; }
+            public PS1Klonoa_ArchiveFile_SpriteFrames[] SpriteFrames { get; }
+            public PS1Klonoa_ArchiveFile_BackgroundPack BackgroundPack { get; set; }
+            public PS1Klonoa_File_OA05 OA05 { get; set; }
         }
     }
 }
