@@ -711,6 +711,9 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (Xbox)", typeof(Jade_KingKong_Xbox_Manager), Platform.Xbox)]
         KingKongXbox,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (Xbox - Demo 2005/07/28)", typeof(Jade_KingKong_Xbox_20050728_Manager), Platform.Xbox)]
+        KingKongXbox_20050728,
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong, Game.Jade_KingKong, "King Kong (PSP)", typeof(Jade_KingKong_PSP_Manager), Platform.PSP)]
         KingKongPSP,
 
