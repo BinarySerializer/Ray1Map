@@ -720,6 +720,9 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (Xbox 360)", typeof(Jade_KingKong_Xbox360_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
         KingKongXbox360,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_KingKong_Xenon, Game.Jade_KingKong, "King Kong (Xbox 360 - Kiosk Demo)", typeof(Jade_KingKong_Xbox360KioskDemo_Manager), Platform.Xbox360, flags: EngineFlags.Jade_Xenon)]
+        KingKongXbox360KioskDemo,
+
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRR, Game.Jade_RRR, "Rayman Raving Rabbids (PC)", typeof(Jade_RRR_PC_Manager), Platform.PC)]
         RaymanRavingRabbidsPC,
@@ -741,6 +744,15 @@ namespace R1Engine {
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez, Game.Jade_Horsez, "Horsez (PS2)", typeof(Jade_Horsez_PS2_Manager), Platform.PS2)]
         HorsezPS2,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (PS2)", typeof(Jade_Horsez2_PS2_Manager), Platform.PS2)]
+        Horsez2PS2,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (PSP)", typeof(Jade_Horsez2_PSP_Manager), Platform.PSP)]
+        Horsez2PSP,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (PSP - Demo)", typeof(Jade_Horsez2_PSPDemo_Manager), Platform.PSP)]
+        Horsez2PSPDemo,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (Wii)", typeof(Jade_Horsez2_Wii_Manager), Platform.Wii)]
         Horsez2Wii,

@@ -231,6 +231,7 @@ namespace R1Engine
 											name += $"_{file.Type}";
 											if (file.Content_Xenon != null) name += $"_{file.Content_Xenon.Format}";
 											if (file.Content_JTX != null) name += $"_{file.Content_JTX.Format}";
+											if (file.Content_TGA != null) name += $"_{file.Format}";
 										}
 									}
 

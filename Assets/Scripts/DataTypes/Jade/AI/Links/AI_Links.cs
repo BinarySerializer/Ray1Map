@@ -86,6 +86,9 @@ namespace R1Engine.Jade {
 				case GameModeSelection.KingKongXbox360:
 					links = new AI_Links_KingKong_Xbox360();
 					break;
+				case GameModeSelection.KingKongXbox360KioskDemo:
+					links = new AI_Links_KingKong_Xbox360_KioskDemo();
+					break;
 				case GameModeSelection.KingKongPC:
 					links = new AI_Links_KingKong_PC();
 					break;
@@ -133,6 +136,9 @@ namespace R1Engine.Jade {
 					links = new AI_Links_Horsez_PS2();
 					break;
 				case GameModeSelection.Horsez2Wii:
+				case GameModeSelection.Horsez2PS2:
+				case GameModeSelection.Horsez2PSP:
+				case GameModeSelection.Horsez2PSPDemo:
 					links = new AI_Links_Horsez2_Wii();
 					break;
 				case GameModeSelection.MovieGamesWii:

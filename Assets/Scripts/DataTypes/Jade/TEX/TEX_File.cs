@@ -132,23 +132,22 @@ namespace R1Engine.Jade
                     case TexFileType.Tga:
                         if (IsContent || !Loader.IsBinaryData)
                         {
-                            TGA.RGBColorOrder colorOrder = TGA.RGBColorOrder.RGB;
-
-                            if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) colorOrder = TGA.RGBColorOrder.BGR;
-
-                            if (s.GetR1Settings().Platform == Platform.PC
-                                && (s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR
-                                || s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE
-                                || s.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_Xenon)) {
-                                colorOrder = TGA.RGBColorOrder.BGR;
-                            }
-                            switch (s.GetR1Settings().GameModeSelection) {
-                                case GameModeSelection.RaymanRavingRabbidsWiiJP:
-                                case GameModeSelection.BeyondGoodAndEvilXbox360:
-                                case GameModeSelection.BeyondGoodAndEvilPS3:
+                            TGA.RGBColorOrder colorOrder = TGA.RGBColorOrder.BGR;
+                            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+                                colorOrder = TGA.RGBColorOrder.RGB;
+                                if (s.GetR1Settings().Platform == Platform.PC && s.GetR1Settings().EngineVersion != EngineVersion.Jade_KingKong) {
                                     colorOrder = TGA.RGBColorOrder.BGR;
-                                    break;
+                                }
+                                else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Phoenix)) colorOrder = TGA.RGBColorOrder.BGR;
+                                else if (s.GetR1Settings().EngineVersion == EngineVersion.Jade_BGE_HD) colorOrder = TGA.RGBColorOrder.BGR;
+                                switch (s.GetR1Settings().GameModeSelection) {
+                                    case GameModeSelection.RaymanRavingRabbidsWiiJP:
+                                    case GameModeSelection.KingKongXbox360KioskDemo:
+                                        colorOrder = TGA.RGBColorOrder.BGR;
+                                        break;
+                                }
                             }
+
 
                             // Serialize the header first, then set a custom one for the TGA struct based on the Jade properties instead
                             Content_TGA_Header = s.SerializeObject<TGA_Header>(Content_TGA_Header, x => x.Pre_ForceNoColorMap = true, name: nameof(Content_TGA_Header));
