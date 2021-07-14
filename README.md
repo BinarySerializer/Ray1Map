@@ -889,6 +889,25 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
   </tr>
 </table>
 
+### Supported Games (PS1 Klonoa)
+
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Klonoa: Door to Phantomile</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+</table>
+
 ## Get Started
 NOTE: This project is currently in its early stages and may be unstable. Saving edits may corrupt your files for certain games, so make sure to back up your files first!
 
@@ -905,6 +924,7 @@ If you download the repo as a zip folder the sub-modules won't be included, caus
 * [BinarySerializer](https://github.com/RayCarrot/BinarySerializer) (Assets\Scripts\Libraries\BinarySerializer)
 * [BinarySerializer.Image](https://github.com/RayCarrot/BinarySerializer.Image) (Assets\Scripts\Libraries\BinarySerializer.Image)
 * [BinarySerializer.Ray1](https://github.com/RayCarrot/BinarySerializer.Ray1) (Assets\Scripts\Libraries\BinarySerializer.Ray1)
+* [BinarySerializer.KlonoaDTP](https://github.com/RayCarrot/BinarySerializer.KlonoaDTP) (Assets\Scripts\Libraries\BinarySerializer.KlonoaDTP)
 * [BinarySerializer.GBA](https://github.com/RayCarrot/BinarySerializer.GBA) (Assets\Scripts\Libraries\BinarySerializer.GBA)
 * [BinarySerializer.PS1](https://github.com/RayCarrot/BinarySerializer.PS1) (Assets\Scripts\Libraries\BinarySerializer.PS1)
 

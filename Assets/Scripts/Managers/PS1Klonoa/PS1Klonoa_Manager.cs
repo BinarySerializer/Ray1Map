@@ -41,7 +41,7 @@ namespace R1Engine
 
             var s = context.Deserializer;
 
-            var loader = PS1Klonoa_Loader.Create(context);
+            var loader = Loader.Create(context);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -49,21 +49,21 @@ namespace R1Engine
                 var entry = idxData.Entries[blockIndex];
 
                 // Process each BIN file
-                loader.ProcessBINFiles(entry, (cmd, i) =>
+                loader.ProcessBINFiles(entry, blockIndex, (cmd, i) =>
                 {
-                    var ext = PS1Klonoa_IDXLoadCommand.FileExtensions[cmd.FILE_Type];
+                    var ext = IDXLoadCommand.FileExtensions[cmd.FILE_Type];
 
                     if (unpack)
                     {
                         var type = cmd.FILE_Type;
-                        var archiveDepth = PS1Klonoa_IDXLoadCommand.ArchiveDepths[type];
+                        var archiveDepth = IDXLoadCommand.ArchiveDepths[type];
 
                         if (archiveDepth > 0)
                         {
                             // Be lazy and hard-code instead of making some recursive loop
                             if (archiveDepth == 1)
                             {
-                                var archive = loader.Load_BINFile<PS1Klonoa_ArchiveFile_RawData>(cmd, blockIndex, i);
+                                var archive = loader.Load_BINFile<RawData_ArchiveFile>(cmd, blockIndex, i);
 
                                 for (int j = 0; j < archive.Files.Length; j++)
                                 {
@@ -74,7 +74,7 @@ namespace R1Engine
                             }
                             else if (archiveDepth == 2)
                             {
-                                var archives = loader.Load_BINFile<PS1Klonoa_ArchiveFile<PS1Klonoa_ArchiveFile_RawData>>(cmd, blockIndex, i);
+                                var archives = loader.Load_BINFile<ArchiveFile<RawData_ArchiveFile>>(cmd, blockIndex, i);
 
                                 for (int a = 0; a < archives.Files.Length; a++)
                                 {
@@ -113,7 +113,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = PS1Klonoa_Loader.Create(context);
+            var loader = Loader.Create(context);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -121,13 +121,13 @@ namespace R1Engine
                 var entry = idxData.Entries[blockIndex];
 
                 // Process each BIN file
-                loader.ProcessBINFiles(entry, (cmd, i) =>
+                loader.ProcessBINFiles(entry, blockIndex, (cmd, i) =>
                 {
                     // Check the file type
-                    if (cmd.FILE_Type == PS1Klonoa_IDXLoadCommand.FileType.Archive_TIM)
+                    if (cmd.FILE_Type == IDXLoadCommand.FileType.Archive_TIM)
                     {
                         // Read the data
-                        PS1Klonoa_ArchiveFile_TIM timFiles = loader.Load_BINFile<PS1Klonoa_ArchiveFile_TIM>(cmd, blockIndex, i);
+                        TIM_ArchiveFile timFiles = loader.Load_BINFile<TIM_ArchiveFile>(cmd, blockIndex, i);
 
                         var index = 0;
 
@@ -149,12 +149,12 @@ namespace R1Engine
                             index++;
                         }
                     }
-                    else if (cmd.FILE_Type == PS1Klonoa_IDXLoadCommand.FileType.Archive_SpritePack)
+                    else if (cmd.FILE_Type == IDXLoadCommand.FileType.Archive_SpritePack)
                     {
                         // Read the data
-                        PS1Klonoa_ArchiveFile_LevelSpritePack spritePack = loader.Load_BINFile<PS1Klonoa_ArchiveFile_LevelSpritePack>(cmd, blockIndex, i);
+                        LevelSpritePack_ArchiveFile spritePack = loader.Load_BINFile<LevelSpritePack_ArchiveFile>(cmd, blockIndex, i);
 
-                        var exported = new HashSet<PS1Klonoa_File_PlayerSprite>();
+                        var exported = new HashSet<PlayerSprite_File>();
 
                         var index = 0;
 
@@ -200,7 +200,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = PS1Klonoa_Loader.Create(context);
+            var loader = Loader.Create(context);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -223,7 +223,7 @@ namespace R1Engine
                     {
                         try
                         {
-                            var sprites = spriteFrames.Files[frameIndex].Sprites;
+                            var sprites = spriteFrames.Files[frameIndex].Textures;
 
                             foreach (var s in sprites)
                             {
@@ -295,7 +295,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = PS1Klonoa_Loader.Create(context);
+            var loader = Loader.Create(context);
 
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -305,16 +305,16 @@ namespace R1Engine
                 var vram = new PS1_VRAM();
 
                 // Process each BIN file
-                loader.ProcessBINFiles(entry, (cmd, i) =>
+                loader.ProcessBINFiles(entry, blockIndex, (cmd, i) =>
                 {
                     try
                     {
                         // Check the file type
-                        if (cmd.FILE_Type != PS1Klonoa_IDXLoadCommand.FileType.Archive_BackgroundPack)
+                        if (cmd.FILE_Type != IDXLoadCommand.FileType.Archive_BackgroundPack)
                             return;
 
                         // Read the data
-                        var bg = loader.Load_BINFile<PS1Klonoa_ArchiveFile_BackgroundPack>(cmd, blockIndex, i);
+                        var bg = loader.Load_BINFile<BackgroundPack_ArchiveFile>(cmd, blockIndex, i);
 
                         // TODO: Some maps use different textures! How do we find the index? For now export all variants
                         for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
@@ -396,7 +396,7 @@ namespace R1Engine
 
             var s = context.Deserializer;
 
-            s.Goto(context.GetFile(PS1Klonoa_Loader.FilePath_BIN).StartPointer);
+            s.Goto(context.GetFile(Loader.FilePath_BIN).StartPointer);
 
             while (s.CurrentFileOffset < s.CurrentLength)
             {
@@ -411,7 +411,7 @@ namespace R1Engine
                 {
                     try
                     {
-                        var bytes = s.DoEncoded(new ULZ_Encoder(), () => s.SerializeArray<byte>(default, s.CurrentLength));
+                        var bytes = s.DoEncoded(new ULZEncoder(), () => s.SerializeArray<byte>(default, s.CurrentLength));
 
                         Util.ByteArrayToFile(Path.Combine(outputPath, $"0x{offset.AbsoluteOffset:X8}.bin"), bytes);
                     }
@@ -440,7 +440,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Create the loader
-            var loader = PS1Klonoa_Loader.Create(context);
+            var loader = Loader.Create(context);
 
             // TODO: Load fixed first
 
@@ -450,9 +450,9 @@ namespace R1Engine
             throw new NotImplementedException();
         }
 
-        public PS1Klonoa_IDX Load_IDX(Context context)
+        public IDX Load_IDX(Context context)
         {
-            return FileFactory.Read<PS1Klonoa_IDX>(PS1Klonoa_Loader.FilePath_IDX, context);
+            return FileFactory.Read<IDX>(Loader.FilePath_IDX, context);
         }
 
         public void FillTextureFromVRAM(
@@ -566,10 +566,10 @@ namespace R1Engine
         public override async UniTask LoadFilesAsync(Context context)
         {
             // The game only loads portions of the BIN at a time
-            await context.AddLinearSerializedFileAsync(PS1Klonoa_Loader.FilePath_BIN);
+            await context.AddLinearSerializedFileAsync(Loader.FilePath_BIN);
             
             // The IDX gets loaded into a fixed memory location
-            await context.AddMemoryMappedFile(PS1Klonoa_Loader.FilePath_IDX, 0x80010000);
+            await context.AddMemoryMappedFile(Loader.FilePath_IDX, 0x80010000);
         }
     }
 }
