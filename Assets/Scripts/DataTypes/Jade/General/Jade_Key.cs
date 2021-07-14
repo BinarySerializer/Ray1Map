@@ -19,6 +19,12 @@ namespace R1Engine.Jade {
 		}
 		public static implicit operator uint(Jade_Key k) => k.Key;
 		public override string ToString() {
+			if (!IsNull && Context != null) {
+				var loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+				if (loader != null && loader.FileInfos.ContainsKey(this)) {
+					return $"{Key:X8} ({loader.FileInfos[this].FileRegionName})";
+				}
+			}
 			return Key.ToString("X8");
 		}
 

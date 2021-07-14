@@ -33,6 +33,7 @@ namespace R1Engine.Jade {
 		public Jade_TextReference Text { get; set; }
 		public Secto[] AllSectos { get; set; }
 		public Jade_Reference<LIGHT_Rejection> LightRejection { get; set; }
+		public Jade_Reference<WOR_MagmaGroup> MagmaGroup { get; set; }
 
 		public List<OBJ_GameObject> SerializedGameObjects { get; set; } = new List<OBJ_GameObject>();
 		public TEX_GlobalList TextureList_Montreal { get; set; }
@@ -100,6 +101,8 @@ namespace R1Engine.Jade {
 				if (Version > 4 && s.GetR1Settings().EngineFlags.HasFlag(EngineFlags.Jade_Xenon) && s.GetR1Settings().EngineVersion < EngineVersion.Jade_RRR) {
 					LightRejection = s.SerializeObject<Jade_Reference<LIGHT_Rejection>>(LightRejection, name: nameof(LightRejection))?.Resolve();
 				}
+			} else if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+				if (Version >= 5) MagmaGroup = s.SerializeObject<Jade_Reference<WOR_MagmaGroup>>(MagmaGroup, name: nameof(MagmaGroup))?.Resolve();
 			}
 		}
 

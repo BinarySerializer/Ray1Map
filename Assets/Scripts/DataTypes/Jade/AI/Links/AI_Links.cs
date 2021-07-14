@@ -133,6 +133,8 @@ namespace R1Engine.Jade {
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesPSP:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesXbox:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesXbox_20051002:
+
+				case GameModeSelection.MyWordCoachWii:
 					links = new AI_Links_PoP_SoT_PS2_Proto();
 					break;
 				case GameModeSelection.HorsezPS2:

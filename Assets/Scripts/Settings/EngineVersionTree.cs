@@ -44,8 +44,8 @@ namespace R1Engine
                                         ),
                                         new Node(EngineVersion.Jade_PoP_T2T_20051002).SetChildren(
                                             new Node(EngineVersion.Jade_PoP_T2T).SetChildren(
-                                                new Node(EngineVersion.Jade_MyWordCoach),
                                                 new Node(EngineVersion.Jade_TMNT).SetChildren(
+                                                    new Node(EngineVersion.Jade_MyWordCoach),
                                                     new Node(EngineVersion.Jade_Naruto).SetChildren(
                                                         new Node(EngineVersion.Jade_Naruto1RiseOfANinja).SetChildren(
                                                             new Node(EngineVersion.Jade_Naruto2TheBrokenBond)

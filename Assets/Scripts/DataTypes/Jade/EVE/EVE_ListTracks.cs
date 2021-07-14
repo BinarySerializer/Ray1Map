@@ -4,6 +4,7 @@ namespace R1Engine.Jade
 {
     public class EVE_ListTracks : Jade_File
     {
+        public Jade_Reference<EVE_ListTracks> ListTracks_TRS { get; set; }
         public ushort TracksCount { get; set; }
         public ushort TracksCount2 { get; set; }
         public ushort Flags { get; set; }
@@ -12,6 +13,18 @@ namespace R1Engine.Jade
 
         public override void SerializeImpl(SerializerObject s)
         {
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
+				ListTracks_TRS = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(ListTracks_TRS, name: nameof(ListTracks_TRS));
+                if (Loader.IsBinaryData && !ListTracks_TRS.IsNull) {
+                    ListTracks_TRS?.SerializeFile(s,f => {
+                        f.Key = ListTracks_TRS.Key;
+                        f.Loader = Loader;
+                        f.UnknownFileSize = true;
+                    });
+                } else {
+                    ListTracks_TRS?.Resolve();
+                }
+			}
             bool useCount2 = false;
             TracksCount = s.Serialize<ushort>(TracksCount, name: nameof(TracksCount));
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) && TracksCount >= 0x8000) {

@@ -6,6 +6,7 @@ namespace R1Engine.Jade {
 		public LOA_Loader Loader { get; set; }
 		public Jade_Key Key { get; set; }
 		public uint FileSize { get; set; }
+		public bool UnknownFileSize { get; set; }
 		public uint ReferencesCount { get; set; } = 1;
 		public uint CachedCount { get; set; } = 1;
 		public LOA_BinFileHeader BinFileHeader { get; set; }
@@ -19,9 +20,9 @@ namespace R1Engine.Jade {
 		}
 		public void CheckFileSize(SerializerObject s) {
 			long readSize = s.CurrentPointer - Offset;
-			if (Loader.IsBinaryData && FileSize != readSize) {
+			if (Loader.IsBinaryData && FileSize != readSize && !UnknownFileSize) {
 				UnityEngine.Debug.LogWarning($"File {Key} with type {GetType()} was not fully serialized: File Size: {FileSize:X8} / Serialized: {readSize:X8}");
-			}
+			} else if(UnknownFileSize) FileSize = (uint)readSize;
 		}
 	}
 }
