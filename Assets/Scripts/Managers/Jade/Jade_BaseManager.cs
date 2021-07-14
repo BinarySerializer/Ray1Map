@@ -17,7 +17,7 @@ namespace R1Engine
     public abstract class Jade_BaseManager : BaseGameManager {
 		// Levels
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) {
-			return GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Where(w => AllowWOW || w.Key != "WOW").Select((x, i) => {
+			return GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Select((x, i) => {
 				return new GameInfo_World(
 					index: i,
 					worldName: x.Key.ReplaceFirst(CommonLevelBasePath, String.Empty),
@@ -30,14 +30,23 @@ namespace R1Engine
 
 		public abstract LevelInfo[] LevelInfos { get; }
 
+		public virtual bool HasUnbinarizedData => false;
+
 		// Game actions
-		public override GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
-		{
-			new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
-			new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
-			new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
-			new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
-		};
+		public override GameAction[] GetGameActions(GameSettings settings) {
+			GameAction[] actions = new GameAction[] {
+				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
+				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
+				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
+				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
+			};
+			if (HasUnbinarizedData) {
+				actions = actions.Concat(new GameAction[] {
+					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output))
+				}).ToArray();
+			}
+			return actions;
+		}
         public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false) {
             using (var context = new R1Context(settings)) {
 				var s = context.Deserializer;
@@ -165,18 +174,14 @@ namespace R1Engine
 
             foreach (var lev in LevelInfos)
             {
-				if (AllowWOW) {
-					// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
-					if (lev?.Type == LevelInfo.FileType.WOL) {
-						levIndex++;
-						continue;
-					}
-				} else {
-					// WOW loading is not allowed
-					if (lev?.Type == LevelInfo.FileType.WOW) {
-						levIndex++;
-						continue;
-					}
+				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
+				if (lev?.Type == LevelInfo.FileType.WOL) {
+					levIndex++;
+					continue;
+				}
+				if (lev?.Type == LevelInfo.FileType.WOLUnbinarized || lev?.Type == LevelInfo.FileType.WOWUnbinarized) {
+					levIndex++;
+					continue;
 				}
 
 				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
@@ -374,7 +379,6 @@ namespace R1Engine
 		public abstract string[] BFFiles { get; }
 		public virtual string[] FixWorlds => null;
 		public virtual string JadeSpePath => null;
-		public virtual bool AllowWOW => true;
 
 		// Helpers
         public virtual async UniTask CreateLevelList(LOA_Loader l) {
@@ -400,10 +404,50 @@ namespace R1Engine
 				str.AppendLine($"new LevelInfo(0x{kv.Key:X8}, \"{kv.Value?.DirectoryName}\", \"{kv.Value?.FileName}\"),");
 				//Debug.Log($"{kv.Key:X8} - {kv.Value }");
 			}
+			if (HasUnbinarizedData) {
+				string unbinarizedStr = await CreateLevelListUnbinarized(l);
+				str.AppendLine(unbinarizedStr);
+			}
 
 			str.ToString().CopyToClipboard();
 		}
-        public async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) {
+		public virtual async UniTask<string> CreateLevelListUnbinarized(LOA_Loader l) {
+			await Task.CompletedTask;
+			var groups = l.FileInfos
+				.Where(f => !string.IsNullOrEmpty(f.Value.FileName) && (f.Value.FileName.EndsWith(".wow") || f.Value.FileName.EndsWith(".wol")))
+				.OrderBy(f => f.Key.Key);
+			List<KeyValuePair<uint, LevelInfo>> levels = new List<KeyValuePair<uint, LevelInfo>>();
+			foreach (var g in groups) {
+				string extension = g.Value.FileName.Substring(g.Value.FileName.Length-3, 3);
+				string filePath = g.Value.FilePath.Substring(0, g.Value.FilePath.Length - 4);
+				string fileName = g.Value.FileName.Substring(0, g.Value.FileName.Length - 4);
+				if (filePath.StartsWith("ROOT/EngineDatas/")) filePath = filePath.Remove(0, "ROOT/EngineDatas/".Length);
+				if (filePath.StartsWith("06 Levels/")) filePath = filePath.Remove(0, "06 Levels/".Length);
+				if (filePath.EndsWith($"{fileName}/{fileName}")) filePath = filePath.Substring(0, filePath.Length - fileName.Length - 1);
+				levels.Add(new KeyValuePair<uint, LevelInfo>(g.Key, new LevelInfo(
+					g.Key,
+					g.Value?.DirectoryName ?? "null",
+					g.Value?.FileName ?? "null",
+					worldName: $"Unbinarized {extension.ToUpper()}",
+					mapName: filePath,
+					type: extension == "wol" ? LevelInfo.FileType.WOLUnbinarized : LevelInfo.FileType.WOWUnbinarized)));
+				//levels.Add(new KeyValuePair<uint, LOA_Loader.FileInfo>(g.Key, g.Value));
+			}
+
+			var str = new StringBuilder();
+			str.AppendLine($"// Unbinarized");
+			foreach (var kv in levels.OrderBy(l => l.Value?.DirectoryPath).ThenBy(l => l.Value?.FilePath)) {
+				str.AppendLine($"new LevelInfo(0x{kv.Key:X8}, \"{kv.Value?.DirectoryPath}\", \"{kv.Value?.FilePath}\"" +
+					$"{(kv.Value?.OriginalWorldName != null ? $", worldName: \"{kv.Value.OriginalWorldName}\"" : "")}" +
+					$"{(kv.Value?.OriginalMapName != null ? $", mapName: \"{kv.Value.OriginalMapName}\"" : "")}" +
+					$"{(kv.Value?.OriginalType != null ? $", type: LevelInfo.FileType.{kv.Value.OriginalType}" : "")}" +
+					$"),");
+				//Debug.Log($"{kv.Key:X8} - {kv.Value }");
+			}
+
+			return str.ToString();
+		}
+		public async UniTask<BIG_BigFile> LoadBF(Context context, string bfPath) {
 			var s = context.Deserializer;
 			s.Goto(context.GetFile(bfPath).StartPointer);
 			await s.FillCacheForReadAsync((int)BIG_BigFile.HeaderLength);
@@ -658,7 +702,9 @@ namespace R1Engine
 
 			public enum FileType {
 				WOL,
-				WOW
+				WOW,
+				WOLUnbinarized,
+				WOWUnbinarized,
 			}
 
 			public string OriginalWorldName { get; }

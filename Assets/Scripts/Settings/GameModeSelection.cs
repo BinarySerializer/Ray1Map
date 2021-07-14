@@ -760,8 +760,17 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (Wii)", typeof(Jade_Horsez2_Wii_Manager), Platform.Wii)]
         Horsez2Wii,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (PC)", typeof(Jade_Horsez2_PC_Manager), Platform.PC)]
+        Horsez2PC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (PC - HD)", typeof(Jade_Horsez2_PC_HD_Manager), Platform.PC)]
+        Horsez2PCHD,
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PetzHorseClub, Game.Jade_PetzHorseClub, "Petz: Horse Club (PC)", typeof(Jade_PetzHorseClub_PC_Manager), Platform.PC)]
         PetzHorseClubPC,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PetzHorseClub, Game.Jade_PetzHorseClub, "Petz: Horse Club (PC - HD)", typeof(Jade_PetzHorseClub_PC_HD_Manager), Platform.PC)]
+        PetzHorseClubPCHD,
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MovieGames, Game.Jade_MovieGames, "Movie Games (Wii)", typeof(Jade_MovieGames_Wii_Manager), Platform.Wii)]
         MovieGamesWii,

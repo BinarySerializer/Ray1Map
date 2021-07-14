@@ -44,17 +44,19 @@ namespace R1Engine.Jade {
 		public Jade_Reference<T> ResolveEmbedded(SerializerObject s,
 			Action<SerializerObject, T> onPreSerialize = null,
 			Action<SerializerObject, T> onPostSerialize = null,
-			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log) {
+			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log,
+			bool unknownFileSize = false) {
 			if (IsNull && !ForceResolve) return this;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			if (loader.Cache.ContainsKey(Key)) {
+			if (loader.Cache.ContainsKey(Key) && !flags.HasFlag(LOA_Loader.ReferenceFlags.DontUseCachedFile)) {
 				Value = loader.Cache[Key]?.ConvertType<T>();
 			} else {
-				EmbeddedFileSize = s.Serialize<uint>(EmbeddedFileSize, name: nameof(EmbeddedFileSize));
+				if(!unknownFileSize) EmbeddedFileSize = s.Serialize<uint>(EmbeddedFileSize, name: nameof(EmbeddedFileSize));
 				SerializeFile(s, f => {
 					f.FileSize = EmbeddedFileSize;
 					f.Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 					f.Key = Key;
+					f.UnknownFileSize = unknownFileSize;
 				}, onPreSerialize, onPostSerialize);
 				if (!flags.HasFlag(LOA_Loader.ReferenceFlags.DontCache)) {
 					loader.Cache[Key] = Value;

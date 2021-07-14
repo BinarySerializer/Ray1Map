@@ -15,12 +15,8 @@ namespace R1Engine.Jade
         {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT)) {
 				ListTracks_TRS = s.SerializeObject<Jade_Reference<EVE_ListTracks>>(ListTracks_TRS, name: nameof(ListTracks_TRS));
-                if (Loader.IsBinaryData && !ListTracks_TRS.IsNull) {
-                    ListTracks_TRS?.SerializeFile(s,f => {
-                        f.Key = ListTracks_TRS.Key;
-                        f.Loader = Loader;
-                        f.UnknownFileSize = true;
-                    });
+                if (Loader.IsBinaryData) {
+                    ListTracks_TRS?.ResolveEmbedded(s, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log, unknownFileSize: true);
                 } else {
                     ListTracks_TRS?.Resolve();
                 }

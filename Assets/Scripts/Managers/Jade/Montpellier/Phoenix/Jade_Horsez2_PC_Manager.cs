@@ -8,14 +8,14 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Jade_PetzHorseClub_PC_Manager : Jade_Montpellier_BaseManager {
+    public class Jade_Horsez2_PC_Manager : Jade_Montpellier_BaseManager {
 		public override bool HasUnbinarizedData => true;
 
 		// Levels
 		public override LevelInfo[] LevelInfos => null;
 
 		public override string[] BFFiles => new string[] {
-			"Horsez2.bf"
+			"HORSEZ.bf"
 		};
 	}
 }

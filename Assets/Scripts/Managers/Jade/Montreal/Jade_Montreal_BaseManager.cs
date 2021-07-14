@@ -97,6 +97,10 @@ namespace R1Engine
 					$"),");
 				//Debug.Log($"{kv.Key:X8} - {kv.Value }");
 			}
+			if (HasUnbinarizedData) {
+				string unbinarizedStr = await CreateLevelListUnbinarized(l);
+				str.AppendLine(unbinarizedStr);
+			}
 
 			str.ToString().CopyToClipboard();
 		}
