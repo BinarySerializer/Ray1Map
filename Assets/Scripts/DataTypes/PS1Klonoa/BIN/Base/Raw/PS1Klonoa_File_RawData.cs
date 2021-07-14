@@ -1,6 +1,4 @@
-﻿using BinarySerializer;
-
-namespace R1Engine
+﻿namespace BinarySerializer.KlonoaDTP
 {
     /// <summary>
     /// A file where the data gets serialized as raw bytes

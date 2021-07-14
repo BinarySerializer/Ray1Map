@@ -1,8 +1,7 @@
-﻿using BinarySerializer;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
-namespace R1Engine
+namespace BinarySerializer.KlonoaDTP
 {
     /// <summary>
     /// A file which contains multiple files. The files can be compressed and of different types.

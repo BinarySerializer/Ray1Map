@@ -1,6 +1,4 @@
-﻿using BinarySerializer;
-
-namespace R1Engine
+﻿namespace BinarySerializer.KlonoaDTP
 {
     public class PS1Klonoa_File_Sprite : PS1Klonoa_BaseFile
     {

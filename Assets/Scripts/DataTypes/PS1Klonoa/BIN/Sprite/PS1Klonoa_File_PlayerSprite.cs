@@ -1,7 +1,6 @@
-﻿using BinarySerializer;
-using BinarySerializer.PS1;
+﻿using BinarySerializer.PS1;
 
-namespace R1Engine
+namespace BinarySerializer.KlonoaDTP
 {
     public class PS1Klonoa_File_PlayerSprite : PS1Klonoa_BaseFile
     {
@@ -25,7 +24,7 @@ namespace R1Engine
                 Raw_Size = s.Serialize<uint>(Raw_Size, name: nameof(Raw_Size));
                 Raw_Width = s.Serialize<ushort>(Raw_Width, name: nameof(Raw_Width));
                 Raw_Height = s.Serialize<ushort>(Raw_Height, name: nameof(Raw_Height));
-                s.DoEncoded(new PS1Klonoa_UnknownEncoder(Raw_Size), () =>
+                s.DoEncoded(new PS1Klonoa_TextureBlockEncoder(Raw_Size), () =>
                 {
                     Raw_ImgData = s.SerializeArray<byte>(Raw_ImgData, Raw_Size, name: nameof(Raw_ImgData));
                 });

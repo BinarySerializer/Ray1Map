@@ -1,7 +1,6 @@
-﻿using BinarySerializer;
-using BinarySerializer.PS1;
+﻿using BinarySerializer.PS1;
 
-namespace R1Engine
+namespace BinarySerializer.KlonoaDTP
 {
     /// <summary>
     /// The backgrounds in a level

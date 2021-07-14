@@ -1,6 +1,4 @@
-﻿using BinarySerializer;
-
-namespace R1Engine
+﻿namespace BinarySerializer.KlonoaDTP
 {
     /// <summary>
     /// A texture for a sprite

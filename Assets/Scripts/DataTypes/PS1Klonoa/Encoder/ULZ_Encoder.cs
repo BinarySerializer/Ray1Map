@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using BinarySerializer;
-using UnityEngine;
 
-namespace R1Engine
+namespace BinarySerializer.KlonoaDTP
 {
     public class ULZ_Encoder : IStreamEncoder
     {
@@ -157,9 +155,6 @@ namespace R1Engine
 
             // Go to the end of the compressed data
             reader.BaseStream.Seek(initialPos + compressedOffset, SeekOrigin.Begin);
-
-            if (decompressedStream.Length != decompressedSize)
-                Debug.LogWarning($"Decompressed size {decompressedStream.Length} does not match expected size of {decompressedSize}");
 
             // Set position back to 0
             decompressedStream.Position = 0;

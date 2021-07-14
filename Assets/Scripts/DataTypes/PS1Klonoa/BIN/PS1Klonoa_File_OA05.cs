@@ -1,7 +1,6 @@
 ﻿using System;
-using BinarySerializer;
 
-namespace R1Engine
+namespace BinarySerializer.KlonoaDTP
 {
     // Some sound related pack
     public class PS1Klonoa_File_OA05 : PS1Klonoa_BaseFile
@@ -30,7 +29,7 @@ namespace R1Engine
             Header = s.SerializeString(Header, 4, name: nameof(Header));
 
             if (Header != "OA05")
-                throw new Exception($"Invalid OA05 header {Header}");
+                throw new BinarySerializableException(this, $"Invalid OA05 header {Header}");
 
             Pointer_04 = s.SerializePointer(Pointer_04, anchor: Offset, name: nameof(Pointer_04));
             VABPointer = s.SerializePointer(VABPointer, anchor: Offset, name: nameof(VABPointer));

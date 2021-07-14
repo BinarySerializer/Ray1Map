@@ -1,6 +1,4 @@
-﻿using BinarySerializer;
-
-namespace R1Engine
+﻿namespace BinarySerializer.KlonoaDTP
 {
     /// <summary>
     /// An offset table used for archives

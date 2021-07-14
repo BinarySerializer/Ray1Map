@@ -1,6 +1,4 @@
-﻿using BinarySerializer;
-
-namespace R1Engine
+﻿namespace BinarySerializer.KlonoaDTP
 {
     // TODO: Not totally sure about this, but some backgrounds should animate so this might be it?
     public class PS1Klonoa_File_TileAnimations : PS1Klonoa_BaseFile

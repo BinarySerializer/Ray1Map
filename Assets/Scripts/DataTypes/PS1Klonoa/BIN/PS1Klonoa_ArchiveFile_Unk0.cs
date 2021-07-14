@@ -1,6 +1,4 @@
-﻿using BinarySerializer;
-
-namespace R1Engine
+﻿namespace BinarySerializer.KlonoaDTP
 {
     public class PS1Klonoa_ArchiveFile_Unk0 : PS1Klonoa_ArchiveFile<PS1Klonoa_ArchiveFile_Unk0.Block>
     {

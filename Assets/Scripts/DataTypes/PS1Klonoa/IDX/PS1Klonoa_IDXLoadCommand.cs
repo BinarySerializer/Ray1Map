@@ -1,7 +1,6 @@
-﻿using BinarySerializer;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace R1Engine
+namespace BinarySerializer.KlonoaDTP
 {
     public class PS1Klonoa_IDXLoadCommand : BinarySerializable
     {

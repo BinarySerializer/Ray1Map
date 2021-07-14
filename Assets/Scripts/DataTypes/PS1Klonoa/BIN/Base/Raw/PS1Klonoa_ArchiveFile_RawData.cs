@@ -1,4 +1,4 @@
-﻿namespace R1Engine
+﻿namespace BinarySerializer.KlonoaDTP
 {
     /// <summary>
     /// An archive file where the files get serialized as raw bytes

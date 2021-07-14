@@ -1,7 +1,4 @@
-﻿using BinarySerializer;
-using UnityEngine;
-
-namespace R1Engine
+﻿namespace BinarySerializer.KlonoaDTP
 {
     /// <summary>
     /// A sector of a level
@@ -12,19 +9,19 @@ namespace R1Engine
         public PS1Klonoa_File_RawData LevelModel { get; set; } // TMD file
         public PS1Klonoa_File_RawData File_1 { get; set; }
         public PS1Klonoa_File_RawData File_2 { get; set; }
-        public PS1Klonoa_File_RawData File_3 { get; set; } // 28-byte entries
+        public PS1Klonoa_File_RawData File_3 { get; set; } // 28-byte entries - objects?
         public PS1Klonoa_ArchiveFile<PS1Klonoa_ArchiveFile_Path> Paths { get; set; }
         public PS1Klonoa_File_RawData File_5 { get; set; } // Array of int32?
 
         public override void SerializeImpl(SerializerObject s)
         {
             // Every third level (every boss) is not compressed
-            var isCompressed = s.GetR1Settings().Level % 3 != 2;
+            var isCompressed = !PS1Klonoa_Loader.GetLoader(s.Context).IsBossFight;
 
             // TODO: Decompress sector archive
             if (isCompressed)
             {
-                Debug.LogWarning($"TODO: Decompress sector archive");
+                s.LogWarning($"TODO: Decompress sector archive");
                 return;
             }
 

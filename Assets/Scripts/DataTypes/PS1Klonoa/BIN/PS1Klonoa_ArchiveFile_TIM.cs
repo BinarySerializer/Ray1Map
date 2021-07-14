@@ -1,6 +1,6 @@
 ﻿using BinarySerializer.PS1;
 
-namespace R1Engine
+namespace BinarySerializer.KlonoaDTP
 {
     /// <summary>
     /// An archive file where every file is a TIM file

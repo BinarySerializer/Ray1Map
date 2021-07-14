@@ -1,16 +1,15 @@
 ﻿using System.IO;
-using BinarySerializer;
 
-namespace R1Engine
+namespace BinarySerializer.KlonoaDTP
 {
-    public class PS1Klonoa_UnknownEncoder : IStreamEncoder
+    public class PS1Klonoa_TextureBlockEncoder : IStreamEncoder
     {
-        public PS1Klonoa_UnknownEncoder(uint decompressedSize)
+        public PS1Klonoa_TextureBlockEncoder(uint decompressedSize)
         {
             DecompressedSize = decompressedSize;
         }
 
-        public string Name => $"PS1Klonoa_UnknownEncoder";
+        public string Name => $"PS1Klonoa_TextureBlockEncoder";
 
         public uint DecompressedSize { get; }
 
@@ -30,8 +29,8 @@ namespace R1Engine
             uint uVar6 = 0;
             int uVar7 = 0x20;
             uint uVar8 = 0;
-            uint in_t4 = 0; // ?
-            uint in_t6 = 0; // ?
+            uint in_t4 = 0;
+            uint in_t6 = 0;
 
             do
             {
@@ -49,16 +48,20 @@ namespace R1Engine
                 if ((uVar2 & 0x80) == 0)
                 {
                     uint uVar3 = uVar2 & 0xff;
+
                     in_t6 = uVar2;
+
                     while (--uVar3 != 0xffffffff)
                     {
                         in_t6 = in_t4 >> (uVar7 & 0x1f);
+
                         if (0x1f < uVar7)
                         {
                             in_t6 = reader.ReadUInt32();
                             uVar7 = 0;
                             in_t4 = in_t6;
                         }
+
                         uVar8 = uVar8 | (in_t6 & 0xff) << (int)(uVar6 & 0x1f);
                         uVar6 += 8;
                         uVar7 += 8;
@@ -75,6 +78,7 @@ namespace R1Engine
                 else
                 {
                     uVar2 &= 0x7f;
+
                     while (--uVar2 != 0xffffffff)
                     {
                         uVar8 = uVar8 | (in_t6 & 0xff) << (int)(uVar6 & 0x1f);
