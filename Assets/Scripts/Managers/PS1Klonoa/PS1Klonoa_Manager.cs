@@ -479,9 +479,10 @@ namespace R1Engine
             // Load the BIN
             loader.Load_BIN(idxData.Entries[lev], lev);
 
-            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader);
+            float scale = 16f;
+            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale);
             var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel);
-            obj.transform.position = new Vector3(0, 0, -levelDimensions.y / 8f);
+            obj.transform.position = new Vector3(0, 0, 0);
 
             var layers = new List<Unity_Layer>();
             var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
@@ -516,7 +517,7 @@ namespace R1Engine
                 });
         }
 
-        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader)
+        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale)
         {
             var textureCache = new Dictionary<int, Texture2D>();
 
@@ -525,9 +526,8 @@ namespace R1Engine
 
             foreach (var obj in tmd.Objects)
             {
-                float scale = 8f;
-                Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, v.Z / scale, v.Y / scale);
-                Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U, uv.V);
+                Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
+                Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
 
                 foreach (var packet in obj.Primitives)
                 {
@@ -551,9 +551,9 @@ namespace R1Engine
                         triangles = new int[]
                         {
                             // lower left triangle
-                            0, 2, 1,
+                            0, 1, 2,
                             // upper right triangle
-                            2, 3, 1
+                            3, 2, 1
                         };
                     }
                     else
@@ -561,7 +561,7 @@ namespace R1Engine
                         triangles = new int[]
                         {
                             0, 1, 2,
-                            0, 2, 1
+                            //0, 2, 1
                         };
                     }
 
@@ -582,7 +582,8 @@ namespace R1Engine
                     MeshCollider mc = gao.AddComponent<MeshCollider>();
                     Mesh colMesh = new Mesh();
                     colMesh.SetVertices(vertices);
-                    colMesh.SetTriangles(triangles.Where((x, i) => i % 6 >= 3).ToArray(), 0);
+                    colMesh.SetTriangles(triangles, 0);
+                    //colMesh.SetTriangles(triangles.Where((x, i) => i % 6 >= 3).ToArray(), 0);
                     colMesh.RecalculateNormals();
                     mc.sharedMesh = colMesh;
 
@@ -594,7 +595,7 @@ namespace R1Engine
                     gao.transform.localScale = Vector3.one;
                     gao.transform.localPosition = Vector3.zero;
                     mf.mesh = unityMesh;
-                    mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+                    mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
 
                     if (packet.Mode.TME)
                     {
@@ -602,24 +603,39 @@ namespace R1Engine
 
                         if (!textureCache.ContainsKey(key))
                         {
-                            var tex = TextureHelpers.CreateTexture2D(256, 256);
+                            PS1_TIM.TIM_ColorFormat colFormat = PS1_TIM.TIM_ColorFormat.BPP_4;
+                            colFormat = packet.TSB.TP switch {
+                                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
+                                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
+                                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
+                                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
+                            };
+                            int width = packet.TSB.TP switch
+                            {
+                                PS1_TSB.TexturePageTP.CLUT_4Bit => 256,
+                                PS1_TSB.TexturePageTP.CLUT_8Bit => 128,
+                                PS1_TSB.TexturePageTP.Direct_15Bit => 64,
+                                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
+                            };
+                            var tex = TextureHelpers.CreateTexture2D(width, 256, clear: true);
 
                             FillTextureFromVRAM(
                                 tex: tex,
                                 vram: loader.VRAM,
-                                width: 256,
+                                width: width,
                                 height: 256,
-                                colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4, // TODO: Can be 8-bit - use packet.TSB
+                                colorFormat: colFormat,
                                 texX: 0,
                                 texY: 0,
-                                clutX: packet.CBA.ClutX,
+                                clutX: packet.CBA.ClutX * 16,
                                 clutY: packet.CBA.ClutY,
                                 texturePageX: packet.TSB.TX,
                                 texturePageY: packet.TSB.TY,
                                 texturePageOriginX: 0,
                                 texturePageOriginY: 0,
                                 texturePageOffsetX: 0,
-                                texturePageOffsetY: 0);
+                                texturePageOffsetY: 0,
+                                flipY: true);
 
                             tex.Apply();
 
@@ -638,11 +654,12 @@ namespace R1Engine
             return gaoParent;
         }
 
-        public Vector2 GetDimensions(PS1_TMD tmd)
+        public Vector3 GetDimensions(PS1_TMD tmd)
         {
-            var height = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.Y);
             var width = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.X);
-            return new Vector2(width, height);
+            var height = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.Y);
+            var depth = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.Z);
+            return new Vector3(width, height, depth);
         }
 
         public IDX Load_IDX(Context context)
@@ -675,12 +692,15 @@ namespace R1Engine
 
                     if (colorFormat == PS1_TIM.TIM_ColorFormat.BPP_8)
                     {
-                        paletteIndex = vram.GetPixel8(texturePageX, texturePageY, texturePageOriginX + texturePageOffsetX + x, texturePageOriginY + texturePageOffsetY + y);
+                        paletteIndex = vram.GetPixel8(texturePageX, texturePageY,
+                            texturePageOriginX + texturePageOffsetX + x,
+                            texturePageOriginY + texturePageOffsetY + y);
                     }
                     else if (colorFormat == PS1_TIM.TIM_ColorFormat.BPP_4)
                     {
-                        int actualX = texturePageOriginX + (texturePageOffsetX + x) / 2;
-                        paletteIndex = vram.GetPixel8(texturePageX, texturePageY, actualX, texturePageOriginY + texturePageOffsetY + y);
+                        paletteIndex = vram.GetPixel8(texturePageX, texturePageY,
+                            texturePageOriginX + (texturePageOffsetX + x) / 2,
+                            texturePageOriginY + texturePageOffsetY + y);
 
                         if (x % 2 == 0)
                             paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
