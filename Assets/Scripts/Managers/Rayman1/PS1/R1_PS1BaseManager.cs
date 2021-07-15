@@ -128,7 +128,7 @@ namespace R1Engine
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
 
             // Set every pixel
-            if (tp == PS1_TexturePageInfo.TexturePageTP.CLUT_8Bit)
+            if (tp == PS1_TSB.TexturePageTP.CLUT_8Bit)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -145,7 +145,7 @@ namespace R1Engine
                     }
                 }
             }
-            else if (tp == PS1_TexturePageInfo.TexturePageTP.CLUT_4Bit)
+            else if (tp == PS1_TSB.TexturePageTP.CLUT_4Bit)
             {
                 for (int y = 0; y < height; y++)
                 {

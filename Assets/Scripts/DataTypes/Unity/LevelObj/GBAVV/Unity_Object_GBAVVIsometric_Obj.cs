@@ -19,12 +19,12 @@ namespace R1Engine
                                             $"AnimX: {GraphicsData?.CrashAnim?.XPos?.AsFloat}{Environment.NewLine}" +
                                             $"AnimY: {GraphicsData?.CrashAnim?.YPos?.AsFloat}{Environment.NewLine}";
 
-        public override FixedPointInt XPos
+        public override FixedPointInt32 XPos
         {
             get => Object.XPos;
             set => Object.XPos = value;
         }
-        public override FixedPointInt YPos
+        public override FixedPointInt32 YPos
         {
             get => Object.YPos;
             set => Object.YPos = value;

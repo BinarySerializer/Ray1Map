@@ -31,8 +31,8 @@ namespace R1Engine
         public Pointer Pointer_44 { get; set; }
         public Pointer Pointer_48 { get; set; }
         public Pointer Pointer_4C { get; set; }
-        public FixedPointInt XPosition { get; set; }
-        public FixedPointInt YPosition { get; set; }
+        public FixedPointInt32 XPosition { get; set; }
+        public FixedPointInt32 YPosition { get; set; }
 
         // Serialized from pointers
 
@@ -71,8 +71,8 @@ namespace R1Engine
             Pointer_44 = s.SerializePointer(Pointer_44, name: nameof(Pointer_44));
             Pointer_48 = s.SerializePointer(Pointer_48, name: nameof(Pointer_48));
             Pointer_4C = s.SerializePointer(Pointer_4C, name: nameof(Pointer_4C));
-            XPosition = s.SerializeObject<FixedPointInt>(XPosition, name: nameof(XPosition));
-            YPosition = s.SerializeObject<FixedPointInt>(YPosition, name: nameof(YPosition));
+            XPosition = s.SerializeObject<FixedPointInt32>(XPosition, name: nameof(XPosition));
+            YPosition = s.SerializeObject<FixedPointInt32>(YPosition, name: nameof(YPosition));
 
             Name = s.DoAt(NamePointer, () => s.SerializeString(Name, name: nameof(Name)));
 

@@ -16,12 +16,12 @@ namespace R1Engine
 
         public override string DebugText => String.Empty;
 
-        public override FixedPointInt XPos
+        public override FixedPointInt32 XPos
         {
             get => Object.TargetXPos;
             set => Object.TargetXPos = value;
         }
-        public override FixedPointInt YPos
+        public override FixedPointInt32 YPos
         {
             get => Object.TargetYPos;
             set => Object.TargetYPos = value;

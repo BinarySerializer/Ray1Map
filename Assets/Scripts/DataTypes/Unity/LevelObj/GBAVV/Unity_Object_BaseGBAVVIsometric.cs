@@ -20,8 +20,8 @@ namespace R1Engine
 
         public int ObjAnimIndex { get; set; }
 
-        public abstract FixedPointInt XPos { get; set; }
-        public abstract FixedPointInt YPos { get; set; }
+        public abstract FixedPointInt32 XPos { get; set; }
+        public abstract FixedPointInt32 YPos { get; set; }
         public float Height { get; set; }
 
         public override short XPosition

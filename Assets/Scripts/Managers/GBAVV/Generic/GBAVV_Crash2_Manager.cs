@@ -210,15 +210,15 @@ namespace R1Engine
             // Load multiplayer flags
             objects = objData.MultiplayerFlags.Aggregate(objects, (current, o) => current.Append(new Unity_Object_GBAVVIsometric_MultiplayerFlag(new GBAVV_Isometric_Position()
             {
-                XPos = new FixedPointInt() { Value = o.XPos * 0x3000 + 0x1800 },
-                YPos = new FixedPointInt() { Value = o.YPos * 0x3000 + 0x1800 },
+                XPos = new FixedPointInt32() { Value = o.XPos * 0x3000 + 0x1800 },
+                YPos = new FixedPointInt32() { Value = o.YPos * 0x3000 + 0x1800 },
             }, objManager)));
 
             // Load multiplayer crowns
             objects = objData.MultiplayerCrowns.Aggregate(objects, (current, o) => current.Append(new Unity_Object_GBAVVIsometric_MultiplayerCrown(new GBAVV_Isometric_Position()
             {
-                XPos = new FixedPointInt() { Value = o.XPos << 8 },
-                YPos = new FixedPointInt() { Value = o.YPos << 8 },
+                XPos = new FixedPointInt32() { Value = o.XPos << 8 },
+                YPos = new FixedPointInt32() { Value = o.YPos << 8 },
             }, objManager)));
 
             float w = mapData.MapWidth * 0.5f;

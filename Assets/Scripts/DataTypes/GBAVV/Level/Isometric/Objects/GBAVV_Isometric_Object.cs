@@ -6,15 +6,15 @@ namespace R1Engine
     {
         public GBAVV_Isometric_ObjType ObjType { get; set; }
         public GBAVV_Isometric_ObjType ObjType_TimeTrial { get; set; }
-        public FixedPointInt XPos { get; set; }
-        public FixedPointInt YPos { get; set; }
+        public FixedPointInt32 XPos { get; set; }
+        public FixedPointInt32 YPos { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             ObjType = s.Serialize<GBAVV_Isometric_ObjType>(ObjType, name: nameof(ObjType));
             ObjType_TimeTrial = s.Serialize<GBAVV_Isometric_ObjType>(ObjType_TimeTrial, name: nameof(ObjType_TimeTrial));
-            XPos = s.SerializeObject<FixedPointInt>(XPos, name: nameof(XPos));
-            YPos = s.SerializeObject<FixedPointInt>(YPos, name: nameof(YPos));
+            XPos = s.SerializeObject<FixedPointInt32>(XPos, name: nameof(XPos));
+            YPos = s.SerializeObject<FixedPointInt32>(YPos, name: nameof(YPos));
         }
 
         public enum GBAVV_Isometric_ObjType
