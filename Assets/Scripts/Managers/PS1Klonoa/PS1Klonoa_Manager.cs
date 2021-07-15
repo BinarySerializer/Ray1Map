@@ -566,7 +566,7 @@ namespace R1Engine
 
                     if (packet.Mode.TME)
                     {
-                        var key = packet.CBA.ClutX | packet.CBA.ClutY << 8 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
+                        var key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
 
                         if (!textureCache.ContainsKey(key))
                         {
