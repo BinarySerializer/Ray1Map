@@ -13,10 +13,42 @@ namespace R1Engine
 {
     public class PS1Klonoa_Manager : BaseGameManager
     {
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
+
+        public virtual (string, int)[] Levels => new (string, int)[]
         {
-            new GameInfo_World(0, Enumerable.Range(0, 26).ToArray())
-        });
+            ("FIX", 0),
+            ("MENU", 0),
+            ("CODE", 0),
+
+            ("Vision 1-1", 3),
+            ("Vision 1-2", 5),
+            ("Rongo Lango", 2),
+
+            ("Vision 2-1", 4),
+            ("Vision 2-2", 6),
+            ("Pamela", 2),
+
+            ("Vision 3-1", 5),
+            ("Vision 3-2", 10),
+            ("Gelg Bolm", 1),
+
+            ("Vision 4-1", 3),
+            ("Vision 4-2", 8),
+            ("Baladium", 2),
+
+            ("Vision 5-1", 7),
+            ("Vision 5-2", 9),
+            ("Joka", 1),
+
+            ("Vision 6-1", 8),
+            ("Vision 6-2", 8),
+            ("", 2),
+            ("", 2),
+            ("", 3),
+            ("", 3),
+            ("", 9),
+        };
 
         public override GameAction[] GetGameActions(GameSettings settings)
         {
@@ -426,6 +458,8 @@ namespace R1Engine
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             var settings = context.GetR1Settings();
+            var lev = settings.World;
+            var sector = settings.Level;
 
             Controller.DetailedState = "Loading IDX";
             await Controller.WaitIfNecessary();
@@ -433,22 +467,20 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            // Get the entry
-            var entry = idxData.Entries[settings.Level];
-
             Controller.DetailedState = "Loading BIN";
             await Controller.WaitIfNecessary();
 
             // Create the loader
             var loader = Loader.Create(context);
 
-            // TODO: Load fixed block first
+            // Load fixed block first
+            loader.Load_BIN(idxData.Entries[0], 0);
 
             // Load the BIN
-            loader.Load_BIN(entry, settings.Level);
+            loader.Load_BIN(idxData.Entries[lev], lev);
 
-            var obj = CreateGameObject(loader.LevelPack.Sectors[2].LevelModel, loader);
-            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[2].LevelModel);
+            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader);
+            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel);
             obj.transform.position = new Vector3(0, 0, -levelDimensions.y / 8f);
 
             var layers = new List<Unity_Layer>();
