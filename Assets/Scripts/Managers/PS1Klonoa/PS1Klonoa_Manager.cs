@@ -442,12 +442,175 @@ namespace R1Engine
             // Create the loader
             var loader = Loader.Create(context);
 
-            // TODO: Load fixed first
+            // TODO: Load fixed block first
 
             // Load the BIN
             loader.Load_BIN(entry, settings.Level);
 
-            throw new NotImplementedException();
+            var obj = CreateGameObject(loader.LevelPack.Sectors[2].LevelModel, loader);
+            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[2].LevelModel);
+            obj.transform.position = new Vector3(0, 0, -levelDimensions.y / 8f);
+
+            var layers = new List<Unity_Layer>();
+            var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
+            layers.Add(new Unity_Layer_GameObject(true)
+            {
+                Name = "Map",
+                ShortName = "MAP",
+                Graphics = obj,
+                Collision = null,
+                Dimensions = levelDimensions * 2,
+                DisableGraphicsWhenCollisionIsActive = true
+            });
+            obj.transform.SetParent(parent3d);
+
+            return new Unity_Level(
+                layers: layers.ToArray(),
+                cellSize: 1,
+                objManager: new Unity_ObjectManager(context),
+                eventData: new List<Unity_Object>(),
+                isometricData: new Unity_IsometricData
+                {
+                    CollisionWidth = 0,
+                    CollisionHeight = 0,
+                    TilesWidth = 0,
+                    TilesHeight = 0,
+                    Collision = null,
+                    Scale = Vector3.one,
+                    ViewAngle = Quaternion.Euler(0, 0, 0),
+                    CalculateYDisplacement = () => 0,
+                    CalculateXDisplacement = () => 0,
+                    ObjectScale = Vector3.one * 8
+                });
+        }
+
+        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader)
+        {
+            var textureCache = new Dictionary<int, Texture2D>();
+
+            GameObject gaoParent = new GameObject("Map");
+            gaoParent.transform.position = Vector3.zero;
+
+            foreach (var obj in tmd.Objects)
+            {
+                float scale = 8f;
+                Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, v.Z / scale, v.Y / scale);
+                Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U, uv.V);
+
+                foreach (var packet in obj.Primitives)
+                {
+                    // TODO: Implement other types
+                    if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
+                    {
+                        Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
+                        continue;
+                    }
+
+                    Mesh unityMesh = new Mesh();
+
+                    var vertices = packet.Vertices.Select(x => toVertex(obj.Vertices[x])).ToArray();
+                    int[] triangles;
+
+                    // Set vertices
+                    unityMesh.SetVertices(vertices);
+
+                    if (packet.Mode.IsQuad)
+                    {
+                        triangles = new int[]
+                        {
+                            // lower left triangle
+                            0, 2, 1,
+                            // upper right triangle
+                            2, 3, 1
+                        };
+                    }
+                    else
+                    {
+                        triangles = new int[]
+                        {
+                            0, 1, 2,
+                            0, 2, 1
+                        };
+                    }
+
+                    unityMesh.SetTriangles(triangles, 0);
+
+                    var colors = packet.RGB.Select(x => x.Color.GetColor()).ToArray();
+
+                    if (colors.Length == 1)
+                        colors = Enumerable.Repeat(colors[0], packet.Mode.IsQuad ? 4 : 3).ToArray();
+
+                    unityMesh.SetColors(colors);
+                    unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
+
+                    unityMesh.RecalculateNormals();
+
+                    GameObject gao = new GameObject($"Packet_{packet.Offset}");
+
+                    MeshCollider mc = gao.AddComponent<MeshCollider>();
+                    Mesh colMesh = new Mesh();
+                    colMesh.SetVertices(vertices);
+                    colMesh.SetTriangles(triangles.Where((x, i) => i % 6 >= 3).ToArray(), 0);
+                    colMesh.RecalculateNormals();
+                    mc.sharedMesh = colMesh;
+
+
+                    MeshFilter mf = gao.AddComponent<MeshFilter>();
+                    MeshRenderer mr = gao.AddComponent<MeshRenderer>();
+                    gao.layer = LayerMask.NameToLayer("3D Collision");
+                    gao.transform.SetParent(gaoParent.transform);
+                    gao.transform.localScale = Vector3.one;
+                    gao.transform.localPosition = Vector3.zero;
+                    mf.mesh = unityMesh;
+                    mr.material = Controller.obj.levelController.controllerTilemap.unlitMaterial;
+
+                    if (packet.Mode.TME)
+                    {
+                        var key = packet.CBA.ClutX | packet.CBA.ClutY << 8 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
+
+                        if (!textureCache.ContainsKey(key))
+                        {
+                            var tex = TextureHelpers.CreateTexture2D(256, 256);
+
+                            FillTextureFromVRAM(
+                                tex: tex,
+                                vram: loader.VRAM,
+                                width: 256,
+                                height: 256,
+                                colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4, // TODO: Can be 8-bit - use packet.TSB
+                                texX: 0,
+                                texY: 0,
+                                clutX: packet.CBA.ClutX,
+                                clutY: packet.CBA.ClutY,
+                                texturePageX: packet.TSB.TX,
+                                texturePageY: packet.TSB.TY,
+                                texturePageOriginX: 0,
+                                texturePageOriginY: 0,
+                                texturePageOffsetX: 0,
+                                texturePageOffsetY: 0);
+
+                            tex.Apply();
+
+                            textureCache.Add(key, tex);
+                        }
+
+                        var t = textureCache[key];
+
+                        t.wrapMode = TextureWrapMode.Repeat;
+                        mr.material.SetTexture("_MainTex", t);
+                    }
+
+                }
+            }
+
+            return gaoParent;
+        }
+
+        public Vector2 GetDimensions(PS1_TMD tmd)
+        {
+            var height = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.Y);
+            var width = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.X);
+            return new Vector2(width, height);
         }
 
         public IDX Load_IDX(Context context)
@@ -464,6 +627,7 @@ namespace R1Engine
             int clutX, int clutY,
             int texturePageOriginX, int texturePageOriginY,
             int texturePageOffsetX, int texturePageOffsetY,
+            int texturePageX = 0, int texturePageY = 0,
             bool flipX = false, bool flipY = false,
             bool useDummyPal = false)
         {
@@ -479,12 +643,12 @@ namespace R1Engine
 
                     if (colorFormat == PS1_TIM.TIM_ColorFormat.BPP_8)
                     {
-                        paletteIndex = vram.GetPixel8(0, 0, texturePageOriginX + texturePageOffsetX + x, texturePageOriginY + texturePageOffsetY + y);
+                        paletteIndex = vram.GetPixel8(texturePageX, texturePageY, texturePageOriginX + texturePageOffsetX + x, texturePageOriginY + texturePageOffsetY + y);
                     }
                     else if (colorFormat == PS1_TIM.TIM_ColorFormat.BPP_4)
                     {
                         int actualX = texturePageOriginX + (texturePageOffsetX + x) / 2;
-                        paletteIndex = vram.GetPixel8(0, 0, actualX, texturePageOriginY + texturePageOffsetY + y);
+                        paletteIndex = vram.GetPixel8(texturePageX, texturePageY, actualX, texturePageOriginY + texturePageOffsetY + y);
 
                         if (x % 2 == 0)
                             paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
