@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Jade_MyWordCoach_Wii_Manager : Jade_Montreal_BaseManager {
+    public class Jade_MySpanishCoach_Wii_Manager : Jade_Montreal_BaseManager {
 		public override bool HasUnbinarizedData => true;
 
 		// Levels
@@ -115,6 +115,7 @@ namespace R1Engine
 			new LevelInfo(0x0F000153, "ROOT/Bin", "InGameMenus_wol_ff0f0153.bin", worldName: "WOL", mapName: "InGameMenus", type: LevelInfo.FileType.WOL),
 			new LevelInfo(0x2F000152, "ROOT/Bin", "InGameMenus_wow_ff0f0152.bin", worldName: "WOW", mapName: "InGameMenus", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x4F00076F, "ROOT/Bin", "Input_Manager_wow_ff0f076f.bin", worldName: "WOW", mapName: "Input_Manager", type: LevelInfo.FileType.WOW),
+			
 			new LevelInfo(0x2F0003FB, "ROOT/Bin", "Legend_Manager_wow_ff0f03fb.bin", worldName: "WOW", mapName: "Legend_Manager", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x35002363, "ROOT/Bin", "Lucius_Perso_Lighting_wow_ff052363.bin", worldName: "WOW", mapName: "Lucius_Perso_Lighting", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x35002499, "ROOT/Bin", "LuciusScene_wow_ff052499.bin", worldName: "WOW", mapName: "LuciusScene", type: LevelInfo.FileType.WOW),
@@ -149,6 +150,7 @@ namespace R1Engine
 			new LevelInfo(0x350024A0, "ROOT/Bin", "PennyScene_wow_ff0524a0.bin", worldName: "WOW", mapName: "PennyScene", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x0F0002C4, "ROOT/Bin", "PreGameMenus_wol_ff0f02c4.bin", worldName: "WOL", mapName: "PreGameMenus", type: LevelInfo.FileType.WOL),
 			new LevelInfo(0x2F0002C3, "ROOT/Bin", "PreGameMenus_wow_ff0f02c3.bin", worldName: "WOW", mapName: "PreGameMenus", type: LevelInfo.FileType.WOW),
+
 			new LevelInfo(0x0E009ECA, "ROOT/Bin", "SafeCracker_L1_wol_ff0e9eca.bin", worldName: "WOL", mapName: "SafeCracker_L1", type: LevelInfo.FileType.WOL),
 			new LevelInfo(0x2E029EBB, "ROOT/Bin", "SafeCracker_L1_wow_ff0e9ebb.bin", worldName: "WOW", mapName: "SafeCracker_L1", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x0E009ECB, "ROOT/Bin", "SafeCracker_L2_wol_ff0e9ecb.bin", worldName: "WOL", mapName: "SafeCracker_L2", type: LevelInfo.FileType.WOL),
@@ -196,7 +198,6 @@ namespace R1Engine
 			new LevelInfo(0x2E029F7B, "ROOT/Bin", "WordTris_VS_L2_wow_ff0e9f7b.bin", worldName: "WOW", mapName: "WordTris_VS_L2", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x0E009F85, "ROOT/Bin", "WordTris_VS_L3_wol_ff0e9f85.bin", worldName: "WOL", mapName: "WordTris_VS_L3", type: LevelInfo.FileType.WOL),
 			new LevelInfo(0x2E029F82, "ROOT/Bin", "WordTris_VS_L3_wow_ff0e9f82.bin", worldName: "WOW", mapName: "WordTris_VS_L3", type: LevelInfo.FileType.WOW),
-
 			// Unbinarized
 			new LevelInfo(0x34003177, "ROOT/EngineDatas/02 Modelisation Bank/Characters/FemaleA", "FemaleA.wow", worldName: "Editor WOW", mapName: "02 Modelisation Bank/Characters/FemaleA", type: LevelInfo.FileType.WOWUnbinarized),
 			new LevelInfo(0x34002780, "ROOT/EngineDatas/02 Modelisation Bank/Characters/FemaleB", "FemaleB.wow", worldName: "Editor WOW", mapName: "02 Modelisation Bank/Characters/FemaleB", type: LevelInfo.FileType.WOWUnbinarized),
@@ -508,7 +509,7 @@ namespace R1Engine
 		};
 
 		public override string[] BFFiles => new string[] {
-			"DATA/spree.bf"
+			"Data/spree.bf"
 		};
 	}
 }

@@ -118,6 +118,8 @@
         Jade_PoP_WW,
         Jade_PoP_T2T,
         Jade_MyWordCoach,
+        Jade_MyFrenchCoach,
+        Jade_MySpanishCoach,
         Jade_RRRTVParty,
 
         // GEN

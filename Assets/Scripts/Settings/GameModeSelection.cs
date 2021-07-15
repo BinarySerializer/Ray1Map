@@ -766,6 +766,9 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_Horsez2, Game.Jade_Horsez2, "Horsez 2: Ranch Rescue (PC - HD)", typeof(Jade_Horsez2_PC_HD_Manager), Platform.PC)]
         Horsez2PCHD,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PetzHorseClub, Game.Jade_PetzHorseClub, "Petz: Horse Club (Wii)", typeof(Jade_PetzHorseClub_Wii_Manager), Platform.Wii)]
+        PetzHorseClubWii,
+
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PetzHorseClub, Game.Jade_PetzHorseClub, "Petz: Horse Club (PC)", typeof(Jade_PetzHorseClub_PC_Manager), Platform.PC)]
         PetzHorseClubPC,
 
@@ -859,6 +862,13 @@ namespace R1Engine {
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]
         MyWordCoachWii,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyFrenchCoach, "My French Coach (Wii)", typeof(Jade_MyFrenchCoach_Wii_Manager), Platform.Wii)]
+        MyFrenchCoachWii,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MySpanishCoach, "My Spanish Coach (Wii)", typeof(Jade_MySpanishCoach_Wii_Manager), Platform.Wii)]
+        MySpanishCoachWii,
+
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_RRRTVParty, Game.Jade_RRRTVParty, "Rayman Raving Rabbids: TV Party (Wii)", typeof(Jade_RRRTVParty_Wii_Manager), Platform.Wii)]
         RaymanRavingRabbidsTVPartyWii,

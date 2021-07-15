@@ -8,12 +8,12 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Jade_MyWordCoach_Wii_Manager : Jade_Montreal_BaseManager {
+    public class Jade_MyFrenchCoach_Wii_Manager : Jade_Montreal_BaseManager {
 		public override bool HasUnbinarizedData => true;
 
 		// Levels
 		public override LevelInfo[] LevelInfos => new LevelInfo[] {
-			new LevelInfo(0x3500235C, "ROOT/Bin", "Alastair_Perso_Lighting_wow_ff05235c.bin", worldName: "WOW", mapName: "Alastair_Perso_Lighting", type: LevelInfo.FileType.WOW),
+						new LevelInfo(0x3500235C, "ROOT/Bin", "Alastair_Perso_Lighting_wow_ff05235c.bin", worldName: "WOW", mapName: "Alastair_Perso_Lighting", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x35002492, "ROOT/Bin", "AlastairScene_wow_ff052492.bin", worldName: "WOW", mapName: "AlastairScene", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x05003D8B, "ROOT/Bin", "AllAlastairStuff_wol_ff053d8b.bin", worldName: "WOL", mapName: "AllAlastairStuff", type: LevelInfo.FileType.WOL),
 			new LevelInfo(0x05003D8F, "ROOT/Bin", "AllAlastairStuff_wol_ff053d8f.bin", worldName: "WOL", mapName: "AllAlastairStuff", type: LevelInfo.FileType.WOL),
@@ -196,7 +196,6 @@ namespace R1Engine
 			new LevelInfo(0x2E029F7B, "ROOT/Bin", "WordTris_VS_L2_wow_ff0e9f7b.bin", worldName: "WOW", mapName: "WordTris_VS_L2", type: LevelInfo.FileType.WOW),
 			new LevelInfo(0x0E009F85, "ROOT/Bin", "WordTris_VS_L3_wol_ff0e9f85.bin", worldName: "WOL", mapName: "WordTris_VS_L3", type: LevelInfo.FileType.WOL),
 			new LevelInfo(0x2E029F82, "ROOT/Bin", "WordTris_VS_L3_wow_ff0e9f82.bin", worldName: "WOW", mapName: "WordTris_VS_L3", type: LevelInfo.FileType.WOW),
-
 			// Unbinarized
 			new LevelInfo(0x34003177, "ROOT/EngineDatas/02 Modelisation Bank/Characters/FemaleA", "FemaleA.wow", worldName: "Editor WOW", mapName: "02 Modelisation Bank/Characters/FemaleA", type: LevelInfo.FileType.WOWUnbinarized),
 			new LevelInfo(0x34002780, "ROOT/EngineDatas/02 Modelisation Bank/Characters/FemaleB", "FemaleB.wow", worldName: "Editor WOW", mapName: "02 Modelisation Bank/Characters/FemaleB", type: LevelInfo.FileType.WOWUnbinarized),
@@ -505,10 +504,12 @@ namespace R1Engine
 			new LevelInfo(0x3500240B, "ROOT/EngineDatas/06 Levels/Test Maps/sstgelais/ScriptedEvents/MemoryUsageTest/SceneWithProf", "SceneWithProf.wow", worldName: "Editor WOW", mapName: "Test Maps/sstgelais/ScriptedEvents/MemoryUsageTest/SceneWithProf", type: LevelInfo.FileType.WOWUnbinarized),
 			new LevelInfo(0x350021FC, "ROOT/EngineDatas/06 Levels/Test Maps/sstgelais/TestDynamicLoading", "TestDynamicLoading.wol", worldName: "Editor WOL", mapName: "Test Maps/sstgelais/TestDynamicLoading", type: LevelInfo.FileType.WOLUnbinarized),
 			new LevelInfo(0x350021FB, "ROOT/EngineDatas/06 Levels/Test Maps/sstgelais/TestDynamicLoading", "TestDynamicLoading.wow", worldName: "Editor WOW", mapName: "Test Maps/sstgelais/TestDynamicLoading", type: LevelInfo.FileType.WOWUnbinarized),
+
+
 		};
 
 		public override string[] BFFiles => new string[] {
-			"DATA/spree.bf"
+			"Data/spree.bf"
 		};
 	}
 }
