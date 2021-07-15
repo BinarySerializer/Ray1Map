@@ -401,7 +401,7 @@ namespace R1Engine
 
 			foreach (var kv in levels.OrderBy(l => l.Value?.DirectoryName).ThenBy(l => l.Value?.FileName)) 
             {
-				str.AppendLine($"new LevelInfo(0x{kv.Key:X8}, \"{kv.Value?.DirectoryName}\", \"{kv.Value?.FileName}\"),");
+				str.AppendLine($"\t\t\tnew LevelInfo(0x{kv.Key:X8}, \"{kv.Value?.DirectoryName}\", \"{kv.Value?.FileName}\"),");
 				//Debug.Log($"{kv.Key:X8} - {kv.Value }");
 			}
 			if (HasUnbinarizedData) {
@@ -428,16 +428,16 @@ namespace R1Engine
 					g.Key,
 					g.Value?.DirectoryName ?? "null",
 					g.Value?.FileName ?? "null",
-					worldName: $"Unbinarized {extension.ToUpper()}",
+					worldName: $"Editor {extension.ToUpper()}",
 					mapName: filePath,
 					type: extension == "wol" ? LevelInfo.FileType.WOLUnbinarized : LevelInfo.FileType.WOWUnbinarized)));
 				//levels.Add(new KeyValuePair<uint, LOA_Loader.FileInfo>(g.Key, g.Value));
 			}
 
 			var str = new StringBuilder();
-			str.AppendLine($"// Unbinarized");
+			str.AppendLine($"\t\t\t// Unbinarized");
 			foreach (var kv in levels.OrderBy(l => l.Value?.DirectoryPath).ThenBy(l => l.Value?.FilePath)) {
-				str.AppendLine($"new LevelInfo(0x{kv.Key:X8}, \"{kv.Value?.DirectoryPath}\", \"{kv.Value?.FilePath}\"" +
+				str.AppendLine($"\t\t\tnew LevelInfo(0x{kv.Key:X8}, \"{kv.Value?.DirectoryPath}\", \"{kv.Value?.FilePath}\"" +
 					$"{(kv.Value?.OriginalWorldName != null ? $", worldName: \"{kv.Value.OriginalWorldName}\"" : "")}" +
 					$"{(kv.Value?.OriginalMapName != null ? $", mapName: \"{kv.Value.OriginalMapName}\"" : "")}" +
 					$"{(kv.Value?.OriginalType != null ? $", type: LevelInfo.FileType.{kv.Value.OriginalType}" : "")}" +
