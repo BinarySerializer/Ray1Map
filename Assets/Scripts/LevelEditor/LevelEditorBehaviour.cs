@@ -189,7 +189,7 @@ namespace R1Engine
             if (Controller.LoadState != Controller.State.Finished || LevelEditorData.Level == null) return;
 
             int layerIndex = LevelEditorData.CurrentLayer;
-            var layer = LevelEditorData.Level.Layers[layerIndex] as Unity_Layer_Map;
+            var layer = LevelEditorData.Level.Layers?.ElementAtOrDefault(layerIndex) as Unity_Layer_Map;
 
             //Tile editing
             if (layer != null && (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions)) {
