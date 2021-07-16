@@ -579,15 +579,6 @@ namespace R1Engine
 
                     GameObject gao = new GameObject($"Packet_{packet.Offset}");
 
-                    MeshCollider mc = gao.AddComponent<MeshCollider>();
-                    Mesh colMesh = new Mesh();
-                    colMesh.SetVertices(vertices);
-                    colMesh.SetTriangles(triangles, 0);
-                    //colMesh.SetTriangles(triangles.Where((x, i) => i % 6 >= 3).ToArray(), 0);
-                    colMesh.RecalculateNormals();
-                    mc.sharedMesh = colMesh;
-
-
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
                     MeshRenderer mr = gao.AddComponent<MeshRenderer>();
                     gao.layer = LayerMask.NameToLayer("3D Collision");
