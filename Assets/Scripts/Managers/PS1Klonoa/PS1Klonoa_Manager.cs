@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BinarySerializer.KlonoaDTP;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -73,40 +74,64 @@ namespace R1Engine
 
             var s = context.Deserializer;
 
-            var loader = Loader.Create(context);
+            var loader = Loader.Create(context, idxData);
+
+            var archiveDepths = new Dictionary<IDXLoadCommand.FileType, int>()
+            {
+                [IDXLoadCommand.FileType.Unknown] = 0,
+
+                [IDXLoadCommand.FileType.Archive_TIM_Generic] = 1,
+                [IDXLoadCommand.FileType.Archive_TIM_SongsText] = 1,
+                [IDXLoadCommand.FileType.Archive_TIM_SaveText] = 1,
+                [IDXLoadCommand.FileType.Archive_TIM_SpriteSheets] = 1,
+
+                [IDXLoadCommand.FileType.OA05] = 0,
+                [IDXLoadCommand.FileType.SEQ] = 0,
+
+                [IDXLoadCommand.FileType.Archive_BackgroundPack] = 2,
+
+                [IDXLoadCommand.FileType.FixedSprites] = 1,
+                [IDXLoadCommand.FileType.Archive_SpritePack] = 1,
+                
+                [IDXLoadCommand.FileType.Archive_LevelPack] = 1,
+                
+                [IDXLoadCommand.FileType.Archive_Unk0] = 1,
+                [IDXLoadCommand.FileType.Archive_Unk4] = 2,
+
+                [IDXLoadCommand.FileType.Code] = 0,
+            };
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
             {
-                var entry = idxData.Entries[blockIndex];
+                loader.SwitchBlocks(blockIndex);
 
                 // Process each BIN file
-                loader.ProcessBINFiles(entry, blockIndex, (cmd, i) =>
+                loader.LoadBINFiles((cmd, i) =>
                 {
-                    var ext = IDXLoadCommand.FileExtensions[cmd.FILE_Type];
+                    var type = cmd.FILE_Type;
 
                     if (unpack)
                     {
-                        var type = cmd.FILE_Type;
-                        var archiveDepth = IDXLoadCommand.ArchiveDepths[type];
+                        var archiveDepth = archiveDepths[type];
 
                         if (archiveDepth > 0)
                         {
                             // Be lazy and hard-code instead of making some recursive loop
                             if (archiveDepth == 1)
                             {
-                                var archive = loader.Load_BINFile<RawData_ArchiveFile>(cmd, blockIndex, i);
+                                var archive = loader.LoadBINFile<RawData_ArchiveFile>(i);
 
                                 for (int j = 0; j < archive.Files.Length; j++)
                                 {
                                     var file = archive.Files[j];
 
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({ext.Substring(1)})", $"{j}{ext}"), file.Data);
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"{j}.bin"), file.Data);
                                 }
                             }
                             else if (archiveDepth == 2)
                             {
-                                var archives = loader.Load_BINFile<ArchiveFile<RawData_ArchiveFile>>(cmd, blockIndex, i);
+                                var archives = loader.LoadBINFile<ArchiveFile<RawData_ArchiveFile>>(i);
 
                                 for (int a = 0; a < archives.Files.Length; a++)
                                 {
@@ -116,7 +141,7 @@ namespace R1Engine
                                     {
                                         var file = archive.Files[j];
 
-                                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({ext.Substring(1)})", $"{a}_{j}{ext}"), file.Data);
+                                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"{a}_{j}.bin"), file.Data);
                                     }
                                 }
                             }
@@ -132,7 +157,7 @@ namespace R1Engine
                     // Read the raw data
                     var data = s.SerializeArray<byte>(null, cmd.FILE_Length);
 
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({ext.Substring(1)})", $"DATA.{ext}"), data);
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"Data.bin"), data);
                 });
             }
         }
@@ -145,79 +170,92 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context);
+            var loader = Loader.Create(context, idxData);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
             {
-                var entry = idxData.Entries[blockIndex];
+                loader.SwitchBlocks(blockIndex);
 
                 // Process each BIN file
-                loader.ProcessBINFiles(entry, blockIndex, (cmd, i) =>
+                loader.LoadBINFiles((cmd, i) =>
                 {
-                    // Check the file type
-                    if (cmd.FILE_Type == IDXLoadCommand.FileType.Archive_TIM)
+                    var index = 0;
+
+                    switch (cmd.FILE_Type)
                     {
-                        // Read the data
-                        TIM_ArchiveFile timFiles = loader.Load_BINFile<TIM_ArchiveFile>(cmd, blockIndex, i);
+                        case IDXLoadCommand.FileType.Archive_TIM_Generic:
+                        case IDXLoadCommand.FileType.Archive_TIM_SongsText:
+                        case IDXLoadCommand.FileType.Archive_TIM_SaveText:
+                        case IDXLoadCommand.FileType.Archive_TIM_SpriteSheets:
 
-                        var index = 0;
+                            // Read the data
+                            TIM_ArchiveFile timFiles = loader.LoadBINFile<TIM_ArchiveFile>(i);
 
-                        foreach (var tim in timFiles.Files)
-                        {
-                            try
+                            foreach (var tim in timFiles.Files)
                             {
-                                var tex = GetTexture(tim);
-
-                                if (tex != null)
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} - {index}.png"),
-                                        tex.EncodeToPNG());
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.LogWarning($"Error exporting with ex: {ex}");
+                                export(() => GetTexture(tim));
+                                index++;
                             }
 
-                            index++;
-                        }
+                            break;
+
+                        case IDXLoadCommand.FileType.Archive_BackgroundPack:
+
+                            // Read the data
+                            var bgPack = loader.LoadBINFile<BackgroundPack_ArchiveFile>(i);
+
+                            foreach (var tim in bgPack.TIMFiles.Files)
+                            {
+                                export(() => GetTexture(tim));
+                                index++;
+                            }
+
+                            break;
+
+                        case IDXLoadCommand.FileType.Archive_SpritePack:
+
+                            // Read the data
+                            LevelSpritePack_ArchiveFile spritePack = loader.LoadBINFile<LevelSpritePack_ArchiveFile>(i);
+
+                            var exported = new HashSet<PlayerSprite_File>();
+
+                            var pal = spritePack.PlayerSprites.Files.FirstOrDefault(x => x?.TIM?.Clut != null)?.TIM.Clut.Palette.Select(x => x.GetColor()).ToArray();
+
+                            foreach (var file in spritePack.PlayerSprites.Files)
+                            {
+                                if (file != null && !exported.Contains(file))
+                                {
+                                    exported.Add(file);
+
+                                    export(() =>
+                                    {
+                                        if (file.TIM != null)
+                                            return GetTexture(file.TIM, palette: pal);
+                                        else
+                                            return GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height, PS1_TIM.TIM_ColorFormat.BPP_8);
+                                    });
+                                }
+
+                                index++;
+                            }
+
+                            break;
                     }
-                    else if (cmd.FILE_Type == IDXLoadCommand.FileType.Archive_SpritePack)
+
+                    void export(Func<Texture2D> getTex)
                     {
-                        // Read the data
-                        LevelSpritePack_ArchiveFile spritePack = loader.Load_BINFile<LevelSpritePack_ArchiveFile>(cmd, blockIndex, i);
-
-                        var exported = new HashSet<PlayerSprite_File>();
-
-                        var index = 0;
-
-                        var pal = spritePack.PlayerSprites.Files.FirstOrDefault(x => x?.TIM?.Clut != null)?.TIM.Clut.Palette.Select(x => x.GetColor()).ToArray();
-
-                        foreach (var file in spritePack.PlayerSprites.Files)
+                        try
                         {
-                            if (file != null && !exported.Contains(file))
-                            {
-                                exported.Add(file);
+                            var tex = getTex();
 
-                                try
-                                {
-                                    Texture2D tex;
-
-                                    if (file.TIM != null)
-                                        tex = GetTexture(file.TIM, palette: pal);
-                                    else
-                                        tex = GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height, PS1_TIM.TIM_ColorFormat.BPP_8);
-
-                                    if (tex != null)
-                                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} - {index} (SpritePack).png"),
-                                            tex.EncodeToPNG());
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.LogWarning($"Error exporting with ex: {ex}");
-                                }
-                            }
-
-                            index++;
+                            if (tex != null)
+                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} - {index}.png"),
+                                    tex.EncodeToPNG());
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning($"Error exporting with ex: {ex}");
                         }
                     }
                 });
@@ -232,15 +270,17 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context);
+            var loader = Loader.Create(context, idxData);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
             {
                 var entry = idxData.Entries[blockIndex];
 
+                loader.SwitchBlocks(blockIndex);
+
                 // Load the BIN
-                loader.Load_BIN(entry, blockIndex);
+                loader.LoadAndProcessBINBlock();
 
                 // Enumerate every set of frames
                 for (int framesSet = 0; framesSet < loader.SpriteFrames.Length; framesSet++)
@@ -327,17 +367,17 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context);
+            var loader = Loader.Create(context, idxData);
 
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
             {
-                var entry = idxData.Entries[blockIndex];
-
                 var vram = new PS1_VRAM();
 
+                loader.SwitchBlocks(blockIndex);
+
                 // Process each BIN file
-                loader.ProcessBINFiles(entry, blockIndex, (cmd, i) =>
+                loader.LoadBINFiles((cmd, i) =>
                 {
                     try
                     {
@@ -346,7 +386,7 @@ namespace R1Engine
                             return;
 
                         // Read the data
-                        var bg = loader.Load_BINFile<BackgroundPack_ArchiveFile>(cmd, blockIndex, i);
+                        var bg = loader.LoadBINFile<BackgroundPack_ArchiveFile>(i);
 
                         // TODO: Some maps use different textures! How do we find the index? For now export all variants
                         for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
@@ -457,6 +497,7 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
+            // Get settings
             var settings = context.GetR1Settings();
             var lev = settings.World;
             var sector = settings.Level;
@@ -471,34 +512,32 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Create the loader
-            var loader = Loader.Create(context);
+            var loader = Loader.Create(context, idxData);
 
-            // Load fixed block first
-            loader.Load_BIN(idxData.Entries[0], 0);
-
-            // Load the BIN
-            loader.Load_BIN(idxData.Entries[lev], lev);
-
-            float scale = 16f;
-            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale);
-            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
-            obj.transform.position = new Vector3(0, 0, 0);
-
-            var layers = new List<Unity_Layer>();
-            var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
-            layers.Add(new Unity_Layer_GameObject(true)
+            var logAction = new Func<string, Task>(async x =>
             {
-                Name = "Map",
-                ShortName = "MAP",
-                Graphics = obj,
-                Collision = null,
-                Dimensions = levelDimensions,
-                DisableGraphicsWhenCollisionIsActive = true
+                Controller.DetailedState = x;
+                await Controller.WaitIfNecessary();
             });
-            obj.transform.SetParent(parent3d);
+
+            // Load the fixed BIN
+            loader.SwitchBlocks(0);
+            await loader.LoadAndProcessBINBlockAsync(logAction);
+
+            // Load the level BIN
+            loader.SwitchBlocks(lev);
+            await loader.LoadAndProcessBINBlockAsync(logAction);
+
+            // Load the layers
+            var layers = await Load_LayersAsync(loader, sector);
+
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Load objects
 
             return new Unity_Level(
-                layers: layers.ToArray(),
+                layers: layers,
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
                 eventData: new List<Unity_Object>(),
@@ -517,6 +556,44 @@ namespace R1Engine
                 });
         }
 
+        public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector)
+        {
+            var layers = new List<Unity_Layer>();
+
+            const float scale = 16f;
+
+            Controller.DetailedState = "Loading backgrounds";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Load backgrounds - easiest to convert to textures instead of using tilemaps, unless it's easier for animations?
+
+            Controller.DetailedState = "Loading level geometry";
+            await Controller.WaitIfNecessary();
+
+            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale);
+            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
+            obj.transform.position = new Vector3(0, 0, 0);
+
+            var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
+            layers.Add(new Unity_Layer_GameObject(true)
+            {
+                Name = "Map",
+                ShortName = "MAP",
+                Graphics = obj,
+                Collision = null,
+                Dimensions = levelDimensions,
+                DisableGraphicsWhenCollisionIsActive = true
+            });
+            obj.transform.SetParent(parent3d);
+
+            Controller.DetailedState = "Loading collision";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Load collision
+
+            return layers.ToArray();
+        }
+
         public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale)
         {
             var textureCache = new Dictionary<int, Texture2D>();
@@ -528,6 +605,14 @@ namespace R1Engine
             {
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
+
+                // TODO: Implement scale
+                if (obj.Scale != 0)
+                    Debug.LogWarning($"TMD object is scaled at {obj.Scale}");
+
+                // TODO: Implement normals
+                if (obj.NormalsCount != 0)
+                    Debug.LogWarning($"TMD object has {obj.NormalsCount} normals");
 
                 foreach (var packet in obj.Primitives)
                 {
@@ -550,9 +635,9 @@ namespace R1Engine
                     {
                         triangles = new int[]
                         {
-                            // lower left triangle
+                            // Lower left triangle
                             0, 1, 2,
-                            // upper right triangle
+                            // Upper right triangle
                             3, 2, 1
                         };
                     }
@@ -561,7 +646,6 @@ namespace R1Engine
                         triangles = new int[]
                         {
                             0, 1, 2,
-                            //0, 2, 1
                         };
                     }
 
@@ -573,7 +657,9 @@ namespace R1Engine
                         colors = Enumerable.Repeat(colors[0], packet.Mode.IsQuad ? 4 : 3).ToArray();
 
                     unityMesh.SetColors(colors);
-                    if(packet.UV != null) unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
+
+                    if (packet.UV != null) 
+                        unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
 
                     unityMesh.RecalculateNormals();
 
@@ -588,57 +674,19 @@ namespace R1Engine
                     mf.mesh = unityMesh;
                     mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
 
+                    // Add texture
                     if (packet.Mode.TME)
                     {
                         var key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
 
                         if (!textureCache.ContainsKey(key))
-                        {
-                            PS1_TIM.TIM_ColorFormat colFormat = PS1_TIM.TIM_ColorFormat.BPP_4;
-                            colFormat = packet.TSB.TP switch {
-                                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
-                                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
-                                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
-                                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
-                            };
-                            int width = packet.TSB.TP switch
-                            {
-                                PS1_TSB.TexturePageTP.CLUT_4Bit => 256,
-                                PS1_TSB.TexturePageTP.CLUT_8Bit => 128,
-                                PS1_TSB.TexturePageTP.Direct_15Bit => 64,
-                                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
-                            };
-                            var tex = TextureHelpers.CreateTexture2D(width, 256, clear: true);
-
-                            FillTextureFromVRAM(
-                                tex: tex,
-                                vram: loader.VRAM,
-                                width: width,
-                                height: 256,
-                                colorFormat: colFormat,
-                                texX: 0,
-                                texY: 0,
-                                clutX: packet.CBA.ClutX * 16,
-                                clutY: packet.CBA.ClutY,
-                                texturePageX: packet.TSB.TX,
-                                texturePageY: packet.TSB.TY,
-                                texturePageOriginX: 0,
-                                texturePageOriginY: 0,
-                                texturePageOffsetX: 0,
-                                texturePageOffsetY: 0,
-                                flipY: true);
-
-                            tex.Apply();
-
-                            textureCache.Add(key, tex);
-                        }
+                            textureCache.Add(key, GetTexture(packet, loader.VRAM));
 
                         var t = textureCache[key];
 
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
                     }
-
                 }
             }
 
@@ -647,7 +695,7 @@ namespace R1Engine
 
         public Vector3 GetDimensions(PS1_TMD tmd)
         {
-            var verts = tmd.Objects.SelectMany(x => x.Vertices);
+            var verts = tmd.Objects.SelectMany(x => x.Vertices).ToArray();
             var width = verts.Max(v => v.X) - verts.Min(v => v.X);
             var height = verts.Max(v => v.Y) - verts.Min(v => v.Y);
             var depth = verts.Max(v => v.Z) - verts.Min(v => v.Z);
@@ -727,6 +775,51 @@ namespace R1Engine
             var pal = palette ?? tim.Clut?.Palette?.Select(x => x.GetColor()).ToArray();
 
             return GetTexture(tim.ImgData, pal, tim.Width, tim.Height, tim.ColorFormat, flipTextureY);
+        }
+
+        public Texture2D GetTexture(PS1_TMD_Packet packet, PS1_VRAM vram)
+        {
+            if (!packet.Mode.TME)
+                throw new Exception($"Packet has no texture");
+
+            PS1_TIM.TIM_ColorFormat colFormat = packet.TSB.TP switch
+            {
+                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
+                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
+                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
+                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
+            };
+            int width = packet.TSB.TP switch
+            {
+                PS1_TSB.TexturePageTP.CLUT_4Bit => 256,
+                PS1_TSB.TexturePageTP.CLUT_8Bit => 128,
+                PS1_TSB.TexturePageTP.Direct_15Bit => 64,
+                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
+            };
+
+            var tex = TextureHelpers.CreateTexture2D(width, 256, clear: true);
+
+            FillTextureFromVRAM(
+                tex: tex,
+                vram: vram,
+                width: width,
+                height: 256,
+                colorFormat: colFormat,
+                texX: 0,
+                texY: 0,
+                clutX: packet.CBA.ClutX * 16,
+                clutY: packet.CBA.ClutY,
+                texturePageX: packet.TSB.TX,
+                texturePageY: packet.TSB.TY,
+                texturePageOriginX: 0,
+                texturePageOriginY: 0,
+                texturePageOffsetX: 0,
+                texturePageOffsetY: 0,
+                flipY: true);
+
+            tex.Apply();
+
+            return tex;
         }
 
         public Texture2D GetTexture(byte[] imgData, Color[] pal, int width, int height, PS1_TIM.TIM_ColorFormat colorFormat, bool flipTextureY = true)
