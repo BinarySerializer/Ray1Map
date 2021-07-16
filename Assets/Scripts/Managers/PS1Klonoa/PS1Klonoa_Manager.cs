@@ -74,7 +74,7 @@ namespace R1Engine
 
             var s = context.Deserializer;
 
-            var loader = Loader.Create(context, idxData);
+            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
 
             var archiveDepths = new Dictionary<IDXLoadCommand.FileType, int>()
             {
@@ -170,7 +170,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context, idxData);
+            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -270,7 +270,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context, idxData);
+            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -367,7 +367,7 @@ namespace R1Engine
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context, idxData);
+            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
 
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -495,6 +495,12 @@ namespace R1Engine
             }
         }
 
+        public LoaderConfiguration GetLoaderConfig(GameSettings settings)
+        {
+            // TODO: Support other versions
+            return new LoaderConfiguration_DTP_US();
+        }
+
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
             // Get settings
@@ -512,7 +518,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Create the loader
-            var loader = Loader.Create(context, idxData);
+            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
 
             var logAction = new Func<string, Task>(async x =>
             {
@@ -521,12 +527,18 @@ namespace R1Engine
             });
 
             // Load the fixed BIN
-            loader.SwitchBlocks(0);
+            loader.SwitchBlocks(loader.Config.BLOCK_Fix);
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
             // Load the level BIN
             loader.SwitchBlocks(lev);
             await loader.LoadAndProcessBINBlockAsync(logAction);
+
+            Controller.DetailedState = "Loading code level data";
+            await Controller.WaitIfNecessary();
+
+            // Load code level data
+            loader.ProcessCodeLevelData();
 
             // Load the layers
             var layers = await Load_LayersAsync(loader, sector);
