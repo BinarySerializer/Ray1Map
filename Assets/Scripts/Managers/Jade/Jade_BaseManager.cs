@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
 using R1Engine.Jade;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,7 @@ namespace R1Engine
 				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
 				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
 				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
+				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
 			};
 			if (HasUnbinarizedData) {
@@ -165,7 +167,91 @@ namespace R1Engine
 				}
             }
         }
-        public async UniTask ExportTexturesAsync(GameSettings settings, string outputDir, bool useComplexNames)
+
+		public async UniTask ExportLocalizationAsync(GameSettings settings, string outputDir) {
+			var parsedTexs = new HashSet<uint>();
+
+			var levIndex = 0;
+			if(settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montreal))
+				throw new NotImplementedException($"Not yet implemented for Montreal version");
+
+			foreach (var lev in LevelInfos) {
+				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
+				if (lev?.Type == LevelInfo.FileType.WOL) {
+					levIndex++;
+					continue;
+				}
+				if (lev?.Type == LevelInfo.FileType.WOLUnbinarized || lev?.Type == LevelInfo.FileType.WOWUnbinarized) {
+					levIndex++;
+					continue;
+				}
+
+				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
+
+				try {
+					using (var context = new R1Context(settings)) {
+						await LoadFilesAsync(context);
+						await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.TextNoSound);
+
+						Debug.Log($"Loaded level. Exporting text...");
+						LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+						foreach (var w in loader.LoadedWorlds) {
+							var text = w?.Text;
+							await ExportTextList(text, w?.Name);
+						}
+
+						async UniTask ExportTextList(Jade_TextReference text, string worldName) {
+							if(text.IsNull) return;
+							Dictionary<int, Dictionary<string, string>> langTables = new Dictionary<int, Dictionary<string, string>>();
+							foreach (var kv in text.Text) {
+								var langID = kv.Key;
+								var allText = kv.Value;
+								if(!langTables.ContainsKey(langID)) langTables[langID] = new Dictionary<string, string>();
+								foreach (var g in allText.Text) {
+									if (g.IsNull || g.Value == null) continue;
+									var group = (TEXT_TextGroup)g.Value;
+									var usedRef = group?.GetUsedReference(langID);
+									if(usedRef == null || usedRef.IsNull || usedRef.Value == null) continue;
+									var txl = (TEXT_TextList)usedRef.Value;
+									foreach (var t in txl.Text) {
+										var id = t.IDString ?? t.IdKey.ToString();
+										var content = t.String;
+										langTables[langID][id] = content;
+									}
+								}
+							}
+							var output = langTables.Select(langTable => new
+							{
+								Language = "Language " + langTable.Key,
+								Text = langTable.Value
+								/*Text = langTable.Value.Select(ltv => new {
+									Key = ltv.Key,
+									Value = ltv.Value
+								}).ToArray()*/
+							});
+							string json = JsonConvert.SerializeObject(output, Formatting.Indented);
+							Util.ByteArrayToFile(Path.Combine(outputDir, $"{worldName}.json"), Encoding.UTF8.GetBytes(json));
+						}
+					}
+				} catch (Exception ex) {
+					Debug.LogError($"Failed to export for level {lev.MapName}: {ex.ToString()}");
+				}
+
+
+				// Unload textures
+				await Controller.WaitIfNecessary();
+				await Resources.UnloadUnusedAssets();
+
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+				GC.WaitForPendingFinalizers();
+				if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+					await UniTask.Delay(2000);
+				}
+			}
+
+			Debug.Log($"Finished export");
+		}
+		public async UniTask ExportTexturesAsync(GameSettings settings, string outputDir, bool useComplexNames)
         {
 			var parsedTexs = new HashSet<uint>();
 
@@ -538,34 +624,38 @@ namespace R1Engine
 			}
 
 			if (loadFlags.HasFlag(LoadFlags.TextNoSound) && context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
-				int languageID = 1;
 				Controller.DetailedState = $"Loading text";
-				loader.BeginSpeedMode(new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextNoSound, languageID: languageID)), serializeAction: async s => {
-					Controller.DetailedState = $"Loading text: Info";
-					for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
-						var w = worldList?.Value?.Worlds[i]?.Value;
-						if (w != null) {
-							var world = (WOR_World)w;
-							world.Text?.LoadText(languageID);
-							await loader.LoadLoopBINAsync();
-							if (world.Text?.GetTextForLanguage(languageID) != null) {
-								var text = world.Text.GetTextForLanguage(languageID);
-								foreach (var txg in text.Text) {
-									txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
-									await loader.LoadLoopBINAsync();
-									var group = (TEXT_TextGroup)txg.Value;
-									var usedRef = group.GetUsedReference(languageID);
-									usedRef?.Resolve(onPreSerialize: (_, txl) => {
-										((TEXT_TextList)txl).HasSound = false;
-									}, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
-									await loader.LoadLoopBINAsync();
+				for (int languageID = 0; languageID < 32; languageID++) {
+					var binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextNoSound, languageID: languageID));
+					if(!loader.FileInfos.ContainsKey(binKey)) continue;
+					loader.BeginSpeedMode(binKey, serializeAction: async s => {
+						Controller.DetailedState = $"Loading text: Language {languageID} - No sound";
+						for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
+							var w = worldList?.Value?.Worlds[i]?.Value;
+							if (w != null) {
+								var world = (WOR_World)w;
+								world.Text?.LoadText(languageID);
+								await loader.LoadLoopBINAsync();
+								if (world.Text?.GetTextForLanguage(languageID) != null) {
+									var text = world.Text.GetTextForLanguage(languageID);
+									foreach (var txg in text.Text) {
+										txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+										await loader.LoadLoopBINAsync();
+										var group = (TEXT_TextGroup)txg.Value;
+										if(group == null) continue;
+										var usedRef = group.GetUsedReference(languageID);
+										usedRef?.Resolve(onPreSerialize: (_, txl) => {
+											((TEXT_TextList)txl).HasSound = false;
+										}, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+										await loader.LoadLoopBINAsync();
+									}
 								}
 							}
 						}
-					}
-					//await loader.LoadLoopBINAsync();
-				});
-				await loader.LoadLoop(context.Deserializer);
+						//await loader.LoadLoopBINAsync();
+					});
+					await loader.LoadLoop(context.Deserializer);
+				}
 			}
 			loader.EndSpeedMode();
 			loader.IsLoadingFix = false;
@@ -685,7 +775,7 @@ namespace R1Engine
 				var univers = await LoadUniverse(context);
 			}
 
-			if (loadFlags.HasFlag(LoadFlags.Maps) || loadFlags.HasFlag(LoadFlags.Textures)) {
+			if (loadFlags.HasFlag(LoadFlags.Maps) || loadFlags.HasFlag(LoadFlags.Textures) || loadFlags.HasFlag(LoadFlags.TextNoSound)) {
 				// Load world
 				Controller.DetailedState = $"Loading worlds";
 				await Controller.WaitIfNecessary();
