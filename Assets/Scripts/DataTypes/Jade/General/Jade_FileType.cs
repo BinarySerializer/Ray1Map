@@ -48,6 +48,11 @@ namespace R1Engine.Jade {
 
 			// Texture
 			[".pal"] = FileType.TEX_Palette,
+
+			// Text
+			[".txt"] = FileType.TEXT_AllText,
+			[".txg"] = FileType.TEXT_TextGroup,
+			[".txl"] = FileType.TEXT_TextList,
 		};
 
 		public enum FileType {
@@ -73,6 +78,10 @@ namespace R1Engine.Jade {
 
 			TEX_File,
 			TEX_Palette,
+
+			TEXT_AllText,
+			TEXT_TextGroup,
+			TEXT_TextList,
 		}
 	}
 }

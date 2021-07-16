@@ -536,6 +536,37 @@ namespace R1Engine
 				});
 				await loader.LoadLoop(context.Deserializer);
 			}
+
+			if (loadFlags.HasFlag(LoadFlags.TextNoSound) && context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+				int languageID = 1;
+				Controller.DetailedState = $"Loading text";
+				loader.BeginSpeedMode(new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextNoSound, languageID: languageID)), serializeAction: async s => {
+					Controller.DetailedState = $"Loading text: Info";
+					for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
+						var w = worldList?.Value?.Worlds[i]?.Value;
+						if (w != null) {
+							var world = (WOR_World)w;
+							world.Text?.LoadText(languageID);
+							await loader.LoadLoopBINAsync();
+							if (world.Text?.GetTextForLanguage(languageID) != null) {
+								var text = world.Text.GetTextForLanguage(languageID);
+								foreach (var txg in text.Text) {
+									txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+									await loader.LoadLoopBINAsync();
+									var group = (TEXT_TextGroup)txg.Value;
+									var usedRef = group.GetUsedReference(languageID);
+									usedRef?.Resolve(onPreSerialize: (_, txl) => {
+										((TEXT_TextList)txl).HasSound = false;
+									}, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+									await loader.LoadLoopBINAsync();
+								}
+							}
+						}
+					}
+					//await loader.LoadLoopBINAsync();
+				});
+				await loader.LoadLoop(context.Deserializer);
+			}
 			loader.EndSpeedMode();
 			loader.IsLoadingFix = false;
 
@@ -726,8 +757,9 @@ namespace R1Engine
 			Universe = 1 << 0,
 			Maps = 1 << 1,
 			Textures = 1 << 2,
-			Text = 1 << 3,
-			Sound = 1 << 4,
+			TextNoSound = 1 << 3,
+			TextSound = 1 << 4,
+			Sounds = 1 << 5,
 			All = (uint)0xFFFFFFFF
 		}
     }

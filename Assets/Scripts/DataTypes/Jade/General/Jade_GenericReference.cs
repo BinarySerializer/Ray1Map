@@ -131,6 +131,16 @@ namespace R1Engine.Jade {
 						configureAction(f); onPreSerialize?.Invoke(s, f);
 					}, name: nameof(Value));
 					break;
+				case Jade_FileType.FileType.TEXT_TextGroup:
+					Value = s.SerializeObject<TEXT_TextGroup>((TEXT_TextGroup)Value, onPreSerialize: f => {
+						configureAction(f); onPreSerialize?.Invoke(s, f);
+					}, name: nameof(Value));
+					break;
+				case Jade_FileType.FileType.TEXT_TextList:
+					Value = s.SerializeObject<TEXT_TextList>((TEXT_TextList)Value, onPreSerialize: f => {
+						configureAction(f); onPreSerialize?.Invoke(s, f);
+					}, name: nameof(Value));
+					break;
 				default:
 					throw new NotImplementedException($"GenericReference: Could not resolve key {Key} of type {Type} ({FileType.Extension})");
 			}
