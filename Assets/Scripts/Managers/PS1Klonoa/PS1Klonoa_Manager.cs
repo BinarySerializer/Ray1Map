@@ -605,56 +605,19 @@ namespace R1Engine
                     mf.mesh = unityMesh;
                     mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
 
+                    // Add texture
                     if (packet.Mode.TME)
                     {
                         var key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
 
                         if (!textureCache.ContainsKey(key))
-                        {
-                            PS1_TIM.TIM_ColorFormat colFormat = packet.TSB.TP switch {
-                                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
-                                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
-                                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
-                                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
-                            };
-                            int width = packet.TSB.TP switch
-                            {
-                                PS1_TSB.TexturePageTP.CLUT_4Bit => 256,
-                                PS1_TSB.TexturePageTP.CLUT_8Bit => 128,
-                                PS1_TSB.TexturePageTP.Direct_15Bit => 64,
-                                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
-                            };
-                            var tex = TextureHelpers.CreateTexture2D(width, 256, clear: true);
-
-                            FillTextureFromVRAM(
-                                tex: tex,
-                                vram: loader.VRAM,
-                                width: width,
-                                height: 256,
-                                colorFormat: colFormat,
-                                texX: 0,
-                                texY: 0,
-                                clutX: packet.CBA.ClutX * 16,
-                                clutY: packet.CBA.ClutY,
-                                texturePageX: packet.TSB.TX,
-                                texturePageY: packet.TSB.TY,
-                                texturePageOriginX: 0,
-                                texturePageOriginY: 0,
-                                texturePageOffsetX: 0,
-                                texturePageOffsetY: 0,
-                                flipY: true);
-
-                            tex.Apply();
-
-                            textureCache.Add(key, tex);
-                        }
+                            textureCache.Add(key, GetTexture(packet, loader.VRAM));
 
                         var t = textureCache[key];
 
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
                     }
-
                 }
             }
 
@@ -743,6 +706,51 @@ namespace R1Engine
             var pal = palette ?? tim.Clut?.Palette?.Select(x => x.GetColor()).ToArray();
 
             return GetTexture(tim.ImgData, pal, tim.Width, tim.Height, tim.ColorFormat, flipTextureY);
+        }
+
+        public Texture2D GetTexture(PS1_TMD_Packet packet, PS1_VRAM vram)
+        {
+            if (!packet.Mode.TME)
+                throw new Exception($"Packet has no texture");
+
+            PS1_TIM.TIM_ColorFormat colFormat = packet.TSB.TP switch
+            {
+                PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
+                PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
+                PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
+                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
+            };
+            int width = packet.TSB.TP switch
+            {
+                PS1_TSB.TexturePageTP.CLUT_4Bit => 256,
+                PS1_TSB.TexturePageTP.CLUT_8Bit => 128,
+                PS1_TSB.TexturePageTP.Direct_15Bit => 64,
+                _ => throw new InvalidDataException($"PS1 TSB TexturePageTP was {packet.TSB.TP}")
+            };
+
+            var tex = TextureHelpers.CreateTexture2D(width, 256, clear: true);
+
+            FillTextureFromVRAM(
+                tex: tex,
+                vram: vram,
+                width: width,
+                height: 256,
+                colorFormat: colFormat,
+                texX: 0,
+                texY: 0,
+                clutX: packet.CBA.ClutX * 16,
+                clutY: packet.CBA.ClutY,
+                texturePageX: packet.TSB.TX,
+                texturePageY: packet.TSB.TY,
+                texturePageOriginX: 0,
+                texturePageOriginY: 0,
+                texturePageOffsetX: 0,
+                texturePageOffsetY: 0,
+                flipY: true);
+
+            tex.Apply();
+
+            return tex;
         }
 
         public Texture2D GetTexture(byte[] imgData, Color[] pal, int width, int height, PS1_TIM.TIM_ColorFormat colorFormat, bool flipTextureY = true)
