@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BinarySerializer.KlonoaDTP;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -496,6 +497,7 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
+            // Get settings
             var settings = context.GetR1Settings();
             var lev = settings.World;
             var sector = settings.Level;
@@ -512,36 +514,30 @@ namespace R1Engine
             // Create the loader
             var loader = Loader.Create(context, idxData);
 
-            var logAction = new Action<string>(x => Controller.DetailedState = x);
+            var logAction = new Func<string, Task>(async x =>
+            {
+                Controller.DetailedState = x;
+                await Controller.WaitIfNecessary();
+            });
 
             // Load the fixed BIN
             loader.SwitchBlocks(0);
-            loader.LoadAndProcessBINBlock(logAction);
+            await loader.LoadAndProcessBINBlockAsync(logAction);
 
             // Load the level BIN
             loader.SwitchBlocks(lev);
-            loader.LoadAndProcessBINBlock(logAction);
+            await loader.LoadAndProcessBINBlockAsync(logAction);
 
-            float scale = 16f;
-            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale);
-            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
-            obj.transform.position = new Vector3(0, 0, 0);
+            // Load the layers
+            var layers = await Load_LayersAsync(loader, sector);
 
-            var layers = new List<Unity_Layer>();
-            var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
-            layers.Add(new Unity_Layer_GameObject(true)
-            {
-                Name = "Map",
-                ShortName = "MAP",
-                Graphics = obj,
-                Collision = null,
-                Dimensions = levelDimensions,
-                DisableGraphicsWhenCollisionIsActive = true
-            });
-            obj.transform.SetParent(parent3d);
+            Controller.DetailedState = "Loading objects";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Load objects
 
             return new Unity_Level(
-                layers: layers.ToArray(),
+                layers: layers,
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
                 eventData: new List<Unity_Object>(),
@@ -558,6 +554,44 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 8
                 });
+        }
+
+        public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector)
+        {
+            var layers = new List<Unity_Layer>();
+
+            const float scale = 16f;
+
+            Controller.DetailedState = "Loading backgrounds";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Load backgrounds - easiest to convert to textures instead of using tilemaps, unless it's easier for animations?
+
+            Controller.DetailedState = "Loading level geometry";
+            await Controller.WaitIfNecessary();
+
+            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale);
+            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
+            obj.transform.position = new Vector3(0, 0, 0);
+
+            var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
+            layers.Add(new Unity_Layer_GameObject(true)
+            {
+                Name = "Map",
+                ShortName = "MAP",
+                Graphics = obj,
+                Collision = null,
+                Dimensions = levelDimensions,
+                DisableGraphicsWhenCollisionIsActive = true
+            });
+            obj.transform.SetParent(parent3d);
+
+            Controller.DetailedState = "Loading collision";
+            await Controller.WaitIfNecessary();
+
+            // TODO: Load collision
+
+            return layers.ToArray();
         }
 
         public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale)
