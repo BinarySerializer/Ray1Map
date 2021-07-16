@@ -481,7 +481,7 @@ namespace R1Engine
 
             float scale = 16f;
             var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale);
-            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel);
+            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
             obj.transform.position = new Vector3(0, 0, 0);
 
             var layers = new List<Unity_Layer>();
@@ -492,14 +492,14 @@ namespace R1Engine
                 ShortName = "MAP",
                 Graphics = obj,
                 Collision = null,
-                Dimensions = levelDimensions * 2,
+                Dimensions = levelDimensions,
                 DisableGraphicsWhenCollisionIsActive = true
             });
             obj.transform.SetParent(parent3d);
 
             return new Unity_Level(
                 layers: layers.ToArray(),
-                cellSize: 1,
+                cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
                 eventData: new List<Unity_Object>(),
                 isometricData: new Unity_IsometricData
@@ -510,7 +510,7 @@ namespace R1Engine
                     TilesHeight = 0,
                     Collision = null,
                     Scale = Vector3.one,
-                    ViewAngle = Quaternion.Euler(0, 0, 0),
+                    ViewAngle = Quaternion.Euler(90, 0, 0),
                     CalculateYDisplacement = () => 0,
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 8
@@ -573,7 +573,7 @@ namespace R1Engine
                         colors = Enumerable.Repeat(colors[0], packet.Mode.IsQuad ? 4 : 3).ToArray();
 
                     unityMesh.SetColors(colors);
-                    unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
+                    if(packet.UV != null) unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
 
                     unityMesh.RecalculateNormals();
 
@@ -656,9 +656,10 @@ namespace R1Engine
 
         public Vector3 GetDimensions(PS1_TMD tmd)
         {
-            var width = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.X);
-            var height = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.Y);
-            var depth = tmd.Objects.SelectMany(x => x.Vertices).Max(v => v.Z);
+            var verts = tmd.Objects.SelectMany(x => x.Vertices);
+            var width = verts.Max(v => v.X) - verts.Min(v => v.X);
+            var height = verts.Max(v => v.Y) - verts.Min(v => v.Y);
+            var depth = verts.Max(v => v.Z) - verts.Min(v => v.Z);
             return new Vector3(width, height, depth);
         }
 
