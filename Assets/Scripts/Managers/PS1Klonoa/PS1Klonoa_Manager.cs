@@ -520,6 +520,9 @@ namespace R1Engine
             // Create the loader
             var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
 
+            // Only parse the selected sector
+            loader.SectorToParse = sector;
+
             var logAction = new Func<string, Task>(async x =>
             {
                 Controller.DetailedState = x;
