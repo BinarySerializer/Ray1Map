@@ -529,6 +529,14 @@ namespace R1Engine
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
 
+                // TODO: Implement scale
+                if (obj.Scale != 0)
+                    Debug.LogWarning($"TMD object is scaled at {obj.Scale}");
+
+                // TODO: Implement normals
+                if (obj.NormalsCount != 0)
+                    Debug.LogWarning($"TMD object has {obj.NormalsCount} normals");
+
                 foreach (var packet in obj.Primitives)
                 {
                     // TODO: Implement other types
@@ -550,9 +558,9 @@ namespace R1Engine
                     {
                         triangles = new int[]
                         {
-                            // lower left triangle
+                            // Lower left triangle
                             0, 1, 2,
-                            // upper right triangle
+                            // Upper right triangle
                             3, 2, 1
                         };
                     }
@@ -561,7 +569,6 @@ namespace R1Engine
                         triangles = new int[]
                         {
                             0, 1, 2,
-                            //0, 2, 1
                         };
                     }
 
@@ -573,7 +580,9 @@ namespace R1Engine
                         colors = Enumerable.Repeat(colors[0], packet.Mode.IsQuad ? 4 : 3).ToArray();
 
                     unityMesh.SetColors(colors);
-                    if(packet.UV != null) unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
+
+                    if (packet.UV != null) 
+                        unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
 
                     unityMesh.RecalculateNormals();
 
@@ -583,7 +592,6 @@ namespace R1Engine
                     Mesh colMesh = new Mesh();
                     colMesh.SetVertices(vertices);
                     colMesh.SetTriangles(triangles, 0);
-                    //colMesh.SetTriangles(triangles.Where((x, i) => i % 6 >= 3).ToArray(), 0);
                     colMesh.RecalculateNormals();
                     mc.sharedMesh = colMesh;
 
@@ -603,8 +611,7 @@ namespace R1Engine
 
                         if (!textureCache.ContainsKey(key))
                         {
-                            PS1_TIM.TIM_ColorFormat colFormat = PS1_TIM.TIM_ColorFormat.BPP_4;
-                            colFormat = packet.TSB.TP switch {
+                            PS1_TIM.TIM_ColorFormat colFormat = packet.TSB.TP switch {
                                 PS1_TSB.TexturePageTP.CLUT_4Bit => PS1_TIM.TIM_ColorFormat.BPP_4,
                                 PS1_TSB.TexturePageTP.CLUT_8Bit => PS1_TIM.TIM_ColorFormat.BPP_8,
                                 PS1_TSB.TexturePageTP.Direct_15Bit => PS1_TIM.TIM_ColorFormat.BPP_16,
@@ -656,7 +663,7 @@ namespace R1Engine
 
         public Vector3 GetDimensions(PS1_TMD tmd)
         {
-            var verts = tmd.Objects.SelectMany(x => x.Vertices);
+            var verts = tmd.Objects.SelectMany(x => x.Vertices).ToArray();
             var width = verts.Max(v => v.X) - verts.Min(v => v.X);
             var height = verts.Max(v => v.Y) - verts.Min(v => v.Y);
             var depth = verts.Max(v => v.Z) - verts.Min(v => v.Z);
