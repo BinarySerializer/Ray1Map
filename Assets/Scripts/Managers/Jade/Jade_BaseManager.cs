@@ -39,7 +39,7 @@ namespace R1Engine
 				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
 				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
 				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
-				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output)),
+				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
 			};
 			if (HasUnbinarizedData) {
@@ -168,12 +168,30 @@ namespace R1Engine
             }
         }
 
-		public async UniTask ExportLocalizationAsync(GameSettings settings, string outputDir) {
+		public async UniTask ExportLocalizationAsync(GameSettings settings, string outputDir, bool perWorld) {
 			var parsedTexs = new HashSet<uint>();
 
 			var levIndex = 0;
 			if(settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montreal))
 				throw new NotImplementedException($"Not yet implemented for Montreal version");
+
+			Dictionary<int, Dictionary<string, string>> langTables = null;
+			if(!perWorld) langTables = new Dictionary<int, Dictionary<string, string>>();
+
+
+			void ExportLangTable(string name) {
+				var output = langTables.Select(langTable => new
+				{
+					Language = "Language " + langTable.Key,
+					Text = langTable.Value
+					/*Text = langTable.Value.Select(ltv => new {
+						Key = ltv.Key,
+						Value = ltv.Value
+					}).ToArray()*/
+				});
+				string json = JsonConvert.SerializeObject(output, Formatting.Indented);
+				Util.ByteArrayToFile(Path.Combine(outputDir, $"{name}.json"), Encoding.UTF8.GetBytes(json));
+			}
 
 			foreach (var lev in LevelInfos) {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
@@ -196,6 +214,7 @@ namespace R1Engine
 						Debug.Log($"Loaded level. Exporting text...");
 						LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 						foreach (var w in loader.LoadedWorlds) {
+							if (perWorld) langTables = new Dictionary<int, Dictionary<string, string>>();
 							var text = w?.Text;
 							await ExportTextList(text, w?.Name);
 						}
@@ -203,7 +222,6 @@ namespace R1Engine
 						async UniTask ExportTextList(Jade_TextReference text, string worldName) {
 							await UniTask.CompletedTask;
 							if(text.IsNull) return;
-							Dictionary<int, Dictionary<string, string>> langTables = new Dictionary<int, Dictionary<string, string>>();
 							foreach (var kv in text.Text) {
 								var langID = kv.Key;
 								var allText = kv.Value;
@@ -215,23 +233,16 @@ namespace R1Engine
 									if(usedRef == null || usedRef.IsNull || usedRef.Value == null) continue;
 									var txl = (TEXT_TextList)usedRef.Value;
 									foreach (var t in txl.Text) {
-										var id = t.IDString ?? t.IdKey.ToString();
+										var id = t.IDString ?? $"{txl.Key}-{t.IdKey}";
 										var content = t.String;
+										if (langTables[langID].ContainsKey(id) && langTables[langID][id] != content) {
+											Debug.LogWarning($"Different content for same IdKey {id}: {langTables[langID][id]} - {content}");
+										}
 										langTables[langID][id] = content;
 									}
 								}
 							}
-							var output = langTables.Select(langTable => new
-							{
-								Language = "Language " + langTable.Key,
-								Text = langTable.Value
-								/*Text = langTable.Value.Select(ltv => new {
-									Key = ltv.Key,
-									Value = ltv.Value
-								}).ToArray()*/
-							});
-							string json = JsonConvert.SerializeObject(output, Formatting.Indented);
-							Util.ByteArrayToFile(Path.Combine(outputDir, $"{worldName}.json"), Encoding.UTF8.GetBytes(json));
+							if(perWorld) ExportLangTable(worldName);
 						}
 					}
 				} catch (Exception ex) {
@@ -245,10 +256,11 @@ namespace R1Engine
 
 				GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
 				GC.WaitForPendingFinalizers();
-				if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
-					await UniTask.Delay(2000);
-				}
+				/*if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+					await UniTask.Delay(500);
+				}*/
 			}
+			if(!perWorld) ExportLangTable("localization");
 
 			Debug.Log($"Finished export");
 		}
