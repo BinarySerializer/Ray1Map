@@ -97,6 +97,7 @@ namespace R1Engine
                 
                 [IDXLoadCommand.FileType.Archive_Unk0] = 1,
                 [IDXLoadCommand.FileType.Archive_Unk4] = 2,
+                [IDXLoadCommand.FileType.Archive_Unk5] = 1,
 
                 [IDXLoadCommand.FileType.Code] = 0,
             };
@@ -555,7 +556,12 @@ namespace R1Engine
                 layers: layers,
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
-                eventData: new List<Unity_Object>(),
+                eventData: new List<Unity_Object>(loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa()
+                {
+                    Position = new Vector3(x.XPos / 16f, -(x.YPos / 16f), -x.ZPos / 16f),
+                    //Position = new Vector3((x.XPos + x.Short_00) / 16f, -((x.YPos + x.Short_04) / 16f), -(x.ZPos + x.Short_02) / 16f),
+                    //Position = new Vector3((x.Short_00 / 16f) * 16f, -(x.Short_04 / 16f) * 16f, -x.Short_02 / 16f * 16f),
+                })),
                 isometricData: new Unity_IsometricData
                 {
                     CollisionWidth = 0,
@@ -886,6 +892,29 @@ namespace R1Engine
             
             // The IDX gets loaded into a fixed memory location
             await context.AddMemoryMappedFile(Loader.FilePath_IDX, 0x80010000);
+        }
+    }
+
+    public class Unity_Object_PS1Klonoa : Unity_Object_3D
+    {
+        public override short XPosition { get; set; }
+        public override short YPosition { get; set; }
+        public override Vector3 Position { get; set; }
+        public override ILegacyEditorWrapper LegacyWrapper => null;
+        public override string PrimaryName => $"DUMMY";
+        public override Unity_ObjAnimation CurrentAnimation => null;
+        public override int AnimSpeed => 0;
+        public override int? GetAnimIndex => null;
+        protected override int GetSpriteID => 0;
+        public override IList<Sprite> Sprites => null;
+
+        private bool _isUIStateArrayUpToDate;
+        protected override bool IsUIStateArrayUpToDate => _isUIStateArrayUpToDate;
+
+        protected override void RecalculateUIStates()
+        {
+            UIStates = new UIState[0];
+            _isUIStateArrayUpToDate = true;
         }
     }
 }
