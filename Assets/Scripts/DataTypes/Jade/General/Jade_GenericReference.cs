@@ -29,6 +29,7 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, Jade_File> onPostSerialize = null,
 			bool immediate = false,
 			LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current,
+			LOA_Loader.CacheType cache = LOA_Loader.CacheType.Current,
 			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log) {
 
 			if (IsNull) return this;
@@ -40,6 +41,7 @@ namespace R1Engine.Jade {
 			}, immediate: immediate,
 			queue: queue,
 			name: Type.ToString(),
+			cache: cache,
 			flags: flags);
 			return this;
 		}

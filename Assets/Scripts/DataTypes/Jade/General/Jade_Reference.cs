@@ -26,6 +26,7 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, T> onPostSerialize = null,
 			bool immediate = false,
 			LOA_Loader.QueueType queue = LOA_Loader.QueueType.Current,
+			LOA_Loader.CacheType cache = LOA_Loader.CacheType.Current,
 			LOA_Loader.ReferenceFlags flags = LOA_Loader.ReferenceFlags.Log) {
 
 			if (IsNull && !ForceResolve) return this;
@@ -36,6 +37,7 @@ namespace R1Engine.Jade {
 				Value = f?.ConvertType<T>();
 			}, immediate: immediate,
 			queue: queue,
+			cache: cache,
 			name: typeof(T).Name,
 			flags: flags);
 			return this;

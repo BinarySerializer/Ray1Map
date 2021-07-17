@@ -58,6 +58,7 @@ namespace R1Engine.Jade {
 			Current,
 			TextureInfo,
 			TextureContent,
+			Text
 		}
 
 		public enum Read {

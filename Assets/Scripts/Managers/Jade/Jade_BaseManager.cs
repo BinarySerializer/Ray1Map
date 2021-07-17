@@ -201,6 +201,7 @@ namespace R1Engine
 						}
 
 						async UniTask ExportTextList(Jade_TextReference text, string worldName) {
+							await UniTask.CompletedTask;
 							if(text.IsNull) return;
 							Dictionary<int, Dictionary<string, string>> langTables = new Dictionary<int, Dictionary<string, string>>();
 							foreach (var kv in text.Text) {
@@ -646,7 +647,8 @@ namespace R1Engine
 										var usedRef = group.GetUsedReference(languageID);
 										usedRef?.Resolve(onPreSerialize: (_, txl) => {
 											((TEXT_TextList)txl).HasSound = false;
-										}, flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+										},
+										cache: LOA_Loader.CacheType.Text);
 										await loader.LoadLoopBINAsync();
 									}
 								}
@@ -655,6 +657,7 @@ namespace R1Engine
 						//await loader.LoadLoopBINAsync();
 					});
 					await loader.LoadLoop(context.Deserializer);
+					loader.Caches[LOA_Loader.CacheType.Text]?.Clear();
 				}
 			}
 			loader.EndSpeedMode();
