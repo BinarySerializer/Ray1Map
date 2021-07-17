@@ -57,7 +57,7 @@ namespace R1Engine
             {
                 new GameAction("Extract BIN", false, true, (input, output) => Extract_BINAsync(settings, output, false)),
                 new GameAction("Extract BIN (unpack archives)", false, true, (input, output) => Extract_BINAsync(settings, output, true)),
-                new GameAction("Extract TIM", false, true, (input, output) => Extract_TIMAsync(settings, output)),
+                new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
                 new GameAction("Extract Backgrounds", false, true, (input, output) => Extract_BackgroundsAsync(settings, output)),
                 new GameAction("Extract Sprites", false, true, (input, output) => Extract_SpriteFramesAsync(settings, output)),
                 new GameAction("Extract ULZ blocks", false, true, (input, output) => Extract_ULZAsync(settings, output)),
@@ -163,7 +163,7 @@ namespace R1Engine
             }
         }
 
-        public async UniTask Extract_TIMAsync(GameSettings settings, string outputPath)
+        public async UniTask Extract_GraphicsAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
             await LoadFilesAsync(context);
@@ -195,7 +195,7 @@ namespace R1Engine
 
                             foreach (var tim in timFiles.Files)
                             {
-                                export(() => GetTexture(tim));
+                                export(() => GetTexture(tim), cmd.FILE_Type.ToString().Replace("Archive_TIM_", String.Empty));
                                 index++;
                             }
 
@@ -208,7 +208,7 @@ namespace R1Engine
 
                             foreach (var tim in bgPack.TIMFiles.Files)
                             {
-                                export(() => GetTexture(tim));
+                                export(() => GetTexture(tim), "Background");
                                 index++;
                             }
 
@@ -235,23 +235,51 @@ namespace R1Engine
                                             return GetTexture(file.TIM, palette: pal);
                                         else
                                             return GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height, PS1_TIM.TIM_ColorFormat.BPP_8);
-                                    });
+                                    }, "PlayerSprites");
                                 }
 
                                 index++;
                             }
 
                             break;
+
+                        case IDXLoadCommand.FileType.Archive_LevelPack:
+
+                            // TODO: Remove try/catch
+                            try
+                            {
+                                // Read the data
+                                var lvlPack = loader.LoadBINFile<LevelPack_ArchiveFile>(i);
+
+                                var cutscenePack = lvlPack.CutscenePack;
+
+                                if (cutscenePack != null)
+                                {
+                                    export(() => GetTexture(cutscenePack.CharacterNamesImgData.Data, null, 0x0C, 0x50, PS1_TIM.TIM_ColorFormat.BPP_4), "CharacterNames");
+
+                                    foreach (var file in cutscenePack.File_2.Files)
+                                    {
+                                        export(() => GetTexture(file.ImgData, null, file.Width / 2, file.Height, PS1_TIM.TIM_ColorFormat.BPP_8), "CutsceneFrames");
+
+                                        index++;
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogWarning(ex);
+                            }
+                            break;
                     }
 
-                    void export(Func<Texture2D> getTex)
+                    void export(Func<Texture2D> getTex, string type)
                     {
                         try
                         {
                             var tex = getTex();
 
                             if (tex != null)
-                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} - {index}.png"),
+                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {type}", $"{i} - {index}.png"),
                                     tex.EncodeToPNG());
                         }
                         catch (Exception ex)
