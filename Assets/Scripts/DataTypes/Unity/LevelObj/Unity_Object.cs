@@ -13,12 +13,12 @@ namespace R1Engine
         public abstract short YPosition { get; set; }
 
         // Editor
-        public abstract string DebugText { get; }
+        public virtual string DebugText => String.Empty;
         public int EditorLinkGroup { get; set; }
         public virtual IEnumerable<int> Links => new int[0];
         public virtual IEnumerable<LinkType> LinkTypes => null;
         public bool HasPendingEdits { get; set; }
-        public abstract BinarySerializable SerializableData { get; }
+        public virtual BinarySerializable SerializableData => null;
 
         public virtual IEnumerable<int> GetLocIndices => new int[0];
 
@@ -34,7 +34,7 @@ namespace R1Engine
 
         // Display properties
         public abstract string PrimaryName { get; } // Official
-        public abstract string SecondaryName { get; } // Unofficial
+        public virtual string SecondaryName { get; } // Unofficial
         public string Name => PrimaryName ?? SecondaryName;
         public virtual int? GetLayer(int index) => null;
         public virtual int? MapLayer => null;
