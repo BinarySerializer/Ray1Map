@@ -182,7 +182,7 @@ namespace R1Engine
 			void ExportLangTable(string name) {
 				var output = langTables.Select(langTable => new
 				{
-					Language = "Language " + langTable.Key,
+					Language = ((TEXT_Language)langTable.Key).ToString(),
 					Text = langTable.Value
 					/*Text = langTable.Value.Select(ltv => new {
 						Key = ltv.Key,
