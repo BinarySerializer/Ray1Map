@@ -234,7 +234,7 @@ namespace R1Engine
 									var txl = (TEXT_TextList)usedRef.Value;
 									foreach (var t in txl.Text) {
 										var id = t.IDString ?? $"{txl.Key}-{t.IdKey}";
-										var content = t.String;
+										var content = t.Text;
 										if (langTables[langID].ContainsKey(id) && langTables[langID][id] != content) {
 											Debug.LogWarning($"Different content for same IdKey {id}: {langTables[langID][id]} - {content}");
 										}
