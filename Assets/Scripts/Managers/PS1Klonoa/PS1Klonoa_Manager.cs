@@ -679,9 +679,9 @@ namespace R1Engine
                 if (obj3D.Type == Object3D.Object3DType.Type_5 || obj3D.Type == Object3D.Object3DType.Type_6)
                 {
                     gameObj.transform.localRotation = Quaternion.Euler(
-                        x: obj3D.Data_Transform.Rotation.RotationX, 
-                        y: obj3D.Data_Transform.Rotation.RotationY, 
-                        z: obj3D.Data_Transform.Rotation.RotationZ);
+                        x: obj3D.Data_Transform.Rotation.RotationX / 8f, 
+                        y: obj3D.Data_Transform.Rotation.RotationY / 8f, 
+                        z: obj3D.Data_Transform.Rotation.RotationZ / 8f);
                 }
             }
 
