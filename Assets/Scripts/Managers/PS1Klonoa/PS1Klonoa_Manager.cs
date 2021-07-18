@@ -584,6 +584,7 @@ namespace R1Engine
                 layers: layers,
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
+                // Load dummy objects for movement paths
                 eventData: new List<Unity_Object>(loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa()
                 {
                     Position = new Vector3(x.XPos / 16f, -(x.YPos / 16f), -x.ZPos / 16f),
@@ -619,7 +620,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
-            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale);
+            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map");
             var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
             obj.transform.position = new Vector3(0, 0, 0);
 
@@ -635,6 +636,66 @@ namespace R1Engine
             });
             obj.transform.SetParent(parent3d);
 
+            Controller.DetailedState = "Loading 3D objects";
+            await Controller.WaitIfNecessary();
+
+            GameObject gao_3dObjParent = null;
+
+            foreach (var obj3D in loader.CodeLevelData.Objects3D[sector].Objects)
+            {
+                if (obj3D.Type != Object3D.Object3DType.Type_1 && 
+                    obj3D.Type != Object3D.Object3DType.Type_5 && 
+                    obj3D.Type != Object3D.Object3DType.Type_6)
+                {
+                    if (obj3D.Type != Object3D.Object3DType.Invalid && obj3D.Type != Object3D.Object3DType.None)
+                        Debug.LogWarning($"Skipped unsupported 3D object type {obj3D.Type}");
+                    continue;
+                }
+
+                if (gao_3dObjParent == null)
+                {
+                    gao_3dObjParent = new GameObject("3D Objects");
+                    gao_3dObjParent.transform.localPosition = Vector3.zero;
+                    gao_3dObjParent.transform.localRotation = Quaternion.identity;
+                    gao_3dObjParent.transform.localScale = Vector3.one;
+                }
+
+                var gameObj = CreateGameObject(obj3D.Data_TMD, loader, scale, $"Object3D_{obj3D.Offset}");
+
+                gameObj.transform.SetParent(gao_3dObjParent.transform);
+
+                Object3DPosition_File pos;
+
+                if (obj3D.Type == Object3D.Object3DType.Type_1)
+                    pos = obj3D.Data_Position;
+                else if (obj3D.Type == Object3D.Object3DType.Type_5 || obj3D.Type == Object3D.Object3DType.Type_6)
+                    pos = obj3D.Data_Transform.Position;
+                else
+                    throw new Exception();
+
+                gameObj.transform.position = new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
+
+                // TODO: Fix rotation
+                if (obj3D.Type == Object3D.Object3DType.Type_5 || obj3D.Type == Object3D.Object3DType.Type_6)
+                {
+                    gameObj.transform.localRotation = Quaternion.Euler(
+                        x: obj3D.Data_Transform.Rotation.RotationX, 
+                        y: obj3D.Data_Transform.Rotation.RotationY, 
+                        z: obj3D.Data_Transform.Rotation.RotationZ);
+                }
+            }
+
+            if (gao_3dObjParent != null)
+            {
+                layers.Add(new Unity_Layer_GameObject(true)
+                {
+                    Name = "3D Objects",
+                    ShortName = $"3DO",
+                    Graphics = gao_3dObjParent
+                });
+                gao_3dObjParent.transform.SetParent(parent3d);
+            }
+
             Controller.DetailedState = "Loading collision";
             await Controller.WaitIfNecessary();
 
@@ -643,11 +704,11 @@ namespace R1Engine
             return layers.ToArray();
         }
 
-        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale)
+        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name)
         {
             var textureCache = new Dictionary<int, Texture2D>();
 
-            GameObject gaoParent = new GameObject("Map");
+            GameObject gaoParent = new GameObject(name);
             gaoParent.transform.position = Vector3.zero;
 
             foreach (var obj in tmd.Objects)
@@ -655,16 +716,20 @@ namespace R1Engine
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
 
-                // TODO: Implement scale
-                if (obj.Scale != 0)
-                    Debug.LogWarning($"TMD object is scaled at {obj.Scale}");
-
                 // TODO: Implement normals
                 if (obj.NormalsCount != 0)
                     Debug.LogWarning($"TMD object has {obj.NormalsCount} normals");
 
                 foreach (var packet in obj.Primitives)
                 {
+                    // TODO: Implement
+                    if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
+                        Debug.LogWarning($"Packet has light source");
+
+                    // TODO: Implement
+                    if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
+                        Debug.LogWarning($"Polygon is double faced");
+
                     // TODO: Implement other types
                     if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
                     {
