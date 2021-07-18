@@ -106,7 +106,7 @@
 
         // Version properties
         public override string[] BFFiles => new string[] {
-            "Data.bf"
+            "DATA/DATA.BF"
         };
     }
 }
