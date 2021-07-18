@@ -588,9 +588,11 @@ namespace R1Engine
                 eventData: new List<Unity_Object>(loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa()
                 {
                     Position = new Vector3(x.XPos / 16f, -(x.YPos / 16f), -x.ZPos / 16f),
-                    //Position = new Vector3((x.XPos + x.Short_00) / 16f, -((x.YPos + x.Short_04) / 16f), -(x.ZPos + x.Short_02) / 16f),
-                    //Position = new Vector3((x.Short_00 / 16f) * 16f, -(x.Short_04 / 16f) * 16f, -x.Short_02 / 16f * 16f),
                 })),
+                //eventData: new List<Unity_Object>(loader.CodeLevelData.Objects3D[sector].Objects.First(x => x.Type == Object3D.Object3DType.Type_7).Data_Type7.Entries.Select(x => new Unity_Object_PS1Klonoa()
+                //{
+                //    Position = new Vector3(x.Short_00 / 16f, -(x.Short_02 / 16f), -x.Short_04 / 16f),
+                //})),
                 isometricData: new Unity_IsometricData
                 {
                     CollisionWidth = 0,
@@ -645,7 +647,9 @@ namespace R1Engine
             {
                 if (obj3D.Type != Object3D.Object3DType.Type_1 && 
                     obj3D.Type != Object3D.Object3DType.Type_5 && 
-                    obj3D.Type != Object3D.Object3DType.Type_6)
+                    obj3D.Type != Object3D.Object3DType.Type_6 && 
+                    obj3D.Type != Object3D.Object3DType.Type_8 && 
+                    obj3D.Type != Object3D.Object3DType.Type_21)
                 {
                     if (obj3D.Type != Object3D.Object3DType.Invalid && obj3D.Type != Object3D.Object3DType.None)
                         Debug.LogWarning($"Skipped unsupported 3D object type {obj3D.Type}");
@@ -664,19 +668,22 @@ namespace R1Engine
 
                 gameObj.transform.SetParent(gao_3dObjParent.transform);
 
-                Object3DPosition_File pos;
+                Object3DPosition_File pos = null;
 
                 if (obj3D.Type == Object3D.Object3DType.Type_1)
                     pos = obj3D.Data_Position;
-                else if (obj3D.Type == Object3D.Object3DType.Type_5 || obj3D.Type == Object3D.Object3DType.Type_6)
+                else if (obj3D.Type == Object3D.Object3DType.Type_5 || 
+                         obj3D.Type == Object3D.Object3DType.Type_6 || 
+                         obj3D.Type == Object3D.Object3DType.Type_8)
                     pos = obj3D.Data_Transform.Position;
-                else
-                    throw new Exception();
 
-                gameObj.transform.position = new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
+                if (pos != null)
+                    gameObj.transform.position = new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
 
                 // TODO: Fix rotation
-                if (obj3D.Type == Object3D.Object3DType.Type_5 || obj3D.Type == Object3D.Object3DType.Type_6)
+                if (obj3D.Type == Object3D.Object3DType.Type_5 ||
+                    obj3D.Type == Object3D.Object3DType.Type_6 ||
+                    obj3D.Type == Object3D.Object3DType.Type_8)
                 {
                     gameObj.transform.localRotation = Quaternion.Euler(
                         x: obj3D.Data_Transform.Rotation.RotationX / 8f, 
