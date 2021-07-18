@@ -57,7 +57,7 @@ namespace R1Engine
             {
                 new GameAction("Extract BIN", false, true, (input, output) => Extract_BINAsync(settings, output, false)),
                 new GameAction("Extract BIN (unpack archives)", false, true, (input, output) => Extract_BINAsync(settings, output, true)),
-                new GameAction("Extract TIM", false, true, (input, output) => Extract_TIMAsync(settings, output)),
+                new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
                 new GameAction("Extract Backgrounds", false, true, (input, output) => Extract_BackgroundsAsync(settings, output)),
                 new GameAction("Extract Sprites", false, true, (input, output) => Extract_SpriteFramesAsync(settings, output)),
                 new GameAction("Extract ULZ blocks", false, true, (input, output) => Extract_ULZAsync(settings, output)),
@@ -97,6 +97,7 @@ namespace R1Engine
                 
                 [IDXLoadCommand.FileType.Archive_Unk0] = 1,
                 [IDXLoadCommand.FileType.Archive_Unk4] = 2,
+                [IDXLoadCommand.FileType.Archive_Unk5] = 1,
 
                 [IDXLoadCommand.FileType.Code] = 0,
             };
@@ -162,7 +163,7 @@ namespace R1Engine
             }
         }
 
-        public async UniTask Extract_TIMAsync(GameSettings settings, string outputPath)
+        public async UniTask Extract_GraphicsAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
             await LoadFilesAsync(context);
@@ -194,7 +195,7 @@ namespace R1Engine
 
                             foreach (var tim in timFiles.Files)
                             {
-                                export(() => GetTexture(tim));
+                                export(() => GetTexture(tim), cmd.FILE_Type.ToString().Replace("Archive_TIM_", String.Empty));
                                 index++;
                             }
 
@@ -207,7 +208,7 @@ namespace R1Engine
 
                             foreach (var tim in bgPack.TIMFiles.Files)
                             {
-                                export(() => GetTexture(tim));
+                                export(() => GetTexture(tim), "Background");
                                 index++;
                             }
 
@@ -234,23 +235,51 @@ namespace R1Engine
                                             return GetTexture(file.TIM, palette: pal);
                                         else
                                             return GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height, PS1_TIM.TIM_ColorFormat.BPP_8);
-                                    });
+                                    }, "PlayerSprites");
                                 }
 
                                 index++;
                             }
 
                             break;
+
+                        case IDXLoadCommand.FileType.Archive_LevelPack:
+
+                            // TODO: Remove try/catch
+                            try
+                            {
+                                // Read the data
+                                var lvlPack = loader.LoadBINFile<LevelPack_ArchiveFile>(i);
+
+                                var cutscenePack = lvlPack.CutscenePack;
+
+                                if (cutscenePack != null)
+                                {
+                                    export(() => GetTexture(cutscenePack.CharacterNamesImgData.Data, null, 0x0C, 0x50, PS1_TIM.TIM_ColorFormat.BPP_4), "CharacterNames");
+
+                                    foreach (var file in cutscenePack.File_2.Files)
+                                    {
+                                        export(() => GetTexture(file.ImgData, null, file.Width / 2, file.Height, PS1_TIM.TIM_ColorFormat.BPP_8), "CutsceneFrames");
+
+                                        index++;
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogWarning(ex);
+                            }
+                            break;
                     }
 
-                    void export(Func<Texture2D> getTex)
+                    void export(Func<Texture2D> getTex, string type)
                     {
                         try
                         {
                             var tex = getTex();
 
                             if (tex != null)
-                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} - {index}.png"),
+                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {type}", $"{i} - {index}.png"),
                                     tex.EncodeToPNG());
                         }
                         catch (Exception ex)
@@ -555,7 +584,12 @@ namespace R1Engine
                 layers: layers,
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
-                eventData: new List<Unity_Object>(),
+                eventData: new List<Unity_Object>(loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa()
+                {
+                    Position = new Vector3(x.XPos / 16f, -(x.YPos / 16f), -x.ZPos / 16f),
+                    //Position = new Vector3((x.XPos + x.Short_00) / 16f, -((x.YPos + x.Short_04) / 16f), -(x.ZPos + x.Short_02) / 16f),
+                    //Position = new Vector3((x.Short_00 / 16f) * 16f, -(x.Short_04 / 16f) * 16f, -x.Short_02 / 16f * 16f),
+                })),
                 isometricData: new Unity_IsometricData
                 {
                     CollisionWidth = 0,
@@ -886,6 +920,29 @@ namespace R1Engine
             
             // The IDX gets loaded into a fixed memory location
             await context.AddMemoryMappedFile(Loader.FilePath_IDX, 0x80010000);
+        }
+    }
+
+    public class Unity_Object_PS1Klonoa : Unity_Object_3D
+    {
+        public override short XPosition { get; set; }
+        public override short YPosition { get; set; }
+        public override Vector3 Position { get; set; }
+        public override ILegacyEditorWrapper LegacyWrapper => null;
+        public override string PrimaryName => $"DUMMY";
+        public override Unity_ObjAnimation CurrentAnimation => null;
+        public override int AnimSpeed => 0;
+        public override int? GetAnimIndex => null;
+        protected override int GetSpriteID => 0;
+        public override IList<Sprite> Sprites => null;
+
+        private bool _isUIStateArrayUpToDate;
+        protected override bool IsUIStateArrayUpToDate => _isUIStateArrayUpToDate;
+
+        protected override void RecalculateUIStates()
+        {
+            UIStates = new UIState[0];
+            _isUIStateArrayUpToDate = true;
         }
     }
 }
