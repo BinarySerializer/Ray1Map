@@ -307,16 +307,16 @@ namespace R1Engine
 
                             exportTex(() => GetTexture(obj3D.Data_TIM), "Obj3D", $"{sector} - {objIndex}");
                         }
-                        else if (obj3D.Data_TIMFiles != null)
+                        else if (obj3D.Data_TextureAnimFrames != null)
                         {
-                            if (exported.Contains(obj3D.Data_TIMFiles))
+                            if (exported.Contains(obj3D.Data_TextureAnimFrames))
                                 continue;
 
-                            exported.Add(obj3D.Data_TIMFiles);
+                            exported.Add(obj3D.Data_TextureAnimFrames);
 
-                            for (var timIndex = 0; timIndex < obj3D.Data_TIMFiles.Files.Length; timIndex++)
+                            for (var timIndex = 0; timIndex < obj3D.Data_TextureAnimFrames.Files.Length; timIndex++)
                             {
-                                var tim = obj3D.Data_TIMFiles.Files[timIndex];
+                                var tim = obj3D.Data_TextureAnimFrames.Files[timIndex];
                                 exportTex(() => GetTexture(tim), "Obj3D", $"{sector} - {objIndex} - {timIndex}");
                             }
                         }
@@ -660,6 +660,9 @@ namespace R1Engine
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector)
         {
+            var objects = loader.CodeLevelData.Objects3D[sector].Objects;
+            var texAnimations = objects.Where(x => x.Type == Object3D.Object3DType.TextureAnimation).Select(x => x.Data_TextureAnimFrames.Files).ToArray();
+
             var layers = new List<Unity_Layer>();
 
             const float scale = 16f;
@@ -672,7 +675,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
-            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map");
+            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations);
             var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
             obj.transform.position = new Vector3(0, 0, 0);
 
@@ -693,7 +696,7 @@ namespace R1Engine
 
             GameObject gao_3dObjParent = null;
 
-            foreach (var obj3D in loader.CodeLevelData.Objects3D[sector].Objects)
+            foreach (var obj3D in objects)
             {
                 if (obj3D.Type != Object3D.Object3DType.Type_1 && 
                     obj3D.Type != Object3D.Object3DType.Type_5 && 
@@ -714,7 +717,7 @@ namespace R1Engine
                     gao_3dObjParent.transform.localScale = Vector3.one;
                 }
 
-                var gameObj = CreateGameObject(obj3D.Data_TMD, loader, scale, $"Object3D_{obj3D.Offset}");
+                var gameObj = CreateGameObject(obj3D.Data_TMD, loader, scale, $"Object3D_{obj3D.Offset}", texAnimations);
 
                 gameObj.transform.SetParent(gao_3dObjParent.transform);
 
@@ -761,22 +764,36 @@ namespace R1Engine
             return layers.ToArray();
         }
 
-        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name)
+        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations)
         {
             var textureCache = new Dictionary<int, Texture2D>();
 
             GameObject gaoParent = new GameObject(name);
             gaoParent.transform.position = Vector3.zero;
 
+            // Create each object
             foreach (var obj in tmd.Objects)
             {
+                // Helper methods
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
+                Vector2Int toDimensions(PS1_TMD_UV[] uv)
+                {
+                    int xMin = uv.Min(x => x.U);
+                    int xMax = uv.Max(x => x.U) + 1;
+                    int yMin = uv.Min(x => x.V);
+                    int yMax = uv.Max(x => x.V) + 1;
+                    int w = xMax - xMin;
+                    int h = yMax - yMin;
+
+                    return new Vector2Int(w, h);
+                }
 
                 // TODO: Implement normals
                 if (obj.NormalsCount != 0)
                     Debug.LogWarning($"TMD object has {obj.NormalsCount} normals");
 
+                // Add each primitive
                 foreach (var packet in obj.Primitives)
                 {
                     // TODO: Implement
@@ -848,6 +865,8 @@ namespace R1Engine
                     // Add texture
                     if (packet.Mode.TME)
                     {
+                        // TODO: Texture animations
+
                         var key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
 
                         if (!textureCache.ContainsKey(key))
@@ -860,6 +879,8 @@ namespace R1Engine
                     }
                 }
             }
+
+            //Debug.Log($"{textureCache.Count} textures");
 
             return gaoParent;
         }
