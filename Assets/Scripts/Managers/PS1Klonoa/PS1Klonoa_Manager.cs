@@ -57,6 +57,7 @@ namespace R1Engine
             {
                 new GameAction("Extract BIN", false, true, (input, output) => Extract_BINAsync(settings, output, false)),
                 new GameAction("Extract BIN (unpack archives)", false, true, (input, output) => Extract_BINAsync(settings, output, true)),
+                new GameAction("Extract Code", false, true, (input, output) => Extract_CodeAsync(settings, output)),
                 new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
                 new GameAction("Extract Backgrounds", false, true, (input, output) => Extract_BackgroundsAsync(settings, output)),
                 new GameAction("Extract Sprites", false, true, (input, output) => Extract_SpriteFramesAsync(settings, output)),
@@ -159,6 +160,34 @@ namespace R1Engine
                     var data = s.SerializeArray<byte>(null, cmd.FILE_Length);
 
                     Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{i} ({type})", $"Data.bin"), data);
+                });
+            }
+        }
+
+        public async UniTask Extract_CodeAsync(GameSettings settings, string outputPath)
+        {
+            using var context = new R1Context(settings);
+            await LoadFilesAsync(context);
+
+            // Load the IDX
+            var idxData = Load_IDX(context);
+
+            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
+
+            // Enumerate every entry
+            for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
+            {
+                loader.SwitchBlocks(blockIndex);
+
+                // Process each BIN file
+                loader.LoadBINFiles((cmd, i) =>
+                {
+                    if (cmd.FILE_Type != IDXLoadCommand.FileType.Code)
+                        return;
+                    
+                    var codeFile = loader.LoadBINFile<RawData_File>(i);
+
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - 0x{cmd.GetFileDestinationAddress(loader):X8}.dat"), codeFile.Data);
                 });
             }
         }
