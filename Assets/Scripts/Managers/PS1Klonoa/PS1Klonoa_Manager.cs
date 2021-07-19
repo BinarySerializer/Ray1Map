@@ -699,59 +699,63 @@ namespace R1Engine
             bool isObjAnimated = false;
             foreach (var obj3D in objects)
             {
-                if (obj3D.PrimaryType != PrimaryObjectType.Object3D)
+                if (obj3D.PrimaryType == PrimaryObjectType.None || obj3D.PrimaryType == PrimaryObjectType.Invalid)
+                    continue;
+
+                if (obj3D.PrimaryType == PrimaryObjectType.Object3D)
+                {
+                    if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_1)
+                    {
+                        createObj(obj3D.Data_TMD, obj3D.Data_Position, index: 0);
+                        createObj(obj3D.Data_TMD_1, obj3D.Data_Position, index: 1);
+                    }
+                    else if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_5 ||
+                             obj3D.SecondaryType41 == Object3D.Object3DType41.Type_8 ||
+                             obj3D.SecondaryType41 == Object3D.Object3DType41.Type_6)
+                    {
+                        createObj(obj3D.Data_TMD, obj3D.Data_Transform.Position, obj3D.Data_Transform.Rotation);
+                    }
+                    else if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_21)
+                    {
+                        createObj(obj3D.Data_TMD);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Skipped unsupported 3D object of primary type {obj3D.PrimaryType} and secondary type {obj3D.SecondaryType41}");
+                    }
+                }
+                else
                 {
                     Debug.LogWarning($"Skipped unsupported 3D object of primary type {obj3D.PrimaryType}");
-                    continue;
                 }
 
-                if (obj3D.SecondaryType41 != Object3D.Object3DType41.Type_1 && 
-                    obj3D.SecondaryType41 != Object3D.Object3DType41.Type_5 && 
-                    obj3D.SecondaryType41 != Object3D.Object3DType41.Type_6 && 
-                    obj3D.SecondaryType41 != Object3D.Object3DType41.Type_8 && 
-                    obj3D.SecondaryType41 != Object3D.Object3DType41.Type_21)
+                // Helper for creating an object
+                void createObj(PS1_TMD tmd, Object3DPosition_File pos = null, Object3DRotation_File rot = null, int index = 0)
                 {
-                    if (obj3D.SecondaryType41 != Object3D.Object3DType41.Invalid && obj3D.SecondaryType41 != Object3D.Object3DType41.None)
-                        Debug.LogWarning($"Skipped unsupported 3D object of primary type {obj3D.PrimaryType} and secondary type {obj3D.SecondaryType41}");
-                    continue;
-                }
+                    if (gao_3dObjParent == null)
+                    {
+                        gao_3dObjParent = new GameObject("3D Objects");
+                        gao_3dObjParent.transform.localPosition = Vector3.zero;
+                        gao_3dObjParent.transform.localRotation = Quaternion.identity;
+                        gao_3dObjParent.transform.localScale = Vector3.one;
+                    }
 
-                if (gao_3dObjParent == null)
-                {
-                    gao_3dObjParent = new GameObject("3D Objects");
-                    gao_3dObjParent.transform.localPosition = Vector3.zero;
-                    gao_3dObjParent.transform.localRotation = Quaternion.identity;
-                    gao_3dObjParent.transform.localScale = Vector3.one;
-                }
+                    var gameObj = CreateGameObject(tmd, loader, scale, $"Object3D_{obj3D.Offset}_{index}", texAnimations, out isAnimated);
 
-                var gameObj = CreateGameObject(obj3D.Data_TMD, loader, scale, $"Object3D_{obj3D.Offset}", texAnimations, out isAnimated);
+                    if (isAnimated)
+                        isObjAnimated = true;
 
-                if (isAnimated)
-                    isObjAnimated = true;
+                    gameObj.transform.SetParent(gao_3dObjParent.transform);
 
-                gameObj.transform.SetParent(gao_3dObjParent.transform);
+                    if (pos != null)
+                        gameObj.transform.position = new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
 
-                Object3DPosition_File pos = null;
-
-                if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_1)
-                    pos = obj3D.Data_Position;
-                else if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_5 || 
-                         obj3D.SecondaryType41 == Object3D.Object3DType41.Type_6 || 
-                         obj3D.SecondaryType41 == Object3D.Object3DType41.Type_8)
-                    pos = obj3D.Data_Transform.Position;
-
-                if (pos != null)
-                    gameObj.transform.position = new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
-
-                // TODO: Fix rotation
-                if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_5 ||
-                    obj3D.SecondaryType41 == Object3D.Object3DType41.Type_6 ||
-                    obj3D.SecondaryType41 == Object3D.Object3DType41.Type_8)
-                {
-                    gameObj.transform.localRotation = Quaternion.Euler(
-                        x: obj3D.Data_Transform.Rotation.RotationX / 8f, 
-                        y: obj3D.Data_Transform.Rotation.RotationY / 8f, 
-                        z: obj3D.Data_Transform.Rotation.RotationZ / 8f);
+                    // TODO: Fix rotation
+                    if (rot != null)
+                        gameObj.transform.localRotation = Quaternion.Euler(
+                            x: rot.RotationX / 8f,
+                            y: rot.RotationY / 8f,
+                            z: rot.RotationZ / 8f);
                 }
             }
 
