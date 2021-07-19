@@ -319,34 +319,37 @@ namespace R1Engine
 
                 var exported = new HashSet<BinarySerializable>();
 
-                for (int sector = 0; sector < loader.CodeLevelData.Objects3D.Length; sector++)
+                for (int sector = 0; sector < loader.CodeLevelData.SectorModifiers.Length; sector++)
                 {
-                    var objs = loader.CodeLevelData.Objects3D[sector];
+                    var modifiers = loader.CodeLevelData.SectorModifiers[sector];
 
-                    for (int objIndex = 0; objIndex < objs.Objects.Length; objIndex++)
+                    for (int modifierIndex = 0; modifierIndex < modifiers.Modifiers.Length; modifierIndex++)
                     {
-                        var obj3D = objs.Objects[objIndex];
+                        var modifier = modifiers.Modifiers[modifierIndex];
 
-                        if (obj3D.Data_TIM != null)
+                        foreach (var dataFile in modifier.DataFiles)
                         {
-                            if (exported.Contains(obj3D.Data_TIM))
-                                continue;
-
-                            exported.Add(obj3D.Data_TIM);
-
-                            exportTex(() => GetTexture(obj3D.Data_TIM), "Obj3D", $"{sector} - {objIndex}");
-                        }
-                        else if (obj3D.Data_TextureAnimFrames != null)
-                        {
-                            if (exported.Contains(obj3D.Data_TextureAnimFrames))
-                                continue;
-
-                            exported.Add(obj3D.Data_TextureAnimFrames);
-
-                            for (var timIndex = 0; timIndex < obj3D.Data_TextureAnimFrames.Files.Length; timIndex++)
+                            if (dataFile.TIM != null)
                             {
-                                var tim = obj3D.Data_TextureAnimFrames.Files[timIndex];
-                                exportTex(() => GetTexture(tim), "Obj3D", $"{sector} - {objIndex} - {timIndex}");
+                                if (exported.Contains(dataFile.TIM))
+                                    continue;
+
+                                exported.Add(dataFile.TIM);
+
+                                exportTex(() => GetTexture(dataFile.TIM), "Obj3D", $"{sector} - {modifierIndex}");
+                            }
+                            else if (dataFile.TIMFiles != null)
+                            {
+                                if (exported.Contains(dataFile.TIMFiles))
+                                    continue;
+
+                                exported.Add(dataFile.TIMFiles);
+
+                                for (var timIndex = 0; timIndex < dataFile.TIMFiles.Files.Length; timIndex++)
+                                {
+                                    var tim = dataFile.TIMFiles.Files[timIndex];
+                                    exportTex(() => GetTexture(tim), "Obj3D", $"{sector} - {modifierIndex} - {timIndex}");
+                                }
                             }
                         }
                     }
@@ -651,6 +654,10 @@ namespace R1Engine
             // Load code level data
             loader.ProcessCodeLevelData();
 
+            // Copy debug string to clipboard if any
+            if (ModifierObject.DebugStringBuilder.Length > 0)
+                ModifierObject.DebugStringBuilder.ToString().CopyToClipboard();
+
             // Load the layers
             var layers = await Load_LayersAsync(loader, sector);
 
@@ -689,8 +696,15 @@ namespace R1Engine
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector)
         {
-            var objects = loader.CodeLevelData.Objects3D[sector].Objects;
-            var texAnimations = objects.Where(x => x.PrimaryType == PrimaryObjectType.Object3D && x.SecondaryType41 == Object3D.Object3DType41.TextureAnimation).Select(x => x.Data_TextureAnimFrames.Files).ToArray();
+            var modifiers = loader.CodeLevelData.SectorModifiers[sector].Modifiers;
+            var texAnimations = modifiers.
+                Where(x => x.PrimaryType == PrimaryObjectType.Modifier_41).
+                SelectMany(x => x.DataFiles).
+                Where(x => x.TIMFiles != null).
+                Select(x => x.TIMFiles.Files).
+                ToArray();
+
+            Debug.Log($"Map has {texAnimations.Length} texture animations");
 
             var layers = new List<Unity_Layer>();
 
@@ -726,40 +740,31 @@ namespace R1Engine
             GameObject gao_3dObjParent = null;
 
             bool isObjAnimated = false;
-            foreach (var obj3D in objects)
+            foreach (var modifier in modifiers)
             {
-                if (obj3D.PrimaryType == PrimaryObjectType.None || obj3D.PrimaryType == PrimaryObjectType.Invalid)
+                if (modifier.PrimaryType == PrimaryObjectType.None || modifier.PrimaryType == PrimaryObjectType.Invalid)
                     continue;
 
-                if (obj3D.PrimaryType == PrimaryObjectType.Object3D)
+                if (modifier.PrimaryType == PrimaryObjectType.Modifier_41)
                 {
-                    if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_1)
+                    var pos = modifier.DataFiles.FirstOrDefault(x => x.Position != null)?.Position;
+                    var transform = modifier.DataFiles.FirstOrDefault(x => x.Transform != null)?.Transform;
+                    var tmdFiles = modifier.DataFiles.Where(x => x.TMD != null).Select(x => x.TMD);
+
+                    var index = 0;
+                    foreach (var tmd in tmdFiles)
                     {
-                        createObj(obj3D.Data_TMD, obj3D.Data_Position, index: 0);
-                        createObj(obj3D.Data_TMD_1, obj3D.Data_Position, index: 1);
-                    }
-                    else if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_5 ||
-                             obj3D.SecondaryType41 == Object3D.Object3DType41.Type_8 ||
-                             obj3D.SecondaryType41 == Object3D.Object3DType41.Type_6)
-                    {
-                        createObj(obj3D.Data_TMD, obj3D.Data_Transform.Position, obj3D.Data_Transform.Rotation);
-                    }
-                    else if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_21)
-                    {
-                        createObj(obj3D.Data_TMD);
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Skipped unsupported 3D object of primary type {obj3D.PrimaryType} and secondary type {obj3D.SecondaryType41}");
+                        createObj(tmd, transform?.Position ?? pos, transform?.Rotation, index);
+                        index++;
                     }
                 }
                 else
                 {
-                    Debug.LogWarning($"Skipped unsupported 3D object of primary type {obj3D.PrimaryType}");
+                    Debug.LogWarning($"Skipped unsupported modifier object of primary type {modifier.PrimaryType}");
                 }
 
                 // Helper for creating an object
-                void createObj(PS1_TMD tmd, Object3DPosition_File pos = null, Object3DRotation_File rot = null, int index = 0)
+                void createObj(PS1_TMD tmd, ObjPosition_File pos = null, ObjRotation_File rot = null, int index = 0)
                 {
                     if (gao_3dObjParent == null)
                     {
@@ -769,7 +774,7 @@ namespace R1Engine
                         gao_3dObjParent.transform.localScale = Vector3.one;
                     }
 
-                    var gameObj = CreateGameObject(tmd, loader, scale, $"Object3D_{obj3D.Offset}_{index}", texAnimations, out isAnimated);
+                    var gameObj = CreateGameObject(tmd, loader, scale, $"Object3D_{modifier.Offset}_{index}", texAnimations, out isAnimated);
 
                     if (isAnimated)
                         isObjAnimated = true;
