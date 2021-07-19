@@ -185,6 +185,10 @@ namespace R1Engine
 
                     switch (cmd.FILE_Type)
                     {
+                        case IDXLoadCommand.FileType.Code:
+                            loader.ProcessBINFile(i);
+                            break;
+
                         case IDXLoadCommand.FileType.Archive_TIM_Generic:
                         case IDXLoadCommand.FileType.Archive_TIM_SongsText:
                         case IDXLoadCommand.FileType.Archive_TIM_SaveText:
@@ -245,6 +249,9 @@ namespace R1Engine
 
                         case IDXLoadCommand.FileType.Archive_LevelPack:
 
+                            // Need to process the data for the object 3D export
+                            loader.ProcessBINFile(i);
+
                             // TODO: Remove try/catch
                             try
                             {
@@ -272,22 +279,65 @@ namespace R1Engine
                             break;
                     }
 
-                    void export(Func<Texture2D> getTex, string type)
-                    {
-                        try
-                        {
-                            var tex = getTex();
+                    void export(Func<Texture2D> getTex, string type) => exportTex(getTex, type, $"{i} - {index}");
+                });
 
-                            if (tex != null)
-                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {type}", $"{i} - {index}.png"),
-                                    tex.EncodeToPNG());
-                        }
-                        catch (Exception ex)
+                if (blockIndex < loader.Config.BLOCK_FirstLevel)
+                    continue;
+
+                // Process code level data
+                loader.ProcessCodeLevelData();
+
+                var exported = new HashSet<BinarySerializable>();
+
+                for (int sector = 0; sector < loader.CodeLevelData.Objects3D.Length; sector++)
+                {
+                    var objs = loader.CodeLevelData.Objects3D[sector];
+
+                    for (int objIndex = 0; objIndex < objs.Objects.Length; objIndex++)
+                    {
+                        var obj3D = objs.Objects[objIndex];
+
+                        if (obj3D.Data_TIM != null)
                         {
-                            Debug.LogWarning($"Error exporting with ex: {ex}");
+                            if (exported.Contains(obj3D.Data_TIM))
+                                continue;
+
+                            exported.Add(obj3D.Data_TIM);
+
+                            exportTex(() => GetTexture(obj3D.Data_TIM), "Obj3D", $"{sector} - {objIndex}");
+                        }
+                        else if (obj3D.Data_TIMFiles != null)
+                        {
+                            if (exported.Contains(obj3D.Data_TIMFiles))
+                                continue;
+
+                            exported.Add(obj3D.Data_TIMFiles);
+
+                            for (var timIndex = 0; timIndex < obj3D.Data_TIMFiles.Files.Length; timIndex++)
+                            {
+                                var tim = obj3D.Data_TIMFiles.Files[timIndex];
+                                exportTex(() => GetTexture(tim), "Obj3D", $"{sector} - {objIndex} - {timIndex}");
+                            }
                         }
                     }
-                });
+                }
+
+                void exportTex(Func<Texture2D> getTex, string type, string name)
+                {
+                    try
+                    {
+                        var tex = getTex();
+
+                        if (tex != null)
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {type}", $"{name}.png"),
+                                tex.EncodeToPNG());
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Error exporting with ex: {ex}");
+                    }
+                }
             }
         }
 
@@ -585,7 +635,7 @@ namespace R1Engine
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
                 // Load dummy objects for movement paths
-                eventData: new List<Unity_Object>(loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa()
+                eventData: new List<Unity_Object>(loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa(x)
                 {
                     Position = new Vector3(x.XPos / 16f, -(x.YPos / 16f), -x.ZPos / 16f),
                 })),
@@ -997,10 +1047,16 @@ namespace R1Engine
 
     public class Unity_Object_PS1Klonoa : Unity_Object_3D
     {
+        public Unity_Object_PS1Klonoa(BinarySerializable serializableData)
+        {
+            SerializableData = serializableData;
+        }
+
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }
         public override Vector3 Position { get; set; }
         public override ILegacyEditorWrapper LegacyWrapper => null;
+        public override BinarySerializable SerializableData { get; }
         public override string PrimaryName => $"DUMMY";
         public override Unity_ObjAnimation CurrentAnimation => null;
         public override int AnimSpeed => 0;
@@ -1009,6 +1065,7 @@ namespace R1Engine
         public override IList<Sprite> Sprites => null;
 
         private bool _isUIStateArrayUpToDate;
+
         protected override bool IsUIStateArrayUpToDate => _isUIStateArrayUpToDate;
 
         protected override void RecalculateUIStates()
