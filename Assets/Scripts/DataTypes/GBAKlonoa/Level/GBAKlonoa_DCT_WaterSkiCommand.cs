@@ -82,7 +82,6 @@ namespace R1Engine
 
                     CMDOffset = s.Serialize<ushort>(CMDOffset, name: nameof(CMDOffset));
                     throw new NotImplementedException("GOTO is not currently supported");
-                    break;
 
                 case WaterSkiCommandType.CMD_09:
                     // Set 0x03005cf0 to 0
