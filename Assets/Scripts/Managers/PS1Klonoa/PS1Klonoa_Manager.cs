@@ -675,12 +675,12 @@ namespace R1Engine
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
-            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations);
+            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations, out bool isAnimated);
             var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
             obj.transform.position = new Vector3(0, 0, 0);
 
             var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
-            layers.Add(new Unity_Layer_GameObject(true)
+            layers.Add(new Unity_Layer_GameObject(true, isAnimated: isAnimated)
             {
                 Name = "Map",
                 ShortName = "MAP",
@@ -696,6 +696,7 @@ namespace R1Engine
 
             GameObject gao_3dObjParent = null;
 
+            bool isObjAnimated = false;
             foreach (var obj3D in objects)
             {
                 if (obj3D.Type != Object3D.Object3DType.Type_1 && 
@@ -717,7 +718,10 @@ namespace R1Engine
                     gao_3dObjParent.transform.localScale = Vector3.one;
                 }
 
-                var gameObj = CreateGameObject(obj3D.Data_TMD, loader, scale, $"Object3D_{obj3D.Offset}", texAnimations);
+                var gameObj = CreateGameObject(obj3D.Data_TMD, loader, scale, $"Object3D_{obj3D.Offset}", texAnimations, out isAnimated);
+
+                if (isAnimated)
+                    isObjAnimated = true;
 
                 gameObj.transform.SetParent(gao_3dObjParent.transform);
 
@@ -747,7 +751,7 @@ namespace R1Engine
 
             if (gao_3dObjParent != null)
             {
-                layers.Add(new Unity_Layer_GameObject(true)
+                layers.Add(new Unity_Layer_GameObject(true, isAnimated: isObjAnimated)
                 {
                     Name = "3D Objects",
                     ShortName = $"3DO",
@@ -764,9 +768,11 @@ namespace R1Engine
             return layers.ToArray();
         }
 
-        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations)
+        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, out bool isAnimated)
         {
+            isAnimated = false;
             var textureCache = new Dictionary<int, Texture2D>();
+            var textureAnimCache = new Dictionary<long, Texture2D[]>();
 
             GameObject gaoParent = new GameObject(name);
             gaoParent.transform.position = Vector3.zero;
@@ -777,7 +783,7 @@ namespace R1Engine
                 // Helper methods
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
-                Vector2Int toDimensions(PS1_TMD_UV[] uv)
+                RectInt getRect(PS1_TMD_UV[] uv)
                 {
                     int xMin = uv.Min(x => x.U);
                     int xMax = uv.Max(x => x.U) + 1;
@@ -786,7 +792,7 @@ namespace R1Engine
                     int w = xMax - xMin;
                     int h = yMax - yMin;
 
-                    return new Vector2Int(w, h);
+                    return new RectInt(xMin, yMin, w, h);
                 }
 
                 // TODO: Implement normals
@@ -865,17 +871,82 @@ namespace R1Engine
                     // Add texture
                     if (packet.Mode.TME)
                     {
-                        // TODO: Texture animations
+                        var rect = getRect(packet.UV);
 
                         var key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
+                        long animKey = (long)key | (long)rect.x << 32 | (long)rect.y << 40;
+
+                        if (!textureAnimCache.ContainsKey(animKey))
+                        {
+                            PS1_TIM[] foundAnim = null;
+
+                            // Check if the texture region falls within an animated area
+                            foreach (var anim in texAnimations)
+                            {
+                                foreach (var tim in anim)
+                                {
+                                    // Check the page
+                                    if ((tim.XPos * 2) / PS1_VRAM.PageWidth == packet.TSB.TX &&
+                                        tim.YPos / PS1_VRAM.PageHeight == packet.TSB.TY)
+                                    {
+                                        var is4Bit = tim.ColorFormat == PS1_TIM.TIM_ColorFormat.BPP_4;
+
+                                        var timRect = new RectInt(
+                                            xMin: ((tim.XPos * 2) % PS1_VRAM.PageWidth) * (is4Bit ? 2 : 1),
+                                            yMin: (tim.YPos % PS1_VRAM.PageHeight),
+                                            width: tim.Width * 2 * (is4Bit ? 2 : 1),
+                                            height: tim.Height);
+
+                                        // Check page offset
+                                        if (rect.Overlaps(timRect))
+                                        {
+                                            foundAnim = anim;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (foundAnim != null)
+                                    break;
+                            }
+
+                            if (foundAnim != null)
+                            {
+                                var textures = new Texture2D[foundAnim.Length];
+
+                                for (int i = 0; i < textures.Length; i++)
+                                {
+                                    loader.AddToVRAM(foundAnim[i]);
+                                    textures[i] = GetTexture(packet, loader.VRAM);
+                                }
+
+                                textureAnimCache.Add(animKey, textures);
+                            }
+                            else
+                            {
+                                textureAnimCache.Add(animKey, null);
+                            }
+                        }
 
                         if (!textureCache.ContainsKey(key))
                             textureCache.Add(key, GetTexture(packet, loader.VRAM));
 
                         var t = textureCache[key];
 
+                        var animTextures = textureAnimCache[animKey];
+
+                        if (animTextures != null)
+                        {
+                            isAnimated = true;
+                            var animTex = gao.AddComponent<AnimatedTextureComponent>();
+                            animTex.material = mr.material;
+                            animTex.animatedTextureSpeed = 2; // TODO: Is this correct?
+                            animTex.animatedTextures = animTextures;
+                        }
+
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
+                        mr.name = $"TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X: {rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}";
                     }
                 }
             }
