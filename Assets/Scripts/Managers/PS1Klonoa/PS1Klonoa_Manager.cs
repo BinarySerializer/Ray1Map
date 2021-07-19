@@ -661,7 +661,7 @@ namespace R1Engine
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector)
         {
             var objects = loader.CodeLevelData.Objects3D[sector].Objects;
-            var texAnimations = objects.Where(x => x.Type == Object3D.Object3DType.TextureAnimation).Select(x => x.Data_TextureAnimFrames.Files).ToArray();
+            var texAnimations = objects.Where(x => x.PrimaryType == PrimaryObjectType.Object3D && x.SecondaryType41 == Object3D.Object3DType41.TextureAnimation).Select(x => x.Data_TextureAnimFrames.Files).ToArray();
 
             var layers = new List<Unity_Layer>();
 
@@ -699,14 +699,20 @@ namespace R1Engine
             bool isObjAnimated = false;
             foreach (var obj3D in objects)
             {
-                if (obj3D.Type != Object3D.Object3DType.Type_1 && 
-                    obj3D.Type != Object3D.Object3DType.Type_5 && 
-                    obj3D.Type != Object3D.Object3DType.Type_6 && 
-                    obj3D.Type != Object3D.Object3DType.Type_8 && 
-                    obj3D.Type != Object3D.Object3DType.Type_21)
+                if (obj3D.PrimaryType != PrimaryObjectType.Object3D)
                 {
-                    if (obj3D.Type != Object3D.Object3DType.Invalid && obj3D.Type != Object3D.Object3DType.None)
-                        Debug.LogWarning($"Skipped unsupported 3D object type {obj3D.Type}");
+                    Debug.LogWarning($"Skipped unsupported 3D object of primary type {obj3D.PrimaryType}");
+                    continue;
+                }
+
+                if (obj3D.SecondaryType41 != Object3D.Object3DType41.Type_1 && 
+                    obj3D.SecondaryType41 != Object3D.Object3DType41.Type_5 && 
+                    obj3D.SecondaryType41 != Object3D.Object3DType41.Type_6 && 
+                    obj3D.SecondaryType41 != Object3D.Object3DType41.Type_8 && 
+                    obj3D.SecondaryType41 != Object3D.Object3DType41.Type_21)
+                {
+                    if (obj3D.SecondaryType41 != Object3D.Object3DType41.Invalid && obj3D.SecondaryType41 != Object3D.Object3DType41.None)
+                        Debug.LogWarning($"Skipped unsupported 3D object of primary type {obj3D.PrimaryType} and secondary type {obj3D.SecondaryType41}");
                     continue;
                 }
 
@@ -727,20 +733,20 @@ namespace R1Engine
 
                 Object3DPosition_File pos = null;
 
-                if (obj3D.Type == Object3D.Object3DType.Type_1)
+                if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_1)
                     pos = obj3D.Data_Position;
-                else if (obj3D.Type == Object3D.Object3DType.Type_5 || 
-                         obj3D.Type == Object3D.Object3DType.Type_6 || 
-                         obj3D.Type == Object3D.Object3DType.Type_8)
+                else if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_5 || 
+                         obj3D.SecondaryType41 == Object3D.Object3DType41.Type_6 || 
+                         obj3D.SecondaryType41 == Object3D.Object3DType41.Type_8)
                     pos = obj3D.Data_Transform.Position;
 
                 if (pos != null)
                     gameObj.transform.position = new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
 
                 // TODO: Fix rotation
-                if (obj3D.Type == Object3D.Object3DType.Type_5 ||
-                    obj3D.Type == Object3D.Object3DType.Type_6 ||
-                    obj3D.Type == Object3D.Object3DType.Type_8)
+                if (obj3D.SecondaryType41 == Object3D.Object3DType41.Type_5 ||
+                    obj3D.SecondaryType41 == Object3D.Object3DType41.Type_6 ||
+                    obj3D.SecondaryType41 == Object3D.Object3DType41.Type_8)
                 {
                     gameObj.transform.localRotation = Quaternion.Euler(
                         x: obj3D.Data_Transform.Rotation.RotationX / 8f, 
