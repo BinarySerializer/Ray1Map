@@ -68,14 +68,15 @@ namespace R1Engine
         public async UniTask Extract_BINAsync(GameSettings settings, string outputPath, bool unpack)
         {
             using var context = new R1Context(settings);
-            await LoadFilesAsync(context);
+            var config = GetLoaderConfig(settings);
+            await LoadFilesAsync(context, config);
 
             // Load the IDX
             var idxData = Load_IDX(context);
 
             var s = context.Deserializer;
 
-            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
+            var loader = Loader.Create(context, idxData, config);
 
             var archiveDepths = new Dictionary<IDXLoadCommand.FileType, int>()
             {
@@ -167,12 +168,13 @@ namespace R1Engine
         public async UniTask Extract_CodeAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
-            await LoadFilesAsync(context);
+            var config = GetLoaderConfig(settings);
+            await LoadFilesAsync(context, config);
 
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
+            var loader = Loader.Create(context, idxData, config);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -195,12 +197,13 @@ namespace R1Engine
         public async UniTask Extract_GraphicsAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
-            await LoadFilesAsync(context);
+            var config = GetLoaderConfig(settings);
+            await LoadFilesAsync(context, config);
 
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
+            var loader = Loader.Create(context, idxData, config);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -376,12 +379,13 @@ namespace R1Engine
         public async UniTask Extract_SpriteFramesAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
-            await LoadFilesAsync(context);
+            var config = GetLoaderConfig(settings);
+            await LoadFilesAsync(context, config);
 
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
+            var loader = Loader.Create(context, idxData, config);
 
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -473,12 +477,13 @@ namespace R1Engine
         public async UniTask Extract_BackgroundsAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
-            await LoadFilesAsync(context);
+            var config = GetLoaderConfig(settings);
+            await LoadFilesAsync(context, config);
 
             // Load the IDX
             var idxData = Load_IDX(context);
 
-            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
+            var loader = Loader.Create(context, idxData, config);
 
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
@@ -618,6 +623,10 @@ namespace R1Engine
             var settings = context.GetR1Settings();
             var lev = settings.World;
             var sector = settings.Level;
+            var config = GetLoaderConfig(settings);
+
+            // Load the files
+            await LoadFilesAsync(context, config);
 
             Controller.DetailedState = "Loading IDX";
             await Controller.WaitIfNecessary();
@@ -629,7 +638,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Create the loader
-            var loader = Loader.Create(context, idxData, GetLoaderConfig(settings));
+            var loader = Loader.Create(context, idxData, config);
 
             // Only parse the selected sector
             loader.SectorToParse = sector;
@@ -666,12 +675,16 @@ namespace R1Engine
 
             // TODO: Load objects
 
+            var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
+
+            Debug.Log($"Map has {movementPaths.Length} movement paths");
+
             return new Unity_Level(
                 layers: layers,
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
                 // Load dummy objects for movement paths
-                eventData: new List<Unity_Object>(loader.LevelPack.Sectors[sector].MovementPaths.Files.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa(x)
+                eventData: new List<Unity_Object>(movementPaths.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa(x)
                 {
                     Position = new Vector3(x.XPos / 16f, -(x.YPos / 16f), -x.ZPos / 16f),
                 })),
@@ -1171,13 +1184,16 @@ namespace R1Engine
             return tex;
         }
 
-        public override async UniTask LoadFilesAsync(Context context)
+        public async UniTask LoadFilesAsync(Context context, LoaderConfiguration config)
         {
             // The game only loads portions of the BIN at a time
             await context.AddLinearSerializedFileAsync(Loader.FilePath_BIN);
             
             // The IDX gets loaded into a fixed memory location
             await context.AddMemoryMappedFile(Loader.FilePath_IDX, 0x80010000);
+
+            // The exe has to be loaded to read certain data from it
+            await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE);
         }
     }
 
