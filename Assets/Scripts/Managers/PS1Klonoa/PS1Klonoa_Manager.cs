@@ -684,7 +684,7 @@ namespace R1Engine
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
                 // Load dummy objects for movement paths
-                eventData: new List<Unity_Object>(movementPaths.SelectMany(x => x.Blocks).Select(x => new Unity_Object_PS1Klonoa(x)
+                eventData: new List<Unity_Object>(movementPaths.SelectMany(x => x.Blocks).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Waypoint)
                 {
                     Position = new Vector3(x.XPos / 16f, -(x.YPos / 16f), -x.ZPos / 16f),
                 })),
@@ -1194,36 +1194,6 @@ namespace R1Engine
 
             // The exe has to be loaded to read certain data from it
             await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE);
-        }
-    }
-
-    public class Unity_Object_PS1Klonoa : Unity_Object_3D
-    {
-        public Unity_Object_PS1Klonoa(BinarySerializable serializableData)
-        {
-            SerializableData = serializableData;
-        }
-
-        public override short XPosition { get; set; }
-        public override short YPosition { get; set; }
-        public override Vector3 Position { get; set; }
-        public override ILegacyEditorWrapper LegacyWrapper => null;
-        public override BinarySerializable SerializableData { get; }
-        public override string PrimaryName => $"DUMMY";
-        public override Unity_ObjAnimation CurrentAnimation => null;
-        public override int AnimSpeed => 0;
-        public override int? GetAnimIndex => null;
-        protected override int GetSpriteID => 0;
-        public override IList<Sprite> Sprites => null;
-
-        private bool _isUIStateArrayUpToDate;
-
-        protected override bool IsUIStateArrayUpToDate => _isUIStateArrayUpToDate;
-
-        protected override void RecalculateUIStates()
-        {
-            UIStates = new UIState[0];
-            _isUIStateArrayUpToDate = true;
         }
     }
 }
