@@ -67,6 +67,9 @@ namespace R1Engine.Jade {
 		FCLONE_Modifier = 54,
 		UVTexWave_Modifier = 55,
 
+		Modifier56 = 56,
+		Modifier57 = 57,
+
 		GAO_ModifierCharacterFX = 58,
 	}
 }

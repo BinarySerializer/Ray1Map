@@ -6,11 +6,15 @@ namespace R1Engine.Jade {
         public uint Count { get; set; }
         public uint[] UInts { get; set; }
         public Material[] Materials { get; set; }
+        public PhoenixStruct Phoenix { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
             Count = s.Serialize<uint>(Count, name: nameof(Count));
             UInts = s.SerializeArray<uint>(UInts, Count, name: nameof(UInts));
             Materials = s.SerializeObjectArray<Material>(Materials, Count, name: nameof(Materials));
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PetzHorseClub) && Materials?.Length >= 1 && Materials[Count-1].DummyByte > 10) {
+				Phoenix = s.SerializeObject<PhoenixStruct>(Phoenix, name: nameof(Phoenix));
+			}
 
         }
 		public class Material : BinarySerializable {
@@ -44,6 +48,19 @@ namespace R1Engine.Jade {
                     if (DummyByte >= 3) UInt_Editor_3 = s.Serialize<uint>(UInt_Editor_3, name: nameof(UInt_Editor_3));
                 }
             }
+		}
+		public class PhoenixStruct : BinarySerializable {
+            public Element[] Elements { get; set; }
+			public override void SerializeImpl(SerializerObject s) {
+				Elements = s.SerializeObjectArray<Element>(Elements, 8, name: nameof(Elements));
+			}
+
+			public class Element : BinarySerializable {
+                public uint[] UInts { get; set; }
+				public override void SerializeImpl(SerializerObject s) {
+					UInts = s.SerializeArray<uint>(UInts, 10, name: nameof(UInts));
+				}
+			}
 		}
 	}
 }

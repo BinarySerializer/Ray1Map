@@ -61,7 +61,7 @@ namespace R1Engine.Jade
                     Flag = s.Serialize<byte>(Flag, name: nameof(Flag));
                 }
                 MaterialID = s.Serialize<uint>(MaterialID, name: nameof(MaterialID));
-                if(s.GetR1Settings().EngineVersion == EngineVersion.Jade_MovieGames && Design == 10)
+                if(s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PetzHorseClub) && Design == 10)
 					PhoenixMovieGames_Design10_UInt = s.Serialize<uint>(PhoenixMovieGames_Design10_UInt, name: nameof(PhoenixMovieGames_Design10_UInt));
 				Triangles = s.SerializeObjectArray<Triangle>(Triangles, TrianglesCount, name: nameof(Triangles));
             }

@@ -14,6 +14,8 @@ namespace R1Engine.Jade {
 		public float Float_08 { get; set; }
 		public float Float_0C { get; set; }
 		public float Float_10 { get; set; }
+		public float Phoenix_Float_14 { get; set; }
+		public uint Phoenix_UInt_18 { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -24,6 +26,11 @@ namespace R1Engine.Jade {
 			Float_08 = s.Serialize<float>(Float_08, name: nameof(Float_08));
 			Float_0C = s.Serialize<float>(Float_0C, name: nameof(Float_0C));
 			Float_10 = s.Serialize<float>(Float_10, name: nameof(Float_10));
+
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PetzHorseClub)) {
+				Phoenix_Float_14 = s.Serialize<float>(Phoenix_Float_14, name: nameof(Phoenix_Float_14));
+				Phoenix_UInt_18 = s.Serialize<uint>(Phoenix_UInt_18, name: nameof(Phoenix_UInt_18));
+			}
 		}
 	}
 }

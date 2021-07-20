@@ -144,7 +144,14 @@ namespace R1Engine.Jade {
 				case GameModeSelection.Horsez2PS2:
 				case GameModeSelection.Horsez2PSP:
 				case GameModeSelection.Horsez2PSPDemo:
+				case GameModeSelection.Horsez2PC:
+				case GameModeSelection.Horsez2PCHD:
 					links = new AI_Links_Horsez2_Wii();
+					break;
+				case GameModeSelection.PetzHorseClubWii:
+				case GameModeSelection.PetzHorseClubPC:
+				case GameModeSelection.PetzHorseClubPCHD:
+					links = new AI_Links_PetzHorseClub_Wii();
 					break;
 				case GameModeSelection.MovieGamesWii:
 					links = new AI_Links_MovieGames_Wii();
