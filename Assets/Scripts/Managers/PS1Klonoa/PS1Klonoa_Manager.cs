@@ -390,8 +390,6 @@ namespace R1Engine
             // Enumerate every entry
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
             {
-                var entry = idxData.Entries[blockIndex];
-
                 loader.SwitchBlocks(blockIndex);
 
                 // Load the BIN
@@ -411,48 +409,7 @@ namespace R1Engine
                         try
                         {
                             var sprites = spriteFrames.Files[frameIndex].Textures;
-
-                            foreach (var s in sprites)
-                            {
-                                if (s.FlipX)
-                                    s.XPos = (short)(s.XPos - s.Width - 1);
-                                if (s.FlipY)
-                                    s.YPos = (short)(s.YPos - s.Height - 1);
-                            }
-
-                            var minX = sprites.Min(x => x.XPos);
-                            var minY = sprites.Min(x => x.YPos);
-                            var maxX = sprites.Max(x => x.XPos + x.Width);
-                            var maxY = sprites.Max(x => x.YPos + x.Height);
-
-                            var width = maxX - minX;
-                            var height = maxY - minY;
-
-                            var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
-
-                            foreach (var sprite in sprites)
-                            {
-                                var texPage = sprite.TexturePage;
-
-                                FillTextureFromVRAM(
-                                    tex: tex,
-                                    vram: loader.VRAM,
-                                    width: sprite.Width,
-                                    height: sprite.Height,
-                                    colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
-                                    texX: sprite.XPos - minX,
-                                    texY: sprite.YPos - minY,
-                                    clutX: sprite.PalOffsetX,
-                                    clutY: 500 + sprite.PalOffsetY,
-                                    texturePageOriginX: 64 * (texPage % 16),
-                                    texturePageOriginY: 128 * (texPage / 16), // TODO: Fix this
-                                    texturePageOffsetX: sprite.TexturePageOffsetX,
-                                    texturePageOffsetY: sprite.TexturePageOffsetY,
-                                    flipX: sprite.FlipX,
-                                    flipY: sprite.FlipY);
-                            }
-
-                            tex.Apply();
+                            var tex = GetTexture(sprites, loader.VRAM);
 
                             Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{framesSet} - {frameIndex}.png"), tex.EncodeToPNG());
                         }
@@ -1180,6 +1137,53 @@ namespace R1Engine
                 regionWidth: tex.width,
                 regionHeight: tex.height,
                 flipTextureY: flipTextureY);
+
+            return tex;
+        }
+
+        public Texture2D GetTexture(SpriteTexture[] sprites, PS1_VRAM vram)
+        {
+            var rects = sprites.Select(s => 
+                new RectInt(
+                    xMin: s.FlipX ? s.XPos - s.Width - 1 : s.XPos, 
+                    yMin: s.FlipY ? s.YPos - s.Height - 1 : s.YPos, 
+                    width: s.Width, 
+                    height: s.Height)).ToArray();
+
+            var minX = rects.Min(x => x.x);
+            var minY = rects.Min(x => x.y);
+            var maxX = rects.Max(x => x.x + x.width);
+            var maxY = rects.Max(x => x.y + x.height);
+
+            var width = maxX - minX;
+            var height = maxY - minY;
+
+            var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
+
+            for (var i = 0; i < sprites.Length; i++)
+            {
+                var sprite = sprites[i];
+                var texPage = sprite.TexturePage;
+
+                FillTextureFromVRAM(
+                    tex: tex,
+                    vram: vram,
+                    width: sprite.Width,
+                    height: sprite.Height,
+                    colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
+                    texX: rects[i].x - minX,
+                    texY: rects[i].y - minY,
+                    clutX: sprite.PalOffsetX,
+                    clutY: 500 + sprite.PalOffsetY,
+                    texturePageOriginX: 64 * (texPage % 16),
+                    texturePageOriginY: 128 * (texPage / 16), // TODO: Fix this
+                    texturePageOffsetX: sprite.TexturePageOffsetX,
+                    texturePageOffsetY: sprite.TexturePageOffsetY,
+                    flipX: sprite.FlipX,
+                    flipY: sprite.FlipY);
+            }
+
+            tex.Apply();
 
             return tex;
         }
