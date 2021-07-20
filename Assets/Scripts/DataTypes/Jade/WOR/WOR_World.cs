@@ -257,7 +257,7 @@ namespace R1Engine.Jade {
 			var gaos = GameObjects?.Value?.GameObjects;
 			if (gaos != null) {
 				foreach (var gao in gaos) {
-					await JustAfterLoadObject(gao?.Value);
+					await JustAfterLoadObject(s, gao?.Value);
 				}
 				if ((!s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_KingKong) || Loader.IsLoadingFix) && !hasLoadedWorld) {
 					foreach (var gao in Loader.AttachedGameObjects) {
@@ -306,13 +306,13 @@ namespace R1Engine.Jade {
 			var gaos = GameObjects?.Value?.GameObjects;
 			if (gaos != null) {
 				foreach (var gao in gaos) {
-					await JustAfterLoadObject(gao?.Value);
+					await JustAfterLoadObject(s, gao?.Value);
 				}
 			}
 			Loader.WorldToLoadIn = null;
 		}
 
-		private async UniTask JustAfterLoadObject(OBJ_GameObject gao) {
+		private async UniTask JustAfterLoadObject(SerializerObject s, OBJ_GameObject gao) {
 			if (gao == null) return;
 			// Attach this
 			if (!Loader.IsGameObjectAttached(gao)) Loader.AttachedGameObjects.Add(gao);
@@ -326,12 +326,12 @@ namespace R1Engine.Jade {
 				Controller.DetailedState = $"{prevState}\nLoading GameObject references: {gao.Name}";
 
 				actionData.Shape?.Resolve();
-				if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
-					await Loader.LoadLoopBINAsync();
+				if (Loader.IsBinaryData && Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR)) {
+					await Loader.LoadBinOrNot(s);
 				}
 
 				actionData.SkeletonGroup?.Resolve();
-				await Loader.LoadLoopBINAsync();
+				await Loader.LoadBinOrNot(s);
 
 				// Attach skeleton
 				var skelGroup = actionData?.SkeletonGroup?.Value?.GroupObjectList?.Value?.GroupObjects;
@@ -339,14 +339,14 @@ namespace R1Engine.Jade {
 					foreach (var grp_obj in skelGroup) {
 						var grp_gao = grp_obj.GameObject?.Value;
 						if (grp_gao != null && !Loader.IsGameObjectAttached(grp_gao)) {
-							await JustAfterLoadObject(grp_gao);
+							await JustAfterLoadObject(s, grp_gao);
 							// Attach each skeleton member's group members
 							var extendedGroup = grp_gao.Extended?.Group?.Value?.GroupObjectList?.Value?.GroupObjects;
 							if (extendedGroup != null) {
 								foreach (var ext_grp_obj in extendedGroup) {
 									var ext_grp_gao = ext_grp_obj.GameObject?.Value;
 									if (ext_grp_gao != null && !Loader.IsGameObjectAttached(ext_grp_gao)) {
-										await JustAfterLoadObject(ext_grp_gao);
+										await JustAfterLoadObject(s, ext_grp_gao);
 									}
 								}
 							}
@@ -356,7 +356,7 @@ namespace R1Engine.Jade {
 
 				if (actionData.ActionKit?.Value == null) {
 					actionData.ListTracks?.Resolve();
-					await Loader.LoadLoopBINAsync();
+					await Loader.LoadBinOrNot(s);
 				}
 				Controller.DetailedState = prevState;
 			}

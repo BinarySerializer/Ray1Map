@@ -245,6 +245,12 @@ namespace R1Engine.Jade {
 			}
 			s.Goto(curPointer);
 		}
+		public async UniTask LoadBinOrNot(SerializerObject s) {
+			if(IsBinaryData)
+				await LoadLoopBINAsync();
+			else
+				await LoadLoop(s);
+		}
 		public async UniTask LoadLoopBINAsync() {
 			if (Bin != null) {
 				CurrentQueueType = Bin.QueueType;

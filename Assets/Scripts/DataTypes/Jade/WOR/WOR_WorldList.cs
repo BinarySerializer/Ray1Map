@@ -23,7 +23,7 @@ namespace R1Engine.Jade {
 				Controller.DetailedState = $"Loading world {worldIndex + 1}/{Worlds.Length}";
 				bool hasLoadedWorld = Loader.LoadedWorlds.Any(w => w.Key == world.Key);
 				world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
-				await Loader.LoadLoopBINAsync();
+				await Loader.LoadBinOrNot(s);
 
 				if (world?.Value != null && world.Value is WOR_World w) {
 					Controller.DetailedState = $"Loading world {worldIndex+1}/{Worlds.Length}: {w.Name}";

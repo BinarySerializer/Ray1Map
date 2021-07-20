@@ -40,7 +40,7 @@ namespace R1Engine.Jade {
 			}, (f) => {
 				Value = f?.ConvertType<TEX_CubeMap>();
 			}, immediate: false,
-			queue: LOA_Loader.QueueType.Textures,
+			queue: LOA_Loader.QueueType.Current,
 			name: typeof(TEX_CubeMap).Name,
 			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
 			return this;

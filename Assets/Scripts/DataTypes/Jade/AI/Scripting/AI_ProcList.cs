@@ -37,6 +37,7 @@ namespace R1Engine.Jade {
 			public uint Code2 { get; set; }
 			public uint LocalsCount { get; set; }
 			public byte[] LocalsStringBuffer { get; set; }
+			public AI_Local[] Locals { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
@@ -60,9 +61,7 @@ namespace R1Engine.Jade {
 						} else {
 							LocalsCount = Code2;
 						}
-						if (LocalsCount > 0) {
-							throw new NotImplementedException("AI_ProcList.Proc: Implement Locals");
-						}
+						Locals = s.SerializeObjectArray<AI_Local>(Locals, LocalsCount, name: nameof(Locals));
 					}
 				}
 			}

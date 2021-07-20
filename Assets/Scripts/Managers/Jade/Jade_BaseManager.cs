@@ -8,14 +8,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace R1Engine
-{
-    public abstract class Jade_BaseManager : BaseGameManager {
+namespace R1Engine {
+	public abstract class Jade_BaseManager : BaseGameManager {
 		// Levels
 		public override GameInfo_Volume[] GetLevels(GameSettings settings) {
 			return GameInfo_Volume.SingleVolume(LevelInfos?.GroupBy(x => x.WorldName).Select((x, i) => {
@@ -194,14 +192,12 @@ namespace R1Engine
 			}
 
 			foreach (var lev in LevelInfos) {
-				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
-				if (lev?.Type == LevelInfo.FileType.WOL) {
-					levIndex++;
-					continue;
-				}
-				if (lev?.Type == LevelInfo.FileType.WOLUnbinarized || lev?.Type == LevelInfo.FileType.WOWUnbinarized) {
-					levIndex++;
-					continue;
+				if (lev?.Type.HasValue ?? false) {
+					// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
+					if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
+						levIndex++;
+						continue;
+					}
 				}
 
 				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
@@ -274,11 +270,7 @@ namespace R1Engine
             foreach (var lev in LevelInfos)
             {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
-				if (lev?.Type == LevelInfo.FileType.WOL) {
-					levIndex++;
-					continue;
-				}
-				if (lev?.Type == LevelInfo.FileType.WOLUnbinarized || lev?.Type == LevelInfo.FileType.WOWUnbinarized) {
+				if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
 					levIndex++;
 					continue;
 				}
@@ -562,18 +554,11 @@ namespace R1Engine
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 			loader.SpecialArray = FileFactory.Read<LOA_SpecialArray>(JadeSpePath, context);
 		}
-		public async UniTask<Jade_Reference<WOR_WorldList>> LoadWorldList(Context context, Jade_Key worldKey, LoadFlags loadFlags, bool isFix = false) {
+		public async UniTask<Jade_Reference<WOR_WorldList>> LoadWorldList(Context context, Jade_Key worldKey, LoadFlags loadFlags, bool isFix = false, bool isEditor = false) {
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 			loader.IsLoadingFix = isFix;
 
 			Jade_Reference<WOR_WorldList> worldList = new Jade_Reference<WOR_WorldList>(context, worldKey);
-			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				worldList.Resolve(queue: LOA_Loader.QueueType.Maps, flags:
-					LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks |
-					LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
-			} else {
-				worldList.Resolve(queue: LOA_Loader.QueueType.Maps);
-			}
 
 			// Set up texture list
 			TEX_GlobalList texList = new TEX_GlobalList();
@@ -581,20 +566,42 @@ namespace R1Engine
 			loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
 			loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
 
-			loader.BeginSpeedMode(worldKey, serializeAction: async s => {
-				await loader.LoadLoopBINAsync();
+			if (!isEditor) {
+				loader.BeginSpeedMode(worldKey, serializeAction: async s => {
+					if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+						worldList.Resolve(queue: LOA_Loader.QueueType.Maps, flags:
+							LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks |
+							LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+					} else {
+						worldList.Resolve(queue: LOA_Loader.QueueType.Maps);
+					}
+					await loader.LoadLoopBINAsync();
+					if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+						if (worldList?.Value != null) {
+							await worldList.Value.ResolveReferences(s);
+						}
+					}
+				});
+				await loader.LoadLoop(context.Deserializer);
+
+				if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+					loader.EndSpeedMode();
+					await worldList.Value.ResolveReferences_Montreal(context.Deserializer);
+					loader.BeginSpeedMode(worldKey);
+				}
+			} else {
+				SerializerObject s = context.Deserializer;
+				// Unbinarized
+				worldList.Resolve(queue: LOA_Loader.QueueType.Current);
+				await loader.LoadLoop(s);
 				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 					if (worldList?.Value != null) {
 						await worldList.Value.ResolveReferences(s);
+						await loader.LoadLoop(s);
 					}
+				} else {
+					await worldList.Value.ResolveReferences_Montreal(context.Deserializer);
 				}
-			});
-			await loader.LoadLoop(context.Deserializer);
-
-			if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
-				loader.EndSpeedMode();
-				await worldList.Value.ResolveReferences_Montreal(context.Deserializer);
-				loader.BeginSpeedMode(worldKey);
 			}
 
 			if (loadFlags.HasFlag(LoadFlags.Textures) && texList.Textures != null && texList.Textures.Any()
@@ -678,7 +685,7 @@ namespace R1Engine
 			return worldList;
 		}
 
-		public async UniTask<Jade_GenericReference> LoadWorld(Context context, Jade_Key worldKey, bool isFix = false) {
+		public async UniTask<Jade_GenericReference> LoadWorld(Context context, Jade_Key worldKey, bool isFix = false, bool isEditor=  false) {
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 			loader.IsLoadingFix = isFix;
 
@@ -774,11 +781,13 @@ namespace R1Engine
 			// Create level list if null
 			var levelInfos = LevelInfos;
 			bool isWOW = false;
+			bool isEditor = false;
 			if (levelInfos == null) {
 				throw new Exception($"Before loading, add the level list using the Create Level List game action.");
 			} else {
 				var levInfo = levelInfos.FirstOrDefault(l => l.Key == worldKey.Key);
-				isWOW = levInfo != null && levInfo.Type == LevelInfo.FileType.WOW;
+				isWOW = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.WOW));
+				isEditor = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized));
 			}
 
 			// Set up AI types
@@ -795,11 +804,11 @@ namespace R1Engine
 				Controller.DetailedState = $"Loading worlds";
 				await Controller.WaitIfNecessary();
 
-				await LoadFix(context, worldKey, loadFlags);
+				if (!isEditor) await LoadFix(context, worldKey, loadFlags);
 				if (isWOW) {
-					var world = await LoadWorld(context, worldKey);
+					var world = await LoadWorld(context, worldKey, isEditor: isEditor);
 				} else {
-					var worldList = await LoadWorldList(context, worldKey, loadFlags);
+					var worldList = await LoadWorldList(context, worldKey, loadFlags, isEditor: isEditor);
 				}
 			}
 
@@ -836,11 +845,13 @@ namespace R1Engine
 				Type = type;
             }
 
+			[Flags]
 			public enum FileType {
-				WOL,
-				WOW,
-				WOLUnbinarized,
-				WOWUnbinarized,
+				WOL = 1 << 0,
+				WOW = 1 << 1,
+				Unbinarized = 1 << 2,
+				WOLUnbinarized = WOL | Unbinarized,
+				WOWUnbinarized = WOW | Unbinarized,
 			}
 
 			public string OriginalWorldName { get; }
