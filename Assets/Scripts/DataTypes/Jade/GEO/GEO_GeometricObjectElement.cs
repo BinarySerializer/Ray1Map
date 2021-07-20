@@ -88,7 +88,7 @@ namespace R1Engine.Jade {
 
 		public class OneStrip : BinarySerializable {
 			public int VertexCount { get; set; }
-			public bool HasEditorInts { get; set; }
+			public bool HasNoEditorInts { get; set; }
 			public int[] Ints_Editor { get; set; }
 			public VertexUV[] VertexUVMap { get; set; }
 
@@ -97,9 +97,11 @@ namespace R1Engine.Jade {
 
 				s.SerializeBitValues<int>(bitFunc => {
 					VertexCount = bitFunc(VertexCount, 31, name: nameof(VertexCount));
-					HasEditorInts = bitFunc(HasEditorInts ? 1 : 0, 1, name: nameof(HasEditorInts)) == 1;
+					HasNoEditorInts = bitFunc(HasNoEditorInts ? 1 : 0, 1, name: nameof(HasNoEditorInts)) == 1;
 				});
-				if (VertexCount >= 0 && !Loader.IsBinaryData && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) Ints_Editor = s.SerializeArray<int>(Ints_Editor, VertexCount, name: nameof(Ints_Editor));
+				if (!HasNoEditorInts && !Loader.IsBinaryData
+					&& s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier))
+					Ints_Editor = s.SerializeArray<int>(Ints_Editor, VertexCount, name: nameof(Ints_Editor));
 				VertexUVMap = s.SerializeObjectArray<VertexUV>(VertexUVMap, VertexCount, name: nameof(VertexUVMap));
 			}
 

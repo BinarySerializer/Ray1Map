@@ -24,7 +24,7 @@ namespace R1Engine.Jade {
 		public Jade_Color[] Colors { get; set; }
 		public UV[] UVs { get; set; }
 		public GEO_GeometricObjectElement[] Elements { get; set; }
-		public uint ElementsFlags { get; set; }
+		public uint StripFlag { get; set; }
 
 		public GEO_GeometricObject_MRM_Levels MRM_Levels { get; set; }
 
@@ -160,8 +160,8 @@ namespace R1Engine.Jade {
 				foreach (var el in Elements) {
 					el.SerializeArrays(s);
 				}
-				ElementsFlags = s.Serialize<uint>(ElementsFlags, name: nameof(ElementsFlags));
-				if ((ElementsFlags & 1) != 0) {
+				StripFlag = s.Serialize<uint>(StripFlag, name: nameof(StripFlag));
+				if ((StripFlag & 1) != 0) {
 					foreach (var el in Elements) {
 						el.SerializeStripData(s);
 					}

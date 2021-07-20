@@ -143,6 +143,11 @@ namespace R1Engine.Jade {
 						configureAction(f); onPreSerialize?.Invoke(s, f);
 					}, name: nameof(Value));
 					break;
+				case Jade_FileType.FileType.OBJ_GameObject:
+					Value = s.SerializeObject<OBJ_GameObject>((OBJ_GameObject)Value, onPreSerialize: f => {
+						configureAction(f); onPreSerialize?.Invoke(s, f);
+					}, name: nameof(Value));
+					break;
 				default:
 					throw new NotImplementedException($"GenericReference: Could not resolve key {Key} of type {Type} ({FileType.Extension})");
 			}
