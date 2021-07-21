@@ -318,13 +318,13 @@ namespace R1Engine
                     continue;
 
                 // Process code level data
-                loader.ProcessCodeLevelData();
+                loader.ProcessLevelData();
 
                 var exported = new HashSet<BinarySerializable>();
 
-                for (int sector = 0; sector < loader.CodeLevelData.SectorModifiers.Length; sector++)
+                for (int sector = 0; sector < loader.LevelData3D.SectorModifiers.Length; sector++)
                 {
-                    var modifiers = loader.CodeLevelData.SectorModifiers[sector];
+                    var modifiers = loader.LevelData3D.SectorModifiers[sector];
 
                     for (int modifierIndex = 0; modifierIndex < modifiers.Modifiers.Length; modifierIndex++)
                     {
@@ -598,7 +598,7 @@ namespace R1Engine
             var loader = Loader.Create(context, idxData, config);
 
             // Only parse the selected sector
-            loader.SectorToParse = sector;
+            loader.LevelSector = sector;
 
             var logAction = new Func<string, Task>(async x =>
             {
@@ -614,25 +614,38 @@ namespace R1Engine
             loader.SwitchBlocks(lev);
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
-            Controller.DetailedState = "Loading code level data";
+            Controller.DetailedState = "Loading level data";
             await Controller.WaitIfNecessary();
 
             // Load code level data
-            loader.ProcessCodeLevelData();
+            loader.ProcessLevelData();
 
             // Copy debug string to clipboard if any
             if (ModifierObject.DebugStringBuilder.Length > 0)
                 ModifierObject.DebugStringBuilder.ToString().CopyToClipboard();
 
+            const float scale = 16f;
+
             // Load the layers
-            var layers = await Load_LayersAsync(loader, sector);
+            var layers = await Load_LayersAsync(loader, sector, scale);
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            // TODO: Load objects
-
+            var objects = new List<Unity_Object>();
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
+
+            // Temporarily add waypoints at each path block to visualize them
+            objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.Select(b => new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}")
+            {
+                Position = new Vector3(b.XPos / scale, -(b.YPos / scale), -b.ZPos / scale),
+            })));
+
+            // Add enemies
+            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.SectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
+            {
+                Position = new Vector3(x.ActualXPos / scale, -(x.ActualYPos / scale), -x.ActualZPos / scale),
+            }));
 
             Debug.Log($"Map has {movementPaths.Length} movement paths");
 
@@ -640,15 +653,7 @@ namespace R1Engine
                 layers: layers,
                 cellSize: 16,
                 objManager: new Unity_ObjectManager(context),
-                // Load dummy objects for movement paths
-                eventData: new List<Unity_Object>(movementPaths.SelectMany(x => x.Blocks).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Waypoint)
-                {
-                    Position = new Vector3(x.XPos / 16f, -(x.YPos / 16f), -x.ZPos / 16f),
-                })),
-                //eventData: new List<Unity_Object>(loader.CodeLevelData.Objects3D[sector].Objects.First(x => x.Type == Object3D.Object3DType.Type_7).Data_Type7.Entries.Select(x => new Unity_Object_PS1Klonoa()
-                //{
-                //    Position = new Vector3(x.Short_00 / 16f, -(x.Short_02 / 16f), -x.Short_04 / 16f),
-                //})),
+                eventData: objects,
                 isometricData: new Unity_IsometricData
                 {
                     CollisionWidth = 0,
@@ -664,9 +669,9 @@ namespace R1Engine
                 });
         }
 
-        public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector)
+        public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector, float scale)
         {
-            var modifiers = loader.CodeLevelData.SectorModifiers[sector].Modifiers;
+            var modifiers = loader.LevelData3D.SectorModifiers[sector].Modifiers;
             var texAnimations = modifiers.
                 Where(x => x.PrimaryType == PrimaryObjectType.Modifier_41).
                 SelectMany(x => x.DataFiles).
@@ -677,8 +682,6 @@ namespace R1Engine
             Debug.Log($"Map has {texAnimations.Length} texture animations");
 
             var layers = new List<Unity_Layer>();
-
-            const float scale = 16f;
 
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();

@@ -6,10 +6,11 @@ namespace R1Engine
 {
     public class Unity_Object_Dummy : Unity_Object_3D
     {
-        public Unity_Object_Dummy(BinarySerializable serializableData, ObjectType type)
+        public Unity_Object_Dummy(BinarySerializable serializableData, ObjectType type, string debugText = null)
         {
             SerializableData = serializableData;
             Type = type;
+            DebugText = debugText;
         }
 
         public override short XPosition { get; set; }
@@ -17,6 +18,7 @@ namespace R1Engine
         public override Vector3 Position { get; set; }
         public override ILegacyEditorWrapper LegacyWrapper => null;
         public override BinarySerializable SerializableData { get; }
+        public override string DebugText { get; }
         public override ObjectType Type { get; }
         public override string PrimaryName => $"DUMMY";
         public override Unity_ObjAnimation CurrentAnimation => null;
