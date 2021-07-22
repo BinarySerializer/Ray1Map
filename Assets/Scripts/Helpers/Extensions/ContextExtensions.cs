@@ -28,7 +28,7 @@ namespace R1Engine
 
             return file;
         }
-        public static async UniTask<MemoryMappedFile> AddMemoryMappedFile(this Context context, string filePath, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true)
+        public static async UniTask<MemoryMappedFile> AddMemoryMappedFile(this Context context, string filePath, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true, long priority = -1)
         {
             var absolutePath = context.GetAbsoluteFilePath(filePath);
 
@@ -37,7 +37,7 @@ namespace R1Engine
             if (!FileSystem.FileExists(absolutePath))
                 return null;
 
-            var file = new MemoryMappedFile(context, filePath, baseAddress, endianness)
+            var file = new MemoryMappedFile(context, filePath, baseAddress, endianness, priority: priority)
             {
                 RecreateOnWrite = recreateOnWrite
             };

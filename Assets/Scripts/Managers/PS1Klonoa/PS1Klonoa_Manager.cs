@@ -1200,7 +1200,7 @@ namespace R1Engine
             await context.AddMemoryMappedFile(Loader.FilePath_IDX, 0x80010000);
 
             // The exe has to be loaded to read certain data from it
-            await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE);
+            await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE, priority: 0); // Give lower prio to prioritize IDX
         }
     }
 }
