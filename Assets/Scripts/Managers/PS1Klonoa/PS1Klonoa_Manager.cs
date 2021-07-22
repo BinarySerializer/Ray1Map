@@ -330,6 +330,9 @@ namespace R1Engine
                     {
                         var modifier = modifiers.Modifiers[modifierIndex];
 
+                        if (modifier.DataFiles == null)
+                            continue;
+
                         foreach (var dataFile in modifier.DataFiles)
                         {
                             if (dataFile.TIM != null)
@@ -679,8 +682,6 @@ namespace R1Engine
                 Select(x => x.TIMFiles.Files).
                 ToArray();
 
-            Debug.Log($"Map has {texAnimations.Length} texture animations");
-
             var layers = new List<Unity_Layer>();
 
             Controller.DetailedState = "Loading backgrounds";
@@ -711,6 +712,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             GameObject gao_3dObjParent = null;
+            var objCount = 0;
 
             bool isObjAnimated = false;
             foreach (var modifier in modifiers)
@@ -739,6 +741,8 @@ namespace R1Engine
                 // Helper for creating an object
                 void createObj(PS1_TMD tmd, ObjPosition_File pos = null, ObjRotation_File rot = null, int index = 0)
                 {
+                    objCount++;
+
                     if (gao_3dObjParent == null)
                     {
                         gao_3dObjParent = new GameObject("3D Objects");
@@ -765,6 +769,8 @@ namespace R1Engine
                             z: rot.RotationZ / 8f);
                 }
             }
+
+            Debug.Log($"Map has {texAnimations.Length} texture animations and {objCount} 3D objects");
 
             if (gao_3dObjParent != null)
             {
