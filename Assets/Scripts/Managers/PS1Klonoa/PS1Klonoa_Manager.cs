@@ -627,7 +627,7 @@ namespace R1Engine
             if (ModifierObject.DebugStringBuilder.Length > 0)
                 ModifierObject.DebugStringBuilder.ToString().CopyToClipboard();
 
-            const float scale = 16f;
+            const float scale = 64f;
 
             // Load the layers
             var layers = await Load_LayersAsync(loader, sector, scale);
