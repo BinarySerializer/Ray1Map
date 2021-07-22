@@ -632,6 +632,9 @@ namespace R1Engine
             // Load the layers
             var layers = await Load_LayersAsync(loader, sector, scale);
 
+            // Load object manager
+            var objManager = await Load_ObjManagerAsync(loader);
+
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
@@ -645,17 +648,14 @@ namespace R1Engine
             })));
 
             // Add enemies
-            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.SectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
-            {
-                Position = new Vector3(x.ActualXPos / scale, -(x.ActualYPos / scale), -x.ActualZPos / scale),
-            }));
+            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.SectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa(objManager, x, scale)));
 
             Debug.Log($"Map has {movementPaths.Length} movement paths");
 
             return new Unity_Level(
                 layers: layers,
                 cellSize: 16,
-                objManager: new Unity_ObjectManager(context),
+                objManager: objManager,
                 eventData: objects,
                 isometricData: new Unity_IsometricData
                 {
@@ -789,6 +789,31 @@ namespace R1Engine
             // TODO: Load collision
 
             return layers.ToArray();
+        }
+
+        public async UniTask<Unity_ObjectManager_PS1Klonoa> Load_ObjManagerAsync(Loader loader)
+        {
+            var frameSets = new List<Unity_ObjectManager_PS1Klonoa.FrameSet>();
+
+            // Enumerate each frame set
+            for (var i = 0; i < loader.SpriteFrames.Length; i++)
+            {
+                Controller.DetailedState = $"Loading sprites {i + 1}/{loader.SpriteFrames.Length}";
+                await Controller.WaitIfNecessary();
+
+                var frames = loader.SpriteFrames[i];
+
+                // Skip if null
+                if (frames == null)
+                    continue;
+
+                // Create the frame textures
+                var frameTextures = frames.Files.Select(x => GetTexture(x.Textures, loader.VRAM).CreateSprite()).ToArray();
+
+                frameSets.Add(new Unity_ObjectManager_PS1Klonoa.FrameSet(frameTextures, i));
+            }
+
+            return new Unity_ObjectManager_PS1Klonoa(loader.Context, frameSets.ToArray());
         }
 
         public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, out bool isAnimated)
@@ -1196,7 +1221,7 @@ namespace R1Engine
 
             return tex;
         }
-
+        
         public async UniTask LoadFilesAsync(Context context, LoaderConfiguration config)
         {
             // The game only loads portions of the BIN at a time
