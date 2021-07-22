@@ -673,7 +673,7 @@ namespace R1Engine
         {
             var modifiers = loader.LevelData3D.SectorModifiers[sector].Modifiers;
             var texAnimations = modifiers.
-                Where(x => x.PrimaryType == PrimaryObjectType.Modifier_41).
+                Where(x => x.PrimaryType == PrimaryObjectType.Modifier_3D_41).
                 SelectMany(x => x.DataFiles).
                 Where(x => x.TIMFiles != null).
                 Select(x => x.TIMFiles.Files).
@@ -718,7 +718,7 @@ namespace R1Engine
                 if (modifier.PrimaryType == PrimaryObjectType.None || modifier.PrimaryType == PrimaryObjectType.Invalid)
                     continue;
 
-                if (modifier.PrimaryType == PrimaryObjectType.Modifier_41)
+                if (modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41)
                 {
                     var pos = modifier.DataFiles.FirstOrDefault(x => x.Position != null)?.Position;
                     var transform = modifier.DataFiles.FirstOrDefault(x => x.Transform != null)?.Transform;
