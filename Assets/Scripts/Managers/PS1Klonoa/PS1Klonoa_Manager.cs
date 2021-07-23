@@ -751,7 +751,7 @@ namespace R1Engine
                         gao_3dObjParent.transform.localScale = Vector3.one;
                     }
 
-                    var gameObj = CreateGameObject(tmd, loader, scale, $"Object3D_{modifier.Offset}_{index}", texAnimations, out isAnimated);
+                    var gameObj = CreateGameObject(tmd, loader, scale, $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}", texAnimations, out isAnimated);
 
                     if (isAnimated)
                         isObjAnimated = true;
@@ -763,10 +763,18 @@ namespace R1Engine
 
                     // TODO: Fix rotation
                     if (rot != null)
+                    {
                         gameObj.transform.localRotation = Quaternion.Euler(
                             x: rot.RotationX / 8f,
                             y: rot.RotationY / 8f,
                             z: rot.RotationZ / 8f);
+
+                        // For many object it seems the rotation has a range of 0-15
+                        //gameObj.transform.localRotation = Quaternion.Euler(
+                        //    x: rot.RotationX * (360 / 16f),
+                        //    y: rot.RotationY * (360 / 16f),
+                        //    z: rot.RotationZ * (360 / 16f));
+                    }
                 }
             }
 
@@ -826,11 +834,14 @@ namespace R1Engine
             gaoParent.transform.position = Vector3.zero;
 
             // Create each object
-            foreach (var obj in tmd.Objects)
+            for (var objIndex = 0; objIndex < tmd.Objects.Length; objIndex++)
             {
+                var obj = tmd.Objects[objIndex];
+
                 // Helper methods
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
                 Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
+
                 RectInt getRect(PS1_TMD_UV[] uv)
                 {
                     int xMin = uv.Min(x => x.U);
@@ -843,20 +854,17 @@ namespace R1Engine
                     return new RectInt(xMin, yMin, w, h);
                 }
 
-                // TODO: Implement normals
-                if (obj.NormalsCount != 0)
-                    Debug.LogWarning($"TMD object has {obj.NormalsCount} normals");
-
                 // Add each primitive
-                foreach (var packet in obj.Primitives) {
+                for (var packetIndex = 0; packetIndex < obj.Primitives.Length; packetIndex++)
+                {
+                    var packet = obj.Primitives[packetIndex];
+
                     if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
                         Debug.LogWarning($"Packet has light source");
 
-                    if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
-                        Debug.LogWarning($"Polygon is double faced");
-
                     // TODO: Implement other types
-                    if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon) {
+                    if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
+                    {
                         Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
                         continue;
                     }
@@ -869,9 +877,10 @@ namespace R1Engine
                     // Set vertices
                     unityMesh.SetVertices(vertices);
 
-                    if (packet.Mode.IsQuad) {
-
-                        if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE)) {
+                    if (packet.Mode.IsQuad)
+                    {
+                        if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
+                        {
                             triangles = new int[]
                             {
                                 // Lower left triangle
@@ -879,7 +888,9 @@ namespace R1Engine
                                 // Upper right triangle
                                 3, 2, 1, 3, 1, 2,
                             };
-                        } else {
+                        }
+                        else
+                        {
                             triangles = new int[]
                             {
                                 // Lower left triangle
@@ -888,13 +899,18 @@ namespace R1Engine
                                 3, 2, 1,
                             };
                         }
-                    } else {
-                        if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE)) {
+                    }
+                    else
+                    {
+                        if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
+                        {
                             triangles = new int[]
                             {
                                 0, 1, 2, 0, 2, 1,
                             };
-                        } else {
+                        }
+                        else
+                        {
                             triangles = new int[]
                             {
                                 0, 1, 2,
@@ -916,7 +932,7 @@ namespace R1Engine
 
                     unityMesh.RecalculateNormals();
 
-                    GameObject gao = new GameObject($"Packet_{packet.Offset}-{packet.Flags}");
+                    GameObject gao = new GameObject($"Packet_{objIndex}-{packetIndex} Offset:{packet.Offset} Flags:{packet.Flags}");
 
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
                     MeshRenderer mr = gao.AddComponent<MeshRenderer>();
@@ -925,11 +941,11 @@ namespace R1Engine
                     gao.transform.localScale = Vector3.one;
                     gao.transform.localPosition = Vector3.zero;
                     mf.mesh = unityMesh;
-                    if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT)) {
-                        mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
-                    } else {
-                        mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
-                    }
+
+                    mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
+
+                    // TODO: Use additive material for certain objects
+                    //mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
 
                     // Add texture
                     if (packet.Mode.TME)
@@ -937,7 +953,7 @@ namespace R1Engine
                         var rect = getRect(packet.UV);
 
                         var key = packet.CBA.ClutX | packet.CBA.ClutY << 6 | packet.TSB.TX << 16 | packet.TSB.TY << 24;
-                        long animKey = (long)key | (long)rect.x << 32 | (long)rect.y << 40;
+                        long animKey = (long) key | (long) rect.x << 32 | (long) rect.y << 40;
 
                         if (!textureAnimCache.ContainsKey(animKey))
                         {
@@ -1009,12 +1025,10 @@ namespace R1Engine
 
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
-                        mr.name = $"TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X: {rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}";
+                        mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}";
                     }
                 }
             }
-
-            //Debug.Log($"{textureCache.Count} textures");
 
             return gaoParent;
         }
