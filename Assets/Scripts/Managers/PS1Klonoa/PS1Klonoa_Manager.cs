@@ -848,19 +848,15 @@ namespace R1Engine
                     Debug.LogWarning($"TMD object has {obj.NormalsCount} normals");
 
                 // Add each primitive
-                foreach (var packet in obj.Primitives)
-                {
-                    // TODO: Implement
+                foreach (var packet in obj.Primitives) {
                     if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
                         Debug.LogWarning($"Packet has light source");
 
-                    // TODO: Implement
                     if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE))
                         Debug.LogWarning($"Polygon is double faced");
 
                     // TODO: Implement other types
-                    if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
-                    {
+                    if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon) {
                         Debug.LogWarning($"Skipped packet with code {packet.Mode.Code}");
                         continue;
                     }
@@ -873,22 +869,37 @@ namespace R1Engine
                     // Set vertices
                     unityMesh.SetVertices(vertices);
 
-                    if (packet.Mode.IsQuad)
-                    {
-                        triangles = new int[]
-                        {
-                            // Lower left triangle
-                            0, 1, 2,
-                            // Upper right triangle
-                            3, 2, 1
-                        };
-                    }
-                    else
-                    {
-                        triangles = new int[]
-                        {
-                            0, 1, 2,
-                        };
+                    if (packet.Mode.IsQuad) {
+
+                        if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE)) {
+                            triangles = new int[]
+                            {
+                                // Lower left triangle
+                                0, 1, 2, 0, 2, 1,
+                                // Upper right triangle
+                                3, 2, 1, 3, 1, 2,
+                            };
+                        } else {
+                            triangles = new int[]
+                            {
+                                // Lower left triangle
+                                0, 1, 2,
+                                // Upper right triangle
+                                3, 2, 1,
+                            };
+                        }
+                    } else {
+                        if (packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.FCE)) {
+                            triangles = new int[]
+                            {
+                                0, 1, 2, 0, 2, 1,
+                            };
+                        } else {
+                            triangles = new int[]
+                            {
+                                0, 1, 2,
+                            };
+                        }
                     }
 
                     unityMesh.SetTriangles(triangles, 0);
@@ -900,12 +911,12 @@ namespace R1Engine
 
                     unityMesh.SetColors(colors);
 
-                    if (packet.UV != null) 
+                    if (packet.UV != null)
                         unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
 
                     unityMesh.RecalculateNormals();
 
-                    GameObject gao = new GameObject($"Packet_{packet.Offset}");
+                    GameObject gao = new GameObject($"Packet_{packet.Offset}-{packet.Flags}");
 
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
                     MeshRenderer mr = gao.AddComponent<MeshRenderer>();
@@ -914,7 +925,11 @@ namespace R1Engine
                     gao.transform.localScale = Vector3.one;
                     gao.transform.localPosition = Vector3.zero;
                     mf.mesh = unityMesh;
-                    mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
+                    if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT)) {
+                        mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+                    } else {
+                        mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
+                    }
 
                     // Add texture
                     if (packet.Mode.TME)
@@ -994,7 +1009,7 @@ namespace R1Engine
 
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
-                        mr.name = $"TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X: {rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}";
+                        mr.name = $"TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X: {rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}";
                     }
                 }
             }
