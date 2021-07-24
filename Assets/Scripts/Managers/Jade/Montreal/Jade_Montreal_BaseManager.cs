@@ -115,6 +115,7 @@ namespace R1Engine
 			Controller.DetailedState = $"Loading textures: Checks";
 			var curPos = Loader.Bin.CurrentPosition;
 			Jade_Key currentBinHeaderKey = null;
+			HashSet<Jade_Key> dontAdd = new HashSet<Jade_Key>();
 			while (currentBinHeaderKey == null || currentBinHeaderKey != (uint)Jade_Code.OffsetCode) {
 				Jade_Reference<TEX_File_Montreal_Dummy> dummyFile = new Jade_Reference<TEX_File_Montreal_Dummy>(s.Context, new Jade_Key(s.Context, 0)) { ForceResolve = true };
 				dummyFile?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks);
@@ -122,17 +123,22 @@ namespace R1Engine
 				currentBinHeaderKey = dummyFile?.Value?.Key ?? null;
 				if (dummyFile?.Value != null && dummyFile.Value.IsTexture) {
 					var key = dummyFile.Value.BinFileHeader.Key;
-					if (!texList.ContainsTextureKey(key)) new Jade_TextureReference(s.Context, key)?.Resolve();
+					if (!texList.ContainsTextureKey(key) && !dontAdd.Contains(key)) new Jade_TextureReference(s.Context, key)?.Resolve();
+					if (dummyFile.Value.Content_Animated != null) {
+						foreach (var f in dummyFile.Value.Content_Animated.Frames) {
+							if(!f.Texture.Key.IsNull && !dontAdd.Contains(f.Texture.Key)) dontAdd.Add(f.Texture.Key);
+						}
+					}
 				}
 			}
 			Loader.Bin.CurrentPosition = curPos;
 			// End of hack
 
-			texList.SortTexturesList_Montreal();
+			/*texList.SortTexturesList_Montreal();
 			for (int i = 0; i < (texList.Textures?.Count ?? 0); i++) {
 				texList.Textures[i].LoadInfo();
 				await Loader.LoadLoopBINAsync();
-			}
+			}*/
 
 			Controller.DetailedState = $"Loading textures: Info";
 			texList.SortTexturesList_Montreal();

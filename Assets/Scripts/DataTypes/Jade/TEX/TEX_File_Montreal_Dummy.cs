@@ -22,6 +22,7 @@ namespace R1Engine.Jade
 
         public uint ContentSize { get; set; }
         public byte[] Content { get; set; }
+        public TEX_Content_Animated_Dummy Content_Animated { get; set; }
 
         public override void SerializeImpl(SerializerObject s) 
         {
@@ -44,6 +45,11 @@ namespace R1Engine.Jade
                     CodeFF00FF = s.Serialize<Jade_Code>(CodeFF00FF, name: nameof(CodeFF00FF));
                     CodeCode = s.Serialize<Jade_Code>(CodeCode, name: nameof(CodeCode));
                 }
+
+                if (IsTexture && Type == TEX_File.TexFileType.Animated) {
+                    if (!Loader.IsBinaryData) s.Goto(Offset);
+                    Content_Animated = s.SerializeObject<TEX_Content_Animated_Dummy>(Content_Animated, c => c.Texture = this, name: nameof(Content_Animated));
+                }
             }
             s.Goto(Offset + FileSize);
         }
@@ -51,5 +57,46 @@ namespace R1Engine.Jade
         public bool IsTexture =>
             CodeCado1234 == Jade_Code.CAD01234 && CodeFF00FF == Jade_Code.FF00FF && CodeCode == Jade_Code.CodeCode &&
             Mark == -1 && (!Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal) || Montreal_Key == Key);
-	}
+
+
+        public class TEX_Content_Animated_Dummy : BinarySerializable {
+            public TEX_File_Montreal_Dummy Texture { get; set; }
+
+            public Frame[] References { get; set; }
+
+            public uint UInt_00 { get; set; }
+            public short Flags { get; set; }
+            public byte FramesCount { get; set; }
+            public byte Byte_07_Editor { get; set; }
+
+            public Frame[] Frames { get; set; }
+
+            public override void SerializeImpl(SerializerObject s) {
+                uint FileSize = (uint)(Texture.FileSize - (s.CurrentPointer - Texture.Offset));
+                if (FileSize == 0) return;
+
+                LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+                UInt_00 = s.Serialize<uint>(UInt_00, name: nameof(UInt_00));
+                Flags = s.Serialize<short>(Flags, name: nameof(Flags));
+                FramesCount = s.Serialize<byte>(FramesCount, name: nameof(FramesCount));
+                if (!Loader.IsBinaryData) Byte_07_Editor = s.Serialize<byte>(Byte_07_Editor, name: nameof(Byte_07_Editor));
+
+                Frames = s.SerializeObjectArray<Frame>(Frames, FramesCount, name: nameof(Frames));
+            }
+
+            public class Frame : BinarySerializable {
+                public Jade_TextureReference Texture { get; set; }
+                public short Duration { get; set; }
+                public short Short_Editor { get; set; }
+
+                public override void SerializeImpl(SerializerObject s) {
+                    LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+
+                    Texture = s.SerializeObject<Jade_TextureReference>(Texture, name: nameof(Texture));
+                    Duration = s.Serialize<short>(Duration, name: nameof(Duration));
+                    if (!Loader.IsBinaryData) Short_Editor = s.Serialize<short>(Short_Editor, name: nameof(Short_Editor));
+                }
+            }
+        }
+    }
 }
