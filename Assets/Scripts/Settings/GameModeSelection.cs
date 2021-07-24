@@ -809,6 +809,9 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT_20030723, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (Xbox - Demo 2003/07/23)", typeof(Jade_PoP_SoT_Xbox_20030723_Manager), Platform.Xbox)]
         PrinceOfPersiaTheSandsOfTimeXbox_20030723,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_SoT, Game.Jade_PoP_SoT, "Prince of Persia: The Sands of Time (PS3)", typeof(Jade_PoP_SoT_PS3_Manager), Platform.PS3)]
+        PrinceOfPersiaTheSandsOfTimePS3,
+
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PC)", typeof(Jade_PoP_WW_PC_Manager), Platform.PC)]
         PrinceOfPersiaWarriorWithinPC,
@@ -837,6 +840,9 @@ namespace R1Engine {
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (iOS)", typeof(Jade_PoP_WW_iOS_Manager), Platform.iOS)]
         PrinceOfPersiaWarriorWithinIOS,
 
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_WW, Game.Jade_PoP_WW, "Prince of Persia: Warrior Within (PS3)", typeof(Jade_PoP_WW_PS3_Manager), Platform.PS3)]
+        PrinceOfPersiaWarriorWithinPS3,
+
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PC)", typeof(Jade_PoP_T2T_PC_Manager), Platform.PC)]
         PrinceOfPersiaTheTwoThronesPC,
@@ -858,6 +864,9 @@ namespace R1Engine {
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T_20051002, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (Xbox - Prototype 2005/10/02)", typeof(Jade_PoP_T2T_Xbox_20051002_Manager), Platform.Xbox)]
         PrinceOfPersiaTheTwoThronesXbox_20051002,
+
+        [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_PoP_T2T, Game.Jade_PoP_T2T, "Prince of Persia: The Two Thrones (PS3)", typeof(Jade_PoP_T2T_PS3_Manager), Platform.PS3)]
+        PrinceOfPersiaTheTwoThronesPS3,
 
 
         [GameMode(MajorEngineVersion.Jade, EngineVersion.Jade_MyWordCoach, Game.Jade_MyWordCoach, "My Word Coach (Wii)", typeof(Jade_MyWordCoach_Wii_Manager), Platform.Wii)]

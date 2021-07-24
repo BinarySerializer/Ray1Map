@@ -115,6 +115,7 @@ namespace R1Engine.Jade {
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePC:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePCLimitedDemo:
 				case GameModeSelection.PrinceOfPersiaTheSandsOfTimeXbox:
+				case GameModeSelection.PrinceOfPersiaTheSandsOfTimePS3:
 
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPC:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinPCDemo:
@@ -125,6 +126,7 @@ namespace R1Engine.Jade {
 				case GameModeSelection.PrinceOfPersiaWarriorWithinXbox:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinIOS:
 				case GameModeSelection.PrinceOfPersiaWarriorWithinGC:
+				case GameModeSelection.PrinceOfPersiaWarriorWithinPS3:
 
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesPC:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesGC:
@@ -133,6 +135,7 @@ namespace R1Engine.Jade {
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesPSP:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesXbox:
 				case GameModeSelection.PrinceOfPersiaTheTwoThronesXbox_20051002:
+				case GameModeSelection.PrinceOfPersiaTheTwoThronesPS3:
 
 				case GameModeSelection.MyWordCoachWii:
 					links = new AI_Links_PoP_SoT_PS2_Proto();

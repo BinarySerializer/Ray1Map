@@ -151,6 +151,7 @@ namespace R1Engine.Jade {
 						case Platform.PC:
 						case Platform.iOS:
 						case Platform.Xbox:
+						case Platform.PS3:
 							// If !Loader.IsBinaryData, then this is in another file given by the key
 							VisuPC = s.SerializeObject<GEO_GaoVisu_PC>(VisuPC, name: nameof(VisuPC));
 							break;
