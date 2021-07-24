@@ -1282,22 +1282,29 @@ namespace R1Engine
                 var sprite = sprites[i];
                 var texPage = sprite.TexturePage;
 
-                FillTextureFromVRAM(
-                    tex: tex,
-                    vram: vram,
-                    width: sprite.Width,
-                    height: sprite.Height,
-                    colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
-                    texX: rects[i].x - minX,
-                    texY: rects[i].y - minY,
-                    clutX: sprite.PalOffsetX,
-                    clutY: 500 + sprite.PalOffsetY,
-                    texturePageOriginX: 64 * (texPage % 16),
-                    texturePageOriginY: 128 * (texPage / 16), // TODO: Fix this
-                    texturePageOffsetX: sprite.TexturePageOffsetX,
-                    texturePageOffsetY: sprite.TexturePageOffsetY,
-                    flipX: sprite.FlipX,
-                    flipY: sprite.FlipY);
+                try
+                {
+                    FillTextureFromVRAM(
+                        tex: tex,
+                        vram: vram,
+                        width: sprite.Width,
+                        height: sprite.Height,
+                        colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
+                        texX: rects[i].x - minX,
+                        texY: rects[i].y - minY,
+                        clutX: sprite.PalOffsetX,
+                        clutY: 500 + sprite.PalOffsetY,
+                        texturePageOriginX: 64 * (texPage % 16),
+                        texturePageOriginY: 128 * (texPage / 16), // TODO: Fix this
+                        texturePageOffsetX: sprite.TexturePageOffsetX,
+                        texturePageOffsetY: sprite.TexturePageOffsetY,
+                        flipX: sprite.FlipX,
+                        flipY: sprite.FlipY);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Error filling sprite texture data: {ex.Message}");
+                }
             }
 
             tex.Apply();
