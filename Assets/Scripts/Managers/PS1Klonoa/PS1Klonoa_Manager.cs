@@ -885,6 +885,7 @@ namespace R1Engine
 
                 // Helper methods
                 Vector3 toVertex(PS1_TMD_Vertex v) => new Vector3(v.X / scale, -v.Y / scale, v.Z / scale);
+                Vector3 toNormal(PS1_TMD_Normal n) => new Vector3(n.X, -n.Y , n.Z);
                 Vector2 toUV(PS1_TMD_UV uv) => new Vector2(uv.U / 255f, uv.V / 255f);
 
                 RectInt getRect(PS1_TMD_UV[] uv)
@@ -917,10 +918,17 @@ namespace R1Engine
                     Mesh unityMesh = new Mesh();
 
                     var vertices = packet.Vertices.Select(x => toVertex(obj.Vertices[x])).ToArray();
+                    Vector3[] normals = null;
+                    if (packet.Normals != null) {
+                        normals = packet.Normals.Select(x => toNormal(obj.Normals[x])).ToArray();
+                        if(normals.Length == 1)
+                            normals = Enumerable.Repeat(normals[0], vertices.Length).ToArray();
+                    }
                     int[] triangles;
 
                     // Set vertices
                     unityMesh.SetVertices(vertices);
+                    if(normals != null) unityMesh.SetNormals(normals);
 
                     if (packet.Mode.IsQuad)
                     {
@@ -968,14 +976,14 @@ namespace R1Engine
                     var colors = packet.RGB.Select(x => x.Color.GetColor()).ToArray();
 
                     if (colors.Length == 1)
-                        colors = Enumerable.Repeat(colors[0], packet.Mode.IsQuad ? 4 : 3).ToArray();
+                        colors = Enumerable.Repeat(colors[0], vertices.Length).ToArray();
 
                     unityMesh.SetColors(colors);
 
                     if (packet.UV != null)
                         unityMesh.SetUVs(0, packet.UV.Select(toUV).ToArray());
 
-                    unityMesh.RecalculateNormals();
+                    if(normals == null) unityMesh.RecalculateNormals();
 
                     GameObject gao = new GameObject($"Packet_{objIndex}-{packetIndex} Offset:{packet.Offset} Flags:{packet.Flags}");
 
