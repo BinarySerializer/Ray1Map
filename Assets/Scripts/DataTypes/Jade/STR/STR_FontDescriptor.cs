@@ -17,7 +17,8 @@ namespace R1Engine.Jade {
 				Footer = s.Serialize<int>(Footer, name: nameof(Footer));
 				if (Footer != -1) throw new Exception($"Parsing failed: File at {Offset} parsed as {GetType()} but had a {nameof(Footer)} of {Footer}");
 			});
-			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)) {
+			if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW)
+				|| (s.GetR1Settings().Platform == Platform.PS3 && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal))) {
 				Version = s.Serialize<uint>(Version, name: nameof(Version));
 			} else {
 				MaxCharacter = s.Serialize<uint>(MaxCharacter, name: nameof(MaxCharacter));
