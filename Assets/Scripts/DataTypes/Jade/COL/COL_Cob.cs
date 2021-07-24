@@ -3,8 +3,9 @@ using BinarySerializer;
 
 namespace R1Engine.Jade
 {
-    public class COL_Cob : Jade_File 
-    {
+    public class COL_Cob : Jade_File {
+        public override bool HasHeaderBFFile => true;
+
         public Jade_Reference<COL_GameMaterial> Material { get; set; }
         public COL_ZoneShape Type { get; set; } // 1, 2, 3 or 5
         public byte Flags { get; set; }

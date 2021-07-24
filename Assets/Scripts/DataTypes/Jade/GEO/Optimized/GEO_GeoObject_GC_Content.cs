@@ -3,11 +3,12 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	// Found in GEO_LoadGCGeoObject
-	public class GEO_GeoObject_GC : BinarySerializable {
+	public class GEO_GeoObject_GC_Content : Jade_File {
+		public GEO_GeoObject_GC Header { get; set; }
 		public GEO_GeometricObject GeometricObject { get; set; }
 
-		public uint ElementsCount { get; set; }
-		public uint[] Elements_MaterialId { get; set; }
+		public uint ElementsCount => Header.ElementsCount;
+
 		public Jade_Code DeadBabe { get; set; }
 		public uint UInt_Unk { get; set; }
 		public Jade_Vector[] Vectors0 { get; set; }
@@ -33,16 +34,6 @@ namespace R1Engine.Jade {
 		public Element_DisplayList[] Elements { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
-			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-
-			if (Loader.IsBinaryData) {
-				ElementsCount = s.Serialize<uint>(ElementsCount, name: nameof(ElementsCount));
-				Elements_MaterialId = s.SerializeArray<uint>(Elements_MaterialId, ElementsCount, name: nameof(Elements_MaterialId));
-			}
-
-			if(s.CurrentAbsoluteOffset >=( GeometricObject.GRO.Object.Offset + GeometricObject.GRO.Object.FileSize).AbsoluteOffset) return;
-
-			// TODO: If !IsBinaryData, the following data is in another file (key given by optimizedkey in GeometricObject)...
 			DeadBabe = s.Serialize<Jade_Code>(DeadBabe, name: nameof(DeadBabe));
 			if (DeadBabe != Jade_Code.DEADBABE)
 				throw new BinarySerializableException(this, $"Expected code {Jade_Code.DEADBABE} but got {DeadBabe}");
@@ -59,11 +50,10 @@ namespace R1Engine.Jade {
 				Flags_SoT = s.Serialize<GEO_GeometricObject.GEO_ObjFlags_PoPSoT>(Flags_SoT ?? 0, name: nameof(Flags_SoT));
 			}
 			Elements = s.SerializeObjectArray<Element_DisplayList>(Elements, ElementsCount, onPreSerialize: el => el.GCObject = this, name: nameof(Elements));
-
 		}
 
 		public class Element_DisplayList : BinarySerializable {
-			public GEO_GeoObject_GC GCObject { get; set; }
+			public GEO_GeoObject_GC_Content GCObject { get; set; }
 
 			public ushort StripsCount { get; set; }
 			public ushort UShort_02 { get; set; }

@@ -6,6 +6,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_Vars : Jade_File {
+		public override bool HasHeaderBFFile => true;
+
 		public uint RewindVarEndOffset { get; set; }
 		public bool HasRewindZones { get; set; }
 		public AI_Vars_RewindZone[] RewindZones { get; set; }
@@ -15,6 +17,7 @@ namespace R1Engine.Jade {
 		public uint NameBufferSize { get; set; }
 		public AI_VarName[] Names { get; set; }
 		public uint VarEditorInfoBufferSize { get; set; }
+		public uint VarEditorInfosCount { get; set; }
 		public int VarEditorInfoStringBufferSize { get; set; }
 		public AI_VarEditorInfo[] VarEditorInfos { get; set; }
 		public uint VarValueBufferSize { get; set; }
@@ -64,8 +67,13 @@ namespace R1Engine.Jade {
 			if (!Loader.IsBinaryData) {
 				VarEditorInfoBufferSize = s.Serialize<uint>(VarEditorInfoBufferSize, name: nameof(VarEditorInfoBufferSize));
 				VarEditorInfoStringBufferSize = s.Serialize<int>(VarEditorInfoStringBufferSize, name: nameof(VarEditorInfoStringBufferSize));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+					VarEditorInfosCount = VarEditorInfoBufferSize;
+				} else {
+					VarEditorInfosCount = VarEditorInfoBufferSize / 0x14;
+				}
 				if (VarEditorInfoBufferSize > 0) {
-					VarEditorInfos = s.SerializeObjectArray<AI_VarEditorInfo>(VarEditorInfos, VarEditorInfoBufferSize / 0x14, name: nameof(VarEditorInfos));
+					VarEditorInfos = s.SerializeObjectArray<AI_VarEditorInfo>(VarEditorInfos, VarEditorInfosCount, name: nameof(VarEditorInfos));
 					for (int i = 0; i < VarEditorInfos.Length; i++) {
 						var var = VarEditorInfos[i];
 						s.Log($"Strings for {nameof(VarEditorInfos)}[{i}]");

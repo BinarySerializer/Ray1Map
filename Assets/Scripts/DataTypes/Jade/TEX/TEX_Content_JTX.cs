@@ -37,20 +37,17 @@ namespace R1Engine.Jade
         public uint ContentOverrideSize { get; set; }
         public byte[] ContentOverride { get; set; }
 
-        // Editor
-        public Jade_GenericReference[] Editor_Dependencies { get; set; }
-
         public override void SerializeImpl(SerializerObject s) {
             uint FileSize = Texture.ContentSize;
             if (FileSize == 0) return;
             
             LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 
-            if (!Loader.IsBinaryData) {
-                Editor_Dependencies = s.SerializeObjectArrayUntil<Jade_GenericReference>(Editor_Dependencies, dep => dep.IsNull, name: nameof(Editor_Dependencies));
+            if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_TMNT) && !Loader.IsBinaryData) {
+                Texture.HeaderBFFile = s.SerializeObject<LOA_HeaderBFFile>(Texture.HeaderBFFile, name: nameof(Texture.HeaderBFFile));
             }
 
-			Version = s.Serialize<uint>(Version, name: nameof(Version));
+            Version = s.Serialize<uint>(Version, name: nameof(Version));
             if (Version == 0) return;
 			Format = s.Serialize<JTX_Format>(Format, name: nameof(Format));
 			Width = s.Serialize<uint>(Width, name: nameof(Width));

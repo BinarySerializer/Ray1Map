@@ -3,6 +3,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GRP_Grp : Jade_File {
+		public override bool HasHeaderBFFile => true;
+
 		public Jade_Reference<OBJ_World_GroupObjectList> GroupObjectList { get; set; }
 		public uint UInt_04 { get; set; }
 		public uint Editor_UInt_08 { get; set; }

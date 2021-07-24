@@ -18,15 +18,13 @@ namespace R1Engine.Jade
             public OBJ_World_GroupObjectList List { get; set; }
 
             public Jade_Reference<OBJ_GameObject> GameObject { get; set; }
-            public uint Uint_04_Editor { get; set; }
+            public Jade_FileType Type { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
-                LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-
                 GameObject = s.SerializeObject<Jade_Reference<OBJ_GameObject>>(GameObject, name: nameof(GameObject));
+                if (!List.Loader.IsBinaryData) Type = s.SerializeObject<Jade_FileType>(Type, name: nameof(Type));
                 if (List.ResolveObjects) GameObject?.Resolve();
-                if (!Loader.IsBinaryData) Uint_04_Editor = s.Serialize<uint>(Uint_04_Editor, name: nameof(Uint_04_Editor));
             }
         }
     }

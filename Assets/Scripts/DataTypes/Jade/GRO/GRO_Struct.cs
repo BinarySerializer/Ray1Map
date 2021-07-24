@@ -19,7 +19,7 @@ namespace R1Engine.Jade {
             if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
                 ObjectVersion = s.Serialize<uint>(ObjectVersion, name: nameof(ObjectVersion));
             }
-            if (!Loader.IsBinaryData) {
+            if (!Loader.IsBinaryData && s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
                 Count_Editor = s.Serialize<uint>(Count_Editor, name: nameof(Count_Editor));
                 Bytes_Editor = s.SerializeArray<byte>(Bytes_Editor, Count_Editor, name: nameof(Bytes_Editor));
             }

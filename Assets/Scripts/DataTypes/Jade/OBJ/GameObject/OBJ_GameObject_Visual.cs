@@ -36,9 +36,9 @@ namespace R1Engine.Jade {
 		public Jade_Reference<OBJ_GameObject> LocalFog { get; set; }
 
 		public short V4_Short { get; set; }
-		public uint OptimizedMeshKeyPS2 { get; set; }
-		public uint OptimizedMeshKeyGC { get; set; }
-		public uint OptimizedMeshKeyPC { get; set; }
+		public Jade_Key OptimizedMeshKeyPS2 { get; set; }
+		public Jade_Key OptimizedMeshKeyGC { get; set; }
+		public Jade_Key OptimizedMeshKeyPC { get; set; }
 		public uint V7_Editor_UInt_3 { get; set; }
 		public uint V13_Editor_UInt_0 { get; set; }
 		public uint V13_Editor_UInt_1 { get; set; }
@@ -131,9 +131,9 @@ namespace R1Engine.Jade {
 				}
 				if (Version >= 7) {
 					if (!Loader.IsBinaryData) {
-						OptimizedMeshKeyPS2 = s.Serialize<uint>(OptimizedMeshKeyPS2, name: nameof(OptimizedMeshKeyPS2));
-						OptimizedMeshKeyGC = s.Serialize<uint>(OptimizedMeshKeyGC, name: nameof(OptimizedMeshKeyGC));
-						OptimizedMeshKeyPC = s.Serialize<uint>(OptimizedMeshKeyPC, name: nameof(OptimizedMeshKeyPC));
+						OptimizedMeshKeyPS2 = s.SerializeObject<Jade_Key>(OptimizedMeshKeyPS2, name: nameof(OptimizedMeshKeyPS2));
+						OptimizedMeshKeyGC = s.SerializeObject<Jade_Key>(OptimizedMeshKeyGC, name: nameof(OptimizedMeshKeyGC));
+						OptimizedMeshKeyPC = s.SerializeObject<Jade_Key>(OptimizedMeshKeyPC, name: nameof(OptimizedMeshKeyPC));
 						V7_Editor_UInt_3 = s.Serialize<uint>(V7_Editor_UInt_3, name: nameof(V7_Editor_UInt_3));
 					}
 					if (Version >= 13) {

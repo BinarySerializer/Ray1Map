@@ -3,6 +3,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class WAY_Network : Jade_File {
+		public override bool HasHeaderBFFile => true;
+
 		public Jade_Reference<OBJ_GameObject> Root { get; set; }
 		public uint Flags { get; set; }
 

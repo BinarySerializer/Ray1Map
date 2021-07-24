@@ -3,6 +3,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
     public class COL_Instance : Jade_File {
+        public override bool HasHeaderBFFile => true;
+
         public Jade_Reference<COL_ColSet> ColSet { get; set; }
         public byte ZDxCount { get; set; }
         public byte SharedCount { get; set; }
@@ -20,7 +22,7 @@ namespace R1Engine.Jade {
 
         public override void SerializeImpl(SerializerObject s) {
             ColSet = s.SerializeObject<Jade_Reference<COL_ColSet>>(ColSet, name: nameof(ColSet))?.Resolve();
-            if (FileSize == 4) return;
+            if ((FileSize - HeaderBFFileSize) == 4) return;
 
             ZDxCount = s.Serialize<byte>(ZDxCount, name: nameof(ZDxCount));
             SharedCount = s.Serialize<byte>(SharedCount, name: nameof(SharedCount));

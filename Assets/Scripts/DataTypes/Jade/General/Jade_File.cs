@@ -12,6 +12,7 @@ namespace R1Engine.Jade {
 		public LOA_BinFileHeader BinFileHeader { get; set; }
 		public LOA_HeaderBFFile HeaderBFFile { get; set; } // Only for unbinarized files post-TMNT Montreal
 		public virtual bool HasHeaderBFFile => false;
+		public uint HeaderBFFileSize => (uint)(HeaderBFFile?.Size ?? 0);
 
 		protected override void OnPostSerialize(SerializerObject s) {
 			base.OnPostSerialize(s);

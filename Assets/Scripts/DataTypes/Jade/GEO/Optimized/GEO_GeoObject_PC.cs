@@ -23,7 +23,7 @@ namespace R1Engine.Jade {
 				ElementHeaders = s.SerializeObjectArray<ElementHeader>(ElementHeaders, ElementsCount, name: nameof(ElementHeaders));
 			}
 
-			if(s.CurrentAbsoluteOffset >=( GeometricObject.GRO.Object.Offset + GeometricObject.GRO.Object.FileSize).AbsoluteOffset) return;
+			if(s.CurrentAbsoluteOffset >= (GeometricObject.GRO.Object.Offset + GeometricObject.GRO.Object.FileSize).AbsoluteOffset) return;
 
 			// TODO: If !IsBinaryData, the following data is in another file (key given by optimizedkey in GeometricObject)...
 

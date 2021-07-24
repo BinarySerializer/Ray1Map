@@ -3,6 +3,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class GRID_WorldGrid : Jade_File {
+		public override bool HasHeaderBFFile => true;
+
 		public uint PointerGroups { get; set; }
 		public uint PointerRealGroups { get; set; }
 		public Jade_Reference<GRID_CompressedGrid> CompressedGrid { get; set; }

@@ -3,6 +3,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class OBJ_GameObject : Jade_File {
+		public override bool HasHeaderBFFile => true;
+
 		public Jade_FileType FileType { get; set; }
 		public uint Version { get; set; }
 		public uint UInt_04 { get; set; }

@@ -44,7 +44,17 @@ namespace R1Engine.Jade {
 				bool hasLoadedWorld = Loader.LoadedWorlds.Any(w => w.Key == world.Key);
 				bool isWOW = world.Type == Jade_FileType.FileType.WOR_World;
 				if (!isWOW) {
-					throw new NotImplementedException($"WOL: A non-WOW file was referenced: {world}");
+					if (BinFileHeader == null) {
+						// Unbinarized
+						world.Resolve(queue: LOA_Loader.QueueType.Current);
+						await Loader.LoadLoop(s);
+						if (world.Value != null) {
+							var newList = (WOR_WorldList)world.Value;
+							await newList.ResolveReferences_Montreal(s, isEditor);
+						}
+					} else {
+						throw new NotImplementedException($"WOL: A non-WOW file was referenced: {world}");
+					}
 				}
 				if (!hasLoadedWorld) {
 					await Jade_Montreal_BaseManager.LoadWorld_Montreal(s, world, worldIndex, Worlds.Length, isEditor);
