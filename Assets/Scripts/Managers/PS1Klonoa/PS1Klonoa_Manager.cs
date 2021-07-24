@@ -344,16 +344,16 @@ namespace R1Engine
 
                                 exportTex(() => GetTexture(dataFile.TIM), "Obj3D", $"{sector} - {modifierIndex}");
                             }
-                            else if (dataFile.TIMFiles != null)
+                            else if (dataFile.TextureAnimation != null)
                             {
-                                if (exported.Contains(dataFile.TIMFiles))
+                                if (exported.Contains(dataFile.TextureAnimation))
                                     continue;
 
-                                exported.Add(dataFile.TIMFiles);
+                                exported.Add(dataFile.TextureAnimation);
 
-                                for (var timIndex = 0; timIndex < dataFile.TIMFiles.Files.Length; timIndex++)
+                                for (var timIndex = 0; timIndex < dataFile.TextureAnimation.Files.Length; timIndex++)
                                 {
-                                    var tim = dataFile.TIMFiles.Files[timIndex];
+                                    var tim = dataFile.TextureAnimation.Files[timIndex];
                                     exportTex(() => GetTexture(tim), "Obj3D", $"{sector} - {modifierIndex} - {timIndex}");
                                 }
                             }
@@ -678,8 +678,14 @@ namespace R1Engine
             var texAnimations = modifiers.
                 Where(x => x.PrimaryType == PrimaryObjectType.Modifier_3D_41).
                 SelectMany(x => x.DataFiles).
-                Where(x => x.TIMFiles != null).
-                Select(x => x.TIMFiles.Files).
+                Where(x => x.TextureAnimation != null).
+                Select(x => x.TextureAnimation.Files).
+                ToArray();
+            var uvScrollAnimations = modifiers.
+                Where(x => x.PrimaryType == PrimaryObjectType.Modifier_3D_41).
+                SelectMany(x => x.DataFiles).
+                Where(x => x.UVScrollAnimation != null).
+                SelectMany(x => x.UVScrollAnimation.UVOffsets).
                 ToArray();
 
             var layers = new List<Unity_Layer>();
@@ -692,7 +698,7 @@ namespace R1Engine
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
-            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations, out bool isAnimated);
+            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations, uvScrollAnimations, out bool isAnimated);
             var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
             obj.transform.position = new Vector3(0, 0, 0);
 
@@ -751,7 +757,7 @@ namespace R1Engine
                         gao_3dObjParent.transform.localScale = Vector3.one;
                     }
 
-                    var gameObj = CreateGameObject(tmd, loader, scale, $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}", texAnimations, out isAnimated);
+                    var gameObj = CreateGameObject(tmd, loader, scale, $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}", texAnimations, new int[0], out isAnimated);
 
                     if (isAnimated)
                         isObjAnimated = true;
@@ -778,7 +784,9 @@ namespace R1Engine
                 }
             }
 
-            Debug.Log($"Map has {texAnimations.Length} texture animations and {objCount} 3D objects");
+            Debug.Log($"Map has {texAnimations.Length} texture animations, {uvScrollAnimations.Length} UV scroll animations and {objCount} 3D objects{Environment.NewLine}" +
+                      $"Modifiers:{Environment.NewLine}" +
+                      $"{String.Join(Environment.NewLine, modifiers.Where(x => x.DataFiles != null).Select(x => $"{x.Offset}: {String.Join(", ", x.DataFiles.Select(d => d.DeterminedType))}"))}");
 
             if (gao_3dObjParent != null)
             {
@@ -824,7 +832,7 @@ namespace R1Engine
             return new Unity_ObjectManager_PS1Klonoa(loader.Context, frameSets.ToArray());
         }
 
-        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, out bool isAnimated)
+        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, out bool isAnimated)
         {
             isAnimated = false;
             var textureCache = new Dictionary<int, Texture2D>();
@@ -1026,6 +1034,15 @@ namespace R1Engine
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
                         mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}";
+
+                        // Check for UV scroll animations
+                        if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Offset.FileOffset))))
+                        {
+                            isAnimated = true;
+                            var animTex = gao.AddComponent<AnimatedTextureComponent>();
+                            animTex.material = mr.material;
+                            animTex.scrollV = -0.5f;
+                        }
                     }
                 }
             }
