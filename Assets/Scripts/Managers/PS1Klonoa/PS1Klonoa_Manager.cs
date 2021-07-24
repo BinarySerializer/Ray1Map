@@ -3,8 +3,10 @@ using BinarySerializer.PS1;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer.KlonoaDTP;
 using UnityEngine;
@@ -579,20 +581,29 @@ namespace R1Engine
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
+            var stopWatch = Stopwatch.StartNew();
+            var startupLog = new StringBuilder();
+
             // Get settings
             var settings = context.GetR1Settings();
             var lev = settings.World;
             var sector = settings.Level;
             var config = GetLoaderConfig(settings);
 
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Retrieved settings");
+
             // Load the files
             await LoadFilesAsync(context, config);
+
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded files");
 
             Controller.DetailedState = "Loading IDX";
             await Controller.WaitIfNecessary();
 
             // Load the IDX
             var idxData = Load_IDX(context);
+
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
 
             Controller.DetailedState = "Loading BIN";
             await Controller.WaitIfNecessary();
@@ -613,15 +624,21 @@ namespace R1Engine
             loader.SwitchBlocks(loader.Config.BLOCK_Fix);
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded fixed BIN");
+
             // Load the level BIN
             loader.SwitchBlocks(lev);
             await loader.LoadAndProcessBINBlockAsync(logAction);
 
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded level BIN");
+
             Controller.DetailedState = "Loading level data";
             await Controller.WaitIfNecessary();
 
-            // Load code level data
+            // Load hard-coded level data
             loader.ProcessLevelData();
+
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
 
             // Copy debug string to clipboard if any
             if (ModifierObject.DebugStringBuilder.Length > 0)
@@ -632,8 +649,12 @@ namespace R1Engine
             // Load the layers
             var layers = await Load_LayersAsync(loader, sector, scale);
 
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
+
             // Load object manager
             var objManager = await Load_ObjManagerAsync(loader);
+
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
@@ -650,7 +671,14 @@ namespace R1Engine
             // Add enemies
             objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.SectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa(objManager, x, scale)));
 
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
+
             Debug.Log($"Map has {movementPaths.Length} movement paths");
+
+            stopWatch.Stop();
+
+            Debug.Log($"Startup in {stopWatch.ElapsedMilliseconds:0000}ms{Environment.NewLine}" +
+                      $"{startupLog}");
 
             return new Unity_Level(
                 layers: layers,
