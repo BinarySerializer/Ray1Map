@@ -33,6 +33,30 @@ namespace R1Engine.Jade {
 				}
 			}
 			lists.AddTexture(this);
+			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if (!loader.IsBinaryData) LoadEditor();
+			return this;
+		}
+
+		public Jade_TextureReference LoadEditor(
+			Action<SerializerObject, TEX_File> onPreSerialize = null,
+			Action<SerializerObject, TEX_File> onPostSerialize = null) {
+			if (IsNull) return this;
+			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			loader.RequestFile(Key, (s, configureAction) => {
+				Info = s.SerializeObject<TEX_File>(Info, onPreSerialize: f => {
+					configureAction(f); f.IsContent = true; onPreSerialize?.Invoke(s, f);
+				}, name: nameof(Info));
+				Content = Info;
+				onPostSerialize?.Invoke(s, Info);
+			}, (f) => {
+				Info = f?.ConvertType<TEX_File>();
+				Content = Info;
+			}, immediate: false,
+			queue: LOA_Loader.QueueType.Current,
+			cache: LOA_Loader.CacheType.TextureInfo,
+			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.Montreal_AllowSkip,
+			name: typeof(TEX_File).Name);
 			return this;
 		}
 

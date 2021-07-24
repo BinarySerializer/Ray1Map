@@ -34,7 +34,7 @@ namespace R1Engine.Jade {
 			}
 		}
 
-		public async UniTask ResolveReferences_Montreal(SerializerObject s) {
+		public async UniTask ResolveReferences_Montreal(SerializerObject s, bool isEditor) {
 			Loader.Cache.Clear();
 			int worldIndex = 0;
 			foreach (var world in Worlds) {
@@ -47,7 +47,7 @@ namespace R1Engine.Jade {
 					throw new NotImplementedException($"WOL: A non-WOW file was referenced: {world}");
 				}
 				if (!hasLoadedWorld) {
-					await Jade_Montreal_BaseManager.LoadWorld_Montreal(s, world, worldIndex, Worlds.Length);
+					await Jade_Montreal_BaseManager.LoadWorld_Montreal(s, world, worldIndex, Worlds.Length, isEditor);
 				}
 				worldIndex++;
 

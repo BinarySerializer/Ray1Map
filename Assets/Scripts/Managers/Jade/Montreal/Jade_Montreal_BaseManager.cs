@@ -107,6 +107,8 @@ namespace R1Engine
 
 		public static async UniTask LoadTextures_Montreal(SerializerObject s, WOR_World w) {
 			LOA_Loader Loader = s.Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if (!Loader.IsBinaryData) return;
+
 			TEX_GlobalList texList = s.Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
 
 			// Hack so we can load WOWs separately in Montreal version
@@ -180,30 +182,41 @@ namespace R1Engine
 			}
 		}
 
-		public static async UniTask LoadWorld_Montreal(SerializerObject s, Jade_GenericReference world, int index, int count) {
+		public static async UniTask LoadWorld_Montreal(SerializerObject s, Jade_GenericReference world, int index, int count, bool isEditor) {
 			LOA_Loader Loader = s.Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(s.Context, new Jade_Key(s.Context, (uint)Jade_Code.OffsetCode));
-			Loader.BeginSpeedMode(world.Key, serializeAction: async s => {
-				world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
-				await Loader.LoadLoopBINAsync();
-
+			if (isEditor) {
+				world.Resolve();
+				await Loader.LoadLoop(s);
 				if (world?.Value != null && world.Value is WOR_World w) {
-					if (count == 1) {
-						Controller.DetailedState = $"Loading world: {w.Name}";
-					} else {
-						Controller.DetailedState = $"Loading world {index + 1}/{count}: {w.Name}";
-					}
+					Controller.DetailedState = $"Loading world: {w.Name}";
 					await w.JustAfterLoad_Montreal(s, false);
 					await Jade_Montreal_BaseManager.LoadTextures_Montreal(s, w);
 				}
-				terminator.Resolve();
-				await Loader.LoadLoopBINAsync();
+				await Loader.LoadLoop(s);
+			} else {
+				Jade_Reference<Jade_BinTerminator> terminator = new Jade_Reference<Jade_BinTerminator>(s.Context, new Jade_Key(s.Context, (uint)Jade_Code.OffsetCode));
+				Loader.BeginSpeedMode(world.Key, serializeAction: async s => {
+					world.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile);
+					await Loader.LoadLoopBINAsync();
 
-			});
-			await Loader.LoadLoop(s);
-			Loader.CurrentCacheType = LOA_Loader.CacheType.Main;
-			Loader.Cache.Clear();
-			Loader.EndSpeedMode();
+					if (world?.Value != null && world.Value is WOR_World w) {
+						if (count == 1) {
+							Controller.DetailedState = $"Loading world: {w.Name}";
+						} else {
+							Controller.DetailedState = $"Loading world {index + 1}/{count}: {w.Name}";
+						}
+						await w.JustAfterLoad_Montreal(s, false);
+						await Jade_Montreal_BaseManager.LoadTextures_Montreal(s, w);
+					}
+					terminator.Resolve();
+					await Loader.LoadLoopBINAsync();
+
+				});
+				await Loader.LoadLoop(s);
+				Loader.CurrentCacheType = LOA_Loader.CacheType.Main;
+				Loader.Cache.Clear();
+				Loader.EndSpeedMode();
+			}
 		}
 	}
 }

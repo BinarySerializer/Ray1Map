@@ -25,6 +25,9 @@ namespace R1Engine.Jade {
 			if (IsNull) return this;
 			TEX_GlobalList lists = Context.GetStoredObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey);
 			lists.AddPalette(this);
+
+			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if(!loader.IsBinaryData) Load();
 			return this;
 		}
 
@@ -33,7 +36,9 @@ namespace R1Engine.Jade {
 			Action<SerializerObject, TEX_Palette> onPostSerialize = null) {
 			LoadRRR2Unknown();
 			if (IsNull) return this;
+			var flags = LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if(!loader.IsBinaryData) flags = LOA_Loader.ReferenceFlags.Log;
 			loader.RequestFile(Key, (s, configureAction) => {
 				Value = s.SerializeObject<TEX_Palette>(Value, onPreSerialize: f => {
 					configureAction(f); onPreSerialize?.Invoke(s, f);
@@ -44,7 +49,7 @@ namespace R1Engine.Jade {
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			name: typeof(TEX_Palette).Name,
-			flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontCache);
+			flags: flags);
 			return this;
 		}
 

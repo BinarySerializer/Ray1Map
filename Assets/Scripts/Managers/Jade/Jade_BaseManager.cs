@@ -397,30 +397,6 @@ namespace R1Engine {
 
 							var t = texList.Textures[0];
 
-							for (int i = 0; i < texList.Textures.Count; i++) {
-								texList.Textures[i].LoadInfo();
-								await loader.LoadLoop(context.Deserializer);
-							}
-							if (texList.Palettes != null) {
-								for (int i = 0; i < (texList.Palettes?.Count ?? 0); i++) {
-									texList.Palettes[i].Load();
-								}
-								await loader.LoadLoop(context.Deserializer);
-							}
-							for (int i = 0; i < texList.Textures.Count; i++) {
-								texList.Textures[i].LoadContent();
-								await loader.LoadLoop(context.Deserializer);
-								if (texList.Textures[i].Content != null && texList.Textures[i].Info.Type != TEX_File.TexFileType.RawPal) {
-									if (texList.Textures[i].Content.Width != texList.Textures[i].Info.Width ||
-										texList.Textures[i].Content.Height != texList.Textures[i].Info.Height ||
-										texList.Textures[i].Content.Color != texList.Textures[i].Info.Color) {
-										throw new Exception($"Info & Content width/height mismatch for texture with key {texList.Textures[i].Key}");
-									}
-								}
-							}
-							texList.FillInReferences();
-
-
 							Texture2D tex = null;
 							uint currentKey = t.Key;
 							tex = (t.Content ?? t.Info).ToTexture2D();
@@ -586,7 +562,7 @@ namespace R1Engine {
 
 				if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
 					loader.EndSpeedMode();
-					await worldList.Value.ResolveReferences_Montreal(context.Deserializer);
+					await worldList.Value.ResolveReferences_Montreal(context.Deserializer, isEditor);
 					loader.BeginSpeedMode(worldKey);
 				}
 			} else {
@@ -600,11 +576,11 @@ namespace R1Engine {
 						await loader.LoadLoop(s);
 					}
 				} else {
-					await worldList.Value.ResolveReferences_Montreal(context.Deserializer);
+					await worldList.Value.ResolveReferences_Montreal(context.Deserializer, isEditor);
 				}
 			}
 
-			if (loadFlags.HasFlag(LoadFlags.Textures) && texList.Textures != null && texList.Textures.Any()
+			if (!isEditor && loadFlags.HasFlag(LoadFlags.Textures) && texList.Textures != null && texList.Textures.Any()
 				&& context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
 				Controller.DetailedState = $"Loading textures";
 				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeTextures), serializeAction: async s => {
@@ -685,7 +661,7 @@ namespace R1Engine {
 			return worldList;
 		}
 
-		public async UniTask<Jade_GenericReference> LoadWorld(Context context, Jade_Key worldKey, bool isFix = false, bool isEditor=  false) {
+		public async UniTask<Jade_GenericReference> LoadWorld(Context context, Jade_Key worldKey, bool isFix = false, bool isEditor = false) {
 			LOA_Loader loader = context.GetStoredObject<LOA_Loader>(LoaderKey);
 			loader.IsLoadingFix = isFix;
 
@@ -696,7 +672,18 @@ namespace R1Engine {
 			loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
 
 			Jade_GenericReference world = new Jade_GenericReference(context, worldKey, new Jade_FileType() { Extension = ".wow" });
-			await Jade_Montreal_BaseManager.LoadWorld_Montreal(context.Deserializer, world, 0, 1);
+			if (isEditor && context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+				var s = context.Deserializer;
+				world.Resolve();
+				await loader.LoadLoop(s);
+				if (world?.Value != null && world.Value is WOR_World w) {
+					Controller.DetailedState = $"Loading world: {w.Name}";
+					await w.JustAfterLoad(s, false);
+				}
+				await loader.LoadLoop(context.Deserializer);
+			} else {
+				await Jade_Montreal_BaseManager.LoadWorld_Montreal(context.Deserializer, world, 0, 1, isEditor);
+			}
 
 			loader.IsLoadingFix = false;
 
@@ -785,7 +772,12 @@ namespace R1Engine {
 			if (levelInfos == null) {
 				throw new Exception($"Before loading, add the level list using the Create Level List game action.");
 			} else {
-				var levInfo = levelInfos.FirstOrDefault(l => l.Key == worldKey.Key);
+				var levInfos = levelInfos.Where(l => l.Key == worldKey.Key);
+				if (levInfos.Count() > 1) {
+					var levels = levelInfos.GroupBy(x => x.WorldName).ToArray();
+					levInfos = levels[context.GetR1Settings().World].Where(l => l.Key == worldKey.Key);
+				}
+				var levInfo = levInfos.FirstOrDefault();
 				isWOW = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.WOW));
 				isEditor = levInfo != null && (levInfo.Type.HasValue && levInfo.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized));
 			}
