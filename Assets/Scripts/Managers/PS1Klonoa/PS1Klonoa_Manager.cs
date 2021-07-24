@@ -758,12 +758,17 @@ namespace R1Engine
                 {
                     var pos = modifier.DataFiles.FirstOrDefault(x => x.Position != null)?.Position;
                     var transform = modifier.DataFiles.FirstOrDefault(x => x.Transform != null)?.Transform;
+                    var multiTransform = modifier.DataFiles.FirstOrDefault(x => x.MultiTransform != null)?.MultiTransform;
                     var tmdFiles = modifier.DataFiles.Where(x => x.TMD != null).Select(x => x.TMD);
 
                     var index = 0;
                     foreach (var tmd in tmdFiles)
                     {
-                        createObj(tmd, transform?.Position ?? pos, transform?.Rotation, index);
+                        createObj(
+                            tmd: tmd, 
+                            pos: transform?.Position ?? pos ?? multiTransform?.Positions.Positions[0], 
+                            rot: transform?.Rotation ?? multiTransform?.Rotations.Rotations[0], 
+                            index: index);
                         index++;
                     }
                 }
@@ -773,7 +778,7 @@ namespace R1Engine
                 }
 
                 // Helper for creating an object
-                void createObj(PS1_TMD tmd, ObjPosition_File pos = null, ObjRotation_File rot = null, int index = 0)
+                void createObj(PS1_TMD tmd, ObjPosition pos = null, ObjRotation rot = null, int index = 0)
                 {
                     objCount++;
 
@@ -795,19 +800,20 @@ namespace R1Engine
                     if (pos != null)
                         gameObj.transform.position = new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
 
-                    // TODO: Fix rotation
                     if (rot != null)
                     {
-                        gameObj.transform.localRotation = Quaternion.Euler(
-                            x: rot.RotationX / 8f,
-                            y: rot.RotationY / 8f,
-                            z: rot.RotationZ / 8f);
+                        static float getRotationInDegrees(int value)
+                        {
+                            if (value > 0x800)
+                                value -= 0x1000;
 
-                        // For many object it seems the rotation has a range of 0-15
-                        //gameObj.transform.localRotation = Quaternion.Euler(
-                        //    x: rot.RotationX * (360 / 16f),
-                        //    y: rot.RotationY * (360 / 16f),
-                        //    z: rot.RotationZ * (360 / 16f));
+                            return value * (360f / 0x1000);
+                        }
+
+                        gameObj.transform.localRotation = Quaternion.Euler(
+                            x: getRotationInDegrees(rot.RotationX),
+                            y: getRotationInDegrees(rot.RotationY),
+                            z: getRotationInDegrees(rot.RotationZ));
                     }
                 }
             }
