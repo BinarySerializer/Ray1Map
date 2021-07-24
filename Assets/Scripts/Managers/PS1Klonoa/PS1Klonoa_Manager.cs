@@ -726,7 +726,7 @@ namespace R1Engine
                 if (modifier.PrimaryType == PrimaryObjectType.None || modifier.PrimaryType == PrimaryObjectType.Invalid)
                     continue;
 
-                if (modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41)
+                if (modifier.PrimaryType == PrimaryObjectType.Modifier_3D_40 || modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41)
                 {
                     var pos = modifier.DataFiles.FirstOrDefault(x => x.Position != null)?.Position;
                     var transform = modifier.DataFiles.FirstOrDefault(x => x.Transform != null)?.Transform;
@@ -784,9 +784,12 @@ namespace R1Engine
                 }
             }
 
-            Debug.Log($"Map has {texAnimations.Length} texture animations, {uvScrollAnimations.Length} UV scroll animations and {objCount} 3D objects{Environment.NewLine}" +
-                      $"Modifiers:{Environment.NewLine}" +
-                      $"{String.Join(Environment.NewLine, modifiers.Where(x => x.DataFiles != null).Select(x => $"{x.Offset}: {String.Join(", ", x.DataFiles.Select(d => d.DeterminedType))}"))}");
+            Debug.Log($"MAP INFO{Environment.NewLine}" +
+                      $"{texAnimations.Length} texture animations{Environment.NewLine}" +
+                      $"{uvScrollAnimations.Length} UV scroll animations{Environment.NewLine}" +
+                      $"{objCount} 3D objects{Environment.NewLine}" +
+                      $"Modifiers:{Environment.NewLine}\t" +
+                      $"{String.Join($"{Environment.NewLine}\t", modifiers.Take(modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} {String.Join(", ", x.DataFiles?.Select(d => d.DeterminedType.ToString()) ?? new string[0])}"))}");
 
             if (gao_3dObjParent != null)
             {
@@ -867,8 +870,8 @@ namespace R1Engine
                 {
                     var packet = obj.Primitives[packetIndex];
 
-                    if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
-                        Debug.LogWarning($"Packet has light source");
+                    //if (!packet.Flags.HasFlag(PS1_TMD_Packet.PacketFlags.LGT))
+                    //    Debug.LogWarning($"Packet has light source");
 
                     // TODO: Implement other types
                     if (packet.Mode.Code != PS1_TMD_PacketMode.PacketModeCODE.Polygon)
