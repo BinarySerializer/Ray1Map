@@ -30,7 +30,7 @@ namespace R1Engine.Jade {
 			VertexDataBufferSize = s.Serialize<uint>(VertexDataBufferSize, name: nameof(VertexDataBufferSize));
 			if (VertexDataBufferSize != 0) {
 				VertexDataBufferType = s.Serialize<uint>(VertexDataBufferType, name: nameof(VertexDataBufferType));
-				if (s.GetR1Settings().Platform == Platform.PS3) {
+				if (s.GetR1Settings().Platform == Platform.PS3 && s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT) {
 					s.DoEndian(Endian.Big, () => {
 						VertexData = s.SerializeObject<PointDataBuffer>(VertexData, onPreSerialize: b => b.Geo = this, name: nameof(VertexData));
 					});
@@ -40,7 +40,7 @@ namespace R1Engine.Jade {
 
 				ElementDataBufferSize = s.Serialize<uint>(ElementDataBufferSize, name: nameof(ElementDataBufferSize));
 				if (ElementDataBufferSize != 0) {
-					if (s.GetR1Settings().Platform == Platform.PS3) {
+					if (s.GetR1Settings().Platform == Platform.PS3 && s.GetR1Settings().EngineVersion == EngineVersion.Jade_PoP_SoT) {
 						s.DoEndian(Endian.Big, () => {
 							ElementData = s.SerializeObject<ElementDataBuffer>(ElementData, onPreSerialize: b => b.Geo = this, name: nameof(ElementData));
 						});
@@ -69,12 +69,19 @@ namespace R1Engine.Jade {
 
 			public uint Count { get; set; }
 			public uint PointDataSize { get; set; }
+			public uint PS3PoP_OriginalSize { get; set; }
+			public uint PS3PoP_OffsetInBF { get; set; }
 			public Point[] Points { get; set; }
 
 			public override void SerializeImpl(SerializerObject s) {
 				Count = s.Serialize<uint>(Count, name: nameof(Count));
 				PointDataSize = s.Serialize<uint>(PointDataSize, name: nameof(PointDataSize));
-				Points = s.SerializeObjectArray<Point>(Points, Count, onPreSerialize: v => v.Buffer = this, name: nameof(Points));
+				if (s.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_PoP_WW) && s.GetR1Settings().Platform == Platform.PS3) {
+					PS3PoP_OriginalSize = s.Serialize<uint>(PS3PoP_OriginalSize, name: nameof(PS3PoP_OriginalSize));
+					PS3PoP_OffsetInBF = s.Serialize<uint>(PS3PoP_OffsetInBF, name: nameof(PS3PoP_OffsetInBF));
+				} else {
+					Points = s.SerializeObjectArray<Point>(Points, Count, onPreSerialize: v => v.Buffer = this, name: nameof(Points));
+				}
 
 				if (s.CurrentAbsoluteOffset != Offset.AbsoluteOffset + TotalSize) {
 					s.LogWarning($"Vertex Buffer at {Offset} wasn't serialized properly.");
