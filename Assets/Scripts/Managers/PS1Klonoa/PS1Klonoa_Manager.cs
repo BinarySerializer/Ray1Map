@@ -605,6 +605,8 @@ namespace R1Engine
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
 
+            ArchiveFile.AddToParsedArchiveFiles = true;
+
             Controller.DetailedState = "Loading BIN";
             await Controller.WaitIfNecessary();
 
@@ -639,10 +641,6 @@ namespace R1Engine
             loader.ProcessLevelData();
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded hard-coded level data");
-
-            // Copy debug string to clipboard if any
-            if (ModifierObject.DebugStringBuilder.Length > 0)
-                ModifierObject.DebugStringBuilder.ToString().CopyToClipboard();
 
             const float scale = 64f;
 
@@ -680,6 +678,20 @@ namespace R1Engine
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
 
             Debug.Log($"Map has {movementPaths.Length} movement paths");
+
+            var str = new StringBuilder();
+
+            foreach (var archive in ArchiveFile.ParsedArchiveFiles)
+            {
+                for (int i = 0; i < archive.Value.Length; i++)
+                {
+                    if (!archive.Value[i])
+                        str.AppendLine($"{archive.Key.Offset}: ({archive.Key.GetType().Name}) File #{i}");
+                }
+            }
+
+            Debug.Log($"Unparsed BIN files:{Environment.NewLine}" +
+                      $"{str}");
 
             stopWatch.Stop();
 
