@@ -825,9 +825,9 @@ namespace R1Engine
                     }
                     Vector3 objPosToVector(ObjPosition pos) => new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
                     Quaternion objRotToQuaternion(ObjRotation rot) => Quaternion.Euler(
-                            x: getRotationInDegrees(-rot.RotationX),
+                            x: -getRotationInDegrees(rot.RotationX),
                             y: getRotationInDegrees(rot.RotationY),
-                            z: getRotationInDegrees(rot.RotationZ - rot.RotationX));
+                            z: getRotationInDegrees(rot.RotationZ) - getRotationInDegrees(rot.RotationX));
 
                     Vector3 defaultPos = Vector3.zero;
                     Quaternion defaultRot = Quaternion.identity;
