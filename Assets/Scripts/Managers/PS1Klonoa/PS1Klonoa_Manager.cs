@@ -703,6 +703,7 @@ namespace R1Engine
                 cellSize: 16,
                 objManager: objManager,
                 eventData: objects,
+                framesPerSecond: 30,
                 isometricData: new Unity_IsometricData
                 {
                     CollisionWidth = 0,
