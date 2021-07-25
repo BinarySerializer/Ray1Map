@@ -662,14 +662,20 @@ namespace R1Engine
             var objects = new List<Unity_Object>();
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
 
+            // Add enemies
+            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.SectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa(objManager, x, scale)));
+
+            // Add scenery objects
+            objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.Where(x => x.DataFiles != null).SelectMany(x => x.DataFiles).Where(x => x.ScenerySprites != null).SelectMany(x => x.ScenerySprites.Positions).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
+            {
+                Position = new Vector3(x.ActualXPos / scale, -x.ActualYPos / scale, -x.ActualZPos / scale),
+            }));
+
             // Temporarily add waypoints at each path block to visualize them
             objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.Select(b => new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}")
             {
                 Position = new Vector3(b.XPos / scale, -(b.YPos / scale), -b.ZPos / scale),
             })));
-
-            // Add enemies
-            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.SectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa(objManager, x, scale)));
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
 
