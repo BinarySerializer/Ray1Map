@@ -768,7 +768,8 @@ namespace R1Engine
                             tmd: tmd, 
                             pos: transform?.Position ?? pos ?? multiTransform?.Positions.Positions[0], 
                             rot: transform?.Rotation ?? multiTransform?.Rotations.Rotations[0], 
-                            index: index);
+                            index: index,
+                            multiTransform: multiTransform);
                         index++;
                     }
                 }
@@ -778,7 +779,8 @@ namespace R1Engine
                 }
 
                 // Helper for creating an object
-                void createObj(PS1_TMD tmd, ObjPosition pos = null, ObjRotation rot = null, int index = 0)
+                void createObj(PS1_TMD tmd, ObjPosition pos = null, ObjRotation rot = null, int index = 0,
+                    ObjMultiTransform_ArchiveFile multiTransform = null)
                 {
                     objCount++;
 
@@ -797,23 +799,40 @@ namespace R1Engine
 
                     gameObj.transform.SetParent(gao_3dObjParent.transform);
 
-                    if (pos != null)
-                        gameObj.transform.position = new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
+                    static float getRotationInDegrees(int value) {
+                        if (value > 0x800)
+                            value -= 0x1000;
 
-                    if (rot != null)
-                    {
-                        static float getRotationInDegrees(int value)
-                        {
-                            if (value > 0x800)
-                                value -= 0x1000;
-
-                            return value * (360f / 0x1000);
-                        }
-
-                        gameObj.transform.localRotation = Quaternion.Euler(
+                        return value * (360f / 0x1000);
+                    }
+                    Vector3 objPosToVector(ObjPosition pos) => new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
+                    Quaternion objRotToQuaternion(ObjRotation rot) => Quaternion.Euler(
                             x: getRotationInDegrees(rot.RotationX),
                             y: getRotationInDegrees(rot.RotationY),
                             z: getRotationInDegrees(rot.RotationZ));
+
+                    Vector3 defaultPos = Vector3.zero;
+                    Quaternion defaultRot = Quaternion.identity;
+                    if (pos != null) defaultPos = objPosToVector(pos);
+                    if (rot != null) defaultRot = objRotToQuaternion(rot);
+                    gameObj.transform.localPosition = defaultPos;
+                    gameObj.transform.localRotation = defaultRot;
+
+
+                    if (multiTransform != null) {
+                        var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
+                        mtComponent.animatedTransform = gameObj.transform;
+                        var positions = multiTransform.Positions?.Positions?.Select(p => objPosToVector(p)).ToArray() ?? new Vector3[0];
+                        var rotations = multiTransform.Rotations?.Rotations?.Select(r => objRotToQuaternion(r)).ToArray() ?? new Quaternion[0];
+                        var frameCount = Math.Max(positions.Length, rotations.Length);
+                        mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
+                        for (int i = 0; i < frameCount; i++) {
+                            mtComponent.frames[i] = new AnimatedTransformComponent.Frame() {
+                                Position = positions.Length > i ? positions[i] : defaultPos,
+                                Rotation = rotations.Length > i ? rotations[i] : defaultRot,
+                                Scale = Vector3.one
+                            };
+                        }
                     }
                 }
             }
