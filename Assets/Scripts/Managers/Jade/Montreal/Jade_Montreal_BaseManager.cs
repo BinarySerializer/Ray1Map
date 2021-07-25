@@ -121,7 +121,7 @@ namespace R1Engine
 				dummyFile?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.Montreal_NoKeyChecks);
 				await Loader.LoadLoopBINAsync();
 				currentBinHeaderKey = dummyFile?.Value?.Key ?? null;
-				if (dummyFile?.Value != null && dummyFile.Value.IsTexture) {
+				if (dummyFile?.Value != null && dummyFile.Value.IsTexture && dummyFile.Value.Type != TEX_File.TexFileType.Raw) { // Raw textures are never referenced outside of RawPal textures
 					var key = dummyFile.Value.BinFileHeader.Key;
 					if (!texList.ContainsTextureKey(key) && !dontAdd.Contains(key)) new Jade_TextureReference(s.Context, key)?.Resolve();
 					if (dummyFile.Value.Content_Animated != null) {
