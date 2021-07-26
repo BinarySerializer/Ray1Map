@@ -1360,8 +1360,10 @@ namespace R1Engine
                         texY: rects[i].y - minY,
                         clutX: sprite.PalOffsetX,
                         clutY: 500 + sprite.PalOffsetY,
-                        texturePageOriginX: 64 * (texPage % 16),
-                        texturePageOriginY: 128 * (texPage / 16), // TODO: Fix this
+                        texturePageOriginX: 0,
+                        texturePageOriginY: 0,
+                        texturePageX: texPage % 16,
+                        texturePageY: texPage / 16,
                         texturePageOffsetX: sprite.TexturePageOffsetX,
                         texturePageOffsetY: sprite.TexturePageOffsetY,
                         flipX: sprite.FlipX,
