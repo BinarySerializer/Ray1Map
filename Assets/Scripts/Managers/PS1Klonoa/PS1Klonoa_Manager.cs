@@ -785,8 +785,8 @@ namespace R1Engine
                     {
                         createObj(
                             tmd: tmd, 
-                            pos: transform?.Position ?? pos ?? multiTransform?.Positions.Positions[0], 
-                            rot: transform?.Rotation ?? multiTransform?.Rotations.Rotations[0], 
+                            position: transform?.Position ?? pos ?? multiTransform?.Positions.Positions[0], 
+                            rotation: transform?.Rotation ?? multiTransform?.Rotations.Rotations[0], 
                             index: index,
                             multiTransform: multiTransform);
                         index++;
@@ -798,8 +798,8 @@ namespace R1Engine
                 }
 
                 // Helper for creating an object
-                void createObj(PS1_TMD tmd, ObjPosition pos = null, ObjRotation rot = null, int index = 0,
-                    ObjMultiTransform_ArchiveFile multiTransform = null)
+                void createObj(PS1_TMD tmd, ObjPosition position, ObjRotation rotation, int index, 
+                    ObjMultiTransform_ArchiveFile multiTransform)
                 {
                     objCount++;
 
@@ -811,42 +811,41 @@ namespace R1Engine
                         gao_3dObjParent.transform.localScale = Vector3.one;
                     }
 
-                    var gameObj = CreateGameObject(tmd, loader, scale, $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}", texAnimations, new int[0], out isAnimated);
+                    var gameObj = CreateGameObject(
+                        tmd: tmd, 
+                        loader: loader, 
+                        scale: scale, 
+                        name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}", 
+                        texAnimations: texAnimations, 
+                        scrollUVs: new int[0], 
+                        isAnimated: out isAnimated);
 
                     if (isAnimated)
                         isObjAnimated = true;
 
                     gameObj.transform.SetParent(gao_3dObjParent.transform);
 
-                    static float getRotationInDegrees(int value) {
-                        if (value > 0x800)
-                            value -= 0x1000;
-
-                        return value * (360f / 0x1000);
-                    }
                     Vector3 objPosToVector(ObjPosition pos) => new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
-                    Quaternion objRotToQuaternion(ObjRotation rot) => Quaternion.Euler(
-                            x: -getRotationInDegrees(rot.RotationX),
-                            y: getRotationInDegrees(rot.RotationY),
-                            z: getRotationInDegrees(rot.RotationZ) - getRotationInDegrees(rot.RotationX));
 
                     Vector3 defaultPos = Vector3.zero;
                     Quaternion defaultRot = Quaternion.identity;
-                    if (pos != null) defaultPos = objPosToVector(pos);
-                    if (rot != null) defaultRot = objRotToQuaternion(rot);
+                    if (position != null) defaultPos = objPosToVector(position);
+                    if (rotation != null) defaultRot = GetQuaternion(rotation);
                     gameObj.transform.localPosition = defaultPos;
                     gameObj.transform.localRotation = defaultRot;
 
-
-                    if (multiTransform != null) {
+                    if (multiTransform != null) 
+                    {
                         var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
                         mtComponent.animatedTransform = gameObj.transform;
-                        var positions = multiTransform.Positions?.Positions?.Select(p => objPosToVector(p)).ToArray() ?? new Vector3[0];
-                        var rotations = multiTransform.Rotations?.Rotations?.Select(r => objRotToQuaternion(r)).ToArray() ?? new Quaternion[0];
+                        var positions = multiTransform.Positions?.Positions?.Select(objPosToVector).ToArray() ?? new Vector3[0];
+                        var rotations = multiTransform.Rotations?.Rotations?.Select(GetQuaternion).ToArray() ?? new Quaternion[0];
                         var frameCount = Math.Max(positions.Length, rotations.Length);
                         mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
-                        for (int i = 0; i < frameCount; i++) {
-                            mtComponent.frames[i] = new AnimatedTransformComponent.Frame() {
+                        for (int i = 0; i < frameCount; i++) 
+                        {
+                            mtComponent.frames[i] = new AnimatedTransformComponent.Frame() 
+                            {
                                 Position = positions.Length > i ? positions[i] : defaultPos,
                                 Rotation = rotations.Length > i ? rotations[i] : defaultRot,
                                 Scale = Vector3.one
@@ -1033,10 +1032,10 @@ namespace R1Engine
                     gao.transform.localPosition = Vector3.zero;
                     mf.mesh = unityMesh;
 
-                    mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
-
-                    // TODO: Use additive material for certain objects
-                    //mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+                    if (packet.Mode.ABE)
+                        mr.material = Controller.obj.levelController.controllerTilemap.unlitAdditiveMaterial;
+                    else
+                        mr.material = Controller.obj.levelController.controllerTilemap.unlitTransparentCutoutMaterial;
 
                     // Add texture
                     if (packet.Mode.TME)
@@ -1116,7 +1115,7 @@ namespace R1Engine
 
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
-                        mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}";
+                        mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}";
 
                         // Check for UV scroll animations
                         if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Offset.FileOffset))))
@@ -1140,6 +1139,27 @@ namespace R1Engine
             var height = verts.Max(v => v.Y) - verts.Min(v => v.Y);
             var depth = verts.Max(v => v.Z) - verts.Min(v => v.Z);
             return new Vector3(width, height, depth);
+        }
+
+        public float GetRotationInDegrees(int value)
+        {
+            if (value > 0x800)
+                value -= 0x1000;
+
+            return value * (360f / 0x1000);
+        }
+
+        public Quaternion GetQuaternion(ObjRotation rot)
+        {
+            return GetQuaternion(rot.RotationX, rot.RotationY, rot.RotationZ);
+        }
+
+        public Quaternion GetQuaternion(int rotX, int rotY, int rotZ)
+        {
+            return Quaternion.Euler(
+                x: -GetRotationInDegrees(rotX),
+                y: GetRotationInDegrees(rotY),
+                z: GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX));
         }
 
         public IDX Load_IDX(Context context)
