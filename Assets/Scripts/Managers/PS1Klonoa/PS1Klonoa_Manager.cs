@@ -780,6 +780,13 @@ namespace R1Engine
                     var multiTransform = modifier.DataFiles.FirstOrDefault(x => x.MultiTransform != null)?.MultiTransform;
                     var tmdFiles = modifier.DataFiles.Where(x => x.TMD != null).Select(x => x.TMD);
 
+                    var constantRotation = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
+                        ? ModifierObjectsRotations.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
+                        : null;
+                    var posOffset = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
+                        ? ModifierObjectsPositionOffsets.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
+                        : null;
+
                     var index = 0;
                     foreach (var tmd in tmdFiles)
                     {
@@ -788,7 +795,9 @@ namespace R1Engine
                             position: transform?.Position ?? pos ?? multiTransform?.Positions.Positions[0], 
                             rotation: transform?.Rotation ?? multiTransform?.Rotations.Rotations[0], 
                             index: index,
-                            multiTransform: multiTransform);
+                            multiTransform: multiTransform,
+                            constantRotation: constantRotation,
+                            posOffset: posOffset);
                         index++;
                     }
                 }
@@ -799,7 +808,7 @@ namespace R1Engine
 
                 // Helper for creating an object
                 void createObj(PS1_TMD tmd, ObjPosition position, ObjRotation rotation, int index, 
-                    ObjMultiTransform_ArchiveFile multiTransform)
+                    ObjMultiTransform_ArchiveFile multiTransform, (Vector3Int, int)? constantRotation, Vector3Int? posOffset)
                 {
                     objCount++;
 
@@ -825,7 +834,13 @@ namespace R1Engine
 
                     gameObj.transform.SetParent(gao_3dObjParent.transform);
 
-                    Vector3 objPosToVector(ObjPosition pos) => new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
+                    Vector3 objPosToVector(ObjPosition pos)
+                    {
+                        if (posOffset == null)
+                            return new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
+                        else
+                            return new Vector3((pos.XPos + posOffset.Value.x) / scale, -(pos.YPos + posOffset.Value.y) / scale, (pos.ZPos + posOffset.Value.z) / scale);
+                    }
 
                     Vector3 defaultPos = Vector3.zero;
                     Quaternion defaultRot = Quaternion.identity;
@@ -848,6 +863,32 @@ namespace R1Engine
                             {
                                 Position = positions.Length > i ? positions[i] : defaultPos,
                                 Rotation = rotations.Length > i ? rotations[i] : defaultRot,
+                                Scale = Vector3.one
+                            };
+                        }
+                    }
+
+                    if (constantRotation != null)
+                    {
+                        var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
+                        mtComponent.animatedTransform = gameObj.transform;
+
+                        var rotationPerFrame = constantRotation.Value.Item2;
+                        var count = 0x1000 / rotationPerFrame;
+
+                        mtComponent.frames = new AnimatedTransformComponent.Frame[count];
+
+                        for (int i = 0; i < count; i++)
+                        {
+                            var degrees = GetRotationInDegrees(i * rotationPerFrame);
+
+                            mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
+                            {
+                                Position = defaultPos,
+                                Rotation = defaultRot * Quaternion.Euler(
+                                    x: degrees * constantRotation.Value.Item1.x, 
+                                    y: degrees * constantRotation.Value.Item1.y, 
+                                    z: degrees * constantRotation.Value.Item1.z),
                                 Scale = Vector3.one
                             };
                         }
@@ -1115,7 +1156,7 @@ namespace R1Engine
 
                         t.wrapMode = TextureWrapMode.Repeat;
                         mr.material.SetTexture("_MainTex", t);
-                        mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}";
+                        mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, UVOffset:{packet.UV.First().Offset.FileOffset - tmd.Offset.FileOffset}";
 
                         // Check for UV scroll animations
                         if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Offset.FileOffset))))
@@ -1391,5 +1432,27 @@ namespace R1Engine
             // The exe has to be loaded to read certain data from it
             await context.AddMemoryMappedFile(config.FilePath_EXE, config.Address_EXE, priority: 0); // Give lower prio to prioritize IDX
         }
+
+        // [BINBlock][SecondaryType (for type 41)]
+        // All speeds are estimations and may not be accurate
+        public Dictionary<int, Dictionary<int, (Vector3Int, int)?>> ModifierObjectsRotations { get; } = new Dictionary<int, Dictionary<int, (Vector3Int, int)?>>()
+        {
+            [3] = new Dictionary<int, (Vector3Int, int)?>()
+            {
+                [1] = (new Vector3Int(0, 1, 0), 292), // Wind
+                [5] = (new Vector3Int(0, 0, 1), 60), // Small windmill
+                [6] = (new Vector3Int(0, 0, 1), 16), // Big windmill
+            }
+        };
+
+        // [BINBlock][SecondaryType (for type 41)]
+        // Some objects offset their positions
+        public Dictionary<int, Dictionary<int, Vector3Int>> ModifierObjectsPositionOffsets { get; } = new Dictionary<int, Dictionary<int, Vector3Int>>()
+        {
+            [3] = new Dictionary<int, Vector3Int>()
+            {
+                [1] = new Vector3Int(0, 182, 0), // Wind
+            }
+        };
     }
 }
