@@ -585,10 +585,10 @@ namespace R1Engine
             var startupLog = new StringBuilder();
 
             // Get settings
-            var settings = context.GetR1Settings();
-            var lev = settings.World;
-            var sector = settings.Level;
-            var config = GetLoaderConfig(settings);
+            GameSettings settings = context.GetR1Settings();
+            int lev = settings.World;
+            int sector = settings.Level;
+            LoaderConfiguration config = GetLoaderConfig(settings);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Retrieved settings");
 
@@ -601,7 +601,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            IDX idxData = Load_IDX(context);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
 
@@ -645,53 +645,21 @@ namespace R1Engine
             const float scale = 64f;
 
             // Load the layers
-            var layers = await Load_LayersAsync(loader, sector, scale);
+            Unity_Layer[] layers = await Load_LayersAsync(loader, sector, scale);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
             // Load object manager
-            var objManager = await Load_ObjManagerAsync(loader);
+            Unity_ObjectManager_PS1Klonoa objManager = await Load_ObjManagerAsync(loader);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
 
             Controller.DetailedState = "Loading objects";
             await Controller.WaitIfNecessary();
 
-            var objects = new List<Unity_Object>();
-            var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
-
-            // Add enemies
-            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale)));
-
-            // Add Dream Stones
-            objects.AddRange(loader.LevelData2D.CollectibleObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x =>
-            {
-                Vector3 pos;
-
-                // If the path index is -1 then the position is absolute, otherwise it's relative
-                if (x.MovementPath == -1)
-                    pos = GetPosition(x.XPos.Value, x.YPos.Value, x.ZPos.Value, scale);
-                else
-                    pos = GetPosition(movementPaths[x.MovementPath].Blocks, x.MovementPathPosition, new Vector3(0, x.YPos.Value, 0), scale);
-
-                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos);
-            }));
-
-            // Add scenery objects
-            objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.Where(x => x.DataFiles != null).SelectMany(x => x.DataFiles).Where(x => x.ScenerySprites != null).SelectMany(x => x.ScenerySprites.Positions).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
-            {
-                Position = GetPosition(x.XPos, x.YPos, x.ZPos, scale),
-            }));
-
-            // Temporarily add waypoints at each path block to visualize them
-            objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.Select(b => new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}")
-            {
-                Position = GetPosition(b.XPos, b.YPos, b.ZPos, scale),
-            })));
+            List<Unity_Object> objects = Load_Objects(loader, sector, scale, objManager);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
-
-            Debug.Log($"Map has {movementPaths.Length} movement paths");
 
             var str = new StringBuilder();
 
@@ -959,6 +927,43 @@ namespace R1Engine
             }
 
             return new Unity_ObjectManager_PS1Klonoa(loader.Context, frameSets.ToArray());
+        }
+
+        public List<Unity_Object> Load_Objects(Loader loader, int sector, float scale, Unity_ObjectManager_PS1Klonoa objManager)
+        {
+            var objects = new List<Unity_Object>();
+            var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
+
+            // Add enemies
+            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale)));
+
+            // Add Dream Stones
+            objects.AddRange(loader.LevelData2D.CollectibleObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x =>
+            {
+                Vector3 pos;
+
+                // If the path index is -1 then the position is absolute, otherwise it's relative
+                if (x.MovementPath == -1)
+                    pos = GetPosition(x.XPos.Value, x.YPos.Value, x.ZPos.Value, scale);
+                else
+                    pos = GetPosition(movementPaths[x.MovementPath].Blocks, x.MovementPathPosition, new Vector3(0, x.YPos.Value, 0), scale);
+
+                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos);
+            }));
+
+            // Add scenery objects
+            objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.Where(x => x.DataFiles != null).SelectMany(x => x.DataFiles).Where(x => x.ScenerySprites != null).SelectMany(x => x.ScenerySprites.Positions).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
+            {
+                Position = GetPosition(x.XPos, x.YPos, x.ZPos, scale),
+            }));
+
+            // Temporarily add waypoints at each path block to visualize them
+            objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.Select(b => new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}")
+            {
+                Position = GetPosition(b.XPos, b.YPos, b.ZPos, scale),
+            })));
+
+            return objects;
         }
 
         public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, out bool isAnimated)
