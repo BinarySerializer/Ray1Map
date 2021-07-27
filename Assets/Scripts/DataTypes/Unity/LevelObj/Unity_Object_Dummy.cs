@@ -6,11 +6,12 @@ namespace R1Engine
 {
     public class Unity_Object_Dummy : Unity_Object_3D
     {
-        public Unity_Object_Dummy(BinarySerializable serializableData, ObjectType type, string debugText = null)
+        public Unity_Object_Dummy(BinarySerializable serializableData, ObjectType type, string debugText = null, int[] objLinks = null)
         {
             SerializableData = serializableData;
             Type = type;
             DebugText = debugText;
+            ObjLinks = objLinks;
         }
 
         public override short XPosition { get; set; }
@@ -21,6 +22,12 @@ namespace R1Engine
         public override string DebugText { get; }
         public override ObjectType Type { get; }
         public override string PrimaryName => $"DUMMY";
+
+        public int[] ObjLinks { get; }
+
+        public override IEnumerable<int> Links => ObjLinks;
+        public override bool CanBeLinked => ObjLinks != null;
+
         public override Unity_ObjAnimation CurrentAnimation => null;
         public override int AnimSpeed => 0;
         public override int? GetAnimIndex => null;

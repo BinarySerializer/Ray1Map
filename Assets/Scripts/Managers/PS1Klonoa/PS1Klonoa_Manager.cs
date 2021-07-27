@@ -937,6 +937,28 @@ namespace R1Engine
             // Add enemies
             objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale)));
 
+            // Add enemy spawn points
+            for (int pathIndex = 0; pathIndex < loader.LevelData2D.EnemyObjectIndexTables.IndexTables.Length; pathIndex++)
+            {
+                for (int objIndex = 0; objIndex < loader.LevelData2D.EnemyObjectIndexTables.IndexTables[pathIndex].Length; objIndex++)
+                {
+                    var obj = loader.LevelData2D.EnemyObjects[loader.LevelData2D.EnemyObjectIndexTables.IndexTables[pathIndex][objIndex]];
+
+                    if (obj.GlobalSectorIndex != loader.GlobalSectorIndex)
+                        continue;
+
+                    var pos = GetPosition(movementPaths[pathIndex].Blocks, obj.MovementPathSpawnPosition, Vector3.zero, scale);
+
+                    objects.Add(new Unity_Object_Dummy(obj, Unity_Object.ObjectType.Trigger, objLinks: new int[]
+                    {
+                        objects.OfType<Unity_Object_PS1Klonoa_Enemy>().FindItemIndex(x => x.Object == obj)
+                    })
+                    {
+                        Position = pos,
+                    });
+                }
+            }
+
             // Add Dream Stones
             objects.AddRange(loader.LevelData2D.CollectibleObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x =>
             {
