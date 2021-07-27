@@ -17,7 +17,7 @@ namespace R1Engine
             if (FrameSetIndex == -1)
                 Debug.LogWarning($"Enemy graphics was not set");
 
-            Position = new Vector3(obj.ActualXPos / scale, -obj.ActualYPos / scale, -obj.ActualZPos / scale);
+            Position = PS1Klonoa_Manager.GetPosition(obj.XPos.Value, obj.YPos.Value, obj.ZPos.Value, scale);
         }
 
         public Unity_ObjectManager_PS1Klonoa ObjManager { get; }
