@@ -1,27 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BinarySerializer;
 using BinarySerializer.KlonoaDTP;
 using UnityEngine;
 
 namespace R1Engine
 {
-    public sealed class Unity_Object_PS1Klonoa : Unity_Object_3D
+    public abstract class Unity_Object_BasePS1Klonoa : Unity_Object_3D
     {
-        public Unity_Object_PS1Klonoa(Unity_ObjectManager_PS1Klonoa objManager, EnemyObject obj, float scale)
+        protected Unity_Object_BasePS1Klonoa(Unity_ObjectManager_PS1Klonoa objManager)
         {
             ObjManager = objManager;
-            Object = obj;
-            FrameSetIndex = objManager.FrameSets.FindItemIndex(x => x.Index == obj.GraphicsIndex - 1);
-
-            if (FrameSetIndex == -1)
-                Debug.LogWarning($"Enemy graphics was not set");
-
-            Position = PS1Klonoa_Manager.GetPosition(obj.XPos.Value, obj.YPos.Value, obj.ZPos.Value, scale);
         }
 
         public Unity_ObjectManager_PS1Klonoa ObjManager { get; }
-        public EnemyObject Object { get; set; }
 
         public override short XPosition
         {
@@ -39,12 +30,14 @@ namespace R1Engine
         
         public Unity_ObjectManager_PS1Klonoa.FrameSet FrameSet => ObjManager.FrameSets.ElementAtOrDefault(FrameSetIndex);
 
-        public override BinarySerializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public override string PrimaryName => $"Type_1_{Object.SecondaryType}";
+        public override string PrimaryName => $"Type_{(int)PrimaryType}_{SecondaryType}";
 
         public override ObjectType Type => ObjectType.Object;
+
+        public abstract PrimaryObjectType PrimaryType { get; }
+        public abstract int SecondaryType { get; }
 
         private int _frameSetIndex;
 
@@ -68,12 +61,12 @@ namespace R1Engine
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
-            public LegacyEditorWrapper(Unity_Object_PS1Klonoa obj)
+            public LegacyEditorWrapper(Unity_Object_BasePS1Klonoa obj)
             {
                 Obj = obj;
             }
 
-            private Unity_Object_PS1Klonoa Obj { get; }
+            private Unity_Object_BasePS1Klonoa Obj { get; }
 
             public ushort Type { get; set; }
 
@@ -126,12 +119,12 @@ namespace R1Engine
 
             public override void Apply(Unity_Object obj)
             {
-                ((Unity_Object_PS1Klonoa)obj).AnimIndex = (byte)AnimIndex;
+                ((Unity_Object_BasePS1Klonoa)obj).AnimIndex = (byte)AnimIndex;
             }
 
             public override bool IsCurrentState(Unity_Object obj)
             {
-                return AnimIndex == ((Unity_Object_PS1Klonoa)obj).AnimIndex;
+                return AnimIndex == ((Unity_Object_BasePS1Klonoa)obj).AnimIndex;
             }
         }
 

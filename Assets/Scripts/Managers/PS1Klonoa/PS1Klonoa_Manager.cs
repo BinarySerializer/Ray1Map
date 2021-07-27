@@ -661,7 +661,21 @@ namespace R1Engine
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
 
             // Add enemies
-            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa(objManager, x, scale)));
+            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale)));
+
+            // Add Dream Stones
+            objects.AddRange(loader.LevelData2D.CollectibleObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x =>
+            {
+                Vector3 pos;
+
+                // If the path index is -1 then the position is absolute, otherwise it's relative
+                if (x.MovementPath == -1)
+                    pos = GetPosition(x.XPos.Value, x.YPos.Value, x.ZPos.Value, scale);
+                else
+                    pos = GetPosition(movementPaths[x.MovementPath].Blocks, x.MovementPathPosition, new Vector3(0, x.YPos.Value, 0), scale);
+
+                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos);
+            }));
 
             // Add scenery objects
             objects.AddRange(loader.LevelData3D.SectorModifiers[sector].Modifiers.Where(x => x.DataFiles != null).SelectMany(x => x.DataFiles).Where(x => x.ScenerySprites != null).SelectMany(x => x.ScenerySprites.Positions).Select(x => new Unity_Object_Dummy(x, Unity_Object.ObjectType.Object)
@@ -1456,5 +1470,59 @@ namespace R1Engine
         };
 
         public static Vector3 GetPosition(float x, float y, float z, float scale) => new Vector3(x / scale, -z / scale, -y / scale);
+
+        public static Vector3 GetPosition(MovementPathBlock[] path, int position, Vector3 relativePos, float scale)
+        {
+            var blockIndex = 0;
+            int blockPosOffset;
+
+            if (position < 0)
+            {
+                blockIndex = 0;
+                blockPosOffset = position;
+            }
+            else
+            {
+                var iVar6 = 0;
+
+                do
+                {
+                    var iVar2 = path[blockIndex].BlockLength;
+
+                    if (iVar2 == 0x7ffe)
+                    {
+                        blockIndex = 0;
+                    }
+                    else
+                    {
+                        if (iVar2 == 0x7fff)
+                        {
+                            iVar6 -= path[blockIndex - 1].BlockLength;
+                            break;
+                        }
+
+                        iVar6 += iVar2;
+                        blockIndex++;
+                    }
+                } while (iVar6 <= position);
+
+                iVar6 -= position;
+
+                blockIndex--;
+
+                if (iVar6 < 0)
+                    blockPosOffset = -iVar6;
+                else
+                    blockPosOffset = path[blockIndex].BlockLength - iVar6;
+            }
+
+            var block = path[blockIndex];
+
+            float xPos = block.XPos + block.DirectionX * blockPosOffset + relativePos.x;
+            float yPos = block.YPos + block.DirectionY * blockPosOffset + relativePos.y;
+            float zPos = block.ZPos + block.DirectionZ * blockPosOffset + relativePos.z;
+
+            return GetPosition(xPos, yPos, zPos, scale);
+        }
     }
 }
