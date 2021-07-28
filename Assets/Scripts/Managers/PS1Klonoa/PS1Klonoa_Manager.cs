@@ -101,7 +101,7 @@ namespace R1Engine
                 
                 [IDXLoadCommand.FileType.Archive_Unk0] = 1,
                 [IDXLoadCommand.FileType.Archive_Unk4] = 2,
-                [IDXLoadCommand.FileType.Archive_Unk5] = 1,
+                [IDXLoadCommand.FileType.Archive_WorldMap] = 1,
 
                 [IDXLoadCommand.FileType.Code] = 0,
             };
@@ -239,6 +239,19 @@ namespace R1Engine
 
                             break;
 
+                        case IDXLoadCommand.FileType.Archive_WorldMap:
+
+                            // Read the data
+                            var f = loader.LoadBINFile<WorldMap_ArchiveFile>(i);
+
+                            foreach (var tim in f.SpriteSheets.Files)
+                            {
+                                export(() => GetTexture(tim), "WorldMap");
+                                index++;
+                            }
+
+                            break;
+
                         case IDXLoadCommand.FileType.Archive_BackgroundPack:
 
                             // Read the data
@@ -257,15 +270,15 @@ namespace R1Engine
                             // Read the data
                             LevelSpritePack_ArchiveFile spritePack = loader.LoadBINFile<LevelSpritePack_ArchiveFile>(i);
 
-                            var exported = new HashSet<PlayerSprite_File>();
+                            var exportedPlayerSprites = new HashSet<PlayerSprite_File>();
 
                             var pal = spritePack.PlayerSprites.Files.FirstOrDefault(x => x?.TIM?.Clut != null)?.TIM.Clut.Palette.Select(x => x.GetColor()).ToArray();
 
                             foreach (var file in spritePack.PlayerSprites.Files)
                             {
-                                if (file != null && !exported.Contains(file))
+                                if (file != null && !exportedPlayerSprites.Contains(file))
                                 {
-                                    exported.Add(file);
+                                    exportedPlayerSprites.Add(file);
 
                                     export(() =>
                                     {
@@ -392,8 +405,32 @@ namespace R1Engine
 
             var loader = Loader.Create(context, idxData, config);
 
+            // Load allfix
+            loader.SwitchBlocks(0);
+            loader.LoadAndProcessBINBlock();
+
+            // Extract world map sprites with both palettes
+            for (int i = 0; i < 2; i++)
+            {
+                var wld = loader.WorldMap;
+
+                if (i == 1)
+                    loader.AddToVRAM(wld.Palette2);
+
+                // Enumerate every frame
+                for (int frameIndex = 0; frameIndex < wld.Graphics.Sprites.Files.Length - 1; frameIndex++)
+                {
+                    var sprites = wld.Graphics.Sprites.Files[frameIndex].Textures;
+                    var tex = GetTexture(sprites, loader.VRAM);
+
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"WorldMap", $"{i} - {frameIndex}.png"), tex.EncodeToPNG());
+                }
+            }
+
+            PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_WorldMap.png"), loader.VRAM);
+
             // Enumerate every entry
-            for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
+            for (var blockIndex = 1; blockIndex < idxData.Entries.Length; blockIndex++)
             {
                 loader.SwitchBlocks(blockIndex);
 
