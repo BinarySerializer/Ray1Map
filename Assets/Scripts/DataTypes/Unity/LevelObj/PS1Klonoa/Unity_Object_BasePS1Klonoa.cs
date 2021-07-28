@@ -28,7 +28,7 @@ namespace R1Engine
 
         public override Vector3 Position { get; set; }
         
-        public Unity_ObjectManager_PS1Klonoa.FrameSet FrameSet => ObjManager.FrameSets.ElementAtOrDefault(FrameSetIndex);
+        public Unity_ObjectManager_PS1Klonoa.SpriteSet SpriteSet => ObjManager.SpriteSets.ElementAtOrDefault(SpriteSetIndex);
 
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
@@ -39,25 +39,25 @@ namespace R1Engine
         public abstract PrimaryObjectType PrimaryType { get; }
         public abstract int SecondaryType { get; }
 
-        private int _frameSetIndex;
+        private int spriteSetIndex;
 
-        public int FrameSetIndex
+        public int SpriteSetIndex
         {
-            get => _frameSetIndex;
+            get => spriteSetIndex;
             set
             {
-                _frameSetIndex = value;
+                spriteSetIndex = value;
                 AnimIndex = 0;
             }
         }
 
-        public byte AnimIndex { get; set; }
+        public int AnimIndex { get; set; }
 
-        public override Unity_ObjAnimation CurrentAnimation => FrameSet?.Animations.ElementAtOrDefault(AnimIndex);
+        public override Unity_ObjAnimation CurrentAnimation => SpriteSet?.Animations.ElementAtOrDefault(AnimIndex);
         public override int AnimSpeed => 0;
         public override int? GetAnimIndex => AnimIndex;
-        protected override int GetSpriteID => FrameSetIndex;
-        public override IList<Sprite> Sprites => FrameSet?.Frames;
+        protected override int GetSpriteID => SpriteSetIndex;
+        public override IList<Sprite> Sprites => SpriteSet?.Sprites;
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
@@ -72,26 +72,26 @@ namespace R1Engine
 
             public int DES
             {
-                get => Obj.FrameSetIndex;
-                set => Obj.FrameSetIndex = value;
+                get => Obj.SpriteSetIndex;
+                set => Obj.SpriteSetIndex = value;
             }
 
             public int ETA
             {
-                get => Obj.FrameSetIndex;
-                set => Obj.FrameSetIndex = value;
+                get => Obj.SpriteSetIndex;
+                set => Obj.SpriteSetIndex = value;
             }
 
             public byte Etat { get; set; }
 
             public byte SubEtat
             {
-                get => Obj.AnimIndex;
+                get => (byte)Obj.AnimIndex;
                 set => Obj.AnimIndex = value;
             }
 
             public int EtatLength => 0;
-            public int SubEtatLength => Obj.FrameSet?.Animations?.Length ?? 0;
+            public int SubEtatLength => Obj.SpriteSet?.Animations?.Length ?? 0;
 
             public byte OffsetBX { get; set; }
 
@@ -111,7 +111,7 @@ namespace R1Engine
         #region UI States
 
         private int UIStates_AnimSetIndex { get; set; } = -2;
-        protected override bool IsUIStateArrayUpToDate => FrameSetIndex == UIStates_AnimSetIndex;
+        protected override bool IsUIStateArrayUpToDate => SpriteSetIndex == UIStates_AnimSetIndex;
 
         private class PS1Klonoa_UIState : UIState
         {
@@ -130,11 +130,11 @@ namespace R1Engine
 
         protected override void RecalculateUIStates()
         {
-            UIStates_AnimSetIndex = FrameSetIndex;
+            UIStates_AnimSetIndex = SpriteSetIndex;
 
             List<UIState> uiStates = new List<UIState>();
 
-            for (byte i = 0; i < (FrameSet?.Animations?.Length ?? 0); i++)
+            for (byte i = 0; i < (SpriteSet?.Animations?.Length ?? 0); i++)
                 uiStates.Add(new PS1Klonoa_UIState($"Sprite {i}", animIndex: i));
 
             UIStates = uiStates.ToArray();

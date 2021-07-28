@@ -906,7 +906,7 @@ namespace R1Engine
 
         public async UniTask<Unity_ObjectManager_PS1Klonoa> Load_ObjManagerAsync(Loader loader)
         {
-            var frameSets = new List<Unity_ObjectManager_PS1Klonoa.FrameSet>();
+            var frameSets = new List<Unity_ObjectManager_PS1Klonoa.SpriteSet>();
 
             // Enumerate each frame set
             for (var i = 0; i < loader.SpriteFrames.Length; i++)
@@ -923,7 +923,7 @@ namespace R1Engine
                 // Create the frame textures
                 var frameTextures = frames.Files.Select(x => GetTexture(x.Textures, loader.VRAM).CreateSprite()).ToArray();
 
-                frameSets.Add(new Unity_ObjectManager_PS1Klonoa.FrameSet(frameTextures, i));
+                frameSets.Add(new Unity_ObjectManager_PS1Klonoa.SpriteSet(frameTextures, i));
             }
 
             return new Unity_ObjectManager_PS1Klonoa(loader.Context, frameSets.ToArray());
@@ -970,7 +970,9 @@ namespace R1Engine
                 else
                     pos = GetPosition(movementPaths[x.MovementPath].Blocks, x.MovementPathPosition, new Vector3(0, x.YPos.Value, 0), scale);
 
-                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos);
+                var spriteInfo = GetObjSprite(SpriteInfos_Collectibles, x, x.SecondaryType);
+
+                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos, spriteInfo.Item1, spriteInfo.Item2);
             }));
 
             // Add scenery objects
@@ -1495,6 +1497,83 @@ namespace R1Engine
                 [1] = new Vector3Int(0, 182, 0), // Wind
             }
         };
+
+        public Dictionary<int, ObjSpriteCheckFunc<CollectibleObject>> SpriteInfos_Collectibles { get; } = new Dictionary<int, ObjSpriteCheckFunc<CollectibleObject>>
+        {
+            [1] = x => (68, 10), // Switch
+            [2] = x => x.Ushort_14 == 0 ? (68, 0) : (68, 5), // Dream Stone
+
+            [3] = x => x.Short_0E switch
+            {
+                3 => (68, 30),
+                4 => (68, 22),
+                15 => (68, 57),
+                _ => (-1, -1)
+            }, // Heart, life
+            [4] = x => x.Short_0E switch
+            {
+                3 => (68, 30),
+                4 => (68, 22),
+                15 => (68, 57),
+                _ => (-1, -1)
+            }, // Heart, life
+
+            [5] = x => x.Short_0E switch
+            {
+                5 => (68, 42), // Checkpoint
+                9 => (68, 43), // Item
+                13 => (68, 44), // x2
+                _ => (-1, -1)
+            }, // Bubble
+            [6] = x => x.Short_0E switch
+            {
+                5 => (68, 42), // Checkpoint
+                9 => (68, 43), // Phantomillian
+                13 => (68, 44), // x2
+                _ => (-1, -1)
+            }, // Bubble
+
+            [8] = x => (68, 76), // Nagapoko Egg
+            [9] = x => (68, 76), // Nagapoko Egg
+
+            [16] = x => x.Short_0E switch
+            {
+                5 => (68, 42), // Checkpoint
+                9 => (68, 43), // Item
+                13 => (68, 44), // x2
+                _ => (-1, -1)
+            }, // Bubble
+            [17] = x => x.Short_0E switch
+            {
+                5 => (68, 42), // Checkpoint
+                9 => (68, 43), // Item
+                13 => (68, 44), // x2
+                _ => (-1, -1)
+            }, // Bubble
+        };
+
+        public delegate (int, int) ObjSpriteCheckFunc<in T>(T obj)
+            where T : BinarySerializable;
+
+        public (int, int) GetObjSprite<T>(Dictionary<int, ObjSpriteCheckFunc<T>> spriteInfos, T obj, int type)
+            where T : BinarySerializable
+        {
+            if (!SpriteInfos_Collectibles.ContainsKey(type))
+            {
+                Debug.LogWarning($"No sprite infos has been defined for object of type {typeof(T).Name} with secondary type {type}");
+                return (-1, -1);
+            }
+
+            var r = spriteInfos[type](obj);
+
+            if (r.Item1 == -1 || r.Item2 == -1)
+            {
+                Debug.LogWarning($"Sprite could not be determined for object of type {typeof(T).Name} with secondary type {type}");
+                return (-1, -1);
+            }
+
+            return r;
+        }
 
         public static Vector3 GetPosition(float x, float y, float z, float scale) => new Vector3(x / scale, -z / scale, -y / scale);
 

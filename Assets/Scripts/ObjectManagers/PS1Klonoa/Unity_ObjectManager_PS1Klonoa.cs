@@ -6,20 +6,20 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_PS1Klonoa : Unity_ObjectManager
     {
-        public Unity_ObjectManager_PS1Klonoa(Context context, FrameSet[] frameSets) : base(context)
+        public Unity_ObjectManager_PS1Klonoa(Context context, SpriteSet[] spriteSets) : base(context)
         {
-            FrameSets = frameSets;
+            SpriteSets = spriteSets;
         }
 
-        public FrameSet[] FrameSets { get; }
+        public SpriteSet[] SpriteSets { get; }
 
-        public class FrameSet
+        public class SpriteSet
         {
-            public FrameSet(Sprite[] frames, int index)
+            public SpriteSet(Sprite[] sprites, int index)
             {
-                Frames = frames;
+                Sprites = sprites;
                 Index = index;
-                Animations = Frames.Select((x, i) => new Unity_ObjAnimation
+                Animations = Sprites.Select((x, i) => new Unity_ObjAnimation
                 {
                     Frames = new Unity_ObjAnimationFrame[]
                     {
@@ -28,14 +28,15 @@ namespace R1Engine
                             new Unity_ObjAnimationPart()
                             {
                                 ImageIndex = i,
-                                YPosition = (int)(-x.rect.height)
+                                YPosition = (int)(-x.rect.height),
+                                XPosition = (int)(-x.rect.width / 2),
                             }
                         })
                     }
                 }).ToArray();
             }
 
-            public Sprite[] Frames { get; }
+            public Sprite[] Sprites { get; }
             public Unity_ObjAnimation[] Animations { get; }
             public int Index { get; }
             public string DisplayName => $"{Index}";

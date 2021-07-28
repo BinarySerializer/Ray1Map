@@ -9,9 +9,9 @@ namespace R1Engine
         public Unity_Object_PS1Klonoa_Enemy(Unity_ObjectManager_PS1Klonoa objManager, EnemyObject obj, float scale) : base(objManager)
         {
             Object = obj;
-            FrameSetIndex = objManager.FrameSets.FindItemIndex(x => x.Index == obj.GraphicsIndex - 1);
+            SpriteSetIndex = objManager.SpriteSets.FindItemIndex(x => x.Index == obj.GraphicsIndex - 1);
 
-            if (FrameSetIndex == -1)
+            if (SpriteSetIndex == -1)
                 Debug.LogWarning($"Enemy graphics was not set");
 
             Position = PS1Klonoa_Manager.GetPosition(obj.XPos.Value, obj.YPos.Value, obj.ZPos.Value, scale);
