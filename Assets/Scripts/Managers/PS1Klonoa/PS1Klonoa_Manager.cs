@@ -24,28 +24,28 @@ namespace R1Engine
             ("MENU", 0),
             ("CODE", 0),
 
-            ("Vision 1-1 The Beginnings of Gale (Breezegale, The Wind Village)", 3),
-            ("Vision 1-2 The Diva and the Dark Spirit (Gunston Mine)", 5),
+            ("Vision 1-1 The Beginnings of Gale", 3),
+            ("Vision 1-2 The Diva and the Dark Spirit", 5),
             ("Rongo Lango", 2),
 
-            ("Vision 2-1 Deep in the Dying Forest (Forlock, The Tree Village)", 4),
-            ("Vision 2-2 Beyond the Backwards Waterfall (The Kingdom of Jugpot)", 6),
+            ("Vision 2-1 Deep in the Dying Forest", 4),
+            ("Vision 2-2 Beyond the Backwards Waterfall", 6),
             ("Pamela", 2),
 
-            ("Vision 3-1 Rebirth of the Forest (Forlock, The Tree Village)", 5),
-            ("Vision 3-2 The Stopped Gear (The Tree Mansion of Machinery)", 10),
+            ("Vision 3-1 Rebirth of the Forest", 5),
+            ("Vision 3-2 The Stopped Gear", 10),
             ("Gelg Bolm", 1),
 
-            ("Vision 4-1 A Village in Danger (The Ruin of the Wind Kingdom)", 3),
-            ("Vision 4-2 A Lull in the Wind (The Leviathan's Ice Cavern)", 8),
+            ("Vision 4-1 A Village in Danger", 3),
+            ("Vision 4-2 A Lull in the Wind", 8),
             ("Baladium", 2),
 
-            ("Vision 5-1 The Four Orbs (Coronia, Temple of the Sun)", 7),
-            ("Vision 5-2 Between Light and Darkness (High Above Coronia)", 9),
+            ("Vision 5-1 The Four Orbs", 7),
+            ("Vision 5-2 Between Light and Darkness", 9),
             ("Joka", 1),
 
-            ("Vision 6-1 The Legendary Kingdom (Cress, the Moon Kingdom)", 8),
-            ("Vision 6-2 The Time of Restoration (The Prism Corridor)", 8),
+            ("Vision 6-1 The Legendary Kingdom", 8),
+            ("Vision 6-2 The Time of Restoration", 8),
             ("", 2),
             ("", 2),
             ("", 3),
@@ -101,6 +101,7 @@ namespace R1Engine
                 
                 [IDXLoadCommand.FileType.Archive_Unk0] = 1,
                 [IDXLoadCommand.FileType.Archive_Unk4] = 2,
+                [IDXLoadCommand.FileType.Archive_Unk6] = 2,
                 [IDXLoadCommand.FileType.Archive_WorldMap] = 1,
 
                 [IDXLoadCommand.FileType.Code] = 0,
@@ -735,7 +736,8 @@ namespace R1Engine
                     CalculateYDisplacement = () => 0,
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 1
-                });
+                },
+                ps1Vram: loader.VRAM);
         }
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector, float scale)
@@ -806,13 +808,39 @@ namespace R1Engine
                         ? ModifierObjectsPositionOffsets.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
                         : null;
 
+                    ObjPosition[] p = transform?.Positions.Positions;
+                    ObjRotation[] r = transform?.Rotations.Rotations;
+
+                    if (p == null)
+                    {
+                        if (pos != null)
+                            p = new ObjPosition[]
+                            {
+                                pos
+                            };
+                        else if (multiTransform?.Positions.Positions[0] != null)
+                            p = new ObjPosition[]
+                            {
+                                multiTransform?.Positions.Positions[0]
+                            };
+                    }
+
+                    if (r == null)
+                    {
+                        if (multiTransform?.Rotations.Rotations[0] != null)
+                            r = new ObjRotation[]
+                            {
+                                multiTransform?.Rotations.Rotations[0]
+                            };
+                    }
+
                     var index = 0;
                     foreach (var tmd in tmdFiles)
                     {
                         createObj(
                             tmd: tmd, 
-                            position: transform?.Position ?? pos ?? multiTransform?.Positions.Positions[0], 
-                            rotation: transform?.Rotation ?? multiTransform?.Rotations.Rotations[0], 
+                            objPositions: p, 
+                            objRotations: r, 
                             index: index,
                             multiTransform: multiTransform,
                             constantRotation: constantRotation,
@@ -826,8 +854,12 @@ namespace R1Engine
                 }
 
                 // Helper for creating an object
-                void createObj(PS1_TMD tmd, ObjPosition position, ObjRotation rotation, int index, 
-                    ObjMultiTransform_ArchiveFile multiTransform, (Vector3Int, int)? constantRotation, Vector3Int? posOffset)
+                void createObj(
+                    PS1_TMD tmd, // The TMD model
+                    ObjPosition[] objPositions, ObjRotation[] objRotations, // The transform for the objects
+                    int index, // The index of the object within the modifier
+                    ObjMultiTransform_ArchiveFile multiTransform, // Optional multi-transform
+                    (Vector3Int, int)? constantRotation, Vector3Int? posOffset) // Optional hard-coded values
                 {
                     objCount++;
 
@@ -839,6 +871,15 @@ namespace R1Engine
                         gao_3dObjParent.transform.localScale = Vector3.one;
                     }
 
+                    Vector3[] defaultPositions = new Vector3[] { Vector3.zero };
+                    Quaternion[] defaultRotations = new Quaternion[] { Quaternion.identity };
+
+                    if (objPositions != null) 
+                        defaultPositions = objPositions.Select(x => GetPositionVector(x, posOffset, scale)).ToArray();
+
+                    if (objRotations != null) 
+                        defaultRotations = objRotations.Select(GetQuaternion).ToArray();
+
                     var gameObj = CreateGameObject(
                         tmd: tmd, 
                         loader: loader, 
@@ -846,33 +887,26 @@ namespace R1Engine
                         name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}", 
                         texAnimations: texAnimations, 
                         scrollUVs: new int[0], 
-                        isAnimated: out isAnimated);
+                        isAnimated: out isAnimated,
+                        positions: defaultPositions.Length > 1 ? defaultPositions : null,
+                        rotations: defaultRotations.Length > 1 ? defaultRotations : null);
 
                     if (isAnimated)
                         isObjAnimated = true;
 
                     gameObj.transform.SetParent(gao_3dObjParent.transform);
 
-                    Vector3 objPosToVector(ObjPosition pos)
-                    {
-                        if (posOffset == null)
-                            return new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
-                        else
-                            return new Vector3((pos.XPos + posOffset.Value.x) / scale, -(pos.YPos + posOffset.Value.y) / scale, (pos.ZPos + posOffset.Value.z) / scale);
-                    }
+                    if (defaultPositions.Length == 1)
+                        gameObj.transform.localPosition = defaultPositions[0];
 
-                    Vector3 defaultPos = Vector3.zero;
-                    Quaternion defaultRot = Quaternion.identity;
-                    if (position != null) defaultPos = objPosToVector(position);
-                    if (rotation != null) defaultRot = GetQuaternion(rotation);
-                    gameObj.transform.localPosition = defaultPos;
-                    gameObj.transform.localRotation = defaultRot;
+                    if (defaultRotations.Length == 1)
+                        gameObj.transform.localRotation = defaultRotations[0];
 
                     if (multiTransform != null) 
                     {
                         var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
                         mtComponent.animatedTransform = gameObj.transform;
-                        var positions = multiTransform.Positions?.Positions?.Select(objPosToVector).ToArray() ?? new Vector3[0];
+                        var positions = multiTransform.Positions?.Positions?.Select(x => GetPositionVector(x, posOffset, scale)).ToArray() ?? new Vector3[0];
                         var rotations = multiTransform.Rotations?.Rotations?.Select(GetQuaternion).ToArray() ?? new Quaternion[0];
                         var frameCount = Math.Max(positions.Length, rotations.Length);
                         mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
@@ -880,8 +914,8 @@ namespace R1Engine
                         {
                             mtComponent.frames[i] = new AnimatedTransformComponent.Frame() 
                             {
-                                Position = positions.Length > i ? positions[i] : defaultPos,
-                                Rotation = rotations.Length > i ? rotations[i] : defaultRot,
+                                Position = positions.Length > i ? positions[i] : defaultPositions[0],
+                                Rotation = rotations.Length > i ? rotations[i] : defaultRotations[0],
                                 Scale = Vector3.one
                             };
                         }
@@ -903,8 +937,8 @@ namespace R1Engine
 
                             mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
                             {
-                                Position = defaultPos,
-                                Rotation = defaultRot * Quaternion.Euler(
+                                Position = defaultPositions[0],
+                                Rotation = defaultRotations[0] * Quaternion.Euler(
                                     x: degrees * constantRotation.Value.Item1.x, 
                                     y: degrees * constantRotation.Value.Item1.y, 
                                     z: degrees * constantRotation.Value.Item1.z),
@@ -1027,7 +1061,7 @@ namespace R1Engine
             return objects;
         }
 
-        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, out bool isAnimated)
+        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, out bool isAnimated, Vector3[] positions = null, Quaternion[] rotations = null)
         {
             isAnimated = false;
             var textureCache = new Dictionary<int, Texture2D>();
@@ -1058,6 +1092,14 @@ namespace R1Engine
                     return new RectInt(xMin, yMin, w, h);
                 }
 
+                GameObject gameObject = new GameObject($"Object_{objIndex} Offset:{obj.Offset}");
+
+                gameObject.transform.SetParent(gaoParent.transform);
+                gameObject.transform.localScale = Vector3.one;
+
+                gameObject.transform.localPosition = positions?[objIndex] ?? Vector3.zero;
+                gameObject.transform.rotation = rotations?[objIndex] ?? Quaternion.identity;
+
                 // Add each primitive
                 for (var packetIndex = 0; packetIndex < obj.Primitives.Length; packetIndex++)
                 {
@@ -1076,8 +1118,11 @@ namespace R1Engine
                     Mesh unityMesh = new Mesh();
 
                     var vertices = packet.Vertices.Select(x => toVertex(obj.Vertices[x])).ToArray();
+
                     Vector3[] normals = null;
-                    if (packet.Normals != null) {
+
+                    if (packet.Normals != null) 
+                    {
                         normals = packet.Normals.Select(x => toNormal(obj.Normals[x])).ToArray();
                         if(normals.Length == 1)
                             normals = Enumerable.Repeat(normals[0], vertices.Length).ToArray();
@@ -1086,7 +1131,10 @@ namespace R1Engine
 
                     // Set vertices
                     unityMesh.SetVertices(vertices);
-                    if(normals != null) unityMesh.SetNormals(normals);
+
+                    // Set normals
+                    if (normals != null) 
+                        unityMesh.SetNormals(normals);
 
                     if (packet.Mode.IsQuad)
                     {
@@ -1143,12 +1191,12 @@ namespace R1Engine
 
                     if(normals == null) unityMesh.RecalculateNormals();
 
-                    GameObject gao = new GameObject($"Packet_{objIndex}-{packetIndex} Offset:{packet.Offset} Flags:{packet.Flags}");
+                    GameObject gao = new GameObject($"Packet_{packetIndex} Offset:{packet.Offset} Flags:{packet.Flags}");
 
                     MeshFilter mf = gao.AddComponent<MeshFilter>();
                     MeshRenderer mr = gao.AddComponent<MeshRenderer>();
                     gao.layer = LayerMask.NameToLayer("3D Collision");
-                    gao.transform.SetParent(gaoParent.transform);
+                    gao.transform.SetParent(gameObject.transform);
                     gao.transform.localScale = Vector3.one;
                     gao.transform.localPosition = Vector3.zero;
                     mf.mesh = unityMesh;
@@ -1262,6 +1310,14 @@ namespace R1Engine
             return new Vector3(width, height, depth);
         }
 
+        Vector3 GetPositionVector(ObjPosition pos, Vector3? posOffset, float scale)
+        {
+            if (posOffset == null)
+                return new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
+            else
+                return new Vector3((pos.XPos + posOffset.Value.x) / scale, -(pos.YPos + posOffset.Value.y) / scale, (pos.ZPos + posOffset.Value.z) / scale);
+        }
+
         public float GetRotationInDegrees(int value)
         {
             if (value > 0x800)
@@ -1280,7 +1336,7 @@ namespace R1Engine
             return Quaternion.Euler(
                 x: -GetRotationInDegrees(rotX),
                 y: GetRotationInDegrees(rotY),
-                z: GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX));
+                z: -(GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX)));
         }
 
         public IDX Load_IDX(Context context)

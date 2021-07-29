@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BinarySerializer.PS1;
 using BinarySerializer.Ray1;
 using UnityEngine;
 
@@ -32,7 +33,8 @@ namespace R1Engine
             Unity_CollisionLine[] collisionLines = null,
             string[] objectGroups = null,
             Unity_TrackManager trackManager = null,
-            float framesPerSecond = 60f)
+            float framesPerSecond = 60f,
+            PS1_VRAM ps1Vram = null)
         {
             Maps = maps;
             Layers = layers;
@@ -53,6 +55,7 @@ namespace R1Engine
             ObjectGroups = objectGroups;
             TrackManager = trackManager;
             FramesPerSecond = framesPerSecond;
+            PS1_VRAM = ps1Vram;
 
             // Set default layers
             if (Layers != null) {
@@ -130,6 +133,8 @@ namespace R1Engine
         public bool CanMoveAlongTrack { get; }
 
         public float FramesPerSecond { get; set; }
+
+        public PS1_VRAM PS1_VRAM { get; }
 
         #endregion
 
