@@ -1281,7 +1281,7 @@ namespace R1Engine
             return Quaternion.Euler(
                 x: -GetRotationInDegrees(rotX),
                 y: GetRotationInDegrees(rotY),
-                z: GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX));
+                z: -(GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX)));
         }
 
         public IDX Load_IDX(Context context)
