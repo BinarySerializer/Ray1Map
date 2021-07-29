@@ -876,5 +876,8 @@
 		public override string[] BFFiles => new string[] {
 			"prince.bf"
 		};
+		public override string TexturesGearBFPath => "textures.bf";
+		public override string GeometryBFPath => "geometry.bf";
+		public override string SoundGearBFPath => "sound.bf";
 	}
 }

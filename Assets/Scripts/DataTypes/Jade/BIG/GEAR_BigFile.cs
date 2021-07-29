@@ -12,10 +12,10 @@ namespace R1Engine.Jade {
 		public byte[] UnknownBytes { get; set; }
 		public Pointer[] FileOffsets { get; set; }
 		public uint[] FileSizes { get; set; }
-		public uint[] FileIDs { get; set; }
+		public int[] FileCRC32 { get; set; }
 		public bool[] FileIsCompressed { get; set; }
 
-		public uint HeaderSize => 0x20;
+		public static uint HeaderSize => 0x20;
 		public uint ArraysSize => FilesCount * (8 + 4 + 4 + 1);
 
 		public override void SerializeImpl(SerializerObject s) {
@@ -28,14 +28,16 @@ namespace R1Engine.Jade {
 			UnknownBytes = s.SerializeArray<byte>(UnknownBytes, 4, name: nameof(UnknownBytes));
 		}
 		public void SerializeArrays(SerializerObject s) {
-			FileOffsets = s.SerializePointerArray(FileOffsets, FilesCount, size: PointerSize.Pointer64, name: nameof(FileOffsets));
-			FileSizes = s.SerializeArray<uint>(FileSizes, FilesCount, name: nameof(FileSizes));
-			FileIDs = s.SerializeArray<uint>(FileIDs, FilesCount, name: nameof(FileIDs));
-			FileIsCompressed = s.SerializeArray<bool>(FileIsCompressed, FilesCount, name: nameof(FileIsCompressed));
+			s.DoAt(Offset + HeaderSize, () => {
+				FileOffsets = s.SerializePointerArray(FileOffsets, FilesCount, size: PointerSize.Pointer64, name: nameof(FileOffsets));
+				FileSizes = s.SerializeArray<uint>(FileSizes, FilesCount, name: nameof(FileSizes));
+				FileCRC32 = s.SerializeArray<int>(FileCRC32, FilesCount, name: nameof(FileCRC32));
+				FileIsCompressed = s.SerializeArray<bool>(FileIsCompressed, FilesCount, name: nameof(FileIsCompressed));
+			});
 		}
 
-		public async UniTask SerializeFile(SerializerObject s, uint id, Action<uint> action) {
-			var fileIndex = FileIDs.FindItemIndex(fid => fid == id);
+		public async UniTask SerializeFile(SerializerObject s, int crc, Action<uint> action) {
+			var fileIndex = FileCRC32.FindItemIndex(f_crc => f_crc == crc);
 			if(fileIndex == -1) return;
 			var fileSize = FileSizes[fileIndex];
 			var fileOffset = FileOffsets[fileIndex];

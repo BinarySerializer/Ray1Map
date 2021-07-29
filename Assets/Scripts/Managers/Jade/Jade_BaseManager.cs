@@ -45,6 +45,16 @@ namespace R1Engine {
 					new GameAction("Export textures (unbinarized)", false, true, (input, output) => ExportTexturesUnbinarized(settings, output))
 				}).ToArray();
 			}
+			if (TexturesGearBFPath != null) {
+				actions = actions.Concat(new GameAction[] {
+					new GameAction("Export textures (Gear BF)", false, true, (input, output) => ExportTexturesGearBF(settings, output))
+				}).ToArray();
+			}
+			if (SoundGearBFPath != null) {
+				actions = actions.Concat(new GameAction[] {
+					new GameAction("Export sound (Gear BF)", false, true, (input, output) => ExportGearBF(settings, SoundGearBFPath, output, "wav"))
+				}).ToArray();
+			}
 			return actions;
 		}
         public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false) {
@@ -420,6 +430,89 @@ namespace R1Engine {
 				}
 			}
 		}
+		
+		public async UniTask ExportGearBF(GameSettings settings, string bfPath, string outputDir, string extension) {
+			if (bfPath == null) return;
+			using (var context = new R1Context(settings)) {
+				await LoadFilesAsync(context);
+				GEAR_BigFile bf = await LoadGearBF(context, bfPath);
+
+				var s = context.Deserializer;
+				foreach (var crc in bf.FileCRC32) {
+					await bf.SerializeFile(s, crc, (filesize) => {
+						var bytes = s.SerializeArray<byte>(default, filesize, name: "bytes");
+						Util.ByteArrayToFile(Path.Combine(outputDir, $"{crc:X8}.{extension}"), bytes);
+					});
+				}
+			}
+			// TODO: "texture_map.txt" is the key<->filename map for the textures.bf file. The file ID is CRC32 of filename.
+			// TODO: Figure out the correct converted filename (the .bra is replaced, but with what?)
+		}
+
+		public async UniTask ExportTexturesGearBF(GameSettings settings, string outputDir) {
+			string bfPath = TexturesGearBFPath;
+			if (bfPath == null) return;
+			using (var context = new R1Context(settings)) {
+				await LoadFilesAsync(context);
+				GEAR_BigFile bf = await LoadGearBF(context, bfPath);
+				var s = context.Deserializer;
+				HashSet<int> exportedCRC = new HashSet<int>();
+
+				int getCrc(string str) {
+					var crcObj = new Ionic.Crc.CRC32();
+					var bytes = Encoding.GetBytes(str);
+					int crc32 = 0;
+					using (var ms = new MemoryStream(bytes)) {
+						crc32 = crcObj.GetCrc32(ms);
+					}
+					return crc32;
+				}
+				async UniTask<byte[]> readBytes(int crc) {
+					byte[] bytes = null;
+					await bf.SerializeFile(s, crc, (filesize) => {
+						bytes = s.SerializeArray<byte>(default, filesize, name: "bytes");
+					});
+					return bytes;
+				}
+				async UniTask<byte[]> readAndExport(string filename) {
+					var crc = getCrc(filename);
+					byte[] bytes = await readBytes(getCrc(filename));
+					if (bytes != null) {
+						if(!exportedCRC.Contains(crc)) exportedCRC.Add(crc);
+						Util.ByteArrayToFile(Path.Combine(outputDir, filename), bytes);
+					}
+					return bytes;
+				}
+				byte[] textureMapBytes = await readAndExport("texture_map.txt");
+				if (textureMapBytes != null) {
+					using (var ms = new MemoryStream(textureMapBytes)) {
+						using (var reader = new StreamReader(ms, Encoding)) {
+							string line;
+							while ((line = reader.ReadLine()) != null) {
+								var split = line.Split(';');
+								if (split.Length == 2) {
+									var filename = split[0];
+									var key = split[1];
+
+									if (filename.Length > 4) {
+										var basename = filename.Substring(0, filename.Length - 4);
+										await readAndExport($"{basename}_ps3.dds");
+										await readAndExport($"{basename}_nm_ps3.dds");
+									}
+								}
+							}
+						}
+					}
+				}
+				foreach (var crc in bf.FileCRC32) {
+					if(exportedCRC.Contains(crc)) continue;
+					byte[] bytes = await readBytes(crc);
+					if (bytes != null) {
+						Util.ByteArrayToFile(Path.Combine(outputDir, "unnamed", $"{crc:X8}.dds"), bytes);
+					}
+				}
+			}
+		}
 		public async UniTask CreateLevelListAsync(GameSettings settings) {
 
 			using (var context = new R1Context(settings)) {
@@ -446,6 +539,9 @@ namespace R1Engine {
 		public abstract string[] BFFiles { get; }
 		public virtual string[] FixWorlds => null;
 		public virtual string JadeSpePath => null;
+		public virtual string TexturesGearBFPath => null;
+		public virtual string GeometryBFPath => null;
+		public virtual string SoundGearBFPath => null;
 
 		// Helpers
         public virtual async UniTask CreateLevelList(LOA_Loader l) {
@@ -521,6 +617,15 @@ namespace R1Engine {
 			var bfFile = FileFactory.Read<BIG_BigFile>(bfPath, context);
 			await s.FillCacheForReadAsync((int)bfFile.TotalFatFilesLength);
 			bfFile.SerializeFatFiles(s);
+			return bfFile;
+		}
+		public async UniTask<GEAR_BigFile> LoadGearBF(Context context, string bfPath) {
+			var s = context.Deserializer;
+			s.Goto(context.GetFile(bfPath).StartPointer);
+			await s.FillCacheForReadAsync(GEAR_BigFile.HeaderSize);
+			var bfFile = FileFactory.Read<GEAR_BigFile>(bfPath, context);
+			await s.FillCacheForReadAsync((int)bfFile.ArraysSize);
+			bfFile.SerializeArrays(s);
 			return bfFile;
 		}
 
@@ -811,9 +916,9 @@ namespace R1Engine {
 			foreach (var bfPath in BFFiles) {
 				await context.AddLinearSerializedFileAsync(bfPath, bigFileCacheLength: 8);
 			}
-			if (JadeSpePath != null) {
-				await context.AddLinearSerializedFileAsync(JadeSpePath);
-			}
+			if (JadeSpePath != null) await context.AddLinearSerializedFileAsync(JadeSpePath);
+			if (TexturesGearBFPath != null) await context.AddLinearSerializedFileAsync(TexturesGearBFPath, bigFileCacheLength: 8);
+			if (SoundGearBFPath != null) await context.AddLinearSerializedFileAsync(SoundGearBFPath, bigFileCacheLength: 8);
 		}
 
 		// Constants
