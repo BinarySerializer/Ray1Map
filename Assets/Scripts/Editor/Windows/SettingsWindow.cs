@@ -315,6 +315,16 @@ public class SettingsWindow : UnityWindow
                         JsonConvert.SerializeObject(lvl.Localization.ToDictionary(x => x.Key, x => x.Value), Formatting.Indented).CopyToClipboard();
                 }
 
+                if (lvl.PS1_VRAM != null && EditorButton("Export PS1 VRAM")) 
+                {
+                    string outputFile = EditorUtility.SaveFilePanel("Save file", null, "vram", "png");
+
+                    if (!String.IsNullOrEmpty(outputFile))
+                    {
+                        PaletteHelpers.ExportVram(outputFile, lvl.PS1_VRAM);
+                    }
+                }
+
                 if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null) {
                     if (EditorButton("Copy event flag info"))
                         r1.GetEventFlagsDebugInfo().CopyToClipboard();

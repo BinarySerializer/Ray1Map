@@ -735,7 +735,8 @@ namespace R1Engine
                     CalculateYDisplacement = () => 0,
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 1
-                });
+                },
+                ps1Vram: loader.VRAM);
         }
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector, float scale)
