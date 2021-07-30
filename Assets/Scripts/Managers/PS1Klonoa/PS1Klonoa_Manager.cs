@@ -766,7 +766,11 @@ namespace R1Engine
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
 
-            var obj = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations, uvScrollAnimations, out bool isAnimated);
+            GameObject obj;
+            bool isAnimated;
+
+            (obj, isAnimated) = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations, uvScrollAnimations);
+
             var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
             obj.transform.position = new Vector3(0, 0, 0);
 
@@ -786,9 +790,9 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             GameObject gao_3dObjParent = null;
-            var objCount = 0;
 
             bool isObjAnimated = false;
+
             foreach (var modifier in modifiers)
             {
                 if (modifier.PrimaryType == PrimaryObjectType.None || modifier.PrimaryType == PrimaryObjectType.Invalid)
@@ -796,163 +800,22 @@ namespace R1Engine
 
                 if (modifier.PrimaryType == PrimaryObjectType.Modifier_3D_40 || modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41)
                 {
-                    var pos = modifier.DataFiles.FirstOrDefault(x => x.Position != null)?.Position;
-                    var transform = modifier.DataFiles.FirstOrDefault(x => x.Transform != null)?.Transform;
-                    var multiTransform = modifier.DataFiles.FirstOrDefault(x => x.MultiTransform != null)?.MultiTransform;
-                    var tmdFiles = modifier.DataFiles.Where(x => x.TMD != null).Select(x => x.TMD);
+                    bool animated;
 
-                    var constantRotation = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
-                        ? ModifierObjectsRotations.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
-                        : null;
-                    var posOffset = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
-                        ? ModifierObjectsPositionOffsets.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
-                        : null;
+                    (gao_3dObjParent, animated) = Load_ModifierObject(loader, modifier, gao_3dObjParent, scale, texAnimations);
 
-                    ObjPosition[] p = transform?.Positions.Positions;
-                    ObjRotation[] r = transform?.Rotations.Rotations;
-
-                    if (p == null)
-                    {
-                        if (pos != null)
-                            p = new ObjPosition[]
-                            {
-                                pos
-                            };
-                        else if (multiTransform?.Positions.Positions[0] != null)
-                            p = new ObjPosition[]
-                            {
-                                multiTransform?.Positions.Positions[0]
-                            };
-                    }
-
-                    if (r == null)
-                    {
-                        if (multiTransform?.Rotations.Rotations[0] != null)
-                            r = new ObjRotation[]
-                            {
-                                multiTransform?.Rotations.Rotations[0]
-                            };
-                    }
-
-                    var index = 0;
-                    foreach (var tmd in tmdFiles)
-                    {
-                        createObj(
-                            tmd: tmd, 
-                            objPositions: p, 
-                            objRotations: r, 
-                            index: index,
-                            multiTransform: multiTransform,
-                            constantRotation: constantRotation,
-                            posOffset: posOffset);
-                        index++;
-                    }
+                    if (animated)
+                        isObjAnimated = true;
                 }
                 else
                 {
                     Debug.LogWarning($"Skipped unsupported modifier object of primary type {modifier.PrimaryType}");
-                }
-
-                // Helper for creating an object
-                void createObj(
-                    PS1_TMD tmd, // The TMD model
-                    ObjPosition[] objPositions, ObjRotation[] objRotations, // The transform for the objects
-                    int index, // The index of the object within the modifier
-                    ObjMultiTransform_ArchiveFile multiTransform, // Optional multi-transform
-                    (Vector3Int, int)? constantRotation, Vector3Int? posOffset) // Optional hard-coded values
-                {
-                    objCount++;
-
-                    if (gao_3dObjParent == null)
-                    {
-                        gao_3dObjParent = new GameObject("3D Objects");
-                        gao_3dObjParent.transform.localPosition = Vector3.zero;
-                        gao_3dObjParent.transform.localRotation = Quaternion.identity;
-                        gao_3dObjParent.transform.localScale = Vector3.one;
-                    }
-
-                    Vector3[] defaultPositions = new Vector3[] { Vector3.zero };
-                    Quaternion[] defaultRotations = new Quaternion[] { Quaternion.identity };
-
-                    if (objPositions != null) 
-                        defaultPositions = objPositions.Select(x => GetPositionVector(x, posOffset, scale)).ToArray();
-
-                    if (objRotations != null) 
-                        defaultRotations = objRotations.Select(GetQuaternion).ToArray();
-
-                    var gameObj = CreateGameObject(
-                        tmd: tmd, 
-                        loader: loader, 
-                        scale: scale, 
-                        name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}", 
-                        texAnimations: texAnimations, 
-                        scrollUVs: new int[0], 
-                        isAnimated: out isAnimated,
-                        positions: defaultPositions.Length > 1 ? defaultPositions : null,
-                        rotations: defaultRotations.Length > 1 ? defaultRotations : null);
-
-                    if (isAnimated)
-                        isObjAnimated = true;
-
-                    gameObj.transform.SetParent(gao_3dObjParent.transform);
-
-                    if (defaultPositions.Length == 1)
-                        gameObj.transform.localPosition = defaultPositions[0];
-
-                    if (defaultRotations.Length == 1)
-                        gameObj.transform.localRotation = defaultRotations[0];
-
-                    if (multiTransform != null) 
-                    {
-                        var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
-                        mtComponent.animatedTransform = gameObj.transform;
-                        var positions = multiTransform.Positions?.Positions?.Select(x => GetPositionVector(x, posOffset, scale)).ToArray() ?? new Vector3[0];
-                        var rotations = multiTransform.Rotations?.Rotations?.Select(GetQuaternion).ToArray() ?? new Quaternion[0];
-                        var frameCount = Math.Max(positions.Length, rotations.Length);
-                        mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
-                        for (int i = 0; i < frameCount; i++) 
-                        {
-                            mtComponent.frames[i] = new AnimatedTransformComponent.Frame() 
-                            {
-                                Position = positions.Length > i ? positions[i] : defaultPositions[0],
-                                Rotation = rotations.Length > i ? rotations[i] : defaultRotations[0],
-                                Scale = Vector3.one
-                            };
-                        }
-                    }
-
-                    if (constantRotation != null)
-                    {
-                        var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
-                        mtComponent.animatedTransform = gameObj.transform;
-
-                        var rotationPerFrame = constantRotation.Value.Item2;
-                        var count = 0x1000 / rotationPerFrame;
-
-                        mtComponent.frames = new AnimatedTransformComponent.Frame[count];
-
-                        for (int i = 0; i < count; i++)
-                        {
-                            var degrees = GetRotationInDegrees(i * rotationPerFrame);
-
-                            mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
-                            {
-                                Position = defaultPositions[0],
-                                Rotation = defaultRotations[0] * Quaternion.Euler(
-                                    x: degrees * constantRotation.Value.Item1.x, 
-                                    y: degrees * constantRotation.Value.Item1.y, 
-                                    z: degrees * constantRotation.Value.Item1.z),
-                                Scale = Vector3.one
-                            };
-                        }
-                    }
                 }
             }
 
             Debug.Log($"MAP INFO{Environment.NewLine}" +
                       $"{texAnimations.Length} texture animations{Environment.NewLine}" +
                       $"{uvScrollAnimations.Length} UV scroll animations{Environment.NewLine}" +
-                      $"{objCount} 3D objects{Environment.NewLine}" +
                       $"Modifiers:{Environment.NewLine}\t" +
                       $"{String.Join($"{Environment.NewLine}\t", modifiers.Take(modifiers.Length - 1).Select(x => $"{x.Offset}: {(int)x.PrimaryType:00}-{x.SecondaryType:00} {String.Join(", ", x.DataFiles?.Select(d => d.DeterminedType.ToString()) ?? new string[0])}"))}");
 
@@ -973,6 +836,136 @@ namespace R1Engine
             // TODO: Load collision
 
             return layers.ToArray();
+        }
+
+        public (GameObject, bool) Load_ModifierObject(Loader loader, ModifierObject modifier, GameObject gao_3dObjParent, float scale, PS1_TIM[][] texAnimations)
+        {
+            bool isObjAnimated = false;
+
+            // Some objects only have a single position without a rotation
+            var pos = modifier.DataFiles.FirstOrDefault(x => x.Position != null)?.Position;
+            
+            // Objects can have transform info. This is 2-dimensional as it can effect individual objects in the TMD and have multiple "frames"
+            // obj positions/rotations. We assume that if it effects multiple objects it does not animate and is only for their relative positions.
+            var objTransform = modifier.DataFiles.FirstOrDefault(x => x.Transform?.Info?.ObjectsCount > 1)?.Transform;
+
+            var transform = modifier.DataFiles.FirstOrDefault(x => x.Transform != null && !(x.Transform?.Info?.ObjectsCount > 1))?.Transform;
+
+            var transformPositions = transform?.Positions.Positions;
+            var transformRotations = transform?.Rotations.Rotations;
+
+            // The minecart has multiple transforms with animations for how it travels, so we combine them
+            if (transform == null)
+            {
+                var transforms = modifier.DataFiles.FirstOrDefault(x => x.Transforms != null)?.Transforms;
+
+                transformPositions = transforms?.Files.SelectMany(x => x.Positions.Positions).ToArray();
+                transformRotations = transforms?.Files.SelectMany(x => x.Rotations.Rotations).ToArray();
+            }
+
+            var tmdFiles = modifier.DataFiles.Where(x => x.TMD != null).Select(x => x.TMD);
+
+            var constantRotation = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
+                ? ModifierObjectsRotations.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
+                : null;
+            var posOffset = modifier.PrimaryType == PrimaryObjectType.Modifier_3D_41
+                ? ModifierObjectsPositionOffsets.TryGetItem(loader.BINBlock)?.TryGetItem(modifier.SecondaryType)
+                : null;
+
+            var index = 0;
+
+            foreach (var tmd in tmdFiles)
+            {
+                if (gao_3dObjParent == null)
+                {
+                    gao_3dObjParent = new GameObject("3D Objects");
+                    gao_3dObjParent.transform.localPosition = Vector3.zero;
+                    gao_3dObjParent.transform.localRotation = Quaternion.identity;
+                    gao_3dObjParent.transform.localScale = Vector3.one;
+                }
+
+                GameObject gameObj;
+                bool isAnimated;
+
+                (gameObj, isAnimated) = CreateGameObject(
+                    tmd: tmd,
+                    loader: loader,
+                    scale: scale,
+                    name: $"Object3D Offset:{modifier.Offset} Index:{index} Type:{modifier.PrimaryType}-{modifier.SecondaryType}",
+                    texAnimations: texAnimations,
+                    scrollUVs: new int[0],
+                    positions: objTransform?.Positions.Positions[0].Select(x => GetPositionVector(x, Vector3.zero, scale)).ToArray(),
+                    rotations: objTransform?.Rotations.Rotations[0].Select(x => GetQuaternion(x)).ToArray());
+
+                if (isAnimated)
+                    isObjAnimated = true;
+
+                Vector3 defaultPos = Vector3.zero;
+                Quaternion defaultRotation = Quaternion.identity;
+
+                if (pos != null)
+                {
+                    defaultPos = GetPositionVector(pos, posOffset, scale);
+                }
+                else if (transformPositions != null)
+                {
+                    defaultPos = GetPositionVector(transformPositions[0][0], posOffset, scale);
+                    defaultRotation = GetQuaternion(transformRotations[0][0]);
+                }
+
+                gameObj.transform.localPosition = defaultPos;
+                gameObj.transform.localRotation = defaultRotation;
+                gameObj.transform.SetParent(gao_3dObjParent.transform);
+
+                if (transformPositions?.Length > 1)
+                {
+                    var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
+                    mtComponent.animatedTransform = gameObj.transform;
+                    var positions = transformPositions?.Select(x => GetPositionVector(x[0], posOffset, scale)).ToArray() ?? new Vector3[0];
+                    var rotations = transformRotations?.Select(x => GetQuaternion(x[0])).ToArray() ?? new Quaternion[0];
+                    var frameCount = Math.Max(positions.Length, rotations.Length);
+                    mtComponent.frames = new AnimatedTransformComponent.Frame[frameCount];
+                    for (int i = 0; i < frameCount; i++)
+                    {
+                        mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
+                        {
+                            Position = positions.Length > i ? positions[i] : defaultPos,
+                            Rotation = rotations.Length > i ? rotations[i] : defaultRotation,
+                            Scale = Vector3.one
+                        };
+                    }
+                }
+
+                if (constantRotation != null)
+                {
+                    var mtComponent = gameObj.AddComponent<AnimatedTransformComponent>();
+                    mtComponent.animatedTransform = gameObj.transform;
+
+                    var rotationPerFrame = constantRotation.Value.Item2;
+                    var count = 0x1000 / rotationPerFrame;
+
+                    mtComponent.frames = new AnimatedTransformComponent.Frame[count];
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        var degrees = GetRotationInDegrees(i * rotationPerFrame);
+
+                        mtComponent.frames[i] = new AnimatedTransformComponent.Frame()
+                        {
+                            Position = defaultPos,
+                            Rotation = defaultRotation * Quaternion.Euler(
+                                x: degrees * constantRotation.Value.Item1.x,
+                                y: degrees * constantRotation.Value.Item1.y,
+                                z: degrees * constantRotation.Value.Item1.z),
+                            Scale = Vector3.one
+                        };
+                    }
+                }
+
+                index++;
+            }
+
+            return (gao_3dObjParent, isObjAnimated);
         }
 
         public async UniTask<Unity_ObjectManager_PS1Klonoa> Load_ObjManagerAsync(Loader loader)
@@ -1061,9 +1054,9 @@ namespace R1Engine
             return objects;
         }
 
-        public GameObject CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, out bool isAnimated, Vector3[] positions = null, Quaternion[] rotations = null)
+        public (GameObject, bool) CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, Vector3[] positions = null, Quaternion[] rotations = null)
         {
-            isAnimated = false;
+            bool isAnimated = false;
             var textureCache = new Dictionary<int, Texture2D>();
             var textureAnimCache = new Dictionary<long, Texture2D[]>();
 
@@ -1298,7 +1291,7 @@ namespace R1Engine
                 }
             }
 
-            return gaoParent;
+            return (gaoParent, isAnimated);
         }
 
         public Vector3 GetDimensions(PS1_TMD tmd)
