@@ -699,6 +699,13 @@ namespace R1Engine
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded objects");
 
+            Controller.DetailedState = "Loading paths";
+            await Controller.WaitIfNecessary();
+
+            var paths = Load_MovementPaths(loader, sector, scale);
+
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
+
             var str = new StringBuilder();
 
             foreach (var archive in ArchiveFile.ParsedArchiveFiles)
@@ -724,6 +731,7 @@ namespace R1Engine
                 objManager: objManager,
                 eventData: objects,
                 framesPerSecond: 30,
+                collisionLines: paths,
                 isometricData: new Unity_IsometricData
                 {
                     CollisionWidth = 0,
@@ -1023,7 +1031,7 @@ namespace R1Engine
                 }
             }
 
-            // Add Dream Stones
+            // Add collectibles
             objects.AddRange(loader.LevelData2D.CollectibleObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x =>
             {
                 Vector3 pos;
@@ -1045,13 +1053,55 @@ namespace R1Engine
                 Position = GetPosition(x.XPos, x.YPos, x.ZPos, scale),
             }));
 
+            var wpIndex = objects.Count;
             // Temporarily add waypoints at each path block to visualize them
-            objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.Select(b => new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}")
+            objects.AddRange(movementPaths.SelectMany((x, i) => x.Blocks.SelectMany(b => new Unity_Object[]
             {
-                Position = GetPosition(b.XPos, b.YPos, b.ZPos, scale),
+                new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}", objLinks: new int[]
+                {
+                    ++wpIndex
+                })
+                {
+                    Position = GetPosition(b.XPos, b.YPos, b.ZPos, scale),
+                },
+                new Unity_Object_Dummy(b, Unity_Object.ObjectType.Waypoint, $"Path: {i}", objLinks: new []
+                {
+                    (wpIndex++) - 1
+                })
+                {
+                    Position = GetPosition(
+                        x: b.XPos + b.DirectionX * b.BlockLength,
+                        y: b.YPos + b.DirectionY * b.BlockLength,
+                        z: b.ZPos + b.DirectionZ * b.BlockLength,
+                        scale: scale),
+                }
             })));
 
             return objects;
+        }
+
+        public Unity_CollisionLine[] Load_MovementPaths(Loader loader, int sector, float scale)
+        {
+            var lines = new List<Unity_CollisionLine>();
+
+            foreach (var path in loader.LevelPack.Sectors[sector].MovementPaths.Files)
+            {
+                foreach (var pathBlock in path.Blocks)
+                {
+                    var origin = GetPosition(pathBlock.XPos, pathBlock.YPos, pathBlock.ZPos, scale);
+                    var end = GetPosition(
+                        x: pathBlock.XPos + pathBlock.DirectionX * pathBlock.BlockLength, 
+                        y: pathBlock.YPos + pathBlock.DirectionY * pathBlock.BlockLength, 
+                        z: pathBlock.ZPos + pathBlock.DirectionZ * pathBlock.BlockLength, 
+                        scale: scale);
+
+                    Debug.Log($"{origin}  -  {end}");
+
+                    lines.Add(new Unity_CollisionLine(origin, end));
+                }
+            }
+
+            return lines.ToArray();
         }
 
         public (GameObject, bool) CreateGameObject(PS1_TMD tmd, Loader loader, float scale, string name, PS1_TIM[][] texAnimations, int[] scrollUVs, Vector3[] positions = null, Quaternion[] rotations = null)

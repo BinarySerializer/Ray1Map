@@ -209,8 +209,8 @@ namespace R1Engine
 
                     lr.SetPositions(new Vector3[]
                     {
-                        new Vector3(x.Pos_0.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_0.y / LevelEditorData.Level.PixelsPerUnit)), 
-                        new Vector3(x.Pos_1.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_1.y / LevelEditorData.Level.PixelsPerUnit)), 
+                        new Vector3(x.Pos_0.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_0.y / LevelEditorData.Level.PixelsPerUnit), x.Pos_0.z / LevelEditorData.Level.PixelsPerUnit), 
+                        new Vector3(x.Pos_1.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_1.y / LevelEditorData.Level.PixelsPerUnit), x.Pos_1.z / LevelEditorData.Level.PixelsPerUnit), 
                     });
 
                     return lr;
@@ -220,8 +220,8 @@ namespace R1Engine
                     BoxCollider2D bc = new GameObject("CollisionLine").AddComponent<BoxCollider2D>();
                     bc.gameObject.layer = LayerMask.NameToLayer("Collision Lines");
                     bc.gameObject.name = i.ToString();
-                    Vector3 pos0 = new Vector3(x.Pos_0.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_0.y / LevelEditorData.Level.PixelsPerUnit));
-                    Vector3 pos1 = new Vector3(x.Pos_1.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_1.y / LevelEditorData.Level.PixelsPerUnit));
+                    Vector3 pos0 = new Vector3(x.Pos_0.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_0.y / LevelEditorData.Level.PixelsPerUnit), x.Pos_0.z / LevelEditorData.Level.PixelsPerUnit);
+                    Vector3 pos1 = new Vector3(x.Pos_1.x / LevelEditorData.Level.PixelsPerUnit, -(x.Pos_1.y / LevelEditorData.Level.PixelsPerUnit), x.Pos_1.z / LevelEditorData.Level.PixelsPerUnit);
                     bc.gameObject.transform.SetParent(collisionLinesCollision.transform);
                     bc.gameObject.transform.localPosition = Vector3.Lerp(pos0, pos1, 0.5f);
                     float angle = Mathf.Atan2(pos1.y - pos0.y, pos1.x - pos0.x) * Mathf.Rad2Deg;
