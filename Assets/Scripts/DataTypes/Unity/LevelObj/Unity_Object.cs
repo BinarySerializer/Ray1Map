@@ -19,6 +19,7 @@ namespace R1Engine
         public virtual IEnumerable<LinkType> LinkTypes => null;
         public bool HasPendingEdits { get; set; }
         public virtual BinarySerializable SerializableData => null;
+        public virtual BinarySerializable[] AdditionalSerializableDatas => null;
 
         public virtual IEnumerable<int> GetLocIndices => new int[0];
 
@@ -34,7 +35,7 @@ namespace R1Engine
 
         // Display properties
         public abstract string PrimaryName { get; } // Official
-        public virtual string SecondaryName { get; } // Unofficial
+        public virtual string SecondaryName => null; // Unofficial
         public string Name => PrimaryName ?? SecondaryName;
         public virtual int? GetLayer(int index) => null;
         public virtual int? MapLayer => null;

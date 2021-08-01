@@ -1,6 +1,7 @@
 ﻿using R1Engine;
 using System;
 using System.Linq;
+using BinarySerializer;
 using UnityEditor;
 using UnityEngine;
 
@@ -98,7 +99,19 @@ public class ObjPropertiesWindow : UnityWindow
 
                     EditorGUI.BeginChangeCheck();
 
+                    DrawHeader("Object");
+
                     selectedObj?.ObjData?.SerializableData?.SerializeImpl(Serializer);
+
+                    if (selectedObj?.ObjData?.AdditionalSerializableDatas != null)
+                    {
+                        foreach (var data in selectedObj.ObjData.AdditionalSerializableDatas)
+                        {
+                            DrawHeader($"Additional Object ({data.GetType().Name})");
+
+                            data.SerializeImpl(Serializer);
+                        }
+                    }
 
                     if (EditorGUI.EndChangeCheck())
                         selectedObjData.HasPendingEdits = true;
