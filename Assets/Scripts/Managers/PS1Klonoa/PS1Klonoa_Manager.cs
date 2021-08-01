@@ -1565,7 +1565,9 @@ namespace R1Engine
 
             for (var i = 0; i < sprites.Length; i++)
             {
-                var sprite = sprites[i];
+                var index = sprites.Length - i - 1;
+
+                var sprite = sprites[index];
                 var texPage = sprite.TexturePage;
 
                 try
@@ -1576,8 +1578,8 @@ namespace R1Engine
                         width: sprite.Width,
                         height: sprite.Height,
                         colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
-                        texX: rects[i].x - minX,
-                        texY: rects[i].y - minY,
+                        texX: rects[index].x - minX,
+                        texY: rects[index].y - minY,
                         clutX: sprite.PalOffsetX,
                         clutY: 500 + sprite.PalOffsetY,
                         texturePageOriginX: 0,
