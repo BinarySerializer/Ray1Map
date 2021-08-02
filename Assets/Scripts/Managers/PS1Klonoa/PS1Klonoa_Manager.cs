@@ -1007,7 +1007,15 @@ namespace R1Engine
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
 
             // Add enemies
-            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x => new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale)));
+            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x =>
+            {
+                var spriteInfo = GetSprite_Enemy(x);
+
+                if (spriteInfo.Item1 == -1 || spriteInfo.Item2 == -1)
+                    Debug.LogWarning($"Sprite could not be determined for enemy object of secondary type {x.SecondaryType} and graphics index {x.GraphicsIndex}");
+
+                return new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale, spriteInfo.Item1, spriteInfo.Item2);
+            }));
 
             // Add enemy spawn points
             for (int pathIndex = 0; pathIndex < loader.LevelData2D.EnemyObjectIndexTables.IndexTables.Length; pathIndex++)
@@ -1042,7 +1050,10 @@ namespace R1Engine
                 else
                     pos = GetPosition(movementPaths[x.MovementPath].Blocks, x.MovementPathPosition, new Vector3(0, x.YPos.Value, 0), scale);
 
-                var spriteInfo = GetObjSprite(SpriteInfos_Collectibles, x, x.SecondaryType);
+                var spriteInfo = GetSprite_Collectible(x);
+
+                if (spriteInfo.Item1 == -1 || spriteInfo.Item2 == -1)
+                    Debug.LogWarning($"Sprite could not be determined for collectible object of secondary type {x.SecondaryType}");
 
                 return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos, spriteInfo.Item1, spriteInfo.Item2);
             }));
@@ -1094,8 +1105,6 @@ namespace R1Engine
                         y: pathBlock.YPos + pathBlock.DirectionY * pathBlock.BlockLength, 
                         z: pathBlock.ZPos + pathBlock.DirectionZ * pathBlock.BlockLength, 
                         scale: scale);
-
-                    Debug.Log($"{origin}  -  {end}");
 
                     lines.Add(new Unity_CollisionLine(origin, end));
                 }
@@ -1636,81 +1645,219 @@ namespace R1Engine
             }
         };
 
-        public Dictionary<int, ObjSpriteCheckFunc<CollectibleObject>> SpriteInfos_Collectibles { get; } = new Dictionary<int, ObjSpriteCheckFunc<CollectibleObject>>
+        // TODO: Support palette swap variants & scale (some enemies are bigger)
+        // TODO: Most of these are different for level 0xD if graphics index equals 0x21
+        // Range is 0-41
+        public (int, int) GetSprite_Enemy(EnemyObject obj)
         {
-            [1] = x => (68, 10), // Switch
-            [2] = x => x.Ushort_14 == 0 ? (68, 0) : (68, 5), // Dream Stone
-
-            [3] = x => x.Short_0E switch
+            switch (obj.SecondaryType)
             {
-                3 => (68, 30),
-                4 => (68, 22),
-                15 => (68, 57),
-                _ => (-1, -1)
-            }, // Heart, life
-            [4] = x => x.Short_0E switch
-            {
-                3 => (68, 30),
-                4 => (68, 22),
-                15 => (68, 57),
-                _ => (-1, -1)
-            }, // Heart, life
+                case 1: // Moo
+                    if (obj.GraphicsIndex == 4 || obj.GraphicsIndex == 1)
+                        return GetEnemySprite(obj, obj.GraphicsIndex);
+                    else if (obj.GraphicsIndex == 0x23)
+                        return GetEnemySprite(obj, 1);
+                    else
+                        return (-1, -1);
 
-            [5] = x => x.Short_0E switch
-            {
-                5 => (68, 42), // Checkpoint
-                9 => (68, 43), // Item
-                13 => (68, 44), // x2
-                _ => (-1, -1)
-            }, // Bubble
-            [6] = x => x.Short_0E switch
-            {
-                5 => (68, 42), // Checkpoint
-                9 => (68, 43), // Phantomillian
-                13 => (68, 44), // x2
-                _ => (-1, -1)
-            }, // Bubble
+                case 2: // Portal
+                    return GetEnemySprite(obj, 5);
 
-            [8] = x => (68, 76), // Nagapoko Egg
-            [9] = x => (68, 76), // Nagapoko Egg
+                case 3:
+                    var graphicsIndex_3 = obj.GraphicsIndex switch
+                    {
+                        0x70 => 0x0C,
+                        0x89 => 0x25,
+                        _ => obj.GraphicsIndex
+                    };
 
-            [16] = x => x.Short_0E switch
-            {
-                5 => (68, 42), // Checkpoint
-                9 => (68, 43), // Item
-                13 => (68, 44), // x2
-                _ => (-1, -1)
-            }, // Bubble
-            [17] = x => x.Short_0E switch
-            {
-                5 => (68, 42), // Checkpoint
-                9 => (68, 43), // Item
-                13 => (68, 44), // x2
-                _ => (-1, -1)
-            }, // Bubble
-        };
+                    switch (graphicsIndex_3)
+                    {
+                        case 0x01:
+                        case 0x0F:
+                        case 0x11:
+                        case 0x23:
+                        case 0x26:
+                        case 0x27:
+                            return GetEnemySprite(obj, 1);
 
-        public delegate (int, int) ObjSpriteCheckFunc<in T>(T obj)
-            where T : BinarySerializable;
+                        case 0x0C:
+                        case 0x25:
+                            return GetEnemySprite(obj, 0xC);
+                        default:
+                            return GetEnemySprite(obj, graphicsIndex_3);
+                    }
 
-        public (int, int) GetObjSprite<T>(Dictionary<int, ObjSpriteCheckFunc<T>> spriteInfos, T obj, int type)
-            where T : BinarySerializable
+                case 8:
+
+                    var graphicsIndex_8 = obj.GraphicsIndex switch
+                    {
+                        0x70 => 0x0C,
+                        0x89 => 0x25,
+                        _ => obj.GraphicsIndex
+                    };
+
+                    switch (graphicsIndex_8)
+                    {
+                        case 0x01:
+                        case 0x0F:
+                        case 0x11:
+                        case 0x23:
+                        case 0x26:
+                        case 0x27:
+                            return GetEnemySprite(obj, 1);
+
+                        case 0x02:
+                        case 0x24:
+                            return GetEnemySprite(obj, 2);
+
+                        case 0x0C:
+                        case 0x25:
+                            return GetEnemySprite(obj, 0xC);
+
+                        case 0x71:
+                            return GetEnemySprite(obj, 0xD);
+
+                        default:
+                            return GetEnemySprite(obj, graphicsIndex_8);
+                    }
+
+                case 9:
+                    var graphicsIndex = obj.GraphicsIndex;
+
+                    throw new NotImplementedException(); // TODO: Set the graphics index based on data
+
+                    graphicsIndex = graphicsIndex switch
+                    {
+                        0x70 => 0xC,
+                        0x89 => 0x25,
+                        _ => graphicsIndex
+                    };
+
+                    return GetEnemySprite(obj, graphicsIndex);
+                
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                    return GetEnemySprite(obj, obj.GraphicsIndex);
+                
+                case 11: // Pinkie
+                    return GetEnemySprite(obj, 3);
+
+                case 12:
+                    return GetEnemySprite(obj, 10);
+
+                case 14:
+                    return GetEnemySprite(obj, 1);
+
+                case 16:
+                    return GetEnemySprite(obj, 6);
+
+                case 17:
+                    return GetEnemySprite(obj, 13);
+                
+                case 30:
+                    return GetEnemySprite(obj, 20);
+
+                case 31:
+                    return GetEnemySprite(obj, 26);
+
+                default:
+                    return (-1, -1);
+            }
+        }
+
+        public static (int, int) GetEnemySprite(EnemyObject obj, int graphicsIndex)
         {
-            if (!SpriteInfos_Collectibles.ContainsKey(type))
+            switch (graphicsIndex)
             {
-                Debug.LogWarning($"No sprite infos has been defined for object of type {typeof(T).Name} with secondary type {type}");
-                return (-1, -1);
+                case 1: // Moo
+                    // TODO: There are three variants; 0, 14 & 16. What determines which one is used? The type? Also palette swaps (determined by graphics index)
+                    if (obj.SecondaryType == 14)
+                        return (14, 0);
+                    else
+                        return (0, 81);
+
+                case 3: // Pinkie
+                    return (2, 36);
+                
+                case 5: // Portal
+                    return (4, 0);
+
+                case 6:
+                    return (5, 12);
+
+                case 7: // Flying Moo
+                    return (6, 36);
+
+                case 9: // Spiker
+                    return (8, 4);
+
+                case 10:
+                    return (9, 68);
+
+                case 13:
+                    return (12, 54);
+
+                case 20:
+                    return (19, 28);
+
+                case 23:
+                    return (22, 44);
+
+                case 26:
+                    return (25, 36);
+                
+                default:
+                    return (-1, -1);
             }
+        }
 
-            var r = spriteInfos[type](obj);
-
-            if (r.Item1 == -1 || r.Item2 == -1)
+        public static (int, int) GetSprite_Collectible(CollectibleObject obj)
+        {
+            switch (obj.SecondaryType)
             {
-                Debug.LogWarning($"Sprite could not be determined for object of type {typeof(T).Name} with secondary type {type}");
-                return (-1, -1);
-            }
+                // Switch
+                case 1:
+                    return (68, 10);
 
-            return r;
+                // Dream Stone
+                case 2:
+                    return obj.Ushort_14 == 0 ? (68, 0) : (68, 5);
+
+                // Heart, life
+                case 3:
+                case 4:
+                    return obj.Short_0E switch
+                    {
+                        3 => (68, 30),
+                        4 => (68, 22),
+                        15 => (68, 57),
+                        _ => (-1, -1)
+                    };
+
+                // Bubble
+                case 5:
+                case 6:
+                case 16:
+                case 17:
+                    return obj.Short_0E switch
+                    {
+                        5 => (68, 42), // Checkpoint
+                        9 => (68, 43), // Item
+                        13 => (68, 44), // x2
+                        _ => (-1, -1)
+                    };
+
+                // Nagapoko Egg
+                case 8:
+                case 9:
+                    return (68, 76);
+
+                default:
+                    return (-1, -1);
+            }
         }
 
         public static Vector3 GetPosition(float x, float y, float z, float scale) => new Vector3(x / scale, -z / scale, -y / scale);
