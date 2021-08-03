@@ -1031,7 +1031,7 @@ namespace R1Engine
             }
 
             // Add enemy spawn points
-            for (int pathIndex = 0; pathIndex < loader.LevelData2D.EnemyObjectIndexTables.IndexTables.Length; pathIndex++)
+            for (int pathIndex = 0; pathIndex < movementPaths.Length; pathIndex++)
             {
                 for (int objIndex = 0; objIndex < loader.LevelData2D.EnemyObjectIndexTables.IndexTables[pathIndex].Length; objIndex++)
                 {
@@ -1672,31 +1672,39 @@ namespace R1Engine
             return graphicsIndex switch
             {
                 01 => new ObjSpriteInfo(0, 81), // Moo
-
+                02 => new ObjSpriteInfo(1, 0),
                 03 => new ObjSpriteInfo(2, 36), // Pinkie
 
                 05 => new ObjSpriteInfo(4, 0), // Portal
                 06 => new ObjSpriteInfo(5, 12),
                 07 => new ObjSpriteInfo(6, 36), // Flying Moo
-
+                08 => new ObjSpriteInfo(7, 16),
                 09 => new ObjSpriteInfo(8, 4), // Spiker
                 10 => new ObjSpriteInfo(9, 68),
                 11 => new ObjSpriteInfo(10, 4),
                 12 => new ObjSpriteInfo(11, 72),
                 13 => new ObjSpriteInfo(12, 54),
-
-                15 => new ObjSpriteInfo(14, 0),
-
+                14 => new ObjSpriteInfo(13, 24),
+                15 => new ObjSpriteInfo(14, 0), // Moo with shield
+                16 => new ObjSpriteInfo(15, 154),
+                17 => new ObjSpriteInfo(16, 0), // Moo with spiky shield
+                18 => new ObjSpriteInfo(17, 0),
                 19 => new ObjSpriteInfo(18, 8),
                 20 => new ObjSpriteInfo(19, 28),
                 21 => new ObjSpriteInfo(20, 0),
 
                 23 => new ObjSpriteInfo(22, 44),
                 24 => new ObjSpriteInfo(23, 76),
-
+                25 => new ObjSpriteInfo(24, 0), // Big spiky ball
                 26 => new ObjSpriteInfo(25, 36),
+                
+                28 => new ObjSpriteInfo(27, 118),
+
+                32 => new ObjSpriteInfo(31, 16),
 
                 35 => new ObjSpriteInfo(14, 0, scale: 2), // Big Moo
+                37 => new ObjSpriteInfo(0, 81, scale: 2), // Big Moo
+                39 => new ObjSpriteInfo(14, 0, scale: 2), // Big Moo with shield
                 _ => new ObjSpriteInfo(-1, -1)
             };
         }
