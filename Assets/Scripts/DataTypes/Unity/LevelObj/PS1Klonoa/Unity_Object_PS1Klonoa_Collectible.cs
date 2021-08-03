@@ -6,12 +6,12 @@ namespace R1Engine
 {
     public sealed class Unity_Object_PS1Klonoa_Collectible : Unity_Object_BasePS1Klonoa
     {
-        public Unity_Object_PS1Klonoa_Collectible(Unity_ObjectManager_PS1Klonoa objManager, CollectibleObject obj, Vector3 pos, int spriteSet, int sprite) : base(objManager)
+        public Unity_Object_PS1Klonoa_Collectible(Unity_ObjectManager_PS1Klonoa objManager, CollectibleObject obj, Vector3 pos, PS1Klonoa_Manager.ObjSpriteInfo spriteInfo) : base(objManager)
         {
             Object = obj;
             Position = pos;
-            SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteSet);
-            AnimIndex = sprite;
+            SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteInfo.SpriteSet);
+            AnimIndex = spriteInfo.SpriteIndex;
         }
 
         public CollectibleObject Object { get; set; }

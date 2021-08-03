@@ -1011,10 +1011,10 @@ namespace R1Engine
             {
                 var spriteInfo = GetSprite_Enemy(x);
 
-                if (spriteInfo.Item1 == -1 || spriteInfo.Item2 == -1)
+                if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                     Debug.LogWarning($"Sprite could not be determined for enemy object of secondary type {x.SecondaryType} and graphics index {x.GraphicsIndex}");
 
-                return new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale, spriteInfo.Item1, spriteInfo.Item2);
+                return new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale, spriteInfo);
             }));
 
             // Add enemy spawn points
@@ -1040,7 +1040,7 @@ namespace R1Engine
             }
 
             // Add collectibles
-            objects.AddRange(loader.LevelData2D.CollectibleObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x =>
+            objects.AddRange(loader.LevelData2D.CollectibleObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex && x.SecondaryType != -1).Select(x =>
             {
                 Vector3 pos;
 
@@ -1052,10 +1052,10 @@ namespace R1Engine
 
                 var spriteInfo = GetSprite_Collectible(x);
 
-                if (spriteInfo.Item1 == -1 || spriteInfo.Item2 == -1)
+                if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                     Debug.LogWarning($"Sprite could not be determined for collectible object of secondary type {x.SecondaryType}");
 
-                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos, spriteInfo.Item1, spriteInfo.Item2);
+                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos, spriteInfo);
             }));
 
             // Add scenery objects
@@ -1645,196 +1645,70 @@ namespace R1Engine
             }
         };
 
-        // TODO: Support palette swap variants & scale (some enemies are bigger)
-        // TODO: Most of these are different for level 0xD if graphics index equals 0x21
-        // Range is 0-41
-        public (int, int) GetSprite_Enemy(EnemyObject obj)
+        public static ObjSpriteInfo GetSprite_Enemy(EnemyObject obj)
         {
-            switch (obj.SecondaryType)
+            // TODO: Some enemies have palette swaps. This is done by modifying the x and y palette offsets (by default they are 0 and 500). For example the shielded Moo enemies in Vision 1-2
+
+            // There are 42 object types (0-41). The graphics index is an index to an array of functions for displaying the graphics. The game
+            // normally doesn't directly use the graphics index as it sometimes modifies it, but it appears the value initially set in the object
+            // data will always match the correct sprite to show, so we can use that.
+            var graphicsIndex = obj.GraphicsIndex;
+
+            // Usually the graphics index matches the sprite set index (minus 1), but some are special cases, and since we don't want to show the
+            // first sprite we hard-code this. Ideally we would animate them, but that is sadly entirely hard-coded :(
+            return graphicsIndex switch
             {
-                case 1: // Moo
-                    if (obj.GraphicsIndex == 4 || obj.GraphicsIndex == 1)
-                        return GetEnemySprite(obj, obj.GraphicsIndex);
-                    else if (obj.GraphicsIndex == 0x23)
-                        return GetEnemySprite(obj, 1);
-                    else
-                        return (-1, -1);
+                01 => new ObjSpriteInfo(0, 81), // Moo
 
-                case 2: // Portal
-                    return GetEnemySprite(obj, 5);
+                03 => new ObjSpriteInfo(2, 36), // Pinkie
 
-                case 3:
-                    var graphicsIndex_3 = obj.GraphicsIndex switch
-                    {
-                        0x70 => 0x0C,
-                        0x89 => 0x25,
-                        _ => obj.GraphicsIndex
-                    };
+                05 => new ObjSpriteInfo(4, 0), // Portal
+                06 => new ObjSpriteInfo(5, 12),
+                07 => new ObjSpriteInfo(6, 36), // Flying Moo
 
-                    switch (graphicsIndex_3)
-                    {
-                        case 0x01:
-                        case 0x0F:
-                        case 0x11:
-                        case 0x23:
-                        case 0x26:
-                        case 0x27:
-                            return GetEnemySprite(obj, 1);
+                09 => new ObjSpriteInfo(8, 4), // Spiker
+                10 => new ObjSpriteInfo(9, 68),
+                11 => new ObjSpriteInfo(10, 4),
+                12 => new ObjSpriteInfo(11, 72),
+                13 => new ObjSpriteInfo(12, 54),
 
-                        case 0x0C:
-                        case 0x25:
-                            return GetEnemySprite(obj, 0xC);
-                        default:
-                            return GetEnemySprite(obj, graphicsIndex_3);
-                    }
+                15 => new ObjSpriteInfo(14, 0),
 
-                case 8:
+                19 => new ObjSpriteInfo(18, 8),
+                20 => new ObjSpriteInfo(19, 28),
+                21 => new ObjSpriteInfo(20, 0),
 
-                    var graphicsIndex_8 = obj.GraphicsIndex switch
-                    {
-                        0x70 => 0x0C,
-                        0x89 => 0x25,
-                        _ => obj.GraphicsIndex
-                    };
+                23 => new ObjSpriteInfo(22, 44),
+                24 => new ObjSpriteInfo(23, 76),
 
-                    switch (graphicsIndex_8)
-                    {
-                        case 0x01:
-                        case 0x0F:
-                        case 0x11:
-                        case 0x23:
-                        case 0x26:
-                        case 0x27:
-                            return GetEnemySprite(obj, 1);
+                26 => new ObjSpriteInfo(25, 36),
 
-                        case 0x02:
-                        case 0x24:
-                            return GetEnemySprite(obj, 2);
-
-                        case 0x0C:
-                        case 0x25:
-                            return GetEnemySprite(obj, 0xC);
-
-                        case 0x71:
-                            return GetEnemySprite(obj, 0xD);
-
-                        default:
-                            return GetEnemySprite(obj, graphicsIndex_8);
-                    }
-
-                case 9:
-                    var graphicsIndex = obj.GraphicsIndex;
-
-                    throw new NotImplementedException(); // TODO: Set the graphics index based on data
-
-                    graphicsIndex = graphicsIndex switch
-                    {
-                        0x70 => 0xC,
-                        0x89 => 0x25,
-                        _ => graphicsIndex
-                    };
-
-                    return GetEnemySprite(obj, graphicsIndex);
-                
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                    return GetEnemySprite(obj, obj.GraphicsIndex);
-                
-                case 11: // Pinkie
-                    return GetEnemySprite(obj, 3);
-
-                case 12:
-                    return GetEnemySprite(obj, 10);
-
-                case 14:
-                    return GetEnemySprite(obj, 1);
-
-                case 16:
-                    return GetEnemySprite(obj, 6);
-
-                case 17:
-                    return GetEnemySprite(obj, 13);
-                
-                case 30:
-                    return GetEnemySprite(obj, 20);
-
-                case 31:
-                    return GetEnemySprite(obj, 26);
-
-                default:
-                    return (-1, -1);
-            }
+                35 => new ObjSpriteInfo(14, 0, scale: 2), // Big Moo
+                _ => new ObjSpriteInfo(-1, -1)
+            };
         }
 
-        public static (int, int) GetEnemySprite(EnemyObject obj, int graphicsIndex)
-        {
-            switch (graphicsIndex)
-            {
-                case 1: // Moo
-                    // TODO: There are three variants; 0, 14 & 16. What determines which one is used? The type? Also palette swaps (determined by graphics index)
-                    if (obj.SecondaryType == 14)
-                        return (14, 0);
-                    else
-                        return (0, 81);
-
-                case 3: // Pinkie
-                    return (2, 36);
-                
-                case 5: // Portal
-                    return (4, 0);
-
-                case 6:
-                    return (5, 12);
-
-                case 7: // Flying Moo
-                    return (6, 36);
-
-                case 9: // Spiker
-                    return (8, 4);
-
-                case 10:
-                    return (9, 68);
-
-                case 13:
-                    return (12, 54);
-
-                case 20:
-                    return (19, 28);
-
-                case 23:
-                    return (22, 44);
-
-                case 26:
-                    return (25, 36);
-                
-                default:
-                    return (-1, -1);
-            }
-        }
-
-        public static (int, int) GetSprite_Collectible(CollectibleObject obj)
+        public static ObjSpriteInfo GetSprite_Collectible(CollectibleObject obj)
         {
             switch (obj.SecondaryType)
             {
                 // Switch
                 case 1:
-                    return (68, 10);
+                    return new ObjSpriteInfo(68, 10);
 
                 // Dream Stone
                 case 2:
-                    return obj.Ushort_14 == 0 ? (68, 0) : (68, 5);
+                    return obj.Ushort_14 == 0 ? new ObjSpriteInfo(68, 0) : new ObjSpriteInfo(68, 5);
 
                 // Heart, life
                 case 3:
                 case 4:
                     return obj.Short_0E switch
                     {
-                        3 => (68, 30),
-                        4 => (68, 22),
-                        15 => (68, 57),
-                        _ => (-1, -1)
+                        3 => new ObjSpriteInfo(68, 30),
+                        4 => new ObjSpriteInfo(68, 22),
+                        15 => new ObjSpriteInfo(68, 57),
+                        _ => new ObjSpriteInfo(-1, -1)
                     };
 
                 // Bubble
@@ -1844,19 +1718,23 @@ namespace R1Engine
                 case 17:
                     return obj.Short_0E switch
                     {
-                        5 => (68, 42), // Checkpoint
-                        9 => (68, 43), // Item
-                        13 => (68, 44), // x2
-                        _ => (-1, -1)
+                        5 => new ObjSpriteInfo(68, 42), // Checkpoint
+                        9 => new ObjSpriteInfo(68, 43), // Item
+                        13 => new ObjSpriteInfo(68, 44), // x2
+                        _ => new ObjSpriteInfo(-1, -1)
                     };
 
                 // Nagapoko Egg
                 case 8:
                 case 9:
-                    return (68, 76);
+                    return new ObjSpriteInfo(68, 76);
+
+                // Bouncy spring
+                case 10:
+                    return new ObjSpriteInfo(21, 2);
 
                 default:
-                    return (-1, -1);
+                    return new ObjSpriteInfo(-1, -1);
             }
         }
 
@@ -1914,6 +1792,24 @@ namespace R1Engine
             float zPos = block.ZPos + block.DirectionZ * blockPosOffset + relativePos.z;
 
             return GetPosition(xPos, yPos, zPos, scale);
+        }
+
+        public class ObjSpriteInfo
+        {
+            public ObjSpriteInfo(int spriteSet, int spriteIndex, int scale = 1, int palOffsetX = 0, int palOffsetY = 500)
+            {
+                SpriteSet = spriteSet;
+                SpriteIndex = spriteIndex;
+                Scale = scale;
+                PalOffsetX = palOffsetX;
+                PalOffsetY = palOffsetY;
+            }
+
+            public int SpriteSet { get; }
+            public int SpriteIndex { get; }
+            public int Scale { get; }
+            public int PalOffsetX { get; }
+            public int PalOffsetY { get; }
         }
     }
 }
