@@ -12,6 +12,9 @@ namespace R1Engine
             Position = pos;
             SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteInfo.SpriteSet);
             AnimIndex = spriteInfo.SpriteIndex;
+
+            if (SpriteSetIndex == -1)
+                Debug.LogWarning($"Collectible sprite {spriteInfo.SpriteSet} is not loaded in current level");
         }
 
         public CollectibleObject Object { get; set; }

@@ -1,5 +1,6 @@
 ﻿using BinarySerializer;
 using BinarySerializer.KlonoaDTP;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -12,6 +13,9 @@ namespace R1Engine
             SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteInfo.SpriteSet);
             AnimIndex = spriteInfo.SpriteIndex;
             Scale = spriteInfo.Scale;
+
+            if (SpriteSetIndex == -1)
+                Debug.LogWarning($"Enemy sprite {spriteInfo.SpriteSet} is not loaded in current level");
         }
 
         public EnemyObject Object { get; set; }

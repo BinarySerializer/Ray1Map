@@ -50,7 +50,7 @@ namespace R1Engine
             ("", 2),
             ("", 3),
             ("", 3),
-            ("", 9),
+            ("Klonoa's Grand Gale Strategy", 9),
         };
 
         public override GameAction[] GetGameActions(GameSettings settings)
@@ -1699,12 +1699,19 @@ namespace R1Engine
                 26 => new ObjSpriteInfo(25, 36),
                 
                 28 => new ObjSpriteInfo(27, 118),
-
+                29 => new ObjSpriteInfo(28, 165),
+                30 => new ObjSpriteInfo(29, 41),
+                31 => new ObjSpriteInfo(30, 157),
                 32 => new ObjSpriteInfo(31, 16),
 
                 35 => new ObjSpriteInfo(14, 0, scale: 2), // Big Moo
+                36 => new ObjSpriteInfo(1, 0, scale: 2),
                 37 => new ObjSpriteInfo(0, 81, scale: 2), // Big Moo
+
                 39 => new ObjSpriteInfo(14, 0, scale: 2), // Big Moo with shield
+
+                112 => new ObjSpriteInfo(11, 149),
+                137 => new ObjSpriteInfo(11, 149, scale: 2),
                 _ => new ObjSpriteInfo(-1, -1)
             };
         }
@@ -1753,6 +1760,10 @@ namespace R1Engine
                 // Bouncy spring
                 case 10:
                     return new ObjSpriteInfo(21, 2);
+
+                // Colored orb (Vision 5-1)
+                case 15:
+                    return new ObjSpriteInfo(68, 81 + (6 * (obj.Ushort_14 - 2)));
 
                 default:
                     return new ObjSpriteInfo(-1, -1);
