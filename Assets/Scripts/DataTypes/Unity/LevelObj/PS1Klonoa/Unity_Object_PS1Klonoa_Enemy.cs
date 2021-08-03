@@ -8,7 +8,7 @@ namespace R1Engine
         public Unity_Object_PS1Klonoa_Enemy(Unity_ObjectManager_PS1Klonoa objManager, EnemyObject obj, float scale, PS1Klonoa_Manager.ObjSpriteInfo spriteInfo) : base(objManager)
         {
             Object = obj;
-            Position = PS1Klonoa_Manager.GetPosition(obj.XPos.Value, obj.YPos.Value, obj.ZPos.Value, scale);
+            Position = PS1Klonoa_Manager.GetPosition(obj.XPos.Value, obj.YPos.Value, obj.ZPos.Value - (obj.Pre_IsSpawnedObject ? 20 : 0), scale);
             SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteInfo.SpriteSet);
             AnimIndex = spriteInfo.SpriteIndex;
             Scale = spriteInfo.Scale;

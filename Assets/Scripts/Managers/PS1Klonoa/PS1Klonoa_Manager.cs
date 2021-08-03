@@ -1007,15 +1007,28 @@ namespace R1Engine
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
 
             // Add enemies
-            objects.AddRange(loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex).Select(x =>
+            foreach (EnemyObject enemyObj in loader.LevelData2D.EnemyObjects.Where(x => x.GlobalSectorIndex == loader.GlobalSectorIndex))
             {
-                var spriteInfo = GetSprite_Enemy(x);
+                // Add the enemy object
+                addEnemyObj(enemyObj);
 
-                if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
-                    Debug.LogWarning($"Sprite could not be determined for enemy object of secondary type {x.SecondaryType} and graphics index {x.GraphicsIndex}");
+                // Add spawned objects from portals
+                if (enemyObj.Data is EnemyData_02 data_02)
+                {
+                    foreach (var spawnObject in data_02.SpawnObjects)
+                        addEnemyObj(spawnObject);
+                }
 
-                return new Unity_Object_PS1Klonoa_Enemy(objManager, x, scale, spriteInfo);
-            }));
+                void addEnemyObj(EnemyObject obj)
+                {
+                    var spriteInfo = GetSprite_Enemy(obj);
+
+                    if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
+                        Debug.LogWarning($"Sprite could not be determined for enemy object of secondary type {obj.SecondaryType} and graphics index {obj.GraphicsIndex}");
+
+                    objects.Add(new Unity_Object_PS1Klonoa_Enemy(objManager, obj, scale, spriteInfo));
+                }
+            }
 
             // Add enemy spawn points
             for (int pathIndex = 0; pathIndex < loader.LevelData2D.EnemyObjectIndexTables.IndexTables.Length; pathIndex++)
