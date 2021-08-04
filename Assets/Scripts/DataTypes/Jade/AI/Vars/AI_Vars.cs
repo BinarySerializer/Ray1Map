@@ -110,10 +110,11 @@ namespace R1Engine.Jade {
 					}
 				}
 			}
-			//ExportVarsOverview(s);
+			/*ExportVarsOverview(null);
+			ExportIDAStruct(null);*/
 		}
 
-		public void ExportVarsOverview(SerializerObject s) {
+		public void ExportVarsOverview(string name) {
 			StringBuilder b = new StringBuilder();
 			b.AppendLine($"VARS COUNT: {Vars.Length}");
 
@@ -132,7 +133,86 @@ namespace R1Engine.Jade {
 					$"\n\t\tCopy to instance buffer: {(Vars[i].Info.Flags & 0x20) != 0}");
 			}
 			string basePath = Context.BasePath;
-			string path = basePath + "vars/" + Key + "_" + s.GetR1Settings().Platform + ".vardec";
+			string path = basePath + "vars/" + Key + "_" + Context.GetR1Settings().Platform + ".vardec";
+			if (name != null) {
+				path = basePath + "vars/" + Key + "_" + Context.GetR1Settings().Platform + "_" + name + ".vardec";
+			}
+			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
+			System.IO.File.WriteAllText(path, b.ToString());
+
+		}
+
+
+
+		public void ExportIDAStruct(string name) {
+			StringBuilder b = new StringBuilder();
+			string structName = $"AI2C_Vars_{Key.Key:X8}";
+			if(name != null) structName += $"_{name}";
+			b.AppendLine($"struct {structName} {{");
+			var varsOrderered = Vars.OrderBy(v => v.Info.BufferOffset);
+			int curBufferOffset = 0;
+			foreach (var v in varsOrderered) {
+				var newBufferOffset = v.Info.BufferOffset;
+				if(newBufferOffset < curBufferOffset) throw new Exception("Buffer offset was below the last one");
+				if (newBufferOffset > curBufferOffset) {
+					b.AppendLine($"\t_BYTE gap_{curBufferOffset:X8}[{newBufferOffset-curBufferOffset}];");
+					curBufferOffset = newBufferOffset;
+				}
+				var varName = v.Name;
+				if (v.Info.ArrayDimensionsCount != 0) {
+					b.AppendLine($"\tint {varName}__dimensions[{v.Info.ArrayDimensionsCount}];");
+					curBufferOffset += v.Info.ArrayDimensionsCount * 4;
+				}
+				string arrayString = "";
+				if (v.Info.ArrayDimensionsCount != 0) {
+					arrayString = $"[{v.Info.ArrayLength}]";
+				}
+				string type = "int";
+				switch (v.Type) {
+					case AI_VarType.Float:
+						type = "float";
+						break;
+					case AI_VarType.Vector:
+						if (v.Link.Size == 12) {
+							type = "Vector";
+						}
+						break;
+					case AI_VarType.Trigger:
+						type = "Var_Trigger";
+						break;
+					case AI_VarType.Message:
+						type = "Var_Message";
+						break;
+					case AI_VarType.Text:
+						type = "Var_Text";
+						break;
+					case AI_VarType.Key:
+						type = "Var_Key";
+						break;
+					case AI_VarType.PointerRef:
+						type = "Var_PointerRef";
+						break;
+					case AI_VarType.MessageId:
+						type = "Var_MessageId";
+						break;
+					case AI_VarType.GAO:
+						type = "Var_GAO";
+						break;
+					case AI_VarType.String:
+						type = "Var_String";
+						break;
+				}
+				b.AppendLine($"\t{type} {varName}{arrayString};");
+				curBufferOffset += (int)(v.Info.ArrayLength * v.Link.Size);
+			}
+			b.AppendLine($"}};");
+
+
+			string basePath = Context.BasePath;
+			string path = basePath + "vars_ida/" + Key + "_" + Context.GetR1Settings().Platform + ".varida";
+			if (name != null) {
+				path = basePath + "vars_ida/" + Key + "_" + Context.GetR1Settings().Platform + "_" + name + ".vardec";
+			}
 			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
 			System.IO.File.WriteAllText(path, b.ToString());
 
