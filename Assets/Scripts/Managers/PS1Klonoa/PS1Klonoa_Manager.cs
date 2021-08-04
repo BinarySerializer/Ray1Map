@@ -788,8 +788,15 @@ namespace R1Engine
 
             (obj, isAnimated) = CreateGameObject(loader.LevelPack.Sectors[sector].LevelModel, loader, scale, "Map", texAnimations, uvScrollAnimations);
 
-            var levelDimensions = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel) / scale;
-            obj.transform.position = new Vector3(0, 0, 0);
+            var levelBounds = GetDimensions(loader.LevelPack.Sectors[sector].LevelModel, scale);
+
+            // Calculate actual level dimensions: switched axes for unity & multiplied by cellSize
+            var size = levelBounds.size;
+            var cellSize = 16;
+            var layerDimensions = new Vector3(size.x, size.z, size.y) * cellSize;
+
+            // Correctly center object
+            obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
 
             var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
             layers.Add(new Unity_Layer_GameObject(true, isAnimated: isAnimated)
@@ -798,7 +805,7 @@ namespace R1Engine
                 ShortName = "MAP",
                 Graphics = obj,
                 Collision = null,
-                Dimensions = levelDimensions,
+                Dimensions = layerDimensions,
                 DisableGraphicsWhenCollisionIsActive = true
             });
             obj.transform.SetParent(parent3d);
@@ -1375,13 +1382,14 @@ namespace R1Engine
             return (gaoParent, isAnimated);
         }
 
-        public Vector3 GetDimensions(PS1_TMD tmd)
-        {
+        public Bounds GetDimensions(PS1_TMD tmd, float scale) {
+            Bounds b = new Bounds();
             var verts = tmd.Objects.SelectMany(x => x.Vertices).ToArray();
-            var width = verts.Max(v => v.X) - verts.Min(v => v.X);
-            var height = verts.Max(v => v.Y) - verts.Min(v => v.Y);
-            var depth = verts.Max(v => v.Z) - verts.Min(v => v.Z);
-            return new Vector3(width, height, depth);
+            var min = new Vector3(verts.Min(v => v.X), verts.Min(v => v.Y), verts.Min(v => v.Z)) / scale;
+            var max = new Vector3(verts.Max(v => v.X), verts.Max(v => v.Y), verts.Max(v => v.Z)) / scale;
+            var center = Vector3.Lerp(min, max, 0.5f);
+
+            return new Bounds(center, max-min);
         }
 
         Vector3 GetPositionVector(ObjPosition pos, Vector3? posOffset, float scale)
