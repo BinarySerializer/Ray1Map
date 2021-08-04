@@ -502,81 +502,52 @@ namespace R1Engine
                         // Read the data
                         var bg = loader.LoadBINFile<BackgroundPack_ArchiveFile>(i);
 
-                        // Load the tile sets
-                        for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
+                        var exportedMaps = new bool[bg.BGDFiles.Files.Length];
+
+                        // Export for each sector
+                        foreach (var modifiersFile in bg.BackgroundModifiersFiles.Files)
+                            export(modifiersFile.Modifiers.Where(x => !x.IsLayer || !exportedMaps[x.BGDIndex]).ToArray());
+
+                        // Export unreferenced backgrounds
+                        for (int j = 0; j < exportedMaps.Length; j++)
                         {
-                            var tim = bg.TIMFiles.Files[tileSetIndex];
-
-                            // The game hard-codes this
-                            if (tileSetIndex == 0)
+                            if (!exportedMaps[j])
                             {
-                                tim.Clut.XPos = 0x130;
-                                tim.Clut.YPos = 0x1F0;
-                                tim.Clut.Width = 0x10;
-                                tim.Clut.Height = 0x10;
+                                export(new BackgroundModifierObject[]
+                                {
+                                    new BackgroundModifierObject
+                                    {
+                                        Type = BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19,
+                                        BGDIndex = j,
+                                        CELIndex = 0,
+                                    }
+                                });
                             }
-                            else if (tileSetIndex == 1)
-                            {
-                                tim.XPos = 0x1C0;
-                                tim.YPos = 0x100;
-                                tim.Width = 0x40;
-                                tim.Height = 0x100;
-
-                                tim.Clut.XPos = 0x120;
-                                tim.Clut.YPos = 0x1F0;
-                                tim.Clut.Width = 0x10;
-                                tim.Clut.Height = 0x10;
-                            }
-
-                            loader.AddToVRAM(tim);
                         }
 
-                        for (int bgIndex = 0; bgIndex < bg.BGDFiles.Files.Length; bgIndex++)
+                        void export(BackgroundModifierObject[] modifiers)
                         {
-                            var map = bg.BGDFiles.Files[bgIndex];
+                            Texture2D[][] textures;
+                            int animSpeed;
 
-                            var tileSetIndex = bg.BackgroundModifiersFiles.Files.
-                                SelectMany(x => x.Modifiers).
-                                Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19 || 
-                                           x.Type == BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_22).
-                                FirstOrDefault(x => x.BGDIndex == bgIndex)?.CELIndex ?? 0;
+                            (textures, animSpeed) = GetBackgrounds(loader, bg, modifiers);
 
-                            var tim = bg.TIMFiles.Files[tileSetIndex];
-                            var cel = bg.CELFiles.Files[tileSetIndex];
-
-                            var tex = TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
-
-                            for (int mapY = 0; mapY < map.MapHeight; mapY++)
+                            for (int texIndex = 0; texIndex < textures.Length; texIndex++)
                             {
-                                for (int mapX = 0; mapX < map.MapWidth; mapX++)
+                                var bgTex = textures[texIndex];
+                                var bgIndex = modifiers.Where(x => x.IsLayer).ElementAt(texIndex).BGDIndex;
+
+                                exportedMaps[bgIndex] = true;
+
+                                if (bgTex.Length > 1)
                                 {
-                                    var cellIndex = map.Map[mapY * map.MapWidth + mapX];
-
-                                    if (cellIndex == 0xFF)
-                                        continue;
-
-                                    var cell = cel.Cells[cellIndex];
-
-                                    FillTextureFromVRAM(
-                                        tex: tex,
-                                        vram: loader.VRAM,
-                                        width: map.CellWidth,
-                                        height: map.CellHeight,
-                                        colorFormat: tim.ColorFormat,
-                                        texX: mapX * map.CellWidth,
-                                        texY: mapY * map.CellHeight,
-                                        clutX: cell.ClutX * 16,
-                                        clutY: cell.ClutY,
-                                        texturePageOriginX: tim.XPos,
-                                        texturePageOriginY: tim.YPos,
-                                        texturePageOffsetX: cell.XOffset,
-                                        texturePageOffsetY: cell.YOffset);
+                                    Util.ExportAnimAsGif(bgTex, animSpeed * 2, false, false, Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.gif"));
+                                }
+                                else
+                                {
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.png"), bgTex[0].EncodeToPNG());
                                 }
                             }
-
-                            tex.Apply();
-
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.png"), tex.EncodeToPNG());
                         }
                     }
                     catch (Exception ex)
@@ -1667,8 +1638,7 @@ namespace R1Engine
         public (Texture2D[][], int) GetBackgrounds(Loader loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject[] modifiers)
         {
             // Get the modifiers
-            var layers = modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19 ||
-                                              x.Type == BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_22).ToArray();
+            var layers = modifiers.Where(x => x.IsLayer).ToArray();
             var palScrolls = modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.PaletteScroll).ToArray();
 
             // Get the amount of frames each animation will have. We assume if there are multiple palette scroll modifiers that they all share
