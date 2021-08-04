@@ -782,7 +782,26 @@ namespace R1Engine
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
 
-            // TODO: Load backgrounds - easiest to convert to textures instead of using tilemaps, unless it's easier for animations?
+            // Load backgrounds
+            if (loader.BackgroundPack != null)
+            {
+                var bgModifiers = loader.BackgroundPack.BackgroundModifiersFiles.Files[sector].Modifiers;
+
+                Texture2D[][] bgTextures;
+                int bgAnimSpeed;
+
+                // Get the background textures
+                (bgTextures, bgAnimSpeed) = GetBackgrounds(loader, loader.BackgroundPack, bgModifiers);
+
+                // Add the backgrounds
+                layers.AddRange(bgTextures.Select((t, i) => new Unity_Layer_Texture
+                {
+                    Name = $"Background {i}", 
+                    ShortName = $"BG{i}", 
+                    Textures = t, 
+                    AnimSpeed = bgAnimSpeed,
+                }));
+            }
 
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
@@ -800,7 +819,7 @@ namespace R1Engine
             var layerDimensions = new Vector3(size.x, size.z, size.y) * cellSize;
 
             // Correctly center object
-            obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
+            //obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
 
             var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
             layers.Add(new Unity_Layer_GameObject(true, isAnimated: isAnimated)
@@ -1643,6 +1662,133 @@ namespace R1Engine
             tex.Apply();
 
             return tex;
+        }
+
+        public (Texture2D[][], int) GetBackgrounds(Loader loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject[] modifiers)
+        {
+            // Get the modifiers
+            var layers = modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19 ||
+                                              x.Type == BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_22).ToArray();
+            var palScrolls = modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.PaletteScroll).ToArray();
+
+            // Get the amount of frames each animation will have. We assume if there are multiple palette scroll modifiers that they all share
+            // the same length and speed (which they do in Klonoa)
+            var framesLength = palScrolls.Any() ? palScrolls.First().Data_23.Length : 1;
+            var animSpeed = palScrolls.Any() ? palScrolls.First().Data_23.Speed : 0;
+
+            // Create the textures array for the backgrounds and their frames
+            var textures = new Texture2D[layers.Length][];
+
+            for (int i = 0; i < textures.Length; i++)
+                textures[i] = new Texture2D[framesLength];
+
+            // Load VRAM data
+            for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
+            {
+                var tim = bg.TIMFiles.Files[tileSetIndex];
+
+                // The game hard-codes this
+                if (tileSetIndex == 0)
+                {
+                    tim.Clut.XPos = 0x130;
+                    tim.Clut.YPos = 0x1F0;
+                    tim.Clut.Width = 0x10;
+                    tim.Clut.Height = 0x10;
+                }
+                else if (tileSetIndex == 1)
+                {
+                    tim.XPos = 0x1C0;
+                    tim.YPos = 0x100;
+                    tim.Width = 0x40;
+                    tim.Height = 0x100;
+
+                    tim.Clut.XPos = 0x120;
+                    tim.Clut.YPos = 0x1F0;
+                    tim.Clut.Width = 0x10;
+                    tim.Clut.Height = 0x10;
+                }
+
+                loader.AddToVRAM(tim);
+            }
+
+            // Create the background frames
+            for (int frameIndex = 0; frameIndex < framesLength; frameIndex++)
+            {
+                // Update VRAM with each palette scroll modifier
+                if (frameIndex > 0)
+                {
+                    foreach (var palMod in palScrolls.Select(x => x.Data_23))
+                    {
+                        var pal = loader.VRAM.GetPixels8(0, 0, palMod.XPosition * 2, palMod.YPosition, 32);
+
+                        var firstColor_0 = pal[0];
+                        var firstColor_1 = pal[1];
+                        
+                        var index = palMod.StartIndex;
+                        var endIndex = index + palMod.Length;
+                        
+                        do
+                        {
+                            pal[index * 2] = pal[(index + 1) * 2];
+                            pal[index * 2 + 1] = pal[(index + 1) * 2 + 1];
+
+                            index += 1;
+                        } while (index < endIndex);
+
+                        pal[(endIndex - 1) * 2] = firstColor_0;
+                        pal[(endIndex - 1) * 2 + 1] = firstColor_1;
+
+                        loader.VRAM.AddDataAt(0, 0, palMod.XPosition * 2, palMod.YPosition, pal, 32, 1);
+                    }
+                }
+
+                // Create the frame for each background
+                for (int layerIndex = 0; layerIndex < layers.Length; layerIndex++)
+                {
+                    var celIndex = layers[layerIndex].CELIndex;
+                    var bgIndex = layers[layerIndex].BGDIndex;
+
+                    var tim = bg.TIMFiles.Files[celIndex];
+                    var cel = bg.CELFiles.Files[celIndex];
+                    var map = bg.BGDFiles.Files[bgIndex];
+
+                    var tex = TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
+
+                    for (int mapY = 0; mapY < map.MapHeight; mapY++)
+                    {
+                        for (int mapX = 0; mapX < map.MapWidth; mapX++)
+                        {
+                            var cellIndex = map.Map[mapY * map.MapWidth + mapX];
+
+                            if (cellIndex == 0xFF)
+                                continue;
+
+                            var cell = cel.Cells[cellIndex];
+
+                            FillTextureFromVRAM(
+                                tex: tex,
+                                vram: loader.VRAM,
+                                width: map.CellWidth,
+                                height: map.CellHeight,
+                                colorFormat: tim.ColorFormat,
+                                texX: mapX * map.CellWidth,
+                                texY: mapY * map.CellHeight,
+                                clutX: cell.ClutX * 16,
+                                clutY: cell.ClutY,
+                                texturePageOriginX: tim.XPos,
+                                texturePageOriginY: tim.YPos,
+                                texturePageOffsetX: cell.XOffset,
+                                texturePageOffsetY: cell.YOffset);
+                        }
+                    }
+
+                    tex.Apply();
+
+                    textures[layerIndex][frameIndex] = tex;
+                }
+            }
+
+            return (textures, animSpeed);
         }
         
         public async UniTask LoadFilesAsync(Context context, LoaderConfiguration config)
