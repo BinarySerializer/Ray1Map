@@ -488,8 +488,6 @@ namespace R1Engine
             // Enumerate every entry
             for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
             {
-                var vram = new PS1_VRAM();
-
                 loader.SwitchBlocks(blockIndex);
 
                 // Process each BIN file
@@ -504,14 +502,20 @@ namespace R1Engine
                         // Read the data
                         var bg = loader.LoadBINFile<BackgroundPack_ArchiveFile>(i);
 
-                        // TODO: Some maps use different textures! How do we find the index? For now export all variants
+                        // Load the tile sets
                         for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
                         {
                             var tim = bg.TIMFiles.Files[tileSetIndex];
-                            var cel = bg.CELFiles.Files[tileSetIndex];
 
                             // The game hard-codes this
-                            if (tileSetIndex == 1)
+                            if (tileSetIndex == 0)
+                            {
+                                tim.Clut.XPos = 0x130;
+                                tim.Clut.YPos = 0x1F0;
+                                tim.Clut.Width = 0x10;
+                                tim.Clut.Height = 0x10;
+                            }
+                            else if (tileSetIndex == 1)
                             {
                                 tim.XPos = 0x1C0;
                                 tim.YPos = 0x100;
@@ -525,45 +529,50 @@ namespace R1Engine
                             }
 
                             loader.AddToVRAM(tim);
+                        }
 
-                            for (int j = 0; j < bg.BGDFiles.Files.Length; j++)
+                        for (int bgIndex = 0; bgIndex < bg.BGDFiles.Files.Length; bgIndex++)
+                        {
+                            var map = bg.BGDFiles.Files[bgIndex];
+
+                            var tileSetIndex = bg.BackgroundDescriptorsFiles.Files.SelectMany(x => x.Descriptors).FirstOrDefault(x => x.BGDIndex == bgIndex)?.CELIndex ?? 0;
+
+                            var tim = bg.TIMFiles.Files[tileSetIndex];
+                            var cel = bg.CELFiles.Files[tileSetIndex];
+
+                            var tex = TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
+
+                            for (int mapY = 0; mapY < map.MapHeight; mapY++)
                             {
-                                var map = bg.BGDFiles.Files[j];
-
-                                var tex = TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
-
-                                for (int mapY = 0; mapY < map.MapHeight; mapY++)
+                                for (int mapX = 0; mapX < map.MapWidth; mapX++)
                                 {
-                                    for (int mapX = 0; mapX < map.MapWidth; mapX++)
-                                    {
-                                        var cellIndex = map.Map[mapY * map.MapWidth + mapX];
+                                    var cellIndex = map.Map[mapY * map.MapWidth + mapX];
 
-                                        if (cellIndex == 0xFF)
-                                            continue;
+                                    if (cellIndex == 0xFF)
+                                        continue;
 
-                                        var cell = cel.Cells[cellIndex];
+                                    var cell = cel.Cells[cellIndex];
 
-                                        FillTextureFromVRAM(
-                                            tex: tex, 
-                                            vram: vram, 
-                                            width: map.CellWidth, 
-                                            height: map.CellHeight, 
-                                            colorFormat: tim.ColorFormat, 
-                                            texX: mapX * map.CellWidth, 
-                                            texY: mapY * map.CellHeight, 
-                                            clutX: cell.ClutX * 16, 
-                                            clutY: cell.ClutY, 
-                                            texturePageOriginX: tim.XPos, 
-                                            texturePageOriginY: tim.YPos, 
-                                            texturePageOffsetX: cell.XOffset, 
-                                            texturePageOffsetY: cell.YOffset);
-                                    }
+                                    FillTextureFromVRAM(
+                                        tex: tex,
+                                        vram: loader.VRAM,
+                                        width: map.CellWidth,
+                                        height: map.CellHeight,
+                                        colorFormat: tim.ColorFormat,
+                                        texX: mapX * map.CellWidth,
+                                        texY: mapY * map.CellHeight,
+                                        clutX: cell.ClutX * 16,
+                                        clutY: cell.ClutY,
+                                        texturePageOriginX: tim.XPos,
+                                        texturePageOriginY: tim.YPos,
+                                        texturePageOffsetX: cell.XOffset,
+                                        texturePageOffsetY: cell.YOffset);
                                 }
-
-                                tex.Apply();
-
-                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - {j}_{tileSetIndex}.png"), tex.EncodeToPNG());
                             }
+
+                            tex.Apply();
+
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.png"), tex.EncodeToPNG());
                         }
                     }
                     catch (Exception ex)
@@ -572,7 +581,7 @@ namespace R1Engine
                     }
                 });
 
-                PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), vram);
+                PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
             }
         }
 
