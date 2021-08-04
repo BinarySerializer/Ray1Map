@@ -535,7 +535,11 @@ namespace R1Engine
                         {
                             var map = bg.BGDFiles.Files[bgIndex];
 
-                            var tileSetIndex = bg.BackgroundDescriptorsFiles.Files.SelectMany(x => x.Descriptors).FirstOrDefault(x => x.BGDIndex == bgIndex)?.CELIndex ?? 0;
+                            var tileSetIndex = bg.BackgroundModifiersFiles.Files.
+                                SelectMany(x => x.Modifiers).
+                                Where(x => x.Type == BackgroundModifier.BackgroundModifierType.BackgroundLayer_19 || 
+                                           x.Type == BackgroundModifier.BackgroundModifierType.BackgroundLayer_22).
+                                FirstOrDefault(x => x.BGDIndex == bgIndex)?.CELIndex ?? 0;
 
                             var tim = bg.TIMFiles.Files[tileSetIndex];
                             var cel = bg.CELFiles.Files[tileSetIndex];
