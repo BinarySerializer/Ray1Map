@@ -21,5 +21,7 @@ namespace R1Engine.Jade {
 				}
 			}
 		}
+
+		public AI_Vars Vars => References?.FirstOrDefault(r => !r.IsNull && r.Type == Jade_FileType.FileType.AI_Vars)?.Value as AI_Vars;
 	}
 }
