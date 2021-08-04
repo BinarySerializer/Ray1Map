@@ -690,6 +690,16 @@ namespace R1Engine
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
+            Unity_CameraClear camClear = null;
+            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files[sector].Modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).Select(x => x.Data_20).ToArray();
+
+            // TODO: Fully support camera clearing with gradient and multiple clear zones
+            if (bgClear?.Any() == true)
+                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
+
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
+
+
             var str = new StringBuilder();
 
             foreach (var archive in ArchiveFile.ParsedArchiveFiles)
@@ -707,7 +717,7 @@ namespace R1Engine
             stopWatch.Stop();
 
             Debug.Log($"Startup in {stopWatch.ElapsedMilliseconds:0000}ms{Environment.NewLine}" +
-                      $"{startupLog}");
+                          $"{startupLog}");
 
             return new Unity_Level(
                 layers: layers,
@@ -729,7 +739,8 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 1
                 },
-                ps1Vram: loader.VRAM);
+                ps1Vram: loader.VRAM,
+                cameraClear: camClear);
         }
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector, float scale)

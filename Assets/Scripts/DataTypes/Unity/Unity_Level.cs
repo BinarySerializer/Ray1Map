@@ -34,7 +34,8 @@ namespace R1Engine
             string[] objectGroups = null,
             Unity_TrackManager trackManager = null,
             float framesPerSecond = 60f,
-            PS1_VRAM ps1Vram = null)
+            PS1_VRAM ps1Vram = null,
+            Unity_CameraClear cameraClear = null)
         {
             Maps = maps;
             Layers = layers;
@@ -56,6 +57,9 @@ namespace R1Engine
             TrackManager = trackManager;
             FramesPerSecond = framesPerSecond;
             PS1_VRAM = ps1Vram;
+            CameraClear = cameraClear;
+
+            CameraClear?.Apply();
 
             // Set default layers
             if (Layers != null) {
@@ -135,6 +139,8 @@ namespace R1Engine
         public float FramesPerSecond { get; set; }
 
         public PS1_VRAM PS1_VRAM { get; }
+
+        public Unity_CameraClear CameraClear { get; }
 
         #endregion
 
