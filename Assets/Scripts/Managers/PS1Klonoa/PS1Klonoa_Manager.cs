@@ -96,6 +96,7 @@ namespace R1Engine
 
                 [IDXLoadCommand.FileType.FixedSprites] = 1,
                 [IDXLoadCommand.FileType.Archive_SpritePack] = 1,
+                [IDXLoadCommand.FileType.Archive_LevelMenuSprites] = 2,
                 
                 [IDXLoadCommand.FileType.Archive_LevelPack] = 1,
 
@@ -462,7 +463,22 @@ namespace R1Engine
                 export(loader.MenuSprites.Sprites_2.Files[frameIndex].Textures, $"Menu", 2, frameIndex, 960, 440);
 
             for (int frameIndex = 0; frameIndex < loader.MenuSprites.AnimatedSprites.Sprites.Files.Length - 1; frameIndex++)
-                export(loader.MenuSprites.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"Menu", 3, frameIndex, 0, frameIndex >= 120 ? 480 : 490);
+            {
+                int palY;
+
+                if (frameIndex < 120)
+                    palY = 490;
+                else if (frameIndex < 166)
+                    palY = 480;
+                else if (frameIndex < 178)
+                    palY = 490;
+                else if (frameIndex < 182)
+                    palY = -1; // TODO: Correct pal
+                else
+                    palY = 480;
+
+                export(loader.MenuSprites.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"Menu", 3, frameIndex, 0, palY);
+            }
 
             PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_Menu.png"), loader.VRAM);
 
@@ -486,6 +502,17 @@ namespace R1Engine
                     for (int frameIndex = 0; frameIndex < spriteFrames.Files.Length - 1; frameIndex++)
                         export(spriteFrames.Files[frameIndex].Textures, $"{blockIndex}", framesSet, frameIndex, 0, 500);
                 }
+
+                if (loader.LevelMenuSprites != null)
+                {
+                    for (int frameIndex = 0; frameIndex < loader.LevelMenuSprites.Sprites_0.Files.Length; frameIndex++)
+                        export(loader.LevelMenuSprites.Sprites_0.Files[frameIndex].Textures, $"{blockIndex} - Menu", 0, frameIndex, 960, 442);
+
+                    for (int frameIndex = 0; frameIndex < loader.LevelMenuSprites.Sprites_1.Files.Length; frameIndex++)
+                        export(loader.LevelMenuSprites.Sprites_1.Files[frameIndex].Textures, $"{blockIndex} - Menu", 1, frameIndex, -1, -1); // TODO: Correct pal
+                }
+
+                PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
             }
 
             void export(SpriteTexture[] spriteTextures, string blockName, int setIndex, int frameIndex, int palX, int palY)
