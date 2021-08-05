@@ -98,11 +98,14 @@ namespace R1Engine
                 [IDXLoadCommand.FileType.Archive_SpritePack] = 1,
                 
                 [IDXLoadCommand.FileType.Archive_LevelPack] = 1,
+
+                [IDXLoadCommand.FileType.Archive_WorldMap] = 1,
+                
+                [IDXLoadCommand.FileType.Archive_MenuSprites] = 2,
+                [IDXLoadCommand.FileType.Font] = 0,
+                [IDXLoadCommand.FileType.Archive_MenuBackgrounds] = 2,
                 
                 [IDXLoadCommand.FileType.Archive_Unk0] = 1,
-                [IDXLoadCommand.FileType.Archive_Unk4] = 2,
-                [IDXLoadCommand.FileType.Archive_MenuSprites] = 2,
-                [IDXLoadCommand.FileType.Archive_WorldMap] = 1,
 
                 [IDXLoadCommand.FileType.Code] = 0,
             };
@@ -262,6 +265,25 @@ namespace R1Engine
                             {
                                 export(() => GetTexture(tim), "Background");
                                 index++;
+                            }
+
+                            break;
+
+                        case IDXLoadCommand.FileType.Archive_MenuBackgrounds:
+
+                            // Read the data
+                            var timArchives = loader.LoadBINFile<ArchiveFile<TIM_ArchiveFile>>(i);
+
+                            var timsIndex = 0;
+                            foreach (var tims in timArchives.Files)
+                            {
+                                foreach (var tim in tims.Files)
+                                {
+                                    export(() => GetTexture(tim, onlyFirstTransparent: true), $"MenuBackground {timsIndex}");
+                                    index++;
+                                }
+
+                                timsIndex++;
                             }
 
                             break;
@@ -615,7 +637,7 @@ namespace R1Engine
 
             // Get settings
             GameSettings settings = context.GetR1Settings();
-            int lev = 1;
+            int lev = settings.World;
             int sector = settings.Level;
             LoaderConfiguration config = GetLoaderConfig(settings);
 
@@ -1498,12 +1520,16 @@ namespace R1Engine
             }
         }
 
-        public Texture2D GetTexture(PS1_TIM tim, bool flipTextureY = true, Color[] palette = null)
+        public Texture2D GetTexture(PS1_TIM tim, bool flipTextureY = true, Color[] palette = null, bool onlyFirstTransparent = false)
         {
             if (tim.XPos == 0 && tim.YPos == 0)
                 return null;
 
             var pal = palette ?? tim.Clut?.Palette?.Select(x => x.GetColor()).ToArray();
+
+            if (onlyFirstTransparent && pal != null)
+                for (int i = 0; i < pal.Length; i++)
+                    pal[i].a = i == 0 ? 0 : 1;
 
             return GetTexture(tim.ImgData, pal, tim.Width, tim.Height, tim.ColorFormat, flipTextureY);
         }
