@@ -107,8 +107,10 @@ namespace R1Engine
                 [IDXLoadCommand.FileType.Archive_MenuBackgrounds] = 2,
                 
                 [IDXLoadCommand.FileType.Archive_Unk0] = 1,
+                [IDXLoadCommand.FileType.Unk1] = 0,
 
                 [IDXLoadCommand.FileType.Code] = 0,
+                [IDXLoadCommand.FileType.CodeNoDest] = 0,
             };
 
             // Enumerate every entry
@@ -191,6 +193,8 @@ namespace R1Engine
                 // Process each BIN file
                 loader.LoadBINFiles((cmd, i) =>
                 {
+                    // TODO: Also export no-destination code blocks
+
                     if (cmd.FILE_Type != IDXLoadCommand.FileType.Code)
                         return;
                     
@@ -225,6 +229,7 @@ namespace R1Engine
                     switch (cmd.FILE_Type)
                     {
                         case IDXLoadCommand.FileType.Code:
+                        case IDXLoadCommand.FileType.CodeNoDest:
                             loader.ProcessBINFile(i);
                             break;
 
