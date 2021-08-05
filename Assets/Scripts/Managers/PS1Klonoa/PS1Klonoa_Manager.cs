@@ -101,7 +101,7 @@ namespace R1Engine
                 
                 [IDXLoadCommand.FileType.Archive_Unk0] = 1,
                 [IDXLoadCommand.FileType.Archive_Unk4] = 2,
-                [IDXLoadCommand.FileType.Archive_Unk6] = 2,
+                [IDXLoadCommand.FileType.Archive_MenuSprites] = 2,
                 [IDXLoadCommand.FileType.Archive_WorldMap] = 1,
 
                 [IDXLoadCommand.FileType.Code] = 0,
@@ -419,19 +419,33 @@ namespace R1Engine
                     loader.AddToVRAM(wld.Palette2);
 
                 // Enumerate every frame
-                for (int frameIndex = 0; frameIndex < wld.Graphics.Sprites.Files.Length - 1; frameIndex++)
-                {
-                    var sprites = wld.Graphics.Sprites.Files[frameIndex].Textures;
-                    var tex = GetTexture(sprites, loader.VRAM);
-
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"WorldMap", $"{i} - {frameIndex}.png"), tex.EncodeToPNG());
-                }
+                for (int frameIndex = 0; frameIndex < wld.AnimatedSprites.Sprites.Files.Length - 1; frameIndex++)
+                    export(wld.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"WorldMap", i, frameIndex, -1, -1); // TODO: Correct pal
             }
 
             PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_WorldMap.png"), loader.VRAM);
 
+            // Load menu
+            loader.SwitchBlocks(1);
+            loader.LoadAndProcessBINBlock();
+
+            // Extract menu sprites
+            for (int frameIndex = 0; frameIndex < loader.MenuSprites.Sprites_0.Files.Length - 1; frameIndex++)
+                export(loader.MenuSprites.Sprites_0.Files[frameIndex].Textures, $"Menu", 0, frameIndex, 960, 442);
+
+            for (int frameIndex = 0; frameIndex < loader.MenuSprites.Sprites_1.Files.Length - 1; frameIndex++)
+                export(loader.MenuSprites.Sprites_1.Files[frameIndex].Textures, $"Menu", 1, frameIndex, 0, 480);
+
+            for (int frameIndex = 0; frameIndex < loader.MenuSprites.Sprites_2.Files.Length - 1; frameIndex++)
+                export(loader.MenuSprites.Sprites_2.Files[frameIndex].Textures, $"Menu", 2, frameIndex, 960, 440);
+
+            for (int frameIndex = 0; frameIndex < loader.MenuSprites.AnimatedSprites.Sprites.Files.Length - 1; frameIndex++)
+                export(loader.MenuSprites.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"Menu", 3, frameIndex, 0, frameIndex >= 120 ? 480 : 490);
+
+            PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_Menu.png"), loader.VRAM);
+
             // Enumerate every entry
-            for (var blockIndex = 1; blockIndex < idxData.Entries.Length; blockIndex++)
+            for (var blockIndex = 2; blockIndex < idxData.Entries.Length; blockIndex++)
             {
                 loader.SwitchBlocks(blockIndex);
 
@@ -447,29 +461,22 @@ namespace R1Engine
                         continue;
 
                     // Enumerate every frame
-                    for (int frameIndex = 0; frameIndex < spriteFrames.Files.Length; frameIndex++)
-                    {
-                        try
-                        {
-                            var sprites = spriteFrames.Files[frameIndex].Textures;
-                            var tex = GetTexture(sprites, loader.VRAM);
-
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{framesSet} - {frameIndex}.png"), tex.EncodeToPNG());
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogWarning($"Error exporting sprite frame: {ex}");
-                        }
-                    }
+                    for (int frameIndex = 0; frameIndex < spriteFrames.Files.Length - 1; frameIndex++)
+                        export(spriteFrames.Files[frameIndex].Textures, $"{blockIndex}", framesSet, frameIndex, 0, 500);
                 }
+            }
 
+            void export(SpriteTexture[] spriteTextures, string blockName, int setIndex, int frameIndex, int palX, int palY)
+            {
                 try
                 {
-                    PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
+                    var tex = GetTexture(spriteTextures, loader.VRAM, palX, palY);
+
+                    Util.ByteArrayToFile(Path.Combine(outputPath, blockName, $"{setIndex} - {frameIndex}.png"), tex.EncodeToPNG());
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"Error exporting VRAM: {ex}");
+                    Debug.LogWarning($"Error exporting sprite frame: {ex}");
                 }
             }
         }
@@ -608,7 +615,7 @@ namespace R1Engine
 
             // Get settings
             GameSettings settings = context.GetR1Settings();
-            int lev = settings.World;
+            int lev = 1;
             int sector = settings.Level;
             LoaderConfiguration config = GetLoaderConfig(settings);
 
@@ -1014,7 +1021,7 @@ namespace R1Engine
                     continue;
 
                 // Create the frame textures
-                var frameTextures = frames.Files.Select(x => GetTexture(x.Textures, loader.VRAM).CreateSprite()).ToArray();
+                var frameTextures = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).CreateSprite()).ToArray();
 
                 frameSets.Add(new Unity_ObjectManager_PS1Klonoa.SpriteSet(frameTextures, i));
             }
@@ -1588,7 +1595,7 @@ namespace R1Engine
             return tex;
         }
 
-        public Texture2D GetTexture(SpriteTexture[] sprites, PS1_VRAM vram)
+        public Texture2D GetTexture(SpriteTexture[] sprites, PS1_VRAM vram, int palX, int palY)
         {
             var rects = sprites.Select(s => 
                 new RectInt(
@@ -1624,8 +1631,8 @@ namespace R1Engine
                         colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
                         texX: rects[index].x - minX,
                         texY: rects[index].y - minY,
-                        clutX: sprite.PalOffsetX,
-                        clutY: 500 + sprite.PalOffsetY,
+                        clutX: palX + sprite.PalOffsetX,
+                        clutY: palY + sprite.PalOffsetY,
                         texturePageOriginX: 0,
                         texturePageOriginY: 0,
                         texturePageX: texPage % 16,
@@ -1633,7 +1640,8 @@ namespace R1Engine
                         texturePageOffsetX: sprite.TexturePageOffsetX,
                         texturePageOffsetY: sprite.TexturePageOffsetY,
                         flipX: sprite.FlipX,
-                        flipY: sprite.FlipY);
+                        flipY: sprite.FlipY,
+                        useDummyPal: palX == -1 || palY == -1);
                 }
                 catch (Exception ex)
                 {
