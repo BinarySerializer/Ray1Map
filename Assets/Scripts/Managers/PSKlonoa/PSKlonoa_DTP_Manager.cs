@@ -36,7 +36,7 @@ namespace R1Engine
             ("Vision 3-2", 10),
             ("Gelg Bolm", 1),
 
-            ("Vision 4-1", 3),
+            ("Vision 4-1", 3), // TODO: 5 in proto
             ("Vision 4-2", 8),
             ("Baladium", 2),
 
@@ -47,7 +47,7 @@ namespace R1Engine
             ("Vision 6-1", 8),
             ("Vision 6-2", 8),
             ("", 2),
-            ("", 2),
+            ("", 2), // TODO: 1 in proto
             ("", 3),
             ("", 3),
             ("Klonoa's Grand Gale Strategy", 9),
@@ -74,7 +74,7 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
             var s = context.Deserializer;
 
@@ -181,7 +181,7 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
             var loader = Loader.Create(context, idxData, config);
 
@@ -200,7 +200,7 @@ namespace R1Engine
                     
                     var codeFile = loader.LoadBINFile<RawData_File>(i);
 
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - 0x{cmd.GetFileDestinationAddress(loader):X8}.dat"), codeFile.Data);
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - 0x{cmd.FILE_Destination:X8}.dat"), codeFile.Data);
                 });
             }
         }
@@ -212,7 +212,7 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
             var loader = Loader.Create(context, idxData, config);
 
@@ -430,7 +430,7 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
             var loader = Loader.Create(context, idxData, config);
 
@@ -542,7 +542,7 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
             var loader = Loader.Create(context, idxData, config);
 
@@ -658,8 +658,12 @@ namespace R1Engine
 
         public LoaderConfiguration GetLoaderConfig(GameSettings settings)
         {
-            // TODO: Support other versions
-            return new LoaderConfiguration_DTP_US();
+            return settings.GameModeSelection switch
+            {
+                GameModeSelection.KlonoaDoorToPhantomilePS1US => new LoaderConfiguration_DTP_US(),
+                GameModeSelection.KlonoaDoorToPhantomilePS1USPrototype_19970717 => new LoaderConfiguration_DTP_Prototype_19970717(),
+                _ => throw new Exception($"Unsupported game mode selection for Klonoa")
+            };
         }
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
@@ -684,7 +688,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the IDX
-            IDX idxData = Load_IDX(context);
+            IDX idxData = Load_IDX(context, config);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
 
@@ -1458,7 +1462,7 @@ namespace R1Engine
             return new Bounds(center, max-min);
         }
 
-        Vector3 GetPositionVector(ObjPosition pos, Vector3? posOffset, float scale)
+        public Vector3 GetPositionVector(ObjPosition pos, Vector3? posOffset, float scale)
         {
             if (posOffset == null)
                 return new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
@@ -1487,9 +1491,9 @@ namespace R1Engine
                 z: -(GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX)));
         }
 
-        public IDX Load_IDX(Context context)
+        public IDX Load_IDX(Context context, LoaderConfiguration config)
         {
-            return FileFactory.Read<IDX>(Loader.FilePath_IDX, context);
+            return FileFactory.Read<IDX>(Loader.FilePath_IDX, context, (s, idx) => idx.Pre_LoaderConfig = config);
         }
 
         public void FillTextureFromVRAM(
