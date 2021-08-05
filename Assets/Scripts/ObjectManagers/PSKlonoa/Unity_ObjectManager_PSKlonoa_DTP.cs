@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class Unity_ObjectManager_PS1Klonoa : Unity_ObjectManager
+    public class Unity_ObjectManager_PSKlonoa_DTP : Unity_ObjectManager
     {
-        public Unity_ObjectManager_PS1Klonoa(Context context, SpriteSet[] spriteSets) : base(context)
+        public Unity_ObjectManager_PSKlonoa_DTP(Context context, SpriteSet[] spriteSets) : base(context)
         {
             SpriteSets = spriteSets;
         }

@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public sealed class Unity_Object_PS1Klonoa_Collectible : Unity_Object_BasePS1Klonoa
+    public sealed class Unity_Object_PSKlonoa_DTP_Collectible : Unity_Object_BasePSKlonoa_DTP
     {
-        public Unity_Object_PS1Klonoa_Collectible(Unity_ObjectManager_PS1Klonoa objManager, CollectibleObject obj, Vector3 pos, PS1Klonoa_Manager.ObjSpriteInfo spriteInfo) : base(objManager)
+        public Unity_Object_PSKlonoa_DTP_Collectible(Unity_ObjectManager_PSKlonoa_DTP objManager, CollectibleObject obj, Vector3 pos, PSKlonoa_DTP_Manager.ObjSpriteInfo spriteInfo) : base(objManager)
         {
             Object = obj;
             Position = pos;

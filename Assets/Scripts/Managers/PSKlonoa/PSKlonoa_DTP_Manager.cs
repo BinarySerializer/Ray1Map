@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
-    public class PS1Klonoa_Manager : BaseGameManager
+    public class PSKlonoa_DTP_Manager : BaseGameManager
     {
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
 
@@ -733,7 +733,7 @@ namespace R1Engine
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
             // Load object manager
-            Unity_ObjectManager_PS1Klonoa objManager = await Load_ObjManagerAsync(loader);
+            Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
 
@@ -1058,9 +1058,9 @@ namespace R1Engine
             return (gao_3dObjParent, isObjAnimated);
         }
 
-        public async UniTask<Unity_ObjectManager_PS1Klonoa> Load_ObjManagerAsync(Loader loader)
+        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader)
         {
-            var frameSets = new List<Unity_ObjectManager_PS1Klonoa.SpriteSet>();
+            var frameSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
             // Enumerate each frame set
             for (var i = 0; i < loader.SpriteFrames.Length; i++)
@@ -1077,13 +1077,13 @@ namespace R1Engine
                 // Create the frame textures
                 var frameTextures = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).CreateSprite()).ToArray();
 
-                frameSets.Add(new Unity_ObjectManager_PS1Klonoa.SpriteSet(frameTextures, i));
+                frameSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(frameTextures, i));
             }
 
-            return new Unity_ObjectManager_PS1Klonoa(loader.Context, frameSets.ToArray());
+            return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, frameSets.ToArray());
         }
 
-        public List<Unity_Object> Load_Objects(Loader loader, int sector, float scale, Unity_ObjectManager_PS1Klonoa objManager)
+        public List<Unity_Object> Load_Objects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
         {
             var objects = new List<Unity_Object>();
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
@@ -1108,7 +1108,7 @@ namespace R1Engine
                     if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                         Debug.LogWarning($"Sprite could not be determined for enemy object of secondary type {obj.SecondaryType} and graphics index {obj.GraphicsIndex}");
 
-                    objects.Add(new Unity_Object_PS1Klonoa_Enemy(objManager, obj, scale, spriteInfo));
+                    objects.Add(new Unity_Object_PSKlonoa_DTP_Enemy(objManager, obj, scale, spriteInfo));
                 }
             }
 
@@ -1126,7 +1126,7 @@ namespace R1Engine
 
                     objects.Add(new Unity_Object_Dummy(obj, Unity_Object.ObjectType.Trigger, objLinks: new int[]
                     {
-                        objects.OfType<Unity_Object_PS1Klonoa_Enemy>().FindItemIndex(x => x.Object == obj)
+                        objects.OfType<Unity_Object_PSKlonoa_DTP_Enemy>().FindItemIndex(x => x.Object == obj)
                     })
                     {
                         Position = pos,
@@ -1150,7 +1150,7 @@ namespace R1Engine
                 if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                     Debug.LogWarning($"Sprite could not be determined for collectible object of secondary type {x.SecondaryType}");
 
-                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos, spriteInfo);
+                return new Unity_Object_PSKlonoa_DTP_Collectible(objManager, x, pos, spriteInfo);
             }));
 
             // Add scenery objects

@@ -889,7 +889,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
   </tr>
 </table>
 
-### Supported Games (PS1 Klonoa)
+### Supported Games (PS Klonoa)
 
 <table class="tg">
   <tr>

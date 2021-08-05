@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public abstract class Unity_Object_BasePS1Klonoa : Unity_Object_3D
+    public abstract class Unity_Object_BasePSKlonoa_DTP : Unity_Object_3D
     {
-        protected Unity_Object_BasePS1Klonoa(Unity_ObjectManager_PS1Klonoa objManager)
+        protected Unity_Object_BasePSKlonoa_DTP(Unity_ObjectManager_PSKlonoa_DTP objManager)
         {
             ObjManager = objManager;
         }
 
-        public Unity_ObjectManager_PS1Klonoa ObjManager { get; }
+        public Unity_ObjectManager_PSKlonoa_DTP ObjManager { get; }
 
         public override short XPosition
         {
@@ -28,7 +28,7 @@ namespace R1Engine
 
         public override Vector3 Position { get; set; }
         
-        public Unity_ObjectManager_PS1Klonoa.SpriteSet SpriteSet => ObjManager.SpriteSets.ElementAtOrDefault(SpriteSetIndex);
+        public Unity_ObjectManager_PSKlonoa_DTP.SpriteSet SpriteSet => ObjManager.SpriteSets.ElementAtOrDefault(SpriteSetIndex);
 
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
@@ -61,12 +61,12 @@ namespace R1Engine
 
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
-            public LegacyEditorWrapper(Unity_Object_BasePS1Klonoa obj)
+            public LegacyEditorWrapper(Unity_Object_BasePSKlonoa_DTP obj)
             {
                 Obj = obj;
             }
 
-            private Unity_Object_BasePS1Klonoa Obj { get; }
+            private Unity_Object_BasePSKlonoa_DTP Obj { get; }
 
             public ushort Type { get; set; }
 
@@ -119,12 +119,12 @@ namespace R1Engine
 
             public override void Apply(Unity_Object obj)
             {
-                ((Unity_Object_BasePS1Klonoa)obj).AnimIndex = (byte)AnimIndex;
+                ((Unity_Object_BasePSKlonoa_DTP)obj).AnimIndex = (byte)AnimIndex;
             }
 
             public override bool IsCurrentState(Unity_Object obj)
             {
-                return AnimIndex == ((Unity_Object_BasePS1Klonoa)obj).AnimIndex;
+                return AnimIndex == ((Unity_Object_BasePSKlonoa_DTP)obj).AnimIndex;
             }
         }
 
