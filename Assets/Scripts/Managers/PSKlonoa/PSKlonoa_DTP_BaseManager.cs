@@ -103,6 +103,9 @@ namespace R1Engine
                 [IDXLoadCommand.FileType.Archive_WorldMap] = 1,
                 
                 [IDXLoadCommand.FileType.Archive_MenuSprites] = 2,
+                [IDXLoadCommand.FileType.Proto_Archive_MenuSprites_0] = 1,
+                [IDXLoadCommand.FileType.Proto_Archive_MenuSprites_1] = 1,
+                [IDXLoadCommand.FileType.Proto_Archive_MenuSprites_2] = 1,
                 [IDXLoadCommand.FileType.Font] = 0,
                 [IDXLoadCommand.FileType.Archive_MenuBackgrounds] = 2,
                 
