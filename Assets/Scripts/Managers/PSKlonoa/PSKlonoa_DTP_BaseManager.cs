@@ -1433,7 +1433,7 @@ namespace R1Engine
                         mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, UVOffset:{packet.UV.First().Offset.FileOffset - tmd.Offset.FileOffset}";
 
                         // Check for UV scroll animations
-                        if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Offset.FileOffset))))
+                        if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
