@@ -14,7 +14,7 @@ using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
-    public class PSKlonoa_DTP_Manager : BaseGameManager
+    public abstract class PSKlonoa_DTP_BaseManager : BaseGameManager
     {
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
 
@@ -656,15 +656,7 @@ namespace R1Engine
             }
         }
 
-        public LoaderConfiguration GetLoaderConfig(GameSettings settings)
-        {
-            return settings.GameModeSelection switch
-            {
-                GameModeSelection.KlonoaDoorToPhantomilePS1US => new LoaderConfiguration_DTP_US(),
-                GameModeSelection.KlonoaDoorToPhantomilePS1USPrototype_19970717 => new LoaderConfiguration_DTP_Prototype_19970717(),
-                _ => throw new Exception($"Unsupported game mode selection for Klonoa")
-            };
-        }
+        public abstract LoaderConfiguration GetLoaderConfig(GameSettings settings);
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
@@ -756,7 +748,7 @@ namespace R1Engine
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
 
             Unity_CameraClear camClear = null;
-            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files[sector].Modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).Select(x => x.Data_20).ToArray();
+            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.ElementAtOrDefault(sector)?.Modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).Select(x => x.Data_20).ToArray();
 
             // TODO: Fully support camera clearing with gradient and multiple clear zones
             if (bgClear?.Any() == true)
@@ -830,7 +822,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load backgrounds
-            if (loader.BackgroundPack != null)
+            if (loader.BackgroundPack != null && loader.BackgroundPack.BackgroundModifiersFiles.Files.Length > sector)
             {
                 var bgModifiers = loader.BackgroundPack.BackgroundModifiersFiles.Files[sector].Modifiers;
 

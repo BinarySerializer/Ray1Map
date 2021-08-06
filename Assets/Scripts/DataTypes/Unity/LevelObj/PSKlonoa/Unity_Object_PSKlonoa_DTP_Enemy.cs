@@ -6,10 +6,10 @@ namespace R1Engine
 {
     public sealed class Unity_Object_PSKlonoa_DTP_Enemy : Unity_Object_BasePSKlonoa_DTP
     {
-        public Unity_Object_PSKlonoa_DTP_Enemy(Unity_ObjectManager_PSKlonoa_DTP objManager, EnemyObject obj, float scale, PSKlonoa_DTP_Manager.ObjSpriteInfo spriteInfo) : base(objManager)
+        public Unity_Object_PSKlonoa_DTP_Enemy(Unity_ObjectManager_PSKlonoa_DTP objManager, EnemyObject obj, float scale, PSKlonoa_DTP_BaseManager.ObjSpriteInfo spriteInfo) : base(objManager)
         {
             Object = obj;
-            Position = PSKlonoa_DTP_Manager.GetPosition(obj.XPos.Value, obj.YPos.Value, obj.ZPos.Value, scale);
+            Position = PSKlonoa_DTP_BaseManager.GetPosition(obj.XPos.Value, obj.YPos.Value, obj.ZPos.Value, scale);
             SpriteSetIndex = ObjManager.SpriteSets.FindItemIndex(x => x.Index == spriteInfo.SpriteSet);
             AnimIndex = spriteInfo.SpriteIndex;
             Scale = spriteInfo.Scale;

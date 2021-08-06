@@ -6,7 +6,7 @@ namespace R1Engine
 {
     public sealed class Unity_Object_PSKlonoa_DTP_Collectible : Unity_Object_BasePSKlonoa_DTP
     {
-        public Unity_Object_PSKlonoa_DTP_Collectible(Unity_ObjectManager_PSKlonoa_DTP objManager, CollectibleObject obj, Vector3 pos, PSKlonoa_DTP_Manager.ObjSpriteInfo spriteInfo) : base(objManager)
+        public Unity_Object_PSKlonoa_DTP_Collectible(Unity_ObjectManager_PSKlonoa_DTP objManager, CollectibleObject obj, Vector3 pos, PSKlonoa_DTP_BaseManager.ObjSpriteInfo spriteInfo) : base(objManager)
         {
             Object = obj;
             Position = pos;
