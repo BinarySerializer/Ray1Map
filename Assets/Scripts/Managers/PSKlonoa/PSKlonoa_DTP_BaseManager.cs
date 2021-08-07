@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer.KlonoaDTP;
@@ -63,6 +64,7 @@ namespace R1Engine
                 new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
                 new GameAction("Extract Backgrounds", false, true, (input, output) => Extract_BackgroundsAsync(settings, output)),
                 new GameAction("Extract Sprites", false, true, (input, output) => Extract_SpriteFramesAsync(settings, output)),
+                new GameAction("Extract Cutscenes", false, true, (input, output) => Extract_Cutscenes(settings, output)),
                 new GameAction("Extract ULZ blocks", false, true, (input, output) => Extract_ULZAsync(settings, output)),
             };
         }
@@ -624,6 +626,63 @@ namespace R1Engine
             }
         }
 
+        public async UniTask Extract_Cutscenes(GameSettings settings, string outputPath)
+        {
+            using var context = new R1Context(settings);
+            var config = GetLoaderConfig(settings);
+            await LoadFilesAsync(context, config);
+
+            // Load the IDX
+            var idxData = Load_IDX(context, config);
+
+            var loader = Loader.Create(context, idxData, config);
+
+            // Enumerate every entry
+            for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
+            {
+                loader.SwitchBlocks(blockIndex);
+
+                // Process each BIN file
+                loader.LoadBINFiles((cmd, i) =>
+                {
+                    // Check the file type
+                    if (cmd.FILE_Type != IDXLoadCommand.FileType.Archive_LevelPack)
+                        return;
+
+                    // Read the data
+                    var lvl = loader.LoadBINFile<LevelPack_ArchiveFile>(i);
+
+                    // Make sure it has normal cutscens
+                    if (lvl.CutscenePack.Cutscenes == null)
+                        return;
+
+                    // Enumerate every cutscene
+                    for (var cutsceneIndex = 0; cutsceneIndex < lvl.CutscenePack.Cutscenes.Length; cutsceneIndex++)
+                    {
+                        Cutscene cutscene = lvl.CutscenePack.Cutscenes[cutsceneIndex];
+                        var normalCutscene = CutsceneTextTranslationTables.CutsceneToText(
+                            cutscene: cutscene,
+                            translationTable: GetCutsceneTranslationTable,
+                            includeInstructionIndex: false,
+                            normalCutscene: true);
+
+                        File.WriteAllText(Path.Combine(outputPath, $"{blockIndex}_{cutsceneIndex}.txt"), normalCutscene);
+
+                        if (cutscene.Cutscene_Skip != null)
+                        {
+                            var skipCutscene = CutsceneTextTranslationTables.CutsceneToText(
+                                cutscene: cutscene,
+                                translationTable: GetCutsceneTranslationTable,
+                                includeInstructionIndex: false,
+                                normalCutscene: false);
+
+                            File.WriteAllText(Path.Combine(outputPath, $"{blockIndex}_{cutsceneIndex} (skip).txt"), skipCutscene);
+                        }
+                    }
+                });
+            }
+        }
+
         public async UniTask Extract_ULZAsync(GameSettings settings, string outputPath)
         {
             using var context = new R1Context(settings);
@@ -660,6 +719,8 @@ namespace R1Engine
         }
 
         public abstract LoaderConfiguration GetLoaderConfig(GameSettings settings);
+
+        public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
@@ -759,7 +820,6 @@ namespace R1Engine
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
-
             var str = new StringBuilder();
 
             foreach (var archive in ArchiveFile.ParsedArchiveFiles)
@@ -778,6 +838,8 @@ namespace R1Engine
 
             Debug.Log($"Startup in {stopWatch.ElapsedMilliseconds:0000}ms{Environment.NewLine}" +
                           $"{startupLog}");
+
+            //Helper_GenerateCutsceneTextTranslation(loader, CutsceneTextTranslationTables.US, 1, 180, "Good luck,Balue!");
 
             return new Unity_Level(
                 layers: layers,
@@ -2037,6 +2099,52 @@ namespace R1Engine
             float zPos = block.ZPos + block.DirectionZ * blockPosOffset + relativePos.z;
 
             return GetPosition(xPos, yPos, zPos, scale);
+        }
+
+        public static void Helper_GenerateCutsceneTextTranslation(Loader loader, Dictionary<string, char> d, int cutscene, int instruction, string text)
+        {
+            var c = loader.LevelPack.CutscenePack.Cutscenes[cutscene];
+            var i = (CutsceneInstructionData_DrawText)c.Cutscene_Normal.Instructions[instruction].Data;
+
+            var textIndex = 0;
+
+            foreach (var cmd in i.TextCommands)
+            {
+                if (cmd.Type != CutsceneInstructionData_DrawText.TextCommand.CommandType.DrawChar)    
+                    continue;
+
+                var charImgData = c.Font.CharactersImgData[cmd.Command];
+
+                using SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider();
+                
+                var hash = Convert.ToBase64String(sha1.ComputeHash(charImgData));
+
+                if (d.ContainsKey(hash))
+                {
+                    if (d[hash] != text[textIndex])
+                        Debug.LogWarning($"Character {text[textIndex]} has multiple font textures!");
+                }
+                else
+                {
+                    d[hash] = text[textIndex];
+                }
+
+                textIndex++;
+            }
+
+            var str = new StringBuilder();
+
+            foreach (var v in d.OrderBy(x => x.Value))
+            {
+                var value = v.Value.ToString();
+
+                if (value == "\"" || value == "\'")
+                    value = $"\\{value}";
+
+                str.AppendLine($"[\"{v.Key}\"] = '{value}',");
+            }
+
+            str.ToString().CopyToClipboard();
         }
 
         public class ObjSpriteInfo

@@ -1,4 +1,5 @@
-﻿using BinarySerializer.KlonoaDTP;
+﻿using System.Collections.Generic;
+using BinarySerializer.KlonoaDTP;
 
 namespace R1Engine
 {
@@ -40,5 +41,6 @@ namespace R1Engine
         };
 
         public override LoaderConfiguration GetLoaderConfig(GameSettings settings) => new LoaderConfiguration_DTP_Prototype_19970717();
+        public override Dictionary<string, char> GetCutsceneTranslationTable => new Dictionary<string, char>();
     }
 }
