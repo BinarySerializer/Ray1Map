@@ -419,14 +419,16 @@ namespace R1Engine
                         blockName: $"{blockIndex} - CutsceneCharacterNames",
                         name: $"0");
 
-                // CUTSCENE PLAYER FRAMES
+                // CUTSCENE PLAYER SPRITES
                 if (cutscenePack?.PlayerFramesImgData != null)
                 {
+                    var pal = loader.VRAM.GetColors1555(0, 0, 160, 511, 64).Select(x => x.GetColor()).ToArray();
+
                     for (var i = 0; i < cutscenePack.PlayerFramesImgData.Files.Length; i++)
                     {
                         var file = cutscenePack.PlayerFramesImgData.Files[i];
                         exportTex(
-                            getTex: () => GetTexture(file.ImgData, null, file.Width / 2, file.Height,
+                            getTex: () => GetTexture(file.ImgData, pal, file.Width / 2, file.Height,
                                 PS1_TIM.TIM_ColorFormat.BPP_8), 
                             blockName: $"{blockIndex} - CutscenePlayerSprites",
                             name: $"{i}");
