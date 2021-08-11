@@ -612,7 +612,7 @@ namespace R1Engine
 
                 //s.DoAt(context.GetFile(GetGameCubeManifestFilePath).StartPointer, () => s.SerializeObject<GBA_GameCubeMapManifest>(default, name: "GameCubeManifest"));
 
-                var gcnFile = await context.AddLinearSerializedFileAsync($"map.{context.GetR1Settings().Level:000}");
+                var gcnFile = await context.AddLinearFileAsync($"map.{context.GetR1Settings().Level:000}");
 
                 var gcnMap = s.DoAt(gcnFile.StartPointer, () => s.SerializeObject<GBA_GameCubeMap>(default, name: "GameCubeMap"));
 

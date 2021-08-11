@@ -178,7 +178,7 @@ namespace R1Engine
         /// <param name="filePath">The file path</param>
         /// <param name="endianness">The endianness to use</param>
         /// <returns>The binary file</returns>
-        protected override BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new LinearSerializedFile(context, filePath, endianness);
+        protected override BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new LinearFile(context, filePath, endianness);
 
         protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {

@@ -38,7 +38,7 @@ namespace R1Engine
         public async UniTask ExportResourcesAsync(GameSettings settings, string outputDir, ExportMethod exportMethod) {
             using (var context = new R1Context(settings)) {
                 foreach(var filePath in ResourceFiles) {
-                    var f = await context.AddLinearSerializedFileAsync(filePath);
+                    var f = await context.AddLinearFileAsync(filePath);
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {
                         try {
@@ -51,7 +51,7 @@ namespace R1Engine
                     await Controller.WaitIfNecessary();
                 }
                 foreach (var filePath in SingleResourceFiles) {
-                    var f = await context.AddLinearSerializedFileAsync(filePath);
+                    var f = await context.AddLinearFileAsync(filePath);
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {
                         try {

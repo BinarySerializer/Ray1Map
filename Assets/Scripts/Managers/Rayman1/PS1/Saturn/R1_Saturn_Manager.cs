@@ -123,7 +123,7 @@ namespace R1Engine
             }
             else
             {
-                LinearSerializedFile file = new LinearSerializedFile(context, path, Endian.Big);
+                LinearFile file = new LinearFile(context, path, Endian.Big);
                 context.AddFile(file);
                 return 0;
             }
@@ -384,7 +384,7 @@ namespace R1Engine
                 void exportBit(string file, int width = 16, bool swizzled = true, int blockWidth = 8, int blockHeight = 8, IList<Vector2> sizes = null)
                 {
                     // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context, file, Endian.Big));
+                    context.AddFile(new LinearFile(context, file, Endian.Big));
 
                     // Read the file
                     BIT bit = FileFactory.Read<BIT>(file, context);
@@ -430,7 +430,7 @@ namespace R1Engine
                 void exportVig(string file, int width)
                 {
                     // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context, file, Endian.Big));
+                    context.AddFile(new LinearFile(context, file, Endian.Big));
 
                     // Read the raw data
                     var rawData = FileFactory.Read<ObjectArray<RGBA5551Color>>(file, context, onPreSerialize: (s, x) => x.Pre_Length = s.CurrentLength / 2);

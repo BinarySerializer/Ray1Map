@@ -107,7 +107,7 @@ namespace R1Engine
         /// <param name="filePath">The file path</param>
         /// <param name="endianness">The endianness to use</param>
         /// <returns>The binary file</returns>
-        protected override BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new EncodedFile(context, filePath, new GzipEncoder(), endianness);
+        protected override BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new EncodedLinearFile(context, filePath, new GzipEncoder(), endianness);
 
         protected override async UniTask<KeyValuePair<string, string[]>[]> LoadLocalizationAsync(Context context)
         {
@@ -187,7 +187,7 @@ namespace R1Engine
                 for (int i = 0; i < entries.Length; i++)
                 {
                     var path = GetVignetteFilePath(i);
-                    var file = new EncodedFile(context, path, new GzipEncoder());
+                    var file = new EncodedLinearFile(context, path, new GzipEncoder());
 
                     context.AddFile(file);
 

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class ProcessMemoryStreamFile : BinaryFile 
+    public class ProcessMemoryStreamFile : VirtualFile 
     {
         public ProcessMemoryStreamFile(Context context, string name, string processFileName) : base(context, name)
         {
@@ -131,6 +131,7 @@ namespace R1Engine
 			base.Dispose();
 		}
 
+        public override bool IsMemoryMapped => false; // TODO: We might want to change this to allow pointers to work from other data?
         public override bool SavePointersToMemoryMap => false;
         public override bool IgnoreCacheOnRead => true;
     }

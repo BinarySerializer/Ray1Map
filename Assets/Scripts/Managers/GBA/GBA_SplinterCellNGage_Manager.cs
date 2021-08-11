@@ -33,6 +33,6 @@ namespace R1Engine
         public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
         public override GBA_LocLanguageTable LoadLocalizationTable(Context context) => null;
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath(context));
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearFileAsync(GetROMFilePath(context));
     }
 }

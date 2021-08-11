@@ -162,7 +162,7 @@ namespace R1Engine {
                 foreach (var file in Directory.EnumerateFiles(input + "/loc")) {
                     FileInfo fi = new FileInfo(file);
                     string name = "loc/" + fi.Name;
-                    await context.AddLinearSerializedFileAsync(name);
+                    await context.AddLinearFileAsync(name);
                     locs.Add(FileFactory.Read<Loc>(name, context));
                 }
                 var dict = locs.ToDictionary(l => l.Name, l => l.Tables[6].Strings);

@@ -182,7 +182,7 @@ namespace R1Engine
                 foreach (var filePath in Directory.GetFiles(context.BasePath, "*.dat", SearchOption.TopDirectoryOnly))
                 {
                     var relPath = Path.GetFileName(filePath);
-                    await context.AddLinearSerializedFileAsync(relPath, Endian.Little);
+                    await context.AddLinearFileAsync(relPath, Endian.Little);
                     var dataFile = FileFactory.Read<LUDI_PocketPC_DataFile>(relPath, context);
                     ExportLUDIDataFile(dataFile, s, Path.Combine(outputDir, Path.GetFileNameWithoutExtension(relPath)));
                 }
@@ -194,7 +194,7 @@ namespace R1Engine
             List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
             foreach (var path in GetAllDataPaths(context)) {
                 var fullPath = $"{path}.dat";
-                if (await context.AddLinearSerializedFileAsync(fullPath, Endian.Little) != null)
+                if (await context.AddLinearFileAsync(fullPath, Endian.Little) != null)
                     dataFiles.Add(FileFactory.Read<LUDI_PocketPC_DataFile>(fullPath, context));
             }
             globalOffsetTable.Files = dataFiles.ToArray();

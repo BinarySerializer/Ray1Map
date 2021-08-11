@@ -102,7 +102,7 @@ namespace R1Engine
 
         public override async UniTask LoadFilesAsync(Context context)
         {
-            await context.AddLinearSerializedFileAsync(GetROMFilePath(context));
+            await context.AddLinearFileAsync(GetROMFilePath(context));
             await context.AddMemoryMappedFile(ExeFilePath, 0x0fffff84);
         }
 

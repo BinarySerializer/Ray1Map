@@ -243,7 +243,7 @@ namespace R1Engine.Jade {
 					} else {
 						Pointer off_current = s.CurrentPointer;
 						string filename = keyList[currentRef.Key.Key];
-						var f = await Context.AddLinearSerializedFileAsync(filename);
+						var f = await Context.AddLinearFileAsync(filename);
 						s.Log($"LOA: Loading file: {f}");
 						Pointer off_target = f.StartPointer;
 						s.Goto(off_target);

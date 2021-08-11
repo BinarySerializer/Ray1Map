@@ -261,6 +261,6 @@ namespace R1Engine
             return tex;
         }
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearFileAsync(GetROMFilePath);
     }
 }
