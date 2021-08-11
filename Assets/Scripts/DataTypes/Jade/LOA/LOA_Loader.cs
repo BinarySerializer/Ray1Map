@@ -226,6 +226,54 @@ namespace R1Engine.Jade {
 		}
 
 
+		public async UniTask LoadLoop_RawFiles(SerializerObject s, Dictionary<uint, string> keyList) {
+			CurrentQueueType = QueueType.BigFat;
+			CurrentCacheType = IsLoadingFix ? CacheType.Fix : CacheType.Main;
+
+			while (LoadQueue.First?.Value != null) {
+				FileReference currentRef = LoadQueue.First.Value;
+				LoadQueue.RemoveFirst();
+				if (currentRef.Key != null && keyList.ContainsKey(currentRef.Key.Key)) {
+					CurrentCacheType = currentRef.Cache;
+					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontUseCachedFile)) {
+						var f = Cache[currentRef.Key];
+						if (f != null) f.CachedCount++;
+						if (currentRef.Flags.HasFlag(ReferenceFlags.KeepReferencesCount) && f != null) f.ReferencesCount++;
+						if (!currentRef.Flags.HasFlag(ReferenceFlags.DontUseAlreadyLoadedCallback)) currentRef.AlreadyLoadedCallback(f);
+					} else {
+						Pointer off_current = s.CurrentPointer;
+						string filename = keyList[currentRef.Key.Key];
+						var f = await Context.AddLinearSerializedFileAsync(filename);
+						s.Log($"LOA: Loading file: {f}");
+						Pointer off_target = f.StartPointer;
+						s.Goto(off_target);
+						string previousState = Controller.DetailedState;
+						Controller.DetailedState = $"{previousState}\n{f}";
+						var fileSize = s.CurrentLength32;
+						if (fileSize != 0) {
+							if (currentRef.IsBin && Bin != null) {
+								throw new NotImplementedException($"Loading raw bin files is not supported");
+							} else {
+								currentRef.LoadCallback(s, (f) => {
+									f.Key = currentRef.Key;
+									f.FileSize = fileSize;
+									f.Loader = this;
+									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+								});
+							}
+						} else {
+							if (!Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[currentRef.Key] = null;
+						}
+						await Controller.WaitIfNecessary();
+						Controller.DetailedState = previousState;
+						s.Goto(off_current);
+					}
+				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
+					UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
+				}
+			}
+		}
+
 		public void LoadLoopBIN() {
 			if (Bin != null) {
 				CurrentQueueType = Bin.QueueType;

@@ -91,9 +91,11 @@ namespace R1Engine.Jade {
 					case AI_VarType.Vector:
 						if(ValueVector != null) return ValueVector.ToString();
 						break;
+					case AI_VarType.Trigger: return ValueTrigger.ToString();
+					case AI_VarType.Message: return ValueMessage.ToString();
 					default:
 						if (Var.Link.Size == 4) {
-							return $"{Var.Type} ({ValueInt})";
+							return $"{Var.Type} ({ValueInt} | 0x{ValueInt:X8})";
 						}
 						break;
 				}

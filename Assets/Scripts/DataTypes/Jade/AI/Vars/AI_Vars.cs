@@ -114,7 +114,7 @@ namespace R1Engine.Jade {
 			ExportIDAStruct(null);*/
 		}
 
-		public void ExportVarsOverview(string name) {
+		public void ExportVarsOverview(string worldName, string name) {
 			StringBuilder b = new StringBuilder();
 			b.AppendLine($"VARS COUNT: {Vars.Length}");
 
@@ -132,10 +132,11 @@ namespace R1Engine.Jade {
 					$"\n\t\tVariable flags: {Vars[i].Info.Flags:X4}" +
 					$"\n\t\tCopy to instance buffer: {(Vars[i].Info.Flags & 0x20) != 0}");
 			}
-			string basePath = Context.BasePath;
-			string path = basePath + "vars/" + Key + "_" + Context.GetR1Settings().Platform + ".vardec";
+			string basePath = $"{Context.BasePath}vars/";
+			if (worldName != null) basePath += $"{worldName}/";
+			string path = basePath + Key + "_" + Context.GetR1Settings().Platform + ".vardec";
 			if (name != null) {
-				path = basePath + "vars/" + Key + "_" + Context.GetR1Settings().Platform + "_" + name + ".vardec";
+				path = basePath + Key + "_" + Context.GetR1Settings().Platform + "_" + name + ".vardec";
 			}
 			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
 			System.IO.File.WriteAllText(path, b.ToString());
@@ -144,7 +145,7 @@ namespace R1Engine.Jade {
 
 
 
-		public void ExportIDAStruct(string name) {
+		public void ExportIDAStruct(string worldName, string name) {
 			StringBuilder b = new StringBuilder();
 			string structName = $"AI2C_Vars_{Key.Key:X8}";
 			if(name != null) structName += $"_{name}";
@@ -208,10 +209,11 @@ namespace R1Engine.Jade {
 			b.AppendLine($"}};");
 
 
-			string basePath = Context.BasePath;
-			string path = basePath + "vars_ida/" + Key + "_" + Context.GetR1Settings().Platform + ".varida";
+			string basePath = $"{Context.BasePath}vars_ida/";
+			if (worldName != null) basePath += $"{worldName}/";
+			string path = basePath + Key + "_" + Context.GetR1Settings().Platform + ".varida";
 			if (name != null) {
-				path = basePath + "vars_ida/" + Key + "_" + Context.GetR1Settings().Platform + "_" + name + ".vardec";
+				path = basePath + Key + "_" + Context.GetR1Settings().Platform + "_" + name + ".vardec";
 			}
 			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
 			System.IO.File.WriteAllText(path, b.ToString());

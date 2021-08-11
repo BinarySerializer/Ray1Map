@@ -55,5 +55,9 @@ namespace R1Engine.Jade {
 				ID = s.Serialize<int>(ID, name: nameof(ID));
 			}
 		}
+
+		public override string ToString() {
+			return $"Message({Sender}, {GAO1}, {GAO2}, {Int1}, {Int2})";
+		}
 	}
 }

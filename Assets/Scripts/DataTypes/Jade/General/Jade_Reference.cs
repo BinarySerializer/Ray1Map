@@ -79,5 +79,9 @@ namespace R1Engine.Jade {
 
 		public override bool IsShortLog => true;
 		public override string ShortLog => Key.ToString();
+
+		public override string ToString() {
+			return $"Reference<{typeof(T)}({Key})>";
+		}
 	}
 }
