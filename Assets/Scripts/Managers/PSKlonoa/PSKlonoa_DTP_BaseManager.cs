@@ -409,7 +409,7 @@ namespace R1Engine
                 if (cutscenePack?.Sprites != null)
                 {
                     for (int frameIndex = 0; frameIndex < cutscenePack.Sprites.Files.Length - 1; frameIndex++)
-                        exportSprite(cutscenePack.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Cutscene", 0, frameIndex, 0, 500);
+                        exportSprite(cutscenePack.Sprites.Files[frameIndex].Textures, $"{blockIndex} - CutsceneSprites", 0, frameIndex, 0, 500);
                 }
 
                 // CUTSCENE CHARACTER NAMES
@@ -422,16 +422,50 @@ namespace R1Engine
                 // CUTSCENE PLAYER SPRITES
                 if (cutscenePack?.PlayerFramesImgData != null)
                 {
-                    var pal = loader.VRAM.GetColors1555(0, 0, 160, 511, 64).Select(x => x.GetColor()).ToArray();
+                    var playerPal = loader.VRAM.GetColors1555(0, 0, 160, 511, 256).Select(x => x.GetColor()).ToArray();
 
                     for (var i = 0; i < cutscenePack.PlayerFramesImgData.Files.Length; i++)
                     {
                         var file = cutscenePack.PlayerFramesImgData.Files[i];
                         exportTex(
-                            getTex: () => GetTexture(file.ImgData, pal, file.Width / 2, file.Height,
+                            getTex: () => GetTexture(file.ImgData, playerPal, file.Width, file.Height,
                                 PS1_TIM.TIM_ColorFormat.BPP_8), 
                             blockName: $"{blockIndex} - CutscenePlayerSprites",
                             name: $"{i}");
+                    }
+                }
+
+                // CUTSCENE ANIMATIONS
+                if (cutscenePack?.SpriteAnimations != null)
+                {
+                    var playerPal = loader.VRAM.GetColors1555(0, 0, 160, 511, 256).Select(x => x.GetColor()).ToArray();
+
+                    for (var i = 0; i < cutscenePack.SpriteAnimations.Animations.Length; i++)
+                    {
+                        var anim = cutscenePack.SpriteAnimations.Animations[i];
+
+                        var isPlayerAnim = (cutscenePack.Cutscenes.SelectMany(x => x.Cutscene_Normal.Instructions).FirstOrDefault(x => x.Type == CutsceneInstruction.InstructionType.SetObjAnimation && ((CutsceneInstructionData_SetObjAnimation)x.Data).AnimIndex == i)?.Data as CutsceneInstructionData_SetObjAnimation)?.ObjIndex == 0;
+
+                        var animFrames = GetAnimationFrames(
+                            loader: loader, 
+                            anim: anim, 
+                            sprites: cutscenePack.Sprites, 
+                            palX: 0, 
+                            palY: 500, 
+                            isCutscenePlayer: isPlayerAnim, 
+                            playerSprites: cutscenePack.PlayerFramesImgData.Files, 
+                            playerPalette: playerPal);
+
+                        if (animFrames == null)
+                            continue;
+
+                        Util.ExportAnimAsGif(
+                            frames: animFrames, 
+                            speeds: anim.Frames.Select(x => (int)x.FrameDelay).ToArray(), 
+                            center: true, 
+                            trim: false, 
+                            filePath: Path.Combine(outputPath, $"{blockIndex} - CutsceneAnimations", $"{i}.gif"), 
+                            frameRate: 30);
                     }
                 }
 
@@ -1487,8 +1521,8 @@ namespace R1Engine
             PS1_TIM.TIM_ColorFormat colorFormat,
             int texX, int texY,
             int clutX, int clutY,
-            int texturePageOriginX, int texturePageOriginY,
-            int texturePageOffsetX, int texturePageOffsetY,
+            int texturePageOriginX = 0, int texturePageOriginY = 0,
+            int texturePageOffsetX = 0, int texturePageOffsetY = 0,
             int texturePageX = 0, int texturePageY = 0,
             bool flipX = false, bool flipY = false,
             bool useDummyPal = false)
@@ -1641,9 +1675,12 @@ namespace R1Engine
             return tex;
         }
 
-        public Texture2D GetTexture(SpriteTexture[] sprites, PS1_VRAM vram, int palX, int palY)
+        public Texture2D GetTexture(SpriteTexture[] spriteTextures, PS1_VRAM vram, int palX, int palY)
         {
-            var rects = sprites.Select(s => 
+            if (spriteTextures?.Any() != true)
+                return null;
+
+            var rects = spriteTextures.Select(s => 
                 new RectInt(
                     xMin: s.FlipX ? s.XPos - s.Width - 1 : s.XPos, 
                     yMin: s.FlipY ? s.YPos - s.Height - 1 : s.YPos, 
@@ -1660,11 +1697,11 @@ namespace R1Engine
 
             var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
 
-            for (var i = 0; i < sprites.Length; i++)
+            for (var i = 0; i < spriteTextures.Length; i++)
             {
-                var index = sprites.Length - i - 1;
+                var index = spriteTextures.Length - i - 1;
 
-                var sprite = sprites[index];
+                var sprite = spriteTextures[index];
                 var texPage = sprite.TexturePage;
 
                 try
@@ -1679,8 +1716,6 @@ namespace R1Engine
                         texY: rects[index].y - minY,
                         clutX: palX + sprite.PalOffsetX,
                         clutY: palY + sprite.PalOffsetY,
-                        texturePageOriginX: 0,
-                        texturePageOriginY: 0,
                         texturePageX: texPage % 16,
                         texturePageY: texPage / 16,
                         texturePageOffsetX: sprite.TexturePageOffsetX,
@@ -1826,6 +1861,53 @@ namespace R1Engine
             return (textures, animSpeed);
         }
         
+        public Texture2D[] GetAnimationFrames(Loader loader, SpriteAnimation anim, Sprites_ArchiveFile sprites, int palX, int palY, bool isCutscenePlayer = false, CutscenePlayerSprite_File[] playerSprites = null, Color[] playerPalette = null)
+        {
+            var textures = new Texture2D[anim.FramesCount];
+
+            for (int i = 0; i < anim.FramesCount; i++)
+            {
+                var frame = anim.Frames[i];
+
+                try
+                {
+                    if (isCutscenePlayer && playerSprites != null && playerPalette != null)
+                    {
+                        if (frame.Byte_02 != 0xFF)
+                        {
+                            if (frame.Byte_02 == 0x99)
+                            {
+                                var playerSprite = playerSprites[frame.SpriteIndex - 1];
+
+                                textures[i] = GetTexture(playerSprite.ImgData, playerPalette, playerSprite.Width,
+                                    playerSprite.Height, PS1_TIM.TIM_ColorFormat.BPP_8);
+                            }
+                            else
+                            {
+                                // Animate Klonoa normally - nothing we can do sadly, so set to null
+                                textures[i] = null;
+                            }
+
+                            continue;
+                        }
+                    }
+
+                    var sprite = sprites.Files[frame.SpriteIndex];
+
+                    // TODO: Center sprite correctly since sprites can have different sizes
+                    textures[i] = GetTexture(sprite.Textures, loader.VRAM, palX, palY);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Error exporting animation. IsPlayer: {isCutscenePlayer}, Sprite: {frame.SpriteIndex}, Byte_02: {frame.Byte_02}, Frame: {i}, Offset: {frame.Offset}, Exception: {ex}");
+
+                    return null;
+                }
+            }
+
+            return textures;
+        }
+
         public async UniTask LoadFilesAsync(Context context, LoaderConfiguration config)
         {
             // The game only loads portions of the BIN at a time

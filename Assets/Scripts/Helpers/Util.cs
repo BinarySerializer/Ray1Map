@@ -617,35 +617,40 @@ namespace R1Engine
                 }
             }
         }
-        public static void ExportAnimAsGif(IList<Texture2D> frames, int speed, bool center, bool trim, string filePath)
+        public static void ExportAnimAsGif(IList<Texture2D> frames, int[] speeds, bool center, bool trim, string filePath, int frameRate = 60)
         {
-            using (var collection = new MagickImageCollection())
+            if (frames.All(x => x == null))
+                return;
+
+            using var collection = new MagickImageCollection();
+            
+            int index = 0;
+
+            var maxWidth = frames.Max(x => x.width);
+            var maxHeight = frames.Max(x => x.height);
+
+            foreach (var frameTex in frames)
             {
-                int index = 0;
+                var img = frameTex.ToMagickImage();
+                collection.Add(img);
+                collection[index].AnimationDelay = speeds[index];
+                collection[index].AnimationTicksPerSecond = frameRate;
 
-                var maxWidth = frames.Max(x => x.width);
-                var maxHeight = frames.Max(x => x.height);
+                if (center)
+                    collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
 
-                foreach (var frameTex in frames)
-                {
-                    var img = frameTex.ToMagickImage();
-                    collection.Add(img);
-                    collection[index].AnimationDelay = speed;
-                    collection[index].AnimationTicksPerSecond = 60;
-
-                    if (center)
-                        collection[index].Extent(maxWidth, maxHeight, Gravity.Center, new MagickColor());
-
-                    if (trim)
-                        collection[index].Trim();
-                    collection[index].GifDisposeMethod = GifDisposeMethod.Background;
-                    index++;
-                }
-
-                // Save gif
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                collection.Write(filePath);
+                if (trim)
+                    collection[index].Trim();
+                
+                collection[index].GifDisposeMethod = GifDisposeMethod.Background;
+                index++;
             }
+
+            // Save gif
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            collection.Write(filePath);
         }
+        public static void ExportAnimAsGif(IList<Texture2D> frames, int speed, bool center, bool trim, string filePath, int frameRate = 60) =>
+            ExportAnimAsGif(frames, Enumerable.Repeat(speed, frames.Count).ToArray(), center, trim, filePath, frameRate);
     }
 }
