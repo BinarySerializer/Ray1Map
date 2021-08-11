@@ -874,14 +874,14 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
-    <td class="tg-yw4l">Klonoa: Empire of Dreams</td>
+    <td class="tg-yw4l">Klonoa: Empire of Dreams (GBA)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Klonoa 2: Dream Champ Tournament</td>
+    <td class="tg-yw4l">Klonoa 2: Dream Champ Tournament (GBA)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -889,7 +889,7 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
   </tr>
 </table>
 
-### Supported Games (PS1 Klonoa)
+### Supported Games (PS Klonoa)
 
 <table class="tg">
   <tr>
@@ -900,8 +900,15 @@ View maps in the web version of Ray1Map directly in your browser: https://raym.a
     <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
-    <td class="tg-yw4l">Klonoa: Door to Phantomile</td>
+    <td class="tg-yw4l">Klonoa: Door to Phantomile (PS1 - Prototype 1997/07/17)</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Klonoa: Door to Phantomile (PS1 - US)</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>

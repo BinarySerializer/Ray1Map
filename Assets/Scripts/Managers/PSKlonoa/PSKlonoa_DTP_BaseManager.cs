@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer.KlonoaDTP;
@@ -14,7 +15,7 @@ using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
-    public class PS1Klonoa_Manager : BaseGameManager
+    public abstract class PSKlonoa_DTP_BaseManager : BaseGameManager
     {
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(Levels.Select((x, i) => new GameInfo_World(i, x.Item1, Enumerable.Range(0, x.Item2).ToArray())).ToArray());
 
@@ -36,7 +37,7 @@ namespace R1Engine
             ("Vision 3-2", 10),
             ("Gelg Bolm", 1),
 
-            ("Vision 4-1", 3),
+            ("Vision 4-1", 3), // TODO: 5 in proto
             ("Vision 4-2", 8),
             ("Baladium", 2),
 
@@ -47,7 +48,7 @@ namespace R1Engine
             ("Vision 6-1", 8),
             ("Vision 6-2", 8),
             ("", 2),
-            ("", 2),
+            ("", 2), // TODO: 1 in proto
             ("", 3),
             ("", 3),
             ("Klonoa's Grand Gale Strategy", 9),
@@ -62,7 +63,7 @@ namespace R1Engine
                 new GameAction("Extract Code", false, true, (input, output) => Extract_CodeAsync(settings, output)),
                 new GameAction("Extract Graphics", false, true, (input, output) => Extract_GraphicsAsync(settings, output)),
                 new GameAction("Extract Backgrounds", false, true, (input, output) => Extract_BackgroundsAsync(settings, output)),
-                new GameAction("Extract Sprites", false, true, (input, output) => Extract_SpriteFramesAsync(settings, output)),
+                new GameAction("Extract Cutscenes", false, true, (input, output) => Extract_Cutscenes(settings, output)),
                 new GameAction("Extract ULZ blocks", false, true, (input, output) => Extract_ULZAsync(settings, output)),
             };
         }
@@ -74,7 +75,7 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
             var s = context.Deserializer;
 
@@ -96,15 +97,24 @@ namespace R1Engine
 
                 [IDXLoadCommand.FileType.FixedSprites] = 1,
                 [IDXLoadCommand.FileType.Archive_SpritePack] = 1,
+                [IDXLoadCommand.FileType.Archive_LevelMenuSprites] = 2,
                 
                 [IDXLoadCommand.FileType.Archive_LevelPack] = 1,
+
+                [IDXLoadCommand.FileType.Archive_WorldMap] = 1,
+                
+                [IDXLoadCommand.FileType.Archive_MenuSprites] = 2,
+                [IDXLoadCommand.FileType.Proto_Archive_MenuSprites_0] = 1,
+                [IDXLoadCommand.FileType.Proto_Archive_MenuSprites_1] = 1,
+                [IDXLoadCommand.FileType.Proto_Archive_MenuSprites_2] = 1,
+                [IDXLoadCommand.FileType.Font] = 0,
+                [IDXLoadCommand.FileType.Archive_MenuBackgrounds] = 2,
                 
                 [IDXLoadCommand.FileType.Archive_Unk0] = 1,
-                [IDXLoadCommand.FileType.Archive_Unk4] = 2,
-                [IDXLoadCommand.FileType.Archive_Unk6] = 2,
-                [IDXLoadCommand.FileType.Archive_WorldMap] = 1,
+                [IDXLoadCommand.FileType.Unk1] = 0,
 
                 [IDXLoadCommand.FileType.Code] = 0,
+                [IDXLoadCommand.FileType.CodeNoDest] = 0,
             };
 
             // Enumerate every entry
@@ -175,7 +185,7 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
             var loader = Loader.Create(context, idxData, config);
 
@@ -187,12 +197,14 @@ namespace R1Engine
                 // Process each BIN file
                 loader.LoadBINFiles((cmd, i) =>
                 {
+                    // TODO: Also export no-destination code blocks
+
                     if (cmd.FILE_Type != IDXLoadCommand.FileType.Code)
                         return;
                     
                     var codeFile = loader.LoadBINFile<RawData_File>(i);
 
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - 0x{cmd.GetFileDestinationAddress(loader):X8}.dat"), codeFile.Data);
+                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - 0x{cmd.FILE_Destination:X8}.dat"), codeFile.Data);
                 });
             }
         }
@@ -204,272 +216,255 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
+            // Create the loader
             var loader = Loader.Create(context, idxData, config);
 
-            // Enumerate every entry
+            // Enumerate every bin block
             for (var blockIndex = 0; blockIndex < idxData.Entries.Length; blockIndex++)
             {
-                loader.SwitchBlocks(blockIndex);
-
-                // Process each BIN file
-                loader.LoadBINFiles((cmd, i) =>
-                {
-                    var index = 0;
-
-                    switch (cmd.FILE_Type)
-                    {
-                        case IDXLoadCommand.FileType.Code:
-                            loader.ProcessBINFile(i);
-                            break;
-
-                        case IDXLoadCommand.FileType.Archive_TIM_Generic:
-                        case IDXLoadCommand.FileType.Archive_TIM_SongsText:
-                        case IDXLoadCommand.FileType.Archive_TIM_SaveText:
-                        case IDXLoadCommand.FileType.Archive_TIM_SpriteSheets:
-
-                            // Read the data
-                            TIM_ArchiveFile timFiles = loader.LoadBINFile<TIM_ArchiveFile>(i);
-
-                            foreach (var tim in timFiles.Files)
-                            {
-                                export(() => GetTexture(tim), cmd.FILE_Type.ToString().Replace("Archive_TIM_", String.Empty));
-                                index++;
-                            }
-
-                            break;
-
-                        case IDXLoadCommand.FileType.Archive_WorldMap:
-
-                            // Read the data
-                            var f = loader.LoadBINFile<WorldMap_ArchiveFile>(i);
-
-                            foreach (var tim in f.SpriteSheets.Files)
-                            {
-                                export(() => GetTexture(tim), "WorldMap");
-                                index++;
-                            }
-
-                            break;
-
-                        case IDXLoadCommand.FileType.Archive_BackgroundPack:
-
-                            // Read the data
-                            var bgPack = loader.LoadBINFile<BackgroundPack_ArchiveFile>(i);
-
-                            foreach (var tim in bgPack.TIMFiles.Files)
-                            {
-                                export(() => GetTexture(tim), "Background");
-                                index++;
-                            }
-
-                            break;
-
-                        case IDXLoadCommand.FileType.Archive_SpritePack:
-
-                            // Read the data
-                            LevelSpritePack_ArchiveFile spritePack = loader.LoadBINFile<LevelSpritePack_ArchiveFile>(i);
-
-                            var exportedPlayerSprites = new HashSet<PlayerSprite_File>();
-
-                            var pal = spritePack.PlayerSprites.Files.FirstOrDefault(x => x?.TIM?.Clut != null)?.TIM.Clut.Palette.Select(x => x.GetColor()).ToArray();
-
-                            foreach (var file in spritePack.PlayerSprites.Files)
-                            {
-                                if (file != null && !exportedPlayerSprites.Contains(file))
-                                {
-                                    exportedPlayerSprites.Add(file);
-
-                                    export(() =>
-                                    {
-                                        if (file.TIM != null)
-                                            return GetTexture(file.TIM, palette: pal);
-                                        else
-                                            return GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height, PS1_TIM.TIM_ColorFormat.BPP_8);
-                                    }, "PlayerSprites");
-                                }
-
-                                index++;
-                            }
-
-                            break;
-
-                        case IDXLoadCommand.FileType.Archive_LevelPack:
-
-                            // Need to process the data for the object 3D export
-                            loader.ProcessBINFile(i);
-
-                            // TODO: Remove try/catch
-                            try
-                            {
-                                // Read the data
-                                var lvlPack = loader.LoadBINFile<LevelPack_ArchiveFile>(i);
-
-                                var cutscenePack = lvlPack.CutscenePack;
-
-                                if (cutscenePack != null)
-                                {
-                                    export(() => GetTexture(cutscenePack.CharacterNamesImgData.Data, null, 0x0C, 0x50, PS1_TIM.TIM_ColorFormat.BPP_4), "CharacterNames");
-
-                                    foreach (var file in cutscenePack.File_2.Files)
-                                    {
-                                        export(() => GetTexture(file.ImgData, null, file.Width / 2, file.Height, PS1_TIM.TIM_ColorFormat.BPP_8), "CutsceneFrames");
-
-                                        index++;
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.LogWarning(ex);
-                            }
-                            break;
-                    }
-
-                    void export(Func<Texture2D> getTex, string type) => exportTex(getTex, type, $"{i} - {index}");
-                });
-
-                if (blockIndex < loader.Config.BLOCK_FirstLevel)
-                    continue;
-
-                // Process code level data
-                loader.ProcessLevelData();
-
-                var exported = new HashSet<BinarySerializable>();
-
-                for (int sector = 0; sector < loader.LevelData3D.SectorModifiers.Length; sector++)
-                {
-                    var modifiers = loader.LevelData3D.SectorModifiers[sector];
-
-                    for (int modifierIndex = 0; modifierIndex < modifiers.Modifiers.Length; modifierIndex++)
-                    {
-                        var modifier = modifiers.Modifiers[modifierIndex];
-
-                        if (modifier.DataFiles == null)
-                            continue;
-
-                        foreach (var dataFile in modifier.DataFiles)
-                        {
-                            if (dataFile.TIM != null)
-                            {
-                                if (exported.Contains(dataFile.TIM))
-                                    continue;
-
-                                exported.Add(dataFile.TIM);
-
-                                exportTex(() => GetTexture(dataFile.TIM), "Obj3D", $"{sector} - {modifierIndex}");
-                            }
-                            else if (dataFile.TextureAnimation != null)
-                            {
-                                if (exported.Contains(dataFile.TextureAnimation))
-                                    continue;
-
-                                exported.Add(dataFile.TextureAnimation);
-
-                                for (var timIndex = 0; timIndex < dataFile.TextureAnimation.Files.Length; timIndex++)
-                                {
-                                    var tim = dataFile.TextureAnimation.Files[timIndex];
-                                    exportTex(() => GetTexture(tim), "Obj3D", $"{sector} - {modifierIndex} - {timIndex}");
-                                }
-                            }
-                        }
-                    }
-                }
-
-                void exportTex(Func<Texture2D> getTex, string type, string name)
-                {
-                    try
-                    {
-                        var tex = getTex();
-
-                        if (tex != null)
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {type}", $"{name}.png"),
-                                tex.EncodeToPNG());
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"Error exporting with ex: {ex}");
-                    }
-                }
-            }
-        }
-
-        public async UniTask Extract_SpriteFramesAsync(GameSettings settings, string outputPath)
-        {
-            using var context = new R1Context(settings);
-            var config = GetLoaderConfig(settings);
-            await LoadFilesAsync(context, config);
-
-            // Load the IDX
-            var idxData = Load_IDX(context);
-
-            var loader = Loader.Create(context, idxData, config);
-
-            // Load allfix
-            loader.SwitchBlocks(0);
-            loader.LoadAndProcessBINBlock();
-
-            // Extract world map sprites with both palettes
-            for (int i = 0; i < 2; i++)
-            {
-                var wld = loader.WorldMap;
-
-                if (i == 1)
-                    loader.AddToVRAM(wld.Palette2);
-
-                // Enumerate every frame
-                for (int frameIndex = 0; frameIndex < wld.Graphics.Sprites.Files.Length - 1; frameIndex++)
-                {
-                    var sprites = wld.Graphics.Sprites.Files[frameIndex].Textures;
-                    var tex = GetTexture(sprites, loader.VRAM);
-
-                    Util.ByteArrayToFile(Path.Combine(outputPath, $"WorldMap", $"{i} - {frameIndex}.png"), tex.EncodeToPNG());
-                }
-            }
-
-            PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_WorldMap.png"), loader.VRAM);
-
-            // Enumerate every entry
-            for (var blockIndex = 1; blockIndex < idxData.Entries.Length; blockIndex++)
-            {
-                loader.SwitchBlocks(blockIndex);
-
                 // Load the BIN
+                loader.SwitchBlocks(blockIndex);
                 loader.LoadAndProcessBINBlock();
 
-                // Enumerate every set of frames
-                for (int framesSet = 0; framesSet < loader.SpriteFrames.Length; framesSet++)
+                // WORLD MAP SPRITES
+                var wldMap = loader.GetLoadedFile<WorldMap_ArchiveFile>();
+                if (wldMap != null)
                 {
-                    var spriteFrames = loader.SpriteFrames[framesSet];
-
-                    if (spriteFrames == null)
-                        continue;
-
-                    // Enumerate every frame
-                    for (int frameIndex = 0; frameIndex < spriteFrames.Files.Length; frameIndex++)
+                    for (int i = 0; i < 2; i++)
                     {
-                        try
-                        {
-                            var sprites = spriteFrames.Files[frameIndex].Textures;
-                            var tex = GetTexture(sprites, loader.VRAM);
+                        if (i == 1)
+                            loader.AddToVRAM(wldMap.Palette2);
 
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex}", $"{framesSet} - {frameIndex}.png"), tex.EncodeToPNG());
-                        }
-                        catch (Exception ex)
+                        // Enumerate every frame
+                        for (int frameIndex = 0; frameIndex < wldMap.AnimatedSprites.Sprites.Files.Length - 1; frameIndex++)
+                            exportSprite(wldMap.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"{blockIndex} - WorldMapSprites", i, frameIndex, -1, -1); // TODO: Correct pal
+                    }
+                }
+
+                // WORLD MAP TEXTURES
+                for (var i = 0; i < wldMap?.SpriteSheets.Files.Length; i++)
+                {
+                    var tim = wldMap.SpriteSheets.Files[i];
+
+                    exportTex(
+                        getTex: () => GetTexture(tim),
+                        blockName: $"{blockIndex} - WorldMapTextures",
+                        name: $"{i}");
+                }
+
+                // MENU SPRITES
+                var menuSprites = loader.GetLoadedFile<MenuSprites_ArchiveFile>();
+
+                var sprites_0 = menuSprites?.Sprites_0;
+                var sprites_1 = menuSprites?.Sprites_1;
+                var sprites_2 = menuSprites?.Sprites_2;
+
+                if (loader.Config.Version == LoaderConfiguration.GameVersion.DTP_Prototype_19970717)
+                {
+                    for (int fileIndex = 0; fileIndex < loader.LoadedFiles[blockIndex].Length; fileIndex++)
+                    {
+                        switch (loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type)
                         {
-                            Debug.LogWarning($"Error exporting sprite frame: {ex}");
+                            case IDXLoadCommand.FileType.Proto_Archive_MenuSprites_0:
+                                sprites_0 = (Sprites_ArchiveFile)loader.LoadedFiles[blockIndex][fileIndex];
+                                break;
+
+                            case IDXLoadCommand.FileType.Proto_Archive_MenuSprites_1:
+                                sprites_1 = (Sprites_ArchiveFile)loader.LoadedFiles[blockIndex][fileIndex];
+                                break;
+
+                            case IDXLoadCommand.FileType.Proto_Archive_MenuSprites_2:
+                                sprites_2 = (Sprites_ArchiveFile)loader.LoadedFiles[blockIndex][fileIndex];
+                                break;
                         }
                     }
                 }
 
+                for (int frameIndex = 0; frameIndex < sprites_0?.Files.Length - 1; frameIndex++)
+                    exportSprite(sprites_0.Files[frameIndex].Textures, $"{blockIndex} - Menu", 0, frameIndex, 960, 442);
+
+                for (int frameIndex = 0; frameIndex < sprites_1?.Files.Length - 1; frameIndex++)
+                    exportSprite(sprites_1.Files[frameIndex].Textures, $"{blockIndex} - Menu", 1, frameIndex, 0, 480);
+
+                for (int frameIndex = 0; frameIndex < sprites_2?.Files.Length - 1; frameIndex++)
+                    exportSprite(sprites_2.Files[frameIndex].Textures, $"{blockIndex} - Menu", 2, frameIndex, 960, 440);
+
+                for (int frameIndex = 0; frameIndex < menuSprites?.AnimatedSprites.Sprites.Files.Length - 1; frameIndex++)
+                {
+                    int palY;
+
+                    if (frameIndex < 120)
+                        palY = 490;
+                    else if (frameIndex < 166)
+                        palY = 480;
+                    else if (frameIndex < 178)
+                        palY = 490;
+                    else if (frameIndex < 182)
+                        palY = -1; // TODO: Correct pal
+                    else
+                        palY = 480;
+
+                    exportSprite(menuSprites.AnimatedSprites.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Menu", 3, frameIndex, 0, palY);
+                }
+
+                // MENU BACKGROUND TEXTURES
+                var menuBg = loader.GetLoadedFile<ArchiveFile<TIM_ArchiveFile>>();
+                for (var i = 0; i < menuBg?.Files.Length; i++)
+                {
+                    var tims = menuBg.Files[i];
+
+                    for (var j = 0; j < tims.Files.Length; j++)
+                    {
+                        var tim = tims.Files[j];
+                        exportTex(
+                            getTex: () => GetTexture(tim, onlyFirstTransparent: true),
+                            blockName: $"{blockIndex} - MenuBackgrounds",
+                            name: $"{i} - {j}");
+                    }
+                }
+
+                // TIM TEXTURES
+                for (int fileIndex = 0; fileIndex < loader.LoadedFiles[blockIndex].Length; fileIndex++)
+                {
+                    if (!(loader.LoadedFiles[blockIndex][fileIndex] is TIM_ArchiveFile timArchive)) 
+                        continue;
+                    
+                    for (var i = 0; i < timArchive.Files.Length; i++)
+                    {
+                        var tim = timArchive.Files[i];
+                        exportTex(
+                            getTex: () => GetTexture(tim),
+                            blockName:
+                            $"{blockIndex} - {loader.IDX.Entries[blockIndex].LoadCommands[fileIndex].FILE_Type.ToString().Replace("Archive_TIM_", String.Empty)}",
+                            name: $"{fileIndex} - {i}");
+                    }
+                }
+
+                // BACKGROUND TEXTURES
+                var bgPack = loader.BackgroundPack;
+                for (var i = 0; i < bgPack?.TIMFiles.Files.Length; i++)
+                {
+                    var tim = bgPack.TIMFiles.Files[i];
+                    exportTex(
+                        getTex: () => GetTexture(tim, noPal: true),
+                        blockName: $"{blockIndex} - Background",
+                        name: $"{i}");
+                }
+
+                // SPRITE SETS
+                for (int spriteSetIndex = 0; spriteSetIndex < loader.SpriteSets.Length; spriteSetIndex++)
+                {
+                    var spriteSet = loader.SpriteSets[spriteSetIndex];
+
+                    if (spriteSet == null)
+                        continue;
+
+                    // Enumerate every sprite
+                    for (int spriteIndex = 0; spriteIndex < spriteSet.Files.Length - 1; spriteIndex++)
+                        exportSprite(spriteSet.Files[spriteIndex].Textures, $"{blockIndex} - Sprites", spriteSetIndex, spriteIndex, 0, 500);
+                }
+
+                // SPRITE SET PLAYER SPRITES
+                var spritePack = loader.GetLoadedFile<LevelSpritePack_ArchiveFile>();
+                if (spritePack != null)
+                {
+                    var exportedPlayerSprites = new HashSet<PlayerSprite_File>();
+
+                    var pal = spritePack.PlayerSprites.Files.FirstOrDefault(x => x?.TIM?.Clut != null)?.TIM.Clut.Palette.Select(x => x.GetColor()).ToArray();
+
+                    for (var i = 0; i < spritePack.PlayerSprites.Files.Length; i++)
+                    {
+                        var file = spritePack.PlayerSprites.Files[i];
+                        if (file != null && !exportedPlayerSprites.Contains(file))
+                        {
+                            exportedPlayerSprites.Add(file);
+
+                            exportTex(() =>
+                            {
+                                if (file.TIM != null)
+                                    return GetTexture(file.TIM, palette: pal);
+                                else
+                                    return GetTexture(file.Raw_ImgData, pal, file.Raw_Width, file.Raw_Height,
+                                        PS1_TIM.TIM_ColorFormat.BPP_8);
+                            }, $"{blockIndex} - PlayerSprites", $"{i}");
+                        }
+                    }
+                }
+
+                // LEVEL MENU SPRITES
+                var lvlMenuSprites = loader.GetLoadedFile<LevelMenuSprites_ArchiveFile>();
+                if (lvlMenuSprites != null)
+                {
+                    for (int frameIndex = 0; frameIndex < lvlMenuSprites.Sprites_0.Files.Length; frameIndex++)
+                        exportSprite(lvlMenuSprites.Sprites_0.Files[frameIndex].Textures, $"{blockIndex} - Menu", 0, frameIndex, 960, 442);
+
+                    for (int frameIndex = 0; frameIndex < lvlMenuSprites.Sprites_1.Files.Length; frameIndex++)
+                        exportSprite(lvlMenuSprites.Sprites_1.Files[frameIndex].Textures, $"{blockIndex} - Menu", 1, frameIndex, -1, -1); // TODO: Correct pal
+                }
+
+                // CUTSCENE SPRITES
+                var cutscenePack = loader.LevelPack?.CutscenePack;
+                if (cutscenePack?.Sprites != null)
+                {
+                    for (int frameIndex = 0; frameIndex < cutscenePack.Sprites.Files.Length - 1; frameIndex++)
+                        exportSprite(cutscenePack.Sprites.Files[frameIndex].Textures, $"{blockIndex} - Cutscene", 0, frameIndex, 0, 500);
+                }
+
+                // CUTSCENE CHARACTER NAMES
+                if (cutscenePack?.CharacterNamesImgData != null)
+                    exportTex(
+                        getTex: () => GetTexture(imgData: cutscenePack.CharacterNamesImgData.Data, pal: null, width: 0x0C, height: 0x50, colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4), 
+                        blockName: $"{blockIndex} - CutsceneCharacterNames",
+                        name: $"0");
+
+                // CUTSCENE PLAYER SPRITES
+                if (cutscenePack?.PlayerFramesImgData != null)
+                {
+                    var pal = loader.VRAM.GetColors1555(0, 0, 160, 511, 64).Select(x => x.GetColor()).ToArray();
+
+                    for (var i = 0; i < cutscenePack.PlayerFramesImgData.Files.Length; i++)
+                    {
+                        var file = cutscenePack.PlayerFramesImgData.Files[i];
+                        exportTex(
+                            getTex: () => GetTexture(file.ImgData, pal, file.Width / 2, file.Height,
+                                PS1_TIM.TIM_ColorFormat.BPP_8), 
+                            blockName: $"{blockIndex} - CutscenePlayerSprites",
+                            name: $"{i}");
+                    }
+                }
+
+                PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
+            }
+
+            void exportTex(Func<Texture2D> getTex, string blockName, string name)
+            {
                 try
                 {
-                    PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
+                    var tex = getTex();
+
+                    if (tex != null)
+                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockName}", $"{name}.png"),
+                            tex.EncodeToPNG());
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"Error exporting VRAM: {ex}");
+                    Debug.LogWarning($"Error exporting with ex: {ex}");
+                }
+            }
+
+            void exportSprite(SpriteTexture[] spriteTextures, string blockName, int setIndex, int frameIndex, int palX, int palY)
+            {
+                try
+                {
+                    var tex = GetTexture(spriteTextures, loader.VRAM, palX, palY);
+
+                    Util.ByteArrayToFile(Path.Combine(outputPath, blockName, $"{setIndex} - {frameIndex}.png"), tex.EncodeToPNG());
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Error exporting sprite frame: {ex}");
                 }
             }
         }
@@ -481,7 +476,7 @@ namespace R1Engine
             await LoadFilesAsync(context, config);
 
             // Load the IDX
-            var idxData = Load_IDX(context);
+            var idxData = Load_IDX(context, config);
 
             var loader = Loader.Create(context, idxData, config);
 
@@ -502,77 +497,52 @@ namespace R1Engine
                         // Read the data
                         var bg = loader.LoadBINFile<BackgroundPack_ArchiveFile>(i);
 
-                        // Load the tile sets
-                        for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
+                        var exportedMaps = new bool[bg.BGDFiles.Files.Length];
+
+                        // Export for each sector
+                        foreach (var modifiersFile in bg.BackgroundModifiersFiles.Files)
+                            export(modifiersFile.Modifiers.Where(x => !x.IsLayer || !exportedMaps[x.BGDIndex]).ToArray());
+
+                        // Export unreferenced backgrounds
+                        for (int j = 0; j < exportedMaps.Length; j++)
                         {
-                            var tim = bg.TIMFiles.Files[tileSetIndex];
-
-                            // The game hard-codes this
-                            if (tileSetIndex == 0)
+                            if (!exportedMaps[j])
                             {
-                                tim.Clut.XPos = 0x130;
-                                tim.Clut.YPos = 0x1F0;
-                                tim.Clut.Width = 0x10;
-                                tim.Clut.Height = 0x10;
+                                export(new BackgroundModifierObject[]
+                                {
+                                    new BackgroundModifierObject
+                                    {
+                                        Type = BackgroundModifierObject.BackgroundModifierType.BackgroundLayer_19,
+                                        BGDIndex = j,
+                                        CELIndex = 0,
+                                    }
+                                });
                             }
-                            else if (tileSetIndex == 1)
-                            {
-                                tim.XPos = 0x1C0;
-                                tim.YPos = 0x100;
-                                tim.Width = 0x40;
-                                tim.Height = 0x100;
-
-                                tim.Clut.XPos = 0x120;
-                                tim.Clut.YPos = 0x1F0;
-                                tim.Clut.Width = 0x10;
-                                tim.Clut.Height = 0x10;
-                            }
-
-                            loader.AddToVRAM(tim);
                         }
 
-                        for (int bgIndex = 0; bgIndex < bg.BGDFiles.Files.Length; bgIndex++)
+                        void export(BackgroundModifierObject[] modifiers)
                         {
-                            var map = bg.BGDFiles.Files[bgIndex];
+                            Texture2D[][] textures;
+                            int animSpeed;
 
-                            var tileSetIndex = bg.BackgroundDescriptorsFiles.Files.SelectMany(x => x.Descriptors).FirstOrDefault(x => x.BGDIndex == bgIndex)?.CELIndex ?? 0;
+                            (textures, animSpeed) = GetBackgrounds(loader, bg, modifiers);
 
-                            var tim = bg.TIMFiles.Files[tileSetIndex];
-                            var cel = bg.CELFiles.Files[tileSetIndex];
-
-                            var tex = TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
-
-                            for (int mapY = 0; mapY < map.MapHeight; mapY++)
+                            for (int texIndex = 0; texIndex < textures.Length; texIndex++)
                             {
-                                for (int mapX = 0; mapX < map.MapWidth; mapX++)
+                                var bgTex = textures[texIndex];
+                                var bgIndex = modifiers.Where(x => x.IsLayer).ElementAt(texIndex).BGDIndex;
+
+                                exportedMaps[bgIndex] = true;
+
+                                if (bgTex.Length > 1)
                                 {
-                                    var cellIndex = map.Map[mapY * map.MapWidth + mapX];
-
-                                    if (cellIndex == 0xFF)
-                                        continue;
-
-                                    var cell = cel.Cells[cellIndex];
-
-                                    FillTextureFromVRAM(
-                                        tex: tex,
-                                        vram: loader.VRAM,
-                                        width: map.CellWidth,
-                                        height: map.CellHeight,
-                                        colorFormat: tim.ColorFormat,
-                                        texX: mapX * map.CellWidth,
-                                        texY: mapY * map.CellHeight,
-                                        clutX: cell.ClutX * 16,
-                                        clutY: cell.ClutY,
-                                        texturePageOriginX: tim.XPos,
-                                        texturePageOriginY: tim.YPos,
-                                        texturePageOffsetX: cell.XOffset,
-                                        texturePageOffsetY: cell.YOffset);
+                                    Util.ExportAnimAsGif(bgTex, animSpeed * 2, false, false, Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.gif"));
+                                }
+                                else
+                                {
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.png"), bgTex[0].EncodeToPNG());
                                 }
                             }
-
-                            tex.Apply();
-
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{blockIndex} - {i} - {bgIndex}.png"), tex.EncodeToPNG());
                         }
                     }
                     catch (Exception ex)
@@ -582,6 +552,63 @@ namespace R1Engine
                 });
 
                 PaletteHelpers.ExportVram(Path.Combine(outputPath, $"VRAM_{blockIndex}.png"), loader.VRAM);
+            }
+        }
+
+        public async UniTask Extract_Cutscenes(GameSettings settings, string outputPath)
+        {
+            using var context = new R1Context(settings);
+            var config = GetLoaderConfig(settings);
+            await LoadFilesAsync(context, config);
+
+            // Load the IDX
+            var idxData = Load_IDX(context, config);
+
+            var loader = Loader.Create(context, idxData, config);
+
+            // Enumerate every entry
+            for (var blockIndex = 3; blockIndex < idxData.Entries.Length; blockIndex++)
+            {
+                loader.SwitchBlocks(blockIndex);
+
+                // Process each BIN file
+                loader.LoadBINFiles((cmd, i) =>
+                {
+                    // Check the file type
+                    if (cmd.FILE_Type != IDXLoadCommand.FileType.Archive_LevelPack)
+                        return;
+
+                    // Read the data
+                    var lvl = loader.LoadBINFile<LevelPack_ArchiveFile>(i);
+
+                    // Make sure it has normal cutscens
+                    if (lvl.CutscenePack.Cutscenes == null)
+                        return;
+
+                    // Enumerate every cutscene
+                    for (var cutsceneIndex = 0; cutsceneIndex < lvl.CutscenePack.Cutscenes.Length; cutsceneIndex++)
+                    {
+                        Cutscene cutscene = lvl.CutscenePack.Cutscenes[cutsceneIndex];
+                        var normalCutscene = CutsceneTextTranslationTables.CutsceneToText(
+                            cutscene: cutscene,
+                            translationTable: GetCutsceneTranslationTable,
+                            includeInstructionIndex: false,
+                            normalCutscene: true);
+
+                        File.WriteAllText(Path.Combine(outputPath, $"{blockIndex}_{cutsceneIndex}.txt"), normalCutscene);
+
+                        if (cutscene.Cutscene_Skip != null)
+                        {
+                            var skipCutscene = CutsceneTextTranslationTables.CutsceneToText(
+                                cutscene: cutscene,
+                                translationTable: GetCutsceneTranslationTable,
+                                includeInstructionIndex: false,
+                                normalCutscene: false);
+
+                            File.WriteAllText(Path.Combine(outputPath, $"{blockIndex}_{cutsceneIndex} (skip).txt"), skipCutscene);
+                        }
+                    }
+                });
             }
         }
 
@@ -620,11 +647,9 @@ namespace R1Engine
             }
         }
 
-        public LoaderConfiguration GetLoaderConfig(GameSettings settings)
-        {
-            // TODO: Support other versions
-            return new LoaderConfiguration_DTP_US();
-        }
+        public abstract LoaderConfiguration GetLoaderConfig(GameSettings settings);
+
+        public abstract Dictionary<string, char> GetCutsceneTranslationTable { get; }
 
         public override async UniTask<Unity_Level> LoadAsync(Context context)
         {
@@ -648,7 +673,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the IDX
-            IDX idxData = Load_IDX(context);
+            IDX idxData = Load_IDX(context, config);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded IDX");
 
@@ -697,7 +722,7 @@ namespace R1Engine
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded layers");
 
             // Load object manager
-            Unity_ObjectManager_PS1Klonoa objManager = await Load_ObjManagerAsync(loader);
+            Unity_ObjectManager_PSKlonoa_DTP objManager = await Load_ObjManagerAsync(loader);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded object manager");
 
@@ -714,6 +739,15 @@ namespace R1Engine
             var paths = Load_MovementPaths(loader, sector, scale);
 
             startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded paths");
+
+            Unity_CameraClear camClear = null;
+            var bgClear = loader.BackgroundPack?.BackgroundModifiersFiles.Files.ElementAtOrDefault(sector)?.Modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.Clear).Select(x => x.Data_20).ToArray();
+
+            // TODO: Fully support camera clearing with gradient and multiple clear zones
+            if (bgClear?.Any() == true)
+                camClear = new Unity_CameraClear(bgClear.First().Entries[0].Color.GetColor());
+
+            startupLog.AppendLine($"{stopWatch.ElapsedMilliseconds:0000}ms - Loaded camera clears");
 
             var str = new StringBuilder();
 
@@ -754,7 +788,8 @@ namespace R1Engine
                     CalculateXDisplacement = () => 0,
                     ObjectScale = Vector3.one * 1
                 },
-                ps1Vram: loader.VRAM);
+                ps1Vram: loader.VRAM,
+                cameraClear: camClear);
         }
 
         public async UniTask<Unity_Layer[]> Load_LayersAsync(Loader loader, int sector, float scale)
@@ -778,7 +813,26 @@ namespace R1Engine
             Controller.DetailedState = "Loading backgrounds";
             await Controller.WaitIfNecessary();
 
-            // TODO: Load backgrounds - easiest to convert to textures instead of using tilemaps, unless it's easier for animations?
+            // Load backgrounds
+            if (loader.BackgroundPack != null && loader.BackgroundPack.BackgroundModifiersFiles.Files.Length > sector)
+            {
+                var bgModifiers = loader.BackgroundPack.BackgroundModifiersFiles.Files[sector].Modifiers;
+
+                Texture2D[][] bgTextures;
+                int bgAnimSpeed;
+
+                // Get the background textures
+                (bgTextures, bgAnimSpeed) = GetBackgrounds(loader, loader.BackgroundPack, bgModifiers);
+
+                // Add the backgrounds
+                layers.AddRange(bgTextures.Select((t, i) => new Unity_Layer_Texture
+                {
+                    Name = $"Background {i}", 
+                    ShortName = $"BG{i}", 
+                    Textures = t, 
+                    AnimSpeed = bgAnimSpeed,
+                }));
+            }
 
             Controller.DetailedState = "Loading level geometry";
             await Controller.WaitIfNecessary();
@@ -796,7 +850,7 @@ namespace R1Engine
             var layerDimensions = new Vector3(size.x, size.z, size.y) * cellSize;
 
             // Correctly center object
-            obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
+            //obj.transform.position = new Vector3(-levelBounds.min.x, 0, -size.z-levelBounds.min.z);
 
             var parent3d = Controller.obj.levelController.editor.layerTiles.transform;
             layers.Add(new Unity_Layer_GameObject(true, isAnimated: isAnimated)
@@ -992,32 +1046,32 @@ namespace R1Engine
             return (gao_3dObjParent, isObjAnimated);
         }
 
-        public async UniTask<Unity_ObjectManager_PS1Klonoa> Load_ObjManagerAsync(Loader loader)
+        public async UniTask<Unity_ObjectManager_PSKlonoa_DTP> Load_ObjManagerAsync(Loader loader)
         {
-            var frameSets = new List<Unity_ObjectManager_PS1Klonoa.SpriteSet>();
+            var frameSets = new List<Unity_ObjectManager_PSKlonoa_DTP.SpriteSet>();
 
             // Enumerate each frame set
-            for (var i = 0; i < loader.SpriteFrames.Length; i++)
+            for (var i = 0; i < loader.SpriteSets.Length; i++)
             {
-                Controller.DetailedState = $"Loading sprites {i + 1}/{loader.SpriteFrames.Length}";
+                Controller.DetailedState = $"Loading sprites {i + 1}/{loader.SpriteSets.Length}";
                 await Controller.WaitIfNecessary();
 
-                var frames = loader.SpriteFrames[i];
+                var frames = loader.SpriteSets[i];
 
                 // Skip if null
                 if (frames == null)
                     continue;
 
                 // Create the frame textures
-                var frameTextures = frames.Files.Select(x => GetTexture(x.Textures, loader.VRAM).CreateSprite()).ToArray();
+                var frameTextures = frames.Files.Take(frames.Files.Length - 1).Select(x => GetTexture(x.Textures, loader.VRAM, 0, 500).CreateSprite()).ToArray();
 
-                frameSets.Add(new Unity_ObjectManager_PS1Klonoa.SpriteSet(frameTextures, i));
+                frameSets.Add(new Unity_ObjectManager_PSKlonoa_DTP.SpriteSet(frameTextures, i));
             }
 
-            return new Unity_ObjectManager_PS1Klonoa(loader.Context, frameSets.ToArray());
+            return new Unity_ObjectManager_PSKlonoa_DTP(loader.Context, frameSets.ToArray());
         }
 
-        public List<Unity_Object> Load_Objects(Loader loader, int sector, float scale, Unity_ObjectManager_PS1Klonoa objManager)
+        public List<Unity_Object> Load_Objects(Loader loader, int sector, float scale, Unity_ObjectManager_PSKlonoa_DTP objManager)
         {
             var objects = new List<Unity_Object>();
             var movementPaths = loader.LevelPack.Sectors[sector].MovementPaths.Files;
@@ -1042,7 +1096,7 @@ namespace R1Engine
                     if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                         Debug.LogWarning($"Sprite could not be determined for enemy object of secondary type {obj.SecondaryType} and graphics index {obj.GraphicsIndex}");
 
-                    objects.Add(new Unity_Object_PS1Klonoa_Enemy(objManager, obj, scale, spriteInfo));
+                    objects.Add(new Unity_Object_PSKlonoa_DTP_Enemy(objManager, obj, scale, spriteInfo));
                 }
             }
 
@@ -1060,7 +1114,7 @@ namespace R1Engine
 
                     objects.Add(new Unity_Object_Dummy(obj, Unity_Object.ObjectType.Trigger, objLinks: new int[]
                     {
-                        objects.OfType<Unity_Object_PS1Klonoa_Enemy>().FindItemIndex(x => x.Object == obj)
+                        objects.OfType<Unity_Object_PSKlonoa_DTP_Enemy>().FindItemIndex(x => x.Object == obj)
                     })
                     {
                         Position = pos,
@@ -1084,7 +1138,7 @@ namespace R1Engine
                 if (spriteInfo.SpriteSet == -1 || spriteInfo.SpriteIndex == -1)
                     Debug.LogWarning($"Sprite could not be determined for collectible object of secondary type {x.SecondaryType}");
 
-                return new Unity_Object_PS1Klonoa_Collectible(objManager, x, pos, spriteInfo);
+                return new Unity_Object_PSKlonoa_DTP_Collectible(objManager, x, pos, spriteInfo);
             }));
 
             // Add scenery objects
@@ -1368,7 +1422,7 @@ namespace R1Engine
                         mr.name = $"{objIndex}-{packetIndex} TX: {packet.TSB.TX}, TY:{packet.TSB.TY}, X:{rect.x}, Y:{rect.y}, W:{rect.width}, H:{rect.height}, F:{packet.Flags}, ABE:{packet.Mode.ABE}, TGE:{packet.Mode.TGE}, UVOffset:{packet.UV.First().Offset.FileOffset - tmd.Offset.FileOffset}";
 
                         // Check for UV scroll animations
-                        if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Offset.FileOffset))))
+                        if (packet.UV.Any(x => scrollUVs.Contains((int)(x.Offset.FileOffset - tmd.Objects[0].Offset.FileOffset))))
                         {
                             isAnimated = true;
                             var animTex = gao.AddComponent<AnimatedTextureComponent>();
@@ -1392,7 +1446,7 @@ namespace R1Engine
             return new Bounds(center, max-min);
         }
 
-        Vector3 GetPositionVector(ObjPosition pos, Vector3? posOffset, float scale)
+        public Vector3 GetPositionVector(ObjPosition pos, Vector3? posOffset, float scale)
         {
             if (posOffset == null)
                 return new Vector3(pos.XPos / scale, -pos.YPos / scale, pos.ZPos / scale);
@@ -1421,9 +1475,9 @@ namespace R1Engine
                 z: -(GetRotationInDegrees(rotZ) - GetRotationInDegrees(rotX)));
         }
 
-        public IDX Load_IDX(Context context)
+        public IDX Load_IDX(Context context, LoaderConfiguration config)
         {
-            return FileFactory.Read<IDX>(Loader.FilePath_IDX, context);
+            return FileFactory.Read<IDX>(Loader.FilePath_IDX, context, (s, idx) => idx.Pre_LoaderConfig = config);
         }
 
         public void FillTextureFromVRAM(
@@ -1486,12 +1540,16 @@ namespace R1Engine
             }
         }
 
-        public Texture2D GetTexture(PS1_TIM tim, bool flipTextureY = true, Color[] palette = null)
+        public Texture2D GetTexture(PS1_TIM tim, bool flipTextureY = true, Color[] palette = null, bool onlyFirstTransparent = false, bool noPal = false)
         {
             if (tim.XPos == 0 && tim.YPos == 0)
                 return null;
 
-            var pal = palette ?? tim.Clut?.Palette?.Select(x => x.GetColor()).ToArray();
+            var pal = noPal ? null : palette ?? tim.Clut?.Palette?.Select(x => x.GetColor()).ToArray();
+
+            if (onlyFirstTransparent && pal != null)
+                for (int i = 0; i < pal.Length; i++)
+                    pal[i].a = i == 0 ? 0 : 1;
 
             return GetTexture(tim.ImgData, pal, tim.Width, tim.Height, tim.ColorFormat, flipTextureY);
         }
@@ -1583,7 +1641,7 @@ namespace R1Engine
             return tex;
         }
 
-        public Texture2D GetTexture(SpriteTexture[] sprites, PS1_VRAM vram)
+        public Texture2D GetTexture(SpriteTexture[] sprites, PS1_VRAM vram, int palX, int palY)
         {
             var rects = sprites.Select(s => 
                 new RectInt(
@@ -1619,8 +1677,8 @@ namespace R1Engine
                         colorFormat: PS1_TIM.TIM_ColorFormat.BPP_4,
                         texX: rects[index].x - minX,
                         texY: rects[index].y - minY,
-                        clutX: sprite.PalOffsetX,
-                        clutY: 500 + sprite.PalOffsetY,
+                        clutX: palX + sprite.PalOffsetX,
+                        clutY: palY + sprite.PalOffsetY,
                         texturePageOriginX: 0,
                         texturePageOriginY: 0,
                         texturePageX: texPage % 16,
@@ -1628,7 +1686,8 @@ namespace R1Engine
                         texturePageOffsetX: sprite.TexturePageOffsetX,
                         texturePageOffsetY: sprite.TexturePageOffsetY,
                         flipX: sprite.FlipX,
-                        flipY: sprite.FlipY);
+                        flipY: sprite.FlipY,
+                        useDummyPal: palX == -1 || palY == -1);
                 }
                 catch (Exception ex)
                 {
@@ -1639,6 +1698,132 @@ namespace R1Engine
             tex.Apply();
 
             return tex;
+        }
+
+        public (Texture2D[][], int) GetBackgrounds(Loader loader, BackgroundPack_ArchiveFile bg, BackgroundModifierObject[] modifiers)
+        {
+            // Get the modifiers
+            var layers = modifiers.Where(x => x.IsLayer).ToArray();
+            var palScrolls = modifiers.Where(x => x.Type == BackgroundModifierObject.BackgroundModifierType.PaletteScroll).ToArray();
+
+            // Get the amount of frames each animation will have. We assume if there are multiple palette scroll modifiers that they all share
+            // the same length and speed (which they do in Klonoa)
+            var framesLength = palScrolls.Any() ? palScrolls.First().Data_23.Length : 1;
+            var animSpeed = palScrolls.Any() ? palScrolls.First().Data_23.Speed : 0;
+
+            // Create the textures array for the backgrounds and their frames
+            var textures = new Texture2D[layers.Length][];
+
+            for (int i = 0; i < textures.Length; i++)
+                textures[i] = new Texture2D[framesLength];
+
+            // Load VRAM data
+            for (int tileSetIndex = 0; tileSetIndex < bg.TIMFiles.Files.Length; tileSetIndex++)
+            {
+                var tim = bg.TIMFiles.Files[tileSetIndex];
+
+                // The game hard-codes this
+                if (tileSetIndex == 0)
+                {
+                    tim.Clut.XPos = 0x130;
+                    tim.Clut.YPos = 0x1F0;
+                    tim.Clut.Width = 0x10;
+                    tim.Clut.Height = 0x10;
+                }
+                else if (tileSetIndex == 1)
+                {
+                    tim.XPos = 0x1C0;
+                    tim.YPos = 0x100;
+                    tim.Width = 0x40;
+                    tim.Height = 0x100;
+
+                    tim.Clut.XPos = 0x120;
+                    tim.Clut.YPos = 0x1F0;
+                    tim.Clut.Width = 0x10;
+                    tim.Clut.Height = 0x10;
+                }
+
+                loader.AddToVRAM(tim);
+            }
+
+            // Create the background frames
+            for (int frameIndex = 0; frameIndex < framesLength; frameIndex++)
+            {
+                // Update VRAM with each palette scroll modifier
+                if (frameIndex > 0)
+                {
+                    foreach (var palMod in palScrolls.Select(x => x.Data_23))
+                    {
+                        var pal = loader.VRAM.GetPixels8(0, 0, palMod.XPosition * 2, palMod.YPosition, 32);
+
+                        var firstColor_0 = pal[0];
+                        var firstColor_1 = pal[1];
+                        
+                        var index = palMod.StartIndex;
+                        var endIndex = index + palMod.Length;
+                        
+                        do
+                        {
+                            pal[index * 2] = pal[(index + 1) * 2];
+                            pal[index * 2 + 1] = pal[(index + 1) * 2 + 1];
+
+                            index += 1;
+                        } while (index < endIndex);
+
+                        pal[(endIndex - 1) * 2] = firstColor_0;
+                        pal[(endIndex - 1) * 2 + 1] = firstColor_1;
+
+                        loader.VRAM.AddDataAt(0, 0, palMod.XPosition * 2, palMod.YPosition, pal, 32, 1);
+                    }
+                }
+
+                // Create the frame for each background
+                for (int layerIndex = 0; layerIndex < layers.Length; layerIndex++)
+                {
+                    var celIndex = layers[layerIndex].CELIndex;
+                    var bgIndex = layers[layerIndex].BGDIndex;
+
+                    var tim = bg.TIMFiles.Files[celIndex];
+                    var cel = bg.CELFiles.Files[celIndex];
+                    var map = bg.BGDFiles.Files[bgIndex];
+
+                    var tex = TextureHelpers.CreateTexture2D(map.MapWidth * map.CellWidth, map.MapHeight * map.CellHeight, clear: true);
+
+                    for (int mapY = 0; mapY < map.MapHeight; mapY++)
+                    {
+                        for (int mapX = 0; mapX < map.MapWidth; mapX++)
+                        {
+                            var cellIndex = map.Map[mapY * map.MapWidth + mapX];
+
+                            if (cellIndex == 0xFF)
+                                continue;
+
+                            var cell = cel.Cells[cellIndex];
+
+                            FillTextureFromVRAM(
+                                tex: tex,
+                                vram: loader.VRAM,
+                                width: map.CellWidth,
+                                height: map.CellHeight,
+                                colorFormat: tim.ColorFormat,
+                                texX: mapX * map.CellWidth,
+                                texY: mapY * map.CellHeight,
+                                clutX: cell.ClutX * 16,
+                                clutY: cell.ClutY,
+                                texturePageOriginX: tim.XPos,
+                                texturePageOriginY: tim.YPos,
+                                texturePageOffsetX: cell.XOffset,
+                                texturePageOffsetY: cell.YOffset);
+                        }
+                    }
+
+                    tex.Apply();
+
+                    textures[layerIndex][frameIndex] = tex;
+                }
+            }
+
+            return (textures, animSpeed);
         }
         
         public async UniTask LoadFilesAsync(Context context, LoaderConfiguration config)
@@ -1841,6 +2026,52 @@ namespace R1Engine
             float zPos = block.ZPos + block.DirectionZ * blockPosOffset + relativePos.z;
 
             return GetPosition(xPos, yPos, zPos, scale);
+        }
+
+        public static void Helper_GenerateCutsceneTextTranslation(Loader loader, Dictionary<string, char> d, int cutscene, int instruction, string text)
+        {
+            var c = loader.LevelPack.CutscenePack.Cutscenes[cutscene];
+            var i = (CutsceneInstructionData_DrawText)c.Cutscene_Normal.Instructions[instruction].Data;
+
+            var textIndex = 0;
+
+            foreach (var cmd in i.TextCommands)
+            {
+                if (cmd.Type != CutsceneInstructionData_DrawText.TextCommand.CommandType.DrawChar)    
+                    continue;
+
+                var charImgData = c.Font.CharactersImgData[cmd.Command];
+
+                using SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider();
+                
+                var hash = Convert.ToBase64String(sha1.ComputeHash(charImgData));
+
+                if (d.ContainsKey(hash))
+                {
+                    if (d[hash] != text[textIndex])
+                        Debug.LogWarning($"Character {text[textIndex]} has multiple font textures!");
+                }
+                else
+                {
+                    d[hash] = text[textIndex];
+                }
+
+                textIndex++;
+            }
+
+            var str = new StringBuilder();
+
+            foreach (var v in d.OrderBy(x => x.Value))
+            {
+                var value = v.Value.ToString();
+
+                if (value == "\"" || value == "\'")
+                    value = $"\\{value}";
+
+                str.AppendLine($"[\"{v.Key}\"] = '{value}',");
+            }
+
+            str.ToString().CopyToClipboard();
         }
 
         public class ObjSpriteInfo

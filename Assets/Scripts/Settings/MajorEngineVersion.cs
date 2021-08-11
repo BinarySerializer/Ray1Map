@@ -17,6 +17,6 @@
         Jade,           // Jade Engine
         GEN,            // GEN Engine
         GBAKlonoa,      // Klonoa (GBA)
-        PS1Klonoa,      // Klonoa (PS1)
+        PSKlonoa,       // Klonoa (PS1/PS2)
     }
 }

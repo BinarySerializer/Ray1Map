@@ -903,7 +903,10 @@ namespace R1Engine {
 
         #region PS1 Klonoa
 
-        [GameMode(MajorEngineVersion.PS1Klonoa, EngineVersion.PS1Klonoa, Game.PS1Klonoa_DoorToPhantomile, "Klonoa Door to Phantomile (PS1 - US)", typeof(PS1Klonoa_Manager), Platform.PS1)]
+        [GameMode(MajorEngineVersion.PSKlonoa, EngineVersion.PSKlonoa_DTP, Game.PS1Klonoa_DoorToPhantomile, "Klonoa Door to Phantomile (PS1 - Prototype 1997/07/17)", typeof(PSKlonoa_DTP_Manager_Prototype_19970717), Platform.PS1)]
+        KlonoaDoorToPhantomilePS1USPrototype_19970717,
+
+        [GameMode(MajorEngineVersion.PSKlonoa, EngineVersion.PSKlonoa_DTP, Game.PS1Klonoa_DoorToPhantomile, "Klonoa Door to Phantomile (PS1 - US)", typeof(PSKlonoa_DTP_Manager_US), Platform.PS1)]
         KlonoaDoorToPhantomilePS1US,
 
         #endregion
