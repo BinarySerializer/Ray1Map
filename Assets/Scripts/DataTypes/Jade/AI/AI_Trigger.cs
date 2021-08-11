@@ -14,5 +14,9 @@ namespace R1Engine.Jade {
 			Name = s.SerializeString(Name, length: 64, encoding: Jade_BaseManager.Encoding, name: nameof(Name));
 			Message = s.SerializeObject<AI_Message>(Message, name: nameof(Message));
 		}
+
+		public override string ToString() {
+			return $"Trigger({KeyFile}, {Name}, {Message})";
+		}
 	}
 }

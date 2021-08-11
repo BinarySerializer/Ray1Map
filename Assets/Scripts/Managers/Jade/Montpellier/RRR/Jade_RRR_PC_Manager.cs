@@ -1,4 +1,13 @@
-﻿namespace R1Engine
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Jade;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+
+namespace R1Engine
 {
     public class Jade_RRR_PC_Manager : Jade_Montpellier_BaseManager {
         // Levels
@@ -107,5 +116,98 @@
         public override string[] BFFiles => new string[] {
             "Rayman4.bf"
         };
+
+
+        // Game actions
+        public override GameAction[] GetGameActions(GameSettings settings) {
+            return base.GetGameActions(settings).Concat(new GameAction[]
+            {
+                new GameAction("Import Rayman Soundbank", true, true, (input, output) => ImportRaymanSoundbank(settings, input, output)),
+			}).ToArray();
+        }
+
+
+        public async UniTask ImportRaymanSoundbank(GameSettings settings, string inputDir, string outputDir) {
+            // Read key list
+            string keyListPath = Path.Combine(inputDir, "keylist.txt");
+            string[] lines = File.ReadAllLines(keyListPath);
+            Dictionary<uint, string> fileKeys = new Dictionary<uint, string>();
+            foreach (var l in lines) {
+                var lineSplit = l.Split(',');
+                if(lineSplit.Length != 2) continue;
+                uint k;
+                if(uint.TryParse(lineSplit[0], System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture, out k))
+                    fileKeys[k] = lineSplit[1].Replace('\\','/');
+
+            }
+
+
+            // Step 1: Load files to be loaded
+            uint rayFullSnkKey = 0x2C0008EF;
+            using (var context = new R1Context(inputDir, settings)) {
+                await LoadFilesAsync(context);
+                /*List<BIG_BigFile> bfs = new List<BIG_BigFile>();
+                foreach (var bfPath in BFFiles) {
+                    var bf = await LoadBF(context, bfPath);
+                    bfs.Add(bf);
+                }*/
+                // Set up loader
+                LOA_Loader loader = new LOA_Loader(new BIG_BigFile[0], context);
+                context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+                // Set up texture list
+                TEX_GlobalList texList = new TEX_GlobalList();
+                context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+
+                var s = context.Deserializer;
+
+                // Resolve Soundbank
+                var bank = new Jade_Reference<SND_UnknownBank>(context, new Jade_Key(context, rayFullSnkKey));
+                bank.Resolve();
+                await loader.LoadLoop_RawFiles(s, fileKeys);
+            }
+
+
+            return;
+
+            // Step 2: Iterate over all the levels
+            var levIndex = 0;
+            uint currentKey = 0;
+            foreach (var lev in LevelInfos) {
+                // If there are WOL files, there are also raw WOW files. It's better to process those one by one.
+                if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
+                    levIndex++;
+                    continue;
+                }
+
+                Debug.Log($"Importing soundbank into level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
+
+                try {
+                    using (var context = new R1Context(settings)) {
+                        currentKey = 0;
+                        await LoadFilesAsync(context);
+                        await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.Sounds);
+                    }
+                } catch (Exception ex) {
+                    if (currentKey == 0) {
+                        Debug.LogError($"Failed to import for level {lev.MapName}: {ex.ToString()}");
+                    } else {
+                        Debug.LogError($"Failed to import for level {lev.MapName}: [{currentKey:X8}] {ex.ToString()}");
+                    }
+                }
+
+
+                // Unload textures
+                await Controller.WaitIfNecessary();
+                await Resources.UnloadUnusedAssets();
+
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+                GC.WaitForPendingFinalizers();
+                if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+                    await UniTask.Delay(2000);
+                }
+                break;
+            }
+        }
     }
 }

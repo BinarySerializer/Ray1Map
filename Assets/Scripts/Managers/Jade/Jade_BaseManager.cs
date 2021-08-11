@@ -34,8 +34,8 @@ namespace R1Engine {
 		// Game actions
 		public override GameAction[] GetGameActions(GameSettings settings) {
 			GameAction[] actions = new GameAction[] {
-				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false)),
-				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true)),
+				new GameAction("Extract BF file(s)", false, true, (input, output) => ExtractFilesAsync(settings, output, false, true)),
+				new GameAction("Extract BF file(s) - BIN decompression", false, true, (input, output) => ExtractFilesAsync(settings, output, true, true)),
 				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
@@ -57,10 +57,11 @@ namespace R1Engine {
 			}
 			return actions;
 		}
-        public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false) {
+        public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false, bool exportKeyList = false) {
             using (var context = new R1Context(settings)) {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
+				Dictionary<uint, string> fileKeys = new Dictionary<uint, string>();
 				foreach (var bfPath in BFFiles) {
 					var bf = await LoadBF(context, bfPath);
 					List<KeyValuePair<long, long>> fileSizes = new List<KeyValuePair<long, long>>();
@@ -78,8 +79,8 @@ namespace R1Engine {
 										curDir = fat.DirectoryInfos[curDir.ParentDirectory];
 										dirName = Path.Combine(curDir.Name, dirName);
 									}
-									directories[i] = Path.Combine(outputDir, dirName);
-									Directory.CreateDirectory(directories[i]);
+									directories[i] = dirName;
+									Directory.CreateDirectory(Path.Combine(outputDir, dirName));
 								}
 							}
 							for (int i = 0; i < fat.Files.Length; i++) {
@@ -116,7 +117,8 @@ namespace R1Engine {
 										fileName += ".dec";
 									}
 									if (fi.ParentDirectory >= 0) {
-										Util.ByteArrayToFile(Path.Combine(directories[fi.ParentDirectory], fileName), fileBytes);
+										Util.ByteArrayToFile(Path.Combine(outputDir, directories[fi.ParentDirectory], fileName), fileBytes);
+										if(exportKeyList) fileKeys[f.Key.Key] = Path.Combine(directories[fi.ParentDirectory], fileName);
 									}
 								} else {
 									fileName = $"no_name_{fat.Files[i].Key:X8}.dat";
@@ -124,6 +126,7 @@ namespace R1Engine {
 										fileName += ".dec";
 									}
 									Util.ByteArrayToFile(Path.Combine(outputDir, fileName), fileBytes);
+									if (exportKeyList) fileKeys[f.Key.Key] = fileName;
 								}
 							}
 						}
@@ -172,6 +175,13 @@ namespace R1Engine {
 					} catch (Exception ex) {
 						UnityEngine.Debug.LogError(ex);
 					}
+				}
+				if (exportKeyList) {
+					StringBuilder b = new StringBuilder();
+					foreach (var kv in fileKeys) {
+						b.AppendLine($"{kv.Key:X8},{kv.Value}");
+					}
+					File.WriteAllText(Path.Combine(outputDir, "keylist.txt"), b.ToString());
 				}
             }
         }
