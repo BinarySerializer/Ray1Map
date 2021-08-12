@@ -165,6 +165,7 @@ public class UnityWindowSerializer : SerializerObject
         {
             Depth++;
             Window.IndentLevel++;
+            if(obj == null) obj = new T();
             obj.SerializeImpl(this);
             Window.IndentLevel--;
             Depth--;
