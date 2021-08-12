@@ -299,13 +299,14 @@ namespace R1Engine.Jade {
 			while (LoadQueue.First?.Value != null) {
 				FileReference currentRef = LoadQueue.First.Value;
 				LoadQueue.RemoveFirst();
+				bool writeFilesAlreadyInBF = false;
 				if (currentRef.Key != null && !WrittenFileKeys.ContainsKey(currentRef.Key.Key)) {
 					CurrentCacheType = currentRef.Cache;
 					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key)) {
 						var f = Cache[currentRef.Key];
 						if (f != null) f.CachedCount++;
 					} else {
-						Pointer off_current = s.CurrentPointer;
+						//Pointer off_current = s.CurrentPointer;
 						string filename = $"ROOT/Bin/{currentRef.Key.Key:X8}";
 						string extension = null;
 
@@ -335,15 +336,17 @@ namespace R1Engine.Jade {
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
 								});
 							} finally {
-								var bytes = memStream.ToArray();
-								if(extension != null) filename += $".{extension}";
-								Util.ByteArrayToFile(Context.BasePath + "out/" + filename, bytes);
-								Context.RemoveFile(streamFile);
+								if (writeFilesAlreadyInBF || !FileInfos.ContainsKey(currentRef.Key)) {
+									var bytes = memStream.ToArray();
+									if (extension != null) filename += $".{extension}";
+									Util.ByteArrayToFile(Context.BasePath + "out/" + filename, bytes);
+									Context.RemoveFile(streamFile);
+								}
 							}
 						}
 						await Controller.WaitIfNecessary();
 						Controller.DetailedState = previousState;
-						s.Goto(off_current);
+						//s.Goto(off_current);
 					}
 				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
 					UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");

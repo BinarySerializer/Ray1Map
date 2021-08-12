@@ -39,6 +39,7 @@ namespace R1Engine {
 				new GameAction("Create level list", false, false, (input, output) => CreateLevelListAsync(settings)),
 				new GameAction("Export localization", false, true, (input, output) => ExportLocalizationAsync(settings, output, false)),
 				new GameAction("Export textures", false, true, (input, output) => ExportTexturesAsync(settings, output, true)),
+				new GameAction("Export sounds", false, true, (input, output) => ExportSoundsAsync(settings, output, true)),
 			};
 			if (HasUnbinarizedData) {
 				actions = actions.Concat(new GameAction[] {
@@ -57,7 +58,9 @@ namespace R1Engine {
 			}
 			return actions;
 		}
-        public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false, bool exportKeyList = false) {
+
+		#region Extract assets
+		public async UniTask ExtractFilesAsync(GameSettings settings, string outputDir, bool decompressBIN = false, bool exportKeyList = false) {
             using (var context = new R1Context(settings)) {
 				var s = context.Deserializer;
                 await LoadFilesAsync(context);
@@ -185,7 +188,6 @@ namespace R1Engine {
 				}
             }
         }
-
 		public async UniTask ExportLocalizationAsync(GameSettings settings, string outputDir, bool perWorld) {
 			var parsedTexs = new HashSet<uint>();
 
@@ -290,9 +292,11 @@ namespace R1Engine {
             foreach (var lev in LevelInfos)
             {
 				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
-				if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
-					levIndex++;
-					continue;
+				if (lev?.Type.HasValue ?? false) {
+					if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
+						levIndex++;
+						continue;
+					}
 				}
 
 				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
@@ -392,6 +396,91 @@ namespace R1Engine {
 
             Debug.Log($"Finished export");
 		}
+		public async UniTask ExportSoundsAsync(GameSettings settings, string outputDir, bool useComplexNames) {
+			var parsedSounds = new HashSet<uint>();
+
+			var levIndex = 0;
+			uint currentKey = 0;
+
+			foreach (var lev in LevelInfos) {
+				// If there are WOL files, there are also raw WOW files. It's better to process those one by one.
+				if (lev?.Type.HasValue ?? false) {
+					if (lev.Type.Value.HasFlag(LevelInfo.FileType.WOL) || lev.Type.Value.HasFlag(LevelInfo.FileType.Unbinarized)) {
+						levIndex++;
+						continue;
+					}
+				}
+
+				Debug.Log($"Exporting for level {levIndex++ + 1}/{LevelInfos.Length}: {lev.MapName}");
+
+				try {
+					using (var context = new R1Context(settings)) {
+						currentKey = 0;
+						await LoadFilesAsync(context);
+						await LoadJadeAsync(context, new Jade_Key(context, lev.Key), LoadFlags.Maps | LoadFlags.TextNoSound | LoadFlags.TextSound | LoadFlags.Sounds);
+
+						SND_GlobalList sndList = context.GetStoredObject<SND_GlobalList>(SoundListKey);
+
+						string worldName = null;
+						if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
+							throw new NotImplementedException("Not yet implemented for Montreal");
+						} else {
+							await ExportSndList(sndList);
+						}
+
+						async UniTask ExportSndList(SND_GlobalList sndList) {
+							if (sndList.Waves != null && sndList.Waves.Any()) {
+								Debug.Log($"Loaded level. Exporting {sndList?.Waves?.Count} sounds...");
+								await Controller.WaitIfNecessary();
+
+								LOA_Loader actualLoader = context.GetStoredObject<LOA_Loader>(LoaderKey);
+
+								using (var writeContext = new R1Context(outputDir, settings)) {
+									// Set up loader
+									LOA_Loader loader = new LOA_Loader(actualLoader.BigFiles, writeContext);
+									writeContext.StoreObject<LOA_Loader>(LoaderKey, loader);
+									var sndListWrite = new SND_GlobalList();
+									writeContext.StoreObject<SND_GlobalList>(SoundListKey, sndListWrite);
+
+									foreach (var t in sndList.Waves) {
+										if (parsedSounds.Contains(t.Key.Key))
+											continue;
+
+										parsedSounds.Add(t.Key.Key);
+
+										Jade_Reference<SND_Wave> wave = new Jade_Reference<SND_Wave>(writeContext, t.Key) {
+											Value = t
+										};
+										wave.Resolve();
+									}
+									var s = writeContext.Serializer;
+									await loader.LoadLoop(s);
+								}
+							}
+						}
+					}
+				} catch (Exception ex) {
+					if (currentKey == 0) {
+						Debug.LogError($"Failed to export for level {lev.MapName}: {ex.ToString()}");
+					} else {
+						Debug.LogError($"Failed to export for level {lev.MapName}: [{currentKey:X8}] {ex.ToString()}");
+					}
+				}
+
+
+				// Unload textures
+				await Controller.WaitIfNecessary();
+				await Resources.UnloadUnusedAssets();
+
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true);
+				GC.WaitForPendingFinalizers();
+				if (settings.EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
+					await UniTask.Delay(2000);
+				}
+			}
+
+			Debug.Log($"Finished export");
+		}
 		public async UniTask ExportTexturesUnbinarized(GameSettings settings, string outputDir) {
 			using (var context = new R1Context(settings)) {
 				await LoadFilesAsync(context);
@@ -444,7 +533,9 @@ namespace R1Engine {
 				}
 			}
 		}
-		
+		#endregion
+
+		#region Gear BF
 		public async UniTask ExportGearBF(GameSettings settings, string bfPath, string outputDir, string extension) {
 			if (bfPath == null) return;
 			using (var context = new R1Context(settings)) {
@@ -462,7 +553,6 @@ namespace R1Engine {
 			// TODO: "texture_map.txt" is the key<->filename map for the textures.bf file. The file ID is CRC32 of filename.
 			// TODO: Figure out the correct converted filename (the .bra is replaced, but with what?)
 		}
-
 		public async UniTask ExportTexturesGearBF(GameSettings settings, string outputDir) {
 			string bfPath = TexturesGearBFPath;
 			if (bfPath == null) return;
@@ -527,6 +617,8 @@ namespace R1Engine {
 				}
 			}
 		}
+		#endregion
+
 		public async UniTask CreateLevelListAsync(GameSettings settings) {
 
 			using (var context = new R1Context(settings)) {
@@ -845,7 +937,9 @@ namespace R1Engine {
 				Controller.DetailedState = $"Loading sounds";
 				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeSounds), serializeAction: async s => {
 					for (int i = 0; i < sndList.Waves.Count; i++) {
-						sndList.Waves[i].SerializeData(s);
+						if (!loader.FileInfos.ContainsKey(sndList.Waves[i].Key)) {
+							sndList.Waves[i].SerializeData(s);
+						}
 					}
 					await UniTask.CompletedTask;
 				});
