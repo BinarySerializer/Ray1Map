@@ -3,6 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class TEXT_AllText : Jade_File {
+		public override string Extension => "txt";
 		public Jade_GenericReference[] Text { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {

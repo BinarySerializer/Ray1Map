@@ -6,6 +6,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_ProcList : Jade_File {
+		public override string Extension => "fce";
+
 		public ushort ProcsCount { get; set; }
 		public Proc[] Procs { get; set; }
 		public uint Code { get; set; }

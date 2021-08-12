@@ -3,7 +3,9 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
     public class SND_SModifier : Jade_File {
-        public uint FormatVersion { get; set; }
+		public override string Extension => "smd";
+
+		public uint FormatVersion { get; set; }
         public uint UInt_01 { get; set; }
         public uint UInt_02 { get; set; }
         public uint UInt_03 { get; set; }
@@ -129,13 +131,19 @@ namespace R1Engine.Jade {
 
             public void Resolve(SerializerObject s) {
                 // All of these are just waves
-                /*if (Flags.HasFlag(SoundFlags.Dialog)) {
+                var soundType = SND_Wave.Type.Sound;
+                if (Flags.HasFlag(SoundFlags.Dialog)) {
+                    soundType = SND_Wave.Type.Dialog;
                 } else if (Flags.HasFlag(SoundFlags.Music)) {
+                    soundType = SND_Wave.Type.Music;
                 } else if (Flags.HasFlag(SoundFlags.Ambience)) {
+                    soundType = SND_Wave.Type.Ambience;
                 // else if modifier in BG&E only, in GEN_ModifierSound
                 } else if (Flags.HasFlag(SoundFlags.LoadingSound)) {
+                    soundType = SND_Wave.Type.LoadingSound;
                 } else { // Sound
-                }*/
+                    soundType = SND_Wave.Type.Sound;
+                }
                 if (Context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_RRR2)) {
                     LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
                     if (!Wave.IsNull && Loader.IsBinaryData) {
@@ -144,7 +152,7 @@ namespace R1Engine.Jade {
                     }
                 }
                 if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_Xenon) return;
-                Wave.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                Wave.Resolve(onPreSerialize: (_, w) => w.SoundType = soundType, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
             }
 
             [Flags]

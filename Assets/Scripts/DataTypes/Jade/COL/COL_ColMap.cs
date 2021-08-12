@@ -4,6 +4,7 @@ namespace R1Engine.Jade
 {
     public class COL_ColMap : Jade_File {
         public override bool HasHeaderBFFile => true;
+        public override string Extension => "map";
 
         public byte CobsCount { get; set; }
         public byte Activation { get; set; }

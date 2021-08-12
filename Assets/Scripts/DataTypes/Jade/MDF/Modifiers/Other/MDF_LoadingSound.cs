@@ -102,7 +102,7 @@ namespace R1Engine.Jade
                 if (SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.LoadingSound)) {
                     Wave = new Jade_Reference<SND_Wave>(Context, SoundKey);
                     if (Context.GetR1Settings().EngineVersion == EngineVersion.Jade_KingKong_Xenon) return;
-                    Wave?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+                    Wave?.Resolve(onPreSerialize: (_,w) => w.SoundType = SND_Wave.Type.LoadingSound, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
                 } else if (SoundFlags.HasFlag(SND_SModifier.SoundRef.SoundFlags.SModifier)) {
                     SModifier = new Jade_Reference<SND_SModifier>(Context, SoundKey);
                     SModifier?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);

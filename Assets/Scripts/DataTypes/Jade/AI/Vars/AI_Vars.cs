@@ -7,6 +7,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class AI_Vars : Jade_File {
 		public override bool HasHeaderBFFile => true;
+		public override string Extension => "ova";
 
 		public uint RewindVarEndOffset { get; set; }
 		public bool HasRewindZones { get; set; }

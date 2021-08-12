@@ -843,6 +843,15 @@ namespace R1Engine {
 				univers.Resolve();
 				await loader.LoadLoop(context.Deserializer); // First resolve universe
 			}
+			// Make export
+			{
+				string worldName = "Univers";
+				string name = "univers";
+				univers?.Value?.Vars?.Value?.ExportVarsOverview(worldName, $"{name}_instance");
+				univers?.Value?.Vars?.Value?.ExportIDAStruct(worldName, $"{name}_instance");
+				univers?.Value?.Model?.Value?.Vars?.ExportVarsOverview(worldName, $"{name}_model");
+				univers?.Value?.Model?.Value?.Vars?.ExportIDAStruct(worldName, $"{name}_model");
+			}
 
 			return univers;
 		}

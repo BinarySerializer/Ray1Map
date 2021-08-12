@@ -32,5 +32,26 @@ namespace R1Engine.Jade
 				WaveData = s.SerializeArray<byte>(WaveData, FileSize, name: nameof(WaveData));
 			}
 		}
+
+		public enum Type {
+			Ambience,
+			Dialog,
+			LoadingSound,
+			Music,
+			Sound,
+		}
+		public Type SoundType { get; set; }
+		public override string Extension {
+			get {
+				switch (SoundType) {
+					case Type.Ambience: return "waa";
+					case Type.Dialog: return "wad";
+					case Type.LoadingSound: return "wac";
+					case Type.Music: return "wam";
+					case Type.Sound: return "wav";
+					default: return null;
+				}
+			}
+		}
 	}
 }

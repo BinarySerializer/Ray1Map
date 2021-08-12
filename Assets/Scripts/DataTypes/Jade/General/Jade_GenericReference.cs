@@ -119,8 +119,17 @@ namespace R1Engine.Jade {
 				case Jade_FileType.FileType.SND_LoadingSound:
 				case Jade_FileType.FileType.SND_Music:
 				case Jade_FileType.FileType.SND_Sound:
+					var soundType = Type switch
+					{
+						Jade_FileType.FileType.SND_Ambience => SND_Wave.Type.Ambience,
+						Jade_FileType.FileType.SND_Dialog => SND_Wave.Type.Dialog,
+						Jade_FileType.FileType.SND_LoadingSound => SND_Wave.Type.LoadingSound,
+						Jade_FileType.FileType.SND_Music => SND_Wave.Type.Music,
+						Jade_FileType.FileType.SND_Sound => SND_Wave.Type.Sound,
+						_ => SND_Wave.Type.Sound
+					};
 					Value = s.SerializeObject<SND_Wave>((SND_Wave)Value, onPreSerialize: f => {
-						configureAction(f); onPreSerialize?.Invoke(s, f);
+						f.SoundType = soundType; configureAction(f); onPreSerialize?.Invoke(s, f);
 					}, name: nameof(Value));
 					break;
 				case Jade_FileType.FileType.SND_SModifier:

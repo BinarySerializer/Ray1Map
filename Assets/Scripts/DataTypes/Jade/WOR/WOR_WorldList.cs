@@ -28,6 +28,17 @@ namespace R1Engine.Jade {
 				if (world?.Value != null && world.Value is WOR_World w) {
 					Controller.DetailedState = $"Loading world {worldIndex+1}/{Worlds.Length}: {w.Name}";
 					await w.JustAfterLoad(s, hasLoadedWorld);
+
+					foreach (var gao in w.SerializedGameObjects) {
+						var ai = gao?.Extended?.AI?.Value;
+						if (ai != null) {
+							var name = gao.Name.Replace(".gao","");
+							ai?.Vars?.Value?.ExportVarsOverview(w.Name, $"{name}_instance");
+							ai?.Vars?.Value?.ExportIDAStruct(w.Name, $"{name}_instance");
+							ai?.Model?.Value?.Vars?.ExportVarsOverview(w.Name, $"{name}_model");
+							ai?.Model?.Value?.Vars?.ExportIDAStruct(w.Name, $"{name}_model");
+						}
+					}
 				}
 				worldIndex++;
 
@@ -63,5 +74,6 @@ namespace R1Engine.Jade {
 
 			}
 		}
+		public override string Extension => "wol";
 	}
 }

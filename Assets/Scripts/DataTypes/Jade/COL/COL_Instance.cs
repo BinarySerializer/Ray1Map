@@ -4,8 +4,9 @@ using BinarySerializer;
 namespace R1Engine.Jade {
     public class COL_Instance : Jade_File {
         public override bool HasHeaderBFFile => true;
+		public override string Extension => "cin";
 
-        public Jade_Reference<COL_ColSet> ColSet { get; set; }
+		public Jade_Reference<COL_ColSet> ColSet { get; set; }
         public byte ZDxCount { get; set; }
         public byte SharedCount { get; set; }
         public byte SpecificCount { get; set; }

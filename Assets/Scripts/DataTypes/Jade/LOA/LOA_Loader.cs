@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BinarySerializer;
+using System.IO;
 
 namespace R1Engine.Jade {
 	public class LOA_Loader {
@@ -27,6 +28,11 @@ namespace R1Engine.Jade {
 		public QueueType CurrentQueueType { get; set; } = QueueType.BigFat;
 		public CacheType CurrentCacheType { get; set; } = CacheType.Main;
 
+		// Writing
+		public SerializeMode SerializerMode { get; set; } = LOA_Loader.SerializeMode.Read;
+		public Dictionary<uint, string> WrittenFileKeys { get; set; } = new Dictionary<uint, string>();
+
+		// Loaded objects
 		public WOR_World WorldToLoadIn { get; set; }
 		public WOR_World CurWorldForGrids { get; set; }
 		public List<WOR_World> LoadedWorlds { get; set; } = new List<WOR_World>();
@@ -64,6 +70,11 @@ namespace R1Engine.Jade {
 		public enum Read {
 			Full = 0,
 			Binary = 2,
+		}
+
+		public enum SerializeMode {
+			Read,
+			Write
 		}
 
 		[Flags]
@@ -149,6 +160,13 @@ namespace R1Engine.Jade {
 		}
 
 		public async UniTask LoadLoop(SerializerObject s) {
+			if (s is BinaryDeserializer) {
+				SerializerMode = SerializeMode.Read;
+			} else if (s is BinarySerializer.BinarySerializer) {
+				SerializerMode = SerializeMode.Write;
+				await LoadLoop_RawFilesWrite(s);
+				return;
+			}
 			CurrentQueueType = QueueType.BigFat;
 			CurrentCacheType = IsLoadingFix ? CacheType.Fix : CacheType.Main;
 
@@ -225,7 +243,6 @@ namespace R1Engine.Jade {
 			}
 		}
 
-
 		public async UniTask LoadLoop_RawFiles(SerializerObject s, Dictionary<uint, string> keyList) {
 			CurrentQueueType = QueueType.BigFat;
 			CurrentCacheType = IsLoadingFix ? CacheType.Fix : CacheType.Main;
@@ -263,6 +280,65 @@ namespace R1Engine.Jade {
 							}
 						} else {
 							if (!Cache.ContainsKey(currentRef.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[currentRef.Key] = null;
+						}
+						await Controller.WaitIfNecessary();
+						Controller.DetailedState = previousState;
+						s.Goto(off_current);
+					}
+				} else if (currentRef.Flags.HasFlag(ReferenceFlags.Log)) {
+					UnityEngine.Debug.LogWarning($"File {currentRef.Name}_{currentRef.Key:X8} was not found");
+				}
+			}
+		}
+
+		public async UniTask LoadLoop_RawFilesWrite(SerializerObject s) {
+			CurrentQueueType = QueueType.BigFat;
+			CurrentCacheType = IsLoadingFix ? CacheType.Fix : CacheType.Main;
+
+			while (LoadQueue.First?.Value != null) {
+				FileReference currentRef = LoadQueue.First.Value;
+				LoadQueue.RemoveFirst();
+				if (currentRef.Key != null && !WrittenFileKeys.ContainsKey(currentRef.Key.Key)) {
+					CurrentCacheType = currentRef.Cache;
+					if (!currentRef.IsBin && Cache.ContainsKey(currentRef.Key)) {
+						var f = Cache[currentRef.Key];
+						if (f != null) f.CachedCount++;
+					} else {
+						Pointer off_current = s.CurrentPointer;
+						string filename = $"ROOT/Bin/{currentRef.Key.Key:X8}";
+						string extension = null;
+
+						string previousState = Controller.DetailedState;
+						Controller.DetailedState = $"{previousState}\n{filename}";
+
+						using (MemoryStream memStream = new MemoryStream()) {
+							// Stream key
+							string key = filename;
+
+							// Add the stream
+							StreamFile streamFile = new StreamFile(
+								context: Context,
+								name: key,
+								stream: memStream,
+								endianness: Endian.Little);
+
+							try {
+								Context.AddFile(streamFile);
+
+								Pointer off_target = streamFile.StartPointer;
+								s.Goto(off_target);
+
+								currentRef.LoadCallback(s, (f) => {
+									f.Loader = this;
+									extension = f.Extension;
+									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
+								});
+							} finally {
+								var bytes = memStream.ToArray();
+								if(extension != null) filename += $".{extension}";
+								Util.ByteArrayToFile(Context.BasePath + "out/" + filename, bytes);
+								Context.RemoveFile(streamFile);
+							}
 						}
 						await Controller.WaitIfNecessary();
 						Controller.DetailedState = previousState;

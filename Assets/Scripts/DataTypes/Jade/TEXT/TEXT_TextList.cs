@@ -4,6 +4,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class TEXT_TextList : Jade_File {
+		public override string Extension => "txl";
 		public bool HasSound { get; set; }
 
 		public uint Count { get; set; }

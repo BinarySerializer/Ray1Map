@@ -6,6 +6,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_TT : Jade_File {
+		public override string Extension => "ttt";
 		public override bool HasHeaderBFFile => true;
 
 		public uint UInt_00 { get; set; }

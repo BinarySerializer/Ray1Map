@@ -144,13 +144,10 @@ namespace R1Engine
 
             // Step 1: Load files to be loaded
             uint rayFullSnkKey = 0x2C0008EF;
+            Jade_Reference<SND_UnknownBank> bank = null;
             using (var context = new R1Context(inputDir, settings)) {
-                await LoadFilesAsync(context);
-                /*List<BIG_BigFile> bfs = new List<BIG_BigFile>();
-                foreach (var bfPath in BFFiles) {
-                    var bf = await LoadBF(context, bfPath);
-                    bfs.Add(bf);
-                }*/
+                //await LoadFilesAsync(context);
+
                 // Set up loader
                 LOA_Loader loader = new LOA_Loader(new BIG_BigFile[0], context);
                 context.StoreObject<LOA_Loader>(LoaderKey, loader);
@@ -159,17 +156,29 @@ namespace R1Engine
                 TEX_GlobalList texList = new TEX_GlobalList();
                 context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
 
-                var s = context.Deserializer;
+                BinarySerializer.SerializerObject s = context.Deserializer;
 
                 // Resolve Soundbank
-                var bank = new Jade_Reference<SND_UnknownBank>(context, new Jade_Key(context, rayFullSnkKey));
+                bank = new Jade_Reference<SND_UnknownBank>(context, new Jade_Key(context, rayFullSnkKey));
                 bank.Resolve();
                 await loader.LoadLoop_RawFiles(s, fileKeys);
+                
+                // Set up loader
+                loader = new LOA_Loader(new BIG_BigFile[0], context);
+                context.StoreObject<LOA_Loader>(LoaderKey, loader);
+
+                // Set up texture list
+                texList = new TEX_GlobalList();
+                context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+
+                s = context.Serializer;
+
+                // Resolve Soundbank
+                bank.Resolve();
+                await loader.LoadLoop(s);
             }
 
-
             return;
-
             // Step 2: Iterate over all the levels
             var levIndex = 0;
             uint currentKey = 0;

@@ -4,6 +4,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class TEXT_TextGroup : Jade_File {
+		public override string Extension => "txg";
 		public Jade_GenericReference[] Text { get; set; } // Only resolve the one with the current language ID
 
 		public override void SerializeImpl(SerializerObject s) {

@@ -7,6 +7,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class AI_Instance : Jade_File {
 		public override bool HasHeaderBFFile => true;
+		public override string Extension => "oin";
 
 		public Jade_Reference<AI_Model> Model { get; set; }
 		public Jade_Reference<AI_Vars> Vars { get; set; }

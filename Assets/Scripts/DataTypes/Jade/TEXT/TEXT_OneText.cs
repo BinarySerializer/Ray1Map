@@ -53,7 +53,7 @@ namespace R1Engine.Jade {
 				EditorString = s.SerializeString(EditorString, length: EditorStringLength, encoding: Jade_BaseManager.Encoding, name: nameof(EditorString));
 			}
 			if (HasSound) {
-				Sound?.Resolve(flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+				Sound?.Resolve(onPreSerialize: (_, w) => w.SoundType = SND_Wave.Type.Dialog, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
 			}
 		}
 

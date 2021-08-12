@@ -6,6 +6,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_Model: Jade_File {
+		public override string Extension => "omd";
+
 		public Jade_GenericReference[] References { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {

@@ -6,6 +6,8 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
 	public class AI_Function : Jade_File {
+		public override string Extension => "ofc";
+
 		public int SizeLocalStack { get; set; }
 		public uint FunctionBufferLength { get; set; }
 		public AI_Node[] Nodes { get; set; }
@@ -15,6 +17,8 @@ namespace R1Engine.Jade {
 		public byte[] StringBuffer { get; set; }
 		public string[] Strings { get; set; }
 		public Dictionary<long, int> StringOffsetToIndex { get; set; }
+		public uint LocalsCount { get; set; }
+		public AI_Local[] Locals { get; set; }
 
 		// Custom
 		public AI_FunctionDef FunctionDef { get; set; }
@@ -62,8 +66,9 @@ namespace R1Engine.Jade {
 				}
 			});
 			StringBuffer = s.SerializeArray<byte>(StringBuffer, StringBufferLength, name: nameof(StringBuffer));
-			if (!Loader.SpeedMode) {
-				throw new NotImplementedException("AI_Function: Implement Locals");
+			if (!Loader.SpeedMode && s.CurrentAbsoluteOffset - Offset.AbsoluteOffset < FileSize) {
+				LocalsCount = s.Serialize<uint>(LocalsCount, name: nameof(LocalsCount));
+				Locals = s.SerializeObjectArray<AI_Local>(Locals, LocalsCount, name: nameof(Locals));
 			}
 			//if (!Loader.IsBinaryData) ExportScript(s);
 		}
