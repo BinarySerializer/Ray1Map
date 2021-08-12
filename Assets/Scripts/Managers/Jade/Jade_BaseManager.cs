@@ -408,6 +408,10 @@ namespace R1Engine {
 				TEX_GlobalList texList = new TEX_GlobalList();
 				context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
 
+				// Set up sound list
+				SND_GlobalList sndList = new SND_GlobalList();
+				context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
 				foreach (var kvp in loader.FileInfos) {
 					var fileInfo = kvp.Value;
 					if (fileInfo.FileName != null && (fileInfo.FileName.EndsWith(".tex") || fileInfo.FileName.EndsWith(".jtx"))) {
@@ -657,6 +661,10 @@ namespace R1Engine {
 			loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
 			loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
 
+			// Set up sound list
+			SND_GlobalList sndList = new SND_GlobalList();
+			context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
 			if (!isEditor) {
 				loader.BeginSpeedMode(worldKey, serializeAction: async s => {
 					if (context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montreal)) {
@@ -832,6 +840,17 @@ namespace R1Engine {
 					}
 				}
 			}
+
+			if (loadFlags.HasFlag(LoadFlags.Sounds)) {
+				Controller.DetailedState = $"Loading sounds";
+				loader.BeginSpeedMode(new Jade_Key(context, Jade_Key.KeyTypeSounds), serializeAction: async s => {
+					for (int i = 0; i < sndList.Waves.Count; i++) {
+						sndList.Waves[i].SerializeData(s);
+					}
+					await UniTask.CompletedTask;
+				});
+				await loader.LoadLoop(context.Deserializer);
+			}
 			loader.EndSpeedMode();
 			loader.IsLoadingFix = false;
 
@@ -847,6 +866,10 @@ namespace R1Engine {
 			context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
 			loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
 			loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
+
+			// Set up sound list
+			SND_GlobalList sndList = new SND_GlobalList();
+			context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
 
 			Jade_GenericReference world = new Jade_GenericReference(context, worldKey, new Jade_FileType() { Extension = ".wow" });
 			if (isEditor && context.GetR1Settings().EngineVersionTree.HasParent(EngineVersion.Jade_Montpellier)) {
@@ -1007,6 +1030,7 @@ namespace R1Engine {
 		public static readonly Encoding Encoding = Encoding.GetEncoding(1252);
 		public const string LoaderKey = "loader";
 		public const string TextureListKey = "textureList";
+		public const string SoundListKey = "soundList";
 		public const string AIKey = "ai";
 
 		public class LevelInfo

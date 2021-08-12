@@ -7,7 +7,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class AI_Function : Jade_File {
 		public override string Export_Extension => "ofc";
-		public override string Export_Filename => FunctionDef?.Name;
+		public override string Export_FileBasename => FunctionDef?.Name;
 
 		public int SizeLocalStack { get; set; }
 		public uint FunctionBufferLength { get; set; }

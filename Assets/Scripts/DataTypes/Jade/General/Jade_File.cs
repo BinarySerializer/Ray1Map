@@ -14,7 +14,7 @@ namespace R1Engine.Jade {
 		public virtual bool HasHeaderBFFile => false;
 		public uint HeaderBFFileSize => (uint)(HeaderBFFile?.Size ?? 0);
 		public virtual string Export_Extension => null;
-		public virtual string Export_Filename => null;
+		public virtual string Export_FileBasename => null;
 
 		protected override void OnPostSerialize(SerializerObject s) {
 			base.OnPostSerialize(s);

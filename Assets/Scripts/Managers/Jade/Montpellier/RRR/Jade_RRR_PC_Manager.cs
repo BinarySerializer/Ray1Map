@@ -156,6 +156,10 @@ namespace R1Engine
                 TEX_GlobalList texList = new TEX_GlobalList();
                 context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
 
+                // Set up sound list
+                SND_GlobalList sndList = new SND_GlobalList();
+                context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
                 BinarySerializer.SerializerObject s = context.Deserializer;
 
                 // Resolve Soundbank
@@ -170,6 +174,10 @@ namespace R1Engine
                 // Set up texture list
                 texList = new TEX_GlobalList();
                 context.StoreObject<TEX_GlobalList>(TextureListKey, texList);
+
+                // Set up sound list
+                sndList = new SND_GlobalList();
+                context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
 
                 s = context.Serializer;
 

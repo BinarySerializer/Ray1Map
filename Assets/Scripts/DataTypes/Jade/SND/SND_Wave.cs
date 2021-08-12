@@ -15,6 +15,9 @@ namespace R1Engine.Jade
 		public SND_WaveChunk_Container[] Chunks { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
+			SND_GlobalList list = Context.GetStoredObject<SND_GlobalList>(Jade_BaseManager.SoundListKey);
+			list.AddWave(this);
+
 			if (FileSize > 8 && s.GetR1Settings().EngineVersion == EngineVersion.Jade_RRR && s.GetR1Settings().Platform == Platform.PC) {
 				// Serialize wave content
 				Magic = s.SerializeString(Magic, 4, Encoding.ASCII, name: nameof(Magic));
@@ -43,7 +46,7 @@ namespace R1Engine.Jade
 		public Type SoundType { get; set; }
 		public override string Export_Extension {
 			get {
-				switch (SoundType) {
+				switch(SoundType) {
 					case Type.Ambience: return "waa";
 					case Type.Dialog: return "wad";
 					case Type.LoadingSound: return "wac";
@@ -52,6 +55,19 @@ namespace R1Engine.Jade
 					default: return null;
 				}
 			}
+		}
+
+		public void SerializeData(SerializerObject s) {
+			s.Log($"Serializing data for SND_Wave: {Key}");
+			if (Chunks == null)
+				throw new BinarySerializableException(this, $"{GetType()}: Tried to serialize data, but Chunks was null");
+
+			var dataChunk = Chunks.FindItem(c => c.Type == SND_WaveChunk_Container.ChunkType.Data);
+
+			if(dataChunk == null)
+				throw new BinarySerializableException(this, $"{GetType()}: Tried to serialize data, but Data chunk was not found");
+
+			((SND_WaveChunk_Data)dataChunk.Chunk).SerializeData(s);
 		}
 	}
 }

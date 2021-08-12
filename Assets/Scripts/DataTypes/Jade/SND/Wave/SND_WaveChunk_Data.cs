@@ -7,9 +7,13 @@ namespace R1Engine.Jade {
 
 		public override void SerializeImpl(SerializerObject s) {
 			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
-			if(!Loader.IsBinaryData) Data = s.SerializeArray<byte>(Data, Container.ChunkDataSize, name: nameof(Data));
+			if(!Loader.IsBinaryData) SerializeData(s);
 
 			EditorSize = Container.ChunkDataSize;
+		}
+
+		public void SerializeData(SerializerObject s) {
+			Data = s.SerializeArray<byte>(Data, Container.ChunkDataSize, name: nameof(Data));
 		}
 	}
 }

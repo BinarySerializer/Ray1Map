@@ -177,8 +177,14 @@ namespace R1Engine
 
 			w.TextureList_Montreal = texList;
 
+			// New texture list
 			texList = new TEX_GlobalList();
 			s.Context.StoreObject<TEX_GlobalList>(Jade_BaseManager.TextureListKey, texList);
+
+			// New sound list
+			SND_GlobalList sndList = new SND_GlobalList();
+			s.Context.StoreObject<SND_GlobalList>(SoundListKey, sndList);
+
 			Loader.Caches[LOA_Loader.CacheType.TextureInfo].Clear();
 			Loader.Caches[LOA_Loader.CacheType.TextureContent].Clear();
 			for (int i = 0; i < (w.TextureList_Montreal.Textures?.Count ?? 0); i++) {
