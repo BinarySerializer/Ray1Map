@@ -62,6 +62,7 @@ namespace R1Engine.Jade {
 				case 0x69: // Xbox (IMA ADPCM)
 					BitsPerSample = s.Serialize<ushort>(BitsPerSample, name: nameof(BitsPerSample));
 					ExtraFormatBytesCount = s.Serialize<ushort>(ExtraFormatBytesCount, name: nameof(ExtraFormatBytesCount));
+					SamplesPerBlock = 64;
 					if (ExtraFormatBytesCount == 2) {
 						SamplesPerBlock = s.Serialize<ushort>(SamplesPerBlock, name: nameof(SamplesPerBlock));
 					} else {

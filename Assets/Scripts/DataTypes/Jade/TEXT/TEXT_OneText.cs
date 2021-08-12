@@ -58,10 +58,17 @@ namespace R1Engine.Jade {
 		}
 
 		public void ResolveSound(SerializerObject s) {
-			Sound?.Resolve(
-				cache: LOA_Loader.CacheType.TextSound,
-				onPreSerialize: (_, w) => w.SoundType = SND_Wave.Type.Dialog,
-				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+			LOA_Loader Loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
+			if (Sound != null && !Sound.IsNull) {
+				if (!Loader.Caches[LOA_Loader.CacheType.Main].ContainsKey(Sound.Key)) {
+					Sound?.Resolve(
+						cache: LOA_Loader.CacheType.TextSound,
+						onPreSerialize: (_, w) => w.SoundType = SND_Wave.Type.Dialog,
+						flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+				} else {
+					Sound.Value = (SND_Wave)Loader.Caches[LOA_Loader.CacheType.Main][Sound.Key];
+				}
+			}
 		}
 
 		public void SerializeString(SerializerObject s, Pointer bufferPointer) {
