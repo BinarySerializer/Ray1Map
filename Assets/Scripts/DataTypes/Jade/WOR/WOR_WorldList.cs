@@ -74,6 +74,6 @@ namespace R1Engine.Jade {
 
 			}
 		}
-		public override string Extension => "wol";
+		public override string Export_Extension => "wol";
 	}
 }

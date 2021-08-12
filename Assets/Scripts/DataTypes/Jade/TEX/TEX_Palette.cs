@@ -4,7 +4,7 @@ using BinarySerializer;
 namespace R1Engine.Jade 
 {
 	public class TEX_Palette : Jade_File {
-		public override string Extension => "pal";
+		public override string Export_Extension => "pal";
 
 		public Jade_Key Montreal_Key { get; set; }
         public BaseColor[] Colors { get; set; }

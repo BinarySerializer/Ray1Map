@@ -64,7 +64,8 @@ namespace R1Engine.Jade {
 			Current,
 			TextureInfo,
 			TextureContent,
-			Text
+			Text,
+			TextSound
 		}
 
 		public enum Read {
@@ -330,7 +331,7 @@ namespace R1Engine.Jade {
 
 								currentRef.LoadCallback(s, (f) => {
 									f.Loader = this;
-									extension = f.Extension;
+									extension = f.Export_Extension;
 									if (!Cache.ContainsKey(f.Key) && !currentRef.Flags.HasFlag(ReferenceFlags.DontCache)) Cache[f.Key] = f;
 								});
 							} finally {

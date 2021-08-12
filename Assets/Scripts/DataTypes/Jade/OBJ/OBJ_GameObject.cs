@@ -4,7 +4,8 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class OBJ_GameObject : Jade_File {
 		public override bool HasHeaderBFFile => true;
-		public override string Extension => "gao";
+		public override string Export_Extension => "gao";
+		public override string Export_Filename => Name.Substring(0,Name.Length-4);
 
 		public Jade_FileType FileType { get; set; }
 		public uint Version { get; set; }

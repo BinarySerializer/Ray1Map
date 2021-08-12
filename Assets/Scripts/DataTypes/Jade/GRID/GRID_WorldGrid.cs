@@ -4,7 +4,7 @@ using BinarySerializer;
 namespace R1Engine.Jade {
 	public class GRID_WorldGrid : Jade_File {
 		public override bool HasHeaderBFFile => true;
-		public override string Extension => "gri";
+		public override string Export_Extension => "gri";
 
 		public uint PointerGroups { get; set; }
 		public uint PointerRealGroups { get; set; }

@@ -8,7 +8,7 @@ using Cysharp.Threading.Tasks;
 namespace R1Engine.Jade {
 	public class WOR_World : Jade_File {
 		public override bool HasHeaderBFFile => true;
-		public override string Extension => "wow";
+		public override string Export_Extension => "wow";
 
 		public Jade_FileType FileType { get; set; }
 		public uint Version { get; set; }

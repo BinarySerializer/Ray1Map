@@ -739,16 +739,17 @@ namespace R1Engine {
 				for (int languageID = 0; languageID < 32; languageID++) {
 					var binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextNoSound, languageID: languageID));
 					if(!loader.FileInfos.ContainsKey(binKey)) continue;
+					bool hasSound = false;
 					loader.BeginSpeedMode(binKey, serializeAction: async s => {
 						Controller.DetailedState = $"Loading text: Language {languageID} - No sound";
 						for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
 							var w = worldList?.Value?.Worlds[i]?.Value;
 							if (w != null) {
 								var world = (WOR_World)w;
-								world.Text?.LoadText(languageID);
+								world.Text?.LoadText(languageID, hasSound);
 								await loader.LoadLoopBINAsync();
-								if (world.Text?.GetTextForLanguage(languageID) != null) {
-									var text = world.Text.GetTextForLanguage(languageID);
+								if (world.Text?.GetTextForLanguage(languageID, hasSound) != null) {
+									var text = world.Text.GetTextForLanguage(languageID, hasSound);
 									foreach (var txg in text.Text) {
 										txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
 										await loader.LoadLoopBINAsync();
@@ -768,6 +769,67 @@ namespace R1Engine {
 					});
 					await loader.LoadLoop(context.Deserializer);
 					loader.Caches[LOA_Loader.CacheType.Text]?.Clear();
+
+					if (loadFlags.HasFlag(LoadFlags.TextSound)) {
+						hasSound = true;
+						binKey = new Jade_Key(context, worldKey.GetBinary(Jade_Key.KeyType.TextSound, languageID: languageID));
+						if (!loader.FileInfos.ContainsKey(binKey)) continue;
+						loader.BeginSpeedMode(binKey, serializeAction: async s => {
+							Controller.DetailedState = $"Loading text: Language {languageID} - Sound";
+							List<TEXT_TextList> soundTexts = new List<TEXT_TextList>();
+							for (int i = 0; i < (worldList?.Value?.Worlds?.Length ?? 0); i++) {
+								var w = worldList?.Value?.Worlds[i]?.Value;
+								if (w != null) {
+									var world = (WOR_World)w;
+									world.Text?.LoadText(languageID, true);
+									await loader.LoadLoopBINAsync();
+									if (world.Text?.GetTextForLanguage(languageID, hasSound) != null) {
+										var textNoSound = world.Text.GetTextForLanguage(languageID, false);
+										var textSound = world.Text.GetTextForLanguage(languageID, hasSound);
+										for (int j = 0; j < textSound.Text.Length; j++) {
+											var txg = textSound.Text[j];
+											var txgNoSound = textNoSound.Text[j];
+											txg.Resolve(flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+											await loader.LoadLoopBINAsync();
+											var group = (TEXT_TextGroup)txg.Value;
+											if (group == null) continue;
+											var usedRef = group.GetUsedReference(languageID);
+
+											var groupNoSound = (TEXT_TextGroup)txgNoSound.Value;
+											if(groupNoSound == null) continue;
+											if ((group?.Key?.Key ?? 0) != (groupNoSound?.Key?.Key ?? 0))
+												throw new Exception($"TXG keys do not match between text bins: NS{groupNoSound?.Key} : S{group?.Key}");
+											var usedRefNoSound = groupNoSound.GetUsedReference(languageID);
+											if((usedRef?.Key?.Key ?? 0) != (usedRefNoSound?.Key?.Key ?? 0))
+												throw new Exception($"TXL keys do not match between text bins: NS{usedRefNoSound?.Key} : S{usedRef?.Key}");
+											if(usedRefNoSound.Value == null) continue;
+											var txlNoSound = (TEXT_TextList)usedRefNoSound.Value;
+
+											usedRef?.Resolve(onPreSerialize: (_, txl) => {
+												((TEXT_TextList)txl).HasSound = true;
+												((TEXT_TextList)txl).TXLNoSound = txlNoSound;
+											},
+											cache: LOA_Loader.CacheType.TextSound,
+											flags: LOA_Loader.ReferenceFlags.DontCache | LOA_Loader.ReferenceFlags.DontUseCachedFile | LOA_Loader.ReferenceFlags.Log);
+											await loader.LoadLoopBINAsync();
+
+											if (usedRef?.Value != null && usedRef?.Value is TEXT_TextList soundTxl) {
+												soundTexts.Add(soundTxl);
+											}
+
+										}
+									}
+								}
+							}
+							foreach (var soundTxl in soundTexts) {
+								soundTxl.TXLNoSound.ResolveSounds(s);
+							}
+							await loader.LoadLoopBINAsync();
+							//await loader.LoadLoopBINAsync();
+						});
+						await loader.LoadLoop(context.Deserializer);
+						loader.Caches[LOA_Loader.CacheType.TextSound]?.Clear();
+					}
 				}
 			}
 			loader.EndSpeedMode();
@@ -811,7 +873,8 @@ namespace R1Engine {
 			var stopWatch = new Stopwatch();
 			stopWatch.Start();
 
-			var loader = await LoadJadeAsync(context, new Jade_Key(context, (uint)context.GetR1Settings().Level), LoadFlags.All);
+			var loadFlags = LoadFlags.Maps | LoadFlags.Textures | LoadFlags.TextNoSound | LoadFlags.Universe;
+			var loader = await LoadJadeAsync(context, new Jade_Key(context, (uint)context.GetR1Settings().Level), loadFlags);
 
 			stopWatch.Stop();
 

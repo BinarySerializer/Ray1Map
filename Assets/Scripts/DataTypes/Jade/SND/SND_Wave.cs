@@ -41,7 +41,7 @@ namespace R1Engine.Jade
 			Sound,
 		}
 		public Type SoundType { get; set; }
-		public override string Extension {
+		public override string Export_Extension {
 			get {
 				switch (SoundType) {
 					case Type.Ambience: return "waa";

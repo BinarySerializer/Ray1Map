@@ -3,7 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
     public class SND_SModifier : Jade_File {
-		public override string Extension => "smd";
+		public override string Export_Extension => "smd";
 
 		public uint FormatVersion { get; set; }
         public uint UInt_01 { get; set; }

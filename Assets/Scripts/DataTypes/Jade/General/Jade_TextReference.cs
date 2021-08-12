@@ -9,6 +9,7 @@ namespace R1Engine.Jade {
 		public bool IsNull => Key.IsNull;
 
 		public Dictionary<int, TEXT_AllText> Text { get; set; } = new Dictionary<int, TEXT_AllText>();
+		public Dictionary<int, TEXT_AllText> TextSound { get; set; } = new Dictionary<int, TEXT_AllText>();
 
 		public override void SerializeImpl(SerializerObject s) {
 			Key = s.SerializeObject<Jade_Key>(Key, name: nameof(Key));
@@ -25,22 +26,24 @@ namespace R1Engine.Jade {
 			return this;
 		}
 
-		public TEXT_AllText GetTextForLanguage(int languageID) {
-			return Text.TryGetValue(languageID, out TEXT_AllText value) ? value : null;
+		public TEXT_AllText GetTextForLanguage(int languageID, bool sound) {
+			var textDict = sound ? TextSound : Text;
+			return textDict.TryGetValue(languageID, out TEXT_AllText value) ? value : null;
 		}
 
-		public Jade_TextReference LoadText(int languageID,
+		public Jade_TextReference LoadText(int languageID, bool sound,
 			Action<SerializerObject, TEXT_AllText> onPreSerialize = null,
 			Action<SerializerObject, TEXT_AllText> onPostSerialize = null) {
 			if (IsNull) return this;
+			var textDict = sound ? TextSound : Text;
 			LOA_Loader loader = Context.GetStoredObject<LOA_Loader>(Jade_BaseManager.LoaderKey);
 			loader.RequestFile(Key, (s, configureAction) => {
-				Text[languageID] = s.SerializeObject<TEXT_AllText>(GetTextForLanguage(languageID), onPreSerialize: f => {
+				textDict[languageID] = s.SerializeObject<TEXT_AllText>(GetTextForLanguage(languageID, sound), onPreSerialize: f => {
 					configureAction(f); onPreSerialize?.Invoke(s, f);
-				}, name: nameof(Text));
-				onPostSerialize?.Invoke(s, Text[languageID]);
+				}, name: sound ? nameof(Text) : nameof(TextSound));
+				onPostSerialize?.Invoke(s, textDict[languageID]);
 			}, (f) => {
-				Text[languageID] = f?.ConvertType<TEXT_AllText>();
+				textDict[languageID] = f?.ConvertType<TEXT_AllText>();
 			}, immediate: false,
 			queue: LOA_Loader.QueueType.Current,
 			cache: LOA_Loader.CacheType.Current,

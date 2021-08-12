@@ -52,9 +52,16 @@ namespace R1Engine.Jade {
 				IDString = s.SerializeString(IDString, length: 0x40, encoding: Jade_BaseManager.Encoding, name: nameof(IDString));
 				EditorString = s.SerializeString(EditorString, length: EditorStringLength, encoding: Jade_BaseManager.Encoding, name: nameof(EditorString));
 			}
-			if (HasSound) {
-				Sound?.Resolve(onPreSerialize: (_, w) => w.SoundType = SND_Wave.Type.Dialog, flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
+			if (!Loader.IsBinaryData) {
+				ResolveSound(s);
 			}
+		}
+
+		public void ResolveSound(SerializerObject s) {
+			Sound?.Resolve(
+				cache: LOA_Loader.CacheType.TextSound,
+				onPreSerialize: (_, w) => w.SoundType = SND_Wave.Type.Dialog,
+				flags: LOA_Loader.ReferenceFlags.Log | LOA_Loader.ReferenceFlags.KeepReferencesCount);
 		}
 
 		public void SerializeString(SerializerObject s, Pointer bufferPointer) {

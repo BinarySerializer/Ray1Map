@@ -3,7 +3,7 @@ using BinarySerializer;
 
 namespace R1Engine.Jade {
     public class SND_Metabank : Jade_File {
-		public override string Extension => "snk";
+		public override string Export_Extension => "snk";
 
 		public uint Count { get; set; }
         public SoundRef[] References { get; set; }
