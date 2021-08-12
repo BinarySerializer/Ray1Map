@@ -1257,7 +1257,7 @@ namespace R1Engine
         public override async UniTask LoadFilesAsync(Context context)
         {
             await context.AddMemoryMappedFile(ExeFilePath, ExeBaseAddress);
-            await context.AddLinearSerializedFileAsync(DataFilePath);
+            await context.AddLinearFileAsync(DataFilePath);
         }
 
         public string[] FilePaths => new string[]

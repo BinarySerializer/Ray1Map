@@ -88,7 +88,7 @@ namespace R1Engine
 		public async UniTask ExportStructInfo(GameSettings settings, string outputDir) {
 			using (var context = new R1Context(settings)) {
 				// Load the files
-				await context.AddLinearSerializedFileAsync(ExecutablePath);
+				await context.AddLinearFileAsync(ExecutablePath);
 				var s = context.Deserializer;
 
 				byte[] bytes = null;

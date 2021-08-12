@@ -160,7 +160,7 @@ namespace R1Engine
 
                 return FileSizes[path];
             } else {
-                LinearSerializedFile file = new LinearSerializedFile(context, path, fileLength: FileSizes.ContainsKey(path) ? FileSizes[path] : 0);
+                LinearFile file = new LinearFile(context, path, fileLength: FileSizes.ContainsKey(path) ? FileSizes[path] : 0);
                 context.AddFile(file);
                 return 0;
             }

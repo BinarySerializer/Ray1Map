@@ -933,11 +933,11 @@ namespace R1Engine {
 
         public override async UniTask LoadFilesAsync(Context context) {
 			foreach (var bfPath in BFFiles) {
-				await context.AddLinearSerializedFileAsync(bfPath, bigFileCacheLength: 8);
+				await context.AddLinearFileAsync(bfPath, bigFileCacheLength: 8);
 			}
-			if (JadeSpePath != null) await context.AddLinearSerializedFileAsync(JadeSpePath);
-			if (TexturesGearBFPath != null) await context.AddLinearSerializedFileAsync(TexturesGearBFPath, bigFileCacheLength: 8);
-			if (SoundGearBFPath != null) await context.AddLinearSerializedFileAsync(SoundGearBFPath, bigFileCacheLength: 8);
+			if (JadeSpePath != null) await context.AddLinearFileAsync(JadeSpePath);
+			if (TexturesGearBFPath != null) await context.AddLinearFileAsync(TexturesGearBFPath, bigFileCacheLength: 8);
+			if (SoundGearBFPath != null) await context.AddLinearFileAsync(SoundGearBFPath, bigFileCacheLength: 8);
 		}
 
 		// Constants

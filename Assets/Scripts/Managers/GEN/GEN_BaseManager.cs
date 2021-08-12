@@ -38,7 +38,7 @@ namespace R1Engine
             string palettePath = "COMMUN/PAL.PAL";
             GEN_Palette paletteFile = null;
             if (File.Exists(context.BasePath + palettePath)) {
-                await context.AddLinearSerializedFileAsync(palettePath, Endian.Little);
+                await context.AddLinearFileAsync(palettePath, Endian.Little);
                 paletteFile = FileFactory.Read<GEN_Palette>(palettePath, context);
                 hasMainPal = true;
             }
@@ -162,7 +162,7 @@ namespace R1Engine
             string fileName = filePath.Substring(s.Context.BasePath.Length).Replace("\\", "/");
             BinaryFile file = null;
             if (!s.Context.FileExists(fileName)) {
-                file = await s.Context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+                file = await s.Context.AddLinearFileAsync(fileName, Endian.Little);
             } else {
                 file = s.Context.GetFile(fileName);
             }
@@ -226,7 +226,7 @@ namespace R1Engine
             var context = s.Context;
             string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
             if (!context.FileExists(fileName)) {
-                await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+                await context.AddLinearFileAsync(fileName, Endian.Little);
             }
             GEN_UBI ubi = null;
             try {
@@ -248,7 +248,7 @@ namespace R1Engine
                 if (File.Exists(rlxPath)) {
                     string rlxfileName = rlxPath.Substring(context.BasePath.Length).Replace("\\", "/");
                     if (!context.FileExists(rlxfileName)) {
-                        await context.AddLinearSerializedFileAsync(rlxfileName, Endian.Little);
+                        await context.AddLinearFileAsync(rlxfileName, Endian.Little);
                     }
                     try {
                         rlxFile = FileFactory.Read<GEN_RLX>(rlxfileName, context);
@@ -266,7 +266,7 @@ namespace R1Engine
                     if (File.Exists(rlxPath)) {
                         string rlxfileName = rlxPath.Substring(context.BasePath.Length).Replace("\\", "/");
                         if (!context.FileExists(rlxfileName)) {
-                            await context.AddLinearSerializedFileAsync(rlxfileName, Endian.Little);
+                            await context.AddLinearFileAsync(rlxfileName, Endian.Little);
                         }
                         try {
                             rlxFile = FileFactory.Read<GEN_RLX>(rlxfileName, context);
@@ -338,7 +338,7 @@ namespace R1Engine
             var ubiPal = mainPal;
             string fileName = filePath.Substring(context.BasePath.Length).Replace("\\", "/");
             if (!context.FileExists(fileName)) {
-                await context.AddLinearSerializedFileAsync(fileName, Endian.Little);
+                await context.AddLinearFileAsync(fileName, Endian.Little);
             }
             GEN_RLX rlxFile = null;
             try {

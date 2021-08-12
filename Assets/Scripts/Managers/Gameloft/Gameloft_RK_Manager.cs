@@ -58,13 +58,13 @@ namespace R1Engine
 		}
 
 		public override async UniTask LoadFilesAsync(Context context) {
-			await context.AddLinearSerializedFileAsync(GetLevelPath(context.GetR1Settings()));
-			await context.AddLinearSerializedFileAsync(GetBackgroundsPath(context.GetR1Settings()));
-			await context.AddLinearSerializedFileAsync(GetRoadTexturesPath(context.GetR1Settings()));
+			await context.AddLinearFileAsync(GetLevelPath(context.GetR1Settings()));
+			await context.AddLinearFileAsync(GetBackgroundsPath(context.GetR1Settings()));
+			await context.AddLinearFileAsync(GetRoadTexturesPath(context.GetR1Settings()));
 			foreach (var fileIndex in Enumerable.Range(0, PuppetCount).Select(i => GetPuppetFileIndex(i)).Distinct()) {
-				await context.AddLinearSerializedFileAsync(fileIndex.ToString());
+				await context.AddLinearFileAsync(fileIndex.ToString());
 			}
-			await context.AddLinearSerializedFileAsync(LocalizationResourceFile.ToString());
+			await context.AddLinearFileAsync(LocalizationResourceFile.ToString());
 		}
 
 

@@ -6,7 +6,7 @@ namespace R1Engine
 {
     public static class ContextExtensions
     {
-        public static async UniTask<LinearSerializedFile> AddLinearSerializedFileAsync(this Context context, string filePath, Endian endianness = Endian.Little, bool recreateOnWrite = true, int? bigFileCacheLength = null)
+        public static async UniTask<LinearFile> AddLinearFileAsync(this Context context, string filePath, Endian endianness = Endian.Little, bool recreateOnWrite = true, int? bigFileCacheLength = null)
         {
             var absolutePath = context.GetAbsoluteFilePath(filePath);
 
@@ -19,7 +19,7 @@ namespace R1Engine
             if (!FileSystem.FileExists(absolutePath))
                 return null;
 
-            var file = new LinearSerializedFile(context, filePath, endianness)
+            var file = new LinearFile(context, filePath, endianness)
             {
                 RecreateOnWrite = recreateOnWrite
             };
@@ -28,7 +28,7 @@ namespace R1Engine
 
             return file;
         }
-        public static async UniTask<MemoryMappedFile> AddMemoryMappedFile(this Context context, string filePath, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true, long priority = -1)
+        public static async UniTask<MemoryMappedFile> AddMemoryMappedFile(this Context context, string filePath, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true, long memoryMappedPriority = -1)
         {
             var absolutePath = context.GetAbsoluteFilePath(filePath);
 
@@ -37,7 +37,7 @@ namespace R1Engine
             if (!FileSystem.FileExists(absolutePath))
                 return null;
 
-            var file = new MemoryMappedFile(context, filePath, baseAddress, endianness, priority: priority)
+            var file = new MemoryMappedFile(context, filePath, baseAddress, endianness, memoryMappedPriority: memoryMappedPriority)
             {
                 RecreateOnWrite = recreateOnWrite
             };
@@ -64,34 +64,25 @@ namespace R1Engine
 
             return file;
         }
-        public static StreamFile AddStreamFile(this Context context, string name, Stream stream, Endian endianness = Endian.Little, bool recreateOnWrite = true, bool allowLocalPointers = false)
+        public static StreamFile AddStreamFile(this Context context, string name, Stream stream, Endian endianness = Endian.Little, bool allowLocalPointers = false)
         {
-            var file = new StreamFile(context, name, stream, endianness, allowLocalPointers)
-            {
-                RecreateOnWrite = recreateOnWrite
-            };
+            var file = new StreamFile(context, name, stream, endianness, allowLocalPointers);
 
             context.AddFile(file);
 
             return file;
         }
-        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, uint length, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true)
+        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, uint length, uint baseAddress, Endian endianness = Endian.Little)
         {
-            var file = new MemoryMappedByteArrayFile(context, name, length, baseAddress, endianness)
-            {
-                RecreateOnWrite = recreateOnWrite
-            };
+            var file = new MemoryMappedByteArrayFile(context, name, length, baseAddress, endianness);
 
             context.AddFile(file);
 
             return file;
         }
-        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, byte[] bytes, uint baseAddress, Endian endianness = Endian.Little, bool recreateOnWrite = true)
+        public static MemoryMappedByteArrayFile AddMemoryMappedByteArrayFile(this Context context, string name, byte[] bytes, uint baseAddress, Endian endianness = Endian.Little)
         {
-            var file = new MemoryMappedByteArrayFile(context, name, baseAddress, bytes, endianness)
-            {
-                RecreateOnWrite = recreateOnWrite
-            };
+            var file = new MemoryMappedByteArrayFile(context, name, baseAddress, bytes, endianness);
 
             context.AddFile(file);
 

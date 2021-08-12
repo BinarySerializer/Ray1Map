@@ -690,7 +690,7 @@ namespace R1Engine
                 foreach (string filepath in files) {
                     // Add the file
                     string path = filepath.Substring(context.BasePath.Length);
-                    var file = new LinearSerializedFile(context, path);
+                    var file = new LinearFile(context, path);
                     context.AddFile(file);
                     ushort[] data = s.DoAt(file.StartPointer, () => s.SerializeArray<ushort>(null, s.CurrentLength / 2, name: nameof(data)));
 

@@ -88,14 +88,14 @@ namespace R1Engine
 		public string GetPuppetPath(int i) => i >= 0 ?  $"s{i}" : "s";
 
 		public override async UniTask LoadFilesAsync(Context context) {
-			await context.AddLinearSerializedFileAsync(FixFilePath);
+			await context.AddLinearFileAsync(FixFilePath);
 			var levelList = LoadLevelList(context);
-			await context.AddLinearSerializedFileAsync(GetBackgroundTileSetPath(context.GetR1Settings(), levelList));
-			await context.AddLinearSerializedFileAsync(GetForegroundTileSetPath(context.GetR1Settings(), levelList));
-			await context.AddLinearSerializedFileAsync(GetLevelPath(context.GetR1Settings()));
-			await context.AddLinearSerializedFileAsync(ObjectsFilePath);
+			await context.AddLinearFileAsync(GetBackgroundTileSetPath(context.GetR1Settings(), levelList));
+			await context.AddLinearFileAsync(GetForegroundTileSetPath(context.GetR1Settings(), levelList));
+			await context.AddLinearFileAsync(GetLevelPath(context.GetR1Settings()));
+			await context.AddLinearFileAsync(ObjectsFilePath);
 			for (int i = -1; i < 9; i++) {
-				await context.AddLinearSerializedFileAsync(GetPuppetPath(i));
+				await context.AddLinearFileAsync(GetPuppetPath(i));
 			}
 		}
 

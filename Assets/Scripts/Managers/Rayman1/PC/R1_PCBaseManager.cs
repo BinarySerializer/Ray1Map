@@ -163,7 +163,7 @@ namespace R1Engine
             // Create a new context
             using (var context = new R1Context(settings))
             {
-                context.AddFile(new LinearSerializedFile(context, vigPath));
+                context.AddFile(new LinearFile(context, vigPath));
 
                 // Read the archive
                 var archive = FileFactory.Read<PC_FileArchive>(vigPath, context);
@@ -1026,7 +1026,7 @@ namespace R1Engine
                 // Extract every archive file
                 foreach (var archiveFile in GetArchiveFiles(context.GetR1Settings()).Where(x => File.Exists(context.GetAbsoluteFilePath(x.FilePath))))
                 {
-                    context.AddFile(new LinearSerializedFile(context, archiveFile.FilePath));
+                    context.AddFile(new LinearFile(context, archiveFile.FilePath));
 
                     // Get the output directory
                     var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile.FilePath), Path.GetFileNameWithoutExtension(archiveFile.FilePath));
@@ -1064,7 +1064,7 @@ namespace R1Engine
                         var path = GetLevelFilePath(settings);
 
                         // Load the level
-                        context.AddFile(new LinearSerializedFile(context, path));
+                        context.AddFile(new LinearFile(context, path));
 
                         // Read the level
                         var lvlData = FileFactory.Read<PC_LevFile>(path, context);
@@ -1087,7 +1087,7 @@ namespace R1Engine
             {
                 foreach (var moviePath in GetMoviePaths)
                 {
-                    await context.AddLinearSerializedFileAsync(moviePath);
+                    await context.AddLinearFileAsync(moviePath);
 
                     var flc = FileFactory.Read<FLIC>(moviePath, context);
 
@@ -1665,7 +1665,7 @@ namespace R1Engine
         /// <param name="filePath">The file path</param>
         /// <param name="endianness">The endianness to use</param>
         /// <returns>The binary file</returns>
-        protected virtual BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new LinearSerializedFile(context, filePath, endianness);
+        protected virtual BinaryFile GetFile(Context context, string filePath, Endian endianness = Endian.Little) => new LinearFile(context, filePath, endianness);
 
         public async UniTask AddFile(Context context, string filePath, bool isBigFile = false, Endian endianness = Endian.Little)
         {
@@ -1714,7 +1714,7 @@ namespace R1Engine
                     Where(x => File.Exists(context.GetAbsoluteFilePath(x.FilePath))).
                     Select(archive =>
                     {
-                        context.AddFile(new LinearSerializedFile(context, archive.FilePath));
+                        context.AddFile(new LinearFile(context, archive.FilePath));
                         return new
                         {
                             Archive = FileFactory.Read<PC_FileArchive>(archive.FilePath, context),

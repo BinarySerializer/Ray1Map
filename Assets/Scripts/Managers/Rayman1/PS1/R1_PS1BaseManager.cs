@@ -396,7 +396,7 @@ namespace R1Engine
 
             // Load the exe
             return ExeBaseAddress == null
-                ? (UniTask)context.AddLinearSerializedFileAsync(ExeFilePath, recreateOnWrite: false, endianness: Endianness)
+                ? (UniTask)context.AddLinearFileAsync(ExeFilePath, recreateOnWrite: false, endianness: Endianness)
                 : context.AddMemoryMappedFile(ExeFilePath, ExeBaseAddress.Value, recreateOnWrite: false, endianness: Endianness);
         }
 
@@ -692,7 +692,7 @@ namespace R1Engine
                 foreach (var fileInfo in GetVignetteInfo().Where(x => File.Exists(settings.GameDirectory + x.FilePath)))
                 {
                     // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context, fileInfo.FilePath));
+                    context.AddFile(new LinearFile(context, fileInfo.FilePath));
 
                     // Get the textures
                     var textures = new List<Texture2D>();

@@ -128,7 +128,7 @@ namespace R1Engine
                         continue;
 
                     var relPath = Path.GetFileName(filePath);
-                    await context.AddLinearSerializedFileAsync(relPath, Endian.Big);
+                    await context.AddLinearFileAsync(relPath, Endian.Big);
 
                     if (type == Palm_Database.DatabaseType.PDB) {
                         var dataFile = FileFactory.Read<LUDI_PalmOS_DataFile>(relPath, context);
@@ -187,7 +187,7 @@ namespace R1Engine
             List<LUDI_BaseDataFile> dataFiles = new List<LUDI_BaseDataFile>();
             foreach (var path in GetAllDataPaths(context)) {
                 var fullPath = $"{path}.pdb";
-                if (await context.AddLinearSerializedFileAsync(fullPath, Endian.Big) != null)
+                if (await context.AddLinearFileAsync(fullPath, Endian.Big) != null)
                     dataFiles.Add(FileFactory.Read<LUDI_PalmOS_DataFile>(fullPath, context));
             }
             globalOffsetTable.Files = dataFiles.ToArray();

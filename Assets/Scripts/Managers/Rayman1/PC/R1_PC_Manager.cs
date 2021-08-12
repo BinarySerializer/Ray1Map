@@ -115,7 +115,7 @@ namespace R1Engine
             {
                 foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.sav", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
                 {
-                    LinearSerializedFile f = new LinearSerializedFile(context, save);
+                    LinearFile f = new LinearFile(context, save);
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
                     byte[] saveData = null;
@@ -145,7 +145,7 @@ namespace R1Engine
             {
                 foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.sav", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
                 {
-                    LinearSerializedFile f = new LinearSerializedFile(context, save);
+                    LinearFile f = new LinearFile(context, save);
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
                     s.DoAt(f.StartPointer, () => {

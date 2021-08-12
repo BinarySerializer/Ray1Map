@@ -95,7 +95,7 @@ namespace R1Engine
 
         public async UniTask TestBinRead(GameSettings settings) {
             using (var context = new R1Context(settings)) {
-                await context.AddLinearSerializedFileAsync("disc.bin");
+                await context.AddLinearFileAsync("disc.bin");
                 var binFile = FileFactory.Read<ISO9960_BinFile>("disc.bin", context);
             }
         }

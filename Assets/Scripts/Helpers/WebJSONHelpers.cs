@@ -83,7 +83,7 @@ namespace R1Engine
                         settings.EduVolume = vol;
                         var specialPath = m.GetSpecialArchiveFilePath(vol);
 
-                        context.AddFile(new LinearSerializedFile(context, specialPath));
+                        context.AddFile(new LinearFile(context, specialPath));
 
                         var wldMap = m.LoadArchiveFile<PC_WorldMap>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.WLDMAP01);
                         var text = m.LoadArchiveFile<PC_LocFile>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT);
